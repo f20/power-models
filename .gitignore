@@ -1,0 +1,17 @@
+.DS_Store
+:2eDS_Store
+._*
+.~*
+Icon?
+~$*
+*.xls
+*.xlsx
+*.csv
+*.bak
+*.tdy
+*.orig
+*.lnk
+nytprof*
+O_*
+X_*
+Y_*
