@@ -1,0 +1,17 @@
+---
+PerlModule: CDCM
+drm: top500gsp
+extraLevels: 1
+inYear: targetbefore
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+require:
+  - CDCM::InYearAdjust
+  - CDCM::InYearSummaries
+scaler: levelledpickexitnogenminzero
+single1076: 1
+standing: sub132
+summary: consultation
+tariffs: commongensub

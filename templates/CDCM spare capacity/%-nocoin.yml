@@ -1,0 +1,17 @@
+---
+PerlModule: CDCM
+alwaysUseRAG: 1
+coincidenceAdj: none
+drm: top500gsp
+extraLevels: 1
+lvCosts: group
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+spareCap: 1
+standing: low
+summary: 0
+tariffs: commongensubsparecap
+version: 'Prototype: LV costs by group, spare capacity, coincidence correction by voltage group, low capacity charges'

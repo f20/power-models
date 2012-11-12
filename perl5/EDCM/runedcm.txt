@@ -1,0 +1,236 @@
+#!/bin/bash
+
+# Copyright 2009-2011 Energy Networks Association Limited and contributors. All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without modification, are permitted
+# provided that the following conditions are met:
+# 
+# 1. Redistributions of source code must retain the above copyright notice, this list of
+# conditions and the following disclaimer.
+# 
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list of
+# conditions and the following disclaimer in the documentation and/or other materials provided
+# with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY ENERGY NETWORKS ASSOCIATION LIMITED AND CONTRIBUTORS "AS IS" AND
+# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ENERGY
+# NETWORKS ASSOCIATION LIMITED OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+# THE POSSIBILITY OF SUCH DAMAGE.
+
+GFLAG=''
+while getopts mbrslgx name
+do
+    case $name in
+    b)      opt_csv=1 ;;
+    g)      opt_gen=1; GFLAG="$GFLAG -withgen" ;;
+    l)      opt_long=1 ;;
+    m)      opt_models=1 ; want_large=1 ;;
+    s)      opt_server=1 ;;
+    r)      opt_random=1 ;;
+    x)      opt_xlsx=1; GFLAG="$GFLAG -xlsx" ;;
+    h|?)    cat <<-END >&2
+Usage:
+bash runedcm.txt -m (local)
+bash runedcm.txt -b (base)
+bash runedcm.txt -bl (base detailed)
+bash runedcm.txt -r (randomise)
+bash runedcm.txt -sb (client/server base)
+bash runedcm.txt -sr (client/server randomise)
+Also -g (with generation)
+Also -x (xlsx, will wait for manual calculations)
+END
+            exit 1
+    esac
+done
+
+CODEDIR=`dirname "$0"`
+if [[ ! "$CODEDIR" =~ ^/ ]]
+then
+    CODEDIR="`pwd`/$CODEDIR"
+fi
+
+if [ $opt_server ]
+then
+    if [[ `pwd` =~ (active/.*) ]]
+    then
+        FOLDER=/Reckon/${BASH_REMATCH[1]}
+    else
+        echo Cannot detect folder set-up for client/server mode
+        exit 1
+    fi
+fi
+
+if [ $opt_random ]
+then
+    if [ $opt_csv ] 
+    then
+        MYFLAGS=-b
+        if [ $opt_gen ]
+        then
+            MYFLAGS="$MYFLAGS -g"
+        fi
+        if [ $opt_xlsx ]
+        then
+            MYFLAGS="$MYFLAGS -x"
+        fi
+        if [ $opt_server ]
+        then
+            MYFLAGS="$MYFLAGS -s";
+        fi
+        bash "$CODEDIR/runedcm.txt" $MYFLAGS
+    else
+        opt_csv=1
+    fi
+fi
+
+if [ $opt_models ]
+then
+    if [ $opt_server ]
+    then
+        MYFLAGS=-m
+        if [ $opt_gen ]
+        then
+            MYFLAGS="$MYFLAGS -g"
+        fi
+        if [ $opt_xlsx ]
+        then
+            MYFLAGS="$MYFLAGS -x"
+        fi
+        ( ssh falcon "cd '$FOLDER'; bash perl5/runedcm.txt $MYFLAGS" & )
+    else
+        FLAGS="-ldno5rev"
+        mkdir ~\$$$
+        cd ~\$$$
+	if [ $want_standard ]
+	then
+            perl "$CODEDIR/edcm.pl" $GFLAG $FLAGS Blank.yml ../data/*.yml
+            rm -rf ../models-standard
+            mkdir ../models-standard
+            if [ $opt_xlsx ]
+            then
+                mv *.xlsx ../models-standard
+            else
+                for x in *.xls
+                do
+                    if [[ "$x" =~ (.*)\.xls$ ]]
+                    then
+                        COPY_EXTENDED_ATTRIBUTES_DISABLE=1 COPYFILE_DISABLE=1 zip -m ../models-standard/"${BASH_REMATCH[1]}".zip "$x"
+                    fi
+                done
+            fi
+        fi
+        if [ $want_small ]
+        then
+            perl "$CODEDIR/edcm.pl" $GFLAG -small Blank.yml ../data/*.yml
+            rm -rf ../models-small
+            mkdir ../models-small
+            if [ $opt_xlsx ]
+            then
+                mv *.xlsx ../models-small
+            else
+                for x in *.xls
+                do
+                    if [[ "$x" =~ (.*)\.xls$ ]]
+                    then
+                        COPY_EXTENDED_ATTRIBUTES_DISABLE=1 COPYFILE_DISABLE=1 zip -m ../models-small/"${BASH_REMATCH[1]}".zip "$x"
+                    fi
+                done
+            fi
+        fi
+        if [ $want_large ]
+        then
+            perl "$CODEDIR/edcm.pl" $GFLAG -large $FLAGS Blank.yml ../data/*.yml
+            rm -rf ../models-large
+            mkdir ../models-large
+            if [ $opt_xlsx ]
+            then
+                mv *.xlsx ../models-large
+            else
+                for x in *.xls
+                do
+                    if [[ "$x" =~ (.*)\.xls$ ]]
+                    then
+                        COPY_EXTENDED_ATTRIBUTES_DISABLE=1 COPYFILE_DISABLE=1 zip -m ../models-large/"${BASH_REMATCH[1]}".zip "$x"
+                    fi
+                done
+            fi
+        fi
+        cd ..
+        rmdir ~\$$$
+    fi
+fi
+
+if [ $opt_csv ]
+then
+
+    if [ $opt_random ] 
+    then
+        FLAGS="-illustrative -random"
+        RUN=`date +%Y%m%dT%H%M%S`-$$-random
+    else
+        FLAGS="-illustrative -ldno5rev -large"
+        RUN=`date +%Y%m%dT%H%M%S`-base
+    fi
+       
+    if [ $opt_server ] 
+    then
+        ssh falcon "cd '$FOLDER'; mkdir '~\$$RUN'; cd '~\$$RUN'; perl '../perl5/edcm.pl' $GFLAG $FLAGS ../data/*.yml"
+    else
+        mkdir ~\$$RUN; cd ~\$$RUN; perl "$CODEDIR/edcm.pl" $GFLAG $FLAGS ../data/*.yml; cd ..
+    fi
+        
+    if [ $opt_random ] 
+    then
+        if [[ -e loop ]] 
+        then
+            if [ $opt_server ]
+            then
+                bash "$CODEDIR/runedcm.txt" -rs &
+            else
+                bash "$CODEDIR/runedcm.txt" -r &
+            fi
+        fi
+    fi
+
+    if [ $opt_long ] 
+    then
+        CSV_FLAGS=
+    else
+        CSV_FLAGS=-small
+    fi
+    
+    if [ $opt_server ] 
+    then
+        perl perl5/xls2sqlite.pl -calconly ~\$$RUN/*.xls*
+        ssh falcon "cd '$FOLDER/~\$$RUN'; perl ../perl5/xls2sqlite.pl *.xls*; zip -m Models.zip *.xls*; perl ../perl5/sqlite2csv.pl $CSV_FLAGS; cd ..; mkdir $RUN; mv '~\$$RUN/'*.csv '~\$$RUN/'*.zip $RUN; rm -rf '~\$$RUN'"
+    else
+        cd ~\$$RUN
+        if [ $opt_xlsx ]
+        then
+            echo Please calculate the models in `pwd` and press return when done
+            read
+            perl "$CODEDIR"/xls2sqlite.pl *.xlsx
+	elif [ `which osascript` ]
+        then
+            perl "$CODEDIR"/xls2sqlite.pl -calc *.xls
+            zip -m Models.zip *.xls
+        else
+            echo Please calculate the models in `pwd` and press return when done
+            read
+            perl "$CODEDIR"/xls2sqlite.pl *.xls
+            zip -m Models.zip *.xls
+        fi
+        perl "$CODEDIR"/sqlite2csv.pl $CSV_FLAGS
+        cd ..
+        mkdir $RUN
+	rm -f ~\$$RUN/~\$*
+        mv -f ~\$$RUN/* $RUN
+        rm -rf ~\$$RUN
+    fi
+        
+fi

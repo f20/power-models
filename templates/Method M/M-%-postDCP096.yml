@@ -1,0 +1,7 @@
+---
+DCP071: 1
+DCP095: 1
+DCP096: 1
+PerlModule: ModelM
+template: M-%-postDCP096
+version: April 2012 with DCP095 and DCP096

@@ -1,0 +1,16 @@
+D=~\$-$$-`date +%Y%m%d-%H%M%S`
+mkdir $D
+cd $D
+D="`pwd`"
+cd ..
+cd "$1"
+P="`pwd`"
+cd "$D"
+perl ../perl5/dta2yml.pl "$P/11.dta" "$P/911.dta" "$P/913.dta" "$P/935.dta"
+perl ../perl5/EDCM2/mkedcm2.pl -xlsx -rev *.yml
+echo Please calculate the spreadsheets in $D for $P
+read
+perl ../perl5/xls2sqlite.pl *.xlsx
+perl ../perl5/export.pl csv small
+mv -f *.csv "$P"
+cd ..

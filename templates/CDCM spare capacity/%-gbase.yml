@@ -1,0 +1,15 @@
+---
+PerlModule: CDCM
+alwaysUseRAG: 1
+coincidenceAdj: group
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 0
+tariffs: commongensubsparecap
+version: Model 100 with additional tariffs and grouped coincidence correction

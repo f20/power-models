@@ -1,0 +1,13 @@
+---
+PerlModule: CDCM
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: dcp123opt3adder
+standing: sub132
+summary: consultation
+tariffs: commongensub
+version: DCP123 option 3 hybrid

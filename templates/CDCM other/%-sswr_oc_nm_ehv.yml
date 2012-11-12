@@ -1,0 +1,19 @@
+---
+PerlModule: CDCM
+dataOverride:
+  1020:
+    - ~
+    - HV LV: 60000000
+      LV circuits: 200000000
+drm: top500gsp
+ehv: 1
+extraLevels: 1
+illustrative: 1
+matrices: big
+noReplacement: 0.453
+portfolio: 4
+scaler: pickallnogencapped
+standing: sub132
+summary: no
+tariffs: commongensubedcm
+version: 'Simple scaling, no method M, LV cost override, no positive scaling, with EHV'

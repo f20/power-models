@@ -1,0 +1,48 @@
+rm(list=ls());
+library(DBI);
+library(RSQLite);
+db <- dbConnect("SQLite", dbname = "~$database.sqlite");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 2, row, '' from data where tab=953 group by bid, row");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 3, row, '' from data where tab=953 group by bid, row");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 19, row, '' from data where tab=953 group by bid, row");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 20, row, '' from data where tab=953 group by bid, row");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 21, row, '' from data where tab=953 group by bid, row");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 22, row, '' from data where tab=953 group by bid, row");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 23, row, '' from data where tab=953 group by bid, row");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 24, row, '' from data where tab=953 group by bid, row");
+dbSendQuery(db, "insert or ignore into data (bid, tab, col, row, v) select bid, 953, 25, row, '' from data where tab=953 group by bid, row");
+name <- fetch(dbSendQuery(db, "select v from data where tab=953 and col=2 and row>0 order by bid, row"), n = -1)[[1]];
+# name[active=='TRUE'];
+category <- fetch(dbSendQuery(db, "select v from data where tab=953 and col=19 and row>0 order by bid, row"), n = -1)[[1]];
+gen <- fetch(dbSendQuery(db, "select v from data where tab=953 and col=25 and row>0 order by bid, row"), n = -1)[[1]];
+combcat <- paste(fetch(dbSendQuery(db, "select substr(v,1,1) from data where tab=953 and col=3 and row>0 order by bid, row"), n = -1)[[1]],sprintf("%04d", category),sep="");
+nuf132 <- fetch(dbSendQuery(db, "select v from data where tab=953 and col=20 and row>0 order by bid, row"), n = -1)[[1]];
+nufbsp <- fetch(dbSendQuery(db, "select v from data where tab=953 and col=21 and row>0 order by bid, row"), n = -1)[[1]];
+nuf33 <- fetch(dbSendQuery(db, "select v from data where tab=953 and col=22 and row>0 order by bid, row"), n = -1)[[1]];
+nufpr33<- fetch(dbSendQuery(db, "select v from data where tab=953 and col=23 and row>0 order by bid, row"), n = -1)[[1]];
+nufpr132<- fetch(dbSendQuery(db, "select v from data where tab=953 and col=24 and row>0 order by bid, row"), n = -1)[[1]];
+capcollwithzeros<- function(x) {
+    x<-as.numeric(x)
+    c(quantile(x[x<1],.15,na.rm=T),quantile(x[x>1],.85,na.rm=F));
+};
+capcollnozeros<- function(x) {
+    x<-as.numeric(x)
+    c(quantile(x[x<1&x>0],.15,na.rm=T),quantile(x[x>1],.85,na.rm=T));
+};
+fil132<-nuf132[gen!='TRUE']
+filbsp<-nufbsp[gen!='TRUE']
+fil33<-nuf33[gen!='TRUE']
+filpr33<-nufpr33[gen!='TRUE']
+filpr132<-nufpr132[gen!='TRUE']
+cc2<-combcat[gen!='TRUE']
+fil132<-fil132[grep('D1...', cc2, perl=T, value=F)];
+filbsp<-filbsp[grep('D.1..', cc2, perl=T, value=F)];
+fil33<-fil33[grep('D..1.', cc2, perl=T, value=F)];
+filpr33<-filpr33[grep('D(0002|.1.1|..11)', cc2, perl=T, value=F)];
+filpr132<-filpr132[grep('D.001', cc2, perl=T, value=F)];
+
+write(paste('132 kV :', paste(format(capcollnozeros(fil132),digits=3),collapse=" and "), 'using', length(fil132[fil132>0]), 'nonzero out of',length(fil132), 'total.'),file="");
+write(paste('132/EHV:', paste(format(capcollnozeros(filbsp),digits=3),collapse=" and "), 'using', length(filbsp[filbsp>0]), 'nonzero out of',length(filbsp), 'total.'),file="");
+write(paste('EHV    :', paste(format(capcollnozeros(fil33),digits=3),collapse=" and "), 'using', length(fil33[fil33>0]), 'nonzero out of',length(fil33), 'total.'),file="");
+write(paste('EHV/HV :', paste(format(capcollnozeros(filpr33),digits=3),collapse=" and "), 'using', length(filpr33[filpr33>0]), 'nonzero out of',length(filpr33), 'total.'),file="");
+write(paste('132/HV :', paste(format(capcollnozeros(filpr132),digits=3),collapse=" and "), 'using', length(filpr132[filpr132>0]), 'nonzero out of',length(filpr132), 'total.'),file="");
