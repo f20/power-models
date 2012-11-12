@@ -1,0 +1,249 @@
+---
+1000:
+  - _note: |-
+      Input data invented by Franck.
+      Any similarity to anything is a coincidence.
+    _table: '1000. Company, charging year, data version'
+  - Company charging year data version: Illustrative company
+    _column: Company
+  - Company charging year data version: 2050/2051
+    _column: Year
+  - Company charging year data version: Test data
+    _column: Version
+  - Company charging year data version: ''
+1010:
+  - _table: 1010. Financial and general assumptions
+  - Financial and general assumptions: 0.056
+    _column: Rate of return
+  - Financial and general assumptions: 40
+    _column: Annualisation period (years)
+  - _column: Annuity proportion for customer-contributed assets
+  - Financial and general assumptions: 0.95
+    _column: Power factor
+  - Financial and general assumptions: 365
+    _column: Days in the charging year
+  - Financial and general assumptions: ''
+1017:
+  - _table: 1017. Diversity allowance between top and bottom of network level
+  - 132kV: 0.04
+    132kV EHV: ''
+    EHV: 0.07
+    EHV HV: ''
+    GSPs: 0.025
+    HV: 0.37
+    HV LV: ''
+    LV circuits: ''
+    _column: Diversity allowance between top and bottom of network level
+  - 132kV: ''
+    132kV EHV: ''
+    EHV: ''
+    EHV HV: ''
+    GSPs: ''
+    HV: ''
+    HV LV: ''
+    LV circuits: ''
+1018:
+  - _table: 1018. Proportion of relevant load going through 132kV/HV direct transformation
+  - EHV HV: 0
+    _column: 132kV/HV
+  - EHV HV: ''
+1019:
+  - _table: 1019. Network model GSP peak demand (MW)
+  - Network model GSP peak demand MW: 500
+    _column: Network model GSP peak demand (MW)
+  - Network model GSP peak demand MW: ''
+1020:
+  - _table: 1020. Gross asset cost by network level (£)
+  - 132kV: 66468400
+    132kV EHV: 17885050
+    132kV HV: 0
+    EHV: 42243600
+    EHV HV: 38598645
+    HV: 147634901.1
+    HV LV: 53675203.5
+    LV circuits: 68048721
+    _column: Gross assets £
+  - 132kV: ''
+    132kV EHV: ''
+    132kV HV: ''
+    EHV: ''
+    EHV HV: ''
+    HV: ''
+    HV LV: ''
+    LV circuits: ''
+1022:
+  - _table: 1022. LV service model asset cost (£)
+  - LV service model asset cost: 2238.3
+    _column: LV service model 1
+  - LV service model asset cost: 6002.1
+    _column: LV service model 2
+  - LV service model asset cost: 569.7
+    _column: LV service model 3
+  - LV service model asset cost: 1471.5
+    _column: LV service model 4
+  - LV service model asset cost: 1549.8
+    _column: LV service model 5
+  - LV service model asset cost: 607.5
+    _column: LV service model 6
+  - LV service model asset cost: 57.51
+    _column: LV service model 7
+  - LV service model asset cost: ''
+    _column: LV service model 8
+  - LV service model asset cost: ''
+1023:
+  - _table: 1023. HV service model asset cost (£)
+  - HV service model asset cost: 14796
+    _column: HV service model 1
+  - HV service model asset cost: ''
+    _column: HV service model 2
+  - HV service model asset cost: 18324.9
+    _column: HV service model 3
+  - HV service model asset cost: 0
+    _column: HV service model 4
+  - HV service model asset cost: 24877.5
+    _column: HV service model 5
+  - HV service model asset cost: ''
+1025:
+  - _table: 1025. Matrix of applicability of LV service models to tariffs with fixed charges
+  - Domestic Unrestricted: 0.0125
+    _column: LV service model 1
+  - Domestic Unrestricted: 0.045
+    _column: LV service model 2
+  - Domestic Unrestricted: 0
+    _column: LV service model 3
+  - Domestic Unrestricted: 0
+    _column: LV service model 4
+  - Domestic Unrestricted: 0
+    _column: LV service model 5
+  - Domestic Unrestricted: 0
+    _column: LV service model 6
+  - Domestic Unrestricted: 0
+    _column: LV service model 7
+  - Domestic Unrestricted: 0
+    _column: LV service model 8
+  - Domestic Unrestricted: ''
+1032:
+  - _table: 1032. Loss adjustment factors to transmission
+  - Loss adjustment factor: 1.003
+    _column: 132kV
+  - Loss adjustment factor: 1.006
+    _column: 132kV/EHV
+  - Loss adjustment factor: 1.0114
+    _column: EHV
+  - Loss adjustment factor: 1.018
+    _column: EHV/HV
+  - Loss adjustment factor: 1.035
+    _column: HV
+  - Loss adjustment factor: 1.057
+    _column: HV/LV
+  - Loss adjustment factor: 1.078
+    _column: LV circuits
+  - Loss adjustment factor: ''
+1041:
+  - _table: 1041. Load profile data for demand users
+  - Domestic Unrestricted: 0.88
+    _column: Coincidence factor
+  - Domestic Unrestricted: 0.4
+    _column: Load factor
+  - Domestic Unrestricted: ''
+1053:
+  - _table: 1053. Volume forecasts for the charging year
+  - Domestic Unrestricted: 10000000
+    _column: Rate 1 units (MWh)
+  - Domestic Unrestricted: 2000000
+    _column: MPANs
+  - Domestic Unrestricted: ''
+1055:
+  - _table: 1055. Transmission exit charges (£/year)
+  - Transmission exit charges year: 12456914
+    _column: "Transmission\nexit"
+  - Transmission exit charges year: ''
+1059:
+  - _table: 1059. Other expenditure
+  - Other expenditure: 35020800
+    _column: Direct cost (£/year)
+  - Other expenditure: 55530747.2837418
+    _column: Indirect cost (£/year)
+  - Other expenditure: 0.6
+    _column: Indirect cost proportion
+  - Other expenditure: 41157625.78
+    _column: Network rates (£/year)
+  - Other expenditure: ''
+1060:
+  - _table: 1060. Customer contributions under current connection charging policy
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV"
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV/EHV"
+  - HV network: 0.0345307447997926
+    HV substation: 0.0345307447997926
+    LV network: 0.012370413198693
+    LV substation: 0.012370413198693
+    _column: "Assets\nEHV"
+  - HV network: 0.0663810136980219
+    HV substation: 0.0663810136980219
+    LV network: 0.0244009259838578
+    LV substation: 0.0244009259838578
+    _column: "Assets\nEHV/HV"
+  - HV network: ''
+    HV substation: ''
+    LV network: ''
+    LV substation: ''
+    _column: "Assets\n132kV/HV"
+  - HV network: 0.383232676781521
+    HV substation: ''
+    LV network: 0.343799317773253
+    LV substation: 0.343799317773253
+    _column: "Assets\nHV"
+  - HV network: ''
+    HV substation: ''
+    LV network: 0.423519736842105
+    LV substation: 0.423519736842105
+    _column: "Assets\nHV/LV"
+  - HV network: ''
+    HV substation: ''
+    LV network: 0.955956678700361
+    LV substation: ''
+    _column: "Assets\nLV circuits"
+  - HV network: ''
+    HV substation: ''
+    LV network: ''
+    LV substation: ''
+1076:
+  - _table: 1076. Target revenue
+  - Target revenue: 237500000
+    _column: '"Allowed revenue" (£/year)'
+  - Target revenue: ''
+    _column: '"Pass-through charges" (£/year)'
+  - Target revenue: ''
+    _column: Adjustment for previous year's under (over) recovery (£/year)
+  - Target revenue: ''
+    _column: Revenue raised outside this model (£/year)
+  - Target revenue: ''
+1092:
+  - _table: '1092. Average kVAr by kVA, by network level'
+  - Average kVAr by kVA by network level: 0.284
+    _column: GSPs
+  - Average kVAr by kVA by network level: 0.284
+    _column: 132kV
+  - Average kVAr by kVA by network level: 0.284
+    _column: 132kV/EHV
+  - Average kVAr by kVA by network level: 0.284
+    _column: EHV
+  - Average kVAr by kVA by network level: 0.284
+    _column: EHV/HV
+  - Average kVAr by kVA by network level: ''
+    _column: 132kV/HV
+  - Average kVAr by kVA by network level: 0.284
+    _column: HV
+  - Average kVAr by kVA by network level: 0.284
+    _column: HV/LV
+  - Average kVAr by kVA by network level: 0.284
+    _column: LV circuits
+  - Average kVAr by kVA by network level: ''

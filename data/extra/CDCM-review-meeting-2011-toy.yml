@@ -1,0 +1,401 @@
+---
+1000:
+  - _note: |-
+      Input data invented by Franck.
+      Any similarity to anything is a coincidence.
+    _table: '1000. Company, charging year, data version'
+  - Company charging year data version: T9
+    _column: Company
+  - Company charging year data version: test
+    _column: Year
+  - Company charging year data version: base case
+    _column: Version
+  - Company charging year data version: ''
+1010:
+  - _table: 1010. Financial and general assumptions
+  - Financial and general assumptions: 0.056
+    _column: Rate of return
+  - Financial and general assumptions: 40
+    _column: Annualisation period (years)
+  - Financial and general assumptions: 0
+    _column: Annuity proportion for customer-contributed assets
+  - Financial and general assumptions: 0.95
+    _column: Power factor
+  - Financial and general assumptions: 365
+    _column: Days in the charging year
+  - Financial and general assumptions: ''
+1017:
+  - _table: 1017. Diversity allowance between top and bottom of network level
+  - 132kV: 0
+    132kV EHV: ''
+    EHV: 0.13
+    EHV HV: ''
+    GSPs: 0.05
+    HV: 0.25
+    HV LV: ''
+    LV circuits: ''
+    _column: Diversity allowance between top and bottom of network level
+  - 132kV: ''
+    132kV EHV: ''
+    EHV: ''
+    EHV HV: ''
+    GSPs: ''
+    HV: ''
+    HV LV: ''
+    LV circuits: ''
+1018:
+  - _table: 1018. Proportion of relevant load going through 132kV/HV direct transformation
+  - EHV HV: 0
+    _column: 132kV/HV
+  - EHV HV: ''
+1019:
+  - _table: 1019. Network model GSP peak demand (MW)
+  - Network model GSP peak demand MW: 500
+    _column: Network model GSP peak demand (MW)
+  - Network model GSP peak demand MW: ''
+1020:
+  - _table: 1020. Gross asset cost by network level (£)
+  - 132kV: 100000000
+    132kV EHV: 20000000
+    132kV HV: 0
+    EHV: 100000000
+    EHV HV: 20000000
+    HV: 200000000
+    HV LV: 20000000
+    LV circuits: 200000000
+    _column: Gross assets £
+  - 132kV: ''
+    132kV EHV: ''
+    132kV HV: ''
+    EHV: ''
+    EHV HV: ''
+    HV: ''
+    HV LV: ''
+    LV circuits: ''
+1022:
+  - _table: 1022. LV service model asset cost (£)
+  - LV service model asset cost: 500
+    _column: LV service model 1
+  - LV service model asset cost: ''
+    _column: LV service model 2
+  - LV service model asset cost: ''
+    _column: LV service model 3
+  - LV service model asset cost: ''
+    _column: LV service model 4
+  - LV service model asset cost: ''
+    _column: LV service model 5
+  - LV service model asset cost: ''
+    _column: LV service model 6
+  - LV service model asset cost: ''
+    _column: LV service model 7
+  - LV service model asset cost: ''
+    _column: LV service model 8
+  - LV service model asset cost: ''
+1023:
+  - _table: 1023. HV service model asset cost (£)
+  - HV service model asset cost: 20000
+    _column: HV service model 1
+  - HV service model asset cost: ''
+    _column: HV service model 2
+  - HV service model asset cost: ''
+    _column: HV service model 3
+  - HV service model asset cost: ''
+    _column: HV service model 4
+  - HV service model asset cost: ''
+    _column: HV service model 5
+  - HV service model asset cost: ''
+1025:
+  - _table: 1025. Matrix of applicability of LV service models to tariffs with fixed charges
+  - Domestic Two Rate: 1
+    Domestic Unrestricted: 1
+    _column: LV service model 1
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: ''
+    _column: LV service model 2
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: ''
+    _column: LV service model 3
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: ''
+    _column: LV service model 4
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: ''
+    _column: LV service model 5
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: ''
+    _column: LV service model 6
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: ''
+    _column: LV service model 7
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: ''
+    _column: LV service model 8
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+1028:
+  - _table: 1028. Matrix of applicability of HV service models to tariffs with fixed charges
+  - HV HH Metered: 1
+    _column: HV service model 1
+  - HV HH Metered: ''
+    _column: HV service model 2
+  - HV HH Metered: 0
+    _column: HV service model 3
+  - HV HH Metered: 0
+    _column: HV service model 4
+  - HV HH Metered: 0
+    _column: HV service model 5
+  - HV HH Metered: ''
+1032:
+  - _table: 1032. Loss adjustment factors to transmission
+  - Loss adjustment factor: 1
+    _column: 132kV
+  - Loss adjustment factor: 1
+    _column: 132kV/EHV
+  - Loss adjustment factor: 1.015
+    _column: EHV
+  - Loss adjustment factor: 1.02
+    _column: EHV/HV
+  - Loss adjustment factor: 1.04
+    _column: HV
+  - Loss adjustment factor: 1.05
+    _column: HV/LV
+  - Loss adjustment factor: 1.08
+    _column: LV circuits
+  - Loss adjustment factor: ''
+1041:
+  - _table: 1041. Load profile data for demand users
+  - Domestic Two Rate: 0.3
+    Domestic Unrestricted: 0.8
+    HV HH Metered: 0.8
+    _column: Coincidence factor
+  - Domestic Two Rate: 0.2
+    Domestic Unrestricted: 0.4
+    HV HH Metered: 0.7
+    _column: Load factor
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: ''
+1053:
+  - _table: 1053. Volume forecasts for the charging year
+  - Domestic Two Rate: 1500000
+    Domestic Unrestricted: 7000000
+    HV HH Metered: 125000
+    _column: Rate 1 units (MWh)
+  - Domestic Two Rate: 1500000
+    Domestic Unrestricted: ''
+    HV HH Metered: 625000
+    _column: Rate 2 units (MWh)
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: 1000000
+    _column: Rate 3 units (MWh)
+  - Domestic Two Rate: 250000
+    Domestic Unrestricted: 1750000
+    HV HH Metered: 1000
+    _column: MPANs
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: 500000
+    _column: Import capacity (kVA)
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: 0
+    _column: Reactive power units (MVArh)
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: 312500
+1055:
+  - _table: 1055. Transmission exit charges (£/year)
+  - Transmission exit charges year: 10000000
+    _column: "Transmission\nexit"
+  - Transmission exit charges year: ''
+1059:
+  - _table: 1059. Other expenditure
+  - Other expenditure: 40000000
+    _column: Direct cost (£/year)
+  - Other expenditure: 100000000
+    _column: Indirect cost (£/year)
+  - Other expenditure: 0.6
+    _column: Indirect cost proportion
+  - Other expenditure: 40000000
+    _column: Network rates (£/year)
+  - Other expenditure: ''
+1060:
+  - _table: 1060. Customer contributions under current connection charging policy
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV"
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV/EHV"
+  - HV network: 0.05
+    HV substation: 0.05
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\nEHV"
+  - HV network: 0.2
+    HV substation: 0.4
+    LV network: 0.1
+    LV substation: 0.1
+    _column: "Assets\nEHV/HV"
+  - HV network: 0.2
+    HV substation: ''
+    LV network: 0.1
+    LV substation: 0.1
+    _column: "Assets\n132kV/HV"
+  - HV network: 0.7
+    HV substation: ''
+    LV network: 0.35
+    LV substation: 0.35
+    _column: "Assets\nHV"
+  - HV network: ''
+    HV substation: ''
+    LV network: 0.99
+    LV substation: 0.99
+    _column: "Assets\nHV/LV"
+  - HV network: ''
+    HV substation: ''
+    LV network: 0.99
+    LV substation: ''
+    _column: "Assets\nLV circuits"
+  - HV network: ''
+    HV substation: ''
+    LV network: ''
+    LV substation: ''
+1061:
+  - _table: 1061. Average split of rate 1 units by distribution time band
+  - Domestic Two Rate: 0.15
+    _column: Red
+  - Domestic Two Rate: 0.5
+    _column: Amber
+  - Domestic Two Rate: 0.35
+    _column: Green
+  - Domestic Two Rate: ''
+1062:
+  - _table: 1062. Average split of rate 2 units by distribution time band
+  - Domestic Two Rate: 0
+    _column: Red
+  - Domestic Two Rate: 0
+    _column: Amber
+  - Domestic Two Rate: 1
+    _column: Green
+  - Domestic Two Rate: ''
+1068:
+  - _table: 1068. Typical annual hours by distribution time band
+  - Annual hours: 500
+    _column: Red
+  - Annual hours: 2500
+    _column: Amber
+  - Annual hours: 5400
+    _column: Green
+  - Annual hours: ''
+1069:
+  - _table: 1069. Peaking probabilities by network level
+  - 132kV: 0.95
+    132kV EHV: 0.95
+    132kV HV: 0.95
+    EHV: 0.69
+    EHV HV: 0.52
+    GSPs: 0.95
+    HV: 0.52
+    HV LV: 0.52
+    LV circuits: 0.52
+    _column: Red
+  - 132kV: 0.05
+    132kV EHV: 0.05
+    132kV HV: 0.05
+    EHV: 0.29
+    EHV HV: 0.39
+    GSPs: 0.05
+    HV: 0.39
+    HV LV: 0.39
+    LV circuits: 0.39
+    _column: Amber
+  - 132kV: 0
+    132kV EHV: 0
+    132kV HV: 0
+    EHV: 0.02
+    EHV HV: 0.09
+    GSPs: 0
+    HV: 0.09
+    HV LV: 0.09
+    LV circuits: 0.09
+    _column: Green
+  - 132kV: ''
+    132kV EHV: ''
+    132kV HV: ''
+    EHV: ''
+    EHV HV: ''
+    GSPs: ''
+    HV: ''
+    HV LV: ''
+    LV circuits: ''
+1076:
+  - _table: 1076. Target revenue
+  - Target revenue: 300000000
+    _column: Allowed revenue (£/year)
+  - Target revenue: 0
+    _column: Pass-through charges (£/year)
+  - Target revenue: 0
+    _column: Adjustment for previous year's under (over) recovery (£/year)
+  - Target revenue: ''
+    _column: Revenue raised outside this model (£/year)
+  - Target revenue: ''
+1092:
+  - _table: '1092. Average kVAr by kVA, by network level'
+  - Average kVAr by kVA by network level: 0.3
+    _column: GSPs
+  - Average kVAr by kVA by network level: 0.3
+    _column: 132kV
+  - Average kVAr by kVA by network level: 0.3
+    _column: 132kV/EHV
+  - Average kVAr by kVA by network level: 0.3
+    _column: EHV
+  - Average kVAr by kVA by network level: 0.3
+    _column: EHV/HV
+  - Average kVAr by kVA by network level: 0.3
+    _column: 132kV/HV
+  - Average kVAr by kVA by network level: 0.3
+    _column: HV
+  - Average kVAr by kVA by network level: 0.3
+    _column: HV/LV
+  - Average kVAr by kVA by network level: 0.3
+    _column: LV circuits
+  - Average kVAr by kVA by network level: ''
+1201:
+  - _table: 1201. Current tariff information
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: ''
+    _column: Current revenues if known (£/period)
+  - Domestic Two Rate: 3.164
+    Domestic Unrestricted: 2.358
+    HV HH Metered: 9.217
+    _column: Current Unit rate 1 p/kWh
+  - Domestic Two Rate: 0.083
+    Domestic Unrestricted: ''
+    HV HH Metered: 0.246
+    _column: Current Unit rate 2 p/kWh
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: 0.005
+    _column: Current Unit rate 3 p/kWh
+  - Domestic Two Rate: 8.53
+    Domestic Unrestricted: 8.53
+    HV HH Metered: 175.65
+    _column: Current Fixed charge p/MPAN/day
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: 5.58
+    _column: Current Capacity charge p/kVA/day
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: 0.214
+    _column: Current Reactive power charge p/kVArh
+  - Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV HH Metered: ''
