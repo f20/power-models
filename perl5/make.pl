@@ -84,11 +84,7 @@ foreach (@ARGV) {
 }
 $maker->{override}->(%override) if %override;
 $maker->{setThreads}->($threads);
-$maker->{validate}->(
-    $perl5dir,
-    -e '/home/latremol/LocalData/dcmfRevisionNumbers.sqlite'
-    ? 'DBI:SQLite:dbname=/home/latremol/LocalData/dcmfRevisionNumbers.sqlite'
-    : ()
-);
+$maker->{validate}
+  ->( $perl5dir, grep { -e $_ } catdir( dirname($perl5dir), 'X_Revisions' ) );
 $maker->{ $threads > 1 ? 'runParallel' : 'run' }
   ->( $maker->{prepare}->( $maker->{$list}->() ) );

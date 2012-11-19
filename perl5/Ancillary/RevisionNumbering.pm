@@ -30,58 +30,129 @@ use warnings;
 use strict;
 use utf8;
 use DBI;
-our @ISA = qw(DBI::db);
+use Digest::SHA1;
 
-=head
-
-Revision number databases must be created by hand using something like this:
-
-CREATE TABLE revisions (revision integer primary key, yaml text, sha1 text collate binary);
-CREATE TABLE scmmapping (revision integer, scmdata text, primary key (revision, scmdata));
-CREATE INDEX revsha1 on revisions (sha1);
-INSERT INTO revisions (revision) values (5046);
-
-=cut
+use constant {
+    PATH      => 0,
+    HANDLE    => 1,
+    STATEMENT => 2,
+};
 
 sub connect {
-    my $class = shift;
-    bless( DBI->connect(@_), $class );
+    my ( $class, $path ) = @_;
+    $path =~ s/\.sqlite3?$//s;
+    $path =~ s/^DBI:SQLite:dbname=//s;
+    unless ( -d $path ) {
+        unless ( mkdir $path ) {
+            warn "mkdir $path: $!";
+            return;
+        }
+    }
+    mkdir "$path/scm" unless -e "$path/scm";
+    my $dbh = DBI->connect( 'DBI:SQLite:dbname=' . $path . '/~$index.sqlite',
+        '', '', { sqlite_unicode => 0, AutoCommit => 1, } );
+    $dbh->sqlite_busy_timeout(1_000);
+    unless ($dbh) {
+        warn "Cannot connect to $path/~\$index.dbh";
+        return;
+    }
+    my $st;
+    while ( !( $st = $dbh->prepare('select i from l where h=?') ) ) {
+        warn 'Initialising the revisions database';
+        $dbh->do(
+'create table if not exists l (i integer primary key, h text collate binary)'
+        );
+        $dbh->do('create index if not exists lh on l (h)');
+        my $dh;
+        opendir $dh, $path;
+        my @importRev = map { /^r([0-9]+)\.yml$/s ? $1 : () } readdir $dh;
+        closedir $dh;
+        if (@importRev) {
+            warn 'Importing data for ' . @importRev . ' revision(s)';
+            my $sha1Machine = new Digest::SHA1;
+            my $i = $dbh->prepare('insert into l (i, h) values (?, ?)');
+            $i->execute( $_,
+                $sha1Machine->addfile( new IO::File "< $path/r$_.yml" )
+                  ->digest )
+              foreach @importRev;
+        }
+    }
+    my $self = bless [ $path, $dbh, $st ], $class;
+    eval {
+        warn 'Synchronising the revisions database with old monolithic format';
+        local undef $/;
+        $dbh->do(qq%attach database "$path.sqlite" as old%);
+        $dbh->begin_work;
+        my $q = $dbh->prepare(
+'select i, h from l left join old.revisions on (i=revision and h=sha1) where revision is null'
+        );
+        $q->execute;
+        while ( my ( $i, $h ) = $q->fetchrow_array ) {
+            open my $f, '<', "$path/r$i.yml" or warn "Cannot open $path/$i.yml";
+            my $yaml = <$f>;
+            close $f;
+            $dbh->do(
+'insert or replace into old.revisions (revision, yaml, sha1) values (?, ?, ?)',
+                undef, $i, $yaml, $h
+            );
+        }
+        $q = $dbh->prepare(
+'select revision, yaml, sha1 from old.revisions left join l on (i=revision and h=sha1) where sha1 is not null and i is null'
+        );
+        $q->execute;
+        while ( my ( $i, $yaml, $h ) = $q->fetchrow_array ) {
+            $dbh->do( 'insert or replace into l values (?, ?)', undef, $i, $h );
+            open my $f, '>', "$path/r$i.yml"
+              or warn "Cannot open $path/r$i.yml";
+            print $f $yaml if $yaml;
+            close $f;
+            if (
+                my $scmData = $dbh->selectrow_array(
+                    'select scmdata from old.scmmapping where revision=?',
+                    undef, $i
+                )
+              )
+            {
+                open $f, '>',
+                  "$path/scm/r$i-" . Digest::SHA1::sha1_hex($scmData) . '.yml';
+                print $f $scmData;
+                close $f;
+            }
+        }
+        $dbh->commit;
+        $dbh->do('detach database old');
+    } if -e "$path.sqlite";
+    $self;
 }
 
 sub revisionText {
-    my ( $db, $yaml, $scmData ) = @_;
-    my $revision = '';
-    require Digest::SHA1;
+    my ( $self, $yaml, $scmData ) = @_;
     my $sha1Machine = new Digest::SHA1;
     my $sha1        = $sha1Machine->add($yaml)->digest;
-    foreach ( 1, 0 ) {
-        last
-          if ($revision) =
-          $db->selectrow_array(
-            'select revision from revisions where sha1=? and yaml=?',
-            undef, $sha1, $yaml );
-        $db->do( 'insert into revisions (sha1, yaml) values (?, ?)',
-            undef, $sha1, $yaml )
-          if $_;
+    my $dbh         = $self->[HANDLE];
+    my $revision;
+    unless ( ($revision) =
+        $dbh->selectrow_array( $self->[STATEMENT], undef, $sha1 ) )
+    {
+        while ( !$dbh->do('begin immediate transaction') ) { }
+        $dbh->do( 'insert into l (h) values (?)', undef, $sha1 );
+        while ( !$dbh->commit ) { }
+        if ( ($revision) =
+            $dbh->selectrow_array( $self->[STATEMENT], undef, $sha1 ) )
+        {
+            open my $f, '>', "$self->[PATH]/r$revision.yml";
+            print $f $yaml;
+        }
     }
-    $db->do(
-        'insert or ignore into scmmapping (revision, scmdata) values (?, ?)',
-        undef, $revision, $scmData )
-      if $revision && $scmData;
+    if ( $revision && $scmData ) {
+        my $sha1scm = $sha1Machine->add($scmData)->hexdigest;
+        $sha1scm =~ /([0-9a-f]+)/i;
+        unless ( -e ( my $fn = "$self->[PATH]/scm/r$revision-$1.yml" ) ) {
+            open my $f, '>', $fn;
+            print $f $scmData;
+        }
+    }
     $revision ? "r$revision" : '';
-}
-
-sub getRevision {
-    my ( $db, $revisionWanted ) = @_;
-    $db->selectrow_array( 'select yaml from revisions where revision=?',
-        undef, $revisionWanted );
-}
-
-sub scmData {
-    my ( $db, $revisionWanted ) = @_;
-    map { $_->[0]; }
-      $db->selectall_arrayref( 'select scmdata from scmmaping where revision=?',
-        undef, $revisionWanted );
 }
 
 1;
