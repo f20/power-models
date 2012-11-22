@@ -1276,6 +1276,39 @@ EOT
         ]
     );
 
+    my $totalForDemandAllTariffs = GroupBy(
+        source        => $rev2d,
+        name          => 'Total for demand across all tariffs (£/year)',
+        defaultFormat => '0softnz'
+    );
+    my $totalForGenerationAllTariffs = GroupBy(
+        source => $rev2g,
+        name   => 'Total for generation across all tariffs (£/year)',
+        defaultFormat => '0softnz'
+    );
+    push @{ $model->{revenueTables} },
+      Columnset(
+        name    => 'Total for all tariffs (£/year)',
+        columns => [
+            Constant(
+                name          => 'This column is not used',
+                defaultFormat => '0con',
+                data          => [ [''] ]
+            ),
+            $totalForDemandAllTariffs,
+            $totalForGenerationAllTariffs,
+            Arithmetic(
+                name          => 'Total for all tariffs (£/year)',
+                defaultFormat => '0softnz',
+                arithmetic    => '=IV1+IV2',
+                arguments     => {
+                    IV1 => $totalForDemandAllTariffs,
+                    IV2 => $totalForGenerationAllTariffs,
+                }
+            )
+        ]
+      );
+
     my $revenue = $model->revenue(
         $daysInYear,             $tariffs,
         $importCapacity,         $exportCapacityChargeable,

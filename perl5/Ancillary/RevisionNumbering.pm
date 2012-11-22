@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Franck Latrémolière and contributors.
+Copyright 2012 Reckon LLP and contributors.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted
 provided that the following conditions are met:
@@ -30,6 +30,7 @@ use warnings;
 use strict;
 use utf8;
 use DBI;
+use IO::File;
 use Digest::SHA1;
 
 use constant {
