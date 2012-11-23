@@ -265,26 +265,28 @@ sub worksheetsAndClosures {
 
       ,
 
-      'OneLiners' => sub {
-        my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->fit_to_pages( 1, 1 );
-        $wsheet->set_column( 0, 250, 30 );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach Notes(
-            lines => 'Copy of all single-line tables in the model' ), map {
-            $_->isa('SpreadsheetModel::Columnset')
-              ? Columnset(
-                name => "Copy of $_->{name}",
-                columns =>
-                  [ map { Stack( sources => [$_] ) } @{ $_->{columns} } ]
-              )
-              : Stack(
-                name    => "Copy of $_->{name}",
-                sources => [$_]
-              );
-            } grep { $_->lastRow == 0 } @{ $wbook->{logger}{objects} };
-      }
+      $model->{noOneLiners} ? () : (
+        'OneLiners' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->set_column( 0, 250, 30 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes(
+                lines => 'Copy of all single-line tables in the model' ), map {
+                $_->isa('SpreadsheetModel::Columnset')
+                  ? Columnset(
+                    name => "Copy of $_->{name}",
+                    columns =>
+                      [ map { Stack( sources => [$_] ) } @{ $_->{columns} } ]
+                  )
+                  : Stack(
+                    name    => "Copy of $_->{name}",
+                    sources => [$_]
+                  );
+                } grep { $_->lastRow == 0 } @{ $wbook->{logger}{objects} };
+        }
+      )
 
       ,
 

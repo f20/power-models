@@ -54,9 +54,12 @@ my ($rev)    = grep { /^-+rev/i } @ARGV;       # -rev
 my ($huge)   = grep { /^-+huge/i } @ARGV;      # -huge
 my ($medium) = grep { /^-+medium/i } @ARGV;    # -medium
 
-# -ldnoyes, -ldnotar, -ldnoyes5, -ldnotar5
+# -ldnono, -ldnoyes, -ldnotar, -ldnoyes5, -ldnotar5
 my ($ldno) = grep { /^-+ldno/i } @ARGV;
 $ldno = 'ldnorev5' unless $illustrative || $randomise || $ldno;
+undef $ldno if $ldno =~ /nono/i;
+
+my ($noOneLiners) = grep { /^-+noOneLin/i } @ARGV;
 
 my ($dcp130)      = grep { /-+DCP130/i } @ARGV;
 my ($dcp139)      = grep { /-+DCP139/i } @ARGV;
@@ -106,8 +109,9 @@ foreach my $company (@companies) {
                   )
                 : $small ? ( small => $small )
                 : (),
-                method     => $power,
-                ldnoRev    => $ldno,
+                method => $power,
+                $ldno        ? ( ldnoRev     => $ldno )        : (),
+                $noOneLiners ? ( noOneLiners => $noOneLiners ) : (),
                 noNegative => 1,
                 protect    => 1,
                 summaries  => 1,

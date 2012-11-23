@@ -325,22 +325,25 @@ sub loadFlowInputs {
                 $model->{MCpeak}[0],
                 $model->{MCpeak}[1],
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
               )
             : (
                 $model->{MCpeak},
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
             ),
             $model->{kWpeakD},
@@ -348,38 +351,44 @@ sub loadFlowInputs {
             $model->{method} =~ /LRIC/i
             ? (
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
               )
             : (
                 $model->{kWpeakG},
                 $model->{kVArpeakG},
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
                 Constant(
-                    name => 'Not used',
-                    rows => $model->{locationSet},
-                    data => [ map { 0 } 1 .. $model->{numLocations} ],
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    rows          => $model->{locationSet},
+                    data          => [ map { 0 } 1 .. $model->{numLocations} ],
                 ),
             ),
 
@@ -591,7 +600,7 @@ EOL
             dataset       => $model->{dataset}
         ),
         Dataset(
-            name    => 'Proportion eligible for local charge 1 credits',
+            name    => 'Proportion eligible for charge 1 credits',
             data    => [ map { 1 } 1 .. $model->{numTariffs} ],
             rows    => $model->{tariffSet},
             dataset => $model->{dataset}
@@ -649,9 +658,10 @@ EOL
         columns => [
             map {
                 $_ ? $_ : Constant(
-                    rows => $model->{tariffSet},
-                    name => 'Not used',
-                    data => [ map { '' } 1 .. $model->{numTariffs} ],
+                    rows          => $model->{tariffSet},
+                    name          => 'Not used',
+                    defaultFormat => 'unused',
+                    data          => [ map { '' } 1 .. $model->{numTariffs} ],
                   )
             } @columns
         ],

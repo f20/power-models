@@ -65,7 +65,7 @@ sub processData {
         $model->{numLocations} =
           (      $model->{randomise}
               || $model->{small}
-              || $model->{numLocations} ? 0 : $max > 6 ? 12 : 1 ) + $max;
+              || $model->{numLocations} ? 0 : $max > 24 ? 12 : 3 ) + $max;
         my $ds = $model->{dataset}{
             $model->{method} =~ /FCP/i
             ? 911
@@ -96,7 +96,7 @@ sub processData {
         $model->{numTariffs} =
           (      $model->{randomise}
               || $model->{small}
-              || $model->{numTariffs} ? 0 : $max > 6 ? 12 : 1 ) + $max;
+              || $model->{numTariffs} ? 0 : $max > 24 ? 12 : 3 ) + $max;
         if ( $model->{nonames} ) {
             $ds->[1]{$_} =
                 $ds->[1]{$_} =~ /^NR_/ ? 'Customer group 1'
