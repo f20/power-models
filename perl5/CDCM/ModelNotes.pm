@@ -2,26 +2,28 @@ package CDCM;
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 DCUSA Limited and contributors. All rights reserved.
+Copyright 2009-2012 DCUSA Limited and others. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted
-provided that the following conditions are met:
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this list of
-conditions and the following disclaimer.
+1. Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this list of
-conditions and the following disclaimer in the documentation and/or other materials provided
-with the distribution.
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY DCUSA LIMITED AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL DCUSA LIMITED OR CONTRIBUTORS BE
-LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
-OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
@@ -40,31 +42,38 @@ sub generalNotes {
             ? ()
             : ( 'This version of the model is a draft for testing only.', '' ),
             $model->{noLinks} ? () : <<'EOL',
-Copyright 2009-2012 DCUSA Limited and contributors. All rights reserved.
+Copyright 2009-2012 DCUSA Limited and others. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
-following conditions are met:
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
-following disclaimer.
+1. Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
 
-2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
-following disclaimer in the documentation and/or other materials provided with the distribution.
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
 
-THIS SOFTWARE IS PROVIDED BY DCUSA LIMITED AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
-INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-ARE DISCLAIMED. IN NO EVENT SHALL DCUSA LIMITED OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-This workbook is structured as a series of named and numbered tables. Above each calculation table, the
-algorithm used in the calculations is stated together with hyperlinks to all source data tables.
+This workbook is structured as a series of named and numbered tables. Above
+each calculation table, the algorithm used in the calculations is stated
+together with hyperlinks to all source data tables.
 
-Some versions of Microsoft Excel have a "Back" button which can be useful when using hyperlinks to navigate
-around the workbook.  The "Back" button might be in the "Web" toolbar (Microsoft Excel versions up to 2004), or
-an additional command which can be added to the "Quick Access Toolbar" (Microsoft Excel versions 2007 and 2010).
+Some versions of Microsoft Excel have a "Back" button which can be useful
+when using hyperlinks to navigate around the workbook.  The "Back" button
+might be in the "Web" toolbar (Microsoft Excel versions up to 2004), or an
+additional command which can be added to the "Quick Access Toolbar"
+(Microsoft Excel versions 2007 and 2010).
 EOL
             '',
 'Unless stated otherwise, all the data in this model are for illustration only.'
@@ -79,6 +88,14 @@ sub configNotes {
 Model configuration
 
 This sheet enables some names and labels to be configured.  It does not affect calculations.
+
+The list of tariffs, number of timebands and structure of network levels can only be configured when the model is built.
+
+Voltage and network levels are defined as follows:
+* 132kV means voltages of at least 132kV. For the purposes of this workbook, 132kV is not included within EHV.
+* EHV, in this workbook, means voltages of at least 22kV and less than 132kV.
+* HV means voltages of at least 1kV and less than 22kV.
+* LV means voltages below 1kV.
 EOL
     );
 }
@@ -88,7 +105,7 @@ sub inputDataNotes {
         lines => <<'EOL'
 Input data
 
-This sheet contains all the input data (except LLFCs, which are entered directly into the Tariff sheet).
+This sheet contains all the input data (except LLFCs which can be entered directly into the Tariff sheet).
 EOL
     );
 }
@@ -247,7 +264,8 @@ sub reactiveNotes {
     Notes(
         name  => 'Reactive power unit charges',
         lines => [
-            $model->{reactive} && $model->{reactive} =~ /band/i
+            $model->{reactive}
+              && $model->{reactive} =~ /band/i
             ? ( 'The calculations in this sheet are '
                   . 'based on steps 1-6 (Ofgem). '
                   . 'This gives banded reactive power unit charges.' )
