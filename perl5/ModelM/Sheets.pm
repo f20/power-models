@@ -55,7 +55,6 @@ sub worksheetsAndClosures {
           if $model->{version} && $model->{dataset};
         my $te = Dataset(
             number        => 1300,
-            appendTo      => $model->{inputTables},
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),
@@ -67,8 +66,6 @@ sub worksheetsAndClosures {
             ]
         );
         my ( $sh, $ro, $co ) = $te->wsWrite( $wbook, $wsheet );
-
-        # require Spreadsheet::WriteExcel::Utility;
         $sh = $sh->get_name;
         {
             $wbook->{titleAppend} =

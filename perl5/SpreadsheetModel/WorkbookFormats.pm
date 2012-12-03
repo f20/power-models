@@ -32,9 +32,10 @@ use strict;
 
 =head Development notes
 
-?,??0 style formats do not work with OpenOffice.org.  Should have a right-align option (with a few _m of padding on the right) to deal with that.
+?,??0 style formats do not work with OpenOffice.org.  Use the align: right[0-9]* option
+where the number is the number of extra _) to pad on the right.
 
-SHould probably adding formats like "£"???0.0,,"m" and "£"0.0,"k" (for financial modelling).
+Try formats like "£"???0.0,,"m" and "£"0.0,"k".
 
 =cut
 
@@ -98,8 +99,8 @@ sub setFormats {
     }
     my $q3 = $options->{alignment} ? ',' : '??,???,';
     my $rightpad;
-    $rightpad = '_m' x ( $1 || 2 )
-      if $options->{alignment} && $options->{alignment} =~ /right.*([0-9]+)?/;
+    $rightpad = '_)' x ( $1 || 2 )
+      if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
     my @numPercent =
       $rightpad
       ? (

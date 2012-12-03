@@ -92,7 +92,6 @@ sub worksheetsAndClosures {
         $model->{inputTables} ||= [];
         my $te = Dataset(
             number        => 1100,
-            appendTo      => $model->{inputTables},
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),

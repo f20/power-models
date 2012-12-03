@@ -55,7 +55,6 @@ sub worksheetsAndClosures {
           if $model->{version} && $model->{dataset};
         my $te = Dataset(
             number        => 1600,
-            appendTo      => $model->{inputTables},
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),

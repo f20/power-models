@@ -63,6 +63,7 @@ sub create {
     my $optionsColumns;
     my @allCoreNames;
     my %allClosures;
+    my $trialRunHack;
 
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
@@ -71,6 +72,7 @@ sub create {
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
         delete $options->{inputData} if $options->{oneSheet};
         my $model = $options->{PerlModule}->new(%$options);
+        $trialRunHack = $model if $options->{forwardLinks};
         $wbook->{titlePrefix} ||= $options->{revisionText} ||= '';
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
@@ -93,7 +95,7 @@ sub create {
           grep { $closure{$_} } (
               $model->can('frontSheets')
             ? $model->frontSheets($wbook)
-            : qw(Overview)
+            : qw(Overview Index)
           );
         my %frontSheetHash = map { ( $_ => undef ); } @frontSheets;
         push @allCoreNames, @frontSheets,
@@ -120,7 +122,9 @@ sub create {
                     $ws->set_footer("&F");
                     $ws->hide_gridlines(2);
                     $ws->protect( $options->{password} )
-                      if $options->{protect} && $cn ne 'Overview' && $cn ne 'Index';
+                      if $options->{protect}
+                      && $cn ne 'Overview'
+                      && $cn ne 'Index';
                     $options->{oneSheet} = $ws if $options->{oneSheet};
                 }
                 $wsheet{ $cn . $modelCount } = $ws;
@@ -138,6 +142,19 @@ sub create {
             $wbook->{dataSheet} = $wsheet{ 'Input' . $modelCount }
               if $options->{inputData} =~ /dataSheet/;
         }
+
+        if ($trialRunHack) {
+            open my $h2, '>', '/dev/null';
+            my $wb2 = $module->new($h2);
+            $wb2->setFormats($options);
+            $wb2->{findForwardLinks} = 1;
+            my %closures2 = $trialRunHack->worksheetsAndClosures($wb2);
+            $wb2->{$_} = $wb2->add_worksheet($_) foreach @allCoreNames;
+            $closures2{$_}->( $wb2->{$_} )
+              foreach grep { !/Overview|Index/i } @{ $options->{wsheetNames} };
+            $wb2->close;
+        }
+
         $wbook->{logger}     = $options->{logger};
         $wbook->{copy}       = $options->{copy};
         $wbook->{debug}      = $options->{debug};

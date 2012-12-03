@@ -74,7 +74,6 @@ sub worksheetsAndClosures {
         $wsheet->{nextFree} = 2;
         my $te = Dataset(
             number        => 1000,
-            appendTo      => $model->{inputTables},
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),

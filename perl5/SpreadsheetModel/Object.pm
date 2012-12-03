@@ -54,6 +54,11 @@ sub new {
     $self;
 }
 
+sub addForwardLink {
+    my ( $self, $link ) = @_;
+    $self->{forwardLinks}{ 0 + $link } = $link;
+}
+
 sub check {
     'I do not know what I am';
 }

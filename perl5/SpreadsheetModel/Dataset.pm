@@ -408,6 +408,13 @@ sub wsWrite {
                 my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                 if ( my $url = $_->wsUrl($wb) ) {
                     $ws->write_url( $row++, $col, $url, $na, $linkFormat );
+                    (
+                        $_->{location}
+                          && ref $_->{location} eq 'SpreadsheetModel::Columnset'
+                        ? $_->{location}
+                        : $_
+                      )->addForwardLink($self)
+                      if $wb->{findForwardLinks};
                 }
                 else {
                     $ws->write_string( $row++, $col, $na, $textFormat );
@@ -502,8 +509,6 @@ sub wsWrite {
     }
     else {
         @dataAreHere = ( $ws, $row, $col );
-        $ws->{nextFree} = $row + $lastRow + 1
-          unless $ws->{nextFree} > $row + $lastRow;
         my $scribbleFormat = $wb->getFormat('scribbles');
         foreach ( 1 .. NUM_SCRIBBLE_COLUMNS ) {
             my $c2 = $col + $_ + $lastCol;
@@ -544,6 +549,33 @@ sub wsWrite {
     ) if $self->{validation};
 
     @{ $self->{$wb} }{qw(worksheet row col)} = @dataAreHere;
+
+    $row += $lastRow;
+    if ( $self->{forwardLinks} ) {
+        my $saveCol    = $col - 1;
+        my $linkFormat = $wb->getFormat('link');
+        $ws->write( ++$row, $saveCol, 'Used by:', $wb->getFormat('text') );
+        foreach ( sort { $a->_shortName cmp $b->_shortName }
+            values %{ $self->{forwardLinks} } )
+        {
+            my $saveRow = ++$row;
+            push @{ $_->{postWriteCalls}{$wb} }, sub {
+                my ($me) = @_;
+                if ( my $url = $me->wsUrl($wb) ) {
+                    $ws->write_url( $saveRow, $saveCol, $url,
+                        "→ $me->{name}", $linkFormat );
+                }
+            };
+        }
+    }
+    $ws->{nextFree} = $row + 1
+      unless $ws->{nextFree} > $row + $lastRow;
+
+    if ( $self->{postWriteCalls}{$wb} ) {
+        $_->($self) foreach @{ $self->{postWriteCalls}{$wb} };
+    }
+
+    @dataAreHere;
 
 }
 
@@ -600,8 +632,10 @@ Rules:
         }
     }
     else {
+        # The duplication of %{ $self->{validation} } is necessary as
+        # this function will modify the content of its validation argument.
         $ws->data_validation( $row, $col, $rowEnd, $colEnd,
-            $self->{validation} );
+            { %{ $self->{validation} } } );
     }
 
 }

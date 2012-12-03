@@ -192,13 +192,16 @@ sub wsWrite {
             @sourceLines =
               _rewriteFormulae( \@formulae,
                 [ map { $_->{arguments} } @{ $self->{columns} } ] );
-            push @{ $self->{lines} },
-              [
-                $headerCols ? ('Kind:') : (),
-                map { $_->objectType } @{ $self->{columns} }
-              ];
-            push @{ $self->{lines} },
-              [ $headerCols ? ('Formula:') : (), @formulae ];
+            unless ( $self->{formulasDone} ) {
+                $self->{formulasDone} = 1;
+                push @{ $self->{lines} },
+                  [
+                    $headerCols ? ('Kind:') : (),
+                    map { $_->objectType } @{ $self->{columns} }
+                  ];
+                push @{ $self->{lines} },
+                  [ $headerCols ? ('Formula:') : (), @formulae ];
+            }
         }
     }
 
@@ -317,6 +320,14 @@ sub wsWrite {
                     my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                     if ( my $url = $_->wsUrl($wb) ) {
                         $ws->write_url( $row++, $col, $url, $na, $linkFormat );
+                        (
+                            $_->{location}
+                              && ref $_->{location} eq
+                              'SpreadsheetModel::Columnset'
+                            ? $_->{location}
+                            : $_
+                          )->addForwardLink($self)
+                          if $wb->{findForwardLinks};
                     }
                     else {
                         $ws->write_string( $row++, $col, $na, $textFormat );
@@ -451,12 +462,6 @@ use ->shortName here.
             $wb->getFormat('th') );
     }
 
-    $ws->{nextFree} =
-      $row + ( $lastRow ? ( $lastRow + $self->{anonRow} ) : 0 ) + 1
-      unless $ws->{nextFree}
-      && $ws->{nextFree} >
-      $row + ( $lastRow ? ( $lastRow + $self->{anonRow} ) : 0 );
-
     my $c2 = $col;
     foreach my $c ( 0 .. $lastCol ) {
         if ( my $co = $self->{columns}[$c]{cols} ) {
@@ -562,6 +567,31 @@ use ->shortName here.
             $ws->write( $row + $y, $c2, $note[$y], $scribbleFormat );
         }
         ++$c2;
+    }
+
+    $row += $lastRow ? ( $lastRow + $self->{anonRow} ) : 0;
+    if ( $self->{forwardLinks} ) {
+        my $saveCol    = $col - 1;
+        my $linkFormat = $wb->getFormat('link');
+        $ws->write( ++$row, $saveCol, 'Used by:', $wb->getFormat('text') );
+        foreach ( sort { $a->_shortName cmp $b->_shortName }
+            values %{ $self->{forwardLinks} } )
+        {
+            my $saveRow = ++$row;
+            push @{ $_->{postWriteCalls}{$wb} }, sub {
+                my ($me) = @_;
+                if ( my $url = $me->wsUrl($wb) ) {
+                    $ws->write_url( $saveRow, $saveCol, $url,
+                        "→ $me->{name}", $linkFormat );
+                }
+            };
+        }
+    }
+    $ws->{nextFree} = $row + 1
+      unless $ws->{nextFree} > $row + $lastRow;
+
+    if ( $self->{postWriteCalls}{$wb} ) {
+        $_->($self) foreach @{ $self->{postWriteCalls}{$wb} };
     }
 
 }
