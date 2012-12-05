@@ -47,7 +47,7 @@ if ( grep { /xlsx/i } @ARGV ) {
     $fileExtension .= 'x';
     require SpreadsheetModel::WorkbookXLSX;
 }
-my $options = ( grep { /right/i } @ARGV ) ? { alignment => 'right' } : undef;
+my $options = ( grep { /right/i } @ARGV ) ? { alignment => 'right' } : {};
 
 require Ancillary::DatabaseExport;
 
@@ -71,7 +71,8 @@ if ( grep { /\bcsv\b/i } @ARGV ) {
     $db->csvCreate( grep { /small/i } @ARGV );
 }
 
-if ( grep { /\btscs\b/i } @ARGV ) {
+if ( grep { /\btscs/i } @ARGV ) {
     $db->tscsCreateIntermediateTables unless grep { /norebuild/i } @ARGV;
-    $db->tscsCreateOutputFiles( $workbookModule, $fileExtension, $options );
+    $db->tscsCreateOutputFiles( $workbookModule, $fileExtension,
+        { %$options, ( ( grep { /csv/i } @ARGV ) ? 'csv' : 'wb' ) => 1 } );
 }

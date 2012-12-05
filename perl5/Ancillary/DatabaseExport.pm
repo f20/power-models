@@ -539,8 +539,7 @@ sub tscsCreateIntermediateTables {
         push @models, [ $bid, $co, $_ ];
     }
     $addCo->execute( $_->[0], $_->[1],
-        map { local $_ = $_; tr/-/ /; $_; }
-          ( $_->[2] =~ m#^(.*)-([0-9]{4}-[0-9]{2})# ) )
+        map { local $_ = $_; tr/-/ /; $_; } ( $_->[2] =~ m#^(.*?)-([0-9-]+)# ) )
       foreach sort { $a->[2] cmp $b->[2]; } @models;
     $$self->do($_) foreach grep { $_ } split /;\n*/, <<EOSQL;
 drop table if exists companies;
@@ -607,30 +606,36 @@ sub tscsCreateOutputFiles {
     my $tab1 = 0;
 
     while ( my ( $tab, $table ) = $tabList->fetchrow_array ) {
-        if ( substr( $tab, 0, 2 ) ne $file ) {
-            $wb =
-              $workbookModule->new(
-                'TSCS-' . ( $file = substr( $tab, 0, 2 ) ) . $fileExtension );
-            $wb->setFormats($options);
-            $smallNumberFormat = $wb->getFormat('0.000copynz');
-            $bigNumberFormat   = $wb->getFormat('0copynz');
-            $thFormat          = $wb->getFormat('th');
-            $thcFormat         = $wb->getFormat('thc');
-            $captionFormat     = $wb->getFormat('caption');
-            $titleFormat       = $wb->getFormat('notes');
+        my ( $ws, $row, $csv );
+        if ( $options->{wb} ) {
+            if ( substr( $tab, 0, 2 ) ne $file ) {
+                $wb =
+                  $workbookModule->new( 'TSCS-'
+                      . ( $file = substr( $tab, 0, 2 ) )
+                      . $fileExtension );
+                $wb->setFormats($options);
+                $smallNumberFormat = $wb->getFormat('0.000copynz');
+                $bigNumberFormat   = $wb->getFormat('0copynz');
+                $thFormat          = $wb->getFormat('th');
+                $thcFormat         = $wb->getFormat('thc');
+                $captionFormat     = $wb->getFormat('caption');
+                $titleFormat       = $wb->getFormat('notes');
+            }
+            $ws = $wb->add_worksheet( $tab == $tab1 ? $tab + rand() : $tab );
+            $tab1 = $tab;
+            $ws->set_column( 0, 2,   36 );
+            $ws->set_column( 3, 250, 18 );
+            $ws->hide_gridlines(2);
+            $ws->freeze_panes( 1, 0 );
+            $ws->write_string( 0, 0, $table, $titleFormat );
+            $row = 2;
+            $ws->write_string( $row, $_, $topLine[$_], $thcFormat )
+              for 0 .. $#topLine;
         }
-        my $ws = $wb->add_worksheet( $tab == $tab1 ? $tab + rand() : $tab );
-        $tab1 = $tab;
-        $ws->set_column( 0, 2,   36 );
-        $ws->set_column( 3, 250, 18 );
-        $ws->hide_gridlines(2);
-        $ws->freeze_panes( 1, 0 );
-        $ws->write_string( 0, 0, $table, $titleFormat );
-        my $row = 2;
-        $ws->write_string( $row, $_, $topLine[$_], $thcFormat )
-          for 0 .. $#topLine;
 
-        open my $csv, '>', "ts$tab.csv";
+        if ( $options->{csv} ) {
+            open my $csv, '>', "ts$tab.csv";
+        }
 
         $fetch->execute($tab);
         my $prev = '';
@@ -641,29 +646,34 @@ sub tscsCreateOutputFiles {
         {
             my $cur = join '|', $company, $column, $myrow;
             unless ( $prev eq $cur ) {
-                print {$csv} join( ',', @csv ) . "\n";
-                ++$row;
-                $ws->write_string( $row, 0, $company, $thFormat );
-                $ws->write_string( $row, 1, $column,  $thFormat );
-                $ws->write_string( $row, 2, $myrow,   $thFormat );
                 $prev = $cur;
-                @csv  = (
-                    (
-                        map { local $_ = $_; s/(["\\])/\\$1/g; qq%"$_"%; }
-                          $company,
-                        $column,
-                        $myrow
-                    ),
-                    ( map { '' } 3 .. $#topLineCsv )
-                );
+                if ($ws) {
+                    ++$row;
+                    $ws->write_string( $row, 0, $company, $thFormat );
+                    $ws->write_string( $row, 1, $column,  $thFormat );
+                    $ws->write_string( $row, 2, $myrow,   $thFormat );
+                }
+                if ($csv) {
+                    print {$csv} join( ',', @csv ) . "\n";
+                    @csv = (
+                        (
+                            map { local $_ = $_; s/(["\\])/\\$1/g; qq%"$_"%; }
+                              $company,
+                            $column,
+                            $myrow
+                        ),
+                        ( map { '' } 3 .. $#topLineCsv )
+                    );
+                }
             }
             $ws->write( $row, 2 + $per, $value, $small
                 ? $smallNumberFormat
-                : $bigNumberFormat );
+                : $bigNumberFormat )
+              if $ws;
             $csv[ 2 + $per ] = $value;
         }
-        print {$csv} join( ',', @csv ) . "\n";
-        $ws->autofilter( 2, 0, $row, $#topLine );
+        print {$csv} join( ',', @csv ) . "\n" if $csv;
+        $ws->autofilter( 2, 0, $row, $#topLine ) if $ws;
     }
 }
 

@@ -223,7 +223,14 @@ sub objectType {
 }
 
 sub wsUrl {
-    $_[0]->SUPER::wsUrl( $_[1] ) || $_[0]{sources}[0]->SUPER::wsUrl( $_[1] );
+    my $self = shift;
+    $self->SUPER::wsUrl(@_) || $self->{sources}[0]->wsUrl(@_);
+}
+
+sub addForwardLink {
+    my $self = shift;
+    $self->SUPER::addForwardLink(@_);
+    $self->{sources}[0]->addForwardLink(@_);
 }
 
 #

@@ -380,7 +380,11 @@ sub roundingAndFinishing {
                 $revenueBefore ? ( IV3 => $revenueBefore ) : (),
             }
         );
-        push @{ $model->{revenueSummary} }, @columns, $totalNet, $revenueError;
+        push @{ $model->{revenueSummaryTables} },
+          Columnset(
+            name    => 'Revenue forecast summary',
+            columns => [ @columns, $totalNet, $revenueError, ],
+          );
         my $rerr = Stack( sources => [$revenueError] );
         splice @{ $model->{summaryColumns} }, 1, 0,
           Stack( sources => [$totalRevenuesFromMatching] ), $rerr,

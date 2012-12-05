@@ -265,7 +265,17 @@ sub worksheetsAndClosures {
       : ()
 
       ,
+		'Total' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 2 );
+            $wsheet->set_column( 0, 0,   20 );
+            $wsheet->set_column( 1, 1,   50 );
+            $wsheet->set_column( 2, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Total' ), @{ $model->{TotalsTables} };
+          }
 
+        ,
       $model->{noOneLiners} ? () : (
         'OneLiners' => sub {
             my ($wsheet) = @_;

@@ -27,6 +27,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
+# Forward links bug:
+# This class does not work correctly with forwardLinks features because
+# tables are being created within the wsPrepare call.
+
 use warnings;
 use strict;
 

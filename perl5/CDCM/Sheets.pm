@@ -330,10 +330,7 @@ sub worksheetsAndClosures {
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->roundingNotes, @{ $model->{roundingResults} },
           $model->{model100} ? @{ $model->{postPcdApplicationResults} } : (),
-          Columnset(
-            name    => 'Revenue forecast summary',
-            columns => $model->{revenueSummary}
-          ),
+          @{ $model->{revenueSummaryTables} },
           $model->{model100} ? ()
           : $model->{postPcdApplicationResults}
           ? @{ $model->{postPcdApplicationResults} }
@@ -453,8 +450,7 @@ EOL
         $wsheet->set_column( 0, 0,   40 );
         $wsheet->set_column( 1, 250, 20 );
 
-        my $logger = $wbook->{logger};
-        delete $wbook->{logger};
+        my $logger  = delete $wbook->{logger};
         my $noLinks = $wbook->{noLinks};
         $wbook->{noLinks} = 1 if $model->{matrices} =~ /big|nol/i;
 

@@ -56,7 +56,66 @@ sub new {
 
 sub addForwardLink {
     my ( $self, $link ) = @_;
-    $self->{forwardLinks}{ 0 + $link } = $link;
+    $self->{forwardLinks}{ 0 + $link } = $link unless $self == $link;
+}
+
+sub requestForwardLinks {
+    my ( $self, $wb, $ws, $rowref, $col ) = @_;
+    goto &requestForwardTree if $wb->{forwardLinks} =~ /tree/i;
+    return unless $self->{forwardLinks};
+    my $saveCol    = $col - 1;
+    my $linkFormat = $wb->getFormat('link');
+    $ws->write( ++$$rowref, $saveCol, 'Used by:', $wb->getFormat('text') );
+    my $saveRow = $$rowref;
+    foreach ( values %{ $self->{forwardLinks} } ) {
+        ++$$rowref;
+        push @{ $_->{postWriteCalls}{$wb} }, sub {
+            my ($me) = @_;
+            if ( my $url = $me->wsUrl($wb) ) {
+                $ws->write_url( ++$saveRow, $saveCol, $url,
+                    "→ $me->{name}", $linkFormat );
+            }
+        };
+    }
+}
+
+sub requestForwardTree {
+    my ( $self, $wb, $ws, $rowref, $col ) = @_;
+    return unless $self->{forwardLinks};
+    my $saveCol    = $col - 1;
+    my $linkFormat = $wb->getFormat('link');
+    my $textFormat = $wb->getFormat('text');
+    $ws->write( ++$$rowref, $saveCol, 'Used by:', $textFormat );
+    my $masterPrefix = ' ';
+    my %map          = %{ $self->{forwardLinks} };
+    my @next         = values %map;
+    my $saveRow      = $$rowref;
+
+    while (@next) {
+        my $prefix = $masterPrefix = '→' . $masterPrefix;
+        my @current = @next;
+        @next = ();
+        foreach (@current) {
+            ++$$rowref;
+            push @{ $_->{postWriteCalls}{$wb} }, sub {
+                my ($me) = @_;
+                if ( my $url = $me->wsUrl($wb) ) {
+                    $ws->write_url( ++$saveRow, $saveCol, $url,
+                        "$prefix$me->{name}", $linkFormat );
+                }
+            };
+            push @next, grep {
+                if ( exists $map{ 0 + $_ } )
+                {
+                    ();
+                }
+                else {
+                    undef $map{ 0 + $_ };
+                    1;
+                }
+            } values %{ $_->{forwardLinks} } if $_->{forwardLinks};
+        }
+    }
 }
 
 sub check {

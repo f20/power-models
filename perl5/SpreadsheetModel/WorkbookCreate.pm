@@ -63,7 +63,7 @@ sub create {
     my $optionsColumns;
     my @allCoreNames;
     my %allClosures;
-    my $trialRunHack;
+    my $forwardLinkFindingRun;
 
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
@@ -72,7 +72,7 @@ sub create {
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
         delete $options->{inputData} if $options->{oneSheet};
         my $model = $options->{PerlModule}->new(%$options);
-        $trialRunHack = $model if $options->{forwardLinks};
+        $forwardLinkFindingRun = $model if $options->{forwardLinks};
         $wbook->{titlePrefix} ||= $options->{revisionText} ||= '';
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
@@ -143,12 +143,12 @@ sub create {
               if $options->{inputData} =~ /dataSheet/;
         }
 
-        if ($trialRunHack) {
+        if ($forwardLinkFindingRun) {
             open my $h2, '>', '/dev/null';
             my $wb2 = $module->new($h2);
             $wb2->setFormats($options);
             $wb2->{findForwardLinks} = 1;
-            my %closures2 = $trialRunHack->worksheetsAndClosures($wb2);
+            my %closures2 = $forwardLinkFindingRun->worksheetsAndClosures($wb2);
             $wb2->{$_} = $wb2->add_worksheet($_) foreach @allCoreNames;
             $closures2{$_}->( $wb2->{$_} )
               foreach grep { !/Overview|Index/i } @{ $options->{wsheetNames} };
@@ -162,6 +162,8 @@ sub create {
         $wbook->{noLinks}    = $options->{noLinks};
         $wbook->{validation} = $options->{validation};
         $wbook->{noData}     = $options->{dataset} && !$options->{illustrative};
+        $wbook->{forwardLinks} = $options->{forwardLinks}
+          if $options->{forwardLinks};
         $allClosures{$_}->( $wsheet{$_} ) foreach @{ $options->{wsheetNames} };
     }
     $wbook->close;

@@ -551,25 +551,9 @@ sub wsWrite {
     @{ $self->{$wb} }{qw(worksheet row col)} = @dataAreHere;
 
     $row += $lastRow;
-    if ( $self->{forwardLinks} ) {
-        my $saveCol    = $col - 1;
-        my $linkFormat = $wb->getFormat('link');
-        $ws->write( ++$row, $saveCol, 'Used by:', $wb->getFormat('text') );
-        foreach ( sort { $a->_shortName cmp $b->_shortName }
-            values %{ $self->{forwardLinks} } )
-        {
-            my $saveRow = ++$row;
-            push @{ $_->{postWriteCalls}{$wb} }, sub {
-                my ($me) = @_;
-                if ( my $url = $me->wsUrl($wb) ) {
-                    $ws->write_url( $saveRow, $saveCol, $url,
-                        "→ $me->{name}", $linkFormat );
-                }
-            };
-        }
-    }
-    $ws->{nextFree} = $row + 1
-      unless $ws->{nextFree} > $row + $lastRow;
+    $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
+    ++$row;
+    $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
 
     if ( $self->{postWriteCalls}{$wb} ) {
         $_->($self) foreach @{ $self->{postWriteCalls}{$wb} };
