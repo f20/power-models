@@ -35,8 +35,6 @@ use strict;
 ?,??0 style formats do not work with OpenOffice.org.  Use the align: right[0-9]* option
 where the number is the number of extra _) to pad on the right.
 
-Try formats like "£"???0.0,,"m" and "£"0.0,"k".
-
 =cut
 
 sub getFormat {

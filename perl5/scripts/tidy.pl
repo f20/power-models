@@ -31,10 +31,14 @@ foreach (@ARGV) {
         eval { $destination = YAML::Dump( YAML::Load($source) ); };
         $messages = $@;
     }
+    else {
+        warn "Ignored: $_";
+        next;
+    }
     if ( $error || $messages ) {
         warn $messages;
     }
-    elsif ( $source ne $destination ) {
+    if ( defined $destination && $source ne $destination ) {
         unlink "$_.tdy";
         link $_, "$_.tdy";
         rename "$_.tdy", "$_.bak";

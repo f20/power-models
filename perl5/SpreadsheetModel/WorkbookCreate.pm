@@ -73,7 +73,8 @@ sub create {
         delete $options->{inputData} if $options->{oneSheet};
         my $model = $options->{PerlModule}->new(%$options);
         $forwardLinkFindingRun = $model if $options->{forwardLinks};
-        $wbook->{titlePrefix} ||= $options->{revisionText} ||= '';
+        $options->{revisionText} ||= '';
+        $wbook->{titlePrefix} ||= $options->{revisionText};
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
