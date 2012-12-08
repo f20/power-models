@@ -172,6 +172,13 @@ sub addTableNumber {    # prohibitedTableNumbers is a bad arrangement
               + 100 * $ws->{sheetNumber};
           } while $wb->{prohibitedTableNumbers}
           && grep { $_ eq $numlet; } @{ $wb->{prohibitedTableNumbers} };
+        ++$wb->{lastSheetNumber} unless $numlet % 100;
+        die 'Non-sequential table numbers: '
+          . "trying to assign $numlet to $self->{name}"
+          . " after $wb->{highestAutoTableNumber} had been assigned."
+          if $wb->{highestAutoTableNumber}
+          && $numlet < $wb->{highestAutoTableNumber};
+        $wb->{highestAutoTableNumber} = $numlet;
     }
     $numlet .= '. ';
     $self->{name} =

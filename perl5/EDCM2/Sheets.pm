@@ -246,36 +246,6 @@ sub worksheetsAndClosures {
 
       : (),
 
-      $model->{ldnoRev}
-      ?
-
-      (
-
-        'LDNORev' => sub {
-            my ($wsheet) = @_;
-            $wsheet->{sheetNumber} = 60;
-            $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   50 );
-            $wsheet->set_column( 1, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet ) foreach @{ $model->{ldnoRevTables} };
-          }
-
-      )
-
-      : ()
-
-      ,
-		'Total' => sub {
-            my ($wsheet) = @_;
-            $wsheet->freeze_panes( 1, 2 );
-            $wsheet->set_column( 0, 0,   20 );
-            $wsheet->set_column( 1, 1,   50 );
-            $wsheet->set_column( 2, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Total' ), @{ $model->{TotalsTables} };
-          }
-
-        ,
       $model->{noOneLiners} ? () : (
         'OneLiners' => sub {
             my ($wsheet) = @_;
@@ -298,6 +268,36 @@ sub worksheetsAndClosures {
                 } grep { $_->lastRow == 0 } @{ $wbook->{logger}{objects} };
         }
       )
+
+      ,
+
+      $model->{ldnoRev}
+      ?
+
+      (
+
+        'LDNORev' => sub {
+            my ($wsheet) = @_;
+            $wbook->{lastSheetNumber} = $wsheet->{sheetNumber} = 60;
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   50 );
+            $wsheet->set_column( 1, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet ) foreach @{ $model->{ldnoRevTables} };
+          }
+
+      )
+
+      : ()
+
+      , 'Total' => sub {
+        my ($wsheet) = @_;
+        $wsheet->freeze_panes( 1, 2 );
+        $wsheet->set_column( 0, 0,   20 );
+        $wsheet->set_column( 1, 1,   50 );
+        $wsheet->set_column( 2, 250, 20 );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( lines => 'Total' ), @{ $model->{TotalsTables} };
+      }
 
       ,
 
