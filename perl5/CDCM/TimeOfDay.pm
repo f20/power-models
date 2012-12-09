@@ -44,14 +44,16 @@ sub timeOfDay {
         $timebandSet = Labelset(
             name     => 'Distribution time bands',
             editable => Dataset(
-                rows => Labelset(
+                cols => Labelset(
                     name => 'Distribution time band list',
                     list =>
                       [ map { "Name of band $_" } 1 .. $model->{timebands} ]
                 ),
                 name          => 'Names of distribution time bands',
-                defaultFormat => 'textinput',
-                location      => 'Config',
+                number        => 1050,
+                appendTo      => $model->{inputTables},
+                dataset       => $model->{dataset},
+                defaultFormat => 'texthard',
                 data          => [ map { "Band $_" } 1 .. $model->{timebands} ],
                 lines =>
                   'Source: user preference (does not affect calculations).'

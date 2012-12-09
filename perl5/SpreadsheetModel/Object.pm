@@ -196,7 +196,7 @@ sub splitLines {
 
 sub _shortName {
     my ($self) = @_;
-    return $self->shortName if ref $self && $self->can('shortName');
+    return $self->shortName if UNIVERSAL::can( $self, 'shortName' );
     my @self = split /\n/, $self;
     pop @self;
 }

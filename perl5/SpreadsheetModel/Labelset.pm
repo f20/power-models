@@ -70,8 +70,10 @@ sub htmlDescribe {
 }
 
 sub wsPrepare {
-    foreach ( grep { ref $_ eq 'ARRAY' } @{ $_[0]{list} } ) {
-        my ( $sh, $ro, $co ) = $_->[0]->wsWrite( @_[ 1, 2 ] );
+    my ( $self, $wb, $ws ) = @_;
+    return if $wb->{findForwardLinks};
+    foreach ( grep { ref $_ eq 'ARRAY' } @{ $self->{list} } ) {
+        my ( $sh, $ro, $co ) = $_->[0]->wsWrite( $wb, $ws );
         $_ = q%='%
           . $sh->get_name . q%'!%
           . xl_rowcol_to_cell( $ro + $_->[1], $co + $_->[2] );

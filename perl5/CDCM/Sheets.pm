@@ -50,20 +50,6 @@ sub worksheetsAndClosures {
 
     push @wsheetsAndClosures,
 
-      'Config' => sub {
-        my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 11;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->fit_to_pages( 1, 1 );
-        $wsheet->set_column( 0, 0, 50 );
-        $wsheet->set_column( 1, 1, 100 );
-        $model->configNotes->wsWrite( $wbook, $wsheet );
-      }
-
-      if $model->{detailedCosts};
-
-    push @wsheetsAndClosures,
-
       'Input' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 11;

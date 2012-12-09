@@ -330,13 +330,12 @@ EOL
               name     => $name,
               editable => Dataset(
                 lines    => 'Source: service models.',
-                location => $model->{configSheet},
                 name     => "Names of network components in $name",
                 rows     => Labelset(
                     name => "Possible components in $name",
                     list => [ map { "$name item $_" } 1 .. @{ $_->{list} } ]
                 ),
-                defaultFormat => 'textinput',
+                defaultFormat => 'texthard',
                 data          => $_->{list}
               );
         }

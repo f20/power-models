@@ -2,6 +2,7 @@
 PerlModule: CDCM
 alignment: right4
 colour: 0
+customTimebandNames: 1
 drm: top500gsp
 extraLevels: 1
 forwardLinks: 1
@@ -13,4 +14,4 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
 tariffs: commongensub
-version: Experimental
+version: Experimental rules
