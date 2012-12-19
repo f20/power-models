@@ -50,9 +50,9 @@ sub connect {
             return;
         }
     }
-    mkdir "$path/scm" unless -e "$path/scm";
     my $dbh = DBI->connect( 'DBI:SQLite:dbname=' . $path . '/~$index.sqlite',
         '', '', { sqlite_unicode => 0, AutoCommit => 1, } );
+    chmod 0664, $path . '/~$index.sqlite';
     $dbh->sqlite_busy_timeout(1_000);
     unless ($dbh) {
         warn "Cannot connect to $path/~\$index.dbh";
@@ -80,55 +80,11 @@ sub connect {
         }
     }
     my $self = bless [ $path, $dbh, $st ], $class;
-    eval {
-        warn 'Synchronising the revisions database with old monolithic format';
-        local undef $/;
-        $dbh->do(qq%attach database "$path.sqlite" as old%);
-        $dbh->begin_work;
-        my $q = $dbh->prepare(
-'select i, h from l left join old.revisions on (i=revision and h=sha1) where revision is null'
-        );
-        $q->execute;
-        while ( my ( $i, $h ) = $q->fetchrow_array ) {
-            open my $f, '<', "$path/r$i.yml" or warn "Cannot open $path/$i.yml";
-            my $yaml = <$f>;
-            close $f;
-            $dbh->do(
-'insert or replace into old.revisions (revision, yaml, sha1) values (?, ?, ?)',
-                undef, $i, $yaml, $h
-            );
-        }
-        $q = $dbh->prepare(
-'select revision, yaml, sha1 from old.revisions left join l on (i=revision and h=sha1) where sha1 is not null and i is null'
-        );
-        $q->execute;
-        while ( my ( $i, $yaml, $h ) = $q->fetchrow_array ) {
-            $dbh->do( 'insert or replace into l values (?, ?)', undef, $i, $h );
-            open my $f, '>', "$path/r$i.yml"
-              or warn "Cannot open $path/r$i.yml";
-            print $f $yaml if $yaml;
-            close $f;
-            if (
-                my $scmData = $dbh->selectrow_array(
-                    'select scmdata from old.scmmapping where revision=?',
-                    undef, $i
-                )
-              )
-            {
-                open $f, '>',
-                  "$path/scm/r$i-" . Digest::SHA1::sha1_hex($scmData) . '.yml';
-                print $f $scmData;
-                close $f;
-            }
-        }
-        $dbh->commit;
-        $dbh->do('detach database old');
-    } if -e "$path.sqlite";
     $self;
 }
 
 sub revisionText {
-    my ( $self, $yaml, $scmData ) = @_;
+    my ( $self, $yaml ) = @_;
     my $sha1Machine = new Digest::SHA1;
     my $sha1        = $sha1Machine->add($yaml)->digest;
     my $dbh         = $self->[HANDLE];
@@ -138,20 +94,15 @@ sub revisionText {
     {
         while ( !$dbh->do('begin immediate transaction') ) { }
         $dbh->do( 'insert into l (h) values (?)', undef, $sha1 );
-        while ( !$dbh->commit ) { }
+        sleep 1 while !$dbh->commit;
         if ( ($revision) =
             $dbh->selectrow_array( $self->[STATEMENT], undef, $sha1 ) )
         {
-            open my $f, '>', "$self->[PATH]/r$revision.yml";
+            my $ymlFile = "$self->[PATH]/r$revision.yml";
+            open my $f, '>', $ymlFile;
             print $f $yaml;
-        }
-    }
-    if ( $revision && $scmData ) {
-        my $sha1scm = $sha1Machine->add($scmData)->hexdigest;
-        $sha1scm =~ /([0-9a-f]+)/i;
-        unless ( -e ( my $fn = "$self->[PATH]/scm/r$revision-$1.yml" ) ) {
-            open my $f, '>', $fn;
-            print $f $scmData;
+            close $f;
+            chmod 0444, $ymlFile;
         }
     }
     $revision ? "r$revision" : '';

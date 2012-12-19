@@ -49,7 +49,7 @@ sub objectType {
 
 sub check {
     my ($self) = @_;
-    $self->{arithmetic} ||= 'Special calculation';
+    $self->{arithmetic} = 'Special calculation' unless defined $self->{arithmetic};
     $self->{objectType} ||= 'Special calculation';
     push @{ $self->{sourceLines} }, values %{ $self->{arguments} };
     $self->{wsPrepare} ||= sub {

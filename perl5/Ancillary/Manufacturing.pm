@@ -164,7 +164,7 @@ EOW
     $self->{override} = sub { $_ = { %$_, @_ } foreach @rulesets; };
 
     $self->{validate} = sub {
-        my ( $perl5dir, $dbString, $noGit ) = @_;
+        my ( $perl5dir, $dbString ) = @_;
 
         unless ( $workbookModule && $fileExtension ) {
             $workbookModule = 'SpreadsheetModel::Workbook';
@@ -176,24 +176,10 @@ EOW
 
         use Ancillary::Validation qw(sha1File sourceCodeSha1);
         my $sourceCodeSha1 = sourceCodeSha1($perl5dir);
-        delete $sourceCodeSha1->{'Ancillary/Manufacturing.pm'};
 
         # Omitted from validation: this file, and anything "require"d below.
+        delete $sourceCodeSha1->{'Ancillary/Manufacturing.pm'};
 
-        my $scmData;
-        unless ($noGit) {
-            local $/ = "\n";
-            $scmData->{gitCommit} =
-              _runInFolder( $perl5dir, qw(git rev-parse HEAD) );
-            local undef $/;
-            my $status = _runInFolder( $perl5dir, qw(git status -s) );
-            if ($status) {
-                $status .= "\n??" if $status =~ s#^\?\?.*$##mg;
-                $status =~ s/\n+/\n/gs;
-                $status =~ s/^\n//s;
-                $scmData->{gitStatus} = $status;
-            }
-        }
         my ($db);
         if ( $dbString && require Ancillary::RevisionNumbering ) {
             $db = Ancillary::RevisionNumbering->connect($dbString)
@@ -201,10 +187,7 @@ EOW
         }
         foreach (@rulesets) {
             $_->{'~codeValidation'} = $sourceCodeSha1;
-            $_->{revisionText} =
-              $db->revisionText( YAML::Dump($_), YAML::Dump($scmData) )
-              if $db;
-            $_->{'~scmData'} = $scmData if $scmData;
+            $_->{revisionText} = $db->revisionText( YAML::Dump($_) ) if $db;
         }
     };
 

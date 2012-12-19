@@ -178,24 +178,9 @@ sub wsPrepare {
             $self->{rowKeys} = \@rowKeys;
         }
     }
-    my $format = $wb->getFormat(
-        $self->{defaultFormat}
-        ? (
-            ref $self->{defaultFormat}
-            ? @{ $self->{defaultFormat} }
-            : $self->{defaultFormat}
-          )
-        : '0.000hard'
-    );
-    my $missingFormat = $wb->getFormat(
-        $self->{defaultMissingFormat}
-        ? (
-            ref $self->{defaultMissingFormat}
-            ? @{ $self->{defaultMissingFormat} }
-            : $self->{defaultMissingFormat}
-          )
-        : 'unused'
-    );
+    my $format = $wb->getFormat( $self->{defaultFormat} || '0.000hard' );
+    my $missingFormat =
+      $wb->getFormat( $self->{defaultMissingFormat} || 'unused' );
     if ( ref $self->{data}[0] ) {
         my $data = $noData
           ? [
@@ -257,7 +242,12 @@ sub wsPrepare {
               ? $overrideColumns[$x]{ $rowKeys[$y] }
               : $data->[$y];
             defined $d
-              ? ( $d, $format )
+              ? (
+                $d,
+                $self->{rowFormats} && $self->{rowFormats}[$y]
+                ? $wb->getFormat( $self->{rowFormats}[$y] )
+                : $format
+              )
               : ( '', $missingFormat );
           }
     }

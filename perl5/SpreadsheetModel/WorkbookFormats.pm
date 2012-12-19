@@ -30,13 +30,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 
-=head Development notes
-
-?,??0 style formats do not work with OpenOffice.org.  Use the align: right[0-9]* option
-where the number is the number of extra _) to pad on the right.
-
-=cut
-
 sub getFormat {
     my ( $workbook, $key ) = @_;
     $workbook->{formats}{$key} ||= $workbook->add_format(
@@ -86,6 +79,7 @@ use constant {
 
 sub setFormats {
     my ( $workbook, $options ) = @_;
+
     unless ( $options->{defaultColours} ) {
         $workbook->set_custom_color( BLUE,     '#0066cc' );
         $workbook->set_custom_color( BGYELLOW, '#ffffcc' );
@@ -95,10 +89,14 @@ sub setFormats {
         $workbook->set_custom_color( ORANGE,   '#ff6633' );
         $workbook->set_custom_color( GREY,     '#999999' );
     }
+
+# ?,??0 style formats do not work with OpenOffice.org.  Use the "align: right[0-9]*"
+# option, where the number is the number of extra _) to pad on the right.
     my $q3 = $options->{alignment} ? ',' : '??,???,';
     my $rightpad;
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
+
     my @numPercent =
       $rightpad
       ? (
@@ -106,6 +104,17 @@ sub setFormats {
         align      => 'right'
       )
       : ( num_format => ' _(??0.0%_);[Red] (??0.0%);;@', align => 'center' );
+    my @num_million =
+      $rightpad
+      ? (
+        num_format =>
+          qq%_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;@%,
+        align => 'right'
+      )
+      : (
+        num_format => ' _(?,??0.0,, "m"_);[Red] (?,??0.0,, "m");;@',
+        align      => 'center'
+      );
     my @num_ =
       $rightpad
       ? (
@@ -242,13 +251,15 @@ sub setFormats {
             align      => 'center',
             @colourSoft,
         ],
-        '0con'  => [ locked => 1, @sizeNumber, @num_, @colourCon, ],
-        '0copy' => [ locked => 1, @sizeNumber, @num_, @colourCopy, ],
-        '0hard' => [ locked => 0, @sizeNumber, @num_, @colourHard, ],
-        '0000hard' =>
-          [ locked => 0, @sizeNumber, num_format => '0000', @colourHard, ],
-        '0000copy' =>
-          [ locked => 0, @sizeNumber, num_format => '0000', @colourCopy, ],
+        'millioncopy' =>
+          [ locked => 1, @sizeNumber, @num_million, @colourCopy, ],
+        'millionhard' =>
+          [ locked => 0, @sizeNumber, @num_million, @colourHard, ],
+        'millionsoft' =>
+          [ locked => 1, @sizeNumber, @num_million, @colourSoft, ],
+        '0con'    => [ locked => 1, @sizeNumber, @num_, @colourCon, ],
+        '0copy'   => [ locked => 1, @sizeNumber, @num_, @colourCopy, ],
+        '0hard'   => [ locked => 0, @sizeNumber, @num_, @colourHard, ],
         '0soft'   => [ locked => 1, @sizeNumber, @num_, @colourSoft, ],
         '0softpm' => [
             locked => 1,
@@ -278,6 +289,10 @@ sub setFormats {
             ),
             @colourCopy,
         ],
+        '0000hard' =>
+          [ locked => 0, @sizeNumber, num_format => '0000', @colourHard, ],
+        '0000copy' =>
+          [ locked => 0, @sizeNumber, num_format => '0000', @colourCopy, ],
         boolhard => [
             locked => 0,
             @sizeNumber,
@@ -362,6 +377,13 @@ sub setFormats {
             align      => 'left',
             text_wrap  => 1,
             @colourHard,
+        ],
+        textnocolour => [
+            locked => 0,
+            @sizeText,
+            num_format => '@',
+            align      => 'left',
+            text_wrap  => 1,
         ],
         textlrap => [
             locked => 1,
