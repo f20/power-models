@@ -192,7 +192,7 @@ sub setFormats {
       : ( right => 4, border_color => GREY );
     my @colourCaption = !$options->{colour} ? () : ( color => BLUE );
     my @colourTitle   = !$options->{colour} ? () : ( color => ORANGE );
-    my @sizeCaption    = ( size   => 13 );
+    my @sizeCaption    = ( size   => 15 );
     my @sizeHeading    = ( valign => 'vbottom', size => 15 );
     my @sizeLabel      = ( valign => 'vcenter', );
     my @sizeLabelGroup = ( valign => 'vcenter', );
@@ -265,7 +265,7 @@ sub setFormats {
             ),
             @colourSoft,
         ],
-      '0copypm' => [
+        '0copypm' => [
             locked => 1,
             @sizeNumber,
             $rightpad

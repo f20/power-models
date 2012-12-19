@@ -235,17 +235,20 @@ sub wsWrite {
         for ( 0 .. $lastCol ) {
             my $thecol = $self->{columns}[$_];
             foreach (qw(rows cols)) {
-
-                # warn "$self->{name} $self->{debug} $thecol->{name} $_";
-                $thecol->{$_}->wsPrepare( $wb, $ws )
-                  if $thecol->{$_};
+                $thecol->{$_}->wsPrepare( $wb, $ws ) if $thecol->{$_};
             }
             $thecol->{name} .= " ($thecol->{debug})"
               if $wb->{debug} && 0 > index $thecol->{name}, $thecol->{debug};
-            die
-"$thecol->{name} $thecol->{debug} is already in the workbook and cannot be written again as part of $self->{name} $self->{debug}"
+            die "$thecol->{name} $thecol->{debug}"
+              . ' is already in the workbook and'
+              . ' cannot be written again as part of '
+              . "$self->{name} $self->{debug}"
               if $thecol->{$wb};
             $cell[$_] = $thecol->wsPrepare( $wb, $ws );
+
+# This is a provisional assignment.
+# OK if relied upon by other columns.
+# But serious problems arise if it is relied upon in a chain outside the Columnset.
             @{ $thecol->{$wb} }{qw(worksheet row col)} = (
                 $ws,
                 $row +
@@ -253,6 +256,7 @@ sub wsWrite {
                   ( $thecol->{rows} ? $self->{anonRow} : 0 ),
                 $c2 + $headerCols
             );
+
             $c2 +=
               $thecol->{cols}
               ? @{ $thecol->{cols}{list} }

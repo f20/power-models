@@ -172,6 +172,8 @@ EOW
             require SpreadsheetModel::Workbook;
         }
 
+        # We should have called loadModules by now but we haven't
+
         use Ancillary::Validation qw(sha1File sourceCodeSha1);
         my $sourceCodeSha1 = sourceCodeSha1($perl5dir);
         delete $sourceCodeSha1->{'Ancillary/Manufacturing.pm'};

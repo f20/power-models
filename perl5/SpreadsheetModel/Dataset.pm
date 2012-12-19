@@ -265,6 +265,8 @@ sub wsPrepare {
 
 sub wsWrite {
 
+# We should perhaps be calling Columnset's wsWrite rather than duplicating the wheel.
+
     my ( $self, $wb, $ws, $row, $col, $noCopy ) = @_;
 
     if ( $self->{$wb} ) {

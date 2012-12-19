@@ -43,7 +43,6 @@ my $workbookModule = 'SpreadsheetModel::Workbook';
 my $fileExtension  = '.xls';
 require SpreadsheetModel::Workbook;
 if ( grep { /xlsx/i } @ARGV ) {
-    lib->import( catdir( dirname($perl5dir), 'cpan' ) );
     $workbookModule = 'SpreadsheetModel::WorkbookXLSX';
     $fileExtension .= 'x';
     require SpreadsheetModel::WorkbookXLSX;

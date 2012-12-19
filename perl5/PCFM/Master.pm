@@ -32,7 +32,10 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
-# Compatibility layer
+# Compatibility layer that works badly
+BEGIN { init()->loadModules; }
+
+# Compatibility layer that does not work (does not sha1 the relevant files)
 sub new { init(@_)->loadModules->makeTables->useDataset; }
 
 sub useDataset {
