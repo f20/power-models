@@ -93,12 +93,20 @@ EOW
         my ( $fileHandle, $fileName, $fileValidation ) = @_;
         binmode $fileHandle, ':utf8';
         local undef $/;
-        foreach ( grep { ref $_ eq 'HASH' } YAML::Load(<$fileHandle>) ) {
+        local $_ = <$fileHandle>;
+        my @objects = ();
+        if (/^---/s) {
+            @objects = YAML::Load($_);
+        }
+        else {
+            @objects = JSON::from_json($_);
+        }
+        foreach ( grep { ref $_ eq 'HASH' } @objects ) {
             if ( exists $_->{template} ) {
                 $processRuleset->($_);
             }
             elsif ( defined $fileName
-                && $fileName =~ /([^\/]*%[^\/]*)\.ya?ml$/is )
+                && $fileName =~ /([^\/]*%[^\/]*)\.(?:yml|yaml|json)$/is )
             {
                 $_->{template} = $1;
                 $processRuleset->($_);
@@ -107,7 +115,8 @@ EOW
                 my $datasetName = $_->{datasetName};
                 if (  !defined $datasetName
                     && defined $fileName
-                    && $fileName =~ m#([0-9]+-[0-9]+)?/?([^/]+)\.ya?ml$#si )
+                    && $fileName =~
+                    m#([0-9]+-[0-9]+)?/?([^/]+)\.(?:yml|yaml|json)$#si )
                 {
                     $datasetName = $2;
                     $datasetName .= "-$1" if $1;

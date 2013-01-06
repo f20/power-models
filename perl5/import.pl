@@ -180,6 +180,73 @@ EOS
 
 waitanypid(0);
 
+sub updateTree {
+    my ( $workbook, $y ) = @_;
+    $y ||= {};
+    my $sheetNumber = 0;
+    for my $worksheet ( $workbook->worksheets() ) {
+        next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
+        my ( $row_min, $row_max ) = $worksheet->row_range();
+        my ( $col_min, $col_max ) = $worksheet->col_range();
+        my $tableNumber = --$sheetNumber;
+        my $tableTop    = 0;
+        my @rowName;
+        my $to;
+        for my $row ( $row_min .. $row_max ) {
+
+            for my $col ( $col_min .. $col_max ) {
+                my $cell = $worksheet->get_cell( $row, $col );
+                my $v;
+                $v = $cell->unformatted if $cell;
+                if ( $col == 0 ) {
+                    if ( $v && $v =~ /^([0-9]{2,})\. / ) {
+                        $tableNumber       = $1;
+                        $tableTop          = $row;
+                        @rowName           = ();
+                        $to                = $y->{$tableNumber} || [];
+                        $to->[0]{'_table'} = $v;
+                    }
+                    else {
+                        if ($v) {
+                            if ( !ref $cell->{Format}
+                                || $cell->{Format}{Lock} )
+                            {
+                                $v =~ s/[^A-Za-z0-9. -]/ /g;
+                                $v =~ s/ +/ /g;
+                                $v =~ s/^ //;
+                                $v =~ s/ $//;
+                                $rowName[$row] = $v eq '' ? '•' : $v;
+                            }
+                            else {
+                                $to->[0]{'_note'} = $v;
+                            }
+                        }
+                    }
+                }
+                elsif ( $v && !$rowName[$row] ) {
+                    $to->[$col]{'_column'} = $v;
+                }
+                elsif (defined $v
+                    && ref $cell->{Format}
+                    && !$cell->{Format}{Lock} )
+                {
+                    $y->{$tableNumber} ||= $to
+                      if $tableNumber =~ /^(9|10|11|1201|3701)/
+                      || $v && $tableNumber > 0;
+                    $to->[$col]{
+                        defined $rowName[$row]
+                        ? $rowName[$row]
+                        : '_'
+                      }
+                      = $v
+                      if $v || $to->[$col];
+                }
+            }
+        }
+    }
+    $y;
+}
+
 sub ymlWriter {
     require YAML;
     sub {
@@ -194,68 +261,30 @@ sub ymlWriter {
             local undef $/;
             $y = YAML::Load(<$h>);
         }
-        my $sheetNumber = 0;
-        for my $worksheet ( $workbook->worksheets() ) {
-            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
-            my ( $row_min, $row_max ) = $worksheet->row_range();
-            my ( $col_min, $col_max ) = $worksheet->col_range();
-            my $tableNumber = --$sheetNumber;
-            my $tableTop    = 0;
-            my @rowName;
-            my $to;
-            for my $row ( $row_min .. $row_max ) {
-
-                for my $col ( $col_min .. $col_max ) {
-                    my $cell = $worksheet->get_cell( $row, $col );
-                    my $v;
-                    $v = $cell->unformatted if $cell;
-                    if ( $col == 0 ) {
-                        if ( $v && $v =~ /^([0-9]{2,})\. / ) {
-                            $tableNumber       = $1;
-                            $tableTop          = $row;
-                            @rowName           = ();
-                            $to                = $y->{$tableNumber} || [];
-                            $to->[0]{'_table'} = $v;
-                        }
-                        else {
-                            if ($v) {
-                                if ( !ref $cell->{Format}
-                                    || $cell->{Format}{Lock} )
-                                {
-                                    $v =~ s/[^A-Za-z0-9. -]/ /g;
-                                    $v =~ s/ +/ /g;
-                                    $v =~ s/^ //;
-                                    $v =~ s/ $//;
-                                    $rowName[$row] = $v eq '' ? '•' : $v;
-                                }
-                                else {
-                                    $to->[0]{'_note'} = $v;
-                                }
-                            }
-                        }
-                    }
-                    elsif ( $v && !$rowName[$row] ) {
-                        $to->[$col]{'_column'} = $v;
-                    }
-                    elsif (defined $v
-                        && ref $cell->{Format}
-                        && !$cell->{Format}{Lock} )
-                    {
-                        $y->{$tableNumber} ||= $to
-                          if $tableNumber =~ /^(9|10|11|1201|3701)/
-                          || $v && $tableNumber > 0;
-                        $to->[$col]{
-                            defined $rowName[$row]
-                            ? $rowName[$row]
-                            : '_'
-                        } = $v if $v || $to->[$col];
-                    }
-                }
-            }
-        }
         open my $h, '>', $yml;
         binmode $h, ':utf8';
-        print $h YAML::Dump($y);
+        print $h YAML::Dump( updateTree( $workbook, $y ) );
+    };
+}
+
+sub jsonWriter {
+    require JSON;
+    sub {
+        my ( $book, $workbook ) = @_;
+        die unless $book;
+        my $json = "$book.json";
+        $json =~ s/\.xlsx?\.json$/.json/is;
+        my $y;
+        if ( -e $json ) {
+            open my $h, '<', $json;
+            binmode $h, ':utf8';
+            local undef $/;
+            $y = JSON::from_json(<$h>);
+        }
+        open my $h, '>', $yml;
+        binmode $h;
+        print $h JSON->new->canonical(1)
+          ->utf8->encode( updateTree( $workbook, $y ) );
     };
 }
 
