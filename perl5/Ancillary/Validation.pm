@@ -36,12 +36,14 @@ our @EXPORT_OK = qw(sha1File sourceCodeSha1);
 sub sha1File {
     my ($file) = @_;
     return 'no file' unless -f $file;
-    eval {
+    my $sha1 = eval {
         require Digest::SHA1;
         my $sha1Machine = new Digest::SHA1;
         open my $fh, '<', $file;
         $sha1Machine->addfile($fh)->hexdigest;
     };
+    warn $@ if $@;
+    $sha1;
 }
 
 sub sourceCodeSha1 {
