@@ -43,7 +43,7 @@ sub check {
     $self->{lines} = [ SpreadsheetModel::Object::splitLines( $self->{lines} ) ];
     ( $self->{name} ) = splice @{ $self->{lines} }, 0, 2
       if $self->{lines}[0] && !$self->{lines}[1]
-      and !$self->{name} || $self->{name} =~ /^Untitled/;
+      and !defined $self->{name} || $self->{name} =~ /^Untitled/;
     return;
 }
 

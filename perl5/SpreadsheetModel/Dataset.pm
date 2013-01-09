@@ -426,7 +426,8 @@ sub wsWrite {
       || !exists $self->{singleColName}
       || $self->{singleColName};
     $col++
-      if $self->{rows}
+      if !$self->{noRowLabels}
+      and $self->{rows}
       || !exists $self->{singleRowName}
       || $self->{singleRowName};
 
@@ -453,11 +454,11 @@ sub wsWrite {
         $ws->write( $row - 1, $col, $srn, $wb->getFormat('thc') );
     }
     elsif ( $self->{singleColName} ) {
-        $ws->write( $row - 1, $col, _shortNameRow( $self->{singleRowName} ),
+        $ws->write( $row - 1, $col, _shortNameRow( $self->{singleColName} ),
             $wb->getFormat('th') );
     }
 
-    unless (@dataAreHere) {
+    unless ( @dataAreHere || $self->{noRowLabels} ) {
         if ( $self->{rows} ) {
             my $thFormat =
               $wb->getFormat( $self->{rows}{defaultFormat} || 'th' );
