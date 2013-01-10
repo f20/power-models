@@ -252,7 +252,7 @@ sub updateTree {
                 elsif ( !$rowName ) {
                     $columnHeadingsRow = $row;
                     if ( ref $to->[0] eq 'ARRAY' ) {
-                        $to->[$col] = [$v];
+                        $to->[$col] ||= [$v];
                     }
                     else {
                         $to->[$col]{'_column'} = $v;
