@@ -550,18 +550,25 @@ use ->shortName here.
         my @note;
         if ($dataset) {
             my $nd = $dataset->[$c2];
-            @note =
-              map {
-                local $_ = $_;
-                s/.*\n//s;
-                s/[^A-Za-z0-9. -]/ /g;
-                s/ +/ /g;
-                s/^ //;
-                s/ $//;
-                $nd->{$_};
-              } $self->{rows}
-              ? @{ $self->{rows}{list} }
-              : ( $self->{singleRowName} || _shortNameRow( $self->{name} ) );
+            if ( ref $nd eq 'HASH' ) {
+                @note =
+                  map {
+                    local $_ = $_;
+                    s/.*\n//s;
+                    s/[^A-Za-z0-9. -]/ /g;
+                    s/ +/ /g;
+                    s/^ //;
+                    s/ $//;
+                    $nd->{$_};
+                  } $self->{rows}
+                  ? @{ $self->{rows}{list} }
+                  : ( $self->{singleRowName}
+                      || _shortNameRow( $self->{name} ) );
+            }
+            elsif ( ref $nd eq 'ARRAY' ) {
+                @note = @$nd;
+                shift @note;
+            }
         }
         foreach my $y ( 0 .. $lastRow ) {
             $ws->write( $row + $y, $c2, $note[$y], $scribbleFormat );

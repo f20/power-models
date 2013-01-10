@@ -99,6 +99,7 @@ EOW
             @objects = YAML::Load($_);
         }
         else {
+            require JSON;
             @objects = JSON::from_json($_);
         }
         foreach ( grep { ref $_ eq 'HASH' } @objects ) {

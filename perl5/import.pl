@@ -75,8 +75,12 @@ foreach (@ARGV) {
         $threads1 = $1 - 1 if $1 > 0;
         next;
     }
-    if (/^-+ya?ml$/i) {
-        $writer = ymlWriter();
+    if (/^-+(ya?ml.*)/i) {
+        $writer = ymlWriter($1);
+        next;
+    }
+    if (/^-+(json.*)/i) {
+        $writer = jsonWriter($1);
         next;
     }
     if (/^-+sqlite3?(=.*)?$/i) {
@@ -181,110 +185,139 @@ EOS
 waitanypid(0);
 
 sub updateTree {
-    my ( $workbook, $y ) = @_;
-    $y ||= {};
+    my ( $workbook, $tree, $preferArrays ) = @_;
+    $tree ||= {};
     my $sheetNumber = 0;
     for my $worksheet ( $workbook->worksheets() ) {
         next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
         my ( $row_min, $row_max ) = $worksheet->row_range();
         my ( $col_min, $col_max ) = $worksheet->col_range();
         my $tableNumber = --$sheetNumber;
-        my $tableTop    = 0;
-        my @rowName;
+        my $columnHeadingsRow;
         my $to;
         for my $row ( $row_min .. $row_max ) {
-
+            my $rowName;
             for my $col ( $col_min .. $col_max ) {
                 my $cell = $worksheet->get_cell( $row, $col );
                 my $v;
                 $v = $cell->unformatted if $cell;
+                next unless defined $v;
                 if ( $col == 0 ) {
-                    if ( $v && $v =~ /^([0-9]{2,})\. / ) {
-                        $tableNumber       = $1;
-                        $tableTop          = $row;
-                        @rowName           = ();
-                        $to                = $y->{$tableNumber} || [];
-                        $to->[0]{'_table'} = $v;
-                    }
-                    else {
-                        if ($v) {
-                            if ( !ref $cell->{Format}
-                                || $cell->{Format}{Lock} )
-                            {
-                                $v =~ s/[^A-Za-z0-9. -]/ /g;
+                    if ( !ref $cell->{Format} || $cell->{Format}{Lock} ) {
+                        if ( $v && $v =~ /^([0-9]{2,})\. / ) {
+                            $tableNumber = $1;
+                            undef $columnHeadingsRow;
+                            $to = $tree->{$tableNumber}
+                              || [
+                                $tableNumber !~ /00$/ && ( $preferArrays
+                                    || $tableNumber =~ /^(?:9|11|17)/ )
+                                ? []
+                                : {}
+                              ];
+                            $tree->{$tableNumber} ||= $to
+                              if $tableNumber =~ /^(?:1|3701|9)/;
+                            if ( ref $to->[0] eq 'ARRAY' ) {
+                                $to->[0][0] = $v;
+                            }
+                            else {
+                                $to->[0]{'_table'} = $v;
+                            }
+                        }
+                        else {
+                            if ($v) {
+                                $v =~ s/[^A-Za-z0-9.-]/ /g;
                                 $v =~ s/ +/ /g;
                                 $v =~ s/^ //;
                                 $v =~ s/ $//;
-                                $rowName[$row] = $v eq '' ? '•' : $v;
-                            }
-                            else {
-                                $to->[0]{'_note'} = $v;
+                                $rowName = $v eq '' ? '•' : $v;
+                                $to->[0][ $row - $columnHeadingsRow ] =
+                                  $rowName
+                                  if ref $to->[0] eq 'ARRAY'
+                                  and defined $columnHeadingsRow;
                             }
                         }
                     }
+                    else {
+                        if ( ref $to->[0] eq 'HASH' )
+                        {    # old-style table comment
+                            $to->[0]{'_note'} = $v if $v;
+                        }
+                        else {
+                            $columnHeadingsRow = $row - 1
+                              unless defined $columnHeadingsRow;
+                            $to->[0][ $row - $columnHeadingsRow ] = $v;
+                        }
+                    }
                 }
-                elsif ( $v && !$rowName[$row] ) {
-                    $to->[$col]{'_column'} = $v;
+                elsif ( !$rowName ) {
+                    $columnHeadingsRow = $row;
+                    if ( ref $to->[0] eq 'ARRAY' ) {
+                        $to->[$col] = [$v];
+                    }
+                    else {
+                        $to->[$col]{'_column'} = $v;
+                    }
                 }
-                elsif (defined $v
-                    && ref $cell->{Format}
-                    && !$cell->{Format}{Lock} )
+                elsif (ref $cell->{Format}
+                    && !$cell->{Format}{Lock}
+                    && ( $v || $to->[$col] ) )
                 {
-                    $y->{$tableNumber} ||= $to
-                      if $tableNumber =~ /^(9|10|11|1201|3701)/
-                      || $v && $tableNumber > 0;
-                    $to->[$col]{
-                        defined $rowName[$row]
-                        ? $rowName[$row]
-                        : '_'
-                      }
-                      = $v
-                      if $v || $to->[$col];
+                    if ( ref $to->[$col] eq 'ARRAY' ) {
+                        $to->[$col][ $row - $columnHeadingsRow ] = $v;
+                    }
+                    else {
+                        $to->[$col]{$rowName} = $v;
+                    }
                 }
             }
         }
     }
-    $y;
+    $tree;
 }
 
 sub ymlWriter {
+    my ($arg) = @_;
+    my $preferArrays = $arg =~ /array/i;
     require YAML;
     sub {
         my ( $book, $workbook ) = @_;
         die unless $book;
         my $yml = "$book.yml";
         $yml =~ s/\.xlsx?\.yml$/.yml/is;
-        my $y;
+        my $tree;
         if ( -e $yml ) {
             open my $h, '<', $yml;
             binmode $h, ':utf8';
             local undef $/;
-            $y = YAML::Load(<$h>);
+            $tree = YAML::Load(<$h>);
         }
         open my $h, '>', $yml;
         binmode $h, ':utf8';
-        print $h YAML::Dump( updateTree( $workbook, $y ) );
+        print $h YAML::Dump( updateTree( $workbook, $tree, $preferArrays ) );
     };
 }
 
 sub jsonWriter {
+    my ($arg) = @_;
+    my $preferArrays = $arg =~ /array/i;
     require JSON;
     sub {
         my ( $book, $workbook ) = @_;
         die unless $book;
         my $json = "$book.json";
         $json =~ s/\.xlsx?\.json$/.json/is;
-        my $y;
+        my $tree;
         if ( -e $json ) {
             open my $h, '<', $json;
             binmode $h, ':utf8';
             local undef $/;
-            $y = JSON::from_json(<$h>);
+            $tree = JSON::from_json(<$h>);
         }
-        open my $h, '>', $yml;
+        open my $h, '>', $json;
         binmode $h;
         print $h JSON->new->canonical(1)
-          ->utf8->encode( updateTree( $workbook, $y ) );
+          ->pretty->utf8->encode(
+            updateTree( $workbook, $tree, $preferArrays ) );
     };
 }
 

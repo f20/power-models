@@ -153,29 +153,32 @@ sub wsPrepare {
     if ( $self->{number} ) {
         if ( my $dataset = $self->{dataset}{ $self->{number} } ) {
             my $fc = $self->{colOffset} || 0;
-            ++$fc;
+            ++$fc unless $self->{noRowLabels};
             my $lc = $fc + $self->lastCol;
             @overrideColumns = @{$dataset}[ $fc .. $lc ];
-            @rowKeys         = map {
-                local $_ = $_;
-                s/.*\n//s;
-                s/[^A-Za-z0-9. -]/ /g;
-                s/ +/ /g;
-                s/^ //;
-                s/ $//;
-                $_
-              } $self->{rows} ? @{ $self->{rows}{list} }
-              : $self->{location}
-              && ref $self->{location} eq 'SpreadsheetModel::Columnset'
-              ? ( $self->{location}{singleRowName}
-                  || _shortNameRow( $self->{location}{name} ) )
-              : ( $self->{singleRowName} || _shortNameRow( $self->{name} ) );
-            my @rowKeys2;
-            @rowKeys2 = grep { !/_column/ } keys %{ $overrideColumns[0] }
-              if !$self->{rows} && !grep { exists $_->{ $rowKeys[0] } }
-              @overrideColumns;
-            @rowKeys = @rowKeys2 if @rowKeys2;
-            $self->{rowKeys} = \@rowKeys;
+            unless ( ref $dataset->[0] eq 'ARRAY' ) {
+                @rowKeys = map {
+                    local $_ = $_;
+                    s/.*\n//s;
+                    s/[^A-Za-z0-9. -]/ /g;
+                    s/ +/ /g;
+                    s/^ //;
+                    s/ $//;
+                    $_
+                  } $self->{rows} ? @{ $self->{rows}{list} }
+                  : $self->{location}
+                  && ref $self->{location} eq 'SpreadsheetModel::Columnset'
+                  ? ( $self->{location}{singleRowName}
+                      || _shortNameRow( $self->{location}{name} ) )
+                  : ( $self->{singleRowName}
+                      || _shortNameRow( $self->{name} ) );
+                my @rowKeys2;
+                @rowKeys2 = grep { !/_column/ } keys %{ $overrideColumns[0] }
+                  if !$self->{rows} && !grep { exists $_->{ $rowKeys[0] } }
+                  @overrideColumns;
+                @rowKeys = @rowKeys2 if @rowKeys2;
+                $self->{rowKeys} = \@rowKeys;
+            }
         }
     }
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000hard' );
@@ -192,26 +195,42 @@ sub wsPrepare {
         $self->{byrow}
           ? sub {
             my ( $x, $y ) = @_;
-            my $d =
-                 defined $data->[$y][$x]
-              && @overrideColumns
-              && defined $overrideColumns[$x]{ $rowKeys[$y] }
-              ? $overrideColumns[$x]{ $rowKeys[$y] }
-              : $data->[$y][$x];
+            my $d;
+            if ( defined $data->[$y][$x] ) {
+                $d =
+                    @rowKeys
+                  ? $overrideColumns[$x]{ $rowKeys[$y] }
+                  : $overrideColumns[$x][ $y + 1 ]
+                  if @overrideColumns;
+                $d = $data->[$y][$x] unless defined $d;
+            }
             defined $d
-              ? ( $d, $format )
+              ? (
+                $d,
+                $self->{rowFormats} && $self->{rowFormats}[$y]
+                ? $wb->getFormat( $self->{rowFormats}[$y] )
+                : $format
+              )
               : ( '', $missingFormat );
           }
           : sub {
             my ( $x, $y ) = @_;
-            my $d =
-                 defined $data->[$x][$y]
-              && @overrideColumns
-              && defined $overrideColumns[$x]{ $rowKeys[$y] }
-              ? $overrideColumns[$x]{ $rowKeys[$y] }
-              : $data->[$x][$y];
+            my $d;
+            if ( defined $data->[$x][$y] ) {
+                $d =
+                    @rowKeys
+                  ? $overrideColumns[$x]{ $rowKeys[$y] }
+                  : $overrideColumns[$x][ $y + 1 ]
+                  if @overrideColumns;
+                $d = $data->[$x][$y] unless defined $d;
+            }
             defined $d
-              ? ( $d, $format )
+              ? (
+                $d,
+                $self->{rowFormats} && $self->{rowFormats}[$y]
+                ? $wb->getFormat( $self->{rowFormats}[$y] )
+                : $format
+              )
               : ( '', $missingFormat );
           };
     }
@@ -223,24 +242,35 @@ sub wsPrepare {
         $self->lastCol
           ? sub {
             my ( $x, $y ) = @_;
-            my $d =
-                 defined $data->[$x]
-              && @overrideColumns
-              && defined $overrideColumns[$x]{ $rowKeys[$y] }
-              ? $overrideColumns[$x]{ $rowKeys[$y] }
-              : $data->[$x];
+            my $d;
+            if ( defined $data->[$x] ) {
+                $d =
+                    @rowKeys
+                  ? $overrideColumns[$x]{ $rowKeys[$y] }
+                  : $overrideColumns[$x][ $y + 1 ]
+                  if @overrideColumns;
+                $d = $data->[$x] unless defined $d;
+            }
             defined $d
-              ? ( $d, $format )
+              ? (
+                $d,
+                $self->{rowFormats} && $self->{rowFormats}[$y]
+                ? $wb->getFormat( $self->{rowFormats}[$y] )
+                : $format
+              )
               : ( '', $missingFormat );
           }
           : sub {
             my ( $x, $y ) = @_;
-            my $d =
-                 defined $data->[$y]
-              && @overrideColumns
-              && defined $overrideColumns[$x]{ $rowKeys[$y] }
-              ? $overrideColumns[$x]{ $rowKeys[$y] }
-              : $data->[$y];
+            my $d;
+            if ( defined $data->[$y] ) {
+                $d =
+                    @rowKeys
+                  ? $overrideColumns[$x]{ $rowKeys[$y] }
+                  : $overrideColumns[$x][ $y + 1 ]
+                  if @overrideColumns;
+                $d = $data->[$y] unless defined $d;
+            }
             defined $d
               ? (
                 $d,
@@ -421,11 +451,11 @@ sub wsWrite {
     my $lastCol = $self->lastCol;
     my $lastRow = $self->lastRow;
 
-    $row++
+    ++$row
       if $self->{cols}
       || !exists $self->{singleColName}
       || $self->{singleColName};
-    $col++
+    ++$col
       if !$self->{noRowLabels}
       and $self->{rows}
       || !exists $self->{singleRowName}

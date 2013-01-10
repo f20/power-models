@@ -74,7 +74,7 @@ foreach (@ARGV) {
             open $dh, join ' ', ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
               "'$_'", '|';
         }
-        elsif (/\.ya?ml$/si) {
+        elsif (/\.(?:ya?ml|json)$/si) {
             open $dh, '<', $_;
         }
         $maker->{processStream}->( $dh, abs2rel($_) ) if $dh;
