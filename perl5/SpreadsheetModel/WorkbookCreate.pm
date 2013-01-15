@@ -54,6 +54,7 @@ sub create {
     $module->fixName( $fileName, \@localTime );
     my $tmpDir = '~$tmp-' . $$;
     mkdir $tmpDir;
+    chmod 0770, $tmpDir;
     open my $handle, '>', catfile( $tmpDir, $fileName );
     my $wbook = $module->new($handle);
     $wbook->set_tempdir($tmpDir)
