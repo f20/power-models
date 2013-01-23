@@ -75,7 +75,7 @@ sub create {
         my $model = $options->{PerlModule}->new(%$options);
         $forwardLinkFindingRun = $model if $options->{forwardLinks};
         $options->{revisionText} ||= '';
-        $wbook->{titlePrefix} ||= $options->{revisionText};
+        0 and $wbook->{titlePrefix} ||= $options->{revisionText};
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
@@ -157,16 +157,13 @@ sub create {
             $wb2->close;
         }
 
-        $wbook->{logger}     = $options->{logger};
-        $wbook->{copy}       = $options->{copy};
-        $wbook->{debug}      = $options->{debug};
-        $wbook->{logAll}     = $options->{logAll};
-        $wbook->{noLinks}    = $options->{noLinks};
-        $wbook->{validation} = $options->{validation};
-        $wbook->{noData}     = $options->{dataset} && !$options->{illustrative};
-        $wbook->{forwardLinks} = $options->{forwardLinks}
-          if $options->{forwardLinks};
+        $wbook->{noData} = $options->{dataset} && !$options->{illustrative};
+        $wbook->{$_} = $options->{$_}
+          foreach grep { exists $options->{$_} }
+          qw(copy debug forwardLinks logAll logger noLinks rowHeight validation);
+
         $allClosures{$_}->( $wsheet{$_} ) foreach @{ $options->{wsheetNames} };
+
     }
     $wbook->close;
     rename catfile( $tmpDir, $fileName ), $fileName;
