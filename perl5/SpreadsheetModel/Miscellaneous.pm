@@ -47,6 +47,15 @@ sub objectType {
     $_[0]{objectType};
 }
 
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{$_} = $self->{$_}
+      foreach grep { exists $self->{$_}; } qw(arithmetic);
+    while ( my ( $k, $v ) = each %{ $self->{arguments} } ) {
+        $self->{core}{arguments}{$k} = $v->getCore;
+    }
+}
+
 sub check {
     my ($self) = @_;
     $self->{arithmetic} = 'Special calculation'
@@ -105,6 +114,11 @@ use Spreadsheet::WriteExcel::Utility;
 
 sub objectType {
     'Reshape table';
+}
+
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{$_} = $self->{$_}->getCore foreach qw(source);
 }
 
 sub check {

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2012 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -164,7 +164,60 @@ sub create {
 
         $allClosures{$_}->( $wsheet{$_} ) foreach @{ $options->{wsheetNames} };
 
+        if ( $options->{ExportHtml} ) {
+            require SpreadsheetModel::ExportHtml;
+            my $dir = "$fileName-html$modelCount";
+            mkdir $dir;
+            chmod 0770, $dir;
+            SpreadsheetModel::ExportHtml::writeHtml(
+                $options->{logger}{objects}, "$dir/" );
+        }
+
+        if ( $options->{ExportGraphviz} ) {
+            require SpreadsheetModel::ExportGraphviz;
+            my $dir = "$fileName-graphs$modelCount";
+            mkdir $dir;
+            chmod 0770, $dir;
+            SpreadsheetModel::ExportGraphviz::writeGraphs(
+                $options->{logger}{objects},
+                $wbook, "$dir/" );
+        }
+
+        if ( $options->{ExportYaml} || $options->{ExportPerl} ) {
+            my @coreObj =
+              map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
+              grep { defined $_ } @{ $options->{logger}{objects} };
+            my $file = $fileName;
+            $file =~ s/\.xlsx?$//i;
+            $file .= "-dump$modelCount";
+            if ( $options->{ExportYaml} ) {
+                require YAML;
+                open my $fh, '>', "$file.yaml";
+                binmode $fh, ':utf8';
+                print {$fh}
+                  YAML::Dump(
+                    { map { ( ref $_ ? $_->{name} : $_, $_ ); } @coreObj } );
+            }
+            if ( $options->{ExportPerl} ) {
+                require Data::Dumper;
+                open my $fh, '>', "$file.pl";
+                print {$fh} Data::Dumper->new( \@coreObj )->Indent(1)->Names(
+                    [
+                        map {
+                            my $n =
+                              ref $coreObj[$_]
+                              ? $coreObj[$_]{name}
+                              : $coreObj[$_];
+                            $n =~ s/[^a-z0-9]+/_/gi;
+                            'VAR' . ( 1 + $_ ) . "_T$n";
+                        } 0 .. $#coreObj
+                    ]
+                )->Dump;
+            }
+        }
+
     }
+
     $wbook->close;
     rename catfile( $tmpDir, $fileName ), $fileName;
     rmdir $tmpDir;

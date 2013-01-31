@@ -1,4 +1,8 @@
 ---
+ExportGraphviz: 0
+ExportHtml: 0
+ExportPerl: 1
+ExportYaml: 1
 PerlModule: CDCM
 alignment: right4
 colour: 0

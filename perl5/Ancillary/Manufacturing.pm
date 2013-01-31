@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2012 Reckon LLP and others. All rights reserved.
+Copyright 2011-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@ my $maker = factory Ancillary::Manufacturing;
 $maker->{processStream}->($stream, $optionalFile, $optionsalSha1);
 ...
 
-See make.pl for an exmaple of usage.
+See make.pl for an example of how to use this module.
 
 Keys managed here:
 _codeValidation

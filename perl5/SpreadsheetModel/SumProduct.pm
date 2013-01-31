@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2012 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,11 @@ use Spreadsheet::WriteExcel::Utility;
 
 sub objectType {
     'Sum-product calculation';
+}
+
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{$_} = $self->{$_}->getCore foreach qw(matrix vector);
 }
 
 sub check {

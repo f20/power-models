@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2012 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,13 @@ use constant {
 
 sub objectType {
     'Input data';
+}
+
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{$_} = $self->{$_}
+      foreach grep { exists $self->{$_}; }
+      qw(arithmetic data);
 }
 
 sub wsUrl {

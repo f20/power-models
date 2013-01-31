@@ -44,6 +44,12 @@ sub objectType {
     'Optimisation result';
 }
 
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{$_} = $self->{$_}->getCore
+      foreach grep { exists $self->{$_}; } qw(target min max slopes);
+}
+
 sub check {
     my ($self) = @_;
     return "Target $self->{target}{name} is no good in $self->{debug}"

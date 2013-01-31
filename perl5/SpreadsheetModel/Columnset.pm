@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2011 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -46,6 +46,11 @@ use SpreadsheetModel::Stack;
 sub wsUrl {
     my $self = shift;
     $self->{columns}[0]->wsUrl(@_);
+}
+
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{columns} = [ map { $_->getCore } @{ $self->{columns} } ];
 }
 
 sub check {

@@ -39,6 +39,11 @@ sub objectType {
     'Cell summation';
 }
 
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{$_} = $self->{$_}->getCore foreach qw(source);
+}
+
 sub check {
 
     my ($self) = @_;

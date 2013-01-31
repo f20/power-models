@@ -7,7 +7,7 @@ This file contains SpreadsheetModel::Stack, SpreadsheetModel::View and Spreadshe
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2011 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -46,6 +46,11 @@ use Spreadsheet::WriteExcel::Utility;
 
 sub objectType {
     @{ $_[0]{sources} } > 1 ? 'Combine tables' : 'Copy cells';
+}
+
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{sources} = [ map { $_->getCore } @{ $self->{sources} } ];
 }
 
 sub findxy {
@@ -237,6 +242,12 @@ sub addForwardLink {
 
 package SpreadsheetModel::Constant;
 our @ISA = qw/SpreadsheetModel::Dataset/;
+
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{$_} = $self->{$_}
+      foreach grep { exists $self->{$_}; } qw(data);
+}
 
 sub check {
     $_[0]{defaultFormat} ||= '0.000con';

@@ -2,6 +2,10 @@
 DCP071: 1
 DCP095: 1
 DCP096: 1
+ExportGraphviz: 1
+ExportHtml: 1
+ExportPerl: 1
+ExportYaml: 1
 PerlModule: ModelM
 alignment: right4
 colour: 0

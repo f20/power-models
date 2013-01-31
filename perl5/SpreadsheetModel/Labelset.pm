@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2011 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,20 @@ require SpreadsheetModel::Object;
 our @ISA = qw(SpreadsheetModel::Object);
 
 use Spreadsheet::WriteExcel::Utility;
+
+sub populateCore {
+    my ($self) = @_;
+    $self->{core}{$_} = [
+        map {
+            ref $_ eq 'ARRAY'
+              ? [ $_->[0]->getCore, $_->[1], $_->[2] ]
+              : "$_"
+        } @{ $self->{$_} }
+      ]
+      foreach grep { exists $self->{$_}; } qw(list groups);
+    $self->{core}{$_} = [ map { $_->getCore } @{ $self->{$_} } ]
+      foreach grep { exists $self->{$_}; } qw(accepts);
+}
 
 sub htmlLink {
     my ( $self, $hb, $hs ) = @_;

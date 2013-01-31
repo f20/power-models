@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2011 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -126,6 +126,22 @@ sub objectType {
     'Other';
 }
 
+sub populateCore {    #   $_[0]{core}{INCOMPLETE} = 1;
+}
+
+sub getCore {
+    my ($self) = @_;
+    return $self->{core} if $self->{core};
+    $self->{core} = bless { name => "$self->{name}" }, ref $self;
+    $self->{core}{$_} =
+      UNIVERSAL::can( $self->{$_}, 'getCore' )
+      ? $self->{$_}->getCore
+      : "$self->{$_}"
+      foreach grep { defined $self->{$_}; } qw(defaultFormat rows cols);
+    $self->populateCore;
+    $self->{core};
+}
+
 sub wsWrite {
     warn "$_->{name} cannot be written to a spreadsheet";
 }
@@ -149,11 +165,6 @@ sub htmlWrite {
 
 sub htmlDescribe {
     [ div => "No information available for $_[0]{name}" ], [ p => ref $_[0] ];
-}
-
-sub rWrite {
-    my ( $self, $stream, $defined ) = @_;
-    print $stream "# No R code for $self->{rName}\n\n";
 }
 
 sub addTableNumber {    # prohibitedTableNumbers is a bad arrangement
