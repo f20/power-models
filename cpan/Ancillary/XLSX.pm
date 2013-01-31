@@ -1,22 +1,23 @@
-# Ancillary::XLSX::Utility
-# Dirty code based on Spreadsheet::XLSX from CPAN version 0.13 (May 2010).
-# Put together by Franck Latrémolière in January 2012 to emulate 
+﻿# Ancillary::XLSX
+# Quick and dirty code based on Spreadsheet::XLSX from CPAN version 0.13 (May 2010).
+# Modified by Franck Latrémolière in January 2012 to emulate
 # Spreadsheet::ParseExcel's $cell->{Format} a bit better.
+
+package Ancillary::XLSX::Fmt2007;
+# This code is adapted for Excel 2007 from:
+# Spreadsheet::XLSX::FmtDefault
+#  by Kawai, Takanori (Hippo2000) 2001.2.2
+# This Program is ALPHA version.
+
+use strict;
+use warnings;
+
+our $VERSION = '0.13'; # 
 
 # This code is adapted for Excel 2007 from:
 # Spreadsheet::XLSX::Utility
 #  by Kawai, Takanori (Hippo2000) 2001.2.2
 # This Program is ALPHA version.
-
-package Ancillary::XLSX::Utility2007;
-use strict;
-use warnings;
-
-require Exporter;
-use vars qw(@ISA @EXPORT_OK);
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(ExcelFmt LocaltimeExcel ExcelLocaltime col2int int2col sheetRef xls2csv);
-our $VERSION = '0.13';
 
 my $sNUMEXP = '(^[+-]?\d+(\.\d+)?$)|(^[+-]?\d+\.?(\d*)[eE][+-](\d+))$';
 
@@ -708,66 +709,6 @@ sub MakeE {
     return $sUe . $sE . $sShita;
 }
 #------------------------------------------------------------------------------
-# LeapYear (for Ancillary::XLSX::Utility)
-#------------------------------------------------------------------------------
-sub LeapYear {
-    my($iYear)=@_;
-    return 1 if($iYear==1900); #Special for Excel
-    return ((($iYear % 4)==0) && (($iYear % 100) || ($iYear % 400)==0))? 1: 0;
-}
-#------------------------------------------------------------------------------
-# LocaltimeExcel (for Ancillary::XLSX::Utility)
-#------------------------------------------------------------------------------
-sub LocaltimeExcel {
-    my($iSec, $iMin, $iHour, $iDay, $iMon, $iYear, $iMSec, $flg1904) = @_;
-
-#0. Init
-    $iMon++;
-    $iYear+=1900;
-
-#1. Calc Time
-    my $iTime;
-    $iTime =$iHour;
-    $iTime *=60;
-    $iTime +=$iMin;
-    $iTime *=60;
-    $iTime +=$iSec;
-    $iTime += $iMSec/1000.0 if(defined($iMSec)) ;
-    $iTime /= 86400.0;      #3600*24(1day in seconds)
-    my $iY;
-    my $iYDays;
-
-#2. Calc Days
-    if($flg1904) {
-        $iY = 1904;
-        $iTime--;         #Start from Jan 1st
-        $iYDays = 366;
-    }
-    else {
-        $iY = 1900;
-        $iYDays = 366;  #In Excel 1900 is leap year (That's not TRUE!)
-    }
-    while($iY<$iYear) {
-        $iTime += $iYDays;
-        $iY++;
-        $iYDays = (LeapYear($iY))? 366: 365;
-    }
-    for(my $iM=1;$iM < $iMon; $iM++){
-        if($iM == 1 || $iM == 3 || $iM == 5 || $iM == 7 || $iM == 8
-            || $iM == 10 || $iM == 12) {
-            $iTime += 31;
-        }
-        elsif($iM == 4 || $iM == 6 || $iM == 9 || $iM == 11) {
-            $iTime += 30;
-        }
-        elsif($iM == 2) {
-            $iTime += (LeapYear($iYear))? 29: 28;
-        }
-    }
-    $iTime+=$iDay;
-    return $iTime;
-}
-#------------------------------------------------------------------------------
 # ExcelLocaltime (for Ancillary::XLSX::Utility)
 #------------------------------------------------------------------------------
 sub ExcelLocaltime {
@@ -1025,6 +966,387 @@ sub unescape_HTML {
 
 
 	return $string;
+}
+
+my %hFmtDefault = (
+    0x00 => '@',
+    0x01 => '0',
+    0x02 => '0.00',
+    0x03 => '#,##0',
+    0x04 => '#,##0.00',
+    0x05 => '($#,##0_);($#,##0)',
+    0x06 => '($#,##0_);[RED]($#,##0)',
+    0x07 => '($#,##0.00_);($#,##0.00_)',
+    0x08 => '($#,##0.00_);[RED]($#,##0.00_)',
+    0x09 => '0%',
+    0x0A => '0.00%',
+    0x0B => '0.00E+00',
+    0x0C => '# ?/?',
+    0x0D => '# ??/??',
+    0x0E => 'm-d-yy',
+    0x0F => 'd-mmm-yy',
+    0x10 => 'd-mmm',
+    0x11 => 'mmm-yy',
+    0x12 => 'h:mm AM/PM',
+    0x13 => 'h:mm:ss AM/PM',
+    0x14 => 'h:mm',
+    0x15 => 'h:mm:ss',
+    0x16 => 'm-d-yy h:mm',
+#0x17-0x24 -- Differs in Natinal
+    0x25 => '(#,##0_);(#,##0)',
+    0x26 => '(#,##0_);[RED](#,##0)',
+    0x27 => '(#,##0.00);(#,##0.00)',
+    0x28 => '(#,##0.00);[RED](#,##0.00)',
+    0x29 => '_(*#,##0_);_(*(#,##0);_(*"-"_);_(@_)',
+    0x2A => '_($*#,##0_);_($*(#,##0);_(*"-"_);_(@_)',
+    0x2B => '_(*#,##0.00_);_(*(#,##0.00);_(*"-"??_);_(@_)',
+    0x2C => '_($*#,##0.00_);_($*(#,##0.00);_(*"-"??_);_(@_)',
+    0x2D => 'mm:ss',
+    0x2E => '[h]:mm:ss',
+    0x2F => 'mm:ss.0',
+    0x30 => '##0.0E+0',
+    0x31 => '@',
+);
+#------------------------------------------------------------------------------
+# new (for Ancillary::XLSX::FmtDefault)
+#------------------------------------------------------------------------------
+sub new {
+    my($sPkg, %hKey) = @_;
+    my $oThis={ 
+    };
+    bless $oThis;
+    return $oThis;
+}
+#------------------------------------------------------------------------------
+# TextFmt (for Ancillary::XLSX::FmtDefault)
+#------------------------------------------------------------------------------
+sub TextFmt {
+    my($oThis, $sTxt, $sCode) =@_;
+    return $sTxt if((! defined($sCode)) || ($sCode eq '_native_'));
+    return pack('U*', unpack('n*', $sTxt));
+}
+#------------------------------------------------------------------------------
+# FmtStringDef (for Ancillary::XLSX::FmtDefault)
+#------------------------------------------------------------------------------
+sub FmtStringDef {
+    my($oThis, $iFmtIdx, $oBook, $rhFmt) =@_;
+    my $sFmtStr = $oBook->{FormatStr}->{$iFmtIdx};
+
+    if(!(defined($sFmtStr)) && defined($rhFmt)) {
+        $sFmtStr = $rhFmt->{$iFmtIdx};
+    }
+    $sFmtStr = $hFmtDefault{$iFmtIdx} unless($sFmtStr);
+    return $sFmtStr;
+}
+#------------------------------------------------------------------------------
+# FmtString (for Ancillary::XLSX::FmtDefault)
+#------------------------------------------------------------------------------
+sub FmtString {
+    my ( $oThis, $oCell, $oBook ) = @_;
+
+    my $sFmtStr = $oCell->{FmtStr} if $oCell->{FmtStr};
+
+    unless ( defined($sFmtStr) ) {
+        if ( $oCell->{Type} eq 'Numeric' ) {
+            if ( int( $oCell->{Val} ) != $oCell->{Val} ) {
+                $sFmtStr = '0.00';
+            }
+            else {
+                $sFmtStr = '0';
+            }
+        }
+        elsif ( $oCell->{Type} eq 'Date' ) {
+            if ( int( $oCell->{Val} ) <= 0 ) {
+                $sFmtStr = 'h:mm:ss';
+            }
+            else {
+                $sFmtStr = 'm-d-yy';
+            }
+        }
+        else {
+            $sFmtStr = '@';
+        }
+    }
+    return $sFmtStr;
+}
+
+
+#------------------------------------------------------------------------------
+# ValFmt (for Ancillary::XLSX::FmtDefault)
+#------------------------------------------------------------------------------
+sub ValFmt {
+    my($oThis, $oCell, $oBook) =@_;
+
+    my($Dt, $iFmtIdx, $iNumeric, $Flg1904);
+
+    if ($oCell->{Type} eq 'Text') {
+        $Dt = ((defined $oCell->{Val}) && ($oCell->{Val} ne ''))? 
+            $oThis->TextFmt($oCell->{Val}, $oCell->{Code}):''; 
+    }
+    else {      
+        $Dt = $oCell->{Val};
+    }
+    $Flg1904  = $oBook->{Flg1904};
+    my $sFmtStr = $oThis->FmtString($oCell, $oBook);
+    return ExcelFmt($sFmtStr, $Dt, $Flg1904, $oCell->{Type});
+}
+#------------------------------------------------------------------------------
+# ChkType (for Ancillary::XLSX::FmtDefault)
+#------------------------------------------------------------------------------
+sub ChkType {
+    my($oPkg, $iNumeric, $iFmtIdx) =@_;
+    if ($iNumeric) {
+        if((($iFmtIdx >= 0x0E) && ($iFmtIdx <= 0x16)) ||
+           (($iFmtIdx >= 0x2D) && ($iFmtIdx <= 0x2F))) {
+            return "Date";
+        }
+        else {
+            return "Numeric";
+        }
+    }
+    else {
+        return "Text";
+    }
+}
+
+package Ancillary::XLSX;
+
+use strict;
+use warnings;
+use utf8;
+
+use Archive::Zip;
+use Spreadsheet::ParseExcel;
+use Encode qw/decode_utf8/;
+
+sub new {
+
+    my ( $class, $filename, $converter ) = @_;
+
+    my $self = {};
+
+    $self->{zip} = Archive::Zip->new();
+
+    if ( ref $filename ) {
+
+        $self->{zip}->readFromFileHandle($filename) == Archive::Zip::AZ_OK
+          or die("Cannot open data as Zip archive");
+
+    }
+    else {
+
+        $self->{zip}->read($filename) == Archive::Zip::AZ_OK
+          or die("Cannot open $filename as Zip archive");
+
+    }
+
+    my $member_shared_strings =
+      $self->{zip}->memberNamed('xl/sharedStrings.xml');
+
+    my @shared_strings = ();
+
+    if ($member_shared_strings) {
+
+        my $mstr = decode_utf8 $member_shared_strings->contents;
+        $mstr =~
+          s/<t\/>/<t><\/t>/gsm;    # this handles an empty t tag in the xml <t/>
+        foreach my $si ( $mstr =~ /<si.*?>(.*?)<\/si/gsm ) {
+            my $str;
+            foreach my $t ( $si =~ /<t.*?>(.*?)<\/t/gsm ) {
+                $t = $converter->convert($t) if $converter;
+                $str .= $t;
+            }
+            push @shared_strings, $str;
+        }
+    }
+    my $member_styles = $self->{zip}->memberNamed('xl/styles.xml');
+
+    my @styles       = ();
+    my @style_Format = ();
+
+    my %style_info = ();
+
+    if ($member_styles) {
+
+        my ($cellXfs) = $member_styles->contents =~ m#(<cellXfs .*</cellXfs>)#s;
+
+        foreach ( split /<xf/, decode_utf8 $cellXfs ) {
+            next unless /numFmtId="([^"]+)"/s;
+            push @styles, $1;
+            push @style_Format, /<protection *locked="0"/s ? {} : { Lock => 1 };
+        }
+
+        my $default = $1 || '';
+        foreach my $t1 (@styles) {
+            $member_styles->contents =~ /numFmtId="$t1" formatCode="([^"]*)/;
+            my $formatCode = decode_utf8( $1 || '' );
+            if ( $formatCode eq $default || not($formatCode) ) {
+                if ( $t1 == 9 || $t1 == 10 ) { $formatCode = "0.00000%"; }
+                elsif ( $t1 == 14 ) { $formatCode = "m-d-yy"; }
+                else {
+                    $formatCode = "";
+                }
+            }
+            $style_info{$t1} = $formatCode;
+            $default = $1 || '';
+        }
+
+    }
+
+    my $member_rels = $self->{zip}->memberNamed('xl/_rels/workbook.xml.rels')
+      or die("xl/_rels/workbook.xml.rels not found in this zip\n");
+
+    my %rels = ();
+
+    foreach ( $member_rels->contents =~ /\<Relationship (.*?)\/?\>/g ) {
+
+        /^Id="(.*?)".*?Target="(.*?)"/ or next;
+
+        $rels{$1} = $2;
+
+    }
+
+    my $member_workbook = $self->{zip}->memberNamed('xl/workbook.xml')
+      or die("xl/workbook.xml not found in this zip\n");
+    my $oBook = Spreadsheet::ParseExcel::Workbook->new;
+    $oBook->{SheetCount} = 0;
+    $oBook->{FmtClass}   = Ancillary::XLSX::Fmt2007->new;
+    $oBook->{Flg1904}    = 0;
+    if ( $member_workbook->contents =~ /date1904="1"/ ) {
+        $oBook->{Flg1904} = 1;
+    }
+    my @Worksheet = ();
+
+    foreach ( $member_workbook->contents =~ /\<(.*?)\/?\>/g ) {
+
+        /^(\w+)\s+/;
+
+        my ( $tag, $other ) = ( $1, $' );
+
+        my @pairs = split /\" /, $other;
+
+        $tag eq 'sheet' or next;
+
+        my $sheet = {
+            MaxRow => 0,
+            MaxCol => 0,
+            MinRow => 1000000,
+            MinCol => 1000000,
+        };
+
+        foreach ( $other =~ /(\S+=".*?")/gsm ) {
+
+            my ( $k, $v ) = split /=?"/;    #"
+
+            if ( $k eq 'name' ) {
+                $sheet->{Name} = $v;
+                $sheet->{Name} = $converter->convert( $sheet->{Name} )
+                  if $converter;
+            }
+            elsif ( $k eq 'r:id' ) {
+
+                $sheet->{path} = $rels{$v};
+
+            }
+
+        }
+        my $wsheet = Spreadsheet::ParseExcel::Worksheet->new(%$sheet);
+        push @Worksheet, $wsheet;
+        $oBook->{Worksheet}[ $oBook->{SheetCount} ] = $wsheet;
+        $oBook->{SheetCount} += 1;
+
+    }
+
+    $self->{Worksheet} = \@Worksheet;
+
+    foreach my $sheet (@Worksheet) {
+
+        my $member_sheet = $self->{zip}->memberNamed("xl/$sheet->{path}")
+          or next;
+
+        my ( $row, $col );
+
+        my $flag = 0;
+        my $s    = 0;
+        my $s2   = 0;
+        my $sty  = 0;
+        foreach ( ( decode_utf8 $member_sheet->contents ) =~
+            /(\<.*?\/?\>|.*?(?=\<))/g )
+        {
+            if (/^\<c r=\"([A-Z])([A-Z]?)(\d+)\"/) {
+
+                $col = ord($1) - 65;
+
+                if ($2) {
+                    $col++;
+                    $col *= 26;
+                    $col += ( ord($2) - 65 );
+                }
+
+                $row = $3 - 1;
+
+                $s   = m/t=\"s\"/      ? 1  : 0;
+                $s2  = m/t=\"str\"/    ? 1  : 0;
+                $sty = m/s="([0-9]+)"/ ? $1 : 0;
+
+            }
+            elsif (/^<v/) {
+                $flag = 1;
+            }
+            elsif (/^<\/v/) {
+                $flag = 0;
+            }
+            elsif ( length($_) && $flag ) {
+                my $v = $s ? $shared_strings[$_] : $_;
+                if ( $v eq "</c>" ) { $v = ""; }
+                my $type      = "Text";
+                my $thisstyle = "";
+                if ( not($s) && not($s2) ) {
+                    $type      = "Numeric";
+                    $thisstyle = $style_info{ $styles[$sty] };
+                    if ( $thisstyle =~ /(?<!Re)d|m|y/ ) {
+                        $type = "Date";
+                    }
+                }
+                $sheet->{MaxRow} = $row if $sheet->{MaxRow} < $row;
+                $sheet->{MaxCol} = $col if $sheet->{MaxCol} < $col;
+                $sheet->{MinRow} = $row if $sheet->{MinRow} > $row;
+                $sheet->{MinCol} = $col if $sheet->{MinCol} > $col;
+                if ( $v =~ /(.*)E\-(.*)/gsm && $type eq "Numeric" ) {
+                    $v =
+                      $1 / ( 10**$2 )
+                      ; # this handles scientific notation for very small numbers
+                }
+                my $cell = Spreadsheet::ParseExcel::Cell->new(
+
+                    Val    => $v,
+                    FmtStr => $thisstyle,
+                    Format => $style_Format[$sty],
+                    Type   => $type
+
+                );
+
+                $cell->{_Value} = $oBook->{FmtClass}->ValFmt( $cell, $oBook );
+                if ( $type eq "Date" && $v < 1 )
+                {    #then this is Excel time field
+                    $cell->{Type} = "Text";
+                    $cell->{Val}  = $cell->{_Value};
+                }
+                $sheet->{Cells}[$row][$col] = $cell;
+            }
+
+        }
+
+        $sheet->{MinRow} = 0 if $sheet->{MinRow} > $sheet->{MaxRow};
+        $sheet->{MinCol} = 0 if $sheet->{MinCol} > $sheet->{MaxCol};
+
+    }
+    foreach my $stys ( keys %style_info ) {
+    }
+    bless( $self, $class );
+
+    return $oBook;
+
 }
 
 1;
