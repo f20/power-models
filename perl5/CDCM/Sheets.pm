@@ -430,6 +430,7 @@ EOL
     push @wsheetsAndClosures,
 
       'M-ATW' => sub {
+        return if $wbook->{findForwardLinks};
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
@@ -489,6 +490,7 @@ EOL
     push @wsheetsAndClosures,
 
       'M-LDNO' => sub {
+        return if $wbook->{findForwardLinks};
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
