@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2011 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -579,15 +579,7 @@ sub wsPrepare {
     $rootsheet = $rootsheet == $ws ? '' : "'" . $rootsheet->get_name . "'!";
 
     my $formula = $ws->store_formula("=MIN(${rootsheet}IV1:IV2)");
-    my $format  = $wb->getFormat(
-        $self->{defaultFormat}
-        ? (
-            ref $self->{defaultFormat}
-            ? @{ $self->{defaultFormat} }
-            : $self->{defaultFormat}
-          )
-        : '0.000soft'
-    );
+    my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );
 
     $self->{sourceLines} = [$root];
     $self->{arithmetic}  = '=MIN(IV1)';

@@ -7,7 +7,7 @@ This file contains SpreadsheetModel::Custom and SpreadsheetModel::Reshape.
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2011 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -49,7 +49,8 @@ sub objectType {
 
 sub check {
     my ($self) = @_;
-    $self->{arithmetic} = 'Special calculation' unless defined $self->{arithmetic};
+    $self->{arithmetic} = 'Special calculation'
+      unless defined $self->{arithmetic};
     $self->{objectType} ||= 'Special calculation';
     push @{ $self->{sourceLines} }, values %{ $self->{arguments} };
     $self->{wsPrepare} ||= sub {
@@ -128,15 +129,7 @@ sub wsPrepare {
     $srcsheet = $srcsheet == $ws ? '' : "'" . $srcsheet->get_name . "'!";
 
     my $formula = $ws->store_formula("=${srcsheet}IV1");
-    my $format  = $wb->getFormat(
-        $self->{defaultFormat}
-        ? (
-            ref $self->{defaultFormat}
-            ? @{ $self->{defaultFormat} }
-            : $self->{defaultFormat}
-          )
-        : '0.000copy'
-    );
+    my $format = $wb->getFormat( $self->{defaultFormat} || '0.000copy' );
 
     my ( @x, @y );
 
