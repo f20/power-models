@@ -83,7 +83,10 @@ sub _getRectangle {
         $slopr2 += $lastColumn->lastRow;
         $slopc2 += $lastColumn->lastCol;
     }
-    $slopsheet = $slopsheet == $ws ? '' : "'" . $slopsheet->get_name . "'!";
+    $slopsheet =
+      $slopsheet == $ws
+      ? ''
+      : "'" . ( $slopsheet ? $slopsheet->get_name : 'BROKEN LINK' ) . "'!";
     $slopsheet, $slopr1, $slopc1, $slopr2, $slopc2;
 
 }
@@ -93,7 +96,10 @@ sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
 
     my ( $targsheet, $targr, $targc ) = $self->{target}->wsWrite( $wb, $ws );
-    $targsheet = $targsheet == $ws ? '' : "'" . $targsheet->get_name . "'!";
+    $targsheet =
+      $targsheet == $ws
+      ? ''
+      : "'" . ( $targsheet ? $targsheet->get_name : 'BROKEN LINK' ) . "'!";
 
     my ( $slopsheet, $slopr1, $slopc1, $slopr2, $slopc2 ) =
       _getRectangle( $self->{slopes}, $wb, $ws );
@@ -122,7 +128,10 @@ sub wsPrepare {
         }
     );
     my ( $unconsheet, $unconr, $unconc ) = $unconstrained->wsWrite( $wb, $ws );
-    $unconsheet = $unconsheet == $ws ? '' : "'" . $unconsheet->get_name . "'!";
+    $unconsheet =
+      $unconsheet == $ws
+      ? ''
+      : "'" . ( $unconsheet ? $unconsheet->get_name : 'BROKEN LINK' ) . "'!";
 
     my $startingPoint = new SpreadsheetModel::Custom(
         name        => 'Starting point',
@@ -583,7 +592,10 @@ sub wsPrepare {
     );
 
     my ( $rootsheet, $rootr, $rootc ) = $root->wsWrite( $wb, $ws );
-    $rootsheet = $rootsheet == $ws ? '' : "'" . $rootsheet->get_name . "'!";
+    $rootsheet =
+      $rootsheet == $ws
+      ? ''
+      : "'" . ( $rootsheet ? $rootsheet->get_name : 'BROKEN LINK' ) . "'!";
 
     my $formula = $ws->store_formula("=MIN(${rootsheet}IV1:IV2)");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );

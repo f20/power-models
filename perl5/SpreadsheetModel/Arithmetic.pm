@@ -44,8 +44,7 @@ sub objectType {
 sub populateCore {
     my ($self) = @_;
     $self->{core}{$_} = $self->{$_}
-      foreach grep { exists $self->{$_}; }
-      qw(arithmetic);
+      foreach grep { exists $self->{$_}; } qw(arithmetic);
     while ( my ( $k, $v ) = each %{ $self->{arguments} } ) {
         $self->{core}{arguments}{$k} = $v->getCore;
     }
@@ -130,14 +129,14 @@ sub wsPrepare {
         if ( my ( $a, $b ) = ( $ph =~ /^([A-Z0-9]+)_([A-Z0-9]+)$/ ) ) {
             use bytes;
             if ( $ws2 != $ws ) {
-                my $sheet = $ws2->get_name;
+                my $sheet = $ws2 ? $ws2->get_name : 'BROKEN LINK';
                 $arithmetic =~ s/\b$ph(\b|$)/'$sheet:$sheet'!$ph/;
             }
             $arithmetic =~ s/\b$ph(\b|$)/$a:$b/;
             $volatile = 1;
         }
         elsif ( $ws2 != $ws ) {
-            my $sheet = $ws2->get_name;
+            my $sheet = $ws2 ? $ws2->get_name : 'BROKEN LINK';
             use bytes;
             $arithmetic =~ s/\b$ph(\b|$)/'$sheet'!$ph/;
         }

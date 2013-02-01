@@ -89,7 +89,7 @@ sub wsPrepare {
     foreach ( grep { ref $_ eq 'ARRAY' } @{ $self->{list} } ) {
         my ( $sh, $ro, $co ) = $_->[0]->wsWrite( $wb, $ws );
         $_ = q%='%
-          . $sh->get_name . q%'!%
+          . ( $sh ? $sh->get_name : 'BROKEN LINK' ) . q%'!%
           . xl_rowcol_to_cell( $ro + $_->[1], $co + $_->[2] );
     }
 }

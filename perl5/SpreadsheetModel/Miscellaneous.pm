@@ -88,7 +88,7 @@ sub wsPrepare {
         ( my $ws2, $row{$ph}, $col{$ph} ) =
           $self->{arguments}{$ph}->wsWrite( $wb, $ws );
         unless ( $ws2 == $ws ) {
-            my $sheet = $ws2->get_name;
+            my $sheet = $ws2 ? $ws2->get_name : 'BROKEN LINK';
             use bytes;
             s/\b$ph(\b|$)/'$sheet'!$ph/ foreach @custom;
         }
@@ -140,7 +140,10 @@ sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
 
     my ( $srcsheet, $srcr, $srcc ) = $self->{source}->wsWrite( $wb, $ws );
-    $srcsheet = $srcsheet == $ws ? '' : "'" . $srcsheet->get_name . "'!";
+    $srcsheet =
+      $srcsheet == $ws
+      ? ''
+      : "'" . ( $srcsheet ? $srcsheet->get_name : 'BROKEN LINK' ) . "'!";
 
     my $formula = $ws->store_formula("=${srcsheet}IV1");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000copy' );

@@ -86,7 +86,10 @@ sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
 
     my ( $srcsheet, $srcr, $srcc ) = $self->{source}->wsWrite( $wb, $ws );
-    $srcsheet = $srcsheet == $ws ? '' : "'" . $srcsheet->get_name . "'!";
+    $srcsheet =
+      $srcsheet == $ws
+      ? ''
+      : "'" . ( $srcsheet ? $srcsheet->get_name : 'BROKEN LINK' ) . "'!";
 
     my $formula = $ws->store_formula("=SUM(${srcsheet}IV1:IV2)");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );

@@ -110,7 +110,7 @@ sub wsWrite {
         my ( $wo, $ro, $co ) = @{ $obj->{$wb} }{qw(worksheet row col)};
         my $ty = $cset ? $cset->objectType : $obj->objectType;
         my $ce = xl_rowcol_to_cell( $ro, $co );
-        my $wn = $wo->get_name;
+        my $wn = $wo   ? $wo->get_name   : 'BROKEN LINK';
         my $na = $cset ? "$cset->{name}" : "$obj->{name}";
         0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
         $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
@@ -120,7 +120,7 @@ sub wsWrite {
 
         if ( $wb->{logAll} && $obj->isa('SpreadsheetModel::Dataset') ) {
             my ( $wss, $rows, $cols ) = $obj->wsWrite( $wb, $ws );
-            my $wsn = $wss->get_name;
+            my $wsn = $wss ? $wss->get_name : 'BROKEN LINK';
             my $c1 =
               Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $rows,
                 $cols, 0, 0 );

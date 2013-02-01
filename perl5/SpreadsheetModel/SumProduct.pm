@@ -168,10 +168,16 @@ sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
 
     my ( $matsheet, $matr, $matc ) = $self->{matrix}->wsWrite( $wb, $ws );
-    $matsheet = $matsheet == $ws ? '' : "'" . $matsheet->get_name . "'!";
+    $matsheet =
+      $matsheet == $ws
+      ? ''
+      : "'" . ( $matsheet ? $matsheet->get_name : 'BROKEN LINK' ) . "'!";
 
     my ( $vecsheet, $vecr, $vecc ) = $self->{vector}->wsWrite( $wb, $ws );
-    $vecsheet = $vecsheet == $ws ? '' : "'" . $vecsheet->get_name . "'!";
+    $vecsheet =
+      $vecsheet == $ws
+      ? ''
+      : "'" . ( $vecsheet ? $vecsheet->get_name : 'BROKEN LINK' ) . "'!";
 
     my $formula =
       $ws->store_formula("=SUMPRODUCT(${matsheet}IV1:IV2,${vecsheet}IV3:IV4)");

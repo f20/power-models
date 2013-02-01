@@ -239,7 +239,6 @@ sub wsWrite {
         unless ( defined $row && defined $col ) {
             ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 );
         }
-        my $c2 = $col;
         for ( 0 .. $lastCol ) {
             my $thecol = $self->{columns}[$_];
             foreach (qw(rows cols)) {
@@ -252,11 +251,21 @@ sub wsWrite {
               . ' cannot be written again as part of '
               . "$self->{name} $self->{debug}"
               if $thecol->{$wb};
-            $cell[$_] = $thecol->wsPrepare( $wb, $ws );
+            $thecol->wsPrepare( $wb, $ws );
 
-# This is a provisional assignment.
-# OK if relied upon by other columns.
-# But serious problems arise if it is relied upon in a chain outside the Columnset.
+# This is a placeholder assignment, only OK for other columns of the same columnset to use.
+            @{ $thecol->{$wb} }{qw(worksheet row col)} = ( 0, -666, -666 );
+        }
+        last if !$ws->{nextFree} || $ws->{nextFree} < $row;
+        delete $_->{$wb} for @{ $self->{columns} };
+        undef $row;
+    }
+
+    {
+        my $c2 = $col;
+        for ( 0 .. $lastCol ) {
+            my $thecol = $self->{columns}[$_];
+            $cell[$_] = $thecol->wsPrepare( $wb, $ws );
             @{ $thecol->{$wb} }{qw(worksheet row col)} = (
                 $ws,
                 $row +
@@ -264,15 +273,11 @@ sub wsWrite {
                   ( $thecol->{rows} ? $self->{anonRow} : 0 ),
                 $c2 + $headerCols
             );
-
             $c2 +=
               $thecol->{cols}
               ? @{ $thecol->{cols}{list} }
               : 1;
         }
-        last if !$ws->{nextFree} || $ws->{nextFree} < $row;
-        delete $_->{$wb} for @{ $self->{columns} };
-        undef $row;
     }
 
     if (@hideRange) {

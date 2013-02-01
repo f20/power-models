@@ -50,8 +50,7 @@ sub objectType {
 sub populateCore {
     my ($self) = @_;
     $self->{core}{$_} = $self->{$_}
-      foreach grep { exists $self->{$_}; }
-      qw(arithmetic data);
+      foreach grep { exists $self->{$_}; } qw(arithmetic data);
 }
 
 sub wsUrl {
@@ -59,7 +58,7 @@ sub wsUrl {
     return unless $self->{$wb};
     my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
     my $ce = xl_rowcol_to_cell( $ro, $co );
-    my $wn = $wo->get_name;
+    my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
     "internal:'$wn'!$ce";
 }
 
@@ -291,8 +290,6 @@ sub wsPrepare {
 }
 
 sub wsWrite {
-
-# We should perhaps be calling Columnset's wsWrite rather than duplicating the wheel.
 
     my ( $self, $wb, $ws, $row, $col, $noCopy ) = @_;
 
@@ -526,7 +523,8 @@ sub wsWrite {
             $row++,
             $col,
             'internal:\''
-              . $dataAreHere[0]->get_name . '\'!'
+              . ( $dataAreHere[0] ? $dataAreHere[0]->get_name : 'BROKEN LINK' )
+              . '\'!'
               . xl_rowcol_to_cell( @dataAreHere[ 1, 2 ] ),
             'Data',
             $wb->getFormat('link')

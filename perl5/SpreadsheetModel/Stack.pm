@@ -175,7 +175,9 @@ sub wsPrepare {
             $formula{ 0 + $_ } = $ws->store_formula(
                 $ws == $srcsheet
                 ? '=IV1'
-                : '=' . q"'" . $srcsheet->get_name . q"'!IV1"
+                : '=' . q"'"
+                  . ( $srcsheet ? $srcsheet->get_name : 'BROKEN LINK' )
+                  . q"'!IV1"
             );
             $rowcol{ 0 + $_ } = [ $srcr, $srcc ];
         }
