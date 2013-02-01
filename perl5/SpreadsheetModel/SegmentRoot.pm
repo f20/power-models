@@ -27,9 +27,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# Forward links bug:
-# This class does not work correctly with forwardLinks features because
-# tables are being created within the wsPrepare call.
+# This class is structurally unsound because it creates tables within the
+# wsPrepare call (rather than within check).
+#
+# As a consequence it is not compatible with forwardLinks features.
 
 use warnings;
 use strict;
