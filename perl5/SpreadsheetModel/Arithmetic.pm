@@ -146,6 +146,9 @@ sub wsPrepare {
         }
     }
 
+    return sub { die $broken; }
+      if $broken;
+
     $volatile = 1 if $arithmetic =~ /\bM(IN|AX)\b/;
 
     my $formula = $ws->store_formula($arithmetic);
@@ -182,7 +185,6 @@ sub wsPrepare {
     } @stdph;
 
     sub {
-        die $broken if $broken;
         my ( $x, $y ) = @_;
         return '', $wb->getFormat('unavailable')
           if $self->{rowFormats}

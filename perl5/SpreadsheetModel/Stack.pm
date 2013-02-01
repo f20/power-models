@@ -185,11 +185,14 @@ sub wsPrepare {
             $rowcol{ 0 + $_ } = [ $srcr, $srcc ];
         }
     }
+
+    return sub { die $broken; }
+      if $broken;
+
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000copy' );
     my $unavailable = $wb->getFormat('unavailable');
 
     sub {
-        die $broken if $broken;
 
         return ( '', $unavailable )
           unless $self->{map}[ $_[0] ] && $self->{map}[ $_[0] ][ $_[1] ];

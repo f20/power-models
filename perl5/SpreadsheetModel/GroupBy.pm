@@ -88,6 +88,8 @@ sub wsPrepare {
     my ( $srcsheet, $srcr, $srcc ) = $self->{source}->wsWrite( $wb, $ws );
     $broken = "UNFEASIBLE LINK to source for $self->{name} $self->{debug}"
       unless $srcsheet;
+    return sub { die $broken; }
+      if $broken;
     $srcsheet = !$srcsheet
       || $srcsheet == $ws ? '' : "'" . $srcsheet->get_name . "'!";
 
@@ -155,7 +157,6 @@ sub wsPrepare {
       ?
 
       sub {
-        die $broken if $broken;
         my ( $y,  $x )  = @_;
         my ( $x1, $x2 ) = $xabs ? ( $x1[$x], $x2[$x] ) : ( $x, $x );
         my ( $y1, $y2 ) = $yabs ? ( $y1[$y], $y2[$y] ) : ( $y, $y );
@@ -167,7 +168,6 @@ sub wsPrepare {
       :
 
       sub {
-        die $broken if $broken;
         my ( $x,  $y )  = @_;
         my ( $x1, $x2 ) = $xabs ? ( $x1[$x], $x2[$x] ) : ( $x, $x );
         my ( $y1, $y2 ) = $yabs ? ( $y1[$y], $y2[$y] ) : ( $y, $y );
