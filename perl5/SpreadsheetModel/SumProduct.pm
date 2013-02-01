@@ -166,18 +166,23 @@ ERR
 sub wsPrepare {
 
     my ( $self, $wb, $ws ) = @_;
+    my $broken;
 
     my ( $matsheet, $matr, $matc ) = $self->{matrix}->wsWrite( $wb, $ws );
     $matsheet =
       $matsheet == $ws
       ? ''
-      : "'" . ( $matsheet ? $matsheet->get_name : 'BROKEN LINK' ) . "'!";
+      : "'"
+      . ( $matsheet ? $matsheet->get_name : ( $broken = 'UNFEASIBLE LINK' ) )
+      . "'!";
 
     my ( $vecsheet, $vecr, $vecc ) = $self->{vector}->wsWrite( $wb, $ws );
     $vecsheet =
       $vecsheet == $ws
       ? ''
-      : "'" . ( $vecsheet ? $vecsheet->get_name : 'BROKEN LINK' ) . "'!";
+      : "'"
+      . ( $vecsheet ? $vecsheet->get_name : ( $broken = 'UNFEASIBLE LINK' ) )
+      . "'!";
 
     my $formula =
       $ws->store_formula("=SUMPRODUCT(${matsheet}IV1:IV2,${vecsheet}IV3:IV4)");
@@ -195,6 +200,7 @@ sub wsPrepare {
             $gr1        = $gr;
         }
         return sub {
+            die $broken if $broken;
             my ( $x, $y ) = @_;
             '', $format, $formula,
               IV1 => xl_rowcol_to_cell( $matr + $start[$y], $matc + $x, 1, 0 ),
@@ -220,6 +226,7 @@ sub wsPrepare {
         my $mat0 = $matc + ( $n ? 1 : 0 );
         my $n1 = $n ? $n + 2 : 1;
         return sub {
+            die $broken if $broken;
             my ( $x, $y ) = @_;
             my $matcoff = $mat0 + $x * $n1;
             my ( $my, $myl, $vy, $vyl ) = map {
@@ -253,6 +260,7 @@ sub wsPrepare {
         my $matcl = $matc + $n;
         my $veccl = $vecc + $n;
         return sub {
+            die $broken if $broken;
             my ( $x, $y ) = @_;
             $y = $self->{rowIndex}[$y];
             '', $format, $formula,
@@ -272,6 +280,7 @@ sub wsPrepare {
         my $matrl = $matr + $n;
         my $vecrl = $vecr + $n;
         return sub {
+            die $broken if $broken;
             my ( $x, $y ) = @_;
             '', $format, $formula,
               IV1 => xl_rowcol_to_cell( $matr,  $matc + $x, 1, 0 ),
@@ -290,6 +299,7 @@ sub wsPrepare {
         my $matcl = $matc + $n;
         my $veccl = $vecc + $n;
         return sub {
+            die $broken if $broken;
             my ( $x, $y ) = @_;
             '', $format, $formula,
               IV1 => xl_rowcol_to_cell( $matr + $y, $matc,  0, 1 ),

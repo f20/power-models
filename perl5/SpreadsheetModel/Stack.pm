@@ -155,6 +155,8 @@ sub wsPrepare {
 
     my %formula;
     my %rowcol;
+    my $broken;
+
     for ( @{ $self->{sources} } ) {
         if ( ref $_ eq 'SpreadsheetModel::Constant'
             && !$_->{$wb} )
@@ -173,10 +175,12 @@ sub wsPrepare {
             my ( $srcsheet, $srcr, $srcc ) =
               $_->wsWrite( $wb, $ws, undef, undef, 1 );
             $formula{ 0 + $_ } = $ws->store_formula(
-                $ws == $srcsheet
-                ? '=IV1'
+                $ws == $srcsheet ? '=IV1'
                 : '=' . q"'"
-                  . ( $srcsheet ? $srcsheet->get_name : 'BROKEN LINK' )
+                  . (
+                    $srcsheet ? $srcsheet->get_name
+                    : ( $broken = 'UNFEASIBLE LINK' )
+                  )
                   . q"'!IV1"
             );
             $rowcol{ 0 + $_ } = [ $srcr, $srcc ];
@@ -186,6 +190,7 @@ sub wsPrepare {
     my $unavailable = $wb->getFormat('unavailable');
 
     sub {
+        die $broken if $broken;
 
         return ( '', $unavailable )
           unless $self->{map}[ $_[0] ] && $self->{map}[ $_[0] ][ $_[1] ];

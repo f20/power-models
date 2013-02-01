@@ -58,7 +58,7 @@ sub wsUrl {
     return unless $self->{$wb};
     my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
     my $ce = xl_rowcol_to_cell( $ro, $co );
-    my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
+    my $wn = $wo ? $wo->get_name : die 'BROKEN LINK';
     "internal:'$wn'!$ce";
 }
 

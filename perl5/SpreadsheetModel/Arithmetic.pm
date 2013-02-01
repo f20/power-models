@@ -116,6 +116,7 @@ sub wsPrepare {
 
     my $arithmetic = $self->{arithmetic};
     my $volatile;
+    my $broken;
 
     my @placeholders = keys %{ $self->{arguments} };
 
@@ -129,14 +130,15 @@ sub wsPrepare {
         if ( my ( $a, $b ) = ( $ph =~ /^([A-Z0-9]+)_([A-Z0-9]+)$/ ) ) {
             use bytes;
             if ( $ws2 != $ws ) {
-                my $sheet = $ws2 ? $ws2->get_name : 'BROKEN LINK';
+                my $sheet =
+                  $ws2 ? $ws2->get_name : ( $broken = 'UNFEASIBLE LINK' );
                 $arithmetic =~ s/\b$ph(\b|$)/'$sheet:$sheet'!$ph/;
             }
             $arithmetic =~ s/\b$ph(\b|$)/$a:$b/;
             $volatile = 1;
         }
         elsif ( $ws2 != $ws ) {
-            my $sheet = $ws2 ? $ws2->get_name : 'BROKEN LINK';
+            my $sheet = $ws2 ? $ws2->get_name : ( $broken = 'UNFEASIBLE LINK' );
             use bytes;
             $arithmetic =~ s/\b$ph(\b|$)/'$sheet'!$ph/;
         }
@@ -178,6 +180,7 @@ sub wsPrepare {
     } @stdph;
 
     sub {
+        die $broken if $broken;
         my ( $x, $y ) = @_;
         return '', $wb->getFormat('unavailable')
           if $self->{rowFormats}

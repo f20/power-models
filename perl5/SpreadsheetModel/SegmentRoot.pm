@@ -86,7 +86,7 @@ sub _getRectangle {
     $slopsheet =
       $slopsheet == $ws
       ? ''
-      : "'" . ( $slopsheet ? $slopsheet->get_name : 'BROKEN LINK' ) . "'!";
+      : "'" . ( $slopsheet ? $slopsheet->get_name : die 'BROKEN LINK' ) . "'!";
     $slopsheet, $slopr1, $slopc1, $slopr2, $slopc2;
 
 }
@@ -99,7 +99,7 @@ sub wsPrepare {
     $targsheet =
       $targsheet == $ws
       ? ''
-      : "'" . ( $targsheet ? $targsheet->get_name : 'BROKEN LINK' ) . "'!";
+      : "'" . ( $targsheet ? $targsheet->get_name : die 'BROKEN LINK' ) . "'!";
 
     my ( $slopsheet, $slopr1, $slopc1, $slopr2, $slopc2 ) =
       _getRectangle( $self->{slopes}, $wb, $ws );
@@ -131,7 +131,7 @@ sub wsPrepare {
     $unconsheet =
       $unconsheet == $ws
       ? ''
-      : "'" . ( $unconsheet ? $unconsheet->get_name : 'BROKEN LINK' ) . "'!";
+      : "'" . ( $unconsheet ? $unconsheet->get_name : die 'BROKEN LINK' ) . "'!";
 
     my $startingPoint = new SpreadsheetModel::Custom(
         name        => 'Starting point',
@@ -595,7 +595,7 @@ sub wsPrepare {
     $rootsheet =
       $rootsheet == $ws
       ? ''
-      : "'" . ( $rootsheet ? $rootsheet->get_name : 'BROKEN LINK' ) . "'!";
+      : "'" . ( $rootsheet ? $rootsheet->get_name : die 'BROKEN LINK' ) . "'!";
 
     my $formula = $ws->store_formula("=MIN(${rootsheet}IV1:IV2)");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );

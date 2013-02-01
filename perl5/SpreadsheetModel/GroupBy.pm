@@ -84,12 +84,12 @@ sub check {
 sub wsPrepare {
 
     my ( $self, $wb, $ws ) = @_;
-
+my $broken;
     my ( $srcsheet, $srcr, $srcc ) = $self->{source}->wsWrite( $wb, $ws );
     $srcsheet =
       $srcsheet == $ws
       ? ''
-      : "'" . ( $srcsheet ? $srcsheet->get_name : 'BROKEN LINK' ) . "'!";
+      : "'" . ( $srcsheet ? $srcsheet->get_name : ($broken='UNFEASIBLE LINK') ) . "'!";
 
     my $formula = $ws->store_formula("=SUM(${srcsheet}IV1:IV2)");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );
@@ -154,7 +154,7 @@ sub wsPrepare {
 
       ?
 
-      sub {
+      sub {die $broken if $broken;
         my ( $y,  $x )  = @_;
         my ( $x1, $x2 ) = $xabs ? ( $x1[$x], $x2[$x] ) : ( $x, $x );
         my ( $y1, $y2 ) = $yabs ? ( $y1[$y], $y2[$y] ) : ( $y, $y );
@@ -165,7 +165,7 @@ sub wsPrepare {
 
       :
 
-      sub {
+      sub {die $broken if $broken;
         my ( $x,  $y )  = @_;
         my ( $x1, $x2 ) = $xabs ? ( $x1[$x], $x2[$x] ) : ( $x, $x );
         my ( $y1, $y2 ) = $yabs ? ( $y1[$y], $y2[$y] ) : ( $y, $y );
