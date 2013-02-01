@@ -84,12 +84,12 @@ sub check {
 sub wsPrepare {
 
     my ( $self, $wb, $ws ) = @_;
-my $broken;
+    my $broken;
     my ( $srcsheet, $srcr, $srcc ) = $self->{source}->wsWrite( $wb, $ws );
-    $srcsheet =
-      $srcsheet == $ws
-      ? ''
-      : "'" . ( $srcsheet ? $srcsheet->get_name : ($broken='UNFEASIBLE LINK') ) . "'!";
+    $broken = "UNFEASIBLE LINK to source for $self->{name} $self->{debug}"
+      unless $srcsheet;
+    $srcsheet = !$srcsheet
+      || $srcsheet == $ws ? '' : "'" . $srcsheet->get_name . "'!";
 
     my $formula = $ws->store_formula("=SUM(${srcsheet}IV1:IV2)");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );
@@ -154,7 +154,8 @@ my $broken;
 
       ?
 
-      sub {die $broken if $broken;
+      sub {
+        die $broken if $broken;
         my ( $y,  $x )  = @_;
         my ( $x1, $x2 ) = $xabs ? ( $x1[$x], $x2[$x] ) : ( $x, $x );
         my ( $y1, $y2 ) = $yabs ? ( $y1[$y], $y2[$y] ) : ( $y, $y );
@@ -165,7 +166,8 @@ my $broken;
 
       :
 
-      sub {die $broken if $broken;
+      sub {
+        die $broken if $broken;
         my ( $x,  $y )  = @_;
         my ( $x1, $x2 ) = $xabs ? ( $x1[$x], $x2[$x] ) : ( $x, $x );
         my ( $y1, $y2 ) = $yabs ? ( $y1[$y], $y2[$y] ) : ( $y, $y );

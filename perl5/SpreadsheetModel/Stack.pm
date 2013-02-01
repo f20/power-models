@@ -174,14 +174,13 @@ sub wsPrepare {
         else {
             my ( $srcsheet, $srcr, $srcc ) =
               $_->wsWrite( $wb, $ws, undef, undef, 1 );
+            $broken =
+              "UNFEASIBLE LINK to source for $self->{name} $self->{debug}"
+              unless $srcsheet;
             $formula{ 0 + $_ } = $ws->store_formula(
-                $ws == $srcsheet ? '=IV1'
-                : '=' . q"'"
-                  . (
-                    $srcsheet ? $srcsheet->get_name
-                    : ( $broken = 'UNFEASIBLE LINK' )
-                  )
-                  . q"'!IV1"
+                !$srcsheet || $ws == $srcsheet
+                ? '=IV1'
+                : '=' . q"'" . $srcsheet->get_name . q"'!IV1"
             );
             $rowcol{ 0 + $_ } = [ $srcr, $srcc ];
         }

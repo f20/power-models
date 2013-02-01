@@ -127,18 +127,20 @@ sub wsPrepare {
           unless defined $self->{arguments}{$ph};
         ( my $ws2, $row{$ph}, $col{$ph} ) =
           $self->{arguments}{$ph}->wsWrite( $wb, $ws );
+        if ( !$ws2 ) {
+            $broken = "UNFEASIBLE LINK: $ph in $self->{name} $self->{debug}";
+        }
         if ( my ( $a, $b ) = ( $ph =~ /^([A-Z0-9]+)_([A-Z0-9]+)$/ ) ) {
             use bytes;
-            if ( $ws2 != $ws ) {
-                my $sheet =
-                  $ws2 ? $ws2->get_name : ( $broken = 'UNFEASIBLE LINK' );
+            if ( $ws2 && $ws2 != $ws ) {
+                my $sheet = $ws2->get_name;
                 $arithmetic =~ s/\b$ph(\b|$)/'$sheet:$sheet'!$ph/;
             }
             $arithmetic =~ s/\b$ph(\b|$)/$a:$b/;
             $volatile = 1;
         }
-        elsif ( $ws2 != $ws ) {
-            my $sheet = $ws2 ? $ws2->get_name : ( $broken = 'UNFEASIBLE LINK' );
+        elsif ( $ws2 && $ws2 != $ws ) {
+            my $sheet = $ws2->get_name;
             use bytes;
             $arithmetic =~ s/\b$ph(\b|$)/'$sheet'!$ph/;
         }

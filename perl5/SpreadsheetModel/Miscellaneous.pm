@@ -82,18 +82,18 @@ sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
     my @custom       = @{ $self->{custom} };
     my @placeholders = keys %{ $self->{arguments} };
-    my ( %row, %col );
+    my ( %row, %col );my $broken;
     for my $ph (@placeholders) {
         0 and warn "$self->{name} $ph";
         ( my $ws2, $row{$ph}, $col{$ph} ) =
-          $self->{arguments}{$ph}->wsWrite( $wb, $ws );
-        unless ( $ws2 == $ws ) {
-            my $sheet = $ws2 ? $ws2->get_name : 'BROKEN LINK';
+          $self->{arguments}{$ph}->wsWrite( $wb, $ws );$broken="UNFEASIBLE LINK $ph for $self->{name} $self->{debug}" unless $ws2;
+        unless ( !$ws2 || $ws2 == $ws ) {
+            my $sheet = $ws2->get_name;
             use bytes;
             s/\b$ph(\b|$)/'$sheet'!$ph/ foreach @custom;
         }
     }
-    $self->{wsPrepare}->(
+    $broken ? sub { die $broken; } :     $self->{wsPrepare}->(
         $self,
         $wb,
         $ws,

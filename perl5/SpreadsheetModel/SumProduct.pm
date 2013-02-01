@@ -169,21 +169,13 @@ sub wsPrepare {
     my $broken;
 
     my ( $matsheet, $matr, $matc ) = $self->{matrix}->wsWrite( $wb, $ws );
-    $matsheet =
-      $matsheet == $ws
-      ? ''
-      : "'"
-      . ( $matsheet ? $matsheet->get_name : ( $broken = 'UNFEASIBLE LINK' ) )
-      . "'!";
-
     my ( $vecsheet, $vecr, $vecc ) = $self->{vector}->wsWrite( $wb, $ws );
-    $vecsheet =
-      $vecsheet == $ws
-      ? ''
-      : "'"
-      . ( $vecsheet ? $vecsheet->get_name : ( $broken = 'UNFEASIBLE LINK' ) )
-      . "'!";
-
+    $broken = "UNFEASIBLE LINK in $self->{name} $self->{debug}"
+      unless $matsheet && $vecsheet;
+    $matsheet = !$matsheet
+      || $matsheet == $ws ? '' : "'" . $matsheet->get_name . "'!";
+    $vecsheet = !$vecsheet
+      || $vecsheet == $ws ? '' : "'" . $vecsheet->get_name . "'!";
     my $formula =
       $ws->store_formula("=SUMPRODUCT(${matsheet}IV1:IV2,${vecsheet}IV3:IV4)");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );
