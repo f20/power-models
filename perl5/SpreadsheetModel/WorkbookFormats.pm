@@ -50,42 +50,90 @@ sub getFormat {
 }
 
 use constant {
-    BLACK    => 8,     # black #000000
-    WHITE    => 9,     # white #ffffff
-    RED      => 10,    # red #ff0000
-    LIME     => 11,    # lime
-    BLUE     => 12,    # blue #0000ff potentially overridden by #0066cc
-    YELLOW   => 13,    # yellow #ffff00
-    MAGENTA  => 14,    # magenta #ff00ff
-    CYAN     => 15,    # cyan
-    BROWN    => 16,    # brown
-    GREEN    => 17,    # green #008000
-    NAVY     => 18,    # navy
-    DKYELLOW => 19,    # #808000
-    PURPLE   => 20,    # purple #800080
-    SILVER   => 22,    # silver #c0c0c0 potentially overridden by #e9e9e9
-    MAGENTA2 => 33,    # defaults to magenta (?)
-    BLUE2    => 39,    # defaults to blue or some kind of green
-    BGBLUE   => 41,    # #ccffff
-    BGGREEN  => 42,    # #ccffcc
-    BGYELLOW => 43,    # #ffff99 potentially overridden by #ffffcc
-    BGPINK   => 45,    # #ff99cc potentially overridden by #ffccff
-    SILVER2  => 47,    # defaults to silver or some kind of salmon
-    BGDKYELL => 51,    # #ffcc00
-    BGORANGE => 52,    # #ff9900 potentially overridden by #ffcc99
-    ORANGE   => 53,    # orange #ff6600 potentially overridden by #ff6633
-    GREY     => 55,    # #969696 potentially overridden by #999999
+    EXCELCOL0  => 8,     #000000 Black
+    WHITE      => 9,     #FFFFFF White
+    EXCELCOL2  => 10,    #FF0000 Red
+    EXCELCOL3  => 11,    #00FF00 Green or Lime or Bright Green
+    BLUE       => 12,    #0000FF Blue potentially overridden by #0066cc
+    EXCELCOL5  => 13,    #FFFF00 Yellow
+    EXCELCOL6  => 14,    #FF00FF Magenta
+    EXCELCOL7  => 15,    #00FFFF Cyan
+    EXCELCOL8  => 16,    #800000
+    GREEN      => 17,    #008000
+    EXCELCOL10 => 18,    #000080
+    DKYELLOW   => 19,    #808000
+    PURPLE     => 20,    #800080
+    EXCELCOL13 => 21,    #008080
+    SILVER     => 22,    #C0C0C0 potentially overridden by #e9e9e9
+    EXCELCOL15 => 23,    #808080
+    EXCELCOL16 => 24,    #9999FF Chart Fills
+    EXCELCOL17 => 25,    #993366 Chart Fills
+    EXCELCOL18 => 26,    #FFFFCC Chart Fills
+    EXCELCOL19 => 27,    #CCFFFF Chart Fills
+    EXCELCOL20 => 28,    #660066 Chart Fills
+    EXCELCOL21 => 29,    #FF8080 Chart Fills
+    EXCELCOL22 => 30,    #0066CC Chart Fills
+    EXCELCOL23 => 31,    #CCCCFF Chart Fills
+    EXCELCOL24 => 32,    #000080 Chart Lines
+    EXCELCOL25 => 33,    #FF00FF Chart Lines
+    EXCELCOL26 => 34,    #FFFF00 Chart Lines
+    EXCELCOL27 => 35,    #00FFFF Chart Lines
+    EXCELCOL28 => 36,    #800080 Chart Lines
+    EXCELCOL29 => 37,    #800000 Chart Lines
+    EXCELCOL30 => 38,    #008080 Chart Lines
+    EXCELCOL31 => 39,    #0000FF Chart Lines
+    EXCELCOL32 => 40,    #00CCFF
+    BGBLUE     => 41,    #CCFFFF
+    BGGREEN    => 42,    #CCFFCC
+    BGYELLOW   => 43,    #FFFF99 potentially overridden by #ffffcc
+    EXCELCOL36 => 44,    #99CCFF
+    BGPINK     => 45,    #FF99CC potentially overridden by #ffccff
+    BGPURPLE   => 46,    #CC99FF potentially overridden by #eeddff
+    EXCELCOL39 => 47,    #FFCC99
+    EXCELCOL40 => 48,    #3366FF
+    EXCELCOL41 => 49,    #33CCCC
+    EXCELCOL42 => 50,    #99CC00
+    EXCELCOL43 => 51,    #FFCC00
+    BGORANGE   => 52,    #FF9900 potentially overridden by #ffcc99
+    ORANGE     => 53,    #FF6600 potentially overridden by #ff6633
+    EXCELCOL46 => 54,    #666699
+    GREY       => 55,    #969696 potentially overridden by #999999
+    EXCELCOL48 => 56,    #003366
+    EXCELCOL49 => 57,    #339966
+    EXCELCOL50 => 58,    #003300
+    EXCELCOL51 => 59,    #333300
+    EXCELCOL52 => 60,    #993300
+    EXCELCOL53 => 61,    #993366
+    EXCELCOL54 => 62,    #333399
+    EXCELCOL55 => 63,    #333333
 }; # these codes (between 8 and 63) are equal to the colour number used in VBA (1-56) plus 7
 
 sub setFormats {
+
     my ( $workbook, $options ) = @_;
 
+=head setFormats
+
+Keys currently looked at within %$options:
+* validation
+* alignment (to help OpenOffice)
+* defaultColours (to help Excel converter)
+* orange (use orange background for headings)
+* colour (not clear and not useful)
+
+=cut
+
     unless ( $options->{defaultColours} ) {
+        if ( $options->{orange} ) {
+            $workbook->set_custom_color( BGORANGE, '#ffcc99' );
+        }
+        else {
+            $workbook->set_custom_color( BGPURPLE, '#eeddff' );
+        }
         $workbook->set_custom_color( BLUE,     '#0066cc' );
         $workbook->set_custom_color( BGYELLOW, '#ffffcc' );
         $workbook->set_custom_color( BGPINK,   '#ffccff' );
         $workbook->set_custom_color( SILVER,   '#e9e9e9' );
-        $workbook->set_custom_color( BGORANGE, '#ffcc99' );
         $workbook->set_custom_color( ORANGE,   '#ff6633' );
         $workbook->set_custom_color( GREY,     '#999999' );
     }
@@ -185,18 +233,23 @@ sub setFormats {
        !$options->{colour} ? ( bg_color => BGYELLOW )
       : $options->{colour} !~ /t/i ? ( border => 1, border_color => DKYELLOW )
       :                              ( color => DKYELLOW );
-    my @colourScribbles =
-      !$options->{colour}
-      ? ( color => PURPLE, bottom => 3, top => 3, border_color => PURPLE, )
-      : ( color => PURPLE );
-    my @colourHeader = !$options->{colour} ? ( bg_color => BGORANGE ) : ();
+    my @colourScribbles = (
+        color => PURPLE,
+        !$options->{colour} && $options->{orange}
+        ? ( bottom => 3, top => 3, border_color => PURPLE, )
+        : ()
+    );
+    my @colourHeader =
+      $options->{colour}
+      ? ()
+      : ( bg_color => $options->{orange} ? BGORANGE : BGPURPLE );
     my @colourUnavailable =
       !$options->{colour}
-      ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
+      ? ( fg_color => GREY, bg_color => WHITE, pattern => 14, )
       : ( right => 4, border_color => GREY );
     my @colourUnused =
       !$options->{colour}
-      ? ( fg_color => SILVER, bg_color => WHITE, pattern => 15, )
+      ? ( fg_color => GREY, bg_color => WHITE, pattern => 15, )
       : ( right => 4, border_color => GREY );
     my @colourCaption = !$options->{colour} ? () : ( color => BLUE );
     my @colourTitle   = !$options->{colour} ? () : ( color => ORANGE );
@@ -325,7 +378,6 @@ sub setFormats {
             align      => 'left',
             underline  => 1,
             color      => BLUE,
-            1 ? () : ( bg_color => WHITE ),
         ],
         notes => [
             locked => 1,
@@ -390,7 +442,6 @@ sub setFormats {
             @sizeText,
             num_format => '@',
             align      => 'left',
-            1 ? () : ( bg_color => WHITE ),
         ],
         textwrap => [
             locked => 1,
@@ -398,9 +449,8 @@ sub setFormats {
             num_format => '@',
             text_wrap  => 1,
             align      => 'center_across',
-            1 ? () : ( bg_color => WHITE ),
-            left  => 1,
-            right => 1,
+            left       => 1,
+            right      => 1,
         ],
         th => [
             locked => 1,
