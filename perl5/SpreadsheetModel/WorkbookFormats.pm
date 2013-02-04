@@ -66,22 +66,22 @@ use constant {
     EXCELCOL13 => 21,    #008080
     SILVER     => 22,    #C0C0C0 potentially overridden by #e9e9e9
     EXCELCOL15 => 23,    #808080
-    EXCELCOL16 => 24,    #9999FF Chart Fills
-    EXCELCOL17 => 25,    #993366 Chart Fills
-    EXCELCOL18 => 26,    #FFFFCC Chart Fills
-    EXCELCOL19 => 27,    #CCFFFF Chart Fills
-    EXCELCOL20 => 28,    #660066 Chart Fills
-    EXCELCOL21 => 29,    #FF8080 Chart Fills
-    EXCELCOL22 => 30,    #0066CC Chart Fills
-    EXCELCOL23 => 31,    #CCCCFF Chart Fills
-    EXCELCOL24 => 32,    #000080 Chart Lines
-    EXCELCOL25 => 33,    #FF00FF Chart Lines
-    EXCELCOL26 => 34,    #FFFF00 Chart Lines
-    EXCELCOL27 => 35,    #00FFFF Chart Lines
-    EXCELCOL28 => 36,    #800080 Chart Lines
-    EXCELCOL29 => 37,    #800000 Chart Lines
-    EXCELCOL30 => 38,    #008080 Chart Lines
-    EXCELCOL31 => 39,    #0000FF Chart Lines
+    EXCELCOL16 => 24,    #9999FF chart fill
+    EXCELCOL17 => 25,    #993366 chart fill
+    EXCELCOL18 => 26,    #FFFFCC chart fill
+    EXCELCOL19 => 27,    #CCFFFF chart fill
+    EXCELCOL20 => 28,    #660066 chart fill
+    EXCELCOL21 => 29,    #FF8080 chart fill
+    EXCELCOL22 => 30,    #0066CC chart fill
+    EXCELCOL23 => 31,    #CCCCFF chart fill
+    EXCELCOL24 => 32,    #000080 chart line
+    EXCELCOL25 => 33,    #FF00FF chart line
+    EXCELCOL26 => 34,    #FFFF00 chart line
+    EXCELCOL27 => 35,    #00FFFF chart line
+    EXCELCOL28 => 36,    #800080 chart line
+    EXCELCOL29 => 37,    #800000 chart line
+    EXCELCOL30 => 38,    #008080 chart line
+    EXCELCOL31 => 39,    #0000FF chart line
     EXCELCOL32 => 40,    #00CCFF
     BGBLUE     => 41,    #CCFFFF
     BGGREEN    => 42,    #CCFFCC
@@ -115,27 +115,31 @@ sub setFormats {
 =head setFormats
 
 Keys currently looked at within %$options:
-* validation
+* validation (for void cells in input data tables)
 * alignment (to help OpenOffice)
-* defaultColours (to help Excel converter)
-* orange (use orange background for headings)
-* colour (not clear and not useful)
+* colour (to match default and/or orange and/or text or border)
 
 =cut
 
-    unless ( $options->{defaultColours} ) {
-        if ( $options->{orange} ) {
+    my $defaultColours = $options->{colour} && $options->{colour} =~ /default/i;
+    my $orangeColours  = $options->{colour} && $options->{colour} =~ /orange/i;
+    my $borderColour   = $options->{colour} && $options->{colour} =~ /border/i;
+    my $textColour     = $options->{colour} && $options->{colour} =~ /text/i;
+    my $backgroundColour = !$borderColour && !$textColour;
+
+    unless ($defaultColours) {
+        if ($orangeColours) {
             $workbook->set_custom_color( BGORANGE, '#ffcc99' );
+            $workbook->set_custom_color( BLUE,     '#0066cc' );
+            $workbook->set_custom_color( GREY,     '#999999' );
         }
         else {
             $workbook->set_custom_color( BGPURPLE, '#eeddff' );
         }
-        $workbook->set_custom_color( BLUE,     '#0066cc' );
-        $workbook->set_custom_color( BGYELLOW, '#ffffcc' );
         $workbook->set_custom_color( BGPINK,   '#ffccff' );
-        $workbook->set_custom_color( SILVER,   '#e9e9e9' );
+        $workbook->set_custom_color( BGYELLOW, '#ffffcc' );
         $workbook->set_custom_color( ORANGE,   '#ff6633' );
-        $workbook->set_custom_color( GREY,     '#999999' );
+        $workbook->set_custom_color( SILVER,   '#e9e9e9' );
     }
 
 # ?,??0 style formats do not work with OpenOffice.org.  Use the "align: right[0-9]*"
@@ -218,41 +222,53 @@ Keys currently looked at within %$options:
         align => 'center'
       );
     my @colourCon =
-       !$options->{colour} ? ( bg_color => SILVER )
-      : $options->{colour} !~ /t/i ? ( border => 1, border_color => GREY )
-      :                              ( color => GREY );
+      $backgroundColour
+      ? ( bg_color => SILVER )
+      : (
+        $borderColour ? ( border => 1, border_color => GREY ) : (),
+        $textColour ? ( color => GREY ) : (),
+      );
     my @colourCopy =
-       !$options->{colour} ? ( bg_color => BGGREEN )
-      : $options->{colour} !~ /t/i ? ( border => 1, border_color => GREEN )
-      :                              ( color => GREEN );
+      $backgroundColour
+      ? ( bg_color => BGGREEN )
+      : (
+        $borderColour ? ( border => 1, border_color => GREEN ) : (),
+        $textColour ? ( color => GREEN ) : (),
+      );
     my @colourHard =
-       !$options->{colour} ? ( bg_color => BGBLUE )
-      : $options->{colour} !~ /t/i ? ( border => 1, border_color => BLUE )
-      :                              ( color => BLUE );
+      $backgroundColour
+      ? ( bg_color => BGBLUE )
+      : (
+        $borderColour ? ( border => 1, border_color => BLUE ) : (),
+        $textColour ? ( color => BLUE ) : (),
+      );
     my @colourSoft =
-       !$options->{colour} ? ( bg_color => BGYELLOW )
-      : $options->{colour} !~ /t/i ? ( border => 1, border_color => DKYELLOW )
-      :                              ( color => DKYELLOW );
+      $backgroundColour
+      ? ( bg_color => BGYELLOW )
+      : (
+        $borderColour ? ( border => 1, border_color => DKYELLOW ) : (),
+        $textColour ? ( color => DKYELLOW ) : (),
+      );
     my @colourScribbles = (
         color => PURPLE,
-        !$options->{colour} && $options->{orange}
+        $backgroundColour && $orangeColours
         ? ( bottom => 3, top => 3, border_color => PURPLE, )
         : ()
     );
     my @colourHeader =
-      $options->{colour}
+      $backgroundColour
       ? ()
-      : ( bg_color => $options->{orange} ? BGORANGE : BGPURPLE );
+      : ( bg_color => $orangeColours ? BGORANGE : BGPURPLE );
     my @colourUnavailable =
-      !$options->{colour}
-      ? ( fg_color => GREY, bg_color => WHITE, pattern => 14, )
+      $backgroundColour
+      ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
       : ( right => 4, border_color => GREY );
     my @colourUnused =
-      !$options->{colour}
-      ? ( fg_color => GREY, bg_color => WHITE, pattern => 15, )
+      $backgroundColour
+      ? ( fg_color => SILVER, bg_color => WHITE, pattern => 15, )
       : ( right => 4, border_color => GREY );
-    my @colourCaption = !$options->{colour} ? () : ( color => BLUE );
-    my @colourTitle   = !$options->{colour} ? () : ( color => ORANGE );
+    my @colourCaption = $backgroundColour ? () : ( color => BLUE );
+    my @colourTitle   = $backgroundColour ? () : ( color => ORANGE );
     my @sizeCaption    = ( size   => 15 );
     my @sizeHeading    = ( valign => 'vbottom', size => 15 );
     my @sizeLabel      = ( valign => 'vcenter', );
