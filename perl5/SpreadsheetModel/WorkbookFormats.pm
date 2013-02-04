@@ -257,8 +257,8 @@ Keys currently looked at within %$options:
     );
     my @colourHeader =
       $backgroundColour
-      ? ()
-      : ( bg_color => $orangeColours ? BGORANGE : BGPURPLE );
+      ? ( bg_color => $orangeColours ? BGORANGE : BGPURPLE )
+      : ();
     my @colourUnavailable =
       $backgroundColour
       ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
