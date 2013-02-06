@@ -86,7 +86,7 @@ use constant {
     BGBLUE     => 41,    #CCFFFF
     BGGREEN    => 42,    #CCFFCC
     BGYELLOW   => 43,    #FFFF99 potentially overridden by #ffffcc
-    EXCELCOL36 => 44,    #99CCFF
+    LTPURPLE   => 44,    #99CCFF potentially overridden by #fbf8ff
     BGPINK     => 45,    #FF99CC potentially overridden by #ffccff
     BGPURPLE   => 46,    #CC99FF potentially overridden by #eeddff
     EXCELCOL39 => 47,    #FFCC99
@@ -135,6 +135,7 @@ Keys currently looked at within %$options:
         }
         else {
             $workbook->set_custom_color( BGPURPLE, '#eeddff' );
+            $workbook->set_custom_color( LTPURPLE, '#fbf8ff' );
         }
         $workbook->set_custom_color( BGPINK,   '#ffccff' );
         $workbook->set_custom_color( BGYELLOW, '#ffffcc' );
@@ -251,9 +252,9 @@ Keys currently looked at within %$options:
       );
     my @colourScribbles = (
         color => PURPLE,
-        $backgroundColour && $orangeColours
-        ? ( bottom => 3, top => 3, border_color => PURPLE, )
-        : ()
+        !$backgroundColour ? ()
+        : $orangeColours ? ( bottom => 3, top => 3, border_color => PURPLE, )
+        : ( bg_color => LTPURPLE )
     );
     my @colourHeader =
       $backgroundColour

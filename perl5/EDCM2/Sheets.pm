@@ -44,7 +44,7 @@ sub generalNotes {
     Notes(
         name  => 'Overview',
         lines => [
-            $model->{noLinks} ? () : <<'EOL',
+            <<'EOL',
 
 Copyright 2009-2012 Energy Networks Association Limited and others. All rights reserved.
 
@@ -68,9 +68,27 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+EOL
+            $model->{noLinks} ? () : <<EOL,
 
-Unless stated otherwise, this workbook is only a prototype for testing purposes and
-all the data in this model are for illustration only.
+This workbook is structured as a series of named and numbered tables. There
+is a list of tables below, with hyperlinks.  Above each calculation table,
+there is a description of the calculations made, and a hyperlinked list of
+the tables or parts of tables from which data are used in the calculation.
+
+Hyperlinks point to the first column heading of the relevant table, or to
+the first column heading of the relevant part of the table in the case of
+references to a particular set of columns within a composite data table.
+Scrolling up or down is usually required after clicking a hyperlink in order
+to bring the relevant data and/or headings into view.
+
+Some versions of Microsoft Excel can display a "Back" button, which can be
+useful when using hyperlinks to navigate around the workbook.
+EOL
+            <<EOL,
+
+UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING
+PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
 EOL
         ]
     );
