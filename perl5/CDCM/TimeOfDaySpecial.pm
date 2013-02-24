@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 DCUSA Limited and others. All rights reserved.
+Copyright 2011-2012 Energy Networks Association Limited, DCUSA Limited and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:

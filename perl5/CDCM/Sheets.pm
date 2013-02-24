@@ -2,7 +2,8 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 DCUSA Limited and others. All rights reserved.
+Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -36,9 +37,7 @@ use CDCM::ModelNotes;
 
 sub frontSheets {
     my ($model) = @_;
-    $model->{model100}
-      ? qw(Overview Input Tariffs Summary M-ATW M-Rev)
-      : qw(Overview Input);
+    $model->{frontSheets} ? @{ $model->{frontSheets} } : qw(Overview);
 }
 
 sub worksheetsAndClosures {
@@ -55,8 +54,12 @@ sub worksheetsAndClosures {
         $wsheet->{sheetNumber} = 11;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->{sheetNumber} ||= ++$wbook->{lastSheetNumber};
-        $wsheet->set_column( 0, 0,   50 );
-        $wsheet->set_column( 1, 250, 20 );
+        my $t1001width =
+             $model->{targetRevenue}
+          && $model->{targetRevenue} =~ /DCP132/i
+          && $model->{targetRevenue} !~ /DCP132longlabels/i;
+        $wsheet->set_column( 0, 0,   $t1001width ? 60 : 50 );
+        $wsheet->set_column( 1, 250, $t1001width ? 21.5 : 20 );
         $wsheet->{nextFree} = 2;
         my $te = Dataset(
             number        => 1000,
@@ -94,6 +97,20 @@ sub worksheetsAndClosures {
       if $model->{inputData};
 
     push @wsheetsAndClosures,
+      'CDCM Revenues' => sub {
+        my ($wsheet) = @_;
+        $wsheet->freeze_panes( 1, 0 );
+        $wsheet->set_column( 0, 0,   60 );
+        $wsheet->set_column( 1, 250, 30 );
+        my $tmp = delete $wbook->{dataSheet};
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => 'CDCM Revenues' ),
+          @{ $model->{inputTable1001} };
+        $wbook->{dataSheet} = $tmp;
+      }
+      if $model->{inputTable1001};
+
+    push @wsheetsAndClosures,
 
       'Preprocessing' => sub {
         my ($wsheet) = @_;
@@ -111,7 +128,6 @@ sub worksheetsAndClosures {
 
       'LAFs' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
@@ -121,7 +137,6 @@ sub worksheetsAndClosures {
 
       'DRM' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 24 );
@@ -132,7 +147,6 @@ sub worksheetsAndClosures {
       $model->{noSM} ? () : (
         'SM' => sub {
             my ($wsheet) = @_;
-            $wsheet->{_black_white} = 1;
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 0,   50 );
             $wsheet->set_column( 1, 250, 24 );
@@ -143,7 +157,6 @@ sub worksheetsAndClosures {
 
       'Loads' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
@@ -154,7 +167,6 @@ sub worksheetsAndClosures {
 
       'Multi' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->print_area('A:V');
@@ -166,7 +178,6 @@ sub worksheetsAndClosures {
 
       'SMD' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 16 );
@@ -176,7 +187,6 @@ sub worksheetsAndClosures {
 
       'AMD' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 16 );
@@ -186,7 +196,6 @@ sub worksheetsAndClosures {
 
       ( $model->{opAlloc} ? 'Opex' : 'Otex' ) => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 16 );
@@ -196,7 +205,6 @@ sub worksheetsAndClosures {
 
       'Contrib' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
@@ -207,7 +215,6 @@ sub worksheetsAndClosures {
 
       'Yard' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
@@ -218,7 +225,6 @@ sub worksheetsAndClosures {
 
       'Standing' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
@@ -232,7 +238,6 @@ sub worksheetsAndClosures {
 
       'NHH' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
@@ -243,7 +248,6 @@ sub worksheetsAndClosures {
 
       'Reactive' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
@@ -254,7 +258,6 @@ sub worksheetsAndClosures {
 
       'Aggreg' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
@@ -266,7 +269,6 @@ sub worksheetsAndClosures {
 
       'Revenue' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 21 );
@@ -278,7 +280,6 @@ sub worksheetsAndClosures {
 
       'Scaler' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
@@ -294,7 +295,6 @@ sub worksheetsAndClosures {
 
       'Adder' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
@@ -309,7 +309,6 @@ sub worksheetsAndClosures {
 
       'Adjust' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 28 );
@@ -373,7 +372,6 @@ sub worksheetsAndClosures {
 
       'Change' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->fit_to_pages( 1, 1 );
@@ -403,7 +401,6 @@ EOL
 
       'Summary' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->fit_to_pages( 1, 1 );
@@ -548,7 +545,6 @@ EOL
 
       'M-Rev' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
@@ -580,7 +576,6 @@ EOL
 
       'CData' => sub {
         my ($wsheet) = @_;
-        $wsheet->{_black_white} = 1;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->{sheetNumber} ||= ++$wbook->{lastSheetNumber};
         $wsheet->set_column( 0, 0,   50 );

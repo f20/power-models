@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others. All rights reserved.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -41,12 +41,14 @@ sub new {
     my $tariffComponents = $setup->tariffComponents;
     my $digitsRounding   = $setup->digitsRounding;
     foreach my $charge ( $charging->charges ) {
+        push @{ $model->{costTables} }, $charge;
         push @tariffContributions, Columnset(
             name    => "Contributions from $charge->{name}",
             columns => [
                 map {
                     my $contrib = Arithmetic(
-                        name       => "For $tariffComponents->[$_]",
+                        name => "Contributions from $charge->{name}"
+                          . " to $tariffComponents->[$_]",
                         arithmetic => '=IV1*IV2*100/IV666'
                           . ( $_ ? '' : '/24' ),
                         rows      => $usageRates->[$_]{rows},
@@ -58,7 +60,8 @@ sub new {
                     );
                     $contrib->lastCol
                       ? GroupBy(
-                        name   => "Total for $tariffComponents->[$_]",
+                        name => "Total contributions from $charge->{name}"
+                          . " to $tariffComponents->[$_]",
                         rows   => $contrib->{rows},
                         source => $contrib,
                       )
@@ -67,7 +70,7 @@ sub new {
             ],
         );
     }
-    push @{ $model->{chargingTables} }, @tariffContributions;
+    push @{ $model->{buildupTables} }, @tariffContributions;
     $self->{tariffs} = [
         map {
             my $compno = $_;
@@ -94,12 +97,12 @@ sub new {
 }
 
 sub revenues {
-    my ( $self, $volumes, $name, $noTotal ) = @_;
-    my $scenario =
-      $volumes->[0]{scenario} ? " for $volumes->[0]{scenario}" : '';
+    my ( $self, $volumes, $name, $omitGrandTotal ) = @_;
+    my $labelTail =
+      $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $tariffs  = $self->{tariffs};
     my $revenues = Arithmetic(
-        name => $name || ( 'Revenue £/year' . $scenario ),
+        name => $name || ( 'Revenue £/year' . $labelTail ),
         arithmetic => '=(IV1*IV11+IV666*(IV2*IV12+IV3*IV13))/100',
         arguments  => {
             IV666 => $self->{setup}->daysInYear,
@@ -112,8 +115,8 @@ sub revenues {
         },
         defaultFormat => '0softnz',
     );
-    push @{ $self->{revenueTables} }, $noTotal ? $revenues : GroupBy(
-        name          => 'Total revenue £/year' . $scenario,
+    push @{ $self->{revenueTables} }, $omitGrandTotal ? $revenues : GroupBy(
+        name          => 'Total revenue £/year' . $labelTail,
         defaultFormat => '0softnz',
         source        => $revenues,
     );

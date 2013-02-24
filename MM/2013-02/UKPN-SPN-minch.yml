@@ -1,0 +1,348 @@
+---
+1300:
+  - _note: |-
+      Input data compiled by Franck from public sources. E&OE.
+      This dataset is intended to show what would have happened if only the HV split had been updated.
+    _table: '1300. Company, charging year, data version'
+  - Company charging year data version: UKPN SPN
+    _column: Company
+  - Company charging year data version: 2013/2014
+    _column: Year
+  - Company charging year data version: April 2013
+    _column: Version
+  - Company charging year data version: ''
+1301:
+  - _table: 1301. DNO LV main usage
+  - DNO LV main usage: 0.184
+    _column: DNO LV main usage
+  - DNO LV main usage: ''
+1302:
+  - _table: 1302. DNO HV main usage
+  - DNO HV main usage: 0.54
+    _column: DNO HV main usage
+  - DNO HV main usage: ''
+1310:
+  - _table: 1310. DPCR4 aggregate allowances
+  - DPCR4 aggregate allowances: 252045065.926159
+    _column: Aggregate return
+  - DPCR4 aggregate allowances: 292400000
+    _column: Aggregate depreciation
+  - DPCR4 aggregate allowances: 313011300
+    _column: Aggregate operating
+  - DPCR4 aggregate allowances: ''
+1315:
+  - _table: 1315. Analysis of allowed revenue for 2007/2008
+  - Analysis of allowed revenue for 2007 2008: 197749000
+    _column: Total revenue
+  - Analysis of allowed revenue for 2007 2008: 7620000
+    _column: Net incentive revenue
+  - Analysis of allowed revenue for 2007 2008: ''
+1320:
+  - _table: 1320. Units flowing
+  - Units flowing: 16960300000
+    _column: LV
+  - Units flowing: 16960300000
+    _column: HV/LV
+  - Units flowing: 19919037250.3814
+    _column: HV
+  - Units flowing: 22516659310.8894
+    _column: EHV&132
+  - Units flowing: ''
+1330:
+  - _table: 1330. Allocated costs
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 11400000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 1600000
+    Load related new connections reinforcement net of contributions: -18400000
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 14200000
+    Non-operational capex: 0
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 1600000
+    Vehicles Transport: 0
+    _column: LV
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 1100000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 2300000
+    Load related new connections reinforcement net of contributions: 0
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 13700000
+    Non-operational capex: 0
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 0
+    Vehicles Transport: 0
+    _column: HV/LV
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 7300000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 200000
+    Load related new connections reinforcement net of contributions: 10000000
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 10000000
+    Non-operational capex: 0
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 3300000
+    Vehicles Transport: 0
+    _column: HV
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 1200000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 3311812.96729361
+    Load related new connections reinforcement net of contributions: 16200000
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 24050000
+    Non-operational capex: 0
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 600000
+    Vehicles Transport: 0
+    _column: EHV&132
+  - Atypical cash costs: ''
+    CEO etc: ''
+    Control Centre: ''
+    Customer Call Centre: ''
+    Disallowed Related Party Margins: ''
+    Engineering Mgt Clerical Support: ''
+    Excluded services de minimis: ''
+    Faults: ''
+    Finance Regulation: ''
+    HR Non-operational Training: ''
+    Health Safety Operational Training: ''
+    IFI: ''
+    IT Telecoms: ''
+    Inspections Maintenance: ''
+    Load related new connections reinforcement net of contributions: ''
+    Metering: ''
+    Network Design Engineering: ''
+    Network Policy: ''
+    Network Rates: ''
+    Non activity costs and reconciling amounts note 3: ''
+    Non-load new replacement assets net of contributions: ''
+    Non-operational capex: ''
+    Pension deficit payments: ''
+    Pension deficit repair payments by related parties note 2: ''
+    Project Management: ''
+    Property Mgt: ''
+    Relevant distributed generation less contributions: ''
+    Statutory Depreciation: ''
+    Stores: ''
+    System Mapping Cartographical: ''
+    Transmission Exit Charges: ''
+    Tree Cutting: ''
+    Vehicles Transport: ''
+1335:
+  - _table: 1335. Total costs
+  - Atypical cash costs: 2992354
+    CEO etc: 1100000
+    Control Centre: 3200000
+    Customer Call Centre: 1900000
+    Disallowed Related Party Margins: 99999.9999999999
+    Engineering Mgt Clerical Support: 13700000
+    Excluded services de minimis: 9800001
+    Faults: 22000000
+    Finance Regulation: 7100000
+    HR Non-operational Training: 2500000
+    Health Safety Operational Training: 1300000
+    IFI: 1300001
+    IT Telecoms: 7700000
+    Inspections Maintenance: 8300000
+    Load related new connections reinforcement net of contributions: 7699999.99999999
+    Metering: 3200000
+    Network Design Engineering: 3800000
+    Network Policy: 300000
+    Network Rates: 9700000
+    Non activity costs and reconciling amounts note 3: -18792356.9999999
+    Non-load new replacement assets net of contributions: 63000000
+    Non-operational capex: 7400000
+    Pension deficit payments: 16200000
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 3600000
+    Property Mgt: 5500000
+    Relevant distributed generation less contributions: -399999
+    Statutory Depreciation: 39600000
+    Stores: 2000000
+    System Mapping Cartographical: 1100000
+    Transmission Exit Charges: 7500000
+    Tree Cutting: 4500000
+    Vehicles Transport: 4100000
+    _column: Total costs
+  - Atypical cash costs: ''
+    CEO etc: ''
+    Control Centre: ''
+    Customer Call Centre: ''
+    Disallowed Related Party Margins: ''
+    Engineering Mgt Clerical Support: ''
+    Excluded services de minimis: ''
+    Faults: ''
+    Finance Regulation: ''
+    HR Non-operational Training: ''
+    Health Safety Operational Training: ''
+    IFI: ''
+    IT Telecoms: ''
+    Inspections Maintenance: ''
+    Load related new connections reinforcement net of contributions: ''
+    Metering: ''
+    Network Design Engineering: ''
+    Network Policy: ''
+    Network Rates: ''
+    Non activity costs and reconciling amounts note 3: ''
+    Non-load new replacement assets net of contributions: ''
+    Non-operational capex: ''
+    Pension deficit payments: ''
+    Pension deficit repair payments by related parties note 2: ''
+    Project Management: ''
+    Property Mgt: ''
+    Relevant distributed generation less contributions: ''
+    Statutory Depreciation: ''
+    Stores: ''
+    System Mapping Cartographical: ''
+    Transmission Exit Charges: ''
+    Tree Cutting: ''
+    Vehicles Transport: ''
+1350:
+  - _table: 1350. MEAV percentages
+  - MEAV percentages: 0.480366690116444
+    _column: LV
+  - MEAV percentages: 0.0749859820422144
+    _column: HV/LV
+  - MEAV percentages: 0.16700340535602
+    _column: HV
+  - MEAV percentages: 0.277643922485322
+    _column: EHV&132
+  - MEAV percentages: ''
+1360:
+  - _table: '1360. MEAV: ratio of LV service to LV total'
+  - LV service: 0.394066080561226
+    _column: LV
+  - LV service: ''
+1370:
+  - _table: 1370. Net capex percentages
+  - Net capex percentages: 0.196065659197499
+    _column: LV
+  - Net capex percentages: 0.0502432352678087
+    _column: HV/LV
+  - Net capex percentages: 0.254733315018799
+    _column: HV
+  - Net capex percentages: 0.498957790515894
+    _column: EHV&132
+  - Net capex percentages: ''
+1375:
+  - _table: 1375. Network length percentages
+  - Network length percentages: 0.585814918459905
+    _column: LV
+  - Network length percentages: 0
+    _column: HV/LV
+  - Network length percentages: 0.334401235163563
+    _column: HV
+  - Network length percentages: 0.0797838463765319
+    _column: EHV&132
+  - Network length percentages: ''
+1380:
+  - _table: '1380. Net capex: ratio of LV service to LV total'
+  - LV service: 0.404567699836868
+    _column: LV
+  - LV service: ''
+1385:
+  - _table: '1385. Network length: ratio of LV service to LV total'
+  - LV service: '#VALUE!'
+    _column: LV
+  - LV service: ''
+1399:
+  - _table: 1399. Current LDNO discounts
+  - LDNO discount: 0.282762576616652
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.493069046935289
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.272731512829221
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.197742260395598
+    _column: 'LDNO HV: HV user'

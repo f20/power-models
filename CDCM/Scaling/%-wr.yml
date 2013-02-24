@@ -1,0 +1,15 @@
+---
+PerlModule: CDCM
+drm: top500gsp
+extraLevels: 1
+illustrative: 1
+matrices: big
+noReplacement: 0.453
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+targetRevenue: single1076
+tariffs: commongensub
+version: 'Model 100 with replacement, clean, single-cell 1076, no consultation tables'

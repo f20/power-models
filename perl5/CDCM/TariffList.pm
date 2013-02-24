@@ -2,7 +2,8 @@ package CDCM;
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 DCUSA Limited and others. All rights reserved.
+Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2011-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -177,6 +178,7 @@ HV substation half hourly:
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
   - Included: common|WS2|WS3|Opt2|Opt3|Opt4|portfolio
+  - Excluded: dcp163
 ---
 HV substation (132kV) half hourly:
   - PC0
@@ -484,6 +486,30 @@ HV generation half hourly single rate:
   - Reactive power charge p/kVArh
   - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio
 ---
+HV generation half hourly single rate (67% credit):
+  - PC0
+  - Name: HV Generation Intermittent Low GDA
+  - Fixed charge p/MPAN/day
+  - Unit rate 1 p/kWh
+  - Reactive power charge p/kVArh
+  - Included: dcp137
+---
+HV generation half hourly single rate (33% credit):
+  - PC0
+  - Name: HV Generation Intermittent Medium GDA
+  - Fixed charge p/MPAN/day
+  - Unit rate 1 p/kWh
+  - Reactive power charge p/kVArh
+  - Included: dcp137
+---
+HV generation half hourly single rate (0% credit):
+  - PC0
+  - Name: HV Generation Intermittent High GDA
+  - Fixed charge p/MPAN/day
+  - Unit rate 1 p/kWh
+  - Reactive power charge p/kVArh
+  - Included: dcp137
+---
 HV generation (GDP) half hourly single rate:
   - PC0
   - Name: HV Generation (GDP area) Intermittent
@@ -508,6 +534,30 @@ HV generation half hourly:
   - Reactive power charge p/kVArh
   - Included: common|WS2|WS3|Opt6|portfolio
 ---
+HV generation half hourly (67% credit):
+  - PC0
+  - Name: HV Generation Non-Intermittent Low GDA
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: dcp137
+---
+HV generation half hourly (33% credit):
+  - PC0
+  - Name: HV Generation Non-Intermittent Medium GDA
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: dcp137
+---
+HV generation half hourly (0% credit):
+  - PC0
+  - Name: HV Generation Non-Intermittent High GDA
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: dcp137
+---
 HV generation (GDP) half hourly:
   - PC0
   - Name: HV Generation (GDP area) Non-Intermittent
@@ -531,6 +581,7 @@ HV substation generation half hourly single rate:
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
   - Included: gensub|portfolio
+  - Excluded: dcp163
 ---
 HV substation generation (GDP) half hourly single rate:
   - PC0
@@ -539,6 +590,7 @@ HV substation generation (GDP) half hourly single rate:
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
   - Included: gendom|portfolio
+  - Excluded: dcp163
 ---
 HV substation generation (GDT) half hourly single rate:
   - PC0
@@ -547,6 +599,7 @@ HV substation generation (GDT) half hourly single rate:
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
   - Included: gendom
+  - Excluded: dcp163
 ---
 HV substation generation half hourly:
   - PC0
@@ -555,6 +608,7 @@ HV substation generation half hourly:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: gensub|portfolio
+  - Excluded: dcp163
 ---
 HV substation generation (GDP) half hourly:
   - PC0
@@ -563,6 +617,7 @@ HV substation generation (GDP) half hourly:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: gendom|portfolio
+  - Excluded: dcp163
 ---
 HV substation generation (GDT) half hourly:
   - PC0
@@ -571,6 +626,7 @@ HV substation generation (GDT) half hourly:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: gendom
+  - Excluded: dcp163
 ---
 HV substation (132kV) generation half hourly single rate:
   - PC0

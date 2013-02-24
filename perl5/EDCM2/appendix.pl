@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others. All rights reserved.
+Copyright 2012 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -55,7 +55,8 @@ require Ancillary::DatabaseExport;
 
 my $db = Ancillary::DatabaseExport->new;
 
-$db->summariesByCompany( $workbookModule, $fileExtension, appendix => Load <<'EOY' );
+$db->summariesByCompany( $workbookModule, $fileExtension,
+    appendix => Load <<'EOY' );
 ---
 Scenario 1:
   - "Scenario 1: Excluding all exempt generators, other than those that have already opted in"

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others. All rights reserved.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:

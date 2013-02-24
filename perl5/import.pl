@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -210,12 +210,10 @@ sub updateTree {
                             $to = $tree->{$tableNumber}
                               || [
                                 $tableNumber !~ /00$/ && ( $preferArrays
-                                    || $tableNumber =~ /^(?:9|11|17)/ )
+                                    || $tableNumber =~ /^(?:9|17)/ )
                                 ? []
                                 : {}
                               ];
-                            $tree->{$tableNumber} ||= $to
-                              if $tableNumber =~ /^(?:1|3701|9)/;
                             if ( ref $to->[0] eq 'ARRAY' ) {
                                 $to->[0][0] = $v;
                             }
@@ -225,7 +223,8 @@ sub updateTree {
                         }
                         else {
                             if ($v) {
-                                $v =~ s/[^A-Za-z0-9.-]/ /g;
+                                $v =~ s/[^A-Za-z0-9-]/ /g;
+                                $v =~ s/- / /g;
                                 $v =~ s/ +/ /g;
                                 $v =~ s/^ //;
                                 $v =~ s/ $//;
@@ -268,6 +267,8 @@ sub updateTree {
                     else {
                         $to->[$col]{$rowName} = $v;
                     }
+                    $tree->{$tableNumber} = $to
+                      if $tableNumber > 0 && !$tree->{$tableNumber};
                 }
             }
         }
@@ -299,6 +300,7 @@ sub ymlWriter {
 
 sub jsonWriter {
     my ($arg) = @_;
+    my $dumpAllData  = $arg =~ /all/i;
     my $preferArrays = $arg =~ /array/i;
     require JSON;
     sub {
@@ -449,6 +451,7 @@ EOSQL
     my $processTable = sub {
         my $tableNumber = shift;
         my $offset      = $#_;
+        --$offset while !defined $_[$offset][0];
         --$offset while $offset && defined $_[$offset][0];
 
         for my $row ( 0 .. $#_ ) {

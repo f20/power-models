@@ -2,7 +2,8 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 DCUSA Limited and others. All rights reserved.
+Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -63,10 +64,16 @@ sub new {
     $model->{drm} = 'top500gsp' unless $model->{drm};
 
     # Keep CDCM::DataPreprocess out of the scope of revision numbers.
-    $model->preprocessDataset
-      if $model->{dataset}
-      && keys %{ $model->{dataset} }
-      && eval { require CDCM::DataPreprocess; };
+    if ( $model->{dataset}
+        && keys %{ $model->{dataset} } )
+    {
+        if ( eval { require CDCM::DataPreprocess; } ) {
+            $model->preprocessDataset;
+        }
+        else {
+            warn $@;
+        }
+    }
 
     $model->{inputTables} = [];
 

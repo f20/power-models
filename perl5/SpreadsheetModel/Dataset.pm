@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -154,7 +154,8 @@ sub lastRow {
 
 sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
-    my $noData = $wb->{noData} && ref $self eq __PACKAGE__;
+    my $noData =
+      $wb->{noData} && ref $self eq __PACKAGE__ && !$self->{useIllustrative};
     my ( @overrideColumns, @rowKeys );
     if ( $self->{number} ) {
         if ( my $dataset = $self->{dataset}{ $self->{number} } ) {
@@ -166,7 +167,8 @@ sub wsPrepare {
                 @rowKeys = map {
                     local $_ = $_;
                     s/.*\n//s;
-                    s/[^A-Za-z0-9. -]/ /g;
+                    s/[^A-Za-z0-9 -]/ /g;
+                    s/- / /g;
                     s/ +/ /g;
                     s/^ //;
                     s/ $//;
@@ -178,11 +180,31 @@ sub wsPrepare {
                       || _shortNameRow( $self->{location}{name} ) )
                   : ( $self->{singleRowName}
                       || _shortNameRow( $self->{name} ) );
-                my @rowKeys2;
-                @rowKeys2 = grep { !/_column/ } keys %{ $overrideColumns[0] }
-                  if !$self->{rows} && !grep { exists $_->{ $rowKeys[0] } }
-                  @overrideColumns;
-                @rowKeys = @rowKeys2 if @rowKeys2;
+                if ( !$self->{rows} && !grep { exists $_->{ $rowKeys[0] } }
+                    @overrideColumns )
+                {
+                    my @rowKeys2 =
+                      grep { !/_column/ } keys %{ $overrideColumns[0] };
+                    @rowKeys = @rowKeys2 if @rowKeys2;
+                }
+                elsif ( ref $dataset->[0] eq 'CODE' ) {
+                    foreach ( grep { !exists $overrideColumns[0]{$_}; }
+                        @rowKeys )
+                    {
+                        foreach my $trial ( $dataset->[0]->($_) ) {
+                            if ( exists $overrideColumns[0]{$trial} ) {
+                                $_ = $trial;
+                                last;
+                            }
+                            if ( $trial eq '' ) {
+                                foreach my $col (@overrideColumns) {
+                                    $col->{$_} = '';
+                                }
+                                last;
+                            }
+                        }
+                    }
+                }
                 $self->{rowKeys} = \@rowKeys;
             }
         }

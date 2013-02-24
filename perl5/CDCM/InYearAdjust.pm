@@ -2,7 +2,8 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2011 DCUSA Limited and others. All rights reserved.
+Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -249,7 +250,7 @@ sub inYearAdjust {
         $model->{inYearTariffs} = [ $tariffsBefore1,    $tariffsBefore2, ];
 
         # NB: "override" is dead
-        if ( !$model->{single1076} && $model->{inYear} =~ /adjust/ ) {
+        if ( !$model->{targetRevenue} && $model->{inYear} =~ /adjust/ ) {
             my @termsNoDays1;
             my @termsNoDays2;
             my @termsWithDays1;

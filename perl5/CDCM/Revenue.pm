@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 DCUSA Limited and others. All rights reserved.
+Copyright 2012 Energy Networks Association Limited and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -121,21 +121,26 @@ sub revenueShortfall {
 
     my ( $allowedRevenue, $revenueFromElsewhere );
 
-    if ( $model->{single1076} ) {
-        $allowedRevenue = Dataset(
-            name          => 'Target CDCM net revenue (£/year)',
-            data          => [300e6],
-            defaultFormat => '0hard',
-            validation    => {
-                validate => 'decimal',
-                criteria => '>=',
-                value    => 0,
-            },
-            number   => 1076,
-            appendTo => $model->{inputTables},
-            dataset  => $model->{dataset},
-            lines    => 'Source: mostly forecasts and price control formulae.',
-        );
+    if ( $model->{targetRevenue} ) {
+        if ( $model->{targetRevenue} =~ /dcp132/i ) {
+            $allowedRevenue = $model->table1001;
+        }
+        elsif ( $model->{targetRevenue} =~ /single/i ) {
+            $allowedRevenue = Dataset(
+                name          => 'Target CDCM net revenue (£/year)',
+                data          => [300e6],
+                defaultFormat => '0hard',
+                validation    => {
+                    validate => 'decimal',
+                    criteria => '>=',
+                    value    => 0,
+                },
+                number   => 1076,
+                appendTo => $model->{inputTables},
+                dataset  => $model->{dataset},
+                lines => 'Source: mostly forecasts and price control formulae.',
+            );
+        }
     }
 
     else {
@@ -195,6 +200,7 @@ sub revenueShortfall {
         );
         $revenueShortfall = Arithmetic(
             name       => 'Revenue shortfall (surplus) £',
+            rows       => 0,
             arithmetic => '=IV1'
               . ( $revenueFromElsewhere ? '-IV3' : '' )
               . '-IV4-IV5-IV2'
@@ -213,6 +219,7 @@ sub revenueShortfall {
     else {
         $revenueShortfall = Arithmetic(
             name       => 'Revenue shortfall (surplus) £',
+            rows       => 0,
             arithmetic => '=IV1'
               . ( $revenueFromElsewhere ? '-IV3' : '' ) . '-IV2'
               . ( $revenueBefore        ? '-IV9' : '' ),

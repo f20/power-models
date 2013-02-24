@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others. All rights reserved.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -45,7 +45,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 15;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 20 );
         return if $model->{oneSheet};
         $wsheet->{nextFree} = 2;
@@ -96,7 +96,7 @@ sub worksheetsAndClosures {
       'Volumes' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} };
@@ -104,24 +104,42 @@ sub worksheetsAndClosures {
 
       ,
 
-      'Usage' => sub {
+      @{ $model->{usageTables} }
+      ? (
+        'Checks' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   42 );
+            $wsheet->set_column( 1, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Network usage checks' ),
+              @{ $model->{usageTables} };
+        }
+      )
+      : ()
+
+      ,
+
+      'Costs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Network usage' ), @{ $model->{usageTables} };
+          foreach Notes( name => 'Relevant costs and charges' ),
+          @{ $model->{costTables} };
       }
 
       ,
 
-      'Charging' => sub {
+      'Buildup' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Charging' ), @{ $model->{chargingTables} };
+          foreach Notes( name => 'Tariff build-up' ),
+          @{ $model->{buildupTables} };
       }
 
       ,
@@ -129,7 +147,7 @@ sub worksheetsAndClosures {
       'Tariffs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 20 );
         my $noLinks = $wbook->{noLinks};
         $_->wsWrite( $wbook, $wsheet )
@@ -142,7 +160,7 @@ sub worksheetsAndClosures {
       'Revenues' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 20 );
         my $noLinks = $wbook->{noLinks};
         $_->wsWrite( $wbook, $wsheet )
@@ -153,7 +171,7 @@ sub worksheetsAndClosures {
       ,
 
       $model->{oneSheet} ? ( 'All' => sub { } ) : (
-        'Overview' => sub {
+        'Index' => sub {
 
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
@@ -161,7 +179,7 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 0, 0,   30 );
             $wsheet->set_column( 1, 1,   90 );
             $wsheet->set_column( 2, 250, 30 );
-            $model->generalNotes->wsWrite( $wbook, $wsheet );
+            $model->frontPageNotices->wsWrite( $wbook, $wsheet );
 
             $wsheet->write_string(
                 2, 2,
@@ -218,14 +236,14 @@ sub worksheetsAndClosures {
 
 }
 
-sub generalNotes {
+sub frontPageNotices {
     my ($model) = @_;
     Notes(
-        name  => 'Overview',
+        name  => 'Index',
         lines => [
             <<'EOL',
 
-Copyright 2012-2013 Reckon LLP and others. All rights reserved.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:

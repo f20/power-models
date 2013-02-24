@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others. All rights reserved.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -45,8 +45,7 @@ sub usageRates {
         Dataset(
             name  => 'Network usage of 1kW of average consumption',
             lines => [
-                'This table is only temporarily classified as input data.',
-'It will be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
+'This table should be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
 'This will include a method to match the diversity assumed about low voltage customers to an overall observed load factor of 34 per cent at substations.'
             ],
             rows     => $customers->tariffSet,
@@ -64,7 +63,7 @@ sub usageRates {
         Dataset(
             name => 'Network usage of an exit point',
             lines =>
-'This table is only temporarily classified as input data. It will be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
+'This table should be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
             number   => 1532,
@@ -80,7 +79,7 @@ sub usageRates {
         Dataset(
             name => 'Network usage of 1kVA of agreed capacity',
             lines =>
-'This table is only temporarily classified as input data. It will be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
+'This table should be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
             number   => 1533,
@@ -123,11 +122,13 @@ sub boundaryUsageSet {
 
 sub totalUsage {
     my ( $self, $volumes ) = @_;
-    my $scenario =
-      $volumes->[0]{scenario} ? " for $volumes->[0]{scenario}" : '';
+    return $self->{totalUsage}{ 0 + $volumes }
+      if $self->{totalUsage}{ 0 + $volumes };
+    my $labelTail =
+      $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $usageRates    = $self->usageRates;
     my $customerUsage = Arithmetic(
-        name       => 'Network usage by customer group' . $scenario,
+        name       => 'Network usage by customer group' . $labelTail,
         arithmetic => '=' . join(
             '+',
             map {
@@ -151,7 +152,7 @@ sub totalUsage {
     );
     GroupBy(
         defaultFormat => '0softnz',
-        name          => 'Total network usage' . $scenario,
+        name          => 'Total network usage' . $labelTail,
         rows          => 0,
         cols          => $customerUsage->{cols},
         source        => $customerUsage,

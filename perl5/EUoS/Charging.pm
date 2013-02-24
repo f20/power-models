@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others. All rights reserved.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -101,7 +101,7 @@ sub assetCharge {
     );
 }
 
-sub matchBoundary {
+sub usetBoundaryCosts {
     my ( $self, $totalUsage ) = @_;
     my $boundaryUsageSet = $self->{usage}->boundaryUsageSet;
     my $charges          = Dataset(
@@ -120,7 +120,7 @@ sub matchBoundary {
     );
 }
 
-sub matchAssets {
+sub usetMatchAssets {
     my ( $self, $totalUsage, $doNotApply ) = @_;
     my $beforeMatching = $self->assetRate;
     my $totalBefore    = SumProduct(
@@ -164,7 +164,7 @@ sub matchAssets {
     }
 }
 
-sub matchRunning {
+sub usetRunningCosts {
     my ( $self, $totalUsage ) = @_;
     my $assetRate   = $self->assetRate;
     my $totalAssets = SumProduct(
@@ -174,7 +174,7 @@ sub matchRunning {
         defaultFormat => '0softnz',
     );
     my $target = Dataset(
-        name          => 'Target total running costs (£)',
+        name          => 'Total running costs (£/year)',
         number        => 1559,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
@@ -189,7 +189,7 @@ sub matchRunning {
     );
 }
 
-sub matchRevenue { }
+sub usetMatchRevenue { }
 
 sub charges {
     my ($self) = @_;

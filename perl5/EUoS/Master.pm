@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others. All rights reserved.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -43,34 +43,38 @@ sub new {
     my $class = shift;
     my $model = bless { inputTables => [], @_ }, $class;
 
-    my $setup     = EUoS::Setup->new($model);
+    my $setup = EUoS::Setup->new($model);
+
     my $customers = EUoS::Customers->new( $model, $setup );
-    my $usage     = EUoS::Usage->new( $model, $setup, $customers );
-    my $charging  = EUoS::Charging->new( $model, $setup, $usage );
 
-    my %customers;
-    while ( my ( $scenario, $exclusions ) =
-        each %{ $model->{scenarioExclude} } )
+    my $usage = EUoS::Usage->new( $model, $setup, $customers );
+
+    my $charging = EUoS::Charging->new( $model, $setup, $usage );
+
+    foreach (
+        qw(
+        usetBoundaryCosts
+        usetMatchAssets
+        usetRunningCosts
+        )
+      )
     {
-        $customers{$scenario} =
-          $customers->scenario( sub { $_[0] !~ /$exclusions/i; }, $scenario );
-    }
-
-    my %totalUsage;
-    foreach (qw(matchAssets matchRunning matchBoundary)) {
-        next unless my $scenario = $model->{$_};
-        my $usage = $totalUsage{$scenario} ||=
-          $usage->totalUsage( $customers{$scenario} );
-        $charging->$_( $usage, $model->{ $_ . 'DoNotApply' } );
+        my $usetName = $model->{$_};
+        next unless $usetName;
+        my $doNotApply = 0;
+        $doNotApply = 1 if $usetName =~ s/ \(information only\)$//i;
+        $charging->$_( $usage->totalUsage( $customers->totalDemand($usetName) ),
+            $doNotApply );
     }
 
     my $tariffs = EUoS::Tariffs->new( $model, $setup, $usage, $charging );
 
-    $tariffs->revenues( $customers{ $model->{revenues} } )
-      if $model->{revenues};
+    if ( my $usetName = $model->{usetRevenues} ) {
+        $tariffs->revenues( $customers->totalDemand($usetName) );
+    }
 
     $tariffs->revenues( $customers->detailedVolumes,
-        'Notional revenue by customer from the application of UoS tariffs', 1 );
+        'Notional revenue by customer from use of system tariffs', 1 );
 
     $_->finish foreach $setup, $usage, $charging, $customers, $tariffs;
 

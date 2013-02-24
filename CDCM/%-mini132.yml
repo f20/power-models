@@ -1,0 +1,16 @@
+---
+PerlModule: CDCM
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+require:
+  - CDCM::TimeOfDaySpecial
+  - CDCM::Table1001
+scaler: levelledpickexitnogenminzero
+standing: sub132
+targetRevenue: dcp132
+tariffs: commongensubdcp130
+timeOfDay: timeOfDaySpecial

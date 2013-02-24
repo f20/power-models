@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others. All rights reserved.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -37,70 +37,45 @@ sub new {
     bless { model => $model, setup => $setup }, $class;
 }
 
-sub defaultData {
-    my ( $tariffSet, $volumeComponent ) = @_;
-    [ map { 0 } @{ $tariffSet->{list} } ];
-}
-
-sub scenario {
-    my ( $self, $filter, $name ) = @_;
-    my $tariffSet = $self->tariffSet;
-    unless ($filter) {
-        return $self->{aggregatedVolumes} if $self->{aggregatedVolumes};
-        $self->{aggregatedVolumes} = [
-            map {
-                Dataset(
-                    rows => $tariffSet,
-                    name => $_,
-                    data => defaultData( $tariffSet, $_ )
-                );
-            } @{ $self->{setup}->volumeComponents }
-        ];
-        Columnset(
-            name          => 'Aggregated forecast volumes',
-            number        => 1513,
-            appendTo      => $self->{model}{inputTables},
-            dataset       => $self->{model}{dataset},
-            columns       => $self->{aggregatedVolumes},
-            defaultFormat => '0hard',
-        );
-        return $self->{aggregatedVolumes};
-    }
-    my $customerSet     = $self->customerSet;
+sub totalDemand {
+    my ( $self, $usetName ) = @_;
+    return $self->{totalDemand}{$usetName} if $self->{totalDemand}{$usetName};
+    my $tariffSet       = $self->tariffSet;
+    my $userLabelset    = $self->userLabelset;
     my $detailedVolumes = $self->detailedVolumes;
-    push @{ $self->{coefficients} }, my $coefficients = Dataset(
-        name          => "Proportion included in $name",
-        rows          => $customerSet,
+    push @{ $self->{scenarioProportions} }, my $prop = Dataset(
+        name          => "Proportion in $usetName",
+        rows          => $userLabelset,
         defaultFormat => '%hardnz',
-        data          => [ map { $filter->($_) } @{ $customerSet->{list} } ]
+        data          => [ map { 1; } @{ $userLabelset->{list} } ]
     );
     my $columns = [
         map {
             SumProduct(
                 name          => $_->{name},
-                matrix        => $coefficients,
+                matrix        => $prop,
                 vector        => $_,
                 rows          => $tariffSet,
-                scenario      => $name,
+                usetName      => $usetName,
                 defaultFormat => '0softnz',
             );
         } @$detailedVolumes
     ];
     push @{ $self->{model}{volumeTables} },
       Columnset(
-        name    => "Forecast volume for $name",
+        name    => "Forecast volume for $usetName",
         columns => $columns,
       );
-    $columns;
+    $self->{totalDemand}{$usetName} = $columns;
 }
 
-sub customerSet {
+sub userLabelset {
     my ($self) = @_;
-    $self->{customerSet} ||= Labelset(
+    $self->{userLabelset} ||= Labelset(
         name   => 'Detailed list of customers',
         groups => [
             map { Labelset( name => keys %$_, list => values %$_ ); }
-              @{ $self->{model}{customerList} }
+              @{ $self->{model}{ulist} }
         ]
     );
 }
@@ -108,14 +83,14 @@ sub customerSet {
 sub detailedVolumes {
     my ($self) = @_;
     return $self->{detailedVolumes} if $self->{detailedVolumes};
-    my $customerSet = $self->customerSet;
+    my $userLabelset = $self->userLabelset;
     $self->{detailedVolumes} = [
         map {
             Dataset(
-                rows          => $customerSet,
+                rows          => $userLabelset,
                 defaultFormat => '0hard',
                 name          => $_,
-                data          => defaultData( $customerSet, $_ ),
+                data          => [ map { 0 } @{ $userLabelset->{list} } ],
             );
         } @{ $self->{setup}->volumeComponents }
     ];
@@ -126,7 +101,7 @@ sub tariffSet {
     my ($self) = @_;
     $self->{tariffSet} ||= Labelset(
         name => 'Set of customer categories',
-        list => $self->customerSet->{groups},
+        list => $self->userLabelset->{groups},
     );
 }
 
@@ -140,12 +115,12 @@ sub finish {
         columns  => $self->{detailedVolumes},
     ) if $self->{detailedVolumes};
     Columnset(
-        name     => 'Definition of scenarios',
+        name     => 'Definition of user sets',
         number   => 1514,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
-        columns  => $self->{coefficients},
-    ) if $self->{coefficients};
+        columns  => $self->{scenarioProportions},
+    ) if $self->{scenarioProportions};
 }
 
 1;

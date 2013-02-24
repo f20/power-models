@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Reckon LLP and others. All rights reserved.
+Copyright 2009-2012 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -145,8 +145,9 @@ sub tableCompilations {
         while ( my ( $bid, $co ) = $findCo->fetchrow_array ) {
             next unless $co =~ s/\.xlsx?$//is;
             my $sort = $co;
-            $sort =~ s/CE-NEDL/NP-Northeast/;
-            $sort =~ s/CE-YEDL/NP-Yorkshire/;
+            $sort =~ s/CE-NEDL/NPG-Northeast/;
+            $sort =~ s/CE-YEDL/NPG-Yorkshire/;
+            $sort =~ s/^NP-/NPG-/;
             $sort =~ s/CN-East/WPD-EastM/;
             $sort =~ s/CN-West/WPD-WestM/;
             $sort =~ s/EDFEN/UKPN/;

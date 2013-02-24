@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Reckon LLP and others. All rights reserved.
+Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -60,24 +60,27 @@ sub check {
     return 'Empty columnset' unless @columns;
     $self->{lines} = [ SpreadsheetModel::Object::splitLines( $self->{lines} ) ]
       if $self->{lines};
+    my $rows;
+    my $colOffset = 0;
     $self->{anonRow} = 0;
-    my ( $rows, $colOffset ) = ( 0, 0 );
-    for (@columns) {
 
+    foreach (@columns) {
         0 and warn "$self->{name} $self->{debug} $_->{name} $self->{debug}";
-
-        if ( !$_->{rows} ) {
-            $self->{anonRow} ||= 1;
-        }
-        elsif ($rows) {
-            return <<ERR unless $_->{rows} == $rows;
+        if ( defined $rows ) {
+            return <<ERR unless !$_->{rows} && !$rows || $_->{rows} == $rows;
 Mismatch in Columnset
 $self->{name} $self->{debug} $rows
 $_->{name} $_->{debug} $_->{rows}
 ERR
         }
         else {
-            $rows = $_->{rows};
+            if ( $_->{rows} ) {
+                $rows = $_->{rows};
+            }
+            else {
+                $self->{anonRow} = 1;
+                $rows = 0;
+            }
         }
         $_->{location} = $self;
         $_->{name} =
@@ -565,10 +568,12 @@ use ->shortName here.
                   map {
                     local $_ = $_;
                     s/.*\n//s;
-                    s/[^A-Za-z0-9. -]/ /g;
+                    s/[^A-Za-z0-9 -]/ /g;
+                    s/- / /g;
                     s/ +/ /g;
                     s/^ //;
                     s/ $//;
+                    $_ = "a$_" if /^[0-9]/;
                     $nd->{$_};
                   } $self->{rows}
                   ? @{ $self->{rows}{list} }

@@ -2,7 +2,8 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2011 DCUSA Limited and others. All rights reserved.
+Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -397,8 +398,9 @@ EOL
         byrow => 1,
         data  => [
             map {
-                /^(LDNO )?LV sub.*generat/i ? [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
-                  : /^(LDNO )?LV.*generat/i ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
+                my $ar =
+                  /^(LDNO )?LV sub.*generat/i ? [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
+                  : /^(LDNO )?LV.*generat/i   ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
                   : /^(LDNO HV.*: )?HV sub.*generat/i
                   ? [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 ]
                   : /^(LDNO HV.*: )?HV.*generat/i
@@ -427,7 +429,12 @@ EOL
                   : /^(LDNO )?33/i       ? [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ]
                   : /^(LDNO )?132/i      ? [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ]
                   : /^GSP/i              ? [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                  : []
+                  :                        [];
+                if (/([0-9]+)% credit/i) {
+                    my $factor = 0.01 * $1;
+                    $_ *= $factor foreach @$ar;
+                }
+                $ar;
             } @{ $allTariffsByEndUser->{list} }
         ],
         defaultFormat => '0.000connz',

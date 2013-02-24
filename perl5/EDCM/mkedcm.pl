@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2012 Reckon LLP and others. All rights reserved.
+Copyright 2011-2012 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -64,7 +64,7 @@ my $run = ( grep { /^-+single/i } @ARGV ) ? 'run' : 'runParallel';
 $maker->{useXLSX}->() if grep { /^-+xlsx/i } @ARGV;
 
 my @companies = grep { /\.yml$/ } @ARGV;
-@companies = catfile( dirname($perl5dir), qw(data extra Blank.yml) )
+@companies = catfile( dirname($perl5dir), q(Blank.yml) )
   unless @companies;
 
 foreach my $company (@companies) {
