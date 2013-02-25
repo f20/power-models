@@ -1,7 +1,6 @@
 ---
 PerlModule: CDCM
 coincidenceAdj: groupums
-dcp130preprocess: 1
 drm: top500gsp
 extraLevels: 1
 matrices: big

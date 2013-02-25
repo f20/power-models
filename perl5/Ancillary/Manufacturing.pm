@@ -65,9 +65,10 @@ sub factory {
     my $processRuleset = $self->{processRuleset} = sub {
         local $_ = $_[0];
         my %savedINC = %INC;
-        my $require  = delete $_->{require};
         foreach my $module ( "$_->{PerlModule}::Master",
-            !$require ? () : ref $require ? @$require : $require )
+              !$_->{require}    ? ()
+            : ref $_->{require} ? @{ $_->{require} }
+            :                     $_->{require} )
         {
             eval "require $module";
             if ($@) {
