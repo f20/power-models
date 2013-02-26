@@ -1,10 +1,13 @@
 ---
+.: DCP 123 revenue matching option 2 hack (p/kWh)
 PerlModule: CDCM
 drm: top500gsp
 extraLevels: 1
+matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: levelledpickexitnogenminzero
+scaler: adderppugeneralminzeronogen
 standing: sub132
+summary: consultation
 tariffs: commongensub

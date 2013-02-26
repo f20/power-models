@@ -1,0 +1,8 @@
+---
+.: 'Experimental Method M with DCP071A, DCP095, DCP096, DCP094 and DCP097'
+DCP071: 1
+DCP094: 1
+DCP095: 1
+DCP096: 1
+DCP097: 1
+PerlModule: ModelM

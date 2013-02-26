@@ -1,5 +1,7 @@
 ---
+.: Cleaned up model implementing DCP 130 and DCP 132
 PerlModule: CDCM
+coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 matrices: big
@@ -9,4 +11,6 @@ portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
-tariffs: commongensub
+targetRevenue: dcp132
+tariffs: commongensubdcp130
+timeOfDay: timeOfDaySpecial

@@ -1,4 +1,5 @@
 ---
+.: Similar to June 2009 consultation (no Method M)
 PerlModule: CDCM
 drm: top500gsp
 extraLevels: 1
@@ -9,4 +10,3 @@ portfolio: 1
 standing: sub132
 summary: consultation
 tariffs: commongensub
-version: June 2009 consultation approx

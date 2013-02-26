@@ -1,4 +1,5 @@
 ---
+.: Simple scaling with replacement costs
 PerlModule: CDCM
 drm: top500gsp
 extraLevels: 1
@@ -11,4 +12,3 @@ scaler: pickallnogen
 standing: sub132
 summary: consultation
 tariffs: commongensub
-version: Replacement and simple scaling

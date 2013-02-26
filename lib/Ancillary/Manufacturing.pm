@@ -36,7 +36,7 @@ $maker->{processStream}->($stream, $optionalFile, $optionsalSha1);
 See make.pl for an example of how to use this module.
 
 Keys managed here:
-_codeValidation
+~codeValidation
 datafile
 datafileValidation
 dataset
@@ -203,6 +203,7 @@ sub factory {
         }
         foreach (@rulesets) {
             $_->{'~codeValidation'} = $sourceCodeSha1;
+            delete $_->{'.'};
             $_->{revisionText} = $db->revisionText( YAML::Dump($_) ) if $db;
         }
     };

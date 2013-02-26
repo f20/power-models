@@ -1,4 +1,5 @@
 ---
+.: 'Like model 100, but with scaling only downwards'
 PerlModule: CDCM
 drm: top500gsp
 extraLevels: 1
@@ -11,4 +12,3 @@ scaler: levelledpickexitnogenminzerocapped
 standing: sub132
 summary: consultation
 tariffs: commongensub
-version: Scaling capped to 0

@@ -1,5 +1,7 @@
 ---
+.: Cut down DCP 130 and DCP 132 model (just calculates tariffs)
 PerlModule: CDCM
+activeSheets: '^Tariffs$'
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1

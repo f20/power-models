@@ -1,5 +1,5 @@
 ---
+.: Method M with DCP071 and DCP096 only
 DCP071: 1
-DCP095: 1
 DCP096: 1
 PerlModule: ModelM

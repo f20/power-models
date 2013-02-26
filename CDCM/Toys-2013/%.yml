@@ -1,2 +1,3 @@
 ---
+.: Barebones CDCM model configuration
 PerlModule: CDCM

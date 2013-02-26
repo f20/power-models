@@ -1,9 +1,12 @@
 ---
-.: 'Demo model with DCP 130, DCP 132, DCP 137 and DCP 163'
+.: Model with DCP 130 and the ugly form of DCP 132
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
+frontSheets:
+  - Overview
+  - CDCM Revenues
 matrices: big
 noReplacement: blanket
 pcd: 1
@@ -11,6 +14,6 @@ portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: consultation
-targetRevenue: dcp132
-tariffs: commongensubdcp130dcp137dcp163
+targetRevenue: dcp132longlabels
+tariffs: commongensubdcp130
 timeOfDay: timeOfDaySpecial

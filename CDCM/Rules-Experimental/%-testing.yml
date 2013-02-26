@@ -1,8 +1,9 @@
 ---
+.: Experimental CDCM rules used in development
 ExportGraphviz: 0
 ExportHtml: 0
-ExportPerl: 1
-ExportYaml: 1
+ExportPerl: 0
+ExportYaml: 0
 PerlModule: CDCM
 alignment: right4
 colour: 0
@@ -18,4 +19,4 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
 tariffs: commongensub
-version: Experimental rules
+version: experimental

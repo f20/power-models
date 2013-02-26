@@ -1,4 +1,5 @@
 ---
+.: Model 100 with additional smart-ish tariffs
 PerlModule: CDCM
 drm: top500gsp
 extraLevels: 1
@@ -10,4 +11,3 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 0
 tariffs: commongensubsparecap
-version: Model 100 with additional tariffs

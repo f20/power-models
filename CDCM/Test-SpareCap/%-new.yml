@@ -1,4 +1,5 @@
 ---
+.: 'Spare capacity adj, lower standing, grouped LV costs, voltage-level coincidence'
 PerlModule: CDCM
 alwaysUseRAG: 1
 coincidenceAdj: groupvoltage
@@ -14,4 +15,3 @@ spareCap: 1
 standing: low
 summary: 0
 tariffs: commongensubsparecap
-version: 'Prototype: LV costs by group, spare capacity, coincidence correction by voltage group, low capacity charges'
