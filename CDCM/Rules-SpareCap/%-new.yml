@@ -1,8 +1,8 @@
 ---
-.: 'Spare capacity adj, lower standing, grouped LV costs, no coincidence'
+.: 'Spare capacity adjustments, voltage-level coincidence'
 PerlModule: CDCM
 alwaysUseRAG: 1
-coincidenceAdj: none
+coincidenceAdj: groupvoltage
 drm: top500gsp
 extraLevels: 1
 lvCosts: group
