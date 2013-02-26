@@ -35,16 +35,21 @@ use strict;
 use utf8;
 require Carp;
 $SIG{__DIE__} = \&Carp::confess;
-use File::Spec::Functions qw(rel2abs abs2rel catfile updir catdir);
+use File::Spec::Functions qw(rel2abs abs2rel catfile catdir);
 use File::Basename 'dirname';
-my $perl5dir;
+my ( $homedir, $perl5dir );
 
-BEGIN {    # double dirname - this script is expected to be perl5/EDCM/mkedcm.pl
-    $perl5dir =
-      dirname dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+BEGIN {
+    $homedir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    while (1) {
+        $perl5dir = catdir( $homedir, 'lib' );
+        last if -d catdir( $perl5dir, 'SpreadsheetModel' );
+        my $parent = dirname $homedir;
+        last if $parent eq $homedir;
+        $homedir = $parent;
+    }
 }
-
-use lib ( $perl5dir, catdir( dirname($perl5dir), 'cpan' ) );
+use lib catdir( $homedir, 'cpan' ), $perl5dir;
 use Ancillary::Manufacturing;
 my $maker = Ancillary::Manufacturing->factory;
 
@@ -64,7 +69,7 @@ my $run = ( grep { /^-+single/i } @ARGV ) ? 'run' : 'runParallel';
 $maker->{useXLSX}->() if grep { /^-+xlsx/i } @ARGV;
 
 my @companies = grep { /\.yml$/ } @ARGV;
-@companies = catfile( dirname($perl5dir), q(Blank.yml) )
+@companies = catfile( $homedir, q(Blank.yml) )
   unless @companies;
 
 foreach my $company (@companies) {
@@ -142,11 +147,8 @@ foreach my $company (@companies) {
     }
 }
 
-$maker->{validate}->(
-    $perl5dir,
-    $rev
-    ? 'DBI:SQLite:dbname=/Reckon/projects/EDCM general model development/O_Drafting/EDCM revision number database.sqlite'
-    : undef
-);
+$maker->{validate}
+  ->( $perl5dir, grep { -e $_ } catdir( $homedir, 'X_Revisions' ) );
+
 $maker->{$run}->( $maker->{prepare}->( $maker->{listMatching}->() ) );
 

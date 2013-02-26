@@ -34,12 +34,20 @@ require Carp;
 $SIG{__DIE__} = \&Carp::confess;
 use File::Spec::Functions qw(rel2abs abs2rel catfile catdir);
 use File::Basename 'dirname';
-my $perl5dir;
+my ( $homedir, $perl5dir );
 
 BEGIN {
-    $perl5dir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    $homedir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    while (1) {
+        $perl5dir = catdir( $homedir, 'lib' );
+        last if -d catdir( $perl5dir, 'SpreadsheetModel' );
+        my $parent = dirname $homedir;
+        last if $parent eq $homedir;
+        $homedir = $parent;
+    }
 }
-use lib ( $perl5dir, catdir( dirname($perl5dir), 'cpan' ) );
+use lib catdir( $homedir, 'cpan' ), $perl5dir;
+
 use Ancillary::Manufacturing;
 my $maker    = Ancillary::Manufacturing->factory;
 my $list     = 'list';
@@ -54,12 +62,14 @@ foreach (@ARGV) {
         if    (/^-+$/s)          { $maker->{processStream}->( \*STDIN ); }
         elsif (/^-+x/is)         { $maker->{useXLSX}->(); }
         elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
-        elsif (/^-+(no|skip)protect/is) { delete $override{protect}; }
-        elsif (/^-+defaultcol/is)       { $override{defaultColours} = 1; }
-        elsif (/^-+single/is)           { $threads = 1; }
-        elsif (/^-+([0-9]+)/is)         { $threads = $1; }
-        elsif (/^-+comparedata/is)      { $list = 'listMonsterByRuleset'; }
-        elsif (/^-+comparerule/is)      { $list = 'listMonsterByDataset'; }
+        elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
+        elsif (/^-+defaultcol/is)    { $override{defaultColours} = 1; }
+        elsif (/^-+debug/is)         { $override{debug}          = 1; }
+        elsif (/^-+password=(.+)/is) { $override{password}       = $1; }
+        elsif (/^-+single/is)        { $threads                  = 1; }
+        elsif (/^-+([0-9]+)/is)      { $threads                  = $1; }
+        elsif (/^-+comparedata/is) { $list = 'listMonsterByRuleset'; }
+        elsif (/^-+comparerule/is) { $list = 'listMonsterByDataset'; }
         elsif (/^-+monster/is) {
             $maker->{useSpecialWorkbookCreate}->('ModelM::MonsterBook');
             $list = 'listMonsterByRuleset';
@@ -86,6 +96,6 @@ foreach (@ARGV) {
 $maker->{override}->(%override) if %override;
 $maker->{setThreads}->($threads);
 $maker->{validate}
-  ->( $perl5dir, grep { -e $_ } catdir( dirname($perl5dir), 'X_Revisions' ) );
+  ->( $perl5dir, grep { -e $_ } catdir( $homedir, 'X_Revisions' ) );
 $maker->{ $threads > 1 ? 'runParallel' : 'run' }
   ->( $maker->{prepare}->( $maker->{$list}->() ) );

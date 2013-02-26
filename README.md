@@ -17,12 +17,12 @@ To create models on your own computer using this code, clone this
 repository, check that you have Perl 5 installed, and try things like the
 following sample commands (from the root of the repository):
 
-    perl perl5/make.pl CDCM/%-model100.yml CDCM/2012-02/UKPN-LPN.yml
-    perl perl5/make.pl -xlsx CDCM/%-clean130.yml CDCM/2012-12/*
-    perl perl5/make.pl -xlsx CDCM/%-clean132.yml Blank.yml
-    perl perl5/make.pl -xlsx MM/%-MM-postDCP096.yml MM/2012-02/*
-    perl perl5/EDCM/mkedcm.pl -small
-    perl perl5/EDCM2/mkedcm2.pl -xlsx -small
+    perl run/make.pl CDCM/Rules/%-model100.yml CDCM/Data-2012-02/UKPN-LPN.yml
+    perl run/make.pl -xlsx CDCM/Rules/%-clean130.yml CDCM/Data-2012-12/*
+    perl run/make.pl -xlsx CDCM/Rules/%-clean132.yml Blank.yml
+    perl run/make.pl ModelM/Rules/%-MM-postDCP096.yml ModelM/Data-2012-02/*
+    perl run/make.pl -monsterm -xlsx ModelM/Rules/%-MM-postDCP096.yml ModelM/Data-2013-02/*
+    perl run/other/mkedcm2.pl -xlsx -small
 
 You will probably need to install a few modules from CPAN first. Hopefully
 the error messages about missing dependencies are explicit enough.
@@ -43,4 +43,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 23 February 2013.
+Franck Latrémolière, 26 February 2013.

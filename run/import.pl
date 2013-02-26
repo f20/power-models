@@ -35,18 +35,24 @@ use strict;
 use utf8;
 use Carp;
 $SIG{__DIE__} = \&Carp::confess;
-use File::Spec::Functions qw(rel2abs abs2rel catfile catdir);
+use File::Spec::Functions qw(rel2abs catdir);
 use File::Basename 'dirname';
 use Cwd;
-
-my ( $perl5dir, $cwd );
+my ( $cwd, $homedir );
 
 BEGIN {
     $cwd = getcwd();
-    $perl5dir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    $homedir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    while (1) {
+        last if -d catdir( $homedir, 'lib', 'SpreadsheetModel' );
+        my $parent = dirname $homedir;
+        last if $parent eq $homedir;
+        $homedir = $parent;
+    }
+    chdir $homedir or die "chdir $homedir: $!";
+    $homedir = getcwd();    # to resolve any /../ in the path
 }
-
-use lib ( $perl5dir, catdir( dirname($perl5dir), 'cpan' ) );
+use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 
 BEGIN {
     my %pids;

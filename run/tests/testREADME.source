@@ -1,0 +1,4 @@
+grep ^\  README.md | while read command
+do
+$command &
+done

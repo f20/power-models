@@ -366,7 +366,7 @@ LV substation generation non half hourly:
   - Name: LV Sub Generation NHH
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
-  - Included: common|portfolio
+  - Included: gensub|portfolio
 ---
 LV substation generation (GDP) non half hourly:
   - PC8

@@ -529,7 +529,7 @@ EOL
                     'Proportion of service model involved'
                       . ' in connecting load of 1 MWh/year',
                 ],
-                $model->{tariffs} =~ /dcp130/i
+                $model->{tariffs} && $model->{tariffs} =~ /dcp130/i
                 ? (
                     name => Label(
                         "All $voltage unmetered tariffs",

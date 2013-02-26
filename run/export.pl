@@ -32,12 +32,18 @@ use strict;
 use utf8;
 use File::Spec::Functions qw(rel2abs catdir);
 use File::Basename 'dirname';
-my $perl5dir;
+my $homedir;
 
 BEGIN {
-    $perl5dir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    $homedir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    while (1) {
+        last if -d catdir( $homedir, 'lib', 'SpreadsheetModel' );
+        my $parent = dirname $homedir;
+        last if $parent eq $homedir;
+        $homedir = $parent;
+    }
 }
-use lib ( $perl5dir, catdir( dirname($perl5dir), 'cpan' ) );
+use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 
 my $workbookModule = 'SpreadsheetModel::Workbook';
 my $fileExtension  = '.xls';

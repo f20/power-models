@@ -8,10 +8,15 @@ use File::Basename 'dirname';
 my $homedir;
 
 BEGIN {
-    $homedir =
-      dirname dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    $homedir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    while (1) {
+        last if -d catdir( $homedir, 'lib', 'SpreadsheetModel' );
+        my $parent = dirname $homedir;
+        last if $parent eq $homedir;
+        $homedir = $parent;
+    }
 }
-use lib map { catdir( $homedir, $_ ); } qw(cpan perl5);
+use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 
 require SpreadsheetModel::Workbook;
 my $workbookModule = 'SpreadsheetModel::Workbook';
