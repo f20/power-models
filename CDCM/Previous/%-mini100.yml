@@ -1,5 +1,5 @@
 ---
-.: Cut down model 100 (just calculates tariffs)
+.: Cut-down model 100 (just calculates tariffs)
 PerlModule: CDCM
 activeSheets: '^Tariffs$'
 drm: top500gsp

@@ -1,5 +1,5 @@
 ---
-.: Cleaned up model implementing DCP 130 and DCP 132
+.: Cleaned-up model implementing DCP 130 and DCP 132
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
