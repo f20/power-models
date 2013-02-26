@@ -99,7 +99,7 @@ sub annuityRate {
 sub tariffComponents {
     my ($self) = @_;
     $self->{tariffComponents} ||=
-      [ 'Unit p/kWh', 'Fixed p/day', 'Capacity p/kVA/day', ];
+      [ 'Unit p/kWh', 'Fixed p/day', 'Capacity p/kVA/day', ]; # hard coded
 }
 
 sub digitsRounding {

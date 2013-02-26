@@ -104,7 +104,7 @@ sub worksheetsAndClosures {
 
       ,
 
-      @{ $model->{usageTables} }
+      $model->{checkTables} && @{ $model->{checkTables} }
       ? (
         'Checks' => sub {
             my ($wsheet) = @_;
@@ -113,7 +113,7 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 1, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Network usage checks' ),
-              @{ $model->{usageTables} };
+              @{ $model->{checkTables} };
         }
       )
       : ()

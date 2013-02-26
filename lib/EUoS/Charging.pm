@@ -37,21 +37,39 @@ sub new {
     bless { model => $model, setup => $setup, usage => $usage }, $class;
 }
 
+sub energyCharge {
+    my ($self) = @_;
+    return $self->{energyCharge} if $self->{energyCharge};
+    my $energyUsageSet = $self->{usage}->energyUsageSet;
+    $self->{energyCharge} = Arithmetic(
+        name      => 'Energy charging rate £/kW/year',
+        arguments => {
+            IV2 => $self->{setup}->daysInYear,
+            IV1 => Dataset(
+                name     => 'Energy charging rate p/kWh',
+                cols     => $energyUsageSet,
+                number   => 1585,
+                appendTo => $self->{model}{inputTables},
+                dataset  => $self->{model}{dataset},
+                data     => [10],
+            ),
+        },
+        arithmetic => '=IV1*0.01*IV2*24',
+    );
+}
+
 sub assetRate {
     my ($self) = @_;
     return $self->{assetRate} if $self->{assetRate};
     my $usageSet = $self->{usage}->usageSet;
     $self->{assetRate} = Dataset(
-        name  => 'Notional asset rates (£/kVA or £/point)',
-        lines => [
-'This table is input data but needs to have a backing sheet explaining the assumptions underpinning the numbers.'
-        ],
+        name          => 'Notional asset rates (£/kVA or £/point)',
         defaultFormat => '0hardnz',
         number        => 1550,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         cols          => $usageSet,
-        data          => [ map { 1 } @{ $usageSet->{list} } ],
+        data => [ undef, ( map { 1 } 3 .. @{ $usageSet->{list} } ), undef ],
     );
 }
 
@@ -138,7 +156,7 @@ sub usetMatchAssets {
         defaultFormat => '0hardnz',
     );
     if ($doNotApply) {
-        push @{ $self->{model}{usageTables} },
+        push @{ $self->{model}{checkTables} },
           Columnset(
             name => 'For information: comparison of calculated '
               . 'and target gross modern equivalent asset value (£)',
@@ -156,7 +174,7 @@ sub usetMatchAssets {
     else {
         $self->{assetRate} = Arithmetic(
             name => 'Adjusted notional assets for each type of usage'
-              . ' (£/KVA or £/point)',
+              . ' (£/kVA or £/point)',
             arithmetic => '=IV1*IV2/IV3',
             arguments =>
               { IV1 => $beforeMatching, IV2 => $target, IV3 => $totalBefore, },
@@ -193,7 +211,7 @@ sub usetMatchRevenue { }
 
 sub charges {
     my ($self) = @_;
-    ( $self->boundaryCharge, $self->assetCharge );
+    ( $self->boundaryCharge, $self->assetCharge, $self->energyCharge );
 }
 
 sub finish { }

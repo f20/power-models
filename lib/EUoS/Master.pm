@@ -51,10 +51,10 @@ sub new {
 
     my $charging = EUoS::Charging->new( $model, $setup, $usage );
 
-    foreach (
+    foreach ( # the order matters! (affects column order)
         qw(
-        usetBoundaryCosts
         usetMatchAssets
+        usetBoundaryCosts
         usetRunningCosts
         )
       )
@@ -74,7 +74,7 @@ sub new {
     }
 
     $tariffs->revenues( $customers->detailedVolumes,
-        'Notional revenue by customer from use of system tariffs', 1 );
+        'Notional revenue by customer', 1 );
 
     $_->finish foreach $setup, $usage, $charging, $customers, $tariffs;
 

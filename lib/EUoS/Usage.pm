@@ -37,7 +37,7 @@ sub new {
     bless { model => $model, setup => $setup, customers => $customers }, $class;
 }
 
-sub usageRates {
+sub usageRates {    # hardcoded data!
     my ($self) = @_;
     return $self->{usageRates} if $self->{usageRates};
     my ( $model, $setup, $customers ) = @{$self}{qw(model setup customers)};
@@ -45,8 +45,8 @@ sub usageRates {
         Dataset(
             name  => 'Network usage of 1kW of average consumption',
             lines => [
-'This table should be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
-'This will include a method to match the diversity assumed about low voltage customers to an overall observed load factor of 34 per cent at substations.'
+                    'This table should be replaced by a calculation from '
+                  . 'simpler and clearer assumptions about diversity and losses.',
             ],
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
@@ -54,42 +54,42 @@ sub usageRates {
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
             data     => [
-                [qw(0 0 0 1.084)], [qw(0 0 0 1.084)],
-                [qw(0 0 0 1.068)], [qw(0 0 0 0)],
-                [qw(0 0 0 0)],     [qw(0 0 0 0)],
-                [qw(0 0 0 0)],
+                [qw(0 0 0 0 1.084)], [qw(0 0 0 0 1.084)],
+                [qw(0 0 0 0 1.068)], [qw(0 0 0 0 0)],
+                [qw(0 0 0 0 0)],     [qw(0 0 0 0 0)],
+                [qw(0 0 0 0 0)],     [qw(0.01 0.05 0.05 0.05 0.05)],
             ]
         ),
         Dataset(
-            name => 'Network usage of an exit point',
-            lines =>
-'This table should be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
+            name  => 'Network usage of an exit point',
+            lines => 'This table should be replaced by a calculation from '
+              . 'simpler and clearer assumptions about diversity and losses.',
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
             number   => 1532,
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
             data     => [
-                [qw(0 0 0 0)], [qw(0 0 0 0)],
-                [qw(0 0 0 0)], [qw(0 0 0 30.450)],
-                [qw(1 0 0 0)], [qw(0 1 1 0)],
-                [qw(0 0 0 1)],
+                [qw(0 0 0 0 0)], [qw(0 0 0 0 0)],
+                [qw(0 0 0 0 0)], [qw(0 0 0 0 30.450)],
+                [qw(0 1 0 0 0)], [qw(0 0 1 1 0)],
+                [qw(0 0 0 0 1)],
             ]
         ),
         Dataset(
-            name => 'Network usage of 1kVA of agreed capacity',
-            lines =>
-'This table should be replaced by a calculation from simpler and clearer assumptions about diversity and losses.',
+            name  => 'Network usage of 1kVA of agreed capacity',
+            lines => 'This table should be replaced by a calculation from '
+              . 'simpler and clearer assumptions about diversity and losses.',
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
             number   => 1533,
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
             data     => [
-                [qw(1.03 1.03 1.03)], [qw(1.03 1.03 1.03)],
-                [qw(0 1.015 1.015)],  [qw(0 0 1.015)],
-                [qw(0 0 0)],          [qw(0 0 0)],
-                [qw(0 0 0)],
+                [qw(0 1.03 1.03 1.03)], [qw(0 1.03 1.03 1.03)],
+                [qw(0 0 1.015 1.015)],  [qw(0 0 0 1.015)],
+                [qw(0 0 0 0)],          [qw(0 0 0 0)],
+                [qw(0 0 0 0)],
             ]
         ),
     );
@@ -107,7 +107,8 @@ sub usageSet {
             'Low voltage network capacity kVA',
             'Metering switchgear for ring supply',
             'Low voltage metering switchgear',
-            'Low voltage service 100 Amp'
+            'Low voltage service 100 Amp',
+            'Energy consumption kW',
         ]
     );
 }
@@ -117,6 +118,24 @@ sub boundaryUsageSet {
     $self->{boundaryUsageSet} ||= Labelset(
         name => 'Boundary usage',
         list => [ $self->usageSet->{list}[0] ]
+    );
+}
+
+sub energyUsageSet {
+    my ($self) = @_;
+    my $listr = $self->usageSet->{list};
+    $self->{energyUsageSet} ||= Labelset(
+        name => 'Energy usage',
+        list => [ $listr->[$#$listr] ]
+    );
+}
+
+sub assetUsageSet {    # hardcoded and not used
+    my ($self) = @_;
+    my $listr = $self->usageSet->{list};
+    $self->{assetUsageSet} ||= Labelset(
+        name => 'Asset usage',
+        list => [ @{$listr}[ 1 .. ( $#$listr - 1 ) ] ]
     );
 }
 
@@ -135,7 +154,7 @@ sub totalUsage {
                 my $m = $_ + 1;
                 my $v = $_ + 100;
                 "IV$m*IV$v" . ( $_ ? '' : '/24/IV666' );
-            } 0 .. 2
+              } 0 .. 2    # undue hardcoding (only zero is a unit rate)
         ),
         arguments => {
             IV666 => $self->{setup}->daysInYear,
@@ -146,7 +165,7 @@ sub totalUsage {
                     "IV$m" => $usageRates->[$_],
                     "IV$v" => $volumes->[$_]
                 );
-            } 0 .. 2
+              } 0 .. 2    # undue hardcoding
         },
         defaultFormat => '0softnz',
     );

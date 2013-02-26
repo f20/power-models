@@ -66,7 +66,7 @@ sub new {
                         source => $contrib,
                       )
                       : $contrib;
-                } 0 .. 2
+                  } 0 .. 2    # undue hardcoding (only zero is a unit rate)
             ],
         );
     }
@@ -91,19 +91,19 @@ sub new {
                 : $digitsRounding->[$_] == 2 ? ( defaultFormat => '0.00softnz' )
                 : (),
             );
-        } 0 .. 2
+          } 0 .. 2    # undue hardcoding
     ];
     $self;
 }
 
 sub revenues {
-    my ( $self, $volumes, $name, $omitGrandTotal ) = @_;
+    my ( $self, $volumes, $name, $ppuNotGrandTotal ) = @_;
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $tariffs  = $self->{tariffs};
     my $revenues = Arithmetic(
         name => $name || ( 'Revenue £/year' . $labelTail ),
-        arithmetic => '=(IV1*IV11+IV666*(IV2*IV12+IV3*IV13))/100',
+        arithmetic => '=(IV1*IV11+IV666*(IV2*IV12+IV3*IV13))/100',  # hard coded
         arguments  => {
             IV666 => $self->{setup}->daysInYear,
             map {
@@ -115,11 +115,60 @@ sub revenues {
         },
         defaultFormat => '0softnz',
     );
-    push @{ $self->{revenueTables} }, $omitGrandTotal ? $revenues : GroupBy(
-        name          => 'Total revenue £/year' . $labelTail,
-        defaultFormat => '0softnz',
-        source        => $revenues,
-    );
+
+    if ($ppuNotGrandTotal) {
+        my $ppu = Arithmetic(
+            name       => 'Average p/kWh',
+            arithmetic => '=IF(IV3,IV1/IV2*100,"")',
+            arguments  => {
+                IV1 => $revenues,
+                IV2 => $volumes->[0],
+                IV3 => $volumes->[0],
+            },
+        );
+        my $compare = Dataset(
+            number   => 1599,
+            appendTo => $self->{model}{inputTables},
+            dataset  => $self->{model}{dataset},
+            name     => 'Comparison p/kWh',
+            rows     => $revenues->{rows},
+            data     => [ map { 10 } @{ $revenues->{rows}{list} } ]
+        );
+        push @{ $self->{revenueTables} },
+          Columnset(
+            name    => 'Revenue (£/year) and average revenue (p/kWh)',
+            columns => [
+                $revenues,
+                $ppu,
+                Arithmetic(
+                    name          => 'Difference %',
+                    defaultFormat => '%softpm',
+                    arithmetic    => '=IF(IV1,IV2/IV3-1,"")',
+                    arguments =>
+                      { IV1 => $compare, IV2 => $ppu, IV3 => $compare, },
+                ),
+                Arithmetic(
+                    name          => 'Difference £',
+                    defaultFormat => '0softpm',
+                    arithmetic    => '=IF(IV1,(IV2-IV3)*IV4/100,"")',
+                    arguments     => {
+                        IV1 => $compare,
+                        IV2 => $ppu,
+                        IV3 => $compare,
+                        IV4 => $volumes->[0],
+                    },
+                ),
+            ]
+          );
+    }
+    else {
+        push @{ $self->{revenueTables} },
+          GroupBy(
+            name          => 'Total revenue £/year' . $labelTail,
+            defaultFormat => '0softnz',
+            source        => $revenues,
+          );
+    }
 }
 
 sub finish {
