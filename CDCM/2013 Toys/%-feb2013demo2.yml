@@ -1,22 +1,19 @@
 ---
 PerlModule: CDCM
 coincidenceAdj: groupums
-colour: orange
 drm: top500gsp
 extraLevels: 1
 frontSheets:
   - Overview
   - CDCM Revenues
+inYear: targetbeforetwiceadjust
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-require:
-  - CDCM::TimeOfDaySpecial
-  - CDCM::Table1001
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: consultation
-targetRevenue: DCP132longlabels
+summary: consultationdisclosure
+targetRevenue: dcp132longlabels
 tariffs: commongensubdcp130
 timeOfDay: timeOfDaySpecial

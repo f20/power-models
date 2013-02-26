@@ -58,7 +58,7 @@ sub worksheetsAndClosures {
              $model->{targetRevenue}
           && $model->{targetRevenue} =~ /DCP132/i
           && $model->{targetRevenue} !~ /DCP132longlabels/i;
-        $wsheet->set_column( 0, 0,   $t1001width ? 60 : 50 );
+        $wsheet->set_column( 0, 0,   $t1001width ? 60   : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 21.5 : 20 );
         $wsheet->{nextFree} = 2;
         my $te = Dataset(

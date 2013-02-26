@@ -570,8 +570,7 @@ sub consultationSummary {
         list => $tariffsByAtw->{groups}
     );
 
-    my $selectedTariffsForComparison =
-      $model->{summary}
+    my $selectedTariffsForComparison = $model->{summary}
       && $model->{summary} =~ /gen/i ? $atwTariffs : Labelset(
         name => 'Demand ATW tariffs',
         list => [ grep { !/gener/ } @{ $tariffsByAtw->{groups} } ]

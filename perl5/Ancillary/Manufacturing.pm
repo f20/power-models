@@ -46,7 +46,7 @@ revisionText
 Keys defaulted if not existing (default value): 
 protect (1)
 validation (lenientnomsg)
-inputData (Input)
+inputData (dataSheet)
 
 =cut
 
@@ -56,6 +56,26 @@ use utf8;
 require Storable;
 require YAML;
 
+sub _loadModules {
+    my $ruleset = shift;
+    return 1 unless @_;
+    my %savedINC = %INC;
+    foreach (@_) {
+        eval "require $_";
+        if ($@) {
+            %INC = %savedINC;
+            my $for =
+              defined $ruleset->{template} ? " for $ruleset->{template}" : '';
+            warn <<EOW;
+Cannot load $_$for:
+$@
+EOW
+            return;
+        }
+    }
+    1;
+}
+
 sub factory {
     my ($class) = @_;
     my $self = bless {}, $class;
@@ -64,29 +84,14 @@ sub factory {
 
     my $processRuleset = $self->{processRuleset} = sub {
         local $_ = $_[0];
-        my %savedINC = %INC;
-        foreach my $module ( "$_->{PerlModule}::Master",
-              !$_->{require}    ? ()
-            : ref $_->{require} ? @{ $_->{require} }
-            :                     $_->{require} )
-        {
-            eval "require $module";
-            if ($@) {
-                %INC = %savedINC;
-                my $for = defined $_->{template} ? " for $_->{template}" : '';
-                warn <<EOW;
-Cannot load $module$for:
-$@
-EOW
-                return;
-            }
-        }
-        $_->{protect} = 1
-          unless exists $_->{protect};
-        $_->{validation} = 'lenientnomsg'
-          unless exists $_->{validation};
-        $_->{inputData} = 'dataSheet'
-          unless exists $_->{inputData};
+        _loadModules( $_, "$_->{PerlModule}::Master" ) || return;
+        $_->{PerlModule}->can('requiredModulesForRuleset')
+          and
+          _loadModules( $_, $_->{PerlModule}->requiredModulesForRuleset($_) )
+          || return;
+        $_->{protect}    = 1              unless exists $_->{protect};
+        $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
+        $_->{inputData}  = 'dataSheet'    unless exists $_->{inputData};
         push @rulesets, $_;
     };
 

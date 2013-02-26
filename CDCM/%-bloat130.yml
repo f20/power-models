@@ -8,7 +8,6 @@ matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-require: CDCM::TimeOfDaySpecial
 scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: consultation

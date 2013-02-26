@@ -7,9 +7,6 @@ matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-require:
-  - CDCM::TimeOfDaySpecial
-  - CDCM::Table1001
 scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1

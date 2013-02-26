@@ -329,9 +329,9 @@ EOL
             $_ = Labelset
               name     => $name,
               editable => Dataset(
-                lines    => 'Source: service models.',
-                name     => "Names of network components in $name",
-                rows     => Labelset(
+                lines => 'Source: service models.',
+                name  => "Names of network components in $name",
+                rows  => Labelset(
                     name => "Possible components in $name",
                     list => [ map { "$name item $_" } 1 .. @{ $_->{list} } ]
                 ),

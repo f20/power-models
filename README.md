@@ -19,7 +19,7 @@ following sample commands (from the root of the repository):
 
     perl perl5/make.pl CDCM/%-model100.yml CDCM/2012-02/UKPN-LPN.yml
     perl perl5/make.pl -xlsx CDCM/%-clean130.yml CDCM/2012-12/*
-    perl perl5/make.pl -xlsx CDCM/%-bloat132.yml Blank.yml
+    perl perl5/make.pl -xlsx CDCM/%-clean132.yml Blank.yml
     perl perl5/make.pl -xlsx MM/%-MM-postDCP096.yml MM/2012-02/*
     perl perl5/EDCM/mkedcm.pl -small
     perl perl5/EDCM2/mkedcm2.pl -xlsx -small

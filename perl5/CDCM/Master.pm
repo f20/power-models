@@ -53,6 +53,24 @@ use CDCM::Tariffs;
 use CDCM::TimeOfDay;
 use CDCM::Yardsticks;
 
+sub requiredModulesForRuleset {
+
+    my ( $class, $ruleset ) = @_;
+
+    $ruleset->{inYear}
+      ? qw(CDCM::InYearAdjust CDCM::InYearSummaries)
+      : (),
+
+      $ruleset->{targetRevenue} && $ruleset->{targetRevenue} =~ /dcp132/i
+      ? 'CDCM::Table1001'
+      : (),
+
+      $ruleset->{timeOfDay} && $ruleset->{timeOfDay} eq 'timeOfDaySpecial'
+      ? 'CDCM::TimeOfDaySpecial'
+      : ();
+
+}
+
 sub new {
 
     my $class = shift;
@@ -450,7 +468,6 @@ EOT
 
         if ( $model->{inYear} ) {
 
-            # require CDCM::InYearAdjust;
             if ( $model->{inYear} =~ /after/i ) {
                 $model->inYear_inPcdAdjust_after(
                     $nonExcludedComponents, $allEndUsers,
@@ -530,7 +547,6 @@ EOT
 
     elsif ( $model->{inYear} ) {
 
-        # require CDCM::InYearAdjust;
         $model->inYearAdjust(
             $nonExcludedComponents, $volumeData,        $allEndUsers,
             $componentMap,          $daysAfter,         $daysBefore,
@@ -1068,8 +1084,6 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         }
 
         if ( $model->{summary} =~ /hybrid|disclosure/i ) {
-
-            # require CDCM::InYearSummaries;
             my @revenuesByTariffHybrid = $model->summaryOfRevenuesHybrid(
                 $allTariffs,       $nonExcludedComponents,
                 $componentMap,     $volumeDataAfter,
