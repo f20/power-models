@@ -75,6 +75,7 @@ sub create {
     my $completeSharedOptionsSheet;
 
     if ( @options > 1 ) {                # Make the shared Controller
+                                         # Uses some unsafe hard-coded cell links
         $optionsColumns = ( bless $options[0], 'ModelM' )->allocationRules;
         my $ws = $wbook->add_worksheet('Options');
         $ws->fit_to_pages( 1, 0 );
@@ -127,7 +128,7 @@ EOL
         ), @$optionsColumns;
         $completeSharedOptionsSheet = sub {
             my $companies =
-              Labelset( list => [ map { "=Input.$_!B8" } 1 .. @options ] );
+              Labelset( list => [ map { "=Input.$_!B7" } 1 .. @options ] );
             $_->wsWrite( $wbook, $ws ) foreach map {
                 my ( $masterRow, $cols, $format, $tableName ) = @$_;
                 Constant(
