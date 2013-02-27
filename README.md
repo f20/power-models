@@ -14,8 +14,9 @@ in a YAML format designed for use with the Perl code above.
 To see this code in action, go to http://dcmf.co.uk/models/.
 
 To create models on your own computer using this code, clone this
-repository, check that you have Perl 5 installed, and try things like the
-following sample commands (from the root of the repository):
+repository, check that you have a reasonably model version of Perl 5
+installed (5.8.8 or high should be fine), change to the root of the
+repository, and try the following sample commands:
 
     perl run/make.pl CDCM/Previous/%-model100.yml CDCM/Data-2012-02/UKPN-LPN.yml
     perl run/make.pl -xlsx CDCM/Previous/%-clean130.yml CDCM/Data-2012-12/*
@@ -25,7 +26,8 @@ following sample commands (from the root of the repository):
     perl run/other/mkedcm2.pl -xlsx -small
 
 You will probably need to install a few modules from CPAN first. Hopefully
-the error messages about missing dependencies are explicit enough.
+the error messages about missing dependencies are explicit enough. I have
+not tried to run this on Microsoft Windows, but it should work.
 
 The code is licensed under open source licences. Code that I wrote is
 licensed under the two-clause BSD licence. A Perl Artistic Licence or GNU
