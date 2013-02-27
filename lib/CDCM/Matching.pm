@@ -1678,7 +1678,7 @@ sub matching2012 {
     );
 
     Columnset(
-        name    => 'Total analsyis of annual revenue before matching  (£/year)',
+        name    => 'Total analysis of annual revenue before matching  (£/year)',
         columns => [
             $totalRevenueFromUnits, $totalRevenueFromFixed,
             $totalRevenueFromCapacity,
@@ -1737,9 +1737,10 @@ sub matching2012 {
             slopes => $slopeSet,
             target => $model->{scaler} =~ /opt3/i
             ? Arithmetic(
-                name       => 'Revenue matching target from unit rates (£)',
-                arithmetic => '=IV1*IV2/(IV3+IV4+IV5)',
-                arguments  => {
+                name          => 'Revenue matching target from unit rates (£)',
+                defaultFormat => '0soft',
+                arithmetic    => '=IV1*IV2/(IV3+IV4+IV5)',
+                arguments     => {
                     IV1 => $adderAmount,
                     IV2 => $totalRevenueFromUnits,
                     IV3 => $totalRevenueFromUnits,
@@ -1827,8 +1828,9 @@ sub matching2012 {
                 slopes => $slopeSet,
                 target => Arithmetic(
                     name => 'Revenue matching target from fixed charges (£)',
-                    arithmetic => '=IV1*IV2/(IV3+IV4+IV5)',
-                    arguments  => {
+                    defaultFormat => '0soft',
+                    arithmetic    => '=IV1*IV2/(IV3+IV4+IV5)',
+                    arguments     => {
                         IV1 => $adderAmount,
                         IV2 => $totalRevenueFromFixed,
                         IV3 => $totalRevenueFromUnits,
@@ -1913,8 +1915,9 @@ sub matching2012 {
                 slopes => $slopeSet,
                 target => Arithmetic(
                     name => 'Revenue matching target from capacity charges (£)',
-                    arithmetic => '=IV1*IV2/(IV3+IV4+IV5)',
-                    arguments  => {
+                    defaultFormat => '0soft',
+                    arithmetic    => '=IV1*IV2/(IV3+IV4+IV5)',
+                    arguments     => {
                         IV1 => $adderAmount,
                         IV2 => $totalRevenueFromCapacity,
                         IV3 => $totalRevenueFromUnits,
