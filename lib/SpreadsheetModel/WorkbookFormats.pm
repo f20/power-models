@@ -276,6 +276,8 @@ Keys currently looked at within %$options:
     my @sizeLabelGroup = ( valign => 'vcenter', );
     my @sizeNumber     = ( valign => 'vcenter', );
     my @sizeText       = ( valign => 'vcenter', );
+    my $plus  = '[Blue]_-+';
+    my $minus = '[Red]_+-';
     $workbook->{formatspec} = {
         '%con'    => [ locked => 1, @sizeNumber, @numPercent, @colourCon, ],
         '%copy'   => [ locked => 1, @sizeNumber, @numPercent, @colourCopy, ],
@@ -284,14 +286,14 @@ Keys currently looked at within %$options:
         '%softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => '[Blue]+??0.0%;[Red]-??0.0%;[Green]=',
+            num_format => $plus . '????0.0%;' . $minus . '????0.0%;[Green]=;@',
             align      => 'center',
             @colourSoft,
         ],
         '%copypm' => [
             locked => 1,
             @sizeNumber,
-            num_format => '[Blue]+??0.0%;[Red]-??0.0%;[Green]=',
+            num_format => $plus . '????0.0%;' . $minus . '????0.0%;[Green]=;@',
             align      => 'center',
             @colourCopy,
         ],
@@ -310,14 +312,14 @@ Keys currently looked at within %$options:
         '0.00softpm'  => [
             locked => 1,
             @sizeNumber,
-            num_format => '[Blue]+??0.00;[Red]-??0.00;;@',
+            num_format => $plus . '??0.00;' . $minus . '??0.00;[Green]=;@',
             align      => 'center',
             @colourSoft,
         ],
         '0.000softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => '[Blue]+?0.000;[Red]-?0.000;;@',
+            num_format => $plus . '?0.000;' . $minus . '?0.000;[Green]=;@',
             align      => 'center',
             @colourSoft,
         ],
@@ -336,12 +338,17 @@ Keys currently looked at within %$options:
             @sizeNumber,
             $rightpad
             ? (
-                num_format => "[Blue]+#,##0$rightpad;[Red]-#,##0$rightpad;;@",
-                align      => 'right'
+                num_format =>
+                  "[Blue]+#,##0$rightpad;[Red]-#,##0$rightpad;[Green]=;@",
+                align => 'right'
               )
             : (
-                num_format => '[Blue]+?' . $q3 . '??0;[Red]-?' . $q3 . '??0;;@',
-                align      => 'center'
+                num_format => $plus . '?'
+                  . $q3 . '??0;'
+                  . $minus . '?'
+                  . $q3
+                  . '??0;[Green]=;@',
+                align => 'center'
             ),
             @colourSoft,
         ],
@@ -350,12 +357,17 @@ Keys currently looked at within %$options:
             @sizeNumber,
             $rightpad
             ? (
-                num_format => "[Blue]+#,##0$rightpad;[Red]-#,##0$rightpad;;@",
-                align      => 'right'
+                num_format =>
+                  "[Blue]+#,##0$rightpad;[Red]-#,##0$rightpad;[Green]=;@",
+                align => 'right'
               )
             : (
-                num_format => '[Blue]+?' . $q3 . '??0;[Red]-?' . $q3 . '??0;;@',
-                align      => 'center'
+                num_format => $plus . '?'
+                  . $q3 . '??0;'
+                  . $minus . '?'
+                  . $q3
+                  . '??0;[Green]=;@',
+                align => 'center'
             ),
             @colourCopy,
         ],
