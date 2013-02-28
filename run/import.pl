@@ -51,6 +51,7 @@ BEGIN {
     }
     chdir $homedir or die "chdir $homedir: $!";
     $homedir = getcwd();    # to resolve any /../ in the path
+    chdir $cwd;
 }
 use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 
