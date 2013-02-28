@@ -51,7 +51,7 @@ sub new {
 
     my $charging = EUoS::Charging->new( $model, $setup, $usage );
 
-    foreach ( # the order matters! (affects column order)
+    foreach (    # the order matters! (affects column order)
         qw(
         usetMatchAssets
         usetBoundaryCosts
@@ -69,12 +69,26 @@ sub new {
 
     my $tariffs = EUoS::Tariffs->new( $model, $setup, $usage, $charging );
 
+    my $compareppu = Dataset(
+        number   => 1599,
+        appendTo => $model->{inputTables},
+        dataset  => $model->{dataset},
+        name     => 'Comparison p/kWh',
+        rows     => $customers->userLabelset,
+        data     => [ map { 10 } @{ $customers->userLabelset->{list} } ]
+    );
+
     if ( my $usetName = $model->{usetRevenues} ) {
         $tariffs->revenues( $customers->totalDemand($usetName) );
+        $tariffs->revenues( $customers->individualDemand($usetName),
+            $compareppu, );
     }
 
-    $tariffs->revenues( $customers->detailedVolumes,
-        'Notional revenue by customer', 1 );
+    if (undef) {
+        $tariffs->revenues( $customers->detailedVolumes,
+            $compareppu, 1, 'Notional revenue by customer',
+        );
+    }
 
     $_->finish foreach $setup, $usage, $charging, $customers, $tariffs;
 

@@ -97,7 +97,7 @@ sub new {
 }
 
 sub revenues {
-    my ( $self, $volumes, $name, $ppuNotGrandTotal ) = @_;
+    my ( $self, $volumes, $compareppu, $notGrandTotal, $name ) = @_;
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $tariffs  = $self->{tariffs};
@@ -116,7 +116,7 @@ sub revenues {
         defaultFormat => '0softnz',
     );
 
-    if ($ppuNotGrandTotal) {
+    if ($compareppu) {
         my $ppu = Arithmetic(
             name       => 'Average p/kWh',
             arithmetic => '=IF(IV3,IV1/IV2*100,"")',
@@ -126,42 +126,62 @@ sub revenues {
                 IV3 => $volumes->[0],
             },
         );
-        my $compare = Dataset(
-            number   => 1599,
-            appendTo => $self->{model}{inputTables},
-            dataset  => $self->{model}{dataset},
-            name     => 'Comparison p/kWh',
-            rows     => $revenues->{rows},
-            data     => [ map { 10 } @{ $revenues->{rows}{list} } ]
+        my $compare = Arithmetic(
+            defaultFormat => '0soft',
+            name          => 'Comparison £/year',
+            arguments =>
+              { IV1 => $compareppu, IV2 => $compareppu, IV3 => $volumes->[0] },
+            arithmetic => '=IF(ISNUMBER(IV1),IV2*IV3*0.01,0)'
+        );
+        my $difference = Arithmetic(
+            name          => 'Difference £/year',
+            defaultFormat => '0softpm',
+            arithmetic    => '=IF(IV1,IV2-IV3,"")',
+            arguments     => {
+                IV1 => $compare,
+                IV2 => $revenues,
+                IV3 => $compare,
+            },
         );
         push @{ $self->{revenueTables} },
           Columnset(
             name    => 'Revenue (£/year) and average revenue (p/kWh)',
             columns => [
                 $revenues,
-                $ppu,
+                $compare,
+                $difference,
                 Arithmetic(
                     name          => 'Difference %',
                     defaultFormat => '%softpm',
                     arithmetic    => '=IF(IV1,IV2/IV3-1,"")',
                     arguments =>
-                      { IV1 => $compare, IV2 => $ppu, IV3 => $compare, },
+                      { IV1 => $compare, IV2 => $revenues, IV3 => $compare, },
                 ),
-                Arithmetic(
-                    name          => 'Difference £',
-                    defaultFormat => '0softpm',
-                    arithmetic    => '=IF(IV1,(IV2-IV3)*IV4/100,"")',
-                    arguments     => {
-                        IV1 => $compare,
-                        IV2 => $ppu,
-                        IV3 => $compare,
-                        IV4 => $volumes->[0],
-                    },
-                ),
+                $ppu,
+                Stack( sources => [$compareppu] ),
             ]
           );
+        unless ($notGrandTotal) {
+            push @{ $self->{revenueTables} }, Columnset(
+                name    => 'Total £/year' . $labelTail,
+                columns => [
+                    map {
+                        my $n = 'Total '.$_->{name}->shortName;
+                        $n =~ s/Total (.)/ 'Total '.lc($1)/e;
+                        GroupBy(
+                            name          => $n,
+                            defaultFormat => '0softnz',
+                            source        => $_,
+                        );
+                      } $revenues,
+                    $compare,
+                    $difference
+                ]
+            );
+        }
     }
-    else {
+
+    elsif ( !$notGrandTotal ) {
         push @{ $self->{revenueTables} },
           GroupBy(
             name          => 'Total revenue £/year' . $labelTail,

@@ -69,6 +69,29 @@ sub totalDemand {
     $self->{totalDemand}{$usetName} = $columns;
 }
 
+sub individualDemand {
+    my ( $self, $usetName ) = @_;
+    return $self->{individualDemand}{$usetName}
+      if $self->{individualDemand}{$usetName};
+    my $spcol   = $self->totalDemand($usetName);
+    my $columns = [
+        map {
+            Arithmetic(
+                name          => $_->{name},
+                arguments     => { IV1 => $_->{matrix}, IV2 => $_->{vector}, },
+                arithmetic    => '=IV1*IV2',
+                defaultFormat => '0soft',
+            );
+        } @$spcol
+    ];
+    push @{ $self->{model}{volumeTables} },
+      Columnset(
+        name    => "Individual customer volumes in $usetName",
+        columns => $columns,
+      );
+    $self->{individualDemand}{$usetName} = $columns;
+}
+
 sub userLabelset {
     my ($self) = @_;
     $self->{userLabelset} ||= Labelset(
