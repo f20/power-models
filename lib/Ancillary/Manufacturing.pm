@@ -105,8 +105,15 @@ sub factory {
             @objects = YAML::Load($_);
         }
         else {
-            require JSON;
-            @objects = JSON::from_json($_);
+            eval {
+                require JSON;
+                @objects = JSON::from_json($_);
+            };
+            eval {
+                require JSON::PP;
+                require Encode;
+                @objects = JSON::PP::decode_json( Encode::encode_utf8($_) );
+            } if $@;
         }
         foreach ( grep { ref $_ eq 'HASH' } @objects ) {
             if ( exists $_->{template} ) {

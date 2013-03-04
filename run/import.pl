@@ -309,7 +309,8 @@ sub jsonWriter {
     my ($arg) = @_;
     my $dumpAllData  = $arg =~ /all/i;
     my $preferArrays = $arg =~ /array/i;
-    require JSON;
+    my $jsonpp       = !eval 'require JSON';
+    require JSON::PP if $jsonpp;
     sub {
         my ( $book, $workbook ) = @_;
         die unless $book;
@@ -318,13 +319,15 @@ sub jsonWriter {
         my $tree;
         if ( -e $json ) {
             open my $h, '<', $json;
-            binmode $h, ':utf8';
+            binmode $h;
             local undef $/;
-            $tree = JSON::from_json(<$h>);
+            $tree =
+              $jsonpp ? JSON::PP::decode_json(<$fh>) : JSON::decode_json(<$h>);
         }
         open my $h, '>', $json;
         binmode $h;
-        print $h JSON->new->canonical(1)
+        print {$h}
+          ( $jsonpp ? 'JSON::PP' : 'JSON' )->new->canonical(1)
           ->pretty->utf8->encode(
             updateTree( $workbook, $tree, $preferArrays ) );
     };
