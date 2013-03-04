@@ -15,3 +15,5 @@ nytprof*
 O_*
 X_*
 Y_*
+*.tmp
+*.app
