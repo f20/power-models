@@ -322,7 +322,7 @@ sub jsonWriter {
             binmode $h;
             local undef $/;
             $tree =
-              $jsonpp ? JSON::PP::decode_json(<$fh>) : JSON::decode_json(<$h>);
+              $jsonpp ? JSON::PP::decode_json(<$h>) : JSON::decode_json(<$h>);
         }
         open my $h, '>', $json;
         binmode $h;
