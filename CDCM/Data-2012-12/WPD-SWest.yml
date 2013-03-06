@@ -1,11 +1,14 @@
 ---
 1000:
-  - _table: '1000. Company, charging year, data version'
+  - _note: |-
+      Input data compiled by Franck from public sources. E&OE.
+      This dataset is intended to reproduce the December 2012 indicative price notice.
+    _table: '1000. Company, charging year, data version'
   - Company charging year data version: WPD South West
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
-  - Company charging year data version: Indicative
+  - Company charging year data version: December 2012 indicative
     _column: Version
 1010:
   - _table: 1010. Financial and general assumptions
