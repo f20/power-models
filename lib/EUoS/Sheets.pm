@@ -170,6 +170,22 @@ sub worksheetsAndClosures {
 
       ,
 
+      $model->{detailedTables} && @{ $model->{detailedTables} }
+      ? (
+        'Details' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   48 );
+            $wsheet->set_column( 1, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Detailed tables' ),
+              @{ $model->{detailedTables} };
+        }
+      )
+      : ()
+
+      ,
+
       $model->{oneSheet} ? ( 'All' => sub { } ) : (
         'Index' => sub {
 

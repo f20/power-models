@@ -138,6 +138,21 @@ sub usetBoundaryCosts {
     );
 }
 
+sub detailedAssets {
+    my ( $self, $usage ) = @_;
+    push @{ $self->{model}{detailedTables} },
+      GroupBy(
+        name          => 'Total notional assets (£)',
+        defaultFormat => '0softnz',
+        source        =>  SumProduct(
+        name          => 'Notional assets (£)',
+        matrix        => $usage,
+        vector        => $self->assetRate,
+        defaultFormat => '0softnz',
+    ),
+      );
+}
+
 sub usetMatchAssets {
     my ( $self, $totalUsage, $doNotApply ) = @_;
     my $beforeMatching = $self->assetRate;

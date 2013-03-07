@@ -51,7 +51,7 @@ sub new {
 
     my $charging = EUoS::Charging->new( $model, $setup, $usage );
 
-    foreach (    # the order matters! (affects column order)
+    foreach (    # the order affects the column order in input data
         qw(
         usetMatchAssets
         usetBoundaryCosts
@@ -84,11 +84,13 @@ sub new {
             $compareppu, );
     }
 
-    if (undef) {
-        $tariffs->revenues( $customers->detailedVolumes,
-            $compareppu, 1, 'Notional revenue by customer',
-        );
-    }
+    $charging->detailedAssets(
+        $usage->totalUsage( $customers->detailedVolumes )->{source} )
+      if $model->{detailedAssets};
+
+    $tariffs->revenues( $customers->detailedVolumes,
+        $compareppu, 1, 'Notional revenue by customer',
+    ) if $model->{notionalRevenue};
 
     $_->finish foreach $setup, $usage, $charging, $customers, $tariffs;
 

@@ -37,17 +37,13 @@ sub new {
     bless { model => $model, setup => $setup, customers => $customers }, $class;
 }
 
-sub usageRates {    # hardcoded data!
+sub usageRates {
     my ($self) = @_;
     return $self->{usageRates} if $self->{usageRates};
     my ( $model, $setup, $customers ) = @{$self}{qw(model setup customers)};
     push @{ $model->{usageTables} }, my @usageRates = (
         Dataset(
-            name  => 'Network usage of 1kW of average consumption',
-            lines => [
-                    'This table should be replaced by a calculation from '
-                  . 'simpler and clearer assumptions about diversity and losses.',
-            ],
+            name     => 'Network usage of 1kW of average consumption',
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
             number   => 1531,
@@ -61,9 +57,7 @@ sub usageRates {    # hardcoded data!
             ]
         ),
         Dataset(
-            name  => 'Network usage of an exit point',
-            lines => 'This table should be replaced by a calculation from '
-              . 'simpler and clearer assumptions about diversity and losses.',
+            name     => 'Network usage of an exit point',
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
             number   => 1532,
@@ -77,9 +71,7 @@ sub usageRates {    # hardcoded data!
             ]
         ),
         Dataset(
-            name  => 'Network usage of 1kVA of agreed capacity',
-            lines => 'This table should be replaced by a calculation from '
-              . 'simpler and clearer assumptions about diversity and losses.',
+            name     => 'Network usage of 1kVA of agreed capacity',
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
             number   => 1533,
@@ -130,7 +122,7 @@ sub energyUsageSet {
     );
 }
 
-sub assetUsageSet {    # hardcoded and not used
+sub assetUsageSet {
     my ($self) = @_;
     my $listr = $self->usageSet->{list};
     $self->{assetUsageSet} ||= Labelset(
@@ -147,7 +139,9 @@ sub totalUsage {
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $usageRates    = $self->usageRates;
     my $customerUsage = Arithmetic(
-        name       => 'Network usage by customer group' . $labelTail,
+        name       => 'Network usage by customers' . $labelTail,
+        rows       => $volumes->[0]{rows},
+        cols       => $usageRates->[0]{cols},
         arithmetic => '=' . join(
             '+',
             map {
@@ -169,7 +163,7 @@ sub totalUsage {
         },
         defaultFormat => '0softnz',
     );
-    GroupBy(
+    $self->{totalUsage}{ 0 + $volumes } = GroupBy(
         defaultFormat => '0softnz',
         name          => 'Total network usage' . $labelTail,
         rows          => 0,

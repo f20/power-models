@@ -143,7 +143,7 @@ sub revenues {
                 IV3 => $compare,
             },
         );
-        push @{ $self->{revenueTables} },
+        push @{ $self->{detailedTables} },
           Columnset(
             name    => 'Revenue (£/year) and average revenue (p/kWh)',
             columns => [
@@ -162,22 +162,32 @@ sub revenues {
             ]
           );
         unless ($notGrandTotal) {
-            push @{ $self->{revenueTables} }, Columnset(
-                name    => 'Total £/year' . $labelTail,
-                columns => [
-                    map {
-                        my $n = 'Total '.$_->{name}->shortName;
-                        $n =~ s/Total (.)/ 'Total '.lc($1)/e;
-                        GroupBy(
-                            name          => $n,
-                            defaultFormat => '0softnz',
-                            source        => $_,
-                        );
-                      } $revenues,
-                    $compare,
-                    $difference
-                ]
+            my @cols = (
+                map {
+                    my $n = 'Total ' . $_->{name}->shortName;
+                    $n =~ s/Total (.)/ 'Total '.lc($1)/e;
+                    GroupBy(
+                        name          => $n,
+                        defaultFormat => '0softnz',
+                        source        => $_,
+                    );
+                  } $revenues,
+                $compare,
+                $difference,
             );
+            push @cols,
+              Arithmetic(
+                name          => 'Total difference %',
+                defaultFormat => '%softpm',
+                arithmetic    => '=IF(IV1,IV2/IV3-1,"")',
+                arguments =>
+                  { IV1 => $cols[1], IV2 => $cols[0], IV3 => $cols[1], },
+              );
+            push @{ $self->{detailedTables} },
+              Columnset(
+                name    => 'Total £/year' . $labelTail,
+                columns => \@cols,
+              );
         }
     }
 
@@ -195,7 +205,8 @@ sub finish {
     my ($self) = @_;
     push @{ $self->{model}{tariffTables} },
       Columnset( name => 'Tariffs', columns => $self->{tariffs}, );
-    push @{ $self->{model}{revenueTables} }, @{ $self->{revenueTables} };
+    push @{ $self->{model}{$_} }, @{ $self->{$_} }
+      foreach grep { $self->{$_} } qw(revenueTables detailedTables);
 }
 
 1;
