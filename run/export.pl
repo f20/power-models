@@ -59,6 +59,13 @@ require Ancillary::DatabaseExport;
 
 my $db = Ancillary::DatabaseExport->new;
 
+if ( grep { /\btscs/i } @ARGV ) {
+    $db->tscsCreateIntermediateTables unless grep { /norebuild/i } @ARGV;
+    $db->tscsCreateOutputFiles( $workbookModule, $fileExtension,
+        { %$options, ( ( grep { /csv/i } @ARGV ) ? 'csv' : 'wb' ) => 1 } );
+    exit 0;
+}
+
 if ( grep { /\ball\b/i } @ARGV ) {
     $db->tableCompilations( $workbookModule, $fileExtension, $options,
         all => qw(. .) );
@@ -77,8 +84,3 @@ if ( grep { /\bcsv\b/i } @ARGV ) {
     $db->csvCreate( grep { /small/i } @ARGV );
 }
 
-if ( grep { /\btscs/i } @ARGV ) {
-    $db->tscsCreateIntermediateTables unless grep { /norebuild/i } @ARGV;
-    $db->tscsCreateOutputFiles( $workbookModule, $fileExtension,
-        { %$options, ( ( grep { /csv/i } @ARGV ) ? 'csv' : 'wb' ) => 1 } );
-}

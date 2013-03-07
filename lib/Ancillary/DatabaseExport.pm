@@ -635,7 +635,7 @@ sub tscsCreateOutputFiles {
         }
 
         if ( $options->{csv} ) {
-            open my $csv, '>', "ts$tab.csv";
+            open $csv, '>', "ts$tab.csv";
         }
 
         $fetch->execute($tab);
