@@ -41,6 +41,13 @@ sub usageRates {
     my ($self) = @_;
     return $self->{usageRates} if $self->{usageRates};
     my ( $model, $setup, $customers ) = @{$self}{qw(model setup customers)};
+
+    # given up on marking some cells out of use -- was too hardcoded
+    my $allBlank = [
+        map {
+            [ map { '' } $customers->tariffSet->indices ]
+        } $self->usageSet->indices
+    ];
     push @{ $model->{usageTables} }, my @usageRates = (
         Dataset(
             name     => 'Network usage of 1kW of average consumption',
@@ -49,12 +56,7 @@ sub usageRates {
             number   => 1531,
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
-            data     => [
-                [qw(0 0 0 0 1.084)], [qw(0 0 0 0 1.084)],
-                [qw(0 0 0 0 1.068)], [qw(0 0 0 0 0)],
-                [qw(0 0 0 0 0)],     [qw(0 0 0 0 0)],
-                [qw(0 0 0 0 0)],     [qw(0.01 0.05 0.05 0.05 0.05)],
-            ]
+            data     => $allBlank,
         ),
         Dataset(
             name     => 'Network usage of an exit point',
@@ -63,12 +65,7 @@ sub usageRates {
             number   => 1532,
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
-            data     => [
-                [qw(0 0 0 0 0)], [qw(0 0 0 0 0)],
-                [qw(0 0 0 0 0)], [qw(0 0 0 0 30.450)],
-                [qw(0 1 0 0 0)], [qw(0 0 1 1 0)],
-                [qw(0 0 0 0 1)],
-            ]
+            data     => $allBlank,
         ),
         Dataset(
             name     => 'Network usage of 1kVA of agreed capacity',
@@ -77,12 +74,7 @@ sub usageRates {
             number   => 1533,
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
-            data     => [
-                [qw(0 1.03 1.03 1.03)], [qw(0 1.03 1.03 1.03)],
-                [qw(0 0 1.015 1.015)],  [qw(0 0 0 1.015)],
-                [qw(0 0 0 0)],          [qw(0 0 0 0)],
-                [qw(0 0 0 0)],
-            ]
+            data     => $allBlank,
         ),
     );
     $self->{usageRates} = \@usageRates;

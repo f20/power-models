@@ -190,7 +190,7 @@ sub usetMatchAssets {
         $self->{assetRate} = Arithmetic(
             name => 'Adjusted notional assets for each type of usage'
               . ' (£/kVA or £/point)',
-            arithmetic => '=IV1*IV2/IV3',
+            arithmetic => '=IV1*MIN(1,IV2/IV3)',
             arguments =>
               { IV1 => $beforeMatching, IV2 => $target, IV3 => $totalBefore, },
         );
