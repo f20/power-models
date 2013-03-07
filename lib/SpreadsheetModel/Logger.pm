@@ -110,7 +110,8 @@ sub wsWrite {
         my ( $wo, $ro, $co ) = @{ $obj->{$wb} }{qw(worksheet row col)};
         my $ty = $cset ? $cset->objectType : $obj->objectType;
         my $ce = xl_rowcol_to_cell( $ro, $co );
-        my $wn = $wo   ? $wo->get_name   : 'BROKEN LINK';
+        my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
+        $wn =~ s/\000//g;    # squash strange rare bug
         my $na = $cset ? "$cset->{name}" : "$obj->{name}";
         0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
         $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,

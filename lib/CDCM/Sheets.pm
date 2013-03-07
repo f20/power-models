@@ -58,8 +58,8 @@ sub worksheetsAndClosures {
              $model->{targetRevenue}
           && $model->{targetRevenue} =~ /DCP132/i
           && $model->{targetRevenue} !~ /DCP132longlabels/i;
-        $wsheet->set_column( 0, 0,   $t1001width ? 60   : 50 );
-        $wsheet->set_column( 1, 250, $t1001width ? 21.5 : 20 );
+        $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
+        $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
         $wsheet->{nextFree} = 2;
         my $te = Dataset(
             number        => 1000,
@@ -99,6 +99,7 @@ sub worksheetsAndClosures {
     push @wsheetsAndClosures,
       'CDCM Revenues' => sub {
         my ($wsheet) = @_;
+        $wsheet->{sheetNumber} = 10;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 30 );
@@ -577,7 +578,6 @@ EOL
       'CData' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->{sheetNumber} ||= ++$wbook->{lastSheetNumber};
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
