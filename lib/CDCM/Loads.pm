@@ -61,7 +61,7 @@ Reactive power charge p/kVArh
 Reactive power units (MVArh)
 EOL
 
-    # MPANs for all tariffs are brought in in a hacky way
+    # MPANs are included for all tariffs, even if the model does not need them
 
     my %componentVolumeData = map {
         my $component = $_;

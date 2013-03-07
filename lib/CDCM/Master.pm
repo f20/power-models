@@ -434,7 +434,7 @@ EOT
         );
 
         push @{ $model->{volumeData} }, $model->{pcd}{discountFixed} = Stack(
-            name          => 'Discount for each tariff  for fixed charges only',
+            name          => 'Discount for each tariff for fixed charges only',
             defaultFormat => '%copynz',
             rows          => $model->{pcd}{discount}{rows},
             cols          => $model->{pcd}{discount}{cols},
