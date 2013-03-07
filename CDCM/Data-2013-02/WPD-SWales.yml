@@ -17,14 +17,14 @@
     3 Revenue raised outside CDCM please provide description if used: I3
     4 Revenue raised outside CDCM please provide description if used: I4
     Allowed Pass-Through Items: B=B1+B2+B3+B4+B5
-    Base Demand Revenue: "\0A\0 \0=\0 \0A\01\0*\0A\02\0  \x13\0 \0A\03"
+    Base Demand Revenue: A = A1*A2 – A3
     Base Demand Revenue Before Inflation: A1
     Connection Guaranteed Standards Systems Processes penalty: C6
     Correction Factor: D
     Incentive Revenue and Other Adjustments: C=C1+C2+C3+C4+C5+C6+C7
     Incentive Revenue for Distributed Generation: C5
     Innovation Funding Incentive Adjustment: C4
-    Latest Forecast of CDCM Revenue: "\0J\0 \0=\0 \0H\0  \x13\0 \0I"
+    Latest Forecast of CDCM Revenue: J = H – I
     Losses Incentive 1: C1
     Losses Incentive 2: C1
     Losses Incentive 3: C1
@@ -1081,6 +1081,20 @@
     HV LV: 0.531458888704281
     LV circuits: 0.531458888704281
     _column: Black peaking probabilities
+1076:
+  - []
+  -
+    - '"Allowed revenue" (£/year)'
+    - 264078828.299361
+  -
+    - '"Pass-through charges" (£/year)'
+    - 145623.214764193
+  -
+    - Adjustment for previous year's under (over) recovery (£/year)
+    - 6935866.04643492
+  -
+    - Revenue raised outside this model (£/year)
+    - 13702797.4198611
 1092:
   - _table: '1092. Average kVAr by kVA, by network level'
   - Average kVAr by kVA by network level: 0.274897871501282

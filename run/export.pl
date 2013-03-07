@@ -55,8 +55,74 @@ if ( grep { /xlsx/i } @ARGV ) {
 }
 my $options = ( grep { /right/i } @ARGV ) ? { alignment => 'right' } : {};
 
-require Ancillary::DatabaseExport;
+if ( grep { /extract/i } @ARGV ) {
+    require Ancillary::DatabaseExtract;
+    require Extractor::DataLocator;
+    my ( $dataReader, $bookTableIndexHash ) =
+      Ancillary::DatabaseExtract->makeDatabaseReader;
+    foreach ( sort keys %$bookTableIndexHash ) {
+        my $d =
+          $dataReader->( $bookTableIndexHash->{$_}{bid},
+            Extractor->locate1076 );
+        require YAML;
+        YAML::DumpFile(
+            ( (/^(.+?)-20/)[0] || $_ ) . "-1076.yml",
+            {
+                1076 => [
+                    [],
+                    [
+                        '"Allowed revenue" (£/year)',
+                        $d->{cdcm} -
+                          $d->{passthrough} -
+                          $d->{k} -
+                          $d->{noncdcmded}
+                    ],
+                    [ '"Pass-through charges" (£/year)', $d->{passthrough} ],
+                    [
+                        "Adjustment for previous year's"
+                          . ' under (over) recovery (£/year)',
+                        $d->{k}
+                    ],
+                    [
+                        'Revenue raised outside this model (£/year)',
+                        -$d->{noncdcmded}
+                    ]
+                ]
+            }
+        );
+    }
+    exit 0;
+}
 
+if ( grep { /chedam/i } @ARGV ) {
+    require Ancillary::DatabaseExtract;
+    require Ancillary::DotDiagrams;
+    require Chedam::DataLocator;
+    require Chedam::Calculate;
+    require Chedam::ToDot;
+    my ( $dataReader, $bookTableIndexHash ) =
+      Ancillary::DatabaseExtract->makeDatabaseReader;
+    Ancillary::DotDiagrams::writeDotDiagrams(
+        map { $_->calculate->toDot } map {
+            my $filename = $_;
+            map { $dataReader->( $bookTableIndexHash->{$filename}{bid}, $_ ); }
+              exists $bookTableIndexHash->{$filename}{1703}
+              ? (
+                Chedam->locateHidamModelled($filename),
+                Chedam->locateHidamAdjMMD($filename),
+                Chedam->locateHidamActualCap($filename),
+                Chedam->locateHidamActualMD($filename),
+              )
+              : (),
+              exists $bookTableIndexHash->{$filename}{1017}
+              ? ( Chedam->locateDrm($filename), )
+              : (),
+        } sort keys %$bookTableIndexHash
+    );
+    exit 0;
+}
+
+require Ancillary::DatabaseExport;
 my $db = Ancillary::DatabaseExport->new;
 
 if ( grep { /\btscs/i } @ARGV ) {
