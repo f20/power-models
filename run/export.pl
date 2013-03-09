@@ -57,13 +57,13 @@ my $options = ( grep { /right/i } @ARGV ) ? { alignment => 'right' } : {};
 
 if ( grep { /extract/i } @ARGV ) {
     require Ancillary::DatabaseExtract;
-    require Extractor::DataLocator;
+    require Ancillary::DataLocator;
     my ( $dataReader, $bookTableIndexHash ) =
       Ancillary::DatabaseExtract->makeDatabaseReader;
     foreach ( sort keys %$bookTableIndexHash ) {
         my $d =
           $dataReader->( $bookTableIndexHash->{$_}{bid},
-            Extractor->locate1076 );
+            Ancillary::DataLocator->locate1076 );
         require YAML;
         YAML::DumpFile(
             ( (/^(.+?)-20/)[0] || $_ ) . "-1076.yml",

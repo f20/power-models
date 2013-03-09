@@ -9,7 +9,7 @@
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2012 indicative prices.
+      This dataset shows what I think might be a correct implementation of non-UKPN method M.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.144

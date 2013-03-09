@@ -34,10 +34,13 @@ use DBI;
 use Encode 'decode_utf8';
 
 sub new {
-    my $databaseHandle = DBI->connect('dbi:SQLite:dbname=~$database.sqlite')
+    my $databaseHandle = DBI->connect( 'dbi:SQLite:dbname=~$database.sqlite',
+        '', '', { sqlite_unicode => 1, AutoCommit => 0, } )
       or die "Cannot open sqlite database: $!";
     bless \$databaseHandle, shift;
 }
+
+sub DESTROY { ${ $_[0] }->disconnect; }
 
 sub summariesByCompany {
     my ( $self, $workbookModule, $fileExtension, $name, @sheets ) = @_;
