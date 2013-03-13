@@ -639,6 +639,7 @@ sub tscsCreateOutputFiles {
 
         if ( $options->{csv} ) {
             open $csv, '>', "ts$tab.csv";
+            binmode $csv, ':utf8';
         }
 
         $fetch->execute($tab);
