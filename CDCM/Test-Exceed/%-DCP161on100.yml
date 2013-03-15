@@ -1,0 +1,15 @@
+---
+.: Toy model for DCP 161 based on clean model 100
+PerlModule: CDCM
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+tariffs: commongensub
+unauth: day
+version: DCP 161 experiment
