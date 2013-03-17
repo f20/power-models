@@ -49,7 +49,8 @@ sub bgCreate {
 }
 
 sub create {
-    my ( $module, $fileName, @optionArray ) = @_;
+    my ( $module, $fileName, $optionsref ) = @_;
+    my @optionArray = ref $optionsref eq 'ARRAY' ? @$optionsref : $optionsref;
     my @localTime = localtime;
     $module->fixName( $fileName, \@localTime );
     my $tmpDir = '~$tmp-' . $$;
@@ -65,6 +66,12 @@ sub create {
     my @allCoreNames;
     my %allClosures;
     my $forwardLinkFindingRun;
+    my $multiModelSharing;
+
+    if ( $#optionArray > 0 ) {
+        $multiModelSharing = {};
+        $_->{multiModelSharing} = $multiModelSharing foreach @optionArray;
+    }
 
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
@@ -79,15 +86,8 @@ sub create {
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
-        $options->{logger} = new SpreadsheetModel::Logger(
-            name  => 'List of data tables',
-            lines => [
-                'This table lists the data tables '
-                  . '(inputs and calculations) in the model.  '
-                  . 'Each line contains a link is to the first data cell of the table.',
-                '',
-            ]
-        );
+        $options->{logger} =
+          new SpreadsheetModel::Logger( name => 'List of data tables', );
         my @wsheetsAndClosures = $model->worksheetsAndClosures($wbook);
         my @wsheetNames =
           @wsheetsAndClosures[ grep { !( $_ % 2 ) } 0 .. $#wsheetsAndClosures ];
@@ -101,7 +101,8 @@ sub create {
           );
         my %frontSheetHash = map { ( $_ => undef ); } @frontSheets;
         push @allCoreNames, @frontSheets,
-          grep { !exists $frontSheetHash{$_} } @wsheetNames;
+          grep { !exists $frontSheetHash{$_} } @wsheetNames
+          unless $_;
         $allClosures{ $_ . $modelCount } = $closure{$_}
           foreach grep { $closure{$_} } @allCoreNames;
     }
@@ -217,6 +218,9 @@ sub create {
         }
 
     }
+
+    $multiModelSharing->{finish}->()
+      if $multiModelSharing && ref $multiModelSharing->{finish} eq 'CODE';
 
     $wbook->close;
     rename catfile( $tmpDir, $fileName ), $fileName;

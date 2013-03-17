@@ -37,8 +37,10 @@ sub allocationRules {
 
     my ($model) = @_;
 
-    return $model->{optionsColumns}
-      if ref $model->{optionsColumns};
+    if ( $model->{multiModelSharing} ) {
+        return $model->{multiModelSharing}{optionsColumns}
+          if $model->{multiModelSharing}{optionsColumns};
+    }
 
     my $expenditureSet = Labelset( list => [ split /\n/, <<END_OF_LIST] );
 Load related new connections & reinforcement (net of contributions)
@@ -103,7 +105,12 @@ END_OF_LIST
             name  => 'Percentage capitalised',
             lines => 'From sheet Opex Allocation, starting at cell AJ6',
             data  => [
-                qw(1 1 .235 .235 .235 .235 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 0 .577 0 0 0 0 0 0 0 0 0 0)
+                qw(1 1
+                  .235 .235 .235 .235
+                  .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257
+                  0
+                  .577
+                  0 0 0 0 0 0 0 0 0 0)
             ],
             defaultFormat => '%connz',
             rows          => $expenditureSet,
@@ -132,6 +139,9 @@ END_OF_LIST
         columns  => \@c,
         location => 'Options'
     );
+
+    $model->{multiModelSharing}{optionsColumns} = \@c
+      if $model->{multiModelSharing};
 
     \@c;
 

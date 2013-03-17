@@ -161,17 +161,6 @@ sub factory {
         }
     };
 
-    $self->{useSpecialWorkbookCreate} = sub {
-        ( $workbookModule, $fileExtension ) = @_;
-        $fileExtension ||= '.xls';
-        if ( $fileExtension =~ /xlsx/i ) {
-            require SpreadsheetModel::WorkbookXLSX;
-        }
-        else { require SpreadsheetModel::Workbook; }
-        eval "require $workbookModule" or die $@;
-        $self;
-    };
-
     $self->{useXLSX} = sub {
         if ( eval 'require SpreadsheetModel::WorkbookXLSX' ) {
             $workbookModule ||= 'SpreadsheetModel::WorkbookXLSX';
@@ -251,6 +240,7 @@ sub factory {
     };
 
     $self->{listMonsterByRuleset} = sub {
+        return unless @datasets;
         foreach my $rule (@rulesets) {
             my $spreadsheetFile = $rule->{template};
             $spreadsheetFile .= '-' . $rule->{revisionText}
@@ -269,6 +259,7 @@ sub factory {
     };
 
     $self->{listMonsterByDataset} = sub {
+        return unless @rulesets;
         foreach my $data (@datasets) {
             my $spreadsheetFile = $data->{'~datasetName'};
             my $number          = '';

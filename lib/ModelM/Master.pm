@@ -455,18 +455,21 @@ END_OF_LIST
 
     }    # end if DCP095
 
-    push @{ $model->{calcTables} }, my $toDeduct = Arithmetic(
+    push @{ $model->{calcTables} },
+      my $toDeduct = Arithmetic(
         name => 'To be deducted from revenue and treated as "upstream" cost',
-        arithmetic => '=SUMIF(IV1_IV2,"Deduct from revenue",IV3_IV4)',
-        arguments  => { IV1_IV2 => $allocationRules, IV3_IV4 => $expenditure }
-    );
+        defaultFormat => '0soft',
+        arithmetic    => '=SUMIF(IV1_IV2,"Deduct from revenue",IV3_IV4)',
+        arguments => { IV1_IV2 => $allocationRules, IV3_IV4 => $expenditure }
+      );
 
-    push @{ $model->{calcTables} }, my $toDeductDown = Arithmetic(
+    push @{ $model->{calcTables} },
+      my $toDeductDown = Arithmetic(
         name => 'To be deducted from revenue and treated as "downstream" cost',
         arithmetic =>
 '=SUMIF(IV1_IV2,"Deduct from revenue and treat as downstream",IV3_IV4)',
         arguments => { IV1_IV2 => $allocationRules, IV3_IV4 => $expenditure }
-    ) if $model->{deductDownstream};    # not implemented (I think)
+      ) if $model->{deductDownstream};    # not implemented (I think)
 
     my $expensed = Arithmetic(
         name => 'Complete allocation, adjusted for regulatory capitalisation',
@@ -532,7 +535,8 @@ END_OF_LIST
         },
     );
 
-    push @{ $model->{calcTables} }, my $ppu = Arithmetic(
+    push @{ $model->{calcTables} },
+      my $ppu = Arithmetic(
         name       => 'p/kWh split',
         arithmetic => '=((1-IV52)*IV2+IV51*IV1)*IV6/IV7*100',
         arguments  => {
@@ -543,7 +547,7 @@ END_OF_LIST
             IV52 => $propOp,
             IV6  => $revenueToBeAllocated,
         }
-    );
+      );
 
     my $ppuNotSplit = Arithmetic(
         name => 'p/kWh not split',

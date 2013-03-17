@@ -70,11 +70,9 @@ foreach (@ARGV) {
         elsif (/^-+([0-9]+)/is)      { $threads                  = $1; }
         elsif (/^-+comparedata/is) { $list = 'listMonsterByRuleset'; }
         elsif (/^-+comparerule/is) { $list = 'listMonsterByDataset'; }
-        elsif (/^-+monster/is) {
-            $maker->{useSpecialWorkbookCreate}->('ModelM::MonsterBook');
-            $list = 'listMonsterByRuleset';
+        else {
+            warn "Unrecognised option: $_";
         }
-        else { warn "Unrecognised option: $_"; }
     }
     elsif ( -f $_ ) {
         my $dh;
