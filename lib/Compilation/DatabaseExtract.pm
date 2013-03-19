@@ -1,4 +1,4 @@
-﻿package Ancillary::DatabaseExtract;
+﻿package Compilation;
 
 =head Copyright licence and disclaimer
 
@@ -63,6 +63,48 @@ sub makeDatabaseReader {
         $files{$filename} = \%exists;
     }
     $dataReader, \%files;
+}
+
+sub extract1076from1001 {
+    my ( $dataReader, $bookTableIndexHash ) = makeDatabaseReader();
+    foreach ( sort keys %$bookTableIndexHash ) {
+        my $d = $dataReader->(
+            $bookTableIndexHash->{$_}{bid},
+            {
+                base        => [ 1001, 5, 4 ],
+                cdcm        => [ 1001, 5, 39 ],
+                noncdcmded  => [ 1001, 5, 34 ],
+                k           => [ 1001, 5, 24 ],
+                passthrough => [ 1001, 5, 10 ],
+            }
+        );
+        require YAML;
+        YAML::DumpFile(
+            ( (/^(.+?)-20/)[0] || $_ ) . "-1076.yml",
+            {
+                1076 => [
+                    [],
+                    [
+                        '"Allowed revenue" (£/year)',
+                        $d->{cdcm} -
+                          $d->{passthrough} -
+                          $d->{k} -
+                          $d->{noncdcmded}
+                    ],
+                    [ '"Pass-through charges" (£/year)', $d->{passthrough} ],
+                    [
+                        "Adjustment for previous year's"
+                          . ' under (over) recovery (£/year)',
+                        $d->{k}
+                    ],
+                    [
+                        'Revenue raised outside this model (£/year)',
+                        -$d->{noncdcmded}
+                    ]
+                ]
+            }
+        );
+    }
 }
 
 1;

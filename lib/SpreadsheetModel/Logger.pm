@@ -109,7 +109,7 @@ sub wsWrite {
 
         my ( $wo, $ro, $co ) = @{ $obj->{$wb} }{qw(worksheet row col)};
         my $ty = $cset ? $cset->objectType : $obj->objectType;
-        my $ce = xl_rowcol_to_cell( $ro, $co );
+        my $ce = xl_rowcol_to_cell( $ro - 1, $co );
         my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
         $wn =~ s/\000//g;    # squash strange rare bug
         my $na = $cset ? "$cset->{name}" : "$obj->{name}";

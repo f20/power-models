@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -57,8 +57,9 @@ sub requiredModulesForRuleset {
 
     my ( $class, $ruleset ) = @_;
 
-    $ruleset->{inYear}
-      ? qw(CDCM::InYearAdjust CDCM::InYearSummaries)
+    $ruleset->{inYear} ? qw(CDCM::InYearAdjust CDCM::InYearSummaries)
+      : $ruleset->{addVolumes}
+      && $ruleset->{addVolumes} =~ /matching/i ? 'CDCM::InYearAdjust'
       : (),
 
       $ruleset->{targetRevenue} && $ruleset->{targetRevenue} =~ /dcp132/i
@@ -343,23 +344,13 @@ EOT
         $proportionChargeable, $allTariffsByEndUser, $componentMap );
 
     my (
-        $volumeData,  $volumesAdjusted, $volumesByEndUser,
-        $unitsInYear, $unitsByEndUser
-      )
-      = $model->volumes(
-        $allTariffsByEndUser, $allEndUsers, $nonExcludedComponents,
-        $componentMap,        $unitsLossAdjustment
-      );
-
-    my (
-        $volumeDataAfter, $volumesAdjustedAfter, $revenueBefore,
-        $revenuesBefore,  $tariffsBefore,        $unitsInYearAfter
+        $volumeData,           $volumesAdjusted, $volumesByEndUser,
+        $unitsInYear,          $unitsByEndUser,  $volumeDataAfter,
+        $volumesAdjustedAfter, $revenueBefore,   $revenuesBefore,
+        $tariffsBefore,        $unitsInYearAfter,
     );
 
     if ( $model->{pcd} ) {
-
-        pop @{ $model->{inputTables} };
-        pop @{ $model->{volumeData} };
 
         my @combinations;
         my @data;
@@ -433,7 +424,7 @@ EOT
             ]
         );
 
-        push @{ $model->{volumeData} }, $model->{pcd}{discountFixed} = Stack(
+        $model->{pcd}{discountFixed} = Stack(
             name          => 'Discount for each tariff for fixed charges only',
             defaultFormat => '%copynz',
             rows          => $model->{pcd}{discount}{rows},
@@ -452,32 +443,32 @@ EOT
 
         if ( $model->{portfolio} && $model->{portfolio} > 4 ) {
 
-# take from EDCM
-# supplement table 1037 with table 1181, or replace everything with a new table 1038 (in which separate discounts can be shown for demand, generation credits and generation fixed charges, at each level)
+          # Supplement table 1037 with table 1181 or
+          # replace everything with a totally new table 1038
+          # A new table 1038 would show, for each level pair,
+          # separate discounts for demand unit changes, demand standing charges,
+          # generation credits and generation fixed charges.
 
-            die 'Not implemented yet';
+            die 'EDCM discounted LDNO tariffs are not implemented here yet';
 
         }
 
-        ( $model->{pcd}{volumeData} ) = $model->volumes(
-            $model->{pcd}{allTariffsByEndUser}, $allEndUsers,
-            $nonExcludedComponents,             $componentMap
-        );
-
-        pop @{ $model->{volumeData} };
+        ( $model->{pcd}{volumeData} ) =
+          $model->volumes( $model->{pcd}{allTariffsByEndUser},
+            $allEndUsers,
+            $nonExcludedComponents, $componentMap, 'no aggregation' );
 
         if ( $model->{inYear} ) {
-
             if ( $model->{inYear} =~ /after/i ) {
-                $model->inYear_inPcdAdjust_after(
-                    $nonExcludedComponents, $allEndUsers,
-                    $componentMap,          \$revenueBefore,
-                    \$unitsInYearAfter,     \$volumeDataAfter,
-                    \$volumesAdjustedAfter,
+                $model->inYearAdjustUsingAfter(
+                    $nonExcludedComponents, $model->{pcd}{volumeData},
+                    $allEndUsers,           $componentMap,
+                    \$revenueBefore,        \$unitsInYearAfter,
+                    \$volumeDataAfter,      \$volumesAdjustedAfter,
                 );
             }
             else {
-                $model->inYearAdjust(
+                $model->inYearAdjustUsingBefore(
                     $nonExcludedComponents, $model->{pcd}{volumeData},
                     $allEndUsers,           $componentMap,
                     $daysAfter,             $daysBefore,
@@ -487,6 +478,14 @@ EOT
                     \$volumesAdjustedAfter,
                 );
             }
+        }
+        elsif ( $model->{addVolumes} && $model->{addVolumes} =~ /matching/i ) {
+            $model->inYearAdjustUsingAfter(
+                $nonExcludedComponents, $model->{pcd}{volumeData},
+                $allEndUsers,           $componentMap,
+                undef,                  \$unitsInYearAfter,
+                \$volumeDataAfter,      \$volumesAdjustedAfter,
+            );
         }
 
         my %intermediate = map {
@@ -545,15 +544,44 @@ EOT
 
     }
 
-    elsif ( $model->{inYear} ) {
+    else {
 
-        $model->inYearAdjust(
-            $nonExcludedComponents, $volumeData,        $allEndUsers,
-            $componentMap,          $daysAfter,         $daysBefore,
-            $daysInYear,            \$revenueBefore,    \$revenuesBefore,
-            \$tariffsBefore,        \$unitsInYearAfter, \$volumeDataAfter,
-        );
+        (
+            $volumeData,  $volumesAdjusted, $volumesByEndUser,
+            $unitsInYear, $unitsByEndUser
+          )
+          = $model->volumes(
+            $allTariffsByEndUser, $allEndUsers, $nonExcludedComponents,
+            $componentMap,        $unitsLossAdjustment
+          );
+
+        if ( $model->{inYear} ) {
+            if ( $model->{inYear} =~ /after/i ) {
+                $model->inYearAdjustUsingAfter(
+                    $nonExcludedComponents, $volumeData,
+                    $allEndUsers,           $componentMap,
+                    \$revenueBefore,        \$unitsInYearAfter,
+                    \$volumeDataAfter,
+                );
+            }
+            else {
+                $model->inYearAdjustUsingBefore(
+                    $nonExcludedComponents, $volumeData,
+                    $allEndUsers,           $componentMap,
+                    $daysAfter,             $daysBefore,
+                    $daysInYear,            \$revenueBefore,
+                    \$revenuesBefore,       \$tariffsBefore,
+                    \$unitsInYearAfter,     \$volumeDataAfter,
+                );
+            }
+        }
+        elsif ( $model->{addVolumes} && $model->{addVolumes} =~ /matching/i ) {
+            $model->inYearAdjustUsingAfter( $nonExcludedComponents, $volumeData,
+                $allEndUsers, $componentMap,
+                undef, \$unitsInYearAfter, \$volumeDataAfter, );
+        }
         die 'inYearAdjust has created $model->{pcd}' if $model->{pcd};
+
     }
 
     my $unitsTariffsByEndUser = $model->{pcd} ? $unitsEndUsers : Labelset(
@@ -591,6 +619,13 @@ EOT
         name   => 'Generation unit tariffs by end user',
         groups => $generationUnitsEndUsers->{list}
       );
+
+=head DCP 159 development note
+
+From here on, references to $volume... or $units... are probably to
+historical data rather than forecast data, if there is a difference.
+
+=cut
 
     my ( $pseudoLoadCoefficientsAgainstSystemPeak, $pseudoLoadCoefficients );
     if ( $model->{maxUnitRates} && $model->{maxUnitRates} > 1 ) {
@@ -790,6 +825,13 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
     push @{ $model->{preliminaryAggregation} }, Columnset
       name    => 'Summary of charges before revenue matching',
       columns => [ @{$tariffsExMatching}{@$allComponents} ];
+
+=head DCP 159 development note
+
+From here on, references to $volume... or $units... are probably to
+forecast data rather than historical data, if there is a difference.
+
+=cut
 
     my ( $revenueShortfall, $totalRevenuesSoFar, $revenuesSoFar,
         $allowedRevenue, $revenueFromElsewhere, $totalSiteSpecificReplacement, )

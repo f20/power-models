@@ -41,13 +41,17 @@ sub preprocessDataset {
     $d->{1000}[3]{'Company charging year data version'} = $model->{version}
       if $model->{version};
 
-	if ( $model->{unauth} && $model->{unauth} =~ /day/ ) {
-		my $vd = $d->{1053};
-		if ($vd and !$vd->[6]{_column} || $vd->[6]{_column} !~ /exceed/i) {
-			splice @$vd, 6, 0, {map { ($_=>''); } keys %{$vd->[5]}};
-		}
-	}
-	  
+    if ( $model->{unauth} && $model->{unauth} =~ /day/ ) {
+        my $vd = $d->{1053};
+        if ( $vd and !$vd->[6]{_column} || $vd->[6]{_column} !~ /exceed/i ) {
+            splice @$vd, 6, 0, { map { ( $_ => '' ); } keys %{ $vd->[5] } };
+        }
+    }
+
+    if ( $model->{addVolumes} && $model->{addVolumes} =~ /matching/i ) {
+        $d->{1054} ||= $d->{1053};
+    }
+
     if (   $model->{targetRevenue}
         && $model->{targetRevenue} =~ /single/i
         && $d->{1076}[4] )

@@ -1,0 +1,17 @@
+---
+.: DCP 159 built on top of clean post-DCP 132 model
+PerlModule: CDCM
+addVolumes: matching
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130
+timeOfDay: timeOfDaySpecial

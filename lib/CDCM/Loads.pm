@@ -97,6 +97,26 @@ EOL
           )
     } @$nonExcludedComponents;
 
+    Columnset(
+        $model->{addVolumes} && $model->{addVolumes} =~ /matching/i
+        ? ( name => 'Historical volume data' )
+        : (
+            name  => 'Volume forecasts for the charging year',
+            lines => [
+                'Source: forecast.',
+'Please include MPAN counts for tariffs with no fixed charge (e.g. off-peak tariffs),',
+'but exclude MPANs on tariffs with a fixed charge that are not subject to a fixed charge due to a site grouping arrangement.'
+            ]
+        ),
+        number   => 1053,
+        appendTo => $model->{inputTables},
+        dataset  => $model->{dataset},
+        columns  => [ @volumeData{@$nonExcludedComponents} ]
+    );
+
+    return ( \%volumeData )
+      unless ref $unitsAdjustmentFactor || !$unitsAdjustmentFactor;
+
     my %volumesAdjusted;
 
     if ($unitsAdjustmentFactor) {
@@ -175,19 +195,6 @@ EOL
               1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz',
-    );
-
-    Columnset(
-        name  => 'Volume forecasts for the charging year',
-        lines => [
-            'Source: forecast.',
-'Please include MPAN counts for tariffs with no fixed charge (e.g. off-peak tariffs),',
-'but exclude MPANs on tariffs with a fixed charge that are not subject to a fixed charge due to a site grouping arrangement.'
-        ],
-        number   => 1053,
-        appendTo => $model->{inputTables},
-        dataset  => $model->{dataset},
-        columns  => [ @volumeData{@$nonExcludedComponents} ]
     );
 
     push @{ $model->{volumeData} }, Columnset(

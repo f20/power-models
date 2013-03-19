@@ -185,7 +185,7 @@ sub addTableNumber {    # prohibitedTableNumbers is a bad arrangement
           && grep { $_ eq $numlet; } @{ $wb->{prohibitedTableNumbers} };
         ++$wb->{lastSheetNumber} unless $numlet % 100;
         die 'Non-sequential table numbers: '
-          . "trying to assign $numlet to $self->{name}"
+          . "trying to assign $numlet to $self->{name} $self->{debug}"
           . " after $wb->{highestAutoTableNumber} had been assigned."
           if $wb->{highestAutoTableNumber}
           && $numlet < $wb->{highestAutoTableNumber};

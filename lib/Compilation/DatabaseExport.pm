@@ -1,8 +1,8 @@
-﻿package Chedam;
+﻿package Compilation;
 
 =head Copyright licence and disclaimer
 
-Copyright 2013 Franck Latrémolière and others. All rights reserved.
+Copyright 2009-2012 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,19 +31,16 @@ use warnings;
 use strict;
 use utf8;
 
-sub calculate {
-    my ($data) = @_;
-    if ( !exists $data->{MW_BSP} && defined $data->{Div_GSP} ) {
-        $data->{MW_BSP} = ( 1 + $data->{Div_BSP} ) * $data->{SMD_132kV_EHV};
-        $data->{MW_Dis} = ( 1 + $data->{Div_Dis} ) * $data->{SMD_HV_LV};
-        $data->{MW_GSP_132kV} = ( 1 + $data->{Div_GSP} ) * $data->{SMD_132kV};
-        $data->{MW_GSP_EHV}   = 0;
-        $data->{MW_GSP_HV}    = 0;
-        $data->{MW_Pri_132kV} =
-          ( 1 + $data->{Div_BSP} ) * $data->{SMD_132kV_HV};
-        $data->{MW_Pri_EHV} = ( 1 + $data->{Div_Pri} ) * $data->{SMD_EHV_HV};
-    }
-    $data;
+sub new {
+    require DBI;
+    my $databaseHandle = DBI->connect( 'dbi:SQLite:dbname=~$database.sqlite',
+        '', '', { sqlite_unicode => 1, AutoCommit => 0, } )
+      or die "Cannot open sqlite database: $!";
+    bless \$databaseHandle, shift;
+}
+
+sub DESTROY {
+    ${ $_[0] }->disconnect;
 }
 
 1;

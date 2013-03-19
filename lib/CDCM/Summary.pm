@@ -39,7 +39,9 @@ sub summaryOfRevenues {
         $componentMap, $allTariffs, $unitsInYear, )
       = @_;
 
-    if ( $model->{dualvol} ) {
+    # Quick hack (independent of anything else) which puts a
+    # user-editable (unlocked) table of formulas in a calculation sheet.
+    if ( $model->{addVolumes} && $model->{addVolumes} =~ /summar/i ) {
 
         $volumeData = {
             map {
@@ -67,6 +69,7 @@ sub summaryOfRevenues {
             },
             defaultFormat => '0softnz',
         );
+
     }
 
     my ( $revenuesFromTariffs, $revenuesFromUnitRates, $averageUnitRate,

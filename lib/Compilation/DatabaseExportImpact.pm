@@ -1,8 +1,8 @@
-#!/usr/bin/perl
+﻿package Compilation;
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others.
+Copyright 2009-2012 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,36 +30,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use File::Spec::Functions qw(rel2abs catdir);
-use File::Basename 'dirname';
-my $homedir;
 
-BEGIN {
-    $homedir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
-    while (1) {
-        last if -d catdir( $homedir, 'lib', 'SpreadsheetModel' );
-        my $parent = dirname $homedir;
-        last if $parent eq $homedir;
-        $homedir = $parent;
-    }
-}
-use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
+sub dcp130impact {
 
-my $workbookModule = 'SpreadsheetModel::Workbook';
-my $fileExtension  = '.xls';
-require SpreadsheetModel::Workbook;
+    my ( $self, $workbookModule, $fileExtension ) = @_;
+    my $db = $$self;
 
-if ( require SpreadsheetModel::WorkbookXLSX ) {
-    $workbookModule = 'SpreadsheetModel::WorkbookXLSX';
-    $fileExtension .= 'x';
-}
+    my $wb = $workbookModule->new("DCP130 illustrative impact$fileExtension");
 
-my $db = DBI->connect('dbi:SQLite:dbname=~$database.sqlite')
-  or die "Cannot open sqlite database: $!";
-
-summaryTariffImpact(
-    \$db, $workbookModule->new("DCP130 illustrative impact$fileExtension"),
-    [ split /\n/, <<EOL ],
+    my $booksBefore = [ split /\n/, <<EOL ];
 ENW-2012-02-clean100.xlsx
 NP-Northeast-2012-02-clean100.xlsx
 NP-Yorkshire-2012-02-clean100.xlsx
@@ -75,7 +54,8 @@ WPD-SWales-2012-02-clean100.xlsx
 WPD-SWest-2012-02-clean100.xlsx
 WPD-WestM-2012-02-clean100.xlsx
 EOL
-    [ split /\n/, <<EOL ],
+
+    my $booksAfter = [ split /\n/, <<EOL ];
 ENW4-DCP130.xlsx
 NP-Northeast4-DCP130.xlsx
 NP-Yorkshire4-DCP130.xlsx
@@ -91,7 +71,8 @@ WPD-SWales5-DCP130.xlsx
 WPD-SWest5-DCP130.xlsx
 WPD-WestM4-DCP130.xlsx
 EOL
-    [ split /\n/, <<EOL ],
+
+    my $linesAfter = [ split /\n/, <<EOL ];
 Domestic Unrestricted
 Domestic Two Rate
 Domestic Off Peak (related MPAN)
@@ -160,7 +141,8 @@ LDNO HV: LV Sub Generation Non-Intermittent
 LDNO HV: HV Generation Intermittent
 LDNO HV: HV Generation Non-Intermittent
 EOL
-    [ split /\n/, <<EOL ],
+
+    my $linesBefore = [ split /\n/, <<EOL ];
 Domestic Unrestricted
 Domestic Two Rate
 Domestic Off Peak (related MPAN)
@@ -229,7 +211,8 @@ LDNO HV: LV Sub Generation Non-Intermittent
 LDNO HV: HV Generation Intermittent
 LDNO HV: HV Generation Non-Intermittent
 EOL
-    [ split /\n/, <<EOL ],
+
+    my $sheetNames = [ split /\n/, <<EOL ];
 ENW
 NPG Northeast
 NPG Yorkshire
@@ -245,7 +228,9 @@ WPD SWales
 WPD SWest
 WPD WestM
 EOL
-    [ map { "$_: illustrative impact of DCP 130" } split /\n/, <<EOL ],
+
+    my $sheetTitles =
+      [ map { "$_: illustrative impact of DCP 130" } split /\n/, <<EOL ];
 Electricity North West
 Northern Powergrid Northeast
 Northern Powergrid Yorkshire
@@ -261,12 +246,6 @@ WPD South Wales
 WPD South West
 WPD West Midlands
 EOL
-);
-
-sub summaryTariffImpact {
-    my ( $self, $wb, $booksBefore, $booksAfter,
-        $linesAfter, $linesBefore, $sheetNames, $sheetTitles, )
-      = @_;
 
     $wb->setFormats( { alignment => 1 } );
     my $titleFormat = $wb->getFormat('notes');
@@ -350,9 +329,6 @@ EOL
                 $q->execute( $bida, $rowa, $k );
                 my ($va) = $q->fetchrow_array;
 
-                #    $va ||= 0;
-                #    $vb ||= 0;
-
                 $ws->write( 4 + $j, $k - 2, $vb, $format1[ $k - 3 ] );
                 $ws->write( 4 + $j, $k + 4, $va, $format1[ $k - 3 ] );
 
@@ -386,3 +362,5 @@ EOL
     }
 
 }
+
+1;

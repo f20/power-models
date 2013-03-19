@@ -42,7 +42,7 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
-sub inYearAdjust {
+sub inYearAdjustUsingBefore {
 
     my (
         $model,           $nonExcludedComponents, $volumeData,
@@ -654,17 +654,18 @@ sub inYearAdjust {
 
 }
 
-sub inYear_inPcdAdjust_after {
+sub inYearAdjustUsingAfter {
 
-    my ( $model, $nonExcludedComponents, $allEndUsers, $componentMap,
-        $revenueBefore, $unitsInYearAfter, $volumeDataAfter,
-        $volumesAdjustedAfter, )
-      = @_;
+    my (
+        $model,            $nonExcludedComponents, $volumeData,
+        $allEndUsers,      $componentMap,          $revenueBefore,
+        $unitsInYearAfter, $volumeDataAfter,       $volumesAdjustedAfter,
+    ) = @_;
 
     $$volumeDataAfter = {
         map {
             $_ => Dataset(
-                name       => $model->{pcd}{volumeData}{$_}{name},
+                name       => $volumeData->{$_}{name},
                 validation => {
                     validate      => 'decimal',
                     criteria      => '>=',
@@ -672,19 +673,17 @@ sub inYear_inPcdAdjust_after {
                     error_title   => 'Volume data error',
                     error_message => 'The volume must be a non-negative number.'
                 },
-                defaultFormat => $model->{pcd}{volumeData}{$_}{defaultFormat},
-                rows          => $model->{pcd}{allTariffsByEndUser},
+                defaultFormat => $volumeData->{$_}{defaultFormat},
+                rows          => $volumeData->{$_}{rows},
                 data          => [
-                    map { defined $_ ? 0 : undef }
-                      @{ $model->{pcd}{volumeData}{$_}{data} }
+                    map { defined $_ ? 0 : undef } @{ $volumeData->{$_}{data} }
                 ],
               )
         } @$nonExcludedComponents
     };
 
     Columnset(
-        name =>
-'Volume forecasts for the part of the charging year after the tariff change (if any)',
+        name     => 'Volumes to which the new tariffs would apply',
         number   => 1054,
         appendTo => $model->{inputTables},
         dataset  => $model->{dataset},
@@ -699,7 +698,7 @@ sub inYear_inPcdAdjust_after {
         number        => 1079,
         appendTo      => $model->{inputTables},
         dataset       => $model->{dataset},
-    );
+    ) if $revenueBefore;
 
     push @{ $model->{volumeData} }, $$unitsInYearAfter = Arithmetic(
         noCopy        => 1,
@@ -714,50 +713,47 @@ sub inYear_inPcdAdjust_after {
         defaultFormat => '0softnz'
     );
 
-    my %intermediateAfter = map {
-        $_ => Arithmetic(
-            name => SpreadsheetModel::Object::_shortName(
-                $$volumeDataAfter->{$_}{name}
-            ),
-            arithmetic => '=IV1*(1-IV2)',
-            arguments  => {
-                IV1 => $$volumeDataAfter->{$_},
-                IV2 => /fix/i
-                ? $model->{pcd}{discountFixed}
-                : $model->{pcd}{discount}
-            }
-        );
-    } @$nonExcludedComponents;
-
-    Columnset(
-        name    => 'Volumes in period to which new tariffs apply',
-        columns => [ @{$$volumeDataAfter}{@$nonExcludedComponents} ]
-    );
-
-    Columnset(
-        name =>
-'Volumes in period to which new tariffs apply, adjusted for IDNO discounts',
-        columns => [ @intermediateAfter{@$nonExcludedComponents} ]
-    );
-
-    $$volumesAdjustedAfter = {
-        map {
-            $_ => GroupBy(
+    if ( $model->{pcd} ) {
+        my %intermediateAfter = map {
+            $_ => Arithmetic(
                 name => SpreadsheetModel::Object::_shortName(
-                    $intermediateAfter{$_}{name}
+                    $$volumeDataAfter->{$_}{name}
                 ),
-                rows   => $allEndUsers,
-                source => $intermediateAfter{$_}
+                arithmetic => '=IV1*(1-IV2)',
+                arguments  => {
+                    IV1 => $$volumeDataAfter->{$_},
+                    IV2 => /fix/i
+                    ? $model->{pcd}{discountFixed}
+                    : $model->{pcd}{discount}
+                }
             );
-        } @$nonExcludedComponents
-    };
+        } @$nonExcludedComponents;
 
-    push @{ $model->{volumeData} },
-      Columnset(
-        name =>
+        Columnset(
+            name =>
+'Volumes in period to which new tariffs apply, adjusted for IDNO discounts',
+            columns => [ @intermediateAfter{@$nonExcludedComponents} ]
+        );
+
+        $$volumesAdjustedAfter = {
+            map {
+                $_ => GroupBy(
+                    name => SpreadsheetModel::Object::_shortName(
+                        $intermediateAfter{$_}{name}
+                    ),
+                    rows   => $allEndUsers,
+                    source => $intermediateAfter{$_}
+                );
+            } @$nonExcludedComponents
+        };
+
+        push @{ $model->{volumeData} },
+          Columnset(
+            name =>
 'Equivalent volume for each end user, in period to which new tariffs are to apply',
-        columns => [ @{$$volumesAdjustedAfter}{@$nonExcludedComponents} ]
-      );
+            columns => [ @{$$volumesAdjustedAfter}{@$nonExcludedComponents} ]
+          );
+    }
 
 }
 
