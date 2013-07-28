@@ -31,40 +31,20 @@ use warnings;
 use strict;
 use utf8;
 
-
 sub tscsCreateIntermediateTables {
     my ($self) = @_;
     $$self->do('begin immediate transaction') or die $!;
     $$self->do(
 'create temporary table models ( bid int, model char, company char, period char, com integer, per integer)'
     );
-    my $findCo = $$self->prepare('select bid, filename from books');
     my $addCo =
       $$self->prepare(
         'insert into models (bid, model, company, period) values (?, ?, ?, ?)'
       );
-    $findCo->execute;
-    my @models;
+    $addCo->execute( $_->[0], $_->[1], $_->[3], join ' ',
+        grep { $_ } @{$_}[ 4, 5 ] )
+      foreach $self->listModels;
 
-    while ( my ( $bid, $co ) = $findCo->fetchrow_array ) {
-        next unless $co =~ s/\.xlsx?$//is;
-        local $_ = $co;
-        s/^M-//;
-        s/CE-NEDL/NP-Northeast/;
-        s/CE-YEDL/NP-Yorkshire/;
-        s/CN-East/WPD-EastM/;
-        s/CN-West/WPD-WestM/;
-        s/EDFEN/UKPN/;
-        s/NPG-/NP-/;
-        s/SP-/SPEN-/;
-        s/SSE-/SSEPD-/;
-        s/WPD-Wales/WPD-SWales/;
-        s/WPD-West\b/WPD-SWest/;
-        push @models, [ $bid, $co, $_ ];
-    }
-    $addCo->execute( $_->[0], $_->[1],
-        map { local $_ = $_; tr/-/ /; $_; } ( $_->[2] =~ m#^(.*?)-([0-9-]+)# ) )
-      foreach sort { $a->[2] cmp $b->[2]; } @models;
     $$self->do($_) foreach grep { $_ } split /;\n*/, <<EOSQL;
 drop table if exists companies;
 create table companies (com integer primary key, c char);

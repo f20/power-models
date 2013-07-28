@@ -14,7 +14,7 @@ in a YAML format designed for use with the Perl code above.
 To see this code in action, go to http://dcmf.co.uk/models/.
 
 To create models on your own computer using this code, clone this
-repository, check that you have a reasonably model version of Perl 5
+repository, check that you have a reasonably modern version of Perl 5
 installed (5.8.8 or high should be fine), change to the root of the
 repository, and try the following sample commands:
 

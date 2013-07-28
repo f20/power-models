@@ -50,7 +50,7 @@ LV domestic unrestricted:
   - Name: Domestic Unrestricted
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
-  - Included: special|common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt3|Opt4|Opt5|Opt6|portfolio|T9|toy
+  - Included: special|common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt3|Opt4|Opt5|Opt6|portfolio|T9|toy|dcp161toy|simple
 ---
 LV domestic two rates:
   - PC2
@@ -58,7 +58,7 @@ LV domestic two rates:
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Unit rate 2 p/kWh
-  - Included: common|CE|CN|EDF|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt4|Opt5|Opt6|portfolio|T9
+  - Included: common|CE|CN|EDF|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt4|Opt5|Opt6|portfolio|T9|simple
 ---
 LV related MPAN domestic off peak:
   - PC2
@@ -72,7 +72,7 @@ LV non-domestic small unrestricted:
   - Name: Small Non Domestic Unrestricted
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
-  - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|Opt1|Opt3|Opt4|Opt5|Opt6|portfolio
+  - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|Opt1|Opt3|Opt4|Opt5|Opt6|portfolio|dcp161toy|simple
 ---
 LV non-domestic small two rates:
   - PC4
@@ -80,7 +80,7 @@ LV non-domestic small two rates:
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Unit rate 2 p/kWh
-  - Included: common|CE|EDF|SPEN|SSE|WPD|Opt1|Opt4|Opt5|Opt6|portfolio
+  - Included: common|CE|EDF|SPEN|SSE|WPD|Opt1|Opt4|Opt5|Opt6|portfolio|simple
 ---
 LV related MPAN non-domestic off peak:
   - PC4
@@ -95,7 +95,7 @@ LV non-domestic profiles 5-8 two rates:
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Unit rate 2 p/kWh
-  - Included: special|common|CE|CN|SPEN|WPD|WS2|test|t4|Opt1|Opt4|Opt5|Opt6|portfolio
+  - Included: special|common|CE|CN|SPEN|WPD|WS2|test|t4|Opt1|Opt4|Opt5|Opt6|portfolio|simple
 ---
 LV non-domestic profiles 5-8 two rates whole current meter:
   - PC5-8
@@ -150,7 +150,7 @@ LV half hourly:
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: special|common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|boundary|portfolio
+  - Included: special|common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|boundary|portfolio|dcp161toy|simple
 ---
 LV substation half hourly:
   - PC0
@@ -159,7 +159,7 @@ LV substation half hourly:
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: common|EDF|WS2|WS3|Opt2|Opt3|Opt4|portfolio
+  - Included: common|EDF|WS2|WS3|Opt2|Opt3|Opt4|portfolio|simple
 ---
 HV half hourly:
   - PC0
@@ -168,7 +168,7 @@ HV half hourly:
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|T9
+  - Included: common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|T9|dcp161toy|simple
 ---
 HV substation half hourly:
   - PC0
@@ -177,7 +177,7 @@ HV substation half hourly:
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: common|WS2|WS3|Opt2|Opt3|Opt4|portfolio
+  - Included: common|WS2|WS3|Opt2|Opt3|Opt4|portfolio|simple
   - Excluded: dcp163
 ---
 HV substation (132kV) half hourly:
@@ -205,13 +205,20 @@ HV substation (132kV EDCM) half hourly:
   - Reactive power charge p/kVArh
   - Included: edcm
 ---
-33kV half hourly:
+33kV half hourly EDCM:
   - Name: Demand Category 1110
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: WS2|Opt2|Opt3|Opt4|edcm
+  - Included: edcm
+---
+33kV half hourly:
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: WS2|Opt2|Opt3|Opt4|simple
 ---
 33kV non-domestic half hourly single rate:
   - Fixed charge p/MPAN/day
@@ -244,13 +251,20 @@ HV substation (132kV EDCM) half hourly:
   - Reactive power charge p/kVArh
   - Included: ehv2
 ---
-132kV half hourly:
+132kV half hourly EDCM:
   - Name: Demand Category 1000
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: WS2|test|t4|Opt2|Opt3|Opt4|edcm
+  - Included: edcm
+---
+132kV half hourly:
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: WS2|test|t4|Opt2|Opt3|Opt4
 ---
 132kV non-domestic half hourly two rates:
   - Fixed charge p/MPAN/day
@@ -284,8 +298,9 @@ GSP non-domestic half hourly two rates:
   - Included: ehv2
 ---
 LV unmetered category A:
+  - Name: Unmetered Continuous
   - Unit rate 1 p/kWh
-  - Included: portfolio|tums
+  - Included: portfolio|tums|simple
 ---
 LV unmetered category A:
   - PC8
@@ -295,8 +310,9 @@ LV unmetered category A:
   - Included: portfolio|tums|dcp130
 ---
 LV unmetered category B:
+  - Name: Unmetered Dusk to Dawn
   - Unit rate 1 p/kWh
-  - Included: portfolio|tums
+  - Included: portfolio|tums|simple
 ---
 LV unmetered category B:
   - PC1
@@ -412,7 +428,7 @@ LV generation half hourly:
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|boundary
+  - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|boundary|simplegen
 ---
 LV generation (GDP) half hourly:
   - PC0
@@ -532,7 +548,7 @@ HV generation half hourly:
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: common|WS2|WS3|Opt6|portfolio
+  - Included: common|WS2|WS3|Opt6|portfolio|simplegen
 ---
 HV generation half hourly (67% credit):
   - PC0
@@ -737,6 +753,12 @@ GSP generation half hourly single rate:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: gensub132gendom|portfolio
+---
+33kV generation half hourly:
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: simplegen
 ---
 33kV substation generation (GDT) half hourly single rate:
   - Fixed charge p/MPAN/day

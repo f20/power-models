@@ -36,8 +36,7 @@ sub runFromDatabase {
     require Ancillary::DotDiagrams;
     require Chedam::DataLocator;
     require Chedam::ToDot;
-    my ( $dataReader, $bookTableIndexHash ) =
-      Compilation::DatabaseExtract->makeDatabaseReader;
+    my ( $dataReader, $bookTableIndexHash ) = Compilation->makeDatabaseReader;
     Ancillary::DotDiagrams::writeDotDiagrams(
         map { $_->calculate->toDot } map {
             my $filename = $_;

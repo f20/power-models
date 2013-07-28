@@ -45,7 +45,7 @@ sub table1001 {
     my @labels = (
         'Base Demand Revenue Before Inflation (A1)',
         'RPI Indexation Factor (A2)',
-        'Merger Adjustmnent (A3)',
+        'Merger Adjustment (A3)',
         'Base Demand Revenue (A)' . "\r" . '[A = A1*A2 – A3]',
         'Pass-Through Business Rates (B1)',
         'Pass-Through Licence Fees (B2)',

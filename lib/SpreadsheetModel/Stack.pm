@@ -258,6 +258,10 @@ sub populateCore {
       foreach grep { exists $self->{$_}; } qw(data);
 }
 
+sub dataset {
+    return;
+}
+
 sub check {
     $_[0]{defaultFormat} ||= '0.000con';
     return "No data in constant $_[0]{name}" unless 'ARRAY' eq ref $_[0]{data};

@@ -128,8 +128,10 @@ sub standingCharges {
         name       => 'Exceeded capacity charge elements p/kVA/day',
         rows       => $demandTariffsByEndUser,
         cols       => $chargingDrmExitLevels,
-        arithmetic => '=100*IV5*IV1*IV2*IV3/IV4',
-        arguments  => {
+        arithmetic => $model->{unauth} =~ /same/i
+        ? '=100*IV5*IV1*IV2*IV3/IV4*(1-IV6)'
+        : '=100*IV5*IV1*IV2*IV3/IV4',
+        arguments => {
             IV1 => $lineLossFactors,
             IV6 => $proportionCoveredByContributions,
             IV2 => $costToAml,

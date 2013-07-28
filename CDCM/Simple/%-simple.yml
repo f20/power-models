@@ -1,0 +1,13 @@
+---
+.: 'Simple tariffs and simple scaling down'
+PerlModule: CDCM
+drm: top500gsp
+ehv: 1
+extraLevels: 0
+matrices: big
+noLLFCs: 1
+noReplacement: 0.453
+scaler: pickallnogencapped
+standing: sub132
+summary: 1
+tariffs: simple

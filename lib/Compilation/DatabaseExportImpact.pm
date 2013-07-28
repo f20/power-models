@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Reckon LLP and others.
+Copyright 2009-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,48 +31,57 @@ use warnings;
 use strict;
 use utf8;
 
-sub dcp130impact {
+sub cdcmTariffImpact {
 
-    my ( $self, $workbookModule, $fileExtension ) = @_;
+    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
     my $db = $$self;
 
-    my $wb = $workbookModule->new("DCP130 illustrative impact$fileExtension");
+    $options{dcpName} ||= 'DCP';
 
-    my $booksBefore = [ split /\n/, <<EOL ];
-ENW-2012-02-clean100.xlsx
-NP-Northeast-2012-02-clean100.xlsx
-NP-Yorkshire-2012-02-clean100.xlsx
-SPEN-SPD-2012-02-clean100.xlsx
-SPEN-SPM-2012-02-clean100.xlsx
-SSEPD-SEPD-2012-02-clean100.xlsx
-SSEPD-SHEPD-2012-02-clean100.xlsx
-UKPN-EPN-2012-02-clean100.xlsx
-UKPN-LPN-2012-02-clean100.xlsx
-UKPN-SPN-2012-02-clean100.xlsx
-WPD-EastM-2012-02-clean100.xlsx
-WPD-SWales-2012-02-clean100.xlsx
-WPD-SWest-2012-02-clean100.xlsx
-WPD-WestM-2012-02-clean100.xlsx
+    my $wb = $wbmodule->new("Tariff impact $options{dcpName}$fileExtension");
+    $wb->setFormats( { colour => 'orange', alignment => 1 } );
+
+    $options{basematch} ||= sub { $_[0] !~ /DCP/i };
+    $options{dcpmatch} ||= sub { $_[0] =~ /DCP/i };
+
+    my $sheetNames = $options{sheetNames} || [ split /\n/, <<EOL ];
+ENWL
+NPG Northeast
+NPG Yorkshire
+SPEN SPD
+SPEN SPM
+SSEPD SEPD
+SSEPD SHEPD
+UKPN EPN
+UKPN LPN
+UKPN SPN
+WPD EastM
+WPD SWales
+WPD SWest
+WPD WestM
 EOL
 
-    my $booksAfter = [ split /\n/, <<EOL ];
-ENW4-DCP130.xlsx
-NP-Northeast4-DCP130.xlsx
-NP-Yorkshire4-DCP130.xlsx
-SPEN-SPD4-DCP130.xlsx
-SPEN-SPM4-DCP130.xlsx
-SSEPD-SEPD4-DCP130.xlsx
-SSEPD-SHEPD5-DCP130.xlsx
-UKPN-EPN4-DCP130.xlsx
-UKPN-LPN5-DCP130.xlsx
-UKPN-SPN4-DCP130.xlsx
-WPD-EastM4-DCP130.xlsx
-WPD-SWales5-DCP130.xlsx
-WPD-SWest5-DCP130.xlsx
-WPD-WestM4-DCP130.xlsx
+    my $sheetTitles = $options{sheetTitles}
+      || [
+        map { "$_: illustrative impact of $options{dcpName}" } split /\n/,
+        <<EOL ];
+Electricity North West
+Northern Powergrid Northeast
+Northern Powergrid Yorkshire
+SP Distribution
+SP Manweb
+SEPD
+SHEPD
+Eastern Power Networks
+London Power Networks
+South Eastern Power Networks
+WPD East Midlands
+WPD South Wales
+WPD South West
+WPD West Midlands
 EOL
 
-    my $linesAfter = [ split /\n/, <<EOL ];
+    my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
 Domestic Unrestricted
 Domestic Two Rate
 Domestic Off Peak (related MPAN)
@@ -103,10 +112,10 @@ HV Sub Generation Intermittent
 HV Sub Generation Non-Intermittent
 LDNO LV: Domestic Unrestricted
 LDNO LV: Domestic Two Rate
-LDNO LV: Domestic Off Peak
+LDNO LV: Domestic Off Peak (related MPAN)
 LDNO LV: Small Non Domestic Unrestricted
 LDNO LV: Small Non Domestic Two Rate
-LDNO LV: Small Non Domestic Off Peak
+LDNO LV: Small Non Domestic Off Peak (related MPAN)
 LDNO LV: LV Medium Non-Domestic
 LDNO LV: LV HH Metered
 LDNO LV: NHH UMS category A
@@ -119,10 +128,10 @@ LDNO LV: LV Generation Intermittent
 LDNO LV: LV Generation Non-Intermittent
 LDNO HV: Domestic Unrestricted
 LDNO HV: Domestic Two Rate
-LDNO HV: Domestic Off Peak
+LDNO HV: Domestic Off Peak (related MPAN)
 LDNO HV: Small Non Domestic Unrestricted
 LDNO HV: Small Non Domestic Two Rate
-LDNO HV: Small Non Domestic Off Peak 
+LDNO HV: Small Non Domestic Off Peak (related MPAN)
 LDNO HV: LV Medium Non-Domestic
 LDNO HV: LV HH Metered
 LDNO HV: LV Sub HH Metered
@@ -142,112 +151,8 @@ LDNO HV: HV Generation Intermittent
 LDNO HV: HV Generation Non-Intermittent
 EOL
 
-    my $linesBefore = [ split /\n/, <<EOL ];
-Domestic Unrestricted
-Domestic Two Rate
-Domestic Off Peak (related MPAN)
-Small Non Domestic Unrestricted
-Small Non Domestic Two Rate
-Small Non Domestic Off Peak (related MPAN)
-LV Medium Non-Domestic
-LV Sub Medium Non-Domestic
-HV Medium Non-Domestic
-LV HH Metered
-LV Sub HH Metered
-HV HH Metered
-HV Sub HH Metered
-NHH UMS
-NHH UMS
-NHH UMS
-NHH UMS
-LV UMS (Pseudo HH Metered)
-LV Generation NHH
-LV Sub Generation NHH
-LV Generation Intermittent
-LV Generation Non-Intermittent
-LV Sub Generation Intermittent
-LV Sub Generation Non-Intermittent
-HV Generation Intermittent
-HV Generation Non-Intermittent
-HV Sub Generation Intermittent
-HV Sub Generation Non-Intermittent
-LDNO LV: Domestic Unrestricted
-LDNO LV: Domestic Two Rate
-LDNO LV: Domestic Off Peak
-LDNO LV: Small Non Domestic Unrestricted
-LDNO LV: Small Non Domestic Two Rate
-LDNO LV: Small Non Domestic Off Peak
-LDNO LV: LV Medium Non-Domestic
-LDNO LV: LV HH Metered
-LDNO LV: NHH UMS
-LDNO LV: NHH UMS
-LDNO LV: NHH UMS
-LDNO LV: NHH UMS
-LDNO LV: LV UMS (Pseudo HH Metered)
-LDNO LV: LV Generation NHH
-LDNO LV: LV Generation Intermittent
-LDNO LV: LV Generation Non-Intermittent
-LDNO HV: Domestic Unrestricted
-LDNO HV: Domestic Two Rate
-LDNO HV: Domestic Off Peak
-LDNO HV: Small Non Domestic Unrestricted
-LDNO HV: Small Non Domestic Two Rate
-LDNO HV: Small Non Domestic Off Peak 
-LDNO HV: LV Medium Non-Domestic
-LDNO HV: LV HH Metered
-LDNO HV: LV Sub HH Metered
-LDNO HV: HV HH Metered
-LDNO HV: NHH UMS
-LDNO HV: NHH UMS
-LDNO HV: NHH UMS
-LDNO HV: NHH UMS
-LDNO HV: LV UMS (Pseudo HH Metered)
-LDNO HV: LV Generation NHH
-LDNO HV: LV Sub Generation NHH
-LDNO HV: LV Generation Intermittent
-LDNO HV: LV Generation Non-Intermittent
-LDNO HV: LV Sub Generation Intermittent
-LDNO HV: LV Sub Generation Non-Intermittent
-LDNO HV: HV Generation Intermittent
-LDNO HV: HV Generation Non-Intermittent
-EOL
+    my $linesBefore = $options{linesBefore} || $linesAfter;
 
-    my $sheetNames = [ split /\n/, <<EOL ];
-ENW
-NPG Northeast
-NPG Yorkshire
-SPEN SPD
-SPEN SPM
-SSEPD SEPD
-SSEPD SHEPD
-UKPN EPN
-UKPN LPN
-UKPN SPN
-WPD EastM
-WPD SWales
-WPD SWest
-WPD WestM
-EOL
-
-    my $sheetTitles =
-      [ map { "$_: illustrative impact of DCP 130" } split /\n/, <<EOL ];
-Electricity North West
-Northern Powergrid Northeast
-Northern Powergrid Yorkshire
-SP Distribution
-SP Manweb
-SEPD
-SHEPD
-Eastern Power Networks
-London Power Networks
-South Eastern Power Networks
-WPD East Midlands
-WPD South Wales
-WPD South West
-WPD West Midlands
-EOL
-
-    $wb->setFormats( { alignment => 1 } );
     my $titleFormat = $wb->getFormat('notes');
     my $thFormat    = $wb->getFormat('th');
     my $thcFormat   = $wb->getFormat('thc');
@@ -273,24 +178,31 @@ EOL
       map { $wb->getFormat($_); } qw(%softpm %softpm %softpm %softpm %softpm),
       [ base => '%softpm', right => 5, right_color => 8 ];
 
-    for ( my $i = 0 ; $i < @$booksBefore ; ++$i ) {
-        my $q = $db->prepare('select bid from books where filename=?');
-        $q->execute( $booksBefore->[$i] );
-        die unless my ($bidb) = $q->fetchrow_array;
-        $q->execute( $booksAfter->[$i] );
-        die unless my ($bida) = $q->fetchrow_array;
+    my @books = $self->listModels;
+
+    foreach my $i ( 0 .. $#$sheetNames ) {
+        my $qr = $sheetNames->[$i];
+        $qr =~ tr/ /-/;
+        my ($bidb) =
+          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+        next unless $bidb;
+        $bidb = $bidb->[0];
+        my ($bida) =
+          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+        next unless $bida;
+        $bida = $bida->[0];
         my $findRow = $db->prepare(
             'select row from data where bid=? and tab=3701 and col=0 and v=?');
-        $q = $db->prepare(
+        my $q = $db->prepare(
             'select v from data where bid=? and tab=3701 and row=? and col=?');
         my $ws = $wb->add_worksheet( $sheetNames->[$i] );
-        $ws->set_column( 0, 0,   35 );
+        $ws->set_column( 0, 0,   48 );
         $ws->set_column( 1, 254, 10 );
         $ws->hide_gridlines(2);
         $ws->freeze_panes( 4, 1 );
         $ws->write_string( 0, 0, $sheetTitles->[$i], $titleFormat );
 
-        $ws->write_string( 2, 1,  'Current prices',      $thcaFormat );
+        $ws->write_string( 2, 1,  'Baseline prices',     $thcaFormat );
         $ws->write_string( 2, 7,  'Prices on new basis', $thcaFormat );
         $ws->write_string( 2, 13, 'Price change',        $thcaFormat );
         $ws->write_string( 2, 19, 'Percentage change',   $thcaFormat );
@@ -357,6 +269,199 @@ EOL
                         IV3 => $new,
                     );
                 }
+            }
+        }
+    }
+
+}
+
+sub cdcmRevenueMatrixImpact {
+
+    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my $db = $$self;
+
+    $options{dcpName} ||= 'DCP';
+
+    my $wb =
+      $wbmodule->new("Revenue matrix impact $options{dcpName}$fileExtension");
+    $wb->setFormats( { colour => 'orange' } );
+
+    $options{basematch} ||= sub { $_[0] !~ /DCP/i };
+    $options{dcpmatch} ||= sub { $_[0] =~ /DCP/i };
+
+    my $sheetNames = $options{sheetNames} || [ split /\n/, <<EOL ];
+ENWL
+NPG Northeast
+NPG Yorkshire
+SPEN SPD
+SPEN SPM
+SSEPD SEPD
+SSEPD SHEPD
+UKPN EPN
+UKPN LPN
+UKPN SPN
+WPD EastM
+WPD SWales
+WPD SWest
+WPD WestM
+EOL
+
+    my $sheetTitles = $options{sheetTitles}
+      || [
+        map { "$_: illustrative impact of $options{dcpName}" } split /\n/,
+        <<EOL ];
+Electricity North West
+Northern Powergrid Northeast
+Northern Powergrid Yorkshire
+SP Distribution
+SP Manweb
+SEPD
+SHEPD
+Eastern Power Networks
+London Power Networks
+South Eastern Power Networks
+WPD East Midlands
+WPD South Wales
+WPD South West
+WPD West Midlands
+EOL
+
+    my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
+Domestic Unrestricted
+Domestic Two Rate
+Domestic Off Peak (related MPAN)
+Small Non Domestic Unrestricted
+Small Non Domestic Two Rate
+Small Non Domestic Off Peak (related MPAN)
+LV Medium Non-Domestic
+LV Sub Medium Non-Domestic
+HV Medium Non-Domestic
+LV HH Metered
+LV Sub HH Metered
+HV HH Metered
+HV Sub HH Metered
+NHH UMS category A
+NHH UMS category B
+NHH UMS category C
+NHH UMS category D
+LV UMS (Pseudo HH Metered)
+LV Generation NHH
+LV Sub Generation NHH
+LV Generation Intermittent
+LV Generation Non-Intermittent
+LV Sub Generation Intermittent
+LV Sub Generation Non-Intermittent
+HV Generation Intermittent
+HV Generation Non-Intermittent
+HV Sub Generation Intermittent
+HV Sub Generation Non-Intermittent
+EOL
+
+    my $linesBefore = $options{linesBefore} || $linesAfter;
+
+    my $titleFormat = $wb->getFormat('notes');
+    my $thFormat    = $wb->getFormat('th');
+    my $thcFormat   = $wb->getFormat('thc');
+    my $thcFormatB =
+      $wb->getFormat( [ base => 'thc', right => 5, right_color => 8 ] );
+    my $thcaFormat = $wb->getFormat(
+        [
+            base        => 'caption',
+            align       => 'center_across',
+            right       => 5,
+            right_color => 8
+        ]
+    );
+    my @format1 =
+      map { $wb->getFormat($_); } ( map { '0copy' } 1 .. 23 ),
+      [ base => '0copy', right => 5, right_color => 8 ];
+    my @format2 =
+      map { $wb->getFormat($_); } ( map { '0softpm' } 1 .. 23 ),
+      [ base => '0softpm', right => 5, right_color => 8 ];
+    my @format3 =
+      map { $wb->getFormat($_); } ( map { '%softpm' } 1 .. 23 ),
+      [ base => '%softpm', right => 5, right_color => 8 ];
+
+    my @books = $self->listModels;
+
+    foreach my $i ( 0 .. $#$sheetNames ) {
+        my $qr = $sheetNames->[$i];
+        $qr =~ tr/ /-/;
+        my ($bidb) =
+          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+        next unless $bidb;
+        $bidb = $bidb->[0];
+        my ($bida) =
+          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+        next unless $bida;
+        $bida = $bida->[0];
+        my $findRow = $db->prepare(
+            'select row from data where bid=? and tab=3901 and col=0 and v=?');
+        my $q = $db->prepare(
+            'select v from data where bid=? and tab=3901 and row=? and col=?');
+        my $ws = $wb->add_worksheet( $sheetNames->[$i] );
+        $ws->set_column( 0, 0,   44 );
+        $ws->set_column( 1, 254, 14 );
+        $ws->hide_gridlines(2);
+        $ws->freeze_panes( 1, 1 );
+        $ws->write_string( 0, 0, $sheetTitles->[$i], $titleFormat );
+
+        $ws->write_string( 2, 1, 'Baseline revenue matrix (£/period)',
+            $thcaFormat );
+        $ws->write_string( 2, 25, 'Revenue matrix on new basis (£/period)',
+            $thcaFormat );
+        $ws->write_string( 2, 49, 'Change (£/period)', $thcaFormat );
+        $ws->write_string( 2, 73, 'Percentage change', $thcaFormat );
+
+        my $diff = $ws->store_formula('=IV2-IV1');
+        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,"")');
+
+        $ws->write( 2, $_, undef, $thcaFormat )
+          foreach 2 .. 24, 26 .. 48, 50 .. 72, 74 .. 96;
+
+        my @list = map { $_->[0] } @{
+            $db->selectall_arrayref(
+'select v from data where bid=? and tab=3901 and row=0 and col>0 and col<25 order by col',
+                undef, $bidb
+            )
+        };
+
+        for ( my $j = 1 ; $j < 80 ; $j += 24 ) {
+            for ( my $k = 0 ; $k < @list ; ++$k ) {
+                $ws->write_string( 3, $j + $k, $list[$k],
+                    $k == $#list ? $thcFormatB : $thcFormat );
+            }
+        }
+
+        for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
+            $ws->write_string( 4 + $j, 0, $linesAfter->[$j], $thFormat );
+            $findRow->execute( $bidb, $linesBefore->[$j] );
+            my ($rowb) = $findRow->fetchrow_array;
+            $findRow->execute( $bida, $linesAfter->[$j] );
+            my ($rowa) = $findRow->fetchrow_array;
+            for ( my $k = 1 ; $k < 25 ; ++$k ) {
+                $q->execute( $bidb, $rowb, $k );
+                my ($vb) = $q->fetchrow_array;
+                $q->execute( $bida, $rowa, $k );
+                my ($va) = $q->fetchrow_array;
+
+                $ws->write( 4 + $j, $k,      $vb, $format1[ $k - 1 ] );
+                $ws->write( 4 + $j, $k + 24, $va, $format1[ $k - 1 ] );
+
+                use Spreadsheet::WriteExcel::Utility;
+                my $old = xl_rowcol_to_cell( 4 + $j, $k );
+                my $new = xl_rowcol_to_cell( 4 + $j, $k + 24 );
+                $ws->repeat_formula(
+                    4 + $j, $k + 48, $diff, $format2[ $k - 1 ],
+                    IV1 => $old,
+                    IV2 => $new,
+                );
+                $ws->repeat_formula(
+                    4 + $j, $k + 72, $perc, $format3[ $k - 1 ],
+                    IV1 => $old,
+                    IV2 => $old,
+                    IV3 => $new,
+                );
             }
         }
     }

@@ -97,7 +97,7 @@ sub preprocessDataset {
   Low Carbon Network Fund 1: LCN1t
   Low Carbon Network Fund 2: LCN2t
   Low Carbon Network Fund 3: LCN3t
-  Merger Adjustmnent: MGt
+  Merger Adjustment: MGt
   Other 1 Excluded services Top-up standby and enhanced system security: ES4
   Other 2 Excluded services Revenue protection services: ES5
   Other 3 Excluded services Miscellaneous: ES7
@@ -137,7 +137,7 @@ sub preprocessDataset {
   Low Carbon Network Fund 1: CRC13
   Low Carbon Network Fund 2: CRC13
   Low Carbon Network Fund 3: CRC13
-  Merger Adjustmnent: CRC3
+  Merger Adjustment: CRC3
   Other 1 Excluded services Top-up standby and enhanced system security: CRC15
   Other 2 Excluded services Revenue protection services: CRC15
   Other 3 Excluded services Miscellaneous: CRC15
@@ -177,7 +177,7 @@ sub preprocessDataset {
   Low Carbon Network Fund 1: ''
   Low Carbon Network Fund 2: ''
   Low Carbon Network Fund 3: ''
-  Merger Adjustmnent: ''
+  Merger Adjustment: ''
   Other 1 Excluded services Top-up standby and enhanced system security: ''
   Other 2 Excluded services Revenue protection services: ''
   Other 3 Excluded services Miscellaneous: ''

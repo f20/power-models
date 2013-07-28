@@ -27,9 +27,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# This script is largely capable of stand-alone operation,
-# but looks for libraries in the perl5 and cpan folders too.
-
 use warnings;
 use strict;
 use utf8;
@@ -104,6 +101,14 @@ foreach (@ARGV) {
     }
     if (/^-+xls$/i) {
         $writer = xlsWriter();
+        next;
+    }
+    if (/^-+flat/i) {
+        $writer = xlsFlattener();
+        next;
+    }
+    if (/^-+(?:tsv|txt|csv)$/i) {
+        $writer = tsvDumper();
         next;
     }
     if (/^-+split$/i) {
@@ -364,6 +369,40 @@ sub xlsWriter {
     };
 }
 
+sub xlsFlattener {
+    require Spreadsheet::WriteExcel;
+    sub {
+        my ( $infile, $workbook ) = @_;
+        die unless $infile;
+        my $outfile = "$infile flattened.xls";
+        $outfile =~ s/\.xlsx? flattened.xls$/ flattened.xls/is;
+        if ( -e $outfile ) {
+            warn "$infile skipped";
+            next;
+        }
+        my $outputBook  = new Spreadsheet::WriteExcel($outfile);
+        my $outputSheet = $outputBook->add_worksheet('Flattened');
+        my $outputRow   = -1;
+        for my $worksheet ( $workbook->worksheets() ) {
+            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
+            my ( $row_min, $row_max ) = $worksheet->row_range();
+            my ( $col_min, $col_max ) = $worksheet->col_range();
+            for my $row ( $row_min .. $row_max ) {
+                $outputSheet->write_string( ++$outputRow, $col_min,
+                    $worksheet->{Name} );
+                for my $col ( $col_min .. $col_max ) {
+                    my $cell = $worksheet->get_cell( $row, $col );
+                    next unless $cell;
+                    next unless my $v = $cell->unformatted;
+                    $v =~ /=/
+                      ? $outputSheet->write_string( $outputRow, $col + 1, $v )
+                      : $outputSheet->write( $outputRow, $col + 1, $v );
+                }
+            }
+        }
+    };
+}
+
 sub xlsSplitter {
     require Spreadsheet::WriteExcel;
     sub {
@@ -394,6 +433,28 @@ sub xlsSplitter {
     };
 }
 
+sub tsvDumper {
+    sub {
+        my ( $infile, $workbook ) = @_;
+        open my $fh, '>', "$infile.txt";
+        for my $worksheet ( $workbook->worksheets() ) {
+            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
+            my ( $row_min, $row_max ) = $worksheet->row_range();
+            my ( $col_min, $col_max ) = $worksheet->col_range();
+            for my $row ( $row_min .. $row_max ) {
+                print {$fh} join(
+                    "\t",
+                    $worksheet->{Name},
+                    map {
+                        my $cell = $worksheet->get_cell( $row, $_ );
+                        !$cell ? '' : $cell->unformatted;
+                    } $col_min .. $col_max
+                ) . "\n";
+            }
+        }
+    };
+}
+
 sub sqliteWriter {
     require DBI;
     use constant { DB_FILE_NAME => '~$database.sqlite' };
@@ -407,7 +468,8 @@ sub sqliteWriter {
     my $newDb = sub {
         return if $db && $db->ping;
         die $!
-          unless $db = DBI->connect( 'DBI:SQLite:dbname=' . DB_FILE_NAME );
+          unless $db = DBI->connect( 'DBI:SQLite:dbname=' . DB_FILE_NAME,
+            '', '', { sqlite_unicode => 1 } );
         $db->do($_) foreach grep { $_ } split /;\s*/s, <<EOSQL;
 create table if not exists books (
 	bid integer primary key,

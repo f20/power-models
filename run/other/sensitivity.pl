@@ -1,8 +1,8 @@
-﻿package Compilation;
+#!/usr/bin/env perl
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Reckon LLP and others.
+Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,46 +30,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use File::Spec::Functions qw(rel2abs catdir catfile);
+use File::Basename 'dirname';
+my $homedir;
 
-sub new {
-    require DBI;
-    my $databaseHandle = DBI->connect( 'dbi:SQLite:dbname=~$database.sqlite',
-        '', '', { sqlite_unicode => 1, AutoCommit => 0, } )
-      or die "Cannot open sqlite database: $!";
-    bless \$databaseHandle, shift;
-}
-
-sub listModels {
-    my ($self) = @_;
-    my $findCo = $$self->prepare('select bid, filename from books');
-    $findCo->execute;
-    my @models;
-    while ( my ( $bid, $filename ) = $findCo->fetchrow_array ) {
-        next unless $filename =~ s/\.xlsx?$//is;
-        local $_ = $filename;
-        s/^M-//;
-        s/^CE-NEDL/NPG-Northeast/;
-        s/^CE-YEDL/NPG-Yorkshire/;
-        s/^CN-East/WPD-EastM/;
-        s/^CN-West/WPD-WestM/;
-        s/^EDFEN/UKPN/;
-        s/^NP-/NPG-/;
-        s/^SP-/SPEN-/;
-        s/^SSE-/SSEPD-/;
-        s/^WPD-Wales/WPD-SWales/;
-        s/^WPD-West\b/WPD-SWest/;
-        push @models,
-          [
-            $bid, $filename, $_,
-            map { local $_ = $_; tr/-/ /; $_; } grep { $_ }
-              /^(.+?)(-20[0-9]{2}-[0-9]{2})?(-[^-]*)?$/s
-          ];
+BEGIN {
+    $homedir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
+    while (1) {
+        last if -d catdir( $homedir, 'lib', 'Compilation' );
+        my $parent = dirname $homedir;
+        last if $parent eq $homedir;
+        $homedir = $parent;
     }
-    sort { $a->[2] cmp $b->[2]; } @models;
+}
+use lib map { catdir( $homedir, $_ ); } qw(cpan lib perl5);
+
+opendir DIR, catdir( $homedir, qw(CDCM Data-2013-02) );
+my @companies = map { /(.+)\.yml/ ? $1 : (); } readdir DIR;
+closedir DIR;
+use YAML qw(LoadFile DumpFile);
+
+foreach my $company (@companies) {
+    my $d =
+      LoadFile( catfile( $homedir, qw(CDCM Data-2013-02), "$company.yml" ) )
+      or next;
+    warn $company;
+    DumpFile( "$company-2013-02.yml", $d );
+    $d->{1001}[4]{'Merger Adjustment'} = 10e6;
+    DumpFile( "$company-2013-03.yml", $d );
+    $d->{1001}[4]{'Merger Adjustment'} = -10e6;
+    DumpFile( "$company-2013-04.yml", $d );
 }
 
-sub DESTROY {
-    ${ $_[0] }->disconnect;
-}
-
-1;
