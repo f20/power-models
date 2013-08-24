@@ -222,7 +222,7 @@ sub updateTree {
                             $to = $tree->{$tableNumber}
                               || [
                                 $tableNumber !~ /00$/ && ( $preferArrays
-                                    || $tableNumber =~ /^(?:9|17)/ )
+                                    || $tableNumber =~ /^(?:17)/ )
                                 ? []
                                 : {}
                               ];

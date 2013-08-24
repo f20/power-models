@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2009-2013 Energy Networks Association Limited and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ sub generalNotes {
         lines => [
             <<'EOL',
 
-Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2009-2013 Energy Networks Association Limited and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -264,7 +264,58 @@ sub worksheetsAndClosures {
 
       : (),
 
-      $model->{noOneLiners} ? () : (
+      $model->{PARTIAL}
+      ? (
+        'OneLiners' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->set_column( 0, 250, 30 );
+            my %olo;
+            while ( my ( $num, $obj ) = each %{ $model->{PARTIAL}{olo} } ) {
+                my $number = int( $num / 100 );
+                $olo{$number}[ $num - $number * 100 - 1 ] = $obj;
+            }
+            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                lines => 'Updated baseline data
+
+This sheet contains data to populate tables 119x in a model with a non-zero baseline.'
+              ),
+              (
+                map {
+                    Columnset(
+                        name   => "Data for table $_",
+                        number => 3600 + $_,
+                        columns =>
+                          [ map { Stack( sources => [$_] ) } @{ $olo{$_} } ]
+                      )
+                } sort keys %olo
+              ),
+              (
+                map {
+                    my $obj  = $model->{PARTIAL}{oli}{$_};
+                    my $name = 'Copy of ' . $obj->{name};
+                    $obj->isa('SpreadsheetModel::Columnset')
+                      ? Columnset(
+                        name    => $name,
+                        number  => 3600 + $_,
+                        columns => [
+                            map { Stack( sources => [$_] ) }
+                              @{ $obj->{columns} }
+                        ]
+                      )
+                      : Stack(
+                        name    => $name,
+                        number  => 3600 + $_,
+                        sources => [$obj]
+                      );
+                  } sort { $a <=> $b }
+                  keys %{ $model->{PARTIAL}{oli} }
+              );
+        }
+      )
+      : $model->{noOneLiners} ? ()
+      : (
         'OneLiners' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );

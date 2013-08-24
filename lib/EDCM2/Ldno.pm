@@ -238,9 +238,17 @@ EOL
                 [ map { '' } @{ $ldnoLevels->{list} } ]
             } @{ $cdcmLevels->{list} }
         ],
-        number   => 1181,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
+        number     => 1181,
+        dataset    => $model->{dataset},
+        appendTo   => $model->{inputTables},
+        validation => {
+            validate      => 'decimal',
+            criteria      => '>=',
+            value         => 0,
+            input_title   => 'LDNO discount:',
+            input_message => 'At least 0%',
+            error_message => 'The LDNO discount must not be negative'
+        },
       )
       : Dataset(
         name          => 'LDNO discounts',
@@ -252,9 +260,17 @@ EOL
                 [ map { '' } @{ $cdcmLevels->{list} } ]
             } @{ $ldnoLevels->{list} }
         ],
-        number   => 1181,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
+        number     => 1181,
+        dataset    => $model->{dataset},
+        appendTo   => $model->{inputTables},
+        validation => {
+            validate      => 'decimal',
+            criteria      => '>=',
+            value         => 0,
+            input_title   => 'LDNO discount:',
+            input_message => 'At least 0%',
+            error_message => 'The LDNO discount must not be negative'
+        },
       );
 
     my @endUserTariffs = map {
@@ -410,6 +426,14 @@ EOF
             defaultFormat => $volnames[$_] =~ /M(?:W|VAr)h/
             ? '0.000hardnz'
             : '0hardnz',
+            validation => {
+                validate      => 'decimal',
+                criteria      => '>=',
+                value         => 0,
+                input_title   => 'Volume:',
+                input_message => 'At least 0',
+                error_message => 'The volume must not be negative.'
+            },
         );
     } 0 .. $#tariffComponents;
 

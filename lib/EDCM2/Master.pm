@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2009-2013 Energy Networks Association Limited and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -133,6 +133,106 @@ EOT
         $llfcExport,
     ) = $model->tariffInputs($ehvAssetLevelset);
 
+    if ( $model->{PARTIAL} ) {
+
+        my $masterFlag = Dataset(
+            name     => 'Are all tariffs additional to the baseline?',
+            data     => ['TRUE'],
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+            number   => 1190,
+        );
+
+        $model->{PARTIAL} = Arithmetic(
+            name  => 'Weighting of each tariff for reconciliation of totals',
+            lines => [
+'0 means that the tariff is active and is included in the table 119x aggregates.',
+'-1 means that the tariff is included in the table 119x aggregates but should be removed.',
+'1 means that the tariff is active and is not included in the table 119x aggregates.',
+            ],
+            arithmetic =>
+'=IF(OR(IV3,IV4="TRUE",ISNUMBER(SEARCH("[ADDED]",IV2))),1,IF(ISNUMBER(SEARCH("[REMOVED]",IV1)),-1,0))',
+            arguments => {
+                IV1 => $tariffs,
+                IV2 => $tariffs,
+                IV3 => $masterFlag,
+                IV4 => $masterFlag,
+            },
+        );
+
+        foreach my $set (
+            [
+                1191,
+                [ 'Baseline total EDCM peak time consumption (kW)', '0hard' ],
+                [
+'Baseline total marginal effect of indirect cost adder (kVA)',
+                    '0hard'
+                ],
+                [
+                    'Baseline total marginal effect of demand adder (£)',
+                    '0hard'
+                ],
+                'Baseline EDCM demand volumes'
+            ],
+            [
+                1192,
+                [ 'Baseline total chargeable export capacity (kVA)', '0hard' ],
+                [
+                    'Baseline total non-exempt 2005-2010 export capacity (kVA)',
+                    '0hard'
+                ],
+                [
+                    'Baseline total non-exempt post-2010 export capacity (kVA)',
+                    '0hard'
+                ],
+                'Baseline EDCM generation volumes'
+            ],
+            [
+                1193,
+                [ 'Baseline total sole use assets for demand (£)', '0hard' ],
+                [
+                    'Baseline total sole use assets for generation (£)',
+                    '0hard'
+                ],
+                [ 'Baseline total notional capacity assets (£)',    '0hard' ],
+                [ 'Baseline total notional consumption assets (£)', '0hard' ],
+                [
+'Baseline total non sole use notional assets subject to matching (£)',
+                    '0hard'
+                ],
+                'Baseline EDCM assets and notional assets'
+            ],
+            [
+                1194,
+                [
+                    'Baseline net forecast EDCM generation revenue (£/year)',
+                    '0hard'
+                ],
+                [ 'Baseline EDCM demand pot (£/year)',              '0hard' ],
+                [ 'Baseline revenue from demand charge 1 (£/year)', '0hard' ],
+                'Baseline EDCM pots'
+            ]
+          )
+        {
+            my @cols;
+            foreach my $col ( 1 .. ( $#$set - 1 ) ) {
+                push @cols, $model->{PARTIAL}{"ol$set->[0]0$col"} = Dataset(
+                    name          => $set->[$col][0],
+                    defaultFormat => $set->[$col][1],
+                    data          => [ [''] ],
+                );
+            }
+            Columnset(
+                name     => $set->[$#$set],
+                number   => $set->[0],
+                dataset  => $model->{dataset},
+                appendTo => $model->{inputTables},
+                columns  => \@cols,
+            );
+        }
+
+    }
+
     my ( $locations, $locParent, $c1, $a1d, $r1d, $a1g, $r1g ) =
       $model->loadFlowInputs;
 
@@ -148,8 +248,8 @@ EOT
     my $reactiveCoincidence935 = $reactiveCoincidence;
 
     my $importEligible = Arithmetic(
-        name       => 'Display import charges?',
-        arithmetic => '=IF(IV11="VOID","FALSE","TRUE")',
+        name       => 'Has import charges?',
+        arithmetic => '=IV11<>"VOID"',
         arguments  => {
             IV1  => $importCapacity,
             IV11 => $importCapacity,
@@ -193,16 +293,12 @@ EOT
     );
 
     my $exportEligible = Arithmetic(
-        name => 'Display export charges?',
-        arithmetic =>
-'=OR(IF(IV11="VOID","FALSE","TRUE"),IF(IV21="VOID","FALSE","TRUE"),IF(IV31="VOID","FALSE","TRUE"))',
-        arguments => {
-            IV1  => $exportCapacityChargeablePre2005,
-            IV11 => $exportCapacityChargeablePre2005,
-            IV2  => $exportCapacityChargeable20052010,
-            IV21 => $exportCapacityChargeable20052010,
-            IV3  => $exportCapacityChargeablePost2010,
-            IV31 => $exportCapacityChargeablePost2010,
+        name       => 'Has export charges?',
+        arithmetic => '=OR(IV1<>"VOID",IV2<>"VOID",IV3<>"VOID")',
+        arguments  => {
+            IV1 => $exportCapacityChargeablePre2005,
+            IV2 => $exportCapacityChargeable20052010,
+            IV3 => $exportCapacityChargeablePost2010,
         }
     );
 
@@ -353,18 +449,34 @@ EOT
         $useProportions,         $ehvAssetLevelset,
       );
 
-    my $edcmRedUse = SumProduct(
+    my $edcmRedUse =
+      $model->{PARTIAL}
+      ? (
+        $model->{PARTIAL}{olo}{119101} = Arithmetic(
+            name          => 'Total EDCM peak time consumption (kW)',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IV1+SUMPRODUCT(IV21_IV22*IV51_IV52*IV53_IV54)',
+            arguments     => {
+                IV1       => $model->{PARTIAL}{ol119101},
+                IV21_IV22 => $model->{PARTIAL},
+                IV51_IV52 => $redUseRate,
+                IV53_IV54 => $importCapacity,
+            }
+        )
+      )
+      : SumProduct(
         name          => 'Total EDCM peak time consumption (kW)',
         vector        => $redUseRate,
         matrix        => $importCapacity,
         defaultFormat => '0softnz'
-    );
+      );
 
     my $cdcmRedUse = Stack(
         cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
         name    => 'Total CDCM peak time consumption (kW)',
         sources => [$cdcmUse]
     );
+    $model->{PARTIAL}{oli}{1237} = $cdcmRedUse if $model->{PARTIAL};
 
     my $overallRedUse = Arithmetic(
         name          => 'Estimate total peak-time consumption (MW)',
@@ -372,12 +484,14 @@ EOT
         arithmetic    => '=IV1+IV2',
         arguments     => { IV1 => $cdcmRedUse, IV2 => $edcmRedUse }
     );
+    $model->{PARTIAL}{oli}{1238} = $overallRedUse if $model->{PARTIAL};
 
     my $rateExit = Arithmetic(
         name       => 'Transmission exit charging rate (£/kW/year)',
         arithmetic => '=IV1/IV2',
         arguments  => { IV1 => $chargeExit, IV2 => $overallRedUse }
     );
+    $model->{PARTIAL}{oli}{1239} = $rateExit if $model->{PARTIAL};
 
     my $rateDirect = Arithmetic(
         name          => 'Direct cost charging rate',
@@ -392,6 +506,7 @@ EOT
             IV6 => $ehvIntensity,
         }
     );
+    $model->{PARTIAL}{oli}{1245} = $rateDirect if $model->{PARTIAL};
 
     my $rateRates = Arithmetic(
         name          => 'Network rates charging rate',
@@ -405,6 +520,7 @@ EOT
             IV5 => $cdcmHvLvService,
         }
     );
+    $model->{PARTIAL}{oli}{1246} = $rateRates if $model->{PARTIAL};
 
     my $rateIndirect = Arithmetic(
         name          => 'Indirect cost charging rate',
@@ -421,6 +537,7 @@ EOT
             IV5  => $cdcmHvLvService,
         }
     );
+    $model->{PARTIAL}{oli}{1250} = $rateIndirect if $model->{PARTIAL};
 
     my $edcmIndirect = Arithmetic(
         name          => 'Indirect costs on EDCM demand (£/year)',
@@ -434,6 +551,7 @@ EOT
             IV23 => $totalAssetsGenerationSoleUse,
         },
     );
+    $model->{PARTIAL}{oli}{1253} = $edcmIndirect if $model->{PARTIAL};
 
     my $edcmDirect = Arithmetic(
         name => 'Direct costs on EDCM demand except'
@@ -446,6 +564,7 @@ EOT
             IV23 => $totalAssetsConsumption,
         },
     );
+    $model->{PARTIAL}{oli}{1252} = $edcmDirect if $model->{PARTIAL};
 
     my $edcmRates = Arithmetic(
         name => 'Network rates on EDCM demand except '
@@ -458,6 +577,7 @@ EOT
             IV23 => $totalAssetsConsumption,
         },
     );
+    $model->{PARTIAL}{oli}{1255} = $edcmRates if $model->{PARTIAL};
 
     my $fixed3contribution = Arithmetic(
         name          => 'Demand fixed pot contribution p/day',
@@ -531,7 +651,7 @@ EOT
     my ( $charges1, $acCoef, $reCoef ) =
       $model->charge1( $tariffLoc, $locations, $locParent, $c1, $a1d, $r1d,
         $a1g, $r1g, $model->preprocess( $locations, $a1d, $r1d, $a1g, $r1g, ),
-      );
+      ) if $locations;
 
     my ( $fcpLricDemandCapacityChargeBig,
         $genCredit, $unitRateFcpLricNonDSM, $genCreditCapacity,
@@ -626,7 +746,30 @@ EOT
         arguments     => { IV1 => $netexportCapacityChargeUnRound, }
     );
 
-    my $generationRevenue = Arithmetic(
+    my $generationRevenue =
+      $model->{PARTIAL}
+      ? (
+        $model->{PARTIAL}{olo}{119401} = Arithmetic(
+            name          => 'Net forecast EDCM generation revenue (£/year)',
+            defaultFormat => '0softnz',
+            arithmetic =>
+'=IV1+SUMPRODUCT(IV21_IV22*IV51_IV52*IV53_IV54)/100+SUMPRODUCT(IV31_IV32*IV71_IV72*IV73_IV74)*IV75/100+SUMPRODUCT(IV41_IV42*IV83_IV84)*IV85/100',
+            arguments => {
+                IV1       => $model->{PARTIAL}{ol119401},
+                IV21_IV22 => $model->{PARTIAL},
+                IV31_IV32 => $model->{PARTIAL},
+                IV41_IV42 => $model->{PARTIAL},
+                IV51_IV52 => $genCreditRound,
+                IV53_IV54 => $activeUnits,
+                IV71_IV72 => $netexportCapacityChargeRound,
+                IV73_IV74 => $exportCapacityChargeable,
+                IV75      => $daysInYear,
+                IV83_IV84 => $fixedGcharge,
+                IV85      => $daysInYear,
+            }
+        )
+      )
+      : Arithmetic(
         name          => 'Net forecast EDCM generation revenue (£/year)',
         defaultFormat => '0softnz',
         arithmetic =>
@@ -640,7 +783,7 @@ EOT
             IV83_IV84 => $fixedGcharge,
             IV85      => $daysInYear,
         }
-    );
+      );
 
     my $chargeOther = Arithmetic(
         name =>
@@ -655,6 +798,7 @@ EOT
             IV5 => $generationRevenue,
         }
     );
+    $model->{PARTIAL}{oli}{1248} = $chargeOther if $model->{PARTIAL};
 
     my $rateOther = Arithmetic(
         name          => 'Other revenue charging rate',
@@ -671,6 +815,7 @@ EOT
             IV9  => $totalAssetsGenerationSoleUse,
         }
     );
+    $model->{PARTIAL}{oli}{1249} = $rateOther if $model->{PARTIAL};
 
     my $capacity3 = Arithmetic(
         name          => 'Capacity pot contribution p/kVA/day',
@@ -701,11 +846,25 @@ EOT
         }
     );
 
-    push @{ $model->{calc3Tables} }, my $totalRevenue3 = GroupBy(
+    push @{ $model->{calc3Tables} }, my $totalRevenue3 =
+      $model->{PARTIAL}
+      ? (
+        $model->{PARTIAL}{olo}{119402} = Arithmetic(
+            name          => 'Pot (£/year)',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12*IV15_IV16)',
+            arguments     => {
+                IV1       => $model->{PARTIAL}{ol119402},
+                IV11_IV12 => $revenue3,
+                IV15_IV16 => $model->{PARTIAL},
+            },
+        )
+      )
+      : GroupBy(
         name          => 'Pot £/year',
         defaultFormat => '0softnz',
         source        => $revenue3
-    );
+      );
 
     my ( $scalingChargeFixed, $scalingChargeCapacity );
 
@@ -767,19 +926,27 @@ EOT
         }
     );
 
-    $capacityChargeT = Arithmetic(
-        name          => 'Import capacity charge before scaling (p/VA/day)',
-        arithmetic    => '=IV7+IF(IV6=0,1,IV4/IV5)*IV1',
+    my $capacityChargeT1 = Arithmetic(
+        name          => 'Import capacity charge from charge 1 (p/VA/day)',
+        arithmetic    => '=IF(IV6=0,1,IV4/IV5)*IV1',
         defaultFormat => '0.00softnz',
         arguments     => {
             IV1 => $fcpLricDemandCapacityChargeBig,
             IV4 => $chargeableCapacity,
             IV5 => $importCapacity,
             IV6 => $importCapacity,
-            IV7 => $capacityChargeT,
         }
     );
 
+    $capacityChargeT = Arithmetic(
+        name          => 'Import capacity charge before scaling (p/VA/day)',
+        arithmetic    => '=IV7+IV1',
+        defaultFormat => '0.00softnz',
+        arguments     => {
+            IV1 => $capacityChargeT1,
+            IV7 => $capacityChargeT,
+        }
+    );
     $model->{Thursday31} = [
         Arithmetic(
             name          => 'FCP/LRIC capacity-based charge (£/year)',
@@ -813,7 +980,50 @@ EOT
         }
     );
 
-    my $demandScalingShortfall = Arithmetic(
+    my $demandScalingShortfall =
+      $model->{PARTIAL}
+      ? (
+        Arithmetic(
+            name          => 'Additional amount to be recovered (£/year)',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IV1-(IV2+IV3)*IV4-IV5*IV6'
+              . ( $model->{NODEMANDCHARGE1} ? '' : '-IV9' ),
+            arguments => {
+                IV1 => $totalRevenue3,
+                IV2 => $rateDirect,
+                IV3 => $rateRates,
+                IV4 => $model->{PARTIAL}{olo}{119301},
+                IV5 => $rateExit,
+                IV6 => $model->{PARTIAL}{olo}{119101},
+                $model->{NODEMANDCHARGE1}
+                ? ()
+                : (
+                    IV9 => (
+                        $model->{PARTIAL}{olo}{119403} = Arithmetic(
+                            name => 'Revenue from demand charge 1 (£/year)',
+                            defaultFormat => '0softnz',
+                            arithmetic =>
+'=IV1+(SUMPRODUCT(IV64_IV65,IV31_IV32,IV33_IV34)+SUMPRODUCT(IV66_IV67,IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54)*IV9/100',
+                            arguments => {
+                                IV1       => $model->{PARTIAL}{ol119403},
+                                IV31_IV32 => $capacityChargeT1,
+                                IV33_IV34 => $importCapacity,
+                                IV9       => $daysInYear,
+                                IV41_IV42 => $unitRateFcpLricDSM,
+                                IV43_IV44 => $activeCoincidence935,
+                                IV35_IV36 => $importCapacityUnscaled,
+                                IV51_IV52 => $tariffHoursInRed,
+                                IV54      => $daysInYear,
+                                IV64_IV65 => $model->{PARTIAL},
+                                IV66_IV67 => $model->{PARTIAL},
+                            },
+                        )
+                    ),
+                ),
+            },
+        )
+      )
+      : Arithmetic(
         name          => 'Additional amount to be recovered (£/year)',
         defaultFormat => '0softnz',
         arithmetic =>
@@ -830,7 +1040,8 @@ EOT
             IV51_IV52 => $tariffHoursInRed,
             IV54      => $daysInYear,
         }
-    );
+      );
+    $model->{PARTIAL}{oli}{1254} = $demandScalingShortfall if $model->{PARTIAL};
 
     $model->fudge41(
         $activeCoincidence,             $importCapacity,
@@ -1282,15 +1493,14 @@ EOT
         name          => 'Total for demand across all tariffs (£/year)',
         defaultFormat => '0softnz'
     );
-    
-	my $totalForGenerationAllTariffs = GroupBy(
-        source => $rev2g,
-        name   => 'Total for generation across all tariffs (£/year)',
+
+    my $totalForGenerationAllTariffs = GroupBy(
+        source        => $rev2g,
+        name          => 'Total for generation across all tariffs (£/year)',
         defaultFormat => '0softnz'
     );
-	
-	    push @{ $model->{revenueTables} },
-      Columnset(
+
+    push @{ $model->{revenueTables} }, my $totalAllTariffs = Columnset(
         name    => 'Total for all tariffs (£/year)',
         columns => [
             Constant(
@@ -1310,24 +1520,25 @@ EOT
                 }
             )
         ]
-      );
-	  
-	 push @{ $model->{TotalsTables} },
-	 Columnset(
+    );
+
+    push @{ $model->{TotalsTables} },
+      Columnset(
         name    => 'Total EDCM revenue (£/year)',
         columns => [
-		Arithmetic(
-                name          => 'All EDCM tariffs including discounted LDNO (£/year)',
+            Arithmetic(
+                name => 'All EDCM tariffs including discounted LDNO (£/year)',
                 defaultFormat => '0softnz',
                 arithmetic    => '=IV1+IV2+IV3',
                 arguments     => {
                     IV1 => $totalForDemandAllTariffs,
                     IV2 => $totalForGenerationAllTariffs,
-					IV3=> $model->{ldnoRevTables}->[1],
+                    IV3 => $model->{ldnoRevTables}->[1],
                 }
             )
-		]
-	);
+        ]
+      ) if $model->{ldnoRevTables};
+
     my $revenue = $model->revenue(
         $daysInYear,             $tariffs,
         $importCapacity,         $exportCapacityChargeable,

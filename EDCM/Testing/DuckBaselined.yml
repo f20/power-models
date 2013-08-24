@@ -1,0 +1,8396 @@
+---
+1100:
+  - _table: '1100. Company, charging year, data version'
+  - Company charging year data version: Duck Power
+    _column: Company
+  - Company charging year data version: 2013/2014
+    _column: Year
+  - Company charging year data version: Baselined
+    _column: Version
+1105:
+  - _table: 1105. Diversity allowance between level exit and GSP Group (from CDCM table 2611)
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.0149999999999999
+    _column: GSP
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.0281949999999997
+    _column: 132kV circuits
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.0281949999999997
+    _column: 132kV/EHV
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.0981122599999997
+    _column: EHV circuits
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.0981122599999997
+    _column: EHV/HV
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.0281949999999997
+    _column: 132kV/HV
+1113:
+  - _table: 1113. General inputs
+  - General inputs: 365
+    _column: Days in year
+  - General inputs: 0.2
+    _column: O&M charging rate based on FBPQ data (£/kW/year)
+  - General inputs: 258
+    _column: Annual hours in super red
+  - General inputs: 485156447.689555
+    _column: 'The amount of money that the DNO wants to raise from use of system charges, less transmission exit (£/year)'
+  - General inputs: 34071015.8656692
+    _column: Transmission exit charges (£/year)
+  - General inputs: 53391921.6052705
+    _column: Direct cost (£/year)
+  - General inputs: 141697320.449204
+    _column: Indirect cost (£/year)
+  - General inputs: 37650000
+    _column: Network rates (£/year)
+  - General inputs: 15060.6488766309
+    _column: Average adjusted GP (£/year)
+  - General inputs: 283816.108005
+    _column: GL term from the DG incentive revenue calculation (£/year)
+  - General inputs: 169931.5
+    _column: Total CDCM generation capacity 2005-2010 (kVA)
+  - General inputs: 119256.8
+    _column: Total CDCM generation capacity Post-2010 (kVA)
+1122:
+  - _table: 1122. Forecast system simultaneous maximum load (kW) from CDCM users (from CDCM table 2506)
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 6371714.50855607
+    _column: GSP
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 6358996.51552502
+    _column: 132kV circuits
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 5414669.10797638
+    _column: 132kV/EHV
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 5393288.38099523
+    _column: EHV circuits
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 5116178.77622809
+    _column: EHV/HV
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 832866.312409224
+    _column: 132kV/HV
+1131:
+  - _table: 1131. Assets in CDCM model (£) (from CDCM table 2705)
+  - Assets in CDCM model from CDCM table 2705: ''
+    _column: GSP
+  - Assets in CDCM model from CDCM table 2705: 1600461068.83085
+    _column: 132kV circuits
+  - Assets in CDCM model from CDCM table 2705: 246060867.318681
+    _column: 132kV/EHV
+  - Assets in CDCM model from CDCM table 2705: 1339629891.92258
+    _column: EHV circuits
+  - Assets in CDCM model from CDCM table 2705: 222044332.575829
+    _column: EHV/HV
+  - Assets in CDCM model from CDCM table 2705: 57611930.3189661
+    _column: 132kV/HV
+  - Assets in CDCM model from CDCM table 2705: 1714743430.74136
+    _column: HV circuits
+  - Assets in CDCM model from CDCM table 2705: 866491206.520638
+    _column: HV/LV
+  - Assets in CDCM model from CDCM table 2705: 1468864596.60884
+    _column: LV circuits
+  - Assets in CDCM model from CDCM table 2705: 2149451718.21323
+    _column: LV customer
+  - Assets in CDCM model from CDCM table 2705: 34355813.0855866
+    _column: HV customer
+1132:
+  - _table: 1132. Override notional asset rate for 132kV/HV (£/kW)
+  - Override notional asset rate for 132kV HV kW: '#VALUE!'
+    _column: 132kV/HV
+1133:
+  - _table: 1133. Maximum network use factor
+  - Maximum network use factor: ''
+    _column: GSP
+  - Maximum network use factor: 2.246
+    _column: 132kV circuits
+  - Maximum network use factor: 1.558
+    _column: 132kV/EHV
+  - Maximum network use factor: 3.29
+    _column: EHV circuits
+  - Maximum network use factor: 2.38
+    _column: EHV/HV
+  - Maximum network use factor: 2.768
+    _column: 132kV/HV
+1134:
+  - _table: 1134. Minimum network use factor
+  - Minimum network use factor: ''
+    _column: GSP
+  - Minimum network use factor: 0.273
+    _column: 132kV circuits
+  - Minimum network use factor: 0.677
+    _column: 132kV/EHV
+  - Minimum network use factor: 0.332
+    _column: EHV circuits
+  - Minimum network use factor: 0.631
+    _column: EHV/HV
+  - Minimum network use factor: 0.697
+    _column: 132kV/HV
+1135:
+  - _table: 1135. Loss adjustment factor to transmission for each network level (from CDCM table 2004)
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1
+    _column: GSP
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.002
+    _column: 132kV circuits
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.009
+    _column: 132kV/EHV
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.013
+    _column: EHV circuits
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.062
+    _column: EHV/HV
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.062
+    _column: 132kV/HV
+1181:
+  - _table: 1181. LDNO discounts
+  - Boundary 0000: 1
+    Boundary 132kV: 0.864432390566837
+    Boundary 132kV EHV: 0.778315519531019
+    Boundary EHV: 0.685344550170395
+    Boundary HVplus: 0.574824444166167
+    _column: LV demand
+  - Boundary 0000: 1
+    Boundary 132kV: 0.798198059866084
+    Boundary 132kV EHV: 0.670007028645915
+    Boundary EHV: 0.53161318905878
+    Boundary HVplus: 0.367096222884385
+    _column: LV Sub demand or LV generation
+  - Boundary 0000: 1
+    Boundary 132kV: 0.774973808111443
+    Boundary 132kV EHV: 0.63202999116598
+    Boundary EHV: 0.477709181948473
+    Boundary HVplus: 0.294258882240176
+    _column: HV demand or LV Sub generation
+  - Boundary 0000: 1
+    Boundary 132kV: 0.681149098124198
+    Boundary 132kV EHV: 0.478604831751852
+    Boundary EHV: 0.259939934193729
+    Boundary HVplus: 0
+    _column: HV generation
+1182:
+  - _table: 1182. CDCM end user tariffs
+  - Domestic Off Peak related MPAN: 0.155
+    Domestic Two Rate: 2.195
+    Domestic Unrestricted: 1.803
+    HV Generation Intermittent: -0.571
+    HV Generation Non-Intermittent: -5.678
+    HV HH Metered: 4.66
+    HV Medium Non-Domestic: 0.496
+    LV Generation Intermittent: -0.88
+    LV Generation NHH: -0.88
+    LV Generation Non-Intermittent: -8.303
+    LV HH Metered: 8.148
+    LV Medium Non-Domestic: 1.492
+    LV Sub Generation Intermittent: -0.794
+    LV Sub Generation NHH: -0.794
+    LV Sub Generation Non-Intermittent: -7.572
+    LV Sub HH Metered: 6.921
+    LV Sub Medium Non-Domestic: 0.821
+    LV UMS Pseudo HH Metered: 19.845
+    NHH UMS category A: 1.149
+    NHH UMS category B: 1.562
+    NHH UMS category C: 2.472
+    NHH UMS category D: 0.877
+    Small Non Domestic Off Peak related MPAN: 0.199
+    Small Non Domestic Two Rate: 1.628
+    Small Non Domestic Unrestricted: 1.369
+    _column: Unit rate 1 p/kWh
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: 0.174
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: -0.112
+    HV HH Metered: 0.087
+    HV Medium Non-Domestic: 0.026
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: -0.218
+    LV HH Metered: 0.2
+    LV Medium Non-Domestic: 0.164
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: -0.189
+    LV Sub HH Metered: 0.139
+    LV Sub Medium Non-Domestic: 0.083
+    LV UMS Pseudo HH Metered: 0.631
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: 0.139
+    Small Non Domestic Unrestricted: ''
+    _column: Unit rate 2 p/kWh
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: -0.038
+    HV HH Metered: 0.027
+    HV Medium Non-Domestic: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: -0.102
+    LV HH Metered: 0.091
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: -0.084
+    LV Sub HH Metered: 0.052
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: 0.539
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Unit rate 3 p/kWh
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: 4.33
+    Domestic Unrestricted: 4.33
+    HV Generation Intermittent: 41.44
+    HV Generation Non-Intermittent: 41.44
+    HV HH Metered: 86.79
+    HV Medium Non-Domestic: 86.79
+    LV Generation Intermittent: 0
+    LV Generation NHH: 0
+    LV Generation Non-Intermittent: 0
+    LV HH Metered: 12.59
+    LV Medium Non-Domestic: 31.38
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub HH Metered: 8.63
+    LV Sub Medium Non-Domestic: 8.63
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: 4.63
+    Small Non Domestic Unrestricted: 4.63
+    _column: Fixed charge p/MPAN/day
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: ''
+    HV HH Metered: 3.92
+    HV Medium Non-Domestic: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: 3.02
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub HH Metered: 4.7
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Capacity charge p/kVA/day
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: 0.208
+    HV Generation Non-Intermittent: 0.208
+    HV HH Metered: 0.135
+    HV Medium Non-Domestic: ''
+    LV Generation Intermittent: 0.278
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: 0.278
+    LV HH Metered: 0.265
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: 0.255
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: 0.255
+    LV Sub HH Metered: 0.203
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Reactive power charge p/kVArh
+1183:
+  - _table: 1183. LDNO volume data
+  - LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: ''
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: ''
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: ''
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    _column: Rate 1 units (MWh)
+  - LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: ''
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: ''
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: ''
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    _column: Rate 2 units (MWh)
+  - LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: ''
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: ''
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: ''
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    _column: Rate 3 units (MWh)
+  - LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: ''
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: ''
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: ''
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    _column: MPANs
+  - LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: ''
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: ''
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: ''
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    _column: Import capacity (kVA)
+  - LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: ''
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: ''
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: ''
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    _column: Reactive power units (MVArh)
+1190:
+  - _table: 1190. Are all tariffs additional to the baseline?
+  - Are all tariffs additional to the baseline: FALSE
+    _column: Are all tariffs additional to the baseline?
+1191:
+  - _table: 1191. Baseline EDCM demand volumes
+  - Baseline EDCM demand volumes: 131484.758511968
+    _column: Baseline total EDCM peak time consumption (kW)
+  - Baseline EDCM demand volumes: 266966.273361336
+    _column: Baseline total marginal effect of indirect cost adder (kVA)
+  - Baseline EDCM demand volumes: 279213.899752142
+    _column: Baseline total marginal effect of demand adder (£)
+1192:
+  - _table: 1192. Baseline EDCM generation volumes
+  - Baseline EDCM generation volumes: 177394.994080744
+    _column: Baseline total chargeable export capacity (kVA)
+  - Baseline EDCM generation volumes: 43830.8464724499
+    _column: Baseline total non-exempt 2005-2010 export capacity (kVA)
+  - Baseline EDCM generation volumes: 38255.1125629073
+    _column: Baseline total non-exempt post-2010 export capacity (kVA)
+1193:
+  - _table: 1193. Baseline EDCM assets and notional assets
+  - Baseline EDCM assets and notional assets: 5912546.23373783
+    _column: Baseline total sole use assets for demand (£)
+  - Baseline EDCM assets and notional assets: 3820459.67690617
+    _column: Baseline total sole use assets for generation (£)
+  - Baseline EDCM assets and notional assets: 52171176.5055044
+    _column: Baseline total notional capacity assets (£)
+  - Baseline EDCM assets and notional assets: 26104321.4480981
+    _column: Baseline total notional consumption assets (£)
+  - Baseline EDCM assets and notional assets: 62257745.4734157
+    _column: Baseline total non sole use notional assets subject to matching (£)
+1194:
+  - _table: 1194. Baseline EDCM pots
+  - Baseline EDCM pots: -7157847.182
+    _column: Baseline net forecast EDCM generation revenue (£/year)
+  - Baseline EDCM pots: 4979298.09642914
+    _column: Baseline EDCM demand pot (£/year)
+  - Baseline EDCM pots: 1267575.63631973
+    _column: Baseline revenue from demand charge 1 (£/year)
+913:
+  - _table: 913. LRIC power flow modelling data
+  - 1: 10015
+    10: 10300
+    100: 12225
+    101: 12235
+    102: 12250
+    103: 12280
+    104: 12295
+    105: 12325
+    106: 12350
+    107: 1235
+    108: 12370
+    109: 12390
+    11: 10305
+    110: 12415
+    111: 12445
+    112: 12485
+    113: 1250
+    114: 12555
+    115: 1255
+    116: 12560
+    117: 12605
+    118: 1275
+    119: 12775
+    12: 10320
+    120: 12777
+    121: 12805
+    122: 12820
+    123: 12845
+    124: 12895
+    125: 12930
+    126: 12940
+    127: 12955
+    128: 12995
+    129: 13020
+    13: 10335
+    130: 13040
+    131: 13050
+    132: 13105
+    133: 1310
+    134: 13120
+    135: 13145
+    136: 13160
+    137: 13175
+    138: 13185
+    139: 13205
+    14: 1040
+    140: 13230
+    141: 13235
+    142: 13240
+    143: 13265
+    144: 13305
+    145: 1330
+    146: 13330
+    147: 13370
+    148: 13400
+    149: 13415
+    15: 10410
+    150: 13435
+    151: 1345
+    152: 13470
+    153: 13510
+    154: 13525
+    155: 13545
+    156: 13575
+    157: 13580
+    158: 13590
+    159: 13610
+    16: 10430
+    160: 13625
+    161: 13650
+    162: 13665
+    163: 13700
+    164: 13715
+    165: 13727
+    166: 13728
+    167: 1375
+    168: 13770
+    169: 13815
+    17: 10445
+    170: 13850
+    171: 13855
+    172: 13920
+    173: 13935
+    174: 13940
+    175: 13975
+    176: 13980
+    177: 14015
+    178: 14020
+    179: 14025
+    18: 10465
+    180: 14030
+    181: 14085
+    182: 14100
+    183: 14120
+    184: 14145
+    185: 14180
+    186: 14200
+    187: 14225
+    188: 14255
+    189: 14280
+    19: 10480
+    190: 14285
+    191: 14332
+    192: 14333
+    193: 14360
+    194: 14415
+    195: 14445
+    196: 14470
+    197: 14475
+    198: 1450
+    199: 14525
+    2: 10035
+    20: 10500
+    200: 14530
+    201: 14640
+    202: 14650
+    203: 14675
+    204: 14715
+    205: 14725
+    206: 14740
+    207: 14775
+    208: 14780
+    209: 14845
+    21: 10505
+    210: 14880
+    211: 14945
+    212: 14950
+    213: 1495
+    214: 15000
+    215: 15030
+    216: 15040
+    217: 15065
+    218: 15070
+    219: 15100
+    22: 10530
+    220: 1510
+    221: 15120
+    222: 15133
+    223: 15155
+    224: 15180
+    225: 15210
+    226: 15225
+    227: 15255
+    228: 15270
+    229: 15295
+    23: 1055
+    230: 15315
+    231: 15330
+    232: 15350
+    233: 1535
+    234: 15370
+    235: 15390
+    236: 15410
+    237: 15430
+    238: 15450
+    239: 15455
+    24: 10570
+    240: 1550
+    241: 1555
+    242: 15575
+    243: 15580
+    244: 15640
+    245: 1565
+    246: 1570
+    247: 1605
+    248: 1625
+    249: 1640
+    25: 10610
+    250: 1660
+    251: 1670
+    252: 1685
+    253: 1715
+    254: 1730
+    255: 1735
+    256: 1755
+    257: 1775
+    258: 1790
+    259: 1791
+    26: 10630
+    260: 1855
+    261: 1870
+    262: 1895
+    263: 1920
+    264: 1935
+    265: 1950
+    266: 1975
+    267: 1990
+    268: 2007
+    269: 2012
+    27: 10650
+    270: 2060
+    271: 2080
+    272: 2090
+    273: 2110
+    274: 2145
+    275: 2160
+    276: 2230
+    277: 2235
+    278: 2255
+    279: 2260
+    28: 10670
+    280: 2290
+    281: 2295
+    282: 2300
+    283: 2315
+    284: 2345
+    285: 2370
+    286: 2470
+    287: 2490
+    288: 2495
+    289: 2500
+    29: 10710
+    290: 2505
+    291: 2675
+    292: 2700
+    293: 2735
+    294: 2740
+    295: 2835
+    296: 3000
+    297: 3065
+    298: 3100
+    299: 3105
+    3: 1005
+    30: 10850
+    300: 3120
+    301: 3135
+    302: 3150
+    303: 3175
+    304: 3195
+    305: 3205
+    306: 3210
+    307: 3230
+    308: 3340
+    309: 3345
+    31: 10855
+    310: 3351
+    311: 3395
+    312: 3410
+    313: 3425
+    314: 3440
+    315: 3455
+    316: 3490
+    317: 3505
+    318: 3525
+    319: 3530
+    32: 10860
+    320: 3555
+    321: 3580
+    322: 3600
+    323: 3620
+    324: 3635
+    325: 3700
+    326: 3725
+    327: 3745
+    328: 3760
+    329: 3770
+    33: 10905
+    330: 3785
+    331: 3820
+    332: 3840
+    333: 3860
+    334: 3875
+    335: 3895
+    336: 3920
+    337: 3990
+    338: 3995
+    339: 4010
+    34: 10980
+    340: 4045
+    341: 4060
+    342: 4080
+    343: 4095
+    344: 4110
+    345: 4160
+    346: 4230
+    347: 4247
+    348: 4255
+    349: 4265
+    35: 10985
+    350: 4280
+    351: 4295
+    352: 4335
+    353: 4345
+    354: 4385
+    355: 4400
+    356: 4420
+    357: 4435
+    358: 4450
+    359: 4490
+    36: 11005
+    360: 4510
+    361: 4550
+    362: 4575
+    363: 4587
+    364: 4588
+    365: 4595
+    366: 4630
+    367: 4635
+    368: 4690
+    369: 4720
+    37: 11010
+    370: 4740
+    371: 4760
+    372: 4810
+    373: 4830
+    374: 4850
+    375: 4870
+    376: 4885
+    377: 4925
+    378: 4950
+    379: 4951
+    38: 11095
+    380: 4952
+    381: 4955
+    382: 4975
+    383: 5100
+    384: 5105
+    385: 5160
+    386: 5170
+    387: 5280
+    388: 5285
+    389: 5320
+    39: 11110
+    390: 5325
+    391: 5330
+    392: 5345
+    393: 5465
+    394: 5485
+    395: 5515
+    396: 5530
+    397: 5545
+    398: 5570
+    399: 5585
+    4: 10105
+    40: 11130
+    400: 5600
+    401: 5610
+    402: 5623
+    403: 5640
+    404: 5665
+    405: 5705
+    406: 5730
+    407: 5740
+    408: 5745
+    409: 5765
+    41: 11145
+    410: 5785
+    411: 5805
+    412: 5820
+    413: 5835
+    414: 5850
+    415: 5890
+    416: 5900
+    417: 5915
+    418: 5940
+    419: 5960
+    42: 11160
+    420: 6011
+    421: 6016
+    422: 6035
+    423: 6055
+    424: 6075
+    425: 6115
+    426: 6140
+    427: 6145
+    428: 6150
+    429: 6165
+    43: 11185
+    430: 6220
+    431: 6240
+    432: 6270
+    433: 6285
+    434: 6290
+    435: 6305
+    436: 6320
+    437: 6325
+    438: 6350
+    439: 6355
+    44: 11190
+    440: 6395
+    441: 6425
+    442: 6435
+    443: 6450
+    444: 6490
+    445: 6500
+    446: 6530
+    447: 6550
+    448: 6570
+    449: 6595
+    45: 1120
+    450: 6610
+    451: 6630
+    452: 6670
+    453: 6695
+    454: 6705
+    455: 6725
+    456: 6740
+    457: 6760
+    458: 6780
+    459: 6791
+    46: 11240
+    460: 6805
+    461: 6835
+    462: 6850
+    463: 6865
+    464: 6885
+    465: 6910
+    466: 6930
+    467: 6950
+    468: 6985
+    469: 6990
+    47: 11300
+    470: 7025
+    471: 7040
+    472: 7065
+    473: 7075
+    474: 7085
+    475: 7100
+    476: 7115
+    477: 7130
+    478: 7150
+    479: 7175
+    48: 11315
+    480: 7180
+    481: 7195
+    482: 7260
+    483: 7365
+    484: 7375
+    485: 7415
+    486: 7416
+    487: 7465
+    488: 7480
+    489: 7495
+    49: 11335
+    490: 7515
+    491: 7535
+    492: 7550
+    493: 7565
+    494: 7600
+    495: 7615
+    496: 7678
+    497: 7685
+    498: 7700
+    499: 7730
+    5: 10175
+    50: 11336
+    500: 7745
+    501: 7755
+    502: 7765
+    503: 7780
+    504: 7805
+    505: 7815
+    506: 7840
+    507: 7850
+    508: 7875
+    509: 7895
+    51: 11345
+    510: 7920
+    511: 7955
+    512: 7985
+    513: 8005
+    514: 8010
+    515: 8025
+    516: 8040
+    517: 8060
+    518: 8075
+    519: 8135
+    52: 1135
+    520: 8150
+    521: 8170
+    522: 8185
+    523: 8186
+    524: 8205
+    525: 8225
+    526: 8255
+    527: 8290
+    528: 8305
+    529: 8310
+    53: 11360
+    530: 8325
+    531: 8365
+    532: 8370
+    533: 8385
+    534: 8395
+    535: 8405
+    536: 8410
+    537: 8525
+    538: 8530
+    539: 8560
+    54: 11375
+    540: 8600
+    541: 8625
+    542: 8640
+    543: 8660
+    544: 8680
+    545: 8695
+    546: 8725
+    547: 8795
+    548: 8800
+    549: 8820
+    55: 11395
+    550: 8860
+    551: 8895
+    552: 8910
+    553: 8925
+    554: 8945
+    555: 8960
+    556: 8993
+    557: 8995
+    558: 9015
+    559: 9060
+    56: 11420
+    560: 9070
+    561: 9080
+    562: 9095
+    563: 9115
+    564: 9155
+    565: 9195
+    566: 9225
+    567: 9240
+    568: 9260
+    569: 9285
+    57: 11425
+    570: 9315
+    571: 9320
+    572: 9326
+    573: 9385
+    574: 9390
+    575: 9405
+    576: 9430
+    577: 9465
+    578: 9470
+    579: 9505
+    58: 11440
+    580: 9510
+    581: 9530
+    582: 9805
+    583: 9815
+    584: 9835
+    585: 9910
+    586: 9945
+    587: 9970
+    588: 9975
+    589: 9990
+    59: 11450
+    590: 10235
+    591: 10245
+    592: 10551
+    593: 11815
+    594: 1265
+    595: 13000
+    596: 13340
+    597: 13705
+    598: 14130
+    599: 14135
+    6: 10200
+    60: 11460
+    600: 14330
+    601: 14535
+    602: 14705
+    603: 14706
+    604: 15252
+    605: 15253
+    606: 2783
+    607: 3401
+    608: 3406
+    609: 3535
+    61: 11475
+    610: 4152
+    611: 4805
+    612: 5880
+    613: 6788
+    614: 7385
+    615: 8500
+    616: 9138
+    617: 9145
+    618: 9220
+    619: 9585
+    62: 11495
+    620: 9885
+    621: 9890
+    622: 3746
+    623: 12690
+    624: 15195
+    625: Not used
+    626: Not used
+    627: Not used
+    628: Not used
+    629: Not used
+    63: 1150
+    630: Not used
+    631: Not used
+    632: Not used
+    633: Not used
+    634: Not used
+    635: Not used
+    636: Not used
+    64: 11535
+    65: 11555
+    66: 11575
+    67: 11600
+    68: 11620
+    69: 11625
+    7: 10215
+    70: 11640
+    71: 11655
+    72: 11685
+    73: 11700
+    74: 11725
+    75: 11740
+    76: 11755
+    77: 11800
+    78: 11805
+    79: 11820
+    8: 10250
+    80: 11840
+    81: 1185
+    82: 11885
+    83: 11905
+    84: 11920
+    85: 11935
+    86: 11955
+    87: 11960
+    88: 11975
+    89: 12000
+    9: 10295
+    90: 12005
+    91: 12025
+    92: 12047
+    93: 12050
+    94: 12070
+    95: 12095
+    96: 12125
+    97: 12140
+    98: 1215
+    99: 12165
+    _column: Location name/ID
+  - 1: Demand
+    10: Demand
+    100: Demand
+    101: Demand
+    102: Demand
+    103: Demand
+    104: Demand
+    105: Demand
+    106: Demand
+    107: Demand
+    108: Demand
+    109: Demand
+    11: Demand
+    110: Demand
+    111: Demand
+    112: Demand
+    113: Demand
+    114: Demand
+    115: Demand
+    116: Demand
+    117: Demand
+    118: Demand
+    119: Demand
+    12: Demand
+    120: Demand
+    121: Demand
+    122: Demand
+    123: Demand
+    124: Demand
+    125: Demand
+    126: Demand
+    127: Demand
+    128: Demand
+    129: Demand
+    13: Demand
+    130: Demand
+    131: Demand
+    132: Demand
+    133: Demand
+    134: Demand
+    135: Demand
+    136: Demand
+    137: Demand
+    138: Demand
+    139: Demand
+    14: Demand
+    140: Demand
+    141: Demand
+    142: Demand
+    143: Demand
+    144: Demand
+    145: Demand
+    146: Demand
+    147: Demand
+    148: Demand
+    149: Demand
+    15: Demand
+    150: Demand
+    151: Demand
+    152: Demand
+    153: Demand
+    154: Demand
+    155: Demand
+    156: Demand
+    157: Demand
+    158: Demand
+    159: Demand
+    16: Demand
+    160: Demand
+    161: Demand
+    162: Demand
+    163: Demand
+    164: Demand
+    165: Demand
+    166: Demand
+    167: Demand
+    168: Demand
+    169: Demand
+    17: Demand
+    170: Demand
+    171: Demand
+    172: Demand
+    173: Demand
+    174: Demand
+    175: Demand
+    176: Demand
+    177: Demand
+    178: Demand
+    179: Demand
+    18: Demand
+    180: Demand
+    181: Demand
+    182: Demand
+    183: Demand
+    184: Demand
+    185: Demand
+    186: Demand
+    187: Demand
+    188: Demand
+    189: Demand
+    19: Demand
+    190: Demand
+    191: Demand
+    192: Demand
+    193: Demand
+    194: Demand
+    195: Demand
+    196: Demand
+    197: Demand
+    198: Demand
+    199: Demand
+    2: Demand
+    20: Demand
+    200: Demand
+    201: Demand
+    202: Demand
+    203: Demand
+    204: Demand
+    205: Demand
+    206: Demand
+    207: Demand
+    208: Demand
+    209: Demand
+    21: Demand
+    210: Demand
+    211: Demand
+    212: Demand
+    213: Demand
+    214: Demand
+    215: Demand
+    216: Demand
+    217: Demand
+    218: Demand
+    219: Demand
+    22: Demand
+    220: Demand
+    221: Demand
+    222: Demand
+    223: Demand
+    224: Demand
+    225: Demand
+    226: Demand
+    227: Demand
+    228: Demand
+    229: Demand
+    23: Demand
+    230: Demand
+    231: Demand
+    232: Demand
+    233: Demand
+    234: Demand
+    235: Demand
+    236: Demand
+    237: Demand
+    238: Demand
+    239: Demand
+    24: Demand
+    240: Demand
+    241: Demand
+    242: Demand
+    243: Demand
+    244: Demand
+    245: Demand
+    246: Demand
+    247: Demand
+    248: Demand
+    249: Demand
+    25: Demand
+    250: Demand
+    251: Demand
+    252: Demand
+    253: Demand
+    254: Demand
+    255: Demand
+    256: Demand
+    257: Demand
+    258: Demand
+    259: Demand
+    26: Demand
+    260: Demand
+    261: Demand
+    262: Demand
+    263: Demand
+    264: Demand
+    265: Demand
+    266: Demand
+    267: Demand
+    268: Demand
+    269: Demand
+    27: Demand
+    270: Demand
+    271: Demand
+    272: Demand
+    273: Demand
+    274: Demand
+    275: Demand
+    276: Demand
+    277: Demand
+    278: Demand
+    279: Demand
+    28: Demand
+    280: Demand
+    281: Demand
+    282: Demand
+    283: Demand
+    284: Demand
+    285: Demand
+    286: Demand
+    287: Demand
+    288: Demand
+    289: Demand
+    29: Demand
+    290: Demand
+    291: Demand
+    292: Demand
+    293: Demand
+    294: Demand
+    295: Demand
+    296: Demand
+    297: Demand
+    298: Demand
+    299: Demand
+    3: Demand
+    30: Demand
+    300: Demand
+    301: Demand
+    302: Demand
+    303: Demand
+    304: Demand
+    305: Demand
+    306: Demand
+    307: Demand
+    308: Demand
+    309: Demand
+    31: Demand
+    310: Demand
+    311: Demand
+    312: Demand
+    313: Demand
+    314: Demand
+    315: Demand
+    316: Demand
+    317: Demand
+    318: Demand
+    319: Demand
+    32: Demand
+    320: Demand
+    321: Demand
+    322: Demand
+    323: Demand
+    324: Demand
+    325: Demand
+    326: Demand
+    327: Demand
+    328: Demand
+    329: Demand
+    33: Demand
+    330: Demand
+    331: Demand
+    332: Demand
+    333: Demand
+    334: Demand
+    335: Demand
+    336: Demand
+    337: Demand
+    338: Demand
+    339: Demand
+    34: Demand
+    340: Demand
+    341: Demand
+    342: Demand
+    343: Demand
+    344: Demand
+    345: Demand
+    346: Demand
+    347: Demand
+    348: Demand
+    349: Demand
+    35: Demand
+    350: Demand
+    351: Demand
+    352: Demand
+    353: Demand
+    354: Demand
+    355: Demand
+    356: Demand
+    357: Demand
+    358: Demand
+    359: Demand
+    36: Demand
+    360: Demand
+    361: Demand
+    362: Demand
+    363: Demand
+    364: Demand
+    365: Demand
+    366: Demand
+    367: Demand
+    368: Demand
+    369: Demand
+    37: Demand
+    370: Demand
+    371: Demand
+    372: Demand
+    373: Demand
+    374: Demand
+    375: Demand
+    376: Demand
+    377: Demand
+    378: Demand
+    379: Demand
+    38: Demand
+    380: Demand
+    381: Demand
+    382: Demand
+    383: Demand
+    384: Demand
+    385: Demand
+    386: Demand
+    387: Demand
+    388: Demand
+    389: Demand
+    39: Demand
+    390: Demand
+    391: Demand
+    392: Demand
+    393: Demand
+    394: Demand
+    395: Demand
+    396: Demand
+    397: Demand
+    398: Demand
+    399: Demand
+    4: Demand
+    40: Demand
+    400: Demand
+    401: Demand
+    402: Demand
+    403: Demand
+    404: Demand
+    405: Demand
+    406: Demand
+    407: Demand
+    408: Demand
+    409: Demand
+    41: Demand
+    410: Demand
+    411: Demand
+    412: Demand
+    413: Demand
+    414: Demand
+    415: Demand
+    416: Demand
+    417: Demand
+    418: Demand
+    419: Demand
+    42: Demand
+    420: Demand
+    421: Demand
+    422: Demand
+    423: Demand
+    424: Demand
+    425: Demand
+    426: Demand
+    427: Demand
+    428: Demand
+    429: Demand
+    43: Demand
+    430: Demand
+    431: Demand
+    432: Demand
+    433: Demand
+    434: Demand
+    435: Demand
+    436: Demand
+    437: Demand
+    438: Demand
+    439: Demand
+    44: Demand
+    440: Demand
+    441: Demand
+    442: Demand
+    443: Demand
+    444: Demand
+    445: Demand
+    446: Demand
+    447: Demand
+    448: Demand
+    449: Demand
+    45: Demand
+    450: Demand
+    451: Demand
+    452: Demand
+    453: Demand
+    454: Demand
+    455: Demand
+    456: Demand
+    457: Demand
+    458: Demand
+    459: Demand
+    46: Demand
+    460: Demand
+    461: Demand
+    462: Demand
+    463: Demand
+    464: Demand
+    465: Demand
+    466: Demand
+    467: Demand
+    468: Demand
+    469: Demand
+    47: Demand
+    470: Demand
+    471: Demand
+    472: Demand
+    473: Demand
+    474: Demand
+    475: Demand
+    476: Demand
+    477: Demand
+    478: Demand
+    479: Demand
+    48: Demand
+    480: Demand
+    481: Demand
+    482: Demand
+    483: Demand
+    484: Demand
+    485: Demand
+    486: Demand
+    487: Demand
+    488: Demand
+    489: Demand
+    49: Demand
+    490: Demand
+    491: Demand
+    492: Demand
+    493: Demand
+    494: Demand
+    495: Demand
+    496: Demand
+    497: Demand
+    498: Demand
+    499: Demand
+    5: Demand
+    50: Demand
+    500: Demand
+    501: Demand
+    502: Demand
+    503: Demand
+    504: Demand
+    505: Demand
+    506: Demand
+    507: Demand
+    508: Demand
+    509: Demand
+    51: Demand
+    510: Demand
+    511: Demand
+    512: Demand
+    513: Demand
+    514: Demand
+    515: Demand
+    516: Demand
+    517: Demand
+    518: Demand
+    519: Demand
+    52: Demand
+    520: Demand
+    521: Demand
+    522: Demand
+    523: Demand
+    524: Demand
+    525: Demand
+    526: Demand
+    527: Demand
+    528: Demand
+    529: Demand
+    53: Demand
+    530: Demand
+    531: Demand
+    532: Demand
+    533: Demand
+    534: Demand
+    535: Demand
+    536: Demand
+    537: Demand
+    538: Demand
+    539: Demand
+    54: Demand
+    540: Demand
+    541: Demand
+    542: Demand
+    543: Demand
+    544: Demand
+    545: Demand
+    546: Demand
+    547: Demand
+    548: Demand
+    549: Demand
+    55: Demand
+    550: Demand
+    551: Demand
+    552: Demand
+    553: Demand
+    554: Demand
+    555: Demand
+    556: Demand
+    557: Demand
+    558: Demand
+    559: Demand
+    56: Demand
+    560: Demand
+    561: Demand
+    562: Demand
+    563: Demand
+    564: Demand
+    565: Demand
+    566: Demand
+    567: Demand
+    568: Demand
+    569: Demand
+    57: Demand
+    570: Demand
+    571: Demand
+    572: Demand
+    573: Demand
+    574: Demand
+    575: Demand
+    576: Demand
+    577: Demand
+    578: Demand
+    579: Demand
+    58: Demand
+    580: Demand
+    581: Demand
+    582: Demand
+    583: Demand
+    584: Demand
+    585: Demand
+    586: Demand
+    587: Demand
+    588: Demand
+    589: Demand
+    59: Demand
+    590: Generation
+    591: Generation
+    592: Generation
+    593: Generation
+    594: Generation
+    595: Generation
+    596: Generation
+    597: Generation
+    598: Generation
+    599: Generation
+    6: Demand
+    60: Demand
+    600: Generation
+    601: Generation
+    602: Generation
+    603: Generation
+    604: Generation
+    605: Generation
+    606: Generation
+    607: Generation
+    608: Generation
+    609: Generation
+    61: Demand
+    610: Generation
+    611: Generation
+    612: Generation
+    613: Generation
+    614: Generation
+    615: Generation
+    616: Generation
+    617: Generation
+    618: Generation
+    619: Generation
+    62: Demand
+    620: Generation
+    621: Generation
+    622: Demand
+    623: Demand
+    624: Demand
+    625: ''
+    626: ''
+    627: ''
+    628: ''
+    629: ''
+    63: Demand
+    630: ''
+    631: ''
+    632: ''
+    633: ''
+    634: ''
+    635: ''
+    636: ''
+    64: Demand
+    65: Demand
+    66: Demand
+    67: Demand
+    68: Demand
+    69: Demand
+    7: Demand
+    70: Demand
+    71: Demand
+    72: Demand
+    73: Demand
+    74: Demand
+    75: Demand
+    76: Demand
+    77: Demand
+    78: Demand
+    79: Demand
+    8: Demand
+    80: Demand
+    81: Demand
+    82: Demand
+    83: Demand
+    84: Demand
+    85: Demand
+    86: Demand
+    87: Demand
+    88: Demand
+    89: Demand
+    9: Demand
+    90: Demand
+    91: Demand
+    92: Demand
+    93: Demand
+    94: Demand
+    95: Demand
+    96: Demand
+    97: Demand
+    98: Demand
+    99: Demand
+    _column: Demand or Generation
+  - 1: ''
+    10: ''
+    100: ''
+    101: ''
+    102: ''
+    103: ''
+    104: ''
+    105: ''
+    106: ''
+    107: ''
+    108: ''
+    109: ''
+    11: ''
+    110: ''
+    111: ''
+    112: ''
+    113: ''
+    114: ''
+    115: ''
+    116: ''
+    117: ''
+    118: ''
+    119: ''
+    12: ''
+    120: ''
+    121: ''
+    122: ''
+    123: ''
+    124: ''
+    125: ''
+    126: ''
+    127: ''
+    128: ''
+    129: ''
+    13: ''
+    130: ''
+    131: ''
+    132: ''
+    133: ''
+    134: ''
+    135: ''
+    136: ''
+    137: ''
+    138: ''
+    139: ''
+    14: ''
+    140: ''
+    141: ''
+    142: ''
+    143: ''
+    144: ''
+    145: ''
+    146: ''
+    147: ''
+    148: ''
+    149: ''
+    15: ''
+    150: ''
+    151: ''
+    152: ''
+    153: ''
+    154: ''
+    155: ''
+    156: ''
+    157: ''
+    158: ''
+    159: ''
+    16: ''
+    160: ''
+    161: ''
+    162: ''
+    163: ''
+    164: ''
+    165: ''
+    166: ''
+    167: ''
+    168: ''
+    169: ''
+    17: ''
+    170: 13855
+    171: ''
+    172: ''
+    173: ''
+    174: ''
+    175: ''
+    176: ''
+    177: ''
+    178: 14025
+    179: 14030
+    18: ''
+    180: ''
+    181: ''
+    182: ''
+    183: ''
+    184: ''
+    185: ''
+    186: ''
+    187: ''
+    188: ''
+    189: ''
+    19: ''
+    190: ''
+    191: 14333
+    192: ''
+    193: ''
+    194: ''
+    195: ''
+    196: ''
+    197: ''
+    198: ''
+    199: ''
+    2: ''
+    20: ''
+    200: ''
+    201: ''
+    202: ''
+    203: ''
+    204: ''
+    205: ''
+    206: ''
+    207: 14780
+    208: ''
+    209: ''
+    21: ''
+    210: ''
+    211: ''
+    212: ''
+    213: ''
+    214: ''
+    215: ''
+    216: ''
+    217: ''
+    218: ''
+    219: ''
+    22: ''
+    220: ''
+    221: ''
+    222: ''
+    223: ''
+    224: ''
+    225: ''
+    226: ''
+    227: ''
+    228: ''
+    229: ''
+    23: ''
+    230: ''
+    231: ''
+    232: ''
+    233: ''
+    234: ''
+    235: ''
+    236: ''
+    237: ''
+    238: ''
+    239: ''
+    24: ''
+    240: 1555
+    241: ''
+    242: ''
+    243: ''
+    244: ''
+    245: ''
+    246: ''
+    247: ''
+    248: ''
+    249: ''
+    25: ''
+    250: ''
+    251: ''
+    252: ''
+    253: ''
+    254: ''
+    255: ''
+    256: ''
+    257: ''
+    258: ''
+    259: ''
+    26: ''
+    260: ''
+    261: ''
+    262: ''
+    263: ''
+    264: ''
+    265: ''
+    266: ''
+    267: ''
+    268: ''
+    269: ''
+    27: ''
+    270: ''
+    271: ''
+    272: ''
+    273: ''
+    274: ''
+    275: ''
+    276: 2235
+    277: ''
+    278: ''
+    279: ''
+    28: ''
+    280: ''
+    281: ''
+    282: ''
+    283: ''
+    284: ''
+    285: ''
+    286: ''
+    287: ''
+    288: ''
+    289: ''
+    29: ''
+    290: ''
+    291: 2700
+    292: ''
+    293: 2835
+    294: ''
+    295: ''
+    296: ''
+    297: ''
+    298: ''
+    299: ''
+    3: ''
+    30: 10855
+    300: ''
+    301: ''
+    302: ''
+    303: ''
+    304: ''
+    305: ''
+    306: ''
+    307: ''
+    308: ''
+    309: ''
+    31: ''
+    310: ''
+    311: ''
+    312: ''
+    313: ''
+    314: ''
+    315: ''
+    316: ''
+    317: ''
+    318: ''
+    319: ''
+    32: ''
+    320: ''
+    321: ''
+    322: ''
+    323: ''
+    324: ''
+    325: ''
+    326: ''
+    327: ''
+    328: ''
+    329: ''
+    33: ''
+    330: ''
+    331: ''
+    332: ''
+    333: ''
+    334: ''
+    335: ''
+    336: ''
+    337: ''
+    338: ''
+    339: ''
+    34: 10985
+    340: ''
+    341: ''
+    342: ''
+    343: ''
+    344: ''
+    345: ''
+    346: ''
+    347: ''
+    348: ''
+    349: ''
+    35: ''
+    350: ''
+    351: ''
+    352: ''
+    353: ''
+    354: ''
+    355: ''
+    356: ''
+    357: ''
+    358: ''
+    359: ''
+    36: 11010
+    360: ''
+    361: ''
+    362: ''
+    363: 4588
+    364: ''
+    365: ''
+    366: ''
+    367: ''
+    368: ''
+    369: ''
+    37: ''
+    370: ''
+    371: ''
+    372: ''
+    373: ''
+    374: ''
+    375: ''
+    376: ''
+    377: ''
+    378: ''
+    379: ''
+    38: ''
+    380: ''
+    381: ''
+    382: ''
+    383: ''
+    384: ''
+    385: ''
+    386: ''
+    387: ''
+    388: ''
+    389: ''
+    39: ''
+    390: ''
+    391: ''
+    392: ''
+    393: ''
+    394: ''
+    395: ''
+    396: ''
+    397: ''
+    398: ''
+    399: ''
+    4: ''
+    40: ''
+    400: ''
+    401: ''
+    402: ''
+    403: ''
+    404: ''
+    405: ''
+    406: ''
+    407: ''
+    408: ''
+    409: ''
+    41: ''
+    410: ''
+    411: ''
+    412: ''
+    413: ''
+    414: ''
+    415: ''
+    416: ''
+    417: ''
+    418: ''
+    419: ''
+    42: ''
+    420: ''
+    421: ''
+    422: ''
+    423: ''
+    424: ''
+    425: ''
+    426: ''
+    427: ''
+    428: ''
+    429: ''
+    43: ''
+    430: ''
+    431: ''
+    432: ''
+    433: ''
+    434: ''
+    435: ''
+    436: ''
+    437: ''
+    438: ''
+    439: ''
+    44: ''
+    440: ''
+    441: ''
+    442: ''
+    443: ''
+    444: ''
+    445: ''
+    446: ''
+    447: ''
+    448: ''
+    449: ''
+    45: ''
+    450: ''
+    451: ''
+    452: ''
+    453: ''
+    454: ''
+    455: ''
+    456: ''
+    457: ''
+    458: ''
+    459: ''
+    46: 11300
+    460: ''
+    461: ''
+    462: ''
+    463: ''
+    464: ''
+    465: ''
+    466: ''
+    467: ''
+    468: ''
+    469: ''
+    47: ''
+    470: ''
+    471: ''
+    472: ''
+    473: ''
+    474: ''
+    475: ''
+    476: ''
+    477: ''
+    478: ''
+    479: ''
+    48: ''
+    480: ''
+    481: ''
+    482: ''
+    483: ''
+    484: ''
+    485: ''
+    486: ''
+    487: ''
+    488: ''
+    489: ''
+    49: 11336
+    490: ''
+    491: ''
+    492: ''
+    493: ''
+    494: ''
+    495: ''
+    496: ''
+    497: ''
+    498: ''
+    499: ''
+    5: ''
+    50: ''
+    500: ''
+    501: ''
+    502: ''
+    503: ''
+    504: ''
+    505: ''
+    506: ''
+    507: ''
+    508: ''
+    509: ''
+    51: ''
+    510: ''
+    511: ''
+    512: ''
+    513: ''
+    514: ''
+    515: ''
+    516: ''
+    517: ''
+    518: ''
+    519: ''
+    52: ''
+    520: ''
+    521: ''
+    522: ''
+    523: ''
+    524: ''
+    525: ''
+    526: ''
+    527: ''
+    528: ''
+    529: ''
+    53: ''
+    530: ''
+    531: ''
+    532: ''
+    533: ''
+    534: ''
+    535: ''
+    536: ''
+    537: ''
+    538: ''
+    539: ''
+    54: ''
+    540: ''
+    541: ''
+    542: ''
+    543: ''
+    544: ''
+    545: ''
+    546: ''
+    547: ''
+    548: ''
+    549: ''
+    55: ''
+    550: ''
+    551: ''
+    552: ''
+    553: ''
+    554: ''
+    555: ''
+    556: ''
+    557: ''
+    558: ''
+    559: ''
+    56: ''
+    560: ''
+    561: ''
+    562: ''
+    563: ''
+    564: ''
+    565: ''
+    566: ''
+    567: ''
+    568: ''
+    569: ''
+    57: ''
+    570: ''
+    571: ''
+    572: ''
+    573: ''
+    574: ''
+    575: ''
+    576: ''
+    577: ''
+    578: ''
+    579: 9510
+    58: ''
+    580: ''
+    581: ''
+    582: ''
+    583: ''
+    584: ''
+    585: ''
+    586: ''
+    587: ''
+    588: ''
+    589: ''
+    59: ''
+    590: 7385
+    591: ''
+    592: ''
+    593: ''
+    594: ''
+    595: ''
+    596: ''
+    597: ''
+    598: 14135
+    599: ''
+    6: ''
+    60: ''
+    600: ''
+    601: ''
+    602: ''
+    603: ''
+    604: 15253
+    605: ''
+    606: ''
+    607: 3406
+    608: ''
+    609: ''
+    61: ''
+    610: ''
+    611: ''
+    612: ''
+    613: ''
+    614: ''
+    615: ''
+    616: ''
+    617: ''
+    618: ''
+    619: ''
+    62: ''
+    620: 9890
+    621: ''
+    622: ''
+    623: ''
+    624: ''
+    625: ''
+    626: ''
+    627: ''
+    628: ''
+    629: ''
+    63: ''
+    630: ''
+    631: ''
+    632: ''
+    633: ''
+    634: ''
+    635: ''
+    636: ''
+    64: ''
+    65: ''
+    66: ''
+    67: ''
+    68: ''
+    69: ''
+    7: ''
+    70: ''
+    71: ''
+    72: ''
+    73: ''
+    74: ''
+    75: ''
+    76: ''
+    77: ''
+    78: ''
+    79: ''
+    8: ''
+    80: ''
+    81: ''
+    82: ''
+    83: ''
+    84: ''
+    85: ''
+    86: ''
+    87: ''
+    88: ''
+    89: ''
+    9: ''
+    90: ''
+    91: ''
+    92: ''
+    93: ''
+    94: ''
+    95: ''
+    96: ''
+    97: ''
+    98: ''
+    99: ''
+    _column: Linked location (if any)
+  - 1: 0.348184011382076
+    10: 0
+    100: 3.66969966973202
+    101: 2.33091099086241
+    102: 0.338444575217165
+    103: 1.22386201089657
+    104: 0.248300601442186
+    105: 0.0350816747356607
+    106: 2.07216470796316
+    107: 2.06642336615573
+    108: 0.152726994638786
+    109: 3.93604095152444
+    11: 0.0359936436587391
+    110: 0.0581664387998073
+    111: 0.0107899142640641
+    112: 0.435918361096351
+    113: 0
+    114: 0.529374269662661
+    115: 0.00131831188493396
+    116: 0.510406753620454
+    117: 1.34101681844079
+    118: 1.95414235030529
+    119: 1.71303488801596
+    12: 0.659657093184
+    120: 1.71303488801596
+    121: 0.119212018692918
+    122: 2.38483045855967
+    123: 1.34101681844079
+    124: 0.453591719297254
+    125: 0.0482795012212644
+    126: 0.486504018844601
+    127: 0.129482285455903
+    128: 6.24820450923209
+    129: 0.80027410324915
+    13: 3.41734579796256
+    130: 0.0363641233577446
+    131: 0.426988683080806
+    132: 0.963226522475701
+    133: 0.0140996488835631
+    134: 4.27623084071382
+    135: 0.858061590485367
+    136: 2.70681327483698
+    137: 4.15417143423664
+    138: 1.77780649208842
+    139: 0.481902360893595
+    14: 1.8568563686674
+    140: 1.36656112671459
+    141: 1.36318872712672
+    142: -0.0497524686541915
+    143: 3.75463283878805
+    144: -0.0224853305934331
+    145: 1.18013216043253
+    146: 0.877345644472783
+    147: 1.77827341459144
+    148: 0.0571901685861449
+    149: 0.0835540045191551
+    15: 0.912141687189894
+    150: 0.926480576738318
+    151: 1.93437252398395
+    152: 1.88517323823511
+    153: 0.0818398831502886
+    154: 0.434587955523047
+    155: 1.09420512617455
+    156: 0.288630054420296
+    157: -1.66576914512188
+    158: 0.280701208910649
+    159: -0.789964725665829
+    16: 1.63575425443113
+    160: 4.47348561509353
+    161: 0.00609335108746081
+    162: 1.0523203032951
+    163: 0.709579047007635
+    164: 3.23757417224199
+    165: 0.878114833605438
+    166: 0.759545983726682
+    167: 3.23207868288516
+    168: 4.44285767618232
+    169: -0.0955829137759739
+    17: 0.0176874763353403
+    170: 0.408452938867995
+    171: 0.264093918814442
+    172: 6.53476959599897
+    173: 2.49790868298086
+    174: 2.50432672865611
+    175: 1.26831397745298
+    176: 1.28809132990551
+    177: 0.598278269860295
+    178: 0.596103916753431
+    179: 0
+    18: 2.26237726076964
+    180: 0
+    181: 0.0247268999990079
+    182: 1.09760813098938
+    183: 1.43091499137237
+    184: 2.41692240369578
+    185: 0.177001825143947
+    186: 1.07116836473934
+    187: 0.532595881991507
+    188: 0.759699035244157
+    189: 0.1434792687921
+    19: 0.0261663335540026
+    190: 0.143829679221391
+    191: -0.0016110022618799
+    192: -0.0016110022618799
+    193: 0.109462006282367
+    194: 7.54292821520604
+    195: 2.14538205692921
+    196: 2.06565307278448
+    197: 2.06565307278448
+    198: 0.766224484648374
+    199: 0.722221132201776
+    2: 0.481490464691165
+    20: 0.177087289523456
+    200: 0.76563411691566
+    201: 0.0088932284228702
+    202: 2.06457075098893
+    203: 1.20790476273892
+    204: 5.13230419462587
+    205: 0.953935595955543
+    206: 0.836800722358005
+    207: 0.898077637475565
+    208: 0.896590014388999
+    209: 1.2193263185458
+    21: 1.50791224541096
+    210: 1.23633292826475
+    211: 0.144702888061459
+    212: 0.144702888061459
+    213: 3.06164642295438
+    214: 3.11090757692423
+    215: 0.032638256508776
+    216: 0.770746248598363
+    217: 0.12314343377479
+    218: 0.0949660661245862
+    219: 0.588589194498182
+    22: 3.50980983480819
+    220: 2.36012189501245
+    221: 0.442010118190904
+    222: 0.981679852914644
+    223: 0.034245000096867
+    224: 0.140182161175416
+    225: 1.82737428910281
+    226: 0.036171194077085
+    227: 2.52381372383232
+    228: 0.274836350411929
+    229: 0.934647984954787
+    23: 0.140657116846368
+    230: 0.00389595516640829
+    231: 7.09843808856812
+    232: 0.432979194241765
+    233: 1.82066067228199
+    234: 2.58195698543835
+    235: 0.992309878424784
+    236: 1.0020044813983
+    237: 2.4717934155312
+    238: 2.46603065448542
+    239: 2.46158169144371
+    24: 1.62103917907192
+    240: 4.26430731805262
+    241: 3.60281470979756
+    242: 7.70887695951357
+    243: 0.98016390075445
+    244: 3.72241463929108
+    245: 0
+    246: 0.0101501949339613
+    247: 0.621059365545487
+    248: 2.54283737919304
+    249: 0.110138886617965
+    25: 0.606357426655481
+    250: 0.408692641884203
+    251: 2.1132550139637
+    252: 0.327560284288838
+    253: 1.9191057237879
+    254: -0.0827075625419156
+    255: 0.100370187135823
+    256: 1.10229030597036
+    257: 3.00287516972586
+    258: 1.21885125483897
+    259: 0.479996364619568
+    26: 1.422222054783
+    260: -0.0467195462830116
+    261: 6.28288224130277
+    262: -0.0604742717173303
+    263: 0.127861448429151
+    264: 1.30853634688213
+    265: 0.778004177860249
+    266: 1.56390923704917
+    267: 1.74288753509894
+    268: -0.913959282938914
+    269: 0.0930197492230923
+    27: 0.00417067299549656
+    270: 1.2699120310515
+    271: -1.2679538757037
+    272: 0.948866970474773
+    273: 3.31355801000428
+    274: 0.0964457979305735
+    275: 1.01866397816203
+    276: 0.702127004230586
+    277: 1.24517212207217
+    278: 1.15608944388988
+    279: 1.15424037086225
+    28: 2.52074798216177
+    280: 2.01382170555143
+    281: 2.01382170555143
+    282: 2.01382170555143
+    283: 0.189443905617499
+    284: 2.46846641165669
+    285: 0.920017985769592
+    286: 0.294593462651826
+    287: 1.96179739738666
+    288: 1.96179739738666
+    289: 1.96179739738666
+    29: 1.56852240456881
+    290: 1.96179739738666
+    291: 2.0821949103525
+    292: 1.49975817030989
+    293: 4.81095992208109
+    294: 1.24477191302519
+    295: 4.78004577759405
+    296: 2.15559707548827
+    297: 3.47722898715582
+    298: 0.0270772567199429
+    299: 0.0270772567199429
+    3: -0.0121462471482372
+    30: 4.00577029706996
+    300: 1.86298730832155
+    301: 0.0667013674577308
+    302: 2.09874410111979
+    303: 2.08789667342105
+    304: 1.97457938212454
+    305: 2.57941832206233
+    306: 1.29174868303988
+    307: 0.754691794084638
+    308: 0.895354174024067
+    309: 0.899524336749116
+    31: 4.02568536854395
+    310: 0.0753016293086455
+    311: 0.037665981041133
+    312: 0.250345009280832
+    313: 3.37166456835048
+    314: 2.06086760182778
+    315: 0.793960188287753
+    316: 1.27690842130112
+    317: 4.03432717836738
+    318: 0.0205150072144651
+    319: 0.0206557671642987
+    32: 0.788409837593797
+    320: 0.139883156066678
+    321: 0.52741533187172
+    322: 1.17058079547611
+    323: 0.0514108024150833
+    324: 1.04706723372622
+    325: 2.83155197696426
+    326: 4.25571335752065
+    327: 3.48743112703301
+    328: 0
+    329: 1.0111168950219
+    33: 0.790957815046413
+    330: 2.38562905992366
+    331: 2.27001472965195
+    332: 0.480980345897923
+    333: 0.204548495228652
+    334: 0.516796822506033
+    335: 3.75380000177213
+    336: 2.00953729907621
+    337: 2.57949339954324
+    338: 0.62710900389423
+    339: 0.0451682117481393
+    34: 0.805812723272514
+    340: 0.94587874418874
+    341: 2.98665797573645
+    342: 0.403232121858626
+    343: 3.15122911337447
+    344: -0.00108437836647967
+    345: 1.31067366458805
+    346: 0.113909171906736
+    347: 0.00855666279577551
+    348: 0.0791500440172199
+    349: 0.630103180231964
+    35: 0.723386397602614
+    350: 0.855042141613624
+    351: 0.936709792948685
+    352: 0.135947472983085
+    353: 0.00860691947460831
+    354: 0.0292892920809143
+    355: 0.795615680486013
+    356: 0.958641657942422
+    357: 1.74157206104556
+    358: 0.988893035847536
+    359: 0.236933281608619
+    36: 1.54368168668955
+    360: 0.305420598882076
+    361: 0.339595051905044
+    362: 1.81713293378087
+    363: 1.99728605612762
+    364: 1.997286714533
+    365: 1.02228441352663
+    366: 2.00396162760772
+    367: 0.624614924274178
+    368: 3.88207558665324
+    369: 2.3937597049897
+    37: 1.53848166417986
+    370: 2.25467858017318
+    371: 1.18956774185517
+    372: 0.0718795528930403
+    373: 0.348773703195664
+    374: 0.658679239215807
+    375: 0.987662276505791
+    376: 0.548477874786819
+    377: 0.430486469097081
+    378: 0.0446786163866697
+    379: 0.304950945518491
+    38: 0.00245192285836651
+    380: 0.304950945518491
+    381: 2.17653023247997
+    382: 0.964936289497672
+    383: 3.3260581424197
+    384: 3.33026862694964
+    385: 0.0754565309096385
+    386: 0.0754565309096385
+    387: 4.13787900565257
+    388: 4.16022296557882
+    389: 1.0137125318585
+    39: 1.36377962032178
+    390: 1.01221109860869
+    391: 0.987486398483738
+    392: 0.988894403367528
+    393: 1.89820772893818
+    394: 1.70966647156571
+    395: 2.2410429071199
+    396: 2.56162973885436
+    397: 0.64653001279104
+    398: 1.50925928090566
+    399: 2.11953333794829
+    4: 0.522347946121532
+    40: 1.24364190697707
+    400: 1.79811606717825
+    401: 0.544783999307448
+    402: 3.19485028299326
+    403: 0.16290134096323
+    404: 0.0248753341438094
+    405: 0.86523626725224
+    406: 1.66292984691147
+    407: -0.0326299990152834
+    408: -0.142799891264936
+    409: 0.055518473356504
+    41: 0.116977654654428
+    410: 0.42249651851616
+    411: 0.355242257187847
+    412: 1.79965123030108
+    413: 0.466264508314776
+    414: 3.32865090114652
+    415: 1.15385080074653
+    416: 0.0824526802869584
+    417: 1.36861695064058
+    418: 2.98186781438392
+    419: 0.4172743617614
+    42: 1.34674027046511
+    420: 0
+    421: 0
+    422: 0.610867766443399
+    423: 0.78618873652208
+    424: 4.50818169984756
+    425: 2.79704465317991
+    426: 1.03273075329827
+    427: 0
+    428: 0.749164845754152
+    429: 0.4272224908018
+    43: 3.86839461504423
+    430: 1.7066896781621
+    431: 0.970859924566146
+    432: 1.42918508802613
+    433: 2.51466696109739
+    434: 2.436017591988
+    435: 0.280429551665012
+    436: 2.13718355429148
+    437: 1.9441515708309
+    438: 1.60372545671938
+    439: 1.60372545671938
+    44: 5.25285646001344
+    440: 0.086947189917449
+    441: 0.453653227615694
+    442: 0.168027270216774
+    443: 1.0340331334873
+    444: 0.463387904939494
+    445: 0.395426230126693
+    446: 2.39699862777691
+    447: 0.268448209867533
+    448: 9.82806245045292
+    449: 0.596290610587727
+    45: 2.93862467637291
+    450: 0.87166351812839
+    451: 0.0495338597568171
+    452: 0.0488488308876183
+    453: 0.756628184322024
+    454: 1.90495918633992
+    455: 1.90177931333496
+    456: 1.91806159751548
+    457: 0.659991229657669
+    458: 0.22440841749778
+    459: 0.0408747628272407
+    46: 1.92674518518346
+    460: 0.466425954392851
+    461: 0.0172153257070458
+    462: 0.402952677301428
+    463: 0.0154873625205799
+    464: 0.192717320297977
+    465: 1.90731770849327
+    466: 0.0594479811876482
+    467: 1.86805438282745
+    468: 1.91782108080667
+    469: 1.76813071374876
+    47: 1.92488523658456
+    470: 0.933225422742202
+    471: 0.814245003337602
+    472: 1.0994082296849
+    473: 1.78469036242407
+    474: 3.80895024588664
+    475: 2.24047614256627
+    476: 3.10861895868424
+    477: 3.15360585234801
+    478: 2.06785596619345
+    479: 0
+    48: 0.0509223001858038
+    480: 0.79979183087331
+    481: 6.51764150096886
+    482: 0.0143682657565927
+    483: 1.27926068736166
+    484: 0.814285242021601
+    485: 0.257034184523549
+    486: 0.257034184523549
+    487: 0.0063724851180332
+    488: 0.0920506758481716
+    489: 0.334488100498054
+    49: 1.91356171115221
+    490: 4.66936157906935
+    491: 1.51697944223388
+    492: 0.241436271677653
+    493: -0.00347836692957521
+    494: 0.0859580853537091
+    495: 2.2450468518351
+    496: -0.00374461550475237
+    497: 0.463148458385058
+    498: 1.41761462638874
+    499: 1.94096857266288
+    5: 1.26868237312396
+    50: 1.91356169886473
+    500: 0.923591346664425
+    501: -0.0518158901489181
+    502: 1.36527286762786
+    503: 0.99319570835367
+    504: 0.7308413503092
+    505: 0.451180705373627
+    506: 0.887910200835447
+    507: 0.694889688881076
+    508: 7.89181132900149
+    509: 0.0790460033736612
+    51: 1.15761569089716
+    510: 6.22800938621569
+    511: 0.345927075845759
+    512: 0.0550359306281226
+    513: 8.66471150335011
+    514: 0.565209296211394
+    515: 0.0596639424533938
+    516: 0.74107050985111
+    517: 3.50800372139664
+    518: 0.0894005537636526
+    519: 0.2008985908761
+    52: -0.00931493647668213
+    520: 0.159169409666967
+    521: 3.06160537938795
+    522: 0.215700066301691
+    523: 0.0133392469771261
+    524: 1.60566842318662
+    525: 0.0547813991121155
+    526: 0.223126518175879
+    527: 0.121650655768716
+    528: 0.750167063818875
+    529: 0.694827913566181
+    53: 2.89042319109778
+    530: 0.067822167010964
+    531: 5.72502893808235
+    532: 0.090740222143226
+    533: 0.0580700814815439
+    534: -0.312594227888345
+    535: 0.553699449858334
+    536: 0.335771840675995
+    537: 2.90843781626644
+    538: -0.378441768168014
+    539: 1.73115246221746
+    54: 0.231520041956166
+    540: 0.932057915087832
+    541: 0.912452679436125
+    542: 0.258812134405505
+    543: 0.408808805809912
+    544: 1.79161647659345
+    545: 1.79161647659345
+    546: 0.00269195181319882
+    547: 0.107408499547022
+    548: 0
+    549: 0.259271535851154
+    55: 0.136609099440533
+    550: 0.0271561410386514
+    551: 0.0541962276371811
+    552: 1.52614991576329
+    553: 2.44142282627097
+    554: 0.309236993818839
+    555: 0.713806925775531
+    556: 0.0469676993613908
+    557: 0.215920050729159
+    558: 1.04966794179149
+    559: -0.0797704296643861
+    56: 0.366616131332667
+    560: 2.18361235016731
+    561: 2.02310393826768
+    562: 0.67488024809461
+    563: 2.01943383057416
+    564: 7.76865153292658
+    565: 2.91222824839893
+    566: 0.584121210182287
+    567: 0.064608021511311
+    568: 0.136248964016919
+    569: 3.02463125050211
+    57: 0.366616131332667
+    570: 0.187784467727597
+    571: 0.297753011551667
+    572: 0.26857074444059
+    573: -0.000206568324361901
+    574: 2.06566579028608
+    575: 0.80580340657419
+    576: 0.437216580736624
+    577: 0.202405830565009
+    578: 2.10441844723122
+    579: 0.612502685614457
+    58: 0.415107190428072
+    580: 0.612500001403321
+    581: 1.81029292251979
+    582: 0.691128624775862
+    583: 0.691585181668271
+    584: 0.236270899390726
+    585: 1.86434791625626
+    586: 0.362002063311369
+    587: 0.0187475873357288
+    588: 0.0187475873357288
+    589: 3.02060214930014
+    59: 6.99282409141742
+    590: 3.52922130046109
+    591: 3.52848999318112
+    592: 0.987138365728986
+    593: 2.77285581611153
+    594: 0.00120393697413512
+    595: 1.33072939204256
+    596: 5.09383651853017
+    597: 1.86692887001369
+    598: 0.0411120317461218
+    599: 0.0412046182358667
+    6: 0.069952280645362
+    60: 1.73834731733627
+    600: -0.001657945897863
+    601: 2.17082621139334
+    602: 3.91069287040067
+    603: 3.32974106746376
+    604: -1.4121082686532
+    605: -1.41441536184339
+    606: 10.1057147130923
+    607: 7.19899530329786
+    608: 19.8872734675693
+    609: 0.794595059475626
+    61: 0.782517416782558
+    610: 4.78227287008899
+    611: 2.10486846912093
+    612: 4.35405225382229
+    613: 0.0346119404279289
+    614: 4.34605453282969
+    615: 1.62106980311238
+    616: 6.26201481893324
+    617: 1.55055455641269
+    618: 1.4569316513324
+    619: 0.0196870358380637
+    62: -0.180997767122262
+    620: 0.0608255856230639
+    621: 0.0611020218798385
+    622: 5.87903252402895
+    623: 0
+    624: ''
+    625: ''
+    626: ''
+    627: ''
+    628: ''
+    629: ''
+    63: 3.82015250795265
+    630: ''
+    631: ''
+    632: ''
+    633: ''
+    634: ''
+    635: ''
+    636: ''
+    64: -0.0668830668525595
+    65: 2.25492315851533
+    66: 1.7856827361148
+    67: 0.106388842921191
+    68: 0.886877707928341
+    69: 0.886877707928341
+    7: 0.62297551443955
+    70: 1.81079788997777
+    71: 0.921861670491721
+    72: 3.3068612299385
+    73: 1.15306582265694
+    74: 1.64598185562678
+    75: 3.3013172038848
+    76: 4.82257389999227
+    77: 1.21701667344997
+    78: 1.21701667344997
+    79: 0.575190312755145
+    8: 0
+    80: 0.543922094941401
+    81: 1.66626215964749
+    82: 0.0310923487884747
+    83: 0.693730889895765
+    84: 2.29723528436189
+    85: 2.35398195949145
+    86: 0.0757794382938198
+    87: 0.0732074966269235
+    88: 1.95734243756901
+    89: 1.69387557621666
+    9: 0
+    90: 1.69387557621666
+    91: 2.30725086369032
+    92: 0.767113811048188
+    93: 1.75984511908407
+    94: 1.40085152175784
+    95: -0.186234458866666
+    96: 1.2652880038545
+    97: 4.00879128713354
+    98: 0.0216297941562722
+    99: 0.374206007007619
+    _column: Local charge 1 £/kVA/year
+  - 1: 14.2771162289566
+    10: 2.38535180669241
+    100: 24.287076431255
+    101: 2.4134767665441
+    102: -0.317509365077522
+    103: 2.27320217883167
+    104: 3.37627323252418
+    105: 0.151464206814469
+    106: 4.39202235870532
+    107: 6.64195514089973
+    108: 3.82535184887869
+    109: 6.67925099778196
+    11: 1.63195890183008
+    110: 33.2449269955085
+    111: 12.1485259651384
+    112: 2.55610645417063
+    113: 0.112173630270125
+    114: 0.16640565803834
+    115: 0.105846305633466
+    116: 0.0809935894782401
+    117: 0.734625070893283
+    118: 4.96211044351244
+    119: 7.81522800299715
+    12: 2.76692399662719
+    120: 7.81522800299715
+    121: 5.8258208245734
+    122: 7.20232733758393
+    123: 0.734625070893283
+    124: 2.46487986723928
+    125: 6.42650628862294
+    126: 5.30348269734186
+    127: 6.49516526376753
+    128: 5.56722131506864
+    129: 8.32513820472168
+    13: 2.1151746797356
+    130: 3.0704449216434
+    131: 4.66109126277299
+    132: 4.73092936591236
+    133: 0.10774416414522
+    134: 3.63840114317957
+    135: 3.76613850588852
+    136: 17.1053564088245
+    137: 3.04308060016203
+    138: 20.4198180133012
+    139: 20.0370993546474
+    14: 7.05047922577265
+    140: 10.105585246257
+    141: 10.1012826640687
+    142: 12.2549858123707
+    143: 23.059657118988
+    144: 10.9729912555897
+    145: 14.7477361268659
+    146: 7.98810728020431
+    147: 14.1574856899088
+    148: 0.49196832367176
+    149: 10.7132825151949
+    15: 2.15058301660203
+    150: -0.986930060787614
+    151: 14.3838244956835
+    152: 0.651635455477721
+    153: 0.00738037994998618
+    154: 17.1754993111826
+    155: 0.097790167828498
+    156: 0.147274280182705
+    157: 0.219125536376859
+    158: 0.487144667766326
+    159: 13.295723750803
+    16: 1.29852670439295
+    160: 6.06816649409775
+    161: 1.04859065023006
+    162: 2.51220403110836
+    163: 2.43271060739346
+    164: 0.0471617816655896
+    165: 0.112862378889515
+    166: 0.112602095794128
+    167: 16.6883683889101
+    168: 2.14902650040867
+    169: 0.952861310526534
+    17: 6.49062408769521
+    170: -0.545508341149852
+    171: -0.538515957923913
+    172: 4.80676840716919
+    173: 0.00111135088603653
+    174: 0.00115560180435903
+    175: 2.52515751508328
+    176: 3.72678144399441
+    177: 0.00181461355294665
+    178: 0.00652280377433256
+    179: 0
+    18: 10.3175226323165
+    180: 0
+    181: 0.101931637220986
+    182: 2.53749076629424
+    183: 4.41155622848951
+    184: 6.60355149037404
+    185: 1.61975227110792
+    186: 14.3607077578265
+    187: 5.56276363488402
+    188: 3.17752655359863
+    189: 22.8468469093554
+    19: 8.69197879550369
+    190: 22.8543027137231
+    191: -0.0195701267366445
+    192: -0.0195701267366445
+    193: -0.0367426527268809
+    194: 0.0114275930079817
+    195: 0.0251325616292255
+    196: 2.19601928299187
+    197: 2.19601928299187
+    198: 22.9551175659895
+    199: 2.85051222004398
+    2: 5.29011774980195
+    20: 6.41569480618422
+    200: 5.99123299957051
+    201: 5.64162722987727
+    202: 11.0255760991687
+    203: 3.46795252766024
+    204: 2.41816955507591
+    205: 2.3822971900297
+    206: 2.88213806848974
+    207: 0.00547481179861053
+    208: 0.00581114182652454
+    209: 0.134264936317086
+    21: 6.66018347522046
+    210: 0.134208628494478
+    211: 0.135857615852388
+    212: 0.135857615852388
+    213: 18.1216505701489
+    214: 4.82611172105605
+    215: 6.48177046318408
+    216: 7.00887477900131
+    217: 6.71954792460928
+    218: 3.56707324481344
+    219: 3.92997129283326
+    22: 7.73724775398044
+    220: 18.5091559853396
+    221: 4.15728659236962
+    222: 2.76258511701925
+    223: 7.48004824077332
+    224: 1.27030049074183
+    225: 0.630899396140367
+    226: 0.174730310914651
+    227: -10.8250913629642
+    228: 0.0051337522855186
+    229: 13.4664353253796
+    23: 5.38315420991257
+    230: 3.13394639646521
+    231: 4.53883380045796
+    232: 5.74263031977731
+    233: 7.65158295902802
+    234: 4.97963397773303
+    235: 17.6146852746204
+    236: 7.68542007050918
+    237: 6.65830010517039
+    238: 3.07102385540103
+    239: 3.07868393817514
+    24: 5.11351312111688
+    240: -0.0358120040886192
+    241: -0.0130323583664751
+    242: 2.1133483992261
+    243: 8.39916185800118
+    244: 1.2249160988441
+    245: 0
+    246: 1.08770938064452
+    247: 0.027736891373368
+    248: -0.0140125988126876
+    249: 1.31039915380084
+    25: -0.617646714883321
+    250: 12.191314712427
+    251: 12.6897186929856
+    252: 14.6210896961634
+    253: 14.0263388361929
+    254: 2.62353817744847
+    255: 10.3267428741649
+    256: 14.550318926077
+    257: 1.68480424031976
+    258: 1.064653948721
+    259: 0.70325213465249
+    26: 13.7648301437901
+    260: 0.708803175356947
+    261: 18.048347032342
+    262: 10.3577867795043
+    263: 28.6620585212959
+    264: 24.5190194213739
+    265: 27.8358087398701
+    266: 26.1703795122148
+    267: 19.3176093735485
+    268: 24.0057825117611
+    269: 23.2874893579201
+    27: 0.618007599010536
+    270: 30.1517304299553
+    271: 0.723349813532751
+    272: 1.02341150090782
+    273: -0.106791679959662
+    274: -0.51755972359072
+    275: 1.73882129808852
+    276: -0.077907142401061
+    277: 0.103027881165022
+    278: 2.80926069157951
+    279: 2.80774869596569
+    28: 5.73042811570098
+    280: 1.32048177529945
+    281: 1.32048177529945
+    282: 1.32048177529945
+    283: 5.36544302644224
+    284: 10.7750345589878
+    285: -1.69555666313826
+    286: 1.03722792933454
+    287: 8.41314137371735
+    288: 8.41314137371735
+    289: 8.41314137371735
+    29: 5.14023747852217
+    290: 8.41314137371735
+    291: 0.0455602739362435
+    292: -0.382069738827209
+    293: 0.0356140418671842
+    294: 0.0354261872095316
+    295: 0.0359000747419271
+    296: 0
+    297: 0.0114174238594851
+    298: 4.45654412323006e-05
+    299: 4.45654412323006e-05
+    3: 4.59238934639276
+    30: -0.0619783686921958
+    300: 11.1724098910799
+    301: 1.01058936329174
+    302: 7.12834011619361
+    303: 6.81415063058601
+    304: 8.46602235268542
+    305: 2.60314133694392
+    306: 8.7287577362135
+    307: 2.60135871789004
+    308: -0.0350699916181079
+    309: -0.0351376712733242
+    31: -0.22592444278503
+    310: 3.89649839793082
+    311: 2.74069316743043
+    312: 21.3639503296235
+    313: 7.56145808036065
+    314: 13.8897875789218
+    315: 14.0613011363128
+    316: 7.27359882568412
+    317: 11.886041142158
+    318: 5.3161096988662
+    319: 5.31312901677176
+    32: 6.92256153229306
+    320: 11.9302880470977
+    321: 6.64865613310247
+    322: 15.0717749491714
+    323: 11.8427430299255
+    324: 21.1078547594197
+    325: 5.57268701869171
+    326: 2.00865723776819
+    327: 2.10701036474869
+    328: 1.06951877896339
+    329: 1.70810241971405
+    33: 6.91131178727821
+    330: 7.87448473307986
+    331: 3.75076325931294
+    332: 3.66961371994997
+    333: 4.26486404971492
+    334: 4.14468421351068
+    335: 5.00605060027528
+    336: 4.79131706919911
+    337: 10.6412932262635
+    338: 9.85068265126798
+    339: 12.7684193119718
+    34: -0.273702917038268
+    340: 9.16651517995377
+    341: 11.7920378782865
+    342: 7.60272293299352
+    343: 19.3790339488947
+    344: 11.5133838473863
+    345: 10.6905073552766
+    346: 17.2112897618512
+    347: 16.7723564401667
+    348: 4.27474358381394
+    349: 3.49991882689569
+    35: -0.272267238792926
+    350: 19.331057514576
+    351: 16.4630067462636
+    352: 2.16714726266322
+    353: 16.8420833381743
+    354: 4.59873595945563
+    355: 4.47245447415573
+    356: 8.8918363001561
+    357: 8.51164451582622
+    358: 6.66859690946848
+    359: 6.53841788706499
+    36: -0.200212080150001
+    360: 7.25231627402604
+    361: 7.29084630846477
+    362: 2.48578778775609
+    363: 2.31008812991459
+    364: 2.31006631005122
+    365: 13.7818577940294
+    366: 10.269504974261
+    367: 11.7683747565315
+    368: 9.7923862809004
+    369: 6.33928913562753
+    37: 0.214191254568765
+    370: 6.41196659966889
+    371: 12.6811748552837
+    372: 8.96637355250838
+    373: 6.82015234733836
+    374: 16.595133516876
+    375: 3.49876017037515
+    376: 1.36733838710843
+    377: 2.8712494796095
+    378: 0.0692177801265426
+    379: 0.0755867441207746
+    38: 0
+    380: 0.0755867441207746
+    381: 9.52420932120689
+    382: 13.3576221215282
+    383: 0.0810432468806392
+    384: 0.0810583299806025
+    385: 0
+    386: 0
+    387: 1.71732784696623
+    388: 1.72057528423727
+    389: 0.000697472601737914
+    39: 4.73296291586305
+    390: 0.000697971465945635
+    391: 0.846587235965914
+    392: 0.84703366982692
+    393: 1.2540749708308
+    394: 23.594786372209
+    395: 3.96383664818345
+    396: 5.91245849179858
+    397: 5.37624451627831
+    398: 3.84710831375265
+    399: 4.49114356679278
+    4: -0.18288492099049
+    40: 8.23001104398815
+    400: 1.31686938573695
+    401: 5.31449025704879
+    402: 3.6076203369605
+    403: 7.24060158933616
+    404: 4.66612611432325
+    405: 12.6012756251863
+    406: 3.89828265735459
+    407: 2.63849658202306
+    408: 2.62193074125446
+    409: 2.96742607088718
+    41: 6.73105534749069
+    410: 5.98699745564665
+    411: 4.80449722363894
+    412: 6.53378410395194
+    413: -0.928829572567999
+    414: 6.02083966088245
+    415: 2.63445549200399
+    416: 2.64164982218727
+    417: 1.17256930560014
+    418: 9.69394998109113
+    419: 11.6097692269201
+    42: 2.42062057776152
+    420: 0.0230238552887268
+    421: 0.0265152581669288
+    422: 1.59995744983041
+    423: 6.1642818532532
+    424: -0.152318752311124
+    425: 2.79606823437044
+    426: 1.56987646654647
+    427: 0.24692372141058
+    428: 1.80085036333553
+    429: 4.20047009289179
+    43: 29.0806905649188
+    430: 5.62125961110886
+    431: 1.74670574372749
+    432: 1.33182157645636
+    433: 1.33986382554607
+    434: 3.39222255501681
+    435: 2.52724676192347
+    436: 4.29994200771633
+    437: 5.17977734560482
+    438: 9.97140325900756
+    439: 9.97140325900756
+    44: 0.477612292636949
+    440: 2.94762297823967
+    441: 3.02420408377673
+    442: 4.59111490172851
+    443: 3.6716010985648
+    444: 18.1124467775944
+    445: 6.73958631568938
+    446: 7.58470206305209
+    447: 9.41742067508503
+    448: 9.67552592381144
+    449: 8.3752531166376
+    45: 17.4958276484564
+    450: 8.24209641721525
+    451: 14.2953215589878
+    452: 0.336165042824082
+    453: 3.54468674061202
+    454: 13.0331935471405
+    455: 6.95291844248797
+    456: 1.10276535271929
+    457: 3.69581962804183
+    458: 1.92581307670424
+    459: 1.73161470973995
+    46: 0.00155201964581986
+    460: 4.92683922626121
+    461: 1.90134733162365
+    462: 10.4360837984522
+    463: 2.93217118981508
+    464: 4.24742400900641
+    465: 2.92464177755772
+    466: 4.083858478273
+    467: 3.10462958473828
+    468: 0.132832038667684
+    469: 2.94852329525546
+    47: 0.00155070656261502
+    470: 3.41873748410225
+    471: 2.90537703147684
+    472: 0.866290479437978
+    473: 1.25216049901305
+    474: 1.39571348775414
+    475: 2.22708009810095
+    476: 9.08704161235604
+    477: 8.4751107575197
+    478: 1.61170871078343
+    479: 5.09392183258479
+    48: 1.98683827369616
+    480: 0.1603539067775
+    481: 8.73495031342651
+    482: 8.35298547956995
+    483: 10.9244844661637
+    484: 7.14207139801208
+    485: 1.89528904229289
+    486: 1.89528904229289
+    487: 5.08989081114684
+    488: 5.64525704422039
+    489: 6.16089422666549
+    49: 0.00154171663917957
+    490: 2.58060533548539
+    491: 2.77757221991134
+    492: 1.29873345955742
+    493: 2.9873542722861
+    494: 1.71721216110261
+    495: 1.25155790328558
+    496: 4.31026243647431
+    497: 1.51639168648774
+    498: 5.39706827518473
+    499: 4.59764168133324
+    5: 5.18083859150462
+    50: 0.00154171662930858
+    500: 2.98203677900138
+    501: 2.73880993684303
+    502: 6.2797013898974
+    503: 3.77514171313942
+    504: 3.43379826093883
+    505: 5.45721265262907
+    506: 3.76867598475904
+    507: 3.20466023162455
+    508: 8.85009438905058
+    509: 14.8961569680758
+    51: 9.2912756895623
+    510: 4.08680082481409
+    511: 1.11561261266421
+    512: 3.30290764421414
+    513: 1.84334285531862
+    514: 1.81408388334652
+    515: 5.70562296797187
+    516: 22.5031624745605
+    517: 5.52344911449617
+    518: 6.26311495213822
+    519: 7.927945038842
+    52: 6.53422330556483
+    520: 17.7625201601264
+    521: 1.87724845672628
+    522: 7.53663987416831
+    523: 0.202195163604871
+    524: 3.30672977848358
+    525: 2.74644910251774
+    526: 12.5307567077163
+    527: 6.1516744009214
+    528: 17.4281030620415
+    529: 14.2193507749939
+    53: 6.35850385917529
+    530: 1.92167285260493
+    531: 2.00436295411406
+    532: 3.95237457712032
+    533: 1.40766857519661
+    534: 3.20387721253737
+    535: 0.492597351542341
+    536: 4.45630915575426
+    537: 3.20605802931462
+    538: 3.14982087339405
+    539: 9.48894498332194
+    54: 10.4206762037198
+    540: 9.48955282657588
+    541: 2.2479614201568
+    542: 3.14458600757861
+    543: 0.468072322313541
+    544: 9.09058743450386
+    545: 9.09058743450386
+    546: 0.390558002621557
+    547: 3.70939865230489
+    548: 0.403270721690343
+    549: 0.188329299077449
+    55: 21.5645613767224
+    550: 0.965885788716831
+    551: 11.4487720794148
+    552: 8.78142433871648
+    553: 1.44376845539064
+    554: 2.5289031824424
+    555: 0.488140993355964
+    556: 0.421797587475813
+    557: 6.89906547014638
+    558: 4.556035174785
+    559: 6.17649922289821
+    56: 19.7405548050674
+    560: 3.80547636268465
+    561: 15.8195580687564
+    562: 6.2634238243458
+    563: 4.65299194864528
+    564: 6.42192571069285
+    565: 8.31005025092073
+    566: 7.64806032347354
+    567: 5.03509908417067
+    568: 4.95091602341227
+    569: 5.31836223908002
+    57: 19.7405548050674
+    570: -0.0985123748372965
+    571: 0.594099641241016
+    572: 0.640903155784943
+    573: 0.317818613005226
+    574: 6.15502534530633
+    575: 6.83349058187723
+    576: 0.495933277021207
+    577: 3.13600289815052
+    578: 7.17678864838867
+    579: 2.11499269870782
+    58: 0.222262191408826
+    580: 2.11498443215184
+    581: 2.90217447778172
+    582: -0.132899817543543
+    583: -0.132902031598846
+    584: -0.34082320679132
+    585: 6.23171094065792
+    586: 4.84374570970421
+    587: 4.89302719570557
+    588: 4.89302719570557
+    589: 7.59609073775873
+    59: 16.6548561389234
+    590: 2.55884423874195
+    591: 2.55809846934911
+    592: 16.8341253188489
+    593: 6.00163114359378
+    594: 0.0960210295226577
+    595: 3.91552934580214
+    596: 9.27061167012798
+    597: 0.462702185148951
+    598: 0.00489555383501468
+    599: 0.00490515346676611
+    6: 6.25200572992426
+    60: 0.368818829269172
+    600: -0.0234351539163093
+    601: 0
+    602: 2.046783655314
+    603: 2.01374034072992
+    604: 0.126357805376754
+    605: 0.130350956658517
+    606: -0.00875908356306887
+    607: 3.87086965146207
+    608: 1.48340446331866
+    609: 4.80178429721345
+    61: 21.9207199603209
+    610: 10.5573975329157
+    611: 6.26061210611545
+    612: -0.00493282174845699
+    613: 4.24640529403235
+    614: 1.8881706031659
+    615: 0.131239182768242
+    616: 2.48343332094816
+    617: 2.3810039079592
+    618: 2.5270470959595
+    619: -0.0182542243653495
+    62: 19.8968648148307
+    620: 1.21333725413962
+    621: 1.21332933358952
+    622: 0.994572329358586
+    623: 0
+    624: ''
+    625: ''
+    626: ''
+    627: ''
+    628: ''
+    629: ''
+    63: 18.1441079542755
+    630: ''
+    631: ''
+    632: ''
+    633: ''
+    634: ''
+    635: ''
+    636: ''
+    64: -0.170640788031446
+    65: 18.28841361546
+    66: 13.4348328745348
+    67: 10.9953193629067
+    68: 6.8187148730836
+    69: 6.8187148730836
+    7: 12.4032940139526
+    70: 2.24857772447182
+    71: 3.231025199711
+    72: 4.31561720088813
+    73: 3.26537119956085
+    74: 3.91969829562036
+    75: 3.32005833689701
+    76: 2.73492890629965
+    77: 9.37421801127651
+    78: 9.37421801127651
+    79: 4.12094518418749
+    8: 5.05382063193296
+    80: 4.11711038410083
+    81: 2.67403102585138
+    82: 3.83371992357617
+    83: 4.46949700661389
+    84: 17.2009062757842
+    85: 8.40502110065502
+    86: 10.7857567652512
+    87: 8.33861782755067
+    88: 4.39519521269368
+    89: 7.20744382693337
+    9: 2.39300876562883
+    90: 7.20744382693337
+    91: 10.4032448065078
+    92: 2.4562696952665
+    93: 7.23910209891764
+    94: 4.86520422558714
+    95: 23.1076475114791
+    96: 2.13054812564535
+    97: 5.02915482785948
+    98: 2.74055985214024
+    99: 3.41120626499731
+    _column: Remote charge 1 £/kVA/year
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    571: 0
+    572: 0
+    573: 0
+    574: 0
+    575: 0
+    576: 0
+    577: 0
+    578: 0
+    579: 0
+    58: 0
+    580: 0
+    581: 0
+    582: 0
+    583: 0
+    584: 0
+    585: 0
+    586: 0
+    587: 0
+    588: 0
+    589: 0
+    59: 0
+    590: 0
+    591: 0
+    592: 0
+    593: 0
+    594: 0
+    595: 0
+    596: 0
+    597: 0
+    598: 0
+    599: 0
+    6: 0
+    60: 0
+    600: 0
+    601: 0
+    602: 0
+    603: 0
+    604: 0
+    605: 0
+    606: 0
+    607: 0
+    608: 0
+    609: 0
+    61: 0
+    610: 0
+    611: 0
+    612: 0
+    613: 0
+    614: 0
+    615: 0
+    616: 0
+    617: 0
+    618: 0
+    619: 0
+    62: 0
+    620: 0
+    621: 0
+    622: 0
+    623: 0
+    624: 0
+    625: 0
+    626: 0
+    627: 0
+    628: 0
+    629: 0
+    63: 0
+    630: 0
+    631: 0
+    632: 0
+    633: 0
+    634: 0
+    635: 0
+    636: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    571: 0
+    572: 0
+    573: 0
+    574: 0
+    575: 0
+    576: 0
+    577: 0
+    578: 0
+    579: 0
+    58: 0
+    580: 0
+    581: 0
+    582: 0
+    583: 0
+    584: 0
+    585: 0
+    586: 0
+    587: 0
+    588: 0
+    589: 0
+    59: 0
+    590: 0
+    591: 0
+    592: 0
+    593: 0
+    594: 0
+    595: 0
+    596: 0
+    597: 0
+    598: 0
+    599: 0
+    6: 0
+    60: 0
+    600: 0
+    601: 0
+    602: 0
+    603: 0
+    604: 0
+    605: 0
+    606: 0
+    607: 0
+    608: 0
+    609: 0
+    61: 0
+    610: 0
+    611: 0
+    612: 0
+    613: 0
+    614: 0
+    615: 0
+    616: 0
+    617: 0
+    618: 0
+    619: 0
+    62: 0
+    620: 0
+    621: 0
+    622: 0
+    623: 0
+    624: 0
+    625: 0
+    626: 0
+    627: 0
+    628: 0
+    629: 0
+    63: 0
+    630: 0
+    631: 0
+    632: 0
+    633: 0
+    634: 0
+    635: 0
+    636: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
+  - 1: -17012.3
+    10: -13722.4
+    100: -5253.9
+    101: -19810.9
+    102: -12397.2
+    103: -17131
+    104: -11123.4
+    105: -7954.8
+    106: -4508.9
+    107: -21493.5
+    108: -6104
+    109: -5348
+    11: -7943
+    110: -10254.1
+    111: -7966.9
+    112: -23986.5
+    113: -11421.7
+    114: -9540
+    115: -13600
+    116: -9540
+    117: -19007.2
+    118: -34735.1
+    119: -25820
+    12: -14413.1
+    120: -9890
+    121: -34437.8
+    122: -18962.4
+    123: -19007.2
+    124: -12205.3
+    125: -3968
+    126: -10491.5
+    127: -10343.3
+    128: -8872.8
+    129: -15681.7
+    13: -12858.5
+    130: -6221.4
+    131: -13385.9
+    132: -15827.1
+    133: -1450
+    134: -5377.3
+    135: -5227.5
+    136: -8540.1
+    137: -5580.8
+    138: -11642.3
+    139: -3309.8
+    14: -13021.1
+    140: -1226.4
+    141: -1226.4
+    142: -10269.6
+    143: -17051
+    144: -8491.5
+    145: -15308.4
+    146: -4343.2
+    147: -20631.2
+    148: -9780.9
+    149: -5646.3
+    15: -16160.6
+    150: -16257
+    151: -35054.3
+    152: -19903.4
+    153: -6331.9
+    154: -4320.1
+    155: -9253.5
+    156: -0.1
+    157: -10221
+    158: -12204.9
+    159: -4589.4
+    16: -9197.1
+    160: -8188.8
+    161: -3451.1
+    162: -9320.5
+    163: -14975.3
+    164: -27963.8
+    165: -2869.6
+    166: -2869.6
+    167: -13423.3
+    168: -9422.8
+    169: -5758.6
+    17: -12954.1
+    170: -3639.6
+    171: -3639.6
+    172: -31753.7
+    173: -19352.5
+    174: -16800
+    175: -26475.7
+    176: -26475.7
+    177: -13784.6
+    178: -13784.6
+    179: -12556.5
+    18: -19426.4
+    180: -12556.5
+    181: -25806.5
+    182: -23598.6
+    183: -15916.5
+    184: -18860
+    185: -11966.8
+    186: -10025.1
+    187: -7970
+    188: -27953.3
+    189: -5706
+    19: -14164
+    190: -5706
+    191: -11815
+    192: -11815
+    193: -2665.6
+    194: -70000
+    195: -12147.8
+    196: -19691.9
+    197: -19691.9
+    198: -15628.2
+    199: -24214.7
+    2: -24203.8
+    20: -10089.6
+    200: -24214.7
+    201: -2693
+    202: -18863.3
+    203: -5670.6
+    204: -4359.9
+    205: -16269.7
+    206: -14369.8
+    207: -8379.1
+    208: -8379.1
+    209: -19180.1
+    21: -12427.4
+    210: -19180.1
+    211: -12045
+    212: -12045
+    213: -9696.6
+    214: -22295.6
+    215: -0.1
+    216: -12138.2
+    217: -4094.3
+    218: -2664.6
+    219: -13969.7
+    22: -11890.8
+    220: -13094.6
+    221: -13378.8
+    222: -837.3
+    223: -16921.2
+    224: -19726.5
+    225: -16194.7
+    226: -7666
+    227: -11529.2
+    228: -12600.6
+    229: -5432.5
+    23: -6297
+    230: -4432.8
+    231: -6033.4
+    232: -4530.8
+    233: -25381.5
+    234: -3611.4
+    235: -9027.9
+    236: -8456.3
+    237: -8728
+    238: -1385.5
+    239: -1385.5
+    24: -13034.5
+    240: -1
+    241: -1
+    242: -3501.1
+    243: -16354.2
+    244: -12074.5
+    245: -28272.8
+    246: -9928.2
+    247: -8709.9
+    248: -11165.7
+    249: -10303.4
+    25: -12453.2
+    250: -7406.9
+    251: -17153
+    252: -19689.8
+    253: -19333.2
+    254: -227.4
+    255: -17635.8
+    256: -13332.2
+    257: -14748.2
+    258: -18787.9
+    259: -15000
+    26: -20191.6
+    260: -4399.8
+    261: -5275.5
+    262: -3649.8
+    263: -10558.7
+    264: -8831.7
+    265: -7484.5
+    266: -22701.8
+    267: -7841.9
+    268: -529.9
+    269: -529.9
+    27: -18758.7
+    270: -15737.9
+    271: -3427.3
+    272: -15406.8
+    273: -13992.7
+    274: -9910.9
+    275: -15601.8
+    276: -12182.4
+    277: -12182.4
+    278: -24527.9
+    279: -24527.9
+    28: -16609.7
+    280: -8428.3
+    281: -8428.3
+    282: -8428.3
+    283: -6627.4
+    284: -18666.6
+    285: -8545.5
+    286: -12766.1
+    287: -8808.5
+    288: -8808.5
+    289: -8808.5
+    29: -17426.9
+    290: -8808.5
+    291: -3465.7
+    292: -3465.7
+    293: -2650.7
+    294: -8369
+    295: -2650.7
+    296: -23211.3
+    297: -0.9
+    298: -8532
+    299: -8532
+    3: -7392.5
+    30: -8406.9
+    300: -13540.9
+    301: -12687.7
+    302: -14481
+    303: -14702.4
+    304: -14509.7
+    305: -11330.6
+    306: -8311.3
+    307: -14580.5
+    308: -6958.1
+    309: -6958.1
+    31: -8406.9
+    310: -17682.5
+    311: -7402.9
+    312: -21712.7
+    313: -12415.3
+    314: -12311
+    315: -17852.3
+    316: -12816.9
+    317: -4792.5
+    318: -11009.7
+    319: -11009.7
+    32: -21961.5
+    320: -10010.7
+    321: -13583
+    322: -3956
+    323: -7062.5
+    324: -16610.4
+    325: -15089.3
+    326: -10531.7
+    327: -12845.5
+    328: -1020.7
+    329: -16469.8
+    33: -21961.5
+    330: -18816
+    331: -15189.4
+    332: -25911.9
+    333: -11637.3
+    334: -13624.7
+    335: -11064.3
+    336: -7934.7
+    337: -17616.2
+    338: -15683.1
+    339: -6153.9
+    34: -3997.2
+    340: -17453.4
+    341: -9629.6
+    342: -13620.4
+    343: -11366.5
+    344: -17904.2
+    345: -16536.1
+    346: -9595
+    347: -5066.9
+    348: -16019.6
+    349: -13932.4
+    35: -3997.2
+    350: -14997.5
+    351: -15457.6
+    352: -9286.7
+    353: -5024.9
+    354: -4062.9
+    355: -7127.6
+    356: -15386.4
+    357: -10099.4
+    358: -11805.4
+    359: -11443.8
+    36: -11660.3
+    360: -12186.4
+    361: -11542.2
+    362: -36990
+    363: -1205.4
+    364: -1205.4
+    365: -11541.3
+    366: -34493.7
+    367: -10264.5
+    368: -17837
+    369: -11533.4
+    37: -11660.3
+    370: -9400.3
+    371: -9051
+    372: -5898.4
+    373: -7055
+    374: -15155.5
+    375: -15505.2
+    376: -10142.1
+    377: -14983.3
+    378: -15930.8
+    379: -6393.9
+    38: -1
+    380: -6393.9
+    381: -10490.5
+    382: -14685.9
+    383: -13929.7
+    384: -13929.7
+    385: -10335.2
+    386: -10335.2
+    387: -13228.1
+    388: -13228.1
+    389: 0
+    39: -15889.1
+    390: 0
+    391: -18500.9
+    392: -18500.9
+    393: -18712.6
+    394: -15289.8
+    395: -19447.6
+    396: -17810.8
+    397: -11942.2
+    398: -9265.8
+    399: -21540.9
+    4: -6754
+    40: -16078.6
+    400: -5942.6
+    401: -25032.2
+    402: -1234.6
+    403: -11677.8
+    404: -14176.9
+    405: -27373.3
+    406: -12710
+    407: -22046.9
+    408: -10319.2
+    409: -20292.4
+    41: -10427.9
+    410: -26869.8
+    411: -22785.9
+    412: -18319.8
+    413: -13334.7
+    414: -13353.1
+    415: -19610
+    416: -9800
+    417: -17603.4
+    418: -8188.3
+    419: -7820.2
+    42: -13912.1
+    420: -3893.5
+    421: -22106.5
+    422: -11007.8
+    423: -8565.6
+    424: -4739.3
+    425: -4810.7
+    426: -12617.8
+    427: -2.9
+    428: -12617.8
+    429: -32556.2
+    43: -5936.4
+    430: -26983.1
+    431: -12529.5
+    432: -16046.6
+    433: -8953.5
+    434: -13791.8
+    435: -9656.6
+    436: -8466.8
+    437: -4665.5
+    438: -15729.8
+    439: -15729.8
+    44: -3898.7
+    440: -18089.7
+    441: -10948.3
+    442: -9714.5
+    443: -12774.2
+    444: -10900.7
+    445: -23326.6
+    446: -15101.6
+    447: -6818.4
+    448: -3802.3
+    449: -2009.2
+    45: -10368.5
+    450: -16018.4
+    451: -8926.3
+    452: -16186.7
+    453: -8840
+    454: -19231.3
+    455: -22855
+    456: -11530
+    457: -8558.6
+    458: -12066.3
+    459: -6000
+    46: -1900.6
+    460: -13259.9
+    461: -8737.6
+    462: -13030
+    463: -6598.5
+    464: -11483.7
+    465: -16496.2
+    466: -16823.2
+    467: -18736.2
+    468: -16720.2
+    469: -10324
+    47: -1900.6
+    470: -16234.7
+    471: -14898.3
+    472: -12932.2
+    473: -12932.2
+    474: -12117.8
+    475: -17488.9
+    476: -9686
+    477: -7708.8
+    478: -18985.2
+    479: -22402.1
+    48: -8755.4
+    480: -30000
+    481: -6445.5
+    482: -4461.4
+    483: -4719.6
+    484: -8607.6
+    485: -17127.9
+    486: -17127.9
+    487: -2407.2
+    488: -18269.3
+    489: -6694.8
+    49: -1052.8
+    490: -7657
+    491: -10017.6
+    492: -11634.3
+    493: -7172.4
+    494: -4906.5
+    495: -10005.4
+    496: -11426
+    497: -8754.4
+    498: -15805.9
+    499: -17878.3
+    5: -15483.6
+    50: -1052.8
+    500: -16429.9
+    501: -3025.2
+    502: -18228.2
+    503: -14284.9
+    504: -13503.7
+    505: -15651.3
+    506: -14017.2
+    507: -27725.2
+    508: -2613.2
+    509: -9758.3
+    51: -17005.8
+    510: -10351.5
+    511: -690.8
+    512: -4447.1
+    513: -1422
+    514: -1422
+    515: -4822.7
+    516: -14531.4
+    517: -7129.3
+    518: -4956.5
+    519: -11659.6
+    52: -7191.7
+    520: -6094.6
+    521: -11556.7
+    522: -15848
+    523: -12198.7
+    524: -21742.5
+    525: -15789.2
+    526: -11110
+    527: -9041.3
+    528: -8261.3
+    529: -6389.1
+    53: -10469.7
+    530: -9287.6
+    531: -4025.3
+    532: -9851
+    533: -6713.8
+    534: -4829.4
+    535: -1175.3
+    536: -9122.5
+    537: -4559.9
+    538: -4559.9
+    539: -20332.1
+    54: -7814.2
+    540: -16258.3
+    541: -27528.1
+    542: -11891.8
+    543: -9437.6
+    544: -19177
+    545: -8371.7
+    546: -10607.4
+    547: -18900
+    548: -13000.9
+    549: -606.2
+    55: -13037.4
+    550: -14172.5
+    551: -15274.9
+    552: -17988.2
+    553: -11015.4
+    554: -12139.9
+    555: -14555.3
+    556: -10000.2
+    557: -13798.8
+    558: -16336.9
+    559: -6031.7
+    56: -12131.8
+    560: 0
+    561: -18067.9
+    562: -8329.5
+    563: -21449.4
+    564: -2650.1
+    565: -13369.3
+    566: -8139.3
+    567: -4969.5
+    568: -18202.8
+    569: -11265.2
+    57: -12131.8
+    570: -1
+    571: -18971.2
+    572: -18971.2
+    573: -46500
+    574: -10561.5
+    575: -15808.8
+    576: -14200
+    577: -12788.7
+    578: -15702.6
+    579: -2035.3
+    58: -3183.4
+    580: -2035.3
+    581: -12714
+    582: -15784.9
+    583: -15784.9
+    584: -6774.7
+    585: -13030.3
+    586: -22892.1
+    587: -4471.2
+    588: -4471.2
+    589: -15242.8
+    59: -3238.5
+    590: 0
+    591: 0
+    592: 11300
+    593: 12600
+    594: 6900
+    595: 0
+    596: 22776.4
+    597: 13000
+    598: 17400
+    599: 17400
+    6: -9174.3
+    60: -18104.3
+    600: 260196.6
+    601: 57998.2
+    602: 0
+    603: 0.1
+    604: 12899
+    605: 12899
+    606: 0
+    607: 0.1
+    608: 0.1
+    609: 23709.9
+    61: -9121.2
+    610: 0.1
+    611: 7281.3
+    612: 0
+    613: 22999.1
+    614: 0
+    615: 0
+    616: 0
+    617: 0
+    618: 28598.6
+    619: 264999.3
+    62: -11523.7
+    620: 0
+    621: 0
+    622: -9600
+    623: ''
+    624: ''
+    625: ''
+    626: ''
+    627: ''
+    628: ''
+    629: ''
+    63: -11894
+    630: ''
+    631: ''
+    632: ''
+    633: ''
+    634: ''
+    635: ''
+    636: ''
+    64: -8337.7
+    65: -9616
+    66: -11935.5
+    67: -6546.2
+    68: -10992.4
+    69: -13014.5
+    7: -17729
+    70: -30030.3
+    71: -16107.2
+    72: -13958
+    73: -10921.8
+    74: -14053.1
+    75: -13980.6
+    76: -7697
+    77: -8968.3
+    78: -7435.1
+    79: -20838.1
+    8: -25107.9
+    80: -14455
+    81: -19428.9
+    82: -14116
+    83: -14428.3
+    84: -16754.3
+    85: -19416.1
+    86: -8092
+    87: -8360.4
+    88: -10577.2
+    89: -5092.7
+    9: -13722.4
+    90: -10935.3
+    91: -13871.7
+    92: -5581.5
+    93: -10692.1
+    94: -14288.1
+    95: -9838.3
+    96: -16423
+    97: -10486.5
+    98: -16867
+    99: -15486.4
+    _column: 'Maximum demand run: kW'
+  - 1: -4961.9
+    10: -4002.4
+    100: -1532.4
+    101: -5778.2
+    102: -3615.9
+    103: -4996.6
+    104: -3244.3
+    105: -2320.2
+    106: -1315.1
+    107: -6268.9
+    108: -1780.3
+    109: -1559.8
+    11: -2316.7
+    110: -2990.8
+    111: -2323.7
+    112: -6996.1
+    113: -3331.3
+    114: -2780
+    115: -3970
+    116: -2780
+    117: -5543.8
+    118: -10131.1
+    119: -7530
+    12: -4203.8
+    120: -2880
+    121: -10044.4
+    122: -5530.7
+    123: -5543.8
+    124: -3559.9
+    125: -1157.3
+    126: -3060
+    127: -3016.8
+    128: -2587.9
+    129: -4573.8
+    13: -3750.4
+    130: -1814.6
+    131: -3904.2
+    132: -4616.3
+    133: -420
+    134: -1568.4
+    135: -1524.7
+    136: -2490.9
+    137: -1630.1
+    138: -3395.7
+    139: -965.3
+    14: -3797.8
+    140: -357.7
+    141: -357.7
+    142: -2995.3
+    143: -4973.2
+    144: -2476.7
+    145: -4465
+    146: -1266.8
+    147: -6017.4
+    148: -2852.8
+    149: -1646.8
+    15: -4713.4
+    150: -4741.6
+    151: -10224.2
+    152: -5805.2
+    153: -1846.8
+    154: -1260
+    155: -2698.9
+    156: 0
+    157: -2981.1
+    158: -3559.7
+    159: -1338.6
+    16: -2682.4
+    160: -2388.4
+    161: -1006.6
+    162: -2718.5
+    163: -4367.8
+    164: -8156.1
+    165: -837
+    166: -837
+    167: -3915.1
+    168: -2748.3
+    169: -1679.6
+    17: -3778.3
+    170: -1061.5
+    171: -1061.5
+    172: -9261.5
+    173: -5644.5
+    174: -4900
+    175: -7722.1
+    176: -7722.1
+    177: -4020.5
+    178: -4020.5
+    179: -3662.3
+    18: -5666
+    180: -3662.3
+    181: -7526.9
+    182: -6882.9
+    183: -4642.3
+    184: -5500
+    185: -3490.3
+    186: -2924
+    187: -2324.6
+    188: -8153
+    189: -1664.3
+    19: -4131.2
+    190: -1664.3
+    191: -3446
+    192: -3446
+    193: -777.5
+    194: -20420
+    195: -3543.1
+    196: -5743.5
+    197: -5743.5
+    198: -4558.2
+    199: -7062.6
+    2: -7059.4
+    20: -2942.8
+    200: -7062.6
+    201: -785.4
+    202: -5501.8
+    203: -1653.9
+    204: -1271.6
+    205: -4745.3
+    206: -4191.2
+    207: -2443.9
+    208: -2443.9
+    209: -5594.2
+    21: -3624.7
+    210: -5594.2
+    211: -3513
+    212: -3513
+    213: -2828.2
+    214: -6502.9
+    215: 0
+    216: -3540.3
+    217: -1194.2
+    218: -777.2
+    219: -4074.5
+    22: -3468.2
+    220: -3819.3
+    221: -3902.1
+    222: -244.2
+    223: -4935.3
+    224: -5753.6
+    225: -4723.5
+    226: -2235.9
+    227: -3362.7
+    228: -3675.2
+    229: -1584.5
+    23: -1836.6
+    230: -1292.9
+    231: -1759.7
+    232: -1321.5
+    233: -7399.1
+    234: -1053.3
+    235: -2633.1
+    236: -2466.4
+    237: -2545.7
+    238: -404.1
+    239: -404.1
+    24: -3801.7
+    240: -0.3
+    241: -0.3
+    242: -1021.1
+    243: -4770
+    244: -3521.7
+    245: -8245.8
+    246: -2895.5
+    247: -2540.2
+    248: -3256.5
+    249: -3005
+    25: -3632.2
+    250: -2160.4
+    251: -5003
+    252: -5742.9
+    253: -5638.9
+    254: -66.3
+    255: -5143.8
+    256: -3888.6
+    257: -4301.5
+    258: -5479.8
+    259: -4380
+    26: -5889.2
+    260: -1283.3
+    261: -1538.7
+    262: -1064.5
+    263: -3079.6
+    264: -2575.9
+    265: -2183
+    266: -6621.3
+    267: -2287.2
+    268: -154.5
+    269: -154.5
+    27: -5471.3
+    270: -4590.2
+    271: -999.6
+    272: -4493.7
+    273: -4081.2
+    274: -2890.7
+    275: -4550.5
+    276: -3553.2
+    277: -3553.2
+    278: -7153.9
+    279: -7153.9
+    28: -4844.5
+    280: -2458.2
+    281: -2458.2
+    282: -2458.2
+    283: -1933
+    284: -5444.4
+    285: -2492.4
+    286: -3723.4
+    287: -2569.1
+    288: -2569.1
+    289: -2569.1
+    29: -5082.8
+    290: -2569.1
+    291: -1010.8
+    292: -1010.8
+    293: -773.1
+    294: -2441
+    295: -773.1
+    296: -6770
+    297: -0.3
+    298: -2488.5
+    299: -2488.5
+    3: -2156.1
+    30: -2452
+    300: -3949.5
+    301: -3700.6
+    302: -4223.7
+    303: -4288.2
+    304: -4232
+    305: -3304.8
+    306: -2424.1
+    307: -4249.6
+    308: -2029.4
+    309: -2029.4
+    31: -2452
+    310: -5157.4
+    311: -2159.2
+    312: -6332.9
+    313: -3621.1
+    314: -3590.7
+    315: -5206.9
+    316: -3738.3
+    317: -1397.8
+    318: -3211.2
+    319: -3211.2
+    32: -6405.4
+    320: -2919.8
+    321: -3961.7
+    322: -1153.8
+    323: -2059.9
+    324: -4844.7
+    325: -4401
+    326: -3071.7
+    327: -3746.5
+    328: -297.7
+    329: -4803.6
+    33: -6405.4
+    330: -5487.9
+    331: -4430.2
+    332: -7557.6
+    333: -3394.2
+    334: -3973.9
+    335: -3227.1
+    336: -2314.3
+    337: -5138
+    338: -4574.2
+    339: -1794.9
+    34: -1165.8
+    340: -5090.5
+    341: -2808.6
+    342: -3972.6
+    343: -3315.2
+    344: -5222.1
+    345: -4823
+    346: -2798.5
+    347: -1477.9
+    348: -4672.4
+    349: -4063.6
+    35: -1165.8
+    350: -4374.2
+    351: -4508.5
+    352: -2708.6
+    353: -1465.6
+    354: -1185
+    355: -2078.9
+    356: -4487.7
+    357: -2945.7
+    358: -3443.2
+    359: -3337.8
+    36: -3397.3
+    360: -3554.4
+    361: -3366.5
+    362: -10790
+    363: -351.6
+    364: -351.6
+    365: -3366.3
+    366: -10061
+    367: -2993.9
+    368: -5202.6
+    369: -3363.9
+    37: -3397.3
+    370: -2744.5
+    371: -2639.9
+    372: -1720.4
+    373: -2057.7
+    374: -4420.4
+    375: -4522.3
+    376: -2958.1
+    377: -4370.1
+    378: -4646.5
+    379: -1864.9
+    38: -0.3
+    380: -1864.9
+    381: -3059.7
+    382: -4283.4
+    383: -4062.8
+    384: -4062.8
+    385: -3014.4
+    386: -3014.4
+    387: -3858.2
+    388: -3858.2
+    389: 0
+    39: -4634.3
+    390: 0
+    391: -5396
+    392: -5396
+    393: -5457.8
+    394: -4459.5
+    395: -5672.2
+    396: -5194.8
+    397: -3483.1
+    398: -2702.5
+    399: -6282.8
+    4: -1969.9
+    40: -4689.6
+    400: -1733.3
+    401: -7301.1
+    402: -360.1
+    403: -3406
+    404: -4134.9
+    405: -7983.8
+    406: -3707.1
+    407: -6430.3
+    408: -3009.7
+    409: -5918.6
+    41: -3041.5
+    410: -7837
+    411: -6645.9
+    412: -5343.2
+    413: -3889.3
+    414: -3894.7
+    415: -5720
+    416: -2860
+    417: -5134.3
+    418: -2388.3
+    419: -2280.9
+    42: -4057.7
+    420: -1135.6
+    421: -6447.7
+    422: -3210.6
+    423: -2498.3
+    424: -1382.3
+    425: -1403.1
+    426: -3680.2
+    427: -0.8
+    428: -3680.2
+    429: -9495.6
+    43: -1731.5
+    430: -7870.1
+    431: -3654.4
+    432: -4682.9
+    433: -2611.8
+    434: -4022.6
+    435: -2816.5
+    436: -2469.5
+    437: -1360.8
+    438: -4587.8
+    439: -4587.8
+    44: -1137.1
+    440: -5276.1
+    441: -3193.2
+    442: -2833.4
+    443: -3725.8
+    444: -3179.4
+    445: -6803.6
+    446: -4404.6
+    447: -1988.7
+    448: -1109
+    449: -586
+    45: -3024.1
+    450: -4672
+    451: -2603.5
+    452: -4721.1
+    453: -2578
+    454: -5609.1
+    455: -6666.1
+    456: -3360
+    457: -2496.3
+    458: -3519.3
+    459: -1750
+    46: -554.4
+    460: -3867.4
+    461: -2548.4
+    462: -3800.4
+    463: -1924.6
+    464: -3349.4
+    465: -4811.4
+    466: -4906.7
+    467: -5464.7
+    468: -4876.7
+    469: -3011.2
+    47: -554.4
+    470: -4735.1
+    471: -4345.3
+    472: -3771.9
+    473: -3771.9
+    474: -3534.4
+    475: -5100.9
+    476: -2825.1
+    477: -2248.4
+    478: -5537.3
+    479: -6533.9
+    48: -2553.7
+    480: -8750
+    481: -1879.9
+    482: -1301.2
+    483: -1376.6
+    484: -2510.6
+    485: -4995.6
+    486: -4995.6
+    487: -702.1
+    488: -5328.6
+    489: -1952.6
+    49: -307.1
+    490: -2233.3
+    491: -2921.8
+    492: -3393.3
+    493: -2092
+    494: -1431.1
+    495: -2918.2
+    496: -3332.6
+    497: -2553.4
+    498: -4610.1
+    499: -5214.5
+    5: -4516.1
+    50: -307.1
+    500: -4792
+    501: -882.3
+    502: -5316.6
+    503: -4166.4
+    504: -3938.6
+    505: -4565
+    506: -4088.4
+    507: -8086.5
+    508: -762.2
+    509: -2846.2
+    51: -4960
+    510: -3019.2
+    511: -201.5
+    512: -1297.1
+    513: -414.8
+    514: -414.8
+    515: -1406.6
+    516: -4238.3
+    517: -2079.4
+    518: -1445.6
+    519: -3400.7
+    52: -2097.6
+    520: -1777.6
+    521: -3370.7
+    522: -4622.3
+    523: -3558
+    524: -6341.6
+    525: -4605.2
+    526: -3240.4
+    527: -2637
+    528: -2409.5
+    529: -1863.5
+    53: -3053.7
+    530: -2708.9
+    531: -1174
+    532: -2873.2
+    533: -1958.2
+    534: -1408.6
+    535: -342.8
+    536: -2660.7
+    537: -1330
+    538: -1330
+    539: -5930.2
+    54: -2279.1
+    540: -4742
+    541: -8029
+    542: -3468.4
+    543: -2752.6
+    544: -5593.3
+    545: -2441.7
+    546: -3093.8
+    547: -5510
+    548: -3791.9
+    549: -176.8
+    55: -3802.6
+    550: -4133.7
+    551: -4455.1
+    552: -5246.5
+    553: -3212.8
+    554: -3540.8
+    555: -4245.2
+    556: -2916.7
+    557: -4024.6
+    558: -4764.9
+    559: -1759.3
+    56: -3538.4
+    560: 0
+    561: -5269.8
+    562: -2429.5
+    563: -6256.1
+    564: -773
+    565: -3899.4
+    566: -2374
+    567: -1449.4
+    568: -5309.1
+    569: -3285.7
+    57: -3538.4
+    570: -0.3
+    571: -5533.3
+    572: -5533.3
+    573: -5069.1
+    574: -3080.4
+    575: -4610.9
+    576: -4140
+    577: -3730
+    578: -4579.9
+    579: -593.6
+    58: -928.5
+    580: -593.6
+    581: -3708.2
+    582: -4603.9
+    583: -4603.9
+    584: -1976
+    585: -3800.5
+    586: -6676.9
+    587: -1304.1
+    588: -1304.1
+    589: -4445.8
+    59: -944.6
+    590: 0
+    591: 0
+    592: 0
+    593: 0
+    594: 0
+    595: 0
+    596: 0
+    597: 0
+    598: 0
+    599: 0
+    6: -2675.8
+    60: -5280.4
+    600: 0
+    601: 0
+    602: 0
+    603: 0
+    604: 0
+    605: 0
+    606: 0
+    607: 0
+    608: 0
+    609: 0
+    61: -2660.4
+    610: 0
+    611: 0
+    612: 0
+    613: 0
+    614: 0
+    615: 0
+    616: 0
+    617: 0
+    618: 0
+    619: 0
+    62: -3361.1
+    620: 0
+    621: 0
+    622: -2916
+    623: ''
+    624: ''
+    625: ''
+    626: ''
+    627: ''
+    628: ''
+    629: ''
+    63: -3469.1
+    630: ''
+    631: ''
+    632: ''
+    633: ''
+    634: ''
+    635: ''
+    636: ''
+    64: -2431.8
+    65: -2804.7
+    66: -3481.2
+    67: -1909.3
+    68: -3206.1
+    69: -3795.9
+    7: -5171
+    70: -8758.8
+    71: -4697.9
+    72: -4071.1
+    73: -3185.5
+    74: -4098.8
+    75: -4077.7
+    76: -2245
+    77: -2615.7
+    78: -2168.6
+    79: -6077.8
+    8: -7323.2
+    80: -4216
+    81: -5666.8
+    82: -4117.2
+    83: -4208.2
+    84: -4886.6
+    85: -5663
+    86: -2360.2
+    87: -2438.4
+    88: -3085
+    89: -1485.4
+    9: -4002.4
+    90: -3189.5
+    91: -4045.9
+    92: -1627.9
+    93: -3118.5
+    94: -4167.4
+    95: -2869.5
+    96: -4790
+    97: -3058.6
+    98: -4919.6
+    99: -4516.5
+    _column: 'Maximum demand run: kVAr'
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    571: 0
+    572: 0
+    573: 0
+    574: 0
+    575: 0
+    576: 0
+    577: 0
+    578: 0
+    579: 0
+    58: 0
+    580: 0
+    581: 0
+    582: 0
+    583: 0
+    584: 0
+    585: 0
+    586: 0
+    587: 0
+    588: 0
+    589: 0
+    59: 0
+    590: 0
+    591: 0
+    592: 0
+    593: 0
+    594: 0
+    595: 0
+    596: 0
+    597: 0
+    598: 0
+    599: 0
+    6: 0
+    60: 0
+    600: 0
+    601: 0
+    602: 0
+    603: 0
+    604: 0
+    605: 0
+    606: 0
+    607: 0
+    608: 0
+    609: 0
+    61: 0
+    610: 0
+    611: 0
+    612: 0
+    613: 0
+    614: 0
+    615: 0
+    616: 0
+    617: 0
+    618: 0
+    619: 0
+    62: 0
+    620: 0
+    621: 0
+    622: 0
+    623: 0
+    624: 0
+    625: 0
+    626: 0
+    627: 0
+    628: 0
+    629: 0
+    63: 0
+    630: 0
+    631: 0
+    632: 0
+    633: 0
+    634: 0
+    635: 0
+    636: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    571: 0
+    572: 0
+    573: 0
+    574: 0
+    575: 0
+    576: 0
+    577: 0
+    578: 0
+    579: 0
+    58: 0
+    580: 0
+    581: 0
+    582: 0
+    583: 0
+    584: 0
+    585: 0
+    586: 0
+    587: 0
+    588: 0
+    589: 0
+    59: 0
+    590: 0
+    591: 0
+    592: 0
+    593: 0
+    594: 0
+    595: 0
+    596: 0
+    597: 0
+    598: 0
+    599: 0
+    6: 0
+    60: 0
+    600: 0
+    601: 0
+    602: 0
+    603: 0
+    604: 0
+    605: 0
+    606: 0
+    607: 0
+    608: 0
+    609: 0
+    61: 0
+    610: 0
+    611: 0
+    612: 0
+    613: 0
+    614: 0
+    615: 0
+    616: 0
+    617: 0
+    618: 0
+    619: 0
+    62: 0
+    620: 0
+    621: 0
+    622: 0
+    623: 0
+    624: 0
+    625: 0
+    626: 0
+    627: 0
+    628: 0
+    629: 0
+    63: 0
+    630: 0
+    631: 0
+    632: 0
+    633: 0
+    634: 0
+    635: 0
+    636: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
+935:
+  - _table: 935. Tariff data
+  - 1: Abacot Ranger
+    2: Alabio Duck
+    3: Allier Duck
+    4: American Black Duck
+    5: American Pekin Duck
+    6: Ancona duck
+    7: Australian Spotted
+    8: Aylesbury Duck
+    9: Bali duck
+    _column: Name
+  - 1: VOID
+    2: 3281.40264435444
+    3: 1576.01769493304
+    4: 2935.70832654779
+    5: 6505.46293835927
+    6: 8170.31535710764
+    7: 3225.96665767607
+    8: 3829.96899173099
+    9: 6681.32154157299
+    _column: Maximum import capacity (kVA)
+  - 1: VOID
+    2: VOID
+    3: VOID
+    4: VOID
+    5: 12200.1683970397
+    6: VOID
+    7: 1782.37638409643
+    8: VOID
+    9: VOID
+    _column: Exempt export capacity (kVA)
+  - 1: VOID
+    2: VOID
+    3: VOID
+    4: VOID
+    5: VOID
+    6: VOID
+    7: 2782.98040840777
+    8: VOID
+    9: VOID
+    _column: Non-exempt pre-2005 export capacity (kVA)
+  - 1: VOID
+    2: 1211.26490920303
+    3: VOID
+    4: VOID
+    5: VOID
+    6: VOID
+    7: VOID
+    8: VOID
+    9: VOID
+    _column: Non-exempt 2005-2010 export capacity (kVA)
+  - 1: VOID
+    2: VOID
+    3: VOID
+    4: 1679.52756791068
+    5: 14320.8427934041
+    6: VOID
+    7: VOID
+    8: VOID
+    9: VOID
+    _column: Non-exempt post-2010 export capacity (kVA)
+  - 1: 0
+    2: 680985.088640291
+    3: 21409.6751640175
+    4: 519380.076113435
+    5: 195905.641505599
+    6: 36071.8331646205
+    7: 17620.5743801711
+    8: 15515.6454091319
+    9: 15917.0851265638
+    _column: Sole use asset MEAV (£)
+  - 1: 12845
+    2: 6325
+    3: 5585
+    4: 2090
+    5: 14120
+    6: 7755
+    7: 14535
+    8: 9195
+    9: 3351
+    _column: LRIC location
+  - 1: 0
+    2: 1
+    3: 2
+    4: 10
+    5: 11
+    6: 100
+    7: 101
+    8: 110
+    9: 111
+    _column: Customer category for demand scaling
+  - 1: 0.576190347244682
+    2: 3.50109795868798
+    3: 0.354174618997297
+    4: 1.59415756510385
+    5: 2.4810837375298
+    6: 1.33865111667228
+    7: 0.167154143256188
+    8: 0.275554667653388
+    9: 3.49188845855234
+    _column: 132kV circuits
+  - 1: 0.543715555022461
+    2: 3.06399371518377
+    3: 0.321783657853522
+    4: 1.45884692504052
+    5: 0.145117449966684
+    6: 6.33222242561739
+    7: 1.38685917076001
+    8: 7.19913346527348
+    9: 1.9772959468991
+    _column: 132kV/EHV
+  - 1: 5.75215150246121
+    2: 3.22904070603424
+    3: 0.866763579763211
+    4: 3.97145872282803
+    5: 4.25415111298853
+    6: 0.455158065140754
+    7: 0.392117284912227
+    8: 0.182773405995259
+    9: 3.06372119402713
+    _column: EHV circuits
+  - 1: 0.194590292981723
+    2: 4.66029223541378
+    3: 1.86108278398423
+    4: 2.62109215898482
+    5: 1.47904211511507
+    6: 1.79612711402509
+    7: 0.701118900188012
+    8: 0.140381883278736
+    9: 0.311306462693016
+    _column: EHV/HV
+  - 1: 0.25707845350647
+    2: 3.56499111354411
+    3: 0.201217556750808
+    4: 0.845756864839818
+    5: 0.40306450858352
+    6: 3.22339451992858
+    7: 3.30061720513731
+    8: 0.407056320297393
+    9: 0.560926923875504
+    _column: 132kV/HV
+  - 1: 1.17119602072208
+    2: 0.500720746532355
+    3: 0.344018838246309
+    4: 0.220030621929902
+    5: 1.33125639042356
+    6: 0.144753501455169
+    7: 0.103138122856286
+    8: 1.19848735928918
+    9: 0.264551276688028
+    _column: Super red kW import divided by kVA capacity
+  - 1: 1.09524295107717
+    2: 0.201579809949849
+    3: 0.389555189798185
+    4: 0
+    5: 1.49878520473464
+    6: 1.44893534725847
+    7: 1.31061124824332
+    8: 0
+    9: 1.0784339662997
+    _column: Super red kVAr import divided by kVA capacity
+  - 1: 1
+    2: 1
+    3: 1
+    4: 1
+    5: 1
+    6: 1
+    7: 1
+    8: 1
+    9: 1
+    _column: Proportion exposed to indirect cost allocation
+  - 1: 0
+    2: 0
+    3: 1576.01769493304
+    4: 2935.70832654779
+    5: 2498.50791395731
+    6: 0
+    7: 0
+    8: 0
+    9: 0
+    _column: Capacity subject to DSM (kVA)
+  - 1: 0
+    2: 6641197.94515787
+    3: 0
+    4: 11541073.2226853
+    5: 772920.653718144
+    6: 0
+    7: 19328191.22987
+    8: 0
+    9: 0
+    _column: Super red units exported (kWh)
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    9: 0
+    _column: Capacity eligible for GSP generation credits (kW)
+  - 1: 0
+    2: 1
+    3: 1
+    4: 1
+    5: 1
+    6: 0.778743645808147
+    7: 0.347006696502763
+    8: 1
+    9: 1
+    _column: Proportion eligible for charge 1 credits
+  - 1: 0
+    2: 39.5422097350039
+    3: 0
+    4: 0
+    5: 337.903725694691
+    6: 0
+    7: 0
+    8: 0
+    9: 126.675703433155
+    _column: Days for which not a customer
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    9: 0
+    _column: Hours in super-red for which not a customer
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: Import charge in previous charging year (£/year)
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: Export charge in previous charging year (£/year)
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: LLFC import
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: LLFC export

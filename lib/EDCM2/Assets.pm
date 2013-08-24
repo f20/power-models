@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2009-2013 Energy Networks Association Limited and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -68,7 +68,7 @@ HV customer
 EOT
 
     my $allAssets = Dataset(
-        name          => 'Assets in CDCM model (£) (from CDCM table 2705)',
+        name          => 'Assets in CDCM model (£) (from CDCM table 2705 or 2706)',
         defaultFormat => '0hard',
         cols          => $assetLevelset,
         data          => [ map { 5e8 } @{ $assetLevelset->{list} } ],
@@ -93,6 +93,7 @@ EOT
         ),
         vector => $allAssets
     );
+    $model->{PARTIAL}{oli}{1233} = $ehvAssets if $model->{PARTIAL};
 
     my $hvLvNetAssets = SumProduct(
         name          => 'HV and LV network assets in CDCM model (£)',
@@ -105,6 +106,7 @@ EOT
         ),
         vector => $allAssets
     );
+    $model->{PARTIAL}{oli}{1235} = $hvLvNetAssets if $model->{PARTIAL};
 
     my $hvLvServAssets = SumProduct(
         name          => 'HV and LV service assets in CDCM model (£)',
@@ -117,6 +119,7 @@ EOT
         ),
         vector => $allAssets
     );
+    $model->{PARTIAL}{oli}{1231} = $hvLvServAssets if $model->{PARTIAL};
 
     $allAssets, $ehvAssets, $hvLvNetAssets, $hvLvServAssets;
 
@@ -1005,39 +1008,82 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
         },
       );
 
-    my $totalAssetsFixed = GroupBy(
+    my $totalAssetsFixed =
+      $model->{PARTIAL}
+      ? (
+        $model->{PARTIAL}{olo}{119301} = Arithmetic(
+            name          => 'Total sole use assets for demand (£)',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12*IV15_IV16)',
+            arguments     => {
+                IV1       => $model->{PARTIAL}{ol119301},
+                IV11_IV12 => $tariffSUimport,
+                IV15_IV16 => $model->{PARTIAL},
+            },
+        )
+      )
+      : GroupBy(
         source        => $tariffSUimport,
         name          => 'Total sole use assets for demand (£)',
         defaultFormat => '0softnz'
-    );
+      );
 
-    my @totalAssetsCapacity = map {
-        my $name = $_->objectShortName;
-        $name =~ s/\(£\/kVA\)/(£)/;
-        SumProduct(
-            name          => $name,
+    my ( $totalAssetsCapacity, $totalAssetsConsumption ) = $model->{PARTIAL}
+      ? (
+        map {
+            my $name = $_->[0]->objectShortName;
+            $name =~ s/\(£\/kVA\)/(£)/;
+            $model->{PARTIAL}{olo}{ $_->[1] } = Arithmetic(
+                name          => $name,
+                defaultFormat => '0softnz',
+                arithmetic => '=IV1+SUMPRODUCT(IV11_IV12*IV13_IV14*IV15_IV16)',
+                arguments  => {
+                    IV1       => $model->{PARTIAL}{"ol$_->[1]"},
+                    IV11_IV12 => $_->[0],
+                    IV13_IV14 => $agreedCapacity,
+                    IV15_IV16 => $model->{PARTIAL},
+                },
+            );
+          } (
+            [ $assetsCapacity[$#assetsCapacity],       119303 ],
+            [ $assetsConsumption[$#assetsConsumption], 119304 ],
+          )
+      )
+      : (
+        map {
+            my $name = $_->objectShortName;
+            $name =~ s/\(£\/kVA\)/(£)/;
+            SumProduct(
+                name          => $name,
+                defaultFormat => '0softnz',
+                matrix        => $_,
+                vector        => $agreedCapacity
+            );
+          } (
+            $assetsCapacity[$#assetsCapacity],
+            $assetsConsumption[$#assetsConsumption]
+          )
+      );
+
+    my $totalAssetsGenerationSoleUse =
+      $model->{PARTIAL}
+      ? (
+        $model->{PARTIAL}{olo}{119302} = Arithmetic(
+            name          => 'Total sole use assets for generation (£)',
             defaultFormat => '0softnz',
-            matrix        => $_,
-            vector        => $agreedCapacity
-        );
-    } @assetsCapacity;
-
-    my @totalAssetsConsumption = map {
-        my $name = $_->objectShortName;
-        $name =~ s/\(£\/kVA\)/(£)/;
-        SumProduct(
-            name          => $name,
-            defaultFormat => '0softnz',
-            matrix        => $_,
-            vector        => $agreedCapacity
-        );
-    } @assetsConsumption;
-
-    my $totalAssetsGenerationSoleUse = GroupBy(
+            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12*IV15_IV16)',
+            arguments     => {
+                IV1       => $model->{PARTIAL}{ol119302},
+                IV11_IV12 => $tariffSUexport,
+                IV15_IV16 => $model->{PARTIAL},
+            },
+        )
+      )
+      : GroupBy(
         source        => $tariffSUexport,
         name          => $tariffSUexport->objectShortName . ' (aggregate)',
         defaultFormat => $tariffSUexport->{defaultFormat}
-    );
+      );
 
     push @{ $model->{calc1Tables} }, my $totalAssets = Arithmetic(
         name          => 'All notional assets in EDCM (£)',
@@ -1045,11 +1091,12 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
         defaultFormat => '0softnz',
         arguments     => {
             IV5 => $totalAssetsFixed,
-            IV6 => $totalAssetsCapacity[$#assetsCapacity],
-            IV7 => $totalAssetsConsumption[$#assetsConsumption],
+            IV6 => $totalAssetsCapacity,
+            IV7 => $totalAssetsConsumption,
             IV8 => $totalAssetsGenerationSoleUse,
         }
     );
+    $model->{PARTIAL}{oli}{1229} = $totalAssets if $model->{PARTIAL};
 
     my $assetsCapacityDoubleCooked =
       $assetsCapacityCooked[$#assetsCapacityCooked];
@@ -1057,8 +1104,8 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
     $cdcmUse, $lossFactors, $diversity, $redUseRate, $capUseRate,
       $tariffSUimport, $assetsCapacity[$#assetsCapacity],
       $assetsConsumption[$#assetsConsumption], $totalAssetsFixed,
-      $totalAssetsCapacity[$#assetsCapacity],
-      $totalAssetsConsumption[$#assetsConsumption],
+      $totalAssetsCapacity,
+      $totalAssetsConsumption,
       $totalAssetsGenerationSoleUse, $totalAssets,
       $assetsCapacityCooked[$#assetsCapacityCooked],
       $assetsConsumptionCooked[$#assetsConsumptionCooked],

@@ -34,7 +34,7 @@ use utf8;
 sub processData {
     my ($model) = @_;
     if ( $model->{dataset}
-        && !( $model->{ldnoRev} && $model->{ldnoRev} =~ /pop/i ) )
+        && ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) )
     {
         delete $model->{dataset}{$_} foreach qw(1181 1182 1183);
     }

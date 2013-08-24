@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2012 Reckon LLP and others.
+Copyright 2011-2013 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -53,26 +53,31 @@ use lib catdir( $homedir, 'cpan' ), $perl5dir;
 use Ancillary::Manufacturing;
 my $maker = Ancillary::Manufacturing->factory;
 
-my ($illustrative) = grep { /^-+illustrative/i } @ARGV;    # -illustrative
-my ($randomise)    = grep { /^-+random/i } @ARGV;          # -random, -randomcut
-my ($large)  = grep { /^-+large/i } @ARGV;     # -large (even when data are not)
-my ($small)  = grep { /^-+small/i } @ARGV;     # -small
-my ($rev)    = grep { /^-+rev/i } @ARGV;       # -rev
-my ($huge)   = grep { /^-+huge/i } @ARGV;      # -huge
-my ($medium) = grep { /^-+medium/i } @ARGV;    # -medium
+my $dcp130      = !grep { /-+DCP130no/i      || /-+noDCP130/i } @ARGV;
+my $dgcondition = !grep { /-+DGCONDITIONno/i || /-+noDGCONDITION/i } @ARGV;
+
+my ($dcp139) = grep { /-+DCP139/i } @ARGV;
+
+my ($partial)         = grep { /^-+partial/i } @ARGV;           # -partial
+my ($noOneLiners)     = grep { /^-+noOneLin/i } @ARGV;
+my ($nodemandcharge1) = grep { /^-+nodemandcharge1/i } @ARGV;
 
 # -ldnono, -ldnoyes, -ldnotar, -ldnoyes5, -ldnotar5
 my ($ldno) = grep { /^-+ldno/i } @ARGV;
-$ldno = 'ldnorev5' unless $illustrative || $randomise || $ldno;
-undef $ldno if $ldno =~ /nono/i;
+$ldno ||= 'ldnorev5';
+undef $ldno if $ldno && $ldno =~ /ldnono/i;
 
-my ($noOneLiners) = grep { /^-+noOneLin/i } @ARGV;
+my ($large)  = grep { /^-+large/i } @ARGV;     # -large (even when data are not)
+my ($small)  = grep { /^-+small/i } @ARGV;     # -small
+my ($huge)   = grep { /^-+huge/i } @ARGV;      # -huge
+my ($medium) = grep { /^-+medium/i } @ARGV;    # -medium
 
-my ($dcp130)      = grep { /-+DCP130/i } @ARGV;
-my ($dcp139)      = grep { /-+DCP139/i } @ARGV;
-my ($dgcondition) = grep { /-+DGCONDITION/i } @ARGV;
-
+my ($illustrative) = grep { /^-+illustrative/i } @ARGV;    # -illustrative
+my ($randomise) =
+  grep { /^-+random/i } @ARGV;    # -random or -randomcut, not working
+my ($debug) = grep { /^-+debug/i } @ARGV;    # -debug
 my $run = ( grep { /^-+single/i } @ARGV ) ? 'run' : 'runParallel';
+
 $maker->{useXLSX}->() if grep { /^-+xlsx/i } @ARGV;
 
 my @companies = grep { /\.yml$/ } @ARGV;
@@ -80,13 +85,14 @@ my @companies = grep { /\.yml$/ } @ARGV;
   unless @companies;
 
 foreach my $company (@companies) {
-    foreach my $power qw(FCP LRIC) {
+    foreach my $power qw(FCP LRIC) {         # none
         next
-          if $company =~ /(^|\/)(CN|WPD.*M|SSE|SP)/
+          if $company =~ /(^|\/)(CN|WPD.*M|Goose|SSE|SP)/
           and $power  =~ /LRIC/;
         next
-          if $company =~ /(^|\/)(CE|NP|ENW|UKPN|WPD[- ](?:S.*W|Wales|West\.))/
-          and $power  =~ /FCP/;
+          if $company =~
+          /(^|\/)(CE|NP|ENW|Duck|UKPN|WPD[- ](?:S.*W|Wales|West\.))/
+          and $power =~ /FCP/;
         open my $dh, '<', $company;
         $maker->{processStream}->( $dh, abs2rel($company) );
         $maker->{processRuleset}->(
@@ -126,10 +132,13 @@ foreach my $company (@companies) {
                 $randomise || $illustrative
                 ? ( illustrative => 1 )
                 : (),
-                $randomise   ? ( randomise   => $randomise ) : (),
-                $dcp130      ? ( DCP130      => 1 )          : (),
-                $dcp139      ? ( DCP139      => 1 )          : (),
-                $dgcondition ? ( DGCONDITION => 1 )          : (),
+                $randomise       ? ( randomise       => $randomise ) : (),
+                $dcp130          ? ( DCP130          => 1 )          : (),
+                $dcp139          ? ( DCP139          => 1 )          : (),
+                $dgcondition     ? ( DGCONDITION     => 1 )          : (),
+                $partial         ? ( PARTIAL         => 1 )          : (),
+                $debug           ? ( debug           => 1 )          : (),
+                $nodemandcharge1 ? ( NODEMANDCHARGE1 => 1 )          : (),
             }
         );
 

@@ -44,15 +44,32 @@ sub gCharge {
         $exportCapacityChargeablePost2010, $daysInYear,
     ) = @_;
 
-    $_ = GroupBy(
-        name          => $_->objectShortName . ' (total)',
-        defaultFormat => '0softnz',
-        source        => $_
-      )
-      foreach $exportCapacityChargeable, $exportCapacityChargeable20052010,
-      $exportCapacityChargeablePost2010;
+    if ( $model->{PARTIAL} ) {
+        ${ $_->[0] } = $model->{PARTIAL}{olo}{ $_->[1] } = Arithmetic(
+            name          => ${ $_->[0] }->objectShortName . ' (total)',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IV1+SUMPRODUCT(IV2_IV3*IV4_IV5)',
+            arguments     => {
+                IV1     => $model->{PARTIAL}{"ol$_->[1]"},
+                IV2_IV3 => ${ $_->[0] },
+                IV4_IV5 => $model->{PARTIAL},
+            }
+          )
+          foreach [ \$exportCapacityChargeable, 119201 ],
+          [ \$exportCapacityChargeable20052010, 119202 ],
+          [ \$exportCapacityChargeablePost2010, 119203 ];
+    }
+    else {
+        $_ = GroupBy(
+            name          => $_->objectShortName . ' (total)',
+            defaultFormat => '0softnz',
+            source        => $_
+          )
+          foreach $exportCapacityChargeable, $exportCapacityChargeable20052010,
+          $exportCapacityChargeablePost2010;
+    }
 
-    Arithmetic(
+    my $exportCapacityCharge = Arithmetic(
         name          => 'Export capacity charge p/kVA/day',
         defaultFormat => '0.00softnz',
         arithmetic =>
@@ -73,6 +90,8 @@ sub gCharge {
             IV9   => $daysInYear,
         }
     );
+    $model->{PARTIAL}{oli}{1243} = $exportCapacityCharge if $model->{PARTIAL};
+    $exportCapacityCharge;
 
 }
 

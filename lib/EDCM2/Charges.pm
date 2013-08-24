@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2009-2013 Energy Networks Association Limited and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -62,25 +62,25 @@ sub chargesFcpLric {
               0 .. $#$charges1
         }
     );
-	
-	if ( $model->{DGCONDITION} ) {
-	$genCredit = Arithmetic(
-        name          => 'Generation credit (before exempt adjustment) p/kWh',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=-100*IV1*('
-          . join( '+',
-            $charges1->[0] ? "IU90" : (),
-            map { $charges1->[$_] ? "IU9$_" : () } 1 .. $#$charges1 )
-          . ')/IV2',
-        arguments => {
-            IV2 => $redHoursGen,
-            IV1 => $sFactor,
-            map { $charges1->[$_] ? ( "IU9$_" => $charges1->[$_] ) : () }
-              0 .. $#$charges1
-        }
-    );
-	}
-	
+
+    if ( $model->{DGCONDITION} ) {
+        $genCredit = Arithmetic(
+            name => 'Generation credit (before exempt adjustment) p/kWh',
+            defaultFormat => '0.00softnz',
+            arithmetic    => '=-100*IV1*('
+              . join( '+',
+                $charges1->[0] ? "IU90" : (),
+                map { $charges1->[$_] ? "IU9$_" : () } 1 .. $#$charges1 )
+              . ')/IV2',
+            arguments => {
+                IV2 => $redHoursGen,
+                IV1 => $sFactor,
+                map { $charges1->[$_] ? ( "IU9$_" => $charges1->[$_] ) : () }
+                  0 .. $#$charges1
+            }
+        );
+    }
+
     my $genCreditCapacity = Arithmetic(
         name          => 'Generation credit (unrounded) p/kVA/day',
         defaultFormat => '0.00softnz',
@@ -95,7 +95,7 @@ sub chargesFcpLric {
     );
 
     $model->{demandCapacityFcpLric} = my $demandCapacityFcpLric =
-      $charges1->[0]
+      !$model->{NODEMANDCHARGE1} && $charges1->[0]
       ? Arithmetic(
         name          => 'Import capacity charge p/kVA/day',
         defaultFormat => '0.00softnz',
@@ -105,15 +105,15 @@ sub chargesFcpLric {
             IV2 => $daysInYear,
         }
       )
-      : Arithmetic(
-        defaultFormat => '0.00softnz',
-        rows          => $demandCapacity->{rows},
-        name          => 'Import capacity charge p/kVA/day',
-        arithmetic    => '=0',
+      : Constant(
+        rows => $demandCapacity->{rows},
+        name => 'Import capacity charge p/kVA/day',
+        data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
     $model->{demandConsumptionFcpLric} = my $demandConsumptionFcpLric =
-      ( grep { $charges1->[$_] } 1 .. $#$charges1 )
+      !$model->{NODEMANDCHARGE1}
+      && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Import demand charge p/kVA/day',
         defaultFormat => '0.00softnz',
@@ -147,16 +147,17 @@ sub chargesFcpLric {
             } grep { $charges1->[$_] } 1 .. $#$charges1
         }
       )
-      : Arithmetic(
-        defaultFormat => '0.000softnz',
-        rows          => $demandCapacity->{rows},
-        name          => 'Import demand charge before matching p/kVA/day',
-        arithmetic    => '=0',
+      : Constant(
+        rows => $demandCapacity->{rows},
+        name => 'Import demand charge before matching p/kVA/day',
+        data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
     # The following is pretty weird; substantially revised on 25 March 2011
     # Weirdness further increased on 1 June 2012.
-    my $unitRateFcpLric = ( grep { $charges1->[$_] } 1 .. $#$charges1 )
+    my $unitRateFcpLric =
+      !$model->{NODEMANDCHARGE1}
+      && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Super red rate p/kWh',
         rows          => $demandCapacity->{rows},
@@ -192,11 +193,10 @@ sub chargesFcpLric {
             } grep { $charges1->[$_] } 1 .. $#$charges1
         }
       )
-      : Arithmetic(
-        defaultFormat => '0.000softnz',
-        rows          => $demandCapacity->{rows},
-        name          => 'Super red rate p/kWh',
-        arithmetic    => '=0',
+      : Constant(
+        rows => $demandCapacity->{rows},
+        name => 'Super red rate p/kWh',
+        data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
     my $capacityChargeBeforeScaling = Arithmetic(
