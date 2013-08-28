@@ -18,16 +18,16 @@ check that you have Perl 5.8.8 or higher installed and working, change to the
 root of the repository, and try some of the following sample commands.
 
 Sample code to produce populated models:
-    perl run/make.pl CDCM/Previous/%-model100.yml CDCM/Data-2012-02/UKPN-LPN.yml
+    perl run/make.pl -xlsx CDCM/Current/%-clean132.yml CDCM/Data-2013-02/*
     perl run/make.pl -xlsx CDCM/Previous/%-clean130.yml CDCM/Data-2012-12/*
+    perl run/make.pl CDCM/Previous/%-model100.yml CDCM/Data-2012-02/UKPN-LPN.yml
     perl run/make.pl ModelM/Current/%-postDCP096.yml ModelM/Data-2012-02/*
     perl run/make.pl -comparedata ModelM/Current/%-postDCP096.yml ModelM/Data-2013-02/*LPN*
-    perl run/mkedcm2.pl -partial EDCM/Data-2013-02/* 
-    perl run/mkedcm2.pl -ldnono -partial EDCM/Testing/* 
+    perl run/make.pl EDCM/Partial/* EDCM/Data-*/* 
     
 Sample code to produce blank models:
     perl run/make.pl -xlsx CDCM/Current/%-clean132.yml Blank.yml
-    perl run/mkedcm2.pl -xlsx
+    perl run/make.pl -xlsx EDCM/Official/* Blank.yml
 
 You might need to install some modules from CPAN: read any error messages.
 
@@ -47,4 +47,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 24 August 2013.
+Franck Latrémolière, 28 August 2013.

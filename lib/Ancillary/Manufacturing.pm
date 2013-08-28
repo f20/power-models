@@ -206,7 +206,13 @@ sub factory {
 
     $self->{list} = sub {
         foreach my $rule (@rulesets) {
+            my @wantTables;
+            @wantTables = split /\s+/, $rule->{wantTables}
+              if $rule->{wantTables};
             foreach my $data (@datasets) {
+                next
+                  if keys %{ $data->{dataset} }
+                  and grep { !$data->{dataset}{$_} } @wantTables;
                 my $spreadsheetFile = $rule->{template};
                 $spreadsheetFile .= '-' . $rule->{revisionText}
                   if $rule->{revisionText};
