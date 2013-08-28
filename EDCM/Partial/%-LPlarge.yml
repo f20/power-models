@@ -1,0 +1,15 @@
+---
+.: EDCM model with independently specified totals (LRIC large)
+DCP130: 1
+DGCONDITION: 1
+PARTIAL: 1
+PerlModule: EDCM2
+inputData: dataSheet
+method: LRIC
+noNegative: 1
+numLocations: 1200
+numTariffs: 300
+protect: 1
+summaries: 1
+validation: lenientnomsg
+wantTables: 913
