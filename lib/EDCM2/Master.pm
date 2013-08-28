@@ -89,8 +89,8 @@ sub new {
         return $model;
     }
 
-    $model->{numLocations} ||= 10;
-    $model->{numTariffs}   ||= 10;
+    $model->{numLocations} ||= 32;
+    $model->{numTariffs}   ||= 32;
 
     print "$model->{'~datasetName'} $model->{method}: "
       . "$model->{numLocations} locations, $model->{numTariffs} tariff pairs\n";
