@@ -8,8 +8,8 @@ This repository contains:
 the methods used by the regional electricity distribution companies in England,
 Scotland and Wales to set their use of system charges.
 
-* Data published by these companies to populate these models, in a YAML format
-designed for use with the Perl code above.
+* Data published by these companies to populate these models, in a structured
+plain text format (YAML) designed for use with the Perl code above.
 
 To see this code in action, go to http://dcmf.co.uk/models/.
 
