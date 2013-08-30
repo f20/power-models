@@ -52,9 +52,10 @@ use Ancillary::Manufacturing;
 my $maker    = Ancillary::Manufacturing->factory;
 my $list     = 'list';
 my %override = ( protect => 1 );
-my $threads  = `sysctl -n hw.ncpu 2>/dev/null` || `nproc`;
-chomp $threads;
-$threads ||= 3;
+my $threads;
+$threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
+chomp $threads if $threads;
+$threads ||= 1;
 
 foreach (@ARGV) {
 
