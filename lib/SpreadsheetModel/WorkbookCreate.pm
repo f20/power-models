@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::WorkbookCreate;
+package SpreadsheetModel::WorkbookCreate;
 
 =head Copyright licence and disclaimer
 
@@ -53,13 +53,13 @@ sub create {
     my @optionArray = ref $optionsref eq 'ARRAY' ? @$optionsref : $optionsref;
     my @localTime = localtime;
     $module->fixName( $fileName, \@localTime );
-    my $tmpDir = '~$tmp-' . $$;
-    mkdir $tmpDir;
-    chmod 0770, $tmpDir;
-    open my $handle, '>', catfile( $tmpDir, $fileName );
+    my $tmpDir;
+	$tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
+    mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
+    open my $handle, '>', $tmpDir ? catfile( $tmpDir, $fileName ) : $fileName;
     my $wbook = $module->new($handle);
     $wbook->set_tempdir($tmpDir)
-      unless $module =~ /xlsx/i;    # work around taint issue with IO::File
+      if $tmpDir && $module !~ /xlsx/i;    # work around taint issue with IO::File
     $wbook->setFormats( $optionArray[0] );
     my @models;
     my $optionsColumns;
@@ -223,8 +223,10 @@ sub create {
       if $multiModelSharing && ref $multiModelSharing->{finish} eq 'CODE';
 
     $wbook->close;
-    rename catfile( $tmpDir, $fileName ), $fileName;
-    rmdir $tmpDir;
+	if ($tmpDir) {
+	    rename catfile( $tmpDir, $fileName ), $fileName;
+	    rmdir $tmpDir;
+	}
 }
 
 sub writeColourCode {
