@@ -1,4 +1,4 @@
-﻿package Ancillary::Manufacturing;
+package Ancillary::Manufacturing;
 
 =head Copyright licence and disclaimer
 
@@ -120,7 +120,7 @@ sub factory {
                 $processRuleset->($_);
             }
             elsif ( defined $fileName
-                && $fileName =~ /([^\/]*%[^\/]*)\.(?:yml|yaml|json)$/is )
+                && $fileName =~ /([^\\\/]*%[^\\\/]*)\.(?:yml|yaml|json)$/is )
             {
                 $_->{template} = $1;
                 $processRuleset->($_);
@@ -130,7 +130,7 @@ sub factory {
                 if (  !defined $datasetName
                     && defined $fileName
                     && $fileName =~
-                    m#([0-9]+-[0-9]+)?/?([^/]+)\.(?:yml|yaml|json)$#si )
+                    m#([0-9]+-[0-9]+)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si )
                 {
                     $datasetName = $2;
                     $datasetName .= "-$1" if $1;
