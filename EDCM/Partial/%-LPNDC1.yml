@@ -1,0 +1,13 @@
+---
+.: EDCM model with independentl totals (FCP no demand charge 1)
+DCP130: 1
+DGCONDITION: 1
+PARTIAL: 1
+PerlModule: EDCM2
+inputData: dataSheet
+method: FCP
+noNegative: 1
+protect: 1
+summaries: 1
+validation: lenientnomsg
+wantTables: 911
