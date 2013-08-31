@@ -29,19 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =head Documentation
 
-my $maker = factory Ancillary::Manufacturing;
-$maker->{processStream}->($stream, $optionalFile, $optionsalSha1);
-...
-
 See make.pl for an example of how to use this module.
-
-Keys managed here:
-~codeValidation
-datafile
-datafileValidation
-dataset
-dataOverride
-revisionText
 
 Keys defaulted if not existing (default value): 
 protect (1)
@@ -96,23 +84,25 @@ sub factory {
     };
 
     $self->{processStream} = sub {
-        my ( $fileHandle, $fileName, $fileValidation ) = @_;
+        my ( $fileHandle, $fileName ) = @_;
         binmode $fileHandle, ':utf8';
         local undef $/;
-        local $_ = <$fileHandle>;
+        my $blob    = <$fileHandle>;
         my @objects = ();
-        if (/^---/s) {
-            @objects = YAML::Load($_);
+        if ( $blob =~ /^---/s ) {
+            @objects = length($blob) < 32_768
+              || defined $fileName
+              && $fileName =~ /%/ ? YAML::Load($blob) : { yaml => $blob };
         }
         else {
             eval {
                 require JSON;
-                @objects = JSON::from_json($_);
+                @objects = JSON::from_json($blob);
             };
             eval {
                 require JSON::PP;
                 require Encode;
-                @objects = JSON::PP::decode_json( Encode::encode_utf8($_) );
+                @objects = JSON::PP::decode_json( Encode::encode_utf8($blob) );
             } if $@;
         }
         foreach ( grep { ref $_ eq 'HASH' } @objects ) {
@@ -135,8 +125,7 @@ sub factory {
                     $datasetName = $2;
                     $datasetName .= "-$1" if $1;
                 }
-                push @datasets,
-                  {
+                push @datasets, {
                     defined $datasetName
                     ? (
                         '~datasetName' => $datasetName,
@@ -146,8 +135,12 @@ sub factory {
                             ? (
                                 '~datasetSource' => {
                                     file       => $fileName,
-                                    validation => $fileValidation
-                                      || sha1File($fileName)
+                                    validation => $fileName
+                                    ? sha1File($fileName)
+                                    : eval {
+                                        require Digest::SHA1;
+                                        Digest::SHA1::sha1hex($blob);
+                                    },
                                 }
                               )
                             : ()
@@ -156,7 +149,7 @@ sub factory {
                       )
                     : (),
                     dataset => $_,
-                  };
+                };
             }
         }
     };
@@ -173,7 +166,9 @@ sub factory {
         $self;
     };
 
-    $self->{override} = sub { $_ = { %$_, @_ } foreach @rulesets; };
+    $self->{override} = sub {
+        $_ = { %$_, @_ } foreach @rulesets;
+    };
 
     $self->{validate} = sub {
         my ( $perl5dir, $dbString ) = @_;
@@ -183,8 +178,6 @@ sub factory {
             $fileExtension  = '.xls';
             require SpreadsheetModel::Workbook;
         }
-
-        # We should have called loadModules by now but we haven't
 
         use Ancillary::Validation qw(sha1File sourceCodeSha1);
         my $sourceCodeSha1 = sourceCodeSha1($perl5dir);
@@ -212,7 +205,10 @@ sub factory {
             foreach my $data (@datasets) {
                 next
                   if keys %{ $data->{dataset} }
-                  and grep { !$data->{dataset}{$_} } @wantTables;
+                  and grep {
+                        !$data->{dataset}{$_} and !$data->{dataset}{yaml}
+                      or $data->{dataset}{yaml} !~ /^$_:/m
+                  } @wantTables;
                 my $spreadsheetFile = $rule->{template};
                 $spreadsheetFile .= '-' . $rule->{revisionText}
                   if $rule->{revisionText};

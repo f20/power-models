@@ -54,12 +54,12 @@ sub create {
     my @localTime = localtime;
     $module->fixName( $fileName, \@localTime );
     my $tmpDir;
-	$tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
+    $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
     mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
     open my $handle, '>', $tmpDir ? catfile( $tmpDir, $fileName ) : $fileName;
     my $wbook = $module->new($handle);
     $wbook->set_tempdir($tmpDir)
-      if $tmpDir && $module !~ /xlsx/i;    # work around taint issue with IO::File
+      if $tmpDir && $module !~ /xlsx/i;  # work around taint issue with IO::File
     $wbook->setFormats( $optionArray[0] );
     my @models;
     my $optionsColumns;
@@ -75,6 +75,13 @@ sub create {
 
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
+        if ( $options->{dataset} ) {
+            $wbook->{noData} = !$options->{illustrative};
+            if ( my $yaml = delete $options->{dataset}{yaml} ) {
+                require YAML;
+                $options->{dataset} = YAML::Load($yaml);
+            }
+        }
         $options->{optionsColumns} = $optionsColumns if $optionsColumns;
         my $modelCount = $_ ? ".$_" : '';
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
@@ -158,7 +165,6 @@ sub create {
             $wb2->close;
         }
 
-        $wbook->{noData} = $options->{dataset} && !$options->{illustrative};
         $wbook->{$_} = $options->{$_}
           foreach grep { exists $options->{$_} }
           qw(copy debug forwardLinks logAll logger noLinks rowHeight validation);
@@ -223,10 +229,10 @@ sub create {
       if $multiModelSharing && ref $multiModelSharing->{finish} eq 'CODE';
 
     $wbook->close;
-	if ($tmpDir) {
-	    rename catfile( $tmpDir, $fileName ), $fileName;
-	    rmdir $tmpDir;
-	}
+    if ($tmpDir) {
+        rename catfile( $tmpDir, $fileName ), $fileName;
+        rmdir $tmpDir;
+    }
 }
 
 sub writeColourCode {
