@@ -1,4 +1,0 @@
-DCP 159 conflicts with in-year tariff change.  It would be fairly easy to bring compatibility subject to a decision on table numbers.
-
-Testing of DCP 159/in-year tariff change models has been limited to models with LDNO discounts (pcd).
-
