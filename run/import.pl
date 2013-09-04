@@ -443,8 +443,9 @@ sub tsvDumper {
             my ( $col_min, $col_max ) = $worksheet->col_range();
             for my $row ( $row_min .. $row_max ) {
                 print {$fh} join(
-                    "\t",
+                    "\t", $infile,
                     $worksheet->{Name},
+                    $row,
                     map {
                         my $cell = $worksheet->get_cell( $row, $_ );
                         !$cell ? '' : $cell->unformatted;

@@ -60,6 +60,7 @@ sub connect {
     }
     my $st;
     while ( !( $st = $dbh->prepare('select i from l where h=?') ) ) {
+        next if $dbh->errstr =~ /locked/i;
         warn 'Initialising the revisions database';
         $dbh->do(
 'create table if not exists l (i integer primary key, h text collate binary)'
@@ -69,6 +70,7 @@ sub connect {
         opendir $dh, $path;
         my @importRev = map { /^r([0-9]+)\.yml$/s ? $1 : () } readdir $dh;
         closedir $dh;
+
         if (@importRev) {
             warn 'Importing data for ' . @importRev . ' revision(s)';
             my $sha1Machine = new Digest::SHA1;
