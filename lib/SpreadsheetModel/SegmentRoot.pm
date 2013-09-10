@@ -27,209 +27,81 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# This class is structurally unsound because it creates tables within the
-# wsPrepare call (rather than within check).
-#
-# As a consequence it is not compatible with forwardLinks features.
-
 use warnings;
 use strict;
+use utf8;
+use SpreadsheetModel::Shortcuts ':all';
 
-require SpreadsheetModel::Dataset;
-our @ISA = qw(SpreadsheetModel::Dataset);
+our @ISA = qw(SpreadsheetModel::Arithmetic);
 
-use SpreadsheetModel::Miscellaneous;
 use Spreadsheet::WriteExcel::Utility;
 
-sub objectType {
-    'Optimisation result';
-}
-
-sub populateCore {
-    my ($self) = @_;
-    $self->{core}{$_} = $self->{$_}->getCore
-      foreach grep { exists $self->{$_}; } qw(target min max slopes);
+sub _getColumns {
+    my ($obj) = @_;
+    return unless $obj;
+    return $obj if $obj->isa('SpreadsheetModel::Dataset');
+    die "$obj not usable" unless $obj->isa('SpreadsheetModel::Columnset');
+    @{ $obj->{columns} };
 }
 
 sub check {
+
     my ($self) = @_;
-    return "Target $self->{target}{name} is no good in $self->{debug}"
-      unless $self->{target}
+
+    return "$self->{name} $self->{debug}: "
+      . "target $self->{target}{name} is not a single cell"
+      unless ref $self->{target}
       && $self->{target}->isa('SpreadsheetModel::Dataset')
       && !$self->{target}->lastRow
       && !$self->{target}->lastCol;
-    return "No slopes in $self->{debug}" unless $self->{slopes};
-    $self->{arithmetic} = 'Special calculation';
-    $self->{arguments}  = {};
-    $self->SUPER::check;
-}
 
-sub _getRectangle {
-    my ( $source, $wb, $ws ) = @_;
-    return unless $source;
+    return "No slopes in $self->{name} $self->{debug}" unless $self->{slopes};
 
-    my ( $slopsheet, $slopr1, $slopc1, $slopr2, $slopc2 );
+    my @slopes = _getColumns( $self->{slopes} );
 
-    if ( $source->isa('SpreadsheetModel::Dataset') ) {
-        ( $slopsheet, $slopr1, $slopc1 ) = $source->wsWrite( $wb, $ws );
-        $slopr2 = $slopr1 + $source->lastRow;
-        $slopc2 = $slopc1 + $source->lastCol;
-    }
-    else {
-        my $lastColumn = $source->{columns}[ $#{ $source->{columns} } ];
-        ( $slopsheet, $slopr1, $slopc1 ) =
-          $source->{columns}[0]->wsWrite( $wb, $ws );
-        ( $slopsheet, $slopr2, $slopc2 ) = $lastColumn->wsWrite( $wb, $ws );
-        $slopr2 += $lastColumn->lastRow;
-        $slopc2 += $lastColumn->lastCol;
-    }
-    $slopsheet =
-      $slopsheet == $ws
-      ? ''
-      : "'" . ( $slopsheet ? $slopsheet->get_name : die 'BROKEN LINK' ) . "'!";
-    $slopsheet, $slopr1, $slopc1, $slopr2, $slopc2;
+    my $unconstrained = Arithmetic(
+        name       => 'Constraint-free solution',
+        arithmetic => '=IV3/SUM('
+          . join( ',', map { "IV1${_}_IV2$_" } 0 .. $#slopes ) . ')',
+        arguments => {
+            IV3 => $self->{target},
+            map { ( "IV1${_}_IV2$_" => $slopes[$_] ); } 0 .. $#slopes,
+        },
+    );
 
-}
+    my @min           = _getColumns( $self->{min} );
+    my @max           = _getColumns( $self->{max} );
+    my @minmax        = ( @min, @max );
+    my $startingPoint = Arithmetic(
+        name       => 'Starting point',
+        arithmetic => '=MIN('
+          . join( ',', IV3 => map { "IV1${_}_IV2$_" } 0 .. $#minmax ) . ')',
+        arguments => {
+            IV3 => $unconstrained,
+            map { ( "IV1${_}_IV2$_" => $minmax[$_] ); } 0 .. $#minmax,
+        },
+    );
 
-sub wsPrepare {
-
-    my ( $self, $wb, $ws ) = @_;
-
-    my ( $targsheet, $targr, $targc ) = $self->{target}->wsWrite( $wb, $ws );
-    $targsheet =
-      $targsheet == $ws
-      ? ''
-      : "'" . ( $targsheet ? $targsheet->get_name : die 'BROKEN LINK' ) . "'!";
-
-    my ( $slopsheet, $slopr1, $slopc1, $slopr2, $slopc2 ) =
-      _getRectangle( $self->{slopes}, $wb, $ws );
-    my ( $minsheet, $minr1, $minc1, $minr2, $minc2 ) =
-      _getRectangle( $self->{min}, $wb, $ws );
-    my ( $maxsheet, $maxr1, $maxc1, $maxr2, $maxc2 ) =
-      _getRectangle( $self->{max}, $wb, $ws );
-
-    my $unconstrained = new SpreadsheetModel::Custom(
-        name        => 'Constraint-free solution',
-        sourceLines => [
-            $self->{target},
-            $self->{slopes}->isa('SpreadsheetModel::Dataset')
-            ? $self->{slopes}
-            : @{ $self->{slopes}{columns} }
-        ],
-        custom    => ["=${targsheet}IV3/SUM(${slopsheet}IV1:IV2)"],
-        wsPrepare => sub {
-            my ( $self, $wb, $ws, $format, $formula ) = @_;
-            sub {
-                '', $format, $formula->[0],
-                  IV3 => xl_rowcol_to_cell( $targr,  $targc ),
-                  IV1 => xl_rowcol_to_cell( $slopr1, $slopc1 ),
-                  IV2 => xl_rowcol_to_cell( $slopr2, $slopc2 );
-            };
+    my @kinks;
+    for ( my $n = 0 ; $n < @minmax ; ++$n ) {
+        foreach my $r ( 0 .. $minmax[$n]->lastRow ) {
+            foreach my $c ( 0 .. $minmax[$n]->lastCol ) {
+                push @kinks, [ $n, $r, $c ];
+            }
         }
-    );
-    my ( $unconsheet, $unconr, $unconc ) = $unconstrained->wsWrite( $wb, $ws );
-    $unconsheet =
-      $unconsheet == $ws
-      ? ''
-      : "'" . ( $unconsheet ? $unconsheet->get_name : die 'BROKEN LINK' ) . "'!";
+    }
 
-    my $startingPoint = new SpreadsheetModel::Custom(
-        name        => 'Starting point',
-        sourceLines => [
-            $unconstrained,
-            $self->{min}
-            ? (
-                  $self->{min}->isa('SpreadsheetModel::Dataset')
-                ? $self->{min}
-                : @{ $self->{min}{columns} }
-              )
-            : (),
-            $self->{max}
-            ? (
-                  $self->{max}->isa('SpreadsheetModel::Dataset')
-                ? $self->{max}
-                : @{ $self->{max}{columns} }
-              )
-            : ()
-        ],
-        custom => [
-                "=MIN(${unconsheet}IV3"
-              . ( $self->{min} ? ",${minsheet}IV4:IV5" : '' )
-              . ( $self->{max} ? ",${maxsheet}IV6:IV7" : '' ) . ')'
-        ],
-        wsPrepare => sub {
-            my ( $me, $wb, $ws, $format, $formula ) = @_;
-            sub {
-                '', $format, $formula->[0],
-                  IV3 => xl_rowcol_to_cell( $unconr, $unconc ),
-                  IV1 => xl_rowcol_to_cell( $slopr1, $slopc1 ),
-                  IV2 => xl_rowcol_to_cell( $slopr2, $slopc2 ),
-                  $self->{min}
-                  ? (
-                    IV4 => xl_rowcol_to_cell( $minr1, $minc1 ),
-                    IV5 => xl_rowcol_to_cell( $minr2, $minc2 )
-                  )
-                  : (), $self->{max} ? (
-                    IV6 => xl_rowcol_to_cell( $maxr1, $maxc1 ),
-                    IV7 => xl_rowcol_to_cell( $maxr2, $maxc2 )
-                  )
-                  : ();
-            };
-        }
-    );
-
-    0 and new SpreadsheetModel::Columnset(
-        name    => "Prepare to solve for $self->{name}",
-        columns => [ $unconstrained, $startingPoint ]
-    );
-
-    my $numRows = $slopr2 - $slopr1 + 1;
-    my $numCols = $slopc2 - $slopc1 + 1;
-    my $numKinks =
-      ( ( $self->{min} ? 1 : 0 ) + ( $self->{max} ? 1 : 0 ) ) *
-      $numRows *
-      $numCols;
     my $kinkSet =
       new SpreadsheetModel::Labelset(
-        list => [ 'Starting point', map { "Kink $_" } 1 .. $numKinks ] );
+        list => [ 'Starting point', map { "Kink $_" } 1 .. @kinks ] );
 
     my $kx = new SpreadsheetModel::Custom(
-        name        => 'Location',
-        sourceLines => [
-            $startingPoint,
-            $self->{min}
-            ? (
-                  $self->{min}->isa('SpreadsheetModel::Dataset')
-                ? $self->{min}
-                : @{ $self->{min}{columns} }
-              )
-            : (),
-            $self->{max}
-            ? (
-                  $self->{max}->isa('SpreadsheetModel::Dataset')
-                ? $self->{max}
-                : @{ $self->{max}{columns} }
-              )
-            : ()
-        ],
+        name      => 'Location',
         rows      => $kinkSet,
-        custom    => [ '=IV1', '=IV2', '=IV3' ],
+        custom    => ['=IV1'],     # assumes all on the same sheet
         arguments => {
             IV1 => $startingPoint,
-            $self->{min}
-            ? (
-                IV2 => $self->{min}{columns}
-                ? $self->{min}{columns}[0]
-                : $self->{min}
-              )
-            : (),
-            $self->{max}
-            ? (
-                IV3 => $self->{max}{columns}
-                ? $self->{max}{columns}[0]
-                : $self->{max}
-              )
-            : ()
+            map { ( "IV2$_" => $minmax[$_] ); } 0 .. $#minmax,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -238,47 +110,21 @@ sub wsPrepare {
                 return '', $format, $formula->[0],
                   IV1 => xl_rowcol_to_cell( $rowh->{IV1}, $colh->{IV1} )
                   if !$y;
-                --$y;
-                return '', $format, $formula->[1], IV2 => xl_rowcol_to_cell(
-                    $rowh->{IV2} + $y % $numRows,
-                    $colh->{IV2} + int( $y / $numRows )
-                ) if $self->{min} && ( !$self->{max} || $y * 2 < $numKinks );
-                return '', $format, $formula->[2], IV3 => xl_rowcol_to_cell(
-                    $rowh->{IV3} + $y % $numRows,
-                    $colh->{IV3} + int( $y / $numRows ) - (
-                          $self->{min}
-                        ? $numCols
-                        : 0
-                    )
-                );
+                my ( $n, $r, $c ) = @{ $kinks[ $y - 1 ] };
+                return '', $format, $formula->[0],
+                  IV1 => xl_rowcol_to_cell( $rowh->{"IV2$n"} + $r,
+                    $colh->{"IV2$n"} + $c );
             };
         }
     );
 
     my $kk = new SpreadsheetModel::Custom(
-        name        => 'Kink',
-        sourceLines => [
-              $self->{slopes}->isa('SpreadsheetModel::Dataset')
-            ? $self->{slopes}
-            : @{ $self->{slopes}{columns} }
-        ],
+        name      => 'Kink',
         rows      => $kinkSet,
-        custom    => [ '=IV2', '=0-IV3' ],
+        custom    => [ '=IV2', '=0-IV2' ],    # assumes all on the same sheet
         arguments => {
-            $self->{min}
-            ? (
-                IV2 => $self->{slopes}{columns}
-                ? $self->{slopes}{columns}[0]
-                : $self->{slopes}
-              )
-            : (),
-            $self->{max}
-            ? (
-                IV3 => $self->{slopes}{columns}
-                ? $self->{slopes}{columns}[0]
-                : $self->{slopes}
-              )
-            : ()
+            IV1 => $startingPoint,
+            map { ( "IV4$_" => $slopes[$_] ); } 0 .. $#slopes,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -286,29 +132,20 @@ sub wsPrepare {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable')
                   if !$y;
-                --$y;
-                return '', $format, $formula->[0], IV2 => xl_rowcol_to_cell(
-                    $rowh->{IV2} + $y % $numRows,
-                    $colh->{IV2} + int( $y / $numRows )
-                ) if $self->{min} && ( !$self->{max} || $y * 2 < $numKinks );
-                return '', $format, $formula->[1], IV3 => xl_rowcol_to_cell(
-                    $rowh->{IV3} + $y % $numRows,
-                    $colh->{IV3} + int( $y / $numRows ) - (
-                          $self->{min}
-                        ? $numCols
-                        : 0
-                    )
-                );
+                my ( $n, $r, $c ) = @{ $kinks[ $y - 1 ] };
+                my $m = $n % @slopes;
+                '', $format, $formula->[ $n < @min ? 0 : 1 ],
+                  IV2 => xl_rowcol_to_cell( $rowh->{"IV4$m"} + $r,
+                    $colh->{"IV4$m"} + $c );
             };
         }
     );
 
     my $startingSlope = new SpreadsheetModel::Custom(
-        name        => 'Starting slopes',
-        sourceLines => [ $kk, $kx ],
-        rows        => $kinkSet,
-        custom      => ['=IF(ISNUMBER(IV1),0,IV2)'],
-        arguments   => {
+        name      => 'Starting slopes',
+        rows      => $kinkSet,
+        custom    => ['=IF(ISNUMBER(IV1),0,IV2)'],
+        arguments => {
             IV2 => $kk,
             IV1 => $kx
         },
@@ -317,9 +154,10 @@ sub wsPrepare {
             sub {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable')
-                  if !$y
-                  || !$self->{min}
-                  || $self->{max} && $y * 2 >= $numKinks;
+                  if !$y;
+                my ( $n, $r, $c ) = @{ $kinks[ $y - 1 ] };
+                return '', $wb->getFormat('unavailable')
+                  unless $n < @min;
                 '', $format, $formula->[0], map {
                     $_ =>
                       xl_rowcol_to_cell( $rowh->{$_} + $y, $colh->{$_} + $x )
@@ -329,11 +167,10 @@ sub wsPrepare {
     );
 
     my $startingValue = new SpreadsheetModel::Custom(
-        name        => 'Starting values',
-        sourceLines => [ $kk, $kx, $startingPoint ],
-        rows        => $kinkSet,
-        custom      => ['=MAX(IV3,IV1)*IV2'],
-        arguments   => {
+        name      => 'Starting values',
+        rows      => $kinkSet,
+        custom    => ['=MAX(IV3,IV1)*IV2'],
+        arguments => {
             IV2 => $kk,
             IV1 => $kx,
             IV3 => $startingPoint
@@ -343,9 +180,10 @@ sub wsPrepare {
             sub {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable')
-                  if !$y
-                  || !$self->{min}
-                  || $self->{max} && $y * 2 >= $numKinks;
+                  if !$y;
+                my ( $n, $r, $c ) = @{ $kinks[ $y - 1 ] };
+                return '', $wb->getFormat('unavailable')
+                  unless $n < @min;
                 '', $format, $formula->[0],
                   IV3 => xl_rowcol_to_cell( $rowh->{IV3}, $colh->{IV3}, 1, 1 ),
                   map {
@@ -359,13 +197,12 @@ sub wsPrepare {
     my $counter = new SpreadsheetModel::Constant(
         name          => 'Counter',
         rows          => $kinkSet,
-        data          => [ 0 .. $numKinks ],
+        data          => [ 0 .. @kinks ],
         defaultFormat => '0connz'
     );
 
     my $kr1 = new SpreadsheetModel::Custom(
         name          => 'Ranking before tie break',
-        sourceLines   => [$kx],
         defaultFormat => '0softnz',
         rows          => $kinkSet,
         custom        => ['=RANK(IV1,IV2:IV3,1)'],
@@ -379,20 +216,11 @@ sub wsPrepare {
             sub {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable') unless $y;
-                0
-                  and return 1, $format,
-                  '=RANK('
-                  . xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ) . ','
-                  . xl_rowcol_to_cell( $rowh->{IV1} + 1, $colh->{IV1}, 1, 0 )
-                  . ':'
-                  . xl_rowcol_to_cell( $rowh->{IV1} + $numKinks,
-                    $colh->{IV1}, 1, 0 )
-                  . ',1)';
                 '', $format, $formula->[0],
                   IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
                   IV2 =>
                   xl_rowcol_to_cell( $rowh->{IV1} + 1, $colh->{IV1}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV1} + $numKinks,
+                  IV3 => xl_rowcol_to_cell( $rowh->{IV1} + @kinks,
                     $colh->{IV1}, 1, 0 );
             };
         }
@@ -400,15 +228,13 @@ sub wsPrepare {
 
     my $kr2 = new SpreadsheetModel::Arithmetic(
         name          => 'Tie breaker',
-        sourceLines   => [ $kr1, $counter ],
         arguments     => { IV1 => $kr1, IV4 => $counter },
-        arithmetic    => "=IV1*$numKinks+IV4",
+        arithmetic    => '=IV1*' . @kinks . '+IV4',
         defaultFormat => '0softnz'
     );
 
     my $kr = new SpreadsheetModel::Custom(
         name          => 'Ranking',
-        sourceLines   => [$kr2],
         defaultFormat => '0softnz',
         rows          => $kinkSet,
         custom        => ['=RANK(IV1,IV2:IV3,1)'],
@@ -416,8 +242,6 @@ sub wsPrepare {
         wsPrepare     => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
-
-# http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/6ba2e7e8e32fb21e
             sub {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable') unless $y;
@@ -425,7 +249,7 @@ sub wsPrepare {
                   IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
                   IV2 =>
                   xl_rowcol_to_cell( $rowh->{IV1} + 1, $colh->{IV1}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV1} + $numKinks,
+                  IV3 => xl_rowcol_to_cell( $rowh->{IV1} + @kinks,
                     $colh->{IV1}, 1, 0 );
             };
         }
@@ -433,7 +257,6 @@ sub wsPrepare {
 
     my $ror = new SpreadsheetModel::Custom(
         name          => 'Kink reordering',
-        sourceLines   => [ $kr, $counter ],
         defaultFormat => '0softnz',
         rows          => $kinkSet,
         custom        => ['=MATCH(IV1,IV2:IV3,0)'],
@@ -441,8 +264,6 @@ sub wsPrepare {
         wsPrepare     => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
-
-# http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/6ba2e7e8e32fb21e
             sub {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable') unless $y;
@@ -450,23 +271,20 @@ sub wsPrepare {
                   IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
                   IV2 =>
                   xl_rowcol_to_cell( $rowh->{IV2} + 1, $colh->{IV2}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + $numKinks,
+                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + @kinks,
                     $colh->{IV2}, 1, 0 );
             };
         }
     );
 
     my $kxs = new SpreadsheetModel::Custom(
-        name        => 'Location (ordered)',
-        sourceLines => [ $kx, $ror ],
-        rows        => $kinkSet,
-        custom      => [ '=INDEX(IV2:IV3,IV1,1)', '=IV2' ],
-        arguments   => { IV2 => $kx, IV1 => $ror },
-        wsPrepare   => sub {
+        name      => 'Location (ordered)',
+        rows      => $kinkSet,
+        custom    => [ '=INDEX(IV2:IV3,IV1,1)', '=IV2' ],
+        arguments => { IV2 => $kx, IV1 => $ror },
+        wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
-
-# http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/6ba2e7e8e32fb21e
             sub {
                 my ( $x, $y ) = @_;
                 return '', $format, $formula->[1],
@@ -476,37 +294,32 @@ sub wsPrepare {
                   IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
                   IV2 =>
                   xl_rowcol_to_cell( $rowh->{IV2} + 1, $colh->{IV2}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + $numKinks,
+                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + @kinks,
                     $colh->{IV2}, 1, 0 );
             };
         }
     );
 
     my $kks = new SpreadsheetModel::Custom(
-        name        => 'New slope',
-        sourceLines => [ $kk, $ror, $startingSlope ],
-        rows        => $kinkSet,
-        custom => [ '=IV7+INDEX(IV2:IV3,IV1,1)', '=SUM(IV5:IV6)' ],
+        name      => 'New slope',
+        rows      => $kinkSet,
+        custom    => [ '=IV7+INDEX(IV2:IV3,IV1,1)', '=SUM(IV5:IV6)' ],
         arguments => { IV2 => $kk, IV1 => $ror, IV5 => $startingSlope },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
-
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
-
-# http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/6ba2e7e8e32fb21e
-
             sub {
                 my ( $x, $y ) = @_;
                 return '', $format, $formula->[1],
                   IV5 => xl_rowcol_to_cell( $rowh->{IV5}, $colh->{IV5}, 1, 0 ),
-                  IV6 => xl_rowcol_to_cell( $rowh->{IV5} + $numKinks - 1,
+                  IV6 => xl_rowcol_to_cell( $rowh->{IV5} + @kinks - 1,
                     $colh->{IV5}, 1, 0 )
                   unless $y;
                 '', $format, $formula->[0],
                   IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
                   IV2 =>
                   xl_rowcol_to_cell( $rowh->{IV2} + 1, $colh->{IV2}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + $numKinks,
+                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + @kinks,
                     $colh->{IV2}, 1, 0 ),
                   IV7 => xl_rowcol_to_cell( $me->{$wb}{row} + $y - 1,
                     $me->{$wb}{col} );
@@ -515,9 +328,8 @@ sub wsPrepare {
     );
 
     my $kvs = new SpreadsheetModel::Custom(
-        name        => 'Value',
-        sourceLines => [ $kxs, $kks, $startingValue, $self->{target} ],
-        rows        => $kinkSet,
+        name      => 'Value',
+        rows      => $kinkSet,
         custom    => [ '=IV7+(IV4-IV3)*IV2', '=SUM(IV5:IV6)-IV9' ],
         arguments => {
             IV4 => $kxs,
@@ -532,7 +344,7 @@ sub wsPrepare {
                 return '', $format, $formula->[1],
                   IV9 => xl_rowcol_to_cell( $rowh->{IV9}, $colh->{IV9}, 1, 1 ),
                   IV5 => xl_rowcol_to_cell( $rowh->{IV5}, $colh->{IV5}, 1, 1 ),
-                  IV6 => xl_rowcol_to_cell( $rowh->{IV5} + $numKinks - 1,
+                  IV6 => xl_rowcol_to_cell( $rowh->{IV5} + @kinks - 1,
                     $colh->{IV5}, 1, 1 )
                   unless $y;
                 '', $format, $formula->[0],
@@ -548,10 +360,9 @@ sub wsPrepare {
     );
 
     my $root = new SpreadsheetModel::Custom(
-        name        => 'Root',
-        sourceLines => [ $kvs, $kks, $kxs, $unconstrained ],
-        rows        => $kinkSet,
-        custom      => [
+        name   => 'Root',
+        rows   => $kinkSet,
+        custom => [
             '=IF((IV2>0)=(IV3>0),"",IV1-IV9/IV4)',
             '=IF(IV2>0,IV1,IF(IV3>0,"",IV5))'
         ],
@@ -583,7 +394,7 @@ sub wsPrepare {
         }
     );
 
-    new SpreadsheetModel::Columnset(
+    Columnset(
         name    => "Solve for $self->{name}",
         columns => [
             $kx, $kk, $startingSlope, $startingValue, $kr1, $counter, $kr2, $kr,
@@ -591,25 +402,10 @@ sub wsPrepare {
         ]
     );
 
-    my ( $rootsheet, $rootr, $rootc ) = $root->wsWrite( $wb, $ws );
-    $rootsheet =
-      $rootsheet == $ws
-      ? ''
-      : "'" . ( $rootsheet ? $rootsheet->get_name : die 'BROKEN LINK' ) . "'!";
+    $self->{arithmetic} = '=MIN(IV1_IV2)';
+    $self->{arguments} = { IV1_IV2 => $root };
 
-    my $formula = $ws->store_formula("=MIN(${rootsheet}IV1:IV2)");
-    my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );
-
-    $self->{sourceLines} = [$root];
-    $self->{arithmetic}  = '=MIN(IV1)';
-    $self->{arguments}   = { IV1 => $root };
-
-    sub {
-        '', $format, $formula,
-          IV1 => xl_rowcol_to_cell( $rootr,                  $rootc ),
-          IV2 => xl_rowcol_to_cell( $rootr + $root->lastRow, $rootc ),
-          ;
-    };
+    $self->SUPER::check;
 
 }
 

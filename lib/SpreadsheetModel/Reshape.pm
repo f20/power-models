@@ -1,9 +1,4 @@
-﻿
-=head Development note
-
-This file contains SpreadsheetModel::Custom and SpreadsheetModel::Reshape.
-
-=cut
+﻿package SpreadsheetModel::Reshape;
 
 =head Copyright licence and disclaimer
 
@@ -36,83 +31,7 @@ use warnings;
 use strict;
 use utf8;
 
-require SpreadsheetModel::Dataset;
-
-package SpreadsheetModel::Custom;
-our @ISA = qw(SpreadsheetModel::Dataset);
-
-use Spreadsheet::WriteExcel::Utility;
-
-sub objectType {
-    $_[0]{objectType};
-}
-
-sub populateCore {
-    my ($self) = @_;
-    $self->{core}{$_} = $self->{$_}
-      foreach grep { exists $self->{$_}; } qw(arithmetic);
-    while ( my ( $k, $v ) = each %{ $self->{arguments} } ) {
-        $self->{core}{arguments}{$k} = $v->getCore;
-    }
-}
-
-sub check {
-    my ($self) = @_;
-    $self->{arithmetic} = 'Special calculation'
-      unless defined $self->{arithmetic};
-    $self->{objectType} ||= 'Special calculation';
-    push @{ $self->{sourceLines} }, values %{ $self->{arguments} };
-    $self->{wsPrepare} ||= sub {
-        my ( $self, $wb, $ws, $formula, $format, $pha, $rowh, $colh ) = @_;
-        sub {
-            my ( $x, $y ) = @_;
-            '', $format, $formula, map {
-                $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{$_} + $y,
-                    $colh->{$_} + $x,
-                    0, 0
-                  )
-            } @$pha;
-        };
-    };
-    $self->SUPER::check;
-}
-
-sub wsPrepare {
-    my ( $self, $wb, $ws ) = @_;
-    my @custom       = @{ $self->{custom} };
-    my @placeholders = keys %{ $self->{arguments} };
-    my ( %row, %col );
-    my $broken;
-    for my $ph (@placeholders) {
-        0 and warn "$self->{name} $ph";
-        ( my $ws2, $row{$ph}, $col{$ph} ) =
-          $self->{arguments}{$ph}->wsWrite( $wb, $ws );
-        $broken = "UNFEASIBLE LINK $ph for $self->{name} $self->{debug}"
-          unless $ws2;
-        unless ( !$ws2 || $ws2 == $ws ) {
-            my $sheet = $ws2->get_name;
-            use bytes;
-            s/\b$ph(\b|$)/'$sheet'!$ph/ foreach @custom;
-        }
-    }
-    return sub { die $broken; }
-      if $broken;
-    $self->{wsPrepare}->(
-        $self,
-        $wb,
-        $ws,
-        $wb->getFormat( $self->{defaultFormat} || '0.000soft' ),
-        [ map { $ws->store_formula($_) } @custom ],
-        \@placeholders,
-        \%row,
-        \%col
-    );
-}
-
-#
-
-package SpreadsheetModel::Reshape;
+use SpreadsheetModel::Dataset;
 our @ISA = qw(SpreadsheetModel::Dataset);
 
 use Spreadsheet::WriteExcel::Utility;

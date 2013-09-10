@@ -38,7 +38,6 @@ use strict;
 use utf8;
 
 use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::SegmentRoot;
 
 sub fudge41 {
 

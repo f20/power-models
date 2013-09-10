@@ -44,7 +44,8 @@ use SpreadsheetModel::GroupBy;
 use SpreadsheetModel::Stack;
 use SpreadsheetModel::SumProduct;
 
-use SpreadsheetModel::Miscellaneous;
+use SpreadsheetModel::Custom;
+use SpreadsheetModel::Reshape;
 
 require Exporter;
 our @ISA = qw(Exporter);
