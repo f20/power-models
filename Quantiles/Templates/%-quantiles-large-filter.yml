@@ -1,0 +1,5 @@
+---
+.: Complicated quantile calculator (large file with filter)
+PerlModule: Quantiles
+catFilter: 1
+numTariffs: 400

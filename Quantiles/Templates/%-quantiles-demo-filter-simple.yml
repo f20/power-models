@@ -1,0 +1,6 @@
+---
+.: Simple quantile calculator (demonstration with filter)
+PERCENTILE: 1
+PerlModule: Quantiles
+catFilter: 1
+illustrative: 1
