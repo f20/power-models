@@ -116,13 +116,14 @@ sub new {
                     arguments  => { IV1 => $cat, IV2 => $cols[2], }
                 ),
                 Arithmetic(
-                    name       => $levels[3],
-                    arithmetic => '=IF(MOD(MOD(IV1,100),9)=2,IV2,"n/a")',
-                    arguments  => { IV1 => $cat, IV2 => $cols[3], }
+                    name => $levels[3],
+                    arithmetic =>
+                      '=IF(AND(MOD(IV1,10)>0,MOD(IV3,1000)>1),IV2,"n/a")',
+                    arguments => { IV1 => $cat, IV3 => $cat, IV2 => $cols[3], }
                 ),
                 Arithmetic(
                     name       => $levels[4],
-                    arithmetic => '=IF(MOD(IV1,100)=1,IV2,"n/a")',
+                    arithmetic => '=IF(MOD(IV1,1000)=1,IV2,"n/a")',
                     arguments  => { IV1 => $cat, IV2 => $cols[4], }
                 ),
             );
