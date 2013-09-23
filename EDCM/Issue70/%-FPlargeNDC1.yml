@@ -1,5 +1,5 @@
 ---
-.: EDCM model for MIG issue 70 (FCP, no demand charge 1)
+.: EDCM model for MIG issue 70 (FCP large, no demand charge 1)
 DCP130: 1
 DGCONDITION: 1
 NODEMANDCHARGE1: 1
@@ -8,6 +8,8 @@ PerlModule: EDCM2
 inputData: dataSheet
 method: FCP
 noNegative: 1
+numLocations: 1200
+numTariffs: 300
 protect: 1
 summaries: 1
 validation: lenientnomsg

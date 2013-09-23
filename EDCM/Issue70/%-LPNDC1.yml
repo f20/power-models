@@ -1,5 +1,5 @@
 ---
-.: EDCM model for MIG issue 70 (LRIC no demand charge 1)
+.: EDCM model for MIG issue 70 (LRIC, no demand charge 1)
 DCP130: 1
 DGCONDITION: 1
 NODEMANDCHARGE1: 1
