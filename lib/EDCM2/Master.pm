@@ -150,8 +150,9 @@ EOT
 '-1 means that the tariff is included in the table 119x aggregates but should be removed.',
 '1 means that the tariff is active and is not included in the table 119x aggregates.',
             ],
-            arithmetic =>
-'=IF(OR(IV3,IV4="TRUE",ISNUMBER(SEARCH("[ADDED]",IV2))),1,IF(ISNUMBER(SEARCH("[REMOVED]",IV1)),-1,0))',
+            arithmetic => '=IF(OR(IV3,IV4="TRUE",'
+              . 'ISNUMBER(SEARCH("[ADDED]",IV2)))' . ',1,'
+              . 'IF(ISNUMBER(SEARCH("[REMOVED]",IV1)),-1,0)' . ')',
             arguments => {
                 IV1 => $tariffs,
                 IV2 => $tariffs,
@@ -165,11 +166,12 @@ EOT
                 1191,
                 [ 'Baseline total EDCM peak time consumption (kW)', '0hard' ],
                 [
-'Baseline total marginal effect of indirect cost adder (kVA)',
+                    'Baseline total marginal effect'
+                      . ' of indirect cost adder (kVA)',
                     '0hard'
                 ],
                 [
-                    'Baseline total marginal effect of demand adder (£)',
+                    'Baseline total marginal effect of demand adder (kVA)',
                     '0hard'
                 ],
                 'Baseline EDCM demand volumes'
@@ -197,7 +199,8 @@ EOT
                 [ 'Baseline total notional capacity assets (£)',    '0hard' ],
                 [ 'Baseline total notional consumption assets (£)', '0hard' ],
                 [
-'Baseline total non sole use notional assets subject to matching (£)',
+                    'Baseline total non sole use'
+                      . ' notional assets subject to matching (£)',
                     '0hard'
                 ],
                 'Baseline EDCM assets and notional assets'
