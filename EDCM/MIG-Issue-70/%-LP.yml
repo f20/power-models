@@ -1,14 +1,13 @@
 ---
-.: EDCM model with independent totals (FCP no demand charge 1)
+.: EDCM model for MIG issue 70 (LRIC)
 DCP130: 1
 DGCONDITION: 1
-NODEMANDCHARGE1: 1
 PARTIAL: 1
 PerlModule: EDCM2
 inputData: dataSheet
-method: FCP
+method: LRIC
 noNegative: 1
 protect: 1
 summaries: 1
 validation: lenientnomsg
-wantTables: 911
+wantTables: 913

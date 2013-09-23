@@ -23,7 +23,7 @@ Sample code to produce populated models:
     perl run/make.pl CDCM/Previous/%-model100.yml CDCM/Data-2012-02/UKPN-LPN.yml
     perl run/make.pl ModelM/Current/%-postDCP096.yml ModelM/Data-2012-02/*
     perl run/make.pl -comparedata ModelM/Current/%-postDCP096.yml ModelM/Data-2013-02/*LPN*
-    perl run/make.pl EDCM/Partial/* EDCM/Data-*/* 
+    perl run/make.pl EDCM/MIG-Issue-70/* EDCM/Data-*/* 
     
 Sample code to produce blank models:
     perl run/make.pl -xlsx CDCM/Current/%-clean132.yml Blank.yml
