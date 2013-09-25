@@ -445,7 +445,7 @@ sub tsvDumper {
                 print {$fh} join(
                     "\t", $infile,
                     $worksheet->{Name},
-                    $row,
+                    1 + $row,
                     map {
                         my $cell = $worksheet->get_cell( $row, $_ );
                         !$cell ? '' : $cell->unformatted;
