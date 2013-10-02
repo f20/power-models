@@ -437,10 +437,23 @@ sub tsvDumper {
     sub {
         my ( $infile, $workbook ) = @_;
         open my $fh, '>', "$infile.txt";
+        print {$fh} "Worksheet\tRow\tA\n";
         for my $worksheet ( $workbook->worksheets() ) {
             next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
+            $col_min = 0;    # Use completely blank columns
+            print {$fh} join(
+                "\t",
+                $worksheet->{Name},
+                0,
+                map {
+                    my $aa = int( $_ / 26 );
+                    ( $aa ? chr( 64 + $aa ) : '' ) . chr( 65 + ( $_ % 26 ) );
+
+                    # "col$_";
+                } $col_min .. $col_max
+            ) . "\n";
             for my $row ( $row_min .. $row_max ) {
                 print {$fh} join(
                     "\t", $infile,
