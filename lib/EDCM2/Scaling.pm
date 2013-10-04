@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2013 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -82,15 +83,15 @@ sub fudge41 {
     );
 
     my $totalIndirectFudge =
-      $model->{PARTIAL}
+      $model->{transparency}
       ? (
-        $model->{PARTIAL}{olo}{119102} = Arithmetic(
+        $model->{transparency}{olo}{119102} = Arithmetic(
             name          => 'Total marginal effect of indirect cost adder',
             defaultFormat => '0soft',
             arithmetic    => '=IV1+SUMPRODUCT(IV2_IV3,IV4_IV5,IV6_IV7)',
             arguments     => {
-                IV1     => $model->{PARTIAL}{ol119102},
-                IV2_IV3 => $model->{PARTIAL},
+                IV1     => $model->{transparency}{ol119102},
+                IV2_IV3 => $model->{transparency},
                 IV4_IV5 => $fudgeIndirect,
                 IV6_IV7 => $agreedCapacity,
             },
@@ -112,7 +113,8 @@ sub fudge41 {
             IV4 => $totalIndirectFudge,
         },
     );
-    $model->{PARTIAL}{oli}{1262} = $indirectAppRate if $model->{PARTIAL};
+    $model->{transparency}{oli}{1262} = $indirectAppRate
+      if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
         arithmetic => '=IV1+IV3*IV4*100/IV9',
@@ -137,28 +139,29 @@ sub fudge41 {
     );
 
     my $fixedAdderAmount = Arithmetic(
-        name =>
-          'Amount to be recovered from fixed adder ex indirects (£/year)',
-        arithmetic => '=IV1-IV7-IV91-IV92',
-        arguments  => {
+        name => 'Amount to be recovered from adders ex indirects (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IV1-IV7-IV91-IV92',
+        arguments     => {
             IV1  => $$shortfallRef,
             IV7  => $indirect,
             IV91 => $direct,
             IV92 => $rates,
         },
     );
-    $model->{PARTIAL}{oli}{1259} = $fixedAdderAmount if $model->{PARTIAL};
+    $model->{transparency}{oli}{1259} = $fixedAdderAmount
+      if $model->{transparency};
 
     my $totalSlope =
-      $model->{PARTIAL}
+      $model->{transparency}
       ? (
-        $model->{PARTIAL}{olo}{119103} = Arithmetic(
+        $model->{transparency}{olo}{119103} = Arithmetic(
             name          => 'Total marginal revenue effect of demand adder',
             defaultFormat => '0soft',
             arithmetic    => 'IV1+SUMPRODUCT(IV2_IV3,IV4_IV5)',
             arguments     => {
-                IV1     => $model->{PARTIAL}{ol119103},
-                IV2_IV3 => $model->{PARTIAL},
+                IV1     => $model->{transparency}{ol119103},
+                IV2_IV3 => $model->{transparency},
                 IV4_IV5 => $slope,
             },
         )
@@ -179,7 +182,8 @@ sub fudge41 {
             IV4 => $totalSlope,
         },
     );
-    $model->{PARTIAL}{oli}{1261} = $fixedAdderRate if $model->{PARTIAL};
+    $model->{transparency}{oli}{1261} = $fixedAdderRate
+      if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
         arithmetic => '=IV1+IV3*(IV7+IV4)*100/IV9',
@@ -235,7 +239,8 @@ sub fudge41 {
             IV82 => $rates,
         },
     );
-    $model->{PARTIAL}{oli}{1257} = $$shortfallRef if $model->{PARTIAL};
+    $model->{transparency}{oli}{1257} = $$shortfallRef
+      if $model->{transparency};
 
     0 and Columnset(
         name    => 'Calculation of revenue shortfall',
@@ -273,7 +278,7 @@ sub demandScaling41 {
     ) = @_;
 
     my $slopeCapacity = Arithmetic(
-        name => 'Non sole use notional assets subject to matching (£)',
+        name          => 'Non sole use notional assets subject to matching (£)',
         defaultFormat => '0softnz',
         arithmetic    => '=(IV2+IV1)*IV4',
         arguments     => {
@@ -284,16 +289,16 @@ sub demandScaling41 {
     );
 
     my $totalSlopeCapacity =
-      $model->{PARTIAL}
+      $model->{transparency}
       ? (
-        $model->{PARTIAL}{olo}{119305} = Arithmetic(
+        $model->{transparency}{olo}{119305} = Arithmetic(
             name =>
               'Total non sole use notional assets subject to matching (£)',
             defaultFormat => '0softnz',
             arithmetic    => '=IV1+SUMPRODUCT(IV21_IV22,IV51_IV52)',
             arguments     => {
-                IV1       => $model->{PARTIAL}{ol119305},
-                IV21_IV22 => $model->{PARTIAL},
+                IV1       => $model->{transparency}{ol119305},
+                IV21_IV22 => $model->{transparency},
                 IV51_IV52 => $slopeCapacity,
             }
         )
@@ -323,7 +328,8 @@ sub demandScaling41 {
         arguments =>
           { IV1 => $shortfall, IV4 => $shortfall, IV2 => $totalSlopeCapacity, }
     );
-    $model->{PARTIAL}{oli}{1258} = $demandScaling if $model->{PARTIAL};
+    $model->{transparency}{oli}{1258} = $demandScaling
+      if $model->{transparency};
 
     my $scalingChargeCapacity = Arithmetic(
         arithmetic => '=IV3*(IV62+IV63)*100/IV9',

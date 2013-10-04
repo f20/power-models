@@ -43,15 +43,15 @@ sub gCharge {
         $exportCapacityChargeablePost2010, $daysInYear,
     ) = @_;
 
-    if ( $model->{PARTIAL} ) {
-        ${ $_->[0] } = $model->{PARTIAL}{olo}{ $_->[1] } = Arithmetic(
+    if ( $model->{transparency} ) {
+        ${ $_->[0] } = $model->{transparency}{olo}{ $_->[1] } = Arithmetic(
             name          => ${ $_->[0] }->objectShortName . ' (total)',
             defaultFormat => '0softnz',
             arithmetic    => '=IV1+SUMPRODUCT(IV2_IV3*IV4_IV5)',
             arguments     => {
-                IV1     => $model->{PARTIAL}{"ol$_->[1]"},
+                IV1     => $model->{transparency}{"ol$_->[1]"},
                 IV2_IV3 => ${ $_->[0] },
-                IV4_IV5 => $model->{PARTIAL},
+                IV4_IV5 => $model->{transparency},
             }
           )
           foreach [ \$exportCapacityChargeable, 119201 ],
@@ -89,7 +89,8 @@ sub gCharge {
             IV9   => $daysInYear,
         }
     );
-    $model->{PARTIAL}{oli}{1243} = $exportCapacityCharge if $model->{PARTIAL};
+    $model->{transparency}{oli}{1243} = $exportCapacityCharge
+      if $model->{transparency};
     $exportCapacityCharge;
 
 }

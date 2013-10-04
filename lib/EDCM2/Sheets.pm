@@ -44,6 +44,18 @@ sub generalNotes {
     Notes(
         name  => 'Overview',
         lines => [
+            $model->{colour} && $model->{colour} =~ /orange/ ? <<EOL : (),
+
+This document, model or dataset has been prepared by Reckon LLP on the
+instructions of the DCUSA Panel or one of its working groups.
+
+Only the DCUSA Panel and its working groups have authority to approve
+this material as meeting their requirements.
+
+Reckon LLP makes no representation about the suitability of this
+material for the purposes of complying with any licence conditions or
+furthering any relevant objective.
+EOL
             <<'EOL',
 
 Copyright 2009-2013 Energy Networks Association Limited and others.
@@ -264,7 +276,7 @@ sub worksheetsAndClosures {
 
       : (),
 
-      $model->{PARTIAL}
+      $model->{transparency}
       ? (
         'OneLiners' => sub {
             my ($wsheet) = @_;
@@ -272,7 +284,8 @@ sub worksheetsAndClosures {
             $wsheet->fit_to_pages( 1, 1 );
             $wsheet->set_column( 0, 250, 30 );
             my %olo;
-            while ( my ( $num, $obj ) = each %{ $model->{PARTIAL}{olo} } ) {
+            while ( my ( $num, $obj ) = each %{ $model->{transparency}{olo} } )
+            {
                 my $number = int( $num / 100 );
                 $olo{$number}[ $num - $number * 100 - 1 ] = $obj;
             }
@@ -293,7 +306,7 @@ This sheet contains data to populate tables 119x in a model with a non-zero base
               ),
               (
                 map {
-                    my $obj  = $model->{PARTIAL}{oli}{$_};
+                    my $obj  = $model->{transparency}{oli}{$_};
                     my $name = 'Copy of ' . $obj->{name};
                     $obj->isa('SpreadsheetModel::Columnset')
                       ? Columnset(
@@ -310,7 +323,7 @@ This sheet contains data to populate tables 119x in a model with a non-zero base
                         sources => [$obj]
                       );
                   } sort { $a <=> $b }
-                  keys %{ $model->{PARTIAL}{oli} }
+                  keys %{ $model->{transparency}{oli} }
               );
         }
       )

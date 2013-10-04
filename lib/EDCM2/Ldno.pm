@@ -94,7 +94,7 @@ ynnyny
 yyyyny
 EOL
 
-    if ( $model->{DCP130} ) {
+    if ( $model->{dcp130} ) {
         $endUsers = Labelset( list => [ split /\n/, <<EOL] );
 Domestic Unrestricted
 Domestic Two Rate

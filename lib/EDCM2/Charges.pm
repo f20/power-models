@@ -63,7 +63,7 @@ sub chargesFcpLric {
         }
     );
 
-    if ( $model->{DGCONDITION} ) {
+    if ( $model->{lowerIntermittentCredit} ) {
         $genCredit = Arithmetic(
             name => 'Generation credit (before exempt adjustment) p/kWh',
             defaultFormat => '0.00softnz',
@@ -94,25 +94,9 @@ sub chargesFcpLric {
         }
     );
 
-    $model->{demandCapacityFcpLric} = my $demandCapacityFcpLric =
-      !$model->{NODEMANDCHARGE1} && $charges1->[0]
-      ? Arithmetic(
-        name          => 'Import capacity charge p/kVA/day',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100*IV1/IV2',
-        arguments     => {
-            IV1 => $charges1->[0],
-            IV2 => $daysInYear,
-        }
-      )
-      : Constant(
-        rows => $demandCapacity->{rows},
-        name => 'Import capacity charge p/kVA/day',
-        data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
-      );
-
     $model->{demandConsumptionFcpLric} = my $demandConsumptionFcpLric =
-      !$model->{NODEMANDCHARGE1}
+      (     !$model->{removeDemandCharge1}
+          || $model->{removeDemandCharge1} =~ /keepunitrate/ )
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Import demand charge p/kVA/day',
@@ -153,10 +137,32 @@ sub chargesFcpLric {
         data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
+    $model->{demandCapacityFcpLric} = my $demandCapacityFcpLric =
+      !$model->{removeDemandCharge1} && $charges1->[0] ? Arithmetic(
+        name          => 'Import capacity charge p/kVA/day',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=100*IV1/IV2',
+        arguments     => {
+            IV1 => $charges1->[0],
+            IV2 => $daysInYear,
+        }
+      )
+      : $model->{removeDemandCharge1} =~ /keepunitrate/ ? Arithmetic(
+        name       => 'Deduct unit rate charge 1 from capacity p/kVA/day',
+        arithmetic => '=0-IV1',
+        arguments  => { IV1 => $demandConsumptionFcpLric, },
+      )
+      : Constant(
+        rows => $demandCapacity->{rows},
+        name => 'Import capacity charge p/kVA/day',
+        data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
+      );
+
     # The following is pretty weird; substantially revised on 25 March 2011
     # Weirdness further increased on 1 June 2012.
     my $unitRateFcpLric =
-      !$model->{NODEMANDCHARGE1}
+      (     !$model->{removeDemandCharge1}
+          || $model->{removeDemandCharge1} =~ /keepunitrate/ )
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Super red rate p/kWh',

@@ -114,10 +114,10 @@ sub setFormats {
 
 =head setFormats
 
-Keys currently looked at within %$options:
-* validation (for void cells in input data tables)
-* alignment (to help OpenOffice)
-* colour (to match default and/or orange and/or text or border)
+Keys used in %$options:
+* alignment (flag: true means right-aligned, false means centered with padding)
+* colour (matched: see below)
+* validation (matched: for void cells in input data tables)
 
 =cut
 
