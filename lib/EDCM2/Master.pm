@@ -460,7 +460,7 @@ EOT
         $model->{transparency}{olo}{119101} = Arithmetic(
             name          => 'Total EDCM peak time consumption (kW)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1+SUMPRODUCT(IV21_IV22*IV51_IV52*IV53_IV54)',
+            arithmetic    => '=IV1+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)',
             arguments     => {
                 IV1       => $model->{transparency}{ol119101},
                 IV21_IV22 => $model->{transparency},
@@ -759,7 +759,7 @@ EOT
             name          => 'Net forecast EDCM generation revenue (£/year)',
             defaultFormat => '0softnz',
             arithmetic =>
-'=IV1+SUMPRODUCT(IV21_IV22*IV51_IV52*IV53_IV54)/100+SUMPRODUCT(IV31_IV32*IV71_IV72*IV73_IV74)*IV75/100+SUMPRODUCT(IV41_IV42*IV83_IV84)*IV85/100',
+'=IV1+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)/100+SUMPRODUCT(IV31_IV32,IV71_IV72,IV73_IV74)*IV75/100+SUMPRODUCT(IV41_IV42,IV83_IV84)*IV85/100',
             arguments => {
                 IV1       => $model->{transparency}{ol119401},
                 IV21_IV22 => $model->{transparency},
@@ -858,7 +858,7 @@ EOT
         $model->{transparency}{olo}{119402} = Arithmetic(
             name          => 'Pot (£/year)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12*IV15_IV16)',
+            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12,IV15_IV16)',
             arguments     => {
                 IV1       => $model->{transparency}{ol119402},
                 IV11_IV12 => $revenue3,

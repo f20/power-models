@@ -1017,7 +1017,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
         $model->{transparency}{olo}{119301} = Arithmetic(
             name          => 'Total sole use assets for demand (£)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12*IV15_IV16)',
+            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12,IV15_IV16)',
             arguments     => {
                 IV1       => $model->{transparency}{ol119301},
                 IV11_IV12 => $tariffSUimport,
@@ -1040,7 +1040,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             $model->{transparency}{olo}{ $_->[1] } = Arithmetic(
                 name          => $name,
                 defaultFormat => '0softnz',
-                arithmetic => '=IV1+SUMPRODUCT(IV11_IV12*IV13_IV14*IV15_IV16)',
+                arithmetic => '=IV1+SUMPRODUCT(IV11_IV12,IV13_IV14,IV15_IV16)',
                 arguments  => {
                     IV1       => $model->{transparency}{"ol$_->[1]"},
                     IV11_IV12 => $_->[0],
@@ -1075,7 +1075,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
         $model->{transparency}{olo}{119302} = Arithmetic(
             name          => 'Total sole use assets for generation (£)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12*IV15_IV16)',
+            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12,IV15_IV16)',
             arguments     => {
                 IV1       => $model->{transparency}{ol119302},
                 IV11_IV12 => $tariffSUexport,
