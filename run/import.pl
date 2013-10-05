@@ -437,21 +437,20 @@ sub tsvDumper {
     sub {
         my ( $infile, $workbook ) = @_;
         open my $fh, '>', "$infile.txt";
-        print {$fh} "Worksheet\tRow\tA\n";
+        binmode $fh, ':utf8';
+        print {$fh} "Book\tSheet\tRow\tA\tB\tC\n";
         for my $worksheet ( $workbook->worksheets() ) {
             next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
             $col_min = 0;    # Use completely blank columns
             print {$fh} join(
-                "\t",
+                "\t", $infile,
                 $worksheet->{Name},
                 0,
                 map {
                     my $aa = int( $_ / 26 );
                     ( $aa ? chr( 64 + $aa ) : '' ) . chr( 65 + ( $_ % 26 ) );
-
-                    # "col$_";
                 } $col_min .. $col_max
             ) . "\n";
             for my $row ( $row_min .. $row_max ) {
@@ -461,7 +460,10 @@ sub tsvDumper {
                     1 + $row,
                     map {
                         my $cell = $worksheet->get_cell( $row, $_ );
-                        !$cell ? '' : $cell->unformatted;
+                        local $_ = !$cell ? '' : $cell->unformatted;
+                        s/\n/\\n/gs;
+                        s/\r/\\r/gs;
+                        $_;
                     } $col_min .. $col_max
                 ) . "\n";
             }
