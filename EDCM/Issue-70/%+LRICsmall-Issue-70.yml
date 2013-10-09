@@ -1,5 +1,5 @@
 ---
-.: EDCM model for MIG issue 70 (LRIC large)
+.: EDCM model for MIG issue 70 (LRIC)
 PerlModule: EDCM2
 dcp130: 1
 inputData: dataSheet
@@ -7,10 +7,11 @@ ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1
-numLocations: 1200
-numTariffs: 300
+numLocations: 1
+numTariffs: 1
 protect: 1
 summaries: 1
+template: '%'
 transparency: 1
 validation: lenientnomsg
 wantTables: 913

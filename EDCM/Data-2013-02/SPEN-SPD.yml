@@ -1,0 +1,8694 @@
+---
+1100:
+  - _table: '1100. Company, charging year, data version'
+  - Company charging year data version: SP Distribution
+    _column: Company
+  - Company charging year data version: 2013/2014
+    _column: Year
+  - Company charging year data version: Non-confidential illustrative model
+    _column: Version
+1105:
+  - _table: 1105. Diversity allowance between level exit and GSP Group (from CDCM table 2611)
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.116
+    _column: GSP
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.116
+    _column: 132kV circuits
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.116
+    _column: 132kV/EHV
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.26108
+    _column: EHV circuits
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.26108
+    _column: EHV/HV
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.116
+    _column: 132kV/HV
+1113:
+  - _table: 1113. General inputs
+  - General inputs: 365
+    _column: Days in year
+  - General inputs: 0.2
+    _column: O&M charging rate based on FBPQ data (£/kW/year)
+  - General inputs: 258
+    _column: Annual hours in super red
+  - General inputs: 349798530.071829
+    _column: 'The amount of money that the DNO wants to raise from use of system charges, less transmission exit (£/year)'
+  - General inputs: 19255409.9281708
+    _column: Transmission exit charges (£/year)
+  - General inputs: 16905548.2009593
+    _column: Direct cost (£/year)
+  - General inputs: 89309380.926159
+    _column: Indirect cost (£/year)
+  - General inputs: 35700000
+    _column: Network rates (£/year)
+  - General inputs: 60000
+    _column: Average adjusted GP (£/year)
+  - General inputs: 1170000
+    _column: GL term from the DG incentive revenue calculation (£/year)
+  - General inputs: 52702
+    _column: Total CDCM generation capacity 2005-2010 (kVA)
+  - General inputs: 43813.4
+    _column: Total CDCM generation capacity Post-2010 (kVA)
+1122:
+  - _table: 1122. Forecast system simultaneous maximum load (kW) from CDCM users (from CDCM table 2506)
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 3325052.3934711
+    _column: GSP
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 3248869.00793301
+    _column: 132kV circuits
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 3248869.00793301
+    _column: 132kV/EHV
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 3311313.56624663
+    _column: EHV circuits
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 3283945.97809424
+    _column: EHV/HV
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 0
+    _column: 132kV/HV
+1131:
+  - _table: 1131. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
+  - Assets in CDCM model from CDCM table 2705 or 2706: ''
+    _column: GSP
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
+    _column: 132kV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
+    _column: 132kV/EHV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 724568987.780105
+    _column: EHV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 208365204.074851
+    _column: EHV/HV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
+    _column: 132kV/HV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 886150226.662246
+    _column: HV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 189808443.117025
+    _column: HV/LV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 282177875.259123
+    _column: LV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 836425201.638861
+    _column: LV customer
+  - Assets in CDCM model from CDCM table 2705 or 2706: 14184504.6843455
+    _column: HV customer
+1132:
+  - _table: 1132. Override notional asset rate for 132kV/HV (£/kW)
+  - Override notional asset rate for 132kV HV kW: ''
+    _column: 132kV/HV
+1133:
+  - _table: 1133. Maximum network use factor
+  - Maximum network use factor: ''
+    _column: GSP
+  - Maximum network use factor: 2.246
+    _column: 132kV circuits
+  - Maximum network use factor: 1.558
+    _column: 132kV/EHV
+  - Maximum network use factor: 3.29
+    _column: EHV circuits
+  - Maximum network use factor: 2.38
+    _column: EHV/HV
+  - Maximum network use factor: 2.768
+    _column: 132kV/HV
+1134:
+  - _table: 1134. Minimum network use factor
+  - Minimum network use factor: ''
+    _column: GSP
+  - Minimum network use factor: 0.273
+    _column: 132kV circuits
+  - Minimum network use factor: 0.677
+    _column: 132kV/EHV
+  - Minimum network use factor: 0.332
+    _column: EHV circuits
+  - Minimum network use factor: 0.631
+    _column: EHV/HV
+  - Minimum network use factor: 0.697
+    _column: 132kV/HV
+1135:
+  - _table: 1135. Loss adjustment factor to transmission for each network level (from CDCM table 2004)
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1
+    _column: GSP
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1
+    _column: 132kV circuits
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1
+    _column: 132kV/EHV
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.00414905654497
+    _column: EHV circuits
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.01251738477157
+    _column: EHV/HV
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: ''
+    _column: 132kV/HV
+1181:
+  - _table: 1181. LDNO discounts
+  - Boundary 0000: 1
+    Boundary 132kV: 1
+    Boundary 132kV EHV: 1
+    Boundary EHV: 0.88921520514976
+    Boundary HVplus: 0.759522909970215
+    _column: LV demand
+  - Boundary 0000: 1
+    Boundary 132kV: 1
+    Boundary 132kV EHV: 1
+    Boundary EHV: 0.824738957071681
+    Boundary HVplus: 0.619566334387664
+    _column: LV Sub demand or LV generation
+  - Boundary 0000: 1
+    Boundary 132kV: 1
+    Boundary 132kV EHV: 1
+    Boundary EHV: 0.801113384549338
+    Boundary HVplus: 0.568283042866107
+    _column: HV demand or LV Sub generation
+  - Boundary 0000: 1
+    Boundary 132kV: 1
+    Boundary 132kV EHV: 1
+    Boundary EHV: 0.539312477390181
+    Boundary HVplus: 0
+    _column: HV generation
+1182:
+  - _table: 1182. CDCM end user tariffs
+  - Domestic Off Peak related MPAN: 0.253
+    Domestic Two Rate: 3.049
+    Domestic Unrestricted: 2.37
+    HV Generation Intermittent: -0.359
+    HV Generation Non-Intermittent: -3.054
+    HV HH Metered: 6.25
+    HV Medium Non-Domestic: 1.003
+    LV Generation Intermittent: -0.694
+    LV Generation NHH: -0.694
+    LV Generation Non-Intermittent: -4.498
+    LV HH Metered: 9.218
+    LV Medium Non-Domestic: 1.664
+    LV Sub Generation Intermittent: -0.61
+    LV Sub Generation NHH: -0.61
+    LV Sub Generation Non-Intermittent: -4.1
+    LV Sub HH Metered: 7.967
+    LV Sub Medium Non-Domestic: 1.36
+    LV UMS Pseudo HH Metered: 22.453
+    NHH UMS category A: 1.424
+    NHH UMS category B: 1.91
+    NHH UMS category C: 3.078
+    NHH UMS category D: 1.046
+    Small Non Domestic Off Peak related MPAN: 0.818
+    Small Non Domestic Two Rate: 2.769
+    Small Non Domestic Unrestricted: 2.053
+    _column: Unit rate 1 p/kWh
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: 0.371
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: -0.2
+    HV HH Metered: 0.41
+    HV Medium Non-Domestic: 0.059
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: -0.519
+    LV HH Metered: 0.772
+    LV Medium Non-Domestic: 0.261
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: -0.442
+    LV Sub HH Metered: 0.522
+    LV Sub Medium Non-Domestic: 0.193
+    LV UMS Pseudo HH Metered: 1.011
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: 0.402
+    Small Non Domestic Unrestricted: ''
+    _column: Unit rate 2 p/kWh
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: -0.015
+    HV HH Metered: 0.031
+    HV Medium Non-Domestic: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: -0.173
+    LV HH Metered: 0.159
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: -0.137
+    LV Sub HH Metered: 0.04
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: 0.591
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Unit rate 3 p/kWh
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: 4.47
+    Domestic Unrestricted: 4.47
+    HV Generation Intermittent: 86
+    HV Generation Non-Intermittent: 86
+    HV HH Metered: 117.78
+    HV Medium Non-Domestic: 338.1
+    LV Generation Intermittent: 0
+    LV Generation NHH: 0
+    LV Generation Non-Intermittent: 0
+    LV HH Metered: 22.04
+    LV Medium Non-Domestic: 28.58
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub HH Metered: 7.78
+    LV Sub Medium Non-Domestic: 0
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: 5.68
+    Small Non Domestic Unrestricted: 5.68
+    _column: Fixed charge p/MPAN/day
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: ''
+    HV HH Metered: 4.56
+    HV Medium Non-Domestic: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: 2.25
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub HH Metered: 4.2
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Capacity charge p/kVA/day
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: 0.109
+    HV Generation Non-Intermittent: 0.109
+    HV HH Metered: 0.16
+    HV Medium Non-Domestic: ''
+    LV Generation Intermittent: 0.147
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: 0.147
+    LV HH Metered: 0.273
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: 0.132
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: 0.132
+    LV Sub HH Metered: 0.215
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Reactive power charge p/kVArh
+1183:
+  - _table: 1183. LDNO volume data
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: ''
+    HV HH Metered: ''
+    HV Medium Non-Domestic: ''
+    LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: 7.47776824588275
+    LDNO 0000 Domestic Unrestricted: 5443.42230479835
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: 243.619985102478
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: 33.6760830816434
+    LDNO 0000 LV Medium Non-Domestic: 780.237996193708
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: 73.7597007847559
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: 26.9350119890866
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: 1184.45309553823
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: ''
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub HH Metered: ''
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Rate 1 units (MWh)
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: ''
+    HV HH Metered: ''
+    HV Medium Non-Domestic: ''
+    LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: 6.4482972505005
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: 1245.14406212855
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: 153.030007519623
+    LDNO 0000 LV Medium Non-Domestic: 0
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: 5002.69218033537
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: ''
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub HH Metered: ''
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Rate 2 units (MWh)
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: ''
+    HV HH Metered: ''
+    HV Medium Non-Domestic: ''
+    LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: 1147.1065667125
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: 202.980041115656
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: 6964.93816034671
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: ''
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub HH Metered: ''
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Rate 3 units (MWh)
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: ''
+    HV HH Metered: ''
+    HV Medium Non-Domestic: ''
+    LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: 2
+    LDNO 0000 Domestic Unrestricted: 1467
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: 2
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: 1
+    LDNO 0000 LV Medium Non-Domestic: 4
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: 4
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: 1
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: ''
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub HH Metered: ''
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: MPANs
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: ''
+    HV HH Metered: ''
+    HV Medium Non-Domestic: ''
+    LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: 1045
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: 450
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: 7000
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: ''
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub HH Metered: ''
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Import capacity (kVA)
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Non-Intermittent: ''
+    HV HH Metered: ''
+    HV Medium Non-Domestic: ''
+    LDNO 0000 Domestic Off Peak related MPAN: ''
+    LDNO 0000 Domestic Two Rate: ''
+    LDNO 0000 Domestic Unrestricted: ''
+    LDNO 0000 HV Generation Intermittent: ''
+    LDNO 0000 HV Generation Non-Intermittent: ''
+    LDNO 0000 HV HH Metered: ''
+    LDNO 0000 HV Medium Non-Domestic: ''
+    LDNO 0000 LV Generation Intermittent: ''
+    LDNO 0000 LV Generation NHH: ''
+    LDNO 0000 LV Generation Non-Intermittent: ''
+    LDNO 0000 LV HH Metered: 12
+    LDNO 0000 LV Medium Non-Domestic: ''
+    LDNO 0000 LV Sub Generation Intermittent: ''
+    LDNO 0000 LV Sub Generation NHH: ''
+    LDNO 0000 LV Sub Generation Non-Intermittent: ''
+    LDNO 0000 LV Sub HH Metered: ''
+    LDNO 0000 LV Sub Medium Non-Domestic: ''
+    LDNO 0000 LV UMS Pseudo HH Metered: ''
+    LDNO 0000 NHH UMS category A: ''
+    LDNO 0000 NHH UMS category B: ''
+    LDNO 0000 NHH UMS category C: ''
+    LDNO 0000 NHH UMS category D: ''
+    LDNO 0000 Small Non Domestic Off Peak related MPAN: ''
+    LDNO 0000 Small Non Domestic Two Rate: ''
+    LDNO 0000 Small Non Domestic Unrestricted: ''
+    LDNO 132kV Domestic Off Peak related MPAN: ''
+    LDNO 132kV Domestic Two Rate: ''
+    LDNO 132kV Domestic Unrestricted: ''
+    LDNO 132kV EHV Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Domestic Two Rate: ''
+    LDNO 132kV EHV Domestic Unrestricted: ''
+    LDNO 132kV EHV HV Generation Intermittent: ''
+    LDNO 132kV EHV HV Generation Non-Intermittent: ''
+    LDNO 132kV EHV HV HH Metered: ''
+    LDNO 132kV EHV HV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Generation Intermittent: ''
+    LDNO 132kV EHV LV Generation NHH: ''
+    LDNO 132kV EHV LV Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV HH Metered: ''
+    LDNO 132kV EHV LV Medium Non-Domestic: ''
+    LDNO 132kV EHV LV Sub Generation Intermittent: ''
+    LDNO 132kV EHV LV Sub Generation NHH: ''
+    LDNO 132kV EHV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV EHV LV Sub HH Metered: ''
+    LDNO 132kV EHV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV EHV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV EHV NHH UMS category A: ''
+    LDNO 132kV EHV NHH UMS category B: ''
+    LDNO 132kV EHV NHH UMS category C: ''
+    LDNO 132kV EHV NHH UMS category D: ''
+    LDNO 132kV EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV EHV Small Non Domestic Two Rate: ''
+    LDNO 132kV EHV Small Non Domestic Unrestricted: ''
+    LDNO 132kV HV Generation Intermittent: ''
+    LDNO 132kV HV Generation Non-Intermittent: ''
+    LDNO 132kV HV HH Metered: ''
+    LDNO 132kV HV Medium Non-Domestic: ''
+    LDNO 132kV LV Generation Intermittent: ''
+    LDNO 132kV LV Generation NHH: ''
+    LDNO 132kV LV Generation Non-Intermittent: ''
+    LDNO 132kV LV HH Metered: ''
+    LDNO 132kV LV Medium Non-Domestic: ''
+    LDNO 132kV LV Sub Generation Intermittent: ''
+    LDNO 132kV LV Sub Generation NHH: ''
+    LDNO 132kV LV Sub Generation Non-Intermittent: ''
+    LDNO 132kV LV Sub HH Metered: ''
+    LDNO 132kV LV Sub Medium Non-Domestic: ''
+    LDNO 132kV LV UMS Pseudo HH Metered: ''
+    LDNO 132kV NHH UMS category A: ''
+    LDNO 132kV NHH UMS category B: ''
+    LDNO 132kV NHH UMS category C: ''
+    LDNO 132kV NHH UMS category D: ''
+    LDNO 132kV Small Non Domestic Off Peak related MPAN: ''
+    LDNO 132kV Small Non Domestic Two Rate: ''
+    LDNO 132kV Small Non Domestic Unrestricted: ''
+    LDNO EHV Domestic Off Peak related MPAN: ''
+    LDNO EHV Domestic Two Rate: ''
+    LDNO EHV Domestic Unrestricted: ''
+    LDNO EHV HV Generation Intermittent: ''
+    LDNO EHV HV Generation Non-Intermittent: ''
+    LDNO EHV HV HH Metered: ''
+    LDNO EHV HV Medium Non-Domestic: ''
+    LDNO EHV LV Generation Intermittent: ''
+    LDNO EHV LV Generation NHH: ''
+    LDNO EHV LV Generation Non-Intermittent: ''
+    LDNO EHV LV HH Metered: ''
+    LDNO EHV LV Medium Non-Domestic: ''
+    LDNO EHV LV Sub Generation Intermittent: ''
+    LDNO EHV LV Sub Generation NHH: ''
+    LDNO EHV LV Sub Generation Non-Intermittent: ''
+    LDNO EHV LV Sub HH Metered: ''
+    LDNO EHV LV Sub Medium Non-Domestic: ''
+    LDNO EHV LV UMS Pseudo HH Metered: ''
+    LDNO EHV NHH UMS category A: ''
+    LDNO EHV NHH UMS category B: ''
+    LDNO EHV NHH UMS category C: ''
+    LDNO EHV NHH UMS category D: ''
+    LDNO EHV Small Non Domestic Off Peak related MPAN: ''
+    LDNO EHV Small Non Domestic Two Rate: ''
+    LDNO EHV Small Non Domestic Unrestricted: ''
+    LDNO HVplus Domestic Off Peak related MPAN: ''
+    LDNO HVplus Domestic Two Rate: ''
+    LDNO HVplus Domestic Unrestricted: ''
+    LDNO HVplus HV Generation Intermittent: ''
+    LDNO HVplus HV Generation Non-Intermittent: ''
+    LDNO HVplus HV HH Metered: 91.416
+    LDNO HVplus HV Medium Non-Domestic: ''
+    LDNO HVplus LV Generation Intermittent: ''
+    LDNO HVplus LV Generation NHH: ''
+    LDNO HVplus LV Generation Non-Intermittent: ''
+    LDNO HVplus LV HH Metered: ''
+    LDNO HVplus LV Medium Non-Domestic: ''
+    LDNO HVplus LV Sub Generation Intermittent: ''
+    LDNO HVplus LV Sub Generation NHH: ''
+    LDNO HVplus LV Sub Generation Non-Intermittent: ''
+    LDNO HVplus LV Sub HH Metered: ''
+    LDNO HVplus LV Sub Medium Non-Domestic: ''
+    LDNO HVplus LV UMS Pseudo HH Metered: ''
+    LDNO HVplus NHH UMS category A: ''
+    LDNO HVplus NHH UMS category B: ''
+    LDNO HVplus NHH UMS category C: ''
+    LDNO HVplus NHH UMS category D: ''
+    LDNO HVplus Small Non Domestic Off Peak related MPAN: ''
+    LDNO HVplus Small Non Domestic Two Rate: ''
+    LDNO HVplus Small Non Domestic Unrestricted: ''
+    LV Generation Intermittent: ''
+    LV Generation NHH: ''
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: ''
+    LV Medium Non-Domestic: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub HH Metered: ''
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Reactive power units (MVArh)
+1190:
+  - _table: 1190. Are all tariffs additional to the baseline?
+  - Are all tariffs additional to the baseline: FALSE
+    _column: Are all tariffs additional to the baseline?
+1191:
+  - _table: 1191. Baseline EDCM demand volumes
+  - Baseline EDCM demand volumes: 106350.919290538
+    _column: Baseline total EDCM peak time consumption (kW)
+  - Baseline EDCM demand volumes: 276917.062495926
+    _column: Baseline total marginal effect of indirect cost adder (kVA)
+  - Baseline EDCM demand volumes: 276917.062495925
+    _column: Baseline total marginal effect of demand adder (kVA)
+1192:
+  - _table: 1192. Baseline EDCM generation volumes
+  - Baseline EDCM generation volumes: 763950.446575342
+    _column: Baseline total chargeable export capacity (kVA)
+  - Baseline EDCM generation volumes: 206911
+    _column: Baseline total non-exempt 2005-2010 export capacity (kVA)
+  - Baseline EDCM generation volumes: 543289.446575342
+    _column: Baseline total non-exempt post-2010 export capacity (kVA)
+1193:
+  - _table: 1193. Baseline EDCM assets and notional assets
+  - Baseline EDCM assets and notional assets: 45840494.5358496
+    _column: Baseline total sole use assets for demand (£)
+  - Baseline EDCM assets and notional assets: 88694845.8746538
+    _column: Baseline total sole use assets for generation (£)
+  - Baseline EDCM assets and notional assets: 6847561.19211898
+    _column: Baseline total notional capacity assets (£)
+  - Baseline EDCM assets and notional assets: 5660615.36721215
+    _column: Baseline total notional consumption assets (£)
+  - Baseline EDCM assets and notional assets: 11854467.9319674
+    _column: Baseline total non sole use notional assets subject to matching (£)
+1194:
+  - _table: 1194. Baseline EDCM pots
+  - Baseline EDCM pots: 2258676.8553319
+    _column: Baseline net forecast EDCM generation revenue (£/year)
+  - Baseline EDCM pots: 3778612.58521018
+    _column: Baseline EDCM demand pot (£/year)
+  - Baseline EDCM pots: 176112.01554577
+    _column: Baseline revenue from demand charge 1 (£/year)
+4355:
+  - _table: 4355. Net forecast EDCM generation revenue (£/year)
+  - _column: Net forecast EDCM generation revenue (£/year)
+  - Net forecast EDCM generation revenue year: '#REF!'
+911:
+  - _table: 911. FCP power flow modelling data
+  - 1: Kilbowie
+    10: Shrubhill
+    100: 'AURR5-      11.000'
+    101: 'AVEC5-      11.000'
+    102: 'AVEE5-      11.000'
+    103: 'AYTO5-      11.000'
+    104: 'BAGR5-      11.000'
+    105: Not used
+    106: 'BAKS5-      11.000'
+    107: 'BALG5-      11.000'
+    108: Not used
+    109: 'BALL5-      11.000'
+    11: Leven
+    110: 'BAMO5-      11.000'
+    111: Not used
+    112: 'BAQU6-      6.6000'
+    113: 'BARL5-      11.000'
+    114: Not used
+    115: Not used
+    116: 'BARR5-      11.000'
+    117: 'BART5-      11.000'
+    118: 'BELH5-      11.000'
+    119: 'BELS5-      11.000'
+    12: Drumchapel
+    120: 'BELW5-      11.000'
+    121: 'BERR5-      11.000'
+    122: 'BGAR5-      11.000'
+    123: 'BIBR5-      11.000'
+    124: 'BISH5-      11.000'
+    125: 'BIWY5-      11.000'
+    126: Not used
+    127: Not used
+    128: 'BLAS5-      11.000'
+    129: 'BLBU5-      11.000'
+    13: Johnstone
+    130: 'BONG5-      11.000'
+    131: 'BONS5-      11.000'
+    132: 'BORO5-      11.000'
+    133: 'BOUS5-      11.000'
+    134: Not used
+    135: Not used
+    136: 'BOWH5-      11.000'
+    137: 'BPDA5-      11.000'
+    138: 'BPFI5-      11.000'
+    139: 'BRAD5-      11.000'
+    14: East Kilbride South
+    140: Not used
+    141: 'BROX5-      11.000'
+    142: Not used
+    143: 'BUIS5-      11.000'
+    144: 'BUNK5-      11.000'
+    145: 'BURG5-      11.000'
+    146: Not used
+    147: 'BURN5-      11.000'
+    148: 'BUSI5-      11.000'
+    149: 'BYRE5-      11.000'
+    15: BathGate
+    150: 'BYRR5-      11.000'
+    151: Not used
+    152: 'CABR5-      11.000'
+    153: 'CADA5-      11.000'
+    154: 'CADD5-      11.000'
+    155: 'CADU5-      11.000'
+    156: Carsfad
+    157: Kendoon
+    158: CALA5A      11.000
+    159: CALA5B      11.000
+    16: Newton Stewart
+    160: Not used
+    161: 'CALE5-      11.000'
+    162: 'CALO5-      11.000'
+    163: 'CAME5-      11.000'
+    164: 'CAML5-      11.000'
+    165: CAND5A      11.000
+    166: CAND5B      11.000
+    167: 'CARD5-      11.000'
+    168: 'CARF5-      11.000'
+    169: 'CARG5-      11.000'
+    17: Carntyne
+    170: 'CARM5-      11.000'
+    171: 'CARN5-      11.000'
+    172: Not used
+    173: 'CARU5-      11.000'
+    174: 'CASM5-      11.000'
+    175: CATH01      11.000
+    176: CATK0G      11.000
+    177: 'CATR5-      11.000'
+    178: 'CHEL5-      11.000'
+    179: 'CHIR5-      11.000'
+    18: Linnmill
+    180: 'CHLS5-      11.000'
+    181: 'CLAR5-      11.000'
+    182: Not used
+    183: 'CLUN5-      11.000'
+    184: 'CLWA5-      11.000'
+    185: 'CLYB5-      11.000'
+    186: 'CNOK5-      11.000'
+    187: 'CNUK5-      11.000'
+    188: 'CODC5-      11.000'
+    189: 'COLD5-      11.000'
+    19: Cupar
+    190: 'COLI5-      11.000'
+    191: 'COLL5-      11.000'
+    192: 'COMI5-      11.000'
+    193: 'CONO5-      11.000'
+    194: 'CONS5-      11.000'
+    195: Not used
+    196: 'COQU5-      11.000'
+    197: 'CORO5-      11.000'
+    198: 'COUL5-      11.000'
+    199: 'COWD5-      11.000'
+    2: Cumbernauld
+    20: Crookston B
+    200: 'COWG5-      11.000'
+    201: 'COWI5-      11.000'
+    202: 'CRAD5-      11.000'
+    203: Not used
+    204: 'CRAR5-      11.000'
+    205: 'CRDO5-      11.000'
+    206: Not used
+    207: 'CRON5-      11.000'
+    208: 'CROO5-      11.000'
+    209: 'CRTO5-      11.000'
+    21: Grangemouth
+    210: Not used
+    211: 'CSLA5-      11.000'
+    212: Not used
+    213: 'DABE5-      11.000'
+    214: 'DADR5-      11.000'
+    215: 'DALG5-      11.000'
+    216: Not used
+    217: 'DARV5-      11.000'
+    218: 'DAVS5-      11.000'
+    219: 'DEAS5-      11.000'
+    22: Easterhouse
+    220: 'DECL5-      11.000'
+    221: 'DENH5-      11.000'
+    222: 'DENS5-      11.000'
+    223: 'DERI5-      11.000'
+    224: 'DEWP5-      11.000'
+    225: Not used
+    226: 'DIGI5-      11.000'
+    227: Not used
+    228: 'DNDS5-      11.000'
+    229: 'DOLR5-      11.000'
+    23: Ayr
+    230: 'DOWE5-      11.000'
+    231: 'DRBR6-      6.6000'
+    232: Not used
+    233: 'DRUR5-      11.000'
+    234: 'DRUY5-      11.000'
+    235: 'DUCO5-      11.000'
+    236: 'DUDY5-      11.000'
+    237: Not used
+    238: 'DUHO5-      11.000'
+    239: 'DUMB5-      11.000'
+    24: Coylton
+    240: 'DUNS5-      11.000'
+    241: 'EAER5-      11.000'
+    242: Not used
+    243: 'EALI5-      11.000'
+    244: 'EAMA5-      11.000'
+    245: Not used
+    246: 'EARD5-      11.000'
+    247: 'EARL5-      11.000'
+    248: Not used
+    249: Earlston
+    25: Galashiels
+    250: 'EATR5-      11.000'
+    251: Not used
+    252: 'EDAI5-      11.000'
+    253: 'EDDN5-      11.000'
+    254: 'ELIS6-      6.6000'
+    255: 'ELLS5-      11.000'
+    256: 'ELRO5-      11.000'
+    257: Not used
+    258: 'ERSK5-      11.000'
+    259: 'EYEM5-      11.000'
+    26: Sighthill
+    260: 'FAHE5-      11.000'
+    261: 'FAIR5-      11.000'
+    262: Not used
+    263: 'FASL5-      11.000'
+    264: 'FINN5-      11.000'
+    265: 'FIRR5-      11.000'
+    266: 'FLES5-      11.000'
+    267: Not used
+    268: 'FORG5-      11.000'
+    269: 'FOST5-      11.000'
+    27: Westburn Rd
+    270: 'FOXB5-      11.000'
+    271: 'FRAN5-      11.000'
+    272: 'FREE6-      6.6000'
+    273: 'FROG5-      11.000'
+    274: 'FRTH5-      11.000'
+    275: 'GAHO5-      11.000'
+    276: Not used
+    277: 'GARE5-      11.000'
+    278: Not used
+    279: 'GARO5-      11.000'
+    28: Bainsford
+    280: 'GASH5-      11.000'
+    281: 'GATA5-      11.000'
+    282: 'GESL5-      11.000'
+    283: 'GILM6-      6.6000'
+    284: 'GIRT5-      11.000'
+    285: Not used
+    286: 'GLAA5-      11.000'
+    287: 'GLGA5-      11.000'
+    288: Glenlee
+    289: 'GLLU5-      11.000'
+    29: Devol Moor
+    290: 'GLMA5-      11.000'
+    291: 'GLNB5-      11.000'
+    292: Not used
+    293: GLTE10      11.000
+    294: 'GLWO5-      11.000'
+    295: 'GORD5-      11.000'
+    296: 'GORG5-      11.000'
+    297: 'GRAS5-      11.000'
+    298: Not used
+    299: Not used
+    3: St Andrews Cross
+    30: Strathleven
+    300: Not used
+    301: Not used
+    302: Not used
+    303: Not used
+    304: Not used
+    305: Not used
+    306: 'GRLA5-      11.000'
+    307: 'GRNA5-      11.000'
+    308: 'GRPA5-      11.000'
+    309: 'GRYA5-      11.000'
+    31: Killermont
+    310: 'GYLE5-      11.000'
+    311: Not used
+    312: 'HAGR5-      11.000'
+    313: Not used
+    314: Not used
+    315: 'HAMN5-      11.000'
+    316: Not used
+    317: Not used
+    318: 'HECA5-      11.000'
+    319: 'HEFI5-      11.000'
+    32: Dunfermline
+    320: Not used
+    321: 'HELS6-      6.6000'
+    322: 'HERO5-      11.000'
+    323: 'HIBL5-      11.000'
+    324: 'HIMA5-      11.000'
+    325: 'HORN5-      11.000'
+    326: 'HUNS5-      11.000'
+    327: 'HUNT5-      11.000'
+    328: 'HUST5-      11.000'
+    329: Not used
+    33: Kilmarnock south
+    330: Not used
+    331: 'ICID5-      11.000'
+    332: 'INRO5-      11.000'
+    333: Not used
+    334: 'IRVI5-      11.000'
+    335: 'JOST5-      11.000'
+    336: 'KEBA5-      11.000'
+    337: 'KEDR6-      6.6000'
+    338: Not used
+    339: Not used
+    34: Paisley
+    340: 'KELT5-      11.000'
+    341: 'KELV5-      11.000'
+    342: 'KENA5-      11.000'
+    343: 'KEVS5-      11.000'
+    344: 'KIAR5-      11.000'
+    345: 'KIBA5-      11.000'
+    346: Not used
+    347: 'KIBL5-      11.000'
+    348: Not used
+    349: 'KICM5-      11.000'
+    35: Kilmarnock
+    350: 'KICO5-      11.000'
+    351: 'KIDR5-      11.000'
+    352: 'KIIR5-      11.000'
+    353: Kilbowie 11kV
+    354: 'KIMA5-      11.000'
+    355: Not used
+    356: 'KIRN5-      11.000'
+    357: 'KIRT5-      11.000'
+    358: 'KISL5-      11.000'
+    359: 'KISY5-      11.000'
+    36: Wishaw
+    360: 'KITO5-      11.000'
+    361: Not used
+    362: 'LABE5-      11.000'
+    363: Not used
+    364: 'LANG5-      11.000'
+    365: 'LANK5-      11.000'
+    366: 'LANS5-      11.000'
+    367: 'LARG5-      11.000'
+    368: 'LARK5-      11.000'
+    369: 'LATO5-      11.000'
+    37: Giffnock
+    370: 'LAUD5-      11.000'
+    371: Not used
+    372: 'LEBA5-      11.000'
+    373: 'LECH5-      11.000'
+    374: 'LEGO5-      11.000'
+    375: 'LEHI5-      11.000'
+    376: Not used
+    377: 'LESS5-      11.000'
+    378: 'LEUC5-      11.000'
+    379: 'LEVS5-      11.000'
+    38: Redhouse
+    380: Not used
+    381: 'LIFR5-      11.000'
+    382: 'LILA5-      11.000'
+    383: 'LINL5-      11.000'
+    384: 'LINR5-      11.000'
+    385: 'LINT5-      11.000'
+    386: 'LLRO5-      11.000'
+    387: LOAN5P      11.000
+    388: 'LOBI5-      11.000'
+    389: 'LOCW5-      11.000'
+    39: Strathaven
+    390: 'LONI5-      11.000'
+    391: Not used
+    392: 'LOQU5-      11.000'
+    393: 'LOSI5-      11.000'
+    394: 'LOST5-      11.000'
+    395: Not used
+    396: 'LUGT5-      11.000'
+    397: 'MABO5-      11.000'
+    398: 'MAHI5-      11.000'
+    399: 'MALI5-      11.000'
+    4: Dunbar
+    40: Ravenscraig
+    400: Not used
+    401: 'MART5-      11.000'
+    402: 'MAUR5-      11.000'
+    403: 'MAXS5-      11.000'
+    404: 'MAXT5-      11.000'
+    405: 'MEAR6-      6.6000'
+    406: 'MEHI5-      11.000'
+    407: 'MENS5-      11.000'
+    408: 'MIBI5-      11.000'
+    409: Not used
+    41: Bonnybridge
+    410: Not used
+    411: 'MILL5-      11.000'
+    412: Not used
+    413: Not used
+    414: 'MIST5-      11.000'
+    415: 'MITS5-      11.000'
+    416: 'MOFT5-      11.000'
+    417: 'MOHA5-      11.000'
+    418: 'MONK5-      11.000'
+    419: 'MORE5-      11.000'
+    42: Kaimes
+    420: 'MORT5-      11.000'
+    421: 'MUBA5-      11.000'
+    422: 'MUCK5-      11.000'
+    423: 'MUHO5-      11.000'
+    424: Not used
+    425: 'MYOT5-      11.000'
+    426: 'NBDI5-      11.000'
+    427: 'NBST5-      11.000'
+    428: 'NEBU5-      11.000'
+    429: 'NECU5-      11.000'
+    43: Westfield
+    430: Not used
+    431: 'NEDA5-      11.000'
+    432: Not used
+    433: 'NELA5-      11.000'
+    434: 'NEMI5-      11.000'
+    435: 'NETH5-      11.000'
+    436: 'NETS5-      11.000'
+    437: 'NEWB5-      11.000'
+    438: 'NEWC5-      11.000'
+    439: Not used
+    44: Helensburgh
+    440: 'NEWL5-      11.000'
+    441: 'NIDD5-      11.000'
+    442: 'NOBE5-      11.000'
+    443: 'NORH5-      11.000'
+    444: 'NORO5-      11.000'
+    445: Not used
+    446: 'NTST5-      11.000'
+    447: Not used
+    448: 'OAKD5-      11.000'
+    449: 'OCEA5-      11.000'
+    45: Braehead Park
+    450: 'OLDD6-      6.6000'
+    451: 'OLIN5-      11.000'
+    452: 'OVTO5-      11.000'
+    453: Not used
+    454: 'OXRO5-      11.000'
+    455: 'PARO5-      11.000'
+    456: Not used
+    457: 'PAVI5-      11.000'
+    458: 'PECU5-      11.000'
+    459: 'PENC5-      11.000'
+    46: Broxburn
+    460: 'PEPO5-      11.000'
+    461: 'PEPP5-      11.000'
+    462: 'PERO5-      11.000'
+    463: 'PETR5-      11.000'
+    464: 'PIAV5-      11.000'
+    465: 'PICH5-      11.000'
+    466: 'PIDR6-      6.6000'
+    467: 'PIWH5-      11.000'
+    468: Not used
+    469: Not used
+    47: Hunterston Farm
+    470: 'POLK5-      11.000'
+    471: Not used
+    472: Not used
+    473: 'POOB5-      11.000'
+    474: 'PRES5-      11.000'
+    475: 'PYRA5-      11.000'
+    476: 'QUDR5-      11.000'
+    477: 'QUWA5-      11.000'
+    478: 'RADP5-      11.000'
+    479: 'RAIT5-      11.000'
+    48: Glenniston
+    480: 'RALA5-      11.000'
+    481: 'RALS5-      11.000'
+    482: 'RANR5-      11.000'
+    483: 'RAPA5-      11.000'
+    484: 'RARO6-      6.6000'
+    485: 'REDH5-      11.000'
+    486: 'RENF5-      11.000'
+    487: Not used
+    488: Not used
+    489: 'ROBP5-      11.000'
+    49: Inverkeithing
+    490: Not used
+    491: 'ROSE5-      11.000'
+    492: 'ROTB5-      11.000'
+    493: 'ROTT5-      11.000'
+    494: 'RTPG5-      11.000'
+    495: Not used
+    496: 'SACO5-      11.000'
+    497: Not used
+    498: 'SANX6-      6.6000'
+    499: 'SARN6-      6.6000'
+    5: Coatbridge
+    50: Saltcoats B
+    500: 'SAUC5-      11.000'
+    501: 'SCNB5-      11.000'
+    502: 'SELK5-      11.000'
+    503: 'SGLU5-      11.000'
+    504: 'SGYL5-      11.000'
+    505: 'SHAS5-      11.000'
+    506: 'SHER5-      11.000'
+    507: 'SHSU5-      11.000'
+    508: 'SHTT5-      11.000'
+    509: 'SIFM5-      11.000'
+    51: West George st
+    510: 'SOFI5-      11.000'
+    511: 'SOGE5-      11.000'
+    512: 'SOQU5-      11.000'
+    513: 'SORB5-      11.000'
+    514: 'SPOT5-      11.000'
+    515: 'STAD5-      11.000'
+    516: 'STBO5-      11.000'
+    517: 'STCR5-      11.000'
+    518: 'STEL5-      11.000'
+    519: 'STEP5-      11.000'
+    52: Spango Valley
+    520: 'STEV5-      11.000'
+    521: Not used
+    522: 'STHA5-      11.000'
+    523: 'STHO5-      11.000'
+    524: 'STJC5-      11.000'
+    525: 'STLE5-      11.000'
+    526: 'STNI5-      11.000'
+    527: 'STRA5-      11.000'
+    528: 'STRP5-      11.000'
+    529: Not used
+    53: Tongland
+    530: 'STUN5-      11.000'
+    531: 'SYMT5-      11.000'
+    532: 'TELR5-      11.000'
+    533: Not used
+    534: 'THCO5-      11.000'
+    535: 'TOPL6-      6.6000'
+    536: 'TORN5-      11.000'
+    537: Not used
+    538: Not used
+    539: Not used
+    54: Govan
+    540: 'TRAN5-      11.000'
+    541: 'TROO5-      11.000'
+    542: 'UDDS5-      11.000'
+    543: 'UNDE5-      11.000'
+    544: Not used
+    545: 'VIRS5-      11.000'
+    546: 'WADS5-      11.000'
+    547: 'WARO5-      11.000'
+    548: 'WATS5-      11.000'
+    549: Not used
+    55: Dumfries
+    550: 'WEAV5-      11.000'
+    551: Not used
+    552: 'WECL5-      11.000'
+    553: 'WELI5-      11.000'
+    554: 'WELL6-      6.6000'
+    555: 'WESR5-      11.000'
+    556: 'WEST5-      11.000'
+    557: Not used
+    558: 'WEWO5-      11.000'
+    559: Not used
+    56: Charlotte St
+    560: Not used
+    561: 'WGEO5-      11.000'
+    562: 'WHCH5-      11.000'
+    563: 'WHFL5-      11.000'
+    564: 'WLST5-      11.000'
+    565: 'WOID5-      11.000'
+    566: 'WOOD5-      11.000'
+    567: 'WOSL5-      11.000'
+    568: 'YETH5-      11.000'
+    569: 'YOKF5-      11.000'
+    57: Port Dundas
+    570: 'ZEPK5-      11.000'
+    58: Cockenzie
+    59: Glenrothes
+    6: Newarthill
+    60: East Kilbride
+    61: Stirling
+    62: Hawick
+    63: Whistlefield
+    64: Dewar Place
+    65: Telford Rd
+    66: Crookston A
+    67: Kilwinning
+    68: Drumcross
+    69: ICI Dumfries
+    7: Devonside
+    70: Elderslie
+    71: Erskine
+    72: Whitehouse
+    73: Maybole
+    74: Gorgie
+    75: Haggs Rd
+    76: Partick
+    77: Portobello
+    78: Pogbie
+    79: 'ABBE5-      11.000'
+    8: Livingston
+    80: 'ABRL5-      11.000'
+    81: 'ADMS6-      6.6000'
+    82: Not used
+    83: Not used
+    84: Not used
+    85: 'ALBK5-      11.000'
+    86: 'ALGA5-      11.000'
+    87: 'ALMV5-      11.000'
+    88: 'ANAN5-      11.000'
+    89: 'ANNF6-      6.6000'
+    9: Chapelcross
+    90: 'ANST5-      11.000'
+    91: 'ARCR5-      11.000'
+    92: 'ARDD5-      11.000'
+    93: Not used
+    94: 'ARMA5-      11.000'
+    95: Not used
+    96: 'ASHS5-      11.000'
+    97: 'AUCD5-      11.000'
+    98: 'AUCM5-      11.000'
+    99: 'AUCN5-      11.000'
+    _column: Location name/ID
+  - 1: 2
+    10: 2
+    100: 3
+    101: 3
+    102: 3
+    103: 3
+    104: 3
+    105: 3
+    106: 3
+    107: 3
+    108: 3
+    109: 3
+    11: 2
+    110: 3
+    111: 3
+    112: 3
+    113: 3
+    114: 3
+    115: 3
+    116: 3
+    117: 3
+    118: 3
+    119: 3
+    12: 2
+    120: 3
+    121: 3
+    122: 3
+    123: 3
+    124: 3
+    125: 3
+    126: 3
+    127: 3
+    128: 3
+    129: 3
+    13: 2
+    130: 3
+    131: 3
+    132: 3
+    133: 3
+    134: 3
+    135: 3
+    136: 3
+    137: 3
+    138: 3
+    139: 3
+    14: 2
+    140: 3
+    141: 3
+    142: 3
+    143: 3
+    144: 3
+    145: 3
+    146: 3
+    147: 3
+    148: 3
+    149: 3
+    15: 2
+    150: 3
+    151: 3
+    152: 3
+    153: 3
+    154: 3
+    155: 3
+    156: 3
+    157: 3
+    158: 3
+    159: 3
+    16: 2
+    160: 3
+    161: 3
+    162: 3
+    163: 3
+    164: 3
+    165: 3
+    166: 3
+    167: 3
+    168: 3
+    169: 3
+    17: 2
+    170: 3
+    171: 3
+    172: 3
+    173: 3
+    174: 3
+    175: 3
+    176: 3
+    177: 3
+    178: 3
+    179: 3
+    18: 2
+    180: 3
+    181: 3
+    182: 3
+    183: 3
+    184: 3
+    185: 3
+    186: 3
+    187: 3
+    188: 3
+    189: 3
+    19: 2
+    190: 3
+    191: 3
+    192: 3
+    193: 3
+    194: 3
+    195: 3
+    196: 3
+    197: 3
+    198: 3
+    199: 3
+    2: 2
+    20: 2
+    200: 3
+    201: 3
+    202: 3
+    203: 3
+    204: 3
+    205: 3
+    206: 3
+    207: 3
+    208: 3
+    209: 3
+    21: 2
+    210: 3
+    211: 3
+    212: 3
+    213: 3
+    214: 3
+    215: 3
+    216: 3
+    217: 3
+    218: 3
+    219: 3
+    22: 2
+    220: 3
+    221: 3
+    222: 3
+    223: 3
+    224: 3
+    225: 3
+    226: 3
+    227: 3
+    228: 3
+    229: 3
+    23: 2
+    230: 3
+    231: 3
+    232: 3
+    233: 3
+    234: 3
+    235: 3
+    236: 3
+    237: 3
+    238: 3
+    239: 3
+    24: 2
+    240: 3
+    241: 3
+    242: 3
+    243: 3
+    244: 3
+    245: 3
+    246: 3
+    247: 3
+    248: 3
+    249: 3
+    25: 2
+    250: 3
+    251: 3
+    252: 3
+    253: 3
+    254: 3
+    255: 3
+    256: 3
+    257: 3
+    258: 3
+    259: 3
+    26: 2
+    260: 3
+    261: 3
+    262: 3
+    263: 3
+    264: 3
+    265: 3
+    266: 3
+    267: 3
+    268: 3
+    269: 3
+    27: 2
+    270: 3
+    271: 3
+    272: 3
+    273: 3
+    274: 3
+    275: 3
+    276: 3
+    277: 3
+    278: 3
+    279: 3
+    28: 2
+    280: 3
+    281: 3
+    282: 3
+    283: 3
+    284: 3
+    285: 3
+    286: 3
+    287: 3
+    288: 3
+    289: 3
+    29: 2
+    290: 3
+    291: 3
+    292: 3
+    293: 3
+    294: 3
+    295: 3
+    296: 3
+    297: 3
+    298: 3
+    299: 3
+    3: 2
+    30: 2
+    300: 3
+    301: 3
+    302: 3
+    303: 3
+    304: 3
+    305: 3
+    306: 3
+    307: 3
+    308: 3
+    309: 3
+    31: 2
+    310: 3
+    311: 3
+    312: 3
+    313: 3
+    314: 3
+    315: 3
+    316: 3
+    317: 3
+    318: 3
+    319: 3
+    32: 2
+    320: 3
+    321: 3
+    322: 3
+    323: 3
+    324: 3
+    325: 3
+    326: 3
+    327: 3
+    328: 3
+    329: 3
+    33: 2
+    330: 3
+    331: 3
+    332: 3
+    333: 3
+    334: 3
+    335: 3
+    336: 3
+    337: 3
+    338: 3
+    339: 3
+    34: 2
+    340: 3
+    341: 3
+    342: 3
+    343: 3
+    344: 3
+    345: 3
+    346: 3
+    347: 3
+    348: 3
+    349: 3
+    35: 2
+    350: 3
+    351: 3
+    352: 3
+    353: 3
+    354: 3
+    355: 3
+    356: 3
+    357: 3
+    358: 3
+    359: 3
+    36: 2
+    360: 3
+    361: 3
+    362: 3
+    363: 3
+    364: 3
+    365: 3
+    366: 3
+    367: 3
+    368: 3
+    369: 3
+    37: 2
+    370: 3
+    371: 3
+    372: 3
+    373: 3
+    374: 3
+    375: 3
+    376: 3
+    377: 3
+    378: 3
+    379: 3
+    38: 2
+    380: 3
+    381: 3
+    382: 3
+    383: 3
+    384: 3
+    385: 3
+    386: 3
+    387: 3
+    388: 3
+    389: 3
+    39: 2
+    390: 3
+    391: 3
+    392: 3
+    393: 3
+    394: 3
+    395: 3
+    396: 3
+    397: 3
+    398: 3
+    399: 3
+    4: 2
+    40: 2
+    400: 3
+    401: 3
+    402: 3
+    403: 3
+    404: 3
+    405: 3
+    406: 3
+    407: 3
+    408: 3
+    409: 3
+    41: 2
+    410: 3
+    411: 3
+    412: 3
+    413: 3
+    414: 3
+    415: 3
+    416: 3
+    417: 3
+    418: 3
+    419: 3
+    42: 2
+    420: 3
+    421: 3
+    422: 3
+    423: 3
+    424: 3
+    425: 3
+    426: 3
+    427: 3
+    428: 3
+    429: 3
+    43: 2
+    430: 3
+    431: 3
+    432: 3
+    433: 3
+    434: 3
+    435: 3
+    436: 3
+    437: 3
+    438: 3
+    439: 3
+    44: 2
+    440: 3
+    441: 3
+    442: 3
+    443: 3
+    444: 3
+    445: 3
+    446: 3
+    447: 3
+    448: 3
+    449: 3
+    45: 2
+    450: 3
+    451: 3
+    452: 3
+    453: 3
+    454: 3
+    455: 3
+    456: 3
+    457: 3
+    458: 3
+    459: 3
+    46: 2
+    460: 3
+    461: 3
+    462: 3
+    463: 3
+    464: 3
+    465: 3
+    466: 3
+    467: 3
+    468: 3
+    469: 3
+    47: 2
+    470: 3
+    471: 3
+    472: 3
+    473: 3
+    474: 3
+    475: 3
+    476: 3
+    477: 3
+    478: 3
+    479: 3
+    48: 2
+    480: 3
+    481: 3
+    482: 3
+    483: 3
+    484: 3
+    485: 3
+    486: 3
+    487: 3
+    488: 3
+    489: 3
+    49: 2
+    490: 3
+    491: 3
+    492: 3
+    493: 3
+    494: 3
+    495: 3
+    496: 3
+    497: 3
+    498: 3
+    499: 3
+    5: 2
+    50: 2
+    500: 3
+    501: 3
+    502: 3
+    503: 3
+    504: 3
+    505: 3
+    506: 3
+    507: 3
+    508: 3
+    509: 3
+    51: 2
+    510: 3
+    511: 3
+    512: 3
+    513: 3
+    514: 3
+    515: 3
+    516: 3
+    517: 3
+    518: 3
+    519: 3
+    52: 2
+    520: 3
+    521: 3
+    522: 3
+    523: 3
+    524: 3
+    525: 3
+    526: 3
+    527: 3
+    528: 3
+    529: 3
+    53: 2
+    530: 3
+    531: 3
+    532: 3
+    533: 3
+    534: 3
+    535: 3
+    536: 3
+    537: 3
+    538: 3
+    539: 3
+    54: 2
+    540: 3
+    541: 3
+    542: 3
+    543: 3
+    544: 3
+    545: 3
+    546: 3
+    547: 3
+    548: 3
+    549: 3
+    55: 2
+    550: 3
+    551: 3
+    552: 3
+    553: 3
+    554: 3
+    555: 3
+    556: 3
+    557: 3
+    558: 3
+    559: 3
+    56: 2
+    560: 3
+    561: 3
+    562: 3
+    563: 3
+    564: 3
+    565: 3
+    566: 3
+    567: 3
+    568: 3
+    569: 3
+    57: 2
+    570: 3
+    58: 2
+    59: 2
+    6: 2
+    60: 2
+    61: 2
+    62: 2
+    63: 2
+    64: 2
+    65: 2
+    66: 2
+    67: 2
+    68: 2
+    69: 2
+    7: 2
+    70: 2
+    71: 2
+    72: 2
+    73: 2
+    74: 2
+    75: 2
+    76: 2
+    77: 2
+    78: 2
+    79: 3
+    8: 2
+    80: 3
+    81: 3
+    82: 3
+    83: 3
+    84: 3
+    85: 3
+    86: 3
+    87: 3
+    88: 3
+    89: 3
+    9: 2
+    90: 3
+    91: 3
+    92: 3
+    93: 3
+    94: 3
+    95: 3
+    96: 3
+    97: 3
+    98: 3
+    99: 3
+    _column: Level
+  - 1: ''
+    10: ''
+    100: Crookston B
+    101: Grangemouth
+    102: Easterhouse
+    103: Galashiels
+    104: Sighthill
+    105: Westburn Rd
+    106: Devol Moor
+    107: Sighthill
+    108: Strathleven
+    109: Strathleven
+    11: ''
+    110: Killermont
+    111: Kilmarnock south
+    112: Sighthill
+    113: Newton Stewart
+    114: Galashiels
+    115: Newton Stewart
+    116: Crookston B
+    117: Paisley
+    118: Dunbar
+    119: Newarthill
+    12: ''
+    120: Wishaw
+    121: Giffnock
+    122: Linnmill
+    123: Killermont
+    124: Easterhouse
+    125: Redhouse
+    126: Galashiels
+    127: Strathaven
+    128: Paisley
+    129: BathGate
+    13: ''
+    130: Linnmill
+    131: Grangemouth
+    132: Shrubhill
+    133: Devol Moor
+    134: Kaimes
+    135: Kaimes
+    136: Westfield
+    137: Sighthill
+    138: Helensburgh
+    139: Linnmill
+    14: ''
+    140: Coatbridge
+    141: Broxburn
+    142: Devonside
+    143: Glenniston
+    144: Strathaven
+    145: Kaimes
+    146: Coylton
+    147: Giffnock
+    148: Inverkeithing
+    149: Saltcoats B
+    15: ''
+    150: West George st
+    151: Leven
+    152: Devonside
+    153: Bainsford
+    154: Spango Valley
+    155: Tongland
+    156: ''
+    157: ''
+    158: Inverkeithing
+    159: Dunfermline
+    16: ''
+    160: East Kilbride South
+    161: Giffnock
+    162: Bonnybridge
+    163: Broxburn
+    164: Westburn Rd
+    165: Inverkeithing
+    166: Inverkeithing
+    167: Govan
+    168: Newarthill
+    169: Dumfries
+    17: ''
+    170: Charlotte St
+    171: Bainsford
+    172: Newton Stewart
+    173: Dumfries
+    174: Giffnock
+    175: Westburn Rd
+    176: East Kilbride South
+    177: Coatbridge
+    178: Redhouse
+    179: Galashiels
+    18: ''
+    180: Port Dundas
+    181: Giffnock
+    182: Linnmill
+    183: Glenniston
+    184: Coatbridge
+    185: Kilbowie
+    186: Coylton
+    187: Wishaw
+    188: Newarthill
+    189: Galashiels
+    19: ''
+    190: Leven
+    191: Glenrothes
+    192: East Kilbride
+    193: Sighthill
+    194: Easterhouse
+    195: Cumbernauld
+    196: Stirling
+    197: Hawick
+    198: Whistlefield
+    199: Westfield
+    2: ''
+    20: ''
+    200: Dewar Place
+    201: Stirling
+    202: Telford Rd
+    203: Chapelcross
+    204: Drumchapel
+    205: Helensburgh
+    206: Stirling
+    207: Coylton
+    208: Crookston A
+    209: Newton Stewart
+    21: ''
+    210: Dunbar
+    211: Livingston
+    212: Cupar
+    213: Tongland
+    214: Kilwinning
+    215: Inverkeithing
+    216: Dumfries
+    217: Coylton
+    218: Carntyne
+    219: BathGate
+    22: ''
+    220: Hawick
+    221: Hawick
+    222: Port Dundas
+    223: Livingston
+    224: Dewar Place
+    225: Leven
+    226: Broxburn
+    227: Galashiels
+    228: Port Dundas
+    229: Devonside
+    23: ''
+    230: Linnmill
+    231: Sighthill
+    232: Galashiels
+    233: Drumchapel
+    234: Coylton
+    235: Dumfries
+    236: Coatbridge
+    237: East Kilbride South
+    238: Leven
+    239: Strathleven
+    24: ''
+    240: Galashiels
+    241: Carntyne
+    242: Galashiels
+    243: Dunbar
+    244: Broxburn
+    245: Bonnybridge
+    246: Shrubhill
+    247: Galashiels
+    248: Redhouse
+    249: ''
+    25: ''
+    250: Shrubhill
+    251: Carntyne
+    252: Sighthill
+    253: Shrubhill
+    254: Govan
+    255: West George st
+    256: Bainsford
+    257: Cumbernauld
+    258: Erskine
+    259: Galashiels
+    26: ''
+    260: Coylton
+    261: Saltcoats B
+    262: Bonnybridge
+    263: Whistlefield
+    264: Spango Valley
+    265: Killermont
+    266: Port Dundas
+    267: Inverkeithing
+    268: Cupar
+    269: Stirling
+    27: ''
+    270: Elderslie
+    271: Easterhouse
+    272: Kaimes
+    273: Kaimes
+    274: Linnmill
+    275: Tongland
+    276: Coylton
+    277: Helensburgh
+    278: Coylton
+    279: Grangemouth
+    28: ''
+    280: Easterhouse
+    281: Devonside
+    282: Whitehouse
+    283: Kaimes
+    284: Johnstone
+    285: Maybole
+    286: Paisley
+    287: Ayr
+    288: ''
+    289: Newton Stewart
+    29: ''
+    290: Easterhouse
+    291: Elderslie
+    292: Linnmill
+    293: Galashiels
+    294: Glenrothes
+    295: Galashiels
+    296: Gorgie
+    297: Port Dundas
+    298: Cumbernauld
+    299: Cumbernauld
+    3: ''
+    30: ''
+    300: Cumbernauld
+    301: Cumbernauld
+    302: Cumbernauld
+    303: Cumbernauld
+    304: Cumbernauld
+    305: Devonside
+    306: Galashiels
+    307: Chapelcross
+    308: Telford Rd
+    309: Kilmarnock
+    31: ''
+    310: Sighthill
+    311: Linnmill
+    312: Haggs Rd
+    313: Linnmill
+    314: Coylton
+    315: Strathaven
+    316: Coylton
+    317: Saltcoats B
+    318: Drumchapel
+    319: Ayr
+    32: ''
+    320: Dumfries
+    321: Govan
+    322: Dewar Place
+    323: East Kilbride
+    324: Strathleven
+    325: Galashiels
+    326: Charlotte St
+    327: East Kilbride
+    328: Hunterston Farm
+    329: Hunterston Farm
+    33: ''
+    330: East Kilbride
+    331: ICI Dumfries
+    332: Spango Valley
+    333: Kilmarnock south
+    334: Kilwinning
+    335: Johnstone
+    336: Devonside
+    337: Kaimes
+    338: Saltcoats B
+    339: Saltcoats B
+    34: ''
+    340: Westfield
+    341: East Kilbride South
+    342: Crookston A
+    343: Partick
+    344: Killermont
+    345: Chapelcross
+    346: Saltcoats B
+    347: Kaimes
+    348: Strathleven
+    349: Johnstone
+    35: ''
+    350: Coylton
+    351: Cumbernauld
+    352: Braehead Park
+    353: ''
+    354: Kilmarnock south
+    355: Livingston
+    356: Sighthill
+    357: Easterhouse
+    358: Kaimes
+    359: Bonnybridge
+    36: ''
+    360: Livingston
+    361: Newton Stewart
+    362: Bonnybridge
+    363: Wishaw
+    364: Haggs Rd
+    365: Linnmill
+    366: Kilmarnock
+    367: Saltcoats B
+    368: Spango Valley
+    369: Wishaw
+    37: ''
+    370: Galashiels
+    371: Portobello
+    372: Leven
+    373: Strathaven
+    374: Linnmill
+    375: Coylton
+    376: BathGate
+    377: St Andrews Cross
+    378: Cupar
+    379: Wishaw
+    38: ''
+    380: Hawick
+    381: Kaimes
+    382: Glenniston
+    383: Grangemouth
+    384: Crookston A
+    385: Govan
+    386: Portobello
+    387: Dunfermline
+    388: Chapelcross
+    389: Johnstone
+    39: ''
+    390: Galashiels
+    391: Galashiels
+    392: Portobello
+    393: Dumfries
+    394: Kaimes
+    395: Glenniston
+    396: Kaimes
+    397: Maybole
+    398: East Kilbride
+    399: Coylton
+    4: ''
+    40: ''
+    400: Grangemouth
+    401: Whitehouse
+    402: Carntyne
+    403: Whitehouse
+    404: Dumfries
+    405: Partick
+    406: Leven
+    407: Devonside
+    408: Chapelcross
+    409: Crookston B
+    41: ''
+    410: Saltcoats B
+    411: Johnstone
+    412: Killermont
+    413: Chapelcross
+    414: Ayr
+    415: West George st
+    416: Chapelcross
+    417: Portobello
+    418: Kilmarnock south
+    419: Hawick
+    42: ''
+    420: Whitehouse
+    421: Telford Rd
+    422: BathGate
+    423: Wishaw
+    424: Livingston
+    425: Bonnybridge
+    426: Gorgie
+    427: BathGate
+    428: Cupar
+    429: Coylton
+    43: ''
+    430: Crookston B
+    431: Galashiels
+    432: Newarthill
+    433: Strathaven
+    434: Kilmarnock south
+    435: Dunfermline
+    436: Newton Stewart
+    437: Broxburn
+    438: Chapelcross
+    439: Linnmill
+    44: ''
+    440: Giffnock
+    441: Portobello
+    442: Dunbar
+    443: Galashiels
+    444: Galashiels
+    445: Newton Stewart
+    446: Charlotte St
+    447: Linnmill
+    448: Galashiels
+    449: Shrubhill
+    45: ''
+    450: Partick
+    451: Cumbernauld
+    452: Wishaw
+    453: Dunbar
+    454: Whitehouse
+    455: Whitehouse
+    456: Livingston
+    457: BathGate
+    458: Kaimes
+    459: Cockenzie
+    46: ''
+    460: Dumfries
+    461: Cockenzie
+    462: Telford Rd
+    463: Port Dundas
+    464: Inverkeithing
+    465: Redhouse
+    466: Telford Rd
+    467: Maybole
+    468: Pogbie
+    469: Kaimes
+    47: ''
+    470: BathGate
+    471: Stirling
+    472: Grangemouth
+    473: Portobello
+    474: Cockenzie
+    475: BathGate
+    476: Kilmarnock
+    477: Glenrothes
+    478: Kilbowie
+    479: Glenniston
+    48: ''
+    480: Dewar Place
+    481: Crookston A
+    482: Partick
+    483: Saltcoats B
+    484: Sighthill
+    485: Redhouse
+    486: Braehead Park
+    487: Cumbernauld
+    488: East Kilbride South
+    489: Glenrothes
+    49: ''
+    490: Kilwinning
+    491: Sighthill
+    492: Charlotte St
+    493: Charlotte St
+    494: Devol Moor
+    495: Dunbar
+    496: Saltcoats B
+    497: East Kilbride South
+    498: St Andrews Cross
+    499: Sighthill
+    5: ''
+    50: ''
+    500: Devonside
+    501: Gorgie
+    502: Galashiels
+    503: Westfield
+    504: Sighthill
+    505: Killermont
+    506: Paisley
+    507: Drumcross
+    508: Newarthill
+    509: Sighthill
+    51: ''
+    510: Westfield
+    511: Govan
+    512: Broxburn
+    513: Newton Stewart
+    514: Dunbar
+    515: Cupar
+    516: Galashiels
+    517: Chapelcross
+    518: Dumfries
+    519: Easterhouse
+    52: ''
+    520: Saltcoats B
+    521: Maybole
+    522: Linnmill
+    523: Wishaw
+    524: Shrubhill
+    525: Strathleven
+    526: Stirling
+    527: Newton Stewart
+    528: Stirling
+    529: Kilmarnock
+    53: ''
+    530: Stirling
+    531: Linnmill
+    532: Telford Rd
+    533: Drumcross
+    534: Dewar Place
+    535: Shrubhill
+    536: Dunbar
+    537: Saltcoats B
+    538: Dunfermline
+    539: Newarthill
+    54: ''
+    540: Cockenzie
+    541: Kilmarnock
+    542: Westburn Rd
+    543: Elderslie
+    544: Portobello
+    545: Charlotte St
+    546: Charlotte St
+    547: Glenrothes
+    548: Wishaw
+    549: Saltcoats B
+    55: ''
+    550: Haggs Rd
+    551: East Kilbride South
+    552: Livingston
+    553: Kaimes
+    554: Leven
+    555: Westburn Rd
+    556: Drumchapel
+    557: Dumfries
+    558: East Kilbride
+    559: Westfield
+    56: ''
+    560: Westfield
+    561: West George st
+    562: Galashiels
+    563: Grangemouth
+    564: Dewar Place
+    565: Coatbridge
+    566: Helensburgh
+    567: Easterhouse
+    568: Galashiels
+    569: Drumchapel
+    57: ''
+    570: Grangemouth
+    58: ''
+    59: ''
+    6: ''
+    60: ''
+    61: ''
+    62: ''
+    63: ''
+    64: ''
+    65: ''
+    66: ''
+    67: ''
+    68: ''
+    69: ''
+    7: ''
+    70: ''
+    71: ''
+    72: ''
+    73: ''
+    74: ''
+    75: ''
+    76: ''
+    77: ''
+    78: ''
+    79: Kilbowie
+    8: ''
+    80: Cumbernauld
+    81: St Andrews Cross
+    82: Strathleven
+    83: Dunbar
+    84: Coatbridge
+    85: Newarthill
+    86: Devonside
+    87: Livingston
+    88: Chapelcross
+    89: Shrubhill
+    9: ''
+    90: Leven
+    91: Drumchapel
+    92: Johnstone
+    93: East Kilbride South
+    94: BathGate
+    95: Newton Stewart
+    96: Carntyne
+    97: Newarthill
+    98: Cupar
+    99: Newton Stewart
+    _column: Parent location (if any)
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 4.88219504548
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 3.29665838537
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 6.29469391875
+    18: 2.05495838689
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 16.6278643101
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 1.94354451131
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 3.8648229969
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 2.16101447665
+    220: 3.60843359676
+    221: 0
+    222: 0
+    223: 0
+    224: 1.93980364982
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 2.12885475865
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 6.34380255369
+    239: 5.86389023245
+    24: 0
+    240: 11.5000063587
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 3.06038943138
+    260: 0
+    261: 0
+    262: 0
+    263: 6.14558192422
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 6.73606855749
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 4.10921585382
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 6.27563047851
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 9.99779080476
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 3.13500277136
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 6.92869875051
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 1.15211489086
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 10.8239568909
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 2.81100423483
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 1.97402464334
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 3.61831155642
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 3.19645221674
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 3.20700486686
+    415: 0
+    416: 9.11398248395
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 3.4897379104
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 2.84162126083
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 2.15962459709
+    460: 4.38499265139
+    461: 6.66372221659
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0.786759221018
+    490: 0
+    491: 0
+    492: 0
+    493: 1.31599163959
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 13.1331757274
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 1.72953647544
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 3.61270541653
+    541: 0
+    542: 0
+    543: 1.9499150466
+    544: 0
+    545: 0.577503740989
+    546: 0
+    547: 6.07878883654
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 1.60707052152
+    560: 0
+    561: 2.69533878755
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0.762133619107
+    570: 0
+    58: 3.92076171572
+    59: 2.68347219288
+    6: 0
+    60: 0
+    61: 0.443228015393
+    62: 0
+    63: 0
+    64: 3.1578755392
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 5.49195692448
+    71: 0
+    72: 3.43411172004
+    73: 0
+    74: 0
+    75: 2.9529850534
+    76: 1.40126930678
+    77: 0.341755923699
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 5.07796468681
+    9: 0
+    90: 0
+    91: 1.40399935941
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Charge 1 £/kVA/year
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    58: 0
+    59: 0
+    6: 0
+    60: 0
+    61: 0
+    62: 0
+    63: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
+  - 1: -24710
+    10: -63750
+    100: -10400
+    101: -7800
+    102: -12050
+    103: -3030
+    104: -4340
+    105: -11010
+    106: -14570
+    107: -4340
+    108: 0
+    109: -15430
+    11: -43140
+    110: -10750
+    111: 0
+    112: -5030
+    113: -1210
+    114: 0
+    115: 0
+    116: -7370
+    117: -12400
+    118: -3820
+    119: -15350
+    12: -67440
+    120: -12490
+    121: -10840
+    122: -3900
+    123: -14650
+    124: -10660
+    125: -15610
+    126: 0
+    127: 0
+    128: -11010
+    129: -8840
+    13: -40670
+    130: -13300
+    131: -6590
+    132: -15610
+    133: -9970
+    134: 0
+    135: 0
+    136: -8410
+    137: -5460
+    138: -7110
+    139: -11440
+    14: -36070
+    140: -16560
+    141: -8320
+    142: 0
+    143: -6760
+    144: -10920
+    145: -13790
+    146: 0
+    147: -12200
+    148: -5640
+    149: -8760
+    15: -58240
+    150: -15950
+    151: 0
+    152: -690
+    153: -16210
+    154: -16300
+    155: -4680
+    156: 0
+    157: 0
+    158: -6680
+    159: -6680
+    16: -30810
+    160: 0
+    161: -19590
+    162: -8670
+    163: -13870
+    164: -6590
+    165: -8760
+    166: -4120
+    167: -9280
+    168: -10060
+    169: -5640
+    17: -57580
+    170: -9360
+    171: -12310
+    172: 0
+    173: -1990
+    174: -6330
+    175: -19160
+    176: -9710
+    177: -15000
+    178: -6420
+    179: -10140
+    18: -51710
+    180: -7630
+    181: -10840
+    182: 0
+    183: -3820
+    184: -7020
+    185: -12220
+    186: -5120
+    187: -10580
+    188: -2530
+    189: -3730
+    19: -61610
+    190: -3640
+    191: -7200
+    192: -14830
+    193: -10230
+    194: -12400
+    195: -17170
+    196: -14400
+    197: -13350
+    198: -6676
+    199: -8580
+    2: -54710
+    20: -17770
+    200: -18810
+    201: -18810
+    202: -8240
+    203: -6200
+    204: -9450
+    205: -10230
+    206: 0
+    207: -2800
+    208: -11270
+    209: -1040
+    21: -67530
+    210: 0
+    211: -16910
+    212: -17690
+    213: -7720
+    214: -15870
+    215: -10400
+    216: 0
+    217: -1910
+    218: -10060
+    219: -12830
+    22: -99190
+    220: -8840
+    221: -870
+    222: -10580
+    223: -18900
+    224: -16470
+    225: -10000
+    226: -2690
+    227: 0
+    228: -17690
+    229: -2770
+    23: -54190
+    230: -5290
+    231: -2950
+    232: 0
+    233: -7800
+    234: -5640
+    235: -1210
+    236: -10920
+    237: 0
+    238: -10060
+    239: -11010
+    24: -41400
+    240: -5550
+    241: -14650
+    242: 0
+    243: -2250
+    244: -10490
+    245: 0
+    246: -7280
+    247: -3380
+    248: 0
+    249: 0
+    25: -99170
+    250: -4680
+    251: -13010
+    252: -2950
+    253: -5640
+    254: -7800
+    255: -15000
+    256: -12140
+    257: 0
+    258: -21800
+    259: -3900
+    26: -99730
+    260: -4250
+    261: -1470
+    262: -14390
+    263: -10230
+    264: -5200
+    265: -9880
+    266: -16820
+    267: 0
+    268: -9500
+    269: -14220
+    27: -64510
+    270: -8500
+    271: -9450
+    272: 0
+    273: -3730
+    274: 0
+    275: -1990
+    276: 0
+    277: -3300
+    278: 0
+    279: -6590
+    28: -40660
+    280: -5900
+    281: -5290
+    282: -15690
+    283: -5290
+    284: -6760
+    285: -11790
+    286: -9450
+    287: -13790
+    288: 0
+    289: -1910
+    29: -35380
+    290: -9190
+    291: -7800
+    292: 0
+    293: -3470
+    294: -7540
+    295: -1470
+    296: -17170
+    297: -15430
+    298: 0
+    299: -11700
+    3: -24450
+    30: -59000
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: -1040
+    307: -6500
+    308: -4210
+    309: -13960
+    31: -71600
+    310: -8760
+    311: 0
+    312: -13440
+    313: 0
+    314: 0
+    315: -15780
+    316: 0
+    317: 0
+    318: -3120
+    319: -20370
+    32: -33480
+    320: -15870
+    321: -8060
+    322: -13790
+    323: -16730
+    324: -7280
+    325: -1210
+    326: -14050
+    327: -7020
+    328: -3560
+    329: 0
+    33: -35970
+    330: 0
+    331: -11530
+    332: -7540
+    333: -3030
+    334: -14480
+    335: -10060
+    336: -11270
+    337: -4510
+    338: 0
+    339: 0
+    34: -44040
+    340: -8840
+    341: -10140
+    342: -7630
+    343: -18120
+    344: -10660
+    345: -1650
+    346: -12920
+    347: -10920
+    348: 0
+    349: -4080
+    35: -86840
+    350: -9970
+    351: -8930
+    352: -10580
+    353: -10400
+    354: -12220
+    355: -6330
+    356: -11010
+    357: -13790
+    358: -5200
+    359: -14910
+    36: -76320
+    360: -18900
+    361: 0
+    362: -13180
+    363: -9280
+    364: -18290
+    365: 0
+    366: -10400
+    367: -4420
+    368: -12830
+    369: -5200
+    37: -70720
+    370: -2600
+    371: -12050
+    372: -6900
+    373: -7720
+    374: -7460
+    375: -3470
+    376: 0
+    377: -11620
+    378: -9970
+    379: -11010
+    38: -43530
+    380: 0
+    381: -2900
+    382: -3560
+    383: -11960
+    384: -7630
+    385: -18030
+    386: -7460
+    387: -3300
+    388: -11010
+    389: -3730
+    39: -49590
+    390: -8670
+    391: 0
+    392: -4160
+    393: -1910
+    394: -4600
+    395: 0
+    396: -14390
+    397: -6590
+    398: -15870
+    399: -4680
+    4: -43100
+    40: -22100
+    400: -2770
+    401: -10730
+    402: -5810
+    403: -13180
+    404: -13270
+    405: -7630
+    406: -5600
+    407: -15780
+    408: -2080
+    409: 0
+    41: -65370
+    410: 0
+    411: -8760
+    412: -8150
+    413: 0
+    414: -20030
+    415: -17430
+    416: -3560
+    417: -16480
+    418: -12050
+    419: -1040
+    42: -81810
+    420: -5980
+    421: -5460
+    422: -6070
+    423: -5380
+    424: 0
+    425: -14220
+    426: -6420
+    427: 0
+    428: -2430
+    429: -3560
+    43: -37190
+    430: 0
+    431: -15690
+    432: -16210
+    433: -15170
+    434: -8670
+    435: -12140
+    436: -3820
+    437: -11440
+    438: -1040
+    439: 0
+    44: -29050
+    440: -10920
+    441: -10580
+    442: -9280
+    443: -1730
+    444: -8670
+    445: 0
+    446: -15520
+    447: 0
+    448: -8500
+    449: -7730
+    45: -37980
+    450: -8580
+    451: -13010
+    452: -7980
+    453: -22460
+    454: -5810
+    455: -10490
+    456: 0
+    457: -8160
+    458: -6850
+    459: -4510
+    46: -56610
+    460: -7370
+    461: -9710
+    462: -10490
+    463: -13090
+    464: -12310
+    465: -9620
+    466: -10320
+    467: -2080
+    468: 0
+    469: -5810
+    47: -10420
+    470: -8240
+    471: 0
+    472: -9100
+    473: -33730
+    474: -9010
+    475: -3000
+    476: -10580
+    477: -15400
+    478: -7200
+    479: -8930
+    48: -23070
+    480: -8060
+    481: -13870
+    482: -12570
+    483: -13180
+    484: -3470
+    485: -11880
+    486: -27400
+    487: 0
+    488: 0
+    489: 0
+    49: -56150
+    490: -16130
+    491: -7200
+    492: -4100
+    493: -21240
+    494: -10840
+    495: 0
+    496: -16820
+    497: 0
+    498: -5720
+    499: -5200
+    5: -66320
+    50: -71270
+    500: -7720
+    501: -8580
+    502: -6850
+    503: -350
+    504: -15260
+    505: -17510
+    506: -11180
+    507: -4680
+    508: -11270
+    509: -13530
+    51: -72400
+    510: -11010
+    511: -450
+    512: -9800
+    513: -4860
+    514: -3120
+    515: -17250
+    516: -4340
+    517: 0
+    518: -3300
+    519: -15520
+    52: -41870
+    520: -13700
+    521: 0
+    522: -7110
+    523: -4080
+    524: -14570
+    525: -11880
+    526: -15780
+    527: -16990
+    528: -4800
+    529: -9100
+    53: -29129
+    530: -10840
+    531: -3210
+    532: -3990
+    533: -2700
+    534: -18640
+    535: -3640
+    536: -2170
+    537: 0
+    538: -11360
+    539: -13090
+    54: -43620
+    540: -17860
+    541: -15170
+    542: -13530
+    543: -18900
+    544: 0
+    545: -18030
+    546: -12310
+    547: -10580
+    548: -10320
+    549: 0
+    55: -50560
+    550: -12830
+    551: 0
+    552: -4940
+    553: -3820
+    554: -350
+    555: -14220
+    556: -9880
+    557: 0
+    558: -9970
+    559: 0
+    56: -94610
+    560: 0
+    561: -24020
+    562: -1040
+    563: -15260
+    564: -8240
+    565: -6500
+    566: -8410
+    567: -10230
+    568: -520
+    569: -18380
+    57: -81240
+    570: -7460
+    58: -41090
+    59: -40720
+    6: -76830
+    60: -64420
+    61: -78850
+    62: -24100
+    63: -16906
+    64: -84010
+    65: -42710
+    66: -40400
+    67: -46480
+    68: -7380
+    69: -11530
+    7: -57220
+    70: -35200
+    71: -21800
+    72: -61880
+    73: -20460
+    74: -32170
+    75: -44560
+    76: -46900
+    77: -84460
+    78: 0
+    79: -5290
+    8: -78370
+    80: -3900
+    81: -7110
+    82: 0
+    83: 0
+    84: -10320
+    85: -5460
+    86: -12400
+    87: -12390
+    88: -12050
+    89: -4600
+    9: -44090
+    90: -6590
+    91: -18810
+    92: -7280
+    93: 0
+    94: -11100
+    95: 0
+    96: -14050
+    97: -2860
+    98: -4770
+    99: -980
+    _column: 'Maximum demand run: load kW'
+  - 1: -4840
+    10: -12650
+    100: -2250
+    101: -1690
+    102: -2610
+    103: -660
+    104: -940
+    105: -2590
+    106: -6320
+    107: -1000
+    108: 0
+    109: -3150
+    11: -7980
+    110: -1540
+    111: 0
+    112: -1090
+    113: -260
+    114: 0
+    115: 0
+    116: -400
+    117: -2080
+    118: -820
+    119: -3330
+    12: -10870
+    120: -2220
+    121: -2340
+    122: -840
+    123: -1980
+    124: -2310
+    125: -3420
+    126: 0
+    127: 0
+    128: -2380
+    129: -2250
+    13: -8920
+    130: -1900
+    131: -1430
+    132: -2030
+    133: -1480
+    134: 0
+    135: 0
+    136: -1820
+    137: -1180
+    138: -1540
+    139: -1660
+    14: -8550
+    140: -2920
+    141: -1240
+    142: 0
+    143: -750
+    144: -2360
+    145: -1160
+    146: 0
+    147: -2500
+    148: -1220
+    149: -1060
+    15: -13080
+    150: -3450
+    151: 0
+    152: -150
+    153: -3100
+    154: -1780
+    155: -900
+    156: 0
+    157: 0
+    158: -1050
+    159: -1050
+    16: -6190
+    160: 0
+    161: -2930
+    162: -1140
+    163: -1280
+    164: -1430
+    165: -1500
+    166: -710
+    167: -2010
+    168: -2180
+    169: -70
+    17: -8990
+    170: -1190
+    171: -2410
+    172: 0
+    173: -430
+    174: -1370
+    175: -2540
+    176: -2100
+    177: -3200
+    178: -1390
+    179: -2190
+    18: -7530
+    180: -1230
+    181: -2340
+    182: 0
+    183: -820
+    184: -1520
+    185: -2900
+    186: -1110
+    187: -2240
+    188: -540
+    189: -810
+    19: -13320
+    190: -790
+    191: -1090
+    192: -3260
+    193: -1210
+    194: -3130
+    195: -3010
+    196: -3800
+    197: -2060
+    198: -2193
+    199: -1020
+    2: -9400
+    20: -2650
+    200: -4070
+    201: -4070
+    202: -1780
+    203: -1340
+    204: -1190
+    205: -2210
+    206: 0
+    207: -600
+    208: -950
+    209: -280
+    21: -9730
+    210: 0
+    211: -2040
+    212: -3820
+    213: -1670
+    214: -1430
+    215: -2250
+    216: 0
+    217: -410
+    218: -990
+    219: -2470
+    22: -24760
+    220: -1930
+    221: -190
+    222: -2290
+    223: -4340
+    224: -3470
+    225: -1200
+    226: -580
+    227: 0
+    228: -4800
+    229: -600
+    23: -9060
+    230: -1140
+    231: -640
+    232: 0
+    233: -1690
+    234: -1220
+    235: -260
+    236: -1850
+    237: 0
+    238: -2180
+    239: -1670
+    24: -9490
+    240: -1200
+    241: -3170
+    242: 0
+    243: -490
+    244: -2410
+    245: 0
+    246: -1580
+    247: -850
+    248: 0
+    249: 0
+    25: -17940
+    250: -1010
+    251: -3200
+    252: -640
+    253: -1220
+    254: -1610
+    255: -1320
+    256: -1870
+    257: 0
+    258: -4270
+    259: 0
+    26: -20640
+    260: -480
+    261: -320
+    262: -3110
+    263: -2872
+    264: -1130
+    265: -2140
+    266: -3640
+    267: 0
+    268: -1930
+    269: -1860
+    27: -10000
+    270: -910
+    271: -2040
+    272: 0
+    273: -810
+    274: 0
+    275: -430
+    276: 0
+    277: -1390
+    278: 0
+    279: -1420
+    28: -7380
+    280: -1280
+    281: -1140
+    282: -2520
+    283: -1140
+    284: -1460
+    285: -2100
+    286: -4580
+    287: -1050
+    288: 0
+    289: -410
+    29: -10140
+    290: -4880
+    291: -570
+    292: 0
+    293: -750
+    294: -1300
+    295: -320
+    296: -3710
+    297: -2900
+    298: 0
+    299: -1720
+    3: -5350
+    30: -10541
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: -230
+    307: -640
+    308: -910
+    309: -1730
+    31: -12410
+    310: -1890
+    311: 0
+    312: -2010
+    313: 0
+    314: 0
+    315: -3390
+    316: 0
+    317: 0
+    318: -680
+    319: -4350
+    32: -7710
+    320: -4430
+    321: -1970
+    322: -1480
+    323: -2500
+    324: -1580
+    325: -260
+    326: -2510
+    327: -1540
+    328: -770
+    329: 0
+    33: -6390
+    330: 0
+    331: -2490
+    332: -1980
+    333: -660
+    334: -2300
+    335: -2300
+    336: -2390
+    337: -970
+    338: 0
+    339: 0
+    34: -11460
+    340: -1170
+    341: -2190
+    342: -1650
+    343: -3920
+    344: -2310
+    345: 0
+    346: -1920
+    347: -2360
+    348: 0
+    349: -880
+    35: -16670
+    350: -2160
+    351: -1930
+    352: -2290
+    353: -1700
+    354: -2640
+    355: -1280
+    356: -2380
+    357: -2940
+    358: -1130
+    359: -3830
+    36: -14800
+    360: -3690
+    361: 0
+    362: -1530
+    363: -1560
+    364: -4950
+    365: 0
+    366: -1940
+    367: -960
+    368: -690
+    369: -1130
+    37: -14130
+    370: -560
+    371: -1000
+    372: -1100
+    373: -1200
+    374: -90
+    375: -750
+    376: 0
+    377: -2570
+    378: -3610
+    379: -1930
+    38: -9460
+    380: 0
+    381: -500
+    382: -770
+    383: -1070
+    384: -1650
+    385: -3900
+    386: -1610
+    387: -710
+    388: -1150
+    389: -810
+    39: -9290
+    390: -920
+    391: 0
+    392: -900
+    393: -410
+    394: -900
+    395: 0
+    396: -1760
+    397: -970
+    398: -3430
+    399: -1990
+    4: -8690
+    40: -4800
+    400: -600
+    401: -2320
+    402: -570
+    403: -2850
+    404: -1690
+    405: -1650
+    406: -1200
+    407: -3410
+    408: 0
+    409: 0
+    41: -12690
+    410: 0
+    411: -1890
+    412: -1760
+    413: 0
+    414: -3660
+    415: -4970
+    416: -400
+    417: -3560
+    418: -1070
+    419: -230
+    42: -13900
+    420: -1290
+    421: -1180
+    422: -630
+    423: -880
+    424: 0
+    425: -3080
+    426: -20
+    427: 0
+    428: -530
+    429: -770
+    43: -9150
+    430: 0
+    431: -2350
+    432: -3680
+    433: -2340
+    434: -2020
+    435: -2630
+    436: -820
+    437: -3500
+    438: -230
+    439: 0
+    44: -6960
+    440: -2650
+    441: -2290
+    442: -1190
+    443: 0
+    444: -2400
+    445: 0
+    446: -3770
+    447: 0
+    448: -890
+    449: -1670
+    45: -6330
+    450: -1970
+    451: -1900
+    452: -1730
+    453: -4860
+    454: -1260
+    455: -2270
+    456: 0
+    457: -1270
+    458: -1090
+    459: -970
+    46: -11490
+    460: -1060
+    461: -1320
+    462: -2270
+    463: -1440
+    464: -1570
+    465: -2080
+    466: -2230
+    467: -450
+    468: 0
+    469: -1260
+    47: -6290
+    470: -1780
+    471: 0
+    472: -1970
+    473: -7290
+    474: -1070
+    475: -2280
+    476: -1770
+    477: -3900
+    478: -1560
+    479: -1210
+    48: -3550
+    480: -1560
+    481: -950
+    482: -1550
+    483: -3910
+    484: -750
+    485: -2570
+    486: -4040
+    487: 0
+    488: 0
+    489: 0
+    49: -10460
+    490: -3490
+    491: -1560
+    492: -800
+    493: -3400
+    494: -2340
+    495: 0
+    496: -2650
+    497: 0
+    498: -1240
+    499: -1130
+    5: -12630
+    50: -13200
+    500: -1670
+    501: -1010
+    502: -1480
+    503: -80
+    504: -3300
+    505: -2680
+    506: -2420
+    507: -1010
+    508: -1490
+    509: -2930
+    51: -12900
+    510: -5060
+    511: -80
+    512: -2480
+    513: -1050
+    514: -680
+    515: -2400
+    516: -940
+    517: 0
+    518: -710
+    519: -3360
+    52: -5580
+    520: -2380
+    521: 0
+    522: -1210
+    523: -880
+    524: -3360
+    525: -1420
+    526: -1690
+    527: -3170
+    528: -1300
+    529: -1970
+    53: -6184
+    530: -750
+    531: -690
+    532: -860
+    533: -550
+    534: -3380
+    535: -790
+    536: -650
+    537: 0
+    538: -3320
+    539: -5040
+    54: -9570
+    540: -2780
+    541: -2000
+    542: -1580
+    543: -3280
+    544: 0
+    545: -4110
+    546: -2660
+    547: -1860
+    548: -2230
+    549: 0
+    55: -9060
+    550: -2170
+    551: 0
+    552: -1070
+    553: -820
+    554: -80
+    555: -1860
+    556: -1480
+    557: 0
+    558: -1120
+    559: 0
+    56: -18440
+    560: 0
+    561: -3160
+    562: -230
+    563: -1330
+    564: -1780
+    565: -1180
+    566: -1820
+    567: -2210
+    568: -110
+    569: -2920
+    57: -16300
+    570: -220
+    58: -6140
+    59: -8150
+    6: -17850
+    60: -11850
+    61: -13470
+    62: -4410
+    63: -5065
+    64: -15740
+    65: -9230
+    66: -5200
+    67: -7220
+    68: -1560
+    69: -2490
+    7: -12380
+    70: -4760
+    71: -4270
+    72: -12510
+    73: -3520
+    74: -4740
+    75: -9130
+    76: -9090
+    77: -16650
+    78: 0
+    79: -380
+    8: -14840
+    80: -840
+    81: -1540
+    82: 0
+    83: 0
+    84: -1960
+    85: -970
+    86: -2680
+    87: -2420
+    88: -1760
+    89: -990
+    9: -5520
+    90: -1430
+    91: -2910
+    92: -1580
+    93: 0
+    94: -2400
+    95: 0
+    96: -1060
+    97: -620
+    98: -1030
+    99: -200
+    _column: 'Maximum demand run: load kVAr'
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 2000
+    109: 0
+    11: 11160
+    110: 0
+    111: 8520
+    112: 0
+    113: 0
+    114: 9000
+    115: 7000
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 5400
+    128: 0
+    129: 0
+    13: 0
+    130: 17000
+    131: 0
+    132: 0
+    133: 0
+    134: 10980
+    135: 10980
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 66670
+    140: 0
+    141: 0
+    142: 15600
+    143: 0
+    144: 0
+    145: 0
+    146: 22200
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 6360
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 46270
+    160: 19200
+    161: 1800
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 10710
+    173: 0
+    174: 1380
+    175: 2160
+    176: 2520
+    177: 0
+    178: 0
+    179: 0
+    18: 63480
+    180: 0
+    181: 0
+    182: 200
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 1200
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 2400
+    20: 9000
+    200: 0
+    201: 0
+    202: 0
+    203: 4840
+    204: 0
+    205: 0
+    206: 23000
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 37500
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 17800
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 4800
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 28600
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 17640
+    238: 0
+    239: 0
+    24: 65160
+    240: 0
+    241: 0
+    242: 480
+    243: 0
+    244: 0
+    245: 19600
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 60580
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 1200
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 1000
+    268: 0
+    269: 0
+    27: 2160
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 12960
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 11040
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 13200
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 19000
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 17100
+    312: 0
+    313: 8900
+    314: 30000
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 15000
+    33: 8520
+    330: 300
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 8400
+    339: 8400
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 2660
+    347: 0
+    348: 7000
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 200
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 3180
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 16200
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 5400
+    390: 0
+    391: 22500
+    392: 0
+    393: 0
+    394: 0
+    395: 14800
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 66150
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 9000
+    41: 19600
+    410: 10800
+    411: 0
+    412: 0
+    413: 22600
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 21960
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 240
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 15400
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 15000
+    470: 0
+    471: 300
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 14800
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 1310
+    489: 29940
+    49: 1000
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 250
+    496: 0
+    497: 400
+    498: 0
+    499: 0
+    5: 0
+    50: 30760
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 37200
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 400
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 27000
+    530: 0
+    531: 0
+    532: 0
+    533: 3840
+    534: 0
+    535: 0
+    536: 0
+    537: 500
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 17800
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    58: 0
+    59: 29940
+    6: 0
+    60: 300
+    61: 23300
+    62: 16200
+    63: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 3840
+    69: 0
+    7: 34600
+    70: 0
+    71: 0
+    72: 0
+    73: 400
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 4200
+    83: 28400
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 64640
+    90: 0
+    91: 0
+    92: 0
+    93: 4000
+    94: 0
+    95: 12960
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: 'Maximum demand run: generation kW'
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 134
+    106: 0
+    107: 0
+    108: 248
+    109: 0
+    11: 4879
+    110: 0
+    111: 1247
+    112: 0
+    113: 0
+    114: -623
+    115: 1734
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 6074
+    127: 714
+    128: 0
+    129: 0
+    13: 0
+    130: -12570
+    131: 0
+    132: 0
+    133: 0
+    134: 3000
+    135: 3000
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 14717
+    140: 53
+    141: 0
+    142: 3951
+    143: 0
+    144: 0
+    145: 0
+    146: 209
+    147: 0
+    148: 0
+    149: 0
+    15: 100
+    150: 0
+    151: 3480
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 465
+    160: 295
+    161: -870
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 329
+    170: 0
+    171: 0
+    172: 5350
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: -10193
+    180: 0
+    181: 0
+    182: -22
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: -16
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 97
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 3915
+    20: -1184
+    200: 0
+    201: 0
+    202: 0
+    203: -992
+    204: 0
+    205: 0
+    206: -5996
+    207: 0
+    208: 0
+    209: 0
+    21: 252
+    210: -8353
+    211: 0
+    212: -16
+    213: 0
+    214: 0
+    215: 0
+    216: -291
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 1399
+    226: 0
+    227: 1327
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: -7710
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: -2348
+    238: 0
+    239: 0
+    24: -2926
+    240: 0
+    241: 0
+    242: -76
+    243: 0
+    244: 0
+    245: -1975
+    246: 0
+    247: 0
+    248: 0
+    249: 222
+    25: -6093
+    250: 0
+    251: 329
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 660
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 252
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 467
+    268: 0
+    269: 0
+    27: 134
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: -7050
+    277: 0
+    278: 474
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 724
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: -1954
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 1023
+    299: 475
+    3: 0
+    30: 954
+    300: 302
+    301: 302
+    302: 302
+    303: 302
+    304: 326
+    305: -538
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 534
+    310: 0
+    311: 4316
+    312: 0
+    313: 341
+    314: 3427
+    315: 0
+    316: 14
+    317: -20
+    318: 0
+    319: 0
+    32: 190
+    320: 614
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 1232
+    33: 2253
+    330: 160
+    331: 0
+    332: 0
+    333: 1006
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: -2071
+    339: -883
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: -124
+    347: 0
+    348: -2211
+    349: 0
+    35: 409
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: -149
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 560
+    360: 0
+    361: 119
+    362: 0
+    363: 560
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: -870
+    370: 0
+    371: 1462
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 100
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: -1198
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 714
+    390: 0
+    391: -5085
+    392: 0
+    393: 0
+    394: 0
+    395: 2383
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: -23686
+    40: 0
+    400: 124
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: -1184
+    41: -1723
+    410: -2325
+    411: 0
+    412: 534
+    413: -2731
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 6416
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 2357
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 529
+    430: 0
+    431: 0
+    432: 167
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: -3756
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: -75
+    454: 0
+    455: 0
+    456: -4328
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 99
+    468: 0
+    469: 416
+    47: 1232
+    470: 0
+    471: 150
+    472: 128
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 2383
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 126
+    488: 495
+    489: -1647
+    49: 467
+    490: 434
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: -21
+    496: 0
+    497: 75
+    498: 0
+    499: 0
+    5: -172
+    50: -3707
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: -3760
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 200
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 409
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: -2145
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 190
+    539: 345
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 246
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 1716
+    55: 2090
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 1767
+    558: 0
+    559: 529
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    58: 0
+    59: -1647
+    6: 512
+    60: 160
+    61: -5846
+    62: -1198
+    63: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 434
+    68: -2145
+    69: 0
+    7: 3413
+    70: 0
+    71: 0
+    72: 0
+    73: 1023
+    74: 0
+    75: 0
+    76: 0
+    77: 1708
+    78: 0
+    79: 0
+    8: -2120
+    80: 0
+    81: 0
+    82: 2917
+    83: -15237
+    84: -225
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: -7483
+    90: 0
+    91: 0
+    92: 0
+    93: -479
+    94: 0
+    95: -2982
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: 'Maximum demand run: generation kVAr'
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    58: 0
+    59: 0
+    6: 0
+    60: 0
+    61: 0
+    62: 0
+    63: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    58: 0
+    59: 0
+    6: 0
+    60: 0
+    61: 0
+    62: 0
+    63: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    58: 0
+    59: 0
+    6: 0
+    60: 0
+    61: 0
+    62: 0
+    63: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
+  - 1: 0
+    10: 0
+    100: 0
+    101: 0
+    102: 0
+    103: 0
+    104: 0
+    105: 0
+    106: 0
+    107: 0
+    108: 0
+    109: 0
+    11: 0
+    110: 0
+    111: 0
+    112: 0
+    113: 0
+    114: 0
+    115: 0
+    116: 0
+    117: 0
+    118: 0
+    119: 0
+    12: 0
+    120: 0
+    121: 0
+    122: 0
+    123: 0
+    124: 0
+    125: 0
+    126: 0
+    127: 0
+    128: 0
+    129: 0
+    13: 0
+    130: 0
+    131: 0
+    132: 0
+    133: 0
+    134: 0
+    135: 0
+    136: 0
+    137: 0
+    138: 0
+    139: 0
+    14: 0
+    140: 0
+    141: 0
+    142: 0
+    143: 0
+    144: 0
+    145: 0
+    146: 0
+    147: 0
+    148: 0
+    149: 0
+    15: 0
+    150: 0
+    151: 0
+    152: 0
+    153: 0
+    154: 0
+    155: 0
+    156: 0
+    157: 0
+    158: 0
+    159: 0
+    16: 0
+    160: 0
+    161: 0
+    162: 0
+    163: 0
+    164: 0
+    165: 0
+    166: 0
+    167: 0
+    168: 0
+    169: 0
+    17: 0
+    170: 0
+    171: 0
+    172: 0
+    173: 0
+    174: 0
+    175: 0
+    176: 0
+    177: 0
+    178: 0
+    179: 0
+    18: 0
+    180: 0
+    181: 0
+    182: 0
+    183: 0
+    184: 0
+    185: 0
+    186: 0
+    187: 0
+    188: 0
+    189: 0
+    19: 0
+    190: 0
+    191: 0
+    192: 0
+    193: 0
+    194: 0
+    195: 0
+    196: 0
+    197: 0
+    198: 0
+    199: 0
+    2: 0
+    20: 0
+    200: 0
+    201: 0
+    202: 0
+    203: 0
+    204: 0
+    205: 0
+    206: 0
+    207: 0
+    208: 0
+    209: 0
+    21: 0
+    210: 0
+    211: 0
+    212: 0
+    213: 0
+    214: 0
+    215: 0
+    216: 0
+    217: 0
+    218: 0
+    219: 0
+    22: 0
+    220: 0
+    221: 0
+    222: 0
+    223: 0
+    224: 0
+    225: 0
+    226: 0
+    227: 0
+    228: 0
+    229: 0
+    23: 0
+    230: 0
+    231: 0
+    232: 0
+    233: 0
+    234: 0
+    235: 0
+    236: 0
+    237: 0
+    238: 0
+    239: 0
+    24: 0
+    240: 0
+    241: 0
+    242: 0
+    243: 0
+    244: 0
+    245: 0
+    246: 0
+    247: 0
+    248: 0
+    249: 0
+    25: 0
+    250: 0
+    251: 0
+    252: 0
+    253: 0
+    254: 0
+    255: 0
+    256: 0
+    257: 0
+    258: 0
+    259: 0
+    26: 0
+    260: 0
+    261: 0
+    262: 0
+    263: 0
+    264: 0
+    265: 0
+    266: 0
+    267: 0
+    268: 0
+    269: 0
+    27: 0
+    270: 0
+    271: 0
+    272: 0
+    273: 0
+    274: 0
+    275: 0
+    276: 0
+    277: 0
+    278: 0
+    279: 0
+    28: 0
+    280: 0
+    281: 0
+    282: 0
+    283: 0
+    284: 0
+    285: 0
+    286: 0
+    287: 0
+    288: 0
+    289: 0
+    29: 0
+    290: 0
+    291: 0
+    292: 0
+    293: 0
+    294: 0
+    295: 0
+    296: 0
+    297: 0
+    298: 0
+    299: 0
+    3: 0
+    30: 0
+    300: 0
+    301: 0
+    302: 0
+    303: 0
+    304: 0
+    305: 0
+    306: 0
+    307: 0
+    308: 0
+    309: 0
+    31: 0
+    310: 0
+    311: 0
+    312: 0
+    313: 0
+    314: 0
+    315: 0
+    316: 0
+    317: 0
+    318: 0
+    319: 0
+    32: 0
+    320: 0
+    321: 0
+    322: 0
+    323: 0
+    324: 0
+    325: 0
+    326: 0
+    327: 0
+    328: 0
+    329: 0
+    33: 0
+    330: 0
+    331: 0
+    332: 0
+    333: 0
+    334: 0
+    335: 0
+    336: 0
+    337: 0
+    338: 0
+    339: 0
+    34: 0
+    340: 0
+    341: 0
+    342: 0
+    343: 0
+    344: 0
+    345: 0
+    346: 0
+    347: 0
+    348: 0
+    349: 0
+    35: 0
+    350: 0
+    351: 0
+    352: 0
+    353: 0
+    354: 0
+    355: 0
+    356: 0
+    357: 0
+    358: 0
+    359: 0
+    36: 0
+    360: 0
+    361: 0
+    362: 0
+    363: 0
+    364: 0
+    365: 0
+    366: 0
+    367: 0
+    368: 0
+    369: 0
+    37: 0
+    370: 0
+    371: 0
+    372: 0
+    373: 0
+    374: 0
+    375: 0
+    376: 0
+    377: 0
+    378: 0
+    379: 0
+    38: 0
+    380: 0
+    381: 0
+    382: 0
+    383: 0
+    384: 0
+    385: 0
+    386: 0
+    387: 0
+    388: 0
+    389: 0
+    39: 0
+    390: 0
+    391: 0
+    392: 0
+    393: 0
+    394: 0
+    395: 0
+    396: 0
+    397: 0
+    398: 0
+    399: 0
+    4: 0
+    40: 0
+    400: 0
+    401: 0
+    402: 0
+    403: 0
+    404: 0
+    405: 0
+    406: 0
+    407: 0
+    408: 0
+    409: 0
+    41: 0
+    410: 0
+    411: 0
+    412: 0
+    413: 0
+    414: 0
+    415: 0
+    416: 0
+    417: 0
+    418: 0
+    419: 0
+    42: 0
+    420: 0
+    421: 0
+    422: 0
+    423: 0
+    424: 0
+    425: 0
+    426: 0
+    427: 0
+    428: 0
+    429: 0
+    43: 0
+    430: 0
+    431: 0
+    432: 0
+    433: 0
+    434: 0
+    435: 0
+    436: 0
+    437: 0
+    438: 0
+    439: 0
+    44: 0
+    440: 0
+    441: 0
+    442: 0
+    443: 0
+    444: 0
+    445: 0
+    446: 0
+    447: 0
+    448: 0
+    449: 0
+    45: 0
+    450: 0
+    451: 0
+    452: 0
+    453: 0
+    454: 0
+    455: 0
+    456: 0
+    457: 0
+    458: 0
+    459: 0
+    46: 0
+    460: 0
+    461: 0
+    462: 0
+    463: 0
+    464: 0
+    465: 0
+    466: 0
+    467: 0
+    468: 0
+    469: 0
+    47: 0
+    470: 0
+    471: 0
+    472: 0
+    473: 0
+    474: 0
+    475: 0
+    476: 0
+    477: 0
+    478: 0
+    479: 0
+    48: 0
+    480: 0
+    481: 0
+    482: 0
+    483: 0
+    484: 0
+    485: 0
+    486: 0
+    487: 0
+    488: 0
+    489: 0
+    49: 0
+    490: 0
+    491: 0
+    492: 0
+    493: 0
+    494: 0
+    495: 0
+    496: 0
+    497: 0
+    498: 0
+    499: 0
+    5: 0
+    50: 0
+    500: 0
+    501: 0
+    502: 0
+    503: 0
+    504: 0
+    505: 0
+    506: 0
+    507: 0
+    508: 0
+    509: 0
+    51: 0
+    510: 0
+    511: 0
+    512: 0
+    513: 0
+    514: 0
+    515: 0
+    516: 0
+    517: 0
+    518: 0
+    519: 0
+    52: 0
+    520: 0
+    521: 0
+    522: 0
+    523: 0
+    524: 0
+    525: 0
+    526: 0
+    527: 0
+    528: 0
+    529: 0
+    53: 0
+    530: 0
+    531: 0
+    532: 0
+    533: 0
+    534: 0
+    535: 0
+    536: 0
+    537: 0
+    538: 0
+    539: 0
+    54: 0
+    540: 0
+    541: 0
+    542: 0
+    543: 0
+    544: 0
+    545: 0
+    546: 0
+    547: 0
+    548: 0
+    549: 0
+    55: 0
+    550: 0
+    551: 0
+    552: 0
+    553: 0
+    554: 0
+    555: 0
+    556: 0
+    557: 0
+    558: 0
+    559: 0
+    56: 0
+    560: 0
+    561: 0
+    562: 0
+    563: 0
+    564: 0
+    565: 0
+    566: 0
+    567: 0
+    568: 0
+    569: 0
+    57: 0
+    570: 0
+    58: 0
+    59: 0
+    6: 0
+    60: 0
+    61: 0
+    62: 0
+    63: 0
+    64: 0
+    65: 0
+    66: 0
+    67: 0
+    68: 0
+    69: 0
+    7: 0
+    70: 0
+    71: 0
+    72: 0
+    73: 0
+    74: 0
+    75: 0
+    76: 0
+    77: 0
+    78: 0
+    79: 0
+    8: 0
+    80: 0
+    81: 0
+    82: 0
+    83: 0
+    84: 0
+    85: 0
+    86: 0
+    87: 0
+    88: 0
+    89: 0
+    9: 0
+    90: 0
+    91: 0
+    92: 0
+    93: 0
+    94: 0
+    95: 0
+    96: 0
+    97: 0
+    98: 0
+    99: 0
+    _column: Not used
