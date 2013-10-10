@@ -1263,10 +1263,6 @@
     _column: Baseline EDCM demand pot (£/year)
   - Baseline EDCM pots: 176112.01554577
     _column: Baseline revenue from demand charge 1 (£/year)
-4355:
-  - _table: 4355. Net forecast EDCM generation revenue (£/year)
-  - _column: Net forecast EDCM generation revenue (£/year)
-  - Net forecast EDCM generation revenue year: '#REF!'
 911:
   - _table: 911. FCP power flow modelling data
   - 1: Kilbowie
