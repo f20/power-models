@@ -86,7 +86,7 @@ sub wsPrepare {
         unless ( !$ws2 || $ws2 == $ws ) {
             my $sheet = $ws2->get_name;
             use bytes;
-            s/\b$ph(\b|$)/'$sheet'!$ph/ foreach @custom;
+            s/\b$ph\b/'$sheet'!$ph/ foreach @custom;
         }
     }
     return sub { die $broken; }

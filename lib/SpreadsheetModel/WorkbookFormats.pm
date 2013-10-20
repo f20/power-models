@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2012 Reckon LLP and others.
+Copyright 2008-2013 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -118,6 +118,7 @@ Keys used in %$options:
 * alignment (flag: true means right-aligned, false means centered with padding)
 * colour (matched: see below)
 * validation (matched: for void cells in input data tables)
+* lockedInputs
 
 =cut
 
@@ -278,7 +279,7 @@ Keys used in %$options:
     my @sizeText       = ( valign => 'vcenter', );
     my $plus  = '[Blue]_-+';
     my $minus = '[Red]_+-';
-    $workbook->{formatspec} = {
+    my %specs = (
         '%con'    => [ locked => 1, @sizeNumber, @numPercent, @colourCon, ],
         '%copy'   => [ locked => 1, @sizeNumber, @numPercent, @colourCopy, ],
         '%hard'   => [ locked => 0, @sizeNumber, @numPercent, @colourHard, ],
@@ -298,6 +299,8 @@ Keys used in %$options:
             @colourCopy,
         ],
         '0.000con'    => [ locked => 1, @sizeNumber, @num_000,   @colourCon, ],
+        '0.00con'     => [ locked => 1, @sizeNumber, @num_00,    @colourCon, ],
+        '0.0con'      => [ locked => 1, @sizeNumber, @num_0,     @colourCon, ],
         '0.000copy'   => [ locked => 1, @sizeNumber, @num_000,   @colourCopy, ],
         '0.00copy'    => [ locked => 1, @sizeNumber, @num_00,    @colourCopy, ],
         '0.0copy'     => [ locked => 1, @sizeNumber, @num_0,     @colourCopy, ],
@@ -371,10 +374,27 @@ Keys used in %$options:
             ),
             @colourCopy,
         ],
-        '0000hard' =>
-          [ locked => 0, @sizeNumber, num_format => '0000', @colourHard, ],
-        '0000copy' =>
-          [ locked => 0, @sizeNumber, num_format => '0000', @colourCopy, ],
+        '0000hard' => [
+            locked => 0,
+            @sizeNumber,
+            align      => 'center',
+            num_format => '0000',
+            @colourHard,
+        ],
+        '0000con' => [
+            locked => 0,
+            @sizeNumber,
+            align      => 'center',
+            num_format => '0000',
+            @colourCon,
+        ],
+        '0000copy' => [
+            locked => 0,
+            @sizeNumber,
+            align      => 'center',
+            num_format => '0000',
+            @colourCopy,
+        ],
         boolhard => [
             locked => 0,
             @sizeNumber,
@@ -458,6 +478,14 @@ Keys used in %$options:
             align      => 'left',
             text_wrap  => 1,
             @colourHard,
+        ],
+        textsoft => [
+            locked => 0,
+            @sizeText,
+            num_format => '@',
+            align      => 'left',
+            text_wrap  => 1,
+            @colourSoft,
         ],
         textnocolour => [
             locked => 0,
@@ -558,7 +586,21 @@ Keys used in %$options:
             align      => 'center',
             @colourUnused,
         ],
-    };
+    );
+
+    if ( $options->{lockedInputs} ) {
+        foreach my $key ( grep { /hard/ } keys %specs ) {
+            local $_ = $key;
+            s/hard/input/;
+            $specs{$_} = $specs{$key};
+            $_ = $key;
+            s/hard/con/;
+            $specs{$key} = $specs{$_} if $specs{$_};
+        }
+    }
+
+    $workbook->{formatspec} = \%specs;
+
 }
 
 1;

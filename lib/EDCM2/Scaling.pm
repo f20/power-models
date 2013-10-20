@@ -88,8 +88,10 @@ sub fudge41 {
         $model->{transparency}{olo}{119102} = Arithmetic(
             name          => 'Total marginal effect of indirect cost adder',
             defaultFormat => '0soft',
-            arithmetic    => '=IV1+SUMPRODUCT(IV2_IV3,IV4_IV5,IV6_IV7)',
-            arguments     => {
+            arithmetic =>
+              '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5,IV6_IV7)',
+            arguments => {
+                IV123   => $model->{transparencyMasterFlag},
                 IV1     => $model->{transparency}{ol119102},
                 IV2_IV3 => $model->{transparency},
                 IV4_IV5 => $fudgeIndirect,
@@ -158,8 +160,9 @@ sub fudge41 {
         $model->{transparency}{olo}{119103} = Arithmetic(
             name          => 'Total marginal revenue effect of demand adder',
             defaultFormat => '0soft',
-            arithmetic    => 'IV1+SUMPRODUCT(IV2_IV3,IV4_IV5)',
+            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5)',
             arguments     => {
+                IV123   => $model->{transparencyMasterFlag},
                 IV1     => $model->{transparency}{ol119103},
                 IV2_IV3 => $model->{transparency},
                 IV4_IV5 => $slope,
@@ -295,8 +298,9 @@ sub demandScaling41 {
             name =>
               'Total non sole use notional assets subject to matching (£)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1+SUMPRODUCT(IV21_IV22,IV51_IV52)',
+            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV21_IV22,IV51_IV52)',
             arguments     => {
+                IV123     => $model->{transparencyMasterFlag},
                 IV1       => $model->{transparency}{ol119305},
                 IV21_IV22 => $model->{transparency},
                 IV51_IV52 => $slopeCapacity,

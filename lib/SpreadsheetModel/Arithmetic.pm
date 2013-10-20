@@ -134,15 +134,15 @@ sub wsPrepare {
             use bytes;
             if ( $ws2 && $ws2 != $ws ) {
                 my $sheet = $ws2->get_name;
-                $arithmetic =~ s/\b$ph(\b|$)/'$sheet:$sheet'!$ph/;
+                $arithmetic =~ s/\b$ph\b/'$sheet:$sheet'!$ph/;
             }
-            $arithmetic =~ s/\b$ph(\b|$)/$a:$b/;
+            $arithmetic =~ s/\b$ph\b/$a:$b/;
             $volatile = 1;
         }
         elsif ( $ws2 && $ws2 != $ws ) {
             my $sheet = $ws2->get_name;
             use bytes;
-            $arithmetic =~ s/\b$ph(\b|$)/'$sheet'!$ph/;
+            $arithmetic =~ s/\b$ph\b/'$sheet'!$ph/;
         }
     }
 
@@ -194,8 +194,8 @@ sub wsPrepare {
             if ( my ( $a, $b ) = (/^([A-Z0-9]+)_([A-Z0-9]+)$/) )
             {
                 my $arg = $self->{arguments}{$_};
-                $a   => xl_rowcol_to_cell( $row{$_}, $col{$_}, 1, 1 ),
-                  $b => xl_rowcol_to_cell(
+                qr/\b$a\b/   => xl_rowcol_to_cell( $row{$_}, $col{$_}, 1, 1 ),
+                  qr/\b$b\b/ => xl_rowcol_to_cell(
                     $row{$_} + $arg->lastRow,
                     $col{$_} + $arg->lastCol,
                     1, 1

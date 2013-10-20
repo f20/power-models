@@ -83,27 +83,48 @@ sub processData {
     my $hoursInRed = $model->{dataset}{1113}[3]{$hoursInRedKey};
 
     if ( my $ds = $model->{dataset}{935} ) {
-        my $max = $model->{numTariffs} || 0;
+        my %tariffs;
+        my $max = 0;
         while ( my ( $k, $v ) = each %{ $ds->[1] } ) {
-            $max = $k
-              if $k =~ /^[0-9]+$/
-              and $k > $max
+            next
+              unless $k =~ /^[0-9]+$/
               and $v
               and $v ne 'Not used'
               and $v ne '#VALUE!'
               and $v !~ /^\s*$/s
               and $ds->[1]{$k};
+            undef $tariffs{$k};
+            $max = $k
+              if $k > $max;
         }
-        $model->{numTariffs} =
-          (      $model->{randomise}
-              || $model->{small}
-              || $model->{numTariffs} ? 0 : 16 ) + $max;
+        if ($max) {
+            my @tariffs;
+            if (   $model->{numTariffs}
+                && $max <= $model->{numTariffs} )
+            {
+                $model->{numTariffs} = 2
+                  unless $model->{transparency}
+                  && $model->{transparency} =~ /impact/i
+                  || $model->{numTariffs} > 1;
+                @tariffs = ( 1 .. $model->{numTariffs} );
+            }
+            else {
+                @tariffs = sort { $a <=> $b } keys %tariffs,
+                  $model->{numTariffs} ? () : ( $max + 1 .. $max + 16 );
+                push @tariffs, $max + 1
+                  unless $model->{transparency}
+                  && $model->{transparency} =~ /impact/i
+                  || @tariffs > 1;
+                $model->{numTariffs} = @tariffs;
+            }
+            $model->{tariffSet} = Labelset(
+                name          => 'Tariffs',
+                list          => \@tariffs,
+                defaultFormat => 'thtar',
+            );
+        }
         if ( $model->{nonames} ) {
-            $ds->[1]{$_} =
-                $ds->[1]{$_} =~ /^NR_/ ? 'Customer group 1'
-              : $ds->[1]{$_} =~ /^LU_/ ? 'Customer group 2'
-              : 'Other customer'
-              foreach keys %{ $ds->[1] };
+            $ds->[1]{$_} = "Tariff $_" foreach keys %{ $ds->[1] };
         }
         foreach my $k ( 1 .. $model->{numTariffs} ) {
             my $v = $ds->[1]{$k};
@@ -114,15 +135,9 @@ sub processData {
                 and $v ne 'VOID'
                 and $v !~ /^\s*$/s )
             {
+                $ds->[$_]{$k} || ( $ds->[$_]{$k} = 'VOID' ) foreach 2 .. 6;
                 exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
-                  foreach 2 .. $#$ds;
-                $ds->[$_]{$k} = 'VOID'
-                  foreach
-                  grep { defined $ds->[$_]{$k} && $ds->[$_]{$k} eq '#N/A' }
-                  2 .. $#$ds;
-                $ds->[2]{$k} = 1.42
-                  if !$ds->[2]{$k}
-                  && !grep { $ds->[$_]{$k} && $ds->[$_]{$k} ne 'VOID' } 3 .. 6;
+                  foreach 7 .. $#$ds;
                 $_ && /^[0-9.]+$/s && $_ > $daysInYear && ( $daysInYear = $_ )
                   foreach $ds->[22]{$k};
                 $_ && /^[0-9.]+$/s && $_ > $hoursInRed && ( $hoursInRed = $_ )

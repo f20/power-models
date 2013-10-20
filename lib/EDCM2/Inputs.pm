@@ -207,8 +207,8 @@ sub loadFlowInputs {
     my ($model) = @_;
 
     return if $model->{method} eq 'none';
-
-    $model->{locationSet} = Labelset(
+    $model->{numLocations} ||= 16;
+    $model->{locationSet}  ||= Labelset(
         name          => 'Locations',
         list          => [ 1 .. $model->{numLocations} ],
         defaultFormat => 'thloc'
@@ -306,7 +306,7 @@ sub loadFlowInputs {
         data          => [ map { 0 } 1 .. $model->{numLocations} ],
         defaultFormat => '0hard',
         dataset       => $model->{dataset}
-    );
+    ) unless $model->{method} =~ /LRIC/i;
 
     $model->{kVArpeakG} = Dataset(
         name          => Label('Maximum demand run: generation kVAr'),
@@ -314,7 +314,7 @@ sub loadFlowInputs {
         data          => [ map { 0 } 1 .. $model->{numLocations} ],
         defaultFormat => '0hard',
         dataset       => $model->{dataset}
-    );
+    ) unless $model->{method} =~ /LRIC/i;
 
     $model->{table911} = Columnset(
         columns => [
@@ -416,7 +416,8 @@ sub tariffInputs {
 
     my ( $model, $ehvAssetLevelset, ) = @_;
 
-    $model->{tariffSet} =
+    $model->{numTariffs} ||= 16;
+    $model->{tariffSet} ||=
       $model->{useTariffNicknames}
       ? Labelset(
         name     => 'Tariffs',
@@ -425,12 +426,12 @@ sub tariffInputs {
                 list =>
                   [ map { "Nickname of tariff $_" } 1 .. $model->{numTariffs} ]
             ),
-            name          => 'Tariff selection',
+            name          => 'Tariff nicknames',
             defaultFormat => 'texthard',
             appendTo      => $model->{inputTables},
             number        => 1101,
-            data          => [ map { $_ } 1 .. $model->{numTariffs} ],
-            lines => 'Source: user preference (does not affect calculations).'
+            data          => [ 1 .. $model->{numTariffs} ],
+            lines         => 'These nicknames do not affect any calculations.',
         )
       )
       : Labelset(
@@ -568,7 +569,7 @@ EOL
         ),
         Dataset(
             name       => 'Proportion exposed to indirect cost allocation',
-            data       => [ map { '' } 1 .. $model->{numTariffs} ],
+            data       => [ map { 1 } 1 .. $model->{numTariffs} ],
             rows       => $model->{tariffSet},
             dataset    => $model->{dataset},
             validation => {

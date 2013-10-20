@@ -190,11 +190,17 @@ sub factory {
             $db = Ancillary::RevisionNumbering->connect($dbString)
               or warn "Cannot connect to $dbString";
         }
+
         foreach (@rulesets) {
             $_->{'~codeValidation'} = $sourceCodeSha1;
             delete $_->{'.'};
             $_->{revisionText} = $db->revisionText( YAML::Dump($_) ) if $db;
         }
+
+       # Keep illustrative, dataOverride, template, version and suchlike
+       # The purpose of this revision number is to find a rules file that
+       # can reproduce the same model, not just to describe the modelling rules.
+
     };
 
     $self->{list} = sub {

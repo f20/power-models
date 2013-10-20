@@ -58,7 +58,8 @@ furthering any relevant objective.
 EOL
             <<'EOL',
 
-Copyright 2009-2013 Energy Networks Association Limited and others.
+Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -150,6 +151,25 @@ sub worksheetsAndClosures {
         Notes( lines => 'General input data' )->wsWrite( $wbook, $wsheet );
         $wsheet->{nextFree} = $nextFree;
       }
+
+      ,
+
+      $model->{impactInputTables}
+      ? (
+        Impact => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   16 );
+            $wsheet->set_column( 1, 10,  40 );
+            $wsheet->set_column( 2, 250, 16 );
+            my $noLinks = delete $wbook->{noLinks};
+            $wbook->{noLinks} = 1;
+            $_->wsWrite( $wbook, $wsheet )
+              foreach @{ $model->{impactInputTables} };
+            $wbook->{noLinks} = $noLinks;
+        }
+      )
+      : (),
 
       ,
 
@@ -292,7 +312,7 @@ sub worksheetsAndClosures {
             $_->wsWrite( $wbook, $wsheet ) foreach Notes(
                 lines => 'Updated baseline data
 
-This sheet contains data to populate tables 119x in a model with a non-zero baseline.'
+This sheet contains data to populate tables 1191 to 1194 in a slave model.'
               ),
               (
                 map {
@@ -325,6 +345,7 @@ This sheet contains data to populate tables 119x in a model with a non-zero base
                   } sort { $a <=> $b }
                   keys %{ $model->{transparency}{oli} }
               );
+            $wbook->{lastSheetNumber} = $wsheet->{sheetNumber} = 48;
         }
       )
       : $model->{noOneLiners} ? ()
@@ -371,7 +392,9 @@ This sheet contains data to populate tables 119x in a model with a non-zero base
 
       : ()
 
-      , $model->{TotalsTables}
+      ,
+
+      $model->{TotalsTables}
       ? (
         'Total' => sub {
             my ($wsheet) = @_;
@@ -387,7 +410,7 @@ This sheet contains data to populate tables 119x in a model with a non-zero base
 
       ,
 
-      'Overview' => sub {
+      'Index' => sub {
 
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );

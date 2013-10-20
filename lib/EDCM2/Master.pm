@@ -66,6 +66,12 @@ use EDCM2::Summary;
 use EDCM2::Sheets;
 use EDCM2::ProcessData;
 
+sub requiredModulesForRuleset {
+    my ( $class, $ruleset ) = @_;
+    $ruleset->{transparency}
+      && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact) : ();
+}
+
 sub new {
 
     my $class = shift;
@@ -89,12 +95,6 @@ sub new {
         $model->{ldnoRevTables} = [ $model->ldnoRev ];
         return $model;
     }
-
-    $model->{numLocations} ||= 16;
-    $model->{numTariffs}   ||= 16;
-
-    print "$model->{'~datasetName'} $model->{method}: "
-      . "$model->{numLocations} locations, $model->{numTariffs} tariff pairs\n";
 
     my (
         $daysInYear,            $chargeDirect,
@@ -131,20 +131,96 @@ EOT
         $tariffNetworkSupportFactor,       $tariffDaysInYearNot,
         $tariffHoursInRedNot,              $previousChargeImport,
         $previousChargeExport,             $llfcImport,
-        $llfcExport,
+        $llfcExport,                       $actualRedDemandRate,
     ) = $model->tariffInputs($ehvAssetLevelset);
+
+    my ( $locations, $locParent, $c1, $a1d, $r1d, $a1g, $r1g ) =
+      $model->loadFlowInputs;
 
     if ( $model->{transparency} ) {
 
-        my $masterFlag = Dataset(
-            name     => 'Are all tariffs additional to the baseline?',
+        if ( $model->{transparency} =~ /impact/i ) {
+
+            $model->impactNotes;
+
+            ( $locations, $locParent, $c1, $a1d, $r1d, $a1g, $r1g ) =
+              $model->mangleLoadFlowInputs( $locations, $locParent, $c1, $a1d,
+                $r1d, $a1g, $r1g );
+
+            (
+                $tariffs,
+                $importCapacity,
+                $exportCapacityExempt,
+                $exportCapacityChargeablePre2005,
+                $exportCapacityChargeable20052010,
+                $exportCapacityChargeablePost2010,
+                $tariffSoleUseMeav,
+                $tariffLoc,
+                $tariffCategory,
+                $useProportions,
+                $activeCoincidence,
+                $reactiveCoincidence,
+                $indirectExposure,
+                $nonChargeableCapacity,
+                $activeUnits,
+                $creditableCapacity,
+                $tariffNetworkSupportFactor,
+                $tariffDaysInYearNot,
+                $tariffHoursInRedNot,
+                $previousChargeImport,
+                $previousChargeExport,
+                $llfcImport,
+                $llfcExport,
+                $actualRedDemandRate,
+                $model->{transparency},
+              )
+              = $model->mangleTariffInputs(
+                $tariffs,
+                $importCapacity,
+                $exportCapacityExempt,
+                $exportCapacityChargeablePre2005,
+                $exportCapacityChargeable20052010,
+                $exportCapacityChargeablePost2010,
+                $tariffSoleUseMeav,
+                $tariffLoc,
+                $tariffCategory,
+                $useProportions,
+                $activeCoincidence,
+                $reactiveCoincidence,
+                $indirectExposure,
+                $nonChargeableCapacity,
+                $activeUnits,
+                $creditableCapacity,
+                $tariffNetworkSupportFactor,
+                $tariffDaysInYearNot,
+                $tariffHoursInRedNot,
+                $previousChargeImport,
+                $previousChargeExport,
+                $llfcImport,
+                $llfcExport,
+              );
+
+            $model->{transparencyImpact} = 1;
+
+        }
+        else {
+            delete $model->{transparency};
+        }
+
+        $model->{transparencyMasterFlag} = Dataset(
+            name => 'Is this the master model containing all the tariff data?',
+            singleRowName => 'Enter TRUE or FALSE',
+            validation    => {
+                validate => 'list',
+                value    => [ 'TRUE', 'FALSE' ],
+            },
             data     => ['TRUE'],
             dataset  => $model->{dataset},
             appendTo => $model->{inputTables},
             number   => 1190,
         );
 
-        $model->{transparency} = Arithmetic(
+        $model->{transparency} ||= Arithmetic(
             name  => 'Weighting of each tariff for reconciliation of totals',
             lines => [
 '0 means that the tariff is active and is included in the table 119x aggregates.',
@@ -157,8 +233,8 @@ EOT
             arguments => {
                 IV1 => $tariffs,
                 IV2 => $tariffs,
-                IV3 => $masterFlag,
-                IV4 => $masterFlag,
+                IV3 => $model->{transparencyMasterFlag},
+                IV4 => $model->{transparencyMasterFlag},
             },
         );
 
@@ -237,9 +313,6 @@ EOT
         }
 
     }
-
-    my ( $locations, $locParent, $c1, $a1d, $r1d, $a1g, $r1g ) =
-      $model->loadFlowInputs;
 
     my $importCapacityUnscaled = $importCapacity;
     my $chargeableCapacity     = Arithmetic(
@@ -366,7 +439,7 @@ EOT
         arithmetic    => '=IF(IV9,IV1*IV2/(IV3+IV4+IV5),0)',
         arguments     => {
             IV1 => $tariffSoleUseMeav,
-            IV9 => $tariffSoleUseMeav,
+            IV9 => $importCapacity,
             IV2 => $importCapacity,
             IV3 => $importCapacity,
             IV4 => $exportCapacityExempt,
@@ -380,7 +453,7 @@ EOT
         arithmetic    => '=IF(IV9,IV1*IV21/(IV3+IV4+IV5),0)',
         arguments     => {
             IV1  => $tariffSoleUseMeav,
-            IV9  => $tariffSoleUseMeav,
+            IV9  => $exportCapacityChargeable,
             IV3  => $importCapacity,
             IV4  => $exportCapacityExempt,
             IV5  => $exportCapacityChargeable,
@@ -460,8 +533,10 @@ EOT
         $model->{transparency}{olo}{119101} = Arithmetic(
             name          => 'Total EDCM peak time consumption (kW)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)',
-            arguments     => {
+            arithmetic =>
+              '=IF(IV123,0,IV1)+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)',
+            arguments => {
+                IV123     => $model->{transparencyMasterFlag},
                 IV1       => $model->{transparency}{ol119101},
                 IV21_IV22 => $model->{transparency},
                 IV51_IV52 => $redUseRate,
@@ -759,8 +834,9 @@ EOT
             name          => 'Net forecast EDCM generation revenue (£/year)',
             defaultFormat => '0softnz',
             arithmetic =>
-'=IV1+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)/100+SUMPRODUCT(IV31_IV32,IV71_IV72,IV73_IV74)*IV75/100+SUMPRODUCT(IV41_IV42,IV83_IV84)*IV85/100',
+'=IF(IV123,0,IV1)+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)/100+SUMPRODUCT(IV31_IV32,IV71_IV72,IV73_IV74)*IV75/100+SUMPRODUCT(IV41_IV42,IV83_IV84)*IV85/100',
             arguments => {
+                IV123     => $model->{transparencyMasterFlag},
                 IV1       => $model->{transparency}{ol119401},
                 IV21_IV22 => $model->{transparency},
                 IV31_IV32 => $model->{transparency},
@@ -858,8 +934,9 @@ EOT
         $model->{transparency}{olo}{119402} = Arithmetic(
             name          => 'Pot (£/year)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1+SUMPRODUCT(IV11_IV12,IV15_IV16)',
+            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
             arguments     => {
+                IV123     => $model->{transparencyMasterFlag},
                 IV1       => $model->{transparency}{ol119402},
                 IV11_IV12 => $revenue3,
                 IV15_IV16 => $model->{transparency},
@@ -1009,8 +1086,9 @@ EOT
                             name => 'Revenue from demand charge 1 (£/year)',
                             defaultFormat => '0softnz',
                             arithmetic =>
-'=IV1+(SUMPRODUCT(IV64_IV65,IV31_IV32,IV33_IV34)+SUMPRODUCT(IV66_IV67,IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54)*IV9/100',
+'=IF(IV123,0,IV1)+(SUMPRODUCT(IV64_IV65,IV31_IV32,IV33_IV34)+SUMPRODUCT(IV66_IV67,IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54)*IV9/100',
                             arguments => {
+                                IV123     => $model->{transparencyMasterFlag},
                                 IV1       => $model->{transparency}{ol119403},
                                 IV31_IV32 => $capacityChargeT1,
                                 IV33_IV34 => $importCapacity,
@@ -1453,7 +1531,7 @@ EOT
             1 ? ()
             : (
                 Arithmetic(
-                    name          => "Super red units (kWh)",
+                    name          => 'Super red units (kWh)',
                     defaultFormat => '0softnz',
                     arithmetic    => '=IV1*(IV3-IV7)*IV5',
                     arguments     => {
@@ -1560,6 +1638,11 @@ EOT
 
     $model->summary( $tariffs, $revenue, $previousChargeImport, $importCapacity,
         $activeCoincidence, $charges1, );
+
+    push @{ $model->{revenueTables} },
+      $model->impactFinancialSummary( $tariffs, $thisIsTheTariffTable,
+        $actualRedDemandRate, \@revenueBitsD, @revenueBitsG, $rev2g )
+      if $model->{transparencyImpact};
 
     $model;
 
