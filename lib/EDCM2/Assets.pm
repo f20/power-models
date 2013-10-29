@@ -290,12 +290,13 @@ sub notionalAssets {
 
     my $accretion132hvcombined = Arithmetic(
         name       => 'Notional asset rate for 132kV/HV (£/kW)',
-        arithmetic => '=IF(AND(ISNUMBER(IV1),IV4),IV2,IV3)',
+        arithmetic => '=IF(ISNUMBER(IV1),IF(IV2,IV3,IV4),IV5)',
         arguments  => {
             IV1 => $accretion132hvHard,
-            IV4 => $accretion132hvHard,
             IV2 => $accretion132hvHard,
-            IV3 => $accretion,
+            IV3 => $accretion132hvHard,
+            IV4 => $accretion,
+            IV5 => $accretion,
         }
     );
 
