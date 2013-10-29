@@ -74,20 +74,22 @@ sub mangleLoadFlowInputs {
         $df2 =~ s/hard/copy/;
         my $n = SpreadsheetModel::Object::_shortName( $_[0]{name} );
         my @new;
-        push @newcol, @new = Dataset(
-            cols          => $_[0]{cols},
-            name          => $n,
-            rows          => $newLocs,
-            data          => $data,
-            defaultFormat => $df1,
-        ) unless ref $_[0] eq 'SpreadsheetModel::Constant';
-        push @allcol, my $result = Stack(
+        push @newcol,
+          @new = Dataset(
+            cols    => $_[0]{cols},
+            name    => $n,
+            rows    => $newLocs,
+            data    => $data,
+            dataset => $model->{dataset} defaultFormat => $df1,
+          ) unless ref $_[0] eq 'SpreadsheetModel::Constant';
+        push @allcol,
+          my $result = Stack(
             name          => $n,
             defaultFormat => $df2,
             rows          => $allLocs,
             cols          => $_[0]{cols},
             sources       => [ $_[0], @new, ]
-        );
+          );
         $result;
     };
     foreach (@inputs) {
