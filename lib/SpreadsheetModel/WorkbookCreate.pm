@@ -48,15 +48,43 @@ sub bgCreate {
     $pid;
 }
 
+sub _applyDataOverride {
+    my ( $dataset, $override ) = @_;
+    foreach my $itable ( keys %$override ) {
+        for (
+            my $icolumn = 1 ;
+            $icolumn < @{ $override->{$itable} } ;
+            ++$icolumn
+          )
+        {
+            foreach my $irow ( keys %{ $override->{$itable}[$icolumn] } ) {
+                $dataset->{$itable}[$icolumn]{$irow} =
+                  $override->{$itable}[$icolumn]{$irow};
+            }
+        }
+    }
+}
+
 sub create {
-    my ( $module, $fileName, $optionsref ) = @_;
-    my @optionArray = ref $optionsref eq 'ARRAY' ? @$optionsref : $optionsref;
+    my ( $module, $fileName, $instructions, $streamMaker ) = @_;
+    my @optionArray =
+      ref $instructions eq 'ARRAY' ? @$instructions : $instructions;
     my @localTime = localtime;
     $module->fixName( $fileName, \@localTime );
     my $tmpDir;
-    $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
-    mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
-    open my $handle, '>', $tmpDir ? catfile( $tmpDir, $fileName ) : $fileName;
+    $streamMaker ||= sub {
+        $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
+        mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
+        open my $handle, '>',
+          $tmpDir ? catfile( $tmpDir, $fileName ) : $fileName;
+        $handle, sub {
+            if ($tmpDir) {
+                rename catfile( $tmpDir, $fileName ), $fileName;
+                rmdir $tmpDir;
+            }
+        };
+    };
+    my ( $handle, $closer ) = $streamMaker->($fileName);
     my $wbook = $module->new($handle);
     $wbook->set_tempdir($tmpDir)
       if $tmpDir && $module !~ /xlsx/i;  # work around taint issue with IO::File
@@ -77,10 +105,18 @@ sub create {
         my $options = $optionArray[$_];
         if ( $options->{dataset} ) {
             $wbook->{noData} = !$options->{illustrative};
-            if ( my $yaml = delete $options->{dataset}{yaml} ) {
+            if ( my $yaml = delete $options->{dataset}{yaml} )
+            {    # deferred parsing
                 require YAML;
                 $options->{dataset} = YAML::Load($yaml);
             }
+            _applyDataOverride( $options->{dataset},
+                $options->{datasetOverride} )
+              if $options->{datasetOverride} && $options->{dataset};
+            $options->{dataset} =
+              _applyDataOverride( Storable::dclone( $options->{dataset} ),
+                $options->{dataOverride} )
+              if $options->{dataOverride} && $options->{dataset};
         }
         $options->{optionsColumns} = $optionsColumns if $optionsColumns;
         my $modelCount = $_ ? ".$_" : '';
@@ -229,10 +265,7 @@ sub create {
       if $multiModelSharing && ref $multiModelSharing->{finish} eq 'CODE';
 
     $wbook->close;
-    if ($tmpDir) {
-        rename catfile( $tmpDir, $fileName ), $fileName;
-        rmdir $tmpDir;
-    }
+    $closer->();
 }
 
 sub writeColourCode {

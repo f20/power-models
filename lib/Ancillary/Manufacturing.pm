@@ -68,9 +68,10 @@ sub factory {
     my ($class) = @_;
     my $self = bless {}, $class;
     my $threads1 = 2;
+    my @options;
     my ( $workbookModule, $fileExtension, @rulesets, @datasets, %files );
 
-    my $processRuleset = $self->{processRuleset} = sub {
+    my $processRuleset = sub {
         local $_ = $_[0];
         _loadModules( $_, "$_->{PerlModule}::Master" ) || return;
         $_->{PerlModule}->can('requiredModulesForRuleset')
@@ -166,8 +167,57 @@ sub factory {
         $self;
     };
 
-    $self->{override} = sub {
+    $self->{overrideRules} = sub {
         $_ = { %$_, @_ } foreach @rulesets;
+    };
+
+    $self->{overrideData} = sub {
+        my $od;
+        foreach (@_) {
+            foreach ( grep { $_ } split /\}\s*\{/s, '}' . $_ . '{' ) {
+                require JSON::PP;
+                my $d = JSON::PP::decode_json( '{' . $_ . '}' );
+                next unless ref $d eq 'HASH';
+                if ( my $or = delete $d->{rules} ) {
+                    $self->{overrideRules}
+                      ->( ref $or eq 'ARRAY' ? @$or : %$or );
+                }
+                while ( my ( $tab, $dat ) = each %$d ) {
+                    if ( ref $dat eq 'HASH' ) {
+                        while ( my ( $row, $rd ) = each %$dat ) {
+                            next unless ref $rd eq 'ARRAY';
+                            for ( my $col = 0 ; $col < @$rd ; ++$col ) {
+                                $od->{$tab}[ $col + 1 ]{$row} = $rd->[$col];
+                            }
+                        }
+                    }
+                    elsif ( ref $dat eq 'ARRAY' ) {
+                        for ( my $col = 0 ; $col < @$dat ; ++$col ) {
+                            my $cd = $dat->[$col];
+                            next unless ref $cd eq 'HASH';
+                            while ( my ( $row, $v ) = each %$cd ) {
+                                $od->{$tab}[$col]{$row} = $v;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return unless $od;
+        my ( $key, $hash );
+        eval {
+            require Digest::SHA1;
+            $key =
+              Digest::SHA1::sha1(
+                JSON::PP->new->canonical(1)->utf8->encode($od) );
+            $hash = substr( Digest::SHA1::sha1_hex($key), 5, 8 );
+        };
+
+        foreach (@datasets) {
+            $_->{datasetOverride} = $od;
+            $_->{'~datasetName'} .= "-$hash" if defined $_->{'~datasetName'};
+        }
+        ( $key, $hash );
     };
 
     $self->{validate} = sub {
@@ -286,21 +336,25 @@ sub factory {
         } @_;
     };
 
-    my $run = $self->{run} = sub {
-        map { $workbookModule->create( $_, $files{$_} ); $_; } @_;
+    $self->{addOptions} = sub {
+        push @options, @_;
+    };
+
+    $self->{run} = sub {
+        $workbookModule->create( $_, $files{$_}, @options ) foreach @_;
     };
 
     $self->{setThreads} = sub {
         my ($threads) = @_;
-        $threads1 = $threads - 1 if $threads > 0 && $threads < 1_000_000;
+        $threads1 = $threads - 1 if $threads > 0 && $threads < 1_000;
     };
 
     $self->{runParallel} = sub {
-        require Ancillary::ParallelRunning or goto &$run;
+        require Ancillary::ParallelRunning or goto &{ $self->{run} };
         foreach (@_) {
             Ancillary::ParallelRunning::waitanypid($threads1);
             Ancillary::ParallelRunning::registerpid(
-                $workbookModule->bgCreate( $_, $files{$_} ) );
+                $workbookModule->bgCreate( $_, $files{$_}, @options ) );
         }
         Ancillary::ParallelRunning::waitanypid(0);
     };
@@ -319,31 +373,11 @@ sub _mergeRuleData {
         my @result = map { _mergeRuleData( $rule, $_ ); } @$data;
         return wantarray ? @result : \@result;
     }
-    my $dataset;
-    if ( $rule->{dataOverride} ) {
-        $dataset = Storable::dclone( $data->{dataset} );
-        foreach my $itable ( keys %{ $rule->{dataOverride} } ) {
-            for (
-                my $icolumn = 1 ;
-                $icolumn < @{ $rule->{dataOverride}{$itable} } ;
-                ++$icolumn
-              )
-            {
-                foreach my $irow (
-                    keys %{ $rule->{dataOverride}{$itable}[$icolumn] } )
-                {
-                    $dataset->{$itable}[$icolumn]{$irow} =
-                      $rule->{dataOverride}{$itable}[$icolumn]{$irow};
-                }
-            }
-        }
-    }
-    my %options = ( %$rule, %$data, $dataset ? ( dataset => $dataset ) : (), );
-    {
-        my %opt = %options;
-        delete $opt{dataset};
-        $options{yaml} = YAML::Dump( \%opt );
-    }
+    my %options = ( %$rule, %$data );
+    my %opt = %options;
+    delete $opt{$_} foreach qw(dataset datasetOverride);
+    $opt{password} = "***" if $opt{password};
+    $options{yaml} = YAML::Dump( \%opt );
     \%options;
 }
 

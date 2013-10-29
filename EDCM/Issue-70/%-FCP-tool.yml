@@ -1,0 +1,17 @@
+---
+.: MIG issue 70 customer scenario tool (FCP)
+PerlModule: EDCM2
+illustrative: 1
+inputData: dataSheet
+lockedInputs: 1
+lowerIntermittentCredit: 1
+method: FCP
+noNegative: 1
+numExtraLocations: 12
+numExtraTariffs: 2
+numTariffs: 2
+protect: 1
+summaries: 1
+transparency: impact
+validation: lenientnomsg
+wantTables: 911
