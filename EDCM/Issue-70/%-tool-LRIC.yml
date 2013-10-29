@@ -9,7 +9,7 @@ method: LRIC
 noNegative: 1
 numExtraLocations: 12
 numExtraTariffs: 2
-numTariffs: 2
+numTariffs: 0
 protect: 1
 summaries: 1
 transparency: impact

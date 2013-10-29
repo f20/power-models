@@ -416,7 +416,8 @@ sub tariffInputs {
 
     my ( $model, $ehvAssetLevelset, ) = @_;
 
-    $model->{numTariffs} ||= 16;
+    $model->{numTariffs} ||= $model->{transparency}
+      && $model->{transparency} =~ /impact/i ? 0 : 16;
     $model->{tariffSet} ||=
       $model->{useTariffNicknames}
       ? Labelset(

@@ -304,9 +304,9 @@ sub factory {
             $spreadsheetFile .= '-' . $rule->{revisionText}
               if $rule->{revisionText};
             $spreadsheetFile =~ s/%/@datasets
-  . '-datasets-'
-  . ( $datasets[0]{'~datasetName'} =~ m$([0-9]{4}-[0-9]{2})$ )[0]
-/e;
+              . '-datasets-'
+              . ( $datasets[0]{'~datasetName'} =~ m$([0-9]{4}-[0-9]{2})$ )[0]
+            /e;
             my $number = '';
             $number--
               while $files{ $spreadsheetFile . $number . $fileExtension };
