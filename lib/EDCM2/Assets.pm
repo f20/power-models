@@ -137,11 +137,12 @@ sub notionalAssets {
         $useProportions, $ehvAssetLevelset,
     ) = @_;
 
-    push @{ $model->{tablesG} }, my $customerCategory = Arithmetic(
+    push @{ $model->{tablesG} },
+      my $customerCategory = Arithmetic(
         name       => 'Tariff type and category',
         arithmetic => '="D"&TEXT(IV1,"0000")',
         arguments  => { IV1 => $tariffCategory }
-    );
+      );
 
     my $lossFactors = Dataset(
         name => 'Loss adjustment factor to transmission'
@@ -263,7 +264,8 @@ sub notionalAssets {
         }
     );
 
-    push @{ $model->{calc1Tables} }, my $accretion = Arithmetic(
+    push @{ $model->{calc1Tables} },
+      my $accretion = Arithmetic(
         name       => 'Notional asset rate (£/kW)',
         arithmetic => '=IF(IV1,IV2/IV3/IV4,0)',
         arguments  => {
@@ -272,7 +274,7 @@ sub notionalAssets {
             IV3 => $cdcmUse,
             IV4 => $lossFactors
         }
-    );
+      );
 
     my $accretion132hvHard = Dataset(
         name => 'Override notional asset rate for 132kV/HV (£/kW)',
@@ -288,9 +290,10 @@ sub notionalAssets {
 
     my $accretion132hvcombined = Arithmetic(
         name       => 'Notional asset rate for 132kV/HV (£/kW)',
-        arithmetic => '=IF(ISNUMBER(IV1),IV2,IV3)',
+        arithmetic => '=IF(AND(ISNUMBER(IV1),IV4),IV2,IV3)',
         arguments  => {
             IV1 => $accretion132hvHard,
+            IV4 => $accretion132hvHard,
             IV2 => $accretion132hvHard,
             IV3 => $accretion,
         }
@@ -1091,7 +1094,8 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
         defaultFormat => $tariffSUexport->{defaultFormat}
       );
 
-    push @{ $model->{calc1Tables} }, my $totalAssets = Arithmetic(
+    push @{ $model->{calc1Tables} },
+      my $totalAssets = Arithmetic(
         name          => 'All notional assets in EDCM (£)',
         arithmetic    => '=IV5+IV6+IV7+IV8',
         defaultFormat => '0softnz',
@@ -1101,7 +1105,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             IV7 => $totalAssetsConsumption,
             IV8 => $totalAssetsGenerationSoleUse,
         }
-    );
+      );
     $model->{transparency}{oli}{1229} = $totalAssets if $model->{transparency};
 
     my $assetsCapacityDoubleCooked =

@@ -87,7 +87,7 @@
     _column: HV customer
 1132:
   - _table: 1132. Override notional asset rate for 132kV/HV (£/kW)
-  - Override notional asset rate for 132kV HV kW: 0
+  - Override notional asset rate for 132kV HV kW: 'No override'
     _column: 132kV/HV
 1133:
   - _table: 1133. Maximum network use factor

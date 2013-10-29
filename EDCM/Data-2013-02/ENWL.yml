@@ -91,7 +91,7 @@
     _column: 132kV/HV
 1133:
   - _table: 1133. Maximum network use factor
-  - Maximum network use factor: '#VALUE!'
+  - Maximum network use factor: ''
     _column: GSP
   - Maximum network use factor: 2.246
     _column: 132kV circuits
@@ -105,7 +105,7 @@
     _column: 132kV/HV
 1134:
   - _table: 1134. Minimum network use factor
-  - Minimum network use factor: '#VALUE!'
+  - Minimum network use factor: ''
     _column: GSP
   - Minimum network use factor: 0.273
     _column: 132kV circuits
