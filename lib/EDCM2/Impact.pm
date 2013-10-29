@@ -410,62 +410,46 @@ sub impactNotes {
 EDCM non-forecasting scenario analysis tool
 
 
+This tool is intended to illustrate the use of system charges that a distributor would levy on a
+supplier under an EHV Distribution Charging Methodology (EDCM).  Additional or different charges
+might be applied under derogations from the charging methodology, in the case of out-of-area or
+IDNO connections, or for services other than use of system.
+
+Charges between supplier and customer are a bilateral contractual matter.  A supplier may apply
+its own charges in addition to, or instead of, the charges illustrated in this tool.
+
+UNDER NO CIRCUMSTANCES SHOULD YOU HOLD ANY SUPPLIER OR ANY DISTRIBUTOR RESPONSIBLE FOR ANY DATA
+OR RESULTS IN THIS TOOL.  FOR INFORMATION ABOUT APPLICABLE CHARGES, CONTACT YOUR ACCOUNT MANAGER.
+
+This workbook is populated with data for one year and does not provide any forecasts.  Please
+speak to your distributor or supplier if you would like to discuss possible future charges.
+
+CHARGES MAY VARY.  THIS TOOL IS FOR SCENARIO ANALYSIS AND IS NOT DESIGNED FOR FORECASTING.
+
 This workbook has been developed by the DCMF MIG, a subgroup of the electricity industry's
 Distribution Charging Methodologies Forum, and by Reckon LLP, an independent advisory firm, as a
-tool to illustrate an electricity distribution use of system charging methodology.  It builds on a
-charging model developed by distributors through the Energy Networks Association.
+tool to illustrate an electricity distribution use of system charging methodology.  It builds on
+a charging model developed by distributors through the Energy Networks Association. Reckon LLP
+is grateful for the assistance that distributors and suppliers have provided in the development
+of this tool, but mistakes are the sole responsibility of Reckon LLP.
 
-This tool is intended to illustrate the use of system charges that a distributor would levy on a
-supplier in cases where the relevant charging methodology applies.  Additional or different charges
-might be applied under derogations from the charging methodology, in the case of out-of-area or IDNO
-connections, or for services other than use of system.
+Whilst the authors have tried to ensure that the information in this tools is correct, they make
+no warranty as to the correctness, currency, timeliness, quality, content or completeness of the
+information, or its relevance to your circumstances.
 
-CHARGES MAY VARY.  THIS TOOL IS FOR SCENARIO ANALYSIS ONLY.  IT IS NOT DESIGNED FOR FORECASTING.
+THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-The charges that a supplier levies on its customer are a private contractual matter between
-them.  If so agreed, it is legitimate for the supplier to apply its own charges in addition to,
-or instead of, the charges illustrated in this tool.
-
-Reckon LLP is grateful for the assistance that distributors and suppliers have provided in the
-development of this tool, but mistakes are the sole responsibility of Reckon LLP.
-
-IN NO CIRCUMSTANCES SHOULD YOU HOLD ANY SUPPLIER OR ANY DISTRIBUTOR RESPONSIBLE
-IN ANY WAY FOR ANY DATA OR RESULTS IN THIS TOOL.  FOR INFORMATION ABOUT THE
-CHARGES APPLICABLE TO YOU, CONTACT YOUR ACCOUNT MANAGER.
-
-This workbook is populated with data for one particular year.  Forecasting
-future inputs into this charging methodology is difficult.  Please speak to your
-distributor or supplier if you would like to discuss possible future charges.
-
-Whilst Reckon LLP believes the information to be correct when produced, it makes
-no warranty as to the correctness, currency, timeliness, quality, content or
-completeness of the information, or its relevance to your circumstances.
-
-THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-This tool illustrates an EHV Distribution Charging Methodology (EDCM) which was developed
-pursued to licence conditions imposed on distributors by Ofgem (a UK Government department,
-www.ofgem.gov.uk). The charging methodology was approved by Ofgem, changes to it require Ofgem's
-approval, and the arrangements for the governance of the charging methodology are under Ofgem's
-control. Reckon LLP does not approve of this charging methodology or of Ofgem's conduct in
-relation to the development or governance of the methodology. If you have any comments or
-complaints about the charging methodology or its governance, please contact Ofgem.  As of
-October 2013 the relevant officials at Ofgem seemed to be:
-* Hannah Nixon, Senior Partner, hannah.nixon@ofgem.gov.uk, 020 7901 7165.
-* Andy Burgess, Associate Partner, Andy.Burgess@ofgem.gov.uk, 020 7901 7159.
-* Iain Morgan, Senior Regulatory Economist, Iain.Morgan@ofgem.gov.uk, 020 7901 7030.
-
-For comments on the user interface of this tool, or if you experience any practical problem in using
-this tool, please contact Franck Latrémolière at Reckon LLP, f20@reckon.co.uk or 020 7841 5858.
+Reckon LLP does not approve of the EDCM charging methodologies, or of Ofgem's conduct in
+relation to the development or governance of these methodologies. For comments on the user
+interface of this tool, or if you experience any practical problem in using this tool, please
+contact Franck Latrémolière at f20@reckon.co.uk or http://dcmf.co.uk/franck.html.
 
 EOL
 }
