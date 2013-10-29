@@ -76,11 +76,12 @@ sub mangleLoadFlowInputs {
         my @new;
         push @newcol,
           @new = Dataset(
-            cols    => $_[0]{cols},
-            name    => $n,
-            rows    => $newLocs,
-            data    => $data,
-            dataset => $model->{dataset} defaultFormat => $df1,
+            cols          => $_[0]{cols},
+            name          => $n,
+            rows          => $newLocs,
+            data          => $data,
+            dataset       => $model->{dataset},
+            defaultFormat => $df1,
           ) unless ref $_[0] eq 'SpreadsheetModel::Constant';
         push @allcol,
           my $result = Stack(
