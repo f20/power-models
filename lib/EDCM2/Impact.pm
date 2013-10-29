@@ -343,7 +343,8 @@ sub impactFinancialSummary {
           )
     } grep { $_ } @{ $model->{summaryInformationColumns} };
     push @suminfocols, Arithmetic(
-        name          => 'Difference (£/year)',
+        name => 'Difference due to super-red consumption'
+          . ' and rounding errors (£/year)',
         defaultFormat => '0softnz',
         arithmetic    => join( '',
             '=IV1',
@@ -415,32 +416,25 @@ sub impactNotes {
 EDCM non-forecasting scenario analysis tool
 
 
-This tool is intended to illustrate the use of system charges that a distributor would levy on a
-supplier under an EHV Distribution Charging Methodology (EDCM).  Additional or different charges
-might be applied under derogations from the charging methodology, in the case of out-of-area or
-IDNO connections, or for services other than use of system.
+A user manual is available for this tool at http://dcmf.co.uk/edcm-tool.html.
+
+This tool is intended to illustrate the use of system charges that a distributor might levy on a
+supplier under an EHV Distribution Charging Methodology (EDCM).  Other charges might be applied
+under derogations, for out-of-area or IDNO connections, or for services other than use of system.
 
 Charges between supplier and customer are a bilateral contractual matter.  A supplier may apply
-its own charges in addition to, or instead of, the charges illustrated in this tool.
-
-UNDER NO CIRCUMSTANCES SHOULD YOU HOLD ANY SUPPLIER OR ANY DISTRIBUTOR RESPONSIBLE FOR ANY DATA
-OR RESULTS IN THIS TOOL.  FOR INFORMATION ABOUT APPLICABLE CHARGES, CONTACT YOUR ACCOUNT MANAGER.
+its own charges in addition to, or instead of, the charges that this tool tries to illustrate.
 
 This workbook is populated with data for one year and does not provide any forecasts.  Please
 speak to your distributor or supplier if you would like to discuss possible future charges.
 
-CHARGES MAY VARY.  THIS TOOL IS FOR SCENARIO ANALYSIS AND IS NOT DESIGNED FOR FORECASTING.
+UNDER NO CIRCUMSTANCES SHOULD YOU HOLD ANY SUPPLIER OR ANY DISTRIBUTOR RESPONSIBLE FOR ANY DATA
+OR RESULTS IN THIS TOOL.  FOR INFORMATION ABOUT APPLICABLE CHARGES, CONTACT YOUR ACCOUNT MANAGER.
 
-This workbook has been developed by the DCMF MIG, a subgroup of the electricity industry's
-Distribution Charging Methodologies Forum, and by Reckon LLP, an independent advisory firm, as a
-tool to illustrate an electricity distribution use of system charging methodology.  It builds on
-a charging model developed by distributors through the Energy Networks Association. Reckon LLP
-is grateful for the assistance that distributors and suppliers have provided in the development
-of this tool, but mistakes are the sole responsibility of Reckon LLP.
+CHARGES MAY VARY.  THIS TOOL IS NOT DESIGNED FOR FORECASTING.
 
-Whilst the authors have tried to ensure that the information in this tools is correct, they make
-no warranty as to the correctness, currency, timeliness, quality, content or completeness of the
-information, or its relevance to your circumstances.
+WHILST THE AUTHORS HAVE TRIED TO ENSURE ACCURACY, THEY MAKE NO WARRANTY AS TO THE CORRECTNESS,
+CURRENCY, TIMELINESS, QUALITY OR COMPLETENESS OF THIS TOOL OR ITS RELEVANCE TO YOUR CIRCUMSTANCES.
 
 THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
@@ -451,10 +445,15 @@ BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
 STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Reckon LLP does not approve of the EDCM charging methodologies, or of Ofgem's conduct in
-relation to the development or governance of these methodologies. For comments on the user
-interface of this tool, or if you experience any practical problem in using this tool, please
-contact Franck Latrémolière at f20@reckon.co.uk or http://dcmf.co.uk/franck.html.
+This tool has been developed by the DCMF MIG, a subgroup of the electricity industry's
+Distribution Charging Methodologies Forum, and by Reckon LLP, an independent advisory firm.  It
+builds on the charging models developed by distributors through the Energy Networks Association.
+Reckon LLP is grateful for the assistance that distributors and suppliers have provided in the
+development of this tool.  Mistakes are the sole responsibility of Reckon LLP.
+
+For any comments about this tool, contact Franck Latrémolière, http://dcmf.co.uk/franck.html or
+f20@reckon.co.uk. Reckon LLP does not approve of the EDCM charging methodologies illustrated by
+this tool, or of Ofgem's conduct in relation to the governance of these methodologies. 
 
 EOL
 }
