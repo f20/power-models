@@ -92,7 +92,7 @@ foreach (@ARGV) {
         warn "Cannot handle this argument: $_";
     }
 }
-$maker->{override}->(%override) if %override;
+$maker->{overrideRules}->(%override) if %override;
 $maker->{setThreads}->($threads);
 $maker->{validate}
   ->( $perl5dir, grep { -e $_ } catdir( $homedir, 'X_Revisions' ) );

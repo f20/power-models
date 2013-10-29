@@ -230,7 +230,9 @@ sub mangleTariffInputs {
                     cols => $_->{cols},
                     name => ( $n =~ /divided by/i ? 'DNO assumption for ' : '' )
                       . $n,
-                    $df1 =~ /^text/ ? ( defaultValue => ' ' ) : (),
+                    $df1 =~ /^text/             ? ( defaultValue => ' ' )
+                    : $n =~ /capacity \(kVA\)$/ ? ( defaultValue => 'VOID' )
+                    : (),
                     arguments     => { IV1 => $_ },
                     defaultFormat => $df1,
                 ),
