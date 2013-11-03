@@ -18,19 +18,23 @@ BEGIN {
 }
 use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 
-require SpreadsheetModel::Workbook;
-my $workbookModule = 'SpreadsheetModel::Workbook';
-my $fileExtension  = '.xls';
-if ( grep { /^-+xlsx/i } @ARGV ) {
-    $workbookModule = 'SpreadsheetModel::WorkbookXLSX';
-    $fileExtension .= 'x';
-    require SpreadsheetModel::WorkbookXLSX;
-}
+use Test::More tests => 4;
+ok( newTestArea('tb1.xls') );
+ok( !eval { mustCrash20121201_1( newTestArea('tb2.xls') ); } && $@ );
+ok( !eval { mustCrash20130223_1( newTestArea('tb3.xls') ); } && $@ );
+ok( !eval { mustCrash20130223_2( newTestArea('tb4.xls') ); } && $@ );
+
+system 'grep ^\  README.md | while read x; do $x; done' if -f 'README.md';
 
 sub newTestArea {
     my ( $wbook, $wsheet, @formats ) = @_;
-    $wbook ||= 'Test workbook' . $fileExtension;
     unless ( UNIVERSAL::can( $wbook, 'add_worksheet' ) ) {
+        require SpreadsheetModel::Workbook;
+        my $workbookModule = 'SpreadsheetModel::Workbook';
+        if ( $wbook =~ /\.xlsx$/is ) {
+            $workbookModule = 'SpreadsheetModel::WorkbookXLSX';
+            require SpreadsheetModel::WorkbookXLSX;
+        }
         $wbook = $workbookModule->new($wbook);
         $wbook->setFormats(@formats);
     }
@@ -41,12 +45,6 @@ sub newTestArea {
 }
 
 use SpreadsheetModel::Shortcuts ':all';
-
-use Test::More tests => 4;
-ok( newTestArea('tb1.xls') );
-ok( !eval { mustCrash20121201_1( newTestArea('tb2.xls') ); } && $@ );
-ok( !eval { mustCrash20130223_1( newTestArea('tb3.xls') ); } && $@ );
-ok( !eval { mustCrash20130223_2( newTestArea('tb4.xls') ); } && $@ );
 
 sub mustCrash20121201_1 {
     my ( $wbook, $wsheet ) = @_;

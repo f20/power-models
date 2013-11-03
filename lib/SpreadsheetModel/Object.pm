@@ -134,7 +134,7 @@ sub getCore {
     $self->{core} = bless { name => "$self->{name}" }, ref $self;
     $self->{core}{$_} =
         UNIVERSAL::can( $self->{$_}, 'getCore' ) ? $self->{$_}->getCore
-      : ref $self->{$_} eq 'ARRAY' ?  $self->{$_}
+      : ref $self->{$_} eq 'ARRAY' ? $self->{$_}
       : "$self->{$_}"
       foreach grep { defined $self->{$_}; } qw(defaultFormat rows cols);
     $self->populateCore;

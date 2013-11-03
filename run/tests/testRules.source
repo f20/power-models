@@ -1,1 +1,0 @@
-run/make.pl -xlsx Blank.yml */%*.yml */*/%*.yml
