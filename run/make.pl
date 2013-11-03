@@ -64,7 +64,11 @@ foreach (@ARGV) {
         elsif (/^-+x/is)         { $maker->{useXLSX}->(); }
         elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
         elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
+        elsif (/^-+(html|perl|yaml)/is) {
+            $override{ 'Export' . ucfirst( lc($1) ) } = 1;
+        }
         elsif (/^-+defaultcol/is)    { $override{defaultColours} = 1; }
+        elsif (/^-+orange/is)        { $override{colour}         = 'orange'; }
         elsif (/^-+debug/is)         { $override{debug}          = 1; }
         elsif (/^-+password=(.+)/is) { $override{password}       = $1; }
         elsif (/^-+single/is)        { $threads                  = 1; }
@@ -92,7 +96,7 @@ foreach (@ARGV) {
         warn "Cannot handle this argument: $_";
     }
 }
-$maker->{overrideRules}->(%override) if %override;
+$maker->{ overrideRules }->(%override) if %override;
 $maker->{setThreads}->($threads);
 $maker->{validate}
   ->( $perl5dir, grep { -e $_ } catdir( $homedir, 'X_Revisions' ) );
