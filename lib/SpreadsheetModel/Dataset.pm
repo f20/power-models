@@ -55,7 +55,7 @@ sub populateCore {
 
 sub wsUrl {
     my ( $self, $wb ) = @_;
-    return unless $self->{$wb};
+    return unless $self->{$wb} && $self->lastRow > -1;
     my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
     my $ce = xl_rowcol_to_cell( ( $ro || 1 ) - 1, $co );
     my $wn = $wo ? $wo->get_name : die 'BROKEN LINK';
@@ -508,12 +508,15 @@ sub wsWrite {
     elsif ( !exists $self->{singleColName} ) {
         my $srn = _shortNameRow $self->{name};
         $srn =~ s/^[0-9]+[a-z]*\.\s+//i;
-        $srn =~ s/\s*\(copy\)$//i;         # hacky - should use Label shortName?
+        $srn =~ s/\s*\(copy\)$//i;    # hacky - should use Label shortName?
         $ws->write( $row - 1, $col, $srn, $wb->getFormat('thc') );
     }
     elsif ( $self->{singleColName} ) {
-        $ws->write( $row - 1, $col, _shortNameRow( $self->{singleColName} ),
-            $wb->getFormat('th') );
+        $ws->write(
+            $row - 1, $col,
+            _shortNameRow( $self->{singleColName} ),
+            $wb->getFormat('th')
+        );
     }
 
     unless ( @dataAreHere || $self->{noRowLabels} ) {
@@ -537,8 +540,11 @@ sub wsWrite {
             $ws->write( $row, $col - 1, $srn, $wb->getFormat('th') );
         }
         elsif ( $self->{singleRowName} ) {
-            $ws->write( $row, $col - 1, _shortNameRow( $self->{singleRowName} ),
-                $wb->getFormat('th') );
+            $ws->write(
+                $row, $col - 1,
+                _shortNameRow( $self->{singleRowName} ),
+                $wb->getFormat('th')
+            );
         }
     }
 

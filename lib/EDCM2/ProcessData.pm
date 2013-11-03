@@ -66,7 +66,8 @@ sub processData {
         $model->{numLocations} =
           (      $model->{randomise}
               || $model->{small}
-              || $model->{numLocations} ? 0 : 16 ) + $max;
+              || defined $model->{numLocations} ? 0 : 16 ) +
+          $max;
         my $ds = $model->{dataset}{
             $model->{method} =~ /FCP/i
             ? 911
@@ -110,7 +111,7 @@ sub processData {
             }
             else {
                 @tariffs = sort { $a <=> $b } keys %tariffs,
-                  $model->{numTariffs} ? () : ( $max + 1 .. $max + 16 );
+                  defined $model->{numTariffs} ? () : ( $max + 1 .. $max + 16 );
                 push @tariffs, $max + 1
                   unless $model->{transparency}
                   && $model->{transparency} =~ /impact/i

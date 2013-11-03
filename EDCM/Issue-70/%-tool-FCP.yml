@@ -9,6 +9,7 @@ method: FCP
 noNegative: 1
 numExtraLocations: 12
 numExtraTariffs: 2
+numLocations: 2
 numTariffs: 0
 protect: 1
 summaries: 1

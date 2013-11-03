@@ -61,6 +61,14 @@ sub wsWrite {
 
     return @{ $self->{$wb} }{qw(worksheet row col)} if $self->{$wb};
 
+    if (   $self->{location}
+        && $wb->{ $self->{location} } )
+    {
+        return $self->wsWrite( $wb, $wb->{ $self->{location} }, undef, undef,
+            1 )
+          if $wb->{ $self->{location} } != $ws;
+    }
+
     ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )
       unless defined $row && defined $col;
 

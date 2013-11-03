@@ -145,7 +145,14 @@ sub worksheetsAndClosures {
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
         $_->wsWrite( $wbook, $wsheet )
-          foreach sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
+          foreach $model->{method} eq 'none' ? () : Notes(
+            lines    => 'Power flow input data',
+            location => $model->{method} =~ /LRIC/i
+            ? 913
+            : 911,
+          ),
+          Notes( lines => 'Tariff input data', location => 935, ),
+          sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
           @{ $model->{inputTables} };
         my $nextFree = delete $wsheet->{nextFree};
         Notes( lines => 'General input data' )->wsWrite( $wbook, $wsheet );
@@ -190,9 +197,7 @@ sub worksheetsAndClosures {
                 $wsheet->set_column( 2, 2,   20 );
                 $wsheet->set_column( 3, 3,   35 );
                 $wsheet->set_column( 4, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Power flow input data', ),
-                  $model->{table911};
+                $_->wsWrite( $wbook, $wsheet ) foreach $model->{table911};
             }
           )
 
@@ -207,9 +212,7 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 2, 7,   20 );
             $wsheet->set_column( 8, 8,   50 );
             $wsheet->set_column( 9, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Tariff input data', ),
-              $model->{table935};
+            $_->wsWrite( $wbook, $wsheet ) foreach $model->{table935};
           }
 
         ,
