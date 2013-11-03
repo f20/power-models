@@ -105,8 +105,7 @@ sub requestForwardTree {
                 }
             };
             push @next, grep {
-                if ( exists $map{ 0 + $_ } )
-                {
+                if ( exists $map{ 0 + $_ } ) {
                     ();
                 }
                 else {
@@ -134,8 +133,8 @@ sub getCore {
     return $self->{core} if $self->{core};
     $self->{core} = bless { name => "$self->{name}" }, ref $self;
     $self->{core}{$_} =
-      UNIVERSAL::can( $self->{$_}, 'getCore' )
-      ? $self->{$_}->getCore
+        UNIVERSAL::can( $self->{$_}, 'getCore' ) ? $self->{$_}->getCore
+      : ref $self->{$_} eq 'ARRAY' ?  $self->{$_}
       : "$self->{$_}"
       foreach grep { defined $self->{$_}; } qw(defaultFormat rows cols);
     $self->populateCore;

@@ -106,7 +106,18 @@ sub fudge41 {
         vector        => $agreedCapacity
       );
 
-    my $indirectAppRate = Arithmetic(
+    my $indirectAppRate = $model->{legacy201}
+      ? Arithmetic(
+        name       => 'Indirect costs application rate',
+        arithmetic => '=IF(IV2,IV3/SUMPRODUCT(IV4_IV5,IV64_IV65),0)',
+        arguments  => {
+            IV2       => $indirect,
+            IV3       => $indirect,
+            IV4_IV5   => $fudgeIndirect,
+            IV64_IV65 => $agreedCapacity,
+        },
+      )
+      : Arithmetic(
         name       => 'Indirect costs application rate',
         arithmetic => '=IF(IV2,IV3/IV4,0)',
         arguments  => {
@@ -114,7 +125,7 @@ sub fudge41 {
             IV3 => $indirect,
             IV4 => $totalIndirectFudge,
         },
-    );
+      );
     $model->{transparency}{oli}{1262} = $indirectAppRate
       if $model->{transparency};
 
@@ -175,7 +186,18 @@ sub fudge41 {
         source        => $slope
       );
 
-    my $fixedAdderRate = Arithmetic(
+    my $fixedAdderRate = $model->{legacy201}
+      ? Arithmetic(
+        name       => 'Fixed adder ex indirects application rate',
+        arithmetic => '=IF(IV9,IV1*IV2/SUM(IV4_IV5),0)',
+        arguments  => {
+            IV1     => $ynonFudge41,
+            IV2     => $fixedAdderAmount,
+            IV9     => $fixedAdderAmount,
+            IV4_IV5 => $slope,
+        },
+      )
+      : Arithmetic(
         name       => 'Fixed adder ex indirects application rate',
         arithmetic => '=IF(IV9,IV1*IV2/IV4,0)',
         arguments  => {
@@ -184,7 +206,7 @@ sub fudge41 {
             IV9 => $fixedAdderAmount,
             IV4 => $totalSlope,
         },
-    );
+      );
     $model->{transparency}{oli}{1261} = $fixedAdderRate
       if $model->{transparency};
 
@@ -325,13 +347,22 @@ sub demandScaling41 {
         }
     );
 
-    my $demandScaling = Arithmetic(
+    my $demandScaling =
+      $model->{legacy201}
+      ? Arithmetic(
+        name          => 'Annual charge on assets',
+        defaultFormat => '%soft',
+        arithmetic    => '=IF(IV4,IV1/SUM(IV2_IV3),0)',
+        arguments =>
+          { IV1 => $shortfall, IV4 => $shortfall, IV2_IV3 => $slopeCapacity, }
+      )
+      : Arithmetic(
         name          => 'Annual charge on assets',
         defaultFormat => '%soft',
         arithmetic    => '=IF(IV4,IV1/IV2,0)',
         arguments =>
           { IV1 => $shortfall, IV4 => $shortfall, IV2 => $totalSlopeCapacity, }
-    );
+      );
     $model->{transparency}{oli}{1258} = $demandScaling
       if $model->{transparency};
 
