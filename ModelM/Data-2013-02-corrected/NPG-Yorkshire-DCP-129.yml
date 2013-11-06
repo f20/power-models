@@ -5,11 +5,11 @@
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
-  - Company charging year data version: February 2013 min change
+  - Company charging year data version: February 2013 DCP 129
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to show what would have happened if only the HV split had been updated.
+      This dataset shows what I think might happen when putting the raw data in the DCP 129 model.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.144
@@ -29,9 +29,9 @@
   - DPCR4 aggregate allowances: Aggregated from annual data
 1315:
   - _table: 1315. Analysis of allowed revenue for 2007/2008
-  - Analysis of allowed revenue for 2007 2008: 252625700
+  - Analysis of allowed revenue for 2007 2008: 240898100
     _column: Total revenue
-  - Analysis of allowed revenue for 2007 2008: 3380697
+  - Analysis of allowed revenue for 2007 2008: -625950
     _column: Net incentive revenue
 1320:
   - _table: 1320. Units flowing
