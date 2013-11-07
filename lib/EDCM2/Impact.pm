@@ -416,14 +416,13 @@ sub impactNotes {
 EDCM non-forecasting scenario analysis tool
 
 
-A user manual is available for this tool at http://dcmf.co.uk/edcm-tool.html.
-
 This tool is intended to illustrate the use of system charges that a distributor might levy on a
-supplier under an EHV Distribution Charging Methodology (EDCM).  Other charges might be applied
-under derogations, for out-of-area or IDNO connections, or for services other than use of system.
+supplier under an EHV Distribution Charging Methodology (EDCM).
 
 Charges between supplier and customer are a bilateral contractual matter.  A supplier may apply
 its own charges in addition to, or instead of, the charges that this tool tries to illustrate.
+Furthermore, different charges might be applied by distributors under the CDCM, under
+derogations, for out-of-area or IDNO connections, or for services other than use of system.
 
 This workbook is populated with data for one year and does not provide any forecasts.  Please
 speak to your distributor or supplier if you would like to discuss possible future charges.
