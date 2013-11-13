@@ -270,8 +270,8 @@ one of its working groups.  Only the DCUSA Panel and its working groups have aut
 material as meeting their requirements.  Reckon LLP makes no representation about the suitability of this
 material for the purposes of complying with any licence conditions or furthering any relevant objective.
 EOL
-            <<EOL,
-  $model->illustrativeNotice, $model->{noLinks} ? () : <<EOL,
+            $model->illustrativeNotice,
+            $model->{noLinks} ? () : <<EOL,
 
 This workbook is structured as a series of named and numbered tables. There is a list of tables below, with
 hyperlinks.  Above each calculation table, there is a description of the calculations made, and a hyperlinked
@@ -286,6 +286,7 @@ EOL
 }
 
 sub illustrativeNotice {
+    my ($model) = @_;
     $model->{colour} && $model->{colour} =~ /gold/ ? <<EOL :
 
 UNLESS STATED OTHERWISE, ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
