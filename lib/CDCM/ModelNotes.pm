@@ -38,14 +38,18 @@ sub generalNotes {
     Notes(
         name  => 'Overview',
         lines => [
-            $model->{colour} && $model->{colour} =~ /orange/ ? <<EOL : (),
+            $model->{colour} && $model->{colour} =~ /orange|gold/ ? <<EOL : (),
 
 This document, model or dataset has been prepared by Reckon LLP on the instructions of the DCUSA Panel or
 one of its working groups.  Only the DCUSA Panel and its working groups have authority to approve this
 material as meeting their requirements.  Reckon LLP makes no representation about the suitability of this
 material for the purposes of complying with any licence conditions or furthering any relevant objective.
 EOL
-            <<EOL,
+            $model->{colour} && $model->{colour} =~ /gold/ ? <<EOL :
+
+UNLESS STATED OTHERWISE, ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
+EOL
+              <<EOL,
 
 UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING
 PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.

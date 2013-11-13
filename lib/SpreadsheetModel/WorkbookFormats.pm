@@ -50,16 +50,16 @@ sub getFormat {
 }
 
 use constant {
-    EXCELCOL0  => 8,     #000000 Black
-    WHITE      => 9,     #FFFFFF White
-    EXCELCOL2  => 10,    #FF0000 Red
-    EXCELCOL3  => 11,    #00FF00 Green or Lime or Bright Green
-    BLUE       => 12,    #0000FF Blue potentially overridden by #0066cc
-    EXCELCOL5  => 13,    #FFFF00 Yellow
-    EXCELCOL6  => 14,    #FF00FF Magenta
-    EXCELCOL7  => 15,    #00FFFF Cyan
-    EXCELCOL8  => 16,    #800000
-    GREEN      => 17,    #008000
+    EXCELCOL0 => 8,  #000000 Black
+    WHITE     => 9,  #FFFFFF White
+    EXCELCOL2 => 10, #FF0000 Red
+    EXCELCOL3 => 11, #00FF00 Green or Lime or Bright Green
+    BLUE      => 12, #0000FF Blue potentially overridden by #0066cc
+    BGGOLD    => 13, #FFFF00 Yellow potentially overridden by #ffd700 or #fecb2f
+    EXCELCOL6 => 14, #FF00FF Magenta
+    EXCELCOL7 => 15, #00FFFF Cyan
+    EXCELCOL8 => 16, #800000
+    GREEN     => 17, #008000
     EXCELCOL10 => 18,    #000080
     DKYELLOW   => 19,    #808000
     PURPLE     => 20,    #800080
@@ -124,15 +124,18 @@ Keys used in %$options:
 
     my $defaultColours = $options->{colour} && $options->{colour} =~ /default/i;
     my $orangeColours  = $options->{colour} && $options->{colour} =~ /orange/i;
+    my $goldColours    = $options->{colour} && $options->{colour} =~ /gold/i;
     my $borderColour   = $options->{colour} && $options->{colour} =~ /border/i;
     my $textColour     = $options->{colour} && $options->{colour} =~ /text/i;
     my $backgroundColour = !$borderColour && !$textColour;
 
     unless ($defaultColours) {
+        if ($goldColours) {
+            $workbook->set_custom_color( BGGOLD, '#ffd700' );
+            $orangeColours = $goldColours;
+        }
         if ($orangeColours) {
             $workbook->set_custom_color( BGORANGE, '#ffcc99' );
-            $workbook->set_custom_color( BLUE,     '#0066cc' );
-            $workbook->set_custom_color( GREY,     '#999999' );
         }
         else {
             $workbook->set_custom_color( BGPURPLE, '#eeddff' );
@@ -141,6 +144,8 @@ Keys used in %$options:
         $workbook->set_custom_color( BGPINK,   '#ffccff' );
         $workbook->set_custom_color( BGYELLOW, '#ffffcc' );
         $workbook->set_custom_color( ORANGE,   '#ff6633' );
+        $workbook->set_custom_color( BLUE,     '#0066cc' );
+        $workbook->set_custom_color( GREY,     '#999999' );
         $workbook->set_custom_color( SILVER,   '#e9e9e9' );
     }
 
@@ -255,10 +260,12 @@ Keys used in %$options:
         color => PURPLE,
         !$backgroundColour ? ()
         : $orangeColours ? ( bottom => 3, top => 3, border_color => PURPLE, )
-        : ( bg_color => LTPURPLE )
+        :                  ( bg_color => LTPURPLE )
     );
     my @colourHeader =
-      $backgroundColour
+      $goldColours
+      ? ( bg_color => SILVER, fg_color => BGGOLD, pattern => 6 )
+      : $backgroundColour
       ? ( bg_color => $orangeColours ? BGORANGE : BGPURPLE )
       : ();
     my @colourUnavailable =
@@ -271,11 +278,13 @@ Keys used in %$options:
       : ( right => 4, border_color => GREY );
     my @colourCaption = $backgroundColour ? () : ( color => BLUE );
     my @colourTitle   = $backgroundColour ? () : ( color => ORANGE );
-    my @sizeCaption    = ( size   => 15 );
-    my @sizeHeading    = ( valign => 'vbottom', size => 15 );
-    my @sizeLabel      = ( valign => 'vcenter', );
+    my @sizeExtras =
+      $goldColours ? ( top => 1, bottom => 1, border_color => BGGOLD ) : ();
+    my @sizeCaption = ( size   => 15, );
+    my @sizeHeading = ( valign => 'vbottom', size => 15, );
+    my @sizeLabel   = ( valign => 'vcenter', @sizeExtras );
     my @sizeLabelGroup = ( valign => 'vcenter', );
-    my @sizeNumber     = ( valign => 'vcenter', );
+    my @sizeNumber     = ( valign => 'vcenter', @sizeExtras );
     my @sizeText       = ( valign => 'vcenter', );
     my $plus  = '[Blue]_-+';
     my $minus = '[Red]_+-';
@@ -418,7 +427,9 @@ Keys used in %$options:
         hard => [
             locked => !$options->{validation}
               || $options->{validation} !~ /lenient/i,
-            @sizeText, text_wrap => 0,
+            @sizeText,
+            text_wrap => 0,
+            @sizeExtras,
         ],
         link => [
             locked => 1,
@@ -453,7 +464,7 @@ Keys used in %$options:
             @sizeText,
             num_format => '@',
             align      => 'left',
-            text_wrap  => 1,
+            text_wrap => 1,
         ],
         textcon => [
             locked => 1,
@@ -461,6 +472,7 @@ Keys used in %$options:
             num_format => '@',
             align      => 'left',
             text_wrap  => 1,
+            @sizeExtras,
             @colourCon,
         ],
         textcopy => [
@@ -468,7 +480,8 @@ Keys used in %$options:
             @sizeText,
             num_format => '@',
             align      => 'left',
-            text_wrap  => 1,
+            @sizeExtras,
+            text_wrap => 1,
             @colourCopy,
         ],
         texthard => [
@@ -476,7 +489,8 @@ Keys used in %$options:
             @sizeText,
             num_format => '@',
             align      => 'left',
-            text_wrap  => 1,
+            @sizeExtras,
+            text_wrap => 1,
             @colourHard,
         ],
         textsoft => [
@@ -484,7 +498,8 @@ Keys used in %$options:
             @sizeText,
             num_format => '@',
             align      => 'left',
-            text_wrap  => 1,
+            @sizeExtras,
+            text_wrap => 1,
             @colourSoft,
         ],
         textnocolour => [
@@ -492,7 +507,8 @@ Keys used in %$options:
             @sizeText,
             num_format => '@',
             align      => 'left',
-            text_wrap  => 1,
+            @sizeExtras,
+            text_wrap => 1,
         ],
         textlrap => [
             locked => 1,
@@ -506,8 +522,8 @@ Keys used in %$options:
             num_format => '@',
             text_wrap  => 1,
             align      => 'center_across',
-            left       => 1,
-            right      => 1,
+            left  => 1,
+            right => 1,
         ],
         th => [
             locked => 1,

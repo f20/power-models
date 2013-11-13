@@ -67,12 +67,16 @@ foreach (@ARGV) {
         elsif (/^-+(html|perl|yaml)/is) {
             $override{ 'Export' . ucfirst( lc($1) ) } = 1;
         }
-        elsif (/^-+defaultcol/is)    { $override{defaultColours} = 1; }
-        elsif (/^-+orange/is)        { $override{colour}         = 'orange'; }
-        elsif (/^-+debug/is)         { $override{debug}          = 1; }
-        elsif (/^-+password=(.+)/is) { $override{password}       = $1; }
-        elsif (/^-+single/is)        { $threads                  = 1; }
-        elsif (/^-+([0-9]+)/is)      { $threads                  = $1; }
+        elsif (/^-+defaultcol/is) { $override{defaultColours} = 1; }
+        elsif (/^-+gold/is) {
+            $override{colour}   = 'gold';
+            $override{password} = rand();
+        }
+        elsif (/^-+orange/is)        { $override{colour}   = 'orange'; }
+        elsif (/^-+debug/is)         { $override{debug}    = 1; }
+        elsif (/^-+password=(.+)/is) { $override{password} = $1; }
+        elsif (/^-+single/is)        { $threads            = 1; }
+        elsif (/^-+([0-9]+)/is)      { $threads            = $1; }
         elsif (/^-+comparedata/is) { $list = 'listMonsterByRuleset'; }
         elsif (/^-+comparerule/is) { $list = 'listMonsterByDataset'; }
         else {
@@ -96,7 +100,7 @@ foreach (@ARGV) {
         warn "Cannot handle this argument: $_";
     }
 }
-$maker->{ overrideRules }->(%override) if %override;
+$maker->{overrideRules}->(%override) if %override;
 $maker->{setThreads}->($threads);
 $maker->{validate}
   ->( $perl5dir, grep { -e $_ } catdir( $homedir, 'X_Revisions' ) );
