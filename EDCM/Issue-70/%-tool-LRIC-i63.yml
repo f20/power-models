@@ -7,9 +7,10 @@ lockedInputs: 1
 lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1
-numExtraLocations: 12
-numExtraTariffs: 2
+numExtraLocations: 8
+numExtraTariffs: 0
 numLocations: 2
+numSampleTariffs: 0
 numTariffs: 0
 protect: 1
 removeDemandCharge1: 1

@@ -52,6 +52,7 @@ use Ancillary::Manufacturing;
 my $maker    = Ancillary::Manufacturing->factory;
 my $list     = 'list';
 my %override = ( protect => 1 );
+my $xdata;
 my $threads;
 $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
 chomp $threads if $threads;
@@ -61,7 +62,7 @@ foreach (@ARGV) {
 
     if (/^-/s) {
         if    (/^-+$/s)          { $maker->{processStream}->( \*STDIN ); }
-        elsif (/^-+x/is)         { $maker->{useXLSX}->(); }
+        elsif (/^-+xlsx/is)         { $maker->{useXLSX}->(); }
         elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
         elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
         elsif (/^-+(html|perl|yaml)/is) {
@@ -79,6 +80,20 @@ foreach (@ARGV) {
         elsif (/^-+([0-9]+)/is)      { $threads            = $1; }
         elsif (/^-+comparedata/is) { $list = 'listMonsterByRuleset'; }
         elsif (/^-+comparerule/is) { $list = 'listMonsterByDataset'; }
+        elsif (
+/^-+(numExtraLocations|numExtraTariffs|numLocations|numSampleTariffs|numTariffs)=([0-9]+)/is
+          )
+        {
+            $override{$1} = $2;
+        }
+        elsif (/^-+xdata=?(.*)/is) {
+            $xdata = $1;
+            unless ($xdata) {
+                local undef $/;
+                print "Enter xdata:\n";
+                $xdata = <STDIN>;
+            }
+        }
         else {
             warn "Unrecognised option: $_";
         }
@@ -101,6 +116,7 @@ foreach (@ARGV) {
     }
 }
 $maker->{overrideRules}->(%override) if %override;
+$maker->{overrideData}->($xdata)     if $xdata;
 $maker->{setThreads}->($threads);
 $maker->{validate}
   ->( $perl5dir, grep { -e $_ } catdir( $homedir, 'X_Revisions' ) );

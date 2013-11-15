@@ -148,11 +148,19 @@ sub mangleTariffInputs {
 
 =cut
 
-    my $existingTariffs = $columns[0]{rows};
-    my @additionalTariffs =
-      $model->{numExtraTariffs}
-      ? map { 'New tariff ' . ( 500 + $_ ) } 1 .. $model->{numExtraTariffs}
-      : ();
+    $model->{numExtraTariffs} = 2
+      unless ( $model->{numTariffs} || 0 ) * 2 +
+      ( $model->{numExtraTariffs}  || 0 ) +
+      ( $model->{numSampleTariffs} || 0 ) > 1;
+    my $existingTariffs   = $columns[0]{rows};
+    my @additionalTariffs = (
+        $model->{numExtraTariffs} ? map { 'New tariff ' . ( 500 + $_ ) }
+          1 .. $model->{numExtraTariffs}
+        : (),
+        $model->{numSampleTariffs} ? map { 'Sample ' . ( 900 + $_ ) }
+          1 .. $model->{numSampleTariffs}
+        : ()
+    );
     my $newTariffs = Labelset(
         list => [
             ( map { "Amended $_" } @{ $existingTariffs->{list} } ),
@@ -298,7 +306,10 @@ sub mangleTariffInputs {
       Constant(
         name => 'Weighting of each tariff for reconciliation of totals',
         rows => $model->{tariffSet},
-        data => [ map { ( -1, 1 ) } @{ $existingTariffs->{list} } ],
+        data => [
+            ( map { ( -1, 1 ); } @{ $existingTariffs->{list} } ),
+            ( map { /^New/i ? 1 : 0; } @{ $newTariffs->{list} } ),
+        ],
       );
 
 }
