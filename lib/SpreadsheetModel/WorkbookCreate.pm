@@ -269,28 +269,50 @@ sub create {
 }
 
 sub writeColourCode {
-    my ( $wbook, $wsheet ) = @_;
-    $wsheet->write_string( 2, 2, 'Colour coding', $wbook->getFormat('thc') );
-    $wsheet->write_string( 3, 2, 'Data input', $wbook->getFormat('0.000hard') );
+    my ( $wbook, $wsheet, $row ) = @_;
+    $row ||= 1;
     $wsheet->write_string(
-        7, 2,
-        'Unused cell in input data table',
-        $wbook->getFormat('unused')
+        ++$row, 2,
+        'Colour coding',
+        $wbook->getFormat('thc')
     );
-    $wsheet->write_string( 6, 2, 'Calculation',
-        $wbook->getFormat('0.000soft') );
-    $wsheet->write_string( 5, 2, 'Copy data', $wbook->getFormat('0.000copy') );
+    $wsheet->write_string( ++$row, 2, 'Input data',
+        $wbook->getFormat('0.000hard') );
     $wsheet->write_string(
-        8, 2,
-        'Unused cell in calculation table',
-        $wbook->getFormat('unavailable')
-    );
-    $wsheet->write_string(
-        4, 2,
+        ++$row, 2,
         'Constant value',
         $wbook->getFormat('0.000con')
     );
-    $wsheet->write_string( 9, 2, 'User notes', $wbook->getFormat('scribbles') );
+    $wsheet->write_string(
+        ++$row, 2,
+        'Formula: calculation',
+        $wbook->getFormat('0.000soft')
+    );
+    $wsheet->write_string(
+        ++$row, 2,
+        'Formula: copy',
+        $wbook->getFormat('0.000copy')
+    );
+    $wsheet->write_string(
+        ++$row, 2,
+        'Void cell in input data table',
+        $wbook->getFormat('unused')
+    );
+    $wsheet->write_string(
+        ++$row, 2,
+        'Void cell in other table',
+        $wbook->getFormat('unavailable')
+    );
+    $wsheet->write_string(
+        ++$row, 2,
+        'Unlocked cell for notes',
+        $wbook->getFormat('scribbles')
+    );
+
+    unless ( $wsheet->{nextFree} && $wsheet->{nextFree} > ++$row ) {
+        $wsheet->{nextFree} = ++$row;
+    }
+
 }
 
 1;

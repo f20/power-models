@@ -151,7 +151,7 @@ EOS
         }
         elsif (`which ssconvert`) {
             my $book = $infile;
-            $book  =~ s/'/'"'"'/g;
+            $book =~ s/'/'"'"'/g;
             $book2 =~ s/'/'"'"'/g;
             system qq%ssconvert --recalc '$book2' '$book' 2>/dev/null%;
         }
@@ -168,8 +168,7 @@ EOS
     }
     my $workbook;
     eval {
-        if (/\.xlsx$/is)
-        {
+        if (/\.xlsx$/is) {
             require Ancillary::XLSX;
             $SIG{__WARN__} = sub { };
             $workbook = Ancillary::XLSX->new($infile);
@@ -197,7 +196,7 @@ EOS
 waitanypid(0);
 
 sub updateTree {
-    my ( $workbook, $tree, $preferArrays ) = @_;
+    my ( $workbook, $tree, $options ) = @_;
     $tree ||= {};
     my $sheetNumber = 0;
     for my $worksheet ( $workbook->worksheets() ) {
@@ -221,7 +220,8 @@ sub updateTree {
                             undef $columnHeadingsRow;
                             $to = $tree->{$tableNumber}
                               || [
-                                $tableNumber !~ /00$/ && ( $preferArrays
+                                $tableNumber !~ /00$/
+                                  && ( $options->{preferArrays}
                                     || $tableNumber =~ /^(?:17)/ )
                                 ? []
                                 : {}
@@ -230,7 +230,8 @@ sub updateTree {
                                 $to->[0][0] = $v;
                             }
                             else {
-                                $to->[0]{'_table'} = $v;
+                                $to->[0]{'_table'} = $v
+                                  unless $options->{minimum};
                             }
                         }
                         else {
@@ -266,7 +267,7 @@ sub updateTree {
                         $to->[$col] ||= [$v];
                     }
                     else {
-                        $to->[$col]{'_column'} = $v;
+                        $to->[$col]{'_column'} = $v unless $options->{minimum};
                     }
                 }
                 elsif (ref $cell->{Format}
@@ -290,7 +291,10 @@ sub updateTree {
 
 sub ymlWriter {
     my ($arg) = @_;
-    my $preferArrays = $arg =~ /array/i;
+    my $options = {
+        $arg =~ /array/i ? ( preferArrays => 1 ) : (),
+        $arg =~ /min/i   ? ( minimum      => 1 ) : (),
+    };
     require YAML;
     sub {
         my ( $book, $workbook ) = @_;
@@ -306,15 +310,18 @@ sub ymlWriter {
         }
         open my $h, '>', $yml;
         binmode $h, ':utf8';
-        print $h YAML::Dump( updateTree( $workbook, $tree, $preferArrays ) );
+        print $h YAML::Dump( updateTree( $workbook, $tree, $options ) );
     };
 }
 
 sub jsonWriter {
     my ($arg) = @_;
-    my $dumpAllData  = $arg =~ /all/i;
-    my $preferArrays = $arg =~ /array/i;
-    my $jsonpp       = !eval 'require JSON';
+    my $options = {
+        $arg =~ /array/i ? ( preferArrays => 1 ) : (),
+        $arg =~ /min/i   ? ( minimum      => 1 ) : (),
+        $arg =~ /all/i   ? ( dumpAllData  => 1 ) : (),
+    };
+    my $jsonpp = !eval 'require JSON';
     require JSON::PP if $jsonpp;
     sub {
         my ( $book, $workbook ) = @_;
@@ -333,8 +340,7 @@ sub jsonWriter {
         binmode $h;
         print {$h}
           ( $jsonpp ? 'JSON::PP' : 'JSON' )->new->canonical(1)
-          ->pretty->utf8->encode(
-            updateTree( $workbook, $tree, $preferArrays ) );
+          ->pretty->utf8->encode( updateTree( $workbook, $tree, $options ) );
     };
 }
 

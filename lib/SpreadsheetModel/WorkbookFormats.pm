@@ -280,9 +280,9 @@ Keys used in %$options:
     my @colourTitle   = $backgroundColour ? () : ( color => ORANGE );
     my @sizeExtras =
       $goldColours ? ( top => 1, bottom => 1, border_color => BGGOLD ) : ();
-    my @sizeCaption = ( size   => 15, );
-    my @sizeHeading = ( valign => 'vbottom', size => 15, );
-    my @sizeLabel   = ( valign => 'vcenter', @sizeExtras );
+    my @sizeCaption    = ( size   => 15, );
+    my @sizeHeading    = ( valign => 'vbottom', size => 15, );
+    my @sizeLabel      = ( valign => 'vcenter', @sizeExtras );
     my @sizeLabelGroup = ( valign => 'vcenter', );
     my @sizeNumber     = ( valign => 'vcenter', @sizeExtras );
     my @sizeText       = ( valign => 'vcenter', );
@@ -464,7 +464,7 @@ Keys used in %$options:
             @sizeText,
             num_format => '@',
             align      => 'left',
-            text_wrap => 1,
+            text_wrap  => 1,
         ],
         textcon => [
             locked => 1,
@@ -522,8 +522,8 @@ Keys used in %$options:
             num_format => '@',
             text_wrap  => 1,
             align      => 'center_across',
-            left  => 1,
-            right => 1,
+            left       => 1,
+            right      => 1,
         ],
         th => [
             locked => 1,
@@ -605,6 +605,7 @@ Keys used in %$options:
     );
 
     if ( $options->{lockedInputs} ) {
+        $specs{unused} = $specs{unavailable};
         foreach my $key ( grep { /hard/ } keys %specs ) {
             local $_ = $key;
             s/hard/input/;

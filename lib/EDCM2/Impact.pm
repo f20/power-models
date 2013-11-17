@@ -424,46 +424,37 @@ sub frontSheets {
 sub impactNotes {
     my ($model) = @_;
     push @{ $model->{impactInputTables} }, Notes( lines => <<'EOL'),
-EDCM non-forecasting scenario analysis tool
+EDCM illustrative scenario analysis tool
 
 
-This tool is intended to illustrate the use of system charges that a distributor might levy on a
-supplier under an EHV Distribution Charging Methodology (EDCM).
+This tool is intended to illustrate the use of system charges that a distributor might levy on a supplier under an EHV Distribution Charging
+Methodology (EDCM).
 
-Charges between supplier and customer are a bilateral contractual matter.  A supplier may apply
-its own charges in addition to, or instead of, the charges that this tool tries to illustrate.
-Furthermore, different charges might be applied by distributors under the CDCM, under
-derogations, for out-of-area or IDNO connections, or for services other than use of system.
+Charges between supplier and customer are a bilateral contractual matter.  A supplier may apply its own charges in addition to, or instead of, the
+charges that this tool tries to illustrate. Furthermore, different charges might be applied by distributors under the CDCM, under derogations, for
+out-of-area or IDNO connections, or for services other than use of system.
 
-This workbook is populated with data for one year and does not provide any forecasts.  Please
-speak to your distributor or supplier if you would like to discuss possible future charges.
+This workbook is populated with data for one year and does not provide any forecasts.  Please speak to your distributor or supplier if you would like
+to discuss possible future charges.
 
-UNDER NO CIRCUMSTANCES SHOULD YOU HOLD ANY SUPPLIER OR ANY DISTRIBUTOR RESPONSIBLE FOR ANY DATA
-OR RESULTS IN THIS TOOL.  FOR INFORMATION ABOUT APPLICABLE CHARGES, CONTACT YOUR ACCOUNT MANAGER.
-
+UNDER NO CIRCUMSTANCES SHOULD YOU HOLD ANY SUPPLIER OR ANY DISTRIBUTOR RESPONSIBLE FOR ANY DATA OR RESULTS IN THIS TOOL.
 CHARGES MAY VARY.  THIS TOOL IS NOT DESIGNED FOR FORECASTING.
+WHILST THE AUTHORS HAVE TRIED TO ENSURE ACCURACY, THEY MAKE NO WARRANTY AS TO THE CORRECTNESS, CURRENCY,
+TIMELINESS, QUALITY OR COMPLETENESS OF THIS TOOL OR ITS RELEVANCE TO YOUR CIRCUMSTANCES.
+FOR INFORMATION ABOUT APPLICABLE CHARGES, CONTACT YOUR ACCOUNT MANAGER.
 
-WHILST THE AUTHORS HAVE TRIED TO ENSURE ACCURACY, THEY MAKE NO WARRANTY AS TO THE CORRECTNESS,
-CURRENCY, TIMELINESS, QUALITY OR COMPLETENESS OF THIS TOOL OR ITS RELEVANCE TO YOUR CIRCUMSTANCES.
+THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR
-ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
-NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+This tool has been developed by the DCMF MIG, a subgroup of the electricity industry's Distribution Charging Methodologies Forum, and by Reckon LLP,
+an advisory firm.  It builds on the charging models developed by distributors through the Energy Networks Association. Reckon LLP is grateful for the
+assistance that distributors and suppliers have provided in the development of this tool.  Mistakes are the sole responsibility of Reckon LLP.
 
-This tool has been developed by the DCMF MIG, a subgroup of the electricity industry's
-Distribution Charging Methodologies Forum, and by Reckon LLP, an independent advisory firm.  It
-builds on the charging models developed by distributors through the Energy Networks Association.
-Reckon LLP is grateful for the assistance that distributors and suppliers have provided in the
-development of this tool.  Mistakes are the sole responsibility of Reckon LLP.
-
-For any comments about this tool, contact Franck Latrémolière, http://dcmf.co.uk/franck.html or
-f20@reckon.co.uk. Reckon LLP does not approve of the EDCM charging methodologies illustrated by
-this tool, or of Ofgem's conduct in relation to the governance of these methodologies. 
+For any comments about this tool, contact Franck Latrémolière, http://dcmf.co.uk/franck.html or f20@reckon.co.uk. Reckon LLP does not approve of the
+EDCM charging methodologies illustrated by this tool, or of Ofgem's conduct in relation to the governance of these methodologies.
 
 EOL
 }

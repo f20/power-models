@@ -5,6 +5,7 @@ activeSheets: '^Tariffs$'
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
+noLinks: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1

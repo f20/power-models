@@ -1,5 +1,5 @@
 ---
-.: MIG issue 63+70 customer scenario tool (LRIC)
+.: MIG issue 63+70 (with LRIC unit rate) tool
 PerlModule: EDCM2
 illustrative: 1
 inputData: dataSheet
