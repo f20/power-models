@@ -9,7 +9,7 @@
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset shows what I think might happen when putting the raw data in the DCP 129 model.
+      This dataset is intended to show the effect of putting the raw data in the DCP 129 model.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.186

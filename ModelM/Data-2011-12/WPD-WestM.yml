@@ -2,7 +2,7 @@
 1300:
   - _note: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2011 indicative prices.
+      This dataset is intended to reproduce results published in December 2011.
     _table: '1300. Company, charging year, data version'
   - Company charging year data version: WPD West Midlands
     _column: Company
