@@ -14,12 +14,10 @@
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.307
     _column: DNO LV main usage
-  - DNO LV main usage: ''
 1302:
   - _table: 1302. DNO HV main usage
   - DNO HV main usage: 0.54
     _column: DNO HV main usage
-  - DNO HV main usage: ''
 1310:
   - _table: 1310. DPCR4 aggregate allowances
   - DPCR4 aggregate allowances: 253400000
@@ -35,7 +33,6 @@
     _column: Total revenue
   - Analysis of allowed revenue for 2007 2008: 565000
     _column: Net incentive revenue
-  - Analysis of allowed revenue for 2007 2008: ''
 1320:
   - _table: 1320. Units flowing
   - Units flowing: 11304657000
@@ -46,7 +43,6 @@
     _column: HV
   - Units flowing: 16138605877
     _column: EHV&132
-  - Units flowing: ''
 1330:
   - _table: 1330. Allocated costs
   - Atypical cash costs: ''
@@ -185,39 +181,6 @@
     Tree Cutting: 300000
     Vehicles Transport: ''
     _column: EHV&132
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
-    Faults: ''
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
-    Inspections Maintenance: ''
-    Load related new connections reinforcement net of contributions: ''
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
-    Non-load new replacement assets net of contributions: ''
-    Non-operational capex: ''
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
-    Tree Cutting: ''
-    Vehicles Transport: ''
 1335:
   - _table: 1335. Total costs
   - Atypical cash costs: 4100000
@@ -254,39 +217,6 @@
     Tree Cutting: 5300000
     Vehicles Transport: 3000000
     _column: Total costs
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
-    Faults: ''
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
-    Inspections Maintenance: ''
-    Load related new connections reinforcement net of contributions: ''
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
-    Non-load new replacement assets net of contributions: ''
-    Non-operational capex: ''
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
-    Tree Cutting: ''
-    Vehicles Transport: ''
 1350:
   - _table: 1350. MEAV percentages
   - MEAV percentages: 0.57
@@ -297,23 +227,20 @@
     _column: HV
   - MEAV percentages: 0.13
     _column: EHV&132
-  - MEAV percentages: ''
 1360:
   - _table: '1360. MEAV: ratio of LV service to LV total'
   - LV service: 0.701546630567417
     _column: LV
-  - LV service: ''
 1370:
   - _table: 1370. Net capex percentages
-  - Net capex percentages: 0.2208
+  - Net capex percentages: 0.241391520664346
     _column: LV
-  - Net capex percentages: 0.1042
+  - Net capex percentages: 0.100122017582525
     _column: HV/LV
-  - Net capex percentages: 0.2383
+  - Net capex percentages: 0.231041316423332
     _column: HV
-  - Net capex percentages: 0.4367
+  - Net capex percentages: 0.427445145551176
     _column: EHV&132
-  - Net capex percentages: ''
 1375:
   - _table: 1375. Network length percentages
   - Network length percentages: 0.4616
@@ -324,24 +251,21 @@
     _column: HV
   - Network length percentages: 0.0753
     _column: EHV&132
-  - Network length percentages: ''
 1380:
   - _table: '1380. Net capex: ratio of LV service to LV total'
   - LV service: 0.245596954007068
     _column: LV
-  - LV service: ''
 1385:
   - _table: '1385. Network length: ratio of LV service to LV total'
   - LV service: '#VALUE!'
     _column: LV
-  - LV service: ''
 1399:
   - _table: 1399. Current LDNO discounts
-  - LDNO discount: 0.349144250987486
+  - Current LDNO discounts: 0.349144250987486
     _column: 'LDNO LV: LV user'
-  - LDNO discount: 0.616575389586027
+  - Current LDNO discounts: 0.616575389586027
     _column: 'LDNO HV: LV user'
-  - LDNO discount: 0.379045645742423
-    _column: 'LDNO HV: LV sub user'
-  - LDNO discount: 0.257424277134571
+  - Current LDNO discounts: 0.379045645742423
+    _column: 'LDNO HV: LV Sub user'
+  - Current LDNO discounts: 0.257424277134571
     _column: 'LDNO HV: HV user'
