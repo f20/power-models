@@ -262,8 +262,9 @@ sub factory {
                 next
                   if keys %{ $data->{dataset} }
                   and grep {
-                        !$data->{dataset}{$_} and !$data->{dataset}{yaml}
-                      or $data->{dataset}{yaml} !~ /^$_:/m
+                          !$data->{dataset}{$_}
+                      and !$data->{dataset}{yaml}
+                      || $data->{dataset}{yaml} !~ /^$_:/m
                   } @wantTables;
                 my $spreadsheetFile = $rule->{template};
                 $spreadsheetFile .= '-' . $rule->{revisionText}
