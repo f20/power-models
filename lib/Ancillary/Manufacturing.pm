@@ -208,7 +208,7 @@ sub factory {
                 }
             }
             while (s/(\S.*\|.*\S)//m) {
-                my ( $tab, $col, @more ) = split /\|/, $1;
+                my ( $tab, $col, @more ) = split /\|/, $1, -1;
                 if ( @more == 1 ) {
                     $od->{$tab}{$col} = $more[0];
                 }
