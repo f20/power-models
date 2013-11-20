@@ -468,6 +468,9 @@ sub wsWrite {
                     $ws->write_string( $row++, $col, $na, $textFormat );
                 }
             }
+            elsif (/^(https?|mailto:)/) {
+                $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
+            }
             else {
                 $ws->write_string( $row++, $col, "$_", $textFormat );
             }
