@@ -69,7 +69,8 @@ use EDCM2::ProcessData;
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
     $ruleset->{transparency}
-      && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact) : ();
+      && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
+      $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : ();
 }
 
 sub new {
@@ -1984,6 +1985,22 @@ EOT
       $model->impactFinancialSummary( $tariffs, $thisIsTheTariffTable,
         $actualRedDemandRate, \@revenueBitsD, @revenueBitsG, $rev2g )
       if $model->{transparencyImpact};
+
+    $model->templates(
+        $tariffs,                          $importCapacityUnscaled,
+        $exportCapacityExempt,             $exportCapacityChargeablePre2005,
+        $exportCapacityChargeable20052010, $exportCapacityChargeablePost2010,
+        $tariffSoleUseMeav,                $tariffLoc,
+        $tariffCategory,                   $useProportions,
+        $activeCoincidence935,             $reactiveCoincidence,
+        $indirectExposure,                 $nonChargeableCapacity,
+        $activeUnits,                      $creditableCapacity,
+        $tariffNetworkSupportFactor,       $tariffDaysInYearNot,
+        $tariffHoursInRedNot,              $previousChargeImport,
+        $previousChargeExport,             $llfcImport,
+        $llfcExport,                       $thisIsTheTariffTable,
+        $daysInYear,                       $hoursInRed,
+    ) if $model->{customerTemplates};
 
     $model;
 

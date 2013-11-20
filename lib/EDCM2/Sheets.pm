@@ -313,6 +313,43 @@ This sheet contains data to populate tables 1191 to 1194 in a slave model.'
 
       ,
 
+      $model->{customerTemplates}
+      ? (
+        TemplateImport => sub {
+            my ($wsheet) = @_;
+            $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->set_column( 0, 0,   60 );
+            $wsheet->set_column( 1, 250, 30 );
+            my $logger  = delete $wbook->{logger};
+            my $noLinks = $wbook->{noLinks};
+            $wbook->{noLinks} = 1;
+            $wbook->writeColourCodeSimple($wsheet);
+            $_->wsWrite( $wbook, $wsheet )
+              foreach @{ $model->{tablesTemplateImport} };
+            delete $wbook->{noLinks};
+            $wbook->{logger} = $logger if $logger;
+            $wbook->{noLinks} = $noLinks;
+        },
+        TemplateExport => sub {
+            my ($wsheet) = @_;
+            $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->set_column( 0, 0,   60 );
+            $wsheet->set_column( 1, 250, 30 );
+            my $logger  = delete $wbook->{logger};
+            my $noLinks = $wbook->{noLinks};
+            $wbook->{noLinks} = 1;
+            $wbook->writeColourCodeSimple($wsheet);
+            $_->wsWrite( $wbook, $wsheet )
+              foreach @{ $model->{tablesTemplateExport} };
+            delete $wbook->{noLinks};
+            $wbook->{logger} = $logger if $logger;
+            $wbook->{noLinks} = $noLinks;
+        },
+      )
+      : ()
+
+      ,
+
       $model->{ldnoRev}
       ?
 

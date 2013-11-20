@@ -1,11 +1,14 @@
 ---
 .: EDCM model for MIG issue 70 (FCP)
 PerlModule: EDCM2
+customerTemplates: 1
 dcp130: 1
+illustrative: 1
 inputData: dataSheet
 lowerIntermittentCredit: 1
 method: FCP
 noNegative: 1
+numTariffs: 150
 protect: 1
 summaries: 1
 transparency: 1

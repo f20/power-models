@@ -49,10 +49,10 @@ BEGIN {
 use lib catdir( $homedir, 'cpan' ), $perl5dir;
 
 use Ancillary::Manufacturing;
-my $maker    = Ancillary::Manufacturing->factory;
-my $list     = 'list';
-my %override = ( protect => 1 );
-my $xdata;
+my $maker = Ancillary::Manufacturing->factory;
+my $list  = 'list';
+my %override;
+my $xdata='';
 my $threads;
 $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
 chomp $threads if $threads;
@@ -62,7 +62,7 @@ foreach (@ARGV) {
 
     if (/^-/s) {
         if    (/^-+$/s)          { $maker->{processStream}->( \*STDIN ); }
-        elsif (/^-+xlsx/is)         { $maker->{useXLSX}->(); }
+        elsif (/^-+xlsx/is)      { $maker->{useXLSX}->(); }
         elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
         elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
         elsif (/^-+(html|perl|yaml)/is) {
@@ -87,11 +87,11 @@ foreach (@ARGV) {
             $override{$1} = $2;
         }
         elsif (/^-+xdata=?(.*)/is) {
-            $xdata = $1;
+            $xdata .= "$1\n";
             unless ($xdata) {
                 local undef $/;
                 print "Enter xdata:\n";
-                $xdata = <STDIN>;
+                $xdata .= <STDIN>;
             }
         }
         else {

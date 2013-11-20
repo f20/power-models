@@ -312,7 +312,22 @@ sub writeColourCode {
     unless ( $wsheet->{nextFree} && $wsheet->{nextFree} > ++$row ) {
         $wsheet->{nextFree} = ++$row;
     }
+}
 
+sub writeColourCodeSimple {
+    my ( $wbook, $wsheet, $row ) = @_;
+    $row ||= 1;
+    $wsheet->write_string(
+        ++$row, 2,
+        'Colour coding',
+        $wbook->getFormat('thc')
+    );
+    $wsheet->write_string( ++$row, 2, 'Input data',
+        $wbook->getFormat('0.000hard') );
+    $wsheet->write_string( ++$row, 2, 'Calculation',
+        $wbook->getFormat('0.000soft') );
+    $wsheet->write_string( ++$row, 2, 'Data from tariff model',
+        $wbook->getFormat('0.000copy') );
 }
 
 1;

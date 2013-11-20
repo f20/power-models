@@ -168,45 +168,68 @@ sub factory {
     };
 
     $self->{overrideRules} = sub {
-        $_ = { %$_, @_ } foreach @rulesets;
+        foreach (@rulesets) {
+            $_->{template} .= '+' if $_->{template};
+            $_ = { %$_, @_ };
+        }
     };
 
     $self->{overrideData} = sub {
         my $od;
         foreach (@_) {
-            foreach ( grep { $_ } split /\}\s*\{/s, '}' . $_ . '{' ) {
-                require JSON::PP;
-                my $d = JSON::PP::decode_json( '{' . $_ . '}' );
-                next unless ref $d eq 'HASH';
-                if ( my $or = delete $d->{rules} ) {
-                    $self->{overrideRules}
-                      ->( ref $or eq 'ARRAY' ? @$or : %$or );
-                }
-                while ( my ( $tab, $dat ) = each %$d ) {
-                    if ( ref $dat eq 'HASH' ) {
-                        while ( my ( $row, $rd ) = each %$dat ) {
-                            next unless ref $rd eq 'ARRAY';
-                            for ( my $col = 0 ; $col < @$rd ; ++$col ) {
-                                $od->{$tab}[ $col + 1 ]{$row} = $rd->[$col];
+            if (s/\{(.*)\}//s) {
+                foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
+                    require JSON::PP;
+                    my $d = JSON::PP::decode_json( '{' . $_ . '}' );
+                    next unless ref $d eq 'HASH';
+                    if ( my $or = delete $d->{rules} ) {
+                        $self->{overrideRules}
+                          ->( ref $or eq 'ARRAY' ? @$or : %$or );
+                    }
+                    while ( my ( $tab, $dat ) = each %$d ) {
+                        if ( ref $dat eq 'HASH' ) {
+                            while ( my ( $row, $rd ) = each %$dat ) {
+                                next unless ref $rd eq 'ARRAY';
+                                for ( my $col = 0 ; $col < @$rd ; ++$col ) {
+                                    $od->{$tab}[ $col + 1 ]{$row} = $rd->[$col];
+                                }
                             }
                         }
-                    }
-                    elsif ( ref $dat eq 'ARRAY' ) {
-                        for ( my $col = 0 ; $col < @$dat ; ++$col ) {
-                            my $cd = $dat->[$col];
-                            next unless ref $cd eq 'HASH';
-                            while ( my ( $row, $v ) = each %$cd ) {
-                                $od->{$tab}[$col]{$row} = $v;
+                        elsif ( ref $dat eq 'ARRAY' ) {
+                            for ( my $col = 0 ; $col < @$dat ; ++$col ) {
+                                my $cd = $dat->[$col];
+                                next unless ref $cd eq 'HASH';
+                                while ( my ( $row, $v ) = each %$cd ) {
+                                    $od->{$tab}[$col]{$row} = $v;
+                                }
                             }
                         }
                     }
                 }
             }
+            while (s/(\S.*\|.*\S)//m) {
+                my ( $tab, $col, @more ) = split /\|/, $1;
+                if ( @more == 1 ) {
+                    $od->{$tab}{$col} = $more[0];
+                }
+                if (   @more == 2
+                    && $tab
+                    && $col
+                    && $tab =~ /^[0-9]+$/s
+                    && $col =~ /^[0-9]+$/s )
+                {
+                    $od->{$tab}[$col]{ $more[0] } = $more[1];
+                }
+            }
+            if ( my $or = delete $od->{rules} ) {
+                $self->{overrideRules}->( ref $or eq 'ARRAY' ? @$or : %$or );
+            }
         }
-        return unless $od;
-        my ( $key, $hash );
+        return unless $od && keys %$od;
+        my ( $key, $hash ) = ( rand(), 'error' );
         eval {
             require Digest::SHA1;
+            require JSON::PP;
             $key =
               Digest::SHA1::sha1(
                 JSON::PP->new->canonical(1)->utf8->encode($od) );
@@ -267,8 +290,10 @@ sub factory {
                       || $data->{dataset}{yaml} !~ /^$_:/m
                   } @wantTables;
                 my $spreadsheetFile = $rule->{template};
-                $spreadsheetFile .= '-' . $rule->{revisionText}
-                  if $rule->{revisionText};
+                if ( $rule->{revisionText} ) {
+                    $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
+                    $spreadsheetFile .= $rule->{revisionText};
+                }
                 $spreadsheetFile =~ s/%/$data->{'~datasetName'}/;
                 my $number = '';
                 $number--

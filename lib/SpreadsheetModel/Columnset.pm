@@ -223,7 +223,7 @@ sub wsWrite {
         }
     }
 
-    my $headerLines = BLANK_LINE;
+    my $headerLines = $self->{name} ? BLANK_LINE : 0;
 
     $headerLines += $dualHeaded ? 2 : 1 unless $self->{noHeaders};
 
@@ -264,6 +264,8 @@ sub wsWrite {
         undef $row;
     }
 
+    --$row if $self->{noSpacing};
+
     {
         my $c2 = $col;
         for ( 0 .. $lastCol ) {
@@ -271,8 +273,7 @@ sub wsWrite {
             $cell[$_] = $thecol->wsPrepare( $wb, $ws );
             @{ $thecol->{$wb} }{qw(worksheet row col)} = (
                 $ws,
-                $row +
-                  $headerLines +
+                $row + $headerLines +
                   ( $thecol->{rows} ? $self->{anonRow} : 0 ),
                 $c2 + $headerCols
             );
@@ -288,7 +289,8 @@ sub wsWrite {
           foreach $hideRange[0] .. $hideRange[1] - 1;
     }
 
-    my $number = $wb->{logger} ? $self->addTableNumber( $wb, $ws ) : undef;
+    my $number = $wb->{logger}
+      && $self->{name} ? $self->addTableNumber( $wb, $ws ) : undef;
 
     $self->{name} .= " ($self->{debug})"
       if $wb->{debug} && 0 > index $self->{name}, $self->{debug};
@@ -378,7 +380,7 @@ sub wsWrite {
 
     }
 
-    ++$row if BLANK_LINE;
+    ++$row if BLANK_LINE && $self->{name};
 
     unless ( $self->{noHeaders} ) {
 
@@ -471,8 +473,11 @@ use ->shortName here.
     }
 
     elsif ( $self->{singleRowName} ) {
-        $ws->write( $row, $col - 1, _shortNameRow( $self->{singleRowName} ),
-            $wb->getFormat('th') );
+        $ws->write(
+            $row, $col - 1,
+            _shortNameRow( $self->{singleRowName} ),
+            $wb->getFormat('th')
+        );
     }
 
     my $c2 = $col;
@@ -518,8 +523,7 @@ use ->shortName here.
                 }
             }
             $self->{columns}[$c]->dataValidation( $wb, $ws, $row, $c2,
-                $row +
-                  $lastRow +
+                $row + $lastRow +
                   ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ) )
               if $self->{columns}[$c]{validation};
             $c2 += @{ $co->{list} };
@@ -548,8 +552,7 @@ use ->shortName here.
                 $ws,
                 $row,
                 $c2,
-                $row +
-                  $lastRow +
+                $row + $lastRow +
                   ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ),
                 $c2
             ) if $self->{columns}[$c]{validation};
@@ -558,37 +561,39 @@ use ->shortName here.
 
     }
 
-    my $scribbleFormat = $wb->getFormat('scribbles');
-    foreach ( 1 .. NUM_SCRIBBLE_COLUMNS ) {
-        my @note;
-        if ($dataset) {
-            my $nd = $dataset->[$c2];
-            if ( ref $nd eq 'HASH' ) {
-                @note =
-                  map {
-                    local $_ = $_;
-                    s/.*\n//s;
-                    s/[^A-Za-z0-9 -]/ /g;
-                    s/- / /g;
-                    s/ +/ /g;
-                    s/^ //;
-                    s/ $//;
-                    $_ = "a$_" if /^[0-9]/;
-                    $nd->{$_};
-                  } $self->{rows}
-                  ? @{ $self->{rows}{list} }
-                  : ( $self->{singleRowName}
-                      || _shortNameRow( $self->{name} ) );
+    unless ( $self->{noHeaders} ) {
+        my $scribbleFormat = $wb->getFormat('scribbles');
+        foreach ( 1 .. NUM_SCRIBBLE_COLUMNS ) {
+            my @note;
+            if ($dataset) {
+                my $nd = $dataset->[$c2];
+                if ( ref $nd eq 'HASH' ) {
+                    @note =
+                      map {
+                        local $_ = $_;
+                        s/.*\n//s;
+                        s/[^A-Za-z0-9 -]/ /g;
+                        s/- / /g;
+                        s/ +/ /g;
+                        s/^ //;
+                        s/ $//;
+                        $_ = "a$_" if /^[0-9]/;
+                        $nd->{$_};
+                      } $self->{rows}
+                      ? @{ $self->{rows}{list} }
+                      : ( $self->{singleRowName}
+                          || _shortNameRow( $self->{name} ) );
+                }
+                elsif ( ref $nd eq 'ARRAY' ) {
+                    @note = @$nd;
+                    shift @note;
+                }
             }
-            elsif ( ref $nd eq 'ARRAY' ) {
-                @note = @$nd;
-                shift @note;
+            foreach my $y ( 0 .. $lastRow ) {
+                $ws->write( $row + $y, $c2, $note[$y], $scribbleFormat );
             }
+            ++$c2;
         }
-        foreach my $y ( 0 .. $lastRow ) {
-            $ws->write( $row + $y, $c2, $note[$y], $scribbleFormat );
-        }
-        ++$c2;
     }
 
     $row += $lastRow ? ( $lastRow + $self->{anonRow} ) : 0;
