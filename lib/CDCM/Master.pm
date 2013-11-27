@@ -66,6 +66,9 @@ sub requiredModulesForRuleset {
       ? 'CDCM::Table1001'
       : (),
 
+      $ruleset->{scaler}
+      && $ruleset->{scaler} =~ /DCP123/i ? 'CDCM::Matching123' : (),
+
       $ruleset->{timeOfDay} && $ruleset->{timeOfDay} eq 'timeOfDaySpecial'
       ? 'CDCM::TimeOfDaySpecial'
       : ();
@@ -402,7 +405,8 @@ EOT
             ]
         );
 
-        push @{ $model->{volumeData} }, $model->{pcd}{discount} = SumProduct(
+        push @{ $model->{volumeData} },
+          $model->{pcd}{discount} = SumProduct(
             name => 'Discount for each tariff (except for fixed charges)',
             defaultFormat => '%softnz',
             matrix        => Constant(
@@ -414,7 +418,7 @@ EOT
                 data          => \@data
             ),
             vector => $rawDiscount
-        );
+          );
 
         my $ldnoGenerators = Labelset(
             name => 'Generators on LDNO networks',
@@ -849,7 +853,7 @@ forecast data rather than historical data, if there is a difference.
 
     my ( $totalRevenuesFromMatching, $siteSpecificCharges, @matchingTables ) =
       $model->{scaler} && $model->{scaler} =~ /DCP123/i
-      ? $model->matching2012(
+      ? $model->matchingdcp123(
         $revenueShortfall,
         $componentMap,
         $allTariffsByEndUser,

@@ -8,7 +8,7 @@ matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: dcp123opt3adder
+scaler: dcp123hybridadder
 standing: sub132
 summary: consultation
 targetRevenue: dcp132

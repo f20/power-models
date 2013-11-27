@@ -74,7 +74,7 @@ sub matching {
     if ( $model->{scaler} && $model->{scaler} =~ /adder/i ) {
         if ($totalSiteSpecificReplacement) {
             $siteSpecificCharges = Arithmetic(
-                name => 'Total site specific sole use asset charges (£)',
+                name => 'Total site specific sole use asset charges (£/year)',
                 defaultFormat => '0softnz',
                 cols          => Labelset(
                     name => 'Site specific levels',
@@ -110,7 +110,8 @@ sub matching {
 
         my $capped = $model->{scaler} && $model->{scaler} =~ /capped/i;
 
-        push @{ $model->{optionLines} }, $levelled
+        push @{ $model->{optionLines} },
+          $levelled
           ? 'Revenue matching by '
           . (
             $model->{scaler} =~ /pick/i
@@ -128,7 +129,7 @@ sub matching {
             : $model->{scaler} =~ /opass/i ? ' operating and asset levels'
             : $model->{scaler} =~ /op/i    ? ' operating levels'
             : $model->{scaler} =~ /pick/i  ? ' levels'
-            : ' asset levels'
+            :                                ' asset levels'
           )
           : 'Revenue matching by scaler'
           . (
@@ -139,7 +140,8 @@ sub matching {
             : ''
           );
 
-        push @{ $model->{optionLines} }, 'Scaler is capped'
+        push @{ $model->{optionLines} },
+          'Scaler is capped'
           . (
             $model->{scaler} && $model->{scaler} =~ /cappedwithadder/i
             ? ' with adder for surplus'
@@ -302,7 +304,8 @@ sub matching {
                       );
                 }
                 else {
-                    push @factors, $model->{scaler} =~ /ehv/
+                    push @factors,
+                      $model->{scaler} =~ /ehv/
                       ? Arithmetic(
                         name =>
                           'Factor to scale to £1/kW (assets) at each level',
@@ -500,7 +503,8 @@ sub matching {
 
             if ($totalSiteSpecificReplacement) {
                 $siteSpecificCharges = Arithmetic(
-                    name => 'Total site specific sole use asset charges (£)',
+                    name =>
+                      'Total site specific sole use asset charges (£/year)',
                     defaultFormat => '0softnz',
                     cols          => $siteSpecificReplacement->{cols}
                     ? Labelset(
@@ -958,13 +962,14 @@ sub matching {
 
             };
 
-            push @{ $model->{adderResults} }, $totalRevenueRemoved = GroupBy(
+            push @{ $model->{adderResults} },
+              $totalRevenueRemoved = GroupBy(
                 name          => 'Total net revenues transferred to adder (£)',
                 rows          => 0,
                 cols          => 0,
                 source        => $revenuesRemoved,
                 defaultFormat => '0softnz'
-            );
+              );
 
         }
 
@@ -1055,7 +1060,7 @@ sub matching {
                         rowFormats => [
                             map {
                                 $componentMap->{$_}{$tariffComponent} ? undef
-                                  :   'unavailable';
+                                  : 'unavailable';
                             } @{ $allTariffsByEndUser->{list} }
                         ]
                       );
@@ -1198,14 +1203,15 @@ sub matching {
               : 'FALSE',
               arguments => { IV1 => $adderAmount };
 
-            push @{ $model->{optionLines} }, 'Adder for generators: '
+            push @{ $model->{optionLines} },
+              'Adder for generators: '
               . (
-                 !$model->{genAdder} ? 'never'
+                 !$model->{genAdder}             ? 'never'
                 : $model->{genAdder} =~ /charge/ ? 'if it is a charge'
                 : $model->{genAdder} =~ /pay/    ? 'if it is a credit'
                 : $model->{genAdder} =~ /always/ ? 'always'
                 : $model->{genAdder} =~ /never/  ? 'never'
-                : 'never'
+                :                                  'never'
               );
 
             my $gspPot = Labelset( list => [ $chargingLevels->{list}[0] ] );
@@ -1581,438 +1587,6 @@ sub matching {
       ),
       $siteSpecificCharges, grep { $_ } $scalerTable, $excludeScaler,
       $excludeReplacement,  $adderTable;
-
-}
-
-sub matching2012 {
-
-    my (
-        $model,                  $adderAmount,
-        $componentMap,           $allTariffsByEndUser,
-        $demandTariffsByEndUser, $allEndUsers,
-        $chargingLevels,         $nonExcludedComponents,
-        $allComponents,          $daysAfter,
-        $volumeAfter,            $loadCoefficients,
-        $tariffsExMatching,      $daysFullYear,
-        $volumeFullYear
-    ) = @_;
-
-    my $fixedAdderPot = Labelset( list => ['Adder'] );
-
-    my $totalRevenueFromUnits = GroupBy(
-        name          => 'Total revenues from demand unit rates (£/year)',
-        defaultFormat => '0soft',
-        source        => Arithmetic(
-            name => Label(
-                'From unit rates',
-                'Revenues from demand unit rates before matching (£/year)'
-            ),
-            rows => $allTariffsByEndUser,
-            arithmetic =>    # '=IF(IV5<0,0,'
-              '=10*('
-              . join( '+',
-                'IV701*IV702',
-                map { "IV$_*IV90$_" } 1 .. $model->{maxUnitRates} )
-              . ')',         # . '))',
-            arguments => {
-                IV5   => $loadCoefficients,
-                IV701 => $tariffsExMatching->{'Reactive power charge p/kVArh'},
-                IV702 => $volumeFullYear->{'Reactive power charge p/kVArh'},
-                map {
-                    my $name = "Unit rate $_ p/kWh";
-                    "IV$_"     => $tariffsExMatching->{$name},
-                      "IV90$_" => $volumeFullYear->{$name};
-                } 1 .. $model->{maxUnitRates}
-            },
-            defaultFormat => '0soft'
-        ),
-    );
-
-    my $totalRevenueFromFixed = GroupBy(
-        name          => 'Total revenues from demand fixed charges (£/year)',
-        defaultFormat => '0soft',
-        source        => Arithmetic(
-            name => Label(
-                'From fixed charges',
-                'Revenues from demand fixed charges before matching (£/year)'
-            ),
-            rows       => $allTariffsByEndUser,
-            arithmetic => '=0.01*IV6*IV1*IV2', # '=IF(IV5<0,0,0.01*IV6*IV1*IV2)'
-            arguments  => {
-                IV5 => $loadCoefficients,
-                IV6 => $daysFullYear,
-                IV1 => $tariffsExMatching->{'Fixed charge p/MPAN/day'},
-                IV2 => $volumeFullYear->{'Fixed charge p/MPAN/day'},
-            },
-            defaultFormat => '0soft'
-        ),
-    );
-
-    my $totalRevenueFromCapacity = GroupBy(
-        name          => 'Total revenues from demand capacity charges (£/year)',
-        defaultFormat => '0soft',
-        source        => Arithmetic(
-            name => Label(
-                'From capacity charges',
-                'Revenues from demand capacity charges before matching (£/year)'
-            ),
-            rows       => $allTariffsByEndUser,
-            arithmetic => '=0.01*IV6*IV1*IV2', # '=IF(IV5<0,0,0.01*IV6*IV1*IV2)'
-            arguments  => {
-                IV5 => $loadCoefficients,
-                IV6 => $daysFullYear,
-                IV1 => $tariffsExMatching->{'Capacity charge p/kVA/day'},
-                IV2 => $volumeFullYear->{'Capacity charge p/kVA/day'},
-            },
-            defaultFormat => '0soft'
-        ),
-    );
-
-    Columnset(
-        name    => 'Analysis of annual revenue before matching (£/year)',
-        columns => [
-            map { $_->{source} } $totalRevenueFromUnits,
-            $totalRevenueFromFixed,
-            $totalRevenueFromCapacity,
-        ]
-    );
-
-    Columnset(
-        name    => 'Total analysis of annual revenue before matching  (£/year)',
-        columns => [
-            $totalRevenueFromUnits, $totalRevenueFromFixed,
-            $totalRevenueFromCapacity,
-        ]
-    );
-
-    my $adderTable = {};
-
-    {    # units
-
-        my @columns = grep { /kWh/ } @$nonExcludedComponents;
-
-        my @slope = map {
-            Arithmetic(
-                name       => "Effect through $_",
-                arithmetic => '=IF(IV3<0,0,IV1*10)',
-                arguments  => {
-                    IV3 => $loadCoefficients,
-                    IV2 => $daysAfter,
-                    IV1 => $volumeAfter->{$_},
-                }
-            );
-        } @columns;
-
-        my $slopeSet = Columnset(
-            name    => 'Marginal revenue effect of adder',
-            columns => \@slope,
-        );
-
-        my %minAdder = map {
-            my $tariffComponent = $_;
-            $_ => Arithmetic(
-                name       => "Adder threshold for $_",
-                arithmetic => '=IF(IV4<0,0,0-IV1)',
-                arguments  => {
-                    IV4 => $loadCoefficients,
-                    IV1 => $tariffsExMatching->{$_},
-                },
-                rowFormats => [
-                    map {
-                        $componentMap->{$_}{$tariffComponent}
-                          ? undef
-                          : 'unavailable';
-                    } @{ $allTariffsByEndUser->{list} }
-                ]
-            );
-        } @columns;
-
-        my $minAdderSet = Columnset(
-            name    => 'Adder value at which the minimum is breached',
-            columns => [ @minAdder{@columns} ]
-        );
-
-        my $adderRate = new SpreadsheetModel::SegmentRoot(
-            name   => 'General adder rate (p/kWh)',
-            slopes => $slopeSet,
-            target => $model->{scaler} =~ /opt3/i
-            ? Arithmetic(
-                name          => 'Revenue matching target from unit rates (£)',
-                defaultFormat => '0soft',
-                arithmetic    => '=IV1*IV2/(IV3+IV4+IV5)',
-                arguments     => {
-                    IV1 => $adderAmount,
-                    IV2 => $totalRevenueFromUnits,
-                    IV3 => $totalRevenueFromUnits,
-                    IV4 => $totalRevenueFromFixed,
-                    IV5 => $totalRevenueFromCapacity,
-                }
-              )
-            : $adderAmount,
-            min => $minAdderSet,
-        );
-
-        foreach (@columns) {
-            my $tariffComponent = $_;
-            $adderTable->{$_} = Arithmetic(
-                name       => "Adder on $_",
-                rows       => $allTariffsByEndUser,
-                cols       => Labelset( list => ['Adder'] ),
-                arithmetic => "=IF(IV3<0,0,MAX(IV6,IV1))",
-                arguments  => {
-                    IV1 => $adderRate,
-                    IV3 => $loadCoefficients,
-                    IV6 => $minAdder{$_},
-                },
-                rowFormats => [
-                    map {
-                        $componentMap->{$_}{$tariffComponent}
-                          ? undef
-                          : 'unavailable';
-                    } @{ $allTariffsByEndUser->{list} }
-                ]
-            );
-        }
-
-    }
-
-    if ( $model->{scaler} =~ /opt3/i ) {
-
-        {    # fixed
-
-            my @columns = grep { /fixed/i } @$nonExcludedComponents;
-
-            my @slope = map {
-                Arithmetic(
-                    name       => "Effect through $_",
-                    arithmetic => '=IF(IV3>0,IV1*IV2*0.01,0)',
-                    arguments  => {
-                        IV3 => $loadCoefficients,
-                        IV2 => $daysAfter,
-                        IV1 => $volumeAfter->{$_},
-                    }
-                );
-            } @columns;
-
-            my $slopeSet = Columnset(
-                name    => 'Marginal revenue effect of adder',
-                columns => \@slope,
-            );
-
-            my %minAdder = map {
-                my $tariffComponent = $_;
-                $_ => Arithmetic(
-                    name       => "Adder threshold for $_",
-                    arithmetic => '=IF(IV4>0,0-IV1,0)',
-                    arguments  => {
-                        IV4 => $loadCoefficients,
-                        IV1 => $tariffsExMatching->{$_},
-                    },
-                    rowFormats => [
-                        map {
-                            $componentMap->{$_}{$tariffComponent}
-                              ? undef
-                              : 'unavailable';
-                        } @{ $allTariffsByEndUser->{list} }
-                    ]
-                );
-            } @columns;
-
-            my $minAdderSet = Columnset(
-                name    => 'Adder value at which the minimum is breached',
-                columns => [ @minAdder{@columns} ]
-            );
-
-            my $adderRate = new SpreadsheetModel::SegmentRoot(
-                name   => 'General adder rate (p/MPAN/day)',
-                slopes => $slopeSet,
-                target => Arithmetic(
-                    name => 'Revenue matching target from fixed charges (£)',
-                    defaultFormat => '0soft',
-                    arithmetic    => '=IV1*IV2/(IV3+IV4+IV5)',
-                    arguments     => {
-                        IV1 => $adderAmount,
-                        IV2 => $totalRevenueFromFixed,
-                        IV3 => $totalRevenueFromUnits,
-                        IV4 => $totalRevenueFromFixed,
-                        IV5 => $totalRevenueFromCapacity,
-                    }
-                ),
-                min => $minAdderSet,
-            );
-
-            foreach (@columns) {
-                my $tariffComponent = $_;
-                $adderTable->{$_} = Arithmetic(
-                    name       => "Adder on $_",
-                    rows       => $allTariffsByEndUser,
-                    cols       => Labelset( list => ['Adder'] ),
-                    arithmetic => "=IF(IV3<0,0,MAX(IV6,IV1))",
-                    arguments  => {
-                        IV1 => $adderRate,
-                        IV3 => $loadCoefficients,
-                        IV6 => $minAdder{$_},
-                    },
-                    rowFormats => [
-                        map {
-                            $componentMap->{$_}{$tariffComponent}
-                              ? undef
-                              : 'unavailable';
-                        } @{ $allTariffsByEndUser->{list} }
-                    ]
-                );
-            }
-
-        }
-
-        {    # capacity
-
-            my @columns = grep { /kVA\/day/ } @$nonExcludedComponents;
-
-            my @slope = map {
-                Arithmetic(
-                    name       => "Effect through $_",
-                    arithmetic => '=IF(IV3<0,0,IV1*IV2*0.01)',
-                    arguments  => {
-                        IV3 => $loadCoefficients,
-                        IV2 => $daysAfter,
-                        IV1 => $volumeAfter->{$_},
-                    }
-                );
-            } @columns;
-
-            my $slopeSet = Columnset(
-                name    => 'Marginal revenue effect of adder',
-                columns => \@slope,
-            );
-
-            my %minAdder = map {
-                my $tariffComponent = $_;
-                $_ => Arithmetic(
-                    name       => "Adder threshold for $_",
-                    arithmetic => '=IF(IV4<0,0,0-IV1)',
-                    arguments  => {
-                        IV4 => $loadCoefficients,
-                        IV1 => $tariffsExMatching->{$_},
-                    },
-                    rowFormats => [
-                        map {
-                            $componentMap->{$_}{$tariffComponent}
-                              ? undef
-                              : 'unavailable';
-                        } @{ $allTariffsByEndUser->{list} }
-                    ]
-                );
-            } @columns;
-
-            my $minAdderSet = Columnset(
-                name    => 'Adder value at which the minimum is breached',
-                columns => [ @minAdder{@columns} ]
-            );
-
-            my $adderRate = new SpreadsheetModel::SegmentRoot(
-                name   => 'General adder rate (p/kVA/day)',
-                slopes => $slopeSet,
-                target => Arithmetic(
-                    name => 'Revenue matching target from capacity charges (£)',
-                    defaultFormat => '0soft',
-                    arithmetic    => '=IV1*IV2/(IV3+IV4+IV5)',
-                    arguments     => {
-                        IV1 => $adderAmount,
-                        IV2 => $totalRevenueFromCapacity,
-                        IV3 => $totalRevenueFromUnits,
-                        IV4 => $totalRevenueFromFixed,
-                        IV5 => $totalRevenueFromCapacity,
-                    }
-                ),
-                min => $minAdderSet,
-            );
-
-            foreach (@columns) {
-                my $tariffComponent = $_;
-                $adderTable->{$_} = Arithmetic(
-                    name       => "Adder on $_",
-                    rows       => $allTariffsByEndUser,
-                    cols       => Labelset( list => ['Adder'] ),
-                    arithmetic => "=IF(IV3<0,0,MAX(IV6,IV1))",
-                    arguments  => {
-                        IV1 => $adderRate,
-                        IV3 => $loadCoefficients,
-                        IV6 => $minAdder{$_},
-                    },
-                    rowFormats => [
-                        map {
-                            $componentMap->{$_}{$tariffComponent}
-                              ? undef
-                              : 'unavailable';
-                        } @{ $allTariffsByEndUser->{list} }
-                    ]
-                );
-            }
-
-        }
-
-    }    # end of option 3-only SegmentRoots
-
-    my $revenuesFromAdder;
-
-    {
-        my @termsNoDays;
-        my @termsWithDays;
-        my %args = ( IV400 => $daysAfter );
-        my $i = 1;
-
-        foreach ( grep { $adderTable->{$_} } @$nonExcludedComponents ) {
-            ++$i;
-            my $pad = "$i";
-            $pad = "0$pad" while length $pad < 3;
-            if (m#/day#) {
-                push @termsWithDays, "IV2$pad*IV3$pad";
-            }
-            else {
-                push @termsNoDays, "IV2$pad*IV3$pad";
-            }
-            $args{"IV2$pad"} = $adderTable->{$_};
-            $args{"IV3$pad"} = $volumeAfter->{$_};
-        }
-
-        $revenuesFromAdder = Arithmetic(
-            name       => 'Net revenues by tariff from adder',
-            rows       => $allTariffsByEndUser,
-            arithmetic => '='
-              . join( '+',
-                @termsWithDays
-                ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
-                : ('0'),
-                @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
-                : ('0'),
-              ),
-            arguments     => \%args,
-            defaultFormat => '0softnz'
-        );
-
-        push @{ $model->{adderResults} },
-          Columnset(
-            name    => 'Adder',
-            columns => [
-                ( grep { $_ } @{$adderTable}{@$nonExcludedComponents} ),
-                $revenuesFromAdder
-            ]
-          );
-
-    }
-
-    my $totalRevenuesFromAdder = GroupBy(
-        name          => 'Total net revenues from adder (£)',
-        rows          => 0,
-        cols          => 0,
-        source        => $revenuesFromAdder,
-        defaultFormat => '0softnz'
-    );
-
-    my $siteSpecificCharges;    # not implemented in this option
-
-    $totalRevenuesFromAdder, $siteSpecificCharges, $adderTable;
 
 }
 
