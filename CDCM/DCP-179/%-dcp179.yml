@@ -1,0 +1,19 @@
+---
+.: 'DCP 179 (November 2013 with DCP 130, DCP 132 and DCP 163)'
+PerlModule: CDCM
+alwaysUseRAG: 1
+coincidenceAdj: group2voltage
+drm: top500gsp
+extraLevels: 1
+fixedCap: group
+lvCosts: cap
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: reducsub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp179dcp163
+timeOfDay: timeOfDaySpecial

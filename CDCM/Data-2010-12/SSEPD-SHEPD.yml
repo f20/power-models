@@ -2,13 +2,13 @@
 1000:
   - _note: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2010 indicative prices.
+      This dataset is intended to reproduce December 2010 prices.
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: SHEPD
     _column: Company
   - Company charging year data version: 2011/12
     _column: Year
-  - Company charging year data version: Indicative 19/11/2010
+  - Company charging year data version: 19/11/2010
     _column: Version
   - Company charging year data version: ''
 1010:

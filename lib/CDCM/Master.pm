@@ -522,8 +522,9 @@ EOT
                     name => SpreadsheetModel::Object::_shortName(
                         $intermediate{$_}{name}
                     ),
-                    rows   => $allEndUsers,
-                    source => $intermediate{$_}
+                    rows          => $allEndUsers,
+                    source        => $intermediate{$_},
+                    defaultFormat => '0soft',
                 );
             } @$nonExcludedComponents
         };
@@ -633,14 +634,21 @@ historical data rather than forecast data, if there is a difference.
 
     my ( $pseudoLoadCoefficientsAgainstSystemPeak, $pseudoLoadCoefficients );
     if ( $model->{maxUnitRates} && $model->{maxUnitRates} > 1 ) {
+
         if ( my $todmethod = $model->{timeOfDay} ) {
+
             $pseudoLoadCoefficients = $model->$todmethod(
                 $drmExitLevels, $componentMap,     $allEndUsers,
                 $daysInYear,    $loadCoefficients, $volumesByEndUser,
                 $unitsByEndUser
             );
+
+            # Does not create $pseudoLoadCoefficientsAgainstSystemPeak
+            # This might preclude some old revenue matching methods.
+
         }
         else {
+
             (
                 $pseudoLoadCoefficientsAgainstSystemPeak,
                 $pseudoLoadCoefficients
@@ -650,7 +658,9 @@ historical data rather than forecast data, if there is a difference.
                 $daysInYear,    $loadCoefficients, $volumesByEndUser,
                 $unitsByEndUser
               );
+
         }
+
     }
 
     my ( $forecastSml, $simultaneousMaximumLoadUnits,

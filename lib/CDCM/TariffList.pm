@@ -143,6 +143,61 @@ LV HH WC:
   - Reactive power charge p/kVArh
   - Included: sparecap|portfolio
 ---
+LV half hourly domestic:
+  - PC0
+  - Name: LV Network Domestic
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: dcp179|portfolio
+---
+LV half hourly WC:
+  - PC0
+  - Name: LV Network Non-Domestic Non-CT
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: dcp179|portfolio
+---
+LV half hourly CT:
+  - PC0
+  - Name: LV Network Non-Domestic CT
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: dcp179|portfolio
+---
+LV substation half hourly WC:
+  - PC0
+  - Name: LV Sub Non-CT
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: dcp179|portfolio
+---
+LV substation half hourly CT:
+  - PC0
+  - Name: LV Sub CT
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: dcp179|portfolio
+---
+HV half hourly WC:
+  - PC0
+  - Name: HV Network Non-CT
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: dcp179|portfolio
+---
+HV half hourly CT:
+  - PC0
+  - Name: HV Network CT
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: dcp179|portfolio
+---
 LV half hourly:
   - PC0
   - Name: LV HH Metered
@@ -151,6 +206,7 @@ LV half hourly:
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
   - Included: special|common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|boundary|portfolio|dcp161toy|simple
+  - Excluded: dcp179
 ---
 LV substation half hourly:
   - PC0
@@ -160,6 +216,7 @@ LV substation half hourly:
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
   - Included: common|EDF|WS2|WS3|Opt2|Opt3|Opt4|portfolio|simple
+  - Excluded: dcp179
 ---
 HV half hourly:
   - PC0
@@ -169,6 +226,7 @@ HV half hourly:
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
   - Included: common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|T9|dcp161toy|simple
+  - Excluded: dcp179
 ---
 HV substation half hourly:
   - PC0

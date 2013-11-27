@@ -2,7 +2,7 @@
 1000:
   - _note: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2011 indicative prices.
+      This dataset is intended to reproduce December 2011 prices.
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: London Power Networks
     _column: Company

@@ -1,0 +1,16 @@
+---
+.: Simple percentage scaling (with DCP 130 and DCP 132)
+PerlModule: CDCM
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: pickallnogen
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130
+timeOfDay: timeOfDaySpecial

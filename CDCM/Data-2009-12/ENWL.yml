@@ -2,7 +2,7 @@
 1000:
   - _note: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2009 indicative prices.
+      This dataset is intended to reproduce December 2009 prices.
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: ENW LTD
     _column: Company
@@ -12,7 +12,7 @@
     _column: Version
   - Company charging year data version: ''
 1010:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1010. Financial and general assumptions
   - Financial and general assumptions: 0.069
     _column: Rate of return
@@ -25,7 +25,7 @@
     _column: Days in the charging period
   - Financial and general assumptions: ''
 1017:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1017. Diversity allowance between top and bottom of network level
   - 132kV: 0.0788
     132kV EHV: ''
@@ -50,13 +50,13 @@
     _column: 132kV/HV
   - EHV HV: ''
 1019:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1019. Network model GSP peak demand (MW)
   - Network model GSP peak demand MW: 500
     _column: Network model GSP peak demand (MW)
   - Network model GSP peak demand MW: ''
 1020:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1020. Gross asset cost by network level (£)
   - 132kV: 38287511
     132kV EHV: 32477662
@@ -76,7 +76,7 @@
     HV LV: ''
     LV circuits: ''
 1022:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1022. LV service model asset cost (£)
   - LV service model asset cost: 8556
     _column: LV service model 1
@@ -96,7 +96,7 @@
     _column: LV service model 8
   - LV service model asset cost: ''
 1023:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1023. HV service model asset cost (£)
   - HV service model asset cost: 19792
     _column: HV service model 1
@@ -246,7 +246,7 @@
     Small Non Domestic Two Rate: ''
     Small Non Domestic Unrestricted: ''
 1026:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1026. Matrix of applicability of LV service models to unmetered tariffs
   - LV UMS Pseudo HH Metered: 0
     NHH UMS: 0
@@ -275,7 +275,7 @@
   - LV UMS Pseudo HH Metered: ''
     NHH UMS: ''
 1028:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1028. Matrix of applicability of HV service models to tariffs with fixed charges
   - HV Generation Intermittent: 0
     HV Generation Non-Intermittent: 0
@@ -355,7 +355,7 @@
     _column: 'LDNO HV: HV user'
   - LDNO discount: ''
 1041:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1041. Load profile data for demand users
   - Domestic Off Peak related MPAN: ''
     Domestic Two Rate: 0.385
@@ -835,7 +835,7 @@
     _column: Network rates (£/year)
   - Other expenditure: ''
 1060:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1060. Customer contributions under current connection charging policy
   - HV network: ''
     HV substation: ''
@@ -882,7 +882,7 @@
     LV network: ''
     LV substation: ''
 1061:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1061. Average split of rate 1 units by distribution time band
   - Domestic Off Peak related MPAN: 0.004
     Domestic Two Rate: 0.097
@@ -916,7 +916,7 @@
     Small Non Domestic Off Peak related MPAN: ''
     Small Non Domestic Two Rate: ''
 1062:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1062. Average split of rate 2 units by distribution time band
   - Domestic Two Rate: 0
     HV Medium Non-Domestic: 0
@@ -942,7 +942,7 @@
     LV Sub Medium Non-Domestic: ''
     Small Non Domestic Two Rate: ''
 1068:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1068. Typical annual hours by distribution time band
   - Annual hours: 522
     _column: Red
@@ -952,7 +952,7 @@
     _column: Green
   - Annual hours: ''
 1069:
-  - _note: From CDCM Final model Aug 09
+  - _note: From CDCM model Aug 09
     _table: 1069. Peaking probabilities by network level
   - 132kV: 0.77
     132kV EHV: 0.77

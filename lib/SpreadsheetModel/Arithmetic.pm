@@ -191,8 +191,7 @@ sub wsPrepare {
           && $self->{rowFormats}[$y]
           && $self->{rowFormats}[$y] eq 'unavailable';
         '', $format, $formula, map {
-            if ( my ( $a, $b ) = (/^([A-Z0-9]+)_([A-Z0-9]+)$/) )
-            {
+            if ( my ( $a, $b ) = (/^([A-Z0-9]+)_([A-Z0-9]+)$/) ) {
                 my $arg = $self->{arguments}{$_};
                 qr/\b$a\b/   => xl_rowcol_to_cell( $row{$_}, $col{$_}, 1, 1 ),
                   qr/\b$b\b/ => xl_rowcol_to_cell(
@@ -215,7 +214,7 @@ sub wsPrepare {
                         : $mody{$_} == 2 ? $x
                         : $mody{$_} == 3 ? $self->{rows}{groupid}[$y]
                         : $mody{$_} < 0  ? $y % -$mody{$_}
-                        : die
+                        :                  die
                     ),
                     $col{$_} + (
                         ref $modx{$_}
@@ -229,7 +228,7 @@ sub wsPrepare {
                         : $modx{$_} == 2 ? $y
                         : $modx{$_} == 3 ? $self->{cols}{groupid}[$x]
                         : $modx{$_} < 0  ? $x % -$modx{$_}
-                        : die
+                        :                  die
                     ),
                     ref $mody{$_} ? $mody{$_}[$y] >= 0 : $mody{$_} > 0,
                     ref $modx{$_} ? $modx{$_}[$x] >= 0 : $modx{$_} > 0

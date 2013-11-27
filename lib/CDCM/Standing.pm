@@ -52,7 +52,8 @@ sub standingCharges {
         $paygUnitYardstick,        @paygUnitRates
     ) = @_;
 
-    push @{ $model->{standingResults} }, my $costToAml =
+    push @{ $model->{standingResults} },
+      my $costToAml =
       $model->{useLvAml}
       ? Stack(
         name    => 'All costs based on aggregate maximum load (£/kW/year)',
@@ -172,46 +173,138 @@ sub standingCharges {
         defaultFormat => '0.000softnz'
       ) if $model->{unauth};
 
-    my $maxKvaByEndUser =
-      $model->{spareCap}
-      ? Arithmetic(
-        name => Label(
-            'Average maximum kVA/MPAN',
-            'Average maximum kVA/MPAN by end user class,'
-              . ' for user classes without an agreed import capacity'
-        ),
-        rows          => $standingForFixedEndUsers,
-        arithmetic    => '=IF(IV6>0,IV2/IV3*IV4/IV1/(24*IV5)*1000,0)',
-        defaultFormat => '0.000softnz',
-        arguments     => {
-            IV1 => $loadFactors,
-            IV2 => $unitsByEndUser,
-            IV6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-            IV3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-            IV4 => $model->{spareCap},
-            IV5 => $daysInYear
-        }
-      )
-      : Arithmetic(
-        name => Label(
-            'Average maximum kVA/MPAN',
-            'Average maximum kVA/MPAN by end user class,'
-              . ' for user classes without an agreed import capacity'
-        ),
-        rows          => $standingForFixedEndUsers,
-        arithmetic    => '=IF(IV6>0,IV2/IV3/IV4/IV1/(24*IV5)*1000,0)',
-        defaultFormat => '0.000softnz',
-        arguments     => {
-            IV1 => $loadFactors,
-            IV2 => $unitsByEndUser,
-            IV6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-            IV3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-            IV4 => $powerFactorInModel,
-            IV5 => $daysInYear
-        }
-      );
+    my $maxKvaByEndUser;
+    if ( $model->{fixedCap} && $model->{fixedCap} =~ /group/i ) {
 
-    push @{ $model->{standingNhh} }, my $capacityUserElements = Arithmetic(
+    # get $maxKvaByEndUser from tariff grouping - to apply to all network levels
+
+        my $tariffGroupset = Labelset(
+            list => [
+                'LV Domestic tariffs',
+                'LV Non-Domestic Non-CT tariffs',
+                'LV Sub Non-CT tariffs',
+                'HV Network Non-CT tariffs',
+            ]
+        );
+
+        my $mapping = Constant(
+            name          => 'Mapping of tariffs to tariff groups',
+            defaultFormat => '0connz',
+            rows          => $standingForFixedEndUsers,
+            cols          => $tariffGroupset,
+            data          => [
+                map {
+                        /(additional|related) mpan/i ? [qw(0 0 0 0)]
+                      : /domestic|1p|single/i && !/non.?dom/i ? [qw(1 0 0 0)]
+                      : /lv sub/i ? [qw(0 0 1 0)]
+                      : /hv/i     ? [qw(0 0 0 1)]
+                      :             [qw(0 1 0 0)];
+                } @{ $standingForFixedEndUsers->{list} }
+            ],
+            byrow => 1,
+        );
+
+        my $numerator = SumProduct(
+            matrix        => $mapping,
+            name          => 'Aggregate capacity (kW)',
+            defaultFormat => '0softnz',
+            vector        => Arithmetic(
+                name => Label(
+                        'Unit-based contributions to aggregate '
+                      . 'maximum load (kW)'
+                ),
+                arithmetic => '=IV1/IV2/(24*IV9)*1000',
+                rows       => $standingForFixedEndUsers,
+                arguments  => {
+                    IV1 => $unitsInYear,
+                    IV2 => $loadFactors,
+                    IV9 => $daysInYear,
+                },
+                defaultFormat => '0softnz',
+            )
+        );
+
+        my $denominator = SumProduct(
+            matrix => $mapping,
+            name   => 'Aggregate number of users charged '
+              . 'for LV circuits on an exit point basis',
+            defaultFormat => '0softnz',
+            vector        => Stack(
+                rows    => $standingForFixedEndUsers,
+                sources => [ $volumeData->{'Fixed charge p/MPAN/day'} ]
+            ),
+        );
+
+        my $maxKvaAverageLv = Arithmetic(
+            name       => 'Average maximum kVA by exit point',
+            arithmetic => '=IF(IV5,IV1/IV2'
+              . ( $model->{spareCap} ? '*IV4' : '/IV4' ) . ',0)',
+            arguments => {
+                IV1 => $numerator,
+                IV2 => $denominator,
+                IV5 => $denominator,
+                IV4 => $model->{spareCap} || $powerFactorInModel,
+            }
+        );
+
+        Columnset(
+            name => 'Statistics for tariffs charged '
+              . 'for capacity on an exit point basis',
+            columns =>
+              [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(IV1 IV2) ]
+        );
+
+        $maxKvaByEndUser = SumProduct(
+            name   => 'Deemed average maximum kVA for each tariff',
+            matrix => $mapping,
+            vector => $maxKvaAverageLv
+        );
+
+    }
+
+    else {    # tariff by tariff
+        $maxKvaByEndUser =
+          $model->{spareCap}
+          ? Arithmetic(
+            name => Label(
+                'Average maximum kVA/MPAN',
+                'Average maximum kVA/MPAN by end user class,'
+                  . ' for user classes without an agreed import capacity'
+            ),
+            rows          => $standingForFixedEndUsers,
+            arithmetic    => '=IF(IV6>0,IV2/IV3*IV4/IV1/(24*IV5)*1000,0)',
+            defaultFormat => '0.000softnz',
+            arguments     => {
+                IV1 => $loadFactors,
+                IV2 => $unitsByEndUser,
+                IV6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
+                IV3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
+                IV4 => $model->{spareCap},
+                IV5 => $daysInYear
+            }
+          )
+          : Arithmetic(
+            name => Label(
+                'Average maximum kVA/MPAN',
+                'Average maximum kVA/MPAN by end user class,'
+                  . ' for user classes without an agreed import capacity'
+            ),
+            rows          => $standingForFixedEndUsers,
+            arithmetic    => '=IF(IV6>0,IV2/IV3/IV4/IV1/(24*IV5)*1000,0)',
+            defaultFormat => '0.000softnz',
+            arguments     => {
+                IV1 => $loadFactors,
+                IV2 => $unitsByEndUser,
+                IV6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
+                IV3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
+                IV4 => $powerFactorInModel,
+                IV5 => $daysInYear
+            }
+          );
+    }
+
+    push @{ $model->{standingNhh} },
+      my $capacityUserElements = Arithmetic(
         name => 'Capacity-driven fixed charge elements'
           . ' from standing charges factors p/MPAN/day',
         arithmetic => '=IV1*IV3',
@@ -221,15 +314,15 @@ sub standingCharges {
             IV1 => $capacityCharges->{source},
         },
         defaultFormat => '0.000softnz'
-    );
+      );
 
     if ( $model->{lvCosts} && $model->{lvCosts} =~ /cap/i ) {
 
-        # no grouping: do nothing
+        # no special grouping for LV circuits: nothing to do
 
     }
 
-    if ( $model->{lvCosts} && $model->{lvCosts} =~ /group/i ) {
+    elsif ( $model->{lvCosts} && $model->{lvCosts} =~ /group/i ) {
 
         # several tariff groups for LV circuit costs
 
@@ -250,9 +343,9 @@ sub standingCharges {
 
         my $tariffGroupset = Labelset(
             list => [
-                'LV domestic / single phase',
-                'LV whole current, non-domestic / three phases',
-                'LV current transformer',
+                'LV Domestic tariffs',
+                'LV Non-Domestic Non-CT tariffs',
+                'LV Non-Domestic CT tariffs',
             ]
         );
 
@@ -288,7 +381,7 @@ sub standingCharges {
                             /(additional|related) mpan/i ? [qw(0 0 0)]
                           : /domestic|1p|single/i
                           && !/non.?dom/i ? [qw(1 0)]
-                          :                 [qw(0 1)];
+                          : [qw(0 1)];
                     } @{ $lvStandingForFixedTariffsByEndUser->{list} }
                 ],
                 byrow => 1,
@@ -343,7 +436,8 @@ sub standingCharges {
               [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(IV1 IV2) ]
           );
 
-        push @{ $model->{standingNhh} }, $capacityUserElements = Stack(
+        push @{ $model->{standingNhh} },
+          $capacityUserElements = Stack(
             name => 'Fixed charge elements from '
               . 'standing charges factors p/MPAN/day',
             cols    => $chargingDrmExitLevels,
@@ -362,6 +456,8 @@ sub standingCharges {
                     arithmetic => '=IV1*IV3',
                     arguments  => {
                         IV3 => SumProduct(
+                            name =>
+                              'Deemed average maximum kVA for each tariff',
                             matrix => $mapping,
                             vector => $maxKvaAverageLv
                         ),
@@ -372,17 +468,18 @@ sub standingCharges {
                 $capacityUserElements
             ],
             defaultFormat => '0.000copynz'
-        );
+          );
 
     }
 
     else {
 
-        # model 100 approach: one hard-coded group
+# model 100 approach: one group for profile classes 1-4 (or optionally for all NHH)
 
         my $allNhh = $model->{lvCosts} && $model->{lvCosts} =~ /nhh/i;
 
-        push @{ $model->{optionLines} }, 'LV circuit costs by exit point for '
+        push @{ $model->{optionLines} },
+          'LV circuit costs by exit point for '
           . (
             $allNhh
             ? 'all NHH demand'
@@ -547,14 +644,16 @@ sub standingCharges {
         source => $capacityUserElements
     );
 
-    push @{ $model->{standingResults} }, $model->{showSums}
+    push @{ $model->{standingResults} },
+      $model->{showSums}
       ? Columnset(
         name    => 'Capacity charges from standing charges factors',
         columns => [ $capacityCharges->{source}, $capacityCharges ]
       )
       : $capacityCharges->{source};
 
-    push @{ $model->{unauthorisedDemand} }, $model->{showSums}
+    push @{ $model->{unauthorisedDemand} },
+      $model->{showSums}
       ? Columnset(
         name => $model->{unauth} && $model->{unauth} =~ /day/i
         ? 'Exceeded capacity charges from standing charges factors'
@@ -564,7 +663,8 @@ sub standingCharges {
       )
       : $unauthorisedDemandCharges->{source};
 
-    push @{ $model->{standingNhh} }, $model->{showSums}
+    push @{ $model->{standingNhh} },
+      $model->{showSums}
       ? Columnset(
         name    => 'Fixed charges from standing charges factors',
         columns => [ $capacityUser->{source}, $capacityUser ]

@@ -6,7 +6,7 @@
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: SP Manweb
     _column: Company
-  - Company charging year data version: Final 2010/11
+  - Company charging year data version: 2010/11
     _column: Year
   - Company charging year data version: 1
     _column: Version

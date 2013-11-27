@@ -2,11 +2,11 @@
 1000:
   - _note: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2010 indicative prices.
+      This dataset is intended to reproduce December 2010 prices.
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: SP Manweb
     _column: Company
-  - Company charging year data version: Indicative 2011/12
+  - Company charging year data version: 2011/12
     _column: Year
   - Company charging year data version: 1
     _column: Version

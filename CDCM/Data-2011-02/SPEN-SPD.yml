@@ -6,7 +6,7 @@
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: SP Distribution
     _column: Company
-  - Company charging year data version: Final 2011/12
+  - Company charging year data version: 2011/12
     _column: Year
   - Company charging year data version: 1
     _column: Version

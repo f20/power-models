@@ -1,20 +1,16 @@
 ---
-.: Model with DCP 130 and the ugly form of DCP 132
+.: DCP 123 revenue matching option 3 with DCP 130 and DCP 132 (ugly)
 PerlModule: CDCM
 coincidenceAdj: groupums
-colour: orange
 drm: top500gsp
 extraLevels: 1
-frontSheets:
-  - Overview
-  - CDCM Revenues
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: levelledpickexitnogenminzero
+scaler: dcp123hybridadder
 standing: sub132
 summary: consultation
-targetRevenue: dcp132longlabels
+targetRevenue: dcp132
 tariffs: commongensubdcp130
 timeOfDay: timeOfDaySpecial

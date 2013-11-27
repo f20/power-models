@@ -2,7 +2,7 @@
 1000:
   - _note: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2009 indicative prices.
+      This dataset is intended to reproduce December 2009 prices.
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: EDFEN SPN
     _column: Company

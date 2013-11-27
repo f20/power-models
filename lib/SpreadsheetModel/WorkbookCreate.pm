@@ -63,6 +63,7 @@ sub _applyDataOverride {
             }
         }
     }
+    $dataset;
 }
 
 sub create {
@@ -110,9 +111,6 @@ sub create {
                 require YAML;
                 $options->{dataset} = YAML::Load($yaml);
             }
-            _applyDataOverride( $options->{dataset},
-                $options->{datasetOverride} )
-              if $options->{datasetOverride} && $options->{dataset};
             $options->{dataset} =
               _applyDataOverride( Storable::dclone( $options->{dataset} ),
                 $options->{dataOverride} )
@@ -326,8 +324,11 @@ sub writeColourCodeSimple {
         $wbook->getFormat('0.000hard') );
     $wsheet->write_string( ++$row, 2, 'Calculation',
         $wbook->getFormat('0.000soft') );
-    $wsheet->write_string( ++$row, 2, 'Data from tariff model',
-        $wbook->getFormat('0.000copy') );
+    $wsheet->write_string(
+        ++$row, 2,
+        'Data from tariff model',
+        $wbook->getFormat('0.000copy')
+    );
 }
 
 1;

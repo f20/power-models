@@ -2,13 +2,13 @@
 1000:
   - _note: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2011 indicative prices.
+      This dataset is intended to reproduce December 2011 prices.
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: Northern Powergrid (Yorkshire)
     _column: Company
   - Company charging year data version: 2012/13
     _column: Year
-  - Company charging year data version: 'April 2012 - indicative charges'
+  - Company charging year data version: 'April 2012 - charges'
     _column: Version
   - Company charging year data version: ''
 1010:

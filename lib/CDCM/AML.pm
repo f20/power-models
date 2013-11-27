@@ -47,7 +47,7 @@ sub diversity {
     ) = @_;
 
     push @{ $model->{optionLines} }, !$model->{standing}
-      || $model->{standing} =~ /sub/i
+      || $model->{standing} =~ /^sub/i
       ? 'Standing charges factors: '
       . '100/0/0 LV NHH, '
       . '100/100/20 network, '
@@ -56,10 +56,14 @@ sub diversity {
       ? 'Standing charges factors: 100/0/0 for LV NHH, 100/100/20 for others'
       : $model->{standing} =~ /mig12/i
       ? 'Standing charges factors: 100/0/0 for PC1-4, 100/100/20 network, 100/100/0 substation'
+      : $model->{standing} =~ /dndsub/i
+      ? 'Standing charges factors: 100/0/0 for domestic, 100/100/20 non domestic, 100/100/0 substation'
       : $model->{standing} =~ /pc1-?4/i
       ? 'Standing charges factors: 100/0/0 for PC1-4, 100/100/20 for others'
       : $model->{standing} =~ /low/i
       ? 'Standing charges factors: 100/0/0 for everyone'
+      : $model->{standing} =~ /reducsub/i
+      ? 'Standing charges factors: 100/100/20 for network, 100/100/0 for substation'
       : $model->{standing} =~ /reduc/i
       ? 'Standing charges factors: 100/100/20 for everyone'
       : $model->{standing} =~ /edf/i
@@ -76,7 +80,7 @@ sub diversity {
         rows  => $demandEndUsers,
         cols  => $coreExitLevels,
         byrow => 1,
-        data  => !$model->{standing} || $model->{standing} =~ /sub/i
+        data  => !$model->{standing} || $model->{standing} =~ /^sub/i
         ? [
             map {
                 /unmeter|generat/i
@@ -166,6 +170,32 @@ sub diversity {
                   : [ map { 0 } 1 .. 8 ]
             } @{ $demandEndUsers->{list} }
           ]
+        : $model->{standing} =~ /dndsub/i ? [
+            map {
+                    /unmeter|generat/i ? [ map { 0 } 1 .. 8 ]
+                  : /LV Sub/i          ? [qw(0 0 0 0 0 1 1 0)]
+                  : /LV/i              ? (
+                    /non.?dom/i || !/domestic/i
+                    ? [qw(0 0 0 0 0 .2 1 1)]
+                    : [qw(0 0 0 0 0 0 0 1)]
+                  )
+                  : /HV sub/i   ? [qw(0 0 0 1 1 0 0 0)]
+                  : /HV/i       ? [qw(0 0 0 .2 1 1 0 0)]
+                  : /33kV sub/i ? [
+                    $model->{ehv} && $model->{ehv} =~ /cap|33/i
+                    ? qw(1 1 1 0 0 0 0 0)
+                    : qw(0 1 1 0 0 0 0 0)
+                  ]
+                  : /33/ ? [
+                    $model->{ehv} && $model->{ehv} =~ /cap|33/i
+                    ? qw(1 1 1 1 0 0 0 0)
+                    : qw(0 .2 1 1 0 0 0 0)
+                  ]
+                  : /132/  ? [qw(1 1 0 0 0 0 0 0)]
+                  : /GSP/i ? [qw(1 0 0 0 0 0 0 0)]
+                  : [ map { 0 } 1 .. 8 ]
+            } @{ $demandEndUsers->{list} }
+          ]
         : $model->{standing} =~ /pc1-?4/i ? [
             map {
                 /unmeter|generat/i
@@ -214,6 +244,28 @@ sub diversity {
                     ? qw(1 1 0 0 0 0 0 0)
                     : qw(0 1 0 0 0 0 0 0)
                   ]
+                  : /GSP/i ? [qw(1 0 0 0 0 0 0 0)]
+                  : [ map { 0 } 1 .. 8 ]
+            } @{ $demandEndUsers->{list} }
+          ]
+        : $model->{standing} =~ /reducsub/i ? [
+            map {
+                    /unmeter|generat/i ? [ map { 0 } 1 .. 8 ]
+                  : /LV sub/i          ? [qw(0 0 0 0 0 1 1 0)]
+                  : /LV/i              ? [qw(0 0 0 0 0 .2 1 1)]
+                  : /HV sub/i          ? [qw(0 0 0 1 1 0 0 0)]
+                  : /HV/i              ? [qw(0 0 0 .2 1 1 0 0)]
+                  : /33kV sub/i        ? [
+                    $model->{ehv} && $model->{ehv} =~ /cap|33/i
+                    ? qw(1 1 1 0 0 0 0 0)
+                    : qw(0 1 1 0 0 0 0 0)
+                  ]
+                  : /33/ ? [
+                    $model->{ehv} && $model->{ehv} =~ /cap|33/i
+                    ? qw(1 1 1 1 0 0 0 0)
+                    : qw(0 .2 1 1 0 0 0 0)
+                  ]
+                  : /132/  ? [qw(1 1 0 0 0 0 0 0)]
                   : /GSP/i ? [qw(1 0 0 0 0 0 0 0)]
                   : [ map { 0 } 1 .. 8 ]
             } @{ $demandEndUsers->{list} }
@@ -357,7 +409,7 @@ EOL
                     cols => $drmExitLevels,
                     data => [
                         [ map { 0 } @tariffs132sub ],
-                        !$model->{standing} || $model->{standing} =~ /sub/i
+                        !$model->{standing} || $model->{standing} =~ /^sub/i
                         ? [ map { 1 } @tariffs132sub ]
                         : $model->{standing} =~ /nhh/
                         ? [ map { 0.2 } @tariffs132sub ]
@@ -451,7 +503,8 @@ EOL
             ]
         );
 
-        push @{ $model->{forecastAml} }, $forecastAmlCapacity = Arithmetic(
+        push @{ $model->{forecastAml} },
+          $forecastAmlCapacity = Arithmetic(
             name => Label(
                     'Capacity-based contributions to chargeable aggregate '
                   . 'maximum load by network level (kW)'
@@ -466,7 +519,7 @@ EOL
                 IV5 => $lineLossFactors
             },
             defaultFormat => '0softnz',
-        ) if $volumeData->{'Capacity charge p/kVA/day'};
+          ) if $volumeData->{'Capacity charge p/kVA/day'};
 
         if ( $model->{spareCap} ) {
             if ( $model->{spareCap} =~ /first/i ) {
@@ -523,7 +576,8 @@ EOL
         }
     }
 
-    push @{ $model->{forecastAml} }, my $forecastAmlUnits = Arithmetic(
+    push @{ $model->{forecastAml} },
+      my $forecastAmlUnits = Arithmetic(
         name => Label(
                 'Unit-based contributions to '
               . 'chargeable aggregate '
@@ -548,11 +602,12 @@ EOL
             : (),
         },
         defaultFormat => '0softnz',
-    );
+      );
 
     unless ( $model->{opAllocSml} && $model->{useLvAml} ) {
 
-        push @{ $model->{forecastAml} }, my $chargeableAml = GroupBy(
+        push @{ $model->{forecastAml} },
+          my $chargeableAml = GroupBy(
             name   => 'Forecast chargeable aggregate maximum load (kW)',
             rows   => 0,
             cols   => $diversityLevels,
@@ -567,7 +622,7 @@ EOL
                 ]
             ),
             defaultFormat => '0softnz',
-        );
+          );
 
         my $chargeableSml = GroupBy(
             name =>
@@ -629,7 +684,8 @@ EOL
 
         }
 
-        push @{ $model->{forecastAml} }, $diversityAllowances = Stack(
+        push @{ $model->{forecastAml} },
+          $diversityAllowances = Stack(
             name => 'Diversity allowances (including calculated LV value)',
             defaultFormat => '%copynz',
             cols          => $drmExitLevels,
@@ -645,9 +701,10 @@ EOL
                 ),
                 $diversityAllowances
             ]
-        ) unless $model->{useLvAml};
+          ) unless $model->{useLvAml};
 
-        push @{ $model->{forecastAml} }, $forecastSml = Arithmetic(
+        push @{ $model->{forecastAml} },
+          $forecastSml = Arithmetic(
             name => 'Forecast simultaneous maximum load (kW)'
               . ' adjusted for standing charges',
             arithmetic    => '=IV3-IV2+IV1/(1+IV4)',
@@ -658,7 +715,7 @@ EOL
                 IV3 => $forecastSml,
                 IV4 => $diversityAllowances
             }
-        ) unless $model->{opAllocSml};
+          ) unless $model->{opAllocSml};
 
     }
 

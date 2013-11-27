@@ -8,7 +8,7 @@
     _column: Company
   - Company charging year data version: 2010/11
     _column: Year
-  - Company charging year data version: 'Feb - Final'
+  - Company charging year data version: 'Feb -'
     _column: Version
   - Company charging year data version: ''
 1010:

@@ -74,21 +74,18 @@ if ( grep { /xlsx/i } @ARGV ) {
 }
 my $options = ( grep { /right/i } @ARGV ) ? { alignment => 'right' } : {};
 
-if ( grep { /\ball\b/i } @ARGV ) {
+foreach
+  my $modelsMatching ( map { /\ball\b/i ? '.' : m#^/(.+)/$# ? $1 : (); } @ARGV )
+{
     require Compilation::DatabaseExportTabs;
-    $db->tableCompilations( $workbookModule, $fileExtension, $options,
-        all => qw(. .) );
-}
-
-if ( grep { /100/i } @ARGV ) {
-    require Compilation::DatabaseExportTabs;
-    $db->tableCompilations( $workbookModule, $fileExtension, $options,
-        only100 => qw(100 .) );
-}
-elsif ( my ($num) = grep { /^[0-9]+$/ } @ARGV ) {
-    require Compilation::DatabaseExportTabs;
-    $db->tableCompilations( $workbookModule, $fileExtension, $options, 'all',
-        '.', "^$num" );
+    my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @ARGV;
+    @tablesMatching = ('.') unless @tablesMatching;
+    foreach my $tablesMatching (@tablesMatching) {
+        local $_ = "Compilation $modelsMatching$tablesMatching";
+        s/ *[^ a-zA-Z0-9-^]//g;
+        $db->tableCompilations( $workbookModule, $fileExtension, $options,
+            $_ => ( $modelsMatching, $tablesMatching ) );
+    }
 }
 
 if ( grep { /\btscs/i } @ARGV ) {
@@ -98,18 +95,38 @@ if ( grep { /\btscs/i } @ARGV ) {
         { %$options, ( ( grep { /csv/i } @ARGV ) ? 'csv' : 'wb' ) => 1 } );
 }
 
-if ( my ($dcp) = grep { /(dcp\S*)/i } @ARGV ) {
+if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
+    my $options = {};
+    if ( my ($yml) = grep { /\.ya?ml$/is } @ARGV ) {
+        require YAML;
+        $options = YAML::LoadFile($yml);
+    }
+    my $name = $dcp;
+    my ($base) = map { /-base=(.+)/ ? $1 : (); } @ARGV;
+    if ($base) { $name .= ' v ' . $base; }
+    else {
+        $base = qr/original|clean|mini/i;
+    }
     require Compilation::DatabaseExportImpact;
     $db->cdcmTariffImpact(
         $workbookModule, $fileExtension,
-        dcpName   => $dcp,
-        basematch => sub { $_[0] =~ /original|clean|mini/i; },
-        dcpmatch  => sub { $_[0] =~ /-$dcp/i; }
+        dcpName   => $name,
+        basematch => sub { $_[0] =~ /$base/i; },
+        dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
+        %$options,
     );
-    $db->cdcmRevenueImpact(
+    $db->cdcmPpuImpact(
         $workbookModule, $fileExtension,
-        dcpName   => $dcp,
-        basematch => sub { $_[0] =~ /original|clean/i; },
-        dcpmatch  => sub { $_[0] =~ /-$dcp/i; }
+        dcpName   => $name,
+        basematch => sub { $_[0] =~ /$base/i; },
+        dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
+        %$options,
+    );
+    $db->cdcmRevenueMatrixImpact(
+        $workbookModule, $fileExtension,
+        dcpName   => $name,
+        basematch => sub { $_[0] =~ /$base/i; },
+        dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
+        %$options,
     );
 }

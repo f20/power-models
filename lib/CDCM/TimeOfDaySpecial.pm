@@ -115,30 +115,158 @@ sub timeOfDaySpecial {
         1
     );
 
-    [
-        map {
-            my $r        = $_ + 1;
-            my $pl1      = $plca1->[$_];
-            my $pl2      = $plca2->[$_];
-            my $endusers = Labelset(
-                name => "Users which have a unit rate $r",
-                list => [ @{ $pl1->{rows}{list} }, @{ $pl2->{rows}{list} } ]
+    my @pseudos =
+      map {
+        my $r        = $_ + 1;
+        my $pl1      = $plca1->[$_];
+        my $pl2      = $plca2->[$_];
+        my $endUsers = Labelset(
+            name => "Users which have a unit rate $r",
+            list => [ @{ $pl1->{rows}{list} }, @{ $pl2->{rows}{list} } ]
+        );
+        Stack(
+            name => 'Unit rate '
+              . ( 1 + $_ )
+              . ' pseudo load coefficient by network level (combined)',
+            rows    => $endUsers,
+            cols    => $networkLevels,
+            tariffs => $model->{pcd} ? $endUsers : Labelset(
+                name   => "Tariffs which have a unit rate $r",
+                groups => $endUsers->{list}
+            ),
+            sources => [ $pl1, $pl2 ],
+        );
+      } 0 .. $model->{maxUnitRates} - 1;
+
+    if ( $model->{coincidenceAdj} && $model->{coincidenceAdj} =~ /group2/i ) {
+
+        my $relevantUsers = $pseudos[0]{rows};
+
+        $relevantUsers = Labelset(
+            list => [ grep { !/gener/i } @{ $relevantUsers->{list} } ] );
+
+        my $tariffGroupset = Labelset( list => [ 'All demand tariffs', ] );
+
+        my $mapping = Constant(
+            name => 'Mapping of tariffs to '
+              . 'tariff groups for coincidence adjustment factor',
+            defaultFormat => '0connz',
+            rows          => $relevantUsers,
+            cols          => $tariffGroupset,
+            data          => [ map { [1] } @{ $relevantUsers->{list} } ],
+            byrow         => 1,
+        );
+
+        if ( $model->{coincidenceAdj} =~ /voltage/i ) {
+
+            $relevantUsers =
+              Labelset(
+                list => [ grep { !/^hv sub/i } @{ $relevantUsers->{list} } ] );
+
+            $tariffGroupset =
+              Labelset(
+                list => [ 'LV network', 'LV substation', 'HV network', ] );
+
+            $mapping = Constant(
+                name => 'Mapping of tariffs to '
+                  . 'tariff groups for coincidence adjustment factor',
+                defaultFormat => '0connz',
+                rows          => $relevantUsers,
+                cols          => $tariffGroupset,
+                data          => [
+                    map {
+                            /^lv sub/i ? [qw(0 1 0)]
+                          : /^lv/i     ? [qw(1 0 0)]
+                          :              [qw(0 0 1)];
+                    } @{ $relevantUsers->{list} }
+                ],
+                byrow => 1,
             );
-            push @{ $model->{timeOfDayResults} }, my $pl = Stack(
-                name => 'Unit rate '
-                  . ( 1 + $_ )
-                  . ' pseudo load coefficient by network level (combined)',
-                rows    => $endusers,
-                cols    => $networkLevels,
-                tariffs => $model->{pcd} ? $endusers : Labelset(
-                    name   => "Tariffs which have a unit rate $r",
-                    groups => $endusers->{list}
+
+        }    # end of overrides if $model->{coincidenceAdj} =~ /voltage/i
+
+        my $red = Stack(
+            name    => 'Contribution to first-band peak kW',
+            rows    => $relevantUsers,
+            sources => $model->{timeOfDayGroupRedSources},
+        );
+
+        my $coin = Arithmetic(
+            name          => 'Contribution to system-peak-time kW',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IV1*IV2/24/IV3*1000',
+            rows          => $relevantUsers,
+            arguments     => {
+                IV1 => $loadCoefficients,
+                IV2 => $unitsByEndUser,
+                IV3 => $daysInYear,
+            },
+        );
+
+        push @{ $model->{timeOfDayResults} },
+          Columnset(
+            name    => 'Estimated contributions to peak demand',
+            columns => [ $red, $coin, ]
+          );
+
+        my $redG = SumProduct(
+            name          => 'Group contribution to first-band peak kW',
+            defaultFormat => '0softnz',
+            matrix        => $mapping,
+            vector        => $red,
+        );
+
+        my $coinG = SumProduct(
+            name          => 'Group contribution to system-peak-time kW',
+            defaultFormat => '0softnz',
+            matrix        => $mapping,
+            vector        => $coin,
+        );
+
+        my $adjust = Stack(
+            name    => 'Load coefficient correction factor (combined)',
+            rows    => $pseudos[0]{rows},
+            cols    => 0,
+            sources => [
+                SumProduct(
+                    name => 'Load coefficient correction factor '
+                      . '(based on group)',
+                    matrix => $mapping,
+                    vector => Arithmetic(
+                        name => 'Load coefficient correction factor'
+                          . ' for each group',
+                        arithmetic => '=IF(IV1,IV2/IV3,0)',
+                        rows       => 0,
+                        arguments  => {
+                            IV1 => $redG,
+                            IV2 => $coinG,
+                            IV3 => $redG,
+                        }
+                    ),
                 ),
-                sources => [ $pl1, $pl2 ],
-            );
-            $pl;
-        } 0 .. $model->{maxUnitRates} - 1
-    ];
+                Constant(
+                    name => 'Default to 1',
+                    data => [ [ map { 1; } @{ $pseudos[0]{rows}{list} } ] ],
+                    rows => $pseudos[0]{rows},
+                ),
+            ]
+        );
+
+        $adjust = $adjust->{sources}[0]
+          if $adjust->lastRow == $adjust->{sources}[0]->lastRow;    # hacky
+
+        $_ = Arithmetic(
+            name       => "$_->{name} adjusted",
+            arithmetic => '=IV1*IV2',
+            arguments  => { IV1 => $_, IV2 => $adjust },
+            tariffs    => $_->{tariffs},
+        ) foreach @pseudos;
+
+    }
+
+    push @{ $model->{timeOfDayResults} }, @pseudos;
+
+    \@pseudos;
 
 }
 
@@ -626,7 +754,7 @@ sub timeOfDayRunner {
       unless $model->{coincidenceAdj}
       && $model->{coincidenceAdj} =~ /none/i;
 
-    my $timebandLoadCoefficient;
+    my $timebandLoadCoefficient;    # never used?
 
     # unadjusted; to be replaced below if there is a coincidence adjustment
     my $pseudoLoadCoefficientBreakdown = Arithmetic(
@@ -797,7 +925,8 @@ sub timeOfDayRunner {
           : (    $model->{coincidenceAdj}
               && $model->{coincidenceAdj} =~ /redonly/i )
           ? ( cols => $peakBand )
-          : (), arguments => {
+          : (),
+          arguments => {
             $timebandLoadCoefficient
             ? (
                 IV1 => $timebandLoadCoefficient,
@@ -810,7 +939,37 @@ sub timeOfDayRunner {
             IV8 => $loadCoefficients,
           };
 
-        if ( $model->{coincidenceAdj} && $model->{coincidenceAdj} =~ /group/i )
+        if ( $model->{coincidenceAdj} && $model->{coincidenceAdj} =~ /group2/i )
+        {
+
+            my $red = Arithmetic(
+                name          => 'Contribution to first-band peak kW',
+                defaultFormat => '0softnz',
+                arithmetic    => $timebandLoadCoefficient
+                ? '=IV1*IV9*IV2/24/IV3*1000'
+                : '=IV1*IV2/24/IV3*1000',
+                arguments => {
+                    IV1 => $timebandLoadCoefficientAccording,
+                    IV2 => $unitsByEndUser,
+                    IV3 => $daysInYear,
+                    $timebandLoadCoefficient
+                    ? ( IV9 => $timebandLoadCoefficient )
+                    : (),
+                },
+            );
+
+            push @{ $model->{timeOfDayGroupRedSources} },
+              Arithmetic(
+                name       => "$red->{name} (copy)",
+                arguments  => { IV1 => $red },
+                cols       => 0,
+                arithmetic => '=IV1',
+              );
+
+        }
+
+        elsif ($model->{coincidenceAdj}
+            && $model->{coincidenceAdj} =~ /group/i )
         {
           GROUPING: {
 

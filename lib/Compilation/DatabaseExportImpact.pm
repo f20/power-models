@@ -230,7 +230,7 @@ EOL
         }
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
-            $ws->write_string( 3 + $j, 0, $linesAfter->[$j], $thFormat );
+            $ws->write_string( 4 + $j, 0, $linesAfter->[$j], $thFormat );
             $findRow->execute( $bidb, $linesBefore->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $linesAfter->[$j] );
@@ -241,29 +241,29 @@ EOL
                 $q->execute( $bida, $rowa, $k );
                 my ($va) = $q->fetchrow_array;
 
-                $ws->write( 3 + $j, $k - 2, $vb, $format1[ $k - 3 ] );
-                $ws->write( 3 + $j, $k + 4, $va, $format1[ $k - 3 ] );
+                $ws->write( 4 + $j, $k - 2, $vb, $format1[ $k - 3 ] );
+                $ws->write( 4 + $j, $k + 4, $va, $format1[ $k - 3 ] );
 
                 if (undef) {
-                    $ws->write( 3 + $j, $k + 10, $va - $vb,
+                    $ws->write( 4 + $j, $k + 10, $va - $vb,
                         $format2[ $k - 3 ] );
                     $ws->write(
-                        3 + $j, $k + 16,
+                        4 + $j, $k + 16,
                         $vb ? $va / $vb - 1 : '',
                         $format3[ $k - 3 ]
                     );
                 }
                 else {
                     use Spreadsheet::WriteExcel::Utility;
-                    my $old = xl_rowcol_to_cell( 3 + $j, $k - 2 );
-                    my $new = xl_rowcol_to_cell( 3 + $j, $k + 4 );
+                    my $old = xl_rowcol_to_cell( 4 + $j, $k - 2 );
+                    my $new = xl_rowcol_to_cell( 4 + $j, $k + 4 );
                     $ws->repeat_formula(
-                        3 + $j, $k + 10, $diff, $format2[ $k - 3 ],
+                        4 + $j, $k + 10, $diff, $format2[ $k - 3 ],
                         IV1 => $old,
                         IV2 => $new,
                     );
                     $ws->repeat_formula(
-                        3 + $j, $k + 16, $perc, $format3[ $k - 3 ],
+                        4 + $j, $k + 16, $perc, $format3[ $k - 3 ],
                         IV1 => $old,
                         IV2 => $old,
                         IV3 => $new,
@@ -275,14 +275,171 @@ EOL
 
 }
 
-sub cdcmRevenueImpact {
+sub cdcmPpuImpact {
 
     my ( $self, $wbmodule, $fileExtension, %options ) = @_;
     my $db = $$self;
 
     $options{dcpName} ||= 'DCP';
 
-    my $wb = $wbmodule->new("Revenue impact $options{dcpName}$fileExtension");
+    my $wb = $wbmodule->new("PPU impact $options{dcpName}$fileExtension");
+    $wb->setFormats( { colour => 'orange', alignment => 1 } );
+
+    $options{basematch} ||= sub { $_[0] !~ /DCP/i };
+    $options{dcpmatch}  ||= sub { $_[0] =~ /DCP/i };
+
+    my $sheetNames = $options{sheetNames} || [ split /\n/, <<EOL ];
+ENWL
+NPG Northeast
+NPG Yorkshire
+SPEN SPD
+SPEN SPM
+SSEPD SEPD
+SSEPD SHEPD
+UKPN EPN
+UKPN LPN
+UKPN SPN
+WPD EastM
+WPD SWales
+WPD SWest
+WPD WestM
+EOL
+
+    my $sheetTitles = $options{sheetTitles}
+      || [
+        map { "$_: illustrative impact of $options{dcpName}" } split /\n/,
+        <<EOL ];
+Electricity North West
+Northern Powergrid Northeast
+Northern Powergrid Yorkshire
+SP Distribution
+SP Manweb
+SEPD
+SHEPD
+Eastern Power Networks
+London Power Networks
+South Eastern Power Networks
+WPD East Midlands
+WPD South Wales
+WPD South West
+WPD West Midlands
+EOL
+
+    my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
+Domestic Unrestricted
+Domestic Two Rate
+Domestic Off Peak (related MPAN)
+Small Non Domestic Unrestricted
+Small Non Domestic Two Rate
+Small Non Domestic Off Peak (related MPAN)
+LV Medium Non-Domestic
+LV Sub Medium Non-Domestic
+HV Medium Non-Domestic
+LV HH Metered
+LV Sub HH Metered
+HV HH Metered
+HV Sub HH Metered
+NHH UMS category A
+NHH UMS category B
+NHH UMS category C
+NHH UMS category D
+LV UMS (Pseudo HH Metered)
+LV Generation NHH
+LV Sub Generation NHH
+LV Generation Intermittent
+LV Generation Non-Intermittent
+LV Sub Generation Intermittent
+LV Sub Generation Non-Intermittent
+HV Generation Intermittent
+HV Generation Non-Intermittent
+HV Sub Generation Intermittent
+HV Sub Generation Non-Intermittent
+EOL
+
+    my $linesBefore = $options{linesBefore} || $linesAfter;
+
+    my $titleFormat = $wb->getFormat('notes');
+    my $thFormat    = $wb->getFormat('th');
+    my $thcFormat   = $wb->getFormat('thc');
+    my $thcaFormat  = $wb->getFormat('caption');
+    my @format1 =
+      map { $wb->getFormat($_); } ( map { '0.000copy' } 1 .. 1 );
+    my @format2 =
+      map { $wb->getFormat($_); } ( map { '0.000softpm' } 1 .. 1 );
+    my @format3 =
+      map { $wb->getFormat($_); } ( map { '%softpm' } 1 .. 1 );
+
+    my @books = $self->listModels;
+
+    foreach my $i ( 0 .. $#$sheetNames ) {
+        my $qr = $sheetNames->[$i];
+        $qr =~ tr/ /-/;
+        my ($bidb) =
+          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+        next unless $bidb;
+        $bidb = $bidb->[0];
+        my ($bida) =
+          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+        next unless $bida;
+        $bida = $bida->[0];
+        my $findRow = $db->prepare(
+            'select row from data where bid=? and tab=3802 and col=0 and v=?');
+        my $q = $db->prepare(
+            'select v from data where bid=? and tab=3802 and row=? and col=?');
+        my $ws = $wb->add_worksheet( $sheetNames->[$i] );
+        $ws->set_column( 0, 0,   44 );
+        $ws->set_column( 1, 254, 14 );
+        $ws->hide_gridlines(2);
+        $ws->freeze_panes( 1, 1 );
+        $ws->write_string( 0, 0, $sheetTitles->[$i], $titleFormat );
+
+        $ws->write_string( 2, 1, 'Baseline average p/kWh',     $thcFormat );
+        $ws->write_string( 2, 2, 'Average p/kWh on new basis', $thcFormat );
+        $ws->write_string( 2, 3, 'Change (p/kWh)',             $thcFormat );
+        $ws->write_string( 2, 4, 'Percentage change',          $thcFormat );
+
+        use Spreadsheet::WriteExcel::Utility;
+        my $diff = $ws->store_formula('=IV2-IV1');
+        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,0)');
+
+        for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
+            $ws->write_string( 3 + $j, 0, $linesAfter->[$j], $thFormat );
+            $findRow->execute( $bidb, $linesBefore->[$j] );
+            my ($rowb) = $findRow->fetchrow_array;
+            $findRow->execute( $bida, $linesAfter->[$j] );
+            my ($rowa) = $findRow->fetchrow_array;
+            $q->execute( $bidb, $rowb, 8 );
+            my ($vb) = $q->fetchrow_array;
+            $q->execute( $bida, $rowa, 8 );
+            my ($va) = $q->fetchrow_array;
+            $ws->write( 3 + $j, 1, $vb, $format1[0] );
+            $ws->write( 3 + $j, 2, $va, $format1[0] );
+            my $old = xl_rowcol_to_cell( 3 + $j, 1 );
+            my $new = xl_rowcol_to_cell( 3 + $j, 2 );
+            $ws->repeat_formula(
+                3 + $j, 3, $diff, $format2[0],
+                IV1 => $old,
+                IV2 => $new,
+            );
+            $ws->repeat_formula(
+                3 + $j, 4, $perc, $format3[0],
+                IV1 => $old,
+                IV2 => $old,
+                IV3 => $new,
+            );
+        }
+    }
+}
+
+sub cdcmRevenueMatrixImpact {
+
+    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my $db = $$self;
+
+    $options{dcpName} ||= 'DCP';
+
+    my $wb =
+      $wbmodule->new("Revenue matrix impact $options{dcpName}$fileExtension");
     $wb->setFormats( { colour => 'orange' } );
 
     $options{basematch} ||= sub { $_[0] !~ /DCP/i };
