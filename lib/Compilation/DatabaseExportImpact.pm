@@ -42,7 +42,7 @@ sub cdcmTariffImpact {
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     $options{basematch} ||= sub { $_[0] !~ /DCP/i };
-    $options{dcpmatch} ||= sub { $_[0] =~ /DCP/i };
+    $options{dcpmatch}  ||= sub { $_[0] =~ /DCP/i };
 
     my $sheetNames = $options{sheetNames} || [ split /\n/, <<EOL ];
 ENWL
@@ -230,7 +230,7 @@ EOL
         }
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
-            $ws->write_string( 4 + $j, 0, $linesAfter->[$j], $thFormat );
+            $ws->write_string( 3 + $j, 0, $linesAfter->[$j], $thFormat );
             $findRow->execute( $bidb, $linesBefore->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $linesAfter->[$j] );
@@ -241,29 +241,29 @@ EOL
                 $q->execute( $bida, $rowa, $k );
                 my ($va) = $q->fetchrow_array;
 
-                $ws->write( 4 + $j, $k - 2, $vb, $format1[ $k - 3 ] );
-                $ws->write( 4 + $j, $k + 4, $va, $format1[ $k - 3 ] );
+                $ws->write( 3 + $j, $k - 2, $vb, $format1[ $k - 3 ] );
+                $ws->write( 3 + $j, $k + 4, $va, $format1[ $k - 3 ] );
 
                 if (undef) {
-                    $ws->write( 4 + $j, $k + 10, $va - $vb,
+                    $ws->write( 3 + $j, $k + 10, $va - $vb,
                         $format2[ $k - 3 ] );
                     $ws->write(
-                        4 + $j, $k + 16,
+                        3 + $j, $k + 16,
                         $vb ? $va / $vb - 1 : '',
                         $format3[ $k - 3 ]
                     );
                 }
                 else {
                     use Spreadsheet::WriteExcel::Utility;
-                    my $old = xl_rowcol_to_cell( 4 + $j, $k - 2 );
-                    my $new = xl_rowcol_to_cell( 4 + $j, $k + 4 );
+                    my $old = xl_rowcol_to_cell( 3 + $j, $k - 2 );
+                    my $new = xl_rowcol_to_cell( 3 + $j, $k + 4 );
                     $ws->repeat_formula(
-                        4 + $j, $k + 10, $diff, $format2[ $k - 3 ],
+                        3 + $j, $k + 10, $diff, $format2[ $k - 3 ],
                         IV1 => $old,
                         IV2 => $new,
                     );
                     $ws->repeat_formula(
-                        4 + $j, $k + 16, $perc, $format3[ $k - 3 ],
+                        3 + $j, $k + 16, $perc, $format3[ $k - 3 ],
                         IV1 => $old,
                         IV2 => $old,
                         IV3 => $new,
@@ -275,19 +275,18 @@ EOL
 
 }
 
-sub cdcmRevenueMatrixImpact {
+sub cdcmRevenueImpact {
 
     my ( $self, $wbmodule, $fileExtension, %options ) = @_;
     my $db = $$self;
 
     $options{dcpName} ||= 'DCP';
 
-    my $wb =
-      $wbmodule->new("Revenue matrix impact $options{dcpName}$fileExtension");
+    my $wb = $wbmodule->new("Revenue impact $options{dcpName}$fileExtension");
     $wb->setFormats( { colour => 'orange' } );
 
     $options{basematch} ||= sub { $_[0] !~ /DCP/i };
-    $options{dcpmatch} ||= sub { $_[0] =~ /DCP/i };
+    $options{dcpmatch}  ||= sub { $_[0] =~ /DCP/i };
 
     my $sheetNames = $options{sheetNames} || [ split /\n/, <<EOL ];
 ENWL
@@ -362,25 +361,13 @@ EOL
     my $titleFormat = $wb->getFormat('notes');
     my $thFormat    = $wb->getFormat('th');
     my $thcFormat   = $wb->getFormat('thc');
-    my $thcFormatB =
-      $wb->getFormat( [ base => 'thc', right => 5, right_color => 8 ] );
-    my $thcaFormat = $wb->getFormat(
-        [
-            base        => 'caption',
-            align       => 'center_across',
-            right       => 5,
-            right_color => 8
-        ]
-    );
+    my $thcaFormat  = $wb->getFormat('caption');
     my @format1 =
-      map { $wb->getFormat($_); } ( map { '0copy' } 1 .. 23 ),
-      [ base => '0copy', right => 5, right_color => 8 ];
+      map { $wb->getFormat($_); } ( map { '0copy' } 1 .. 24 );
     my @format2 =
-      map { $wb->getFormat($_); } ( map { '0softpm' } 1 .. 23 ),
-      [ base => '0softpm', right => 5, right_color => 8 ];
+      map { $wb->getFormat($_); } ( map { '0softpm' } 1 .. 24 );
     my @format3 =
-      map { $wb->getFormat($_); } ( map { '%softpm' } 1 .. 23 ),
-      [ base => '%softpm', right => 5, right_color => 8 ];
+      map { $wb->getFormat($_); } ( map { '%softpm' } 1 .. 24 );
 
     my @books = $self->listModels;
 
@@ -406,18 +393,20 @@ EOL
         $ws->freeze_panes( 1, 1 );
         $ws->write_string( 0, 0, $sheetTitles->[$i], $titleFormat );
 
-        $ws->write_string( 2, 1, 'Baseline revenue matrix (£/period)',
-            $thcaFormat );
-        $ws->write_string( 2, 25, 'Revenue matrix on new basis (£/period)',
-            $thcaFormat );
-        $ws->write_string( 2, 49, 'Change (£/period)', $thcaFormat );
-        $ws->write_string( 2, 73, 'Percentage change', $thcaFormat );
+        $ws->write_string( 2, 1, 'Baseline revenue (£/period)', $thcFormat );
+        $ws->write_string( 2, 2, 'Revenue on new basis (£/period)',
+            $thcFormat );
+        $ws->write_string( 2, 3, 'Change (£/period)', $thcFormat );
+        $ws->write_string( 2, 4, 'Percentage change', $thcFormat );
 
-        my $diff = $ws->store_formula('=IV2-IV1');
-        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,"")');
-
-        $ws->write( 2, $_, undef, $thcaFormat )
-          foreach 2 .. 24, 26 .. 48, 50 .. 72, 74 .. 96;
+        $ws->write_string( 4 + @$linesAfter,
+            0, 'Baseline revenue matrix (£/period)', $thcaFormat );
+        $ws->write_string( 7 + 2 * @$linesAfter,
+            0, 'Revenue matrix on new basis (£/period)', $thcaFormat );
+        $ws->write_string( 10 + 3 * @$linesAfter,
+            0, 'Change (£/period)', $thcaFormat );
+        $ws->write_string( 13 + 4 * @$linesAfter,
+            0, 'Percentage change', $thcaFormat );
 
         my @list = map { $_->[0] } @{
             $db->selectall_arrayref(
@@ -426,15 +415,33 @@ EOL
             )
         };
 
-        for ( my $j = 1 ; $j < 80 ; $j += 24 ) {
+        foreach my $r (
+            4 + @$linesAfter,
+            7 + 2 * @$linesAfter,
+            10 + 3 * @$linesAfter,
+            13 + 4 * @$linesAfter
+          )
+        {
             for ( my $k = 0 ; $k < @list ; ++$k ) {
-                $ws->write_string( 3, $j + $k, $list[$k],
-                    $k == $#list ? $thcFormatB : $thcFormat );
+                $ws->write_string( $r + 1, 1 + $k, $list[$k], $thcFormat );
             }
         }
 
+        use Spreadsheet::WriteExcel::Utility;
+        my $diff = $ws->store_formula('=IV2-IV1');
+        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,0)');
+
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
-            $ws->write_string( 4 + $j, 0, $linesAfter->[$j], $thFormat );
+            foreach my $r (
+                3,
+                6 + @$linesAfter,
+                9 + 2 * @$linesAfter,
+                12 + 3 * @$linesAfter,
+                15 + 4 * @$linesAfter
+              )
+            {
+                $ws->write_string( $r + $j, 0, $linesAfter->[$j], $thFormat );
+            }
             $findRow->execute( $bidb, $linesBefore->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $linesAfter->[$j] );
@@ -444,24 +451,42 @@ EOL
                 my ($vb) = $q->fetchrow_array;
                 $q->execute( $bida, $rowa, $k );
                 my ($va) = $q->fetchrow_array;
-
-                $ws->write( 4 + $j, $k,      $vb, $format1[ $k - 1 ] );
-                $ws->write( 4 + $j, $k + 24, $va, $format1[ $k - 1 ] );
-
-                use Spreadsheet::WriteExcel::Utility;
-                my $old = xl_rowcol_to_cell( 4 + $j, $k );
-                my $new = xl_rowcol_to_cell( 4 + $j, $k + 24 );
+                $ws->write( 6 + @$linesAfter + $j, $k, $vb,
+                    $format1[ $k - 1 ] );
+                $ws->write( 9 + 2 * @$linesAfter + $j,
+                    $k, $va, $format1[ $k - 1 ] );
+                my $old = xl_rowcol_to_cell( 6 + @$linesAfter + $j,     $k );
+                my $new = xl_rowcol_to_cell( 9 + 2 * @$linesAfter + $j, $k );
                 $ws->repeat_formula(
-                    4 + $j, $k + 48, $diff, $format2[ $k - 1 ],
+                    12 + 3 * @$linesAfter + $j, $k, $diff, $format2[ $k - 1 ],
                     IV1 => $old,
                     IV2 => $new,
                 );
                 $ws->repeat_formula(
-                    4 + $j, $k + 72, $perc, $format3[ $k - 1 ],
+                    15 + 4 * @$linesAfter + $j, $k, $perc, $format3[ $k - 1 ],
                     IV1 => $old,
                     IV2 => $old,
                     IV3 => $new,
                 );
+
+                if ( $k == 24 ) {
+                    $ws->write( 3 + $j, 1, $vb, $format1[ $k - 1 ] );
+                    $ws->write( 3 + $j, 2, $va, $format1[ $k - 1 ] );
+                    my $old = xl_rowcol_to_cell( 3 + $j, 1 );
+                    my $new = xl_rowcol_to_cell( 3 + $j, 2 );
+                    $ws->repeat_formula(
+                        3 + $j, 3, $diff, $format2[ $k - 1 ],
+                        IV1 => $old,
+                        IV2 => $new,
+                    );
+                    $ws->repeat_formula(
+                        3 + $j, 4, $perc, $format3[ $k - 1 ],
+                        IV1 => $old,
+                        IV2 => $old,
+                        IV3 => $new,
+                    );
+                }
+
             }
         }
     }

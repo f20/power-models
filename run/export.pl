@@ -98,12 +98,17 @@ if ( grep { /\btscs/i } @ARGV ) {
         { %$options, ( ( grep { /csv/i } @ARGV ) ? 'csv' : 'wb' ) => 1 } );
 }
 
-if ( grep { /(dcp\S*)/i } @ARGV ) {
-    my $dcp = $1;
+if ( my ($dcp) = grep { /(dcp\S*)/i } @ARGV ) {
     require Compilation::DatabaseExportImpact;
     $db->cdcmTariffImpact(
         $workbookModule, $fileExtension,
-        dcpName   => "$dcp impact",
+        dcpName   => $dcp,
+        basematch => sub { $_[0] =~ /original|clean|mini/i; },
+        dcpmatch  => sub { $_[0] =~ /-$dcp/i; }
+    );
+    $db->cdcmRevenueImpact(
+        $workbookModule, $fileExtension,
+        dcpName   => $dcp,
         basematch => sub { $_[0] =~ /original|clean/i; },
         dcpmatch  => sub { $_[0] =~ /-$dcp/i; }
     );
