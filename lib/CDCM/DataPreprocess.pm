@@ -244,7 +244,7 @@ EOY
             my $col = $d->{1025}[$_];
             $col->{'LV Network Domestic'} = $col->{'Domestic Unrestricted'};
             $col->{'LV Network Non-Domestic Non-CT'} =
-              $col->{'LV Medium Non-Domestic'};
+              $col->{'Small Non Domestic Unrestricted'};
             $col->{'LV Network Non-Domestic CT'} = $col->{'LV HH Metered'};
             $col->{'LV Sub Non-CT'} = $col->{'LV Sub Medium Non-Domestic'};
             $col->{'LV Sub CT'}     = $col->{'LV Sub HH Metered'};
@@ -260,7 +260,7 @@ EOY
             my $col = $d->{1041}[$_];
             $col->{'LV Network Domestic'} = $col->{'Domestic Unrestricted'};
             $col->{'LV Network Non-Domestic Non-CT'} =
-              $col->{'LV Medium Non-Domestic'};
+              $col->{'Small Non Domestic Unrestricted'};
             $col->{'LV Network Non-Domestic CT'} = $col->{'LV HH Metered'};
             $col->{'LV Sub Non-CT'}     = $col->{'LV Sub Medium Non-Domestic'};
             $col->{'LV Sub CT'}         = $col->{'LV Sub HH Metered'};
@@ -284,7 +284,20 @@ EOY
             }
         }
 
-        foreach ( 'Domestic Unrestricted', 'Small Non Domestic Unrestricted' ) {
+        foreach ('Domestic Unrestricted') {
+            $d->{1061}[1]{$_} =
+              $d->{1041}[1]{$_} /
+              $d->{1041}[2]{$_} *
+              $d->{1068}[1]{'Annual hours'};
+            $d->{1061}[2]{$_} =
+              $d->{1068}[2]{'Annual hours'} -
+              $d->{1061}[1]{$_} +
+              $d->{1068}[1]{'Annual hours'};
+            $d->{1061}[3]{$_} =
+              $d->{1068}[3]{'Annual hours'};
+        }
+
+        foreach ('Small Non Domestic Unrestricted') {
             $d->{1061}[1]{$_} =
               $d->{1041}[1]{$_} /
               $d->{1041}[2]{$_} *
