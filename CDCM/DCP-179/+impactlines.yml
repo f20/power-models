@@ -29,8 +29,6 @@ linesAfter:
   - LV Sub Generation Non-Intermittent
   - HV Generation Intermittent
   - HV Generation Non-Intermittent
-  - HV Sub Generation Intermittent
-  - HV Sub Generation Non-Intermittent
 linesBefore:
   - Domestic Unrestricted
   - Domestic Two Rate
@@ -61,5 +59,3 @@ linesBefore:
   - LV Sub Generation Non-Intermittent
   - HV Generation Intermittent
   - HV Generation Non-Intermittent
-  - HV Sub Generation Intermittent
-  - HV Sub Generation Non-Intermittent
