@@ -1,8 +1,8 @@
 ---
-.: 'DCP 179 (November 2013 with DCP 130, DCP 132 and DCP 163) (separate UMS)'
+.: 'DCP 179 (November 2013 with DCP 130, DCP 132 and DCP 163) with CTables'
 PerlModule: CDCM
 alwaysUseRAG: 1
-coincidenceAdj: groupumsvoltage
+coincidenceAdj: group2voltage
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
@@ -13,7 +13,7 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: reducsub132
-summary: 1
+summary: consultation
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp179dcp163
 timeOfDay: timeOfDaySpecial

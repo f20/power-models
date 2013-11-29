@@ -1,5 +1,5 @@
 ---
-.: DCP 123 revenue matching option 3 with DCP 130 and DCP 132
+.: DCP 123 revenue matching hybrid with DCP 130 and DCP 132
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp

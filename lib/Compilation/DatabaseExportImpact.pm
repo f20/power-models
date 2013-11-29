@@ -94,7 +94,6 @@ HV Medium Non-Domestic
 LV HH Metered
 LV Sub HH Metered
 HV HH Metered
-HV Sub HH Metered
 NHH UMS category A
 NHH UMS category B
 NHH UMS category C
@@ -108,8 +107,6 @@ LV Sub Generation Intermittent
 LV Sub Generation Non-Intermittent
 HV Generation Intermittent
 HV Generation Non-Intermittent
-HV Sub Generation Intermittent
-HV Sub Generation Non-Intermittent
 LDNO LV: Domestic Unrestricted
 LDNO LV: Domestic Two Rate
 LDNO LV: Domestic Off Peak (related MPAN)
@@ -338,7 +335,6 @@ HV Medium Non-Domestic
 LV HH Metered
 LV Sub HH Metered
 HV HH Metered
-HV Sub HH Metered
 NHH UMS category A
 NHH UMS category B
 NHH UMS category C
@@ -352,8 +348,6 @@ LV Sub Generation Intermittent
 LV Sub Generation Non-Intermittent
 HV Generation Intermittent
 HV Generation Non-Intermittent
-HV Sub Generation Intermittent
-HV Sub Generation Non-Intermittent
 EOL
 
     my $linesBefore = $options{linesBefore} || $linesAfter;
@@ -495,7 +489,6 @@ HV Medium Non-Domestic
 LV HH Metered
 LV Sub HH Metered
 HV HH Metered
-HV Sub HH Metered
 NHH UMS category A
 NHH UMS category B
 NHH UMS category C
@@ -509,8 +502,6 @@ LV Sub Generation Intermittent
 LV Sub Generation Non-Intermittent
 HV Generation Intermittent
 HV Generation Non-Intermittent
-HV Sub Generation Intermittent
-HV Sub Generation Non-Intermittent
 EOL
 
     my $linesBefore = $options{linesBefore} || $linesAfter;

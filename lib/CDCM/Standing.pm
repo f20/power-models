@@ -227,7 +227,7 @@ sub standingCharges {
         my $denominator = SumProduct(
             matrix => $mapping,
             name   => 'Aggregate number of users charged '
-              . 'for LV circuits on an exit point basis',
+              . 'for capacity on an exit point basis',
             defaultFormat => '0softnz',
             vector        => Stack(
                 rows    => $standingForFixedEndUsers,
