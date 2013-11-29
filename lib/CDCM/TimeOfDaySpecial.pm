@@ -889,57 +889,6 @@ sub timeOfDayRunner {
             ]
         );
 
-        @pseudoLoadCoefficientsAgainstSystemPeak = map {
-            my $r = 1 + $_;
-            Arithmetic(
-                name => "Unit rate $r"
-                  . ( $blackYellowGreen ? ' special ' : ' ' )
-                  . 'pseudo load coefficient at system level',
-                arithmetic =>
-'=IF(IV6>0,IV1*IF(IV7<>0,IV3/IV2,IF(IV9<0,-1,1))*24*IV4/IV5,0)',
-                cols      => $peakBand,
-                arguments => {
-                    IV1 => $timebandUseByRate[$_],
-                    IV2 => $timebandLoadCoefficientAccording,
-                    IV3 => $loadCoefficients,
-                    IV9 => $loadCoefficients,
-                    IV4 => $daysInYear,
-                    IV5 => $annualHoursByTimeband,
-                    IV6 => $annualHoursByTimeband,
-                    IV7 => $timebandLoadCoefficientAccording
-                },
-                rows    => $relevantEndUsersByRate[$_],
-                tariffs => $relevantTariffsByRate[$_],
-            );
-        } 0 .. $model->{maxUnitRates} - 1;
-
-        my $timebandLoadCoefficientAdjusted =
-          Arithmetic
-          name => 'Load coefficient correction factor'
-          . ' (kW at peak in band / band average kW)',
-          arithmetic => $timebandLoadCoefficient
-          ? '=IF(IV5<>0,IV4/IV2/IV1,IV6)'
-          : '=IF(IV5<>0,IV4/IV2,IF(IV8<0,-1,1))',
-          rows => $relevantEndUsersByRate[0],
-          $model->{timebandCoef} && $model->{timebandCoef} =~ /detail/i
-          ? ( cols => $networkLevelsTimeband )
-          : (    $model->{coincidenceAdj}
-              && $model->{coincidenceAdj} =~ /redonly/i )
-          ? ( cols => $peakBand )
-          : (),
-          arguments => {
-            $timebandLoadCoefficient
-            ? (
-                IV1 => $timebandLoadCoefficient,
-                IV6 => $timebandLoadCoefficient
-              )
-            : (),
-            IV2 => $timebandLoadCoefficientAccording,
-            IV5 => $timebandLoadCoefficientAccording,
-            IV4 => $loadCoefficients,
-            IV8 => $loadCoefficients,
-          };
-
         if ( $model->{coincidenceAdj} && $model->{coincidenceAdj} =~ /group2/i )
         {
 
@@ -974,6 +923,56 @@ sub timeOfDayRunner {
             && $model->{coincidenceAdj} !~ /group2/i )
         {
 
+            @pseudoLoadCoefficientsAgainstSystemPeak = map {
+                my $r = 1 + $_;
+                Arithmetic(
+                    name => "Unit rate $r"
+                      . ( $blackYellowGreen ? ' special ' : ' ' )
+                      . 'pseudo load coefficient at system level',
+                    arithmetic =>
+'=IF(IV6>0,IV1*IF(IV7<>0,IV3/IV2,IF(IV9<0,-1,1))*24*IV4/IV5,0)',
+                    cols      => $peakBand,
+                    arguments => {
+                        IV1 => $timebandUseByRate[$_],
+                        IV2 => $timebandLoadCoefficientAccording,
+                        IV3 => $loadCoefficients,
+                        IV9 => $loadCoefficients,
+                        IV4 => $daysInYear,
+                        IV5 => $annualHoursByTimeband,
+                        IV6 => $annualHoursByTimeband,
+                        IV7 => $timebandLoadCoefficientAccording
+                    },
+                    rows    => $relevantEndUsersByRate[$_],
+                    tariffs => $relevantTariffsByRate[$_],
+                );
+            } 0 .. $model->{maxUnitRates} - 1;
+
+            my $timebandLoadCoefficientAdjusted = Arithmetic(
+                name => 'Load coefficient correction factor'
+                  . ' (kW at peak in band / band average kW)',
+                arithmetic => $timebandLoadCoefficient
+                ? '=IF(IV5<>0,IV4/IV2/IV1,IV6)'
+                : '=IF(IV5<>0,IV4/IV2,IF(IV8<0,-1,1))',
+                rows => $relevantEndUsersByRate[0],
+                $model->{timebandCoef} && $model->{timebandCoef} =~ /detail/i
+                ? ( cols => $networkLevelsTimeband )
+                : (      $model->{coincidenceAdj}
+                      && $model->{coincidenceAdj} =~ /redonly/i )
+                ? ( cols => $peakBand )
+                : (),
+                arguments => {
+                    $timebandLoadCoefficient
+                    ? (
+                        IV1 => $timebandLoadCoefficient,
+                        IV6 => $timebandLoadCoefficient
+                      )
+                    : (),
+                    IV2 => $timebandLoadCoefficientAccording,
+                    IV5 => $timebandLoadCoefficientAccording,
+                    IV4 => $loadCoefficients,
+                    IV8 => $loadCoefficients,
+                }
+            );
             my $relevantUsers =
               Labelset( list =>
                   [ grep { !/gener/i } @{ $relevantEndUsersByRate[0]{list} } ]
@@ -1174,65 +1173,68 @@ sub timeOfDayRunner {
               if $timebandLoadCoefficientAdjusted->lastRow ==
               $timebandLoadCoefficientAdjusted->{sources}[0]->lastRow;   # hacky
 
-        }
-
-        if (   $model->{coincidenceAdj}
-            && $model->{coincidenceAdj} =~ /redonly/i )
-        {
-            $timebandLoadCoefficientAdjusted = Stack(
-                name    => 'Rescaled time band load coefficient to be applied',
-                rows    => $relevantEndUsersByRate[0],
-                cols    => $timebandSet,
-                sources => [
-                    $timebandLoadCoefficientAdjusted,
-                    Constant(
-                        name => '1 for non-red',
-                        rows => $relevantEndUsersByRate[0],
-                        cols => $timebandSet,
-                        data => [
-                            map {
-                                [ map { 1 }
-                                      @{ $relevantEndUsersByRate[0]{list} } ]
-                            } @{ $timebandSet->{list} }
-                        ]
-                    )
-                ]
-            );
-            Columnset(
-                name => 'Calculation of adjusted time band load coefficients',
-                columns => [
-                    $timebandLoadCoefficientAccording,
-                    $timebandLoadCoefficientAdjusted->{sources}[0],
-                    $timebandLoadCoefficientAdjusted,
-                ]
-              )
-              unless $model->{coincidenceAdj}
-              && $model->{coincidenceAdj} =~ /group/i;
-        }
-        else {
-            Columnset(
-                name => 'Calculation of adjusted time band load coefficients',
-                columns => [
-                    $timebandLoadCoefficientAccording,
-                    $timebandLoadCoefficientAdjusted
-                ]
-            ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
-        }
-
-        $pseudoLoadCoefficientBreakdown = Arithmetic(
-            name => 'Pseudo load coefficient by time band and network level',
-            rows => $relevantEndUsersByRate[0],
-            cols => $networkLevelsTimeband,
-            arithmetic => '=IF(IV6>0,IV2*IV7*24*IV9/IV5,0)',
-            arguments  => {
-                IV2 => $timebandLoadCoefficientAdjusted,
-                IV5 => $annualHoursByTimeband,
-                IV6 => $annualHoursByTimeband,
-                IV7 => $peakingProbability,
-                IV9 => $daysInYear,
+            if (   $model->{coincidenceAdj}
+                && $model->{coincidenceAdj} =~ /redonly/i )
+            {
+                $timebandLoadCoefficientAdjusted = Stack(
+                    name => 'Rescaled time band load coefficient to be applied',
+                    rows => $relevantEndUsersByRate[0],
+                    cols => $timebandSet,
+                    sources => [
+                        $timebandLoadCoefficientAdjusted,
+                        Constant(
+                            name => '1 for non-red',
+                            rows => $relevantEndUsersByRate[0],
+                            cols => $timebandSet,
+                            data => [
+                                map {
+                                    [ map { 1 }
+                                          @{ $relevantEndUsersByRate[0]{list} }
+                                    ]
+                                } @{ $timebandSet->{list} }
+                            ]
+                        )
+                    ]
+                );
+                Columnset(
+                    name =>
+                      'Calculation of adjusted time band load coefficients',
+                    columns => [
+                        $timebandLoadCoefficientAccording,
+                        $timebandLoadCoefficientAdjusted->{sources}[0],
+                        $timebandLoadCoefficientAdjusted,
+                    ]
+                  )
+                  unless $model->{coincidenceAdj}
+                  && $model->{coincidenceAdj} =~ /group/i;
             }
-        );
+            else {
+                Columnset(
+                    name =>
+                      'Calculation of adjusted time band load coefficients',
+                    columns => [
+                        $timebandLoadCoefficientAccording,
+                        $timebandLoadCoefficientAdjusted
+                    ]
+                ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
+            }
 
+            $pseudoLoadCoefficientBreakdown = Arithmetic(
+                name =>
+                  'Pseudo load coefficient by time band and network level',
+                rows       => $relevantEndUsersByRate[0],
+                cols       => $networkLevelsTimeband,
+                arithmetic => '=IF(IV6>0,IV2*IV7*24*IV9/IV5,0)',
+                arguments  => {
+                    IV2 => $timebandLoadCoefficientAdjusted,
+                    IV5 => $annualHoursByTimeband,
+                    IV6 => $annualHoursByTimeband,
+                    IV7 => $peakingProbability,
+                    IV9 => $daysInYear,
+                }
+            );
+
+        }
     }
 
     push @{ $model->{timeOfDayResults} }, $pseudoLoadCoefficientBreakdown;
