@@ -234,7 +234,8 @@ EOY
           if $d->{1053};
     }
 
-    if ( $model->{tariffs} =~ /dcp179/i
+    if (   $model->{tariffs} =~ /dcp179/i
+        && exists $d->{1041}[1]{'Domestic Unrestricted'}
         && !exists $d->{1041}[1]{'LV Network Domestic'} )
     {
 
