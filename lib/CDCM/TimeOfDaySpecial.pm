@@ -973,211 +973,207 @@ sub timeOfDayRunner {
             && $model->{coincidenceAdj} =~ /group/i
             && $model->{coincidenceAdj} !~ /group2/i )
         {
-          GROUPING: {
 
-                my $relevantUsers = Labelset(
-                    list => [
-                        grep { !/gener/i } @{ $relevantEndUsersByRate[0]{list} }
-                    ]
-                );
+            my $relevantUsers =
+              Labelset( list =>
+                  [ grep { !/gener/i } @{ $relevantEndUsersByRate[0]{list} } ]
+              );
 
-                my $tariffGroupset =
-                  Labelset( list => [ 'All demand tariffs', ] );
+            my $tariffGroupset = Labelset( list => [ 'All demand tariffs', ] );
 
-                my $mapping = Constant(
+            my $mapping = Constant(
+                name => 'Mapping of tariffs to '
+                  . 'tariff groups for coincidence adjustment factor',
+                defaultFormat => '0connz',
+                rows          => $relevantUsers,
+                cols          => $tariffGroupset,
+                data          => [ map { [1] } @{ $relevantUsers->{list} } ],
+                byrow         => 1,
+            );
+
+            if (
+                $model->{coincidenceAdj} =~ /ums/i
+                && (
+                    my @relevantToGrouping =
+                    grep { /\bUMS\b|un-?met/i } @{ $relevantUsers->{list} }
+                )
+              )
+            {
+
+                push @{ $model->{optionLines} },
+                  'Coincidence correction factors grouped for UMS';
+
+                $relevantUsers =
+                  @{ $relevantEndUsersByRate[0]{list} } == @relevantToGrouping
+                  ? $relevantEndUsersByRate[0]    # hack
+                  : Labelset( list => \@relevantToGrouping );
+
+                $tariffGroupset = Labelset( list => [ 'Unmetered', ] );
+
+                $mapping = Constant(
                     name => 'Mapping of tariffs to '
                       . 'tariff groups for coincidence adjustment factor',
                     defaultFormat => '0connz',
                     rows          => $relevantUsers,
                     cols          => $tariffGroupset,
-                    data  => [ map { [1] } @{ $relevantUsers->{list} } ],
+                    data          => [ map { 1; } @{ $relevantUsers->{list} } ],
+                );
+
+            }
+            elsif ( $model->{coincidenceAdj} =~ /voltage/i ) {
+
+                push @{ $model->{optionLines} },
+                  'Coincidence correction factors by'
+                  . ' voltage level tariff group';
+
+                $relevantUsers =
+                  Labelset( list =>
+                      [ grep { !/^hv sub/i } @{ $relevantUsers->{list} } ] );
+
+                $tariffGroupset =
+                  Labelset(
+                    list => [ 'LV network', 'LV substation', 'HV network', ] );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => [
+                        map {
+                                /^lv sub/i ? [qw(0 1 0)]
+                              : /^lv/i     ? [qw(1 0 0)]
+                              :              [qw(0 0 1)];
+                        } @{ $relevantUsers->{list} }
+                    ],
                     byrow => 1,
                 );
 
-                if ( $model->{coincidenceAdj} =~ /ums/i ) {
+            }
+            elsif ( $model->{coincidenceAdj} =~ /3|three/i ) {
 
-                    my @relevantToGrouping =
-                      grep { /\bUMS\b|un-?met/i } @{ $relevantUsers->{list} };
-                    last GROUPING unless @relevantToGrouping;
-
-                    push @{ $model->{optionLines} },
-                      'Coincidence correction factors grouped for UMS';
-
-                    $relevantUsers =
-                      @{ $relevantEndUsersByRate[0]{list} } ==
-                      @relevantToGrouping
-                      ? $relevantEndUsersByRate[0]    # hack
-                      : Labelset( list => \@relevantToGrouping );
-
-                    $tariffGroupset = Labelset( list => [ 'Unmetered', ] );
-
-                    $mapping = Constant(
-                        name => 'Mapping of tariffs to '
-                          . 'tariff groups for coincidence adjustment factor',
-                        defaultFormat => '0connz',
-                        rows          => $relevantUsers,
-                        cols          => $tariffGroupset,
-                        data => [ map { 1; } @{ $relevantUsers->{list} } ],
-                    );
-
-                }
-                elsif ( $model->{coincidenceAdj} =~ /voltage/i ) {
-
-                    push @{ $model->{optionLines} },
-                      'Coincidence correction factors by'
-                      . ' voltage level tariff group';
-
-                    $relevantUsers =
-                      Labelset( list =>
-                          [ grep { !/^hv sub/i } @{ $relevantUsers->{list} } ]
-                      );
-
-                    $tariffGroupset =
-                      Labelset( list =>
-                          [ 'LV network', 'LV substation', 'HV network', ] );
-
-                    $mapping = Constant(
-                        name => 'Mapping of tariffs to '
-                          . 'tariff groups for coincidence adjustment factor',
-                        defaultFormat => '0connz',
-                        rows          => $relevantUsers,
-                        cols          => $tariffGroupset,
-                        data          => [
-                            map {
-                                    /^lv sub/i ? [qw(0 1 0)]
-                                  : /^lv/i     ? [qw(1 0 0)]
-                                  :              [qw(0 0 1)];
-                            } @{ $relevantUsers->{list} }
-                        ],
-                        byrow => 1,
-                    );
-
-                }
-                elsif ( $model->{coincidenceAdj} =~ /3|three/i ) {
-
-                    $tariffGroupset = Labelset(
-                        list => [
-                            'Domestic and/or single-phase '
-                              . 'and/or non-half-hourly UMS',
-'Non-domestic and/or three-phase whole current metered',
-                            'Large and/or half-hourly',
-                        ]
-                    );
-
-                    $mapping = Constant(
-                        name => 'Mapping of tariffs to '
-                          . 'tariff groups for coincidence adjustment factor',
-                        defaultFormat => '0connz',
-                        rows          => $relevantUsers,
-                        cols          => $tariffGroupset,
-                        data          => [
-                            map {
-                                /domestic|1p|single/i && !/non.?dom/i
-                                  || !$componentMap->{$_}
-                                  {'Fixed charge p/MPAN/day'}
-                                  && !$componentMap->{$_}{'Unit rates p/kWh'}
-                                  ? [qw(1 0 0)]
-                                  : /wc|small/i ? [qw(0 1 0)]
-                                  :               [qw(0 0 1)];
-                            } @{ $relevantUsers->{list} }
-                        ],
-                        byrow => 1,
-                    );
-
-                }
-                else {
-                    push @{ $model->{optionLines} },
-                      'Single coincidence correction factor';
-                }
-
-                my $red = Arithmetic(
-                    name          => 'Contribution to first-band peak kW',
-                    defaultFormat => '0softnz',
-                    arithmetic    => $timebandLoadCoefficient
-                    ? '=IV1*IV9*IV2/24/IV3*1000'
-                    : '=IV1*IV2/24/IV3*1000',
-                    rows      => $relevantUsers,
-                    arguments => {
-                        IV1 => $timebandLoadCoefficientAccording,
-                        IV2 => $unitsByEndUser,
-                        IV3 => $daysInYear,
-                        $timebandLoadCoefficient
-                        ? ( IV9 => $timebandLoadCoefficient )
-                        : (),
-                    },
+                $tariffGroupset = Labelset(
+                    list => [
+                        'Domestic and/or single-phase '
+                          . 'and/or non-half-hourly UMS',
+                        'Non-domestic and/or three-phase whole current metered',
+                        'Large and/or half-hourly',
+                    ]
                 );
 
-                my $coin = Arithmetic(
-                    name          => 'Contribution to system-peak-time kW',
-                    defaultFormat => '0softnz',
-                    arithmetic    => '=IV1*IV2/24/IV3*1000',
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
                     rows          => $relevantUsers,
-                    arguments     => {
-                        IV1 => $loadCoefficients,
-                        IV2 => $unitsByEndUser,
-                        IV3 => $daysInYear,
-                    },
+                    cols          => $tariffGroupset,
+                    data          => [
+                        map {
+                            /domestic|1p|single/i && !/non.?dom/i
+                              || !$componentMap->{$_}{'Fixed charge p/MPAN/day'}
+                              && !$componentMap->{$_}{'Unit rates p/kWh'}
+                              ? [qw(1 0 0)]
+                              : /wc|small/i ? [qw(0 1 0)]
+                              :               [qw(0 0 1)];
+                        } @{ $relevantUsers->{list} }
+                    ],
+                    byrow => 1,
                 );
-
-                $timebandLoadCoefficientAccording->{dontcolumnset} = 1;
-
-                push @{ $model->{timeOfDayResults} },
-                  Columnset(
-                    name    => 'Estimated contributions to peak demand',
-                    columns => [
-                        $timebandLoadCoefficientAccording->{rows} ==
-                          $red->{rows} ? $timebandLoadCoefficientAccording : (),
-                        $red,
-                        $coin,
-                    ]
-                  );
-
-                my $redG = SumProduct(
-                    name          => 'Group contribution to first-band peak kW',
-                    defaultFormat => '0softnz',
-                    matrix        => $mapping,
-                    vector        => $red,
-                );
-
-                my $coinG = SumProduct(
-                    name => 'Group contribution to system-peak-time kW',
-                    defaultFormat => '0softnz',
-                    matrix        => $mapping,
-                    vector        => $coin,
-                );
-
-                $timebandLoadCoefficientAdjusted = Stack(
-                    name    => 'Load coefficient correction factor (combined)',
-                    rows    => $relevantEndUsersByRate[0],
-                    cols    => 0,
-                    sources => [
-                        SumProduct(
-                            name => 'Load coefficient correction factor '
-                              . '(based on group)',
-                            matrix => $mapping,
-                            vector => Arithmetic(
-                                name => 'Load coefficient correction factor'
-                                  . ' for each group',
-                                arithmetic => '=IF(IV1,IV2/IV3,0)',
-                                rows       => 0,
-                                arguments  => {
-                                    IV1 => $redG,
-                                    IV2 => $coinG,
-                                    IV3 => $redG,
-                                }
-                            ),
-                        ),
-                        $timebandLoadCoefficientAdjusted,
-                    ]
-                );
-
-                $timebandLoadCoefficientAdjusted =
-                  $timebandLoadCoefficientAdjusted->{sources}[0]
-                  if $timebandLoadCoefficientAdjusted->lastRow ==
-                  $timebandLoadCoefficientAdjusted->{sources}[0]
-                  ->lastRow;    # hacky
 
             }
+            else {
+                push @{ $model->{optionLines} },
+                  'Single coincidence correction factor';
+            }
+
+            my $red = Arithmetic(
+                name          => 'Contribution to first-band peak kW',
+                defaultFormat => '0softnz',
+                arithmetic    => $timebandLoadCoefficient
+                ? '=IV1*IV9*IV2/24/IV3*1000'
+                : '=IV1*IV2/24/IV3*1000',
+                rows      => $relevantUsers,
+                arguments => {
+                    IV1 => $timebandLoadCoefficientAccording,
+                    IV2 => $unitsByEndUser,
+                    IV3 => $daysInYear,
+                    $timebandLoadCoefficient
+                    ? ( IV9 => $timebandLoadCoefficient )
+                    : (),
+                },
+            );
+
+            my $coin = Arithmetic(
+                name          => 'Contribution to system-peak-time kW',
+                defaultFormat => '0softnz',
+                arithmetic    => '=IV1*IV2/24/IV3*1000',
+                rows          => $relevantUsers,
+                arguments     => {
+                    IV1 => $loadCoefficients,
+                    IV2 => $unitsByEndUser,
+                    IV3 => $daysInYear,
+                },
+            );
+
+            $timebandLoadCoefficientAccording->{dontcolumnset} = 1;
+
+            push @{ $model->{timeOfDayResults} },
+              Columnset(
+                name    => 'Estimated contributions to peak demand',
+                columns => [
+                      $timebandLoadCoefficientAccording->{rows} == $red->{rows}
+                    ? $timebandLoadCoefficientAccording
+                    : (),
+                    $red,
+                    $coin,
+                ]
+              );
+
+            my $redG = SumProduct(
+                name          => 'Group contribution to first-band peak kW',
+                defaultFormat => '0softnz',
+                matrix        => $mapping,
+                vector        => $red,
+            );
+
+            my $coinG = SumProduct(
+                name          => 'Group contribution to system-peak-time kW',
+                defaultFormat => '0softnz',
+                matrix        => $mapping,
+                vector        => $coin,
+            );
+
+            $timebandLoadCoefficientAdjusted = Stack(
+                name    => 'Load coefficient correction factor (combined)',
+                rows    => $relevantEndUsersByRate[0],
+                cols    => 0,
+                sources => [
+                    SumProduct(
+                        name => 'Load coefficient correction factor '
+                          . '(based on group)',
+                        matrix => $mapping,
+                        vector => Arithmetic(
+                            name => 'Load coefficient correction factor'
+                              . ' for each group',
+                            arithmetic => '=IF(IV1,IV2/IV3,0)',
+                            rows       => 0,
+                            arguments  => {
+                                IV1 => $redG,
+                                IV2 => $coinG,
+                                IV3 => $redG,
+                            }
+                        ),
+                    ),
+                    $timebandLoadCoefficientAdjusted,
+                ]
+            );
+
+            $timebandLoadCoefficientAdjusted =
+              $timebandLoadCoefficientAdjusted->{sources}[0]
+              if $timebandLoadCoefficientAdjusted->lastRow ==
+              $timebandLoadCoefficientAdjusted->{sources}[0]->lastRow;   # hacky
+
         }
 
         if (   $model->{coincidenceAdj}
