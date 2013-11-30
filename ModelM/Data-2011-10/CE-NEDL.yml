@@ -289,14 +289,14 @@
     Tree Cutting: ''
     Vehicles Transport: ''
 1350:
-  - _table: 350. MEAV percentages
-  - MEAV percentages: 0.57
+  - _table: 1350. MEAV percentages
+  - MEAV percentages: 0.568259817
     _column: LV
-  - MEAV percentages: 0.06
+  - MEAV percentages: 0.062320732
     _column: HV/LV
-  - MEAV percentages: 0.24
+  - MEAV percentages: 0.24124879
     _column: HV
-  - MEAV percentages: 0.13
+  - MEAV percentages: 0.128170661
     _column: EHV&132
   - MEAV percentages: ''
 1370:

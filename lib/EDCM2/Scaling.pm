@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013 Reckon LLP and others.
+Copyright 2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -50,6 +50,7 @@ sub fudge41 {
         $shortfallRef,               $indirectExposure,
         $assetsCapacityDoubleCooked, $assetsConsumptionDoubleCooked,
         $reactiveCoincidence,        $powerFactorInModel,
+        $scalingAmountToTestForNegative,
     ) = @_;
 
     my $ynonFudge = Constant(
@@ -62,7 +63,30 @@ sub fudge41 {
         data => [0.2],
     );
 
-    my $slope = Arithmetic(
+    $activeCoincidence = Arithmetic(
+        name       => 'Peak-time capacity use per kVA of agreed capacity',
+        arithmetic => '=SQRT(IV1*IV2+IV3*IV4)',
+        arguments  => {
+            IV1 => $activeCoincidence,
+            IV2 => $activeCoincidence,
+            IV3 => $reactiveCoincidence,
+            IV4 => $reactiveCoincidence,
+        }
+    ) if $model->{dcp183};
+
+    my $slope = $model->{dcp185}
+      ? Arithmetic(
+        name       => 'Marginal revenue effect of demand adder',
+        arithmetic => '=IV1*(IV4+IV5)*IF(IV6<0,1,IV7)',
+        arguments  => {
+            IV1 => $agreedCapacity,
+            IV4 => $ynonFudge,
+            IV5 => $activeCoincidence,
+            IV6 => $scalingAmountToTestForNegative,
+            IV7 => $indirectExposure,
+        }
+      )
+      : Arithmetic(
         name       => 'Marginal revenue effect of demand adder',
         arithmetic => '=IV1*(IV4+IV5)',
         arguments  => {
@@ -70,7 +94,7 @@ sub fudge41 {
             IV4 => $ynonFudge,
             IV5 => $activeCoincidence,
         }
-    );
+      );
 
     my $fudgeIndirect = Arithmetic(
         name       => 'Data for capacity-based allocation of indirect costs',
@@ -106,7 +130,8 @@ sub fudge41 {
         vector        => $agreedCapacity
       );
 
-    my $indirectAppRate = $model->{legacy201}
+    my $indirectAppRate =
+      $model->{legacy201}
       ? Arithmetic(
         name       => 'Indirect costs application rate',
         arithmetic => '=IF(IV2,IV3/SUMPRODUCT(IV4_IV5,IV64_IV65),0)',
@@ -186,7 +211,8 @@ sub fudge41 {
         source        => $slope
       );
 
-    my $fixedAdderRate = $model->{legacy201}
+    my $fixedAdderRate =
+      $model->{legacy201}
       ? Arithmetic(
         name       => 'Fixed adder ex indirects application rate',
         arithmetic => '=IF(IV9,IV1*IV2/SUM(IV4_IV5),0)',

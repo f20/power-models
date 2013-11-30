@@ -1,0 +1,15 @@
+---
+.: DCP 183 toy (LRIC)
+PerlModule: EDCM2
+dcp183: 1
+dcp185: 1
+inputData: dataSheet
+lowerIntermittentCredit: 1
+method: LRIC
+noNegative: 1
+numLocations: 2
+numTariffs: 2
+protect: 1
+summaries: 1
+validation: lenientnomsg
+wantTables: 913

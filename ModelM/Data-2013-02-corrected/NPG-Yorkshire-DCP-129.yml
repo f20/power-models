@@ -20,11 +20,11 @@
     _column: DNO HV main usage
 1310:
   - _table: 1310. DPCR4 aggregate allowances
-  - DPCR4 aggregate allowances: 336400000
+  - DPCR4 aggregate allowances: 342800000
     _column: Aggregate return
   - DPCR4 aggregate allowances: 341900000
     _column: Aggregate depreciation
-  - DPCR4 aggregate allowances: 346900000
+  - DPCR4 aggregate allowances: 340500000
     _column: Aggregate operating
   - DPCR4 aggregate allowances: Aggregated from annual data
 1315:
@@ -219,13 +219,13 @@
     _column: Total costs
 1350:
   - _table: 1350. MEAV percentages
-  - MEAV percentages: 0.58
+  - MEAV percentages: 0.579257235
     _column: LV
-  - MEAV percentages: 0.06
+  - MEAV percentages: 0.06318078
     _column: HV/LV
-  - MEAV percentages: 0.19
+  - MEAV percentages: 0.187114573
     _column: HV
-  - MEAV percentages: 0.17
+  - MEAV percentages: 0.170447412
     _column: EHV&132
 1360:
   - _table: '1360. MEAV: ratio of LV service to LV total'

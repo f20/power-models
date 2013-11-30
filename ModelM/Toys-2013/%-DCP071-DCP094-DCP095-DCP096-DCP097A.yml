@@ -1,8 +1,8 @@
 ---
 .: 'Method M with DCP 071A, DCP 095, DCP 096, DCP 094 and DCP 097A'
-DCP071: 1
-DCP094: 1
-DCP095: 1
-DCP096: 1
-DCP097A: 1
 PerlModule: ModelM
+dcp071: 1
+dcp094: 1
+dcp095: 1
+dcp096: 1
+dcp097A: 1

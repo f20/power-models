@@ -2,7 +2,8 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2013 Energy Networks Association Limited and others.
+Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -323,7 +324,7 @@ This sheet contains data to populate tables 1191 to 1194 in a slave model.'
             my $logger  = delete $wbook->{logger};
             my $noLinks = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
-            $wbook->writeColourCodeSimple($wsheet);
+            0 and $wbook->writeColourCodeSimple($wsheet);
             $_->wsWrite( $wbook, $wsheet )
               foreach @{ $model->{tablesTemplateImport} };
             delete $wbook->{noLinks};
@@ -338,7 +339,7 @@ This sheet contains data to populate tables 1191 to 1194 in a slave model.'
             my $logger  = delete $wbook->{logger};
             my $noLinks = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
-            $wbook->writeColourCodeSimple($wsheet);
+            0 and $wbook->writeColourCodeSimple($wsheet);
             $_->wsWrite( $wbook, $wsheet )
               foreach @{ $model->{tablesTemplateExport} };
             delete $wbook->{noLinks};

@@ -1,8 +1,5 @@
 ---
-.: Experimental Method M rules used in development
-DCP071: 1
-DCP095: 1
-DCP096: 1
+.: Experimental Method M rules
 ExportGraphviz: 1
 ExportHtml: 1
 ExportPerl: 1
@@ -10,5 +7,10 @@ ExportYaml: 1
 PerlModule: ModelM
 alignment: right4
 colour: 0
+dcp071: 1
+dcp095: 1
+dcp096: 1
+dcp117: 1
+dcp118: 1
 forwardLinks: 1
 version: experimental

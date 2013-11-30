@@ -83,19 +83,19 @@ END_OF_LIST
             name  => 'Allocation key',
             lines => 'From sheet Opex Allocation, starting at cell AJ6',
             data  => [
-                $model->{DCP094} ? 'Kill' : 'MEAV',
+                $model->{dcp094} ? 'Kill' : 'MEAV',
                 ( map { 'MEAV' } 1 .. 11 ),
-                $model->{DCP097A}
-                  || $model->{DCP097} ? ( 'LV only', 'MEAV', 'MEAV' )
+                $model->{dcp097A}
+                  || $model->{dcp097} ? ( 'LV only', 'MEAV', 'MEAV' )
                 : ( map { 'MEAV' } 1 .. 3 ),
-                $model->{DCP097A}  ? ( map { 'LV only' } 1 .. 2 )
-                : $model->{DCP097} ? ( map { 'MEAV' } 1 .. 2 )
+                $model->{dcp097A}  ? ( map { 'LV only' } 1 .. 2 )
+                : $model->{dcp097} ? ( map { 'MEAV' } 1 .. 2 )
                 : ( map { 'Do not allocate' } 1 .. 2 ),
-                $model->{DCP097A} || $model->{DCP097}
+                $model->{dcp097A} || $model->{dcp097}
                 ? ( 'LV only', 'MEAV', 'LV only', 'LV only' )
                 : ( map { 'MEAV' } 1 .. 4 ),
                 ( map   { 'Do not allocate' } 1 .. 9 ),
-                $model->{DCP096} ? 'Deduct from revenue' : 'EHV only',
+                $model->{dcp096} ? 'Deduct from revenue' : 'EHV only',
                 ( map { 'Do not allocate' } 1 .. 2 ),
             ],
             defaultFormat => 'textcon',

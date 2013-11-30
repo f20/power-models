@@ -150,7 +150,7 @@ sub templateImport {
         arguments     => {
             IV1 => $daysInYear,
             IV3 => $tariffDaysInYearNot,
-            IV2 => $tariffComponents[2],
+            IV5 => $tariffComponents[2],
             IV7 => $tariffComponents[3],
             IV6 => $agreedCapacity,
             IV8 => $exceededCapacity,
@@ -210,8 +210,10 @@ sub templateImport {
     }
 
     Notes(
-        name  => 'ELECTRICITY DISTRIBUTION CHARGES INFORMATION FOR IMPORT',
+        name  => 'Import template',
         lines => <<'EOX'
+
+ELECTRICITY DISTRIBUTION CHARGES INFORMATION FOR IMPORT
 
 This template is intended to illustrate the use of system charges that a distributor might levy on a
 supplier under an EHV Distribution Charging Methodology (EDCM).
@@ -274,8 +276,10 @@ EOX
 sub templateExport {
     my ( $model, ) = @_;
     Notes(
-        name  => 'ELECTRICITY DISTRIBUTION CHARGES INFORMATION FOR EXPORT',
+        name  => 'Export template',
         lines => <<'EOX');
+
+ELECTRICITY DISTRIBUTION CHARGES INFORMATION FOR EXPORT
 
 This template is intended to illustrate the use of system charges that a distributor might levy on a
 generator or supplier under an EHV Distribution Charging Methodology (EDCM).

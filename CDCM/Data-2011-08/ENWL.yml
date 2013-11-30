@@ -345,7 +345,7 @@
     _column: 'LDNO HV: LV sub user'
   - LDNO discount: 0.221885171203731
     _column: 'LDNO HV: HV user'
-  - LDNO discount: Updated for DCP071A
+  - LDNO discount: Updated for DCP 071A
 1041:
   - _table: 1041. Load profile data for demand users
   - Domestic Off Peak related MPAN: ''

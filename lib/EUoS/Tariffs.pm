@@ -79,7 +79,7 @@ sub new {
             my $formula = join '+', map { "IV$_" } 1 .. @ingredients;
             Arithmetic(
                 name       => $tariffComponents->[$_],
-                arithmetic => $digitsRounding->[$_]
+                arithmetic => defined $digitsRounding->[$_]
                 ? "=ROUND($formula, $digitsRounding->[$_])"
                 : "=$formula",
                 arguments => {
@@ -89,7 +89,7 @@ sub new {
                 !defined $digitsRounding->[$_] ? ()
                 : !$digitsRounding->[$_]     ? ( defaultFormat => '0softnz' )
                 : $digitsRounding->[$_] == 2 ? ( defaultFormat => '0.00softnz' )
-                : (),
+                :                              (),
             );
           } 0 .. 2    # undue hardcoding
     ];

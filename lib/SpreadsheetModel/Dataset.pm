@@ -385,24 +385,22 @@ sub wsWrite {
         $wb->{logger}->log($self);
     }
 
-    if ( !$wb->{noLinks} ) {
-        if ( $self->{arithmetic} && $self->{arguments} ) {
-            my @formula = $self->{arithmetic};
-            $self->{sourceLines} =
-              [ _rewriteFormulae( \@formula, [ $self->{arguments} ] ) ];
-            $self->{formulaLines} = [ $self->objectType . " @formula" ];
-        }
+    if ( $self->{arithmetic} && $self->{arguments} ) {
+        my @formula = $self->{arithmetic};
+        $self->{sourceLines} =
+          [ _rewriteFormulae( \@formula, [ $self->{arguments} ] ) ];
+        $self->{formulaLines} = [ $self->objectType . " @formula" ];
+    }
 
-        elsif ( $self->{sourceLines} ) {
-            my %z;
-            my @z;
-            foreach ( @{ $self->{sourceLines} } ) {
-                push @z, $_ unless exists $z{ 0 + $_ };
-                undef $z{ 0 + $_ };
-            }
-            $self->{sourceLines} =
-              [ sort { _numsort( $a->{name} ) cmp _numsort( $b->{name} ) } @z ];
+    elsif ( $self->{sourceLines} ) {
+        my %z;
+        my @z;
+        foreach ( @{ $self->{sourceLines} } ) {
+            push @z, $_ unless exists $z{ 0 + $_ };
+            undef $z{ 0 + $_ };
         }
+        $self->{sourceLines} =
+          [ sort { _numsort( $a->{name} ) cmp _numsort( $b->{name} ) } @z ];
     }
 
     $self->{name} .= " ($self->{debug})"
@@ -432,9 +430,9 @@ sub wsWrite {
         );
     }
 
-    if (   $self->{lines}
-        || $self->{formulaLines}
-        || !$wb->{noLinks} && $self->{name} && $self->{sourceLines} )
+    if ( $self->{lines}
+        or !$wb->{noLinks}
+        and $self->{formulaLines} || $self->{name} && $self->{sourceLines} )
     {
         my $textFormat = $wb->getFormat('text');
         my $linkFormat = $wb->getFormat('link');

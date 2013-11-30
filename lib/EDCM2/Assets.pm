@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013 Reckon LLP and others.
+Copyright 2013 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -201,19 +201,33 @@ sub notionalAssets {
 
     );
 
-    my $redUseRate = Arithmetic(
-        name =>
-'Peak-time active power consumption adjusted to transmission (kW/kVA)',
+    my $redUseRate =
+      $model->{dcp183}
+      ? Arithmetic(
+        name => 'Peak-time capacity use adjusted to transmission (kW/kVA)',
+        arithmetic => '=SQRT(IV1*IV2+IV3*IV4)*IV8*IV9',
+        arguments  => {
+            IV1 => $activeCoincidence,
+            IV2 => $activeCoincidence,
+            IV3 => $reactiveCoincidence,
+            IV4 => $reactiveCoincidence,
+            IV8 => $powerFactorInModel,
+            IV9 => $tariffLossFactor,
+        }
+      )
+      : Arithmetic(
+        name => 'Peak-time active power consumption'
+          . ' adjusted to transmission (kW/kVA)',
         arithmetic => '=IV1*IV9',
         arguments  => {
             IV1 => $activeCoincidence,
             IV9 => $tariffLossFactor,
         }
-    );
+      );
 
     my $capUseRate = Arithmetic(
-        name =>
-'Active power equivalent of capacity adjusted to transmission (kW/kVA)',
+        name => 'Active power equivalent of capacity'
+          . ' adjusted to transmission (kW/kVA)',
         arithmetic => '=IV1*IV9',
         arguments  => {
             IV9 => $powerFactorInModel,

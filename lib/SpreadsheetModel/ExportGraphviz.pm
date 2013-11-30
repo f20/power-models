@@ -60,10 +60,10 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
       join "\n",
       'digraph g {',
       'graph [rankdir=LR, size="16,10.5", concentrate=true, nodesep="0.2", '
-      . 'ranksep="0.4",fontname="verdanab", fontsize="24", fontcolor="#666666"];',
-      'node [label="\\N",shape=ellipse, style=filled, fontname=verdana, '
+      . 'ranksep="0.4",fontname="Verdanab", fontsize="24", fontcolor="#666666"];',
+      'node [label="\\N",shape=ellipse, style=filled, fontname=Verdana, '
       . 'color="#0066cc", fillcolor=white, fontcolor=black, fontsize="20"];',
-      'edge [arrowtail=none, fontname=verdana, color="#ff6633", '
+      'edge [arrowtail=none, fontname=Verdana, color="#ff6633", '
       . 'fontcolor="#99b3cc", fontsize=18, style="setlinewidth(3)", arrowsize="2"];',
       (
         map {
@@ -123,10 +123,10 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
         push @dots,
           join "\n", "digraph g$shno {",
           'graph [rankdir=TD, size="10.5,8", concentrate=true, nodesep="0.2", '
-          . qq%ranksep="0.4", fontname="verdanab", fontsize="32", fontcolor="#666666", label="$graphTitle"];%,
-          'node [label="\\N",shape=ellipse, style=filled, fontname=verdana,'
+          . qq%ranksep="0.4", fontname="Verdanab", fontsize="32", fontcolor="#666666", label="$graphTitle"];%,
+          'node [label="\\N",shape=ellipse, style=filled, fontname=Verdana,'
           . ' color="#0066cc", fillcolor=white, fontcolor=black, fontsize="32"];',
-          'edge [arrowtail=none, fontname=verdana, color="#ff6633", '
+          'edge [arrowtail=none, fontname=Verdana, color="#ff6633", '
           . 'fontcolor="#99b3cc", fontsize=18, style="setlinewidth(3)", arrowsize="2"];',
           (
             map {

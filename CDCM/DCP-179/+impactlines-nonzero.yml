@@ -1,0 +1,37 @@
+---
+linesAfter:
+  - Domestic Unrestricted
+  - Domestic Two Rate
+  - Domestic Off Peak (related MPAN)
+  - Small Non Domestic Unrestricted
+  - Small Non Domestic Two Rate
+  - Small Non Domestic Off Peak (related MPAN)
+  - LV Medium Non-Domestic
+  - LV Sub Medium Non-Domestic
+  - HV Medium Non-Domestic
+  - LV Network Non-Domestic CT
+  - LV Sub CT
+  - HV Network CT
+  - NHH UMS category A
+  - NHH UMS category B
+  - NHH UMS category C
+  - NHH UMS category D
+  - LV UMS (Pseudo HH Metered)
+linesBefore:
+  - Domestic Unrestricted
+  - Domestic Two Rate
+  - Domestic Off Peak (related MPAN)
+  - Small Non Domestic Unrestricted
+  - Small Non Domestic Two Rate
+  - Small Non Domestic Off Peak (related MPAN)
+  - LV Medium Non-Domestic
+  - LV Sub Medium Non-Domestic
+  - HV Medium Non-Domestic
+  - LV HH Metered
+  - LV Sub HH Metered
+  - HV HH Metered
+  - NHH UMS category A
+  - NHH UMS category B
+  - NHH UMS category C
+  - NHH UMS category D
+  - LV UMS (Pseudo HH Metered)

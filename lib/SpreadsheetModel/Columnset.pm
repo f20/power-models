@@ -193,22 +193,24 @@ sub wsWrite {
 
     my @sourceLines;
 
-    if ( !$wb->{noLinks} ) {
-        my @formulae =
+    {
+        my @formulas =
           map { $_->{arguments} ? $_->{arithmetic} : '' } @{ $self->{columns} };
-        if ( grep { $_ } @formulae ) {
+        if ( grep { $_ } @formulas ) {
             @sourceLines =
-              _rewriteFormulae( \@formulae,
+              _rewriteFormulae( \@formulas,
                 [ map { $_->{arguments} } @{ $self->{columns} } ] );
             unless ( $self->{formulasDone} ) {
                 $self->{formulasDone} = 1;
-                push @{ $self->{lines} },
-                  [
-                    $headerCols ? ('Kind:') : (),
-                    map { $_->objectType } @{ $self->{columns} }
-                  ];
-                push @{ $self->{lines} },
-                  [ $headerCols ? ('Formula:') : (), @formulae ];
+                unless ( $wb->{noLinks} ) {
+                    push @{ $self->{lines} },
+                      [
+                        $headerCols ? ('Kind:') : (),
+                        map { $_->objectType } @{ $self->{columns} }
+                      ];
+                    push @{ $self->{lines} },
+                      [ $headerCols ? ('Formula:') : (), @formulas ];
+                }
             }
         }
     }
@@ -231,7 +233,7 @@ sub wsWrite {
         ++$headerLines if OLD_STYLE_SCRIBBLES;
         ++$headerLines;
         $headerLines += @{ $self->{lines} } if $self->{lines};
-        $headerLines += 1 + @sourceLines if @sourceLines;
+        $headerLines += 1 + @sourceLines if !$wb->{noLinks} && @sourceLines;
     }
 
     $self->{$wb}{$ws} = 1;
@@ -316,14 +318,14 @@ sub wsWrite {
             );
         }
 
-        if ( $self->{lines} || @sourceLines ) {
+        if ( $self->{lines} || !$wb->{noLinks} && @sourceLines ) {
             my $textFormat = $wb->getFormat('text');
             my $linkFormat = $wb->getFormat('link');
             my $xc         = 0;
             my @arrayLines;
             foreach (
                 $self->{lines} ? @{ $self->{lines} } : (),
-                @sourceLines
+                !$wb->{noLinks} && @sourceLines
                 ? ( 'Data sources:', @sourceLines )
                 : ()
               )
