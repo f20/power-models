@@ -41,7 +41,6 @@ inputData (dataSheet)
 use warnings;
 use strict;
 use utf8;
-require Storable;
 require YAML;
 
 sub _loadModules {

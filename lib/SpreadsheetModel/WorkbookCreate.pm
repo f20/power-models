@@ -50,6 +50,8 @@ sub bgCreate {
 
 sub _applyDataOverride {
     my ( $dataset, $override ) = @_;
+    require Storable;
+    $dataset = Storable::dclone($dataset);
     foreach my $itable ( keys %$override ) {
         for (
             my $icolumn = 1 ;
@@ -112,7 +114,7 @@ sub create {
                 $options->{dataset} = YAML::Load($yaml);
             }
             $options->{dataset} =
-              _applyDataOverride( Storable::dclone( $options->{dataset} ),
+              _applyDataOverride( $options->{dataset},
                 $options->{dataOverride} )
               if $options->{dataOverride} && $options->{dataset};
         }
