@@ -72,11 +72,6 @@ sub factory {
 
     my $processRuleset = sub {
         local $_ = $_[0];
-        _loadModules( $_, "$_->{PerlModule}::Master" ) || return;
-        $_->{PerlModule}->can('requiredModulesForRuleset')
-          and
-          _loadModules( $_, $_->{PerlModule}->requiredModulesForRuleset($_) )
-          || return;
         $_->{protect}    = 1              unless exists $_->{protect};
         $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
         $_->{inputData}  = 'dataSheet'    unless exists $_->{inputData};
@@ -244,6 +239,12 @@ sub factory {
 
     $self->{validate} = sub {
         my ( $perl5dir, $dbString ) = @_;
+
+        _loadModules( $_, "$_->{PerlModule}::Master" )
+          and UNIVERSAL::can( $_->{PerlModule}, 'requiredModulesForRuleset' )
+          and
+          _loadModules( $_, $_->{PerlModule}->requiredModulesForRuleset($_) )
+          foreach @rulesets;
 
         unless ( $workbookModule && $fileExtension ) {
             $workbookModule = 'SpreadsheetModel::Workbook';
