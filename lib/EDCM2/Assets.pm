@@ -1070,8 +1070,10 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             $model->{transparency}{olo}{ $_->[1] } = Arithmetic(
                 name          => $name,
                 defaultFormat => '0softnz',
-                arithmetic => '=IV1+SUMPRODUCT(IV11_IV12,IV13_IV14,IV15_IV16)',
-                arguments  => {
+                arithmetic =>
+                  '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV13_IV14,IV15_IV16)',
+                arguments => {
+                    IV123     => $model->{transparencyMasterFlag},
                     IV1       => $model->{transparency}{"ol$_->[1]"},
                     IV11_IV12 => $_->[0],
                     IV13_IV14 => $agreedCapacity,

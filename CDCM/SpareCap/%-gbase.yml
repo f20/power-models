@@ -2,7 +2,7 @@
 .: Model 100 with smart-ish tariffs and grouped coincidence correction
 PerlModule: CDCM
 alwaysUseRAG: 1
-coincidenceAdj: group
+coincidenceAdj: groupall
 drm: top500gsp
 extraLevels: 1
 matrices: big

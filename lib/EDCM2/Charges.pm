@@ -159,6 +159,10 @@ sub chargesFcpLric {
         data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
+    push @{ $model->{matricesData}[1] },
+      Stack( sources => [$demandCapacityFcpLric] )
+      if $model->{matricesData};
+
     # The following is pretty weird; substantially revised on 25 March 2011
     # Weirdness further increased on 1 June 2012.
     my $unitRateFcpLric =

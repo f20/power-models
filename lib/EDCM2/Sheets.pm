@@ -221,17 +221,98 @@ sub worksheetsAndClosures {
           }
 
         ,
-        'HSummary' => sub {
-            my ($wsheet) = @_;
-            $wsheet->freeze_panes( 1, 2 );
-            $wsheet->set_column( 0, 0,   20 );
-            $wsheet->set_column( 1, 1,   50 );
-            $wsheet->set_column( 2, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Results' ), @{ $model->{revenueTables} };
-          }
+
+        $model->{summaries} && $model->{summaries} =~ /matri/i
+        ?
+
+          (
+            'Mat' => sub {
+                my ($wsheet) = @_;
+                $wsheet->freeze_panes( 1, 2 );
+                $wsheet->set_column( 0, 0,   20 );
+                $wsheet->set_column( 1, 1,   50 );
+                $wsheet->set_column( 2, 250, 20 );
+                my ( @matrices, @total, @diff );
+                foreach my $col ( 0, 1 ) {
+                    my $name =
+                      $col
+                      ? 'capacity charge p/kVA/day'
+                      : 'super-red rate p/kWh';
+                    push @{ $model->{matricesData}[$col] },
+                      $total[$col] = Arithmetic(
+                        name          => 'Total notional ' . $name,
+                        defaultFormat => $col ? '0.00soft' : '0.000soft',
+                        arithmetic    => '='
+                          . join( '+',
+                            map { "IV$_" }
+                              1 .. @{ $model->{matricesData}[$col] } ),
+                        arguments => {
+                            map {
+                                ( "IV$_" =>
+                                      $model->{matricesData}[$col][ $_ - 1 ] );
+                            } 1 .. @{ $model->{matricesData}[$col] }
+                        },
+                      );
+                    push @{ $model->{matricesData}[$col] },
+                      $diff[$col] = Arithmetic(
+                        name          => "Difference $name",
+                        arithmetic    => '=IV1-IV2',
+                        defaultFormat => $total[$col]{defaultFormat},
+                        arguments     => {
+                            IV1 => $total[$col],
+                            IV2 => $model->{tariffTables}[0]{columns}
+                              [ 1 + 2 * $col ],
+                        }
+                      );
+                    push @{ $model->{matricesData}[$col] },
+                      Stack( sources => [ $model->{matricesData}[2] ] )
+                      unless $col;
+                    push @{ $model->{matricesData}[$col] },
+                      Arithmetic(
+                        name          => 'Consistency check (p/kVA/day)',
+                        defaultFormat => '0.00soft',
+                        arithmetic    => '=IV1*IV3*IV4/IV5+IV6',
+                        arguments     => {
+                            IV1 => $diff[0],
+                            IV3 => $model->{matricesData}[2],
+                            IV4 => $model->{matricesData}[3],
+                            IV5 => $model->{matricesData}[4],
+                            IV6 => $diff[1],
+                        }
+                      ) if $col;
+                    unshift @{ $model->{matricesData}[$col] },
+                      Stack(
+                        sources => [ $model->{tariffTables}[0]{columns}[0] ] );
+                    push @matrices,
+                      Columnset(
+                        name    => "Total $name",
+                        columns => $model->{matricesData}[$col]
+                      );
+                }
+
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Matrices and revenue summary' ),
+                  @matrices, @{ $model->{revenueTables} };
+            },
+          )
+
+        :
+
+          (
+            'HSummary' => sub {
+                my ($wsheet) = @_;
+                $wsheet->freeze_panes( 1, 2 );
+                $wsheet->set_column( 0, 0,   20 );
+                $wsheet->set_column( 1, 1,   50 );
+                $wsheet->set_column( 2, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Revenue summary' ),
+                  @{ $model->{revenueTables} };
+            },
+          )
 
         ,
+
       )
 
       : (),
@@ -316,7 +397,7 @@ This sheet contains data to populate tables 1191 to 1194 in a slave model.'
 
       $model->{customerTemplates}
       ? (
-        TemplateImport => sub {
+        ImpT => sub {
             my ($wsheet) = @_;
             $wsheet->fit_to_pages( 1, 1 );
             $wsheet->set_column( 0, 0,   60 );
@@ -331,7 +412,7 @@ This sheet contains data to populate tables 1191 to 1194 in a slave model.'
             $wbook->{logger} = $logger if $logger;
             $wbook->{noLinks} = $noLinks;
         },
-        TemplateExport => sub {
+        ExpT => sub {
             my ($wsheet) = @_;
             $wsheet->fit_to_pages( 1, 1 );
             $wsheet->set_column( 0, 0,   60 );

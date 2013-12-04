@@ -8,7 +8,7 @@ lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1
 numLocations: 1200
-numTariffs: 300
+numTariffs: 600
 protect: 1
 summaries: 1
 transparency: 1

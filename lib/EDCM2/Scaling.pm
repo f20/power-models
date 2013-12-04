@@ -74,7 +74,8 @@ sub fudge41 {
         }
     ) if $model->{dcp183};
 
-    my $slope = $model->{dcp185}
+    my $slope =
+      $model->{dcp185}
       ? Arithmetic(
         name       => 'Marginal revenue effect of demand adder',
         arithmetic => '=IV1*(IV4+IV5)*IF(IV6<0,1,IV7)',
@@ -165,6 +166,32 @@ sub fudge41 {
         }
     );
 
+    if ( $model->{matricesData} ) {
+        push @{ $model->{matricesData}[0] },
+          Arithmetic(
+            arithmetic => '=IV1*IV3*100/IV9',
+            rows       => $$capacityChargeRef->{rows},
+            name       => 'Notional indirect cost contribution p/kWh',
+            arguments  => {
+                IV3 => $indirectAppRate,
+                IV1 => $indirectExposure,
+                IV9 => $model->{matricesData}[3],
+            }
+          );
+        push @{ $model->{matricesData}[1] },
+          Arithmetic(
+            arithmetic => '=IV1*IV3*IV4*100/IV9',
+            rows       => $$capacityChargeRef->{rows},
+            name       => 'Notional indirect cost contribution p/kVA/day',
+            arguments  => {
+                IV3 => $indirectAppRate,
+                IV4 => $ynonFudge,
+                IV1 => $indirectExposure,
+                IV9 => $daysInYear,
+            }
+          );
+    }
+
     $model->{summaryInformationColumns}[3] = Arithmetic(
         name          => 'Indirect cost allocation (£/year)',
         defaultFormat => '0softnz',
@@ -237,7 +264,8 @@ sub fudge41 {
       if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
-        arithmetic => '=IV1+IV3*(IV7+IV4)*100/IV9',
+        arithmetic => '=IV1+IV3*(IV7+IV4)*100/IV9'
+          . ( $model->{dcp185} ? '*IV8' : '' ),
         name =>
           'Capacity charge after applying fixed adder ex indirects p/kVA/day',
         arguments => {
@@ -246,8 +274,36 @@ sub fudge41 {
             IV4 => $activeCoincidence,
             IV7 => $ynonFudge,
             IV9 => $daysInYear,
+            $model->{dcp185} ? ( IV8 => $indirectExposure ) : (),
         }
     );
+
+    if ( $model->{matricesData} ) {
+        push @{ $model->{matricesData}[0] },
+          Arithmetic(
+            arithmetic => '=IV3*100/IV9' . ( $model->{dcp185} ? '*IV8' : '' ),
+            rows      => $$capacityChargeRef->{rows},
+            name      => 'Notional fixed adder p/kWh',
+            arguments => {
+                IV3 => $fixedAdderRate,
+                IV9 => $model->{matricesData}[3],
+                $model->{dcp185} ? ( IV8 => $indirectExposure ) : (),
+            }
+          );
+        push @{ $model->{matricesData}[1] },
+          Arithmetic(
+            arithmetic => '=IV3*IV4*100/IV9'
+              . ( $model->{dcp185} ? '*IV8' : '' ),
+            rows      => $$capacityChargeRef->{rows},
+            name      => 'Notional fixed adder p/kVA/day',
+            arguments => {
+                IV3 => $fixedAdderRate,
+                IV4 => $ynonFudge,
+                IV9 => $daysInYear,
+                $model->{dcp185} ? ( IV8 => $indirectExposure ) : (),
+            }
+          );
+    }
 
     $model->{summaryInformationColumns}[6] = Arithmetic(
         name          => 'Demand scaling fixed adder (£/year)',
@@ -403,6 +459,31 @@ sub demandScaling41 {
             IV1  => $capacityCharge,
         }
     );
+
+    if ( $model->{matricesData} ) {
+        push @{ $model->{matricesData}[0] },
+          Arithmetic(
+            arithmetic => '=IF(IV5,IV1*IV3*100/IV9/IV6,0)',
+            name       => 'Asset-based contribution p/kWh',
+            arguments  => {
+                IV3 => $demandScaling,
+                IV1 => $assetsConsumption,
+                IV9 => $model->{matricesData}[3],
+                IV5 => $model->{matricesData}[2],
+                IV6 => $model->{matricesData}[2],
+            }
+          );
+        push @{ $model->{matricesData}[1] },
+          Arithmetic(
+            arithmetic => '=IV1*IV3*100/IV9',
+            name       => 'Asset-based contribution p/kVA/day',
+            arguments  => {
+                IV3 => $demandScaling,
+                IV1 => $assetsCapacity,
+                IV9 => $daysInYear,
+            }
+          );
+    }
 
     $scalingChargeCapacity;
 

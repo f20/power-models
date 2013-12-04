@@ -70,7 +70,7 @@ sub revenue {
             }
         ),
 
-        ( grep { $_ } $model->{Thursday31}[0], $model->{Thursday31}[2], ),
+        ( grep { $_ } $model->{Thursday32}[0], $model->{Thursday32}[2], ),
 
         Arithmetic(
             name          => 'Other import capacity charges (£/year)',

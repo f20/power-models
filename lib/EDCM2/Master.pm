@@ -97,6 +97,9 @@ sub new {
         return $model;
     }
 
+    $model->{matricesData} = [ [], [] ]
+      if $model->{summaries} && $model->{summaries} =~ /matri/i;
+
     my (
         $daysInYear,            $chargeDirect,
         $chargeIndirect,        $chargeRates,
@@ -968,6 +971,23 @@ EOT
         }
     );
 
+    if ( $model->{matricesData} ) {
+        push @{ $model->{matricesData}[0] },
+          Arithmetic(
+            name =>
+              'Notional super red unit rate for transmission exit (p/kWh)',
+            rows       => $tariffs->{rows},
+            arithmetic => '=100/IV2*IV41',
+            arguments  => {
+                IV2  => $hoursInRed,
+                IV41 => $rateExit,
+            },
+          );
+        $model->{matricesData}[2] = $redUseRate;
+        $model->{matricesData}[3] = $hoursInRed;
+        $model->{matricesData}[4] = $daysInYear;
+    }
+
     $model->{summaryInformationColumns}[1] = Arithmetic(
         name          => 'Transmission exit charge (£/year)',
         defaultFormat => '0softnz',
@@ -1016,6 +1036,10 @@ EOT
         }
       );
 
+    push @{ $model->{matricesData}[0] },
+      Stack( sources => [$unitRateFcpLricDSM] )
+      if $model->{matricesData};
+
     my (
         $importCapacityScaledRound, $SuperRedRateFcpLricRound,
         $fixedDchargeTrueRound,     $thisIsTheTariffTable,
@@ -1039,7 +1063,7 @@ EOT
             }
         );
 
-        $model->{Thursday31} = [
+        $model->{Thursday32} = [
             Arithmetic(
                 name          => 'FCP/LRIC capacity-based charge (£/year)',
                 arithmetic    => '=IV1*IV4*IV9/100',
@@ -1340,7 +1364,7 @@ EOT
           );
 
     }
-    else {
+    else {    # not legacy201
 
         push @{ $model->{calc2Tables} },
           my $capacityChargeT1 = Arithmetic(
@@ -1365,7 +1389,7 @@ EOT
             }
         );
 
-        $model->{Thursday31} = [
+        $model->{Thursday32} = [
             Arithmetic(
                 name          => 'FCP/LRIC capacity-based charge (£/year)',
                 arithmetic    => '=IV1*IV4*IV9/100',

@@ -8,7 +8,7 @@ inputData: dataSheet
 lowerIntermittentCredit: 1
 method: FCP
 noNegative: 1
-numTariffs: 150
+numTariffs: 300
 protect: 1
 summaries: 1
 transparency: 1

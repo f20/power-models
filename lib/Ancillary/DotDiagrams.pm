@@ -115,7 +115,7 @@ EOX
     if (1) {
         open my $fh, '>', 'O_Diagrams/index.html';
         print $fh '<!DOCTYPE html><html><head><meta charset="UTF-8">',
-          '<meta name="viewport" content="width=650px" />',
+          '<meta name="viewport" content="width=650,initial-scale=1.0" />',
           '<title>Dot diagrams</title>', '</head><body>', $html,
           '</body></html>';
     }

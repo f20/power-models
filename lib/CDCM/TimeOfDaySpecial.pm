@@ -978,17 +978,7 @@ sub timeOfDayRunner {
                   [ grep { !/gener/i } @{ $relevantEndUsersByRate[0]{list} } ]
               );
 
-            my $tariffGroupset = Labelset( list => [ 'All demand tariffs', ] );
-
-            my $mapping = Constant(
-                name => 'Mapping of tariffs to '
-                  . 'tariff groups for coincidence adjustment factor',
-                defaultFormat => '0connz',
-                rows          => $relevantUsers,
-                cols          => $tariffGroupset,
-                data          => [ map { [1] } @{ $relevantUsers->{list} } ],
-                byrow         => 1,
-            );
+            my ( $tariffGroupset, $mapping );
 
             if (
                 $model->{coincidenceAdj} =~ /ums/i
@@ -1081,97 +1071,115 @@ sub timeOfDayRunner {
                 );
 
             }
-            else {
+            elsif ( $model->{coincidenceAdj} =~ /all/i ) {
                 push @{ $model->{optionLines} },
                   'Single coincidence correction factor';
+
+                $tariffGroupset = Labelset( list => [ 'All demand tariffs', ] );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data  => [ map { [1] } @{ $relevantUsers->{list} } ],
+                    byrow => 1,
+                );
             }
 
-            my $red = Arithmetic(
-                name          => 'Contribution to first-band peak kW',
-                defaultFormat => '0softnz',
-                arithmetic    => $timebandLoadCoefficient
-                ? '=IV1*IV9*IV2/24/IV3*1000'
-                : '=IV1*IV2/24/IV3*1000',
-                rows      => $relevantUsers,
-                arguments => {
-                    IV1 => $timebandLoadCoefficientAccording,
-                    IV2 => $unitsByEndUser,
-                    IV3 => $daysInYear,
-                    $timebandLoadCoefficient
-                    ? ( IV9 => $timebandLoadCoefficient )
-                    : (),
-                },
-            );
+            if ($mapping) {
 
-            my $coin = Arithmetic(
-                name          => 'Contribution to system-peak-time kW',
-                defaultFormat => '0softnz',
-                arithmetic    => '=IV1*IV2/24/IV3*1000',
-                rows          => $relevantUsers,
-                arguments     => {
-                    IV1 => $loadCoefficients,
-                    IV2 => $unitsByEndUser,
-                    IV3 => $daysInYear,
-                },
-            );
+                my $red = Arithmetic(
+                    name          => 'Contribution to first-band peak kW',
+                    defaultFormat => '0softnz',
+                    arithmetic    => $timebandLoadCoefficient
+                    ? '=IV1*IV9*IV2/24/IV3*1000'
+                    : '=IV1*IV2/24/IV3*1000',
+                    rows      => $relevantUsers,
+                    arguments => {
+                        IV1 => $timebandLoadCoefficientAccording,
+                        IV2 => $unitsByEndUser,
+                        IV3 => $daysInYear,
+                        $timebandLoadCoefficient
+                        ? ( IV9 => $timebandLoadCoefficient )
+                        : (),
+                    },
+                );
 
-            $timebandLoadCoefficientAccording->{dontcolumnset} = 1;
+                my $coin = Arithmetic(
+                    name          => 'Contribution to system-peak-time kW',
+                    defaultFormat => '0softnz',
+                    arithmetic    => '=IV1*IV2/24/IV3*1000',
+                    rows          => $relevantUsers,
+                    arguments     => {
+                        IV1 => $loadCoefficients,
+                        IV2 => $unitsByEndUser,
+                        IV3 => $daysInYear,
+                    },
+                );
 
-            push @{ $model->{timeOfDayResults} },
-              Columnset(
-                name    => 'Estimated contributions to peak demand',
-                columns => [
-                      $timebandLoadCoefficientAccording->{rows} == $red->{rows}
-                    ? $timebandLoadCoefficientAccording
-                    : (),
-                    $red,
-                    $coin,
-                ]
-              );
+                $timebandLoadCoefficientAccording->{dontcolumnset} = 1;
 
-            my $redG = SumProduct(
-                name          => 'Group contribution to first-band peak kW',
-                defaultFormat => '0softnz',
-                matrix        => $mapping,
-                vector        => $red,
-            );
+                push @{ $model->{timeOfDayResults} },
+                  Columnset(
+                    name    => 'Estimated contributions to peak demand',
+                    columns => [
+                        $timebandLoadCoefficientAccording->{rows} ==
+                          $red->{rows}
+                        ? $timebandLoadCoefficientAccording
+                        : (),
+                        $red,
+                        $coin,
+                    ]
+                  );
 
-            my $coinG = SumProduct(
-                name          => 'Group contribution to system-peak-time kW',
-                defaultFormat => '0softnz',
-                matrix        => $mapping,
-                vector        => $coin,
-            );
+                my $redG = SumProduct(
+                    name          => 'Group contribution to first-band peak kW',
+                    defaultFormat => '0softnz',
+                    matrix        => $mapping,
+                    vector        => $red,
+                );
 
-            $timebandLoadCoefficientAdjusted = Stack(
-                name    => 'Load coefficient correction factor (combined)',
-                rows    => $relevantEndUsersByRate[0],
-                cols    => 0,
-                sources => [
-                    SumProduct(
-                        name => 'Load coefficient correction factor '
-                          . '(based on group)',
-                        matrix => $mapping,
-                        vector => Arithmetic(
-                            name => 'Load coefficient correction factor'
-                              . ' for each group',
-                            arithmetic => '=IF(IV1,IV2/IV3,0)',
-                            rows       => 0,
-                            arguments  => {
-                                IV1 => $redG,
-                                IV2 => $coinG,
-                                IV3 => $redG,
-                            }
+                my $coinG = SumProduct(
+                    name => 'Group contribution to system-peak-time kW',
+                    defaultFormat => '0softnz',
+                    matrix        => $mapping,
+                    vector        => $coin,
+                );
+
+                $timebandLoadCoefficientAdjusted = Stack(
+                    name    => 'Load coefficient correction factor (combined)',
+                    rows    => $relevantEndUsersByRate[0],
+                    cols    => 0,
+                    sources => [
+                        SumProduct(
+                            name => 'Load coefficient correction factor '
+                              . '(based on group)',
+                            matrix => $mapping,
+                            vector => Arithmetic(
+                                name => 'Load coefficient correction factor'
+                                  . ' for each group',
+                                arithmetic => '=IF(IV1,IV2/IV3,0)',
+                                rows       => 0,
+                                arguments  => {
+                                    IV1 => $redG,
+                                    IV2 => $coinG,
+                                    IV3 => $redG,
+                                }
+                            ),
                         ),
-                    ),
-                    $timebandLoadCoefficientAdjusted,
-                ]
-            );
+                        $timebandLoadCoefficientAdjusted,
+                    ]
+                );
 
-            $timebandLoadCoefficientAdjusted =
-              $timebandLoadCoefficientAdjusted->{sources}[0]
-              if $timebandLoadCoefficientAdjusted->lastRow ==
-              $timebandLoadCoefficientAdjusted->{sources}[0]->lastRow;   # hacky
+                $timebandLoadCoefficientAdjusted =
+                  $timebandLoadCoefficientAdjusted->{sources}[0]
+                  if $timebandLoadCoefficientAdjusted->lastRow ==
+                  $timebandLoadCoefficientAdjusted->{sources}[0]
+                  ->lastRow;    # hacky
+
+            }
 
             if (   $model->{coincidenceAdj}
                 && $model->{coincidenceAdj} =~ /redonly/i )

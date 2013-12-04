@@ -87,14 +87,21 @@ sub processData {
     if ( my $ds = $model->{dataset}{935} ) {
         my %tariffs;
         my $max = 0;
+        $ds->[1]{$_} ||= "Tariff $_" foreach grep {
+            my $t = $_;
+            grep {
+                     defined $ds->[$_]{$t}
+                  && $ds->[$_]{$t} ne 'VOID'
+                  && $ds->[$_]{$t} ne '#VALUE!';
+            } 2 .. 66;
+        } keys %{ $ds->[2] };
         while ( my ( $k, $v ) = each %{ $ds->[1] } ) {
             next
               unless $k =~ /^[0-9]+$/
-              and $v
-              and $v ne 'Not used'
-              and $v ne '#VALUE!'
-              and $v !~ /^\s*$/s
-              and $ds->[1]{$k};
+              && $v
+              && $v ne 'Not used'
+              && $v ne '#VALUE!'
+              && $v !~ /^\s*$/s;
             undef $tariffs{$k};
             $max = $k
               if $k > $max;

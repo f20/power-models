@@ -47,8 +47,9 @@ sub gCharge {
         ${ $_->[0] } = $model->{transparency}{olo}{ $_->[1] } = Arithmetic(
             name          => ${ $_->[0] }->objectShortName . ' (total)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1+SUMPRODUCT(IV2_IV3,IV4_IV5)',
+            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5)',
             arguments     => {
+                IV123   => $model->{transparencyMasterFlag},
                 IV1     => $model->{transparency}{"ol$_->[1]"},
                 IV2_IV3 => ${ $_->[0] },
                 IV4_IV5 => $model->{transparency},
