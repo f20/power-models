@@ -78,6 +78,7 @@ sub create {
         mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
         open my $handle, '>',
           $tmpDir ? catfile( $tmpDir, $fileName ) : $fileName;
+        binmode $handle;
         $handle, sub {
             if ($tmpDir) {
                 rename catfile( $tmpDir, $fileName ), $fileName;
@@ -242,6 +243,7 @@ sub create {
             if ( $options->{ExportPerl} ) {
                 require Data::Dumper;
                 open my $fh, '>', "$file.pl";
+                binmode $fh, ':utf8';
                 print {$fh} Data::Dumper->new( \@coreObj )->Indent(1)->Names(
                     [
                         map {
