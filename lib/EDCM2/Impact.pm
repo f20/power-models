@@ -458,3 +458,5 @@ EDCM charging methodologies illustrated by this tool, or of Ofgem's conduct in r
 
 EOL
 }
+
+1;

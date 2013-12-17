@@ -4,7 +4,7 @@
       Input data compiled by Franck from public sources. E&OE.
       This dataset is intended to reproduce the model M results used in prices from 1 October 2011.
     _table: '300. Company, charging year, data version'
-  - Company charging year data version: ENW
+  - Company charging year data version: Electricity North West
     _column: Company
   - Company charging year data version: 2011/2012 H2
     _column: Year

@@ -1,5 +1,5 @@
 ---
-.: DCP 183 toy (FCP)
+.: DCP 183 and DCP 185 toy (FCP)
 PerlModule: EDCM2
 dcp183: 1
 dcp185: 1

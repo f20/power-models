@@ -453,35 +453,35 @@ sub tariffInputs {
         Dataset(
             name          => 'Maximum import capacity (kVA)',
             defaultFormat => '0hard',
-            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
         Dataset(
             name          => 'Exempt export capacity (kVA)',
             defaultFormat => '0hardnz',
-            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
         Dataset(
             name          => 'Non-exempt pre-2005 export capacity (kVA)',
             defaultFormat => '0hardnz',
-            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset},
         ),
         Dataset(
             name          => 'Non-exempt 2005-2010 export capacity (kVA)',
             defaultFormat => '0hardnz',
-            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset},
         ),
         Dataset(
             name          => 'Non-exempt post-2010 export capacity (kVA)',
             defaultFormat => '0hardnz',
-            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset},
         ),

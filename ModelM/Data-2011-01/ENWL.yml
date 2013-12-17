@@ -5,7 +5,7 @@
       This dataset is intended to reproduce the original model M results.
       Data typed by Franck from the 2009 PDF in LDNO_Models.zip; HV split changed to 45.45%; table 399 from model 100.
     _table: '300. Company, charging year, data version'
-  - Company charging year data version: ENW
+  - Company charging year data version: Electricity North West
     _column: Company
   - Company charging year data version: 2010/2011
     _column: Year

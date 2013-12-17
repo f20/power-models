@@ -427,6 +427,10 @@ This sheet contains data to populate tables 1191 to 1194 in a slave model.'
             $wbook->{logger} = $logger if $logger;
             $wbook->{noLinks} = $noLinks;
         },
+        VBACode => sub {
+            my ($wsheet) = @_;
+            $model->vbaWrite( $wbook, $wsheet );
+        },
       )
       : ()
 

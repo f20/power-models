@@ -603,6 +603,14 @@ Keys used in %$options:
             bold       => 1,
             @colourHeader,
         ],
+        thtarexport => [
+            locked => 0,
+            @sizeLabel,
+            num_format => q"\T\a\r\i\f\f\ 0 \e\x\p\o\r\t",
+            align      => 'left',
+            bold       => 1,
+            @colourHeader,
+        ],
         unavailable => [
             locked => 1,
             @sizeNumber,
