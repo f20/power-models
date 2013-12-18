@@ -428,7 +428,26 @@ sub vbaWrite {
 
     my ( $model, $wb, $ws ) = @_;
 
-    my $sheetList = join ',', map { qq%"$_"% } 11,
+    my $populate119x = '';
+
+    while ( my ( $num, $obj ) = each %{ $model->{transparency}{olo} } ) {
+        my @src = $obj->wsWrite( $wb, $ws );
+        my @dst = $model->{transparency}{"ol$num"}->wsWrite( $wb, $ws );
+        $populate119x .=
+            '    Sheets("'
+          . $dst[0]->get_name
+          . '").Cells('
+          . ( $dst[1] + 1 ) . ','
+          . ( $dst[2] + 1 )
+          . ').Value = Sheets("'
+          . $src[0]->get_name
+          . '").Cells('
+          . ( $src[1] + 1 ) . ','
+          . ( $src[2] + 1 )
+          . ").Value\n";
+    }
+
+    my $sheetsForPublication = join ',', map { qq%"$_"% } 11,
       $model->{method} =~ /FCP/i ? 911 : $model->{method} =~ /LRIC/i ? 913 : (),
       935, qw(Results OneLiners);
 
@@ -439,6 +458,13 @@ sub vbaWrite {
     ++$_ foreach $importTariffRow, $exportTariffRow;
 
     Notes( name => '', lines => <<EOX )->wsWrite( $wb, $ws );
+' VBA Code
+' 
+' For full functionality in Microsoft Excel, please:
+' 1.  Transfer this code to a module; and
+' 2.  Run the Autorun macro.
+' 
+' Opening the Microsoft Excel Addin http://dcmf.co.uk/FranckVBATools04.xla will do all this for you.
 
 Sub Autorun()
     Worksheets("Index").Activate
@@ -448,7 +474,7 @@ Sub Autorun()
     Set myButton = ActiveSheet.Shapes.AddFormControl(xlButtonControl, _
     l, ActiveSheet.Rows(4).Top, w, ActiveSheet.Rows(7).Top - ActiveSheet.Rows(4).Top)
     myButton.TextFrame.Characters.Text = "Import data from master EDCM model"
-    With myButton.TextFrame.Characters.Font ' Not reliable
+    With myButton.TextFrame.Characters.Font ' Not reliable in Microsoft Excel 2011
         .FontStyle = "Bold"
         .Size = 15
     End With
@@ -458,20 +484,26 @@ Sub Autorun()
     With myButton
         .TextFrame.Characters.Text = "Export information from this workbook"
         .OnAction = "ExportAll"
-        With .TextFrame.Characters.Font ' Not reliable
+        With .TextFrame.Characters.Font ' Not reliable in Microsoft Excel 2011
             .FontStyle = "Bold"
             .Size = 15
         End With
     End With
-    ActiveSheet.Shapes.SelectAll
-    ' Failed to automate increasing the font size of these buttons because of apparent Excel bugs
+End Sub
+
+Sub Populate119x()
+    Worksheets("11").Activate
+    ActiveSheet.Unprotect
+${populate119x}
+    ActiveSheet.Protect DrawingObjects:=True, Contents:=True, Scenarios:=True
 End Sub
 
 Sub ExportAll()
+    Call Populate119x
     Dim model, core As String
     model = ActiveWorkbook.FullName
     core = Left(model, Len(model) - 5)
-    Sheets(Array($sheetList)).Copy
+    Sheets(Array($sheetsForPublication)).Copy
     Dim ws As Worksheet
     For Each ws In ActiveWorkbook.Worksheets
         ws.Select
@@ -593,7 +625,6 @@ Sub ImportData
     Dim twidth As Integer
     For Each wsInput In Worksheets
         If wsInput.Name <> wsDatabase.Name And Not (wsInput.Name Like "Calc*") And wsInput.UsedRange.row = 1 And wsInput.UsedRange.Column = 1 Then
-            If modifyThisBook Then wsInput.Unprotect
             numRows = wsInput.UsedRange.Rows.Count
             numCols = wsInput.UsedRange.Columns.Count
             table = 0
@@ -651,10 +682,6 @@ DontDoThisCell:
                 Next c
 DontDoThisRow:
             Next r
-            If modifyThisBook Then
-                wsInput.Protect DrawingObjects:=True, Contents:=True, Scenarios:=True
-                wsInput.EnableSelection = xlNoRestrictions
-            End If
         End If
     Next wsInput
 
