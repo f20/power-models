@@ -997,6 +997,31 @@ forecast data rather than historical data, if there is a difference.
             defaultFormat => '0softnz'
         );
 
+        my $electionBung;
+        if ( $model->{electionBung} ) {
+            $electionBung = Dataset(
+                name          => 'Election bung (p/MPAN/day)',
+                defaultFormat => '0.00hard',
+                rows          => $allTariffs,
+                number        => 1098,
+                appendTo      => $model->{inputTables},
+                dataset       => $model->{dataset},
+                , data => [ map { '' } @{ $allTariffs->{list} } ]
+            );
+            push @{ $model->{summaryColumns} },
+              Arithmetic(
+                name          => 'Revenue impact of election bung (£, not accounted for)',
+                defaultFormat => '0soft',
+                arithmetic    => '=0.01*IV1*SUMPRODUCT(IV2_IV3,IV4_IV5)',
+                arguments     => {
+                    IV1     => $daysAfter,
+                    IV2_IV3 => $electionBung,
+                    IV4_IV5 => ( $volumeDataAfter || $volumeData )
+                      ->{'Fixed charge p/MPAN/day'}
+                }
+              );
+        }
+
         $tariffTable = {
             map {
                 $_ => Arithmetic(
@@ -1005,13 +1030,18 @@ forecast data rather than historical data, if there is a difference.
                     ),
                     defaultFormat => $tariffTable->{$_}{defaultFormat},
                     arithmetic    => $model->{model100} ? '=IV2*(1-IV1)'
-                    : ( '=ROUND(IV2*(1-IV1),' . ( /kWh|kVArh/ ? 3 : 2 ) . ')' ),
+                    : (     '=ROUND('
+                          . ( $electionBung && /MPAN/ ? 'IV3+' : '' )
+                          . 'IV2*(1-IV1),'
+                          . ( /kWh|kVArh/ ? 3 : 2 )
+                          . ')' ),
                     rows      => $allTariffs,
                     cols      => $tariffTable->{$_}{cols},
                     arguments => {
                         IV2 => $tariffTable->{$_},
                         IV1 => /fix/i ? $model->{pcd}{discountFixed}
-                        : $model->{pcd}{discount}
+                        : $model->{pcd}{discount},
+                        $electionBung && /MPAN/ ? ( IV3 => $electionBung ) : (),
                     },
                 );
             } @$allComponents
@@ -1066,8 +1096,7 @@ forecast data rather than historical data, if there is a difference.
 
         }
 
-        my $atwTariffSummary = pop @{ $model->{tariffSummary} };
-        push @{ $model->{roundingResults} }, $atwTariffSummary;
+        push @{ $model->{roundingResults} }, pop @{ $model->{tariffSummary} };
 
         unshift @{ $model->{tariffSummary} }, Columnset(
             name => 'Tariffs',

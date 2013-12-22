@@ -344,14 +344,18 @@ sub table1001 {
             data => [ map { /=/ ? undef : ''; } @descriptions ],
         );
 
+        my $handSubtotal;
+        $handSubtotal = [] unless $model->{targetRevenue} =~ /subtotal/i;
         my $subtotals = new SpreadsheetModel::Custom(
             name          => 'Revenue elements and subtotals (£/year)',
             defaultFormat => $model->{targetRevenue} =~ /million/i
             ? 'millionsoft'
             : '0soft',
-            rows => $labelset,
-            custom =>
-              [ '=IV1', '=-1*IV1', '=IV1*(IV2-1)', '=SUBTOTAL(9,IV3:IV4)' ],
+            rows   => $labelset,
+            custom => [
+                '=IV1',         '=0-IV1',
+                '=IV1*(IV2-1)', $handSubtotal ? () : '=SUBTOTAL(9,IV3:IV4)'
+            ],
             arithmetic => '',
             objectType => 'Mixed calculations',
             wsPrepare  => sub {
@@ -388,36 +392,57 @@ sub table1001 {
                     ( $sh, $ro, $co ) = $self->wsWrite( $wb, $ws )
                       unless defined $ro;
 
-                    $descriptions[$y] =~ /=/
-                      ? (
-                        '',
-                        $boldFormat,
-                        $formula->[3],
-                        IV3 => xl_rowcol_to_cell(
-                            $ro + (
-                                  $descriptions[$y] =~ /^B/ ? 4
-                                : $descriptions[$y] =~ /^C/ ? 10
-                                : $descriptions[$y] =~ /^G/ ? 26
-                                : $descriptions[$y] =~ /^I/ ? 33
-                                : 0
+                    if ( $descriptions[$y] =~ /=/ ) {
+                        my $startRowOffset =
+                            $descriptions[$y] =~ /^B/ ? 4
+                          : $descriptions[$y] =~ /^C/ ? 10
+                          : $descriptions[$y] =~ /^G/ ? 26
+                          : $descriptions[$y] =~ /^I/ ? 33
+                          :                             0;
+                        $handSubtotal
+                          ? (
+                            '',
+                            $boldFormat,
+                            '='
+                              . (
+                                join '+',
+                                map { xl_rowcol_to_cell( $ro + $_, $co ) }
+                                  grep { $_ >= $startRowOffset; }
+                                  @$handSubtotal
+                              )
+                          )
+                          : (
+                            '',
+                            $boldFormat,
+                            $formula->[3],
+                            IV3 => xl_rowcol_to_cell(
+                                $ro + $startRowOffset,
+                                $co, 1, 0
                             ),
-                            $co, 1, 0
-                        ),
-                        IV4 => xl_rowcol_to_cell( $ro + $y - 1, $co, 0, 0 ),
-                      )
-                      : $descriptions[$y] =~ /^A2/ ? (
-                        '', $format, $formula->[2],
-                        IV1 => xl_rowcol_to_cell( $roi,     $coi, 1, 0 ),
-                        IV2 => xl_rowcol_to_cell( $roi + 1, $coi, 1, 0 ),
-                      )
-                      : $descriptions[$y] =~ /^(A3|I)/ ? (
-                        '', $format, $formula->[1],
-                        IV1 => xl_rowcol_to_cell( $roi + $y, $coi, 0, 0 ),
-                      )
-                      : (
-                        '', $format, $formula->[0],
-                        IV1 => xl_rowcol_to_cell( $roi + $y, $coi, 0, 0 ),
-                      );
+                            IV4 => xl_rowcol_to_cell( $ro + $y - 1, $co, 0, 0 ),
+                          ); # NB: SUM(A,B,C,...) does not scale well
+                    }
+                    else {
+                        push @$handSubtotal, $y if $handSubtotal;
+                        $descriptions[$y] =~ /^A2/
+                          ? (
+                            '', $format, $formula->[2],
+                            IV1 => xl_rowcol_to_cell( $roi,     $coi, 1, 0 ),
+                            IV2 => xl_rowcol_to_cell( $roi + 1, $coi, 1, 0 ),
+                          )
+                          : $descriptions[$y] =~ /^(A3|I)/ ? (
+                            '',
+                            $format,
+                            $formula->[1],
+                            IV1 => xl_rowcol_to_cell( $roi + $y, $coi, 0, 0 ),
+                          )
+                          : (
+                            '',
+                            $format,
+                            $formula->[0],
+                            IV1 => xl_rowcol_to_cell( $roi + $y, $coi, 0, 0 ),
+                          );
+                    }
                 };
             }
         );

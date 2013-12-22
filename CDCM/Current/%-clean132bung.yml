@@ -1,0 +1,17 @@
+---
+.: Cleaned-up model with DCP 130 and DCP 132 and pre-election bung
+PerlModule: CDCM
+coincidenceAdj: groupums
+drm: top500gsp
+electionBung: 1
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130
+timeOfDay: timeOfDaySpecial

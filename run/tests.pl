@@ -26,6 +26,8 @@ ok( !eval { mustCrash20130223_2( newTestArea('tb4.xls') ); } && $@ );
 
 system 'grep ^\  README.md | while read x; do $x; done' if -f 'README.md';
 
+# run/make.pl -xdata='{"rules":{"template":"%"}}'  CDCM/Current/%-clean132bung.yml *.yml
+
 sub newTestArea {
     my ( $wbook, $wsheet, @formats ) = @_;
     unless ( UNIVERSAL::can( $wbook, 'add_worksheet' ) ) {
