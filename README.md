@@ -22,9 +22,9 @@ messages should say which.  Here are a few sample commands:
     perl run/make.pl CDCM/Previous/%-model100.yml CDCM/Data-2012-02/UKPN-LPN.yml
     perl run/make.pl ModelM/Current/%-postDCP096.yml ModelM/Data-2012-02/SSEPD-SEPD.yml
     perl run/make.pl -comparedata ModelM/Current/%-postDCP096.yml ModelM/Data-2013-02/*
-    perl run/make.pl EDCM/Issue-70/%-tool-FCP-i63.yml EDCM/Issue-70/%-tool-LRIC-i63.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/SPEN-SPM.yml 
+    perl run/make.pl EDCM/Issue-70/%-i70master-FCP.yml EDCM/Issue-70/%-i70master-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/SPEN-SPM.yml 
     perl run/make.pl -xlsx CDCM/Current/%-clean132.yml Blank.yml
-    perl run/make.pl -xlsx CDCM/Current/%-clean132.yml CDCM/Current/Blank1001.yml
+    perl run/make.pl -xlsx CDCM/Current/%-clean132bung.yml CDCM/Current/Blank1001.yml
 
 This software is licensed under various open source licences. Check the source code for details.
 
