@@ -247,19 +247,29 @@ sub matchingdcp123 {
             columns => \@slope,
         );
 
+        my $minValue;
+        $minValue = Dataset(
+            name     => 'Mininum unit rate p/kWh',
+            data     => [ [ $1 || '' ] ],
+            number   => 1077,
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
+        ) if $model->{scaler} =~ /min([0-9.]*)/;
+
         my %minAdder = map {
             my $tariffComponent = $_;
             $_ => Arithmetic(
                 name       => "Adder threshold for $_",
-                arithmetic => '=IF(IV4<0,0,0-IV1)',
-                arguments  => {
+                arithmetic => $minValue ? '=IF(IV4<0,0,IV9-IV1)'
+                : '=IF(IV4<0,0,0-IV1)',
+                arguments => {
                     IV4 => $loadCoefficients,
                     IV1 => $tariffsExMatching->{$_},
+                    $minValue ? ( IV9 => $minValue ) : (),
                 },
                 rowFormats => [
                     map {
-                        $componentMap->{$_}{$tariffComponent}
-                          ? undef
+                        $componentMap->{$_}{$tariffComponent} ? undef
                           : 'unavailable';
                     } @{ $allTariffsByEndUser->{list} }
                 ]

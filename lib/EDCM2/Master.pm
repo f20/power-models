@@ -232,8 +232,8 @@ EOT
 '1 means that the tariff is active and is not included in the table 119x aggregates.',
             ],
             arithmetic => '=IF(OR(IV3,IV4="TRUE",'
-              . 'ISNUMBER(SEARCH("[ADDED]",IV2)))' . ',1,'
-              . 'IF(ISNUMBER(SEARCH("[REMOVED]",IV1)),-1,0)' . ')',
+              . 'NOT(ISERROR(SEARCH("[ADDED]",IV2))))' . ',1,'
+              . 'IF(ISERROR(SEARCH("[REMOVED]",IV1)),0,-1)' . ')',
             arguments => {
                 IV1 => $tariffs,
                 IV2 => $tariffs,

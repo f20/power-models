@@ -137,12 +137,13 @@ sub notionalAssets {
         $useProportions, $ehvAssetLevelset,
     ) = @_;
 
+    my $customerCategory;
     push @{ $model->{tablesG} },
-      my $customerCategory = Arithmetic(
+      $customerCategory = Arithmetic(
         name       => 'Tariff type and category',
         arithmetic => '="D"&TEXT(IV1,"0000")',
         arguments  => { IV1 => $tariffCategory }
-      );
+      ) if $model->{legacy201};
 
     my $lossFactors = Dataset(
         name => 'Loss adjustment factor to transmission'

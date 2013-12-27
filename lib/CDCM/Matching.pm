@@ -1071,6 +1071,8 @@ sub matching {
                 );
                 %minAdder = map {
                     my $tariffComponent = $_;
+
+       # cannot think of an better test than ISNUMBER when applied to input data
                     $_ => Arithmetic(
                         name       => "Adder threshold for $_",
                         arithmetic => '=IF(ISNUMBER(IV3),IV2-IV1,0)',
@@ -1125,6 +1127,8 @@ sub matching {
                 );
                 %maxAdder = map {
                     my $tariffComponent = $_;
+
+       # cannot think of an better test than ISNUMBER when applied to input data
                     $_ => Arithmetic(
                         name       => "Adder threshold for $_",
                         arithmetic => '=IF(ISNUMBER(IV3),IV2-IV1,0)',

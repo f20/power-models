@@ -586,12 +586,16 @@ sub wsWrite {
         foreach my $y ( $self->rowIndices ) {
             my ( $value, $format, $formula, @more ) = $cell->( $x, $y );
             if (@more) {
+
+                # 'Not calculated' not working with .xlsx
                 $ws->repeat_formula( $row + $y, $col + $x, $formula, $format,
-                    @more );
+                    @more, 1 ? () : ( result => 'Not calculated' ) );
             }
             elsif ($formula) {
+
+                # 'Not calculated' not working with .xlsx
                 $ws->write_formula( $row + $y, $col + $x, $formula, $format,
-                    $value );
+                    1 ? () : 'Not calculated' );
             }
             else {
                 $ws->write( $row + $y, $col + $x, $value, $format );

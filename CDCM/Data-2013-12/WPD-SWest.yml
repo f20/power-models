@@ -7,6 +7,9 @@
     _column: Year
   - Company charging year data version: December 2013
     _column: Version
+  - Company charging year data version: |-
+      Input data compiled by Franck from public sources. E&OE.
+      This dataset is intended to reproduce the December 2013 indicative price notice when built against a post-DCP 132 model with pre-election bung.
 1001:
   - _table: 1001. CDCM target revenue
   - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: I1
@@ -14,14 +17,14 @@
     3 Revenue raised outside CDCM please provide description if used: I3
     4 Revenue raised outside CDCM please provide description if used: I4
     Allowed Pass-Through Items: B=B1+B2+B3+B4+B5
-    Base Demand Revenue: "\0A\0 \0=\0 \0A\01\0*\0A\02\0  \x13\0 \0A\03"
+    Base Demand Revenue: 'A = A1*A2 - A3'
     Base Demand Revenue Before Inflation: A1
     Connection Guaranteed Standards Systems Processes penalty: C6
     Correction Factor: D
     Incentive Revenue and Other Adjustments: C=C1+C2+C3+C4+C5+C6+C7
     Incentive Revenue for Distributed Generation: C5
     Innovation Funding Incentive Adjustment: C4
-    Latest Forecast of CDCM Revenue: "\0J\0 \0=\0 \0H\0  \x13\0 \0I"
+    Latest Forecast of CDCM Revenue: 'J = H - I'
     Losses Incentive 1: C1
     Losses Incentive 2: C1
     Losses Incentive 3: C1
@@ -56,7 +59,7 @@
     Allowed Pass-Through Items: PTt
     Base Demand Revenue: BRt
     Base Demand Revenue Before Inflation: PUt
-    Connection Guaranteed Standards Systems Processes penalty: 'CGSRAt,CGSSPt & AUMt'
+    Connection Guaranteed Standards Systems Processes penalty: 'CGSRAt, CGSSPt & AUMt'
     Correction Factor: -Kt
     Incentive Revenue and Other Adjustments: ''
     Incentive Revenue for Distributed Generation: IGt
@@ -159,15 +162,15 @@
     2 Voluntary under-recovery: 0
     3 Revenue raised outside CDCM please provide description if used: 0
     4 Revenue raised outside CDCM please provide description if used: 0
-    Allowed Pass-Through Items: -1146991.59994345
-    Base Demand Revenue: 383048911.330216
+    Allowed Pass-Through Items: ''
+    Base Demand Revenue: ''
     Base Demand Revenue Before Inflation: 327900000
     Connection Guaranteed Standards Systems Processes penalty: 0
     Correction Factor: -12232604.0066507
-    Incentive Revenue and Other Adjustments: 8460326.91248383
+    Incentive Revenue and Other Adjustments: ''
     Incentive Revenue for Distributed Generation: 2174855.41401452
     Innovation Funding Incentive Adjustment: 200000
-    Latest Forecast of CDCM Revenue: 358906853.319875
+    Latest Forecast of CDCM Revenue: ''
     Losses Incentive 1: 0
     Losses Incentive 2: 0
     Losses Incentive 3: 0
@@ -189,10 +192,10 @@
     Quality of Service Incentive Adjustment: 4451973.5496375
     RPI Indexation Factor: 1.168188201678
     Tax Trigger Mechanism Adjustment: -15770540.722653
-    Total Allowed Revenue: 362359101.913453
-    Total Other Revenue to be Recovered by Use of System Charges: 1724948.26733783
-    Total Revenue for Use of System Charges: 364084050.180791
-    Total Revenue to be raised outside the CDCM: 5177196.86091601
+    Total Allowed Revenue: ''
+    Total Other Revenue to be Recovered by Use of System Charges: ''
+    Total Revenue for Use of System Charges: ''
+    Total Revenue to be raised outside the CDCM: ''
     Transmission Connection Point Charges Incentive Adjustment: -326211.020633842
     _column: Value
   - _column: Revenue elements and subtotals (£/year)
@@ -1129,7 +1132,7 @@
   - Average kVAr by kVA by network level: 0.206448418164381
     _column: LV circuits
 1098:
-  - _table: 1098. 2015 election bung (p/MPAN/day)
+  - _table: 1098. Election bung (p/MPAN/day)
   - Domestic Off Peak related MPAN: 0
     Domestic Two Rate: -1.37
     Domestic Unrestricted: -1.37
@@ -1197,7 +1200,7 @@
     Small Non Domestic Off Peak related MPAN: 0
     Small Non Domestic Two Rate: 0
     Small Non Domestic Unrestricted: 0
-    _column: 2015 election bung (p/MPAN/day)
+    _column: Election bung (p/MPAN/day)
 1201:
   - _table: 1201. Current tariff information
   - Domestic Off Peak related MPAN: ''

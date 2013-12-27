@@ -142,9 +142,10 @@ sub check {
     );
 
     my $startingSlope = new SpreadsheetModel::Custom(
-        name      => 'Starting slopes',
-        rows      => $kinkSet,
-        custom    => ['=IF(ISNUMBER(IV1),0,IV2)'],
+        name   => 'Starting slope contributions',
+        rows   => $kinkSet,
+        custom => ['=IF(ISERROR(IV1),IV2,0)']
+        ,    # ISERROR is true for #N/A and errors
         arguments => {
             IV2 => $kk,
             IV1 => $kx
