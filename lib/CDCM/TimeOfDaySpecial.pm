@@ -187,9 +187,10 @@ sub timeOfDaySpecial {
         }    # end of overrides if $model->{coincidenceAdj} =~ /voltage/i
 
         my $red = Stack(
-            name    => 'Contribution to first-band peak kW',
-            rows    => $relevantUsers,
-            sources => $model->{timeOfDayGroupRedSources},
+            name          => 'Contribution to first-band peak kW',
+            defaultFormat => '0softnz',
+            rows          => $relevantUsers,
+            sources       => $model->{timeOfDayGroupRedSources},
         );
 
         my $coin = Arithmetic(
