@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -570,7 +570,8 @@ EOL
             dataset => $model->{dataset}
         ),
         Dataset(
-            name       => 'Proportion exposed to indirect cost allocation',
+            name => 'Proportion exposed to indirect cost allocation'
+              . ( $model->{dcp185} ? ' and fixed adder' : '' ),
             data       => [ map { 1 } 1 .. $model->{numTariffs} ],
             rows       => $model->{tariffSet},
             dataset    => $model->{dataset},

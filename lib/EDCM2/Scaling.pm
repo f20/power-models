@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -265,7 +265,7 @@ sub fudge41 {
 
     $$capacityChargeRef = Arithmetic(
         arithmetic => '=IV1+IV3*(IV7+IV4)*100/IV9'
-          . ( $model->{dcp185} ? '*IV8' : '' ),
+          . ( $model->{dcp185} ? '*IF(IV6<0,1,IV8)' : '' ),
         name =>
           'Capacity charge after applying fixed adder ex indirects p/kVA/day',
         arguments => {
@@ -274,7 +274,12 @@ sub fudge41 {
             IV4 => $activeCoincidence,
             IV7 => $ynonFudge,
             IV9 => $daysInYear,
-            $model->{dcp185} ? ( IV8 => $indirectExposure ) : (),
+            $model->{dcp185}
+            ? (
+                IV6 => $scalingAmountToTestForNegative,
+                IV8 => $indirectExposure,
+              )
+            : (),
         }
     );
 
