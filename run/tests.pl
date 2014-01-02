@@ -26,7 +26,19 @@ ok( !eval { mustCrash20130223_2( newTestArea('tb4.xls') ); } && $@ );
 
 system 'grep ^\  README.md | while read x; do $x; done' if -f 'README.md';
 
-# run/make.pl -xdata='{"rules":{"template":"%"}}'  CDCM/Current/%-clean132bung.yml *.yml
+=head sample code
+
+run/make.pl -xdata='{"rules":{"template":"%"}}'  CDCM/Current/%-clean132bung.yml *.yml
+
+run/make.pl /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* EDCM/Data-Testing/* -xdata='{"rules":{"numLocations":2,"numTariffs":9,"template":"%"}}'
+
+run/make.pl -xlsx /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* EDCM/Data-Testing/* -xdata='{"rules":{"numLocations":2,"numTariffs":2,"template":"%-clean201"}}'
+
+run/make.pl -xlsx /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* -xdata='{"rules":{"dcp183":1,"numLocations":2,"numTariffs":2,"template":"%-dcp183"}}'  EDCM/Data-Testing/*
+
+run/make.pl -xlsx /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* EDCM/Data-Testing/* -xdata='{"rules":{"dcp185":1,"numLocations":2,"numTariffs":2,"template":"%-dcp185"}}'
+
+=cut
 
 sub newTestArea {
     my ( $wbook, $wsheet, @formats ) = @_;

@@ -138,12 +138,14 @@ sub notionalAssets {
     ) = @_;
 
     my $customerCategory;
+
+    # this should only run if $model->{legacy201}
     push @{ $model->{tablesG} },
       $customerCategory = Arithmetic(
         name       => 'Tariff type and category',
         arithmetic => '="D"&TEXT(IV1,"0000")',
         arguments  => { IV1 => $tariffCategory }
-      ) if $model->{legacy201};
+      );
 
     my $lossFactors = Dataset(
         name => 'Loss adjustment factor to transmission'
