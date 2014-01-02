@@ -35,18 +35,31 @@ sub writeHtml {    # $logger->{objects} is a good $objectList
     my ( $objectList, $pathPrefix ) = @_;
     $pathPrefix = '' unless defined $pathPrefix;
     my %htmlWriter;
+    my @end;
     foreach my $pot (qw(Inputs Calculations Ancillary)) {
-        my $file = "$pathPrefix$pot.html";
-        open my $fh, '>', $file;
+        my $file  = "$pathPrefix$pot.html";
+        my $tfile = $pathPrefix . '~$' . $$ . '.' . $pot . '.html';
+        open my $fh, '>', $tfile;
         binmode $fh, ':utf8';
-        $file =~ s/^.*\///s;
+        print $fh
+          '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><title>'
+          . $pot
+          . '</title><head><body>';
+        my $url = $file;
+        $url =~ s/^.*\///s;
         $htmlWriter{$pot} = sub {
             print {$fh} map { _xmlFlatten(@$_); } @_;
-            $file;
+            $url;
+        };
+        push @end, sub {
+            print $fh '</body></html>';
+            close $fh;
+            rename $tfile, $file;
         };
     }
     $_->htmlWrite( \%htmlWriter, $htmlWriter{Calculations} )
       foreach @$objectList;
+    $_->() foreach @end;
 }
 
 sub _xmlElement {

@@ -208,7 +208,8 @@ sub create {
 
         if ( $options->{ExportHtml} ) {
             require SpreadsheetModel::ExportHtml;
-            my $dir = "$fileName-html$modelCount";
+            my $dir = $fileName . $modelCount;
+            $dir =~ s/\.xls.*/-html/i;
             mkdir $dir;
             chmod 0770, $dir;
             SpreadsheetModel::ExportHtml::writeHtml(
@@ -234,16 +235,19 @@ sub create {
             $file .= "-dump$modelCount";
             if ( $options->{ExportYaml} ) {
                 require YAML;
-                open my $fh, '>', "$file.yaml";
+                open my $fh, '>', "$file.$$";
                 binmode $fh, ':utf8';
                 print {$fh}
                   YAML::Dump(
                     { map { ( ref $_ ? $_->{name} : $_, $_ ); } @coreObj } );
+                close $fh;
+                rename "$file.$$", "$file.yaml";
             }
             if ( $options->{ExportPerl} ) {
                 require Data::Dumper;
-                open my $fh, '>', "$file.pl";
+                open my $fh, '>', "$file.$$";
                 binmode $fh, ':utf8';
+                my %counter;
                 print {$fh} Data::Dumper->new( \@coreObj )->Indent(1)->Names(
                     [
                         map {
@@ -252,10 +256,12 @@ sub create {
                               ? $coreObj[$_]{name}
                               : $coreObj[$_];
                             $n =~ s/[^a-z0-9]+/_/gi;
-                            'VAR' . ( 1 + $_ ) . "_T$n";
+                            "T$n" . ( $counter{$n}++ ? "_$counter{$n}" : '' );
                         } 0 .. $#coreObj
                     ]
                 )->Dump;
+                close $fh;
+                rename "$file.$$", "$file.pl";
             }
         }
 

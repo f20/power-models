@@ -32,8 +32,14 @@ use warnings;
 use strict;
 use utf8;
 
-sub processData {
+sub preprocessDataset {
+
     my ($model) = @_;
+
+    $model->{dataset}{1100}[3]{'Company charging year data version'} =
+      $model->{version}
+      if $model->{version};
+
     if ( $model->{dataset}
         && ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) )
     {

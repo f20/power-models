@@ -64,7 +64,7 @@ use EDCM2::Generation;
 use EDCM2::Scaling;
 use EDCM2::Summary;
 use EDCM2::Sheets;
-use EDCM2::ProcessData;
+use EDCM2::DataPreprocess;
 
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
@@ -80,7 +80,8 @@ sub new {
     $model->{inputTables} = [];
     bless $model, $class;
 
-    $model->processData if $model->{dataset} && keys %{ $model->{dataset} };
+    $model->preprocessDataset
+      if $model->{dataset} && keys %{ $model->{dataset} };
 
     if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /only/i ) {
         $model->{daysInYear} = Dataset(

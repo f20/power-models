@@ -19,12 +19,11 @@ some of the following sample commands.  You might need to install some modules f
 messages should say which.  Here are a few sample commands:
 
     perl run/make.pl -xlsx CDCM/Current/%-clean132.yml CDCM/Data-2013-02/NPG-Yorkshire.yml
-    perl run/make.pl CDCM/Previous/%-model100.yml CDCM/Data-2012-02/UKPN-LPN.yml
     perl run/make.pl ModelM/Current/%-postDCP096.yml ModelM/Data-2012-02/SSEPD-SEPD.yml
-    perl run/make.pl -comparedata ModelM/Current/%-postDCP096.yml ModelM/Data-2013-02/*
-    perl run/make.pl EDCM/Issue-70/%-i70master-FCP.yml EDCM/Issue-70/%-i70master-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/SPEN-SPM.yml 
-    perl run/make.pl -xlsx CDCM/Current/%-clean132.yml Blank.yml
-    perl run/make.pl -xlsx CDCM/Current/%-clean132bung.yml CDCM/Current/Blank1001.yml
+    perl run/make.pl -xlsx EDCM/Issue-70/%-i70master-FCP.yml EDCM/Issue-70/%-i70master-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/SPEN-SPM.yml 
+    perl run/make.pl CDCM/Current/%-clean132bung.yml CDCM/Current/Blank1001.yml
+
+The file run/tests.pl includes some more examples.
 
 This software is licensed under various open source licences. Check the source code for details.
 
@@ -37,4 +36,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 26 December 2013.
+Franck Latrémolière, 2 January 2014.

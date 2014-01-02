@@ -1,8 +1,10 @@
 ---
 .: DCP 183 FCP
 PerlModule: EDCM2
+dcp130: 1
 dcp183: 1
 inputData: dataSheet
+ldnoRev: ldnorev5
 legacy201: 1
 lowerIntermittentCredit: 1
 method: FCP
