@@ -152,6 +152,76 @@ yyyyny
 EOL
     }
 
+    if ( $model->{dcp137} ) {
+        $endUsers = Labelset( list => [ split /\n/, <<EOL] );
+Domestic Unrestricted
+Domestic Two Rate
+Domestic Off Peak (related MPAN)
+Small Non Domestic Unrestricted
+Small Non Domestic Two Rate
+Small Non Domestic Off Peak (related MPAN)
+LV Medium Non-Domestic
+LV Sub Medium Non-Domestic
+HV Medium Non-Domestic
+LV HH Metered
+LV Sub HH Metered
+HV HH Metered
+NHH UMS category A
+NHH UMS category B
+NHH UMS category C
+NHH UMS category D
+LV UMS (Pseudo HH Metered)
+LV Generation NHH
+LV Sub Generation NHH
+LV Generation Intermittent
+LV Generation Non-Intermittent
+LV Sub Generation Intermittent
+LV Sub Generation Non-Intermittent
+HV Generation Intermittent
+HV Generation Intermittent Low GDA
+HV Generation Intermittent Medium GDA
+HV Generation Intermittent High GDA
+HV Generation Non-Intermittent
+HV Generation Non-Intermittent Low GDA
+HV Generation Non-Intermittent Medium GDA
+HV Generation Non-Intermittent High GDA
+EOL
+
+        @tariffComponentMatrix = split /\n/, <<EOL;
+ynnynn
+yynynn
+ynnnnn
+ynnynn
+yynynn
+ynnnnn
+yynynn
+yynynn
+yynynn
+yyyyyy
+yyyyyy
+yyyyyy
+ynnnnn
+ynnnnn
+ynnnnn
+ynnnnn
+yyynnn
+ynnynn
+ynnynn
+ynnyny
+yyyyny
+ynnyny
+yyyyny
+ynnyny
+ynnyny
+ynnyny
+ynnyny
+yyyyny
+yyyyny
+yyyyny
+yyyyny
+EOL
+    }
+
     my $ldnoLevels = $model->{ldnoRev} =~ /5/
       ? Labelset( list => [ split /\n/, <<EOL] )
 Boundary 0000

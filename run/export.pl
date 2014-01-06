@@ -101,32 +101,28 @@ if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
         require YAML;
         $options = YAML::LoadFile($yml);
     }
-    my $name = $dcp;
-    my ($base) = map { /-base=(.+)/ ? $1 : (); } @ARGV;
-    if ($base) { $name .= ' v ' . $base; }
+    my ($name) = map { /-+name=(.*)/i ? $1 : (); } @ARGV;
+    my ($base) = map { /-base=(.+)/   ? $1 : (); } @ARGV;
+    if ($base) { $name ||= $dcp . ' v ' . $base; }
     else {
-        $base = qr/original|clean|mini/i;
+        $name ||= $dcp;
+        $base = qr/original|clean|mini|L201|F201/i;
     }
     require Compilation::DatabaseExportImpact;
-    $db->cdcmTariffImpact(
+    my @arguments = (
         $workbookModule, $fileExtension,
         dcpName   => $name,
         basematch => sub { $_[0] =~ /$base/i; },
         dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
-        %$options,
+        %$options
     );
-    $db->cdcmPpuImpact(
-        $workbookModule, $fileExtension,
-        dcpName   => $name,
-        basematch => sub { $_[0] =~ /$base/i; },
-        dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
-        %$options,
-    );
-    $db->cdcmRevenueMatrixImpact(
-        $workbookModule, $fileExtension,
-        dcpName   => $name,
-        basematch => sub { $_[0] =~ /$base/i; },
-        dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
-        %$options,
-    );
+    if ( grep { /^-+edcm$/i } @ARGV ) {
+        $db->edcmTariffImpact(@arguments);
+        $db->edcmRevenueMatrixImpact(@arguments);
+    }
+    else {
+        $db->cdcmTariffImpact(@arguments);
+        $db->cdcmPpuImpact(@arguments);
+        $db->cdcmRevenueMatrixImpact(@arguments);
+    }
 }

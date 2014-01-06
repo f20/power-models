@@ -1,0 +1,17 @@
+---
+.: EDCM model F201 with DCP 137 (FCP)
+PerlModule: EDCM2
+dcp130: 1
+dcp137: 1
+inputData: dataSheet
+ldnoRev: ldnorev5
+legacy201: 1
+lowerIntermittentCredit: 1
+method: FCP
+noNegative: 1
+numLocations: 1200
+numTariffs: 300
+protect: 1
+summaries: 1
+validation: lenientnomsg
+wantTables: 911

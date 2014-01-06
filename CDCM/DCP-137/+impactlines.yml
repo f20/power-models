@@ -24,13 +24,13 @@ linesAfter:
   - LV Sub Generation Intermittent
   - LV Sub Generation Non-Intermittent
   - HV Generation Intermittent
-  - HV Generation Intermittent
-  - HV Generation Intermittent
-  - HV Generation Intermittent
+  - HV Generation Intermittent Low GDA
+  - HV Generation Intermittent Medium GDA
+  - HV Generation Intermittent High GDA
   - HV Generation Non-Intermittent
-  - HV Generation Non-Intermittent
-  - HV Generation Non-Intermittent
-  - HV Generation Non-Intermittent
+  - HV Generation Non-Intermittent Low GDA
+  - HV Generation Non-Intermittent Medium GDA
+  - HV Generation Non-Intermittent High GDA
 linesBefore:
   - Domestic Unrestricted
   - Domestic Two Rate
@@ -56,10 +56,10 @@ linesBefore:
   - LV Sub Generation Intermittent
   - LV Sub Generation Non-Intermittent
   - HV Generation Intermittent
-  - HV Generation Intermittent Low GDA
-  - HV Generation Intermittent Medium GDA
-  - HV Generation Intermittent High GDA
+  - HV Generation Intermittent
+  - HV Generation Intermittent
+  - HV Generation Intermittent
   - HV Generation Non-Intermittent
-  - HV Generation Non-Intermittent Low GDA
-  - HV Generation Non-Intermittent Medium GDA
-  - HV Generation Non-Intermittent High GDA
+  - HV Generation Non-Intermittent
+  - HV Generation Non-Intermittent
+  - HV Generation Non-Intermittent

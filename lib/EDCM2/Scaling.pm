@@ -313,12 +313,19 @@ sub fudge41 {
     $model->{summaryInformationColumns}[6] = Arithmetic(
         name          => 'Demand scaling fixed adder (£/year)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IV1*IV3*(IV71+IV72)',
-        arguments     => {
+        arithmetic    => '=IV1*IV3*(IV71+IV72)'
+          . ( $model->{dcp185} ? '*IF(IV6<0,1,IV8)' : '' ),
+        arguments => {
             IV1  => $agreedCapacity,
             IV3  => $fixedAdderRate,
             IV71 => $ynonFudge,
             IV72 => $activeCoincidence,
+            $model->{dcp185}
+            ? (
+                IV6 => $scalingAmountToTestForNegative,
+                IV8 => $indirectExposure,
+              )
+            : (),
         },
     );
 
