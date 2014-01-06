@@ -227,18 +227,18 @@
     _column: 132kV/HV
 1019:
   - _table: 1019. Network model GSP peak demand (MW)
-  - Network model GSP peak demand MW: ''
+  - Network model GSP peak demand MW: 500
     _column: Network model GSP peak demand (MW)
 1020:
   - _table: 1020. Gross asset cost by network level (£)
   - 132kV: ''
     132kV EHV: ''
     132kV HV: ''
-    EHV: ''
-    EHV HV: ''
-    HV: ''
-    HV LV: ''
-    LV circuits: ''
+    EHV: 54228670
+    EHV HV: 61734185
+    HV: 175384877.1
+    HV LV: 45544728.6
+    LV circuits: 79508520
     _column: Gross assets £
 1022:
   - _table: 1022. LV service model asset cost (£)
@@ -1109,23 +1109,23 @@
     _column: Black peaking probabilities
 1092:
   - _table: '1092. Average kVAr by kVA, by network level'
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.21
     _column: GSPs
   - Average kVAr by kVA by network level: ''
     _column: 132kV
   - Average kVAr by kVA by network level: ''
     _column: 132kV/EHV
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.21
     _column: EHV
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.21
     _column: EHV/HV
   - Average kVAr by kVA by network level: ''
     _column: 132kV/HV
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.21
     _column: HV
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.21
     _column: HV/LV
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.21
     _column: LV circuits
 1201:
   - _table: 1201. Current tariff information
