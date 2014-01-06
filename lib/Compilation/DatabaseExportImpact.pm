@@ -159,7 +159,7 @@ sub genericTariffImpact {
 
     _defaultOptions( \%options );
 
-    my $wb = $wbmodule->new("Tariff impact $options{dcpName}$fileExtension");
+    my $wb = $wbmodule->new("Impact - Illustrative tariffs $options{dcpName}$fileExtension");
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     my $linesAfter = $options{linesAfter};
@@ -292,7 +292,7 @@ sub cdcmPpuImpact {
 
     _defaultOptions( \%options );
 
-    my $wb = $wbmodule->new("PPU impact $options{dcpName}$fileExtension");
+    my $wb = $wbmodule->new("Impact - Illustrative pence per unit $options{dcpName}$fileExtension");
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
@@ -457,7 +457,7 @@ sub revenueMatrixImpact {
     _defaultOptions( \%options );
 
     my $wb =
-      $wbmodule->new("Revenue matrix impact $options{dcpName}$fileExtension");
+      $wbmodule->new("Impact - Illustrative revenue $options{dcpName}$fileExtension");
     $wb->setFormats( { colour => 'orange' } );
 
     my $linesAfter = $options{linesAfter};

@@ -26,22 +26,6 @@ ok( !eval { mustCrash20130223_2( newTestArea('tb4.xls') ); } && $@ );
 
 system 'grep ^\  README.md | while read x; do $x; done' if -f 'README.md';
 
-=head Code samples
-
-perl /Users/franck/Documents/Modelling/run/make.pl -comparedata ModelM/Current/%-postDCP096.yml ModelM/Data-2013-02/*
-
-perl /Users/franck/Documents/Modelling/run/make.pl -xdata='{"rules":{"template":"%"}}' CDCM/Current/%-clean132bung.yml *.yml
-
-perl /Users/franck/Documents/Modelling/run/make.pl /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* EDCM/Data-Testing/* -xdata='{"rules":{"numLocations":2,"numTariffs":9,"template":"%"}}'
-
-perl /Users/franck/Documents/Modelling/run/make.pl -xlsx -perl /Users/franck/Documents/Modelling/EDCM/Current/%*201.yml /Users/franck/Documents/Modelling/EDCM/DCP-183/* /Users/franck/Documents/Modelling/EDCM/DCP-185/* /Users/franck/Documents/Modelling/Blank.yml
-
-perl /Users/franck/Documents/Modelling/run/make.pl -xlsx /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* /Users/franck/Documents/Modelling/EDCM/Data-Testing/* -xdata='{"rules":{"numLocations":2,"numTariffs":2,"template":"%-original"}}'
-perl /Users/franck/Documents/Modelling/run/make.pl -xlsx /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* /Users/franck/Documents/Modelling/EDCM/Data-Testing/* -xdata='{"rules":{"dcp183":1,"numLocations":2,"numTariffs":2,"template":"%-dcp183"}}'
-perl /Users/franck/Documents/Modelling/run/make.pl -xlsx /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* /Users/franck/Documents/Modelling/EDCM/Data-Testing/* -xdata='{"rules":{"dcp185":1,"numLocations":2,"numTariffs":2,"template":"%-dcp185"}}'
-
-=cut
-
 sub newTestArea {
     my ( $wbook, $wsheet, @formats ) = @_;
     unless ( UNIVERSAL::can( $wbook, 'add_worksheet' ) ) {
