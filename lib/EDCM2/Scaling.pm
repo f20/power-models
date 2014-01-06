@@ -131,6 +131,9 @@ sub fudge41 {
         vector        => $agreedCapacity
       );
 
+    die 'transparency and legacy201 are incompatible'
+      if $model->{legacy201} && $model->{transparency};
+
     my $indirectAppRate =
       $model->{legacy201}
       ? Arithmetic(

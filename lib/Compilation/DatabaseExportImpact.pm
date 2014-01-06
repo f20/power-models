@@ -499,18 +499,18 @@ sub revenueMatrixImpact {
         $ws->freeze_panes( 1, 1 );
         $ws->write_string( 0, 0, $options{sheetTitles}[$i], $titleFormat );
 
-        $ws->write_string( 2, 1, 'Baseline revenue (£/period)', $thcFormat );
-        $ws->write_string( 2, 2, 'Revenue on new basis (£/period)',
+        $ws->write_string( 2, 1, 'Baseline revenue (£/year)', $thcFormat );
+        $ws->write_string( 2, 2, 'Revenue on new basis (£/year)',
             $thcFormat );
-        $ws->write_string( 2, 3, 'Change (£/period)', $thcFormat );
+        $ws->write_string( 2, 3, 'Change (£/year)', $thcFormat );
         $ws->write_string( 2, 4, 'Percentage change', $thcFormat );
 
         $ws->write_string( 4 + @$linesAfter,
-            0, 'Baseline revenue matrix (£/period)', $thcaFormat );
+            0, 'Baseline revenue matrix (£/year)', $thcaFormat );
         $ws->write_string( 7 + 2 * @$linesAfter,
-            0, 'Revenue matrix on new basis (£/period)', $thcaFormat );
+            0, 'Revenue matrix on new basis (£/year)', $thcaFormat );
         $ws->write_string( 10 + 3 * @$linesAfter,
-            0, 'Change (£/period)', $thcaFormat );
+            0, 'Change (£/year)', $thcaFormat );
         $ws->write_string( 13 + 4 * @$linesAfter,
             0, 'Percentage change', $thcaFormat );
 
