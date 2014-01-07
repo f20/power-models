@@ -5,18 +5,18 @@
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
-  - Company charging year data version: February 2013 DCP 129
+  - Company charging year data version: December 2013
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to show the effect of putting the raw data in the DCP 129 model.
+      This dataset is intended to reproduce December 2013 indicative prices.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.144
     _column: DNO LV main usage
 1302:
   - _table: 1302. DNO HV main usage
-  - DNO HV main usage: 0.54
+  - DNO HV main usage: 0.4
     _column: DNO HV main usage
 1310:
   - _table: 1310. DPCR4 aggregate allowances
@@ -35,13 +35,13 @@
     _column: Net incentive revenue
 1320:
   - _table: 1320. Units flowing
-  - Units flowing: 15405000000
+  - Units flowing: 15365600000
     _column: LV
-  - Units flowing: 15405000000
+  - Units flowing: 15365600000
     _column: HV/LV
-  - Units flowing: 22443236789
+  - Units flowing: 22709604774.0351
     _column: HV
-  - Units flowing: 23550458769
+  - Units flowing: 23818475001.6468
     _column: EHV&132
 1330:
   - _table: 1330. Allocated costs
@@ -181,6 +181,34 @@
     Tree Cutting: 600000
     Vehicles Transport: ''
     _column: EHV&132
+1331:
+  - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
+    _column: GSP
+  - Assets in CDCM model from CDCM table 2705 or 2706: 426900829.490655
+    _column: 132kV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 117784829.758698
+    _column: 132kV/EHV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 738399838.777287
+    _column: EHV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 223849544.52243
+    _column: EHV/HV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
+    _column: 132kV/HV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 934254329.068934
+    _column: HV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 452096285.088226
+    _column: HV/LV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 545593936.159937
+    _column: LV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 1818337173.92786
+    _column: LV customer
+  - Assets in CDCM model from CDCM table 2705 or 2706: 44860203.44
+    _column: HV customer
+1332:
+  - _table: '1332. All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
+  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: 159633833.228935
+    _column: 'All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
 1335:
   - _table: 1335. Total costs
   - Atypical cash costs: 7300000
@@ -233,14 +261,14 @@
     _column: LV
 1370:
   - _table: 1370. Net capex percentages
-  - Net capex percentages: 0.20169999999999999
+  - Net capex percentages: 0.2017
     _column: LV
   - Net capex percentages: 0.1065
     _column: HV/LV
-  - Net capex percentages: 0.27200000000000002
+  - Net capex percentages: 0.272
     _column: HV
-  - Net capex percentages: 0.41980000000000001
-    _column: EHV&amp;132
+  - Net capex percentages: 0.4198
+    _column: EHV&132
 1375:
   - _table: 1375. Network length percentages
   - Network length percentages: 0.538

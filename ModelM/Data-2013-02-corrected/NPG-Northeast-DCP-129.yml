@@ -233,14 +233,14 @@
     _column: LV
 1370:
   - _table: 1370. Net capex percentages
-  - Net capex percentages: 0.241391520664346
+  - Net capex percentages: 0.2208
     _column: LV
-  - Net capex percentages: 0.100122017582525
+  - Net capex percentages: 0.1042
     _column: HV/LV
-  - Net capex percentages: 0.231041316423332
+  - Net capex percentages: 0.23830000000000001
     _column: HV
-  - Net capex percentages: 0.427445145551176
-    _column: EHV&132
+  - Net capex percentages: 0.43669999999999998
+    _column: EHV&amp;132
 1375:
   - _table: 1375. Network length percentages
   - Network length percentages: 0.4616
