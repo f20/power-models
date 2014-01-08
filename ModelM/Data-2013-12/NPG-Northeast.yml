@@ -5,11 +5,11 @@
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
-  - Company charging year data version: December 2013 draft
+  - Company charging year data version: December 2013 indicatives
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2013 indicative prices.
+      This dataset is intended to reproduce December 2013 indicatives.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.307
@@ -287,13 +287,3 @@
   - _table: '1385. Network length: ratio of LV service to LV total'
   - LV service: '#VALUE!'
     _column: LV
-1399:
-  - _table: 1399. Current LDNO discounts
-  - Current LDNO discounts: 0.349144250987486
-    _column: 'LDNO LV: LV user'
-  - Current LDNO discounts: 0.616575389586027
-    _column: 'LDNO HV: LV user'
-  - Current LDNO discounts: 0.379045645742423
-    _column: 'LDNO HV: LV Sub user'
-  - Current LDNO discounts: 0.257424277134571
-    _column: 'LDNO HV: HV user'

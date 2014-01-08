@@ -5,11 +5,11 @@
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
-  - Company charging year data version: December 2013 draft
+  - Company charging year data version: December 2013 indicatives
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce December 2013 indicative prices.
+      This dataset is intended to reproduce December 2013 indicatives.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.184
@@ -31,9 +31,9 @@
   - DPCR4 aggregate allowances: ''
 1315:
   - _table: 1315. Analysis of allowed revenue for 2007/2008
-  - Analysis of allowed revenue for 2007 2008: 190129001
+  - Analysis of allowed revenue for 2007 2008: 198980944.58408
     _column: Total revenue
-  - Analysis of allowed revenue for 2007 2008: 0
+  - Analysis of allowed revenue for 2007 2008: 8851943.58408007
     _column: Net incentive revenue
   - Analysis of allowed revenue for 2007 2008: ''
 1320:
@@ -222,29 +222,29 @@
   - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
   - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
     _column: GSP
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 897340395.028861
     _column: 132kV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 145994371.571981
     _column: 132kV/EHV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 568797530.174116
     _column: EHV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 104893357.910181
     _column: EHV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 33229099.0348977
     _column: 132kV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 884803038.139645
     _column: HV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 499329442.899998
     _column: HV/LV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 693920016.038647
     _column: LV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 1243768597.39132
     _column: LV customer
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 10940238
     _column: HV customer
 1332:
   - _table: '1332. All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
-  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: '#VALUE!'
+  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: 146530952.405295
     _column: 'All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
 1335:
   - _table: 1335. Total costs
@@ -333,13 +333,13 @@
   - LV service: ''
 1370:
   - _table: 1370. Net capex percentages
-  - Net capex percentages: 0.196065659197499
+  - Net capex percentages: 0.187821612349914
     _column: LV
-  - Net capex percentages: 0.0502432352678087
+  - Net capex percentages: 0.048109173476562
     _column: HV/LV
-  - Net capex percentages: 0.254733315018799
+  - Net capex percentages: 0.245323808635665
     _column: HV
-  - Net capex percentages: 0.498957790515894
+  - Net capex percentages: 0.518745405537858
     _column: EHV&132
   - Net capex percentages: ''
 1375:
@@ -363,17 +363,3 @@
   - LV service: '#VALUE!'
     _column: LV
   - LV service: ''
-1399:
-  - _table: 1399. Current LDNO discounts
-  - Current LDNO discounts: 0.282762576616652
-    LDNO discount: 0.282762576616652
-    _column: 'LDNO LV: LV user'
-  - Current LDNO discounts: 0.493069046935289
-    LDNO discount: 0.493069046935289
-    _column: 'LDNO HV: LV user'
-  - Current LDNO discounts: 0.272731512829221
-    LDNO discount: 0.272731512829221
-    _column: 'LDNO HV: LV Sub user'
-  - Current LDNO discounts: 0.197742260395598
-    LDNO discount: 0.197742260395598
-    _column: 'LDNO HV: HV user'

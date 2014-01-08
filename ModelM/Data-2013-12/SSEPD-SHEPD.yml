@@ -1,18 +1,15 @@
 ---
 1300:
-  - _note: |-
-      Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce results published in February 2013.
-    _table: '1300. Company, charging year, data version'
+  - _table: '1300. Company, charging year, data version'
   - Company charging year data version: SSEPD SHEPD
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
-  - Company charging year data version: December 2013 draft
+  - Company charging year data version: December 2013 indicatives
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce results published in February 2013.
+      This dataset is intended to reproduce December 2013 indicatives.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.07
@@ -223,32 +220,33 @@
     Vehicles Transport: ''
 1331:
   - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: ''
     _column: GSP
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV/EHV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 150597412.96721
     _column: EHV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 193500344.651097
     _column: EHV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 581283801.340136
     _column: HV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 141542955.31332
     _column: HV/LV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 214198858.657864
     _column: LV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 265667323.492102
     _column: LV customer
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 11764986.269286
     _column: HV customer
 1332:
   - _table: '1332. All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
-  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: '#VALUE!'
+  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: 90000000
     _column: 'All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
+  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: Reverse engineered; approximate
 1335:
   - _table: 1335. Total costs
   - Atypical cash costs: 1600000
@@ -368,15 +366,11 @@
   - LV service: ''
 1399:
   - _table: 1399. Current LDNO discounts
-  - Current LDNO discounts: 0.258528386262807
-    LDNO discount: 0.258528386262807
+  - Current LDNO discounts: '#VALUE!'
     _column: 'LDNO LV: LV user'
-  - Current LDNO discounts: 0.559972960931218
-    LDNO discount: 0.559972960931218
+  - Current LDNO discounts: '#VALUE!'
     _column: 'LDNO HV: LV user'
-  - Current LDNO discounts: 0.401363425979821
-    LDNO discount: 0.401363425979821
+  - Current LDNO discounts: '#VALUE!'
     _column: 'LDNO HV: LV Sub user'
-  - Current LDNO discounts: 0.347163409588311
-    LDNO discount: 0.347163409588311
+  - Current LDNO discounts: '#VALUE!'
     _column: 'LDNO HV: HV user'

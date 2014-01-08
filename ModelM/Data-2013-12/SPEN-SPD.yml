@@ -1,20 +1,15 @@
 ---
 1300:
-  - _note: |-
-      Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce results published in February 2013.
-      Data sourced from published PDF file from 2009 and inferred from results in indicative model 100.
-    _table: '1300. Company, charging year, data version'
+  - _table: '1300. Company, charging year, data version'
   - Company charging year data version: SPEN SPD
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
-  - Company charging year data version: December 2013 draft
+  - Company charging year data version: December 2013 indicatives
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce results published in February 2013.
-      Data sourced from published PDF file from 2009 and inferred from results in indicative model 100.
+      This dataset is intended to reproduce December 2013 indicatives.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.235
@@ -225,32 +220,33 @@
     Vehicles Transport: ''
 1331:
   - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: ''
     _column: GSP
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV/EHV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 711365876.895689
     _column: EHV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 203694985.069534
     _column: EHV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 864630490.076396
     _column: HV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 184817186.627161
     _column: HV/LV
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 274130503.656571
     _column: LV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 838836466.902962
     _column: LV customer
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: 14700566.2289337
     _column: HV customer
 1332:
   - _table: '1332. All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
-  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: '#VALUE!'
+  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: 165000000
     _column: 'All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
+  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: Reverse engineered
 1335:
   - _table: 1335. Total costs
   - Atypical cash costs: 1600000
@@ -370,15 +366,11 @@
   - LV service: ''
 1399:
   - _table: 1399. Current LDNO discounts
-  - Current LDNO discounts: 0.335192037905115
-    LDNO discount: 0.335192037905115
+  - Current LDNO discounts: '#VALUE!'
     _column: 'LDNO LV: LV user'
-  - Current LDNO discounts: 0.63928430202238
-    LDNO discount: 0.63928430202238
+  - Current LDNO discounts: '#VALUE!'
     _column: 'LDNO HV: LV user'
-  - Current LDNO discounts: 0.429349402021868
-    LDNO discount: 0.429349402021868
+  - Current LDNO discounts: '#VALUE!'
     _column: 'LDNO HV: LV Sub user'
-  - Current LDNO discounts: 0.352424451318677
-    LDNO discount: 0.352424451318677
+  - Current LDNO discounts: '#VALUE!'
     _column: 'LDNO HV: HV user'
