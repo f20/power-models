@@ -58,12 +58,19 @@ sub listModels {
         s/^SSE-/SSEPD-/;
         s/^WPD-Wales/WPD-SWales/;
         s/^WPD-West\b/WPD-SWest/;
-        push @models,
-          [
-            $bid, $filename, $_,
-            map { local $_ = $_; tr/-/ /; $_; } grep { $_ }
-              /^(.+?)(-20[0-9]{2}-[0-9]{2})?(-[^-]*)?$/s
-          ];
+        my @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})(-.*)$/s;
+        @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})?(-[^-]*)?$/s unless @a;
+        push @models, [
+            $bid,
+            $filename,
+            $_,
+            map {
+                local $_ = $_;
+                tr/-/ /;
+                s/^ //;
+                $_;
+            } grep { $_ } @a
+        ];
     }
     sort { $a->[2] cmp $b->[2]; } @models;
 }

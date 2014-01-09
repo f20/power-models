@@ -121,7 +121,7 @@ sub factory {
                 if (  !defined $datasetName
                     && defined $fileName
                     && $fileName =~
-                    m#([0-9]+-[0-9]+)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si )
+                    m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si )
                 {
                     $datasetName = $2;
                     $datasetName .= "-$1" if $1;

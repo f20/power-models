@@ -5,11 +5,11 @@
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
-  - Company charging year data version: December 2013 corrected
+  - Company charging year data version: December 2013 corrected A
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset is based on the December 2013 indicatives but reverts UKPN's unexplained changes since 2010.
+      This dataset is based on the December 2013 indicatives but reverts UKPN's unexplained change to net capex.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.184
@@ -31,9 +31,9 @@
   - DPCR4 aggregate allowances: ''
 1315:
   - _table: 1315. Analysis of allowed revenue for 2007/2008
-  - Analysis of allowed revenue for 2007 2008: 190129001
+  - Analysis of allowed revenue for 2007 2008: 198980944.58408
     _column: Total revenue
-  - Analysis of allowed revenue for 2007 2008: 0
+  - Analysis of allowed revenue for 2007 2008: 8851943.58408007
     _column: Net incentive revenue
   - Analysis of allowed revenue for 2007 2008: ''
 1320:
