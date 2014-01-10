@@ -24,7 +24,13 @@ ok( !eval { mustCrash20121201_1( newTestArea('tb2.xls') ); } && $@ );
 ok( !eval { mustCrash20130223_1( newTestArea('tb3.xls') ); } && $@ );
 ok( !eval { mustCrash20130223_2( newTestArea('tb4.xls') ); } && $@ );
 
-system 'grep ^\  README.md | while read x; do $x; done' if -f 'README.md';
+if ( -f 'README.md' ) {
+    system 'grep ^\  README.md | while read x; do $x; done';
+    system
+'perl run/make.pl -comparedata ModelM/Current/%-postDCP096.yml ModelM/Data-2013-02/*';
+    system
+q^perl run/make.pl -xdata='{"rules":{"template":"%"}}' CDCM/Current/%-clean132bung.yml *.yml^;
+}
 
 sub newTestArea {
     my ( $wbook, $wsheet, @formats ) = @_;

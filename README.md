@@ -23,8 +23,6 @@ messages should say which.  Here are a few sample commands:
     perl run/make.pl -xlsx EDCM/Issue-70/%-i70master-FCP.yml EDCM/Issue-70/%-i70master-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/SPEN-SPM.yml 
     perl run/make.pl CDCM/Current/%-clean132bung.yml CDCM/Current/Blank1001.yml
 
-The file run/tests.pl includes some more examples.
-
 This software is licensed under various open source licences. Check the source code for details.
 
 THIS SOFTWARE AND DATA ARE PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
@@ -36,4 +34,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 2 January 2014.
+Franck Latrémolière, 10 January 2014.
