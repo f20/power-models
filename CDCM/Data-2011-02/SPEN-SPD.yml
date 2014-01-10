@@ -6,9 +6,9 @@
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: SP Distribution
     _column: Company
-  - Company charging year data version: 2011/12
+  - Company charging year data version: 2011/2012
     _column: Year
-  - Company charging year data version: 1
+  - Company charging year data version: February 2011
     _column: Version
   - Company charging year data version: ''
 1010:
@@ -333,6 +333,12 @@
   - Loss adjustment factor: 1.10677638863009
     _column: LV circuits
   - Loss adjustment factor: ''
+1036:
+  - ~
+  - DNO LV main usage: 0.235
+    _column: DNO LV main usage
+  - DNO HV main usage: 0.4545
+    _column: DNO HV main usage
 1037:
   - _table: 1037. Embedded network (LDNO) discounts
   - LDNO discount: ''

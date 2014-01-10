@@ -6,9 +6,9 @@
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: ENW LTD
     _column: Company
-  - Company charging year data version: 2010/11
+  - Company charging year data version: 2010/2011
     _column: Year
-  - Company charging year data version: Indicatives Dec 2009
+  - Company charging year data version: December 2009 indicatives
     _column: Version
   - Company charging year data version: ''
 1010:
@@ -341,6 +341,12 @@
   - Loss adjustment factor: 1.082
     _column: LV circuits
   - Loss adjustment factor: ''
+1036:
+  - ~
+  - DNO LV main usage: 0.16
+    _column: DNO LV main usage
+  - DNO HV main usage: 0.4545
+    _column: DNO HV main usage
 1037:
   - _table: 1037. Embedded network (LDNO) discounts
   - LDNO discount: ''

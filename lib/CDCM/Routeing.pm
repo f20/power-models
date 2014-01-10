@@ -454,6 +454,54 @@ The factors in this table are before any adjustment for a 132kV/HV network level
 EOT
     );
 
+    if ( $model->{ldnoSplits} ) {
+        my $splits = Dataset(
+            name          => 'HV and LV DNO main usage for LDNO tariffs',
+            cols          => Labelset( list => [ 'LV circuits', 'HV' ] ),
+            data          => [ [0.1], [0.4] ],
+            defaultFormat => '%hard',
+            number        => 1036,
+            dataset       => $model->{dataset},
+            appendTo      => $model->{inputTables},
+            validation    => {
+                validate => 'decimal',
+                criteria => '>=',
+                value    => 0,
+            },
+        );
+        $routeingFactors = Stack(
+            rows    => $allTariffsByEndUser,
+            cols    => $coreExitLevels,
+            sources => [
+                Arithmetic(
+                    name => 'LDNO LV split',
+                    rows => Labelset(
+                        list => [
+                            grep { /^LDNO LV: LV/i && !/^LDNO LV: LV Sub/i; }
+                              @{ $allTariffsByEndUser->{list} }
+                        ]
+                    ),
+                    cols       => Labelset( list => ['LV circuits'] ),
+                    arithmetic => '=IV1',
+                    arguments  => { IV1          => $splits }
+                ),
+                Arithmetic(
+                    name => 'LDNO HV split',
+                    rows => Labelset(
+                        list => [
+                            grep { /^LDNO HV: [LH]V/i && !/^LDNO HV: HV Sub/i; }
+                              @{ $allTariffsByEndUser->{list} }
+                        ]
+                    ),
+                    cols       => Labelset( list => ['HV'] ),
+                    arithmetic => '=IV1',
+                    arguments  => { IV1          => $splits }
+                ),
+                $routeingFactors
+            ],
+        );
+    }
+
     if ($rerouteingMatrix) {
         $routeingFactors = SumProduct(
             name =>
@@ -526,7 +574,7 @@ EOT
         );
     }
 
-    if ($idnoDataInputTariffs) {
+    if (!$model->{ldnoSplits} && $idnoDataInputTariffs) { # old way, LV only
 
         $routeingFactors = Stack(
             rows    => $allTariffsByEndUser,

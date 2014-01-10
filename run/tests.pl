@@ -75,5 +75,3 @@ sub mustCrash20130223_2 {
     );
     Columnset( columns => [ $c1, $c2 ] )->wsWrite( $wbook, $wsheet );
 }
-
-1;

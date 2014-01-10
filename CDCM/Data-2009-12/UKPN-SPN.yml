@@ -6,9 +6,9 @@
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: EDFEN SPN
     _column: Company
-  - Company charging year data version: '2010 - 2011'
+  - Company charging year data version: 2010/2011
     _column: Year
-  - Company charging year data version: SPN 100r2441 002
+  - Company charging year data version: December 2009 indicatives
     _column: Version
   - Company charging year data version: ''
 1010:
@@ -333,6 +333,12 @@
   - Loss adjustment factor: 1.108
     _column: LV circuits
   - Loss adjustment factor: ''
+1036:
+  - ~
+  - DNO LV main usage: 0.184
+    _column: DNO LV main usage
+  - DNO HV main usage: 0.4545
+    _column: DNO HV main usage
 1037:
   - _table: 1037. Embedded network (LDNO) discounts
   - LDNO discount: ''

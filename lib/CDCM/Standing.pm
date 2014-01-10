@@ -621,12 +621,13 @@ sub standingCharges {
                 Arithmetic(
                     name => 'LV fixed charge elements from '
                       . 'standing charges factors p/MPAN/day',
-                    arithmetic => '=IV1*IV3',
-                    rows       => $lvStandingForFixedTariffs,
-                    cols       => $lvCircuitLevels,
-                    arguments  => {
+                    arithmetic => '=IV1*IV3' . ( $model->{pcd} ? '' : '*IV5' ),
+                    rows      => $lvStandingForFixedTariffs,
+                    cols      => $lvCircuitLevels,
+                    arguments => {
                         IV3 => $maxKvaAverageLv,
                         IV1 => $capacityCharges->{source},
+                        $model->{pcd} ? () : ( IV5 => $lvRouteingFactors ),
                     },
                     defaultFormat => '0.000softnz'
                 ),

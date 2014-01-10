@@ -6,9 +6,9 @@
     _table: '1000. Company, charging year, data version'
   - Company charging year data version: South Eastern Power Networks
     _column: Company
-  - Company charging year data version: '2012 - 2013'
+  - Company charging year data version: 2012/2013
     _column: Year
-  - Company charging year data version: SPN-C-100-1204-1
+  - Company charging year data version: December 2011 indicatives
     _column: Version
   - Company charging year data version: ''
 1010:
@@ -333,6 +333,12 @@
   - Loss adjustment factor: 1.09
     _column: LV circuits
   - Loss adjustment factor: ''
+1036:
+  - ~
+  - DNO LV main usage: 0.184
+    _column: DNO LV main usage
+  - DNO HV main usage: 0.46
+    _column: DNO HV main usage
 1037:
   - _table: 1037. Embedded network (LDNO) discounts
   - LDNO discount: ''
