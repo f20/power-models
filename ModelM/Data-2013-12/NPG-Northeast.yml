@@ -287,3 +287,13 @@
   - _table: '1385. Network length: ratio of LV service to LV total'
   - LV service: '#VALUE!'
     _column: LV
+1399:
+  - _table: 1037. Embedded network (LDNO) discounts
+  - LDNO discount: 0.360864242702281
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.665388572323007
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.446459943220001
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.320577311913141
+    _column: 'LDNO HV: HV user'

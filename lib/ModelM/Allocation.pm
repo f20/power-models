@@ -37,11 +37,11 @@ use SpreadsheetModel::Shortcuts ':all';
 sub allocation {
 
     my (
-        $model,           $afterAllocation,   $allocLevelset,
-        $allocationRules, $capitalised,       $direct,
-        $expenditure,     $incentive,         $netCapexPercentages,
-        $revenue,         $totalDepreciation, $totalOperating,
-        $totalReturn,     $units,
+        $model,             $afterAllocation,     $allocLevelset,
+        $allocationRules,   $capitalised,         $expenditure,
+        $incentive,         $netCapexPercentages, $revenue,
+        $totalDepreciation, $totalOperating,      $totalReturn,
+        $units,
     ) = @_;
 
     push @{ $model->{calcTables} },

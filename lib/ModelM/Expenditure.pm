@@ -58,33 +58,41 @@ sub expenditureAlloc {
         defaultFormat => '0softnz'
       );
 
+    my $lvOnly = Constant(
+        name          => 'LV only',
+        cols          => $preAllocated->{cols},
+        data          => [qw(1 0 0 0)],
+        defaultFormat => '0connz'
+    );
+
     my $allAllocationPercentages = Arithmetic(
         name          => 'All allocation percentages',
         defaultFormat => '%softnz',
         rows          => $preAllocated->{rows},
         cols          => $preAllocated->{cols},
-        arithmetic    => '=IF(IV45="MEAV",IV5,IF(IV46="EHV only",IV6,IF('
-          . 'IV47="LV only",IV7,IF(IV48="Network length",IV8,'
+        arithmetic    => '=IF(IV44="60%MEAV",0.4*IV71+IV51,'
+          . 'IF(IV45="MEAV",IV52,'
+          . 'IF(IV46="EHV only",IV6,'
+          . 'IF(IV47="LV only",IV72,'
+          . 'IF(IV48="Network length",IV8,'
           . ( $model->{dcp097} ? 'IF(IV49="Customer numbers",IV9,0)' : '0' )
-          . '))))',
+          . ')))))',
         arguments => {
+            IV44 => $allocationRules,
             IV45 => $allocationRules,
-            IV5  => $meavPercentages,
             IV46 => $allocationRules,
+            IV47 => $allocationRules,
+            IV48 => $allocationRules,
+            IV51 => $meavPercentages,
+            IV52 => $meavPercentages,
             IV6  => Constant(
                 name          => 'EHV only',
                 cols          => $preAllocated->{cols},
                 data          => [qw(0 0 0 1)],
                 defaultFormat => '0connz'
             ),
-            IV47 => $allocationRules,
-            IV7  => Constant(
-                name          => 'LV only',
-                cols          => $preAllocated->{cols},
-                data          => [qw(1 0 0 0)],
-                defaultFormat => '0connz'
-            ),
-            IV48 => $allocationRules,
+            IV71 => $lvOnly,
+            IV72 => $lvOnly,
             IV8  => $networkLengthPercentages,
             $model->{dcp097}
             ? (

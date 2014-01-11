@@ -363,3 +363,13 @@
   - LV service: '#VALUE!'
     _column: LV
   - LV service: ''
+1399:
+  - _table: 1037. Embedded network (LDNO) discounts
+  - LDNO discount: 0.238130856985558
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.467124879481008
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.268876432016184
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.178420649307817
+    _column: 'LDNO HV: HV user'

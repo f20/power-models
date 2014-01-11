@@ -28,15 +28,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-=head Development note
-
-This file is becoming bloated.  Should perhaps spin all the guts out into three parts:
-* Before the "if dcp095".
-* Back end with dcp095.
-* Back end without dcp095.
-
-=cut
-
 use warnings;
 use strict;
 use utf8;
@@ -92,14 +83,14 @@ END_OF_LIST
       if $model->{dcp095};
 
     my ( $alloc, ) = $model->allocation(
-        $afterAllocation,   $allocLevelset,       $allocationRules,
-        $capitalised,       $direct,              $expenditure,
-        $incentive,         $netCapexPercentages, $revenue,
-        $totalDepreciation, $totalOperating,      $totalReturn,
-        $units,
+        $afterAllocation,     $allocLevelset, $allocationRules,
+        $capitalised,         $expenditure,   $incentive,
+        $netCapexPercentages, $revenue,       $totalDepreciation,
+        $totalOperating,      $totalReturn,   $units,
     );
 
-    push @{ $model->{calcTables} }, $alloc, $direct;
+    push @{ $model->{calcTables} }, $alloc,
+      $model->{fixedIndirectPercentage} ? () : $direct;
 
     my $dcp071 = $model->{dcp071} || $model->{dcp071A};
     my ( $lvSplit, $hvSplit ) = $model->splits;

@@ -78,26 +78,32 @@ Pension deficit repair payments by related parties (note 2)
 Non activity costs and reconciling amounts (note 3)
 END_OF_LIST
 
+    my @rules = (
+        $model->{dcp094} ? 'Kill' : 'MEAV',
+        ( map { 'MEAV' } 1 .. 11 ),
+        $model->{dcp097A} || $model->{dcp097} ? ( 'LV only', 'MEAV', 'MEAV' )
+        : ( map { 'MEAV' } 1 .. 3 ),
+        $model->{dcp097A} ? ( map { 'LV only' } 1 .. 2 )
+        : $model->{dcp097}
+          || $model->{includeTelecoms} ? ( map { 'MEAV' } 1 .. 2 )
+        : ( map { 'Do not allocate' } 1 .. 2 ),
+        $model->{dcp097A}
+          || $model->{dcp097} ? ( 'LV only', 'MEAV', 'LV only', 'LV only' )
+        : ( map { 'MEAV' } 1 .. 4 ),
+        ( map   { 'Do not allocate' } 1 .. 9 ),
+        $model->{dcp096} ? 'Deduct from revenue' : 'EHV only',
+        ( map { 'Do not allocate' } 1 .. 2 ),
+    );
+
+    @rules[ 6 .. $#rules ] =
+      map { $_ eq 'MEAV' ? '60%MEAV' : $_; } @rules[ 6 .. $#rules ]
+      if $model->{fixedIndirectPercentage};
+
     my @c = (
         Constant(
-            name  => 'Allocation key',
-            lines => 'From sheet Opex Allocation, starting at cell AJ6',
-            data  => [
-                $model->{dcp094} ? 'Kill' : 'MEAV',
-                ( map { 'MEAV' } 1 .. 11 ),
-                $model->{dcp097A}
-                  || $model->{dcp097} ? ( 'LV only', 'MEAV', 'MEAV' )
-                : ( map { 'MEAV' } 1 .. 3 ),
-                $model->{dcp097A}  ? ( map { 'LV only' } 1 .. 2 )
-                : $model->{dcp097} ? ( map { 'MEAV' } 1 .. 2 )
-                : ( map { 'Do not allocate' } 1 .. 2 ),
-                $model->{dcp097A} || $model->{dcp097}
-                ? ( 'LV only', 'MEAV', 'LV only', 'LV only' )
-                : ( map { 'MEAV' } 1 .. 4 ),
-                ( map   { 'Do not allocate' } 1 .. 9 ),
-                $model->{dcp096} ? 'Deduct from revenue' : 'EHV only',
-                ( map { 'Do not allocate' } 1 .. 2 ),
-            ],
+            name          => 'Allocation key',
+            lines         => 'From sheet Opex Allocation, starting at cell AJ6',
+            data          => \@rules,
             defaultFormat => 'textcon',
             rows          => $expenditureSet,
         ),

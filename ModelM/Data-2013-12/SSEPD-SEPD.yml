@@ -365,12 +365,12 @@
     _column: LV
   - LV service: ''
 1399:
-  - _table: 1399. Current LDNO discounts
-  - Current LDNO discounts: '#VALUE!'
+  - _table: 1037. Embedded network (LDNO) discounts
+  - LDNO discount: 0.338794448260433
     _column: 'LDNO LV: LV user'
-  - Current LDNO discounts: '#VALUE!'
+  - LDNO discount: 0.601273457979975
     _column: 'LDNO HV: LV user'
-  - Current LDNO discounts: '#VALUE!'
-    _column: 'LDNO HV: LV Sub user'
-  - Current LDNO discounts: '#VALUE!'
+  - LDNO discount: 0.388657679159432
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.302056007830297
     _column: 'LDNO HV: HV user'
