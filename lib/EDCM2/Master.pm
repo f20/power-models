@@ -495,6 +495,10 @@ EOT
     my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
       $model->cdcmAssets;
 
+    push @{ $model->{calc3Tables} }, $cdcmHvLvService, $cdcmEhvAssets,
+      $cdcmHvLvShared
+      if $model->{legacy201};
+
     $reactiveCoincidence = Arithmetic(
         name => 'Super-red kVAr/agreed kVA (capped)',
         arithmetic =>
@@ -548,15 +552,17 @@ EOT
                 IV123     => $model->{transparencyMasterFlag},
                 IV1       => $model->{transparency}{ol119101},
                 IV21_IV22 => $model->{transparency},
-                IV51_IV52 => $redUseRate,
+                IV51_IV52 => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[0]
+                : $redUseRate,
                 IV53_IV54 => $importCapacity,
             }
         )
       )
       : SumProduct(
-        name          => 'Total EDCM peak time consumption (kW)',
-        vector        => $redUseRate,
-        matrix        => $importCapacity,
+        name   => 'Total EDCM peak time consumption (kW)',
+        vector => ref $redUseRate eq 'ARRAY' ? $redUseRate->[0] : $redUseRate,
+        matrix => $importCapacity,
         defaultFormat => '0softnz'
       );
 
@@ -568,7 +574,7 @@ EOT
     $model->{transparency}{oli}{1237} = $cdcmRedUse if $model->{transparency};
 
     my $overallRedUse = Arithmetic(
-        name          => 'Estimate total peak-time consumption (MW)',
+        name          => 'Estimated total peak-time consumption (MW)',
         defaultFormat => '0softnz',
         arithmetic    => '=IV1+IV2',
         arguments     => { IV1 => $cdcmRedUse, IV2 => $edcmRedUse }
@@ -917,7 +923,7 @@ EOT
             IV1  => $assetsCapacity,
             IV53 => $assetsConsumption,
             IV41 => $rateExit,
-            IV42 => $redUseRate,
+            IV42 => ref $redUseRate eq 'ARRAY' ? $redUseRate->[0] : $redUseRate,
             IV6  => $rateDirect,
             IV7  => $rateIndirect,
             IV8  => $rateRates,
@@ -968,7 +974,7 @@ EOT
         arguments     => {
             IV2  => $daysInYear,
             IV41 => $rateExit,
-            IV1  => $redUseRate,
+            IV1  => ref $redUseRate eq 'ARRAY' ? $redUseRate->[0] : $redUseRate,
         }
     );
 
@@ -984,7 +990,8 @@ EOT
                 IV41 => $rateExit,
             },
           );
-        $model->{matricesData}[2] = $redUseRate;
+        $model->{matricesData}[2] =
+          ref $redUseRate eq 'ARRAY' ? $redUseRate->[0] : $redUseRate;
         $model->{matricesData}[3] = $hoursInRed;
         $model->{matricesData}[4] = $daysInYear;
     }

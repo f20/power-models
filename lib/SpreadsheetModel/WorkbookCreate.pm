@@ -227,9 +227,15 @@ sub create {
         }
 
         if ( $options->{ExportYaml} || $options->{ExportPerl} ) {
-            my @coreObj =
-              map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
-              grep { defined $_ } @{ $options->{logger}{objects} };
+            my @objects = grep { defined $_ } @{ $options->{logger}{objects} };
+            my @coreObj = (
+                join( "\n",
+                    $options->{logger}{realRows}
+                    ? @{ $options->{logger}{realRows} }
+                    : map { "$_->{name}" } @objects ),
+                map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
+                  @objects
+            );
             my $file = $fileName;
             $file =~ s/\.xlsx?$//i;
             $file .= "-dump$modelCount";
@@ -245,21 +251,25 @@ sub create {
             }
             if ( $options->{ExportPerl} ) {
                 require Data::Dumper;
-                open my $fh, '>', "$file.$$";
-                binmode $fh, ':utf8';
                 my %counter;
-                print {$fh} Data::Dumper->new( \@coreObj )->Indent(1)->Names(
+                local $_ = Data::Dumper->new( \@coreObj )->Indent(1)->Names(
                     [
+                        'tableNames',
                         map {
                             my $n =
                               ref $coreObj[$_]
                               ? $coreObj[$_]{name}
                               : $coreObj[$_];
                             $n =~ s/[^a-z0-9]+/_/gi;
+                            $n =~ s/^([0-9]+)[0-9]{2}/$1/s;
                             "T$n" . ( $counter{$n}++ ? "_$counter{$n}" : '' );
-                        } 0 .. $#coreObj
+                        } 1 .. $#coreObj
                     ]
                 )->Dump;
+                s/\\x\{([0-9a-f]+)\}/chr (hex ($1))/eg;
+                open my $fh, '>', "$file.$$";
+                binmode $fh, ':utf8';
+                print {$fh} $_;
                 close $fh;
                 rename "$file.$$", "$file.pl";
             }

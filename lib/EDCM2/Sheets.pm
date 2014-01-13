@@ -376,6 +376,7 @@ This sheet contains data to populate tables 1191 to 1194 in a slave model.'
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->fit_to_pages( 1, 1 );
             $wsheet->set_column( 0, 250, 30 );
+            return unless $wbook->{logger};
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes(
                 lines => 'Copy of all single-line tables in the model' ), map {

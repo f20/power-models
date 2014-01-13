@@ -204,21 +204,7 @@ sub notionalAssets {
 
     );
 
-    my $redUseRate =
-      $model->{dcp183}
-      ? Arithmetic(
-        name => 'Peak-time capacity use adjusted to transmission (kW/kVA)',
-        arithmetic => '=SQRT(IV1*IV2+IV3*IV4)*IV8*IV9',
-        arguments  => {
-            IV1 => $activeCoincidence,
-            IV2 => $activeCoincidence,
-            IV3 => $reactiveCoincidence,
-            IV4 => $reactiveCoincidence,
-            IV8 => $powerFactorInModel,
-            IV9 => $tariffLossFactor,
-        }
-      )
-      : Arithmetic(
+    my $redUseRate = Arithmetic(
         name => 'Peak-time active power consumption'
           . ' adjusted to transmission (kW/kVA)',
         arithmetic => '=IV1*IV9',
@@ -226,7 +212,24 @@ sub notionalAssets {
             IV1 => $activeCoincidence,
             IV9 => $tariffLossFactor,
         }
-      );
+    );
+
+    $redUseRate = [
+        $redUseRate,
+        Arithmetic(
+            name => 'Peak-time capacity use adjusted to transmission (kW/kVA)',
+            arithmetic => '=SQRT(IV1*IV2+IV3*IV4)*IV8*IV9',
+            arguments  => {
+                IV1 => $activeCoincidence,
+                IV2 => $activeCoincidence,
+                IV3 => $reactiveCoincidence,
+                IV4 => $reactiveCoincidence,
+                IV8 => $powerFactorInModel,
+                IV9 => $tariffLossFactor,
+            }
+        )
+      ]
+      if $model->{dcp183};
 
     my $capUseRate = Arithmetic(
         name => 'Active power equivalent of capacity'
@@ -582,7 +585,9 @@ qq@=IF(IV1="D1000",0,IF(ISNUMBER(SEARCH("D1???",IV2)),IV4*IV9$starIV5,0))@,
                 IV1 => $customerCategory,
                 IV2 => $customerCategory,
                 IV4 => $accretion,
-                IV9 => $redUseRate,
+                IV9 => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportions ? ( IV5 => $useProportions ) : (),
             },
           );
@@ -597,7 +602,9 @@ qq@=IF(IV1="D1000",0,IF(ISNUMBER(SEARCH("D1???",IV2)),IV4*IV9$starIV5nn,0))@,
                 IV1 => $customerCategory,
                 IV2 => $customerCategory,
                 IV4 => $accretion,
-                IV9 => $redUseRate,
+                IV9 => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportionsCooked ? ( IV5 => $useProportionsCooked ) : (),
             },
           );
@@ -612,7 +619,9 @@ qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),0,IF(ISNUMBER(SEARCH("D?1??",IV2)),IV4*IV9$
                 IV1 => $customerCategory,
                 IV2 => $customerCategory,
                 IV4 => $accretion,
-                IV9 => $redUseRate,
+                IV9 => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportions ? ( IV5 => $useProportions ) : (),
             },
           );
@@ -627,7 +636,9 @@ qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),0,IF(ISNUMBER(SEARCH("D?1??",IV2)),IV4*IV9$
                 IV1 => $customerCategory,
                 IV2 => $customerCategory,
                 IV4 => $accretion,
-                IV9 => $redUseRate,
+                IV9 => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportionsCooked ? ( IV5 => $useProportionsCooked ) : (),
             },
           );
@@ -642,7 +653,9 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),0,IF(ISNUMBER(SEARCH("D??1?",IV2)),IV4*IV9$
                 IV1 => $customerCategory,
                 IV2 => $customerCategory,
                 IV4 => $accretion,
-                IV9 => $redUseRate,
+                IV9 => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportions ? ( IV5 => $useProportions ) : (),
             },
           );
@@ -657,7 +670,9 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),0,IF(ISNUMBER(SEARCH("D??1?",IV2)),IV4*IV9$
                 IV1 => $customerCategory,
                 IV2 => $customerCategory,
                 IV4 => $accretion,
-                IV9 => $redUseRate,
+                IV9 => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportionsCooked ? ( IV5 => $useProportionsCooked ) : (),
             },
           );
@@ -707,7 +722,9 @@ qq@=IF(OR(IV1="D1000",ISNUMBER(SEARCH("G????",IV20))),0,IV4*IV9$starIV5)@,
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportions ? ( IV5 => $useProportions ) : (),
             },
           );
@@ -723,9 +740,11 @@ qq@=IF(OR(IV1="D1000",ISNUMBER(SEARCH("G????",IV20))),0,IF(ISNUMBER(SEARCH("D1??
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
-                IV5  => $useProportionsCooked,
-                IV6  => $useProportionsCapped,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
+                IV5 => $useProportionsCooked,
+                IV6 => $useProportionsCapped,
             },
           );
 
@@ -772,7 +791,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?100",IV1))),0,IV4*IV
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportions ? ( IV5 => $useProportions ) : (),
             },
           );
@@ -788,9 +809,11 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?100",IV1))),0,IF(ISN
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
-                IV5  => $useProportionsCooked,
-                IV6  => $useProportionsCapped,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
+                IV5 => $useProportionsCooked,
+                IV6 => $useProportionsCapped,
             },
           );
 
@@ -839,7 +862,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D??10",IV1))),0,IV4*IV
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportions ? ( IV5 => $useProportions ) : (),
             },
           );
@@ -855,9 +880,11 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D??10",IV1))),0,IF(ISN
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
-                IV5  => $useProportionsCooked,
-                IV6  => $useProportionsCapped,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
+                IV5 => $useProportionsCooked,
+                IV6 => $useProportionsCapped,
             },
           );
 
@@ -908,7 +935,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),IV22="D0002",ISNUMBER(SEARCH("D?1?1",IV
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportions ? ( IV5 => $useProportions ) : (),
             },
           );
@@ -926,9 +955,11 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),IV22="D0002",ISNUMBER(SEARCH("D?1?1",IV
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
-                IV5  => $useProportionsCooked,
-                IV6  => $useProportionsCapped,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
+                IV5 => $useProportionsCooked,
+                IV6 => $useProportionsCapped,
             },
           );
 
@@ -973,7 +1004,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV4*IV
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
                 $useProportions ? ( IV5 => $useProportions ) : (),
             },
           );
@@ -989,9 +1022,11 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
                 IV20 => $customerCategory,
                 IV21 => $customerCategory,
                 IV4  => $accretion,
-                IV9  => $redUseRate,
-                IV5  => $useProportionsCooked,
-                IV6  => $useProportionsCapped,
+                IV9  => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[1]
+                : $redUseRate,
+                IV5 => $useProportionsCooked,
+                IV6 => $useProportionsCapped,
             },
           );
 

@@ -64,7 +64,7 @@ sub lastCol {
 }
 
 sub lastRow {
-    $_[0]->{realRows} ? $_[0]->{realRows} - 1 : $#{ $_[0]->{objects} };
+    $_[0]->{realRows} ? $#{ $_[0]->{realRows} } : $#{ $_[0]->{objects} };
 }
 
 sub wsWrite {
@@ -114,6 +114,7 @@ sub wsWrite {
         $wn =~ s/\000//g;    # squash strange rare bug
         my $na = $cset ? "$cset->{name}" : "$obj->{name}";
         0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
+        $self->{realRows}[$r] = $na;
         $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
             $linkFormat );
         $ws->write_string( $row + $r, $col + 2, $ty, $textFormat );
@@ -140,7 +141,6 @@ sub wsWrite {
         ++$r;
     }
 
-    $self->{realRows} = $r;
     $ws->autofilter( $row - 1, $col, $row + $r - 1, $col + 2 );
     0 and $ws->filter_column( $col, 'x <> ""' );
 
