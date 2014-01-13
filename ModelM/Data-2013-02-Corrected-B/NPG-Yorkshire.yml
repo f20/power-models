@@ -35,13 +35,13 @@
     _column: Net incentive revenue
 1320:
   - _table: 1320. Units flowing
-  - Units flowing: 15405000000
+  - Units flowing: 15365600000
     _column: LV
-  - Units flowing: 15405000000
+  - Units flowing: 15365600000
     _column: HV/LV
-  - Units flowing: 22443236789
+  - Units flowing: 22709604774.0351
     _column: HV
-  - Units flowing: 23550458769
+  - Units flowing: 23818475001.6468
     _column: EHV&132
 1330:
   - _table: 1330. Allocated costs
@@ -233,14 +233,14 @@
     _column: LV
 1370:
   - _table: 1370. Net capex percentages
-  - Net capex percentages: 0.20169999999999999
+  - Net capex percentages: 0.2017
     _column: LV
   - Net capex percentages: 0.1065
     _column: HV/LV
-  - Net capex percentages: 0.27200000000000002
+  - Net capex percentages: 0.272
     _column: HV
-  - Net capex percentages: 0.41980000000000001
-    _column: EHV&amp;132
+  - Net capex percentages: 0.4198
+    _column: EHV&132
 1375:
   - _table: 1375. Network length percentages
   - Network length percentages: 0.538

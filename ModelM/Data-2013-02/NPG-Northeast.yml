@@ -79,7 +79,7 @@
     Relevant distributed generation less contributions: ''
     Statutory Depreciation: ''
     Stores: ''
-    'System Mapping Cartographical': ''
+    System Mapping Cartographical: ''
     Transmission Exit Charges: ''
     Tree Cutting: 3100000
     Vehicles Transport: ''
@@ -113,7 +113,7 @@
     Relevant distributed generation less contributions: ''
     Statutory Depreciation: ''
     Stores: ''
-    'System Mapping Cartographical': ''
+    System Mapping Cartographical: ''
     Transmission Exit Charges: ''
     Tree Cutting: 0
     Vehicles Transport: ''
@@ -147,7 +147,7 @@
     Relevant distributed generation less contributions: ''
     Statutory Depreciation: ''
     Stores: ''
-    'System Mapping Cartographical': ''
+    System Mapping Cartographical: ''
     Transmission Exit Charges: ''
     Tree Cutting: 1900000
     Vehicles Transport: ''
@@ -181,7 +181,7 @@
     Relevant distributed generation less contributions: ''
     Statutory Depreciation: ''
     Stores: ''
-    'System Mapping Cartographical': ''
+    System Mapping Cartographical: ''
     Transmission Exit Charges: ''
     Tree Cutting: 300000
     Vehicles Transport: ''
@@ -215,7 +215,7 @@
     Relevant distributed generation less contributions: ''
     Statutory Depreciation: ''
     Stores: ''
-    'System Mapping Cartographical': ''
+    System Mapping Cartographical: ''
     Transmission Exit Charges: ''
     Tree Cutting: ''
     Vehicles Transport: ''
@@ -250,7 +250,7 @@
     Relevant distributed generation less contributions: 500000
     Statutory Depreciation: 33100000
     Stores: 700000
-    'System Mapping Cartographical': 1400000
+    System Mapping Cartographical: 1400000
     Transmission Exit Charges: 4300000
     Tree Cutting: 5300000
     Vehicles Transport: 3000000
@@ -284,7 +284,7 @@
     Relevant distributed generation less contributions: ''
     Statutory Depreciation: ''
     Stores: ''
-    'System Mapping Cartographical': ''
+    System Mapping Cartographical: ''
     Transmission Exit Charges: ''
     Tree Cutting: ''
     Vehicles Transport: ''
@@ -306,13 +306,13 @@
   - LV service: ''
 1370:
   - _table: 1370. Net capex percentages
-  - Net capex percentages: 0.241391520664346
+  - Net capex percentages: 0.220782148
     _column: LV
-  - Net capex percentages: 0.100122017582525
+  - Net capex percentages: 0.096236684
     _column: HV/LV
-  - Net capex percentages: 0.231041316423332
+  - Net capex percentages: 0.246265103
     _column: HV
-  - Net capex percentages: 0.427445145551176
+  - Net capex percentages: 0.436716065
     _column: EHV&132
 1375:
   - _table: 1375. Network length percentages
