@@ -264,6 +264,21 @@
     _column: HV service model 5
 1025:
   - _table: 1025. Matrix of applicability of LV service models to tariffs with fixed charges
+  - Domestic Two Rate: 0.0125
+    Domestic Unrestricted: 0.0125
+    LV Generation Intermittent: 0
+    LV Generation NHH: 0
+    LV Generation Non-Intermittent: ''
+    LV HH Metered: 0
+    LV Medium Non-Domestic: 0
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub HH Metered: 0
+    LV Sub Medium Non-Domestic: 0
+    Small Non Domestic Two Rate: 0
+    Small Non Domestic Unrestricted: 0
+    _column: LV service model 1
   - Domestic Two Rate: 0.045
     Domestic Unrestricted: 0.045
     LV Generation Intermittent: ''
@@ -278,7 +293,7 @@
     LV Sub Medium Non-Domestic: ''
     Small Non Domestic Two Rate: ''
     Small Non Domestic Unrestricted: ''
-    _column: LV service model 1
+    _column: LV service model 2
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
     LV Generation Intermittent: ''
@@ -293,7 +308,7 @@
     LV Sub Medium Non-Domestic: ''
     Small Non Domestic Two Rate: 1
     Small Non Domestic Unrestricted: 1
-    _column: LV service model 2
+    _column: LV service model 3
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
     LV Generation Intermittent: ''
@@ -308,7 +323,7 @@
     LV Sub Medium Non-Domestic: ''
     Small Non Domestic Two Rate: 0
     Small Non Domestic Unrestricted: 0
-    _column: LV service model 3
+    _column: LV service model 4
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
     LV Generation Intermittent: ''
@@ -323,7 +338,7 @@
     LV Sub Medium Non-Domestic: ''
     Small Non Domestic Two Rate: 0
     Small Non Domestic Unrestricted: 0
-    _column: LV service model 4
+    _column: LV service model 5
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
     LV Generation Intermittent: ''
@@ -338,7 +353,7 @@
     LV Sub Medium Non-Domestic: 1
     Small Non Domestic Two Rate: 0
     Small Non Domestic Unrestricted: 0
-    _column: LV service model 5
+    _column: LV service model 6
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
     LV Generation Intermittent: ''
@@ -353,7 +368,7 @@
     LV Sub Medium Non-Domestic: ''
     Small Non Domestic Two Rate: 0
     Small Non Domestic Unrestricted: 0
-    _column: LV service model 6
+    _column: LV service model 7
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
     LV Generation Intermittent: ''
@@ -368,21 +383,6 @@
     LV Sub Medium Non-Domestic: 0
     Small Non Domestic Two Rate: 0
     Small Non Domestic Unrestricted: 0
-    _column: LV service model 7
-  - Domestic Two Rate: ''
-    Domestic Unrestricted: ''
-    LV Generation Intermittent: ''
-    LV Generation NHH: ''
-    LV Generation Non-Intermittent: ''
-    LV HH Metered: ''
-    LV Medium Non-Domestic: ''
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub HH Metered: ''
-    LV Sub Medium Non-Domestic: ''
-    Small Non Domestic Two Rate: ''
-    Small Non Domestic Unrestricted: ''
     _column: LV service model 8
 1026:
   - _table: 1026. Matrix of applicability of LV service models to unmetered tariffs
