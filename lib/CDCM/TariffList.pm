@@ -566,7 +566,7 @@ HV generation half hourly single rate (67% credit):
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: dcp137
+  - Included: dcp137|portfolio
 ---
 HV generation half hourly single rate (33% credit):
   - PC0
@@ -574,7 +574,7 @@ HV generation half hourly single rate (33% credit):
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: dcp137
+  - Included: dcp137|portfolio
 ---
 HV generation half hourly single rate (0% credit):
   - PC0
@@ -582,7 +582,7 @@ HV generation half hourly single rate (0% credit):
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: dcp137
+  - Included: dcp137|portfolio
 ---
 HV generation (GDP) half hourly single rate:
   - PC0
@@ -614,7 +614,7 @@ HV generation half hourly (67% credit):
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: dcp137
+  - Included: dcp137|portfolio
 ---
 HV generation half hourly (33% credit):
   - PC0
@@ -622,7 +622,7 @@ HV generation half hourly (33% credit):
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: dcp137
+  - Included: dcp137|portfolio
 ---
 HV generation half hourly (0% credit):
   - PC0
@@ -630,7 +630,7 @@ HV generation half hourly (0% credit):
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: dcp137
+  - Included: dcp137|portfolio
 ---
 HV generation (GDP) half hourly:
   - PC0

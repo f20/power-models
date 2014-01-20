@@ -149,6 +149,7 @@ sub tscsCreateOutputFiles {
             $fetch->fetchrow_array )
         {
             my $cur = join '|', $company, $column, $myrow;
+            $column =~ s/[\r\n]+/ /gs;
             unless ( $prev eq $cur ) {
                 $prev = $cur;
                 if ($ws) {
