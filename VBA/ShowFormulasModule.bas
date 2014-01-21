@@ -55,6 +55,7 @@ Sub sfWorkerSheet(ws)
     ShowFormulasUI.Done.Text = prog & "Processing " & ws.Name & " (" & ws.UsedRange.Rows.Count & "x" & ws.UsedRange.Columns.Count & ")"
     DoEvents
     ws.Unprotect
+    If ws.ProtectedContents Then GoTo NextSheet
     rowb = ws.UsedRange.row + ws.UsedRange.Rows.Count
     For r = rowb - 1 To ws.UsedRange.row Step -1
         f1 = ""
