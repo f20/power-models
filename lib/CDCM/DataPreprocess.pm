@@ -286,16 +286,20 @@ EOY
         }
 
         foreach ('Domestic Unrestricted') {
+            my $denominator =
+              1.0 / ( $d->{1068}[1]{'Annual hours'} +
+                  $d->{1068}[2]{'Annual hours'} +
+                  $d->{1068}[3]{'Annual hours'} );
             $d->{1061}[1]{$_} =
               $d->{1041}[1]{$_} /
               $d->{1041}[2]{$_} *
-              $d->{1068}[1]{'Annual hours'};
+              $d->{1068}[1]{'Annual hours'} *
+              $denominator;
             $d->{1061}[2]{$_} =
-              $d->{1068}[2]{'Annual hours'} -
-              $d->{1061}[1]{$_} +
-              $d->{1068}[1]{'Annual hours'};
+              ( $d->{1068}[2]{'Annual hours'} + $d->{1068}[1]{'Annual hours'} )
+              * $denominator - $d->{1061}[1]{$_};
             $d->{1061}[3]{$_} =
-              $d->{1068}[3]{'Annual hours'};
+              $d->{1068}[3]{'Annual hours'} * $denominator;
         }
 
         foreach ('Small Non Domestic Unrestricted') {
