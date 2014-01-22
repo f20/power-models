@@ -1,4 +1,4 @@
-﻿package CDCM;
+﻿apckage CDCM;
 
 =head Copyright licence and disclaimer
 
@@ -285,33 +285,34 @@ EOY
             }
         }
 
+        my $yearsPerHour =
+          1.0 / ( $d->{1068}[1]{'Annual hours'} +
+              $d->{1068}[2]{'Annual hours'} +
+              $d->{1068}[3]{'Annual hours'} );
+
         foreach ('Domestic Unrestricted') {
-            my $denominator =
-              1.0 / ( $d->{1068}[1]{'Annual hours'} +
-                  $d->{1068}[2]{'Annual hours'} +
-                  $d->{1068}[3]{'Annual hours'} );
             $d->{1061}[1]{$_} =
               $d->{1041}[1]{$_} /
               $d->{1041}[2]{$_} *
               $d->{1068}[1]{'Annual hours'} *
-              $denominator;
+              $yearsPerHour;
             $d->{1061}[2]{$_} =
               ( $d->{1068}[2]{'Annual hours'} + $d->{1068}[1]{'Annual hours'} )
-              * $denominator - $d->{1061}[1]{$_};
+              * $yearsPerHour - $d->{1061}[1]{$_};
             $d->{1061}[3]{$_} =
-              $d->{1068}[3]{'Annual hours'} * $denominator;
+              $d->{1068}[3]{'Annual hours'} * $yearsPerHour;
         }
 
         foreach ('Small Non Domestic Unrestricted') {
             $d->{1061}[1]{$_} =
               $d->{1041}[1]{$_} /
               $d->{1041}[2]{$_} *
-              $d->{1068}[1]{'Annual hours'};
-            $d->{1061}[2]{$_} = $d->{1068}[2]{'Annual hours'};
+              $d->{1068}[1]{'Annual hours'} *
+              $yearsPerHour;
+            $d->{1061}[2]{$_} = $d->{1068}[2]{'Annual hours'} * $yearsPerHour;
             $d->{1061}[3]{$_} =
-              $d->{1068}[3]{'Annual hours'} -
-              $d->{1061}[1]{$_} +
-              $d->{1068}[1]{'Annual hours'};
+              ( $d->{1068}[3]{'Annual hours'} + $d->{1068}[1]{'Annual hours'} )
+              * $yearsPerHour - $d->{1061}[1]{$_};
         }
 
     }
