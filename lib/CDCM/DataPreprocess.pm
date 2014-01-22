@@ -1,4 +1,4 @@
-﻿apckage CDCM;
+﻿package CDCM;
 
 =head Copyright licence and disclaimer
 
