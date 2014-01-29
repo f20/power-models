@@ -50,6 +50,8 @@ sub yardsticks {
         $daysInYear,
     ) = @_;
 
+# The unrestricted yardstick used in reactive power calculations even if $model->{alwaysUseRAG}
+
     my $yardstickUnitsComponents = Arithmetic(
         name => Label(
             'Pay-as-you-go p/kWh',
@@ -77,7 +79,8 @@ sub yardsticks {
         source => $yardstickUnitsComponents
     );
 
-    push @{ $model->{yardsticks} }, $model->{showSums}
+    push @{ $model->{yardsticks} },
+      $model->{showSums}
       ? Columnset(
         name    => 'Pay-as-you-go yardstick unit rate (p/kWh)',
         columns => [ $yardstickUnitsComponents, $paygUnitYardstick ]
@@ -127,7 +130,6 @@ sub yardsticks {
 
     my @paygUnitRates =
       map {
-
         $chargingDrmExitLevelsTimebandAware ||= Labelset(
             name    => 'Charging levels (DRM and exit) timeband aware',
             list    => $chargingDrmExitLevels->{list},
@@ -157,9 +159,13 @@ sub yardsticks {
             )
         );
 
-        push @{ $model->{yardsticks} }, Columnset
-          name => 'Pay-as-you-go unit rate ' . ( 1 + $_ ) . ' p/kWh',
-          columns => [ $rates->{source}, $rates ];
+        push @{ $model->{yardsticks} },
+          $model->{showSums}
+          ? Columnset(
+            name => 'Pay-as-you-go unit rate ' . ( 1 + $_ ) . ' p/kWh',
+            columns => [ $rates->{source}, $rates ]
+          )
+          : $rates->{source};
 
         $rates;
 

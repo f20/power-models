@@ -235,8 +235,8 @@ EOY
     }
 
     if (   $model->{tariffs} =~ /dcp179/i
-        && exists $d->{1041}[1]{'Domestic Unrestricted'}
-        && !exists $d->{1041}[1]{'LV Network Domestic'} )
+        && exists $d->{1061}[1]{'Domestic Two Rate'}
+        && !exists $d->{1061}[1]{'Domestic Unrestricted'} )
     {
 
         $d->{1000}[3]{'Company charging year data version'} .= ' (modified)';
@@ -285,34 +285,12 @@ EOY
             }
         }
 
-        my $yearsPerHour =
-          1.0 / ( $d->{1068}[1]{'Annual hours'} +
-              $d->{1068}[2]{'Annual hours'} +
-              $d->{1068}[3]{'Annual hours'} );
-
-        foreach ('Domestic Unrestricted') {
-            $d->{1061}[1]{$_} =
-              $d->{1041}[1]{$_} /
-              $d->{1041}[2]{$_} *
-              $d->{1068}[1]{'Annual hours'} *
-              $yearsPerHour;
-            $d->{1061}[2]{$_} =
-              ( $d->{1068}[2]{'Annual hours'} + $d->{1068}[1]{'Annual hours'} )
-              * $yearsPerHour - $d->{1061}[1]{$_};
-            $d->{1061}[3]{$_} =
-              $d->{1068}[3]{'Annual hours'} * $yearsPerHour;
-        }
-
-        foreach ('Small Non Domestic Unrestricted') {
-            $d->{1061}[1]{$_} =
-              $d->{1041}[1]{$_} /
-              $d->{1041}[2]{$_} *
-              $d->{1068}[1]{'Annual hours'} *
-              $yearsPerHour;
-            $d->{1061}[2]{$_} = $d->{1068}[2]{'Annual hours'} * $yearsPerHour;
-            $d->{1061}[3]{$_} =
-              ( $d->{1068}[3]{'Annual hours'} + $d->{1068}[1]{'Annual hours'} )
-              * $yearsPerHour - $d->{1061}[1]{$_};
+        foreach my $t ( 'Domestic', 'Small Non Domestic' ) {
+            foreach ( 1, 2, 3 ) {
+                $d->{1061}[$_]{ $t . ' Unrestricted' } =
+                  0.8 * $d->{1061}[$_]{ $t . ' Two Rate' } +
+                  0.2 * ( $d->{1062}[$_]{ $t . ' Two Rate' } || 0 );
+            }
         }
 
     }

@@ -1,5 +1,5 @@
 '
-' Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+' Copyright 2013 Franck Latremoliere, Reckon LLP and others.
 '
 ' Redistribution and use in source and binary forms, with or without
 ' modification, are permitted provided that the following conditions are met:
@@ -55,7 +55,7 @@ Sub sfWorkerSheet(ws)
     ShowFormulasUI.Done.Text = prog & "Processing " & ws.Name & " (" & ws.UsedRange.Rows.Count & "x" & ws.UsedRange.Columns.Count & ")"
     DoEvents
     ws.Unprotect
-    If ws.ProtectedContents Then GoTo NextSheet
+    If ws.ProtectContents Then GoTo NextSheet
     rowb = ws.UsedRange.row + ws.UsedRange.Rows.Count
     For r = rowb - 1 To ws.UsedRange.row Step -1
         f1 = ""

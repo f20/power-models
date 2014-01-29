@@ -132,13 +132,16 @@ sub create {
           new SpreadsheetModel::Logger( name => 'List of data tables', );
         my @wsheetsAndClosures = $model->worksheetsAndClosures($wbook);
         my @wsheetNames =
-          @wsheetsAndClosures[ grep { !( $_ % 2 ) } 0 .. $#wsheetsAndClosures ];
+            ref $model->{worksheets} eq 'ARRAY' ? @{ $model->{worksheets} }
+          : $model->{worksheets}                ? $model->{worksheets}
+          : @wsheetsAndClosures[ grep { !( $_ % 2 ) }
+          0 .. $#wsheetsAndClosures ];
         $options->{wsheetNames} = [ map { $_ . $modelCount } @wsheetNames ];
         my %closure = @wsheetsAndClosures;
         my @frontSheets =
-          grep { $closure{$_} } (
-              $model->can('frontSheets')
-            ? $model->frontSheets($wbook)
+          $model->{worksheets} ? @wsheetNames
+          : grep { $closure{$_} } (
+            $model->can('frontSheets') ? $model->frontSheets($wbook)
             : qw(Overview Index)
           );
         my %frontSheetHash = map { ( $_ => undef ); } @frontSheets;
@@ -228,14 +231,13 @@ sub create {
 
         if ( $options->{ExportYaml} || $options->{ExportPerl} ) {
             my @objects = grep { defined $_ } @{ $options->{logger}{objects} };
-            my @coreObj = (
-                join( "\n",
-                    $options->{logger}{realRows}
-                    ? @{ $options->{logger}{realRows} }
-                    : map { "$_->{name}" } @objects ),
-                map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
-                  @objects
-            );
+            my $objNames = join( "\n",
+                $options->{logger}{realRows}
+                ? @{ $options->{logger}{realRows} }
+                : map { "$_->{name}" } @objects );
+            my @coreObj =
+              map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
+              @objects;
             my $file = $fileName;
             $file =~ s/\.xlsx?$//i;
             $file .= "-dump$modelCount";
@@ -243,29 +245,34 @@ sub create {
                 require YAML;
                 open my $fh, '>', "$file.$$";
                 binmode $fh, ':utf8';
-                print {$fh}
-                  YAML::Dump(
-                    { map { ( ref $_ ? $_->{name} : $_, $_ ); } @coreObj } );
+                print {$fh} YAML::Dump(
+                    {
+                        '.' => $objNames,
+                        map { ( ref $_ ? $_->{name} : $_, $_ ); } @coreObj
+                    }
+                );
                 close $fh;
                 rename "$file.$$", "$file.yaml";
             }
             if ( $options->{ExportPerl} ) {
                 require Data::Dumper;
                 my %counter;
-                local $_ = Data::Dumper->new( \@coreObj )->Indent(1)->Names(
+                local $_ =
+                  Data::Dumper->new( [ $objNames, @coreObj ] )->Indent(1)
+                  ->Names(
                     [
                         'tableNames',
                         map {
                             my $n =
-                              ref $coreObj[$_]
-                              ? $coreObj[$_]{name}
-                              : $coreObj[$_];
+                              ref $_
+                              ? $_->{name}
+                              : $_;
                             $n =~ s/[^a-z0-9]+/_/gi;
                             $n =~ s/^([0-9]+)[0-9]{2}/$1/s;
-                            "T$n" . ( $counter{$n}++ ? "_$counter{$n}" : '' );
-                        } 1 .. $#coreObj
+                            "t$n" . ( $counter{$n}++ ? "_$counter{$n}" : '' );
+                        } @coreObj
                     ]
-                )->Dump;
+                  )->Dump;
                 s/\\x\{([0-9a-f]+)\}/chr (hex ($1))/eg;
                 open my $fh, '>', "$file.$$";
                 binmode $fh, ':utf8';

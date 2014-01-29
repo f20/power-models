@@ -1,0 +1,27 @@
+---
+.: 'Simple scaling, replacement costs, override 500 MW LV, no method M, DCP 179 January'
+PerlModule: CDCM
+alwaysUseRAG: 1
+coincidenceAdj: none
+dataOverride:
+  1020:
+    - ~
+    - HV LV: 60000000
+      LV circuits: 200000000
+drm: top500gsp
+extraLevels: 1
+fixedCap: group
+forwardLinks: 1
+illustrative: 1
+impliedLoadFactors: 1
+ldnoSplits: 1
+lvCosts: cap
+matrices: big
+noReplacement: 0.453
+portfolio: 1
+scaler: pickallnogen
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp179dcp163
+timeOfDay: timeOfDaySpecial

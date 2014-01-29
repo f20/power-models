@@ -619,7 +619,8 @@ EOL
                 sources => [
                     $forecastAmlCapacity ? $forecastAmlCapacity : (),
                     $forecastAmlUnits
-                ]
+                ],
+                defaultFormat => '0copynz',
             ),
             defaultFormat => '0softnz',
           );
@@ -720,6 +721,80 @@ EOL
     }
 
     $standingFactors, $forecastSml, $forecastAmlUnits, $diversityAllowances;
+
+}
+
+sub impliedLoadFactors {
+    my ( $model, $allEndUsers, $demandEndUsers,
+        $componentMap, $volumesByEndUser, $unitsByEndUser, $daysInYear,
+        $powerFactorInModel, )
+      = @_;
+
+    my $tariffGroupset = Labelset( list =>
+          [ 'LV Network tariffs', 'LV Sub tariffs', 'HV Network tariffs', ] );
+
+    my $mapping1 = Constant(
+        name          => 'Users with capacity charges in each tariff group',
+        defaultFormat => '0connz',
+        rows          => $allEndUsers,
+        cols          => $tariffGroupset,
+        data          => [
+            map {
+                /gener/i || !$componentMap->{$_}{'Capacity charge p/kVA/day'}
+                  ? [ 0, 0, 0 ]
+                  : /^(> )?HV Sub/i ? [ 0, 0, 0 ]
+                  : /^(> )?HV/i     ? [ 0, 0, 1 ]
+                  : /^(> )?LV Sub/i ? [ 0, 1, 0 ]
+                  : /^(> )?LV/i     ? [ 1, 0, 0 ]
+                  :              [ 0, 0, 0 ];
+            } @{ $allEndUsers->{list} }
+        ],
+        byrow => 1,
+    );
+
+    my $mapping2 = Constant(
+        name          => 'Users without capacity charges in each tariff group',
+        defaultFormat => '0connz',
+        rows          => $demandEndUsers,
+        cols          => $tariffGroupset,
+        data          => [
+            map {
+                    /^(> )?HV Sub/i ? [ 0, 0, 0 ]
+                  : /^(> )?HV/i     ? [ 0, 0, 1 ]
+                  : /^(> )?LV Sub/i ? [ 0, 1, 0 ]
+                  : /^(> )?LV/i     ? [ 1, 0, 0 ]
+                  : [ 0, 0, 0 ]
+            } @{ $demandEndUsers->{list} }
+        ],
+        byrow => 1,
+    );
+
+    my $impliedLoadFactor = Arithmetic(
+        name       => 'Implied load factor for each tariff group',
+        arithmetic => '=IV1/24/IV2/IV3/IV4*1000',
+        arguments  => {
+            IV1 => SumProduct(
+                defaultFormat => '0softnz',
+                name   => 'Relevant consumption in each tariff group (MWh)',
+                matrix => $mapping1,
+                vector => $unitsByEndUser
+            ),
+            IV2 => $daysInYear,
+            IV3 => SumProduct(
+                defaultFormat => '0softnz',
+                name          => 'Relevant capacity in each tariff group (kVA)',
+                matrix        => $mapping1,
+                vector => $volumesByEndUser->{'Capacity charge p/kVA/day'}
+            ),
+            IV4 => $powerFactorInModel,
+        }
+    );
+
+    SumProduct(
+        name   => 'Deemed average maximum kVA for each tariff',
+        matrix => $mapping2,
+        vector => $impliedLoadFactor,
+    );
 
 }
 

@@ -1,5 +1,5 @@
 ---
-.: 'DCP 179 (November 2013 with DCP 130, DCP 132 and DCP 163)'
+.: DCP 179 November 2013
 PerlModule: CDCM
 alwaysUseRAG: 1
 coincidenceAdj: group2voltage

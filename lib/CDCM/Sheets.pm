@@ -66,8 +66,7 @@ sub worksheetsAndClosures {
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),
             defaultFormat => 'texthard',
-            data =>
-              [ 'Illustrative company', '9000/9001', 'Illustrative dataset' ]
+            data => [ 'Illustrative company', 'Year', 'Illustrative dataset' ]
         );
         my ( $sh, $ro, $co ) = $te->wsWrite( $wbook, $wsheet );
 

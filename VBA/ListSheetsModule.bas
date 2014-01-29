@@ -1,5 +1,5 @@
 '
-' Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+' Copyright 2013 Franck Latremoliere, Reckon LLP and others.
 '
 ' Redistribution and use in source and binary forms, with or without
 ' modification, are permitted provided that the following conditions are met:
@@ -24,7 +24,6 @@
 '
 
 Sub ListWorksheets()
-    On Error GoTo FAILED
     Dim ls As Worksheet
     Worksheets.Add
     Set ls = ActiveSheet
@@ -43,7 +42,4 @@ Sub ListWorksheets()
         ls.Cells(j + 1, 3) = ws.UsedRange.Columns.Count
         End If
     Next j
-    Return
-FAILED:
-    MsgBox "Failed"
 End Sub

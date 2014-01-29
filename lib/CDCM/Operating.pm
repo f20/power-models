@@ -35,18 +35,18 @@ use SpreadsheetModel::Shortcuts ':all';
 sub operating {
 
     my (
-        $model,                          $assetLevels,
-        $drmLevels,                      $drmExitLevels,
-        $operatingLevels,                $operatingDrmLevels,
-        $operatingDrmExitLevels,         $customerLevels,
-        $operatingCustomerLevels,        $forecastSml,
-        $allTariffsByEndUser,            $unitsInYear,
-        $loadFactors,                    $daysInYear,
-        $lineLossFactors,                $diversityAllowances,
-        $componentMap,                   $volumeData,
-        $modelGrossAssetsByLevel,        $modelCostToSml,
-        $modelSml,                       $serviceModelAssetsPerCustomer,
-        $serviceModelAssetsPerAnnualMwh, $siteSpecificSoleUseAssets
+        $model,                         $assetLevels,
+        $drmLevels,                     $drmExitLevels,
+        $operatingLevels,               $operatingDrmLevels,
+        $operatingDrmExitLevels,        $customerLevels,
+        $operatingCustomerLevels,       $forecastSml,
+        $allTariffsByEndUser,           $unitsInYear,
+        $daysInYear,                    $lineLossFactors,
+        $diversityAllowances,           $componentMap,
+        $volumeData,                    $modelGrossAssetsByLevel,
+        $modelCostToSml,                $modelSml,
+        $serviceModelAssetsPerCustomer, $serviceModelAssetsPerAnnualMwh,
+        $siteSpecificSoleUseAssets
     ) = @_;
 
     my $operatingExpenditureCodedByLevel =
@@ -226,12 +226,13 @@ sub operating {
     my @serviceModelColumns;
     my $serviceModelAssets;
 
-    push @serviceModelColumns, $serviceModelAssets = SumProduct(
+    push @serviceModelColumns,
+      $serviceModelAssets = SumProduct(
         name          => 'Service model assets (£) scaled by user count',
         matrix        => $serviceModelAssetsPerCustomer,
         vector        => $volumeData->{'Fixed charge p/MPAN/day'},
         defaultFormat => '0soft'
-    ) if $serviceModelAssetsPerCustomer;
+      ) if $serviceModelAssetsPerCustomer;
 
     my $serviceModelAssetsFromAnnualMwh;
     my $unmeteredUnits;
@@ -247,7 +248,8 @@ sub operating {
                 ]
             ),
         );
-        push @serviceModelColumns, $serviceModelAssetsFromAnnualMwh =
+        push @serviceModelColumns,
+          $serviceModelAssetsFromAnnualMwh =
           $serviceModelAssetsPerAnnualMwh->{rows}
           ? SumProduct(
             name          => 'Service model assets (£) scaled by annual MWh',
@@ -279,7 +281,8 @@ sub operating {
                 sources => [$serviceModelAssetsFromAnnualMwh]
               );
 
-            push @serviceModelColumns, $serviceModelAssets = Arithmetic(
+            push @serviceModelColumns,
+              $serviceModelAssets = Arithmetic(
                 name       => 'Service model assets (£)',
                 arithmetic => '=IV1+IV2',
                 arguments  => {
@@ -287,7 +290,7 @@ sub operating {
                     IV2 => $reshapedServiceModelAssetsFromAnnualMwh
                 },
                 defaultFormat => '0soft'
-            );
+              );
 
         }
         else {

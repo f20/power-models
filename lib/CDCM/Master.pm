@@ -625,13 +625,6 @@ EOT
         groups => $generationUnitsEndUsers->{list}
       );
 
-=head DCP 159 development note
-
-From here on, references to $volume... or $units... are probably to
-historical data rather than forecast data, if there is a difference.
-
-=cut
-
     my ( $pseudoLoadCoefficientsAgainstSystemPeak, $pseudoLoadCoefficients );
     if ( $model->{maxUnitRates} && $model->{maxUnitRates} > 1 ) {
 
@@ -676,6 +669,12 @@ historical data rather than forecast data, if there is a difference.
         $fFactors,               $generationCapacityTariffsByEndUser,
       );
 
+    $loadFactors =
+      $model->impliedLoadFactors( $allEndUsers, $demandEndUsers,
+        $componentMap,
+        $volumesByEndUser, $unitsByEndUser, $daysInYear, $powerFactorInModel, )
+      if $model->{impliedLoadFactors};
+
     my (
         $standingFactors,  $forecastSmlAdjusted,
         $forecastAmlUnits, $diversityAllowancesAdjusted
@@ -701,18 +700,17 @@ historical data rather than forecast data, if there is a difference.
         $operatingCostByAnnualMwh, $siteSpecificOperatingCost,
       )
       = $model->operating(
-        $assetLevels,           $assetDrmLevels,
-        $drmExitLevels,         $operatingLevels,
-        $operatingDrmLevels,    $operatingDrmExitLevels,
-        $assetCustomerLevels,   $operatingCustomerLevels,
-        $forecastSmlAdjusted,   $allTariffsByEndUser,
-        $unitsInYear,           $loadFactors,
-        $daysInYear,            $lineLossFactors,
-        $diversityAllowances,   $componentMap,
-        $volumesAdjusted,       $modelGrossAssetsByLevel,
-        $networkModelCostToSml, $modelSml,
-        $serviceModelAssets,    $serviceModelAssetsPerAnnualMwh,
-        $siteSpecificSoleUseAssets,
+        $assetLevels,                    $assetDrmLevels,
+        $drmExitLevels,                  $operatingLevels,
+        $operatingDrmLevels,             $operatingDrmExitLevels,
+        $assetCustomerLevels,            $operatingCustomerLevels,
+        $forecastSmlAdjusted,            $allTariffsByEndUser,
+        $unitsInYear,                    $daysInYear,
+        $lineLossFactors,                $diversityAllowances,
+        $componentMap,                   $volumesAdjusted,
+        $modelGrossAssetsByLevel,        $networkModelCostToSml,
+        $modelSml,                       $serviceModelAssets,
+        $serviceModelAssetsPerAnnualMwh, $siteSpecificSoleUseAssets,
       );
 
     push @{ $model->{yardsticks} }, my $costToSml = Stack
@@ -839,13 +837,6 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
     push @{ $model->{preliminaryAggregation} }, Columnset
       name    => 'Summary of charges before revenue matching',
       columns => [ @{$tariffsExMatching}{@$allComponents} ];
-
-=head DCP 159 development note
-
-From here on, references to $volume... or $units... are probably to
-forecast data rather than historical data, if there is a difference.
-
-=cut
 
     my ( $revenueShortfall, $totalRevenuesSoFar, $revenuesSoFar,
         $allowedRevenue, $revenueFromElsewhere, $totalSiteSpecificReplacement, )
@@ -1010,7 +1001,8 @@ forecast data rather than historical data, if there is a difference.
             );
             push @{ $model->{summaryColumns} },
               Arithmetic(
-                name          => 'Revenue impact of election bung (£, not accounted for)',
+                name =>
+                  'Revenue impact of election bung (£, not accounted for)',
                 defaultFormat => '0soft',
                 arithmetic    => '=0.01*IV1*SUMPRODUCT(IV2_IV3,IV4_IV5)',
                 arguments     => {

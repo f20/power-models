@@ -199,7 +199,6 @@ sub table1001 {
                               } keys %$data;
                         }
                         defined $v ? $v : '#VALUE!', $format;
-
                     };
                 };
                 my $dataEntry = $dataEntryMaker->($format);
@@ -345,7 +344,6 @@ sub table1001 {
         );
 
         my $handSubtotal;
-        $handSubtotal = [] unless $model->{targetRevenue} =~ /subtotal/i;
         my $subtotals = new SpreadsheetModel::Custom(
             name          => 'Revenue elements and subtotals (£/year)',
             defaultFormat => $model->{targetRevenue} =~ /million/i
@@ -385,6 +383,9 @@ sub table1001 {
                 sub {
                     my ( $x, $y ) = @_;
 
+                    $handSubtotal = []
+                      unless $y || $model->{targetRevenue} =~ /subtotal/i;
+
                     ( $shi, $roi, $coi ) = $inputs->wsWrite( $wb, $ws )
                       unless defined $roi;
 
@@ -420,7 +421,7 @@ sub table1001 {
                                 $co, 1, 0
                             ),
                             IV4 => xl_rowcol_to_cell( $ro + $y - 1, $co, 0, 0 ),
-                          ); # NB: SUM(A,B,C,...) does not scale well
+                          );    # NB: SUM(A,B,C,...) does not scale well
                     }
                     else {
                         push @$handSubtotal, $y if $handSubtotal;

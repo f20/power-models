@@ -216,7 +216,7 @@ sub standingCharges {
                 arithmetic => '=IV1/IV2/(24*IV9)*1000',
                 rows       => $standingForFixedEndUsers,
                 arguments  => {
-                    IV1 => $unitsInYear,
+                    IV1 => $unitsByEndUser,
                     IV2 => $loadFactors,
                     IV9 => $daysInYear,
                 },
@@ -672,6 +672,8 @@ sub standingCharges {
       )
       : $capacityUser->{source};
 
+# The unrestricted yardstick used in reactive power calculations even if $model->{alwaysUseRAG}
+
     my $unitYardstick = GroupBy(
         name   => 'Yardstick total p/kWh (taking account of standing charges)',
         rows   => $demandTariffsByEndUser,
@@ -688,9 +690,14 @@ sub standingCharges {
         )
     );
 
-    push @{ $model->{standingResults} }, Columnset
-      name => 'Yardstick unit rate p/kWh (taking account of standing charges)',
-      columns => [ $unitYardstick->{source}, $unitYardstick ];
+    push @{ $model->{standingResults} },
+      $model->{showSums}
+      ? Columnset(
+        name =>
+          'Yardstick unit rate p/kWh (taking account of standing charges)',
+        columns => [ $unitYardstick->{source}, $unitYardstick ]
+      )
+      : $unitYardstick->{source};
 
     my @unitRates = map {
         my $relevantTariffs = Labelset(
@@ -720,11 +727,15 @@ sub standingCharges {
           . ( 1 + $_ )
           . ' total p/kWh (taking account of standing charges)',
           source => $c;
-        push @{ $model->{standingResults} }, Columnset
-          name => 'Unit rate '
-          . ( 1 + $_ )
-          . ' (taking account of standing charges)',
-          columns => [ $c, $a ];
+        push @{ $model->{standingResults} },
+          $model->{showSums}
+          ? Columnset(
+            name => 'Unit rate '
+              . ( 1 + $_ )
+              . ' (taking account of standing charges)',
+            columns => [ $c, $a ]
+          )
+          : $c;
         $a;
     } 0 .. ( $model->{maxUnitRates} > 1 ? $model->{maxUnitRates} - 1 : -1 );
 

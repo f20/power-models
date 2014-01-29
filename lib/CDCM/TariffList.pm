@@ -166,13 +166,6 @@ LV half hourly CT:
   - Reactive power charge p/kVArh
   - Included: dcp179|portfolio
 ---
-LV substation half hourly WC:
-  - PC0
-  - Name: LV Sub Non-CT
-  - Fixed charge p/MPAN/day
-  - Unit rates p/kWh
-  - Included: dcp179|portfolio
----
 LV substation half hourly CT:
   - PC0
   - Name: LV Sub CT
@@ -180,13 +173,6 @@ LV substation half hourly CT:
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: dcp179|portfolio
----
-HV half hourly WC:
-  - PC0
-  - Name: HV Network Non-CT
-  - Fixed charge p/MPAN/day
-  - Unit rates p/kWh
   - Included: dcp179|portfolio
 ---
 HV half hourly CT:

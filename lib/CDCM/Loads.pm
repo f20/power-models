@@ -122,8 +122,7 @@ EOL
     if ($unitsAdjustmentFactor) {
         my @adjustedColumns;
         %volumesAdjusted = map {
-            if (/Unit rate/i)
-            {
+            if (/Unit rate/i) {
                 my $adj = Arithmetic(
                     name       => "$componentVolumeName{$_} loss adjusted",
                     arithmetic => '=IV1*(1+IV2)',
@@ -254,19 +253,18 @@ sub loadProfiles {
         } @{ $allEndUsers->{list} }
       ];
 
-    my $generationCapacityEndUsers = Labelset
-      name => 'Generation capacity end users',
-      list =>
-      [ grep { $componentMap->{$_}{'Generation capacity rate p/kW/day'} }
-          @{ $generationEndUsers->{list} } ];
-
     my $generationUnitsEndUsers = Labelset
       name => 'Generation unit end users',
       list =>
       [ grep { !$componentMap->{$_}{'Generation capacity rate p/kW/day'} }
           @{ $generationEndUsers->{list} } ];
 
-    my $coincidenceFactors = Dataset(
+    my $coincidenceFactors = $model->{coincidenceAdj}
+      && $model->{coincidenceAdj} =~ /none/i ? Constant(
+        name => 'Not used',
+        rows => $allEndUsers,
+        data => [],
+      ) : Dataset(
         rows       => $demandEndUsers,
         validation => {
             validate      => 'decimal',
@@ -300,115 +298,152 @@ sub loadProfiles {
               . ' for each type of demand user',
             'Coincidence factor'
         )
-    );
+      );
 
-    my $loadFactors = Dataset(
-        rows       => $demandEndUsers,
-        validation => {
-            validate      => 'decimal',
-            criteria      => 'between',
-            minimum       => 0,
-            maximum       => 1,
-            input_title   => 'Load factor:',
-            input_message => 'Percentage',
-            error_message => 'The load factor'
-              . ' must be between 0% and 100%.'
-        },
-        data => [
-            map {
-                /domestic/i && !/non.*domestic/i && /unr/i
-                  ? 0.40
-                  : /domestic/i && !/non.*domestic/i && /rates/i ? 0.23   # 0.45
-                  : /off/i ? 0.25
-                  : /small/i && /unr/i   ? 0.35
-                  : /small/i && /rates/i ? 0.3
-                  : /hv/i                  ? .66
-                  : /half| hh|5-8|medium/i ? 0.6
-                  : 0.6
-            } @{ $demandEndUsers->{list} }
-        ],
-        name => Label(
-            'Load factor',
-            'Load factor' . ' for each type of demand user'
-        )
-    );
+    my $loadFactors;
 
-    my $fFactors;
+    unless ( $model->{impliedLoadFactors}
+        && $model->{coincidenceAdj}
+        && $model->{coincidenceAdj} =~ /none/i )
+    {
 
-    $fFactors = Dataset(
-        rows       => $generationCapacityEndUsers,
-        validation => {
-            validate      => 'decimal',
-            criteria      => 'between',
-            minimum       => 0,
-            maximum       => 1,
-            input_title   => 'F factor:',
-            input_message => 'Percentage',
-            error_message => 'The F factor' . ' must be between 0% and 100%.'
-        },
-        number => 1043,
-        data   => [
-            map { /wind/i ? 0.24 : /non-chp/i ? 0.73 : /chp/i ? 0.67 : 0.36 }
-              @{ $generationCapacityEndUsers->{list} }
-        ],
-        name => Label( 'F factor', 'F factors by generation technology' ),
-        lines => 'Source: assumption based on Engineering Recommendation P2/6.'
-    ) if @{ $generationCapacityEndUsers->{list} };
+        $loadFactors = Dataset(
+            rows       => $demandEndUsers,
+            validation => {
+                validate      => 'decimal',
+                criteria      => 'between',
+                minimum       => 0,
+                maximum       => 1,
+                input_title   => 'Load factor:',
+                input_message => 'Percentage',
+                error_message => 'The load factor'
+                  . ' must be between 0% and 100%.'
+            },
+            data => [
+                map {
+                    /domestic/i && !/non.*domestic/i && /unr/i
+                      ? 0.40
+                      : /domestic/i
+                      && !/non.*domestic/i
+                      && /rates/i ? 0.23    # 0.45
+                      : /off/i    ? 0.25
+                      : /small/i && /unr/i   ? 0.35
+                      : /small/i && /rates/i ? 0.3
+                      : /hv/i                  ? .66
+                      : /half| hh|5-8|medium/i ? 0.6
+                      : 0.6
+                } @{ $demandEndUsers->{list} }
+            ],
+            name => Label(
+                'Load factor',
+                'Load factor' . ' for each type of demand user'
+            )
+        );
 
-    my $generationCoefficient = Constant(
-        rows => $generationEndUsers,
-        data => [ map { 1 } @{ $generationEndUsers->{list} } ],
-        name => Label(
-            'Generation coefficient',
-            'Generation coefficient (negative of load coefficient)'
-        ),
-        lines  => 'Source: assumption.',
-        number => 1044,
-    );
+        Columnset(
+            name     => 'Load profile data for demand users',
+            lines    => 'Source: load data analysis.',
+            number   => 1041,
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
+            columns  => [ $coincidenceFactors, $loadFactors ],
+        );
 
-    my $demandCoefficient = Arithmetic
-      name => Label(
-        'Demand coefficient',
-        'Demand coefficient (load at time of '
-          . 'system maximum load divided by average load)'
-      ),
-      arithmetic => '=IV1/IV2',
-      arguments  => { IV1 => $coincidenceFactors, IV2 => $loadFactors };
+    }
 
-    my $negGC = Arithmetic
-      name       => 'Negative of generation coefficient',
-      arithmetic => '=-1*IV1',
-      arguments  => { IV1 => $generationCoefficient };
+    my $loadCoefficients;
 
-    $negGC = Constant
-      name => 'Negative of generation coefficient; set to -1',
-      rows => $generationEndUsers,
-      cols => 0,
-      data => [ [ map { -1 } @{ $generationEndUsers->{list} } ] ];
+    if (   $model->{coincidenceAdj}
+        && $model->{coincidenceAdj} =~ /none/i )
+    {
 
-    my $loadCoefficients = Stack(
-        name    => 'Load coefficient',
-        rows    => $allEndUsers,
-        sources => [ $demandCoefficient, $negGC ]
-    );
+        $loadCoefficients = Constant(
+            name => 'Demand/generation indicator; notional load coefficient',
+            rows => $allEndUsers,
+            data => [ map { /gener/i ? -1 : 1; } @{ $allEndUsers->{list} } ],
+        );
 
-    Columnset(
-        name     => 'Load profile data for demand users',
-        lines    => 'Source: load data analysis.',
-        number   => 1041,
-        appendTo => $model->{inputTables},
-        dataset  => $model->{dataset},
-        columns  => [ $coincidenceFactors, $loadFactors ],
-    );
+    }
+    else {
 
-    push @{ $model->{loadProfiles} }, $demandCoefficient;
+        my $generationCoefficient = Constant(
+            rows => $generationEndUsers,
+            data => [ map { 1 } @{ $generationEndUsers->{list} } ],
+            name => Label(
+                'Generation coefficient',
+                'Generation coefficient (negative of load coefficient)'
+            ),
+            lines  => 'Source: assumption.',
+            number => 1044,
+        );
 
-    push @{ $model->{loadProfiles} }, $fFactors
-      if $fFactors;
+        push @{ $model->{loadProfiles} },
+          my $demandCoefficient = Arithmetic(
+            name => Label(
+                'Demand coefficient',
+                'Demand coefficient (load at time of '
+                  . 'system maximum load divided by average load)'
+            ),
+            arithmetic => '=IV1/IV2',
+            arguments  => { IV1 => $coincidenceFactors, IV2 => $loadFactors }
+          );
+
+        my $negGC = Arithmetic(
+            name       => 'Negative of generation coefficient',
+            arithmetic => '=-1*IV1',
+            arguments  => { IV1 => $generationCoefficient }
+        );
+
+        $negGC = Constant(
+            name => 'Negative of generation coefficient; set to -1',
+            rows => $generationEndUsers,
+            cols => 0,
+            data => [ [ map { -1 } @{ $generationEndUsers->{list} } ] ]
+        );
+
+        $loadCoefficients = Stack(
+            name    => 'Load coefficient',
+            rows    => $allEndUsers,
+            sources => [ $demandCoefficient, $negGC ]
+        );
+    }
 
     push @{ $model->{loadProfiles} }, $loadCoefficients;
 
-    $model->{hasGenerationCapacity} = 1 if defined $fFactors;
+    my $fFactors;
+    my $generationCapacityEndUsers = Labelset
+      name => 'Generation capacity end users',
+      list =>
+      [ grep { $componentMap->{$_}{'Generation capacity rate p/kW/day'} }
+          @{ $generationEndUsers->{list} } ];
+    if ( @{ $generationCapacityEndUsers->{list} } ) {
+        $model->{hasGenerationCapacity} = 1;
+        push @{ $model->{loadProfiles} }, $fFactors = Dataset(
+            rows       => $generationCapacityEndUsers,
+            validation => {
+                validate      => 'decimal',
+                criteria      => 'between',
+                minimum       => 0,
+                maximum       => 1,
+                input_title   => 'F factor:',
+                input_message => 'Percentage',
+                error_message => 'The F factor'
+                  . ' must be between 0% and 100%.'
+            },
+            number => 1043,
+            data   => [
+                map {
+                        /wind/i       ? 0.24
+                      : /non[- ]chp/i ? 0.73
+                      : /chp/i        ? 0.67
+                      : 0.36
+                } @{ $generationCapacityEndUsers->{list} }
+            ],
+            name => Label( 'F factor', 'F factors by generation technology' ),
+            lines =>
+              'Source: assumption based on Engineering Recommendation P2/6.'
+        );
+    }
 
     $unitsEndUsers, $generationEndUsers, $demandEndUsers,
       $standingForFixedEndUsers, $generationCapacityEndUsers,
