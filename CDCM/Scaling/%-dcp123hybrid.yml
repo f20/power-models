@@ -1,5 +1,5 @@
 ---
-.: DCP 123 revenue matching hybrid with DCP 130 and DCP 132
+.: DCP 123 revenue matching hybrid with DCP 130, DCP 132 and DCP 163
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
@@ -10,7 +10,7 @@ pcd: 1
 portfolio: 1
 scaler: dcp123hybridadder
 standing: sub132
-summary: consultation
+summary: 1
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163
 timeOfDay: timeOfDaySpecial
