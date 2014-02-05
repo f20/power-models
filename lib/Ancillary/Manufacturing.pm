@@ -237,7 +237,7 @@ sub factory {
         };
 
         foreach (@datasets) {
-            $_->{datasetOverride} = $od;
+            $_->{dataOverride} = $od;
             $_->{'~datasetName'} .= "-$hash" if defined $_->{'~datasetName'};
         }
         ( $key, $hash );
