@@ -267,13 +267,13 @@ sub factory {
         foreach (@rulesets) {
             $_->{'~codeValidation'} = $sourceCodeSha1;
             delete $_->{'.'};
-            delete $_->{template};
             $_->{revisionText} = $db->revisionText( YAML::Dump($_) ) if $db;
         }
 
-       # Keep illustrative, dataOverride, version and suchlike
-       # The purpose of this revision number is to help produce rules that
-       # can reproduce the same model, not just to describe the modelling rules.
+       # Keep dataOverride, illustrative, template, version and suchlike.
+       # The purpose of this revision number is to help find or produce rules
+       # to reproduce the same model, not just to describe the modelling rules.
+       # This also avoids a cloning operation.
 
     };
 
