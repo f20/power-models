@@ -1,5 +1,5 @@
 ---
-.: Post-DCP 132 model without higher exceeded capacity charges
+.: Post-DCP 163 without higher exceeded capacity charges
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
@@ -12,6 +12,6 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
 targetRevenue: dcp132
-tariffs: commongensubdcp130
+tariffs: commongensubdcp130dcp163
 timeOfDay: timeOfDaySpecial
 unauth: daysame
