@@ -1413,3 +1413,8 @@
     Small Non Domestic Two Rate: '249, 250, 275, 406, 407, 417, 418'
     Small Non Domestic Unrestricted: '241, 404, 405'
     _column: Closed LLFCs
+exceedprop:
+  - _table: Percentage of unauthorised capacity in total kVA
+  - HV HH Metered: 0.016
+    LV HH Metered: 0.024
+    LV Sub HH Metered: 0.02

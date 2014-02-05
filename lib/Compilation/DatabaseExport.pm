@@ -58,7 +58,7 @@ sub listModels {
         s/^SSE-/SSEPD-/;
         s/^WPD-Wales/WPD-SWales/;
         s/^WPD-West\b/WPD-SWest/;
-        my @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})(-.*)$/s;
+        my @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})([+-].*)$/s;
         @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})?(-[^-]*)?$/s unless @a;
         push @models, [
             $bid,

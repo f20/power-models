@@ -1,0 +1,9 @@
+---
+components:
+  - Unit rate 1 p/kWh
+  - Unit rate 2 p/kWh
+  - Unit rate 3 p/kWh
+  - Fixed charge p/MPAN/day
+  - Capacity charge p/kVA/day
+  - Exceeded capacity charge p/kVA/day
+  - Reactive power charge p/kVArh

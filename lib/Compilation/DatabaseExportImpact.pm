@@ -34,7 +34,7 @@ use utf8;
 sub edcmTariffImpact {
     my ( $self, $wbmodule, $fileExtension, %options ) = @_;
     $options{linesAfter} ||= [ 1 .. 6 ];
-    $options{components} = [ split /\n/, <<EOL];
+    $options{components} ||= [ split /\n/, <<EOL];
 Import super-red unit rate (p/kWh)
 Import fixed charge (p/day)
 Import capacity rate (p/kVA/day)
@@ -44,17 +44,17 @@ Export fixed charge p/day
 Export capacity rate (p/kVA/day)
 Export exceeded capacity rate (p/kVA/day)
 EOL
-    $options{format1} = [
+    $options{format1} ||= [
         qw(0.000copy 0.00copy 0.00copy 0.00copy 0.000copy 0.00copy 0.00copy),
         [ base => '0.00copy', right => 5, right_color => 8 ]
     ];
-    $options{format2} = [
+    $options{format2} ||= [
         qw(0.000softpm 0.00softpm 0.00softpm 0.00softpm 0.000softpm 0.00softpm 0.00softpm),
         [ base => '0.00softpm', right => 5, right_color => 8 ]
     ];
-    $options{tableNumber}     = 4501;
-    $options{firstColumn}     = 2;
-    $options{nameExtraColumn} = 1;
+    $options{tableNumber}     ||= 4501;
+    $options{firstColumn}     ||= 2;
+    $options{nameExtraColumn} ||= 1;
     $self->genericTariffImpact( $wbmodule, $fileExtension, %options );
 }
 
@@ -129,7 +129,7 @@ LDNO HV: HV Generation Intermittent
 LDNO HV: HV Generation Non-Intermittent
 EOL
 
-    $options{components} = [ split /\n/, <<EOL];
+    $options{components} ||= [ split /\n/, <<EOL];
 Unit rate 1 p/kWh
 Unit rate 2 p/kWh
 Unit rate 3 p/kWh
@@ -137,17 +137,30 @@ Fixed charge p/MPAN/day
 Capacity charge p/kVA/day
 Reactive power charge p/kVArh
 EOL
-    $options{format1} = [
-        qw(0.000copy 0.000copy 0.000copy 0.00copy 0.00copy),
-        [ base => '0.000copy', right => 5, right_color => 8 ]
-    ];
-    $options{format2} = [
-        qw(0.000softpm 0.000softpm 0.000softpm 0.00softpm 0.00softpm),
-        [ base => '0.000softpm', right => 5, right_color => 8 ]
-    ];
 
-    $options{tableNumber} = 3701;
-    $options{firstColumn} = 3;
+    unless ( $options{format1} ) {
+        $options{format1} = [ map { /k(W|VAr)h/ ? '0.000copy' : '0.00copy'; }
+              @{ $options{components} } ];
+        $options{format1}[ $#{ $options{format1} } ] = [
+            base        => $options{format1}[ $#{ $options{format1} } ],
+            right       => 5,
+            right_color => 8
+        ];
+    }
+
+    unless ( $options{format2} ) {
+        $options{format2} =
+          [ map { /k(W|VAr)h/ ? '0.000softpm' : '0.00softpm'; }
+              @{ $options{components} } ];
+        $options{format2}[ $#{ $options{format2} } ] = [
+            base        => $options{format2}[ $#{ $options{format2} } ],
+            right       => 5,
+            right_color => 8
+        ];
+    }
+
+    $options{tableNumber} ||= 3701;
+    $options{firstColumn} ||= 3;
 
     $self->genericTariffImpact( $wbmodule, $fileExtension, %options );
 
@@ -159,7 +172,8 @@ sub genericTariffImpact {
 
     _defaultOptions( \%options );
 
-    my $wb = $wbmodule->new("Impact - Illustrative tariffs $options{dcpName}$fileExtension");
+    my $wb = $wbmodule->new(
+        "Impact - Illustrative tariffs $options{dcpName}$fileExtension");
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     my $linesAfter = $options{linesAfter};
@@ -292,7 +306,8 @@ sub cdcmPpuImpact {
 
     _defaultOptions( \%options );
 
-    my $wb = $wbmodule->new("Impact - Illustrative pence per unit $options{dcpName}$fileExtension");
+    my $wb = $wbmodule->new(
+        "Impact - Illustrative pence per unit $options{dcpName}$fileExtension");
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
@@ -457,7 +472,8 @@ sub revenueMatrixImpact {
     _defaultOptions( \%options );
 
     my $wb =
-      $wbmodule->new("Impact - Illustrative revenue $options{dcpName}$fileExtension");
+      $wbmodule->new(
+        "Impact - Illustrative revenue $options{dcpName}$fileExtension");
     $wb->setFormats( { colour => 'orange' } );
 
     my $linesAfter = $options{linesAfter};
@@ -499,11 +515,10 @@ sub revenueMatrixImpact {
         $ws->freeze_panes( 1, 1 );
         $ws->write_string( 0, 0, $options{sheetTitles}[$i], $titleFormat );
 
-        $ws->write_string( 2, 1, 'Baseline revenue (£/year)', $thcFormat );
-        $ws->write_string( 2, 2, 'Revenue on new basis (£/year)',
-            $thcFormat );
-        $ws->write_string( 2, 3, 'Change (£/year)', $thcFormat );
-        $ws->write_string( 2, 4, 'Percentage change', $thcFormat );
+        $ws->write_string( 2, 1, 'Baseline revenue (£/year)',     $thcFormat );
+        $ws->write_string( 2, 2, 'Revenue on new basis (£/year)', $thcFormat );
+        $ws->write_string( 2, 3, 'Change (£/year)',               $thcFormat );
+        $ws->write_string( 2, 4, 'Percentage change',             $thcFormat );
 
         $ws->write_string( 4 + @$linesAfter,
             0, 'Baseline revenue matrix (£/year)', $thcaFormat );
@@ -566,8 +581,8 @@ sub revenueMatrixImpact {
             {
                 $ws->write( $r + $j, 0, $tariffName, $thFormat );
             }
-            my $tota   = 0;
-            my $totb   = 0;
+            my $tota = 0;
+            my $totb = 0;
             for ( my $k = 1 ; $k < $options{col2} - $options{col1} ; ++$k ) {
                 $q->execute( $bidb, $rowb, $k + $options{col1} );
                 my ($vb) = $q->fetchrow_array;

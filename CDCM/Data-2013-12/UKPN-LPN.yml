@@ -1413,3 +1413,8 @@
     Small Non Domestic Two Rate: ''
     Small Non Domestic Unrestricted: ''
     _column: Closed LLFCs
+exceedprop:
+  - _table: Percentage of unauthorised capacity in total kVA
+  - HV HH Metered: 0.017
+    LV HH Metered: 0.021
+    LV Sub HH Metered: 0.058

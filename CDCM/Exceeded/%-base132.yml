@@ -1,5 +1,5 @@
 ---
-.: Toy model for DCP 161 based on clean DCP 130 + DCP 132
+.: Post-DCP 132 model without higher exceeded capacity charges
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
@@ -14,5 +14,4 @@ summary: 1
 targetRevenue: dcp132
 tariffs: commongensubdcp130
 timeOfDay: timeOfDaySpecial
-unauth: day
-version: DCP 161 experiment
+unauth: daysame
