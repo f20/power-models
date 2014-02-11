@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -50,23 +50,32 @@ sub matchingdcp123 {
     my $fixedAdderPot = Labelset( list => ['Adder'] );
 
     my $totalRevenueFromUnits = GroupBy(
-        name          => 'Total revenues from demand unit rates (£/year)',
+        name => 'Total revenues from demand '
+          . ( $model->{dcp123doublecounting} ? '' : 'active power ' )
+          . 'unit rates (£/year)',
         defaultFormat => '0soft',
         source        => Arithmetic(
             name => Label(
                 'From unit rates',
-                'Revenues from demand unit rates before matching (£/year)'
+                'Revenues from demand '
+                  . ( $model->{dcp123doublecounting} ? '' : 'active power ' )
+                  . 'unit rates before matching (£/year)'
             ),
             rows       => $allTariffsByEndUser,
             arithmetic => '=IF(IV5<0,0,10*('
               . join( '+',
-                'IV701*IV702',
+                $model->{dcp123doublecounting} ? 'IV701*IV702' : (),
                 map { "IV$_*IV90$_" } 1 .. $model->{maxUnitRates} )
               . '))',
             arguments => {
-                IV5   => $loadCoefficients,
-                IV701 => $tariffsExMatching->{'Reactive power charge p/kVArh'},
-                IV702 => $volumeFullYear->{'Reactive power charge p/kVArh'},
+                IV5 => $loadCoefficients,
+                $model->{dcp123doublecounting}
+                ? (
+                    IV701 =>
+                      $tariffsExMatching->{'Reactive power charge p/kVArh'},
+                    IV702 => $volumeFullYear->{'Reactive power charge p/kVArh'}
+                  )
+                : (),
                 map {
                     my $name = "Unit rate $_ p/kWh";
                     "IV$_"     => $tariffsExMatching->{$name},
@@ -79,23 +88,32 @@ sub matchingdcp123 {
 
     # replace with a version that includes generation
     $totalRevenueFromUnits = GroupBy(
-        name          => 'Total net revenues from unit rates (£/year)',
+        name => 'Total net revenues from '
+          . ( $model->{dcp123doublecounting} ? '' : 'active power ' )
+          . 'unit rates (£/year)',
         defaultFormat => '0soft',
         source        => Arithmetic(
             name => Label(
                 'From unit rates',
-                'Net revenues from unit rates before matching (£/year)'
+                'Net revenues from '
+                  . ( $model->{dcp123doublecounting} ? '' : 'active power ' )
+                  . 'unit rates before matching (£/year)'
             ),
             rows       => $allTariffsByEndUser,
             arithmetic => '=10*('
               . join( '+',
-                'IV701*IV702',
+                $model->{dcp123doublecounting} ? 'IV701*IV702' : (),
                 map { "IV$_*IV90$_" } 1 .. $model->{maxUnitRates} )
               . ')',
             arguments => {
-                IV5   => $loadCoefficients,
-                IV701 => $tariffsExMatching->{'Reactive power charge p/kVArh'},
-                IV702 => $volumeFullYear->{'Reactive power charge p/kVArh'},
+                IV5 => $loadCoefficients,
+                $model->{dcp123doublecounting}
+                ? (
+                    IV701 =>
+                      $tariffsExMatching->{'Reactive power charge p/kVArh'},
+                    IV702 => $volumeFullYear->{'Reactive power charge p/kVArh'}
+                  )
+                : (),
                 map {
                     my $name = "Unit rate $_ p/kWh";
                     "IV$_"     => $tariffsExMatching->{$name},

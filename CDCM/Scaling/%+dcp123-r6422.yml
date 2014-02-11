@@ -1,0 +1,17 @@
+---
+.: 'DCP 123 revenue matching hybrid with double counting, DCP 130, DCP 132, DCP 163 and CTables'
+PerlModule: CDCM
+coincidenceAdj: groupums
+dcp123doublecounting: 1
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: dcp123hybridadder
+standing: sub132
+summary: consultation
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDaySpecial
