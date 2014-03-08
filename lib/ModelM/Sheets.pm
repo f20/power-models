@@ -124,7 +124,7 @@ sub worksheetsAndClosures {
         return @pairs if $mms->{controller};
         $mms->{controller} = 1;
 
-        unshift @pairs, Controller => sub {
+        unshift @pairs, 'Control$' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 0,   60 );

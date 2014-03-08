@@ -92,10 +92,8 @@ sub create {
       if $tmpDir && $module !~ /xlsx/i;  # work around taint issue with IO::File
     $wbook->setFormats( $optionArray[0] );
     my @models;
-    my $optionsColumns;
-    my @allCoreNames;
     my %allClosures;
-    my $forwardLinkFindingRun;
+    my @forwardLinkFindingRun;
     my $multiModelSharing;
 
     if ( $#optionArray > 0 ) {
@@ -117,11 +115,10 @@ sub create {
                 $options->{dataOverride} )
               if $options->{dataOverride} && $options->{dataset};
         }
-        $options->{optionsColumns} = $optionsColumns if $optionsColumns;
         my $modelCount = $_ ? ".$_" : '';
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
         my $model = $options->{PerlModule}->new(%$options);
-        $forwardLinkFindingRun = $model if $options->{forwardLinks};
+        $forwardLinkFindingRun[$_] = $model if $options->{forwardLinks};
         $options->{revisionText} ||= '';
         0 and $wbook->{titlePrefix} ||= $options->{revisionText};
         $model->{localTime} = \@localTime;
@@ -130,50 +127,44 @@ sub create {
         $options->{logger} =
           new SpreadsheetModel::Logger( name => 'List of data tables', );
         my @wsheetsAndClosures = $model->worksheetsAndClosures($wbook);
-        my @wsheetNames =
-            ref $model->{worksheets} eq 'ARRAY' ? @{ $model->{worksheets} }
-          : $model->{worksheets}                ? $model->{worksheets}
-          : @wsheetsAndClosures[ grep { !( $_ % 2 ) }
-          0 .. $#wsheetsAndClosures ];
-        $options->{wsheetNames} = [ map { $_ . $modelCount } @wsheetNames ];
-        my %closure = @wsheetsAndClosures;
+        my %closure            = @wsheetsAndClosures;
         my @frontSheets =
-          $model->{worksheets} ? @wsheetNames
-          : grep { $closure{$_} } (
-            $model->can('frontSheets') ? $model->frontSheets($wbook)
-            : qw(Overview Index)
-          );
+          grep { $closure{$_} }
+          $model->can('frontSheets')
+          ? $model->frontSheets($wbook)
+          : qw(Overview Index);
         my %frontSheetHash = map { ( $_ => undef ); } @frontSheets;
-        push @allCoreNames, @frontSheets,
-          grep { !exists $frontSheetHash{$_} } @wsheetNames
-          unless $_;
-        $allClosures{ $_ . $modelCount } = $closure{$_}
-          foreach grep { $closure{$_} } @allCoreNames;
-    }
-    my %wsheet;
-    foreach my $cn (@allCoreNames) {
-        foreach ( 0 .. $#optionArray ) {
-            my $options = $optionArray[$_];
-            my $modelCount = $_ ? ".$_" : '';
-            $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
-            if ( $allClosures{ $cn . $modelCount } ) {
-                my $ws;
-                $ws = $wbook->add_worksheet( $cn . $modelCount );
-                $ws->activate
-                  if $options->{activeSheets}
-                  && "$cn$modelCount" =~ /$options->{activeSheets}/;
-                $ws->fit_to_pages( 1, 0 );
-                $ws->set_header("&L&A&C$options->{revisionText}&R&P of &N");
-                $ws->set_footer("&F");
-                $ws->hide_gridlines(2);
-                $ws->protect( $options->{password} )
-                  if $options->{protect}
-                  && $cn ne 'Overview'
-                  && $cn ne 'Index';
-                $wsheet{ $cn . $modelCount } = $ws;
-            }
+
+        foreach ( @frontSheets,
+            grep { !exists $frontSheetHash{$_} }
+            @wsheetsAndClosures[ grep { !( $_ % 2 ) }
+            0 .. $#wsheetsAndClosures ] )
+        {
+            my $actualSheetName = /(.*)\$$/ ? $1 : $_ . $modelCount;
+            push @{ $options->{wsheetNames} }, $actualSheetName;
+            $allClosures{$actualSheetName} = $closure{$_};
         }
     }
+
+    my %wsheet;
+    foreach ( 0 .. $#optionArray ) {
+        my $options = $optionArray[$_];
+        foreach ( @{ $options->{wsheetNames} } ) {
+            my $ws = $wbook->add_worksheet($_);
+            $ws->activate
+              if $options->{activeSheets} && /$options->{activeSheets}/;
+            $ws->fit_to_pages( 1, 0 );
+            $ws->set_header("&L&A&C$options->{revisionText}&R&P of &N");
+            $ws->set_footer("&F");
+            $ws->hide_gridlines(2);
+            $ws->protect( $options->{password} )
+              if $options->{protect}
+              && $_ ne 'Overview'
+              && $_ ne 'Index';
+            $wsheet{$_} = $ws;
+        }
+    }
+
     $wbook->{$_} = $wsheet{$_} foreach keys %wsheet;
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
@@ -181,15 +172,19 @@ sub create {
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
         $wbook->{dataSheet} = $wsheet{ 'Input' . $modelCount };
 
-        if ($forwardLinkFindingRun) {
+        if ( $forwardLinkFindingRun[$_] ) {
             open my $h2, '>', '/dev/null';
             my $wb2 = $module->new($h2);
             $wb2->setFormats($options);
             $wb2->{findForwardLinks} = 1;
-            my %closures2 = $forwardLinkFindingRun->worksheetsAndClosures($wb2);
-            $wb2->{$_} = $wb2->add_worksheet($_) foreach @allCoreNames;
+            my @wsheetsAndClosures2 =
+              $forwardLinkFindingRun[$_]->worksheetsAndClosures($wb2);
+            my %closures2 = @wsheetsAndClosures2;
+            my @sheetNames2 = @wsheetsAndClosures2[ grep { !( $_ % 2 ) }
+              0 .. $#wsheetsAndClosures2 ];
+            $wb2->{$_} = $wb2->add_worksheet($_) foreach @sheetNames2;
             $closures2{$_}->( $wb2->{$_} )
-              foreach grep { !/Overview|Index/i } @{ $options->{wsheetNames} };
+              foreach grep { !/Overview|Index/i } @sheetNames2;
             $wb2->close;
         }
 

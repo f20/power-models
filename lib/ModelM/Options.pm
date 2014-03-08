@@ -104,8 +104,10 @@ END_OF_LIST
             name          => 'Allocation key',
             lines         => 'From sheet Opex Allocation, starting at cell AJ6',
             data          => \@rules,
-            defaultFormat => 'textcon',
-            rows          => $expenditureSet,
+            defaultFormat => $model->{multiModelSharing}
+            ? 'texthard'
+            : 'textcon',
+            rows => $expenditureSet,
         ),
         Constant(
             name  => 'Percentage capitalised',
@@ -118,7 +120,7 @@ END_OF_LIST
                   .577
                   0 0 0 0 0 0 0 0 0 0)
             ],
-            defaultFormat => '%connz',
+            defaultFormat => $model->{multiModelSharing} ? '%hardnz' : '%connz',
             rows          => $expenditureSet,
             validation    => {
                 validate => 'decimal',
@@ -129,7 +131,7 @@ END_OF_LIST
         Constant(
             rows          => $expenditureSet,
             name          => 'Direct cost indicator',
-            defaultFormat => '0connz',
+            defaultFormat => $model->{multiModelSharing} ? '0hardnz' : '0connz',
             data          => [
                 [
                     ( map { 1 } 1 .. 6 ),
