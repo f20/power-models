@@ -45,7 +45,7 @@ sub preprocessDataset {
     {
         delete $model->{dataset}{$_} foreach qw(1181 1182 1183);
     }
-    
+
     if (
            $model->{method}
         && $model->{method} !~ /none/i
@@ -93,6 +93,15 @@ sub preprocessDataset {
 
     if ( my $ds = $model->{dataset}{935} ) {
         my %tariffs;
+
+        splice @$ds, 8, 0,
+          { map { ( $_ => $model->{dcp189default} || 'N' ); }
+              keys %{ $ds->[1] } }
+          if $model->{dcp189}
+          and !$ds->[8]
+          || !$ds->[8]{'_column'}
+          || $ds->[8]{'_column'} !~ /reduction/i;
+
         my $max = 0;
         $ds->[1]{$_} ||= "Tariff $_" foreach grep {
             my $t = $_;
@@ -113,6 +122,7 @@ sub preprocessDataset {
             $max = $k
               if $k > $max;
         }
+
         if ($max) {
             my @tariffs;
             if (   $model->{numTariffs}
@@ -139,9 +149,11 @@ sub preprocessDataset {
                 defaultFormat => 'thtar',
             );
         }
+
         if ( $model->{nonames} ) {
             $ds->[1]{$_} = "Tariff $_" foreach keys %{ $ds->[1] };
         }
+
         foreach my $k ( 1 .. $model->{numTariffs} ) {
             my $v = $ds->[1]{$k};
             if (    $v
@@ -165,6 +177,7 @@ sub preprocessDataset {
                 $ds->[$_]{$k} = ''     foreach 7 .. $#$ds;
             }
         }
+
     }
 
     $model->{dataset}{1113}[1]{$daysInYearKey} = $daysInYear;

@@ -492,7 +492,17 @@ sub tariffInputs {
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
-
+        $model->{dcp189} ? Dataset(
+            name => 'Customer entitled to reduction for capitalised O&M',
+            defaultFormat => '0hard',
+            data          => [ map { 'N' } 1 .. $model->{numTariffs} ],
+            rows          => $model->{tariffSet},
+            dataset       => $model->{dataset},
+            validation    => {
+                validate => 'list',
+                value    => [qw(N Y)],
+            },
+          ) : (),
         $model->{method} =~ /LRIC/i ? Dataset(
             name          => 'LRIC location',
             defaultFormat => 'texthard',

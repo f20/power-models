@@ -1,18 +1,17 @@
 ---
-.: DCP 185 LRIC
+.: DCP 189 FCP
 PerlModule: EDCM2
 dcp130: 1
-dcp185: 1
+dcp189: 1
 inputData: dataSheet
 ldnoRev: ldnorev5
 legacy201: 1
 lowerIntermittentCredit: 1
-method: LRIC
+method: FCP
 noNegative: 1
 numLocations: 1200
 numTariffs: 300
 protect: 1
 summaries: 1
 validation: lenientnomsg
-version: DCP 185 LRIC
-wantTables: 913
+wantTables: 911

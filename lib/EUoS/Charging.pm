@@ -69,7 +69,7 @@ sub assetRate {
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         cols          => $usageSet,
-        data => [ undef, ( map { 1 } 3 .. @{ $usageSet->{list} } ), undef ],
+        data => [ 0, ( map { 1 } 3 .. @{ $usageSet->{list} } ), undef ],
     );
 }
 
@@ -140,16 +140,18 @@ sub usetBoundaryCosts {
 
 sub detailedAssets {
     my ( $self, $usage ) = @_;
-    push @{ $self->{model}{detailedTables} },
+    my $notionalAssets=SumProduct(
+            name          => 'Notional assets (£)',
+            matrix        => $usage,
+            vector        => $self->assetRate,
+            defaultFormat => '0softnz',
+        );
+        Columnset(name=>'Notional assets by user',columns=>[Stack(sources=>[$usage->{names}]),$notionalAssets]) if $usage->{names};
+    push @{ $self->{model}{detailedTables2} },
       GroupBy(
         name          => 'Total notional assets (£)',
         defaultFormat => '0softnz',
-        source        =>  SumProduct(
-        name          => 'Notional assets (£)',
-        matrix        => $usage,
-        vector        => $self->assetRate,
-        defaultFormat => '0softnz',
-    ),
+        source        => $notionalAssets,
       );
 }
 

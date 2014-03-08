@@ -128,16 +128,74 @@ EOT
         $tariffs,                          $importCapacity,
         $exportCapacityExempt,             $exportCapacityChargeablePre2005,
         $exportCapacityChargeable20052010, $exportCapacityChargeablePost2010,
-        $tariffSoleUseMeav,                $tariffLoc,
-        $tariffCategory,                   $useProportions,
-        $activeCoincidence,                $reactiveCoincidence,
-        $indirectExposure,                 $nonChargeableCapacity,
-        $activeUnits,                      $creditableCapacity,
-        $tariffNetworkSupportFactor,       $tariffDaysInYearNot,
-        $tariffHoursInRedNot,              $previousChargeImport,
-        $previousChargeExport,             $llfcImport,
-        $llfcExport,                       $actualRedDemandRate,
-    ) = $model->tariffInputs($ehvAssetLevelset);
+        $tariffSoleUseMeav,                $dcp189YesOrNo,
+        $tariffLoc,                        $tariffCategory,
+        $useProportions,                   $activeCoincidence,
+        $reactiveCoincidence,              $indirectExposure,
+        $nonChargeableCapacity,            $activeUnits,
+        $creditableCapacity,               $tariffNetworkSupportFactor,
+        $tariffDaysInYearNot,              $tariffHoursInRedNot,
+        $previousChargeImport,             $previousChargeExport,
+        $llfcImport,                       $llfcExport,
+        $actualRedDemandRate,
+    );
+    if ( $model->{dcp189} ) {
+        (
+            $tariffs,
+            $importCapacity,
+            $exportCapacityExempt,
+            $exportCapacityChargeablePre2005,
+            $exportCapacityChargeable20052010,
+            $exportCapacityChargeablePost2010,
+            $tariffSoleUseMeav,
+            $dcp189YesOrNo,
+            $tariffLoc,
+            $tariffCategory,
+            $useProportions,
+            $activeCoincidence,
+            $reactiveCoincidence,
+            $indirectExposure,
+            $nonChargeableCapacity,
+            $activeUnits,
+            $creditableCapacity,
+            $tariffNetworkSupportFactor,
+            $tariffDaysInYearNot,
+            $tariffHoursInRedNot,
+            $previousChargeImport,
+            $previousChargeExport,
+            $llfcImport,
+            $llfcExport,
+            $actualRedDemandRate,
+        ) = $model->tariffInputs($ehvAssetLevelset);
+    }
+    else {
+        (
+            $tariffs,
+            $importCapacity,
+            $exportCapacityExempt,
+            $exportCapacityChargeablePre2005,
+            $exportCapacityChargeable20052010,
+            $exportCapacityChargeablePost2010,
+            $tariffSoleUseMeav,
+            $tariffLoc,
+            $tariffCategory,
+            $useProportions,
+            $activeCoincidence,
+            $reactiveCoincidence,
+            $indirectExposure,
+            $nonChargeableCapacity,
+            $activeUnits,
+            $creditableCapacity,
+            $tariffNetworkSupportFactor,
+            $tariffDaysInYearNot,
+            $tariffHoursInRedNot,
+            $previousChargeImport,
+            $previousChargeExport,
+            $llfcImport,
+            $llfcExport,
+            $actualRedDemandRate,
+        ) = $model->tariffInputs($ehvAssetLevelset);
+    }
 
     my ( $locations, $locParent, $c1, $a1d, $r1d, $a1g, $r1g ) =
       $model->loadFlowInputs;
@@ -688,7 +746,20 @@ EOT
         }
     );
 
-    my $fixedDcharge = Arithmetic(
+    my $fixedDcharge = $model->{dcp189}
+      ? Arithmetic(
+        name          => 'Demand fixed charge p/day (scaled for part year)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=100/IV2*IV1*(IF(IV4="Y",0,IV6)+IV88)',
+        arguments     => {
+            IV1  => $demandSoleUseAsset,
+            IV4  => $dcp189YesOrNo,
+            IV6  => $rateDirect,
+            IV88 => $rateRates,
+            IV2  => $daysInYear,
+        }
+      )
+      : Arithmetic(
         name          => 'Demand fixed charge p/day (scaled for part year)',
         defaultFormat => '0.00softnz',
         arithmetic    => '=100/IV2*IV1*(IV6+IV88)',
@@ -698,9 +769,23 @@ EOT
             IV88 => $rateRates,
             IV2  => $daysInYear,
         }
-    );
+      );
 
-    my $fixedDchargeTrue = Arithmetic(
+    my $fixedDchargeTrue = $model->{dcp189}
+      ? Arithmetic(
+        name          => 'Demand fixed charge p/day',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=IF(IV3,(100/IV2*IV1*(IF(IV4="Y",0,IV6)+IV88)),0)',
+        arguments     => {
+            IV1  => $demandSoleUseAssetUnscaled,
+            IV4  => $dcp189YesOrNo,
+            IV6  => $rateDirect,
+            IV88 => $rateRates,
+            IV2  => $daysInYear,
+            IV3  => $importEligible,
+        }
+      )
+      : Arithmetic(
         name          => 'Demand fixed charge p/day',
         defaultFormat => '0.00softnz',
         arithmetic    => '=IF(IV3,(100/IV2*IV1*(IV6+IV88)),0)',
@@ -711,7 +796,7 @@ EOT
             IV2  => $daysInYear,
             IV3  => $importEligible,
         }
-    );
+      );
 
     my $fixedGcharge = Arithmetic(
         name          => 'Generation fixed charge p/day (scaled for part year)',

@@ -14,5 +14,5 @@ numTariffs: 300
 protect: 1
 summaries: 1
 validation: lenientnomsg
-version: DCP 183 FCP
+version: DCP 183 LRIC
 wantTables: 913

@@ -114,8 +114,6 @@ EOL
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             my $unavailable = $wb->getFormat('unavailable');
-
-            # $self->{arguments}{IV1} = $self;
             push @$pha, 'IV1';
             sub {
                 my ( $x, $y ) = @_;

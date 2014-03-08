@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -144,11 +144,12 @@ sub worksheetsAndClosures {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber} = 9;
             $wsheet->freeze_panes( 1, 2 );
-            $wsheet->set_column( 0, 0,   16 );
-            $wsheet->set_column( 1, 1,   50 );
-            $wsheet->set_column( 2, 7,   20 );
-            $wsheet->set_column( 8, 8,   50 );
-            $wsheet->set_column( 9, 250, 20 );
+            my $locationColumn = $model->{dcp189} ? 9 : 8;
+            $wsheet->set_column( 0,                   0,                   16 );
+            $wsheet->set_column( 1,                   1,                   50 );
+            $wsheet->set_column( 2,                   $locationColumn - 1, 20 );
+            $wsheet->set_column( $locationColumn,     $locationColumn,     50 );
+            $wsheet->set_column( $locationColumn + 1, 250,                 20 );
             $_->wsWrite( $wbook, $wsheet ) foreach $model->{table935};
           }
 

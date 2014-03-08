@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, $setup, $usage, $charging ) = @_;
+    my ( $class, $model, $setup, $usage, $charging, $competitiveEnergy ) = @_;
     my $self = bless { model => $model, setup => $setup }, $class;
     my @tariffContributions;
     my $usageRates       = $usage->usageRates;
@@ -96,25 +96,31 @@ sub new {
     $self;
 }
 
-sub revenues {
-    my ( $self, $volumes, $compareppu, $notGrandTotal, $name ) = @_;
-    my $labelTail =
-      $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
-    my $tariffs  = $self->{tariffs};
-    my $revenues = Arithmetic(
-        name => $name || ( 'Revenue £/year' . $labelTail ),
+sub revenueCalculation {
+    my ( $self, $volumes, $labelTail, $name ) = @_;
+    $labelTail ||= '';
+    Arithmetic(
+        name => $name
+          || ( ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
         arithmetic => '=(IV1*IV11+IV666*(IV2*IV12+IV3*IV13))/100',  # hard coded
         arguments  => {
             IV666 => $self->{setup}->daysInYear,
             map {
                 (
                     "IV$_"  => $volumes->[ $_ - 1 ],
-                    "IV1$_" => $tariffs->[ $_ - 1 ]
+                    "IV1$_" => $self->{tariffs}[ $_ - 1 ]
                   )
             } 1 .. 3,
         },
         defaultFormat => '0softnz',
     );
+}
+
+sub revenues {
+    my ( $self, $volumes, $compareppu, $notGrandTotal, $name, @extras ) = @_;
+    my $labelTail =
+      $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
+    my $revenues = $self->revenueCalculation( $volumes, $labelTail, $name );
 
     if ($compareppu) {
         my $ppu = Arithmetic(
@@ -126,14 +132,16 @@ sub revenues {
                 IV3 => $volumes->[0],
             },
         );
-        my $compare = Arithmetic(
+        my $compare;
+        $compare = Arithmetic(
             defaultFormat => '0soft',
             name          => 'Comparison £/year',
             arguments =>
               { IV1 => $compareppu, IV2 => $compareppu, IV3 => $volumes->[0] },
             arithmetic => '=IF(ISNUMBER(IV1),IV2*IV3*0.01,0)'
-        );
-        my $difference = Arithmetic(
+        ) if ref $compareppu;
+        my $difference;
+        $difference = Arithmetic(
             name          => 'Difference £/year',
             defaultFormat => '0softpm',
             arithmetic    => '=IF(IV1,IV2-IV3,"")',
@@ -142,26 +150,38 @@ sub revenues {
                 IV2 => $revenues,
                 IV3 => $compare,
             },
-        );
+        ) if ref $compareppu;
         push @{ $self->{detailedTables} },
           Columnset(
             name    => 'Revenue (£/year) and average revenue (p/kWh)',
             columns => [
+                $volumes->[0]{names}
+                ? Stack( sources => [ $volumes->[0]{names} ] )
+                : (),
                 $revenues,
-                $compare,
-                $difference,
-                Arithmetic(
-                    name          => 'Difference %',
-                    defaultFormat => '%softpm',
-                    arithmetic    => '=IF(IV1,IV2/IV3-1,"")',
-                    arguments =>
-                      { IV1 => $compare, IV2 => $revenues, IV3 => $compare, },
-                ),
-                $ppu,
-                Stack( sources => [$compareppu] ),
+                @extras,
+                ref $compareppu
+                ? (
+                    $compare,
+                    $difference,
+                    Arithmetic(
+                        name          => 'Difference %',
+                        defaultFormat => '%softpm',
+                        arithmetic    => '=IF(IV1,IV2/IV3-1,"")',
+                        arguments     => {
+                            IV1 => $compare,
+                            IV2 => $revenues,
+                            IV3 => $compare,
+                        },
+                    ),
+                    $ppu,
+                    Stack( sources => [$compareppu] ),
+                  )
+                : $ppu,
             ]
           );
-        unless ($notGrandTotal) {
+
+        if ( ref $compareppu && !$notGrandTotal ) {
             my @cols = (
                 map {
                     my $n = 'Total ' . $_->{name}->shortName;
@@ -172,6 +192,7 @@ sub revenues {
                         source        => $_,
                     );
                   } $revenues,
+                @extras,
                 $compare,
                 $difference,
             );
@@ -179,9 +200,12 @@ sub revenues {
               Arithmetic(
                 name          => 'Total difference %',
                 defaultFormat => '%softpm',
-                arithmetic    => '=IF(IV1,IV2/IV3-1,"")',
-                arguments =>
-                  { IV1 => $cols[1], IV2 => $cols[0], IV3 => $cols[1], },
+                arithmetic    => '=IF(IV1,IV2/IV3,"")',
+                arguments     => {
+                    IV1 => $cols[0],
+                    IV2 => $cols[ $#cols - 1 ],
+                    IV3 => $cols[0],
+                },
               );
             push @{ $self->{detailedTables} },
               Columnset(
@@ -194,17 +218,30 @@ sub revenues {
     elsif ( !$notGrandTotal ) {
         push @{ $self->{revenueTables} },
           GroupBy(
-            name          => 'Total revenue £/year' . $labelTail,
+            name => 'Total '
+              . $self->tariffName
+              . ' revenue £/year'
+              . $labelTail,
             defaultFormat => '0softnz',
             source        => $revenues,
           );
     }
 }
 
+sub tariffs {
+    my ($self) = @_;
+    $self->{tariffs};
+}
+
+sub tariffName { 'use of system tariffs'; }
+
 sub finish {
     my ($self) = @_;
     push @{ $self->{model}{tariffTables} },
-      Columnset( name => 'Tariffs', columns => $self->{tariffs}, );
+      Columnset(
+        name    => ucfirst( $self->tariffName ),
+        columns => $self->{tariffs},
+      );
     push @{ $self->{model}{$_} }, @{ $self->{$_} }
       foreach grep { $self->{$_} } qw(revenueTables detailedTables);
 }

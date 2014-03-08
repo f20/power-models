@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -199,52 +199,53 @@ sub table1001 {
                               } keys %$data;
                         }
                         defined $v ? $v : '#VALUE!', $format;
+
                     };
                 };
                 my $dataEntry = $dataEntryMaker->($format);
                 my $calcA     = sub {
                     '', $softFormat, $formula->[0],
-                      IV1 => xl_rowcol_to_cell( $ro,     $co, 1, 0 ),
-                      IV2 => xl_rowcol_to_cell( $ro + 1, $co, 1, 0 ),
-                      IV3 => xl_rowcol_to_cell( $ro + 2, $co, 1, 0 );
+                      IV1 => xl_rowcol_to_cell( $ro,     $co ),
+                      IV2 => xl_rowcol_to_cell( $ro + 1, $co ),
+                      IV3 => xl_rowcol_to_cell( $ro + 2, $co );
                 };
                 my $calcB = sub {
                     '', $softFormat, $formula->[2],
-                      IV1 => xl_rowcol_to_cell( $ro + 4, $co, 1, 0 ),
-                      IV2 => xl_rowcol_to_cell( $ro + 8, $co, 1, 0 );
+                      IV1 => xl_rowcol_to_cell( $ro + 4, $co ),
+                      IV2 => xl_rowcol_to_cell( $ro + 8, $co );
                 };
                 my $calcC = sub {
                     '', $softFormat, $formula->[2],
-                      IV1 => xl_rowcol_to_cell( $ro + 10, $co, 1, 0 ),
-                      IV2 => xl_rowcol_to_cell( $ro + 21, $co, 1, 0 );
+                      IV1 => xl_rowcol_to_cell( $ro + 10, $co ),
+                      IV2 => xl_rowcol_to_cell( $ro + 21, $co );
                 };
                 my $calcF = sub {
                     '', $softFormat, $formula->[3],
-                      IV1 => xl_rowcol_to_cell( $ro + 3,  $co, 1, 0 ),
-                      IV2 => xl_rowcol_to_cell( $ro + 9,  $co, 1, 0 ),
-                      IV3 => xl_rowcol_to_cell( $ro + 22, $co, 1, 0 ),
-                      IV4 => xl_rowcol_to_cell( $ro + 23, $co, 1, 0 ),
-                      IV5 => xl_rowcol_to_cell( $ro + 24, $co, 1, 0 );
+                      IV1 => xl_rowcol_to_cell( $ro + 3,  $co ),
+                      IV2 => xl_rowcol_to_cell( $ro + 9,  $co ),
+                      IV3 => xl_rowcol_to_cell( $ro + 22, $co ),
+                      IV4 => xl_rowcol_to_cell( $ro + 23, $co ),
+                      IV5 => xl_rowcol_to_cell( $ro + 24, $co );
                 };
                 my $calcG = sub {
                     '', $softFormat, $formula->[2],
-                      IV1 => xl_rowcol_to_cell( $ro + 26, $co, 1, 0 ),
-                      IV2 => xl_rowcol_to_cell( $ro + 30, $co, 1, 0 );
+                      IV1 => xl_rowcol_to_cell( $ro + 26, $co ),
+                      IV2 => xl_rowcol_to_cell( $ro + 30, $co );
                 };
                 my $calcH = sub {
                     '', $softFormat, $formula->[4],
-                      IV1 => xl_rowcol_to_cell( $ro + 25, $co, 1, 0 ),
-                      IV2 => xl_rowcol_to_cell( $ro + 31, $co, 1, 0 );
+                      IV1 => xl_rowcol_to_cell( $ro + 25, $co ),
+                      IV2 => xl_rowcol_to_cell( $ro + 31, $co );
                 };
                 my $calcI = sub {
                     '', $softFormat, $formula->[2],
-                      IV1 => xl_rowcol_to_cell( $ro + 33, $co, 1, 0 ),
-                      IV2 => xl_rowcol_to_cell( $ro + 36, $co, 1, 0 );
+                      IV1 => xl_rowcol_to_cell( $ro + 33, $co ),
+                      IV2 => xl_rowcol_to_cell( $ro + 36, $co );
                 };
                 my $calcJ = sub {
                     '', $softFormat, $formula->[1],
-                      IV1 => xl_rowcol_to_cell( $ro + 32, $co, 1, 0 ),
-                      IV2 => xl_rowcol_to_cell( $ro + 37, $co, 1, 0 );
+                      IV1 => xl_rowcol_to_cell( $ro + 32, $co ),
+                      IV2 => xl_rowcol_to_cell( $ro + 37, $co );
                 };
                 my @responseArray = (
                     $dataEntry,
@@ -272,7 +273,7 @@ sub table1001 {
                 sub {
                     my ( $x, $y ) = @_;
 
-                   # The following trick probably only works within a Columnset.
+           # The following trick only works if the object is within a Columnset.
                     ( $sh, $ro, $co ) = $self->wsWrite( $wb, $ws )
                       unless defined $ro;
 
@@ -384,12 +385,12 @@ sub table1001 {
                     my ( $x, $y ) = @_;
 
                     $handSubtotal = []
-                      unless $y || $model->{targetRevenue} =~ /subtotal/i;
+                      if !$y && $model->{targetRevenue} =~ /nosubtotal/i;
 
                     ( $shi, $roi, $coi ) = $inputs->wsWrite( $wb, $ws )
                       unless defined $roi;
 
-                   # The following trick probably only works within a Columnset.
+           # The following trick only works if the object is within a Columnset.
                     ( $sh, $ro, $co ) = $self->wsWrite( $wb, $ws )
                       unless defined $ro;
 
@@ -416,11 +417,9 @@ sub table1001 {
                             '',
                             $boldFormat,
                             $formula->[3],
-                            IV3 => xl_rowcol_to_cell(
-                                $ro + $startRowOffset,
-                                $co, 1, 0
-                            ),
-                            IV4 => xl_rowcol_to_cell( $ro + $y - 1, $co, 0, 0 ),
+                            IV3 =>
+                              xl_rowcol_to_cell( $ro + $startRowOffset, $co ),
+                            IV4 => xl_rowcol_to_cell( $ro + $y - 1, $co ),
                           );    # NB: SUM(A,B,C,...) does not scale well
                     }
                     else {
@@ -428,20 +427,16 @@ sub table1001 {
                         $descriptions[$y] =~ /^A2/
                           ? (
                             '', $format, $formula->[2],
-                            IV1 => xl_rowcol_to_cell( $roi,     $coi, 1, 0 ),
-                            IV2 => xl_rowcol_to_cell( $roi + 1, $coi, 1, 0 ),
+                            IV1 => xl_rowcol_to_cell( $roi,     $coi ),
+                            IV2 => xl_rowcol_to_cell( $roi + 1, $coi ),
                           )
                           : $descriptions[$y] =~ /^(A3|I)/ ? (
-                            '',
-                            $format,
-                            $formula->[1],
-                            IV1 => xl_rowcol_to_cell( $roi + $y, $coi, 0, 0 ),
+                            '', $format, $formula->[1],
+                            IV1 => xl_rowcol_to_cell( $roi + $y, $coi ),
                           )
                           : (
-                            '',
-                            $format,
-                            $formula->[0],
-                            IV1 => xl_rowcol_to_cell( $roi + $y, $coi, 0, 0 ),
+                            '', $format, $formula->[0],
+                            IV1 => xl_rowcol_to_cell( $roi + $y, $coi ),
                           );
                     }
                 };
@@ -485,14 +480,64 @@ sub table1001 {
             ]
         );
 
-        return Stack(
+        my $specialRowset =
+          Labelset( list => [ $labelset->{list}[ $#{ $labelset->{list} } ] ] );
+
+        my $target = new SpreadsheetModel::Custom(
             name          => 'Target CDCM revenue (£/year)',
-            defaultFormat => '0copy',
-            rows          => Labelset(
-                list => [ $labelset->{list}[ $#{ $labelset->{list} } ] ]
-            ),
-            sources => [$subtotals],
+            defaultFormat => '0soft',
+            custom        => [
+                join(
+                    '+',
+                    '=IV100*IV101-IV102',
+                    (
+                        map { "IV$_" } 104 .. 108,
+                        110 .. 121,
+                        123, 124, 126 .. 130
+                    )
+                  )
+                  . '-IV133-IV134-IV135-IV136'
+            ],
+            arithmetic => '= derived from IV100',
+            rows       => $specialRowset,
+            objectType => 'Special calculation',
+            arguments  => {
+                map { ( "IV$_" => $inputs ); } 100 .. 102,
+                104 .. 108,
+                110 .. 121,
+                123, 124,
+                126 .. 130,
+                133 .. 136,
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    '', $format, $formula->[0], map {
+                        'IV'
+                          . ( 100 + $_ ) =>
+                          xl_rowcol_to_cell( $rowh->{IV100} + $_,
+                            $colh->{IV100} );
+                    } 0 .. 36;
+                };
+            },
         );
+
+        Columnset(
+            name    => 'Target CDCM revenue',
+            columns => [
+                $target,
+                Arithmetic(
+                    name          => 'Check (should be zero)',
+                    defaultFormat => '0soft',
+                    arguments     => { IV1 => $target, IV2 => $subtotals, },
+                    arithmetic    => '=IV1-IV2'
+                )
+            ]
+        );
+
+        $target;
 
     }
 

@@ -261,7 +261,7 @@ sub _rewriteFormulae {
             $formulaListRef->[$i] =~ s/$ph\b/x$n/;
         }
     }
-    map { die $_ if /I[UV]/i } @$formulaListRef;
+    map { die $_ if /\bI[UV][0-9]/i } @$formulaListRef;
     @args;
 }
 

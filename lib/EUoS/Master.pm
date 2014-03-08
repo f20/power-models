@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -37,19 +37,15 @@ use EUoS::Customers;
 use EUoS::Usage;
 use EUoS::Charging;
 use EUoS::Tariffs;
+use EUoS::Supply;
 
 sub new {
-
-    my $class = shift;
-    my $model = bless { inputTables => [], @_ }, $class;
-
-    my $setup = EUoS::Setup->new($model);
-
+    my $class     = shift;
+    my $model     = bless { inputTables => [], @_ }, $class;
+    my $setup     = EUoS::Setup->new($model);
     my $customers = EUoS::Customers->new( $model, $setup );
-
-    my $usage = EUoS::Usage->new( $model, $setup, $customers );
-
-    my $charging = EUoS::Charging->new( $model, $setup, $usage );
+    my $usage     = EUoS::Usage->new( $model, $setup, $customers );
+    my $charging  = EUoS::Charging->new( $model, $setup, $usage );
 
     foreach (    # the order affects the column order in input data
         qw(
@@ -69,30 +65,53 @@ sub new {
 
     my $tariffs = EUoS::Tariffs->new( $model, $setup, $usage, $charging );
 
-    my $compareppu = Dataset(
-        number   => 1599,
-        appendTo => $model->{inputTables},
-        dataset  => $model->{dataset},
-        name     => 'Comparison p/kWh',
-        rows     => $customers->userLabelset,
-        data     => [ map { 10 } @{ $customers->userLabelset->{list} } ]
-    );
-
     if ( my $usetName = $model->{usetRevenues} ) {
         $tariffs->revenues( $customers->totalDemand($usetName) );
-        $tariffs->revenues( $customers->individualDemand($usetName),
-            $compareppu, );
+    }
+
+    my $supplyTariffs;
+    if ( my $usetName = $model->{usetEnergy} ) {
+        $supplyTariffs = EUoS::Supply->new( $model, $setup, $tariffs,
+            $charging->energyCharge->{arguments}{IV1} );
+        $supplyTariffs->revenues( $customers->totalDemand($usetName) );
+        $supplyTariffs->margin( $customers->totalDemand($usetName) )
+          if $model->{energyMargin};
+        $customers->{compareppu} = Dataset(
+            number   => 1599,
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
+            name     => 'Comparison p/kWh',
+            rows     => $customers->userLabelset,
+            data     => [ map { 10 } @{ $customers->userLabelset->{list} } ]
+        ) if $model->{compareppu};
+        if ( $model->{compareppu} || $model->{showppu} ) {
+            my $volumes = $customers->individualDemand($usetName);
+            $supplyTariffs->revenues(
+                $volumes,
+                $customers->{compareppu} || $model->{showppu},
+                undef, undef,
+                $tariffs->revenueCalculation(
+                    $customers->individualDemand(
+                        $model->{usetRevenues} || $usetName
+                    )
+                ),
+                $supplyTariffs->marginCalculation($volumes)
+            );
+            $tariffs->revenues(
+                $customers->detailedVolumes,
+                $customers->{compareppu} || $model->{showppu},
+                1, 'Notional revenue by customer',
+            ) if $model->{notionalRevenue};
+        }
     }
 
     $charging->detailedAssets(
         $usage->totalUsage( $customers->detailedVolumes )->{source} )
       if $model->{detailedAssets};
 
-    $tariffs->revenues( $customers->detailedVolumes,
-        $compareppu, 1, 'Notional revenue by customer',
-    ) if $model->{notionalRevenue};
-
-    $_->finish foreach $setup, $usage, $charging, $customers, $tariffs;
+    $_->finish($model)
+      foreach grep { $_; } $setup, $usage, $charging, $customers, $tariffs,
+      $supplyTariffs;
 
     $model;
 

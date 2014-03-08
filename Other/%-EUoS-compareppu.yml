@@ -1,0 +1,21 @@
+---
+PerlModule: EUoS
+chargeEnergy: 1
+chargeLosses: 1
+compareppu: 1
+detailedAssets: 1
+energyMargin: 1
+forwardLinks: 1
+table1653: 1
+ucount:
+  - Out of the network: 3
+  - Dedicated medium voltage feeder (1.5km >8MVA): 2
+  - General medium voltage ring: 10
+  - Dedicated transformer: 25
+  - Large low voltage: 25
+  - Small low voltage: 425
+usetBoundaryCosts: users excluding special UoS agreements
+usetEnergy: external energy supply
+usetMatchAssets: all users
+usetRevenues: external users
+usetRunningCosts: all users

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -43,12 +43,13 @@ sub totalDemand {
     my $tariffSet       = $self->tariffSet;
     my $userLabelset    = $self->userLabelset;
     my $detailedVolumes = $self->detailedVolumes;
-    push @{ $self->{scenarioProportions} }, my $prop = Dataset(
+    push @{ $self->{scenarioProportions} },
+      my $prop = Dataset(
         name          => "Proportion in $usetName",
         rows          => $userLabelset,
         defaultFormat => '%hardnz',
         data          => [ map { 1; } @{ $userLabelset->{list} } ]
-    );
+      );
     my $columns = [
         map {
             SumProduct(
@@ -81,6 +82,7 @@ sub individualDemand {
                 arguments     => { IV1 => $_->{matrix}, IV2 => $_->{vector}, },
                 arithmetic    => '=IV1*IV2',
                 defaultFormat => '0soft',
+                names         => $self->{names},
             );
         } @$spcol
     ];
@@ -94,13 +96,35 @@ sub individualDemand {
 
 sub userLabelset {
     my ($self) = @_;
-    $self->{userLabelset} ||= Labelset(
+    return $self->{userLabelset} if $self->{userLabelset};
+    return $self->{userLabelset} = Labelset(
         name   => 'Detailed list of customers',
         groups => [
             map { Labelset( name => keys %$_, list => values %$_ ); }
               @{ $self->{model}{ulist} }
         ]
+    ) if $self->{model}{ulist};
+    my $cat          = 0;
+    my $userLabelset = Labelset(
+        name   => 'Detailed list of customers',
+        groups => [
+            map {
+                $cat += 10_000;
+                my ( $name, $count ) = each %$_;
+                Labelset(
+                    name => $name,
+                    list => [ map { "User " . ( $cat + $_ ); } 1 .. $count ]
+                );
+            } @{ $self->{model}{ucount} }
+        ]
     );
+    $self->{names} = Dataset(
+        defaultFormat => 'texthard',
+        data          => [ map { '' } @{ $userLabelset->{list} } ],
+        name          => 'Name',
+        rows          => $userLabelset
+    );
+    $self->{userLabelset} = $userLabelset;
 }
 
 sub detailedVolumes {
@@ -129,21 +153,38 @@ sub tariffSet {
 }
 
 sub finish {
-    my ($self) = @_;
-    Columnset(
-        name     => 'Forecast volumes',
-        number   => 1512,
-        appendTo => $self->{model}{inputTables},
-        dataset  => $self->{model}{dataset},
-        columns  => $self->{detailedVolumes},
-    ) if $self->{detailedVolumes};
-    Columnset(
-        name     => 'Definition of user sets',
-        number   => 1514,
-        appendTo => $self->{model}{inputTables},
-        dataset  => $self->{model}{dataset},
-        columns  => $self->{scenarioProportions},
-    ) if $self->{scenarioProportions};
+    my ( $self, $model ) = @_;
+    if ( $model->{table1653} ) {
+        $model->{table1653} = Columnset(
+            name     => 'Individual user data',
+            number   => 1653,
+            location => 1653,
+            dataset  => $self->{model}{dataset},
+            columns  => [
+                $self->{names} ? $self->{names} : (),
+                @{ $self->{scenarioProportions} },
+                @{ $self->{detailedVolumes} },
+                $self->{compareppu} ? $self->{compareppu} : (),
+            ],
+            doNotCopyInputColumns => 1,
+        );
+    }
+    else {
+        Columnset(
+            name     => 'Forecast volumes',
+            number   => 1512,
+            appendTo => $self->{model}{inputTables},
+            dataset  => $self->{model}{dataset},
+            columns  => $self->{detailedVolumes},
+        ) if $self->{detailedVolumes};
+        Columnset(
+            name     => 'Definition of user sets',
+            number   => 1514,
+            appendTo => $self->{model}{inputTables},
+            dataset  => $self->{model}{dataset},
+            columns  => $self->{scenarioProportions},
+        ) if $self->{scenarioProportions};
+    }
 }
 
 1;

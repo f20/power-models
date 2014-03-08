@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -39,13 +39,19 @@ sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
 
-    $wbook->{lastSheetNumber} = 49;
+    $wbook->{lastSheetNumber} = $model->{table1653} ? 48 : 49;
+
+    my @detailedTables;
+    push @detailedTables, @{ $model->{detailedTables} }
+      if $model->{detailedTables};
+    push @detailedTables, @{ $model->{detailedTables2} }
+      if $model->{detailedTables2};
 
     'Input' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 15;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   48 );
+        $wsheet->set_column( 0, 0,   40 );
         $wsheet->set_column( 1, 250, 20 );
         return if $model->{oneSheet};
         $wsheet->{nextFree} = 2;
@@ -82,7 +88,10 @@ sub worksheetsAndClosures {
               . '&")"';
         }
         $_->wsWrite( $wbook, $wsheet )
-          foreach sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
+          foreach $model->{table1653}
+          ? Notes( lines => 'Individual user data', location => 1653, )
+          : (),
+          sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
           @{ $model->{inputTables} };
         my $nextFree = delete $wsheet->{nextFree};
         Notes( lines =>
@@ -90,6 +99,21 @@ sub worksheetsAndClosures {
           ->wsWrite( $wbook, $wsheet );
         $wsheet->{nextFree} = $nextFree;
       }
+
+      ,
+
+      $model->{table1653}
+      ? (
+        1653 => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 2 );
+            $wsheet->set_column( 0, 0, $model->{ulist} ? 50 : 20 );
+            $wsheet->set_column( 1, 1, $model->{ulist} ? 20 : 50 );
+            $wsheet->set_column( 2, 250, 20 );
+            $model->{table1653}->wsWrite( $wbook, $wsheet );
+        }
+      )
+      : ()
 
       ,
 
@@ -170,16 +194,17 @@ sub worksheetsAndClosures {
 
       ,
 
-      $model->{detailedTables} && @{ $model->{detailedTables} }
+      @detailedTables
       ? (
         'Details' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   48 );
-            $wsheet->set_column( 1, 250, 20 );
+            $wsheet->set_column( 0, 0,   40 );
+            $wsheet->set_column( 1, 250, $model->{ulist} ? 20 : 50 );
+            $wsheet->set_column( 2, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Detailed tables' ),
-              @{ $model->{detailedTables} };
+              @detailedTables;
         }
       )
       : ()

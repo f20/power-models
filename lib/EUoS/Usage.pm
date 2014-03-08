@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,8 @@ sub usageRates {
             [ map { '' } $customers->tariffSet->indices ]
         } $self->usageSet->indices
     ];
-    push @{ $model->{usageTables} }, my @usageRates = (
+    push @{ $model->{usageTables} },
+      my @usageRates = (
         Dataset(
             name     => 'Network usage of 1kW of average consumption',
             rows     => $customers->tariffSet,
@@ -76,7 +77,7 @@ sub usageRates {
             dataset  => $model->{dataset},
             data     => $allBlank,
         ),
-    );
+      );
     $self->{usageRates} = \@usageRates;
 }
 
@@ -131,7 +132,7 @@ sub totalUsage {
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $usageRates    = $self->usageRates;
     my $customerUsage = Arithmetic(
-        name       => 'Network usage by customers' . $labelTail,
+        name       => 'Network usage for each user' . $labelTail,
         rows       => $volumes->[0]{rows},
         cols       => $usageRates->[0]{cols},
         arithmetic => '=' . join(
@@ -154,6 +155,7 @@ sub totalUsage {
               } 0 .. 2    # undue hardcoding
         },
         defaultFormat => '0softnz',
+        names         => $volumes->[0]{names},
     );
     $self->{totalUsage}{ 0 + $volumes } = GroupBy(
         defaultFormat => '0softnz',

@@ -1,5 +1,5 @@
 ---
-.: Like Model 100 (with cosmetic differences)
+.: Like Model 100 (some cosmetic differences)
 PerlModule: CDCM
 activeSheets: '^Tariffs$'
 drm: top500gsp
