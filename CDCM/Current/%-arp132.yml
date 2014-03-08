@@ -1,7 +1,6 @@
 ---
-.: Cut-down model with DCP 130 and DCP 132 (just calculates tariffs)
+.: Model for ARP with DCP 130 and DCP 132
 PerlModule: CDCM
-activeSheets: '^Tariffs$'
 arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
@@ -12,6 +11,7 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
+summary: 1
 targetRevenue: dcp132
 tariffs: commongensubdcp130
 timeOfDay: timeOfDaySpecial

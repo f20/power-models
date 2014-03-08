@@ -670,8 +670,7 @@ EOT
       );
 
     $loadFactors =
-      $model->impliedLoadFactors( $allEndUsers, $demandEndUsers,
-        $componentMap,
+      $model->impliedLoadFactors( $allEndUsers, $demandEndUsers, $componentMap,
         $volumesByEndUser, $unitsByEndUser, $daysInYear, $powerFactorInModel, )
       if $model->{impliedLoadFactors};
 
@@ -991,12 +990,11 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         my $electionBung;
         if ( $model->{electionBung} ) {
             $electionBung = Dataset(
-                name          => 'Election bung (p/MPAN/day)',
-                defaultFormat => '0.00hard',
-                rows          => $allTariffs,
-                number        => 1098,
-                appendTo      => $model->{inputTables},
-                dataset       => $model->{dataset},
+                name     => 'Election bung (p/MPAN/day)',
+                rows     => $allTariffs,
+                number   => 1098,
+                appendTo => $model->{inputTables},
+                dataset  => $model->{dataset},
                 , data => [ map { '' } @{ $allTariffs->{list} } ]
             );
             push @{ $model->{summaryColumns} },
@@ -1020,8 +1018,11 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                     name => SpreadsheetModel::Object::_shortName(
                         $tariffTable->{$_}{name}
                     ),
-                    defaultFormat => $tariffTable->{$_}{defaultFormat},
-                    arithmetic    => $model->{model100} ? '=IV2*(1-IV1)'
+                    defaultFormat => (
+                        map { local $_ = $_; s/soft/copy/ if $_; $_; }
+                          $tariffTable->{$_}{defaultFormat}
+                    ),
+                    arithmetic => $model->{model100} ? '=IV2*(1-IV1)'
                     : (     '=ROUND('
                           . ( $electionBung && /MPAN/ ? 'IV3+' : '' )
                           . 'IV2*(1-IV1),'
