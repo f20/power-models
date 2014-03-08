@@ -90,22 +90,19 @@ sub worksheetsAndClosures {
         my $nextFree = delete $wsheet->{nextFree};
         $model->inputDataNotes->wsWrite( $wbook, $wsheet );
         $wsheet->{nextFree} = $nextFree;
-      }
+      };
 
-      if $model->{inputData};
-
-    push @wsheetsAndClosures,
-      'CDCM Revenues' => sub {
+    push @wsheetsAndClosures, 'CDCM Revenues' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 10;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 30 );
-        my $tmp = delete $wbook->{dataSheet};
+        my $dataSheet = delete $wbook->{dataSheet};
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'CDCM Revenues' ),
           @{ $model->{inputTable1001} };
-        $wbook->{dataSheet} = $tmp;
+        $wbook->{dataSheet} = $dataSheet;
       }
       if $model->{inputTable1001};
 
@@ -348,20 +345,15 @@ sub worksheetsAndClosures {
 
         $model->componentNotes->wsWrite( $wbook, $wsheet );
 
-        my $i      = $wbook->{inputSheet};
-        my $d      = $wbook->{dataSheet};
-        my $logger = $wbook->{logger};
-        delete $wbook->{$_} foreach qw(inputSheet dataSheet logger);
-
-        my $cset = $model->{tariffComponentMap};
+        my $dataSheet = delete $wbook->{dataSheet};
+        my $logger    = delete $wbook->{logger};
+        my $cset      = $model->{tariffComponentMap};
         $cset->wsWrite( $wbook, $wsheet );
         my $r = $cset->{columns}[0]{$wbook}{row};
         $wsheet->set_row( $_ + $r, 48 )
           foreach 0 .. $cset->{columns}[0]->lastRow;
-
-        $wbook->{logger}     = $logger if $logger;
-        $wbook->{inputSheet} = $i      if $i;
-        $wbook->{dataSheet}  = $d      if $d;
+        $wbook->{logger}    = $logger    if $logger;
+        $wbook->{dataSheet} = $dataSheet if $dataSheet;
 
       }
 
@@ -378,17 +370,15 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 250, 20 );
 
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-            name => 'Statistics (including estimated average tariff changes)',
-            $model->{oneSheet} ? () : (
-                lines => [
-                    split /\n/,
-                    <<'EOL'
+            name  => 'Statistics (including estimated average tariff changes)',
+            lines => [
+                split /\n/,
+                <<'EOL'
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 Information in this sheet should not be relied upon for any commercial purpose.
 The only outputs from the model that are intended to comply with the methodology are in the Tariff sheet.
 EOL
-                ]
-            )
+            ]
           ),
           @{ $model->{overallSummary} };
 
@@ -407,15 +397,13 @@ EOL
         $wsheet->set_column( 1, 250, 20 );
 
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-            name => 'Summary statistics',
-            $model->{oneSheet} ? () : (
-                lines => [
-                    split /\n/,
-                    <<'EOL'
+            name  => 'Summary statistics',
+            lines => [
+                split /\n/,
+                <<'EOL'
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
-                ]
-            )
+            ]
           ),
           @{ $model->{overallSummary} };
 
@@ -446,7 +434,7 @@ EOL
             push @tables, $_ if $_->{name};
         }
 
-        $wsheet->{nextFree} = 4 + @tables unless $model->{oneSheet};
+        $wsheet->{nextFree} = 4 + @tables;
         $count = 0;
         my @breaks;
         foreach (@pairs) {
@@ -461,20 +449,18 @@ EOL
                      $model->{portfolio}
                   || $model->{boundary} ? ' (all-the-way tariffs)' : ''
               ),
-            $model->{oneSheet} ? () : (
-                lines => [
-                    split /\n/,
-                    <<'EOL'
+            lines => [
+                split /\n/,
+                <<'EOL'
 This sheet provides matrices breaking down each tariff component into its elements.
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
-                ]
-            ),
+            ],
             sourceLines => \@tables
         );
 
         delete $wbook->{noLinks};
-        $notes->wsWrite( $wbook, $wsheet, $model->{oneSheet} ? () : ( 0, 0 ) );
+        $notes->wsWrite( $wbook, $wsheet, 0, 0 );
         $logger->log($notes) if $logger;
         $wbook->{logger} = $logger if $logger;
         $wbook->{noLinks} = $noLinks;
@@ -507,7 +493,7 @@ EOL
             push @tables, $_ if $_->{name};
         }
 
-        $wsheet->{nextFree} = 4 + @tables unless $model->{oneSheet};
+        $wsheet->{nextFree} = 4 + @tables;
         $count = 0;
         my @breaks;
         foreach (@pairs) {
@@ -517,21 +503,19 @@ EOL
         $wsheet->set_h_pagebreaks(@breaks);
 
         my $notes = Notes(
-            name => 'Tariff matrices for embedded network tariffs',
-            $model->{oneSheet} ? () : (
-                lines => [
-                    split /\n/,
-                    <<'EOL'
+            name  => 'Tariff matrices for embedded network tariffs',
+            lines => [
+                split /\n/,
+                <<'EOL'
 This sheet provides matrices breaking down each tariff component into its elements.
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
-                ]
-            ),
+            ],
             sourceLines => \@tables
         );
 
         delete $wbook->{noLinks};
-        $notes->wsWrite( $wbook, $wsheet, $model->{oneSheet} ? () : ( 0, 0 ) );
+        $notes->wsWrite( $wbook, $wsheet, 0, 0 );
         $logger->log($notes) if $logger;
         $wbook->{logger} = $logger if $logger;
         $wbook->{noLinks} = $noLinks;
@@ -555,15 +539,13 @@ EOL
         my $noLinks = $wbook->{noLinks};
         $wbook->{noLinks} = 1;
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-            name => 'Revenue matrix',
-            $model->{oneSheet} ? () : (
-                lines => [
-                    split /\n/,
-                    <<'EOL'
+            name  => 'Revenue matrix',
+            lines => [
+                split /\n/,
+                <<'EOL'
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
-                ]
-            ),
+            ],
           ),
           $model->revenueMatrices;
         $wbook->{noLinks} = $noLinks;
@@ -579,15 +561,13 @@ EOL
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-            name => 'Additional calculations for tariff comparisons',
-            $model->{oneSheet} ? () : (
-                lines => [
-                    split /\n/,
-                    <<'EOL'
+            name  => 'Additional calculations for tariff comparisons',
+            lines => [
+                split /\n/,
+                <<'EOL'
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
-                ]
-            )
+            ]
           ),
           @{ $model->{consultationInput} };
       },
@@ -598,15 +578,13 @@ EOL
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 16 );
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-            name => 'Tariff comparisons',
-            $model->{oneSheet} ? () : (
-                lines => [
-                    split /\n/,
-                    <<'EOL'
+            name  => 'Tariff comparisons',
+            lines => [
+                split /\n/,
+                <<'EOL'
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
-                ]
-            )
+            ]
           ),
           @{ $model->{consultationTables} };
       }

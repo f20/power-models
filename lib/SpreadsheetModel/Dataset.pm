@@ -362,18 +362,6 @@ sub wsWrite {
 
     }
 
-    if (   ref $self eq __PACKAGE__
-        && $wb->{inputSheet}
-        && $ws != $wb->{inputSheet} )
-    {
-        my $data = bless { %$self, location => 'inputSheet' }, __PACKAGE__;
-        $data->wsWrite( $wb, $wb->{inputSheet} );
-        delete $self->{$_} for keys %$self;
-        $self->{sources} = [$data];
-        bless $self, 'SpreadsheetModel::Stack';
-        $self->check;
-    }
-
     foreach (qw(rows cols)) {
         $self->{$_}->wsPrepare( $wb, $ws ) if $self->{$_};
     }

@@ -53,7 +53,6 @@ sub worksheetsAndClosures {
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   40 );
         $wsheet->set_column( 1, 250, 20 );
-        return if $model->{oneSheet};
         $wsheet->{nextFree} = 2;
         $model->{inputTables} ||= [];
         $model->{dataset}{1500}[3]{'Company charging year data version'} =
@@ -211,21 +210,21 @@ sub worksheetsAndClosures {
 
       ,
 
-      $model->{oneSheet} ? ( 'All' => sub { } ) : (
-        'Index' => sub {
-            my ($wsheet) = @_;
-            $wsheet->freeze_panes( 1, 0 );
-            $wsheet->fit_to_pages( 1, 2 );
-            $wsheet->set_column( 0, 0,   30 );
-            $wsheet->set_column( 1, 1,   90 );
-            $wsheet->set_column( 2, 250, 30 );
-            $_->wsWrite( $wbook, $wsheet ) foreach $model->topNotes;
-            $wbook->writeColourCode($wsheet);
-            $_->wsWrite( $wbook, $wsheet )
-              foreach $model->licenceNotes, $wbook->{logger},
-              $model->technicalNotes;
-        }
-      );
+      'Index' => sub {
+        my ($wsheet) = @_;
+        $wsheet->freeze_panes( 1, 0 );
+        $wsheet->fit_to_pages( 1, 2 );
+        $wsheet->set_column( 0, 0,   30 );
+        $wsheet->set_column( 1, 1,   90 );
+        $wsheet->set_column( 2, 250, 30 );
+        $_->wsWrite( $wbook, $wsheet ) foreach $model->topNotes;
+        $wbook->writeColourCode($wsheet);
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $model->licenceNotes, $wbook->{logger},
+          $model->technicalNotes;
+      }
+
+      ;
 
 }
 

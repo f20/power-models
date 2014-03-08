@@ -2,7 +2,6 @@
 .: EDCM model F201 (FCP) with 600 tariff pairs
 PerlModule: EDCM2
 dcp130: 1
-inputData: dataSheet
 ldnoRev: ldnorev5
 legacy201: 1
 lowerIntermittentCredit: 1

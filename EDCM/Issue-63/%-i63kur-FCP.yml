@@ -2,7 +2,6 @@
 .: 'EDCM model for MIG issue 63 (FCP, demand charge 1 for units only)'
 PerlModule: EDCM2
 dcp130: 1
-inputData: dataSheet
 lowerIntermittentCredit: 1
 method: FCP
 noNegative: 1

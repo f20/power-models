@@ -120,7 +120,6 @@ sub create {
         $options->{optionsColumns} = $optionsColumns if $optionsColumns;
         my $modelCount = $_ ? ".$_" : '';
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
-        delete $options->{inputData} if $options->{oneSheet};
         my $model = $options->{PerlModule}->new(%$options);
         $forwardLinkFindingRun = $model if $options->{forwardLinks};
         $options->{revisionText} ||= '';
@@ -159,22 +158,18 @@ sub create {
             $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
             if ( $allClosures{ $cn . $modelCount } ) {
                 my $ws;
-                if ( ref $options->{oneSheet} ) { $ws = $options->{oneSheet}; }
-                else {
-                    $ws = $wbook->add_worksheet( $cn . $modelCount );
-                    $ws->activate
-                      if $options->{activeSheets}
-                      && "$cn$modelCount" =~ /$options->{activeSheets}/;
-                    $ws->fit_to_pages( 1, 0 );
-                    $ws->set_header("&L&A&C$options->{revisionText}&R&P of &N");
-                    $ws->set_footer("&F");
-                    $ws->hide_gridlines(2);
-                    $ws->protect( $options->{password} )
-                      if $options->{protect}
-                      && $cn ne 'Overview'
-                      && $cn ne 'Index';
-                    $options->{oneSheet} = $ws if $options->{oneSheet};
-                }
+                $ws = $wbook->add_worksheet( $cn . $modelCount );
+                $ws->activate
+                  if $options->{activeSheets}
+                  && "$cn$modelCount" =~ /$options->{activeSheets}/;
+                $ws->fit_to_pages( 1, 0 );
+                $ws->set_header("&L&A&C$options->{revisionText}&R&P of &N");
+                $ws->set_footer("&F");
+                $ws->hide_gridlines(2);
+                $ws->protect( $options->{password} )
+                  if $options->{protect}
+                  && $cn ne 'Overview'
+                  && $cn ne 'Index';
                 $wsheet{ $cn . $modelCount } = $ws;
             }
         }
@@ -184,12 +179,7 @@ sub create {
         my $options = $optionArray[$_];
         my $modelCount = $_ ? ".$_" : '';
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
-        if ( $options->{inputData} ) {
-            $wbook->{inputSheet} = $wsheet{ 'Input' . $modelCount }
-              if $options->{inputData} =~ /inputSheet/;
-            $wbook->{dataSheet} = $wsheet{ 'Input' . $modelCount }
-              if $options->{inputData} =~ /dataSheet/;
-        }
+        $wbook->{dataSheet} = $wsheet{ 'Input' . $modelCount };
 
         if ($forwardLinkFindingRun) {
             open my $h2, '>', '/dev/null';

@@ -2,7 +2,6 @@
 .: MIG issue 63+70 customer scenario tool (FCP)
 PerlModule: EDCM2
 illustrative: 1
-inputData: dataSheet
 lockedInputs: 1
 lowerIntermittentCredit: 1
 method: FCP

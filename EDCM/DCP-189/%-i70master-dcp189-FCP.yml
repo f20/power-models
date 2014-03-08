@@ -5,7 +5,6 @@ customerTemplates: 1
 dcp130: 1
 dcp189: 1
 illustrative: 1
-inputData: dataSheet
 lowerIntermittentCredit: 1
 method: FCP
 noNegative: 1

@@ -2,7 +2,6 @@
 .: EDCM - LDNO discounts only
 PerlModule: EDCM2
 dcp130: 1
-inputData: dataSheet
 ldnoRev: onlyrev5
 protect: 1
 summaries: 1

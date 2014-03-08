@@ -34,7 +34,6 @@ See make.pl for an example of how to use this module.
 Keys defaulted if not existing (default value): 
 protect (1)
 validation (lenientnomsg)
-inputData (dataSheet)
 
 =cut
 
@@ -80,7 +79,6 @@ sub factory {
           || return;
         $_->{protect}    = 1              unless exists $_->{protect};
         $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
-        $_->{inputData}  = 'dataSheet'    unless exists $_->{inputData};
         push @rulesets, $_;
     };
 

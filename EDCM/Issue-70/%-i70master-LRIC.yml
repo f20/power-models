@@ -4,7 +4,6 @@ PerlModule: EDCM2
 customerTemplates: 1
 dcp130: 1
 illustrative: 1
-inputData: dataSheet
 lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1

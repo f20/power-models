@@ -145,10 +145,8 @@ sub wsWrite {
     my @dataColumns =
       grep { ref $_ eq 'SpreadsheetModel::Dataset' } @{ $self->{columns} };
 
-    if ( ( my $inSheet = $wb->{dataSheet} || $wb->{inputSheet} )
-        && @dataColumns )
-    {
-        if ( $ws != $inSheet && !$self->{doNotCopyInputColumns} ) {
+    if ( $wb->{dataSheet} && @dataColumns ) {
+        if ( $ws != $wb->{dataSheet} && !$self->{doNotCopyInputColumns} ) {
             my $data = bless {%$self}, __PACKAGE__;
             $data->{columns} = \@dataColumns;
             $_->{location} = $data foreach @dataColumns;
@@ -175,7 +173,7 @@ sub wsWrite {
                 } @{ $self->{columns} }
             ];
 
-            $data->wsWrite( $wb, $inSheet );
+            $data->wsWrite( $wb, $wb->{dataSheet} );
 
         }
     }

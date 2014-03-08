@@ -2,7 +2,6 @@
 .: 'EDCM model for MIG issue 63 (LRIC, no demand charge 1)'
 PerlModule: EDCM2
 dcp130: 1
-inputData: dataSheet
 lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1
