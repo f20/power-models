@@ -6,6 +6,7 @@ Icon?
 ~$*
 *.xls
 *.xlsx
+*.xlsm
 *.csv
 *.bak
 *.tdy
