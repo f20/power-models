@@ -126,30 +126,30 @@ sub create {
           if $options->{showDimensions};
         $options->{logger} =
           new SpreadsheetModel::Logger( name => 'List of data tables', );
-        my @wsheetsAndClosures = $model->worksheetsAndClosures($wbook);
-        my %closure            = @wsheetsAndClosures;
-        my @frontSheets =
-          grep { $closure{$_} }
+        my %isFrontSheet =
+          map { ( $_ => undef ); }
           $model->can('frontSheets')
           ? $model->frontSheets($wbook)
           : qw(Overview Index);
-        my %frontSheetHash = map { ( $_ => undef ); } @frontSheets;
+        $options->{$_} = [] foreach qw(wsheetRunOrder wsheetFront wsheetBack);
+        my @pairs = $model->worksheetsAndClosures($wbook);
 
-        foreach ( @frontSheets,
-            grep { !exists $frontSheetHash{$_} }
-            @wsheetsAndClosures[ grep { !( $_ % 2 ) }
-            0 .. $#wsheetsAndClosures ] )
-        {
-            my $actualSheetName = /(.*)\$$/ ? $1 : $_ . $modelCount;
-            push @{ $options->{wsheetNames} }, $actualSheetName;
-            $allClosures{$actualSheetName} = $closure{$_};
+        while ( ( local $_, my $closure ) = splice @pairs, 0, 2 ) {
+            my $fullName = /(.*)\$$/ ? $1 : $_ . $modelCount;
+            push @{ $options->{wsheetRunOrder} }, $fullName;
+            push @{ $options->{ exists $isFrontSheet{$_}
+                    ? 'wsheetFront'
+                    : 'wsheetBack' } },
+              $fullName;
+            $allClosures{$fullName} = $closure;
         }
+
     }
 
     my %wsheet;
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
-        foreach ( @{ $options->{wsheetNames} } ) {
+        foreach ( @{ $options->{wsheetFront} }, @{ $options->{wsheetBack} } ) {
             my $ws = $wbook->add_worksheet($_);
             $ws->activate
               if $options->{activeSheets} && /$options->{activeSheets}/;
@@ -192,7 +192,8 @@ sub create {
           foreach grep { exists $options->{$_} }
           qw(copy debug forwardLinks logAll logger noLinks rowHeight validation);
 
-        $allClosures{$_}->( $wsheet{$_} ) foreach @{ $options->{wsheetNames} };
+        $allClosures{$_}->( $wsheet{$_} )
+          foreach @{ $options->{wsheetRunOrder} };
 
         if ( $options->{ExportHtml} ) {
             require SpreadsheetModel::ExportHtml;
