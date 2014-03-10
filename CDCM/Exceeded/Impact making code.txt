@@ -1,0 +1,9 @@
+mkdir dcp161.tmp
+cd dcp161.tmp
+../run/make.pl -xlsx ../CDCM/Data-2013-12/* ../CDCM/Exceeded/%-dcp161.yml -xdata='rules|template|%-basecase'
+../run/make.pl -xlsx ../CDCM/Data-2013-12/* ../CDCM/Exceeded/%-dcp161.yml -xdata='{"rules":{"template":"%-scenario"},"exceedprop":[0,{"LV HH Metered":0.01,"HV HH Metered":0.01,"LV Sub HH Metered":0.01}]}'
+../run/import.pl -sqlite -calc *
+../run/export.pl -xlsx tscs
+../run/export.pl -xlsx all
+../run/export.pl -xlsx -base=basecase -dcp=scenario ../CDCM/Exceeded/+impact.yml
+# NB: from a DCP 161 model, illustrative ppu impact uses the wrong column.

@@ -1,11 +1,7 @@
-mkdir a.tmp
-cd a.tmp
-
-../../Modelling/run/make.pl -xlsx /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* EDCM/Data-Testing/* -xdata='{"rules":{"numLocations":2,"numTariffs":2,"template":"%-clean201"}}'
-
-../../Modelling/run/make.pl -xlsx /Users/franck/Documents/Modelling/EDCM/Issue-70/\%-i70master-* -xdata='{"rules":{"dcp189":1,"dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189-Y"}}'  EDCM/Data-Testing/*
-
-../../Modelling/run/import.pl -calc -sqlite *.xlsx
-
-../../Modelling/run/export.pl -xlsx -edcm dcp189-Y -base=master-FCP
-../../Modelling/run/export.pl -xlsx -edcm dcp189-Y -base=master-LRIC
+mkdir dcp189.tmp
+cd dcp189.tmp
+../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70master-* ../EDCM/Data-Testing/* -xdata='{"rules":{"numLocations":2,"numTariffs":2}}'
+../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70master-* -xdata='{"rules":{"dcp189":1,"dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189-Y"}}' ../EDCM/Data-Testing/*
+../run/import.pl -calc -sqlite *.xlsx
+../run/export.pl -xlsx -edcm dcp189-Y -base=master-FCP
+../run/export.pl -xlsx -edcm dcp189-Y -base=master-LRIC

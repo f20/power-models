@@ -1,5 +1,5 @@
 ---
-.: Model for ARP with DCP 130 and DCP 132
+.: Micro-model for ARP after DCP 163
 PerlModule: CDCM
 arp: 1
 coincidenceAdj: groupums
@@ -13,5 +13,5 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
 targetRevenue: dcp132
-tariffs: commongensubdcp130
+tariffs: commongensubdcp130dcp163
 timeOfDay: timeOfDaySpecial
