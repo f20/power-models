@@ -3,7 +3,7 @@
   - _table: '1300. Company, charging year, data version'
   - Company charging year data version: UKPN EPN
     _column: Company
-  - Company charging year data version: 2013/2014
+  - Company charging year data version: 2014/2015
     _column: Year
   - Company charging year data version: December 2013 indicatives
     _column: Version

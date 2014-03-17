@@ -294,8 +294,8 @@ EOY
         foreach my $t ( 'Domestic', 'Small Non Domestic' ) {
             foreach ( 1, 2, 3 ) {
                 $d->{1061}[$_]{ $t . ' Unrestricted' } =
-                  0.8 * $d->{1061}[$_]{ $t . ' Two Rate' } +
-                  0.2 * ( $d->{1062}[$_]{ $t . ' Two Rate' } || 0 );
+                  0.85 * $d->{1061}[$_]{ $t . ' Two Rate' } +
+                  0.15 * ( $d->{1062}[$_]{ $t . ' Two Rate' } || 0 );
             }
         }
 

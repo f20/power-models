@@ -1,18 +1,20 @@
 ---
-.: 'DCP 179 (November 2013 with DCP 130, DCP 132 and DCP 163) (separate UMS)'
+.: DCP 179 March 2014
 PerlModule: CDCM
 alwaysUseRAG: 1
-coincidenceAdj: groupumsvoltage
+coincidenceAdj: none
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
+forwardLinks: 1
+impliedLoadFactors: input
 lvCosts: cap
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
-standing: reducsub132
+standing: sub132
 summary: 1
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp179dcp163

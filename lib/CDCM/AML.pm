@@ -746,7 +746,7 @@ sub impliedLoadFactors {
                   : /^(> )?HV/i     ? [ 0, 0, 1 ]
                   : /^(> )?LV Sub/i ? [ 0, 1, 0 ]
                   : /^(> )?LV/i     ? [ 1, 0, 0 ]
-                  :              [ 0, 0, 0 ];
+                  :                   [ 0, 0, 0 ];
             } @{ $allEndUsers->{list} }
         ],
         byrow => 1,
@@ -769,7 +769,7 @@ sub impliedLoadFactors {
         byrow => 1,
     );
 
-    my $impliedLoadFactor = Arithmetic(
+    my $impliedLoadFactors = Arithmetic(
         name       => 'Implied load factor for each tariff group',
         arithmetic => '=IV1/24/IV2/IV3/IV4*1000',
         arguments  => {
@@ -790,10 +790,41 @@ sub impliedLoadFactors {
         }
     );
 
-    SumProduct(
-        name   => 'Deemed average maximum kVA for each tariff',
+    $impliedLoadFactors = SumProduct(
+        name   => 'Implied load factor',
         matrix => $mapping2,
-        vector => $impliedLoadFactor,
+        vector => $impliedLoadFactors,
+    );
+
+    return $impliedLoadFactors unless $model->{impliedLoadFactors} =~ /input/i;
+
+    my $inputLoadFactors = Dataset(
+        name       => 'Deemed load factor for fixed charge calculation',
+        rows       => $demandEndUsers,
+        validation => {
+            validate      => 'decimal',
+            criteria      => 'between',
+            minimum       => 0,
+            maximum       => 1,
+            input_title   => 'Load factor:',
+            input_message => 'Load factor percentage',
+            error_message => 'The load factor'
+              . ' must be between 0% and 100%.'
+        },
+        data     => [ map { '' } @{ $demandEndUsers->{list} } ],
+        number   => 1042,
+        appendTo => $model->{inputTables},
+        dataset  => $model->{dataset},
+    );
+
+    Arithmetic(
+        name      => 'Deemed load factor used in fixed charge calculation',
+        arguments => {
+            IV1 => $impliedLoadFactors,
+            IV3 => $inputLoadFactors,
+            IV4 => $inputLoadFactors,
+        },
+        arithmetic => '=IF(ISNUMBER(IV3),IV4,IV1)',
     );
 
 }

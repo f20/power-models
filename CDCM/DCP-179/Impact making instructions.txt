@@ -1,0 +1,21 @@
+mkdir dcp179.tmp
+cd dcp179.tmp/
+../run/make.pl -xlsx ../CDCM/DCP-179/%-dcp179-1403.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2013-12/*
+../run/import.pl -calc -sqlite *.xlsx
+
+../run/export.pl -xlsx dcp179 ../CDCM/DCP-179/+impactlines-current-dcp179-tariffs.yml
+rm Impact\ -\ Illustrative\ revenue\ dcp179.xlsx 
+mv Impact\ -\ Illustrative\ pence\ per\ unit\ dcp179.xlsx Impact\ -\ Illustrative\ pence\ per\ unit\ DCP\ 179.xlsx
+mv Impact\ -\ Illustrative\ tariffs\ dcp179.xlsx Impact\ -\ Illustrative\ tariffs\ DCP\ 179.xlsx
+
+../run/export.pl -xlsx dcp179 ../CDCM/DCP-179/+impactlines-current-dcp179-revenue.yml
+mv Impact\ -\ Illustrative\ revenue\ dcp179.xlsx Impact\ -\ Illustrative\ revenue\ DCP\ 179.xlsx 
+rm Impact\ -\ Illustrative\ pence\ per\ unit\ dcp179.xlsx
+rm Impact\ -\ Illustrative\ tariffs\ dcp179.xlsx
+
+../run/export.pl -xlsx /clean132/ 1041
+../run/export.pl -xlsx /clean132/ 2301
+../run/export.pl -xlsx /dcp179/ 1061
+../run/export.pl -xlsx /dcp179/ 2425
+../run/export.pl -xlsx /dcp179/ 2608
+../run/export.pl -xlsx /dcp179/ 2610
