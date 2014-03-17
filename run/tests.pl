@@ -29,7 +29,7 @@ if ( -f 'README.md' ) {
     system
 'perl run/make.pl -comparedata ModelM/Current/%-postDCP096.yml ModelM/Data-2013-02/*';
     system
-q^perl run/make.pl -xdata='{"rules":{"template":"%"}}' CDCM/Current/%-clean132bung.yml *.yml^;
+q^perl run/make.pl -xdata='{"rules":{"template":"%"}}' CDCM/Current/%-clean132bung.yml Other/Blank.yml^;
 }
 
 sub newTestArea {

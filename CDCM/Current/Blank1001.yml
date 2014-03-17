@@ -1,4 +1,5 @@
 ---
+.: Blank CDCM model with table 1001 labels
 1001:
   - _table: 1001. CDCM target revenue
   - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: I1
