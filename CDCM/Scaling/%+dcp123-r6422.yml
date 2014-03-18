@@ -1,5 +1,5 @@
 ---
-.: 'DCP 123 revenue matching hybrid with double counting, DCP 130, DCP 132, DCP 163 and CTables'
+.: 'DCP 123 hybrid with double counting, DCP 130, DCP 132, DCP 163 and CTables'
 PerlModule: CDCM
 coincidenceAdj: groupums
 dcp123doublecounting: 1

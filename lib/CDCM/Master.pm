@@ -1023,8 +1023,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                           $tariffTable->{$_}{defaultFormat}
                     ),
                     arithmetic => $model->{model100} ? '=IV2*(1-IV1)'
-                    : (     '=ROUND('
-                          . ( $electionBung && /MPAN/ ? 'IV3+' : '' )
+                    : (   ( $electionBung && /MPAN/ ? '=IV3+' : '=' )
+                        . 'ROUND('
                           . 'IV2*(1-IV1),'
                           . ( /kWh|kVArh/ ? 3 : 2 )
                           . ')' ),

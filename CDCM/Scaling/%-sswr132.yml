@@ -1,5 +1,5 @@
 ---
-.: 'Simple scaling with replacement costs, DCP 130 and DCP 132'
+.: 'Simple scaling with replacement, DCP 130 and DCP 132'
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp

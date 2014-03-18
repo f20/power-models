@@ -1,5 +1,5 @@
 ---
-.: DCP 123 revenue matching hybrid with non-zero price floor
+.: DCP 123 hybrid with non-zero price floor
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp

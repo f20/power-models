@@ -608,7 +608,7 @@ EOL
       };
 
     @wsheetsAndClosures = map {
-        $wsheetsAndClosures[ 2 * $_ ] =~ /^(?:Input|Tariffs|Summary|Adjust)$/
+        $wsheetsAndClosures[ 2 * $_ ] =~ /^(?:Input|Adjust|Tariffs|Summary|M-.*)$/
           ? @wsheetsAndClosures[ 2 * $_, 2 * $_ + 1 ]
           : ();
     } 0 .. ( @wsheetsAndClosures / 2 - 1 ) if $model->{arp};

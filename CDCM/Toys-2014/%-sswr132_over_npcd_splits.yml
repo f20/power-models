@@ -1,5 +1,5 @@
 ---
-.: 'Simple scaling, replacement costs, override 500 MW LV, no method M, DCP 130, DCP 132'
+.: 'Simple scaling, replacement, override 500 MW LV, no method M, DCP 130, DCP 132'
 PerlModule: CDCM
 coincidenceAdj: groupums
 dataOverride:

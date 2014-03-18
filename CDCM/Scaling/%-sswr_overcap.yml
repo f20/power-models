@@ -1,5 +1,5 @@
 ---
-.: 'Simple scaling down, replacement costs, override 500 MW LV'
+.: 'Simple scaling down, replacement, override 500 MW LV'
 PerlModule: CDCM
 dataOverride:
   1020:

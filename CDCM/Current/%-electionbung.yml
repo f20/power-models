@@ -1,10 +1,11 @@
 ---
-.: Cleaned-up model with DCP 130 and DCP 132 and pre-election bung
+.: Model with pre-election bung adjustments
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
 electionBung: 1
 extraLevels: 1
+illustrative: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

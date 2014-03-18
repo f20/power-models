@@ -1,5 +1,5 @@
 ---
-.: 'Simple scaling, replacement costs, override 500 MW LV, no method M, DCP 179 January'
+.: 'Simple scaling, replacement, override 500 MW LV, no method M, DCP 179 January'
 PerlModule: CDCM
 alwaysUseRAG: 1
 coincidenceAdj: none
