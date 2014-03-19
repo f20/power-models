@@ -240,13 +240,9 @@ EOY
           if $d->{1053};
     }
 
-    if (   $model->{tariffs} =~ /dcp179/i
-        && exists $d->{1061}[1]{'Domestic Two Rate'}
-        && !exists $d->{1061}[1]{'Domestic Unrestricted'} )
+    if ( $model->{tariffs} =~ /dcp179/i
+        && !exists $d->{1025}[1]{'LV Network Non-Domestic CT'} )
     {
-
-        $d->{1000}[3]{'Company charging year data version'} .= ' (modified)';
-
         foreach ( 1 .. 8 ) {
             my $col = $d->{1025}[$_];
             $col->{'LV Network Domestic'} = $col->{'Domestic Unrestricted'};
@@ -256,13 +252,20 @@ EOY
             $col->{'LV Sub Non-CT'} = $col->{'LV Sub Medium Non-Domestic'};
             $col->{'LV Sub CT'}     = $col->{'LV Sub HH Metered'};
         }
-
+    }
+    if ( $model->{tariffs} =~ /dcp179/i
+        && !exists $d->{1028}[1]{'HV Network CT'} )
+    {
         foreach ( 1 .. 8 ) {
             my $col = $d->{1028}[$_];
             $col->{'HV Network Non-CT'} = $col->{'HV Medium Non-Domestic'};
             $col->{'HV Network CT'}     = $col->{'HV HH Metered'};
         }
+    }
 
+    if ( $model->{tariffs} =~ /dcp179/i
+        && !exists $d->{1041}[1]{'LV Network Non-Domestic CT'} )
+    {
         foreach ( 1 .. 2 ) {
             my $col = $d->{1041}[$_];
             $col->{'LV Network Domestic'} = $col->{'Domestic Unrestricted'};
@@ -274,23 +277,27 @@ EOY
             $col->{'HV Network Non-CT'} = $col->{'HV Medium Non-Domestic'};
             $col->{'HV Network CT'}     = $col->{'HV HH Metered'};
         }
-
-        foreach ( 1 .. 6 ) {
-            my $col = $d->{1053}[$_];
-            foreach my $prefix ( '', 'LDNO LV ', 'LDNO HV ' ) {
-                $col->{ $prefix . 'LV Network Domestic' }            = '';
-                $col->{ $prefix . 'LV Network Non-Domestic Non-CT' } = '';
-                $col->{ $prefix . 'LV Network Non-Domestic CT' } =
-                  $col->{ $prefix . 'LV HH Metered' };
-                $col->{ $prefix . 'LV Sub Non-CT' } = '';
-                $col->{ $prefix . 'LV Sub CT' } =
-                  $col->{ $prefix . 'LV Sub HH Metered' };
-                $col->{ $prefix . 'HV Network Non-CT' } = '';
-                $col->{ $prefix . 'HV Network CT' } =
-                  $col->{ $prefix . 'HV HH Metered' };
-            }
+    }
+    foreach ( 1 .. 6 ) {
+        my $col = $d->{1053}[$_];
+        foreach my $prefix ( '', 'LDNO LV ', 'LDNO HV ' ) {
+            $col->{ $prefix . 'LV Network Domestic' }            = '';
+            $col->{ $prefix . 'LV Network Non-Domestic Non-CT' } = '';
+            $col->{ $prefix . 'LV Network Non-Domestic CT' } =
+              $col->{ $prefix . 'LV HH Metered' };
+            $col->{ $prefix . 'LV Sub Non-CT' } = '';
+            $col->{ $prefix . 'LV Sub CT' } =
+              $col->{ $prefix . 'LV Sub HH Metered' };
+            $col->{ $prefix . 'HV Network Non-CT' } = '';
+            $col->{ $prefix . 'HV Network CT' } =
+              $col->{ $prefix . 'HV HH Metered' };
         }
-
+    }
+    if (   $model->{tariffs} =~ /dcp179/i
+        && exists $d->{1061}[1]{'Domestic Two Rate'}
+        && !exists $d->{1061}[1]{'Domestic Unrestricted'} )
+    {
+        $d->{1000}[3]{'Company charging year data version'} .= ' (modified)';
         foreach my $t ( 'Domestic', 'Small Non Domestic' ) {
             foreach ( 1, 2, 3 ) {
                 $d->{1061}[$_]{ $t . ' Unrestricted' } =

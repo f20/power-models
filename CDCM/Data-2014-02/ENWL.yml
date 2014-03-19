@@ -1,7 +1,7 @@
 ---
 1000:
   - _table: '1000. Company, charging year, data version'
-  - Company charging year data version: 'Electricity North West'
+  - Company charging year data version: Electricity North West
     _column: Company
   - Company charging year data version: 2014/2015
     _column: Year
@@ -498,6 +498,10 @@
     Small Non Domestic Two Rate: 0.49688785773902
     Small Non Domestic Unrestricted: 0.370274749219008
     _column: Load factor
+1042:
+  - _column: Deemed load factor for fixed charge calculation
+    _table: 1042. Deemed load factor for fixed charge calculation
+    _column: Deemed load factor for fixed charge calculation
 1053:
   - _table: 1053. Volume forecasts for the charging year
   - Domestic Off Peak related MPAN: 29439.1462976409
@@ -968,27 +972,33 @@
   - _table: 1061. Average split of rate 1 units by distribution time band
   - Domestic Off Peak related MPAN: 0.00259267863194932
     Domestic Two Rate: 0.0915692088058835
+    Domestic Unrestricted: 0.086
     HV Medium Non-Domestic: 0.0874450312363322
     LV Medium Non-Domestic: 0.0902207587857462
     LV Sub Medium Non-Domestic: 0.0894711873959654
     Small Non Domestic Off Peak related MPAN: 0.000666219041007568
     Small Non Domestic Two Rate: 0.0815182734532352
+    Small Non Domestic Unrestricted: 0.074
     _column: Red
   - Domestic Off Peak related MPAN: 0.0965302144090296
     Domestic Two Rate: 0.365544515101275
+    Domestic Unrestricted: 0.35
     HV Medium Non-Domestic: 0.52415331611271
     LV Medium Non-Domestic: 0.514176377017391
     LV Sub Medium Non-Domestic: 0.515353715789264
     Small Non Domestic Off Peak related MPAN: 0.0486244856590894
     Small Non Domestic Two Rate: 0.48470305876354
+    Small Non Domestic Unrestricted: 0.483
     _column: Amber
   - Domestic Off Peak related MPAN: 0.900877106959019
     Domestic Two Rate: 0.54288627609284
+    Domestic Unrestricted: 0.564
     HV Medium Non-Domestic: 0.388401652650958
     LV Medium Non-Domestic: 0.395602864196864
     LV Sub Medium Non-Domestic: 0.395175096814771
     Small Non Domestic Off Peak related MPAN: 0.950709295299905
     Small Non Domestic Two Rate: 0.433778667783227
+    Small Non Domestic Unrestricted: 0.443
     _column: Green
 1062:
   - _table: 1062. Average split of rate 2 units by distribution time band
