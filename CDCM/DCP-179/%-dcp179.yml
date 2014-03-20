@@ -8,7 +8,6 @@ extraLevels: 1
 fixedCap: group
 forwardLinks: 1
 impliedLoadFactors: input
-lvCosts: cap
 matrices: big
 noReplacement: blanket
 pcd: 1

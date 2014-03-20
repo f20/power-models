@@ -174,16 +174,27 @@ sub standingCharges {
       ) if $model->{unauth};
 
     my $maxKvaByEndUser;
-    if ( $model->{fixedCap} && $model->{fixedCap} =~ /group/i ) {
+
+    # The lvCosts and fixedCap options interact and
+    # do not behave in a particularly natural way.
+
+    if ( $model->{fixedCap} && $model->{fixedCap} =~ /group|1-4/i ) {
 
     # get $maxKvaByEndUser from tariff grouping - to apply to all network levels
 
         my $tariffGroupset = Labelset(
             list => [
-                'LV Domestic tariffs',
-                'LV Non-Domestic Non-CT tariffs',
-                'LV Sub Non-CT tariffs',
-                'HV Network Non-CT tariffs',
+                $model->{fixedCap} =~ /1-4/
+                ? (
+                    'LV domestic and small non-domestic tariffs',
+                    'LV medium non-domestic tariffs'
+                  )
+                : (
+                    'LV domestic tariffs',
+                    'LV network non-domestic aggregated tariffs'
+                ),
+                'LV substation aggregated tariffs',
+                'HV network aggregated tariffs',
             ]
         );
 
@@ -192,7 +203,18 @@ sub standingCharges {
             defaultFormat => '0connz',
             rows          => $standingForFixedEndUsers,
             cols          => $tariffGroupset,
-            data          => [
+            data          => $model->{fixedCap} =~ /1-4/
+            ? [
+                map {
+                        /(additional|related) mpan/i ? [qw(0 0 0 0)]
+                      : /domestic|1p|single/i && !/non.?dom/i ? [qw(1 0 0 0)]
+                      : /small/i  ? [qw(1 0 0 0)]
+                      : /lv sub/i ? [qw(0 0 1 0)]
+                      : /hv/i     ? [qw(0 0 0 1)]
+                      :             [qw(0 1 0 0)];
+                } @{ $standingForFixedEndUsers->{list} }
+              ]
+            : [
                 map {
                         /(additional|related) mpan/i ? [qw(0 0 0 0)]
                       : /domestic|1p|single/i && !/non.?dom/i ? [qw(1 0 0 0)]
@@ -248,7 +270,7 @@ sub standingCharges {
         );
 
         Columnset(
-            name => 'Statistics for tariffs charged '
+            name => 'Capacity use for tariffs charged '
               . 'for capacity on an exit point basis',
             columns =>
               [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(IV1 IV2) ]
@@ -316,9 +338,11 @@ sub standingCharges {
         defaultFormat => '0.000softnz'
       );
 
-    if ( $model->{lvCosts} && $model->{lvCosts} =~ /cap/i ) {
+    if (   $model->{fixedCap}
+        || $model->{lvCosts} && $model->{lvCosts} =~ /cap/i )
+    {
 
-        # no special grouping for LV circuits: nothing to do
+        # no special grouping for LV circuits
 
     }
 
@@ -343,9 +367,9 @@ sub standingCharges {
 
         my $tariffGroupset = Labelset(
             list => [
-                'LV Domestic tariffs',
-                'LV Non-Domestic Non-CT tariffs',
-                'LV Non-Domestic CT tariffs',
+                'LV domestic tariffs',
+                'LV non-domestic aggregated tariffs',
+                'LV non-domestic CT tariffs',
             ]
         );
 
@@ -430,7 +454,7 @@ sub standingCharges {
 
         push @{ $model->{standingNhh} },
           Columnset(
-            name => 'Statistics for tariffs charged '
+            name => 'Capacity use for tariffs charged '
               . 'for LV circuits on an exit point basis',
             columns =>
               [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(IV1 IV2) ]
@@ -582,7 +606,7 @@ sub standingCharges {
 
         push @{ $model->{standingNhh} },
           Columnset(
-            name => 'Statistics for tariffs charged '
+            name => 'Capacity use for tariffs charged '
               . 'for LV circuits on an exit point basis',
             columns => [
                 $lvRouteingFactors,

@@ -583,14 +583,13 @@ EOL
               . 'chargeable aggregate '
               . 'maximum load (kW)'
         ),
-        arithmetic => '=IV1/IV2'
+        arithmetic => '=IV2/IV1'
           . ( $model->{spareCap} ? '*IV81*IV82' : '' )
           . '*IV4*IV5/(24*IV9)*1000',
         cols      => $diversityLevels,
-        rows      => $demandTariffsByEndUser,
         arguments => {
-            IV1 => $unitsInYear,
-            IV2 => $loadFactors,
+            IV2 => $unitsInYear,
+            IV1 => $loadFactors,
             IV4 => $standingFactors,
             IV9 => $daysInYear,
             IV5 => $lineLossFactors,
@@ -725,10 +724,13 @@ EOL
 }
 
 sub impliedLoadFactors {
-    my ( $model, $allEndUsers, $demandEndUsers,
-        $componentMap, $volumesByEndUser, $unitsByEndUser, $daysInYear,
-        $powerFactorInModel, )
-      = @_;
+    my (
+        $model,          $allEndUsers,
+        $demandEndUsers, $standingForFixedEndUsers,
+        $componentMap,   $volumesByEndUser,
+        $unitsByEndUser, $daysInYear,
+        $powerFactorInModel,
+    ) = @_;
 
     my $tariffGroupset = Labelset( list =>
           [ 'LV Network tariffs', 'LV Sub tariffs', 'HV Network tariffs', ] );
@@ -770,7 +772,8 @@ sub impliedLoadFactors {
     );
 
     my $impliedLoadFactors = Arithmetic(
-        name       => 'Implied load factor for each tariff group',
+        name => 'Implied average site-specific load'
+          . ' factor for each tariff group',
         arithmetic => '=IV1/24/IV2/IV3/IV4*1000',
         arguments  => {
             IV1 => SumProduct(
@@ -791,7 +794,7 @@ sub impliedLoadFactors {
     );
 
     $impliedLoadFactors = SumProduct(
-        name   => 'Implied load factor',
+        name   => 'Implied average site-specific load factor',
         matrix => $mapping2,
         vector => $impliedLoadFactors,
     );
@@ -799,32 +802,53 @@ sub impliedLoadFactors {
     return $impliedLoadFactors unless $model->{impliedLoadFactors} =~ /input/i;
 
     my $inputLoadFactors = Dataset(
-        name       => 'Deemed load factor for fixed charge calculation',
-        rows       => $demandEndUsers,
+        name       => 'Load factor',
+        rows       => $standingForFixedEndUsers,
         validation => {
             validate      => 'decimal',
             criteria      => 'between',
             minimum       => 0,
             maximum       => 1,
             input_title   => 'Load factor:',
-            input_message => 'Load factor percentage',
+            input_message => 'Load factor',
             error_message => 'The load factor'
-              . ' must be between 0% and 100%.'
+              . ' must be between 0% and 100%.',
         },
-        data     => [ map { '' } @{ $demandEndUsers->{list} } ],
+        data => [ map { 0.5; } @{ $demandEndUsers->{list} } ],
+    );
+
+    my $inputSpareCapacityFactors = Dataset(
+        name       => 'Spare capacity multiplier',
+        rows       => $standingForFixedEndUsers,
+        validation => {
+            validate      => 'decimal',
+            criteria      => '>',
+            value         => 0,
+            input_title   => 'Multiplier:',
+            input_message => 'Spare capacity multiplier',
+            error_message => 'The spare capacity multiplier must be positive.',
+        },
+        data => [ map { 2; } @{ $demandEndUsers->{list} } ],
+    );
+
+    Columnset(
+        name     => 'Capacity assumptions for tariffs without capacity charges',
+        columns  => [ $inputLoadFactors, $inputSpareCapacityFactors ],
         number   => 1042,
         appendTo => $model->{inputTables},
         dataset  => $model->{dataset},
     );
 
     Arithmetic(
-        name      => 'Deemed load factor used in fixed charge calculation',
+        name => 'Deemed site-specific load factor for fixed charge calculation',
         arguments => {
-            IV1 => $impliedLoadFactors,
+            IV1 => $inputLoadFactors,
+            IV2 => $inputSpareCapacityFactors,
             IV3 => $inputLoadFactors,
-            IV4 => $inputLoadFactors,
+            IV4 => $inputSpareCapacityFactors,
+            IV9 => $impliedLoadFactors,
         },
-        arithmetic => '=IF(ISNUMBER(IV3),IV4,IV1)',
+        arithmetic => '=IF(ISERROR(IV1/IV2),IV9,IV3/IV4)',
     );
 
 }

@@ -498,10 +498,6 @@
     Small Non Domestic Two Rate: 0.49688785773902
     Small Non Domestic Unrestricted: 0.370274749219008
     _column: Load factor
-1042:
-  - _column: Deemed load factor for fixed charge calculation
-    _table: 1042. Deemed load factor for fixed charge calculation
-    _column: Deemed load factor for fixed charge calculation
 1053:
   - _table: 1053. Volume forecasts for the charging year
   - Domestic Off Peak related MPAN: 29439.1462976409

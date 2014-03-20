@@ -1,20 +1,19 @@
 ---
-.: DCP 179 March 2014 with CTables
+.: DCP 179 January 2014
 PerlModule: CDCM
 alwaysUseRAG: 1
 coincidenceAdj: none
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
-impliedLoadFactors: input
-lvCosts: cap
+impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: consultation
+summary: 1
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp179dcp163
 timeOfDay: timeOfDaySpecial

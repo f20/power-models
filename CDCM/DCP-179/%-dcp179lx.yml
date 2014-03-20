@@ -1,13 +1,11 @@
 ---
-.: DCP 179 January 2014
+.: DCP 179 dealing only with PC5-8
 PerlModule: CDCM
-alwaysUseRAG: 1
-coincidenceAdj: none
+coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
-fixedCap: group
-impliedLoadFactors: 1
-lvCosts: cap
+fixedCap: 1-4
+forwardLinks: 1
 matrices: big
 noReplacement: blanket
 pcd: 1
@@ -16,5 +14,5 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp179dcp163
+tariffs: commongensubdcp130dcp163dcp179bare
 timeOfDay: timeOfDaySpecial

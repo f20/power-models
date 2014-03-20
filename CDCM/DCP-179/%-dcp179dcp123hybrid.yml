@@ -1,24 +1,18 @@
 ---
-.: 'Simple scaling, replacement, override 500 MW LV, no method M, DCP 179 January'
+.: DCP 179 March 2014 with DCP 123 hybrid
 PerlModule: CDCM
 alwaysUseRAG: 1
 coincidenceAdj: none
-dataOverride:
-  1020:
-    - ~
-    - HV LV: 60000000
-      LV circuits: 200000000
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
 forwardLinks: 1
-illustrative: 1
-impliedLoadFactors: 1
-ldnoSplits: 1
+impliedLoadFactors: input
 matrices: big
-noReplacement: 0.453
+noReplacement: blanket
+pcd: 1
 portfolio: 1
-scaler: pickallnogen
+scaler: dcp123hybridadder
 standing: sub132
 summary: 1
 targetRevenue: dcp132

@@ -6,7 +6,6 @@ coincidenceAdj: group2voltage
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
-lvCosts: cap
 matrices: big
 noReplacement: blanket
 pcd: 1

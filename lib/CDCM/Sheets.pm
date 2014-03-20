@@ -232,7 +232,7 @@ sub worksheetsAndClosures {
           : ();
       },
 
-      'NHH' => sub {
+      ( $model->{tariffs} =~ /dcp179/i ? 'AggCap' : 'NHH' ) => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
@@ -608,7 +608,8 @@ EOL
       };
 
     @wsheetsAndClosures = map {
-        $wsheetsAndClosures[ 2 * $_ ] =~ /^(?:Input|Adjust|Tariffs|Summary|M-.*)$/
+        $wsheetsAndClosures[ 2 * $_ ] =~
+          /^(?:Input|Adjust|Tariffs|Summary|M-.*)$/
           ? @wsheetsAndClosures[ 2 * $_, 2 * $_ + 1 ]
           : ();
     } 0 .. ( @wsheetsAndClosures / 2 - 1 ) if $model->{arp};

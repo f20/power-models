@@ -669,10 +669,12 @@ EOT
         $fFactors,               $generationCapacityTariffsByEndUser,
       );
 
-    $loadFactors =
-      $model->impliedLoadFactors( $allEndUsers, $demandEndUsers, $componentMap,
-        $volumesByEndUser, $unitsByEndUser, $daysInYear, $powerFactorInModel, )
-      if $model->{impliedLoadFactors};
+    $loadFactors = $model->impliedLoadFactors(
+        $allEndUsers,              $demandEndUsers,
+        $standingForFixedEndUsers, $componentMap,
+        $volumesByEndUser,         $unitsByEndUser,
+        $daysInYear,               $powerFactorInModel,
+    ) if $model->{impliedLoadFactors};
 
     my (
         $standingFactors,  $forecastSmlAdjusted,

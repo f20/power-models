@@ -247,7 +247,9 @@ EOY
             my $col = $d->{1025}[$_];
             $col->{'LV Network Domestic'} = $col->{'Domestic Unrestricted'};
             $col->{'LV Network Non-Domestic Non-CT'} =
-              $col->{'Small Non Domestic Unrestricted'};
+              $col->{ $model->{tariffs} =~ /dcp179bare/i
+                ? 'LV Medium Non-Domestic'
+                : 'Small Non Domestic Unrestricted' };
             $col->{'LV Network Non-Domestic CT'} = $col->{'LV HH Metered'};
             $col->{'LV Sub Non-CT'} = $col->{'LV Sub Medium Non-Domestic'};
             $col->{'LV Sub CT'}     = $col->{'LV Sub HH Metered'};
@@ -277,20 +279,20 @@ EOY
             $col->{'HV Network Non-CT'} = $col->{'HV Medium Non-Domestic'};
             $col->{'HV Network CT'}     = $col->{'HV HH Metered'};
         }
-    }
-    foreach ( 1 .. 6 ) {
-        my $col = $d->{1053}[$_];
-        foreach my $prefix ( '', 'LDNO LV ', 'LDNO HV ' ) {
-            $col->{ $prefix . 'LV Network Domestic' }            = '';
-            $col->{ $prefix . 'LV Network Non-Domestic Non-CT' } = '';
-            $col->{ $prefix . 'LV Network Non-Domestic CT' } =
-              $col->{ $prefix . 'LV HH Metered' };
-            $col->{ $prefix . 'LV Sub Non-CT' } = '';
-            $col->{ $prefix . 'LV Sub CT' } =
-              $col->{ $prefix . 'LV Sub HH Metered' };
-            $col->{ $prefix . 'HV Network Non-CT' } = '';
-            $col->{ $prefix . 'HV Network CT' } =
-              $col->{ $prefix . 'HV HH Metered' };
+        foreach ( 1 .. 6 ) {
+            my $col = $d->{1053}[$_];
+            foreach my $prefix ( '', 'LDNO LV ', 'LDNO HV ' ) {
+                $col->{ $prefix . 'LV Network Domestic' }            = '';
+                $col->{ $prefix . 'LV Network Non-Domestic Non-CT' } = '';
+                $col->{ $prefix . 'LV Network Non-Domestic CT' } =
+                  $col->{ $prefix . 'LV HH Metered' };
+                $col->{ $prefix . 'LV Sub Non-CT' } = '';
+                $col->{ $prefix . 'LV Sub CT' } =
+                  $col->{ $prefix . 'LV Sub HH Metered' };
+                $col->{ $prefix . 'HV Network Non-CT' } = '';
+                $col->{ $prefix . 'HV Network CT' } =
+                  $col->{ $prefix . 'HV HH Metered' };
+            }
         }
     }
     if (   $model->{tariffs} =~ /dcp179/i
