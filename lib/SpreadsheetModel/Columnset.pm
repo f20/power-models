@@ -302,7 +302,7 @@ sub wsWrite {
 
     if ( $self->{name} ) {
 
-        # $ws->set_row( $row, 24 );
+        $ws->set_row( $row, 21 );
         $ws->write_string( $row++, $col, "$self->{name}",
             $wb->getFormat('caption') );
 

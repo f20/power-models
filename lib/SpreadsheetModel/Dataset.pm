@@ -402,7 +402,7 @@ sub wsWrite {
         ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 );
     }
 
-    # $ws->set_row( $row, 24 );
+    $ws->set_row( $row, 21 );
     $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
 
     my $dataset;

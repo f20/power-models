@@ -84,12 +84,13 @@ sub wsWrite {
             $n = qq%="$n"&$wb->{titleAppend}%;
         }
 
-        # 'Not calculated' not working with .xlsx
+        # 'Not calculated' thing not working with .xlsx
         $ws->write( $row, $col, $n, $wb->getFormat('notes'),
             1
             ? ()
             : 'Not calculated'
               . ' (need to open in spreadsheet app and/or calculate now)' );
+        $ws->set_row( $row, 21 );
         ++$row;
     }
 
