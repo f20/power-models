@@ -906,7 +906,9 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $simultaneousMaximumLoadUnits,
         $simultaneousMaximumLoadCapacity,
         @$pseudoLoadCoefficientsAgainstSystemPeak
-      );
+      )
+      unless $model->{scaler}
+      && $model->{scaler} eq 'none';
 
     foreach my $table (@matchingTables) {
         foreach my $comp ( keys %$table ) {

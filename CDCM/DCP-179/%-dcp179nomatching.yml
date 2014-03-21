@@ -1,0 +1,19 @@
+---
+.: DCP 179 March 2014 without revenue matching
+PerlModule: CDCM
+alwaysUseRAG: 1
+coincidenceAdj: none
+drm: top500gsp
+extraLevels: 1
+fixedCap: group
+impliedLoadFactors: input
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: none
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp179dcp163
+timeOfDay: timeOfDaySpecial

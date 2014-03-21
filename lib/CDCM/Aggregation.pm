@@ -353,8 +353,8 @@ sub roundingAndFinishing {
               )
           } (
             $totalRevenuesSoFar,
-            $revenueFromElsewhere ? $revenueFromElsewhere : (),
-            $totalRevenuesFromMatching
+            $revenueFromElsewhere      ? $revenueFromElsewhere      : (),
+            $totalRevenuesFromMatching ? $totalRevenuesFromMatching : (),
           );
 
         splice @columns, 1, 0,
@@ -387,7 +387,13 @@ sub roundingAndFinishing {
           );
         my $rerr = Stack( sources => [$revenueError] );
         splice @{ $model->{summaryColumns} }, 1, 0,
-          Stack( sources => [$totalRevenuesFromMatching] ), $rerr,
+          $totalRevenuesFromMatching
+          ? Stack( sources => [$totalRevenuesFromMatching] )
+          : Constant(
+            name => 'No revenue matching',
+            data => [''],
+          ),
+          $rerr,
           Arithmetic(
             name          => 'Over/under recovery',
             defaultFormat => '%soft',
@@ -424,7 +430,7 @@ sub roundingAndFinishing {
             rowFormats => [
                 map {
                     $componentMap->{$_}{$tariffComponent} ? undef
-                      :                                     'unavailable';
+                      : 'unavailable';
                 } @{ $allTariffs->{list} }
             ]
         );
@@ -597,7 +603,7 @@ sub makeMatrixClosure {
                     sources => $source{$_} || [],
                     defaultFormat => m%month% ? '0copy'
                     : m%p/k(W|VAr)h% ? '0.000copy'
-                    : '0.00copy'
+                    :                  '0.00copy'
                 );
             } $model->{matrices} =~ /bigger/i ? @$allComponents : @components;
 
@@ -768,7 +774,9 @@ sub makeMatrixClosure {
                         IV3 => $volumes{'Fixed charge p/MPAN/day'},
                     }
                   )
-                  : (), $volumes{'Capacity charge p/kVA/day'} ? Arithmetic(
+                  : (),
+                  $volumes{'Capacity charge p/kVA/day'}
+                  ? Arithmetic(
                     name          => 'Average p/kVA/day',
                     defaultFormat => '0.00softnz',
                     arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
@@ -804,7 +812,7 @@ sub makeMatrixClosure {
                                 defaultFormat => $_->{defaultFormat} =~ /000/
                                 ? '0.000soft'
                                 : $_->{defaultFormat} =~ /00/ ? '0.00soft'
-                                : '0soft'
+                                :                               '0soft'
                               )
                             : ()
                           )

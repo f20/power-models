@@ -102,7 +102,7 @@ if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
         $options = YAML::LoadFile($yml);
     }
     my ($name) = map { /-+name=(.*)/i ? $1 : (); } @ARGV;
-    my ($base) = map { /-base=(.+)/   ? $1 : (); } @ARGV;
+    my ($base) = map { /-+base=(.+)/i ? $1 : (); } @ARGV;
     if ($base) { $name ||= $dcp . ' v ' . $base; }
     else {
         $name ||= $dcp;
@@ -116,13 +116,12 @@ if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
         dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
         %$options
     );
-    if ( grep { /^-+edcm$/i } @ARGV ) {
-        $db->edcmTariffImpact(@arguments);
-        $db->edcmRevenueMatrixImpact(@arguments);
-    }
-    else {
-        $db->cdcmTariffImpact(@arguments);
-        $db->cdcmPpuImpact(@arguments);
-        $db->cdcmRevenueMatrixImpact(@arguments);
-    }
+    my @outputs = map { /^-+(cdcm\S*|edcm\S*)/ ? $1 : (); } @ARGV;
+    @outputs = qw(cdcm) unless @outputs;
+    $db->$_(@arguments) foreach map {
+        $_ eq 'cdcm'
+          ? qw(cdcmTariffImpact cdcmPpuImpact cdcmRevenueMatrixImpact)
+          : $_ eq 'edcm' ? qw(edcmTariffImpact edcmRevenueMatrixImpact)
+          :                $_;
+    } @outputs;
 }

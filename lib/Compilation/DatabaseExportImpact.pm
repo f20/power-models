@@ -606,8 +606,8 @@ sub revenueMatrixImpact {
 
                 if ( grep { $k + $options{col1} == $_ } @{ $options{columns} } )
                 {
-                    $tota += $va;
-                    $totb += $vb;
+                    $tota += $va if defined $va;
+                    $totb += $vb if defined $vb;
                 }
             }
 

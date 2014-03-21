@@ -968,27 +968,33 @@
   - _table: 1061. Average split of rate 1 units by distribution time band
   - Domestic Off Peak related MPAN: 0.0239636035104231
     Domestic Two Rate: 0.156796221332229
+    Domestic Unrestricted: 0.126
     HV Medium Non-Domestic: 0.102298997015515
     LV Medium Non-Domestic: 0.102298997015515
     LV Sub Medium Non-Domestic: 0.102298997015515
     Small Non Domestic Off Peak related MPAN: 0.0229236228558075
     Small Non Domestic Two Rate: 0.156796221332229
+    Small Non Domestic Unrestricted: 0.106
     _column: Red
   - Domestic Off Peak related MPAN: 0.240875447730289
     Domestic Two Rate: 0.500393623972932
+    Domestic Unrestricted: 0.436
     HV Medium Non-Domestic: 0.461081595503572
     LV Medium Non-Domestic: 0.461081595503572
     LV Sub Medium Non-Domestic: 0.461081595503572
     Small Non Domestic Off Peak related MPAN: 0.1612691153058
     Small Non Domestic Two Rate: 0.500393623972932
+    Small Non Domestic Unrestricted: 0.547
     _column: Amber
   - Domestic Off Peak related MPAN: 0.735160948759288
     Domestic Two Rate: 0.34281015469484
+    Domestic Unrestricted: 0.438
     HV Medium Non-Domestic: 0.436619407480914
     LV Medium Non-Domestic: 0.436619407480914
     LV Sub Medium Non-Domestic: 0.436619407480914
     Small Non Domestic Off Peak related MPAN: 0.815807261838393
     Small Non Domestic Two Rate: 0.34281015469484
+    Small Non Domestic Unrestricted: 0.347
     _column: Green
 1062:
   - _table: 1062. Average split of rate 2 units by distribution time band

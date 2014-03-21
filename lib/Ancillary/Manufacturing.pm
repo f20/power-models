@@ -2,7 +2,7 @@ package Ancillary::Manufacturing;
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2013 Reckon LLP and others.
+Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -77,7 +77,7 @@ sub factory {
           and
           _loadModules( $_, $_->{PerlModule}->requiredModulesForRuleset($_) )
           || return;
-        $_->{protect}    = 1              unless exists $_->{protect};
+        $_->{protect} = 1 unless exists $_->{protect};
         $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
         push @rulesets, $_;
     };
@@ -115,11 +115,11 @@ sub factory {
                 $processRuleset->($_);
             }
             else {
-                my $datasetName = $_->{datasetName};
-                if (  !defined $datasetName
-                    && defined $fileName
+                my $datasetName;
+                if ( defined $fileName
                     && $fileName =~
-                    m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si )
+m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
+                  )
                 {
                     $datasetName = $2;
                     $datasetName .= "-$1" if $1;
@@ -134,9 +134,7 @@ sub factory {
                             ? (
                                 '~datasetSource' => {
                                     file       => $fileName,
-                                    validation => $fileName
-                                    ? sha1File($fileName)
-                                    : eval {
+                                    validation => eval {
                                         require Digest::SHA1;
                                         Digest::SHA1::sha1hex($blob);
                                     },
@@ -268,10 +266,10 @@ sub factory {
             $_->{revisionText} = $db->revisionText( YAML::Dump($_) ) if $db;
         }
 
-       # Keep dataOverride, illustrative, template, version and suchlike.
-       # The purpose of this revision number is to help find or produce rules
-       # to reproduce the same model, not just to describe the modelling rules.
-       # This also avoids a cloning operation.
+        # Keep dataOverride, illustrative, template, version and suchlike.
+        # The purpose of this revision number is to help find or produce rules
+        # to reproduce the same model, not just to describe the modelling rules.
+        # This also avoids a cloning operation.
 
     };
 
