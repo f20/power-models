@@ -71,6 +71,7 @@ sub wsWrite {
     my ( $self, $wb, $ws, $row, $col ) = @_;
     ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )
       unless defined $row && defined $col;
+    $ws->set_row( $row, 21 );
     $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
     my $numFormat0 = $wb->getFormat('0softnz');
     my $numFormat1 = $wb->getFormat('0.000soft');
