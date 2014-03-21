@@ -97,9 +97,11 @@ sub wsWrite {
     my $defaultFormat = $wb->getFormat( $self->{defaultFormat} || 'text' );
 
     for ( 0 .. $lastRow ) {
+        my $rf = $self->{rowFormats}[$_];
+        $ws->set_row( $row, 21 ) if $rf && $rf eq 'caption';
         $ws->write( $row++, $col, "$self->{lines}[$_]",
-              $self->{rowFormats}[$_]
-            ? $wb->getFormat( $self->{rowFormats}[$_] )
+              $rf
+            ? $wb->getFormat($rf)
             : $defaultFormat );
     }
 
