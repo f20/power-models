@@ -136,7 +136,9 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                                     file       => $fileName,
                                     validation => eval {
                                         require Digest::SHA1;
-                                        Digest::SHA1::sha1hex($blob);
+                                        require Encode;
+                                        Digest::SHA1::sha1_hex(
+                                            Encode::encode_utf8($blob) );
                                     },
                                 }
                               )
