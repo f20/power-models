@@ -2,13 +2,13 @@
 1300:
   - _note: |-
       Input data compiled by Franck from public sources (including unencrypted hidden sheets) in January 2012. E&OE.
-      This dataset is intended to reproduce results published in February 2012.
+      This dataset is intended to show what would have happened without a change to 2007/2008 incentive revenue.
     _table: '1300. Company, charging year, data version'
   - Company charging year data version: UKPN EPN
     _column: Company
   - Company charging year data version: 2012/2013
     _column: Year
-  - Company charging year data version: February 2012
+  - Company charging year data version: February 2012 corrected
     _column: Version
   - Company charging year data version: ''
 1301:
@@ -34,7 +34,7 @@
   - _table: 1315. Analysis of allowed revenue for 2007/2008
   - Analysis of allowed revenue for 2007 2008: 365325943
     _column: Total revenue
-  - Analysis of allowed revenue for 2007 2008: 5040000
+  - Analysis of allowed revenue for 2007 2008: 0
     _column: Net incentive revenue
   - Analysis of allowed revenue for 2007 2008: ''
 1320:
