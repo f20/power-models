@@ -21,7 +21,7 @@ messages should say which.  Here are a few sample commands:
     perl run/make.pl CDCM/Current/%-wfl132.yml CDCM/Data-2014-02/NPG-Northeast.yml
     perl run/make.pl -xlsx CDCM/Current/%-clean132.yml CDCM/Current/Blank1001.yml
     perl run/make.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
-    perl run/make.pl -xlsx EDCM/Issue-70/%-i70master-FCP.yml EDCM/Issue-70/%-i70master-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/SPEN-SPM.yml Other/Blank.yml
+    perl run/make.pl -xlsx EDCM/Issue-70/%-i70-FCP.yml EDCM/Issue-70/%-i70-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/SPEN-SPM.yml Other/Blank.yml
 
 
 This software is licensed under open source licences. Check the source code for details.
