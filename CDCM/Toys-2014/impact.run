@@ -1,0 +1,13 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+rm -rf _$$.tmp
+mkdir _$$.tmp
+cd _$$.tmp
+
+time ../run/make.pl -xlsx ../CDCM/Current/%-clean132.yml ../CDCM/Toys-2014/%-sswr132_over_npcd_splits.yml ../CDCM/Data-2014-02/*
+time ../run/import.pl -calc -sqlite *.xlsx
+time ../run/export.pl -xlsx -dcp=sswr132_over_npcd_splits -name='integrated CDCM' -cdcmTariffImpact -cdcmPpuImpact
+
+cd ..
+mv _$$.tmp $$.tmp

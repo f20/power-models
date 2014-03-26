@@ -1,7 +1,10 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
 while [ ! -e run/make.pl ]; do pwd; cd ..; done
-rm -rf dcp179b.tmp
-mkdir dcp179b.tmp
-cd dcp179b.tmp
+rm -rf _$$.tmp
+mkdir _$$.tmp
+cd _$$.tmp
+
 time ../run/make.pl -xlsx ../CDCM/DCP-179/%-dcp179a.yml ../CDCM/Current/%-clean132.yml ../CDCM/DCP-179/%-dcp179nomatching.yml ../CDCM/Scaling/\%-nomatching132.yml ../CDCM/DCP-179/%-dcp179ssonly.yml ../CDCM/Scaling/\%-ss132.yml ../CDCM/DCP-179/%-dcp179sswr.yml ../CDCM/Scaling/\%-sswr132.yml ../CDCM/Data-2014-02/*
 time ../run/import.pl -calc -sqlite *.xlsx
 time ../run/export.pl -xlsx dcp179a ../CDCM/DCP-179/+impactlines-current-dcp179-tariffs.yml -name='DCP 179' -cdcmTariffImpact 
@@ -18,3 +21,6 @@ time ../run/export.pl -xlsx dcp179sswr ../CDCM/DCP-179/+impactlines-dcp179-dcp17
 # ../run/export.pl -xlsx /dcp179/ 2425
 # ../run/export.pl -xlsx /dcp179/ 2608
 # ../run/export.pl -xlsx /dcp179/ 2610
+
+cd ..
+mv _$$.tmp $$.tmp

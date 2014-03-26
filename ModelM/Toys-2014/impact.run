@@ -1,0 +1,15 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+rm -rf _$$.tmp
+mkdir _$$.tmp
+cd _$$.tmp
+
+time ../run/make.pl -xlsx ../ModelM/Current/%-*.yml ../ModelM/Previous/%-*.yml ../ModelM/Toys-2014/%-*.yml ../ModelM/Data-2014-02/*
+time ../run/import.pl -calc -sqlite *.xlsx
+time ../run/export.pl -xlsx tscs
+time ../run/export.pl -xlsx /postDCP118/
+for x in original postDCP071 postDCP096 postDCP118 indirectprop withtelecoms; do time ../run/export.pl -xlsx /$x/ 1502; done
+
+cd ..
+mv _$$.tmp $$.tmp

@@ -11,7 +11,6 @@ dataOverride:
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
-forwardLinks: 1
 illustrative: 1
 impliedLoadFactors: 1
 ldnoSplits: 1
