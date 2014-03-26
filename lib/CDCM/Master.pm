@@ -681,13 +681,14 @@ EOT
         $forecastAmlUnits, $diversityAllowancesAdjusted
       )
       = $model->diversity(
-        $demandEndUsers,      $demandTariffsByEndUser,
-        $unitsInYear,         $loadFactors,
-        $daysInYear,          $lineLossFactors,
-        $diversityAllowances, $componentMap,
-        $volumesAdjusted,     $powerFactorInModel,
-        $forecastSml,         $drmExitLevels,
-        $coreExitLevels,      $rerouteing13211
+        $demandEndUsers,                   $demandTariffsByEndUser,
+        $standingForFixedTariffsByEndUser, $unitsInYear,
+        $loadFactors,                      $daysInYear,
+        $lineLossFactors,                  $diversityAllowances,
+        $componentMap,                     $volumesAdjusted,
+        $powerFactorInModel,               $forecastSml,
+        $drmExitLevels,                    $coreExitLevels,
+        $rerouteing13211
       );
 
     my ( $siteSpecificSoleUseAssets, $siteSpecificReplacement );

@@ -1,12 +1,13 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
 while [ ! -e run/make.pl ]; do pwd; cd ..; done
-rm -rf _$$.tmp
-mkdir _$$.tmp
-cd _$$.tmp
+RUN=dcp161-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
 
-../run/make.pl -xlsx ../CDCM/Data-2013-12/* ../CDCM/Exceeded/%-dcp161.yml -xdata='rules|template|%-basecase'
-../run/make.pl -xlsx ../CDCM/Data-2013-12/* ../CDCM/Exceeded/%-dcp161.yml -xdata='{"rules":{"template":"%-scenario"},"exceedprop":[0,{"LV HH Metered":0.01,"HV HH Metered":0.01,"LV Sub HH Metered":0.01}]}'
+../run/make.pl -xlsx ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-dcp161.yml -xdata='rules|template|%-basecase'
+../run/make.pl -xlsx ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-dcp161.yml # -xdata='{"rules":{"template":"%-scenario"},"exceedprop":[0,{"LV HH Metered":0.01,"HV HH Metered":0.01,"LV Sub HH Metered":0.01}]}'
 ../run/import.pl -sqlite -calc *
 ../run/export.pl -xlsx tscs
 ../run/export.pl -xlsx all
@@ -14,4 +15,4 @@ cd _$$.tmp
 # NB: from a DCP 161 model, illustrative ppu impact uses the wrong column.
 
 cd ..
-mv _$$.tmp $$.tmp
+mv _$RUN.tmp $RUN.tmp

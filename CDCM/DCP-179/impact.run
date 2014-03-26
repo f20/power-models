@@ -1,9 +1,10 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
 while [ ! -e run/make.pl ]; do pwd; cd ..; done
-rm -rf _$$.tmp
-mkdir _$$.tmp
-cd _$$.tmp
+RUN=dcp179-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
 
 time ../run/make.pl -xlsx ../CDCM/DCP-179/%-dcp179a.yml ../CDCM/Current/%-clean132.yml ../CDCM/DCP-179/%-dcp179nomatching.yml ../CDCM/Scaling/\%-nomatching132.yml ../CDCM/DCP-179/%-dcp179ssonly.yml ../CDCM/Scaling/\%-ss132.yml ../CDCM/DCP-179/%-dcp179sswr.yml ../CDCM/Scaling/\%-sswr132.yml ../CDCM/Data-2014-02/*
 time ../run/import.pl -calc -sqlite *.xlsx
@@ -15,12 +16,8 @@ time ../run/export.pl -xlsx -base=nomatching132 -dcp=ss132 -name='simple scaling
 time ../run/export.pl -xlsx dcp179ssonly ../CDCM/DCP-179/+impactlines-dcp179-dcp179.yml -base=dcp179nomatching -name='simple scaling after DCP 179' -cdcmTariffImpact -cdcmPpuImpact
 time ../run/export.pl -xlsx -base=nomatching132 -dcp=sswr132 -name='sswr before DCP 179' -cdcmTariffImpact -cdcmPpuImpact
 time ../run/export.pl -xlsx dcp179sswr ../CDCM/DCP-179/+impactlines-dcp179-dcp179.yml -base=dcp179nomatching -name='sswr after DCP 179' -cdcmTariffImpact -cdcmPpuImpact
-# ../run/export.pl -xlsx /clean132/ 1041
-# ../run/export.pl -xlsx /clean132/ 2301
-# ../run/export.pl -xlsx /dcp179/ 1061
-# ../run/export.pl -xlsx /dcp179/ 2425
-# ../run/export.pl -xlsx /dcp179/ 2608
-# ../run/export.pl -xlsx /dcp179/ 2610
+time ../run/export.pl -xlsx /clean132/ 10 24
+time ../run/export.pl -xlsx /dcp179a/ 10 24
 
 cd ..
-mv _$$.tmp $$.tmp
+mv _$RUN.tmp $RUN.tmp

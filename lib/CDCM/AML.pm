@@ -37,13 +37,13 @@ sub diversity {
 
     my (
         $model,                  $demandEndUsers,
-        $demandTariffsByEndUser, $unitsInYear,
-        $loadFactors,            $daysInYear,
-        $lineLossFactors,        $diversityAllowances,
-        $componentMap,           $volumeData,
-        $powerFactorInModel,     $forecastSml,
-        $drmExitLevels,          $coreExitLevels,
-        $rerouteing13211
+        $demandTariffsByEndUser, $standingForFixedTariffsByEndUser,
+        $unitsInYear,            $loadFactors,
+        $daysInYear,             $lineLossFactors,
+        $diversityAllowances,    $componentMap,
+        $volumeData,             $powerFactorInModel,
+        $forecastSml,            $drmExitLevels,
+        $coreExitLevels,         $rerouteing13211,
     ) = @_;
 
     push @{ $model->{optionLines} }, !$model->{standing}
@@ -586,6 +586,7 @@ EOL
         arithmetic => '=IV2/IV1'
           . ( $model->{spareCap} ? '*IV81*IV82' : '' )
           . '*IV4*IV5/(24*IV9)*1000',
+        rows      => $standingForFixedTariffsByEndUser,
         cols      => $diversityLevels,
         arguments => {
             IV2 => $unitsInYear,
