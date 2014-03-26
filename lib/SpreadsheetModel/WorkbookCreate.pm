@@ -137,9 +137,13 @@ sub create {
         while ( ( local $_, my $closure ) = splice @pairs, 0, 2 ) {
             my $fullName = /(.*)\$$/ ? $1 : $_ . $modelCount;
             push @{ $options->{wsheetRunOrder} }, $fullName;
-            push @{ $options->{ exists $isFrontSheet{$_}
+            push @{
+                $options->{
+                    exists $isFrontSheet{$_}
                     ? 'wsheetFront'
-                    : 'wsheetBack' } },
+                    : 'wsheetBack'
+                }
+              },
               $fullName;
             $allClosures{$fullName} = $closure;
         }
@@ -195,19 +199,27 @@ sub create {
         $allClosures{$_}->( $wsheet{$_} )
           foreach @{ $options->{wsheetRunOrder} };
 
+        my $dumpLoc = $fileName;
+        $dumpLoc =~ s/\.xlsx?$//i;
+        $dumpLoc .= $modelCount;
+
         if ( $options->{ExportHtml} ) {
             require SpreadsheetModel::ExportHtml;
-            my $dir = $fileName . $modelCount;
-            $dir =~ s/\.xls.*/-html/i;
-            mkdir $dir;
-            chmod 0770, $dir;
+            mkdir $dumpLoc;
+            chmod 0770, $dumpLoc;
             SpreadsheetModel::ExportHtml::writeHtml(
-                $options->{logger}{objects}, "$dir/" );
+                $options->{logger}{objects}, "$dumpLoc/" );
+        }
+
+        if ( $options->{ExportText} ) {
+            require SpreadsheetModel::ExportText;
+            SpreadsheetModel::ExportText::writeText(
+                $options->{logger}{objects}, "$dumpLoc-" );
         }
 
         if ( $options->{ExportGraphviz} ) {
             require SpreadsheetModel::ExportGraphviz;
-            my $dir = "$fileName-graphs$modelCount";
+            my $dir = "$dumpLoc-graphs";
             mkdir $dir;
             chmod 0770, $dir;
             SpreadsheetModel::ExportGraphviz::writeGraphs(
@@ -224,12 +236,9 @@ sub create {
             my @coreObj =
               map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
               @objects;
-            my $file = $fileName;
-            $file =~ s/\.xlsx?$//i;
-            $file .= "-dump$modelCount";
             if ( $options->{ExportYaml} ) {
                 require YAML;
-                open my $fh, '>', "$file.$$";
+                open my $fh, '>', "$dumpLoc.$$";
                 binmode $fh, ':utf8';
                 print {$fh} YAML::Dump(
                     {
@@ -238,7 +247,7 @@ sub create {
                     }
                 );
                 close $fh;
-                rename "$file.$$", "$file.yaml";
+                rename "$dumpLoc.$$", "$dumpLoc.yaml";
             }
             if ( $options->{ExportPerl} ) {
                 require Data::Dumper;
@@ -260,11 +269,11 @@ sub create {
                     ]
                   )->Dump;
                 s/\\x\{([0-9a-f]+)\}/chr (hex ($1))/eg;
-                open my $fh, '>', "$file.$$";
+                open my $fh, '>', "$dumpLoc.$$";
                 binmode $fh, ':utf8';
                 print {$fh} $_;
                 close $fh;
-                rename "$file.$$", "$file.pl";
+                rename "$dumpLoc.$$", "$dumpLoc.pl";
             }
         }
 

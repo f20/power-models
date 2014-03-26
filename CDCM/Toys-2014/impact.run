@@ -9,6 +9,8 @@ cd _$RUN.tmp
 time ../run/make.pl -xlsx ../CDCM/Current/%-clean132.yml ../CDCM/Toys-2014/%-sswr132_over_npcd_splits.yml ../CDCM/Data-2014-02/*
 time ../run/import.pl -calc -sqlite *.xlsx
 time ../run/export.pl -xlsx -dcp=sswr132_over_npcd_splits -name='integrated CDCM' -cdcmTariffImpact -cdcmPpuImpact
+time ../run/export.pl -xlsx /clean132/ .
+time ../run/export.pl -xlsx /sswr132_over_npcd_splits/ .
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

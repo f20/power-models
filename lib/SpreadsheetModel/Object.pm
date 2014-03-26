@@ -153,7 +153,7 @@ sub htmlWrite {
         $hs->(
             [
                 fieldset => [
-                    [ legend => "$self->{name} $self->{debug}" ],
+                    [ legend => "$self->{name}" ],
                     $self->htmlDescribe( $hb, $hs )
                 ],
                 id => $id

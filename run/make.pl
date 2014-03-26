@@ -52,7 +52,7 @@ use Ancillary::Manufacturing;
 my $maker = Ancillary::Manufacturing->factory;
 my $list  = 'list';
 my %override;
-my $xdata='';
+my $xdata = '';
 my $threads;
 $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
 chomp $threads if $threads;
@@ -65,7 +65,7 @@ foreach (@ARGV) {
         elsif (/^-+xlsx/is)      { $maker->{useXLSX}->(); }
         elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
         elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
-        elsif (/^-+(html|perl|yaml)/is) {
+        elsif (/^-+(html|text|perl|yaml)/is) {
             $override{ 'Export' . ucfirst( lc($1) ) } = 1;
         }
         elsif (/^-+defaultcol/is) { $override{defaultColours} = 1; }

@@ -1,0 +1,14 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=MTS-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+time ../run/make.pl -xlsx ../ModelM/Previous/%-postDCP071.yml ../ModelM/Data-20??-??/*
+time ../run/import.pl -calc -sqlite *.xlsx
+time ../run/export.pl -xlsx tscs
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

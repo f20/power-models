@@ -113,8 +113,6 @@ sub htmlDescribe {
 sub htmlWrite {
     my ( $self, $hb, $hs ) = @_;
     $hs = $hb->{Inputs} if $hb->{Inputs} && ref $self eq __PACKAGE__;
-    $hs = $hb->{Ancillary}
-      if $hb->{Ancillary} && ref $self eq 'SpreadsheetModel::Constant';
     $self->SUPER::htmlWrite( $hb, $hs );
 }
 

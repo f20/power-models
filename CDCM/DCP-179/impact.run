@@ -18,6 +18,7 @@ time ../run/export.pl -xlsx -base=nomatching132 -dcp=sswr132 -name='sswr before 
 time ../run/export.pl -xlsx dcp179sswr ../CDCM/DCP-179/+impactlines-dcp179-dcp179.yml -base=dcp179nomatching -name='sswr after DCP 179' -cdcmTariffImpact -cdcmPpuImpact
 time ../run/export.pl -xlsx /clean132/ 10 24
 time ../run/export.pl -xlsx /dcp179a/ 10 24
+../run/make.pl -xlsx -perl -text -html CDCM/Current/Blank1001.yml CDCM/DCP-179/%-dcp179ctables.yml CDCM/Current/%-model132.yml
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

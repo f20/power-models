@@ -166,9 +166,11 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
     };
 
     $self->{overrideRules} = sub {
+        my %override = @_;
+        my $suffix = ( grep { !/^Export/ } keys %override ) ? '+' : '';
         foreach (@rulesets) {
-            $_->{template} .= '+' if $_->{template};
-            $_ = { %$_, @_ };
+            $_->{template} .= $suffix if $_->{template};
+            $_ = { %$_, %override };
         }
     };
 
