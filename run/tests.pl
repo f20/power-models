@@ -27,9 +27,7 @@ ok( !eval { mustCrash20130223_2( newTestArea('tb4.xls') ); } && $@ );
 if ( -f 'README.md' ) {
     system 'grep ^\  README.md | while read x; do $x; done';
     system
-'perl run/make.pl -comparedata ModelM/Current/%-postDCP096.yml ModelM/Data-2013-02/*';
-    system
-q^perl run/make.pl -xdata='{"rules":{"template":"%"}}' CDCM/Current/%-clean132bung.yml Other/Blank.yml^;
+'perl run/make.pl -onefile ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/*';
 }
 
 sub newTestArea {

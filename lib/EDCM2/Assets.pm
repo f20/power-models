@@ -94,7 +94,7 @@ EOT
         ),
         vector => $allAssets
     );
-    $model->{transparency}{oli}{1233} = $ehvAssets if $model->{transparency};
+    $model->{transparency}{olFYI}{1233} = $ehvAssets if $model->{transparency};
 
     my $hvLvNetAssets = SumProduct(
         name          => 'HV and LV network assets in CDCM model (£)',
@@ -107,7 +107,7 @@ EOT
         ),
         vector => $allAssets
     );
-    $model->{transparency}{oli}{1235} = $hvLvNetAssets
+    $model->{transparency}{olFYI}{1235} = $hvLvNetAssets
       if $model->{transparency};
 
     my $hvLvServAssets = SumProduct(
@@ -121,7 +121,7 @@ EOT
         ),
         vector => $allAssets
     );
-    $model->{transparency}{oli}{1231} = $hvLvServAssets
+    $model->{transparency}{olFYI}{1231} = $hvLvServAssets
       if $model->{transparency};
 
     $allAssets, $ehvAssets, $hvLvNetAssets, $hvLvServAssets;
@@ -1079,19 +1079,17 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
       );
 
     my $totalAssetsFixed =
-      $model->{transparency}
-      ? (
-        $model->{transparency}{olo}{119301} = Arithmetic(
-            name          => 'Total sole use assets for demand (£)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
-            arguments     => {
-                IV123     => $model->{transparencyMasterFlag},
-                IV1       => $model->{transparency}{ol119301},
-                IV11_IV12 => $tariffSUimport,
-                IV15_IV16 => $model->{transparency},
-            },
-        )
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name          => 'Total sole use assets for demand (£)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
+        arguments     => {
+            IV123     => $model->{transparencyMasterFlag},
+            IV1       => $model->{transparency}{ol119301},
+            IV11_IV12 => $tariffSUimport,
+            IV15_IV16 => $model->{transparency},
+        },
       )
       : GroupBy(
         source        => $tariffSUimport,
@@ -1099,13 +1097,16 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
         defaultFormat => '0softnz'
       );
 
+    $model->{transparency}{olTabCol}{119301} = $totalAssetsFixed
+      if $model->{transparency};
+
     my ( $totalAssetsCapacity, $totalAssetsConsumption ) =
-      $model->{transparency}
+      $model->{transparencyMasterFlag}
       ? (
         map {
             my $name = $_->[0]->objectShortName;
             $name =~ s/\(£\/kVA\)/(£)/;
-            $model->{transparency}{olo}{ $_->[1] } = Arithmetic(
+            Arithmetic(
                 name          => $name,
                 defaultFormat => '0softnz',
                 arithmetic =>
@@ -1139,26 +1140,32 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
           )
       );
 
+    if ( $model->{transparency} ) {
+        $model->{transparency}{olTabCol}{119303} = $totalAssetsCapacity;
+        $model->{transparency}{olTabCol}{119304} = $totalAssetsConsumption;
+    }
+
     my $totalAssetsGenerationSoleUse =
-      $model->{transparency}
-      ? (
-        $model->{transparency}{olo}{119302} = Arithmetic(
-            name          => 'Total sole use assets for generation (£)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
-            arguments     => {
-                IV123     => $model->{transparencyMasterFlag},
-                IV1       => $model->{transparency}{ol119302},
-                IV11_IV12 => $tariffSUexport,
-                IV15_IV16 => $model->{transparency},
-            },
-        )
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name          => 'Total sole use assets for generation (£)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
+        arguments     => {
+            IV123     => $model->{transparencyMasterFlag},
+            IV1       => $model->{transparency}{ol119302},
+            IV11_IV12 => $tariffSUexport,
+            IV15_IV16 => $model->{transparency},
+        },
       )
       : GroupBy(
         source        => $tariffSUexport,
         name          => $tariffSUexport->objectShortName . ' (aggregate)',
         defaultFormat => $tariffSUexport->{defaultFormat}
       );
+
+    $model->{transparency}{olTabCol}{119302} = $totalAssetsGenerationSoleUse
+      if $model->{transparency};
 
     push @{ $model->{calc1Tables} },
       my $totalAssets = Arithmetic(
@@ -1172,7 +1179,8 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             IV8 => $totalAssetsGenerationSoleUse,
         }
       );
-    $model->{transparency}{oli}{1229} = $totalAssets if $model->{transparency};
+    $model->{transparency}{olFYI}{1229} = $totalAssets
+      if $model->{transparency};
 
     my $assetsCapacityDoubleCooked =
       $assetsCapacityCooked[$#assetsCapacityCooked];

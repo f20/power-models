@@ -430,7 +430,7 @@ sub vbaWrite {
 
     my $populate119x = '';
 
-    while ( my ( $num, $obj ) = each %{ $model->{transparency}{olo} } ) {
+    while ( my ( $num, $obj ) = each %{ $model->{transparency}{olTabCol} } ) {
         my @src = $obj->wsWrite( $wb, $ws );
         my @dst = $model->{transparency}{"ol$num"}->wsWrite( $wb, $ws );
         $populate119x .=

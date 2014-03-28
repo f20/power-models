@@ -1,0 +1,15 @@
+---
+.: DCP 189 FCP (preserve pot)
+PerlModule: EDCM2
+dcp130: 1
+dcp189: preservePot
+ldnoRev: ldnorev5
+lowerIntermittentCredit: 1
+method: FCP
+noNegative: 1
+numLocations: 1200
+numTariffs: 600
+protect: 1
+summaries: 1
+validation: lenientnomsg
+wantTables: 911

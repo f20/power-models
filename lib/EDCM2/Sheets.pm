@@ -325,30 +325,32 @@ sub worksheetsAndClosures {
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->fit_to_pages( 1, 1 );
             $wsheet->set_column( 0, 250, 30 );
-            my %olo;
-            while ( my ( $num, $obj ) = each %{ $model->{transparency}{olo} } )
+            my %olTabCol;
+            while ( my ( $num, $obj ) =
+                each %{ $model->{transparency}{olTabCol} } )
             {
                 my $number = int( $num / 100 );
-                $olo{$number}[ $num - $number * 100 - 1 ] = $obj;
+                $olTabCol{$number}[ $num - $number * 100 - 1 ] = $obj;
             }
             $_->wsWrite( $wbook, $wsheet ) foreach Notes(
                 lines => 'Updated baseline data
 
-This sheet contains data to populate tables 1191 to 1194 in a slave model.'
+This sheet contains data that can be used to populate tables 1191 to 1194 in an associated model.'
               ),
               (
                 map {
                     Columnset(
-                        name   => "Data for table $_",
-                        number => 3600 + $_,
-                        columns =>
-                          [ map { Stack( sources => [$_] ) } @{ $olo{$_} } ]
+                        name    => "Data for table $_",
+                        number  => 3600 + $_,
+                        columns => [
+                            map { Stack( sources => [$_] ) } @{ $olTabCol{$_} }
+                        ]
                       )
-                } sort keys %olo
+                } sort keys %olTabCol
               ),
               (
                 map {
-                    my $obj  = $model->{transparency}{oli}{$_};
+                    my $obj  = $model->{transparency}{olFYI}{$_};
                     my $name = 'Copy of ' . $obj->{name};
                     $obj->isa('SpreadsheetModel::Columnset')
                       ? Columnset(
@@ -365,7 +367,7 @@ This sheet contains data to populate tables 1191 to 1194 in a slave model.'
                         sources => [$obj]
                       );
                   } sort { $a <=> $b }
-                  keys %{ $model->{transparency}{oli} }
+                  keys %{ $model->{transparency}{olFYI} }
               );
             $wbook->{lastSheetNumber} = $wsheet->{sheetNumber} = 48;
         }

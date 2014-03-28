@@ -277,7 +277,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
 
     };
 
-    $self->{list} = sub {
+    $self->{fileList} = sub {
         foreach my $rule (@rulesets) {
             my @wantTables;
             @wantTables = split /\s+/, $rule->{wantTables}
@@ -296,62 +296,22 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                     $spreadsheetFile .= $rule->{revisionText};
                 }
                 $spreadsheetFile =~ s/%/$data->{'~datasetName'}/;
-                my $number = '';
-                $number--
-                  while $files{ $spreadsheetFile . $number . $fileExtension };
-                $spreadsheetFile .= $number . $fileExtension;
-                $files{$spreadsheetFile} = [ $rule, $data ];
+                $spreadsheetFile .= $fileExtension;
+                if ( $files{$spreadsheetFile} ) {
+                    $files{$spreadsheetFile} = [
+                        undef,
+                        [
+                              $files{$spreadsheetFile}[0]
+                            ? $files{$spreadsheetFile}
+                            : @{ $files{$spreadsheetFile}[1] },
+                            [ $rule, $data ]
+                        ]
+                    ];
+                }
+                else {
+                    $files{$spreadsheetFile} = [ $rule, $data ];
+                }
             }
-        }
-        keys %files;
-    };
-
-    $self->{listMatching} = sub {
-        for ( my $i = 0 ; $i < @rulesets && $i < @datasets ; ++$i ) {
-            my $rule = $rulesets[$i];
-            my $data = $datasets[$i];
-
-            my $spreadsheetFile = $rule->{template};
-            $spreadsheetFile .= '-' . $rule->{revisionText}
-              if $rule->{revisionText};
-            $spreadsheetFile =~ s/%/$data->{'~datasetName'}/;
-            my $number = '';
-            $number--
-              while $files{ $spreadsheetFile . $number . $fileExtension };
-            $spreadsheetFile .= $number . $fileExtension;
-            $files{$spreadsheetFile} = [ $rule, $data ];
-        }
-        keys %files;
-    };
-
-    $self->{listMonsterByRuleset} = sub {
-        return unless @datasets;
-        foreach my $rule (@rulesets) {
-            my $spreadsheetFile = $rule->{template};
-            $spreadsheetFile .= '-' . $rule->{revisionText}
-              if $rule->{revisionText};
-            $spreadsheetFile =~ s/%/@datasets
-              . '-datasets-'
-              . ( $datasets[0]{'~datasetName'} =~ m$([0-9]{4}-[0-9]{2})$ )[0]
-            /e;
-            my $number = '';
-            $number--
-              while $files{ $spreadsheetFile . $number . $fileExtension };
-            $spreadsheetFile .= $number . $fileExtension;
-            $files{$spreadsheetFile} = [ $rule, \@datasets ];
-        }
-        keys %files;
-    };
-
-    $self->{listMonsterByDataset} = sub {
-        return unless @rulesets;
-        foreach my $data (@datasets) {
-            my $spreadsheetFile = $data->{'~datasetName'};
-            my $number          = '';
-            $number--
-              while $files{ $spreadsheetFile . $number . $fileExtension };
-            $spreadsheetFile .= $number . $fileExtension;
-            $files{$spreadsheetFile} = [ \@rulesets, $data ];
         }
         keys %files;
     };
@@ -392,12 +352,8 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
 
 sub _mergeRuleData {
     my ( $rule, $data ) = @_;
-    if ( ref $rule eq 'ARRAY' ) {
-        my @result = map { _mergeRuleData( $_, $data ); } @$rule;
-        return wantarray ? @result : \@result;
-    }
-    if ( ref $data eq 'ARRAY' ) {
-        my @result = map { _mergeRuleData( $rule, $_ ); } @$data;
+    if ( !$rule && ref $data eq 'ARRAY' ) {
+        my @result = map { _mergeRuleData(@$_); } @$data;
         return wantarray ? @result : \@result;
     }
     my %options = ( %$rule, %$data );

@@ -108,21 +108,18 @@ sub fudge41 {
     );
 
     my $totalIndirectFudge =
-      $model->{transparency}
-      ? (
-        $model->{transparency}{olo}{119102} = Arithmetic(
-            name          => 'Total marginal effect of indirect cost adder',
-            defaultFormat => '0soft',
-            arithmetic =>
-              '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5,IV6_IV7)',
-            arguments => {
-                IV123   => $model->{transparencyMasterFlag},
-                IV1     => $model->{transparency}{ol119102},
-                IV2_IV3 => $model->{transparency},
-                IV4_IV5 => $fudgeIndirect,
-                IV6_IV7 => $agreedCapacity,
-            },
-        )
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name          => 'Total marginal effect of indirect cost adder',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5,IV6_IV7)',
+        arguments     => {
+            IV123   => $model->{transparencyMasterFlag},
+            IV1     => $model->{transparency}{ol119102},
+            IV2_IV3 => $model->{transparency},
+            IV4_IV5 => $fudgeIndirect,
+            IV6_IV7 => $agreedCapacity,
+        },
       )
       : SumProduct(
         name          => 'Total marginal effect of indirect cost adder',
@@ -131,8 +128,8 @@ sub fudge41 {
         vector        => $agreedCapacity
       );
 
-    die 'transparency and legacy201 are incompatible'
-      if $model->{legacy201} && $model->{transparency};
+    $model->{transparency}{olTabCol}{119102} = $totalIndirectFudge
+      if $model->{transparency};
 
     my $indirectAppRate =
       $model->{legacy201}
@@ -155,7 +152,7 @@ sub fudge41 {
             IV4 => $totalIndirectFudge,
         },
       );
-    $model->{transparency}{oli}{1262} = $indirectAppRate
+    $model->{transparency}{olFYI}{1262} = $indirectAppRate
       if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
@@ -217,29 +214,30 @@ sub fudge41 {
             IV92 => $rates,
         },
     );
-    $model->{transparency}{oli}{1259} = $fixedAdderAmount
+    $model->{transparency}{olFYI}{1259} = $fixedAdderAmount
       if $model->{transparency};
 
     my $totalSlope =
-      $model->{transparency}
-      ? (
-        $model->{transparency}{olo}{119103} = Arithmetic(
-            name          => 'Total marginal revenue effect of demand adder',
-            defaultFormat => '0soft',
-            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5)',
-            arguments     => {
-                IV123   => $model->{transparencyMasterFlag},
-                IV1     => $model->{transparency}{ol119103},
-                IV2_IV3 => $model->{transparency},
-                IV4_IV5 => $slope,
-            },
-        )
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name          => 'Total marginal revenue effect of demand adder',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5)',
+        arguments     => {
+            IV123   => $model->{transparencyMasterFlag},
+            IV1     => $model->{transparency}{ol119103},
+            IV2_IV3 => $model->{transparency},
+            IV4_IV5 => $slope,
+        },
       )
       : GroupBy(
         name          => 'Total marginal revenue effect of demand adder',
         defaultFormat => '0soft',
         source        => $slope
       );
+
+    $model->{transparency}{olTabCol}{119103} = $totalSlope
+      if $model->{transparency};
 
     my $fixedAdderRate =
       $model->{legacy201}
@@ -263,7 +261,7 @@ sub fudge41 {
             IV4 => $totalSlope,
         },
       );
-    $model->{transparency}{oli}{1261} = $fixedAdderRate
+    $model->{transparency}{olFYI}{1261} = $fixedAdderRate
       if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
@@ -361,7 +359,7 @@ sub fudge41 {
             IV82 => $rates,
         },
     );
-    $model->{transparency}{oli}{1257} = $$shortfallRef
+    $model->{transparency}{olFYI}{1257} = $$shortfallRef
       if $model->{transparency};
 
     0 and Columnset(
@@ -411,26 +409,26 @@ sub demandScaling41 {
     );
 
     my $totalSlopeCapacity =
-      $model->{transparency}
-      ? (
-        $model->{transparency}{olo}{119305} = Arithmetic(
-            name =>
-              'Total non sole use notional assets subject to matching (£)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV21_IV22,IV51_IV52)',
-            arguments     => {
-                IV123     => $model->{transparencyMasterFlag},
-                IV1       => $model->{transparency}{ol119305},
-                IV21_IV22 => $model->{transparency},
-                IV51_IV52 => $slopeCapacity,
-            }
-        )
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name => 'Total non sole use notional assets subject to matching (£)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV21_IV22,IV51_IV52)',
+        arguments     => {
+            IV123     => $model->{transparencyMasterFlag},
+            IV1       => $model->{transparency}{ol119305},
+            IV21_IV22 => $model->{transparency},
+            IV51_IV52 => $slopeCapacity,
+        }
       )
       : GroupBy(
         name => 'Total non sole use notional assets subject to matching (£)',
         defaultFormat => '0softnz',
         source        => $slopeCapacity,
       );
+
+    $model->{transparency}{olTabCol}{119305} = $totalSlopeCapacity
+      if $model->{transparency};
 
     my $minCapacity = Arithmetic(
         name       => 'Threshold for asset percentage adder - capacity',
@@ -460,7 +458,7 @@ sub demandScaling41 {
         arguments =>
           { IV1 => $shortfall, IV4 => $shortfall, IV2 => $totalSlopeCapacity, }
       );
-    $model->{transparency}{oli}{1258} = $demandScaling
+    $model->{transparency}{olFYI}{1258} = $demandScaling
       if $model->{transparency};
 
     my $scalingChargeCapacity = Arithmetic(

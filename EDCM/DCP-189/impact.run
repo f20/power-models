@@ -6,11 +6,14 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* ../EDCM/Data-Testing/* -xdata='{"rules":{"numLocations":2,"numTariffs":2}}'
-../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":1,"dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189-Y"}}' ../EDCM/Data-Testing/*
+../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* ../EDCM/Data-Test/* -xdata='{"rules":{"numLocations":2,"numTariffs":2}}'
+../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"preservePot","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189preservePot-Y"}}' ../EDCM/Data-Test/*
+../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"preserveResidual","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189preserveResidual-Y"}}' ../EDCM/Data-Test/*
 ../run/import.pl -calc -sqlite *.xlsx
-../run/export.pl -xlsx -edcm dcp189-Y -base=i70-FCP
-../run/export.pl -xlsx -edcm dcp189-Y -base=i70-LRIC
+../run/export.pl -xlsx -edcm dcp189preservePot-Y -base=i70-FCP
+../run/export.pl -xlsx -edcm dcp189preserveResidual-Y -base=i70-FCP
+../run/export.pl -xlsx -edcm dcp189preservePot-Y -base=i70-LRIC
+../run/export.pl -xlsx -edcm dcp189preserveResidual-Y -base=i70-LRIC
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

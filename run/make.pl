@@ -50,7 +50,6 @@ use lib catdir( $homedir, 'cpan' ), $perl5dir;
 
 use Ancillary::Manufacturing;
 my $maker = Ancillary::Manufacturing->factory;
-my $list  = 'list';
 my %override;
 my $xdata = '';
 my $threads;
@@ -78,8 +77,7 @@ foreach (@ARGV) {
         elsif (/^-+password=(.+)/is) { $override{password} = $1; }
         elsif (/^-+single/is)        { $threads            = 1; }
         elsif (/^-+([0-9]+)/is)      { $threads            = $1; }
-        elsif (/^-+comparedata/is) { $list = 'listMonsterByRuleset'; }
-        elsif (/^-+comparerule/is) { $list = 'listMonsterByDataset'; }
+        elsif (/^-+onefile/is)       { $override{template} = time . "-$$"; }
         elsif (
 /^-+(numExtraLocations|numExtraTariffs|numLocations|numSampleTariffs|numTariffs)=([0-9]+)/is
           )
@@ -121,4 +119,4 @@ $maker->{setThreads}->($threads);
 $maker->{validate}
   ->( $perl5dir, grep { -e $_ } catdir( $homedir, 'X_Revisions' ) );
 $maker->{ $threads > 1 ? 'runParallel' : 'run' }
-  ->( $maker->{prepare}->( $maker->{$list}->() ) );
+  ->( $maker->{prepare}->( $maker->{fileList}->() ) );

@@ -43,8 +43,8 @@ sub gCharge {
         $exportCapacityChargeablePost2010, $daysInYear,
     ) = @_;
 
-    if ( $model->{transparency} ) {
-        ${ $_->[0] } = $model->{transparency}{olo}{ $_->[1] } = Arithmetic(
+    if ( $model->{transparencyMasterFlag} ) {
+        ${ $_->[0] } = Arithmetic(
             name          => ${ $_->[0] }->objectShortName . ' (total)',
             defaultFormat => '0softnz',
             arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5)',
@@ -69,6 +69,13 @@ sub gCharge {
           $exportCapacityChargeablePost2010;
     }
 
+    if ( $model->{transparency} ) {
+        $model->{transparency}{olTabCol}{ $_->[1] } = $_->[0]
+          foreach [ $exportCapacityChargeable, 119201 ],
+          [ $exportCapacityChargeable20052010, 119202 ],
+          [ $exportCapacityChargeablePost2010, 119203 ];
+    }
+
     my $exportCapacityCharge = Arithmetic(
         name          => 'Export capacity charge p/kVA/day',
         defaultFormat => '0.00softnz',
@@ -90,7 +97,7 @@ sub gCharge {
             IV9   => $daysInYear,
         }
     );
-    $model->{transparency}{oli}{1243} = $exportCapacityCharge
+    $model->{transparency}{olFYI}{1243} = $exportCapacityCharge
       if $model->{transparency};
     $exportCapacityCharge;
 
