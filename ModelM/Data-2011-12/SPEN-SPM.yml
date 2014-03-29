@@ -332,3 +332,13 @@
   - LV service: 0.1
     _column: LV
   - LV service: Approximate guess that gives a good approximation of the result in table 1037.
+1399:
+  - _table: 1037. Embedded network (LDNO) discounts
+  - LDNO discount: 0.334317510191153
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.635651071278567
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.422025922194867
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.349827234679283
+    _column: 'LDNO HV: HV user'

@@ -281,3 +281,13 @@
   - _table: '1380. Net capex: ratio of LV service to LV total'
   - LV service: 0.369528133040512
     _column: LV
+1399:
+  - _table: 1037. Embedded network (LDNO) discounts
+  - LDNO discount: 0.372595286714979
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.651975810644956
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.430656323803646
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.288472417112076
+    _column: 'LDNO HV: HV user'

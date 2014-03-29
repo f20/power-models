@@ -338,13 +338,12 @@
     _column: LV
   - LV service: ''
 1399:
-  - _table: 1399. Current LDNO discounts
-  - Current LDNO discounts: 0.325486140192887
+  - _table: 1037. Embedded network (LDNO) discounts
+  - LDNO discount: 0.325
     _column: 'LDNO LV: LV user'
-  - Current LDNO discounts: 0.559422431827014
+  - LDNO discount: 0.559
     _column: 'LDNO HV: LV user'
-  - Current LDNO discounts: 0.327283893280209
-    _column: 'LDNO HV: LV Sub user'
-  - Current LDNO discounts: 0.214016221806323
+  - LDNO discount: 0.327
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.214
     _column: 'LDNO HV: HV user'
-  - Current LDNO discounts: Based on approximate redacted numbers.
