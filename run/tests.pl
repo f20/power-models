@@ -18,11 +18,16 @@ BEGIN {
 }
 use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 
-use Test::More tests => 4;
-ok( newTestArea('tb1.xls') );
-ok( !eval { mustCrash20121201_1( newTestArea('tb2.xls') ); } && $@ );
-ok( !eval { mustCrash20130223_1( newTestArea('tb3.xls') ); } && $@ );
-ok( !eval { mustCrash20130223_2( newTestArea('tb4.xls') ); } && $@ );
+use Test::More tests => 9;
+ok( newTestArea('test.xls') );
+ok( newTestArea('test.xlsx') );
+ok( !eval { mustCrash20121201_1( newTestArea('test-mustcrash.xls') ); } && $@ );
+ok( !eval { mustCrash20130223_1( newTestArea('test-mustcrash.xls') ); } && $@ );
+ok( !eval { mustCrash20130223_2( newTestArea('test-mustcrash.xls') ); } && $@ );
+ok( test_sumif( newTestArea('test-sumif_1.xls'),  42 ) );
+ok( test_sumif( newTestArea('test-sumif_1.xlsx'), 42 ) );
+ok( test_sumif( newTestArea('test-sumif_2.xls'),  '"forty two"' ) );
+ok( test_sumif( newTestArea('test-sumif_2.xlsx'), '"forty two"' ) );
 
 if ( -f 'README.md' ) {
     system 'grep ^\  README.md | while read x; do $x; done';
@@ -79,3 +84,27 @@ sub mustCrash20130223_2 {
     );
     Columnset( columns => [ $c1, $c2 ] )->wsWrite( $wbook, $wsheet );
 }
+
+sub test_sumif {
+    my ( $wbook, $wsheet, $arg ) = @_;
+    $wsheet->set_column( 0, 5, 20 );
+    my $rows = Labelset( list => [qw(A B C D)] );
+    my $c1 = Dataset(
+        name => 'c1',
+        rows => $rows,
+        data => [ [ 41, 42, 'forty one', 'forty two', ] ],
+    );
+    my $c2 = Dataset(
+        name => 'c2',
+        rows => $rows,
+        data => [ [ 43, 44, 45, 46, ] ],
+    );
+    Arithmetic(
+        name       => 'sumif',
+        arithmetic => '=SUMIF(IV1_IV2,' . $arg . ',IV3_IV4)',
+        arguments  => { IV1_IV2 => $c1, IV3_IV4 => $c2, },
+    )->wsWrite( $wbook, $wsheet );
+    1;
+}
+
+__END__

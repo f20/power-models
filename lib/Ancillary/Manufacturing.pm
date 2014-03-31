@@ -27,16 +27,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-=head Documentation
-
-See make.pl for an example of how to use this module.
-
-Keys defaulted if not existing (default value): 
-protect (1)
-validation (lenientnomsg)
-
-=cut
-
 use warnings;
 use strict;
 use utf8;
@@ -176,16 +166,20 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
 
     $self->{overrideData} = sub {
         my $od;
+        my $takeOutRules = sub {
+            $self->{overrideRules}->( ref $_ eq 'ARRAY' ? @$_ : %$_ )
+              foreach grep { $_; }
+              map          { delete $_[0]{$_}; }
+              grep         { /^rules?$/i; }
+              keys %{ $_[0] };
+        };
         foreach (@_) {
             if (s/\{(.*)\}//s) {
                 foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
                     require JSON::PP;
                     my $d = JSON::PP::decode_json( '{' . $_ . '}' );
                     next unless ref $d eq 'HASH';
-                    if ( my $or = delete $d->{rules} ) {
-                        $self->{overrideRules}
-                          ->( ref $or eq 'ARRAY' ? @$or : %$or );
-                    }
+                    $takeOutRules->($d);
                     while ( my ( $tab, $dat ) = each %$d ) {
                         if ( ref $dat eq 'HASH' ) {
                             while ( my ( $row, $rd ) = each %$dat ) {
@@ -221,9 +215,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                     $od->{$tab}[$col]{ $more[0] } = $more[1];
                 }
             }
-            if ( my $or = delete $od->{rules} ) {
-                $self->{overrideRules}->( ref $or eq 'ARRAY' ? @$or : %$or );
-            }
+            $takeOutRules->($od);
         }
         return unless $od && keys %$od;
         my ( $key, $hash ) = ( rand(), 'error' );
