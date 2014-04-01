@@ -1,5 +1,5 @@
 ---
-.: DCP 179 limited experiment
+.: DCP 179 lza
 PerlModule: CDCM
 alwaysUseRAG: 1
 coincidenceAdj: groupumsthree
