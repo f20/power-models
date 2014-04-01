@@ -1,0 +1,16 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=dcp179ly-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+time ../run/make.pl -xlsx ../CDCM/DCP-179/%-dcp179ly.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+time ../run/import.pl -calc -sqlite *.xlsx
+time ../run/export.pl -xlsx dcp179ly ../CDCM/DCP-179/+impactlines-current-dcp179-tariffs.yml -name='DCP 179 ly'$x -cdcmTariffImpact 
+time ../run/export.pl -xlsx dcp179ly ../CDCM/DCP-179/+impactlines-current-dcp179-revenue.yml -name='DCP 179 ly'$x -cdcmPpuImpact -cdcmRevenueMatrixImpact
+../run/export.pl -xlsx /dcp179/ 24
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

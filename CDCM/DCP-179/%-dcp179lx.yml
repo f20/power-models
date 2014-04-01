@@ -1,5 +1,5 @@
 ---
-.: DCP 179 dealing only with PC5-8
+.: DCP 179 dealing only with PC5-8 (wrong fixed charges)
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
