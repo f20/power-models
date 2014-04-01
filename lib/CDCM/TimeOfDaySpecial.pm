@@ -1044,11 +1044,35 @@ sub timeOfDayRunner {
             elsif ( $model->{coincidenceAdj} =~ /3|three/i ) {
 
                 $tariffGroupset = Labelset(
+                    list => [ 'Domestic', 'Non-domestic non-CT', 'Other', ] );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => [
+                        map {
+                            /domestic/i && !/non.?dom/i ? [qw(1 0 0)]
+                              : !$componentMap->{$_}{'Unit rates p/kWh'}
+                              || /non.?ct/i ? [qw(0 1 0)]
+                              : [qw(0 0 1)];
+                        } @{ $relevantUsers->{list} }
+                    ],
+                    byrow => 1,
+                );
+
+            }
+            elsif ( $model->{coincidenceAdj} =~ /domnondomvoltctnonct/i ) {
+
+                $tariffGroupset = Labelset(
                     list => [
-                        'Domestic and/or single-phase '
-                          . 'and/or non-half-hourly UMS',
-                        'Non-domestic and/or three-phase whole current metered',
-                        'Large and/or half-hourly',
+                        'Domestic',
+                        'Non-domestic non-CT LV',
+                        'Non-domestic CT LV',
+                        'Non-domestic LV Sub',
+                        'Non-domestic HV',
                     ]
                 );
 
@@ -1060,12 +1084,61 @@ sub timeOfDayRunner {
                     cols          => $tariffGroupset,
                     data          => [
                         map {
-                            /domestic|1p|single/i && !/non.?dom/i
-                              || !$componentMap->{$_}{'Fixed charge p/MPAN/day'}
-                              && !$componentMap->{$_}{'Unit rates p/kWh'}
-                              ? [qw(1 0 0)]
-                              : /wc|small/i ? [qw(0 1 0)]
-                              :               [qw(0 0 1)];
+                                /domestic/i && !/non.?dom/i ? [qw(1 0 0 0 0)]
+                              : /^hv/i     ? [qw(0 0 0 0 1)]
+                              : /^lv sub/i ? [qw(0 0 0 1 0)]
+                              : !$componentMap->{$_}{'Unit rates p/kWh'}
+                              || /non.?ct/i ? [qw(0 1 0 0 0)]
+                              : [qw(0 0 1 0 0)];
+                        } @{ $relevantUsers->{list} }
+                    ],
+                    byrow => 1,
+                );
+
+            }
+            elsif ( $model->{coincidenceAdj} =~ /domnondomvolt/i ) {
+
+                $tariffGroupset = Labelset(
+                    list => [
+                        'Domestic',
+                        'Non-domestic LV',
+                        'Non-domestic LV Sub',
+                        'Non-domestic HV',
+                    ]
+                );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => [
+                        map {
+                                /domestic/i && !/non.?dom/i ? [qw(1 0 0 0)]
+                              : /^hv/i     ? [qw(0 0 0 1)]
+                              : /^lv sub/i ? [qw(0 0 1 0)]
+                              :              [qw(0 1 0 0)];
+                        } @{ $relevantUsers->{list} }
+                    ],
+                    byrow => 1,
+                );
+
+            }
+            elsif ( $model->{coincidenceAdj} =~ /domnondom/i ) {
+
+                $tariffGroupset =
+                  Labelset( list => [ 'Domestic', 'Non-domestic', ] );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => [
+                        map {
+                            /domestic/i && !/non.?dom/i ? [qw(1 0)] : [qw(0 1)];
                         } @{ $relevantUsers->{list} }
                     ],
                     byrow => 1,
@@ -1073,6 +1146,7 @@ sub timeOfDayRunner {
 
             }
             elsif ( $model->{coincidenceAdj} =~ /all/i ) {
+
                 push @{ $model->{optionLines} },
                   'Single coincidence correction factor';
 
@@ -1087,6 +1161,7 @@ sub timeOfDayRunner {
                     data  => [ map { [1] } @{ $relevantUsers->{list} } ],
                     byrow => 1,
                 );
+
             }
 
             if ($mapping) {

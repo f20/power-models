@@ -125,8 +125,8 @@ sub create {
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
         $options->{logger} = new SpreadsheetModel::Logger(
-            name              => 'List of data tables',
-            finalResultsFirst => $model->{forwardLinks},
+            name            => 'List of data tables',
+            finalTablesBold => $model->{forwardLinks},
         );
         my %isFrontSheet =
           map { ( $_ => undef ); }

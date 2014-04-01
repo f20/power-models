@@ -439,6 +439,15 @@ Keys used in %$options:
             underline  => 1,
             color      => BLUE,
         ],
+        linkbold => [
+            locked => 1,
+            @sizeText,
+            num_format => '@',
+            align      => 'left',
+            bold       => 1,
+            underline  => 1,
+            color      => BLUE,
+        ],
         notes => [
             locked => 1,
             @sizeHeading,

@@ -77,6 +77,9 @@ sub wsWrite {
     my $numFormat1 = $wb->getFormat('0.000soft');
     my $textFormat = $wb->getFormat('text');
     my $linkFormat = $wb->getFormat('link');
+    my $finalLinkFormat =
+      $self->{finalTablesBold} ? $wb->getFormat('linkbold') : $linkFormat;
+
     if ( $self->{lines} ) {
         $ws->write( $row++, $col, "$_", $textFormat )
           foreach @{ $self->{lines} };
@@ -95,17 +98,7 @@ sub wsWrite {
 
     my $r = 0;
     my %columnsetDone;
-    foreach my $obj (
-        $self->{finalResultsFirst}
-        ? (
-            sort {
-                ( $a->{forwardLinks} ? 1 : 0 )
-                  <=> ( $b->{forwardLinks} ? 1 : 0 );
-            } @objectList
-        )
-        : @objectList
-      )
-    {
+    foreach my $obj (@objectList) {
         my $cset;
 
         unless ( $wb->{logAll} ) {
@@ -125,8 +118,15 @@ sub wsWrite {
         my $na = $cset ? "$cset->{name}" : "$obj->{name}";
         0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
         $self->{realRows}[$r] = $na;
-        $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
-            $linkFormat );
+        $ws->write_url(
+            $row + $r,
+            $col + 1,
+            "internal:'$wn'!$ce",
+            $na,
+            ( $cset ? $cset->{forwardLinks} : $obj->{forwardLinks} )
+            ? $linkFormat
+            : $finalLinkFormat
+        );
         $ws->write_string( $row + $r, $col + 2, $ty, $textFormat );
         $ws->write_string( $row + $r, $col,     $wn, $textFormat );
 

@@ -6,8 +6,10 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-time ../run/make.pl -xlsx ../CDCM/DCP-179/%-dcp179a.yml ../CDCM/Current/%-clean132.yml ../CDCM/DCP-179/%-dcp179nomatching.yml ../CDCM/Scaling/\%-nomatching132.yml ../CDCM/DCP-179/%-dcp179ssonly.yml ../CDCM/Scaling/\%-ss132.yml ../CDCM/DCP-179/%-dcp179sswr.yml ../CDCM/Scaling/\%-sswr132.yml ../CDCM/Data-2014-02/*
+time ../run/make.pl -xlsx ../CDCM/DCP-179/%-dcp179a.yml ../CDCM/Current/%-clean132.yml ../CDCM/DCP-179/%-dcp179nomatching.yml ../CDCM/Scaling/\%-nomatching132.yml ../CDCM/DCP-179/%-dcp179ssonly.yml ../CDCM/Scaling/\%-ss132.yml ../CDCM/DCP-179/%-dcp179dcp123hybrid.yml ../CDCM/DCP-179/%-dcp179sswr.yml ../CDCM/Scaling/\%-sswr132.yml ../CDCM/Data-2014-02/*
 time ../run/import.pl -calc -sqlite *.xlsx
+time ../run/export.pl -xlsx dcp179dcp123hybrid ../CDCM/DCP-179/+impactlines-current-dcp179-tariffs.yml -name='DCP 123 and DCP 179' -cdcmTariffImpact 
+time ../run/export.pl -xlsx dcp179dcp123hybrid ../CDCM/DCP-179/+impactlines-current-dcp179-revenue.yml -name='DCP 123 and DCP 179' -cdcmPpuImpact -cdcmRevenueMatrixImpact
 time ../run/export.pl -xlsx dcp179a ../CDCM/DCP-179/+impactlines-current-dcp179-tariffs.yml -name='DCP 179' -cdcmTariffImpact 
 time ../run/export.pl -xlsx dcp179a ../CDCM/DCP-179/+impactlines-current-dcp179-revenue.yml -name='DCP 179' -cdcmPpuImpact -cdcmRevenueMatrixImpact
 time ../run/export.pl -xlsx -base=nomatching132 -dcp=clean132 -name='revenue matching before DCP 179' -cdcmTariffImpact -cdcmPpuImpact
