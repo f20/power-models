@@ -840,16 +840,22 @@ sub impliedLoadFactors {
         dataset  => $model->{dataset},
     );
 
+    my $inputOnly = $model->{impliedLoadFactors} =~ /inputonly/i;
+
     Arithmetic(
         name => 'Deemed site-specific load factor for fixed charge calculation',
         arguments => {
             IV1 => $inputLoadFactors,
-            IV2 => $inputSpareCapacityFactors,
-            IV3 => $inputLoadFactors,
             IV4 => $inputSpareCapacityFactors,
-            IV9 => $impliedLoadFactors,
+            $inputOnly ? ()
+            : (
+                IV3 => $inputLoadFactors,
+                IV2 => $inputSpareCapacityFactors,
+                IV9 => $impliedLoadFactors,
+            ),
         },
-        arithmetic => '=IF(ISERROR(IV1/IV2),IV9,IV3/IV4)',
+        arithmetic => $inputOnly ? '=IV1/IV4'
+        : '=IF(ISERROR(IV3/IV2),IV9,IV1/IV4)',
     );
 
 }

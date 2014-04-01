@@ -124,8 +124,10 @@ sub create {
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
-        $options->{logger} =
-          new SpreadsheetModel::Logger( name => 'List of data tables', );
+        $options->{logger} = new SpreadsheetModel::Logger(
+            name              => 'List of data tables',
+            finalResultsFirst => $model->{forwardLinks},
+        );
         my %isFrontSheet =
           map { ( $_ => undef ); }
           $model->can('frontSheets')

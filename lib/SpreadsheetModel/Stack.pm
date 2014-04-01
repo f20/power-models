@@ -7,7 +7,7 @@ This file contains SpreadsheetModel::Stack, SpreadsheetModel::View and Spreadshe
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -219,7 +219,7 @@ sub wsPrepare {
     };
 }
 
-#
+# # # # # # # # # # # # # # # #
 
 package SpreadsheetModel::View;
 our @ISA = qw/SpreadsheetModel::Stack/;
@@ -244,10 +244,16 @@ sub wsUrl {
 sub addForwardLink {
     my $self = shift;
     $self->SUPER::addForwardLink(@_);
-    $self->{sources}[0]->addForwardLink(@_);
+    (
+        $_->{location}
+          && ref $_->{location} eq 'SpreadsheetModel::Columnset'
+        ? $_->{location}
+        : $_
+      )->addForwardLink(@_)
+      foreach @{ $self->{sources} };
 }
 
-#
+# # # # # # # # # # # # # # # #
 
 package SpreadsheetModel::Constant;
 our @ISA = qw/SpreadsheetModel::Dataset/;
@@ -268,8 +274,8 @@ sub check {
     $_[0]{arithmetic} = '[ ' . join(
         ( $_[0]{byrow} ? ",\n" : ', ' ),
         map {
-                !defined $_ ? 'undef'
-              : $_     eq ''      ? q['']
+                !defined $_       ? 'undef'
+              : $_ eq ''          ? q['']
               : ref $_ eq 'ARRAY' ? (
                 '[ '
                   . join( ', ',

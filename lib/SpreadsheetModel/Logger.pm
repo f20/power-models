@@ -95,8 +95,17 @@ sub wsWrite {
 
     my $r = 0;
     my %columnsetDone;
-    foreach my $obj (@objectList) {
-
+    foreach my $obj (
+        $self->{finalResultsFirst}
+        ? (
+            sort {
+                ( $a->{forwardLinks} ? 1 : 0 )
+                  <=> ( $b->{forwardLinks} ? 1 : 0 );
+            } @objectList
+        )
+        : @objectList
+      )
+    {
         my $cset;
 
         unless ( $wb->{logAll} ) {

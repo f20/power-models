@@ -246,10 +246,11 @@ EOY
         foreach ( 1 .. 8 ) {
             my $col = $d->{1025}[$_];
             $col->{'LV Network Domestic'} = $col->{'Domestic Unrestricted'};
-            $col->{'LV Network Non-Domestic Non-CT'} =
-              $col->{ $model->{tariffs} =~ /dcp179bare/i
+            $col->{'LV Network Non-Domestic Non-CT'} = $col->{
+                $model->{tariffs} =~ /dcp179bare/i
                 ? 'LV Medium Non-Domestic'
-                : 'Small Non Domestic Unrestricted' };
+                : 'Small Non Domestic Unrestricted'
+            };
             $col->{'LV Network Non-Domestic CT'} = $col->{'LV HH Metered'};
             $col->{'LV Sub Non-CT'} = $col->{'LV Sub Medium Non-Domestic'};
             $col->{'LV Sub CT'}     = $col->{'LV Sub HH Metered'};
@@ -264,6 +265,12 @@ EOY
             $col->{'HV Network CT'}     = $col->{'HV HH Metered'};
         }
     }
+
+    $d->{1042}[1] = $d->{1041}[2]
+      if $model->{tariffs} =~ /dcp179/i
+      && !$d->{1042}[1]
+      && $d->{1041}
+      && $d->{1041}[2];
 
     if ( $model->{tariffs} =~ /dcp179/i
         && !exists $d->{1041}[1]{'LV Network Non-Domestic CT'} )
