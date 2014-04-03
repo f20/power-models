@@ -58,7 +58,11 @@ sub wsUrl {
     return unless $self->{$wb} && $self->lastRow > -1;
     my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
     my $ce = xl_rowcol_to_cell( ( $ro || 1 ) - 1, $co );
-    my $wn = $wo ? $wo->get_name : die 'BROKEN LINK';
+    my $wn =
+        $wo
+      ? $wo->get_name
+      : die
+"No worksheet for $self->{name} $self->{debug} $self->{rows} x $self->{cols}";
     "internal:'$wn'!$ce";
 }
 

@@ -1,19 +1,19 @@
 ---
-.: DCP 179 limited to PC5-8 and capacity allocation
+.: DCP 179 March 2014 (corrected)
 PerlModule: CDCM
-coincidenceAdj: groupums
+alwaysUseRAG: 1
+coincidenceAdj: none
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
-forwardLinks: 1
-impliedLoadFactors: input
+impliedLoadFactors: inputonly
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: 1
+summary: consultation
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163dcp179bare
+tariffs: commongensubdcp130dcp179dcp163
 timeOfDay: timeOfDaySpecial

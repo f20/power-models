@@ -1,6 +1,7 @@
 ---
 .: MIG issue 70 customer scenario tool (LRIC)
 PerlModule: EDCM2
+forwardLinks: 1
 illustrative: 1
 lockedInputs: 1
 lowerIntermittentCredit: 1

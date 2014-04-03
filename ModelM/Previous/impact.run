@@ -1,7 +1,7 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
 while [ ! -e run/make.pl ]; do pwd; cd ..; done
-RUN=MTS-$$
+RUN=_MTS-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp

@@ -1,13 +1,12 @@
 ---
-.: DCP 179 lzc
+.: DCP 179 March 2014 (no coincidence factors)
 PerlModule: CDCM
 alwaysUseRAG: 1
-coincidenceAdj: groupumsdomnondomvolt
+coincidenceAdj: none
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
-forwardLinks: 1
-impliedLoadFactors: input
+impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1
@@ -16,5 +15,5 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163dcp179bare
+tariffs: commongensubdcp130dcp179dcp163
 timeOfDay: timeOfDaySpecial

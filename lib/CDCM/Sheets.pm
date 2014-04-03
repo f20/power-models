@@ -34,9 +34,18 @@ use utf8;
 require Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts 'Notes';
 
-sub frontSheets {
-    my ($model) = @_;
-    $model->{frontSheets} ? @{ $model->{frontSheets} } : qw(Index);
+sub sheetPriority {
+    my ( $model, $sheet ) = @_;
+    return (
+        (
+            grep { $sheet eq $_ }
+              $model->{frontSheets}
+            ? @{ $model->{frontSheets} }
+            : qw(Index Overview)
+        ) ? ( $sheet =~ /^(?:Overview|Index)$/is ? 2 : 1 ) : 0
+    ) unless $_[0]{arp};
+    { 'ARP$' => 40, Index => 30, Tariffs => 20, Summary => 10, 'M-ATW' => 5, }
+    ->{$sheet};
 }
 
 sub worksheetsAndClosures {
@@ -50,7 +59,12 @@ sub worksheetsAndClosures {
 
       'Input' => sub {
         my ($wsheet) = @_;
+
+        # reset in case of building several models in a single workbook
+        $wbook->{lastSheetNumber} = 11;
+        delete $wbook->{highestAutoTableNumber};
         $wsheet->{sheetNumber} = 11;
+
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->{sheetNumber} ||= ++$wbook->{lastSheetNumber};
         my $t1001width =
@@ -593,7 +607,7 @@ EOL
 
     push @wsheetsAndClosures,
 
-      Index => sub {
+      ( $model->{model100} ? 'Overview' : 'Index' ) => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->fit_to_pages( 1, 2 );
@@ -607,19 +621,27 @@ EOL
           $model->technicalNotes;
       };
 
-    @wsheetsAndClosures = map {
-        $wsheetsAndClosures[ 2 * $_ ] =~
-          /^(?:Input|Adjust|Tariffs|Summary|M-.*)$/
-          ? @wsheetsAndClosures[ 2 * $_, 2 * $_ + 1 ]
-          : ();
-    } 0 .. ( @wsheetsAndClosures / 2 - 1 ) if $model->{arp};
+    return @wsheetsAndClosures unless $model->{arp};
 
+    my %closures = @wsheetsAndClosures;
+    @wsheetsAndClosures = (
+        CDCM => sub {
+            my ($wsheet) = @_;
+            map { $_->(@_) } grep { $_ } map { $closures{$_} } qw(Input Adjust);
+            $model->technicalNotes->wsWrite( $wbook, $wsheet );
+        },
+        map { $_ => $closures{$_}; } grep { $closures{$_} } qw(Tariffs Summary)
+    );
+    return $model->{arpSharedData}
+      ->worksheetsAndClosuresWithArp( $model, $wbook, @wsheetsAndClosures )
+      if $model->{arpSharedData};
     @wsheetsAndClosures;
 
 }
 
 sub technicalNotes {
     my ($model) = @_;
+    require POSIX;
     Notes(
         name       => '',
         rowFormats => ['caption'],

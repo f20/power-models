@@ -77,8 +77,6 @@ sub wsWrite {
     my $numFormat1 = $wb->getFormat('0.000soft');
     my $textFormat = $wb->getFormat('text');
     my $linkFormat = $wb->getFormat('link');
-    my $finalLinkFormat =
-      $self->{finalTablesBold} ? $wb->getFormat('linkbold') : $linkFormat;
 
     if ( $self->{lines} ) {
         $ws->write( $row++, $col, "$_", $textFormat )
@@ -112,21 +110,17 @@ sub wsWrite {
 
         my ( $wo, $ro, $co ) = @{ $obj->{$wb} }{qw(worksheet row col)};
         my $ty = $cset ? $cset->objectType : $obj->objectType;
+        $ty .= ' (not used further)'
+          if $self->{finalTablesBold}
+          && !( $cset ? $cset->{forwardLinks} : $obj->{forwardLinks} );
         my $ce = xl_rowcol_to_cell( $ro - 1, $co );
         my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
         $wn =~ s/\000//g;    # squash strange rare bug
         my $na = $cset ? "$cset->{name}" : "$obj->{name}";
         0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
         $self->{realRows}[$r] = $na;
-        $ws->write_url(
-            $row + $r,
-            $col + 1,
-            "internal:'$wn'!$ce",
-            $na,
-            ( $cset ? $cset->{forwardLinks} : $obj->{forwardLinks} )
-            ? $linkFormat
-            : $finalLinkFormat
-        );
+        $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
+            $linkFormat );
         $ws->write_string( $row + $r, $col + 2, $ty, $textFormat );
         $ws->write_string( $row + $r, $col,     $wn, $textFormat );
 

@@ -417,8 +417,8 @@ sub impactFinancialSummary {
       );
 }
 
-sub frontSheets {
-    qw(Impact Overview Index);
+sub sheetPriority {
+    $_[1] =~ /^(?:Impact|Overview|Index)$/si ? 1 : 0;
 }
 
 sub impactNotes {

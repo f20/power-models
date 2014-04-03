@@ -83,6 +83,9 @@ sub new {
     $model->preprocessDataset
       if $model->{dataset} && keys %{ $model->{dataset} };
 
+    $model->{numLocations} ||= $model->{numLocationsDefault};
+    $model->{numTariffs}   ||= $model->{numTariffsDefault};
+
     if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /only/i ) {
         $model->{daysInYear} = Dataset(
             name          => 'Days in year',

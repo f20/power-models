@@ -1,11 +1,13 @@
 ---
-.: DCP 179 dealing only with PC5-8 (wrong fixed charges)
+.: DCP 179 April 2014 option 2
 PerlModule: CDCM
-coincidenceAdj: groupums
+alwaysUseRAG: 1
+coincidenceAdj: groupumsdomnondom
 drm: top500gsp
 extraLevels: 1
-fixedCap: 1-4
+fixedCap: group
 forwardLinks: 1
+impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

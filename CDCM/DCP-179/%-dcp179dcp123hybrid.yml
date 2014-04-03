@@ -7,7 +7,7 @@ drm: top500gsp
 extraLevels: 1
 fixedCap: group
 forwardLinks: 1
-impliedLoadFactors: input
+impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

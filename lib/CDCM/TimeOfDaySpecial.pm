@@ -187,7 +187,7 @@ sub timeOfDaySpecial {
         }    # end of overrides if $model->{coincidenceAdj} =~ /voltage/i
 
         my $red = Stack(
-            name          => 'Contribution to first-band peak kW',
+            name          => 'Contribution to peak band kW',
             defaultFormat => '0softnz',
             rows          => $relevantUsers,
             sources       => $model->{timeOfDayGroupRedSources},
@@ -212,7 +212,7 @@ sub timeOfDaySpecial {
           );
 
         my $redG = SumProduct(
-            name          => 'Group contribution to first-band peak kW',
+            name          => 'Group contribution to peak band kW',
             defaultFormat => '0softnz',
             matrix        => $mapping,
             vector        => $red,
@@ -778,10 +778,25 @@ sub timeOfDayRunner {
     my @pseudoLoadCoefficientsAgainstSystemPeak;
 
     unless ( $model->{coincidenceAdj} && $model->{coincidenceAdj} =~ /none/i ) {
+
         my $peakBand = Labelset( list => [ $timebandSet->{list}[0] ] );
+        my $peakMatrix;
+        $peakMatrix = Stack(
+            sources => [$peakingProbabilitiesTable],
+            cols    => $timebandSet,
+            rows    => (
+                $peakBand = Labelset(
+                    list => [ $peakingProbabilitiesTable->{rows}{list}[0] ]
+                )
+            ),
+          )
+          if $model->{coincidenceAdj}
+          and $model->{coincidenceAdj} =~ /gspIsPeak/i
+          || !$blackYellowGreen
+          && $model->{coincidenceAdj} =~ /gspInsteadOfRed/i;
 
         my $timebandLoadCoefficientAccording = Stack(
-            name => 'First-time-band'
+            name => 'Peak band'
               . ( $blackYellowGreen ? ' special ' : ' ' )
               . 'load coefficient',
             rows    => $relevantEndUsersByRate[0],
@@ -806,7 +821,8 @@ sub timeOfDayRunner {
                     {
 
                         my $relevantUsers = Labelset
-                          name => "Demand end users with $rt-rate tariffs",
+                          name =>
+"Non-related-MPAN demand end users with $rt-rate tariffs",
                           list => \@relevant;
 
                         my $timebandUseByRateTotal = Arithmetic(
@@ -842,8 +858,39 @@ sub timeOfDayRunner {
                             defaultFormat => '%softnz'
                         );
 
-                        my $implied = Arithmetic(
-                            name => 'First-time-band'
+                        my $implied =
+                          $peakMatrix
+                          ? SumProduct(
+                            name => 'Top network level'
+                              . ( $blackYellowGreen ? ' special ' : ' ' )
+                              . 'load coefficient for '
+                              . $rt
+                              . '-rate tariffs',
+                            vector => $peakMatrix,
+                            matrix => Arithmetic(
+                                name =>
+                                  ( $blackYellowGreen ? 'Special l' : 'L' )
+                                  . 'oad coefficient for '
+                                  . $rt
+                                  . '-rate tariffs',
+                                arithmetic => $timebandLoadCoefficient
+                                ? '=IF(IV6>0,IV1*IV2*IV4*24/IV5,0)'
+                                : '=IF(IV6>0,IV1*IV4*24/IV5,0)',
+                                cols      => $timebandSet,
+                                rows      => $relevantUsers,
+                                arguments => {
+                                    $timebandLoadCoefficient
+                                    ? ( IV2 => $timebandLoadCoefficient )
+                                    : (),
+                                    IV1 => $timebandUseByRateTotal,
+                                    IV4 => $daysInYear,
+                                    IV5 => $annualHoursByTimeband,
+                                    IV6 => $annualHoursByTimeband
+                                }
+                            )
+                          )
+                          : Arithmetic(
+                            name => 'Peak band'
                               . ( $blackYellowGreen ? ' special ' : ' ' )
                               . 'load coefficient for '
                               . $rt
@@ -862,26 +909,16 @@ sub timeOfDayRunner {
                                 IV5 => $annualHoursByTimeband,
                                 IV6 => $annualHoursByTimeband
                             }
-                        );
+                          );
 
                         Columnset
                           name => 'Calculation of implied'
                           . ( $blackYellowGreen ? ' special ' : ' ' )
                           . "load coefficients for $rt-rate users",
-                          columns => [ $timebandUseByRateTotal, $implied ];
+                          columns => [ $timebandUseByRateTotal, $implied ]
+                          unless $peakMatrix;
 
-                        $model->{noCoincidenceForHalfHourly}
-                          ? View(
-                            sources => [$implied],
-                            rows    => Labelset(
-                                list => [
-                                    grep {
-                                        !$componentMap->{$_}{"Unit rates p/kWh"}
-                                    } @relevant
-                                ]
-                            )
-                          )
-                          : $implied;
+                        $implied;
 
                     }
                     else { (); }
@@ -894,7 +931,7 @@ sub timeOfDayRunner {
         {
 
             my $red = Arithmetic(
-                name          => 'Contribution to first-band peak kW',
+                name          => 'Contribution to peak band kW',
                 defaultFormat => '0softnz',
                 arithmetic    => $timebandLoadCoefficient
                 ? '=IV1*IV9*IV2/24/IV3*1000'
@@ -946,11 +983,18 @@ sub timeOfDayRunner {
                     rows    => $relevantEndUsersByRate[$_],
                     tariffs => $relevantTariffsByRate[$_],
                 );
-            } 0 .. $model->{maxUnitRates} - 1;
+              } 0 .. $model->{maxUnitRates} - 1
+              unless $peakMatrix;
 
             my $timebandLoadCoefficientAdjusted = Arithmetic(
                 name => 'Load coefficient correction factor'
-                  . ' (kW at peak in band / band average kW)',
+                  . ' (kW at peak in band / band average kW)'
+                  . (
+                    $model->{coincidenceAdj}
+                      && $model->{coincidenceAdj} =~ /group/i
+                    ? ' before grouping'
+                    : ''
+                  ),
                 arithmetic => $timebandLoadCoefficient
                 ? '=IF(IV5<>0,IV4/IV2/IV1,IV6)'
                 : '=IF(IV5<>0,IV4/IV2,IF(IV8<0,-1,1))',
@@ -1064,6 +1108,41 @@ sub timeOfDayRunner {
                 );
 
             }
+            elsif ( $model->{coincidenceAdj} =~ /pick/i ) {
+
+                $tariffGroupset = Labelset( list =>
+                      [ 'Domestic Unrestricted', 'LV Medium Non Domestic', ] );
+
+                $relevantUsers = Labelset(
+                    list => [
+                        grep {
+                                 /domestic/i
+                              && !/non.?dom/i
+                              && $componentMap->{$_}{'Fixed charge p/MPAN/day'}
+                              && !$componentMap->{$_}{'Unit rate 2 p/kWh'}
+                              || /(profile|pc).*[5-8]|medium/i
+                              || $componentMap->{$_}{'Unit rates p/kWh'}
+                              && !$componentMap->{$_}
+                              {'Capacity charge p/kVA/day'};
+                        } @{ $relevantUsers->{list} }
+                    ]
+                );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => [
+                        map {
+                            /domestic/i && !/non.?dom/i ? [qw(1 0)] : [qw(0 1)];
+                        } @{ $relevantUsers->{list} }
+                    ],
+                    byrow => 1,
+                );
+
+            }
             elsif ( $model->{coincidenceAdj} =~ /domnondomvoltctnonct/i ) {
 
                 $tariffGroupset = Labelset(
@@ -1167,7 +1246,7 @@ sub timeOfDayRunner {
             if ($mapping) {
 
                 my $red = Arithmetic(
-                    name          => 'Contribution to first-band peak kW',
+                    name          => 'Contribution to peak band kW',
                     defaultFormat => '0softnz',
                     arithmetic    => $timebandLoadCoefficient
                     ? '=IV1*IV9*IV2/24/IV3*1000'
@@ -1211,7 +1290,7 @@ sub timeOfDayRunner {
                   );
 
                 my $redG = SumProduct(
-                    name          => 'Group contribution to first-band peak kW',
+                    name          => 'Group contribution to peak band kW',
                     defaultFormat => '0softnz',
                     matrix        => $mapping,
                     vector        => $red,

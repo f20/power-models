@@ -33,8 +33,6 @@ use utf8;
 require Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
 
-require POSIX;
-
 sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
@@ -164,6 +162,7 @@ sub worksheetsAndClosures {
 
 sub technicalNotes {
     my ($model) = @_;
+    require POSIX;
     Notes(
         name       => '',
         rowFormats => ['caption'],

@@ -1,8 +1,8 @@
-﻿package SpreadsheetModel::Workbook;
+﻿package CDCM::ARP;
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Reckon LLP and others.
+Copyright 2014 Franck Latrémolière.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,9 +29,44 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use base
-  qw(Spreadsheet::WriteExcel SpreadsheetModel::WorkbookCreate SpreadsheetModel::WorkbookFormats);
+use utf8;
+require Spreadsheet::WriteExcel::Utility;
+use SpreadsheetModel::Shortcuts ':all';
 
-sub fileExtension { '.xls'; }
+sub new {
+    bless { count => 0 }, shift;
+}
+
+sub worksheetsAndClosuresWithArp {
+
+    my ( $arp, $model, $wbook, @pairs ) = @_;
+
+    return @pairs if $arp->{count}++;
+
+    'ARP$' => sub {
+        my ($wsheet) = @_;
+
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $model->topNotes,
+          $model->licenceNotes;
+
+        $arp->{finish} = sub {
+            delete $wbook->{logger};
+            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                name       => '',
+                lines      => [ 'Model count: ' . $arp->{count} ],
+                rowFormats => ['notes'],
+            );
+        };
+
+      },
+
+      @pairs;
+
+}
+
+sub finish {
+    $_[0]->{finish}->() if $_[0]->{finish};
+}
 
 1;

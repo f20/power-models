@@ -1,13 +1,13 @@
 ---
-.: DCP 179 March 2014
+.: DCP 179 April 2014 option 7
 PerlModule: CDCM
 alwaysUseRAG: 1
-coincidenceAdj: none
+coincidenceAdj: groupumspickgspInsteadOfRed
 drm: top500gsp
 extraLevels: 1
-fixedCap: group
+fixedCap: 1-4
 forwardLinks: 1
-impliedLoadFactors: input
+impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1
@@ -16,5 +16,5 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp179dcp163
+tariffs: commongensubdcp130dcp163dcp179bare
 timeOfDay: timeOfDaySpecial

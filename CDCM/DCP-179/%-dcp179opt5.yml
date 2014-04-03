@@ -1,13 +1,13 @@
 ---
-.: DCP 179 lzb
+.: DCP 179 April 2014 option 5
 PerlModule: CDCM
 alwaysUseRAG: 1
-coincidenceAdj: groupumsdomnondom
+coincidenceAdj: groupumspick
 drm: top500gsp
 extraLevels: 1
-fixedCap: group
+fixedCap: 1-4
 forwardLinks: 1
-impliedLoadFactors: input
+impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

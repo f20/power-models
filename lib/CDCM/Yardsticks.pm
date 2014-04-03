@@ -50,8 +50,8 @@ sub yardsticks {
         $daysInYear,
     ) = @_;
 
-# The unrestricted yardstick used in reactive power calculations even if $model->{alwaysUseRAG}
-
+    # This unrestricted yardstick is used in reactive power calculations
+    # even if all active power tariffs are on a multi-rate basis.
     my $yardstickUnitsComponents = Arithmetic(
         name => Label(
             'Pay-as-you-go p/kWh',

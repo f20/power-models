@@ -37,11 +37,6 @@ sub allocationRules {
 
     my ($model) = @_;
 
-    if ( $model->{multiModelSharing} ) {
-        return $model->{multiModelSharing}{optionsColumns}
-          if $model->{multiModelSharing}{optionsColumns};
-    }
-
     my $expenditureSet = Labelset( list => [ split /\n/, <<END_OF_LIST] );
 Load related new connections & reinforcement (net of contributions)
 Non-load new & replacement assets (net of contributions)
@@ -147,9 +142,6 @@ END_OF_LIST
         columns  => \@c,
         location => 'Options'
     );
-
-    $model->{multiModelSharing}{optionsColumns} = \@c
-      if $model->{multiModelSharing};
 
     \@c;
 

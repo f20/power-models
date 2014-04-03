@@ -46,6 +46,13 @@ sub requiredModulesForRuleset {
       $ruleset->{dcp118} ? qw(ModelM::Dcp118) : ();
 }
 
+sub setUpMultiModelSharing {
+    my ( $module, $mmsRef, $options, $oaRef ) = @_;
+    return unless $#$oaRef;
+    require ModelM::MultiModel;
+    $options->{multiModelSharing} = $$mmsRef ||= ModelM::MultiModel->new;
+}
+
 sub new {
     my $class = shift;
     my $model = bless { inputTables => [], @_ }, $class;
@@ -62,8 +69,12 @@ END_OF_LIST
       $model->totalDpcr;
     my ( $revenue, $incentive, $pension, ) = $model->oneYearDpcr;
     my ( $units, ) = $model->units($allocLevelset);
-    my ( $allocationRules, $capitalised, $directIndicator, ) =
-      @{ $model->allocationRules };
+    my ( $allocationRules, $capitalised, $directIndicator, ) = @{
+        $model->{multiModelSharing}
+        ? ( $model->{multiModelSharing}{optionsColumns} ||=
+              $model->allocationRules )
+        : $model->allocationRules
+    };
     my ( $expenditure, ) = $model->expenditure( $allocationRules->{rows} );
     my ( $netCapexPercentages, ) = $model->netCapexPercentages($allocLevelset);
     my ( $meavPercentages, )     = $model->meavPercentages($allocLevelset);

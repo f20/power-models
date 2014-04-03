@@ -67,11 +67,11 @@ sub _applyDataOverride {
 }
 
 sub create {
+
     my ( $module, $fileName, $instructions, $streamMaker ) = @_;
     my @optionArray =
       ref $instructions eq 'ARRAY' ? @$instructions : $instructions;
     my @localTime = localtime;
-    $module->fixName( $fileName, \@localTime );
     my $tmpDir;
     $streamMaker ||= sub {
         $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
@@ -92,21 +92,16 @@ sub create {
       if $tmpDir && $module !~ /xlsx/i;  # work around taint issue with IO::File
     $wbook->setFormats( $optionArray[0] );
     my @models;
-    my %allClosures;
+    my ( %allClosures, @wsheetShowOrder, %wsheetActive, %wsheetPassword );
     my @forwardLinkFindingRun;
     my $multiModelSharing;
-
-    if ( $#optionArray > 0 ) {
-        $multiModelSharing = {};
-        $_->{multiModelSharing} = $multiModelSharing foreach @optionArray;
-    }
 
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
         if ( $options->{dataset} ) {
             $wbook->{noData} = !$options->{illustrative};
             if ( my $yaml = delete $options->{dataset}{yaml} )
-            {    # deferred parsing
+            {                            # deferred parsing
                 require YAML;
                 $options->{dataset} = YAML::Load($yaml);
             }
@@ -117,6 +112,10 @@ sub create {
         }
         my $modelCount = $_ ? ".$_" : '';
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
+        $options->{PerlModule}
+          ->setUpMultiModelSharing( \$multiModelSharing, $options,
+            \@optionArray )
+          if UNIVERSAL::can( $options->{PerlModule}, 'setUpMultiModelSharing' );
         my $model = $options->{PerlModule}->new(%$options);
         $forwardLinkFindingRun[$_] = $model if $options->{forwardLinks};
         $options->{revisionText} ||= '';
@@ -128,45 +127,36 @@ sub create {
             name            => 'List of data tables',
             finalTablesBold => $model->{forwardLinks},
         );
-        my %isFrontSheet =
-          map { ( $_ => undef ); }
-          $model->can('frontSheets')
-          ? $model->frontSheets($wbook)
-          : qw(Overview Index);
-        $options->{$_} = [] foreach qw(wsheetRunOrder wsheetFront wsheetBack);
-        my @pairs = $model->worksheetsAndClosures($wbook);
 
+        my $canPriority = $model->can('sheetPriority');
+        my @pairs       = $model->worksheetsAndClosures($wbook);
+        $options->{wsheetRunOrder} = [];
         while ( ( local $_, my $closure ) = splice @pairs, 0, 2 ) {
+            my $priority = $canPriority ? $model->sheetPriority($_)
+              || 0 : /^(?:Index|Overview)$/is ? 1 : 0;
             my $fullName = /(.*)\$$/ ? $1 : $_ . $modelCount;
             push @{ $options->{wsheetRunOrder} }, $fullName;
-            push @{
-                $options->{
-                    exists $isFrontSheet{$_}
-                    ? 'wsheetFront'
-                    : 'wsheetBack'
-                }
-              },
-              $fullName;
+            push @{ $wsheetShowOrder[$priority] }, $fullName;
             $allClosures{$fullName} = $closure;
+            undef $wsheetActive{$_}
+              if $options->{activeSheets} && /$options->{activeSheets}/;
+            $wsheetPassword{$fullName} = $options->{password}
+              if $options->{protect} && !/^(?:Index|Overview)$/is;
         }
 
     }
 
     my %wsheet;
-    foreach ( 0 .. $#optionArray ) {
-        my $options = $optionArray[$_];
-        foreach ( @{ $options->{wsheetFront} }, @{ $options->{wsheetBack} } ) {
+
+    for ( my $i = $#wsheetShowOrder ; $i >= 0 ; --$i ) {
+        foreach ( @{ $wsheetShowOrder[$i] } ) {
             my $ws = $wbook->add_worksheet($_);
-            $ws->activate
-              if $options->{activeSheets} && /$options->{activeSheets}/;
+            $ws->activate if exists $wsheetActive{$_};
             $ws->fit_to_pages( 1, 0 );
-            $ws->set_header("&L&A&C$options->{revisionText}&R&P of &N");
+            $ws->set_header("&L&A&C&R&P of &N");
             $ws->set_footer("&F");
             $ws->hide_gridlines(2);
-            $ws->protect( $options->{password} )
-              if $options->{protect}
-              && $_ ne 'Overview'
-              && $_ ne 'Index';
+            $ws->protect( $wsheetPassword{$_} ) if exists $wsheetPassword{$_};
             $wsheet{$_} = $ws;
         }
     }
@@ -281,11 +271,12 @@ sub create {
 
     }
 
-    $multiModelSharing->{finish}->()
-      if $multiModelSharing && ref $multiModelSharing->{finish} eq 'CODE';
+    $multiModelSharing->finish
+      if UNIVERSAL::can( $multiModelSharing, 'finish' );
 
     $wbook->close;
     $closer->();
+
 }
 
 sub writeColourCode {

@@ -61,7 +61,9 @@ foreach (@ARGV) {
 
     if (/^-/s) {
         if    (/^-+$/s)          { $maker->{processStream}->( \*STDIN ); }
-        elsif (/^-+xlsx/is)      { $maker->{useXLSX}->(); }
+        elsif (/^-+xlsx$/is)     { $maker->{useXLSX}->(); }
+        elsif (/^-+xls$/is)      { $maker->{useXLS}->(); }
+        elsif (/^-+pickbest/is)  { $maker->{pickBestRules}->(); }
         elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
         elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
         elsif (/^-+(html|text|perl|yaml)/is) {
@@ -77,7 +79,9 @@ foreach (@ARGV) {
         elsif (/^-+password=(.+)/is) { $override{password} = $1; }
         elsif (/^-+single/is)        { $threads            = 1; }
         elsif (/^-+([0-9]+)/is)      { $threads            = $1; }
-        elsif (/^-+onefile/is)       { $override{template} = time . "-$$"; }
+        elsif (/^-+onefile(=(.+))?/is) {
+            $override{template} = $2 || time . "-$$";
+        }
         elsif (
 /^-+(numExtraLocations|numExtraTariffs|numLocations|numSampleTariffs|numTariffs)=([0-9]+)/is
           )

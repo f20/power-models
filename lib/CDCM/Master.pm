@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -73,6 +73,13 @@ sub requiredModulesForRuleset {
       ? 'CDCM::TimeOfDaySpecial'
       : ();
 
+}
+
+sub setUpMultiModelSharing {
+    my ( $module, $mmsRef, $options, $oaRef ) = @_;
+    return unless $#$oaRef;
+    require CDCM::ARP;
+    $options->{arpSharedData} = $$mmsRef ||= CDCM::ARP->new;
 }
 
 sub new {
@@ -1140,13 +1147,16 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
 
     if ( $model->{summary} ) {
 
-        push @{ $model->{optionLines} }, ' ';
+        push @{ $model->{optionLines} },
+          'The list of options above is not comprehensive', ' ';
 
         push @{ $model->{overallSummary} },
           Columnset(
-            name => 'Workbook build options and main parameters',
+            name => $model->{model100}
+            ? 'Workbook build options and main parameters'
+            : 'Headline parameters',
             1 ? () : ( singleRowName => 'Parameter value' ),
-            lines   => $model->{optionLines},
+            $model->{model100} ? ( lines => $model->{optionLines} ) : (),
             columns => $model->{summaryColumns},
           );
 

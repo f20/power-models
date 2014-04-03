@@ -95,8 +95,10 @@ sub preprocessDataset {
         my %tariffs;
 
         splice @$ds, 8, 0,
-          { map { ( $_ => $model->{dcp189default} || 'N' ); }
-              keys %{ $ds->[1] } }
+          {
+            map { ( $_ => $model->{dcp189default} || 'N' ); }
+              keys %{ $ds->[1] }
+          }
           if $model->{dcp189}
           and !$ds->[8]
           || !$ds->[8]{'_column'}

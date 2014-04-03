@@ -494,6 +494,7 @@ This sheet contains data that can be used to populate tables 1191 to 1194 in an 
 
 sub technicalNotes {
     my ($model) = @_;
+    require POSIX;
     Notes(
         name       => '',
         rowFormats => ['caption'],

@@ -175,8 +175,7 @@ sub standingCharges {
 
     my $maxKvaByEndUser;
 
-    # The lvCosts and fixedCap options interact and
-    # do not behave in a particularly natural way.
+# The lvCosts and fixedCap options interact and do not behave in a particularly natural way.
 
     if ( $model->{fixedCap} && $model->{fixedCap} =~ /group|1-4/i ) {
 
@@ -696,8 +695,8 @@ sub standingCharges {
       )
       : $capacityUser->{source};
 
-# The unrestricted yardstick used in reactive power calculations even if $model->{alwaysUseRAG}
-
+    # This unrestricted yardstick is used in reactive power calculations
+    # even if all active power tariffs are on a multi-rate basis.
     my $unitYardstick = GroupBy(
         name   => 'Yardstick total p/kWh (taking account of standing charges)',
         rows   => $demandTariffsByEndUser,

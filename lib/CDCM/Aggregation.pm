@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -385,7 +386,6 @@ sub roundingAndFinishing {
             name    => 'Revenue forecast summary',
             columns => [ @columns, $totalNet, $revenueError, ],
           );
-        my $rerr = Stack( sources => [$revenueError] );
         splice @{ $model->{summaryColumns} }, 1, 0,
           $totalRevenuesFromMatching
           ? Stack( sources => [$totalRevenuesFromMatching] )
@@ -393,12 +393,12 @@ sub roundingAndFinishing {
             name => 'No revenue matching',
             data => [''],
           ),
-          $rerr,
+          Stack( sources => [$revenueError] ),
           Arithmetic(
             name          => 'Over/under recovery',
             defaultFormat => '%soft',
             arithmetic    => '=IV1/IV2',
-            arguments     => { IV1 => $rerr, IV2 => $allowedRevenue }
+            arguments     => { IV1 => $revenueError, IV2 => $allowedRevenue }
           );
     }
 

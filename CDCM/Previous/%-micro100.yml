@@ -1,0 +1,15 @@
+---
+.: Micro-model for ARP
+PerlModule: CDCM
+arp: 1
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noLinks: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+tariffs: commongensub

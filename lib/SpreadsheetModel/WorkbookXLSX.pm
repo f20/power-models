@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2011 Reckon LLP and others.
+Copyright 2008-2014 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,13 +31,7 @@ use warnings;
 use strict;
 use base
   qw(Excel::Writer::XLSX SpreadsheetModel::WorkbookCreate SpreadsheetModel::WorkbookFormats);
-use POSIX 'strftime';
 
-sub fixName {
-    $_[1] =
-      strftime( '%Y-%m-%dT%H-%M-%S', $_[2] ? @{ $_[2] } : localtime )
-      . "-$$.xlsx"
-      unless $_[1] && $_[1] =~ /\.xlsx$/i;
-}
+sub fileExtension { '.xlsx'; }
 
 1;

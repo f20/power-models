@@ -34,22 +34,20 @@ use utf8;
 require Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
 
-use POSIX ();
-
 sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
-
-    $wbook->{lastSheetNumber} = 13;
 
     my @pairs;
 
     push @pairs, 'Input' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 13;
 
         # reset in case of building several models in a single workbook
+        $wbook->{lastSheetNumber} = 13;
         delete $wbook->{highestAutoTableNumber};
+        $wsheet->{sheetNumber} = 13;
+
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
@@ -81,13 +79,14 @@ sub worksheetsAndClosures {
           . qq%&" ("&'$sh'!%
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
-        push @{ $model->{multiModelSharing}{modelNameList} },
-            qq%='$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
-          . qq%&" "&'$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
-          if $model->{multiModelSharing};
-
+        $model->{multiModelSharing}->addModelName(
+                qq%='$sh'!%
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
+              . qq%&" "&'$sh'!%
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                $ro, $co + 2
+              )
+        ) if $model->{multiModelSharing};
         $_->wsWrite( $wbook, $wsheet )
           foreach sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
           @{ $model->{inputTables} };
@@ -114,83 +113,15 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Results' ), @{ $model->{impactTables} };
-        push @{ $model->{multiModelSharing}{impactTablesColl} },
-          $model->{impactTables}
+        $model->{multiModelSharing}->addImpactTableSet( $model->{impactTables} )
           if $model->{multiModelSharing};
     };
 
-    if ( my $mms = $model->{multiModelSharing} ) {
+    return $model->{multiModelSharing}
+      ->worksheetsAndClosuresWithController( $model, $wbook, @pairs )
+      if $model->{multiModelSharing};
 
-        return @pairs if $mms->{controller};
-        $mms->{controller} = 1;
-
-        unshift @pairs, 'Control$' => sub {
-            my ($wsheet) = @_;
-            $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   60 );
-            $wsheet->set_column( 1, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                name  => 'Controller',
-                lines => $model->illustrativeNotice,
-              ),
-              $model->licenceNotes,
-              @{ $mms->{optionsColumns} };
-
-            $mms->{finish} = sub {
-                delete $wbook->{logger};
-                my $modelNameset = Labelset( list => $mms->{modelNameList} );
-                $_->wsWrite( $wbook, $wsheet ) foreach map {
-                    my $tableNo    = $_;
-                    my $leadTable  = $mms->{impactTablesColl}[0][$tableNo];
-                    my $leadColumn = $leadTable->{columns}[0] || $leadTable;
-                    my ( $sh, $ro, $co ) =
-                      $leadColumn->wsWrite( $wbook, $wsheet );
-                    $sh = $sh->get_name;
-                    my $colset = Labelset(
-                        list => [
-                            map {
-                                qq%='$sh'!%
-                                  . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                    $ro - 1, $co + $_ )
-                            } 0 .. $#{ $leadTable->{columns} }
-                        ]
-                    );
-                    my $defaultFormat = $leadTable->{defaultFormat}
-                      || $leadTable->{columns}[0]{defaultFormat};
-                    $defaultFormat =~ s/soft/copy/
-                      unless $defaultFormat =~ /pm$/;
-                    Constant(
-                        name          => "From $leadTable->{name}",
-                        defaultFormat => $defaultFormat,
-                        rows          => $modelNameset,
-                        cols          => $colset,
-                        byrow         => 1,
-                        data          => [
-                            map {
-                                my $table = $_->[$tableNo];
-                                my ( $sh, $ro, $co ) = $table->{columns}[0]
-                                  ->wsWrite( $wbook, $wsheet );
-                                $sh = $sh->get_name;
-                                [
-                                    map {
-                                        qq%='$sh'!%
-                                          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                            $ro, $co + $_ );
-                                    } 0 .. $#{ $leadTable->{columns} }
-                                ];
-                            } @{ $mms->{impactTablesColl} }
-                        ]
-                    );
-                } 0 .. $#{ $mms->{impactTablesColl}[0] };
-            };
-
-        };
-
-        return @pairs;
-
-    }
-
-    return @pairs, 'Index' => sub {
+    @pairs, 'Index' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->fit_to_pages( 1, 2 );
@@ -208,6 +139,7 @@ sub worksheetsAndClosures {
 
 sub technicalNotes {
     my ($model) = @_;
+    require POSIX;
     Notes(
         name       => '',
         rowFormats => ['caption'],

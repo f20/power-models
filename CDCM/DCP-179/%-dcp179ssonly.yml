@@ -6,7 +6,7 @@ coincidenceAdj: none
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
-impliedLoadFactors: input
+impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

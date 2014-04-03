@@ -58,7 +58,7 @@ sub factory {
     my $self = bless {}, $class;
     my $threads1 = 2;
     my @options;
-    my ( $workbookModule, $fileExtension, @rulesets, @datasets, %files );
+    my ( $pickBestRules, $workbookModule, @rulesets, @datasets, %files );
 
     my $processRuleset = sub {
         local $_ = $_[0];
@@ -143,10 +143,24 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         }
     };
 
+    $self->{useXLS} = sub {
+        if ( eval 'require SpreadsheetModel::Workbook' ) {
+            $workbookModule = 'SpreadsheetModel::Workbook';
+        }
+        else {
+            warn 'Could not load SpreadsheetModel::Workbook';
+            warn $@;
+        }
+        $self;
+    };
+
+    $self->{pickBestRules} = sub {
+        $pickBestRules = exists $_[0] ? $_[0] : 1;
+    };
+
     $self->{useXLSX} = sub {
         if ( eval 'require SpreadsheetModel::WorkbookXLSX' ) {
-            $workbookModule ||= 'SpreadsheetModel::WorkbookXLSX';
-            $fileExtension = '.xlsx';
+            $workbookModule = 'SpreadsheetModel::WorkbookXLSX';
         }
         else {
             warn 'Could not load SpreadsheetModel::WorkbookXLSX';
@@ -238,11 +252,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
     $self->{validate} = sub {
         my ( $perl5dir, $dbString ) = @_;
 
-        unless ( $workbookModule && $fileExtension ) {
-            $workbookModule = 'SpreadsheetModel::Workbook';
-            $fileExtension  = '.xls';
-            require SpreadsheetModel::Workbook;
-        }
+        $self->{useXLSX}->() unless $workbookModule;
 
         use Ancillary::Validation qw(sha1File sourceCodeSha1);
         my $sourceCodeSha1 = sourceCodeSha1($perl5dir);
@@ -269,41 +279,69 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
 
     };
 
+    my $score = sub {
+        my ( $metadata, $rule ) = @_;
+        my $score = 0;
+        $score += 9000 if $metadata->[0] eq $rule->{PerlModule};
+        if ( $rule->{PerlModule} eq 'CDCM' ) {
+            $score += 100
+              if $rule->{tariffs} =~ /dcp130/i xor $metadata->[1] lt '2012-10';
+        }
+    };
+
+    my $addToList = sub {
+        my ( $data, $rule ) = @_;
+        my $spreadsheetFile = $rule->{template};
+        if ( $rule->{revisionText} ) {
+            $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
+            $spreadsheetFile .= $rule->{revisionText};
+        }
+        $spreadsheetFile =~ s/%/$data->{'~datasetName'}/;
+        $spreadsheetFile .= $workbookModule->fileExtension;
+        if ( $files{$spreadsheetFile} ) {
+            $files{$spreadsheetFile} = [
+                undef,
+                [
+                      $files{$spreadsheetFile}[0]
+                    ? $files{$spreadsheetFile}
+                    : @{ $files{$spreadsheetFile}[1] },
+                    [ $rule, $data ]
+                ]
+            ];
+        }
+        else {
+            $files{$spreadsheetFile} = [ $rule, $data ];
+        }
+    };
+
     $self->{fileList} = sub {
-        foreach my $rule (@rulesets) {
-            my @wantTables;
-            @wantTables = split /\s+/, $rule->{wantTables}
-              if $rule->{wantTables};
-            foreach my $data (@datasets) {
+        foreach my $data (@datasets) {
+            my @scored;
+            my $metadata;
+            $metadata =
+              [ $data->{'~datasetSource'}{file} =~
+                  /([A-Z0-9-]+)\/Data.*(20[0-9][0-9]-[0-9][0-9]).*/ ]
+              if $pickBestRules
+              && $data->{'~datasetSource'}
+              && $data->{'~datasetSource'}{file};
+            foreach my $rule (@rulesets) {
                 next
-                  if keys %{ $data->{dataset} }
+                  if $rule->{wantTables} && keys %{ $data->{dataset} }
                   and grep {
                           !$data->{dataset}{$_}
                       and !$data->{dataset}{yaml}
                       || $data->{dataset}{yaml} !~ /^$_:/m
-                  } @wantTables;
-                my $spreadsheetFile = $rule->{template};
-                if ( $rule->{revisionText} ) {
-                    $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
-                    $spreadsheetFile .= $rule->{revisionText};
-                }
-                $spreadsheetFile =~ s/%/$data->{'~datasetName'}/;
-                $spreadsheetFile .= $fileExtension;
-                if ( $files{$spreadsheetFile} ) {
-                    $files{$spreadsheetFile} = [
-                        undef,
-                        [
-                              $files{$spreadsheetFile}[0]
-                            ? $files{$spreadsheetFile}
-                            : @{ $files{$spreadsheetFile}[1] },
-                            [ $rule, $data ]
-                        ]
-                    ];
+                  } split /\s+/, $rule->{wantTables};
+                if ($metadata) {
+                    push @scored, [ $rule, $score->( $metadata, $rule ) ];
                 }
                 else {
-                    $files{$spreadsheetFile} = [ $rule, $data ];
+                    $addToList->( $data, $rule );
                 }
             }
+            $addToList->(
+                $data, ( sort { $b->[1] <=> $a->[1] } @scored )[0][0]
+            ) if @scored;
         }
         keys %files;
     };
