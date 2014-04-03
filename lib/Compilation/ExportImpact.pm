@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2009-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ use strict;
 use utf8;
 
 sub edcmTariffImpact {
-    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my ( $self, $wbmodule, %options ) = @_;
     $options{linesAfter} ||= [ 1 .. 6 ];
     $options{components} ||= [ split /\n/, <<EOL];
 Import super-red unit rate (p/kWh)
@@ -55,12 +55,12 @@ EOL
     $options{tableNumber}     ||= 4501;
     $options{firstColumn}     ||= 2;
     $options{nameExtraColumn} ||= 1;
-    $self->genericTariffImpact( $wbmodule, $fileExtension, %options );
+    $self->genericTariffImpact( $wbmodule, %options );
 }
 
 sub cdcmTariffImpact {
 
-    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my ( $self, $wbmodule, %options ) = @_;
 
     $options{linesAfter} ||= [ split /\n/, <<EOL ];
 Domestic Unrestricted
@@ -162,18 +162,18 @@ EOL
     $options{tableNumber} ||= 3701;
     $options{firstColumn} ||= 3;
 
-    $self->genericTariffImpact( $wbmodule, $fileExtension, %options );
+    $self->genericTariffImpact( $wbmodule, %options );
 
 }
 
 sub genericTariffImpact {
 
-    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my ( $self, $wbmodule, %options ) = @_;
 
     _defaultOptions( \%options );
 
     my $wb = $wbmodule->new(
-        "Impact - Illustrative tariffs $options{dcpName}$fileExtension");
+        "Impact tariffs $options{dcpName}".$wbmodule->fileExtension);
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     my $linesAfter = $options{linesAfter};
@@ -302,12 +302,12 @@ sub genericTariffImpact {
 
 sub cdcmPpuImpact {
 
-    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my ( $self, $wbmodule, %options ) = @_;
 
     _defaultOptions( \%options );
 
     my $wb = $wbmodule->new(
-        "Impact - Illustrative pence per unit $options{dcpName}$fileExtension");
+        "Impact pence per unit $options{dcpName}".$wbmodule->fileExtension);
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
@@ -415,7 +415,7 @@ EOL
 
 sub cdcmRevenueMatrixImpact {
 
-    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my ( $self, $wbmodule, %options ) = @_;
 
     $options{linesAfter} ||= [ split /\n/, <<EOL ];
 Domestic Unrestricted
@@ -450,30 +450,30 @@ EOL
     $options{col2}        = 25;
     $options{columns}     = [24];
 
-    $self->revenueMatrixImpact( $wbmodule, $fileExtension, %options );
+    $self->revenueMatrixImpact( $wbmodule, %options );
 
 }
 
 sub edcmRevenueMatrixImpact {
-    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my ( $self, $wbmodule, %options ) = @_;
     $options{linesAfter} ||= [ 1 .. 6 ];
     $options{tableNumber}     = 4601;
     $options{col1}            = 9;
     $options{col2}            = 33;
     $options{columns}         = [ 16, 20 ];
     $options{nameExtraColumn} = 1;
-    $self->revenueMatrixImpact( $wbmodule, $fileExtension, %options );
+    $self->revenueMatrixImpact( $wbmodule, %options );
 }
 
 sub revenueMatrixImpact {
 
-    my ( $self, $wbmodule, $fileExtension, %options ) = @_;
+    my ( $self, $wbmodule, %options ) = @_;
 
     _defaultOptions( \%options );
 
     my $wb =
       $wbmodule->new(
-        "Impact - Illustrative revenue $options{dcpName}$fileExtension");
+        "Impact revenue $options{dcpName}".$wbmodule->fileExtension);
     $wb->setFormats( { colour => 'orange' } );
 
     my $linesAfter = $options{linesAfter};

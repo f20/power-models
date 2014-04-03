@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Reckon LLP and others.
+Copyright 2009-2014 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -87,7 +87,7 @@ drop table mytables;
 }
 
 sub tscsCreateOutputFiles {
-    my ( $self, $workbookModule, $fileExtension, $options ) = @_;
+    my ( $self, $workbookModule, $options ) = @_;
     my ( $file, $wb, $smallNumberFormat, $bigNumberFormat, $thFormat,
         $thcFormat, $captionFormat, $titleFormat );
     $file = '';
@@ -109,14 +109,19 @@ sub tscsCreateOutputFiles {
       );
     my $tab1 = 0;
 
+    my $counter = 0;
+
     while ( my ( $tab, $table ) = $tabList->fetchrow_array ) {
+        next
+          if $options->{tablesMatching} && !grep { $tab =~ /$_/ }
+          @{ $options->{tablesMatching} };
         my ( $ws, $row, $csv );
         if ( $options->{wb} ) {
             if ( substr( $tab, 0, 2 ) ne $file ) {
                 $wb =
                   $workbookModule->new( 'TSCS-'
                       . ( $file = substr( $tab, 0, 2 ) )
-                      . $fileExtension );
+                      . $workbookModule->fileExtension );
                 $wb->setFormats($options);
                 $smallNumberFormat = $wb->getFormat('0.000copynz');
                 $bigNumberFormat   = $wb->getFormat('0copynz');
@@ -125,7 +130,14 @@ sub tscsCreateOutputFiles {
                 $captionFormat     = $wb->getFormat('caption');
                 $titleFormat       = $wb->getFormat('notes');
             }
-            $ws = $wb->add_worksheet( $tab == $tab1 ? $tab + rand() : $tab );
+            if ( $tab == $tab1 ) {
+                $counter ||= -1;
+                --$counter;
+            }
+            else {
+                $counter = '';
+            }
+            $ws   = $wb->add_worksheet( $tab . $counter );
             $tab1 = $tab;
             $ws->set_column( 0, 2,   36 );
             $ws->set_column( 3, 250, 18 );

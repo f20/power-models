@@ -35,7 +35,7 @@ use Encode 'decode_utf8';
 
 sub edcmGenerationOptions {
     require YAML;
-    $db->summariesByCompany( $workbookModule, $fileExtension,
+    $db->summariesByCompany( $workbookModule,
         appendix => YAML::Load( <<'EOY' ) );
 ---
 Scenario 1:
@@ -74,7 +74,7 @@ EOY
 }
 
 sub summariesByCompany {
-    my ( $self, $workbookModule, $fileExtension, $name, @sheets ) = @_;
+    my ( $self, $workbookModule, $name, @sheets ) = @_;
     my %bidMap;
     foreach (
         @{ $$self->selectall_arrayref('select bid, filename from books') } )
@@ -96,8 +96,10 @@ sub summariesByCompany {
         'select row, v from data where bid=? and tab=? and col=? and row>0');
 
     while ( my ( $company, $optionhr ) = each %bidMap ) {
-        warn "Making $company-$name$fileExtension";
-        my $wb = $workbookModule->new("$company-$name$fileExtension");
+        warn "Making $company-$name";
+        my $wb =
+          $workbookModule->new(
+            $company . '-' . $name . $workbookModule->fileExtension );
         $wb->setFormats;
         my $thcFormat   = $wb->getFormat('thc');
         my $titleFormat = $wb->getFormat('notes');
@@ -129,7 +131,7 @@ sub summariesByCompany {
                     : $title =~ /\bp\//     ? '0.00copynz'
                     : $title =~ /%/         ? '%softpm'
                     : $title =~ /change/i   ? '0softpm'
-                    : '0softnz'
+                    :                         '0softnz'
                 );
                 $ws->set_column( 1 + $c, 1 + $c, $title =~ /name/i ? 54 : 18 );
                 unless ($c) {

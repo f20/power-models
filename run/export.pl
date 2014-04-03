@@ -46,52 +46,53 @@ BEGIN {
 use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 
 if ( grep { /extract1076from1001/i } @ARGV ) {
-    require Compilation::DatabaseExtract;
+    require Compilation::Extract;
     Compilation->extract1076from1001;
 }
 
 if ( grep { /chedam/i } @ARGV ) {
-    require Chedam::Master;
-    Chedam->runFromDatabase;
+    require Compilation::ChedamMaster;
+    Compilation::Chedam->runFromDatabase;
 }
 
-require Compilation::DatabaseExport;
+require Compilation::Export;
 my $db = Compilation->new;
 
 if ( grep { /\bcsv\b/i } @ARGV ) {
-    require Compilation::DatabaseExportCsv;
+    require Compilation::ExportCsv;
     $db->csvCreate( grep { /small/i } @ARGV );
     exit 0;
 }
 
-my $workbookModule = 'SpreadsheetModel::Workbook';
-my $fileExtension  = '.xls';
-require SpreadsheetModel::Workbook;
-if ( grep { /xlsx/i } @ARGV ) {
-    $workbookModule = 'SpreadsheetModel::WorkbookXLSX';
-    $fileExtension .= 'x';
-    require SpreadsheetModel::WorkbookXLSX;
-}
+my $workbookModule =
+  ( grep { /^-+xls$/i } @ARGV )
+  ? 'SpreadsheetModel::Workbook'
+  : 'SpreadsheetModel::WorkbookXLSX';
+eval "require $workbookModule" or die $@;
+
 my $options = ( grep { /right/i } @ARGV ) ? { alignment => 'right' } : {};
 
 foreach
   my $modelsMatching ( map { /\ball\b/i ? '.' : m#^/(.+)/$# ? $1 : (); } @ARGV )
 {
-    require Compilation::DatabaseExportTabs;
+    require Compilation::ExportTabs;
     my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @ARGV;
     @tablesMatching = ('.') unless @tablesMatching;
     foreach my $tablesMatching (@tablesMatching) {
         local $_ = "Compilation $modelsMatching$tablesMatching";
         s/ *[^ a-zA-Z0-9-^]//g;
-        $db->tableCompilations( $workbookModule, $fileExtension, $options,
+        $db->tableCompilations( $workbookModule, $options,
             $_ => ( $modelsMatching, $tablesMatching ) );
     }
 }
 
 if ( grep { /\btscs/i } @ARGV ) {
-    require Compilation::DatabaseExportTscs;
+    require Compilation::ExportTscs;
+    my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @ARGV;
+    @tablesMatching = ('.') unless @tablesMatching;
+    $options->{tablesMatching} = \@tablesMatching;
     $db->tscsCreateIntermediateTables unless grep { /norebuild/i } @ARGV;
-    $db->tscsCreateOutputFiles( $workbookModule, $fileExtension,
+    $db->tscsCreateOutputFiles( $workbookModule,
         { %$options, ( ( grep { /csv/i } @ARGV ) ? 'csv' : 'wb' ) => 1 } );
 }
 
@@ -108,9 +109,9 @@ if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
         $name ||= $dcp;
         $base = qr/original|clean|master|mini|L201|F201/i;
     }
-    require Compilation::DatabaseExportImpact;
+    require Compilation::ExportImpact;
     my @arguments = (
-        $workbookModule, $fileExtension,
+        $workbookModule,
         dcpName   => $name,
         basematch => sub { $_[0] =~ /$base/i; },
         dcpmatch  => sub { $_[0] =~ /-$dcp/i; },

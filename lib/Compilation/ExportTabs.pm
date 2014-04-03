@@ -39,9 +39,8 @@ sub _preventOverwriting {
 }
 
 sub tableCompilations {
-    my ( $self, $workbookModule, $fileExtension, $options, $optionName,
-        $fileSearch, $tabSearch )
-      = @_;
+    my ( $self, $workbookModule, $options, $optionName,
+        $fileSearch, $tabSearch ) = @_;
     my $spacing;
     my $numCo = 0;
     {
@@ -113,7 +112,9 @@ sub tableCompilations {
 
         unless ( $tabNumber =~ /^$file/ ) {
             $file = substr $tabNumber, 0, 2;
-            $wb = $workbookModule->new("$optionName-$file$fileExtension");
+            $wb =
+              $workbookModule->new(
+                $optionName . '-' . $file . $workbookModule->fileExtension );
             $wb->setFormats($options);
             $smallNumberFormat = $wb->getFormat('0.000copynz');
             $bigNumberFormat   = $wb->getFormat('0copynz');
