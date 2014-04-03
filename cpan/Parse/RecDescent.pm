@@ -16,7 +16,7 @@ my $MAXREP  = 100_000_000;  # REPETITIONS MATCH AT MOST 100,000,000 TIMES
 
 #ifndef RUNTIME
 sub import  # IMPLEMENT PRECOMPILER BEHAVIOUR UNDER:
-        #    perl -MParse::RecDescent - <grammarfile> <classname> [runtimeclassname]
+        #    perl -MParse::RecDescent - <grammarfile> <classname>
 {
     local *_die = sub { print @_, "\n"; exit };
 
@@ -25,9 +25,9 @@ sub import  # IMPLEMENT PRECOMPILER BEHAVIOUR UNDER:
     if ($file eq '-' && $line == 0)
     {
         _die("Usage: perl -MLocalTest - <grammarfile> <classname>")
-            unless @ARGV >= 2 and $ARGV <= 3;
+            unless @ARGV == 2;
 
-        my ($sourcefile, $class, $runtime_class) = @ARGV;
+        my ($sourcefile, $class) = @ARGV;
 
         local *IN;
         open IN, $sourcefile
@@ -36,8 +36,7 @@ sub import  # IMPLEMENT PRECOMPILER BEHAVIOUR UNDER:
         my $grammar = <IN>;
         close IN;
 
-        Parse::RecDescent->Precompile({ -runtime_class => $runtime_class },
-                                      $grammar, $class, $sourcefile);
+        Parse::RecDescent->Precompile($grammar, $class, $sourcefile);
         exit;
     }
 }
@@ -56,21 +55,10 @@ sub Save
     $self->{saving} = 0;
 }
 
-sub PrecompiledRuntime
-{
-    my ($self, $class) = @_;
-    my $opt = {
-        -standalone => 1,
-        -runtime_class => $class,
-    };
-    $self->Precompile($opt, '', $class);
-}
-
 sub Precompile
 {
     my $self = shift;
-    my %opt = ( -standalone => 0,
-            );
+    my %opt = ( -standalone => 0 );
     if ('HASH' eq ref $_[0]) {
         %opt = (%opt, %{$_[0]});
         shift;
@@ -83,7 +71,8 @@ sub Precompile
     $modulefile =~ s/.*:://;
     $modulefile .= ".pm";
 
-    my $code = '';
+    my $runtime_package = 'Parse::RecDescent::_Runtime';
+    my $code;
 
     local *OUT;
     open OUT, ">", $modulefile
@@ -93,60 +82,10 @@ sub Precompile
       "to class $class in module file '$modulefile'\n"
       if $grammar && $sourcefile;
 
-    if ($grammar) {
-        $self = Parse::RecDescent->new($grammar,  # $grammar
-                                       1,         # $compiling
-                                       $class     # $namespace
-                                 )
-          || croak("Can't compile bad grammar")
-          if $grammar;
-
-        # Do not allow &DESTROY to remove the precompiled namespace
-        delete $self->{_not_precompiled};
-
-        foreach ( keys %{$self->{rules}} ) {
-            $self->{rules}{$_}{changed} = 1;
-        }
-
-        $code = $self->_code();
-    }
-
-    # If a name for the runtime package was not provided,
-    # generate one based on the module output name and the generated
-    # code
-    if (not defined($opt{-runtime_class})) {
-        if ($opt{-standalone}) {
-            my $basename = $class . '::_Runtime';
-
-            my $name = $basename;
-
-            for (my $i = 0; $code =~ /$basename/; ++$i) {
-                $name = sprintf("%s%06d", $basename, $i);
-            }
-
-            $opt{-runtime_class} = $name;
-        } else {
-            my $package = ref $self;
-            local $::RD_HINT = defined $::RD_HINT ? $::RD_HINT : 1;
-            _hint(<<EOWARNING);
-The precompiled grammar did not specify the -runtime_class
-option. The resulting parser will "use $package". Future changes to
-$package may cause $class to stop working.
-
-Consider building a -standalone parser, or providing the
--runtime_class option as described in Parse::RecDescent's POD.
-
-Use \$::RD_HINT = 0 to disable this message.
-EOWARNING
-            $opt{-runtime_class} = $package;
-        }
-    }
-
-    $code =~ s/Parse::RecDescent/$opt{-runtime_class}/gs;
-
-    # Make the resulting pre-compiled parser stand-alone by including
-    # the contents of Parse::RecDescent as -runtime_class in the
-    # resulting precompiled parser.
+    # Make the resulting pre-compiled parser stand-alone by
+    # including the contents of Parse::RecDescent as
+    # Parse::RecDescent::Runtime in the resulting precompiled
+    # parser.
     if ($opt{-standalone}) {
         local *IN;
         open IN, '<', $Parse::RecDescent::_FILENAME
@@ -165,8 +104,7 @@ EOWARNING
                 if ($_ =~ m/^__END__/) {
                     last;
                 }
-
-                s/Parse::RecDescent/$opt{-runtime_class}/gs;
+                s/Parse::RecDescent/$runtime_package/gs;
                 print OUT $_;
             }
         }
@@ -174,30 +112,45 @@ EOWARNING
         print OUT "}\n";
     }
 
-    if ($grammar) {
-        print OUT "package $class;\n";
+    $self = Parse::RecDescent->new($grammar,  # $grammar
+                                   1,         # $compiling
+                                   $class     # $namespace
+                             )
+      || croak("Can't compile bad grammar")
+      if $grammar;
+
+    # Do not allow &DESTROY to remove the precompiled namespace
+    delete $self->{_not_precompiled};
+
+    foreach ( keys %{$self->{rules}} ) {
+        $self->{rules}{$_}{changed} = 1;
     }
 
+
+    print OUT "package $class;\n";
     if (not $opt{-standalone}) {
-        print OUT "use $opt{-runtime_class};\n";
+        print OUT "use Parse::RecDescent;\n";
     }
 
-    if ($grammar) {
-        print OUT "{ my \$ERRORS;\n\n";
+    print OUT "{ my \$ERRORS;\n\n";
 
-        print OUT $code;
-
-        print OUT "}\npackage $class; sub new { ";
-        print OUT "my ";
-
-        require Data::Dumper;
-        $code = Data::Dumper->Dump([$self], [qw(self)]);
-        $code =~ s/Parse::RecDescent/$opt{-runtime_class}/gs;
-
-        print OUT $code;
-
-        print OUT "}";
+    $code = $self->_code();
+    if ($opt{-standalone}) {
+        $code =~ s/Parse::RecDescent/$runtime_package/gs;
     }
+    print OUT $code;
+
+    print OUT "}\npackage $class; sub new { ";
+    print OUT "my ";
+
+    require Data::Dumper;
+    $code = Data::Dumper->Dump([$self], [qw(self)]);
+    if ($opt{-standalone}) {
+        $code =~ s/Parse::RecDescent/$runtime_package/gs;
+    }
+    print OUT $code;
+
+    print OUT "}";
 
     close OUT
       or croak("Can't write to new module file '$modulefile'");
@@ -1943,7 +1896,7 @@ use vars qw ( $AUTOLOAD $VERSION $_FILENAME);
 
 my $ERRORS = 0;
 
-our $VERSION = '1.967_010';
+our $VERSION = '1.967009';
 $VERSION = eval $VERSION;
 $_FILENAME=__FILE__;
 
@@ -2065,61 +2018,61 @@ sub _no_rule ($$;$)
            to be part of.");
 }
 
-my $NEGLOOKAHEAD    =  '\G(\s*\.\.\.\!)';
-my $POSLOOKAHEAD    =  '\G(\s*\.\.\.)';
-my $RULE            =  '\G\s*(\w+)[ \t]*:';
-my $PROD            =  '\G\s*([|])';
-my $TOKEN           = q{\G\s*/((\\\\/|\\\\\\\\|[^/])*)/([cgimsox]*)};
-my $MTOKEN          = q{\G\s*(m\s*[^\w\s])};
-my $LITERAL         = q{\G\s*'((\\\\['\\\\]|[^'])*)'};
+my $NEGLOOKAHEAD    = '\G(\s*\.\.\.\!)';
+my $POSLOOKAHEAD    = '\G(\s*\.\.\.)';
+my $RULE        = '\G\s*(\w+)[ \t]*:';
+my $PROD        = '\G\s*([|])';
+my $TOKEN       = q{\G\s*/((\\\\/|\\\\\\\\|[^/])*)/([cgimsox]*)};
+my $MTOKEN      = q{\G\s*(m\s*[^\w\s])};
+my $LITERAL     = q{\G\s*'((\\\\['\\\\]|[^'])*)'};
 my $INTERPLIT       = q{\G\s*"((\\\\["\\\\]|[^"])*)"};
-my $SUBRULE         =  '\G\s*(\w+)';
-my $MATCHRULE       =  '\G(\s*<matchrule:)';
-my $SIMPLEPAT       =  '((\\s+/[^/\\\\]*(?:\\\\.[^/\\\\]*)*/)?)';
-my $OPTIONAL        =  '\G\((\?)'.$SIMPLEPAT.'\)';
-my $ANY             =  '\G\((s\?)'.$SIMPLEPAT.'\)';
-my $MANY            =  '\G\((s|\.\.)'.$SIMPLEPAT.'\)';
-my $EXACTLY         =  '\G\(([1-9]\d*)'.$SIMPLEPAT.'\)';
-my $BETWEEN         =  '\G\((\d+)\.\.([1-9]\d*)'.$SIMPLEPAT.'\)';
-my $ATLEAST         =  '\G\((\d+)\.\.'.$SIMPLEPAT.'\)';
-my $ATMOST          =  '\G\(\.\.([1-9]\d*)'.$SIMPLEPAT.'\)';
-my $BADREP          =  '\G\((-?\d+)?\.\.(-?\d+)?'.$SIMPLEPAT.'\)';
-my $ACTION          =  '\G\s*\{';
-my $IMPLICITSUBRULE =  '\G\s*\(';
-my $COMMENT         =  '\G\s*(#.*)';
-my $COMMITMK        =  '\G\s*<commit>';
-my $UNCOMMITMK      =  '\G\s*<uncommit>';
-my $QUOTELIKEMK     =  '\G\s*<perl_quotelike>';
-my $CODEBLOCKMK     =  '\G\s*<perl_codeblock(?:\s+([][()<>{}]+))?>';
-my $VARIABLEMK      =  '\G\s*<perl_variable>';
-my $NOCHECKMK       =  '\G\s*<nocheck>';
-my $AUTOACTIONPATMK =  '\G\s*<autoaction:';
-my $AUTOTREEMK      =  '\G\s*<autotree(?::\s*([\w:]+)\s*)?>';
-my $AUTOSTUBMK      =  '\G\s*<autostub>';
-my $AUTORULEMK      =  '\G\s*<autorule:(.*?)>';
-my $REJECTMK        =  '\G\s*<reject>';
-my $CONDREJECTMK    =  '\G\s*<reject:';
-my $SCOREMK         =  '\G\s*<score:';
-my $AUTOSCOREMK     =  '\G\s*<autoscore:';
-my $SKIPMK          =  '\G\s*<skip:';
-my $OPMK            =  '\G\s*<(left|right)op(?:=(\'.*?\'))?:';
-my $ENDDIRECTIVEMK  =  '\G\s*>';
-my $RESYNCMK        =  '\G\s*<resync>';
-my $RESYNCPATMK     =  '\G\s*<resync:';
-my $RULEVARPATMK    =  '\G\s*<rulevar:';
-my $DEFERPATMK      =  '\G\s*<defer:';
-my $TOKENPATMK      =  '\G\s*<token:';
-my $AUTOERRORMK     =  '\G\s*<error(\??)>';
-my $MSGERRORMK      =  '\G\s*<error(\??):';
-my $NOCHECK         =  '\G\s*<nocheck>';
-my $WARNMK          =  '\G\s*<warn((?::\s*(\d+)\s*)?)>';
-my $HINTMK          =  '\G\s*<hint>';
-my $TRACEBUILDMK    =  '\G\s*<trace_build((?::\s*(\d+)\s*)?)>';
-my $TRACEPARSEMK    =  '\G\s*<trace_parse((?::\s*(\d+)\s*)?)>';
+my $SUBRULE     = '\G\s*(\w+)';
+my $MATCHRULE       = '\G(\s*<matchrule:)';
+my $SIMPLEPAT       = '((\\s+/[^/\\\\]*(?:\\\\.[^/\\\\]*)*/)?)';
+my $OPTIONAL        = '\G\((\?)'.$SIMPLEPAT.'\)';
+my $ANY         = '\G\((s\?)'.$SIMPLEPAT.'\)';
+my $MANY        = '\G\((s|\.\.)'.$SIMPLEPAT.'\)';
+my $EXACTLY     = '\G\(([1-9]\d*)'.$SIMPLEPAT.'\)';
+my $BETWEEN     = '\G\((\d+)\.\.([1-9]\d*)'.$SIMPLEPAT.'\)';
+my $ATLEAST     = '\G\((\d+)\.\.'.$SIMPLEPAT.'\)';
+my $ATMOST      = '\G\(\.\.([1-9]\d*)'.$SIMPLEPAT.'\)';
+my $BADREP      = '\G\((-?\d+)?\.\.(-?\d+)?'.$SIMPLEPAT.'\)';
+my $ACTION      = '\G\s*\{';
+my $IMPLICITSUBRULE = '\G\s*\(';
+my $COMMENT     = '\G\s*(#.*)';
+my $COMMITMK        = '\G\s*<commit>';
+my $UNCOMMITMK      = '\G\s*<uncommit>';
+my $QUOTELIKEMK     = '\G\s*<perl_quotelike>';
+my $CODEBLOCKMK     = '\G\s*<perl_codeblock(?:\s+([][()<>{}]+))?>';
+my $VARIABLEMK      = '\G\s*<perl_variable>';
+my $NOCHECKMK       = '\G\s*<nocheck>';
+my $AUTOACTIONPATMK = '\G\s*<autoaction:';
+my $AUTOTREEMK      = '\G\s*<autotree(?::\s*([\w:]+)\s*)?>';
+my $AUTOSTUBMK      = '\G\s*<autostub>';
+my $AUTORULEMK      = '\G\s*<autorule:(.*?)>';
+my $REJECTMK        = '\G\s*<reject>';
+my $CONDREJECTMK    = '\G\s*<reject:';
+my $SCOREMK     = '\G\s*<score:';
+my $AUTOSCOREMK     = '\G\s*<autoscore:';
+my $SKIPMK      = '\G\s*<skip:';
+my $OPMK        = '\G\s*<(left|right)op(?:=(\'.*?\'))?:';
+my $ENDDIRECTIVEMK  = '\G\s*>';
+my $RESYNCMK        = '\G\s*<resync>';
+my $RESYNCPATMK     = '\G\s*<resync:';
+my $RULEVARPATMK    = '\G\s*<rulevar:';
+my $DEFERPATMK      = '\G\s*<defer:';
+my $TOKENPATMK      = '\G\s*<token:';
+my $AUTOERRORMK     = '\G\s*<error(\??)>';
+my $MSGERRORMK      = '\G\s*<error(\??):';
+my $NOCHECK     = '\G\s*<nocheck>';
+my $WARNMK      = '\G\s*<warn((?::\s*(\d+)\s*)?)>';
+my $HINTMK      = '\G\s*<hint>';
+my $TRACEBUILDMK    = '\G\s*<trace_build((?::\s*(\d+)\s*)?)>';
+my $TRACEPARSEMK    = '\G\s*<trace_parse((?::\s*(\d+)\s*)?)>';
 my $UNCOMMITPROD    = $PROD.'\s*<uncommit';
 my $ERRORPROD       = $PROD.'\s*<error';
-my $LONECOLON       =  '\G\s*:';
-my $OTHER           =  '\G\s*([^\s]+)';
+my $LONECOLON       = '\G\s*:';
+my $OTHER       = '\G\s*([^\s]+)';
 
 my @lines = 0;
 
@@ -2579,7 +2532,7 @@ sub _generate
             _parseunneg("a rule declaration", 0,
                     $lookahead,$line, substr($grammar, $-[0], $+[0] - $-[0]) ) or next;
             my $rulename = $1;
-            if ($rulename =~ /Replace|Extend|Precompile|PrecompiledRuntime|Save/ )
+            if ($rulename =~ /Replace|Extend|Precompile|Save/ )
             {
                 _warn(2,"Rule \"$rulename\" hidden by method
                        Parse::RecDescent::$rulename",$line)
@@ -3096,17 +3049,14 @@ sub _check_grammar ($)
 sub _code($)
 {
     my $self = shift;
-    require Data::Dumper;
-    my $initial_skip = defined($self->{skip}) ?
-      '$skip = ' . $self->{skip} . ';' :
-      Data::Dumper->Dump([$skip],[qw(skip)]);
+    my $initial_skip = defined($self->{skip}) ? $self->{skip} : $skip;
 
     my $code = qq!
 package $self->{namespace};
 use strict;
 use vars qw(\$skip \$AUTOLOAD $self->{localvars} );
 \@$self->{namespace}\::ISA = ();
-$initial_skip
+\$skip = '$initial_skip';
 $self->{startcode}
 
 {
@@ -3477,7 +3427,7 @@ Parse::RecDescent - Generate Recursive-Descent Parsers
 
 =head1 VERSION
 
-This document describes version 1.967_010 of Parse::RecDescent
+This document describes version 1.967009 of Parse::RecDescent
 released March 16th, 2012.
 
 =head1 SYNOPSIS
@@ -4710,20 +4660,19 @@ a production to be changed. For example:
 
     OneLiner: Command <skip:'[ \t]*'> Arg(s) /;/
 
-causes only blanks and tabs to be skipped before terminals in the
-C<Arg> subrule (and any of I<its> subrules>, and also before the final
-C</;/> terminal.  Once the production is complete, the previous
-terminal prefix is reinstated. Note that this implies that distinct
-productions of a rule must reset their terminal prefixes individually.
+causes only blanks and tabs to be skipped before terminals in the C<Arg>
+subrule (and any of I<its> subrules>, and also before the final C</;/> terminal.
+Once the production is complete, the previous terminal prefix is
+reinstated. Note that this implies that distinct productions of a rule
+must reset their terminal prefixes individually.
 
-The C<E<lt>skipE<gt>> directive evaluates to the I<previous> terminal
-prefix, so it's easy to reinstate a prefix later in a production:
+The C<E<lt>skipE<gt>> directive evaluates to the I<previous> terminal prefix,
+so it's easy to reinstate a prefix later in a production:
 
     Command: <skip:","> CSV(s) <skip:$item[1]> Modifier
 
-The value specified after the colon is interpolated into a pattern, so
-all of the following are equivalent (though their efficiency increases
-down the list):
+The value specified after the colon is interpolated into a pattern, so all of
+the following are equivalent (though their efficiency increases down the list):
 
     <skip: "$colon|$comma">   # ASSUMING THE VARS HOLD THE OBVIOUS VALUES
 
@@ -4767,15 +4716,10 @@ Then you can set C<$::skip_pattern> before invoking
 C<Rule_with_dynamic_skip> and have it skip whatever you specified.
 
 B<Note: Up to release 1.51 of Parse::RecDescent, an entirely different
-mechanism was used for specifying terminal prefixes. The current
-method is not backwards-compatible with that early approach. The
-current approach is stable and will not change again.>
+mechanism was used for specifying terminal prefixes. The current method
+is not backwards-compatible with that early approach. The current approach
+is stable and will not to change again.>
 
-B<Note: the global C<E<lt>skipE<gt>> directive added in 1.967_004 did
-not interpolate the pattern argument, instead the pattern was placed
-inside of single quotes and then interpolated. This behavior was
-changed in 1.967_010 so that all C<E<lt>skipE<gt>> directives behavior
-similarly.>
 
 =item Resynchronization
 
@@ -6042,7 +5986,7 @@ you could use:
 
     use Parse::RecDescent;
 
-    Parse::RecDescent->Precompile([$options_hashref], $grammar, "PreGrammar", ["RuntimeClass"]);
+    Parse::RecDescent->Precompile([$options_hashref], $grammar, "PreGrammar");
 
 The first required argument is the grammar string, the second is the
 name of the class to be built. The name of the module file is
@@ -6053,14 +5997,10 @@ class name. Thus
 
 would produce a module file named Parser.pm.
 
-After the class name, you may specify the name of the runtime_class
-called by the Precompiled parser.  See L</"Precompiled runtimes"> for
-more details.
-
 An optional hash reference may be supplied as the first argument to
 C<Precompile>.  This argument is currently EXPERIMENTAL, and may change
 in a future release of Parse::RecDescent.  The only supported option
-is currently C<-standalone>, see L</"Standalone precompiled parsers">.
+is currently C<-standalone>, see L</"Standalone Precompiled Parsers">.
 
 It is somewhat tedious to have to write a small Perl program just to
 generate a precompiled grammar class, so Parse::RecDescent has some special
@@ -6069,7 +6009,7 @@ magic that allows you to do the job directly from the command-line.
 If your grammar is specified in a file named F<grammar>, you can generate
 a class named Yet::Another::Grammar like so:
 
-    > perl -MParse::RecDescent - grammar Yet::Another::Grammar [Runtime::Class]
+    > perl -MParse::RecDescent - grammar Yet::Another::Grammar
 
 This would produce a file named F<Grammar.pm> containing the full
 definition of a class called Yet::Another::Grammar. Of course, to use
@@ -6100,7 +6040,7 @@ the same, so whilst precompilation has an effect on I<set-up> speed,
 it has no effect on I<parsing> speed. RecDescent 2.0 will address that
 problem.
 
-=head3 Standalone precompiled parsers
+=head3 Standalone Precompiled Parsers
 
 Until version 1.967003 of Parse::RecDescent, parser modules built with
 C<Precompile> were dependent on Parse::RecDescent.  Future
@@ -6111,58 +6051,18 @@ Version 1.967_005 added the ability for Parse::RecDescent to include
 itself in the resulting .pm file if you pass the boolean option
 C<-standalone> to C<Precompile>:
 
-    Parse::RecDescent->Precompile({ -standalone => 1, },
+    Parse::RecDescent->Precompile({ -standalone = 1, },
         $grammar, "My::New::Parser");
 
-Parse::RecDescent is included as C<$class::_Runtime> in order to avoid
-conflicts between an installed version of Parse::RecDescent and other
-precompiled, standalone parser made with Parse::RecDescent.  The name
-of this class may be changed with the C<-runtime_class> option to
-Precompile.  This renaming is experimental, and is subject to change
-in future versions.
+Parse::RecDescent is included as Parse::RecDescent::_Runtime in order
+to avoid conflicts between an installed version of Parse::RecDescent
+and a precompiled, standalone parser made with another version of
+Parse::RecDescent.  This renaming is experimental, and is subject to
+change in future versions.
 
 Precompiled parsers remain dependent on Parse::RecDescent by default,
 as this feature is still considered experimental.  In the future,
 standalone parsers will become the default.
-
-=head3 Precompiled runtimes
-
-Standalone precompiled parsers each include a copy of
-Parse::RecDescent.  For users who have a family of related precompiled
-parsers, this is very inefficient.  C<Precompile> now supports an
-experimental C<-runtime_class> option.  To build a precompiled parser
-with a different runtime name, call:
-
-    Parse::RecDescent->Precompile({
-            -standalone => 1,
-            -runtime_class => "My::Runtime",
-        },
-        $grammar, "My::New::Parser");
-
-The resulting standalone parser will contain a copy of
-Parse::RecDescent, renamed to "My::Runtime".
-
-To build a set of parsers that C<use> a custom-named runtime, without
-including that runtime in the output, simply build those parsers with
-C<-runtime_class> and without C<-standalone>:
-
-    Parse::RecDescent->Precompile({
-            -runtime_class => "My::Runtime",
-        },
-        $grammar, "My::New::Parser");
-
-The runtime itself must be generated as well, so that it may be
-C<use>d by My::New::Parser.  To generate the runtime file, use one of
-the two folling calls:
-
-    Parse::RecDescent->PrecompiledRuntime("My::Runtime");
-
-    Parse::RecDescent->Precompile({
-            -standalone => 1,
-            -runtime_class => "My::Runtime",
-        },
-        '', # empty grammar
-        "My::Runtime");
 
 =head1 GOTCHAS
 

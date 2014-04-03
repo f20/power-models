@@ -1,8 +1,8 @@
-package Excel::Writer::XLSX::Chart::Bar;
+package Excel::Writer::XLSX::Chart::Radar;
 
 ###############################################################################
 #
-# Bar - A class for writing Excel Bar charts.
+# Radar - A class for writing Excel Radar charts.
 #
 # Used in conjunction with Excel::Writer::XLSX::Chart.
 #
@@ -35,25 +35,21 @@ sub new {
     my $class = shift;
     my $self  = Excel::Writer::XLSX::Chart->new( @_ );
 
-    $self->{_subtype}           = $self->{_subtype} || 'clustered';
-    $self->{_cat_axis_position} = 'l';
-    $self->{_val_axis_position} = 'b';
-    $self->{_horiz_val_axis}    = 0;
-    $self->{_horiz_cat_axis}    = 1;
-    $self->{_show_crosses}      = 0;
+    $self->{_subtype} = $self->{_subtype} || 'marker';
+
+    if ( $self->{_subtype} eq 'marker' ) {
+        $self->{_default_marker} = { type => 'none' };
+    }
 
     # Override and reset the default axis values.
     $self->{_x_axis}->{_defaults}->{major_gridlines} = { visible => 1 };
-    $self->{_y_axis}->{_defaults}->{major_gridlines} = { visible => 0 };
-
-    if ( $self->{_subtype} eq 'percent_stacked' ) {
-        $self->{_x_axis}->{_defaults}->{num_format} = '0%';
-    }
-
     $self->set_x_axis();
-    $self->set_y_axis();
+
+    # Hardcode major_tick_mark for now until there is an accessor.
+    $self->{_y_axis}->{_major_tick_mark} = 'cross';
 
     bless $self, $class;
+
     return $self;
 }
 
@@ -67,32 +63,19 @@ sub new {
 sub _write_chart_type {
 
     my $self = shift;
-    my %args = @_;
 
-    if ( $args{primary_axes} ) {
-
-        # Reverse X and Y axes for Bar charts.
-        my $tmp = $self->{_y_axis};
-        $self->{_y_axis} = $self->{_x_axis};
-        $self->{_x_axis} = $tmp;
-
-        if ( $self->{_y2_axis}->{_position} eq 'r' ) {
-            $self->{_y2_axis}->{_position} = 't';
-        }
-    }
-
-    # Write the c:barChart element.
-    $self->_write_bar_chart( @_ );
+    # Write the c:radarChart element.
+    $self->_write_radar_chart( @_ );
 }
 
 
 ##############################################################################
 #
-# _write_bar_chart()
+# _write_radar_chart()
 #
-# Write the <c:barChart> element.
+# Write the <c:radarChart> element.
 #
-sub _write_bar_chart {
+sub _write_radar_chart {
 
     my $self = shift;
     my %args = @_;
@@ -107,68 +90,41 @@ sub _write_bar_chart {
 
     return unless scalar @series;
 
-    my $subtype = $self->{_subtype};
-    $subtype = 'percentStacked' if $subtype eq 'percent_stacked';
+    $self->xml_start_tag( 'c:radarChart' );
 
-    # Set a default overlap for stacked charts.
-    if ($self->{_subtype} =~ /stacked/) {
-        if (!defined $self->{_series_overlap}) {
-            $self->{_series_overlap} = 100;
-        }
-    }
+    # Write the c:radarStyle element.
+    $self->_write_radar_style();
 
-    $self->xml_start_tag( 'c:barChart' );
-
-    # Write the c:barDir element.
-    $self->_write_bar_dir();
-
-    # Write the c:grouping element.
-    $self->_write_grouping( $subtype );
-
-    # Write the c:ser elements.
-    $self->_write_ser( $_ ) for @series;
-
-    # Write the c:marker element.
-    $self->_write_marker_value();
-
-    # Write the c:gapWidth element.
-    $self->_write_gap_width( $self->{_series_gap} );
-
-    # Write the c:overlap element.
-    $self->_write_overlap( $self->{_series_overlap} );
+    # Write the series elements.
+    $self->_write_series( $_ ) for @series;
 
     # Write the c:axId elements
     $self->_write_axis_ids( %args );
 
-    $self->xml_end_tag( 'c:barChart' );
+    $self->xml_end_tag( 'c:radarChart' );
 }
 
 
 ##############################################################################
 #
-# _write_bar_dir()
+# _write_radar_style()
 #
-# Write the <c:barDir> element.
+# Write the <c:radarStyle> element.
 #
-sub _write_bar_dir {
+sub _write_radar_style {
 
     my $self = shift;
-    my $val  = 'bar';
+    my $val  = 'marker';
+
+    if ( $self->{_subtype} eq 'filled' ) {
+        $val = 'filled';
+    }
 
     my @attributes = ( 'val' => $val );
 
-    $self->xml_empty_tag( 'c:barDir', @attributes );
+    $self->xml_empty_tag( 'c:radarStyle', @attributes );
 }
 
-
-##############################################################################
-#
-# _write_err_dir()
-#
-# Write the <c:errDir> element. Overridden from Chart class since it is not
-# used in Bar charts.
-#
-sub _write_err_dir {}
 
 1;
 
@@ -178,11 +134,11 @@ __END__
 
 =head1 NAME
 
-Bar - A class for writing Excel Bar charts.
+Radar - A class for writing Excel Radar charts.
 
 =head1 SYNOPSIS
 
-To create a simple Excel file with a Bar chart using Excel::Writer::XLSX:
+To create a simple Excel file with a Radar chart using Excel::Writer::XLSX:
 
     #!/usr/bin/perl
 
@@ -193,7 +149,7 @@ To create a simple Excel file with a Bar chart using Excel::Writer::XLSX:
     my $workbook  = Excel::Writer::XLSX->new( 'chart.xlsx' );
     my $worksheet = $workbook->add_worksheet();
 
-    my $chart     = $workbook->add_chart( type => 'bar' );
+    my $chart     = $workbook->add_chart( type => 'radar' );
 
     # Configure the chart.
     $chart->add_series(
@@ -213,9 +169,9 @@ To create a simple Excel file with a Bar chart using Excel::Writer::XLSX:
 
 =head1 DESCRIPTION
 
-This module implements Bar charts for L<Excel::Writer::XLSX>. The chart object is created via the Workbook C<add_chart()> method:
+This module implements Radar charts for L<Excel::Writer::XLSX>. The chart object is created via the Workbook C<add_chart()> method:
 
-    my $chart = $workbook->add_chart( type => 'bar' );
+    my $chart = $workbook->add_chart( type => 'radar' );
 
 Once the object is created it can be configured via the following methods that are common to all chart classes:
 
@@ -226,16 +182,16 @@ Once the object is created it can be configured via the following methods that a
 
 These methods are explained in detail in L<Excel::Writer::XLSX::Chart>. Class specific methods or settings, if any, are explained below.
 
-=head1 Bar Chart Subtypes
+=head1 Radar Chart Methods
 
-The C<Bar> chart module also supports the following sub-types:
+The C<Radar> chart module also supports the following sub-types:
 
-    stacked
-    percent_stacked
+    with_markers
+    filled
 
 These can be specified at creation time via the C<add_chart()> Worksheet method:
 
-    my $chart = $workbook->add_chart( type => 'bar', subtype => 'stacked' );
+    my $chart = $workbook->add_chart( type => 'radar', subtype => 'filled' );
 
 =head1 EXAMPLE
 
@@ -247,7 +203,7 @@ Here is a complete example that demonstrates most of the available features when
     use warnings;
     use Excel::Writer::XLSX;
 
-    my $workbook  = Excel::Writer::XLSX->new( 'chart_bar.xlsx' );
+    my $workbook  = Excel::Writer::XLSX->new( 'chart_radar.xlsx' );
     my $worksheet = $workbook->add_worksheet();
     my $bold      = $workbook->add_format( bold => 1 );
 
@@ -255,8 +211,8 @@ Here is a complete example that demonstrates most of the available features when
     my $headings = [ 'Number', 'Batch 1', 'Batch 2' ];
     my $data = [
         [ 2,  3,  4,  5,  6,  7 ],
-        [ 10, 40, 50, 20, 10, 50 ],
         [ 30, 60, 70, 50, 40, 30 ],
+        [ 25, 40, 50, 30, 50, 40 ],
 
     ];
 
@@ -264,7 +220,7 @@ Here is a complete example that demonstrates most of the available features when
     $worksheet->write( 'A2', $data );
 
     # Create a new chart object. In this case an embedded chart.
-    my $chart = $workbook->add_chart( type => 'bar', embedded => 1 );
+    my $chart = $workbook->add_chart( type => 'radar', embedded => 1 );
 
     # Configure the first series.
     $chart->add_series(
@@ -286,8 +242,8 @@ Here is a complete example that demonstrates most of the available features when
     $chart->set_x_axis( name => 'Test number' );
     $chart->set_y_axis( name => 'Sample length (mm)' );
 
-    # Set an Excel chart style. Blue colors with white outline and shadow.
-    $chart->set_style( 11 );
+    # Set an Excel chart style. Colors with white outline and shadow.
+    $chart->set_style( 10 );
 
     # Insert the chart into the worksheet (with an offset).
     $worksheet->insert_chart( 'D2', $chart, 25, 10 );
@@ -299,7 +255,7 @@ Here is a complete example that demonstrates most of the available features when
 
 <p>This will produce a chart that looks like this:</p>
 
-<p><center><img src="http://jmcnamara.github.com/excel-writer-xlsx/images/examples/bar1.jpg" width="483" height="291" alt="Chart example." /></center></p>
+<p><center><img src="http://jmcnamara.github.com/excel-writer-xlsx/images/examples/radar1.jpg" width="483" height="291" alt="Chart example." /></center></p>
 
 =end html
 
@@ -313,4 +269,3 @@ John McNamara jmcnamara@cpan.org
 Copyright MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
-

@@ -7,7 +7,7 @@ package Excel::Writer::XLSX::Chart;
 #
 # Used in conjunction with Excel::Writer::XLSX.
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -26,7 +26,7 @@ use Excel::Writer::XLSX::Utility qw(xl_cell_to_rowcol
   xl_range_formula );
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -49,7 +49,8 @@ sub factory {
     # TODO. Need to re-raise this error from Workbook::add_chart().
     die "Chart type '$chart_subclass' not supported in add_chart()\n" if $@;
 
-    return $module->new( @_ );
+    my $fh = undef;
+    return $module->new( $fh, @_ );
 }
 
 
@@ -62,7 +63,8 @@ sub factory {
 sub new {
 
     my $class = shift;
-    my $self  = Excel::Writer::XLSX::Package::XMLwriter->new();
+    my $fh    = shift;
+    my $self  = Excel::Writer::XLSX::Package::XMLwriter->new( $fh );
 
     $self->{_subtype}           = shift;
     $self->{_sheet_type}        = 0x0200;
@@ -70,9 +72,11 @@ sub new {
     $self->{_series}            = [];
     $self->{_embedded}          = 0;
     $self->{_id}                = '';
+    $self->{_series_index}      = 0;
     $self->{_style_id}          = 2;
     $self->{_axis_ids}          = [];
-    $self->{_has_category}      = 0;
+    $self->{_axis2_ids}         = [];
+    $self->{_cat_has_num_fmt}   = 0;
     $self->{_requires_category} = 0;
     $self->{_legend_position}   = 'right';
     $self->{_cat_axis_position} = 'b';
@@ -82,8 +86,26 @@ sub new {
     $self->{_horiz_cat_axis}    = 0;
     $self->{_horiz_val_axis}    = 1;
     $self->{_protection}        = 0;
+    $self->{_chartarea}         = {};
+    $self->{_plotarea}          = {};
     $self->{_x_axis}            = {};
     $self->{_y_axis}            = {};
+    $self->{_y2_axis}           = {};
+    $self->{_x2_axis}           = {};
+    $self->{_chart_name}        = '';
+    $self->{_show_blanks}       = 'gap';
+    $self->{_show_hidden_data}  = 0;
+    $self->{_show_crosses}      = 1;
+    $self->{_width}             = 480;
+    $self->{_height}            = 288;
+    $self->{_x_scale}           = 1;
+    $self->{_y_scale}           = 1;
+    $self->{_x_offset}          = 0;
+    $self->{_y_offset}          = 0;
+    $self->{_table}             = undef;
+    $self->{_smooth_allowed}    = 0;
+    $self->{_cross_between}     = 'between';
+    $self->{_date_category}     = 0;
 
     bless $self, $class;
     $self->_set_default_properties();
@@ -101,10 +123,7 @@ sub _assemble_xml_file {
 
     my $self = shift;
 
-    return unless $self->{_writer};
-
-    $self->_write_xml_declaration();
-
+    $self->xml_declaration();
 
     # Write the c:chartSpace element.
     $self->_write_chart_space();
@@ -121,15 +140,17 @@ sub _assemble_xml_file {
     # Write the c:chart element.
     $self->_write_chart();
 
+    # Write the c:spPr element for the chartarea formatting.
+    $self->_write_sp_pr( $self->{_chartarea} );
+
     # Write the c:printSettings element.
     $self->_write_print_settings() if $self->{_embedded};
 
     # Close the worksheet tag.
-    $self->{_writer}->endTag( 'c:chartSpace' );
+    $self->xml_end_tag( 'c:chartSpace' );
 
-    # Close the XML writer object and filehandle.
-    $self->{_writer}->end();
-    $self->{_writer}->getOutput()->close();
+    # Close the XML writer filehandle.
+    $self->xml_get_fh()->close();
 }
 
 
@@ -160,11 +181,9 @@ sub add_series {
         croak "Must specify 'categories' in add_series() for this chart type";
     }
 
-
     # Convert aref params into a formula string.
     my $values     = $self->_aref_to_formula( $arg{values} );
     my $categories = $self->_aref_to_formula( $arg{categories} );
-
 
     # Switch name and name_formula parameters if required.
     my ( $name, $name_formula ) =
@@ -192,11 +211,36 @@ sub add_series {
     # Set the trendline properties for the series.
     my $trendline = $self->_get_trendline_properties( $arg{trendline} );
 
+    # Set the line smooth property for the series.
+    my $smooth = $arg{smooth};
+
+    # Set the error bars properties for the series.
+    my $y_error_bars = $self->_get_error_bars_properties( $arg{y_error_bars} );
+    my $x_error_bars = $self->_get_error_bars_properties( $arg{x_error_bars} );
+
+    # Set the point properties for the series.
+    my $points = $self->_get_points_properties($arg{points});
+
     # Set the labels properties for the series.
     my $labels = $self->_get_labels_properties( $arg{data_labels} );
 
     # Set the "invert if negative" fill property.
     my $invert_if_neg = $arg{invert_if_negative};
+
+    # Set the gap for Bar/Column charts.
+    if ( defined $arg{gap} ) {
+        $self->{_series_gap} = $arg{gap};
+    }
+
+    # Set the overlap for Bar/Column charts.
+    if ( defined $arg{overlap} ) {
+        $self->{_series_overlap} = $arg{overlap};
+    }
+
+
+    # Set the secondary axis properties.
+    my $x2_axis = $arg{x2_axis};
+    my $y2_axis = $arg{y2_axis};
 
     # Add the user supplied data to the internal structures.
     %arg = (
@@ -211,10 +255,15 @@ sub add_series {
         _fill          => $fill,
         _marker        => $marker,
         _trendline     => $trendline,
+        _smooth        => $smooth,
         _labels        => $labels,
         _invert_if_neg => $invert_if_neg,
+        _x2_axis       => $x2_axis,
+        _y2_axis       => $y2_axis,
+        _points        => $points,
+        _error_bars =>
+          { _x_error_bars => $x_error_bars, _y_error_bars => $y_error_bars },
     );
-
 
     push @{ $self->{_series} }, \%arg;
 }
@@ -229,7 +278,8 @@ sub add_series {
 sub set_x_axis {
 
     my $self = shift;
-    my $axis = $self->_convert_axis_args( @_ );
+
+    my $axis = $self->_convert_axis_args( $self->{_x_axis}, @_ );
 
     $self->{_x_axis} = $axis;
 }
@@ -244,9 +294,42 @@ sub set_x_axis {
 sub set_y_axis {
 
     my $self = shift;
-    my $axis = $self->_convert_axis_args( @_ );
+
+    my $axis = $self->_convert_axis_args( $self->{_y_axis}, @_ );
 
     $self->{_y_axis} = $axis;
+}
+
+
+###############################################################################
+#
+# set_x2_axis()
+#
+# Set the properties of the secondary X-axis.
+#
+sub set_x2_axis {
+
+    my $self = shift;
+
+    my $axis = $self->_convert_axis_args( $self->{_x2_axis}, @_ );
+
+    $self->{_x2_axis} = $axis;
+}
+
+
+###############################################################################
+#
+# set_y2_axis()
+#
+# Set the properties of the secondary Y-axis.
+#
+sub set_y2_axis {
+
+    my $self = shift;
+
+    my $axis = $self->_convert_axis_args( $self->{_y2_axis}, @_ );
+
+    $self->{_y2_axis} = $axis;
 }
 
 
@@ -269,6 +352,18 @@ sub set_title {
     $self->{_title_name}    = $name;
     $self->{_title_formula} = $name_formula;
     $self->{_title_data_id} = $data_id;
+
+    # Set the font properties if present.
+    $self->{_title_font} = $self->_convert_font_args( $arg{name_font} );
+
+    # Set the title layout.
+    $self->{_title_layout} = $self->_get_layout_properties( $arg{layout}, 1 );
+
+    # Set the title overlay option.
+    $self->{_title_overlay} = $arg{overlay};
+
+    # Set the no automatic title option.
+    $self->{_title_none} = $arg{none};
 }
 
 
@@ -283,8 +378,17 @@ sub set_legend {
     my $self = shift;
     my %arg  = @_;
 
-    $self->{_legend_position} = $arg{position} || 'right';
+    $self->{_legend_position}      = $arg{position} || 'right';
     $self->{_legend_delete_series} = $arg{delete_series};
+    $self->{_legend_font}          = $self->_convert_font_args( $arg{font} );
+
+    # Set the legend layout.
+    $self->{_legend_layout} = $self->_get_layout_properties( $arg{layout} );
+
+    # Turn off the legend.
+    if ( $arg{none} ) {
+        $self->{_legend_position} = 'none';
+    }
 }
 
 
@@ -296,55 +400,10 @@ sub set_legend {
 #
 sub set_plotarea {
 
-    # TODO. Need to refactor for XLSX format.
-    return;
-
     my $self = shift;
-    my %arg  = @_;
-    return unless keys %arg;
 
-    my $area = $self->{_plotarea};
-
-    # Set the plotarea visibility.
-    if ( defined $arg{visible} ) {
-        $area->{_visible} = $arg{visible};
-        return if !$area->{_visible};
-    }
-
-    # TODO. could move this out of if statement.
-    $area->{_bg_color_index} = 0x08;
-
-    # Set the chart background colour.
-    if ( defined $arg{color} ) {
-        my ( $index, $rgb ) = $self->_get_color_indices( $arg{color} );
-        if ( defined $index ) {
-            $area->{_fg_color_index} = $index;
-            $area->{_fg_color_rgb}   = $rgb;
-            $area->{_bg_color_index} = 0x08;
-            $area->{_bg_color_rgb}   = 0x000000;
-        }
-    }
-
-    # Set the border line colour.
-    if ( defined $arg{line_color} ) {
-        my ( $index, $rgb ) = $self->_get_color_indices( $arg{line_color} );
-        if ( defined $index ) {
-            $area->{_line_color_index} = $index;
-            $area->{_line_color_rgb}   = $rgb;
-        }
-    }
-
-    # Set the border line pattern.
-    if ( defined $arg{line_pattern} ) {
-        my $pattern = $self->_get_line_pattern( $arg{line_pattern} );
-        $area->{_line_pattern} = $pattern;
-    }
-
-    # Set the border line weight.
-    if ( defined $arg{line_weight} ) {
-        my $weight = $self->_get_line_weight( $arg{line_weight} );
-        $area->{_line_weight} = $weight;
-    }
+    # Convert the user defined properties to internal properties.
+    $self->{_plotarea} = $self->_get_area_properties( @_ );
 }
 
 
@@ -356,63 +415,10 @@ sub set_plotarea {
 #
 sub set_chartarea {
 
-    # TODO. Need to refactor for XLSX format.
-    return;
-
     my $self = shift;
-    my %arg  = @_;
-    return unless keys %arg;
 
-    my $area = $self->{_chartarea};
-
-    # Embedded automatic line weight has a different default value.
-    $area->{_line_weight} = 0xFFFF if $self->{_embedded};
-
-
-    # Set the chart background colour.
-    if ( defined $arg{color} ) {
-        my ( $index, $rgb ) = $self->_get_color_indices( $arg{color} );
-        if ( defined $index ) {
-            $area->{_fg_color_index} = $index;
-            $area->{_fg_color_rgb}   = $rgb;
-            $area->{_bg_color_index} = 0x08;
-            $area->{_bg_color_rgb}   = 0x000000;
-            $area->{_area_pattern}   = 1;
-            $area->{_area_options}   = 0x0000 if $self->{_embedded};
-            $area->{_visible}        = 1;
-        }
-    }
-
-    # Set the border line colour.
-    if ( defined $arg{line_color} ) {
-        my ( $index, $rgb ) = $self->_get_color_indices( $arg{line_color} );
-        if ( defined $index ) {
-            $area->{_line_color_index} = $index;
-            $area->{_line_color_rgb}   = $rgb;
-            $area->{_line_pattern}     = 0x00;
-            $area->{_line_options}     = 0x0000;
-            $area->{_visible}          = 1;
-        }
-    }
-
-    # Set the border line pattern.
-    if ( defined $arg{line_pattern} ) {
-        my $pattern = $self->_get_line_pattern( $arg{line_pattern} );
-        $area->{_line_pattern}     = $pattern;
-        $area->{_line_options}     = 0x0000;
-        $area->{_line_color_index} = 0x4F if !defined $arg{line_color};
-        $area->{_visible}          = 1;
-    }
-
-    # Set the border line weight.
-    if ( defined $arg{line_weight} ) {
-        my $weight = $self->_get_line_weight( $arg{line_weight} );
-        $area->{_line_weight}      = $weight;
-        $area->{_line_options}     = 0x0000;
-        $area->{_line_pattern}     = 0x00 if !defined $arg{line_pattern};
-        $area->{_line_color_index} = 0x4F if !defined $arg{line_color};
-        $area->{_visible}          = 1;
-    }
+    # Convert the user defined properties to internal properties.
+    $self->{_chartarea} = $self->_get_area_properties( @_ );
 }
 
 
@@ -437,6 +443,174 @@ sub set_style {
 
 ###############################################################################
 #
+# show_blanks_as()
+#
+# Set the option for displaying blank data in a chart. The default is 'gap'.
+#
+sub show_blanks_as {
+
+    my $self   = shift;
+    my $option = shift;
+
+    return unless $option;
+
+    my %valid = (
+        gap  => 1,
+        zero => 1,
+        span => 1,
+
+    );
+
+    if ( !exists $valid{$option} ) {
+        warn "Unknown show_blanks_as() option '$option'\n";
+        return;
+    }
+
+    $self->{_show_blanks} = $option;
+}
+
+
+###############################################################################
+#
+# show_hidden_data()
+#
+# Display data in hidden rows or columns.
+#
+sub show_hidden_data {
+
+    my $self = shift;
+
+    $self->{_show_hidden_data} = 1;
+}
+
+
+###############################################################################
+#
+# set_size()
+#
+# Set dimensions or scale for the chart.
+#
+sub set_size {
+
+    my $self = shift;
+    my %args = @_;
+
+    $self->{_width}    = $args{width}    if $args{width};
+    $self->{_height}   = $args{height}   if $args{height};
+    $self->{_x_scale}  = $args{x_scale}  if $args{x_scale};
+    $self->{_y_scale}  = $args{y_scale}  if $args{y_scale};
+    $self->{_x_offset} = $args{x_offset} if $args{x_offset};
+    $self->{_x_offset} = $args{y_offset} if $args{y_offset};
+
+}
+
+# Backward compatibility with poorly chosen method name.
+*size = *set_size;
+
+
+###############################################################################
+#
+# set_table()
+#
+# Set properties for an axis data table.
+#
+sub set_table {
+
+    my $self = shift;
+    my %args = @_;
+
+    my %table = (
+        _horizontal => 1,
+        _vertical   => 1,
+        _outline    => 1,
+        _show_keys  => 0,
+    );
+
+    $table{_horizontal} = $args{horizontal} if defined $args{horizontal};
+    $table{_vertical}   = $args{vertical}   if defined $args{vertical};
+    $table{_outline}    = $args{outline}    if defined $args{outline};
+    $table{_show_keys}  = $args{show_keys}  if defined $args{show_keys};
+
+    $self->{_table} = \%table;
+}
+
+
+###############################################################################
+#
+# set_up_down_bars()
+#
+# Set properties for the chart up-down bars.
+#
+sub set_up_down_bars {
+
+    my $self = shift;
+    my %args = @_;
+
+    # Map border to line.
+    if ( defined $args{up}->{border} ) {
+        $args{up}->{line} = $args{up}->{border};
+    }
+    if ( defined $args{down}->{border} ) {
+        $args{down}->{line} = $args{down}->{border};
+    }
+
+    # Set the up and down bar properties.
+    my $up_line   = $self->_get_line_properties( $args{up}->{line} );
+    my $down_line = $self->_get_line_properties( $args{down}->{line} );
+    my $up_fill   = $self->_get_fill_properties( $args{up}->{fill} );
+    my $down_fill = $self->_get_fill_properties( $args{down}->{fill} );
+
+    $self->{_up_down_bars} = {
+        _up => {
+            _line => $up_line,
+            _fill => $up_fill,
+        },
+        _down => {
+            _line => $down_line,
+            _fill => $down_fill,
+        },
+    };
+}
+
+
+###############################################################################
+#
+# set_drop_lines()
+#
+# Set properties for the chart drop lines.
+#
+sub set_drop_lines {
+
+    my $self = shift;
+    my %args = @_;
+
+    # Set the drop line properties.
+    my $line = $self->_get_line_properties( $args{line} );
+
+    $self->{_drop_lines} = { _line => $line };
+}
+
+
+###############################################################################
+#
+# set_high_low_lines()
+#
+# Set properties for the chart high-low lines.
+#
+sub set_high_low_lines {
+
+    my $self = shift;
+    my %args = @_;
+
+    # Set the drop line properties.
+    my $line = $self->_get_line_properties( $args{line} );
+
+    $self->{_hi_low_lines} = { _line => $line };
+}
+
+
+###############################################################################
+#
 # Internal methods. The following section of methods are used for the internal
 # structuring of the Chart object and file format.
 #
@@ -452,8 +626,8 @@ sub set_style {
 sub _convert_axis_args {
 
     my $self = shift;
-    my %arg  = @_;
-    my $axis;
+    my $axis = shift;
+    my %arg  = ( %{ $axis->{_defaults} }, @_ );
 
     my ( $name, $name_formula ) =
       $self->_process_names( $arg{name}, $arg{name_formula} );
@@ -461,28 +635,112 @@ sub _convert_axis_args {
     my $data_id = $self->_get_data_id( $name_formula, $arg{data} );
 
     $axis = {
-        _name            => $name,
-        _formula         => $name_formula,
-        _data_id         => $data_id,
-        _reverse         => $arg{reverse},
-        _min             => $arg{min},
-        _max             => $arg{max},
-        _minor_unit      => $arg{minor_unit},
-        _major_unit      => $arg{major_unit},
-        _minor_unit_type => $arg{minor_unit_type},
-        _major_unit_type => $arg{major_unit_type},
-        _log_base        => $arg{log_base},
-        _crossing        => $arg{crossing},
-        _position        => $arg{position},
-        _label_position  => $arg{label_position},
+        _defaults          => $axis->{_defaults},
+        _name              => $name,
+        _formula           => $name_formula,
+        _data_id           => $data_id,
+        _reverse           => $arg{reverse},
+        _min               => $arg{min},
+        _max               => $arg{max},
+        _minor_unit        => $arg{minor_unit},
+        _major_unit        => $arg{major_unit},
+        _minor_unit_type   => $arg{minor_unit_type},
+        _major_unit_type   => $arg{major_unit_type},
+        _log_base          => $arg{log_base},
+        _crossing          => $arg{crossing},
+        _position_axis     => $arg{position_axis},
+        _position          => $arg{position},
+        _label_position    => $arg{label_position},
+        _num_format        => $arg{num_format},
+        _num_format_linked => $arg{num_format_linked},
+        _interval_unit     => $arg{interval_unit},
+        _visible           => defined $arg{visible} ? $arg{visible} : 1,
     };
+
+    # Map major_gridlines properties.
+    if ( $arg{major_gridlines} && $arg{major_gridlines}->{visible} ) {
+        $axis->{_major_gridlines} =
+          $self->_get_gridline_properties( $arg{major_gridlines} );
+    }
+
+    # Map minor_gridlines properties.
+    if ( $arg{minor_gridlines} && $arg{minor_gridlines}->{visible} ) {
+        $axis->{_minor_gridlines} =
+          $self->_get_gridline_properties( $arg{minor_gridlines} );
+    }
+
 
     # Only use the first letter of bottom, top, left or right.
     if ( defined $axis->{_position} ) {
         $axis->{_position} = substr lc $axis->{_position}, 0, 1;
     }
 
+    # Set the position for a category axis on or between the tick marks.
+    if ( defined $axis->{_position_axis} ) {
+        if ( $axis->{_position_axis} eq 'on_tick' ) {
+            $axis->{_position_axis} = 'midCat';
+        }
+        elsif ( $axis->{_position_axis} eq 'between' ) {
+
+            # Doesn't need to be modified.
+        }
+        else {
+            # Otherwise use the default value.
+            $axis->{_position_axis} = undef;
+        }
+    }
+
+    # Set the category axis as a date axis.
+    if ( $arg{date_axis} ) {
+        $self->{_date_category} = 1;
+    }
+
+    # Set the font properties if present.
+    $axis->{_num_font}  = $self->_convert_font_args( $arg{num_font} );
+    $axis->{_name_font} = $self->_convert_font_args( $arg{name_font} );
+
+    # Set the axis name layout.
+    $axis->{_layout} = $self->_get_layout_properties( $arg{name_layout}, 1 );
+
     return $axis;
+}
+
+
+###############################################################################
+#
+# _convert_fonts_args()
+#
+# Convert user defined font values into private hash values.
+#
+sub _convert_font_args {
+
+    my $self = shift;
+    my $args = shift;
+
+    return unless $args;
+
+    my $font = {
+        _name         => $args->{name},
+        _color        => $args->{color},
+        _size         => $args->{size},
+        _bold         => $args->{bold},
+        _italic       => $args->{italic},
+        _underline    => $args->{underline},
+        _pitch_family => $args->{pitch_family},
+        _charset      => $args->{charset},
+        _baseline     => $args->{baseline} || 0,
+        _rotation     => $args->{rotation},
+    };
+
+    # Convert font size units.
+    $font->{_size} *= 100 if $font->{_size};
+
+    # Convert rotation into 60,000ths of a degree.
+    if ( $font->{_rotation} ) {
+        $font->{_rotation} = 60_000 * int( $font->{_rotation} );
+    }
+
+    return $font;
 }
 
 
@@ -662,37 +920,36 @@ sub _get_palette_color {
 
 ###############################################################################
 #
-# _get_line_pattern()
+# _get_swe_line_pattern()
 #
-# Get the Excel chart index for line pattern that corresponds to the user
-# defined value.
+# Get the Spreadsheet::WriteExcel line pattern for backward compatibility.
 #
-sub _get_line_pattern {
+sub _get_swe_line_pattern {
 
     my $self    = shift;
     my $value   = lc shift;
-    my $default = 0;
+    my $default = 'solid';
     my $pattern;
 
     my %patterns = (
-        0              => 5,
-        1              => 0,
-        2              => 1,
-        3              => 2,
-        4              => 3,
-        5              => 4,
-        6              => 7,
-        7              => 6,
-        8              => 8,
-        'solid'        => 0,
-        'dash'         => 1,
-        'dot'          => 2,
-        'dash-dot'     => 3,
-        'dash-dot-dot' => 4,
-        'none'         => 5,
-        'dark-gray'    => 6,
-        'medium-gray'  => 7,
-        'light-gray'   => 8,
+        0              => 'solid',
+        1              => 'dash',
+        2              => 'dot',
+        3              => 'dash_dot',
+        4              => 'long_dash_dot_dot',
+        5              => 'none',
+        6              => 'solid',
+        7              => 'solid',
+        8              => 'solid',
+        'solid'        => 'solid',
+        'dash'         => 'dash',
+        'dot'          => 'dot',
+        'dash-dot'     => 'dash_dot',
+        'dash-dot-dot' => 'long_dash_dot_dot',
+        'none'         => 'none',
+        'dark-gray'    => 'solid',
+        'medium-gray'  => 'solid',
+        'light-gray'   => 'solid',
     );
 
     if ( exists $patterns{$value} ) {
@@ -708,27 +965,26 @@ sub _get_line_pattern {
 
 ###############################################################################
 #
-# _get_line_weight()
+# _get_swe_line_weight()
 #
-# Get the Excel chart index for line weight that corresponds to the user
-# defined value.
+# Get the Spreadsheet::WriteExcel line weight for backward compatibility.
 #
-sub _get_line_weight {
+sub _get_swe_line_weight {
 
     my $self    = shift;
     my $value   = lc shift;
-    my $default = 0;
+    my $default = 1;
     my $weight;
 
     my %weights = (
-        1          => -1,
-        2          => 0,
-        3          => 1,
-        4          => 2,
-        'hairline' => -1,
-        'narrow'   => 0,
-        'medium'   => 1,
-        'wide'     => 2,
+        1          => 0.25,
+        2          => 1,
+        3          => 2,
+        4          => 3,
+        'hairline' => 0.25,
+        'narrow'   => 1,
+        'medium'   => 2,
+        'wide'     => 3,
     );
 
     if ( exists $weights{$value} ) {
@@ -827,7 +1083,7 @@ sub _get_marker_properties {
         diamond    => 'diamond',
         triangle   => 'triangle',
         x          => 'x',
-        star       => 'start',
+        star       => 'star',
         dot        => 'dot',
         short_dash => 'dot',
         dash       => 'dash',
@@ -864,7 +1120,6 @@ sub _get_marker_properties {
 
     # Set the fill properties for the marker.
     my $fill = $self->_get_fill_properties( $marker->{fill} );
-
 
     $marker->{_line} = $line;
     $marker->{_fill} = $fill;
@@ -917,11 +1172,120 @@ sub _get_trendline_properties {
     # Set the fill properties for the trendline.
     my $fill = $self->_get_fill_properties( $trendline->{fill} );
 
-
     $trendline->{_line} = $line;
     $trendline->{_fill} = $fill;
 
     return $trendline;
+}
+
+
+###############################################################################
+#
+# _get_error_bars_properties()
+#
+# Convert user defined error bars properties to structure required internally.
+#
+sub _get_error_bars_properties {
+
+    my $self = shift;
+    my $args = shift;
+
+    return unless $args;
+
+    # Default values.
+    my $error_bars = {
+        _type         => 'fixedVal',
+        _value        => 1,
+        _endcap       => 1,
+        _direction    => 'both',
+        _plus_values  => [1],
+        _minus_values => [1],
+        _plus_data    => [],
+        _minus_data   => [],
+    };
+
+    my %types = (
+        fixed              => 'fixedVal',
+        percentage         => 'percentage',
+        standard_deviation => 'stdDev',
+        standard_error     => 'stdErr',
+        custom             => 'cust',
+    );
+
+    # Check the error bars type.
+    my $error_type = $args->{type};
+
+    if ( exists $types{$error_type} ) {
+        $error_bars->{_type} = $types{$error_type};
+    }
+    else {
+        warn "Unknown error bars type '$error_type'\n";
+        return;
+    }
+
+    # Set the value for error types that require it.
+    if ( defined $args->{value} ) {
+        $error_bars->{_value} = $args->{value};
+    }
+
+    # Set the end-cap style.
+    if ( defined $args->{end_style} ) {
+        $error_bars->{_endcap} = $args->{end_style};
+    }
+
+    # Set the error bar direction.
+    if ( defined $args->{direction} ) {
+        if ( $args->{direction} eq 'minus' ) {
+            $error_bars->{_direction} = 'minus';
+        }
+        elsif ( $args->{direction} eq 'plus' ) {
+            $error_bars->{_direction} = 'plus';
+        }
+        else {
+            # Default to 'both'.
+        }
+    }
+
+    # Set any custom values.
+    if ( defined $args->{plus_values} ) {
+        $error_bars->{_plus_values} = $args->{plus_values};
+    }
+    if ( defined $args->{minus_values} ) {
+        $error_bars->{_minus_values} = $args->{minus_values};
+    }
+    if ( defined $args->{plus_data} ) {
+        $error_bars->{_plus_data} = $args->{plus_data};
+    }
+    if ( defined $args->{minus_data} ) {
+        $error_bars->{_minus_data} = $args->{minus_data};
+    }
+
+    # Set the line properties for the error bars.
+    $error_bars->{_line} = $self->_get_line_properties( $args->{line} );
+
+    return $error_bars;
+}
+
+
+###############################################################################
+#
+# _get_gridline_properties()
+#
+# Convert user defined gridline properties to the structure required internally.
+#
+sub _get_gridline_properties {
+
+    my $self = shift;
+    my $args = shift;
+    my $gridline;
+
+    # Set the visible property for the gridline..
+    $gridline->{_visible} = $args->{visible};
+
+    # Set the line properties for the gridline..
+    $gridline->{_line} = $self->_get_line_properties( $args->{line} );
+
+    return $gridline;
 }
 
 
@@ -938,27 +1302,318 @@ sub _get_labels_properties {
 
     return undef unless $labels;
 
+    # Map user defined label positions to Excel positions.
+    if ( my $position = $labels->{position} ) {
+
+        my %positions = (
+            center      => 'ctr',
+            right       => 'r',
+            left        => 'l',
+            top         => 't',
+            above       => 't',
+            bottom      => 'b',
+            below       => 'b',
+            inside_end  => 'inEnd',
+            outside_end => 'outEnd',
+            best_fit    => 'bestFit',
+        );
+
+        if ( exists $positions{$position} ) {
+            $labels->{position} = $positions{$position};
+        }
+        else {
+            carp "Unknown label position '$position'";
+            $labels->{position} = $positions{$position};
+        }
+    }
+
     return $labels;
 }
 
 
 ###############################################################################
 #
-# _add_axis_id()
+# _get_area_properties()
 #
-# Add a unique id for an axis.
+# Convert user defined area properties to the structure required internally.
 #
-sub _add_axis_id {
+sub _get_area_properties {
+
+    my $self = shift;
+    my %arg  = @_;
+    my $area = {};
+
+
+    # Map deprecated Spreadsheet::WriteExcel fill colour.
+    if ( $arg{color} ) {
+        $arg{fill}->{color} = $arg{color};
+    }
+
+    # Map deprecated Spreadsheet::WriteExcel line_weight.
+    if ( $arg{line_weight} ) {
+        my $width = $self->_get_swe_line_weight( $arg{line_weight} );
+        $arg{border}->{width} = $width;
+    }
+
+    # Map deprecated Spreadsheet::WriteExcel line_pattern.
+    if ( $arg{line_pattern} ) {
+        my $pattern = $self->_get_swe_line_pattern( $arg{line_pattern} );
+
+        if ( $pattern eq 'none' ) {
+            $arg{border}->{none} = 1;
+        }
+        else {
+            $arg{border}->{dash_type} = $pattern;
+        }
+    }
+
+    # Map deprecated Spreadsheet::WriteExcel line colour.
+    if ( $arg{line_color} ) {
+        $arg{border}->{color} = $arg{line_color};
+    }
+
+
+    # Handle Excel::Writer::XLSX style properties.
+
+    # Set the line properties for the chartarea.
+    my $line = $self->_get_line_properties( $arg{line} );
+
+    # Allow 'border' as a synonym for 'line'.
+    if ( $arg{border} ) {
+        $line = $self->_get_line_properties( $arg{border} );
+    }
+
+    # Set the fill properties for the chartarea.
+    my $fill = $self->_get_fill_properties( $arg{fill} );
+
+    # Set the plotarea layout.
+    my $layout = $self->_get_layout_properties( $arg{layout} );
+
+    $area->{_line}   = $line;
+    $area->{_fill}   = $fill;
+    $area->{_layout} = $layout;
+
+    return $area;
+}
+
+
+###############################################################################
+#
+# _get_layout_properties()
+#
+# Convert user defined layout properties to the format required internally.
+#
+sub _get_layout_properties {
+
+    my $self    = shift;
+    my $args    = shift;
+    my $is_text = shift;
+    my $layout  = {};
+    my @properties;
+    my %allowable;
+
+    return if !$args;
+
+    if ( $is_text ) {
+        @properties = ( 'x', 'y' );
+    }
+    else {
+        @properties = ( 'x', 'y', 'width', 'height' );
+    }
+
+    # Check for valid properties.
+    @allowable{@properties} = undef;
+
+    for my $key ( keys %$args ) {
+
+        if ( !exists $allowable{$key} ) {
+            warn "Property '$key' not allowed in layout options\n";
+            return;
+        }
+    }
+
+    # Set the layout properties.
+    for my $property ( @properties ) {
+
+        if ( !exists $args->{$property} ) {
+            warn "Property '$property' must be specified in layout options\n";
+            return;
+        }
+
+        my $value = $args->{$property};
+
+        if ( $value !~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ ) {
+            warn "Property '$property' value '$value' must be numeric"
+              . " in layout options\n";
+            return;
+        }
+
+        if ( $value < 0 || $value > 1 ) {
+            warn "Property '$property' value '$value' must be in range "
+              . "0 < x <= 1 in layout options\n";
+            return;
+        }
+
+        # Convert to the format used by Excel for easier testing
+        $layout->{$property} = sprintf "%.17g", $value;
+    }
+
+    return $layout;
+}
+
+
+###############################################################################
+#
+# _get_points_properties()
+#
+# Convert user defined points properties to structure required internally.
+#
+sub _get_points_properties {
+
+    my $self        = shift;
+    my $user_points = shift;
+    my @points;
+
+    return unless $user_points;
+
+    for my $user_point ( @$user_points ) {
+
+        my $point;
+
+        if ( defined $user_point ) {
+
+            # Set the line properties for the point.
+            my $line = $self->_get_line_properties( $user_point->{line} );
+
+            # Allow 'border' as a synonym for 'line'.
+            if ( $user_point->{border} ) {
+                $line = $self->_get_line_properties( $user_point->{border} );
+            }
+
+            # Set the fill properties for the chartarea.
+            my $fill = $self->_get_fill_properties( $user_point->{fill} );
+
+            $point->{_line} = $line;
+            $point->{_fill} = $fill;
+        }
+
+        push @points, $point;
+    }
+
+    return \@points;
+}
+
+
+###############################################################################
+#
+# _get_primary_axes_series()
+#
+# Returns series which use the primary axes.
+#
+sub _get_primary_axes_series {
+
+    my $self = shift;
+    my @primary_axes_series;
+
+    for my $series ( @{ $self->{_series} } ) {
+        push @primary_axes_series, $series unless $series->{_y2_axis};
+    }
+
+    return @primary_axes_series;
+}
+
+
+###############################################################################
+#
+# _get_secondary_axes_series()
+#
+# Returns series which use the secondary axes.
+#
+sub _get_secondary_axes_series {
+
+    my $self = shift;
+    my @secondary_axes_series;
+
+    for my $series ( @{ $self->{_series} } ) {
+        push @secondary_axes_series, $series if $series->{_y2_axis};
+    }
+
+    return @secondary_axes_series;
+}
+
+
+###############################################################################
+#
+# _add_axis_ids()
+#
+# Add unique ids for primary or secondary axes
+#
+sub _add_axis_ids {
 
     my $self       = shift;
+    my %args       = @_;
     my $chart_id   = 1 + $self->{_id};
-    my $axis_count = 1 + @{ $self->{_axis_ids} };
+    my $axis_count = 1 + @{ $self->{_axis2_ids} } + @{ $self->{_axis_ids} };
 
-    my $axis_id = sprintf '5%03d%04d', $chart_id, $axis_count;
+    my $id1 = sprintf '5%03d%04d', $chart_id, $axis_count;
+    my $id2 = sprintf '5%03d%04d', $chart_id, $axis_count + 1;
 
-    push @{ $self->{_axis_ids} }, $axis_id;
+    push @{ $self->{_axis_ids} },  $id1, $id2 if $args{primary_axes};
+    push @{ $self->{_axis2_ids} }, $id1, $id2 if !$args{primary_axes};
+}
 
-    return $axis_id;
+
+##############################################################################
+#
+# _get_font_style_attributes.
+#
+# Get the font style attributes from a font hashref.
+#
+sub _get_font_style_attributes {
+
+    my $self = shift;
+    my $font = shift;
+
+    return () unless $font;
+
+    my @attributes;
+    push @attributes, ( 'sz' => $font->{_size} )   if $font->{_size};
+    push @attributes, ( 'b'  => $font->{_bold} )   if defined $font->{_bold};
+    push @attributes, ( 'i'  => $font->{_italic} ) if defined $font->{_italic};
+    push @attributes, ( 'u' => 'sng' ) if defined $font->{_underline};
+
+    # Turn off baseline when testing fonts that don't have it.
+    if ($font->{_baseline} != -1) {
+        push @attributes, ( 'baseline' => $font->{_baseline} );
+    }
+
+    return @attributes;
+}
+
+
+##############################################################################
+#
+# _get_font_latin_attributes.
+#
+# Get the font latin attributes from a font hashref.
+#
+sub _get_font_latin_attributes {
+
+    my $self = shift;
+    my $font = shift;
+
+    return () unless $font;
+
+    my @attributes;
+    push @attributes, ( 'typeface' => $font->{_name} ) if $font->{_name};
+
+    push @attributes, ( 'pitchFamily' => $font->{_pitch_family} )
+      if defined $font->{_pitch_family};
+
+    push @attributes, ( 'charset' => $font->{_charset} )
+      if defined $font->{_charset};
+
+    return @attributes;
 }
 
 
@@ -967,7 +1622,6 @@ sub _add_axis_id {
 # Config data.
 #
 ###############################################################################
-
 
 ###############################################################################
 #
@@ -979,35 +1633,36 @@ sub _set_default_properties {
 
     my $self = shift;
 
-    $self->{_chartarea} = {
-        _visible          => 0,
-        _fg_color_index   => 0x4E,
-        _fg_color_rgb     => 0xFFFFFF,
-        _bg_color_index   => 0x4D,
-        _bg_color_rgb     => 0x000000,
-        _area_pattern     => 0x0000,
-        _area_options     => 0x0000,
-        _line_pattern     => 0x0005,
-        _line_weight      => 0xFFFF,
-        _line_color_index => 0x4D,
-        _line_color_rgb   => 0x000000,
-        _line_options     => 0x0008,
+    # Set the default axis properties.
+    $self->{_x_axis}->{_defaults} = {
+        num_format      => 'General',
+        major_gridlines => { visible => 0 }
     };
 
-    $self->{_plotarea} = {
-        _visible          => 1,
-        _fg_color_index   => 0x16,
-        _fg_color_rgb     => 0xC0C0C0,
-        _bg_color_index   => 0x4F,
-        _bg_color_rgb     => 0x000000,
-        _area_pattern     => 0x0001,
-        _area_options     => 0x0000,
-        _line_pattern     => 0x0000,
-        _line_weight      => 0x0000,
-        _line_color_index => 0x17,
-        _line_color_rgb   => 0x808080,
-        _line_options     => 0x0000,
+    $self->{_y_axis}->{_defaults} = {
+        num_format      => 'General',
+        major_gridlines => { visible => 1 }
     };
+
+    $self->{_x2_axis}->{_defaults} = {
+        num_format     => 'General',
+        label_position => 'none',
+        crossing       => 'max',
+        visible        => 0
+    };
+
+    $self->{_y2_axis}->{_defaults} = {
+        num_format      => 'General',
+        major_gridlines => { visible => 0 },
+        position        => 'right',
+        visible         => 1
+    };
+
+    $self->set_x_axis();
+    $self->set_y_axis();
+
+    $self->set_x2_axis();
+    $self->set_y2_axis();
 }
 
 
@@ -1022,24 +1677,6 @@ sub _set_embedded_config_data {
     my $self = shift;
 
     $self->{_embedded} = 1;
-
-    # TODO. We may be able to remove this after refactoring.
-
-    $self->{_chartarea} = {
-        _visible          => 1,
-        _fg_color_index   => 0x4E,
-        _fg_color_rgb     => 0xFFFFFF,
-        _bg_color_index   => 0x4D,
-        _bg_color_rgb     => 0x000000,
-        _area_pattern     => 0x0001,
-        _area_options     => 0x0001,
-        _line_pattern     => 0x0000,
-        _line_weight      => 0x0000,
-        _line_color_index => 0x4D,
-        _line_color_rgb   => 0x000000,
-        _line_options     => 0x0009,
-    };
-
 }
 
 
@@ -1070,7 +1707,7 @@ sub _write_chart_space {
         'xmlns:r' => $xmlns_r,
     );
 
-    $self->{_writer}->startTag( 'c:chartSpace', @attributes );
+    $self->xml_start_tag( 'c:chartSpace', @attributes );
 }
 
 
@@ -1087,7 +1724,7 @@ sub _write_lang {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:lang', @attributes );
+    $self->xml_empty_tag( 'c:lang', @attributes );
 }
 
 
@@ -1107,7 +1744,7 @@ sub _write_style {
 
     my @attributes = ( 'val' => $style_id );
 
-    $self->{_writer}->emptyTag( 'c:style', @attributes );
+    $self->xml_empty_tag( 'c:style', @attributes );
 }
 
 
@@ -1121,15 +1758,38 @@ sub _write_chart {
 
     my $self = shift;
 
-    $self->{_writer}->startTag( 'c:chart' );
+    $self->xml_start_tag( 'c:chart' );
 
     # Write the chart title elements.
-    my $title;
-    if ( $title = $self->{_title_formula} ) {
-        $self->_write_title_formula( $title, $self->{_title_data_id} );
+
+    if ( $self->{_title_none} ) {
+
+        # Turn off the title.
+        $self->_write_auto_title_deleted();
     }
-    elsif ( $title = $self->{_title_name} ) {
-        $self->_write_title_rich( $title );
+    else {
+        my $title;
+        if ( $title = $self->{_title_formula} ) {
+            $self->_write_title_formula(
+
+                $title,
+                $self->{_title_data_id},
+                undef,
+                $self->{_title_font},
+                $self->{_title_layout},
+                $self->{_title_overlay}
+            );
+        }
+        elsif ( $title = $self->{_title_name} ) {
+            $self->_write_title_rich(
+
+                $title,
+                undef,
+                $self->{_title_font},
+                $self->{_title_layout},
+                $self->{_title_overlay}
+            );
+        }
     }
 
     # Write the c:plotArea element.
@@ -1141,7 +1801,30 @@ sub _write_chart {
     # Write the c:plotVisOnly element.
     $self->_write_plot_vis_only();
 
-    $self->{_writer}->endTag( 'c:chart' );
+    # Write the c:dispBlanksAs element.
+    $self->_write_disp_blanks_as();
+
+    $self->xml_end_tag( 'c:chart' );
+}
+
+
+##############################################################################
+#
+# _write_disp_blanks_as()
+#
+# Write the <c:dispBlanksAs> element.
+#
+sub _write_disp_blanks_as {
+
+    my $self = shift;
+    my $val  = $self->{_show_blanks};
+
+    # Ignore the default value.
+    return if $val eq 'gap';
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:dispBlanksAs', @attributes );
 }
 
 
@@ -1155,21 +1838,54 @@ sub _write_plot_area {
 
     my $self = shift;
 
-    $self->{_writer}->startTag( 'c:plotArea' );
+    $self->xml_start_tag( 'c:plotArea' );
 
     # Write the c:layout element.
-    $self->_write_layout();
+    $self->_write_layout( $self->{_plotarea}->{_layout}, 'plot' );
 
-    # Write the subclass chart type element.
-    $self->_write_chart_type();
+    # Write the subclass chart type elements for primary and secondary axes.
+    $self->_write_chart_type( primary_axes => 1 );
+    $self->_write_chart_type( primary_axes => 0 );
 
-    # Write the c:catAx element.
-    $self->_write_cat_axis();
+    # Write the category and value elements for the primary axes.
+    my @args = (
+        x_axis   => $self->{_x_axis},
+        y_axis   => $self->{_y_axis},
+        axis_ids => $self->{_axis_ids}
+    );
 
-    # Write the c:catAx element.
-    $self->_write_val_axis();
+    if ( $self->{_date_category} ) {
+        $self->_write_date_axis( @args );
+    }
+    else {
+        $self->_write_cat_axis( @args );
+    }
 
-    $self->{_writer}->endTag( 'c:plotArea' );
+    $self->_write_val_axis( @args );
+
+    # Write the category and value elements for the secondary axes.
+    @args = (
+        x_axis   => $self->{_x2_axis},
+        y_axis   => $self->{_y2_axis},
+        axis_ids => $self->{_axis2_ids}
+    );
+
+    $self->_write_val_axis( @args );
+
+    if ( $self->{_date_category} ) {
+        $self->_write_date_axis( @args );
+    }
+    else {
+        $self->_write_cat_axis( @args );
+    }
+
+    # Write the c:dTable element.
+    $self->_write_d_table();
+
+    # Write the c:spPr element for the plotarea formatting.
+    $self->_write_sp_pr( $self->{_plotarea} );
+
+    $self->xml_end_tag( 'c:plotArea' );
 }
 
 
@@ -1181,11 +1897,55 @@ sub _write_plot_area {
 #
 sub _write_layout {
 
-    my $self = shift;
+    my $self   = shift;
+    my $layout = shift;
+    my $type   = shift;
 
-    $self->{_writer}->emptyTag( 'c:layout' );
+    if ( !$layout ) {
+        # Automatic layout.
+        $self->xml_empty_tag( 'c:layout' );
+    }
+    else {
+        # User defined manual layout.
+        $self->xml_start_tag( 'c:layout' );
+        $self->_write_manual_layout( $layout, $type );
+        $self->xml_end_tag( 'c:layout' );
+    }
 }
 
+##############################################################################
+#
+# _write_manual_layout()
+#
+# Write the <c:manualLayout> element.
+#
+sub _write_manual_layout {
+
+    my $self   = shift;
+    my $layout = shift;
+    my $type   = shift;
+
+    $self->xml_start_tag( 'c:manualLayout' );
+
+    # Plotarea has a layoutTarget element.
+    if ( $type eq 'plot' ) {
+        $self->xml_empty_tag( 'c:layoutTarget', ( 'val' => 'inner' ) );
+    }
+
+    # Set the x, y positions.
+    $self->xml_empty_tag( 'c:xMode', ( 'val' => 'edge' ) );
+    $self->xml_empty_tag( 'c:yMode', ( 'val' => 'edge' ) );
+    $self->xml_empty_tag( 'c:x', ( 'val' => $layout->{x} ) );
+    $self->xml_empty_tag( 'c:y', ( 'val' => $layout->{y} ) );
+
+    # For plotarea and legend set the width and height.
+    if ( $type ne 'text' ) {
+        $self->xml_empty_tag( 'c:w', ( 'val' => $layout->{width} ) );
+        $self->xml_empty_tag( 'c:h', ( 'val' => $layout->{height} ) );
+    }
+
+    $self->xml_end_tag( 'c:manualLayout' );
+}
 
 ##############################################################################
 #
@@ -1213,7 +1973,7 @@ sub _write_grouping {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:grouping', @attributes );
+    $self->xml_empty_tag( 'c:grouping', @attributes );
 }
 
 
@@ -1225,24 +1985,10 @@ sub _write_grouping {
 #
 sub _write_series {
 
-    my $self = shift;
+    my $self   = shift;
+    my $series = shift;
 
-    # Write each series with subelements.
-    my $index = 0;
-    for my $series ( @{ $self->{_series} } ) {
-        $self->_write_ser( $index++, $series );
-    }
-
-    # Write the c:marker element.
-    $self->_write_marker_value();
-
-    # Generate the axis ids.
-    $self->_add_axis_id();
-    $self->_add_axis_id();
-
-    # Write the c:axId element.
-    $self->_write_axis_id( $self->{_axis_ids}->[0] );
-    $self->_write_axis_id( $self->{_axis_ids}->[1] );
+    $self->_write_ser( $series );
 }
 
 
@@ -1255,10 +2001,10 @@ sub _write_series {
 sub _write_ser {
 
     my $self   = shift;
-    my $index  = shift;
     my $series = shift;
+    my $index  = $self->{_series_index}++;
 
-    $self->{_writer}->startTag( 'c:ser' );
+    $self->xml_start_tag( 'c:ser' );
 
     # Write the c:idx element.
     $self->_write_idx( $index );
@@ -1278,11 +2024,17 @@ sub _write_ser {
     # Write the c:invertIfNegative element.
     $self->_write_c_invert_if_negative( $series->{_invert_if_neg} );
 
+    # Write the c:dPt element.
+    $self->_write_d_pt( $series->{_points} );
+
     # Write the c:dLbls element.
     $self->_write_d_lbls( $series->{_labels} );
 
     # Write the c:trendline element.
     $self->_write_trendline( $series->{_trendline} );
+
+    # Write the c:errBars element.
+    $self->_write_error_bars( $series->{_error_bars} );
 
     # Write the c:cat element.
     $self->_write_cat( $series );
@@ -1290,7 +2042,12 @@ sub _write_ser {
     # Write the c:val element.
     $self->_write_val( $series );
 
-    $self->{_writer}->endTag( 'c:ser' );
+    # Write the c:smooth element.
+    if ( $self->{_smooth_allowed} ) {
+        $self->_write_c_smooth( $series->{_smooth} );
+    }
+
+    $self->xml_end_tag( 'c:ser' );
 }
 
 
@@ -1307,7 +2064,7 @@ sub _write_idx {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:idx', @attributes );
+    $self->xml_empty_tag( 'c:idx', @attributes );
 }
 
 
@@ -1324,7 +2081,7 @@ sub _write_order {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:order', @attributes );
+    $self->xml_empty_tag( 'c:order', @attributes );
 }
 
 
@@ -1371,27 +2128,27 @@ sub _write_cat {
     # Ignore <c:cat> elements for charts without category values.
     return unless $formula;
 
-    $self->{_has_category} = 1;
-
-    $self->{_writer}->startTag( 'c:cat' );
+    $self->xml_start_tag( 'c:cat' );
 
     # Check the type of cached data.
     my $type = $self->_get_data_type( $data );
 
     if ( $type eq 'str' ) {
 
-        $self->{_has_category} = 0;
+        $self->{_cat_has_num_fmt} = 0;
 
         # Write the c:numRef element.
         $self->_write_str_ref( $formula, $data, $type );
     }
     else {
 
+        $self->{_cat_has_num_fmt} = 1;
+
         # Write the c:numRef element.
         $self->_write_num_ref( $formula, $data, $type );
     }
 
-    $self->{_writer}->endTag( 'c:cat' );
+    $self->xml_end_tag( 'c:cat' );
 }
 
 
@@ -1409,23 +2166,14 @@ sub _write_val {
     my $data_id = $series->{_val_data_id};
     my $data    = $self->{_formula_data}->[$data_id];
 
-    $self->{_writer}->startTag( 'c:val' );
+    $self->xml_start_tag( 'c:val' );
 
-    # Check the type of cached data.
-    my $type = $self->_get_data_type( $data );
+    # Unlike Cat axes data should only be numeric.
 
-    if ( $type eq 'str' ) {
+    # Write the c:numRef element.
+    $self->_write_num_ref( $formula, $data, 'num' );
 
-        # Write the c:numRef element.
-        $self->_write_str_ref( $formula, $data, $type );
-    }
-    else {
-
-        # Write the c:numRef element.
-        $self->_write_num_ref( $formula, $data, $type );
-    }
-
-    $self->{_writer}->endTag( 'c:val' );
+    $self->xml_end_tag( 'c:val' );
 }
 
 
@@ -1442,7 +2190,7 @@ sub _write_num_ref {
     my $data    = shift;
     my $type    = shift;
 
-    $self->{_writer}->startTag( 'c:numRef' );
+    $self->xml_start_tag( 'c:numRef' );
 
     # Write the c:f element.
     $self->_write_series_formula( $formula );
@@ -1458,7 +2206,7 @@ sub _write_num_ref {
         $self->_write_str_cache( $data );
     }
 
-    $self->{_writer}->endTag( 'c:numRef' );
+    $self->xml_end_tag( 'c:numRef' );
 }
 
 
@@ -1475,7 +2223,7 @@ sub _write_str_ref {
     my $data    = shift;
     my $type    = shift;
 
-    $self->{_writer}->startTag( 'c:strRef' );
+    $self->xml_start_tag( 'c:strRef' );
 
     # Write the c:f element.
     $self->_write_series_formula( $formula );
@@ -1491,7 +2239,7 @@ sub _write_str_ref {
         $self->_write_str_cache( $data );
     }
 
-    $self->{_writer}->endTag( 'c:strRef' );
+    $self->xml_end_tag( 'c:strRef' );
 }
 
 
@@ -1509,7 +2257,35 @@ sub _write_series_formula {
     # Strip the leading '=' from the formula.
     $formula =~ s/^=//;
 
-    $self->{_writer}->dataElement( 'c:f', $formula );
+    $self->xml_data_element( 'c:f', $formula );
+}
+
+
+##############################################################################
+#
+# _write_axis_ids()
+#
+# Write the <c:axId> elements for the primary or secondary axes.
+#
+sub _write_axis_ids {
+
+    my $self = shift;
+    my %args = @_;
+
+    # Generate the axis ids.
+    $self->_add_axis_ids( %args );
+
+    if ( $args{primary_axes} ) {
+
+        # Write the axis ids for the primary axes.
+        $self->_write_axis_id( $self->{_axis_ids}->[0] );
+        $self->_write_axis_id( $self->{_axis_ids}->[1] );
+    }
+    else {
+        # Write the axis ids for the secondary axes.
+        $self->_write_axis_id( $self->{_axis2_ids}->[0] );
+        $self->_write_axis_id( $self->{_axis2_ids}->[1] );
+    }
 }
 
 
@@ -1526,7 +2302,7 @@ sub _write_axis_id {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:axId', @attributes );
+    $self->xml_empty_tag( 'c:axId', @attributes );
 }
 
 
@@ -1539,52 +2315,79 @@ sub _write_axis_id {
 sub _write_cat_axis {
 
     my $self     = shift;
+    my %args     = @_;
+    my $x_axis   = $args{x_axis};
+    my $y_axis   = $args{y_axis};
+    my $axis_ids = $args{axis_ids};
+
+    # if there are no axis_ids then we don't need to write this element
+    return unless $axis_ids;
+    return unless scalar @$axis_ids;
+
     my $position = $self->{_cat_axis_position};
     my $horiz    = $self->{_horiz_cat_axis};
-    my $x_axis   = $self->{_x_axis};
-    my $y_axis   = $self->{_y_axis};
 
     # Overwrite the default axis position with a user supplied value.
     $position = $x_axis->{_position} || $position;
 
-    $self->{_writer}->startTag( 'c:catAx' );
+    $self->xml_start_tag( 'c:catAx' );
 
-    $self->_write_axis_id( $self->{_axis_ids}->[0] );
+    $self->_write_axis_id( $axis_ids->[0] );
 
     # Write the c:scaling element.
     $self->_write_scaling( $x_axis->{_reverse} );
 
+    $self->_write_delete( 1 ) unless $x_axis->{_visible};
+
     # Write the c:axPos element.
     $self->_write_axis_pos( $position, $y_axis->{_reverse} );
+
+    # Write the c:majorGridlines element.
+    $self->_write_major_gridlines( $x_axis->{_major_gridlines} );
+
+    # Write the c:minorGridlines element.
+    $self->_write_minor_gridlines( $x_axis->{_minor_gridlines} );
 
     # Write the axis title elements.
     my $title;
     if ( $title = $x_axis->{_formula} ) {
-        $self->_write_title_formula( $title, $x_axis->{_data_id}, $horiz );
+
+        $self->_write_title_formula( $title, $x_axis->{_data_id}, $horiz,
+            $x_axis->{_name_font}, $x_axis->{_layout} );
     }
     elsif ( $title = $x_axis->{_name} ) {
-        $self->_write_title_rich( $title, $horiz );
+        $self->_write_title_rich( $title, $horiz, $x_axis->{_name_font},
+            $x_axis->{_layout} );
     }
 
     # Write the c:numFmt element.
-    $self->_write_num_fmt();
+    $self->_write_cat_number_format( $x_axis );
+
+    # Write the c:majorTickMark element.
+    $self->_write_major_tick_mark( $x_axis->{_major_tick_mark} );
 
     # Write the c:tickLblPos element.
     $self->_write_tick_label_pos( $x_axis->{_label_position} );
 
+    # Write the axis font elements.
+    $self->_write_axis_font( $x_axis->{_num_font} );
+
     # Write the c:crossAx element.
-    $self->_write_cross_axis( $self->{_axis_ids}->[1] );
+    $self->_write_cross_axis( $axis_ids->[1] );
 
-    # Note, the category crossing comes from the value axis.
-    if ( !defined $y_axis->{_crossing} || $y_axis->{_crossing} eq 'max' ) {
+    if ( $self->{_show_crosses} || $x_axis->{_visible} ) {
 
-        # Write the c:crosses element.
-        $self->_write_crosses( $y_axis->{_crossing} );
-    }
-    else {
+        # Note, the category crossing comes from the value axis.
+        if ( !defined $y_axis->{_crossing} || $y_axis->{_crossing} eq 'max' ) {
 
-        # Write the c:crossesAt element.
-        $self->_write_c_crosses_at( $y_axis->{_crossing} );
+            # Write the c:crosses element.
+            $self->_write_crosses( $y_axis->{_crossing} );
+        }
+        else {
+
+            # Write the c:crossesAt element.
+            $self->_write_c_crosses_at( $y_axis->{_crossing} );
+        }
     }
 
     # Write the c:auto element.
@@ -1596,7 +2399,10 @@ sub _write_cat_axis {
     # Write the c:labelOffset element.
     $self->_write_label_offset( 100 );
 
-    $self->{_writer}->endTag( 'c:catAx' );
+    # Write the c:tickLblSkip element.
+    $self->_write_tick_lbl_skip( $x_axis->{_interval_unit} );
+
+    $self->xml_end_tag( 'c:catAx' );
 }
 
 
@@ -1610,47 +2416,65 @@ sub _write_cat_axis {
 #
 sub _write_val_axis {
 
-    my $self                 = shift;
-    my $position             = shift || $self->{_val_axis_position};
-    my $hide_major_gridlines = shift;
-    my $horiz                = $self->{_horiz_val_axis};
-    my $x_axis               = $self->{_x_axis};
-    my $y_axis               = $self->{_y_axis};
+    my $self     = shift;
+    my %args     = @_;
+    my $x_axis   = $args{x_axis};
+    my $y_axis   = $args{y_axis};
+    my $axis_ids = $args{axis_ids};
+    my $position = $args{position} || $self->{_val_axis_position};
+    my $horiz    = $self->{_horiz_val_axis};
+
+    return unless $axis_ids && scalar @$axis_ids;
 
     # Overwrite the default axis position with a user supplied value.
     $position = $y_axis->{_position} || $position;
 
-    $self->{_writer}->startTag( 'c:valAx' );
+    $self->xml_start_tag( 'c:valAx' );
 
-    $self->_write_axis_id( $self->{_axis_ids}->[1] );
+    $self->_write_axis_id( $axis_ids->[1] );
 
     # Write the c:scaling element.
-    $self->_write_scaling( $y_axis->{_reverse}, $y_axis->{_min},
-        $y_axis->{_max}, $y_axis->{_log_base}  );
+    $self->_write_scaling(
+        $y_axis->{_reverse}, $y_axis->{_min},
+        $y_axis->{_max},     $y_axis->{_log_base}
+    );
+
+    $self->_write_delete( 1 ) unless $y_axis->{_visible};
 
     # Write the c:axPos element.
     $self->_write_axis_pos( $position, $x_axis->{_reverse} );
 
     # Write the c:majorGridlines element.
-    $self->_write_major_gridlines() if not $hide_major_gridlines;
+    $self->_write_major_gridlines( $y_axis->{_major_gridlines} );
+
+    # Write the c:minorGridlines element.
+    $self->_write_minor_gridlines( $y_axis->{_minor_gridlines} );
 
     # Write the axis title elements.
     my $title;
     if ( $title = $y_axis->{_formula} ) {
-        $self->_write_title_formula( $title, $y_axis->{_data_id}, $horiz );
+        $self->_write_title_formula( $title, $y_axis->{_data_id}, $horiz,
+            $y_axis->{_name_font}, $y_axis->{_layout} );
     }
     elsif ( $title = $y_axis->{_name} ) {
-        $self->_write_title_rich( $title, $horiz );
+        $self->_write_title_rich( $title, $horiz, $y_axis->{_name_font},
+            $y_axis->{_layout} );
     }
 
     # Write the c:numberFormat element.
-    $self->_write_number_format();
+    $self->_write_number_format( $y_axis );
+
+    # Write the c:majorTickMark element.
+    $self->_write_major_tick_mark( $y_axis->{_major_tick_mark} );
 
     # Write the c:tickLblPos element.
     $self->_write_tick_label_pos( $y_axis->{_label_position} );
 
+    # Write the axis font elements.
+    $self->_write_axis_font( $y_axis->{_num_font} );
+
     # Write the c:crossAx element.
-    $self->_write_cross_axis( $self->{_axis_ids}->[0] );
+    $self->_write_cross_axis( $axis_ids->[0] );
 
     # Note, the category crossing comes from the value axis.
     if ( !defined $x_axis->{_crossing} || $x_axis->{_crossing} eq 'max' ) {
@@ -1665,7 +2489,7 @@ sub _write_val_axis {
     }
 
     # Write the c:crossBetween element.
-    $self->_write_cross_between();
+    $self->_write_cross_between( $x_axis->{_position_axis} );
 
     # Write the c:majorUnit element.
     $self->_write_c_major_unit( $y_axis->{_major_unit} );
@@ -1673,7 +2497,7 @@ sub _write_val_axis {
     # Write the c:minorUnit element.
     $self->_write_c_minor_unit( $y_axis->{_minor_unit} );
 
-    $self->{_writer}->endTag( 'c:valAx' );
+    $self->xml_end_tag( 'c:valAx' );
 }
 
 
@@ -1686,47 +2510,65 @@ sub _write_val_axis {
 #
 sub _write_cat_val_axis {
 
-    my $self                 = shift;
-    my $position             = shift || $self->{_val_axis_position};
-    my $hide_major_gridlines = shift;
-    my $horiz                = $self->{_horiz_val_axis};
-    my $x_axis               = $self->{_x_axis};
-    my $y_axis               = $self->{_y_axis};
+    my $self     = shift;
+    my %args     = @_;
+    my $x_axis   = $args{x_axis};
+    my $y_axis   = $args{y_axis};
+    my $axis_ids = $args{axis_ids};
+    my $position = $args{position} || $self->{_val_axis_position};
+    my $horiz    = $self->{_horiz_val_axis};
+
+    return unless $axis_ids && scalar @$axis_ids;
 
     # Overwrite the default axis position with a user supplied value.
     $position = $x_axis->{_position} || $position;
 
-    $self->{_writer}->startTag( 'c:valAx' );
+    $self->xml_start_tag( 'c:valAx' );
 
-    $self->_write_axis_id( $self->{_axis_ids}->[0] );
+    $self->_write_axis_id( $axis_ids->[0] );
 
     # Write the c:scaling element.
-    $self->_write_scaling( $x_axis->{_reverse}, $x_axis->{_min},
-        $x_axis->{_max}, $x_axis->{_log_base} );
+    $self->_write_scaling(
+        $x_axis->{_reverse}, $x_axis->{_min},
+        $x_axis->{_max},     $x_axis->{_log_base}
+    );
+
+    $self->_write_delete( 1 ) unless $x_axis->{_visible};
 
     # Write the c:axPos element.
     $self->_write_axis_pos( $position, $y_axis->{_reverse} );
 
     # Write the c:majorGridlines element.
-    $self->_write_major_gridlines() if not $hide_major_gridlines;
+    $self->_write_major_gridlines( $x_axis->{_major_gridlines} );
+
+    # Write the c:minorGridlines element.
+    $self->_write_minor_gridlines( $x_axis->{_minor_gridlines} );
 
     # Write the axis title elements.
     my $title;
     if ( $title = $x_axis->{_formula} ) {
-        $self->_write_title_formula( $title, $y_axis->{_data_id}, $horiz );
+        $self->_write_title_formula( $title, $y_axis->{_data_id}, $horiz,
+            $x_axis->{_name_font}, $x_axis->{_layout} );
     }
     elsif ( $title = $x_axis->{_name} ) {
-        $self->_write_title_rich( $title, $horiz );
+        $self->_write_title_rich( $title, $horiz, $x_axis->{_name_font},
+            $x_axis->{_layout} );
     }
 
     # Write the c:numberFormat element.
-    $self->_write_number_format();
+    $self->_write_number_format( $x_axis );
+
+    # Write the c:majorTickMark element.
+    $self->_write_major_tick_mark( $x_axis->{_major_tick_mark} );
 
     # Write the c:tickLblPos element.
     $self->_write_tick_label_pos( $x_axis->{_label_position} );
 
+    # Write the axis font elements.
+    $self->_write_axis_font( $x_axis->{_num_font} );
+
     # Write the c:crossAx element.
-    $self->_write_cross_axis( $self->{_axis_ids}->[1] );
+    $self->_write_cross_axis( $axis_ids->[1] );
 
     # Note, the category crossing comes from the value axis.
     if ( !defined $y_axis->{_crossing} || $y_axis->{_crossing} eq 'max' ) {
@@ -1741,15 +2583,15 @@ sub _write_cat_val_axis {
     }
 
     # Write the c:crossBetween element.
-    $self->_write_cross_between();
+    $self->_write_cross_between( $y_axis->{_position_axis} );
 
     # Write the c:majorUnit element.
-    $self->_write_c_major_unit( $y_axis->{_major_unit} );
+    $self->_write_c_major_unit( $x_axis->{_major_unit} );
 
     # Write the c:minorUnit element.
-    $self->_write_c_minor_unit( $y_axis->{_minor_unit} );
+    $self->_write_c_minor_unit( $x_axis->{_minor_unit} );
 
-    $self->{_writer}->endTag( 'c:valAx' );
+    $self->xml_end_tag( 'c:valAx' );
 }
 
 
@@ -1762,52 +2604,78 @@ sub _write_cat_val_axis {
 sub _write_date_axis {
 
     my $self     = shift;
+    my %args     = @_;
+    my $x_axis   = $args{x_axis};
+    my $y_axis   = $args{y_axis};
+    my $axis_ids = $args{axis_ids};
+
+    return unless $axis_ids && scalar @$axis_ids;
+
     my $position = $self->{_cat_axis_position};
-    my $x_axis   = $self->{_x_axis};
-    my $y_axis   = $self->{_y_axis};
 
     # Overwrite the default axis position with a user supplied value.
     $position = $x_axis->{_position} || $position;
 
-    $self->{_writer}->startTag( 'c:dateAx' );
+    $self->xml_start_tag( 'c:dateAx' );
 
-    $self->_write_axis_id( $self->{_axis_ids}->[0] );
+    $self->_write_axis_id( $axis_ids->[0] );
 
     # Write the c:scaling element.
-    $self->_write_scaling( $x_axis->{_reverse}, $x_axis->{_min},
-        $x_axis->{_max}, $x_axis->{_log_base} );
+    $self->_write_scaling(
+        $x_axis->{_reverse}, $x_axis->{_min},
+        $x_axis->{_max},     $x_axis->{_log_base}
+    );
+
+    $self->_write_delete( 1 ) unless $x_axis->{_visible};
 
     # Write the c:axPos element.
     $self->_write_axis_pos( $position, $y_axis->{_reverse} );
 
+    # Write the c:majorGridlines element.
+    $self->_write_major_gridlines( $x_axis->{_major_gridlines} );
+
+    # Write the c:minorGridlines element.
+    $self->_write_minor_gridlines( $x_axis->{_minor_gridlines} );
+
     # Write the axis title elements.
     my $title;
     if ( $title = $x_axis->{_formula} ) {
-        $self->_write_title_formula( $title, $x_axis->{_data_id} );
+        $self->_write_title_formula( $title, $x_axis->{_data_id}, undef,
+            $x_axis->{_name_font}, $x_axis->{_layout} );
     }
     elsif ( $title = $x_axis->{_name} ) {
-        $self->_write_title_rich( $title );
+        $self->_write_title_rich( $title, undef, $x_axis->{_name_font},
+            $x_axis->{_layout} );
     }
 
     # Write the c:numFmt element.
-    $self->_write_num_fmt( 'dd/mm/yyyy' );
+    $self->_write_number_format( $x_axis );
+
+    # Write the c:majorTickMark element.
+    $self->_write_major_tick_mark( $x_axis->{_major_tick_mark} );
 
     # Write the c:tickLblPos element.
     $self->_write_tick_label_pos( $x_axis->{_label_position} );
 
+    # Write the axis font elements.
+    $self->_write_axis_font( $x_axis->{_num_font} );
+
     # Write the c:crossAx element.
-    $self->_write_cross_axis( $self->{_axis_ids}->[1] );
+    $self->_write_cross_axis( $axis_ids->[1] );
 
-    # Note, the category crossing comes from the value axis.
-    if ( !defined $y_axis->{_crossing} || $y_axis->{_crossing} eq 'max' ) {
+    if ( $self->{_show_crosses} || $x_axis->{_visible} ) {
 
-        # Write the c:crosses element.
-        $self->_write_crosses( $y_axis->{_crossing} );
-    }
-    else {
+        # Note, the category crossing comes from the value axis.
+        if ( !defined $y_axis->{_crossing} || $y_axis->{_crossing} eq 'max' ) {
 
-        # Write the c:crossesAt element.
-        $self->_write_c_crosses_at( $y_axis->{_crossing} );
+            # Write the c:crosses element.
+            $self->_write_crosses( $y_axis->{_crossing} );
+        }
+        else {
+
+            # Write the c:crossesAt element.
+            $self->_write_c_crosses_at( $y_axis->{_crossing} );
+        }
     }
 
     # Write the c:auto element.
@@ -1815,6 +2683,9 @@ sub _write_date_axis {
 
     # Write the c:labelOffset element.
     $self->_write_label_offset( 100 );
+
+    # Write the c:tickLblSkip element.
+    $self->_write_tick_lbl_skip( $x_axis->{_interval_unit} );
 
     # Write the c:majorUnit element.
     $self->_write_c_major_unit( $x_axis->{_major_unit} );
@@ -1832,7 +2703,7 @@ sub _write_date_axis {
         $self->_write_c_minor_time_unit( $x_axis->{_minor_unit_type} );
     }
 
-    $self->{_writer}->endTag( 'c:dateAx' );
+    $self->xml_end_tag( 'c:dateAx' );
 }
 
 
@@ -1850,7 +2721,7 @@ sub _write_scaling {
     my $max      = shift;
     my $log_base = shift;
 
-    $self->{_writer}->startTag( 'c:scaling' );
+    $self->xml_start_tag( 'c:scaling' );
 
     # Write the c:logBase element.
     $self->_write_c_log_base( $log_base );
@@ -1864,7 +2735,7 @@ sub _write_scaling {
     # Write the c:min element.
     $self->_write_c_min( $min );
 
-    $self->{_writer}->endTag( 'c:scaling' );
+    $self->xml_end_tag( 'c:scaling' );
 }
 
 
@@ -1883,7 +2754,7 @@ sub _write_c_log_base {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:logBase', @attributes );
+    $self->xml_empty_tag( 'c:logBase', @attributes );
 }
 
 
@@ -1903,7 +2774,7 @@ sub _write_orientation {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:orientation', @attributes );
+    $self->xml_empty_tag( 'c:orientation', @attributes );
 }
 
 
@@ -1922,7 +2793,7 @@ sub _write_c_max {
 
     my @attributes = ( 'val' => $max );
 
-    $self->{_writer}->emptyTag( 'c:max', @attributes );
+    $self->xml_empty_tag( 'c:max', @attributes );
 }
 
 
@@ -1941,7 +2812,7 @@ sub _write_c_min {
 
     my @attributes = ( 'val' => $min );
 
-    $self->{_writer}->emptyTag( 'c:min', @attributes );
+    $self->xml_empty_tag( 'c:min', @attributes );
 }
 
 
@@ -1964,31 +2835,100 @@ sub _write_axis_pos {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:axPos', @attributes );
+    $self->xml_empty_tag( 'c:axPos', @attributes );
 }
 
 
 ##############################################################################
 #
-# _write_num_fmt()
+# _write_number_format()
 #
-# Write the <c:numFmt> element.
+# Write the <c:numberFormat> element. Note: It is assumed that if a user
+# defined number format is supplied (i.e., non-default) then the sourceLinked
+# attribute is 0. The user can override this if required.
 #
-sub _write_num_fmt {
+sub _write_number_format {
 
     my $self          = shift;
-    my $format_code   = shift || 'General';
+    my $axis          = shift;
+    my $format_code   = $axis->{_num_format};
     my $source_linked = 1;
 
-    # These elements are only required for charts with categories.
-    return unless $self->{_has_category};
+    # Check if a user defined number format has been set.
+    if ( $format_code ne $axis->{_defaults}->{num_format} ) {
+        $source_linked = 0;
+    }
+
+    # User override of sourceLinked.
+    if ( $axis->{_num_format_linked} ) {
+        $source_linked = 1;
+    }
 
     my @attributes = (
         'formatCode'   => $format_code,
         'sourceLinked' => $source_linked,
     );
 
-    $self->{_writer}->emptyTag( 'c:numFmt', @attributes );
+    $self->xml_empty_tag( 'c:numFmt', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_cat_number_format()
+#
+# Write the <c:numFmt> element. Special case handler for category axes which
+# don't always have a number format.
+#
+sub _write_cat_number_format {
+
+    my $self           = shift;
+    my $axis           = shift;
+    my $format_code    = $axis->{_num_format};
+    my $source_linked  = 1;
+    my $default_format = 1;
+
+    # Check if a user defined number format has been set.
+    if ( $format_code ne $axis->{_defaults}->{num_format} ) {
+        $source_linked  = 0;
+        $default_format = 0;
+    }
+
+    # User override of linkedSource.
+    if ( $axis->{_num_format_linked} ) {
+        $source_linked = 1;
+    }
+
+    # Skip if cat doesn't have a num format (unless it is non-default).
+    if ( !$self->{_cat_has_num_fmt} && $default_format ) {
+        return;
+    }
+
+    my @attributes = (
+        'formatCode'   => $format_code,
+        'sourceLinked' => $source_linked,
+    );
+
+    $self->xml_empty_tag( 'c:numFmt', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_major_tick_mark()
+#
+# Write the <c:majorTickMark> element.
+#
+sub _write_major_tick_mark {
+
+    my $self = shift;
+    my $val  = shift;
+
+    return unless $val;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:majorTickMark', @attributes );
 }
 
 
@@ -2001,15 +2941,15 @@ sub _write_num_fmt {
 sub _write_tick_label_pos {
 
     my $self = shift;
-    my $val  = shift || 'nextTo';
+    my $val = shift || 'nextTo';
 
-    if ($val eq 'next_to') {
-        $val =  'nextTo';
+    if ( $val eq 'next_to' ) {
+        $val = 'nextTo';
     }
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:tickLblPos', @attributes );
+    $self->xml_empty_tag( 'c:tickLblPos', @attributes );
 }
 
 
@@ -2026,7 +2966,7 @@ sub _write_cross_axis {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:crossAx', @attributes );
+    $self->xml_empty_tag( 'c:crossAx', @attributes );
 }
 
 
@@ -2039,11 +2979,11 @@ sub _write_cross_axis {
 sub _write_crosses {
 
     my $self = shift;
-    my $val  = shift || 'autoZero';
+    my $val = shift || 'autoZero';
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:crosses', @attributes );
+    $self->xml_empty_tag( 'c:crosses', @attributes );
 }
 
 
@@ -2060,7 +3000,7 @@ sub _write_c_crosses_at {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:crossesAt', @attributes );
+    $self->xml_empty_tag( 'c:crossesAt', @attributes );
 }
 
 
@@ -2077,7 +3017,7 @@ sub _write_auto {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:auto', @attributes );
+    $self->xml_empty_tag( 'c:auto', @attributes );
 }
 
 
@@ -2094,7 +3034,7 @@ sub _write_label_align {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:lblAlgn', @attributes );
+    $self->xml_empty_tag( 'c:lblAlgn', @attributes );
 }
 
 
@@ -2111,7 +3051,26 @@ sub _write_label_offset {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:lblOffset', @attributes );
+    $self->xml_empty_tag( 'c:lblOffset', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_tick_lbl_skip()
+#
+# Write the <c:tickLblSkip> element.
+#
+sub _write_tick_lbl_skip {
+
+    my $self = shift;
+    my $val  = shift;
+
+    return unless $val;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:tickLblSkip', @attributes );
 }
 
 
@@ -2123,33 +3082,53 @@ sub _write_label_offset {
 #
 sub _write_major_gridlines {
 
-    my $self = shift;
+    my $self      = shift;
+    my $gridlines = shift;
 
-    $self->{_writer}->emptyTag( 'c:majorGridlines' );
+    return unless $gridlines;
+    return unless $gridlines->{_visible};
+
+    if ( $gridlines->{_line}->{_defined} ) {
+        $self->xml_start_tag( 'c:majorGridlines' );
+
+        # Write the c:spPr element.
+        $self->_write_sp_pr( $gridlines );
+
+        $self->xml_end_tag( 'c:majorGridlines' );
+    }
+    else {
+        $self->xml_empty_tag( 'c:majorGridlines' );
+    }
 }
 
 
 ##############################################################################
 #
-# _write_number_format()
+# _write_minor_gridlines()
 #
-# Write the <c:numberFormat> element.
+# Write the <c:minorGridlines> element.
 #
-# TODO. Merge/replace with _write_num_fmt().
-#
-sub _write_number_format {
+sub _write_minor_gridlines {
 
-    my $self          = shift;
-    my $format_code   = 'General';
-    my $source_linked = 1;
+    my $self      = shift;
+    my $gridlines = shift;
 
-    my @attributes = (
-        'formatCode'   => $format_code,
-        'sourceLinked' => $source_linked,
-    );
+    return unless $gridlines;
+    return unless $gridlines->{_visible};
 
-    $self->{_writer}->emptyTag( 'c:numFmt', @attributes );
+    if ( $gridlines->{_line}->{_defined} ) {
+        $self->xml_start_tag( 'c:minorGridlines' );
+
+        # Write the c:spPr element.
+        $self->_write_sp_pr( $gridlines );
+
+        $self->xml_end_tag( 'c:minorGridlines' );
+    }
+    else {
+        $self->xml_empty_tag( 'c:minorGridlines' );
+    }
 }
+
 
 ##############################################################################
 #
@@ -2161,11 +3140,11 @@ sub _write_cross_between {
 
     my $self = shift;
 
-    my $val  = $self->{_cross_between} || 'between';
+    my $val = shift || $self->{_cross_between};
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:crossBetween', @attributes );
+    $self->xml_empty_tag( 'c:crossBetween', @attributes );
 }
 
 
@@ -2184,7 +3163,7 @@ sub _write_c_major_unit {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:majorUnit', @attributes );
+    $self->xml_empty_tag( 'c:majorUnit', @attributes );
 }
 
 
@@ -2203,7 +3182,7 @@ sub _write_c_minor_unit {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:minorUnit', @attributes );
+    $self->xml_empty_tag( 'c:minorUnit', @attributes );
 }
 
 
@@ -2220,7 +3199,7 @@ sub _write_c_major_time_unit {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:majorTimeUnit', @attributes );
+    $self->xml_empty_tag( 'c:majorTimeUnit', @attributes );
 }
 
 
@@ -2237,7 +3216,7 @@ sub _write_c_minor_time_unit {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:minorTimeUnit', @attributes );
+    $self->xml_empty_tag( 'c:minorTimeUnit', @attributes );
 }
 
 
@@ -2251,6 +3230,7 @@ sub _write_legend {
 
     my $self          = shift;
     my $position      = $self->{_legend_position};
+    my $font          = $self->{_legend_font};
     my @delete_series = ();
     my $overlay       = 0;
 
@@ -2276,7 +3256,7 @@ sub _write_legend {
 
     $position = $allowed{$position};
 
-    $self->{_writer}->startTag( 'c:legend' );
+    $self->xml_start_tag( 'c:legend' );
 
     # Write the c:legendPos element.
     $self->_write_legend_pos( $position );
@@ -2289,12 +3269,17 @@ sub _write_legend {
     }
 
     # Write the c:layout element.
-    $self->_write_layout();
+    $self->_write_layout( $self->{_legend_layout}, 'legend' );
+
+    # Write the c:txPr element.
+    if ( $font ) {
+        $self->_write_tx_pr( undef, $font );
+    }
 
     # Write the c:overlay element.
     $self->_write_overlay() if $overlay;
 
-    $self->{_writer}->endTag( 'c:legend' );
+    $self->xml_end_tag( 'c:legend' );
 }
 
 
@@ -2311,7 +3296,7 @@ sub _write_legend_pos {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:legendPos', @attributes );
+    $self->xml_empty_tag( 'c:legendPos', @attributes );
 }
 
 
@@ -2326,7 +3311,7 @@ sub _write_legend_entry {
     my $self  = shift;
     my $index = shift;
 
-    $self->{_writer}->startTag( 'c:legendEntry' );
+    $self->xml_start_tag( 'c:legendEntry' );
 
     # Write the c:idx element.
     $self->_write_idx( $index );
@@ -2334,7 +3319,7 @@ sub _write_legend_entry {
     # Write the c:delete element.
     $self->_write_delete( 1 );
 
-    $self->{_writer}->endTag( 'c:legendEntry' );
+    $self->xml_end_tag( 'c:legendEntry' );
 }
 
 
@@ -2351,7 +3336,7 @@ sub _write_overlay {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:overlay', @attributes );
+    $self->xml_empty_tag( 'c:overlay', @attributes );
 }
 
 
@@ -2366,9 +3351,12 @@ sub _write_plot_vis_only {
     my $self = shift;
     my $val  = 1;
 
+    # Ignore this element if we are plotting hidden data.
+    return if $self->{_show_hidden_data};
+
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:plotVisOnly', @attributes );
+    $self->xml_empty_tag( 'c:plotVisOnly', @attributes );
 }
 
 
@@ -2382,7 +3370,7 @@ sub _write_print_settings {
 
     my $self = shift;
 
-    $self->{_writer}->startTag( 'c:printSettings' );
+    $self->xml_start_tag( 'c:printSettings' );
 
     # Write the c:headerFooter element.
     $self->_write_header_footer();
@@ -2393,7 +3381,7 @@ sub _write_print_settings {
     # Write the c:pageSetup element.
     $self->_write_page_setup();
 
-    $self->{_writer}->endTag( 'c:printSettings' );
+    $self->xml_end_tag( 'c:printSettings' );
 }
 
 
@@ -2407,7 +3395,7 @@ sub _write_header_footer {
 
     my $self = shift;
 
-    $self->{_writer}->emptyTag( 'c:headerFooter' );
+    $self->xml_empty_tag( 'c:headerFooter' );
 }
 
 
@@ -2436,7 +3424,7 @@ sub _write_page_margins {
         'footer' => $footer,
     );
 
-    $self->{_writer}->emptyTag( 'c:pageMargins', @attributes );
+    $self->xml_empty_tag( 'c:pageMargins', @attributes );
 }
 
 
@@ -2450,7 +3438,23 @@ sub _write_page_setup {
 
     my $self = shift;
 
-    $self->{_writer}->emptyTag( 'c:pageSetup' );
+    $self->xml_empty_tag( 'c:pageSetup' );
+}
+
+
+##############################################################################
+#
+# _write_auto_title_deleted()
+#
+# Write the <c:autoTitleDeleted> element.
+#
+sub _write_auto_title_deleted {
+
+    my $self = shift;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:autoTitleDeleted', @attributes );
 }
 
 
@@ -2462,19 +3466,25 @@ sub _write_page_setup {
 #
 sub _write_title_rich {
 
-    my $self  = shift;
-    my $title = shift;
-    my $horiz = shift;
+    my $self    = shift;
+    my $title   = shift;
+    my $horiz   = shift;
+    my $font    = shift;
+    my $layout  = shift;
+    my $overlay = shift;
 
-    $self->{_writer}->startTag( 'c:title' );
+    $self->xml_start_tag( 'c:title' );
 
     # Write the c:tx element.
-    $self->_write_tx_rich( $title, $horiz );
+    $self->_write_tx_rich( $title, $horiz, $font );
 
     # Write the c:layout element.
-    $self->_write_layout();
+    $self->_write_layout( $layout, 'text' );
 
-    $self->{_writer}->endTag( 'c:title' );
+    # Write the c:overlay element.
+    $self->_write_overlay() if $overlay;
+
+    $self->xml_end_tag( 'c:title' );
 }
 
 
@@ -2490,19 +3500,25 @@ sub _write_title_formula {
     my $title   = shift;
     my $data_id = shift;
     my $horiz   = shift;
+    my $font    = shift;
+    my $layout  = shift;
+    my $overlay = shift;
 
-    $self->{_writer}->startTag( 'c:title' );
+    $self->xml_start_tag( 'c:title' );
 
     # Write the c:tx element.
     $self->_write_tx_formula( $title, $data_id );
 
     # Write the c:layout element.
-    $self->_write_layout();
+    $self->_write_layout( $layout, 'text' );
+
+    # Write the c:overlay element.
+    $self->_write_overlay() if $overlay;
 
     # Write the c:txPr element.
-    $self->_write_tx_pr( $horiz );
+    $self->_write_tx_pr( $horiz, $font );
 
-    $self->{_writer}->endTag( 'c:title' );
+    $self->xml_end_tag( 'c:title' );
 }
 
 
@@ -2517,13 +3533,14 @@ sub _write_tx_rich {
     my $self  = shift;
     my $title = shift;
     my $horiz = shift;
+    my $font  = shift;
 
-    $self->{_writer}->startTag( 'c:tx' );
+    $self->xml_start_tag( 'c:tx' );
 
     # Write the c:rich element.
-    $self->_write_rich( $title, $horiz );
+    $self->_write_rich( $title, $horiz, $font );
 
-    $self->{_writer}->endTag( 'c:tx' );
+    $self->xml_end_tag( 'c:tx' );
 }
 
 
@@ -2538,12 +3555,12 @@ sub _write_tx_value {
     my $self  = shift;
     my $title = shift;
 
-    $self->{_writer}->startTag( 'c:tx' );
+    $self->xml_start_tag( 'c:tx' );
 
     # Write the c:v element.
     $self->_write_v( $title );
 
-    $self->{_writer}->endTag( 'c:tx' );
+    $self->xml_end_tag( 'c:tx' );
 }
 
 
@@ -2564,12 +3581,12 @@ sub _write_tx_formula {
         $data = $self->{_formula_data}->[$data_id];
     }
 
-    $self->{_writer}->startTag( 'c:tx' );
+    $self->xml_start_tag( 'c:tx' );
 
     # Write the c:strRef element.
     $self->_write_str_ref( $title, $data, 'str' );
 
-    $self->{_writer}->endTag( 'c:tx' );
+    $self->xml_end_tag( 'c:tx' );
 }
 
 
@@ -2581,23 +3598,28 @@ sub _write_tx_formula {
 #
 sub _write_rich {
 
-    my $self  = shift;
-    my $title = shift;
-    my $horiz = shift;
+    my $self     = shift;
+    my $title    = shift;
+    my $horiz    = shift;
+    my $rotation = undef;
+    my $font     = shift;
 
-    $self->{_writer}->startTag( 'c:rich' );
+    if ( $font && exists $font->{_rotation} ) {
+        $rotation = $font->{_rotation};
+    }
+
+    $self->xml_start_tag( 'c:rich' );
 
     # Write the a:bodyPr element.
-    $self->_write_a_body_pr( $horiz );
+    $self->_write_a_body_pr( $rotation, $horiz );
 
     # Write the a:lstStyle element.
     $self->_write_a_lst_style();
 
     # Write the a:p element.
-    $self->_write_a_p_rich( $title );
+    $self->_write_a_p_rich( $title, $font );
 
-
-    $self->{_writer}->endTag( 'c:rich' );
+    $self->xml_end_tag( 'c:rich' );
 }
 
 
@@ -2606,22 +3628,22 @@ sub _write_rich {
 # _write_a_body_pr()
 #
 # Write the <a:bodyPr> element.
-#
 sub _write_a_body_pr {
 
     my $self  = shift;
+    my $rot   = shift;
     my $horiz = shift;
-    my $rot   = -5400000;
-    my $vert  = 'horz';
 
-    my @attributes = (
-        'rot'  => $rot,
-        'vert' => $vert,
-    );
+    my @attributes = ();
 
-    @attributes = () if !$horiz;
+    if ( !defined $rot && $horiz ) {
+        $rot = -5400000;
+    }
 
-    $self->{_writer}->emptyTag( 'a:bodyPr', @attributes );
+    push @attributes, ( 'rot' => $rot ) if defined $rot;
+    push @attributes, ( 'vert' => 'horz' ) if $horiz;
+
+    $self->xml_empty_tag( 'a:bodyPr', @attributes );
 }
 
 
@@ -2635,7 +3657,7 @@ sub _write_a_lst_style {
 
     my $self = shift;
 
-    $self->{_writer}->emptyTag( 'a:lstStyle' );
+    $self->xml_empty_tag( 'a:lstStyle' );
 }
 
 
@@ -2649,16 +3671,17 @@ sub _write_a_p_rich {
 
     my $self  = shift;
     my $title = shift;
+    my $font  = shift;
 
-    $self->{_writer}->startTag( 'a:p' );
+    $self->xml_start_tag( 'a:p' );
 
     # Write the a:pPr element.
-    $self->_write_a_p_pr_rich();
+    $self->_write_a_p_pr_rich( $font );
 
     # Write the a:r element.
-    $self->_write_a_r( $title );
+    $self->_write_a_r( $title, $font );
 
-    $self->{_writer}->endTag( 'a:p' );
+    $self->xml_end_tag( 'a:p' );
 }
 
 
@@ -2670,18 +3693,18 @@ sub _write_a_p_rich {
 #
 sub _write_a_p_formula {
 
-    my $self  = shift;
-    my $title = shift;
+    my $self = shift;
+    my $font = shift;
 
-    $self->{_writer}->startTag( 'a:p' );
+    $self->xml_start_tag( 'a:p' );
 
     # Write the a:pPr element.
-    $self->_write_a_p_pr_formula();
+    $self->_write_a_p_pr_formula( $font );
 
     # Write the a:endParaRPr element.
     $self->_write_a_end_para_rpr();
 
-    $self->{_writer}->endTag( 'a:p' );
+    $self->xml_end_tag( 'a:p' );
 }
 
 
@@ -2694,13 +3717,14 @@ sub _write_a_p_formula {
 sub _write_a_p_pr_rich {
 
     my $self = shift;
+    my $font = shift;
 
-    $self->{_writer}->startTag( 'a:pPr' );
+    $self->xml_start_tag( 'a:pPr' );
 
     # Write the a:defRPr element.
-    $self->_write_a_def_rpr();
+    $self->_write_a_def_rpr( $font );
 
-    $self->{_writer}->endTag( 'a:pPr' );
+    $self->xml_end_tag( 'a:pPr' );
 }
 
 
@@ -2713,13 +3737,14 @@ sub _write_a_p_pr_rich {
 sub _write_a_p_pr_formula {
 
     my $self = shift;
+    my $font = shift;
 
-    $self->{_writer}->startTag( 'a:pPr' );
+    $self->xml_start_tag( 'a:pPr' );
 
     # Write the a:defRPr element.
-    $self->_write_a_def_rpr();
+    $self->_write_a_def_rpr( $font );
 
-    $self->{_writer}->endTag( 'a:pPr' );
+    $self->xml_end_tag( 'a:pPr' );
 }
 
 
@@ -2731,9 +3756,32 @@ sub _write_a_p_pr_formula {
 #
 sub _write_a_def_rpr {
 
-    my $self = shift;
+    my $self      = shift;
+    my $font      = shift;
+    my $has_color = 0;
 
-    $self->{_writer}->emptyTag( 'a:defRPr' );
+    my @style_attributes = $self->_get_font_style_attributes( $font );
+    my @latin_attributes = $self->_get_font_latin_attributes( $font );
+
+    $has_color = 1 if $font && $font->{_color};
+
+    if ( @latin_attributes || $has_color ) {
+        $self->xml_start_tag( 'a:defRPr', @style_attributes );
+
+
+        if ( $has_color ) {
+            $self->_write_a_solid_fill( { color => $font->{_color} } );
+        }
+
+        if ( @latin_attributes ) {
+            $self->_write_a_latin( @latin_attributes );
+        }
+
+        $self->xml_end_tag( 'a:defRPr' );
+    }
+    else {
+        $self->xml_empty_tag( 'a:defRPr', @style_attributes );
+    }
 }
 
 
@@ -2750,7 +3798,7 @@ sub _write_a_end_para_rpr {
 
     my @attributes = ( 'lang' => $lang );
 
-    $self->{_writer}->emptyTag( 'a:endParaRPr', @attributes );
+    $self->xml_empty_tag( 'a:endParaRPr', @attributes );
 }
 
 
@@ -2764,16 +3812,17 @@ sub _write_a_r {
 
     my $self  = shift;
     my $title = shift;
+    my $font  = shift;
 
-    $self->{_writer}->startTag( 'a:r' );
+    $self->xml_start_tag( 'a:r' );
 
     # Write the a:rPr element.
-    $self->_write_a_r_pr();
+    $self->_write_a_r_pr( $font );
 
     # Write the a:t element.
     $self->_write_a_t( $title );
 
-    $self->{_writer}->endTag( 'a:r' );
+    $self->xml_end_tag( 'a:r' );
 }
 
 
@@ -2785,12 +3834,39 @@ sub _write_a_r {
 #
 sub _write_a_r_pr {
 
-    my $self = shift;
-    my $lang = 'en-US';
+    my $self      = shift;
+    my $font      = shift;
+    my $has_color = 0;
+    my $lang      = 'en-US';
 
-    my @attributes = ( 'lang' => $lang, );
+    my @style_attributes = $self->_get_font_style_attributes( $font );
+    my @latin_attributes = $self->_get_font_latin_attributes( $font );
 
-    $self->{_writer}->emptyTag( 'a:rPr', @attributes );
+    $has_color = 1 if $font && $font->{_color};
+
+    # Add the lang type to the attributes.
+    @style_attributes = ( 'lang' => $lang, @style_attributes );
+
+
+    if ( @latin_attributes || $has_color ) {
+        $self->xml_start_tag( 'a:rPr', @style_attributes );
+
+
+        if ( $has_color ) {
+            $self->_write_a_solid_fill( { color => $font->{_color} } );
+        }
+
+        if ( @latin_attributes ) {
+            $self->_write_a_latin( @latin_attributes );
+        }
+
+        $self->xml_end_tag( 'a:rPr' );
+    }
+    else {
+        $self->xml_empty_tag( 'a:rPr', @style_attributes );
+    }
+
+
 }
 
 
@@ -2805,7 +3881,7 @@ sub _write_a_t {
     my $self  = shift;
     my $title = shift;
 
-    $self->{_writer}->dataElement( 'a:t', $title );
+    $self->xml_data_element( 'a:t', $title );
 }
 
 
@@ -2817,21 +3893,27 @@ sub _write_a_t {
 #
 sub _write_tx_pr {
 
-    my $self  = shift;
-    my $horiz = shift;
+    my $self     = shift;
+    my $horiz    = shift;
+    my $font     = shift;
+    my $rotation = undef;
 
-    $self->{_writer}->startTag( 'c:txPr' );
+    if ( $font && exists $font->{_rotation} ) {
+        $rotation = $font->{_rotation};
+    }
+
+    $self->xml_start_tag( 'c:txPr' );
 
     # Write the a:bodyPr element.
-    $self->_write_a_body_pr( $horiz );
+    $self->_write_a_body_pr( $rotation, $horiz );
 
     # Write the a:lstStyle element.
     $self->_write_a_lst_style();
 
     # Write the a:p element.
-    $self->_write_a_p_formula();
+    $self->_write_a_p_formula( $font );
 
-    $self->{_writer}->endTag( 'c:txPr' );
+    $self->xml_end_tag( 'c:txPr' );
 }
 
 
@@ -2849,7 +3931,7 @@ sub _write_marker {
     return unless $marker;
     return if $marker->{automatic};
 
-    $self->{_writer}->startTag( 'c:marker' );
+    $self->xml_start_tag( 'c:marker' );
 
     # Write the c:symbol element.
     $self->_write_symbol( $marker->{type} );
@@ -2861,7 +3943,7 @@ sub _write_marker {
     # Write the c:spPr element.
     $self->_write_sp_pr( $marker );
 
-    $self->{_writer}->endTag( 'c:marker' );
+    $self->xml_end_tag( 'c:marker' );
 }
 
 
@@ -2880,7 +3962,7 @@ sub _write_marker_value {
 
     my @attributes = ( 'val' => 1 );
 
-    $self->{_writer}->emptyTag( 'c:marker', @attributes );
+    $self->xml_empty_tag( 'c:marker', @attributes );
 }
 
 
@@ -2897,7 +3979,7 @@ sub _write_marker_size {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:size', @attributes );
+    $self->xml_empty_tag( 'c:size', @attributes );
 }
 
 
@@ -2914,7 +3996,7 @@ sub _write_symbol {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:symbol', @attributes );
+    $self->xml_empty_tag( 'c:symbol', @attributes );
 }
 
 
@@ -2933,11 +4015,20 @@ sub _write_sp_pr {
         return;
     }
 
-    $self->{_writer}->startTag( 'c:spPr' );
+    $self->xml_start_tag( 'c:spPr' );
 
-    # Write the a:solidFill element for solid charts such as pie and bar.
+    # Write the fill elements for solid charts such as pie and bar.
     if ( $series->{_fill}->{_defined} ) {
-        $self->_write_a_solid_fill( $series->{_fill} );
+
+        if ( $series->{_fill}->{none} ) {
+
+            # Write the a:noFill element.
+            $self->_write_a_no_fill();
+        }
+        else {
+            # Write the a:solidFill element.
+            $self->_write_a_solid_fill( $series->{_fill} );
+        }
     }
 
     # Write the a:ln element.
@@ -2945,7 +4036,7 @@ sub _write_sp_pr {
         $self->_write_a_ln( $series->{_line} );
     }
 
-    $self->{_writer}->endTag( 'c:spPr' );
+    $self->xml_end_tag( 'c:spPr' );
 }
 
 
@@ -2973,7 +4064,7 @@ sub _write_a_ln {
         @attributes = ( 'w' => $width );
     }
 
-    $self->{_writer}->startTag( 'a:ln', @attributes );
+    $self->xml_start_tag( 'a:ln', @attributes );
 
     # Write the line fill.
     if ( $line->{none} ) {
@@ -2981,7 +4072,7 @@ sub _write_a_ln {
         # Write the a:noFill element.
         $self->_write_a_no_fill();
     }
-    else {
+    elsif ( $line->{color} ) {
 
         # Write the a:solidFill element.
         $self->_write_a_solid_fill( $line );
@@ -2994,7 +4085,7 @@ sub _write_a_ln {
         $self->_write_a_prst_dash( $type );
     }
 
-    $self->{_writer}->endTag( 'a:ln' );
+    $self->xml_end_tag( 'a:ln' );
 }
 
 
@@ -3008,7 +4099,7 @@ sub _write_a_no_fill {
 
     my $self = shift;
 
-    $self->{_writer}->emptyTag( 'a:noFill' );
+    $self->xml_empty_tag( 'a:noFill' );
 }
 
 
@@ -3023,7 +4114,7 @@ sub _write_a_solid_fill {
     my $self = shift;
     my $line = shift;
 
-    $self->{_writer}->startTag( 'a:solidFill' );
+    $self->xml_start_tag( 'a:solidFill' );
 
     if ( $line->{color} ) {
 
@@ -3033,8 +4124,7 @@ sub _write_a_solid_fill {
         $self->_write_a_srgb_clr( $color );
     }
 
-
-    $self->{_writer}->endTag( 'a:solidFill' );
+    $self->xml_end_tag( 'a:solidFill' );
 }
 
 
@@ -3051,7 +4141,7 @@ sub _write_a_srgb_clr {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'a:srgbClr', @attributes );
+    $self->xml_empty_tag( 'a:srgbClr', @attributes );
 }
 
 
@@ -3068,7 +4158,7 @@ sub _write_a_prst_dash {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'a:prstDash', @attributes );
+    $self->xml_empty_tag( 'a:prstDash', @attributes );
 }
 
 
@@ -3085,7 +4175,7 @@ sub _write_trendline {
 
     return unless $trendline;
 
-    $self->{_writer}->startTag( 'c:trendline' );
+    $self->xml_start_tag( 'c:trendline' );
 
     # Write the c:name element.
     $self->_write_name( $trendline->{name} );
@@ -3112,7 +4202,7 @@ sub _write_trendline {
     # Write the c:backward element.
     $self->_write_backward( $trendline->{backward} );
 
-    $self->{_writer}->endTag( 'c:trendline' );
+    $self->xml_end_tag( 'c:trendline' );
 }
 
 
@@ -3129,7 +4219,7 @@ sub _write_trendline_type {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:trendlineType', @attributes );
+    $self->xml_empty_tag( 'c:trendlineType', @attributes );
 }
 
 
@@ -3146,7 +4236,7 @@ sub _write_name {
 
     return unless defined $data;
 
-    $self->{_writer}->dataElement( 'c:name', $data );
+    $self->xml_data_element( 'c:name', $data );
 }
 
 
@@ -3159,11 +4249,11 @@ sub _write_name {
 sub _write_trendline_order {
 
     my $self = shift;
-    my $val  = defined $_[0] ? $_[0] : 2;
+    my $val = defined $_[0] ? $_[0] : 2;
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:order', @attributes );
+    $self->xml_empty_tag( 'c:order', @attributes );
 }
 
 
@@ -3176,11 +4266,11 @@ sub _write_trendline_order {
 sub _write_period {
 
     my $self = shift;
-    my $val  = defined $_[0] ? $_[0] : 2;
+    my $val = defined $_[0] ? $_[0] : 2;
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:period', @attributes );
+    $self->xml_empty_tag( 'c:period', @attributes );
 }
 
 
@@ -3199,8 +4289,9 @@ sub _write_forward {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:forward', @attributes );
+    $self->xml_empty_tag( 'c:forward', @attributes );
 }
+
 
 ##############################################################################
 #
@@ -3217,7 +4308,7 @@ sub _write_backward {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:backward', @attributes );
+    $self->xml_empty_tag( 'c:backward', @attributes );
 }
 
 
@@ -3231,7 +4322,51 @@ sub _write_hi_low_lines {
 
     my $self = shift;
 
-    $self->{_writer}->emptyTag( 'c:hiLowLines' );
+    my $hi_low_lines = $self->{_hi_low_lines};
+
+    return unless $hi_low_lines;
+
+    if ( $hi_low_lines->{_line}->{_defined} ) {
+
+        $self->xml_start_tag( 'c:hiLowLines' );
+
+        # Write the c:spPr element.
+        $self->_write_sp_pr( $hi_low_lines );
+
+        $self->xml_end_tag( 'c:hiLowLines' );
+    }
+    else {
+        $self->xml_empty_tag( 'c:hiLowLines' );
+    }
+}
+
+
+#############################################################################
+#
+# _write_drop_lines()
+#
+# Write the <c:dropLines> element.
+#
+sub _write_drop_lines {
+
+    my $self = shift;
+
+    my $drop_lines = $self->{_drop_lines};
+
+    return unless $drop_lines;
+
+    if ( $drop_lines->{_line}->{_defined} ) {
+
+        $self->xml_start_tag( 'c:dropLines' );
+
+        # Write the c:spPr element.
+        $self->_write_sp_pr( $drop_lines );
+
+        $self->xml_end_tag( 'c:dropLines' );
+    }
+    else {
+        $self->xml_empty_tag( 'c:dropLines' );
+    }
 }
 
 
@@ -3244,11 +4379,13 @@ sub _write_hi_low_lines {
 sub _write_overlap {
 
     my $self = shift;
-    my $val  = 100;
+    my $val  = shift;
+
+    return if !defined $val;
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:overlap', @attributes );
+    $self->xml_empty_tag( 'c:overlap', @attributes );
 }
 
 
@@ -3264,7 +4401,7 @@ sub _write_num_cache {
     my $data  = shift;
     my $count = @$data;
 
-    $self->{_writer}->startTag( 'c:numCache' );
+    $self->xml_start_tag( 'c:numCache' );
 
     # Write the c:formatCode element.
     $self->_write_format_code( 'General' );
@@ -3273,12 +4410,20 @@ sub _write_num_cache {
     $self->_write_pt_count( $count );
 
     for my $i ( 0 .. $count - 1 ) {
+        my $token = $data->[$i];
+
+        # Write non-numeric data as 0.
+        if ( defined $token
+            && $token !~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ )
+        {
+            $token = 0;
+        }
 
         # Write the c:pt element.
-        $self->_write_pt( $i, $data->[$i] );
+        $self->_write_pt( $i, $token );
     }
 
-    $self->{_writer}->endTag( 'c:numCache' );
+    $self->xml_end_tag( 'c:numCache' );
 }
 
 
@@ -3294,7 +4439,7 @@ sub _write_str_cache {
     my $data  = shift;
     my $count = @$data;
 
-    $self->{_writer}->startTag( 'c:strCache' );
+    $self->xml_start_tag( 'c:strCache' );
 
     # Write the c:ptCount element.
     $self->_write_pt_count( $count );
@@ -3305,7 +4450,7 @@ sub _write_str_cache {
         $self->_write_pt( $i, $data->[$i] );
     }
 
-    $self->{_writer}->endTag( 'c:strCache' );
+    $self->xml_end_tag( 'c:strCache' );
 }
 
 
@@ -3320,7 +4465,7 @@ sub _write_format_code {
     my $self = shift;
     my $data = shift;
 
-    $self->{_writer}->dataElement( 'c:formatCode', $data );
+    $self->xml_data_element( 'c:formatCode', $data );
 }
 
 
@@ -3337,7 +4482,7 @@ sub _write_pt_count {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:ptCount', @attributes );
+    $self->xml_empty_tag( 'c:ptCount', @attributes );
 }
 
 
@@ -3357,12 +4502,12 @@ sub _write_pt {
 
     my @attributes = ( 'idx' => $idx );
 
-    $self->{_writer}->startTag( 'c:pt', @attributes );
+    $self->xml_start_tag( 'c:pt', @attributes );
 
     # Write the c:v element.
     $self->_write_v( $value );
 
-    $self->{_writer}->endTag( 'c:pt' );
+    $self->xml_end_tag( 'c:pt' );
 }
 
 
@@ -3377,7 +4522,7 @@ sub _write_v {
     my $self = shift;
     my $data = shift;
 
-    $self->{_writer}->dataElement( 'c:v', $data );
+    $self->xml_data_element( 'c:v', $data );
 }
 
 
@@ -3393,7 +4538,56 @@ sub _write_protection {
 
     return unless $self->{_protection};
 
-    $self->{_writer}->emptyTag( 'c:protection' );
+    $self->xml_empty_tag( 'c:protection' );
+}
+
+
+##############################################################################
+#
+# _write_d_pt()
+#
+# Write the <c:dPt> elements.
+#
+sub _write_d_pt {
+
+    my $self   = shift;
+    my $points = shift;
+    my $index  = -1;
+
+    return unless $points;
+
+    for my $point ( @$points ) {
+
+        $index++;
+        next unless $point;
+
+        $self->_write_d_pt_point( $index, $point );
+    }
+}
+
+
+##############################################################################
+#
+# _write_d_pt_point()
+#
+# Write an individual <c:dPt> element.
+#
+sub _write_d_pt_point {
+
+    my $self   = shift;
+    my $index = shift;
+    my $point = shift;
+
+        $self->xml_start_tag( 'c:dPt' );
+
+        # Write the c:idx element.
+        $self->_write_idx( $index );
+
+        # Write the c:spPr element.
+        $self->_write_sp_pr( $point );
+
+        $self->xml_end_tag( 'c:dPt' );
+
 }
 
 
@@ -3410,7 +4604,10 @@ sub _write_d_lbls {
 
     return unless $labels;
 
-    $self->{_writer}->startTag( 'c:dLbls' );
+    $self->xml_start_tag( 'c:dLbls' );
+
+    # Write the c:dLblPos element.
+    $self->_write_d_lbl_pos( $labels->{position} ) if $labels->{position};
 
     # Write the c:showVal element.
     $self->_write_show_val() if $labels->{value};
@@ -3421,7 +4618,13 @@ sub _write_d_lbls {
     # Write the c:showSerName element.
     $self->_write_show_ser_name() if $labels->{series_name};
 
-    $self->{_writer}->endTag( 'c:dLbls' );
+    # Write the c:showPercent element.
+    $self->_write_show_percent() if $labels->{percentage};
+
+    # Write the c:showLeaderLines element.
+    $self->_write_show_leader_lines() if $labels->{leader_lines};
+
+    $self->xml_end_tag( 'c:dLbls' );
 }
 
 
@@ -3438,7 +4641,7 @@ sub _write_show_val {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:showVal', @attributes );
+    $self->xml_empty_tag( 'c:showVal', @attributes );
 }
 
 
@@ -3455,7 +4658,7 @@ sub _write_show_cat_name {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:showCatName', @attributes );
+    $self->xml_empty_tag( 'c:showCatName', @attributes );
 }
 
 
@@ -3472,7 +4675,58 @@ sub _write_show_ser_name {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:showSerName', @attributes );
+    $self->xml_empty_tag( 'c:showSerName', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_show_percent()
+#
+# Write the <c:showPercent> element.
+#
+sub _write_show_percent {
+
+    my $self = shift;
+    my $val  = 1;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:showPercent', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_show_leader_lines()
+#
+# Write the <c:showLeaderLines> element.
+#
+sub _write_show_leader_lines {
+
+    my $self = shift;
+    my $val  = 1;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:showLeaderLines', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_d_lbl_pos()
+#
+# Write the <c:dLblPos> element.
+#
+sub _write_d_lbl_pos {
+
+    my $self = shift;
+    my $val  = shift;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:dLblPos', @attributes );
 }
 
 
@@ -3489,7 +4743,7 @@ sub _write_delete {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:delete', @attributes );
+    $self->xml_empty_tag( 'c:delete', @attributes );
 }
 
 
@@ -3509,7 +4763,519 @@ sub _write_c_invert_if_negative {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:invertIfNegative', @attributes );
+    $self->xml_empty_tag( 'c:invertIfNegative', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_axis_font()
+#
+# Write the axis font elements.
+#
+sub _write_axis_font {
+
+    my $self = shift;
+    my $font = shift;
+
+    return unless $font;
+
+    $self->xml_start_tag( 'c:txPr' );
+    $self->_write_a_body_pr($font->{_rotation});
+    $self->_write_a_lst_style();
+    $self->xml_start_tag( 'a:p' );
+
+    $self->_write_a_p_pr_rich( $font );
+
+    $self->_write_a_end_para_rpr();
+    $self->xml_end_tag( 'a:p' );
+    $self->xml_end_tag( 'c:txPr' );
+}
+
+
+##############################################################################
+#
+# _write_a_latin()
+#
+# Write the <a:latin> element.
+#
+sub _write_a_latin {
+
+    my $self       = shift;
+    my @attributes = @_;
+
+    $self->xml_empty_tag( 'a:latin', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_d_table()
+#
+# Write the <c:dTable> element.
+#
+sub _write_d_table {
+
+    my $self  = shift;
+    my $table = $self->{_table};
+
+    return if !$table;
+
+    $self->xml_start_tag( 'c:dTable' );
+
+    if ( $table->{_horizontal} ) {
+
+        # Write the c:showHorzBorder element.
+        $self->_write_show_horz_border();
+    }
+
+    if ( $table->{_vertical} ) {
+
+        # Write the c:showVertBorder element.
+        $self->_write_show_vert_border();
+    }
+
+    if ( $table->{_outline} ) {
+
+        # Write the c:showOutline element.
+        $self->_write_show_outline();
+    }
+
+    if ( $table->{_show_keys} ) {
+
+        # Write the c:showKeys element.
+        $self->_write_show_keys();
+    }
+
+    $self->xml_end_tag( 'c:dTable' );
+}
+
+
+##############################################################################
+#
+# _write_show_horz_border()
+#
+# Write the <c:showHorzBorder> element.
+#
+sub _write_show_horz_border {
+
+    my $self = shift;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:showHorzBorder', @attributes );
+}
+
+##############################################################################
+#
+# _write_show_vert_border()
+#
+# Write the <c:showVertBorder> element.
+#
+sub _write_show_vert_border {
+
+    my $self = shift;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:showVertBorder', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_show_outline()
+#
+# Write the <c:showOutline> element.
+#
+sub _write_show_outline {
+
+    my $self = shift;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:showOutline', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_show_keys()
+#
+# Write the <c:showKeys> element.
+#
+sub _write_show_keys {
+
+    my $self = shift;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:showKeys', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_error_bars()
+#
+# Write the X and Y error bars.
+#
+sub _write_error_bars {
+
+    my $self       = shift;
+    my $error_bars = shift;
+
+    return unless $error_bars;
+
+    if ( $error_bars->{_x_error_bars} ) {
+        $self->_write_err_bars( 'x', $error_bars->{_x_error_bars} );
+    }
+
+    if ( $error_bars->{_y_error_bars} ) {
+        $self->_write_err_bars( 'y', $error_bars->{_y_error_bars} );
+    }
+
+}
+
+
+##############################################################################
+#
+# _write_err_bars()
+#
+# Write the <c:errBars> element.
+#
+sub _write_err_bars {
+
+    my $self       = shift;
+    my $direction  = shift;
+    my $error_bars = shift;
+
+    return unless $error_bars;
+
+    $self->xml_start_tag( 'c:errBars' );
+
+    # Write the c:errDir element.
+    $self->_write_err_dir( $direction );
+
+    # Write the c:errBarType element.
+    $self->_write_err_bar_type( $error_bars->{_direction} );
+
+    # Write the c:errValType element.
+    $self->_write_err_val_type( $error_bars->{_type} );
+
+    if ( !$error_bars->{_endcap} ) {
+
+        # Write the c:noEndCap element.
+        $self->_write_no_end_cap();
+    }
+
+    if ( $error_bars->{_type} eq 'stdErr' ) {
+
+        # Don't need to write a c:errValType tag.
+    }
+    elsif ( $error_bars->{_type} eq 'cust' ) {
+
+        # Write the custom error tags.
+        $self->_write_custom_error( $error_bars );
+    }
+    else {
+        # Write the c:val element.
+        $self->_write_error_val( $error_bars->{_value} );
+    }
+
+    # Write the c:spPr element.
+    $self->_write_sp_pr( $error_bars );
+
+    $self->xml_end_tag( 'c:errBars' );
+}
+
+
+##############################################################################
+#
+# _write_err_dir()
+#
+# Write the <c:errDir> element.
+#
+sub _write_err_dir {
+
+    my $self = shift;
+    my $val  = shift;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:errDir', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_err_bar_type()
+#
+# Write the <c:errBarType> element.
+#
+sub _write_err_bar_type {
+
+    my $self = shift;
+    my $val  = shift;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:errBarType', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_err_val_type()
+#
+# Write the <c:errValType> element.
+#
+sub _write_err_val_type {
+
+    my $self = shift;
+    my $val  = shift;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:errValType', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_no_end_cap()
+#
+# Write the <c:noEndCap> element.
+#
+sub _write_no_end_cap {
+
+    my $self = shift;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:noEndCap', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_error_val()
+#
+# Write the <c:val> element for error bars.
+#
+sub _write_error_val {
+
+    my $self = shift;
+    my $val  = shift;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:val', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_custom_error()
+#
+# Write the custom error bars tags.
+#
+sub _write_custom_error {
+
+    my $self       = shift;
+    my $error_bars = shift;
+
+    if ( $error_bars->{_plus_values} ) {
+
+        # Write the c:plus element.
+        $self->xml_start_tag( 'c:plus' );
+
+        if ( ref $error_bars->{_plus_values} eq 'ARRAY' ) {
+            $self->_write_num_lit( $error_bars->{_plus_values} );
+        }
+        else {
+            $self->_write_num_ref( $error_bars->{_plus_values},
+                $error_bars->{_plus_data}, 'num' );
+        }
+
+        $self->xml_end_tag( 'c:plus' );
+    }
+
+    if ( $error_bars->{_minus_values} ) {
+
+        # Write the c:minus element.
+        $self->xml_start_tag( 'c:minus' );
+
+        if ( ref $error_bars->{_minus_values} eq 'ARRAY' ) {
+            $self->_write_num_lit( $error_bars->{_minus_values} );
+        }
+        else {
+            $self->_write_num_ref( $error_bars->{_minus_values},
+                $error_bars->{_minus_data}, 'num' );
+        }
+
+        $self->xml_end_tag( 'c:minus' );
+    }
+}
+
+
+
+##############################################################################
+#
+# _write_num_lit()
+#
+# Write the <c:numLit> element for literal number list elements.
+#
+sub _write_num_lit {
+
+    my $self = shift;
+    my $data  = shift;
+    my $count = @$data;
+
+
+    # Write the c:numLit element.
+    $self->xml_start_tag( 'c:numLit' );
+
+    # Write the c:formatCode element.
+    $self->_write_format_code( 'General' );
+
+    # Write the c:ptCount element.
+    $self->_write_pt_count( $count );
+
+    for my $i ( 0 .. $count - 1 ) {
+        my $token = $data->[$i];
+
+        # Write non-numeric data as 0.
+        if ( defined $token
+            && $token !~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ )
+        {
+            $token = 0;
+        }
+
+        # Write the c:pt element.
+        $self->_write_pt( $i, $token );
+    }
+
+    $self->xml_end_tag( 'c:numLit' );
+
+
+}
+
+
+##############################################################################
+#
+# _write_up_down_bars()
+#
+# Write the <c:upDownBars> element.
+#
+sub _write_up_down_bars {
+
+    my $self         = shift;
+    my $up_down_bars = $self->{_up_down_bars};
+
+    return unless $up_down_bars;
+
+    $self->xml_start_tag( 'c:upDownBars' );
+
+    # Write the c:gapWidth element.
+    $self->_write_gap_width( 150 );
+
+    # Write the c:upBars element.
+    $self->_write_up_bars( $up_down_bars->{_up} );
+
+    # Write the c:downBars element.
+    $self->_write_down_bars( $up_down_bars->{_down} );
+
+    $self->xml_end_tag( 'c:upDownBars' );
+}
+
+
+##############################################################################
+#
+# _write_gap_width()
+#
+# Write the <c:gapWidth> element.
+#
+sub _write_gap_width {
+
+    my $self = shift;
+    my $val  = shift;
+
+    return if !defined $val;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:gapWidth', @attributes );
+}
+
+##############################################################################
+#
+# _write_up_bars()
+#
+# Write the <c:upBars> element.
+#
+sub _write_up_bars {
+
+    my $self   = shift;
+    my $format = shift;
+
+    if ( $format->{_line}->{_defined} || $format->{_fill}->{_defined} ) {
+
+        $self->xml_start_tag( 'c:upBars' );
+
+        # Write the c:spPr element.
+        $self->_write_sp_pr( $format );
+
+        $self->xml_end_tag( 'c:upBars' );
+    }
+    else {
+        $self->xml_empty_tag( 'c:upBars' );
+    }
+}
+
+
+##############################################################################
+#
+# _write_down_bars()
+#
+# Write the <c:downBars> element.
+#
+sub _write_down_bars {
+
+    my $self   = shift;
+    my $format = shift;
+
+    if ( $format->{_line}->{_defined} || $format->{_fill}->{_defined} ) {
+
+        $self->xml_start_tag( 'c:downBars' );
+
+        # Write the c:spPr element.
+        $self->_write_sp_pr( $format );
+
+        $self->xml_end_tag( 'c:downBars' );
+    }
+    else {
+        $self->xml_empty_tag( 'c:downBars' );
+    }
+}
+
+
+##############################################################################
+#
+# _write_c_smooth()
+#
+# Write the <c:smooth> element.
+#
+sub _write_c_smooth {
+
+    my $self    = shift;
+    my $smooth  = shift;
+
+    return unless $smooth;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:smooth', @attributes );
 }
 
 
@@ -3586,21 +5352,51 @@ Creates a Line style chart. See L<Excel::Writer::XLSX::Chart::Line>.
 
 =item * C<pie>
 
-Creates an Pie style chart. See L<Excel::Writer::XLSX::Chart::Pie>.
+Creates a Pie style chart. See L<Excel::Writer::XLSX::Chart::Pie>.
 
 =item * C<scatter>
 
-Creates an Scatter style chart. See L<Excel::Writer::XLSX::Chart::Scatter>.
+Creates a Scatter style chart. See L<Excel::Writer::XLSX::Chart::Scatter>.
 
 =item * C<stock>
 
-Creates an Stock style chart. See L<Excel::Writer::XLSX::Chart::Stock>.
+Creates a Stock style chart. See L<Excel::Writer::XLSX::Chart::Stock>.
 
-=item * C<...>
+=item * C<radar>
 
-More charts and sub-types will be supported in time. See the L</TODO> section.
+Creates a Radar style chart. See L<Excel::Writer::XLSX::Chart::Radar>.
 
 =back
+
+Chart subtypes are also supported in some cases:
+
+    $workbook->add_chart( type => 'bar', subtype => 'stacked' );
+
+The currently available subtypes are:
+
+    area
+        stacked
+        percent_stacked
+
+    bar
+        stacked
+        percent_stacked
+
+    column
+        stacked
+        percent_stacked
+
+    scatter
+        straight_with_markers
+        straight
+        smooth_with_markers
+        smooth
+
+    radar
+        with_markers
+        filled
+
+More charts and sub-types will be supported in time. See the L</TODO> section.
 
 
 =head1 CHART METHODS
@@ -3609,9 +5405,9 @@ Methods that are common to all chart types are documented below. See the documen
 
 =head2 add_series()
 
-In an Excel chart a "series" is a collection of information such as values, x-axis labels and the formatting that define which data is plotted.
+In an Excel chart a "series" is a collection of information such as values, X axis labels and the formatting that define which data is plotted.
 
-With a Excel::Writer::XLSX chart object the C<add_series()> method is used to set the properties for a series:
+With an Excel::Writer::XLSX chart object the C<add_series()> method is used to set the properties for a series:
 
     $chart->add_series(
         categories => '=Sheet1!$A$2:$A$10', # Optional.
@@ -3629,7 +5425,7 @@ This is the most important property of a series and must be set for every chart 
 
 =item * C<categories>
 
-This sets the chart category labels. The category is more or less the same as the X-axis. In most chart types the C<categories> property is optional and the chart will just assume a sequential series from C<1 .. n>.
+This sets the chart category labels. The category is more or less the same as the X axis. In most chart types the C<categories> property is optional and the chart will just assume a sequential series from C<1 .. n>.
 
 =item * C<name>
 
@@ -3649,19 +5445,51 @@ Set the fill properties of the series such as colour. See the L</CHART FORMATTIN
 
 =item * C<marker>
 
-Set the properties of the series marker such as style and color. See the L</CHART FORMATTING> section below.
+Set the properties of the series marker such as style and colour. See the L</SERIES OPTIONS> section below.
 
 =item * C<trendline>
 
-Set the properties of the series trendline such as linear, polynomial and moving average types. See the L</CHART FORMATTING> section below.
+Set the properties of the series trendline such as linear, polynomial and moving average types. See the L</SERIES OPTIONS> section below.
+
+=item * C<smooth>
+
+The C<smooth> option is used to set the smooth property of a line series. See the L</SERIES OPTIONS> section below.
+
+=item * C<y_error_bars>
+
+Set vertical error bounds for a chart series. See the L</SERIES OPTIONS> section below.
+
+=item * C<x_error_bars>
+
+Set horizontal error bounds for a chart series. See the L</SERIES OPTIONS> section below.
 
 =item * C<data_labels>
 
-Set data labels for the series. See the L</CHART FORMATTING> section below.
+Set data labels for the series. See the L</SERIES OPTIONS> section below.
+
+=item * C<points>
+
+Set properties for individual points in a series. See the L</SERIES OPTIONS> section below.
 
 =item * C<invert_if_negative>
 
 Invert the fill colour for negative values. Usually only applicable to column and bar charts.
+
+=item * C<overlap>
+
+Set the overlap between series in a Bar/Column chart. The range is +/- 100. Default is 0.
+
+    overlap => 20,
+
+Note, it is only necessary to apply this property to one series of the chart.
+
+=item * C<gap>
+
+Set the gap between series in a Bar/Column chart. The range is 0 to 500. Default is 150.
+
+    gap => 200,
+
+Note, it is only necessary to apply this property to one series of the chart.
 
 =back
 
@@ -3674,7 +5502,7 @@ The following are equivalent:
     $chart->add_series( categories => '=Sheet1!$A$2:$A$7'      ); # Same as ...
     $chart->add_series( categories => [ 'Sheet1', 1, 6, 0, 0 ] ); # Zero-indexed.
 
-You can add more than one series to a chart. In fact, some chart types such as C<stock> require it. The series numbering and order in the Excel chart will be the same as the order in which that are added in Excel::Writer::XLSX.
+You can add more than one series to a chart. In fact, some chart types such as C<stock> require it. The series numbering and order in the Excel chart will be the same as the order in which they are added in Excel::Writer::XLSX.
 
     # Add the first series.
     $chart->add_series(
@@ -3690,6 +5518,12 @@ You can add more than one series to a chart. In fact, some chart types such as C
         name       => 'Test data series 2',
     );
 
+It is also possible to specify non-contiguous ranges:
+
+    $chart->add_series(
+        categories      => '=(Sheet1!$A$1:$A$9,Sheet1!$A$14:$A$25)',
+        values          => '=(Sheet1!$B$1:$B$9,Sheet1!$B$14:$B$25)',
+    );
 
 
 =head2 set_x_axis()
@@ -3701,14 +5535,26 @@ The C<set_x_axis()> method is used to set properties of the X axis.
 The properties that can be set are:
 
     name
+    name_font
+    name_layout
+    num_font
+    num_format
     min
     max
     minor_unit
     major_unit
+    interval_unit
     crossing
     reverse
+    position_axis
     log_base
     label_position
+    major_gridlines
+    minor_gridlines
+    visible
+    date_axis
+    minor_unit_type
+    major_unit_type
 
 These are explained below. Some properties are only applicable to value or category axes, as indicated. See L<Value and Category Axes> for an explanation of Excel's distinction between the axis types.
 
@@ -3723,33 +5569,76 @@ Set the name (title or caption) for the axis. The name is displayed below the X 
 
 The name can also be a formula such as C<=Sheet1!$A$1>.
 
+=item * C<name_font>
+
+Set the font properties for the axis title. (Applicable to category and value axes).
+
+    $chart->set_x_axis( name_font => { name => 'Arial', size => 10 } );
+
+=item * C<name_layout>
+
+Set the C<(x, y)> position of the axis caption in chart relative units. (Applicable to category and value axes).
+
+    $chart->set_x_axis(
+        name        => 'X axis',
+        name_layout => {
+            x => 0.34,
+            y => 0.85,
+        }
+    );
+
+See the L</CHART LAYOUT> section below.
+
+=item * C<num_font>
+
+Set the font properties for the axis numbers. (Applicable to category and value axes).
+
+    $chart->set_x_axis( num_font => { bold => 1, italic => 1 } );
+
+See the L</CHART FONTS> section below.
+
+=item * C<num_format>
+
+Set the number format for the axis. (Applicable to category and value axes).
+
+    $chart->set_x_axis( num_format => '#,##0.00' );
+    $chart->set_y_axis( num_format => '0.00%'    );
+
+The number format is similar to the Worksheet Cell Format C<num_format> apart from the fact that a format index cannot be used. The explicit format string must be used as show above. See L<Excel::Writer::XLSX/set_num_format()> for more information.
+
 =item * C<min>
 
-Set the minimum value for the axis range. (Applicable to value axes only).
+Set the minimum value for the axis range. (Applicable to value axes only.)
 
     $chart->set_x_axis( min => 20 );
 
 =item * C<max>
 
-Set the maximum value for the axis range. (Applicable to value axes only).
+Set the maximum value for the axis range. (Applicable to value axes only.)
 
     $chart->set_x_axis( max => 80 );
 
 =item * C<minor_unit>
 
-Set the increment of the minor units in the axis range. (Applicable to value axes only).
+Set the increment of the minor units in the axis range. (Applicable to value axes only.)
 
     $chart->set_x_axis( minor_unit => 0.4 );
 
 =item * C<major_unit>
 
-Set the increment of the major units in the axis range. (Applicable to value axes only).
+Set the increment of the major units in the axis range. (Applicable to value axes only.)
 
     $chart->set_x_axis( major_unit => 2 );
 
+=item * C<interval_unit>
+
+Set the interval unit for a category axis. (Applicable to category axes only.)
+
+    $chart->set_x_axis( interval_unit => 2 );
+
 =item * C<crossing>
 
-Set the position where the y axis will cross the x axis. (Applicable to category and value axes).
+Set the position where the y axis will cross the x axis. (Applicable to category and value axes.)
 
 The C<crossing> value can either be the string C<'max'> to set the crossing at the maximum axis value or a numeric value.
 
@@ -3761,15 +5650,24 @@ B<For category axes the numeric value must be an integer> to represent the categ
 
 If crossing is omitted (the default) the crossing will be set automatically by Excel based on the chart data.
 
+=item * C<position_axis>
+
+Position the axis on or between the axis tick marks. (Applicable to category axes only.)
+
+There are two allowable values C<on_tick> and C<between>:
+
+    $chart->set_x_axis( position_axis => 'on_tick' );
+    $chart->set_x_axis( position_axis => 'between' );
+
 =item * C<reverse>
 
-Reverse the order of the axis categories or values. (Applicable to category and value axes).
+Reverse the order of the axis categories or values. (Applicable to category and value axes.)
 
     $chart->set_x_axis( reverse => 1 );
 
 =item * C<log_base>
 
-Set the log base of the axis range. (Applicable to value axes only).
+Set the log base of the axis range. (Applicable to value axes only.)
 
     $chart->set_x_axis( log_base => 10 );
 
@@ -3782,9 +5680,68 @@ Set the "Axis labels" position for the axis. The following positions are availab
     low
     none
 
+=item * C<major_gridlines>
+
+Configure the major gridlines for the axis. The available properties are:
+
+    visible
+    line
+
+For example:
+
+    $chart->set_x_axis(
+        major_gridlines => {
+            visible => 1,
+            line    => { color => 'red', width => 1.25, dash_type => 'dash' }
+        }
+    );
+
+The C<visible> property is usually on for the X-axis but it depends on the type of chart.
+
+The C<line> property sets the gridline properties such as colour and width. See the L</CHART FORMATTING> section below.
+
+=item * C<minor_gridlines>
+
+This takes the same options as C<major_gridlines> above.
+
+The minor gridline C<visible> property is off by default for all chart types.
+
+=item * C<visible>
+
+Configure the visibility of the axis.
+
+    $chart->set_x_axis( visible => 0 );
+
+
+=item * C<date_axis>
+
+This option is used to treat a category axis with date or time data as a Date Axis. (Applicable to category axes only.)
+
+    $chart->set_x_axis( date_axis => 1 );
+
+This option also allows you to set C<max> and C<min> values for a category axis which isn't allowed by Excel for non-date category axes.
+
+See L<Date Category Axes> for more details.
+
+=item * C<minor_unit_type>
+
+For C<date_axis> axes, see above, this option is used to set the type of the minor units. (Applicable to date category axes only.)
+
+    $chart->set_x_axis(
+        date_axis         => 1,
+        minor_unit        => 4,
+        minor_unit_type   => 'months',
+    );
+
+The allowable values for this option are C<days>, C<months> and C<years>.
+
+=item * C<major_unit_type>
+
+Same as C<minor_unit_type>, see above, but for major axes unit types.
+
 =back
 
-More than one property can be set in a call to C<set_x_axis>:
+More than one property can be set in a call to C<set_x_axis()>:
 
     $chart->set_x_axis(
         name => 'Quarterly results',
@@ -3796,6 +5753,53 @@ More than one property can be set in a call to C<set_x_axis>:
 =head2 set_y_axis()
 
 The C<set_y_axis()> method is used to set properties of the Y axis. The properties that can be set are the same as for C<set_x_axis>, see above.
+
+
+=head2 set_x2_axis()
+
+The C<set_x2_axis()> method is used to set properties of the secondary X axis.
+The properties that can be set are the same as for C<set_x_axis>, see above.
+The default properties for this axis are:
+
+    label_position => 'none',
+    crossing       => 'max',
+    visible        => 0,
+
+
+=head2 set_y2_axis()
+
+The C<set_y2_axis()> method is used to set properties of the secondary Y axis.
+The properties that can be set are the same as for C<set_x_axis>, see above.
+The default properties for this axis are:
+
+    major_gridlines => { visible => 0 }
+
+
+=head2 set_size()
+
+The C<set_size()> method is used to set the dimensions of the chart. The size properties that can be set are:
+
+     width
+     height
+     x_scale
+     y_scale
+     x_offset
+     y_offset
+
+The C<width> and C<height> are in pixels. The default chart width is 480 pixels and the default height is 288 pixels. The size of the chart can be modified by setting the C<width> and C<height> or by setting the C<x_scale> and C<y_scale>:
+
+    $chart->set_size( width => 720, height => 576 );
+
+    # Same as:
+
+    $chart->set_size( x_scale => 1.5, y_scale => 2 );
+
+The C<x_offset> and C<y_offset> position the top left corner of the chart in the cell that it is inserted into.
+
+
+Note: the C<x_scale>, C<y_scale>, C<x_offset> and C<y_offset> parameters can also be set via the C<insert_chart()> method:
+
+    $worksheet->insert_chart( 'E2', $chart, 2, 4, 1.5, 2 );
 
 
 =head2 set_title()
@@ -3812,6 +5816,35 @@ The properties that can be set are:
 
 Set the name (title) for the chart. The name is displayed above the chart. The name can also be a formula such as C<=Sheet1!$A$1>. The name property is optional. The default is to have no chart title.
 
+=item * C<name_font>
+
+Set the font properties for the chart title. See the L</CHART FONTS> section below.
+
+=item * C<overlay>
+
+Allow the title to be overlaid on the chart. Generally used with the layout property below.
+
+=item * C<layout>
+
+Set the C<(x, y)> position of the title in chart relative units:
+
+    $chart->set_title(
+        name    => 'Title',
+        overlay => 1,
+        layout  => {
+            x => 0.42,
+            y => 0.14,
+        }
+    );
+
+See the L</CHART LAYOUT> section below.
+
+=item * C<none>
+
+By default Excel adds an automatic chart title to charts with a single series and a user defined series name. The C<none> option turns this default title off. It also turns off all other C<set_title()> options.
+
+    $chart->set_title( none => 1 );
+
 =back
 
 
@@ -3819,11 +5852,20 @@ Set the name (title) for the chart. The name is displayed above the chart. The n
 
 The C<set_legend()> method is used to set properties of the chart legend.
 
-    $chart->set_legend( position => 'none' );
 
 The properties that can be set are:
 
 =over
+
+=item * C<none>
+
+The C<none> option turns off the chart legend. In Excel chart legends are on by default:
+
+    $chart->set_legend( none => 1 );
+
+Note, for backward compatibility, it is also possible to turn off the legend via the C<position> property:
+
+    $chart->set_legend( position => 'none' );
 
 =item * C<position>
 
@@ -3833,20 +5875,45 @@ Set the position of the chart legend.
 
 The default legend position is C<right>. The available positions are:
 
-    none
     top
     bottom
     left
     right
     overlay_left
     overlay_right
+    none
 
-=item * delete_series
+=item * C<layout>
+
+Set the C<(x, y)> position of the legend in chart relative units:
+
+    $chart->set_legend(
+        layout => {
+            x      => 0.80,
+            y      => 0.37,
+            width  => 0.12,
+            height => 0.25,
+        }
+    );
+
+See the L</CHART LAYOUT> section below.
+
+
+=item * C<delete_series>
 
 This allows you to remove 1 or more series from the the legend (the series will still display on the chart). This property takes an array ref as an argument and the series are zero indexed:
 
     # Delete/hide series index 0 and 2 from the legend.
     $chart->set_legend( delete_series => [0, 2] );
+
+=item * C<font>
+
+Set the font properties of the chart legend:
+
+    $chart->set_legend( font => { bold => 1, italic => 1 } );
+
+See the L</CHART FONTS> section below.
+
 
 =back
 
@@ -3855,13 +5922,63 @@ This allows you to remove 1 or more series from the the legend (the series will 
 
 The C<set_chartarea()> method is used to set the properties of the chart area.
 
-This method isn't implemented yet and is only available in L<Spreadsheet::WriteExcel>. However, it can be simulated using the C<set_style()> method, see below.
+    $chart->set_chartarea(
+        border => { none  => 1 },
+        fill   => { color => 'red' }
+    );
+
+The properties that can be set are:
+
+=over
+
+=item * C<border>
+
+Set the border properties of the chartarea such as colour and style. See the L</CHART FORMATTING> section below.
+
+=item * C<fill>
+
+Set the fill properties of the chartarea such as colour. See the L</CHART FORMATTING> section below.
+
+=back
 
 =head2 set_plotarea()
 
 The C<set_plotarea()> method is used to set properties of the plot area of a chart.
 
-This method isn't implemented yet and is only available in L<Spreadsheet::WriteExcel>. However, it can be simulated using the C<set_style()> method, see below.
+    $chart->set_plotarea(
+        border => { color => 'yellow', width => 1, dash_type => 'dash' },
+        fill   => { color => '#92D050' }
+    );
+
+The properties that can be set are:
+
+=over
+
+=item * C<border>
+
+Set the border properties of the plotarea such as colour and style. See the L</CHART FORMATTING> section below.
+
+=item * C<fill>
+
+Set the fill properties of the plotarea such as colour. See the L</CHART FORMATTING> section below.
+
+=item * C<layout>
+
+Set the C<(x, y)> position of the plotarea in chart relative units:
+
+    $chart->set_plotarea(
+        layout => {
+            x      => 0.35,
+            y      => 0.26,
+            width  => 0.62,
+            height => 0.50,
+        }
+    );
+
+See the L</CHART LAYOUT> section below.
+
+=back
+
 
 =head2 set_style()
 
@@ -3871,153 +5988,96 @@ The C<set_style()> method is used to set the style of the chart to one of the 42
 
 The default style is 2.
 
-=head1 CHART FORMATTING
 
-The following chart formatting properties can be set for any chart object that they apply to (and that are supported by Excel::Writer::XLSX) such as chart lines, column fill areas, plot area borders, markers and other chart elements documented above.
+=head2 set_table()
 
-    line
-    border
-    fill
+The C<set_table()> method adds a data table below the horizontal axis with the data used to plot the chart.
+
+    $chart->set_table();
+
+The available options, with default values are:
+
+    vertical   => 1,    # Display vertical lines in the table.
+    horizontal => 1,    # Display horizontal lines in the table.
+    outline    => 1,    # Display an outline in the table.
+    show_keys  => 0     # Show the legend keys with the table data.
+
+The data table can only be shown with Bar, Column, Line, Area and stock charts.
+
+
+=head2 set_up_down_bars
+
+The C<set_up_down_bars()> method adds Up-Down bars to Line charts to indicate the difference between the first and last data series.
+
+    $chart->set_up_down_bars();
+
+It is possible to format the up and down bars to add C<fill> and C<border> properties if required. See the L</CHART FORMATTING> section below.
+
+    $chart->set_up_down_bars(
+        up   => { fill => { color => 'green' } },
+        down => { fill => { color => 'red' } },
+    );
+
+Up-down bars can only be applied to Line charts and to Stock charts (by default).
+
+
+=head2 set_drop_lines
+
+The C<set_drop_lines()> method adds Drop Lines to charts to show the Category value of points in the data.
+
+    $chart->set_drop_lines();
+
+It is possible to format the Drop Line C<line> properties if required. See the L</CHART FORMATTING> section below.
+
+    $chart->set_drop_lines( line => { color => 'red', dash_type => 'square_dot' } );
+
+Drop Lines are only available in Line, Area and Stock charts.
+
+
+=head2 set_high_low_lines
+
+The C<set_high_low_lines()> method adds High-Low lines to charts to show the maximum and minimum values of points in a Category.
+
+    $chart->set_high_low_lines();
+
+It is possible to format the High-Low Line C<line> properties if required. See the L</CHART FORMATTING> section below.
+
+    $chart->set_high_low_lines( line => { color => 'red' } );
+
+High-Low Lines are only available in Line and Stock charts.
+
+
+=head2 show_blanks_as()
+
+The C<show_blanks_as()> method controls how blank data is displayed in a chart.
+
+    $chart->show_blanks_as( 'span' );
+
+The available options are:
+
+        gap    # Blank data is shown as a gap. The default.
+        zero   # Blank data is displayed as zero.
+        span   # Blank data is connected with a line.
+
+
+=head2 show_hidden_data()
+
+Display data in hidden rows or columns on the chart.
+
+    $chart->show_hidden_data();
+
+
+=head1 SERIES OPTIONS
+
+This section details the following properties of C<add_series()> in more detail:
+
     marker
     trendline
+    y_error_bars
+    x_error_bars
     data_labels
-
-Chart formatting properties are generally set using hash refs.
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        line       => { color => 'blue' },
-    );
-
-In some cases the format properties can be nested. For example a C<marker> may contain C<border> and C<fill> sub-properties.
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        line       => { color => 'blue' },
-        marker     => {
-            type    => 'square',
-            size    => 5,
-            border  => { color => 'red' },
-            fill    => { color => 'yellow' },
-        },
-    );
-
-=head2 Line
-
-The line format is used to specify properties of line objects that appear in a chart such as a plotted line on a chart or a border.
-
-The following properties can be set for C<line> formats in a chart.
-
-    none
-    color
-    width
-    dash_type
-
-
-The C<none> property is uses to turn the C<line> off (it is always on by default except in Scatter charts). This is useful if you wish to plot a series with markers but without a line.
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        line       => { none => 1 },
-    );
-
-
-The C<color> property sets the color of the C<line>.
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        line       => { color => 'red' },
-    );
-
-The available colors are shown in the main L<Excel::Writer::XLSX> documentation. It is also possible to set the color of a line with a HTML style RGB color:
-
-    $chart->add_series(
-        line       => { color => '#FF0000' },
-    );
-
-
-The C<width> property sets the width of the C<line>. It should be specified in increments of 0.25 of a point as in Excel.
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        line       => { width => 3.25 },
-    );
-
-The C<dash_type> property sets the dash style of the line.
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        line       => { dash_type => 'dash_dot' },
-    );
-
-The following C<dash_type> values are available. They are shown in the order that they appear in the Excel dialog.
-
-    solid
-    round_dot
-    square_dot
-    dash
-    dash_dot
-    long_dash
-    long_dash_dot
-    long_dash_dot_dot
-
-The default line style is C<solid>.
-
-More than one C<line> property can be specified at time:
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        line       => {
-            color     => 'red',
-            width     => 1.25,
-            dash_type => 'square_dot',
-        },
-    );
-
-=head2 Border
-
-The C<border> property is a synonym for C<line>.
-
-It can be used as a descriptive substitute for C<line> in chart types such as Bar and Column that have a border and fill style rather than a line style. In general chart objects with a C<border> property will also have a fill property.
-
-
-=head2 Fill
-
-The fill format is used to specify filled areas of chart objects such as the interior of a column or the background of the chart itself.
-
-The following properties can be set for C<fill> formats in a chart.
-
-    none
-    color
-
-The C<none> property is uses to turn the C<fill> property off (it is generally on by default).
-
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        fill       => { none => 1 },
-    );
-
-The C<color> property sets the color of the C<fill> area.
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        fill       => { color => 'red' },
-    );
-
-The available colors are shown in the main L<Excel::Writer::XLSX> documentation. It is also possible to set the color of a fill with a HTML style RGB color:
-
-    $chart->add_series(
-        fill       => { color => '#FF0000' },
-    );
-
-The C<fill> format is generally used in conjunction with a C<border> format which has the same properties as a C<line> format.
-
-    $chart->add_series(
-        values     => '=Sheet1!$B$1:$B$5',
-        border     => { color => 'red' },
-        fill       => { color => 'yellow' },
-    );
+    points
+    smooth
 
 =head2 Marker
 
@@ -4067,7 +6127,7 @@ The C<size> property sets the size of the marker and is generally used in conjun
         marker     => { type => 'diamond', size => 7 },
     );
 
-Nested C<border> and C<fill> properties can also be set for a marker. These have the same sub-properties as shown above.
+Nested C<border> and C<fill> properties can also be set for a marker. See the L</CHART FORMATTING> section below.
 
     $chart->add_series(
         values     => '=Sheet1!$B$1:$B$5',
@@ -4079,11 +6139,12 @@ Nested C<border> and C<fill> properties can also be set for a marker. These have
         },
     );
 
+
 =head2 Trendline
 
 A trendline can be added to a chart series to indicate trends in the data such as a moving average or a polynomial fit.
 
-The following properties can be set for C<trendline> formats in a chart.
+The following properties can be set for trendlines in a chart series.
 
     type
     order       (for polynomial trends)
@@ -4119,7 +6180,7 @@ A C<polynomial> trendline can also specify the C<order> of the polynomial. The d
         },
     );
 
-A C<moving_average> trendline can also the C<period> of the moving average. The default value is 2.
+A C<moving_average> trendline can also specify the C<period> of the moving average. The default value is 2.
 
     $chart->add_series(
         values     => '=Sheet1!$B$1:$B$5',
@@ -4167,7 +6228,94 @@ Several of these properties can be set in one go:
         },
     );
 
-Trendlines cannot be added to series in a stacked chart or pie chart or (when implemented) to 3-D, radar, surface, or doughnut charts.
+Trendlines cannot be added to series in a stacked chart or pie chart, radar chart or (when implemented) to 3D, surface, or doughnut charts.
+
+=head2 Error Bars
+
+Error bars can be added to a chart series to indicate error bounds in the data. The error bars can be vertical C<y_error_bars> (the most common type) or horizontal C<x_error_bars> (for Bar and Scatter charts only).
+
+The following properties can be set for error bars in a chart series.
+
+    type
+    value        (for all types except standard error and custom)
+    plus_values  (for custom only)
+    minus_values (for custom only)
+    direction
+    end_style
+    line
+
+The C<type> property sets the type of error bars in the series.
+
+    $chart->add_series(
+        values       => '=Sheet1!$B$1:$B$5',
+        y_error_bars => { type => 'standard_error' },
+    );
+
+The available error bars types are available:
+
+    fixed
+    percentage
+    standard_deviation
+    standard_error
+    custom
+
+All error bar types, except for C<standard_error> and C<custom> must also have a value associated with it for the error bounds:
+
+    $chart->add_series(
+        values       => '=Sheet1!$B$1:$B$5',
+        y_error_bars => {
+            type  => 'percentage',
+            value => 5,
+        },
+    );
+
+The C<custom> error bar type must specify C<plus_values> and C<minus_values> which should either by a C<Sheet1!$A$1:$A$5> type range formula or an arrayref of
+values:
+
+    $chart->add_series(
+        categories   => '=Sheet1!$A$1:$A$5',
+        values       => '=Sheet1!$B$1:$B$5',
+        y_error_bars => {
+            type         => 'custom',
+            plus_values  => '=Sheet1!$C$1:$C$5',
+            minus_values => '=Sheet1!$D$1:$D$5',
+        },
+    );
+
+    # or
+
+
+    $chart->add_series(
+        categories   => '=Sheet1!$A$1:$A$5',
+        values       => '=Sheet1!$B$1:$B$5',
+        y_error_bars => {
+            type         => 'custom',
+            plus_values  => [1, 1, 1, 1, 1],
+            minus_values => [2, 2, 2, 2, 2],
+        },
+    );
+
+Note, as in Excel the items in the C<minus_values> do not need to be negative.
+
+The C<direction> property sets the direction of the error bars. It should be one of the following:
+
+    plus    # Positive direction only.
+    minus   # Negative direction only.
+    both    # Plus and minus directions, The default.
+
+The C<end_style> property sets the style of the error bar end cap. The options are 1 (the default) or 0 (for no end cap):
+
+    $chart->add_series(
+        values       => '=Sheet1!$B$1:$B$5',
+        y_error_bars => {
+            type      => 'fixed',
+            value     => 2,
+            end_style => 0,
+            direction => 'minus'
+        },
+    );
+
+
 
 =head2 Data Labels
 
@@ -4178,6 +6326,9 @@ The following properties can be set for C<data_labels> formats in a chart.
     value
     category
     series_name
+    position
+    leader_lines
+    percentage
 
 
 The C<value> property turns on the I<Value> data label for a series.
@@ -4202,14 +6353,407 @@ The C<series_name> property turns on the I<Series Name> data label for a series.
         data_labels => { series_name => 1 },
     );
 
+The C<position> property is used to position the data label for a series.
 
-=head2 Other formatting options
+    $chart->add_series(
+        values      => '=Sheet1!$B$1:$B$5',
+        data_labels => { value => 1, position => 'center' },
+    );
 
-Other formatting options will be added in time. If there is a feature that you would like to see included drop me a line.
+Valid positions are:
+
+    center
+    right
+    left
+    top
+    bottom
+    above           # Same as top
+    below           # Same as bottom
+    inside_end      # Pie chart mainly.
+    outside_end     # Pie chart mainly.
+    best_fit        # Pie chart mainly.
+
+The C<percentage> property is used to turn on the display of data labels as a I<Percentage> for a series. It is mainly used for pie charts.
+
+    $chart->add_series(
+        values      => '=Sheet1!$B$1:$B$5',
+        data_labels => { percentage => 1 },
+    );
+
+The C<leader_lines> property is used to turn on  I<Leader Lines> for the data label for a series. It is mainly used for pie charts.
+
+    $chart->add_series(
+        values      => '=Sheet1!$B$1:$B$5',
+        data_labels => { value => 1, leader_lines => 1 },
+    );
+
+Note: Even when leader lines are turned on they aren't automatically visible in Excel or Excel::Writer::XLSX. Due to an Excel limitation (or design) leader lines only appear if the data label is moved manually or if the data labels are very close and need to be adjusted automatically.
+
+=head2 Points
+
+In general formatting is applied to an entire series in a chart. However, it is occasionally required to format individual points in a series. In particular this is required for Pie charts where each segment is represented by a point.
+
+In these cases it is possible to use the C<points> property of C<add_series()>:
+
+    $chart->add_series(
+        values => '=Sheet1!$A$1:$A$3',
+        points => [
+            { fill => { color => '#FF0000' } },
+            { fill => { color => '#CC0000' } },
+            { fill => { color => '#990000' } },
+        ],
+    );
+
+The C<points> property takes an array ref of format options (see the L</CHART FORMATTING> section below). To assign default properties to points in a series pass C<undef> values in the array ref:
+
+    # Format point 3 of 3 only.
+    $chart->add_series(
+        values => '=Sheet1!$A$1:$A$3',
+        points => [
+            undef,
+            undef,
+            { fill => { color => '#990000' } },
+        ],
+    );
+
+    # Format the first point only.
+    $chart->add_series(
+        values => '=Sheet1!$A$1:$A$3',
+        points => [ { fill => { color => '#FF0000' } } ],
+    );
+
+=head2 Smooth
+
+The C<smooth> option is used to set the smooth property of a line series. It is only applicable to the C<Line> and C<Scatter> chart types.
+
+    $chart->add_series( values => '=Sheet1!$C$1:$C$5',
+                        smooth => 1 );
+
+
+=head1 CHART FORMATTING
+
+The following chart formatting properties can be set for any chart object that they apply to (and that are supported by Excel::Writer::XLSX) such as chart lines, column fill areas, plot area borders, markers, gridlines and other chart elements documented above.
+
+    line
+    border
+    fill
+
+Chart formatting properties are generally set using hash refs.
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        line       => { color => 'blue' },
+    );
+
+In some cases the format properties can be nested. For example a C<marker> may contain C<border> and C<fill> sub-properties.
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        line       => { color => 'blue' },
+        marker     => {
+            type    => 'square',
+            size    => 5,
+            border  => { color => 'red' },
+            fill    => { color => 'yellow' },
+        },
+    );
+
+=head2 Line
+
+The line format is used to specify properties of line objects that appear in a chart such as a plotted line on a chart or a border.
+
+The following properties can be set for C<line> formats in a chart.
+
+    none
+    color
+    width
+    dash_type
+
+
+The C<none> property is uses to turn the C<line> off (it is always on by default except in Scatter charts). This is useful if you wish to plot a series with markers but without a line.
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        line       => { none => 1 },
+    );
+
+
+The C<color> property sets the color of the C<line>.
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        line       => { color => 'red' },
+    );
+
+The available colours are shown in the main L<Excel::Writer::XLSX> documentation. It is also possible to set the colour of a line with a HTML style RGB colour:
+
+    $chart->add_series(
+        line       => { color => '#FF0000' },
+    );
+
+
+The C<width> property sets the width of the C<line>. It should be specified in increments of 0.25 of a point as in Excel.
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        line       => { width => 3.25 },
+    );
+
+The C<dash_type> property sets the dash style of the line.
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        line       => { dash_type => 'dash_dot' },
+    );
+
+The following C<dash_type> values are available. They are shown in the order that they appear in the Excel dialog.
+
+    solid
+    round_dot
+    square_dot
+    dash
+    dash_dot
+    long_dash
+    long_dash_dot
+    long_dash_dot_dot
+
+The default line style is C<solid>.
+
+More than one C<line> property can be specified at a time:
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        line       => {
+            color     => 'red',
+            width     => 1.25,
+            dash_type => 'square_dot',
+        },
+    );
+
+=head2 Border
+
+The C<border> property is a synonym for C<line>.
+
+It can be used as a descriptive substitute for C<line> in chart types such as Bar and Column that have a border and fill style rather than a line style. In general chart objects with a C<border> property will also have a fill property.
+
+
+=head2 Fill
+
+The fill format is used to specify filled areas of chart objects such as the interior of a column or the background of the chart itself.
+
+The following properties can be set for C<fill> formats in a chart.
+
+    none
+    color
+
+The C<none> property is used to turn the C<fill> property off (it is generally on by default).
+
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        fill       => { none => 1 },
+    );
+
+The C<color> property sets the colour of the C<fill> area.
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        fill       => { color => 'red' },
+    );
+
+The available colours are shown in the main L<Excel::Writer::XLSX> documentation. It is also possible to set the colour of a fill with a HTML style RGB colour:
+
+    $chart->add_series(
+        fill       => { color => '#FF0000' },
+    );
+
+The C<fill> format is generally used in conjunction with a C<border> format which has the same properties as a C<line> format.
+
+    $chart->add_series(
+        values     => '=Sheet1!$B$1:$B$5',
+        border     => { color => 'red' },
+        fill       => { color => 'yellow' },
+    );
+
+
+=head1 CHART FONTS
+
+The following font properties can be set for any chart object that they apply to (and that are supported by Excel::Writer::XLSX) such as chart titles, axis labels and axis numbering. They correspond to the equivalent Worksheet cell Format object properties. See L<Excel::Writer::XLSX/FORMAT_METHODS> for more information.
+
+    name
+    size
+    bold
+    italic
+    underline
+    rotation
+    color
+
+The following explains the available font properties:
+
+=over
+
+=item * C<name>
+
+Set the font name:
+
+    $chart->set_x_axis( num_font => { name => 'Arial' } );
+
+=item * C<size>
+
+Set the font size:
+
+    $chart->set_x_axis( num_font => { name => 'Arial', size => 10 } );
+
+=item * C<bold>
+
+Set the font bold property, should be 0 or 1:
+
+    $chart->set_x_axis( num_font => { bold => 1 } );
+
+=item * C<italic>
+
+Set the font italic property, should be 0 or 1:
+
+    $chart->set_x_axis( num_font => { italic => 1 } );
+
+=item * C<underline>
+
+Set the font underline property, should be 0 or 1:
+
+    $chart->set_x_axis( num_font => { underline => 1 } );
+
+=item * C<rotation>
+
+Set the font rotation in the range -90 to 90:
+
+    $chart->set_x_axis( num_font => { rotation => 45 } );
+
+This is useful for displaying large axis data such as dates in a more compact format.
+
+=item * C<color>
+
+Set the font color property. Can be a color index, a color name or HTML style RGB colour:
+
+    $chart->set_x_axis( num_font => { color => 'red' } );
+    $chart->set_y_axis( num_font => { color => '#92D050' } );
+
+=back
+
+Here is an example of Font formatting in a Chart program:
+
+    # Format the chart title.
+    $chart->set_title(
+        name      => 'Sales Results Chart',
+        name_font => {
+            name  => 'Calibri',
+            color => 'yellow',
+        },
+    );
+
+    # Format the X-axis.
+    $chart->set_x_axis(
+        name      => 'Month',
+        name_font => {
+            name  => 'Arial',
+            color => '#92D050'
+        },
+        num_font => {
+            name  => 'Courier New',
+            color => '#00B0F0',
+        },
+    );
+
+    # Format the Y-axis.
+    $chart->set_y_axis(
+        name      => 'Sales (1000 units)',
+        name_font => {
+            name      => 'Century',
+            underline => 1,
+            color     => 'red'
+        },
+        num_font => {
+            bold   => 1,
+            italic => 1,
+            color  => '#7030A0',
+        },
+    );
+
+
+
+=head1 CHART LAYOUT
+
+The position of the chart in the worksheet is controlled by the C<set_size()> method shown above.
+
+It is also possible to change the layout of the following chart sub-objects:
+
+    plotarea
+    legend
+    title
+    x_axis caption
+    y_axis caption
+
+Here are some examples:
+
+    $chart->set_plotarea(
+        layout => {
+            x      => 0.35,
+            y      => 0.26,
+            width  => 0.62,
+            height => 0.50,
+        }
+    );
+
+    $chart->set_legend(
+        layout => {
+            x      => 0.80,
+            y      => 0.37,
+            width  => 0.12,
+            height => 0.25,
+        }
+    );
+
+    $chart->set_title(
+        name   => 'Title',
+        layout => {
+            x => 0.42,
+            y => 0.14,
+        }
+    );
+
+    $chart->set_x_axis(
+        name        => 'X axis',
+        name_layout => {
+            x => 0.34,
+            y => 0.85,
+        }
+    );
+
+Note that it is only possible to change the width and height for the C<plotarea> and C<legend> objects. For the other text based objects the width and height are changed by the font dimensions.
+
+The layout units must be a float in the range C<0 < x <= 1> and are expressed as a percentage of the chart dimensions as shown below:
+
+=begin html
+
+<p><center><img src="http://jmcnamara.github.com/excel-writer-xlsx/images/examples/layout.png" width="826" height="423" alt="Chart object layout." /></center></p>
+
+=end html
+
+From this the layout units are calculated as follows:
+
+    layout:
+        width  = w / W
+        height = h / H
+        x      = a / W
+        y      = b / H
+
+These units are slightly cumbersome but are required by Excel so that the chart object positions remain relative to each other if the chart is resized by the user.
+
+Note that for C<plotarea> the origin is the top left corner in the plotarea itself and does not take into account the axes.
+
 
 =head1 WORKSHEET METHODS
 
-In Excel a chartsheet (i.e, a chart that isn't embedded) shares properties with data worksheets such as tab selection, headers, footers, margins and print properties.
+In Excel a chartsheet (i.e, a chart that isn't embedded) shares properties with data worksheets such as tab selection, headers, footers, margins, and print properties.
 
 In Excel::Writer::XLSX you can set chartsheet properties using the same methods that are used for Worksheet objects.
 
@@ -4294,7 +6838,7 @@ Here is a complete example that demonstrates some of the available features when
 
 <p>This will produce a chart that looks like this:</p>
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/2007/area1.jpg" width="527" height="320" alt="Chart example." /></center></p>
+<p><center><img src="http://jmcnamara.github.com/excel-writer-xlsx/images/examples/area1.jpg" width="527" height="320" alt="Chart example." /></center></p>
 
 =end html
 
@@ -4303,15 +6847,95 @@ Here is a complete example that demonstrates some of the available features when
 
 Excel differentiates between a chart axis that is used for series B<categories> and an axis that is used for series B<values>.
 
-In the example above the x-axis is the category axis and each of the values is evenly spaced. The y-axis (in this case) is the value axis and points are displayed according to their value.
+In the example above the X axis is the category axis and each of the values is evenly spaced. The Y axis (in this case) is the value axis and points are displayed according to their value.
 
-Since Excel treats the axes differently it also handles their formatting differently and exposed different properties for each.
+Since Excel treats the axes differently it also handles their formatting differently and exposes different properties for each.
 
 As such some of C<Excel::Writer::XLSX> axis properties can be set for a value axis, some can be set for a category axis and some properties can be set for both.
 
 For example the C<min> and C<max> properties can only be set for value axes and C<reverse> can be set for both. The type of axis that a property applies to is shown in the C<set_x_axis()> section of the documentation above.
 
 Some charts such as C<Scatter> and C<Stock> have two value axes.
+
+Date Axes are a special type of category axis which are explained below.
+
+=head1 Date Category Axes
+
+Date Category Axes are category axes that display time or date information. In Excel::Writer::XLSX Date Category Axes are set using the C<date_axis> option:
+
+    $chart->set_x_axis( date_axis => 1 );
+
+In general you should also specify a number format for a date axis although Excel will usually default to the same format as the data being plotted:
+
+    $chart->set_x_axis(
+        date_axis         => 1,
+        num_format        => 'dd/mm/yyyy',
+    );
+
+Excel doesn't normally allow minimum and maximum values to be set for category axes. However, date axes are an exception. The C<min> and C<max> values should be set as Excel times or dates:
+
+    $chart->set_x_axis(
+        date_axis         => 1,
+        min               => $worksheet->convert_date_time('2013-01-02T'),
+        max               => $worksheet->convert_date_time('2013-01-09T'),
+        num_format        => 'dd/mm/yyyy',
+    );
+
+For date axes it is also possible to set the type of the major and minor units:
+
+    $chart->set_x_axis(
+        date_axis         => 1,
+        minor_unit        => 4,
+        minor_unit_type   => 'months',
+        major_unit        => 1,
+        major_unit_type   => 'years',
+        num_format        => 'dd/mm/yyyy',
+    );
+
+
+=head1 Secondary Axes
+
+It is possible to add a secondary axis of the same type to a chart by setting the C<y2_axis> or C<x2_axis> property of the series:
+
+    #!/usr/bin/perl
+
+    use strict;
+    use warnings;
+    use Excel::Writer::XLSX;
+
+    my $workbook  = Excel::Writer::XLSX->new( 'chart_secondary_axis.xlsx' );
+    my $worksheet = $workbook->add_worksheet();
+
+    # Add the worksheet data that the charts will refer to.
+    my $data = [
+        [ 2,  3,  4,  5,  6,  7 ],
+        [ 10, 40, 50, 20, 10, 50 ],
+
+    ];
+
+    $worksheet->write( 'A1', $data );
+
+    # Create a new chart object. In this case an embedded chart.
+    my $chart = $workbook->add_chart( type => 'line', embedded => 1 );
+
+    # Configure a series with a secondary axis
+    $chart->add_series(
+        values  => '=Sheet1!$A$1:$A$6',
+        y2_axis => 1,
+    );
+
+    $chart->add_series(
+        values => '=Sheet1!$B$1:$B$6',
+    );
+
+
+    # Insert the chart into the worksheet.
+    $worksheet->insert_chart( 'D2', $chart );
+
+    __END__
+
+
+Note, it isn't currently possible to add a secondary axis of a different chart type (for example line and column).
 
 
 =head1 TODO
@@ -4324,13 +6948,13 @@ Features that are on the TODO list and will be added are:
 
 =item * Add more chart sub-types.
 
-=item * Additional formatting options. For now try the C<set_style()> method.
+=item * Additional formatting options.
 
-=item * More axis controls and gridlines.
+=item * More axis controls.
 
 =item * 3D charts.
 
-=item * Additional chart types such as Bubble and Radar.
+=item * Additional chart types such as Bubble or Doughnut.
 
 =back
 
@@ -4343,7 +6967,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright MM-MMXII, John McNamara.
+Copyright MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
-

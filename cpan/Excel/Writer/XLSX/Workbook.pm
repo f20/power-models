@@ -7,7 +7,7 @@ package Excel::Writer::XLSX::Workbook;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -26,13 +26,14 @@ use Archive::Zip;
 use Excel::Writer::XLSX::Worksheet;
 use Excel::Writer::XLSX::Chartsheet;
 use Excel::Writer::XLSX::Format;
+use Excel::Writer::XLSX::Shape;
 use Excel::Writer::XLSX::Chart;
 use Excel::Writer::XLSX::Package::Packager;
 use Excel::Writer::XLSX::Package::XMLwriter;
 use Excel::Writer::XLSX::Utility qw(xl_cell_to_rowcol xl_rowcol_to_cell);
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -83,8 +84,15 @@ sub new {
     $self->{_custom_colors}      = [];
     $self->{_doc_properties}     = {};
     $self->{_localtime}          = [ localtime() ];
+    $self->{_num_vml_files}      = 0;
     $self->{_num_comment_files}  = 0;
     $self->{_optimization}       = 0;
+    $self->{_x_window}           = 240;
+    $self->{_y_window}           = 15;
+    $self->{_window_width}       = 16095;
+    $self->{_window_height}      = 9660;
+    $self->{_tab_ratio}          = 500;
+
 
     # Structures for the shared strings data.
     $self->{_str_total}  = 0;
@@ -146,12 +154,10 @@ sub _assemble_xml_file {
 
     my $self = shift;
 
-    return unless $self->{_writer};
-
     # Prepare format object for passing to Style.pm.
     $self->_prepare_format_properties();
 
-    $self->_write_xml_declaration;
+    $self->xml_declaration;
 
     # Write the root workbook element.
     $self->_write_workbook();
@@ -178,11 +184,10 @@ sub _assemble_xml_file {
     #$self->_write_ext_lst();
 
     # Close the workbook tag.
-    $self->{_writer}->endTag( 'workbook' );
+    $self->xml_end_tag( 'workbook' );
 
-    # Close the XML writer object and filehandle.
-    $self->{_writer}->end();
-    $self->{_writer}->getOutput()->close();
+    # Close the XML writer filehandle.
+    $self->xml_get_fh()->close();
 }
 
 
@@ -287,7 +292,7 @@ sub add_worksheet {
     my $self  = shift;
     my $index = @{ $self->{_worksheets} };
     my $name  = $self->_check_sheetname( $_[0] );
-
+    my $fh    = undef;
 
     # Porters take note, the following scheme of passing references to Workbook
     # data (in the \$self->{_foo} cases) instead of a reference to the Workbook
@@ -296,6 +301,7 @@ sub add_worksheet {
     # language.
     #
     my @init_data = (
+        $fh,
         $name,
         $index,
 
@@ -309,6 +315,8 @@ sub add_worksheet {
         $self->{_1904},
         $self->{_palette},
         $self->{_optimization},
+        $self->{_tempdir},
+
     );
 
     my $worksheet = Excel::Writer::XLSX::Worksheet->new( @init_data );
@@ -319,7 +327,6 @@ sub add_worksheet {
 }
 
 
-
 ###############################################################################
 #
 # add_chart( %args )
@@ -328,10 +335,11 @@ sub add_worksheet {
 #
 sub add_chart {
 
-    my $self     = shift;
-    my %arg      = @_;
-    my $name     = '';
-    my $index    = @{ $self->{_worksheets} };
+    my $self  = shift;
+    my %arg   = @_;
+    my $name  = '';
+    my $index = @{ $self->{_worksheets} };
+    my $fh    = undef;
 
     # Type must be specified so we can create the required chart instance.
     my $type = $arg{type};
@@ -349,6 +357,8 @@ sub add_chart {
 
 
     my @init_data = (
+
+        $fh,
         $name,
         $index,
 
@@ -366,10 +376,6 @@ sub add_chart {
 
 
     my $chart = Excel::Writer::XLSX::Chart->factory( $type, $arg{subtype} );
-
-    # Get an incremental id to use for axes ids.
-    my $chart_index = scalar @{ $self->{_charts} };
-    $chart->{_id} = $chart_index;
 
     # If the chart isn't embedded let the workbook control it.
     if ( !$embedded ) {
@@ -390,6 +396,9 @@ sub add_chart {
         return $chartsheet;
     }
     else {
+
+        # Set the embedded chart name if present.
+        $chart->{_chart_name} = $arg{name} if $arg{name};
 
         # Set index to 0 so that the activate() and set_first_sheet() methods
         # point back to the first worksheet if used for embedded charts.
@@ -470,11 +479,8 @@ sub add_format {
 
     my $self = shift;
 
-    my @init_data = (
-        \$self->{_xf_format_indices},
-        \$self->{_dxf_format_indices},
-        @_
-    );
+    my @init_data =
+      ( \$self->{_xf_format_indices}, \$self->{_dxf_format_indices}, @_ );
 
     my $format = Excel::Writer::XLSX::Format->new( @init_data );
 
@@ -483,6 +489,26 @@ sub add_format {
     return $format;
 }
 
+
+###############################################################################
+#
+# add_shape(%properties)
+#
+# Add a new shape to the Excel workbook.
+#
+sub add_shape {
+
+    my $self  = shift;
+    my $fh    = undef;
+    my $shape = Excel::Writer::XLSX::Shape->new( $fh, @_ );
+
+    $shape->{_palette} = $self->{_palette};
+
+
+    push @{ $self->{_shapes} }, $shape;    # Store shape reference.
+
+    return $shape;
+}
 
 ###############################################################################
 #
@@ -683,28 +709,34 @@ sub define_name {
     if ( $name =~ /^(.*)!(.*)$/ ) {
         $sheetname   = $1;
         $name        = $2;
-        $sheet_index = $self->_get_sheet_index($sheetname);
+        $sheet_index = $self->_get_sheet_index( $sheetname );
     }
     else {
-        $sheet_index =-1; # Use -1 to indicate global names.
+        $sheet_index = -1;    # Use -1 to indicate global names.
     }
 
     # Warn if the sheet index wasn't found.
-    if (!defined $sheet_index) {
-       carp "Unknown sheet name $sheetname in defined_name()\n";
-       return -1;
+    if ( !defined $sheet_index ) {
+        carp "Unknown sheet name $sheetname in defined_name()\n";
+        return -1;
     }
 
-    # Warn if the sheet name contains invalid chars as defined by Excel help.
-    if ($name !~ m/^[a-zA-Z_\\][a-zA-Z_.]+/) {
-       carp "Invalid characters in name '$name' used in defined_name()\n";
-       return -1;
+    # Warn if the name contains invalid chars as defined by Excel help.
+    if ( $name !~ m/^[\w\\][\w.]*$/ || $name =~ m/^\d/ ) {
+        carp "Invalid characters in name '$name' used in defined_name()\n";
+        return -1;
     }
 
-    # Warn if the sheet name looks like a cell name.
-    if ($name =~ m/^[a-zA-Z][a-zA-Z]?[a-dA-D]?[0-9]+$/) {
-       carp "Invalid name '$name' looks like a cell name in defined_name()\n";
-       return -1;
+    # Warn if the name looks like a cell name.
+    if ( $name =~ m/^[a-zA-Z][a-zA-Z]?[a-dA-D]?[0-9]+$/ ) {
+        carp "Invalid name '$name' looks like a cell name in defined_name()\n";
+        return -1;
+    }
+
+    # Warn if the name looks like a R1C1.
+    if ( $name =~ m/^[rcRC]$/ || $name =~ m/^[rcRC]\d+[rcRC]\d+$/ ) {
+        carp "Invalid name '$name' like a RC cell ref in defined_name()\n";
+        return -1;
     }
 
     push @{ $self->{_defined_names} }, [ $name, $sheet_index, $formula ];
@@ -761,6 +793,27 @@ sub set_properties {
 
 ###############################################################################
 #
+# add_vba_project()
+#
+# Add a vbaProject binary to the XLSX file.
+#
+sub add_vba_project {
+
+    my $self = shift;
+    my $vba_project = shift;
+
+    croak "No vbaProject.bin specified in add_vba_project()"
+      if not $vba_project;
+
+    croak "Couldn't locate $vba_project in add_vba_project(): $!"
+      unless -e $vba_project;
+
+    $self->{_vba_project} = $vba_project;
+}
+
+
+###############################################################################
+#
 # _store_workbook()
 #
 # Assemble worksheets into a workbook.
@@ -790,8 +843,8 @@ sub _store_workbook {
     # Convert the SST strings data structure.
     $self->_prepare_sst_string_data();
 
-    # Prepare the worksheet cell comments.
-    $self->_prepare_comments();
+    # Prepare the worksheet VML elements such as comments and buttons.
+    $self->_prepare_vml_objects();
 
     # Set the defined names for the worksheets such as Print Titles.
     $self->_prepare_defined_names();
@@ -801,6 +854,9 @@ sub _store_workbook {
 
     # Add cached data to charts.
     $self->_add_chart_data();
+
+    # Prepare the worksheet tables.
+    $self->_prepare_tables();
 
     # Package the workbook.
     $packager->_add_workbook( $self );
@@ -858,7 +914,7 @@ sub _store_workbook {
 
         while ( read( $tmp_fh, $buffer, 4_096 ) ) {
             local $\ = undef;    # Protect print from -l on commandline.
-            print {$self->{_filehandle}} $buffer;
+            print { $self->{_filehandle} } $buffer;
         }
     }
 }
@@ -886,7 +942,6 @@ sub _prepare_sst_string_data {
     $self->{_str_array} = \@strings;
 
 }
-
 
 
 ###############################################################################
@@ -1057,7 +1112,7 @@ sub _prepare_num_formats {
             $index++;
 
             # Only increase font count for XF formats (not for DXF formats).
-            if ($format->{_xf_index}) {
+            if ( $format->{_xf_index} ) {
                 $num_format_count++;
             }
         }
@@ -1106,8 +1161,8 @@ sub _prepare_borders {
     for my $format ( @{ $self->{_dxf_formats} } ) {
         my $key = $format->get_border_key();
 
-        if ($key =~ m/[^0:]/) {
-             $format->{_has_dxf_border} = 1;
+        if ( $key =~ m/[^0:]/ ) {
+            $format->{_has_dxf_border} = 1;
         }
     }
 
@@ -1135,6 +1190,20 @@ sub _prepare_fills {
     $fills{'0:0:0'}  = 0;
     $fills{'17:0:0'} = 1;
 
+
+    # Store the DXF colours separately since them may be reversed below.
+    for my $format ( @{ $self->{_dxf_formats} } ) {
+        if (   $format->{_pattern}
+            || $format->{_bg_color}
+            || $format->{_fg_color} )
+        {
+            $format->{_has_dxf_fill} = 1;
+            $format->{_dxf_bg_color} = $format->{_bg_color};
+            $format->{_dxf_fg_color} = $format->{_fg_color};
+        }
+    }
+
+
     for my $format ( @{ $self->{_xf_formats} } ) {
 
         # The following logical statements jointly take care of special cases
@@ -1145,9 +1214,18 @@ sub _prepare_fills {
         #    a pattern they probably wanted a solid fill, so we fill in the
         #    defaults.
         #
+        if (   $format->{_pattern} == 1
+            && $format->{_bg_color} ne '0'
+            && $format->{_fg_color} ne '0' )
+        {
+            my $tmp = $format->{_fg_color};
+            $format->{_fg_color} = $format->{_bg_color};
+            $format->{_bg_color} = $tmp;
+        }
+
         if (   $format->{_pattern} <= 1
-            && $format->{_bg_color} != 0
-            && $format->{_fg_color} == 0 )
+            && $format->{_bg_color} ne '0'
+            && $format->{_fg_color} eq '0' )
         {
             $format->{_fg_color} = $format->{_bg_color};
             $format->{_bg_color} = 0;
@@ -1155,12 +1233,13 @@ sub _prepare_fills {
         }
 
         if (   $format->{_pattern} <= 1
-            && $format->{_bg_color} == 0
-            && $format->{_fg_color} != 0 )
+            && $format->{_bg_color} eq '0'
+            && $format->{_fg_color} ne '0' )
         {
             $format->{_bg_color} = 0;
             $format->{_pattern}  = 1;
         }
+
 
         my $key = $format->get_fill_key();
 
@@ -1183,16 +1262,6 @@ sub _prepare_fills {
     $self->{_fill_count} = $index;
 
 
-    # For the DXF formats we only need to check if the properties have changed.
-    for my $format ( @{ $self->{_dxf_formats} } ) {
-
-        if (   $format->{_pattern}
-            || $format->{_bg_color}
-            || $format->{_fg_color} )
-        {
-            $format->{_has_dxf_fill} = 1;
-        }
-    }
 }
 
 
@@ -1208,7 +1277,7 @@ sub _prepare_defined_names {
 
     my $self = shift;
 
-    my @defined_names =  @{ $self->{_defined_names} };
+    my @defined_names = @{ $self->{_defined_names} };
 
     for my $sheet ( @{ $self->{_worksheets} } ) {
 
@@ -1374,7 +1443,8 @@ sub _prepare_drawings {
 
         my $chart_count = scalar @{ $sheet->{_charts} };
         my $image_count = scalar @{ $sheet->{_images} };
-        next unless ( $chart_count + $image_count );
+        my $shape_count = scalar @{ $sheet->{_shapes} };
+        next unless ( $chart_count + $image_count + $shape_count );
 
         $drawing_id++;
 
@@ -1396,9 +1466,22 @@ sub _prepare_drawings {
                 $height, $name, $type );
         }
 
+        for my $index ( 0 .. $shape_count - 1 ) {
+            $sheet->_prepare_shape( $index, $drawing_id );
+        }
+
         my $drawing = $sheet->{_drawing};
         push @{ $self->{_drawings} }, $drawing;
     }
+
+    # Sort the workbook charts references into the order that the were
+    # written from the worksheets above.
+    my @chart_data = @{ $self->{_charts} };
+
+    @chart_data = sort { $a->{_id} <=> $b->{_id} } @chart_data;
+
+    $self->{_charts} = \@chart_data;
+
 
     $self->{_drawing_count} = $drawing_id;
 }
@@ -1406,33 +1489,42 @@ sub _prepare_drawings {
 
 ###############################################################################
 #
-# _prepare_comments()
+# _prepare_vml_objects()
 #
-# Iterate through the worksheets and set up the comment data.
+# Iterate through the worksheets and set up the VML objects.
 #
-sub _prepare_comments {
+sub _prepare_vml_objects {
 
-    my $self         = shift;
-    my $comment_id   = 0;
-    my $vml_data_id  = 1;
-    my $vml_shape_id = 1024;
+    my $self           = shift;
+    my $comment_id     = 0;
+    my $vml_drawing_id = 0;
+    my $vml_data_id    = 1;
+    my $vml_shape_id   = 1024;
+    my $vml_files      = 0;
+    my $comment_files  = 0;
 
     for my $sheet ( @{ $self->{_worksheets} } ) {
 
-        next unless $sheet->{_has_comments};
+        next unless $sheet->{_has_vml};
+        $vml_files++;
+        $comment_files++ if $sheet->{_has_comments};
+        $comment_id++    if $sheet->{_has_comments};
+        $vml_drawing_id++;
 
-        my $count = $sheet->_prepare_comments( $vml_data_id, $vml_shape_id,
-            ++$comment_id );
+        my $count =
+          $sheet->_prepare_vml_objects( $vml_data_id, $vml_shape_id,
+            $vml_drawing_id, $comment_id );
 
         # Each VML file should start with a shape id incremented by 1024.
         $vml_data_id  += 1 * int(    ( 1024 + $count ) / 1024 );
         $vml_shape_id += 1024 * int( ( 1024 + $count ) / 1024 );
     }
 
-    $self->{_num_comment_files} = $comment_id;
+    $self->{_num_vml_files}     = $vml_files;
+    $self->{_num_comment_files} = $comment_files;
 
     # Add a font format for cell comments.
-    if ( $comment_id > 0 ) {
+    if ( $comment_files > 0 ) {
         my $format = Excel::Writer::XLSX::Format->new(
             \$self->{_xf_format_indices},
             \$self->{_dxf_format_indices},
@@ -1445,6 +1537,30 @@ sub _prepare_comments {
         $format->get_xf_index();
 
         push @{ $self->{_formats} }, $format;
+    }
+}
+
+
+###############################################################################
+#
+# _prepare_tables()
+#
+# Set the table ids for the worksheet tables.
+#
+sub _prepare_tables {
+
+    my $self     = shift;
+    my $table_id = 0;
+
+    for my $sheet ( @{ $self->{_worksheets} } ) {
+
+        my $table_count = scalar @{ $sheet->{_tables} };
+
+        next unless $table_count;
+
+        $sheet->_prepare_tables( $table_id + 1 );
+
+        $table_id += $table_count;
     }
 }
 
@@ -1496,8 +1612,20 @@ sub _add_chart_data {
             # Skip if we couldn't parse the formula.
             next RANGE if !defined $sheetname;
 
-            # Skip if the name is unknown. Probably should throw exception.
-            next RANGE if !exists $worksheets{$sheetname};
+            # Handle non-contiguous ranges: (Sheet1!$A$1:$A$2,Sheet1!$A$4:$A$5).
+            # We don't try to parse the ranges. We just return an empty list.
+            if ( $sheetname =~ m/^\([^,]+,/ ) {
+                $chart->{_formula_data}->[$id] = [];
+                $seen_ranges{$range} = [];
+                next RANGE;
+            }
+
+            # Die if the name is unknown since it indicates a user error in
+            # a chart series formula.
+            if ( !exists $worksheets{$sheetname} ) {
+                die "Unknown worksheet reference '$sheetname' in range "
+                  . "'$range' passed to add_series().\n";
+            }
 
             # Find the worksheet object based on the sheet name.
             my $worksheet = $worksheets{$sheetname};
@@ -1672,14 +1800,9 @@ sub _get_image_properties {
             ( $type, $width, $height ) = $self->_process_png( $data );
             $self->{_image_types}->{png} = 1;
         }
-        elsif (
-            ( unpack( 'n', $data ) == 0xFFD8 )
-            && (   ( unpack( 'x6 A4', $data ) eq 'JFIF' )
-                || ( unpack( 'x6 A4', $data ) eq 'Exif' ) )
-          )
-        {
+        elsif ( unpack( 'n', $data ) == 0xFFD8 ) {
 
-            # Test for JFIF and Exif JPEGs.
+            # Test for JPEG files.
             ( $type, $width, $height ) =
               $self->_process_jpg( $data, $filename );
 
@@ -1876,10 +1999,10 @@ sub set_optimization {
     my $self = shift;
     my $level = defined $_[0] ? $_[0] : 1;
 
-   croak "set_optimization() must be called before add_worksheet()"
-          if $self->sheets();
+    croak "set_optimization() must be called before add_worksheet()"
+      if $self->sheets();
 
-   $self->{_optimization} = $level;
+    $self->{_optimization} = $level;
 }
 
 
@@ -1919,7 +2042,7 @@ sub _write_workbook {
         'xmlns:r' => $xmlns_r,
     );
 
-    $self->{_writer}->startTag( 'workbook', @attributes );
+    $self->xml_start_tag( 'workbook', @attributes );
 }
 
 
@@ -1944,7 +2067,11 @@ sub _write_file_version {
         'rupBuild'     => $rup_build,
     );
 
-    $self->{_writer}->emptyTag( 'fileVersion', @attributes );
+    if ( $self->{_vba_project} ) {
+        push @attributes, codeName => '{37E998C4-C9E5-D4B9-71C8-EB1FF731991C}';
+    }
+
+    $self->xml_empty_tag( 'fileVersion', @attributes );
 }
 
 
@@ -1961,12 +2088,14 @@ sub _write_workbook_pr {
     my $show_ink_annotation    = 0;
     my $auto_compress_pictures = 0;
     my $default_theme_version  = 124226;
+    my $codename               = $self->{_vba_codename};
     my @attributes;
 
-    push @attributes, ( 'date1904' => 1 ) if $date_1904;
+    push @attributes, ( 'codeName' => $codename ) if $codename;
+    push @attributes, ( 'date1904' => 1 )         if $date_1904;
     push @attributes, ( 'defaultThemeVersion' => $default_theme_version );
 
-    $self->{_writer}->emptyTag( 'workbookPr', @attributes );
+    $self->xml_empty_tag( 'workbookPr', @attributes );
 }
 
 
@@ -1980,9 +2109,9 @@ sub _write_book_views {
 
     my $self = shift;
 
-    $self->{_writer}->startTag( 'bookViews' );
+    $self->xml_start_tag( 'bookViews' );
     $self->_write_workbook_view();
-    $self->{_writer}->endTag( 'bookViews' );
+    $self->xml_end_tag( 'bookViews' );
 }
 
 ###############################################################################
@@ -1994,11 +2123,11 @@ sub _write_book_views {
 sub _write_workbook_view {
 
     my $self          = shift;
-    my $x_window      = 240;
-    my $y_window      = 15;
-    my $window_width  = 16095;
-    my $window_height = 9660;
-    my $tab_ratio     = 500;
+    my $x_window      = $self->{_x_window};
+    my $y_window      = $self->{_y_window};
+    my $window_width  = $self->{_window_width};
+    my $window_height = $self->{_window_height};
+    my $tab_ratio     = $self->{_tab_ratio};
     my $active_tab    = $self->{_activesheet};
     my $first_sheet   = $self->{_firstsheet};
 
@@ -2009,13 +2138,16 @@ sub _write_workbook_view {
         'windowHeight' => $window_height,
     );
 
+    # Store the tabRatio attribute when it isn't the default.
+    push @attributes, ( tabRatio => $tab_ratio ) if $tab_ratio != 500;
+
     # Store the firstSheet attribute when it isn't the default.
-    push @attributes, ( firstSheet => $first_sheet ) if $first_sheet > 0;
+    push @attributes, ( firstSheet => $first_sheet +1 ) if $first_sheet > 0;
 
     # Store the activeTab attribute when it isn't the first sheet.
     push @attributes, ( activeTab => $active_tab ) if $active_tab > 0;
 
-    $self->{_writer}->emptyTag( 'workbookView', @attributes );
+    $self->xml_empty_tag( 'workbookView', @attributes );
 }
 
 ###############################################################################
@@ -2029,14 +2161,14 @@ sub _write_sheets {
     my $self   = shift;
     my $id_num = 1;
 
-    $self->{_writer}->startTag( 'sheets' );
+    $self->xml_start_tag( 'sheets' );
 
     for my $worksheet ( @{ $self->{_worksheets} } ) {
         $self->_write_sheet( $worksheet->{_name}, $id_num++,
             $worksheet->{_hidden} );
     }
 
-    $self->{_writer}->endTag( 'sheets' );
+    $self->xml_end_tag( 'sheets' );
 }
 
 
@@ -2063,7 +2195,7 @@ sub _write_sheet {
     push @attributes, ( 'r:id' => $r_id );
 
 
-    $self->{_writer}->emptyTag( 'sheet', @attributes );
+    $self->xml_empty_tag( 'sheet', @attributes );
 }
 
 
@@ -2079,9 +2211,12 @@ sub _write_calc_pr {
     my $calc_id         = 124519;
     my $concurrent_calc = 0;
 
-    my @attributes = ( 'calcId' => $calc_id, );
+    my @attributes = (
+        'calcId'         => $calc_id,
+        'fullCalcOnLoad' => 1
+    );
 
-    $self->{_writer}->emptyTag( 'calcPr', @attributes );
+    $self->xml_empty_tag( 'calcPr', @attributes );
 }
 
 
@@ -2095,9 +2230,9 @@ sub _write_ext_lst {
 
     my $self = shift;
 
-    $self->{_writer}->startTag( 'extLst' );
+    $self->xml_start_tag( 'extLst' );
     $self->_write_ext();
-    $self->{_writer}->endTag( 'extLst' );
+    $self->xml_end_tag( 'extLst' );
 }
 
 
@@ -2118,9 +2253,9 @@ sub _write_ext {
         'uri'      => $uri,
     );
 
-    $self->{_writer}->startTag( 'ext', @attributes );
+    $self->xml_start_tag( 'ext', @attributes );
     $self->_write_mx_arch_id();
-    $self->{_writer}->endTag( 'ext' );
+    $self->xml_end_tag( 'ext' );
 }
 
 ###############################################################################
@@ -2136,7 +2271,7 @@ sub _write_mx_arch_id {
 
     my @attributes = ( 'Flags' => $Flags, );
 
-    $self->{_writer}->emptyTag( 'mx:ArchID', @attributes );
+    $self->xml_empty_tag( 'mx:ArchID', @attributes );
 }
 
 
@@ -2152,13 +2287,13 @@ sub _write_defined_names {
 
     return unless @{ $self->{_defined_names} };
 
-    $self->{_writer}->startTag( 'definedNames' );
+    $self->xml_start_tag( 'definedNames' );
 
     for my $aref ( @{ $self->{_defined_names} } ) {
         $self->_write_defined_name( $aref );
     }
 
-    $self->{_writer}->endTag( 'definedNames' );
+    $self->xml_end_tag( 'definedNames' );
 }
 
 
@@ -2183,7 +2318,7 @@ sub _write_defined_name {
     push @attributes, ( 'localSheetId' => $id ) if $id != -1;
     push @attributes, ( 'hidden'       => 1 )   if $hidden;
 
-    $self->{_writer}->dataElement( 'definedName', $range, @attributes );
+    $self->xml_data_element( 'definedName', $range, @attributes );
 }
 
 
@@ -2211,6 +2346,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMXII, John McNamara.
+(c) MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

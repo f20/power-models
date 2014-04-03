@@ -8,7 +8,7 @@ package Excel::Writer::XLSX::Chart::Stock;
 #
 # See formatting note in Excel::Writer::XLSX::Chart.
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -22,7 +22,7 @@ use Carp;
 use Excel::Writer::XLSX::Chart;
 
 our @ISA     = qw(Excel::Writer::XLSX::Chart);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -34,6 +34,15 @@ sub new {
 
     my $class = shift;
     my $self  = Excel::Writer::XLSX::Chart->new( @_ );
+    $self->{_show_crosses}  = 0;
+    $self->{_hi_low_lines}  = {};
+    $self->{_date_category} = 1;
+
+    # Override and reset the default axis values.
+    $self->{_x_axis}->{_defaults}->{num_format}  = 'dd/mm/yyyy';
+    $self->{_x2_axis}->{_defaults}->{num_format} = 'dd/mm/yyyy';
+    $self->set_x_axis();
+    $self->set_x2_axis();
 
     bless $self, $class;
     return $self;
@@ -51,7 +60,7 @@ sub _write_chart_type {
     my $self = shift;
 
     # Write the c:stockChart element.
-    $self->_write_stock_chart();
+    $self->_write_stock_chart( @_ );
 }
 
 
@@ -60,82 +69,47 @@ sub _write_chart_type {
 # _write_stock_chart()
 #
 # Write the <c:stockChart> element.
+# Overridden to add hi_low_lines(). TODO. Refactor up into the SUPER class.
 #
 sub _write_stock_chart {
 
     my $self = shift;
+    my %args = @_;
+
+    my @series;
+    if ( $args{primary_axes} ) {
+        @series = $self->_get_primary_axes_series;
+    }
+    else {
+        @series = $self->_get_secondary_axes_series;
+    }
+
+    return unless scalar @series;
 
     # Add default formatting to the series data.
     $self->_modify_series_formatting();
 
-    $self->{_writer}->startTag( 'c:stockChart' );
+    $self->xml_start_tag( 'c:stockChart' );
 
     # Write the series elements.
-    $self->_write_series();
+    $self->_write_ser( $_ ) for @series;
 
-    $self->{_writer}->endTag( 'c:stockChart' );
-}
-
-
-##############################################################################
-#
-# _write_series()
-#
-# Over-ridden to add hi_low_lines(). TODO. Refactor up into the SUPER class.
-#
-# Write the series elements.
-#
-sub _write_series {
-
-    my $self = shift;
-
-    # Write each series with subelements.
-    my $index = 0;
-    for my $series ( @{ $self->{_series} } ) {
-        $self->_write_ser( $index++, $series );
-    }
+    # Write the c:dropLines element.
+    $self->_write_drop_lines();
 
     # Write the c:hiLowLines element.
-    $self->_write_hi_low_lines();
+    $self->_write_hi_low_lines() if $args{primary_axes};
+
+    # Write the c:upDownBars element.
+    $self->_write_up_down_bars();
 
     # Write the c:marker element.
     $self->_write_marker_value();
 
-    # Generate the axis ids.
-    $self->_add_axis_id();
-    $self->_add_axis_id();
+    # Write the c:axId elements
+    $self->_write_axis_ids( %args );
 
-    # Write the c:axId element.
-    $self->_write_axis_id( $self->{_axis_ids}->[0] );
-    $self->_write_axis_id( $self->{_axis_ids}->[1] );
-}
-
-
-##############################################################################
-#
-# _write_plot_area()
-#
-# Write the <c:plotArea> element.
-#
-sub _write_plot_area {
-
-    my $self = shift;
-
-    $self->{_writer}->startTag( 'c:plotArea' );
-
-    # Write the c:layout element.
-    $self->_write_layout();
-
-    # Write the subclass chart type element.
-    $self->_write_chart_type();
-
-    # Write the c:dateAx element.
-    $self->_write_date_axis();
-
-    # Write the c:catAx element.
-    $self->_write_val_axis();
-
-    $self->{_writer}->endTag( 'c:plotArea' );
+    $self->xml_end_tag( 'c:stockChart' );
 }
 
 
@@ -197,12 +171,23 @@ To create a simple Excel file with a Stock chart using Excel::Writer::XLSX:
     my $workbook  = Excel::Writer::XLSX->new( 'chart.xlsx' );
     my $worksheet = $workbook->add_worksheet();
 
-    my $chart     = $workbook->add_chart( type => 'stock' );
+    my $chart = $workbook->add_chart( type => 'stock' );
 
     # Add a series for each High-Low-Close.
-    $chart->add_series( categories => '=Sheet1!$A$2:$A$6', values => '=Sheet1!$B$2:$B$6' );
-    $chart->add_series( categories => '=Sheet1!$A$2:$A$6', values => '=Sheet1!$C$2:$C$6' );
-    $chart->add_series( categories => '=Sheet1!$A$2:$A$6', values => '=Sheet1!$D$2:$D$6' );
+    $chart->add_series(
+        categories => '=Sheet1!$A$2:$A$6',
+        values     => '=Sheet1!$B$2:$B$6'
+    );
+
+    $chart->add_series(
+        categories => '=Sheet1!$A$2:$A$6',
+        values     => '=Sheet1!$C$2:$C$6'
+    );
+
+    $chart->add_series(
+        categories => '=Sheet1!$A$2:$A$6',
+        values     => '=Sheet1!$D$2:$D$6'
+    );
 
     # Add the worksheet data the chart refers to.
     # ... See the full example below.
@@ -229,7 +214,7 @@ These methods are explained in detail in L<Excel::Writer::XLSX::Chart>. Class sp
 
 There aren't currently any stock chart specific methods. See the TODO section of L<Excel::Writer::XLSX::Chart>.
 
-The default Stock chart is an High-Low-Close chart. A series must be added for each of these data sources.
+The default Stock chart is a High-Low-Close chart. A series must be added for each of these data sources.
 
 
 =head1 EXAMPLE
@@ -303,7 +288,7 @@ Here is a complete example that demonstrates most of the available features when
 
 <p>This will produce a chart that looks like this:</p>
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/2007/stock1.jpg" width="483" height="291" alt="Chart example." /></center></p>
+<p><center><img src="http://jmcnamara.github.com/excel-writer-xlsx/images/examples/stock1.jpg" width="483" height="291" alt="Chart example." /></center></p>
 
 =end html
 
@@ -314,7 +299,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright MM-MMXII, John McNamara.
+Copyright MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

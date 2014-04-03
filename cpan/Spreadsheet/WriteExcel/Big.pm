@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.37';
+$VERSION = '2.40';
 
 ###############################################################################
 #
@@ -52,7 +52,7 @@ sub new {
 
 __END__
 
-
+=encoding latin1
 
 =head1 NAME
 
@@ -88,7 +88,7 @@ John McNamara jmcnamara@cpan.org
 =head1 COPYRIGHT
 
 
-© MM-MMX, John McNamara.
+Copyright MM-MMX, John McNamara.
 
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -6,7 +6,7 @@ package Excel::Writer::XLSX::Chartsheet;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -20,7 +20,7 @@ use Exporter;
 use Excel::Writer::XLSX::Worksheet;
 
 our @ISA     = qw(Excel::Writer::XLSX::Worksheet);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -64,9 +64,7 @@ sub _assemble_xml_file {
 
     my $self = shift;
 
-    return unless $self->{_writer};
-
-    $self->_write_xml_declaration;
+    $self->xml_declaration;
 
     # Write the root chartsheet element.
     $self->_write_chartsheet();
@@ -96,11 +94,10 @@ sub _assemble_xml_file {
     $self->_write_drawings();
 
     # Close the worksheet tag.
-    $self->{_writer}->endTag( 'chartsheet' );
+    $self->xml_end_tag( 'chartsheet' );
 
-    # Close the XML writer object and filehandle.
-    $self->{_writer}->end();
-    $self->{_writer}->getOutput()->close();
+    # Close the XML writer filehandle.
+    $self->xml_get_fh()->close();
 }
 
 
@@ -133,14 +130,24 @@ sub protect {
 #
 ###############################################################################
 
-sub add_series    { return shift->{_chart}->add_series( @_ ) }
-sub set_x_axis    { return shift->{_chart}->set_x_axis( @_ ) }
-sub set_y_axis    { return shift->{_chart}->set_y_axis( @_ ) }
-sub set_title     { return shift->{_chart}->set_title( @_ ) }
-sub set_legend    { return shift->{_chart}->set_legend( @_ ) }
-sub set_plotarea  { return shift->{_chart}->set_plotarea( @_ ) }
-sub set_chartarea { return shift->{_chart}->set_chartarea( @_ ) }
-sub set_style     { return shift->{_chart}->set_style( @_ ) }
+sub add_series         { return shift->{_chart}->add_series( @_ ) }
+sub set_x_axis         { return shift->{_chart}->set_x_axis( @_ ) }
+sub set_y_axis         { return shift->{_chart}->set_y_axis( @_ ) }
+sub set_x2_axis        { return shift->{_chart}->set_x2_axis( @_ ) }
+sub set_y2_axis        { return shift->{_chart}->set_y2_axis( @_ ) }
+sub set_title          { return shift->{_chart}->set_title( @_ ) }
+sub set_legend         { return shift->{_chart}->set_legend( @_ ) }
+sub set_plotarea       { return shift->{_chart}->set_plotarea( @_ ) }
+sub set_chartarea      { return shift->{_chart}->set_chartarea( @_ ) }
+sub set_style          { return shift->{_chart}->set_style( @_ ) }
+sub show_blanks_as     { return shift->{_chart}->show_blanks_as( @_ ) }
+sub show_hidden_data   { return shift->{_chart}->show_hidden_data( @_ ) }
+sub set_size           { return shift->{_chart}->set_size( @_ ) }
+sub set_table          { return shift->{_chart}->set_table( @_ ) }
+sub set_up_down_bars   { return shift->{_chart}->set_up_down_bars( @_ ) }
+sub set_drop_lines     { return shift->{_chart}->set_drop_lines( @_ ) }
+sub set_high_low_lines { return shift->{_chart}->high_low_lines( @_ ) }
+
 
 
 ###############################################################################
@@ -148,7 +155,6 @@ sub set_style     { return shift->{_chart}->set_style( @_ ) }
 # Internal methods.
 #
 ###############################################################################
-
 
 
 ###############################################################################
@@ -164,6 +170,7 @@ sub _prepare_chart {
     my $chart_id   = shift;
     my $drawing_id = shift;
 
+    $self->{_chart}->{_id} = $chart_id -1;
 
     my $drawing = Excel::Writer::XLSX::Drawing->new();
     $self->{_drawing} = $drawing;
@@ -177,13 +184,11 @@ sub _prepare_chart {
 }
 
 
-
 ###############################################################################
 #
 # XML writing methods.
 #
 ###############################################################################
-
 
 
 ###############################################################################
@@ -208,10 +213,8 @@ sub _write_chartsheet {
         'xmlns:r' => $xmlns_r,
     );
 
-    $self->{_writer}->startTag( 'chartsheet', @attributes );
+    $self->xml_start_tag( 'chartsheet', @attributes );
 }
-
-
 
 
 ###############################################################################
@@ -229,13 +232,13 @@ sub _write_sheet_pr {
     push @attributes, ( 'filterMode' => 1 ) if $self->{_filter_on};
 
     if ( $self->{_fit_page} || $self->{_tab_color} ) {
-        $self->{_writer}->startTag( 'sheetPr', @attributes );
+        $self->xml_start_tag( 'sheetPr', @attributes );
         $self->_write_tab_color();
         $self->_write_page_set_up_pr();
-        $self->{_writer}->endTag( 'sheetPr' );
+        $self->xml_end_tag( 'sheetPr' );
     }
     else {
-        $self->{_writer}->emptyTag( 'sheetPr', @attributes );
+        $self->xml_empty_tag( 'sheetPr', @attributes );
     }
 }
 
@@ -264,7 +267,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMXII, John McNamara.
+(c) MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

@@ -7,7 +7,7 @@ package Excel::Writer::XLSX::Worksheet;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -19,6 +19,7 @@ use strict;
 use warnings;
 use Carp;
 use File::Temp 'tempfile';
+use List::Util qw(max min);
 use Excel::Writer::XLSX::Format;
 use Excel::Writer::XLSX::Drawing;
 use Excel::Writer::XLSX::Package::XMLwriter;
@@ -26,7 +27,7 @@ use Excel::Writer::XLSX::Utility
   qw(xl_cell_to_rowcol xl_rowcol_to_cell xl_col_to_name xl_range);
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -45,7 +46,8 @@ our $VERSION = '0.45';
 sub new {
 
     my $class  = shift;
-    my $self   = Excel::Writer::XLSX::Package::XMLwriter->new();
+    my $fh     = shift;
+    my $self   = Excel::Writer::XLSX::Package::XMLwriter->new( $fh );
     my $rowmax = 1_048_576;
     my $colmax = 16_384;
     my $strmax = 32767;
@@ -62,8 +64,9 @@ sub new {
     $self->{_optimization} = $_[9] || 0;
     $self->{_tempdir}      = $_[10];
 
-    $self->{_ext_sheets} = [];
-    $self->{_fileclosed} = 0;
+    $self->{_ext_sheets}    = [];
+    $self->{_fileclosed}    = 0;
+    $self->{_excel_version} = 2007;
 
     $self->{_xls_rowmax} = $rowmax;
     $self->{_xls_colmax} = $colmax;
@@ -73,7 +76,7 @@ sub new {
     $self->{_dim_colmin} = undef;
     $self->{_dim_colmax} = undef;
 
-    $self->{_colinfo}    = [];
+    $self->{_colinfo}    = {};
     $self->{_selections} = [];
     $self->{_hidden}     = 0;
     $self->{_active}     = 0;
@@ -143,21 +146,25 @@ sub new {
     $self->{_outline_on}        = 1;
     $self->{_outline_changed}   = 0;
 
+    $self->{_default_row_height} = 15;
+    $self->{_default_row_zeroed} = 0;
+
     $self->{_names} = {};
 
     $self->{_write_match} = [];
 
-    $self->{prev_col} = -1;
 
-    $self->{_table} = [];
+    $self->{_table} = {};
     $self->{_merge} = [];
 
+    $self->{_has_vml}          = 0;
     $self->{_has_comments}     = 0;
     $self->{_comments}         = {};
     $self->{_comments_array}   = [];
     $self->{_comments_author}  = '';
     $self->{_comments_visible} = 0;
     $self->{_vml_shape_id}     = 1024;
+    $self->{_buttons_array}    = [];
 
     $self->{_autofilter}   = '';
     $self->{_filter_on}    = 0;
@@ -170,27 +177,34 @@ sub new {
     $self->{_col_size_changed} = 0;
     $self->{_row_size_changed} = 0;
 
+    $self->{_last_shape_id}          = 1;
+    $self->{_rel_count}              = 0;
     $self->{_hlink_count}            = 0;
     $self->{_hlink_refs}             = [];
     $self->{_external_hyper_links}   = [];
     $self->{_external_drawing_links} = [];
     $self->{_external_comment_links} = [];
+    $self->{_external_vml_links}     = [];
+    $self->{_external_table_links}   = [];
     $self->{_drawing_links}          = [];
     $self->{_charts}                 = [];
     $self->{_images}                 = [];
+    $self->{_tables}                 = [];
+    $self->{_sparklines}             = [];
+    $self->{_shapes}                 = [];
+    $self->{_shape_hash}             = {};
+    $self->{_has_shapes}             = 0;
     $self->{_drawing}                = 0;
 
     $self->{_rstring}      = '';
     $self->{_previous_row} = 0;
 
     if ( $self->{_optimization} == 1 ) {
-        my $fh  = tempfile( DIR => $self->{_tempdir} );
+        my $fh = tempfile( DIR => $self->{_tempdir} );
         binmode $fh, ':utf8';
 
-        my $writer = Excel::Writer::XLSX::Package::XMLwriterSimple->new( $fh );
-
         $self->{_cell_data_fh} = $fh;
-        $self->{_writer} = $writer;
+        $self->{_fh}           = $fh;
     }
 
     $self->{_validations}  = [];
@@ -231,9 +245,7 @@ sub _assemble_xml_file {
 
     my $self = shift;
 
-    return unless $self->{_writer};
-
-    $self->_write_xml_declaration();
+    $self->xml_declaration();
 
     # Write the root worksheet element.
     $self->_write_worksheet();
@@ -310,15 +322,17 @@ sub _assemble_xml_file {
     # Write the legacyDrawing element.
     $self->_write_legacy_drawing();
 
-    # Write the worksheet extension storage.
-    #$self->_write_ext_lst();
+    # Write the tableParts element.
+    $self->_write_table_parts();
+
+    # Write the extLst and sparklines.
+    $self->_write_ext_sparklines();
 
     # Close the worksheet tag.
-    $self->{_writer}->endTag( 'worksheet' );
+    $self->xml_end_tag( 'worksheet' );
 
-    # Close the XML writer object and filehandle.
-    $self->{_writer}->end();
-    $self->{_writer}->getOutput()->close();
+    # Close the XML writer filehandle.
+    $self->xml_get_fh()->close();
 }
 
 
@@ -570,16 +584,15 @@ sub set_column {
         $self->{_outline_col_level} = $data[5];
     }
 
-    # Store the column data.
-    push @{ $self->{_colinfo} }, [@data];
+    # Store the column data based on the first column. Padded for sorting.
+    $self->{_colinfo}->{ sprintf "%05d", $data[0] } = [@data];
 
     # Store the column change to allow optimisations.
     $self->{_col_size_changed} = 1;
 
     # Store the col sizes for use when calculating image vertices taking
     # hidden columns into account. Also store the column formats.
-    my $width = $data[4] ? 0 : $data[2];    # Set width to zero if col is hidden
-    $width ||= 0;                           # Ensure width isn't undef.
+    my $width = $data[4] ? 0 : $data[2];    # Set width to zero if hidden.
     my $format = $data[3];
 
     my ( $firstcol, $lastcol ) = @data;
@@ -640,7 +653,7 @@ sub set_selection {
             $sqref = $active_cell;
         }
         else {
-            $sqref = xl_range( $row_first, $col_first, $row_last, $col_last );
+            $sqref = xl_range( $row_first, $row_last, $col_first, $col_last );
         }
 
     }
@@ -1506,7 +1519,8 @@ sub _convert_name_area {
 sub hide_gridlines {
 
     my $self = shift;
-    my $option = defined $_[0] ? $_[0] : 1;    # Default to hiding printed gridlines
+    my $option =
+      defined $_[0] ? $_[0] : 1;    # Default to hiding printed gridlines
 
     if ( $option == 0 ) {
         $self->{_print_gridlines}       = 1;    # 1 = display, 0 = hide
@@ -1991,11 +2005,11 @@ sub write_comment {
     my $self = shift;
 
     # Check for a cell reference in A1 notation and substitute row and column
-    if ($_[0] =~ /^\D/) {
-        @_ = $self->_substitute_cellref(@_);
+    if ( $_[0] =~ /^\D/ ) {
+        @_ = $self->_substitute_cellref( @_ );
     }
 
-    if (@_ < 3) { return -1 } # Check the number of args
+    if ( @_ < 3 ) { return -1 }    # Check the number of args
 
     my $row = $_[0];
     my $col = $_[1];
@@ -2004,12 +2018,13 @@ sub write_comment {
     croak "Uneven number of additional arguments" unless @_ % 2;
 
     # Check that row and col are valid and store max and min values
-    return -2 if $self->_check_dimensions($row, $col);
+    return -2 if $self->_check_dimensions( $row, $col );
 
+    $self->{_has_vml}     = 1;
     $self->{_has_comments} = 1;
 
     # Process the properties of the cell comment.
-    $self->{_comments}->{$row}->{$col} = [ $self->_comment_params(@_) ];
+    $self->{_comments}->{$row}->{$col} = [ $self->_comment_params( @_ ) ];
 }
 
 
@@ -2037,21 +2052,21 @@ sub write_number {
     if ( @_ < 3 ) { return -1 }    # Check the number of args
 
 
-    my $row  = $_[0];                  # Zero indexed row
-    my $col  = $_[1];                  # Zero indexed column
+    my $row  = $_[0];              # Zero indexed row
+    my $col  = $_[1];              # Zero indexed column
     my $num  = $_[2] + 0;
-    my $xf   = $_[3];                  # The cell format
-    my $type = 'n';                    # The data type
+    my $xf   = $_[3];              # The cell format
+    my $type = 'n';                # The data type
 
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions( $row, $col );
 
     # Write previous row if in in-line string optimization mode.
-    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row}) {
+    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row} ) {
         $self->_write_single_row( $row );
     }
 
-    $self->{_table}->[$row]->[$col] = [ $type, $num, $xf ];
+    $self->{_table}->{$row}->{$col} = [ $type, $num, $xf ];
 
     return 0;
 }
@@ -2079,11 +2094,11 @@ sub write_string {
 
     if ( @_ < 3 ) { return -1 }    # Check the number of args
 
-    my $row  = $_[0];                  # Zero indexed row
-    my $col  = $_[1];                  # Zero indexed column
+    my $row  = $_[0];              # Zero indexed row
+    my $col  = $_[1];              # Zero indexed column
     my $str  = $_[2];
-    my $xf   = $_[3];                  # The cell format
-    my $type = 's';                    # The data type
+    my $xf   = $_[3];              # The cell format
+    my $type = 's';                # The data type
     my $index;
     my $str_error = 0;
 
@@ -2105,11 +2120,11 @@ sub write_string {
     }
 
     # Write previous row if in in-line string optimization mode.
-    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row}) {
+    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row} ) {
         $self->_write_single_row( $row );
     }
 
-    $self->{_table}->[$row]->[$col] = [ $type, $index, $xf ];
+    $self->{_table}->{$row}->{$col} = [ $type, $index, $xf ];
 
     return $str_error;
 }
@@ -2162,8 +2177,9 @@ sub write_rich_string {
     # Create a temp XML::Writer object and use it to write the rich string
     # XML to a string.
     open my $str_fh, '>', \$str or die "Failed to open filehandle: $!";
+    binmode $str_fh, ':utf8';
 
-    my $writer = Excel::Writer::XLSX::Package::XMLwriterSimple->new( $str_fh );
+    my $writer = Excel::Writer::XLSX::Package::XMLwriter->new( $str_fh );
 
     $self->{_rstring} = $writer;
 
@@ -2213,7 +2229,7 @@ sub write_rich_string {
 
     # If the first token is a string start the <r> element.
     if ( !ref $fragments[0] ) {
-        $self->{_rstring}->startTag( 'r' );
+        $self->{_rstring}->xml_start_tag( 'r' );
     }
 
     # Write the XML elements for the $format $string fragments.
@@ -2221,7 +2237,7 @@ sub write_rich_string {
         if ( ref $token ) {
 
             # Write the font run.
-            $self->{_rstring}->startTag( 'r' );
+            $self->{_rstring}->xml_start_tag( 'r' );
             $self->_write_font( $token );
         }
         else {
@@ -2233,8 +2249,8 @@ sub write_rich_string {
                 push @attributes, ( 'xml:space' => 'preserve' );
             }
 
-            $self->{_rstring}->dataElement( 't', $token, @attributes );
-            $self->{_rstring}->endTag( 'r' );
+            $self->{_rstring}->xml_data_element( 't', $token, @attributes );
+            $self->{_rstring}->xml_end_tag( 'r' );
         }
     }
 
@@ -2253,11 +2269,11 @@ sub write_rich_string {
     }
 
     # Write previous row if in in-line string optimization mode.
-    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row}) {
+    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row} ) {
         $self->_write_single_row( $row );
     }
 
-    $self->{_table}->[$row]->[$col] = [ $type, $index, $xf ];
+    $self->{_table}->{$row}->{$col} = [ $type, $index, $xf ];
 
     return 0;
 }
@@ -2294,20 +2310,20 @@ sub write_blank {
     # Don't write a blank cell unless it has a format
     return 0 if not defined $_[2];
 
-    my $row  = $_[0];                  # Zero indexed row
-    my $col  = $_[1];                  # Zero indexed column
-    my $xf   = $_[2];                  # The cell format
-    my $type = 'b';                    # The data type
+    my $row  = $_[0];    # Zero indexed row
+    my $col  = $_[1];    # Zero indexed column
+    my $xf   = $_[2];    # The cell format
+    my $type = 'b';      # The data type
 
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions( $row, $col );
 
     # Write previous row if in in-line string optimization mode.
-    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row}) {
+    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row} ) {
         $self->_write_single_row( $row );
     }
 
-    $self->{_table}->[$row]->[$col] = [ $type, undef, $xf ];
+    $self->{_table}->{$row}->{$col} = [ $type, undef, $xf ];
 
     return 0;
 }
@@ -2356,11 +2372,11 @@ sub write_formula {
     $formula =~ s/^=//;
 
     # Write previous row if in in-line string optimization mode.
-    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row}) {
+    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row} ) {
         $self->_write_single_row( $row );
     }
 
-    $self->{_table}->[$row]->[$col] = [ $type, $formula, $xf, $value ];
+    $self->{_table}->{$row}->{$col} = [ $type, $formula, $xf, $value ];
 
     return 0;
 }
@@ -2426,12 +2442,23 @@ sub write_array_formula {
 
     # Write previous row if in in-line string optimization mode.
     my $row = $row1;
-    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row}) {
+    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row} ) {
         $self->_write_single_row( $row );
     }
 
-    $self->{_table}->[$row1]->[$col1] =
+    $self->{_table}->{$row1}->{$col1} =
       [ $type, $formula, $xf, $range, $value ];
+
+
+    # Pad out the rest of the area with formatted zeroes.
+    if ( !$self->{_optimization} ) {
+        for my $row ( $row1 .. $row2 ) {
+            for my $col ( $col1 .. $col2 ) {
+                next if $row == $row1 and $col == $col1;
+                $self->write_number( $row, $col, 0, $xf );
+            }
+        }
+    }
 
     return 0;
 }
@@ -2474,6 +2501,8 @@ sub outline_settings {
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
 #         -3 : long string truncated to 32767 chars
+#         -4 : URL longer than 255 characters
+#         -5 : Exceeds limit of 65_530 urls per worksheet
 #
 sub write_url {
 
@@ -2494,13 +2523,13 @@ sub write_url {
     ( $args[3], $args[4] ) = ( $args[4], $args[3] ) if ref $args[3];
 
 
-    my $row       = $args[0];                  # Zero indexed row
-    my $col       = $args[1];                  # Zero indexed column
-    my $url       = $args[2];                  # URL string
-    my $str       = $args[3];                  # Alternative label
-    my $xf        = $args[4];                  # Cell format
-    my $tip       = $args[5];                  # Tool tip
-    my $type      = 'l';                       # XML data type
+    my $row       = $args[0];    # Zero indexed row
+    my $col       = $args[1];    # Zero indexed column
+    my $url       = $args[2];    # URL string
+    my $str       = $args[3];    # Alternative label
+    my $xf        = $args[4];    # Cell format
+    my $tip       = $args[5];    # Tool tip
+    my $type      = 'l';         # XML data type
     my $link_type = 1;
 
 
@@ -2536,42 +2565,87 @@ sub write_url {
         $str_error = -3;
     }
 
-    # Store the URL displayed text in the shared string table.
-    my $index = $self->_get_shared_string_index( $str );
+    # Copy string for use in hyperlink elements.
+    my $url_str = $str;
 
     # External links to URLs and to other Excel workbooks have slightly
     # different characteristics that we have to account for.
     if ( $link_type == 1 ) {
 
+        # Escape URL unless it looks already escaped.
+        if ( $url !~ /%[0-9a-fA-F]{2}/ ) {
+
+            # Escape the URL escape symbol.
+            $url =~ s/%/%25/g;
+
+            # Escape whitespace in URL.
+            $url =~ s/[\s\x00]/%20/g;
+
+            # Escape other special characters in URL.
+            $url =~ s/(["<>[\]`^{}])/sprintf '%%%x', ord $1/eg;
+        }
+
         # Ordinary URL style external links don't have a "location" string.
-        $str = undef;
+        $url_str = undef;
     }
     elsif ( $link_type == 3 ) {
 
         # External Workbook links need to be modified into the right format.
         # The URL will look something like 'c:\temp\file.xlsx#Sheet!A1'.
         # We need the part to the left of the # as the URL and the part to
-        # the right as the "location" string (if it exists)
-        ( $url, $str ) = split /#/, $url;
+        # the right as the "location" string (if it exists).
+        ( $url, $url_str ) = split /#/, $url;
 
         # Add the file:/// URI to the $url if non-local.
-        if ( $url =~ m{[\\/]} && $url !~ m{^\.\.} ) {
+        if (
+            $url =~ m{[:]}         # Windows style "C:/" link.
+            || $url =~ m{^\\\\}    # Network share.
+          )
+        {
             $url = 'file:///' . $url;
         }
+
+        # Convert a ./dir/file.xlsx link to dir/file.xlsx.
+        $url =~ s{^.\\}{};
 
         # Treat as a default external link now that the data has been modified.
         $link_type = 1;
     }
 
+    # Excel limits escaped URL to 255 characters.
+    if ( length $url > 255 ) {
+        carp "Ignoring URL '$url' > 255 characters since it exceeds Excel's "
+          . "limit for URLS. See LIMITATIONS section of the "
+          . "Excel::Writer::XLSX documentation.";
+        return -4;
+    }
+
+    # Check the limit of URLS per worksheet.
+    $self->{_hlink_count}++;
+
+    if ( $self->{_hlink_count} > 65_530 ) {
+        carp "Ignoring URL '$url' since it exceeds Excel's limit of 65,530 "
+          . "URLS per worksheet. See LIMITATIONS section of the "
+          . "Excel::Writer::XLSX documentation.";
+        return -5;
+    }
+
+
     # Write previous row if in in-line string optimization mode.
-    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row}) {
+    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row} ) {
         $self->_write_single_row( $row );
     }
 
-    $self->{_table}->[$row]->[$col] =
+    # Write the hyperlink string.
+    $self->write_string( $row, $col, $str, $xf );
 
-      # 0      1       2    3           4     5     6
-      [ $type, $index, $xf, $link_type, $url, $str, $tip ];
+    # Store the hyperlink data in a separate structure.
+    $self->{_hyperlinks}->{$row}->{$col} = {
+        _link_type => $link_type,
+        _url       => $url,
+        _str       => $url_str,
+        _tip       => $tip
+    };
 
     return $str_error;
 }
@@ -2600,11 +2674,11 @@ sub write_date_time {
 
     if ( @_ < 3 ) { return -1 }    # Check the number of args
 
-    my $row  = $_[0];                  # Zero indexed row
-    my $col  = $_[1];                  # Zero indexed column
+    my $row  = $_[0];              # Zero indexed row
+    my $col  = $_[1];              # Zero indexed column
     my $str  = $_[2];
-    my $xf   = $_[3];                  # The cell format
-    my $type = 'n';                    # The data type
+    my $xf   = $_[3];              # The cell format
+    my $type = 'n';                # The data type
 
 
     # Check that row and col are valid and store max and min values
@@ -2619,11 +2693,11 @@ sub write_date_time {
     }
 
     # Write previous row if in in-line string optimization mode.
-    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row}) {
+    if ( $self->{_optimization} == 1 && $row > $self->{_previous_row} ) {
         $self->_write_single_row( $row );
     }
 
-    $self->{_table}->[$row]->[$col] = [ $type, $date_time, $xf ];
+    $self->{_table}->{$row}->{$col} = [ $type, $date_time, $xf ];
 
     return $str_error;
 }
@@ -2778,24 +2852,33 @@ sub convert_date_time {
 sub set_row {
 
     my $self      = shift;
-    my $row       = shift;          # Row Number.
-    my $height    = shift;          # Row height.
-    my $xf        = shift;          # Format object.
-    my $hidden    = shift || 0;     # Hidden flag.
-    my $level     = shift || 0;     # Outline level.
-    my $collapsed = shift || 0;     # Collapsed row.
+    my $row       = shift;         # Row Number.
+    my $height    = shift;         # Row height.
+    my $xf        = shift;         # Format object.
+    my $hidden    = shift || 0;    # Hidden flag.
+    my $level     = shift || 0;    # Outline level.
+    my $collapsed = shift || 0;    # Collapsed row.
+    my $min_col   = 0;
 
-    return unless defined $row;     # Ensure at least $row is specified.
+    return unless defined $row;    # Ensure at least $row is specified.
 
-    # Check that row and col are valid and store max and min values.
-    return -2 if $self->_check_dimensions( $row, 0 );
+    # Get the default row height.
+    my $default_height = $self->{_default_row_height};
 
-    $height = 15 if !defined $height;
+    # Use min col in _check_dimensions(). Default to 0 if undefined.
+    if ( defined $self->{_dim_colmin} ) {
+        $min_col = $self->{_dim_colmin};
+    }
+
+    # Check that row is valid.
+    return -2 if $self->_check_dimensions( $row, $min_col );
+
+    $height = $default_height if !defined $height;
 
     # If the height is 0 the row is hidden and the height is the default.
     if ( $height == 0 ) {
         $hidden = 1;
-        $height = 15;
+        $height = $default_height;
     }
 
     # Set the limits for the outline levels (0 <= x <= 7).
@@ -2812,8 +2895,37 @@ sub set_row {
     # Store the row change to allow optimisations.
     $self->{_row_size_changed} = 1;
 
+    if ($hidden) {
+        $height = 0;
+    }
+
     # Store the row sizes for use when calculating image vertices.
     $self->{_row_sizes}->{$row} = $height;
+}
+
+
+###############################################################################
+#
+# set_default_row()
+#
+# Set the default row properties
+#
+sub set_default_row {
+
+    my $self        = shift;
+    my $height      = shift || 15;
+    my $zero_height = shift || 0;
+
+    if ( $height != 15 ) {
+        $self->{_default_row_height} = $height;
+
+        # Store the row change to allow optimisations.
+        $self->{_row_size_changed} = 1;
+    }
+
+    if ( $zero_height ) {
+        $self->{_default_row_zeroed} = 1;
+    }
 }
 
 
@@ -2911,7 +3023,8 @@ sub merge_range_type {
     }
 
     # Check that there is a format object.
-    croak "Format object missing or in an incorrect position" unless ref $format;
+    croak "Format object missing or in an incorrect position"
+      unless ref $format;
 
     # Excel doesn't allow a single cell to be merged
     if ( $row_first == $row_last and $col_first == $col_last ) {
@@ -3240,10 +3353,20 @@ sub data_validation {
 #
 sub conditional_formatting {
 
-    my $self = shift;
+    my $self       = shift;
+    my $user_range = '';
 
     # Check for a cell reference in A1 notation and substitute row and column
     if ( $_[0] =~ /^\D/ ) {
+
+        # Check for a user defined multiple range like B3:K6,B8:K11.
+        if ( $_[0] =~ /,/ ) {
+            $user_range = $_[0];
+            $user_range =~ s/^=//;
+            $user_range =~ s/\s*,\s*/ /g;
+            $user_range =~ s/\$//g;
+        }
+
         @_ = $self->_substitute_cellref( @_ );
     }
 
@@ -3251,7 +3374,7 @@ sub conditional_formatting {
     if ( @_ != 5 && @_ != 3 ) { return -1 }
 
     # The final hashref contains the validation parameters.
-    my $param = pop;
+    my $options = pop;
 
     # Make the last row/col the same as the first if not defined.
     my ( $row1, $col1, $row2, $col2 ) = @_;
@@ -3266,20 +3389,33 @@ sub conditional_formatting {
 
 
     # Check that the last parameter is a hash list.
-    if ( ref $param ne 'HASH' ) {
-        carp "Last parameter '$param' in conditional_formatting() "
+    if ( ref $options ne 'HASH' ) {
+        carp "Last parameter in conditional_formatting() "
           . "must be a hash ref";
         return -3;
     }
 
+    # Copy the user params.
+    my $param = {%$options};
+
     # List of valid input parameters.
     my %valid_parameter = (
-        type     => 1,
-        format   => 1,
-        criteria => 1,
-        value    => 1,
-        minimum  => 1,
-        maximum  => 1,
+        type      => 1,
+        format    => 1,
+        criteria  => 1,
+        value     => 1,
+        minimum   => 1,
+        maximum   => 1,
+        min_type  => 1,
+        mid_type  => 1,
+        max_type  => 1,
+        min_value => 1,
+        mid_value => 1,
+        max_value => 1,
+        min_color => 1,
+        mid_color => 1,
+        max_color => 1,
+        bar_color => 1,
     );
 
     # Check for valid input parameters.
@@ -3366,7 +3502,9 @@ sub conditional_formatting {
     );
 
     # Check for valid criteria types.
-    if ( exists $criteria_type{ lc( $param->{criteria} ) } ) {
+    if ( defined $param->{criteria}
+        && exists $criteria_type{ lc( $param->{criteria} ) } )
+    {
         $param->{criteria} = $criteria_type{ lc( $param->{criteria} ) };
     }
 
@@ -3437,6 +3575,11 @@ sub conditional_formatting {
         $start_cell = xl_rowcol_to_cell( $row1, $col1 );
     }
 
+    # Override with user defined multiple range if provided.
+    if ( $user_range ) {
+        $range = $user_range;
+    }
+
     # Get the dxf format index.
     if ( defined $param->{format} && ref $param->{format} ) {
         $param->{format} = $param->{format}->get_dxf_index();
@@ -3449,24 +3592,24 @@ sub conditional_formatting {
     if ( $param->{type} eq 'text' ) {
 
         if ( $param->{criteria} eq 'containsText' ) {
-            $param->{type}     = 'containsText';
-            $param->{formula}  = sprintf 'NOT(ISERROR(SEARCH("%s",%s)))',
+            $param->{type}    = 'containsText';
+            $param->{formula} = sprintf 'NOT(ISERROR(SEARCH("%s",%s)))',
               $param->{value}, $start_cell;
         }
         elsif ( $param->{criteria} eq 'notContains' ) {
-            $param->{type}     = 'notContainsText';
-            $param->{formula}  = sprintf 'ISERROR(SEARCH("%s",%s))',
+            $param->{type}    = 'notContainsText';
+            $param->{formula} = sprintf 'ISERROR(SEARCH("%s",%s))',
               $param->{value}, $start_cell;
         }
         elsif ( $param->{criteria} eq 'beginsWith' ) {
-            $param->{type}     = 'beginsWith';
-            $param->{formula}  = sprintf 'LEFT(%s,1)="%s"',
-              $start_cell, $param->{value};
+            $param->{type}    = 'beginsWith';
+            $param->{formula} = sprintf 'LEFT(%s,%d)="%s"',
+              $start_cell, length( $param->{value} ), $param->{value};
         }
         elsif ( $param->{criteria} eq 'endsWith' ) {
-            $param->{type}     = 'endsWith';
-            $param->{formula}  = sprintf 'RIGHT(%s,1)="%s"',
-              $start_cell, $param->{value};
+            $param->{type}    = 'endsWith';
+            $param->{formula} = sprintf 'RIGHT(%s,%d)="%s"',
+              $start_cell, length( $param->{value} ), $param->{value};
         }
         else {
             carp "Invalid text criteria '$param->{criteria}' "
@@ -3622,9 +3765,547 @@ sub conditional_formatting {
 
 ###############################################################################
 #
+# add_table()
+#
+# Add an Excel table to a worksheet.
+#
+sub add_table {
+
+    my $self       = shift;
+    my $user_range = '';
+    my %table;
+    my @col_formats;
+
+    # We would need to order the write statements very carefully within this
+    # function to support optimisation mode. Disable add_table() when it is
+    # on for now.
+    if ( $self->{_optimization} == 1 ) {
+        carp "add_table() isn't supported when set_optimization() is on";
+        return -1;
+    }
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ( @_ && $_[0] =~ /^\D/ ) {
+        @_ = $self->_substitute_cellref( @_ );
+    }
+
+    # Check for a valid number of args.
+    if ( @_ < 4 ) {
+        carp "Not enough parameters to add_table()";
+        return -1;
+    }
+
+    my ( $row1, $col1, $row2, $col2 ) = @_;
+
+    # Check that row and col are valid without storing the values.
+    return -2 if $self->_check_dimensions( $row1, $col1, 1, 1 );
+    return -2 if $self->_check_dimensions( $row2, $col2, 1, 1 );
+
+
+    # The final hashref contains the validation parameters.
+    my $param = $_[4] || {};
+
+    # Check that the last parameter is a hash list.
+    if ( ref $param ne 'HASH' ) {
+        carp "Last parameter '$param' in add_table() must be a hash ref";
+        return -3;
+    }
+
+
+    # List of valid input parameters.
+    my %valid_parameter = (
+        autofilter     => 1,
+        banded_columns => 1,
+        banded_rows    => 1,
+        columns        => 1,
+        data           => 1,
+        first_column   => 1,
+        header_row     => 1,
+        last_column    => 1,
+        name           => 1,
+        style          => 1,
+        total_row      => 1,
+    );
+
+    # Check for valid input parameters.
+    for my $param_key ( keys %$param ) {
+        if ( not exists $valid_parameter{$param_key} ) {
+            carp "Unknown parameter '$param_key' in add_table()";
+            return -3;
+        }
+    }
+
+    # Turn on Excel's defaults.
+    $param->{banded_rows} = 1 if !defined $param->{banded_rows};
+    $param->{header_row}  = 1 if !defined $param->{header_row};
+    $param->{autofilter}  = 1 if !defined $param->{autofilter};
+
+    # Set the table options.
+    $table{_show_first_col}   = $param->{first_column}   ? 1 : 0;
+    $table{_show_last_col}    = $param->{last_column}    ? 1 : 0;
+    $table{_show_row_stripes} = $param->{banded_rows}    ? 1 : 0;
+    $table{_show_col_stripes} = $param->{banded_columns} ? 1 : 0;
+    $table{_header_row_count} = $param->{header_row}     ? 1 : 0;
+    $table{_totals_row_shown} = $param->{total_row}      ? 1 : 0;
+
+
+    # Set the table name.
+    if ( defined $param->{name} ) {
+        $table{_name} = $param->{name};
+    }
+
+    # Set the table style.
+    if ( defined $param->{style} ) {
+        $table{_style} = $param->{style};
+
+        # Remove whitespace from style name.
+        $table{_style} =~ s/\s//g;
+    }
+    else {
+        $table{_style} = "TableStyleMedium9";
+    }
+
+
+    # Swap last row/col for first row/col as necessary.
+    if ( $row1 > $row2 ) {
+        ( $row1, $row2 ) = ( $row2, $row1 );
+    }
+
+    if ( $col1 > $col2 ) {
+        ( $col1, $col2 ) = ( $col2, $col1 );
+    }
+
+
+    # Set the data range rows (without the header and footer).
+    my $first_data_row = $row1;
+    my $last_data_row  = $row2;
+    $first_data_row++ if $param->{header_row};
+    $last_data_row--  if $param->{total_row};
+
+
+    # Set the table and autofilter ranges.
+    $table{_range}   = xl_range( $row1, $row2,          $col1, $col2 );
+    $table{_a_range} = xl_range( $row1, $last_data_row, $col1, $col2 );
+
+
+    # If the header row if off the default is to turn autofilter off.
+    if ( !$param->{header_row} ) {
+        $param->{autofilter} = 0;
+    }
+
+    # Set the autofilter range.
+    if ( $param->{autofilter} ) {
+        $table{_autofilter} = $table{_a_range};
+    }
+
+    # Add the table columns.
+    my $col_id = 1;
+    for my $col_num ( $col1 .. $col2 ) {
+
+        # Set up the default column data.
+        my $col_data = {
+            _id             => $col_id,
+            _name           => 'Column' . $col_id,
+            _total_string   => '',
+            _total_function => '',
+            _formula        => '',
+            _format         => undef,
+        };
+
+        # Overwrite the defaults with any use defined values.
+        if ( $param->{columns} ) {
+
+            # Check if there are user defined values for this column.
+            if ( my $user_data = $param->{columns}->[ $col_id - 1 ] ) {
+
+                # Map user defined values to internal values.
+                $col_data->{_name} = $user_data->{header}
+                  if $user_data->{header};
+
+                # Handle the column formula.
+                if ( $user_data->{formula} ) {
+                    my $formula = $user_data->{formula};
+
+                    # Remove the leading = from formula.
+                    $formula =~ s/^=//;
+
+                    # Covert Excel 2010 "@" ref to 2007 "#This Row".
+                    $formula =~ s/@/[#This Row],/g;
+
+                    $col_data->{_formula} = $formula;
+
+                    for my $row ( $first_data_row .. $last_data_row ) {
+                        $self->write_formula( $row, $col_num, $formula,
+                            $user_data->{format} );
+                    }
+                }
+
+                # Handle the function for the total row.
+                if ( $user_data->{total_function} ) {
+                    my $function = $user_data->{total_function};
+
+                    # Massage the function name.
+                    $function = lc $function;
+                    $function =~ s/_//g;
+                    $function =~ s/\s//g;
+
+                    $function = 'countNums' if $function eq 'countnums';
+                    $function = 'stdDev'    if $function eq 'stddev';
+
+                    $col_data->{_total_function} = $function;
+
+                    my $formula = _table_function_to_formula(
+                        $function,
+                        $col_data->{_name}
+
+                    );
+
+                    $self->write_formula( $row2, $col_num, $formula,
+                        $user_data->{format} );
+
+                }
+                elsif ( $user_data->{total_string} ) {
+
+                    # Total label only (not a function).
+                    my $total_string = $user_data->{total_string};
+                    $col_data->{_total_string} = $total_string;
+
+                    $self->write_string( $row2, $col_num, $total_string,
+                        $user_data->{format} );
+                }
+
+                # Get the dxf format index.
+                if ( defined $user_data->{format} && ref $user_data->{format} )
+                {
+                    $col_data->{_format} =
+                      $user_data->{format}->get_dxf_index();
+                }
+
+                # Store the column format for writing the cell data.
+                # It doesn't matter if it is undefined.
+                $col_formats[ $col_id - 1 ] = $user_data->{format};
+            }
+        }
+
+        # Store the column data.
+        push @{ $table{_columns} }, $col_data;
+
+        # Write the column headers to the worksheet.
+        if ( $param->{header_row} ) {
+            $self->write_string( $row1, $col_num, $col_data->{_name} );
+        }
+
+        $col_id++;
+    }    # Table columns.
+
+
+    # Write the cell data if supplied.
+    if ( my $data = $param->{data} ) {
+
+        my $i = 0;    # For indexing the row data.
+        for my $row ( $first_data_row .. $last_data_row ) {
+            my $j = 0;    # For indexing the col data.
+
+            for my $col ( $col1 .. $col2 ) {
+
+                my $token = $data->[$i]->[$j];
+
+                if ( defined $token ) {
+                    $self->write( $row, $col, $token, $col_formats[$j] );
+                }
+
+                $j++;
+            }
+            $i++;
+        }
+    }
+
+
+    # Store the table data.
+    push @{ $self->{_tables} }, \%table;
+
+    return \%table;
+}
+
+
+###############################################################################
+#
+# add_sparkline()
+#
+# Add sparklines to the worksheet.
+#
+sub add_sparkline {
+
+    my $self      = shift;
+    my $param     = shift;
+    my $sparkline = {};
+
+    # Check that the last parameter is a hash list.
+    if ( ref $param ne 'HASH' ) {
+        carp "Parameter list in add_sparkline() must be a hash ref";
+        return -1;
+    }
+
+    # List of valid input parameters.
+    my %valid_parameter = (
+        location        => 1,
+        range           => 1,
+        type            => 1,
+        high_point      => 1,
+        low_point       => 1,
+        negative_points => 1,
+        first_point     => 1,
+        last_point      => 1,
+        markers         => 1,
+        style           => 1,
+        series_color    => 1,
+        negative_color  => 1,
+        markers_color   => 1,
+        first_color     => 1,
+        last_color      => 1,
+        high_color      => 1,
+        low_color       => 1,
+        max             => 1,
+        min             => 1,
+        axis            => 1,
+        reverse         => 1,
+        empty_cells     => 1,
+        show_hidden     => 1,
+        plot_hidden     => 1,
+        date_axis       => 1,
+        weight          => 1,
+    );
+
+    # Check for valid input parameters.
+    for my $param_key ( keys %$param ) {
+        if ( not exists $valid_parameter{$param_key} ) {
+            carp "Unknown parameter '$param_key' in add_sparkline()";
+            return -2;
+        }
+    }
+
+    # 'location' is a required parameter.
+    if ( not exists $param->{location} ) {
+        carp "Parameter 'location' is required in add_sparkline()";
+        return -3;
+    }
+
+    # 'range' is a required parameter.
+    if ( not exists $param->{range} ) {
+        carp "Parameter 'range' is required in add_sparkline()";
+        return -3;
+    }
+
+
+    # Handle the sparkline type.
+    my $type = $param->{type} || 'line';
+
+    if ( $type ne 'line' && $type ne 'column' && $type ne 'win_loss' ) {
+        carp "Parameter 'type' must be 'line', 'column' "
+          . "or 'win_loss' in add_sparkline()";
+        return -4;
+    }
+
+    $type = 'stacked' if $type eq 'win_loss';
+    $sparkline->{_type} = $type;
+
+
+    # We handle single location/range values or array refs of values.
+    if ( ref $param->{location} ) {
+        $sparkline->{_locations} = $param->{location};
+        $sparkline->{_ranges}    = $param->{range};
+    }
+    else {
+        $sparkline->{_locations} = [ $param->{location} ];
+        $sparkline->{_ranges}    = [ $param->{range} ];
+    }
+
+    my $range_count    = @{ $sparkline->{_ranges} };
+    my $location_count = @{ $sparkline->{_locations} };
+
+    # The ranges and locations must match.
+    if ( $range_count != $location_count ) {
+        carp "Must have the same number of location and range "
+          . "parameters in add_sparkline()";
+        return -5;
+    }
+
+    # Store the count.
+    $sparkline->{_count} = @{ $sparkline->{_locations} };
+
+
+    # Get the worksheet name for the range conversion below.
+    my $sheetname = $self->_quote_sheetname( $self->{_name} );
+
+    # Cleanup the input ranges.
+    for my $range ( @{ $sparkline->{_ranges} } ) {
+
+        # Remove the absolute reference $ symbols.
+        $range =~ s{\$}{}g;
+
+        # Remove the = from xl_range_formula(.
+        $range =~ s{^=}{};
+
+        # Convert a simple range into a full Sheet1!A1:D1 range.
+        if ( $range !~ /!/ ) {
+            $range = $sheetname . "!" . $range;
+        }
+    }
+
+    # Cleanup the input locations.
+    for my $location ( @{ $sparkline->{_locations} } ) {
+        $location =~ s{\$}{}g;
+    }
+
+    # Map options.
+    $sparkline->{_high}     = $param->{high_point};
+    $sparkline->{_low}      = $param->{low_point};
+    $sparkline->{_negative} = $param->{negative_points};
+    $sparkline->{_first}    = $param->{first_point};
+    $sparkline->{_last}     = $param->{last_point};
+    $sparkline->{_markers}  = $param->{markers};
+    $sparkline->{_min}      = $param->{min};
+    $sparkline->{_max}      = $param->{max};
+    $sparkline->{_axis}     = $param->{axis};
+    $sparkline->{_reverse}  = $param->{reverse};
+    $sparkline->{_hidden}   = $param->{show_hidden};
+    $sparkline->{_weight}   = $param->{weight};
+
+    # Map empty cells options.
+    my $empty = $param->{empty_cells} || '';
+
+    if ( $empty eq 'zero' ) {
+        $sparkline->{_empty} = 0;
+    }
+    elsif ( $empty eq 'connect' ) {
+        $sparkline->{_empty} = 'span';
+    }
+    else {
+        $sparkline->{_empty} = 'gap';
+    }
+
+
+    # Map the date axis range.
+    my $date_range = $param->{date_axis};
+
+    if ( $date_range && $date_range !~ /!/ ) {
+        $date_range = $sheetname . "!" . $date_range;
+    }
+    $sparkline->{_date_axis} = $date_range;
+
+
+    # Set the sparkline styles.
+    my $style_id = $param->{style} || 0;
+    my $style = $Excel::Writer::XLSX::Package::Theme::spark_styles[$style_id];
+
+    $sparkline->{_series_color}   = $style->{series};
+    $sparkline->{_negative_color} = $style->{negative};
+    $sparkline->{_markers_color}  = $style->{markers};
+    $sparkline->{_first_color}    = $style->{first};
+    $sparkline->{_last_color}     = $style->{last};
+    $sparkline->{_high_color}     = $style->{high};
+    $sparkline->{_low_color}      = $style->{low};
+
+    # Override the style colours with user defined colors.
+    $self->_set_spark_color( $sparkline, $param, 'series_color' );
+    $self->_set_spark_color( $sparkline, $param, 'negative_color' );
+    $self->_set_spark_color( $sparkline, $param, 'markers_color' );
+    $self->_set_spark_color( $sparkline, $param, 'first_color' );
+    $self->_set_spark_color( $sparkline, $param, 'last_color' );
+    $self->_set_spark_color( $sparkline, $param, 'high_color' );
+    $self->_set_spark_color( $sparkline, $param, 'low_color' );
+
+    push @{ $self->{_sparklines} }, $sparkline;
+}
+
+
+###############################################################################
+#
+# insert_button()
+#
+# Insert a button form object into the worksheet.
+#
+sub insert_button {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ( $_[0] =~ /^\D/ ) {
+        @_ = $self->_substitute_cellref( @_ );
+    }
+
+    # Check the number of args.
+    if ( @_ < 3 ) { return -1 }
+
+    my $button = $self->_button_params( @_ );
+
+    push @{ $self->{_buttons_array} }, $button;
+
+    $self->{_has_vml} = 1;
+}
+
+
+###############################################################################
+#
 # Internal methods.
 #
 ###############################################################################
+
+
+###############################################################################
+#
+# _table_function_to_formula
+#
+# Convert a table total function to a worksheet formula.
+#
+sub _table_function_to_formula {
+
+    my $function = shift;
+    my $col_name = shift;
+    my $formula  = '';
+
+    my %subtotals = (
+        average   => 101,
+        countNums => 102,
+        count     => 103,
+        max       => 104,
+        min       => 105,
+        stdDev    => 107,
+        sum       => 109,
+        var       => 110,
+    );
+
+    if ( exists $subtotals{$function} ) {
+        my $func_num = $subtotals{$function};
+        $formula = qq{SUBTOTAL($func_num,[$col_name])};
+    }
+    else {
+        carp "Unsupported function '$function' in add_table()";
+    }
+
+    return $formula;
+}
+
+
+###############################################################################
+#
+# _set_spark_color()
+#
+# Set the sparkline colour.
+#
+sub _set_spark_color {
+
+    my $self        = shift;
+    my $sparkline   = shift;
+    my $param       = shift;
+    my $user_color  = shift;
+    my $spark_color = '_' . $user_color;
+
+    return unless $param->{$user_color};
+
+    $sparkline->{$spark_color} =
+      { _rgb => $self->_get_palette_color( $param->{$user_color} ) };
+}
 
 
 ###############################################################################
@@ -3760,6 +4441,21 @@ sub _cell_to_rowcol {
 
     # TODO Check row and column range
     return $row, $col, $row_abs, $col_abs;
+}
+
+
+###############################################################################
+#
+# _xl_rowcol_to_cell($row, $col)
+#
+# Optimised version of xl_rowcol_to_cell from Utility.pm for the inner loop
+# of _write_cell().
+#
+
+our @col_names = ( 'A' .. 'XFD' );
+
+sub _xl_rowcol_to_cell {
+    return $col_names[ $_[1] ] . ( $_[0] + 1 );
 }
 
 
@@ -3916,13 +4612,11 @@ sub _position_object_pixels {
     my $x_abs = 0;    # Absolute distance to left side of object.
     my $y_abs = 0;    # Absolute distance to top  side of object.
 
-    my $is_drawing = 0;
-
-    ( $col_start, $row_start, $x1, $y1, $width, $height, $is_drawing) = @_;
+    ( $col_start, $row_start, $x1, $y1, $width, $height ) = @_;
 
     # Calculate the absolute x offset of the top-left vertex.
     if ( $self->{_col_size_changed} ) {
-        for my $col_id ( 1 .. $col_start ) {
+        for my $col_id ( 0 .. $col_start -1 ) {
             $x_abs += $self->_size_col( $col_id );
         }
     }
@@ -3936,7 +4630,7 @@ sub _position_object_pixels {
     # Calculate the absolute y offset of the top-left vertex.
     # Store the column change to allow optimisations.
     if ( $self->{_row_size_changed} ) {
-        for my $row_id ( 1 .. $row_start ) {
+        for my $row_id ( 0 .. $row_start -1 ) {
             $y_abs += $self->_size_row( $row_id );
         }
     }
@@ -3982,13 +4676,6 @@ sub _position_object_pixels {
         $row_end++;
     }
 
-    # The following is only required for positioning drawing/chart objects
-    # and not comments. It is probably the result of a bug.
-    if ( $is_drawing ) {
-        $col_end-- if $width == 0;
-        $row_end-- if $height == 0;
-    }
-
     # The end vertices are whatever is left from the width and height.
     $x2 = $width;
     $y2 = $height;
@@ -4015,22 +4702,21 @@ sub _position_object_pixels {
 sub _position_object_emus {
 
     my $self       = shift;
-    my $is_drawing = 1;
 
     my (
         $col_start, $row_start, $x1, $y1,
         $col_end,   $row_end,   $x2, $y2,
         $x_abs,     $y_abs
 
-    ) = $self->_position_object_pixels( @_, $is_drawing );
+    ) = $self->_position_object_pixels( @_ );
 
     # Convert the pixel values to EMUs. See above.
-    $x1    *= 9_525;
-    $y1    *= 9_525;
-    $x2    *= 9_525;
-    $y2    *= 9_525;
-    $x_abs *= 9_525;
-    $y_abs *= 9_525;
+    $x1    = int( 0.5 + 9_525 * $x1 );
+    $y1    = int( 0.5 + 9_525 * $y1 );
+    $x2    = int( 0.5 + 9_525 * $x2 );
+    $y2    = int( 0.5 + 9_525 * $y2 );
+    $x_abs = int( 0.5 + 9_525 * $x_abs );
+    $y_abs = int( 0.5 + 9_525 * $y_abs );
 
     return (
         $col_start, $row_start, $x1, $y1,
@@ -4040,6 +4726,54 @@ sub _position_object_emus {
     );
 }
 
+
+###############################################################################
+#
+#  _position_shape_emus()
+#
+# Calculate the vertices that define the position of a shape object within
+# the worksheet in EMUs.  Save the vertices with the object.
+#
+# The vertices are expressed as English Metric Units (EMUs). There are 12,700
+# EMUs per point. Therefore, 12,700 * 3 /4 = 9,525 EMUs per pixel.
+#
+sub _position_shape_emus {
+
+    my $self  = shift;
+    my $shape = shift;
+
+    my (
+        $col_start, $row_start, $x1, $y1,    $col_end,
+        $row_end,   $x2,        $y2, $x_abs, $y_abs
+      )
+      = $self->_position_object_pixels(
+        $shape->{_column_start},
+        $shape->{_row_start},
+        $shape->{_x_offset},
+        $shape->{_y_offset},
+        $shape->{_width} * $shape->{_scale_x},
+        $shape->{_height} * $shape->{_scale_y},
+        $shape->{_drawing}
+      );
+
+    # Now that x2/y2 have been calculated with a potentially negative
+    # width/height we use the absolute value and convert to EMUs.
+    $shape->{_width_emu}  = int( abs( $shape->{_width} * 9_525 ) );
+    $shape->{_height_emu} = int( abs( $shape->{_height} * 9_525 ) );
+
+    $shape->{_column_start} = int( $col_start );
+    $shape->{_row_start}    = int( $row_start );
+    $shape->{_column_end}   = int( $col_end );
+    $shape->{_row_end}      = int( $row_end );
+
+    # Convert the pixel values to EMUs. See above.
+    $shape->{_x1}    = int( $x1 * 9_525 );
+    $shape->{_y1}    = int( $y1 * 9_525 );
+    $shape->{_x2}    = int( $x2 * 9_525 );
+    $shape->{_y2}    = int( $y2 * 9_525 );
+    $shape->{_x_abs} = int( $x_abs * 9_525 );
+    $shape->{_y_abs} = int( $y_abs * 9_525 );
+}
 
 ###############################################################################
 #
@@ -4059,15 +4793,17 @@ sub _size_col {
     my $pixels;
 
     # Look up the cell value to see if it has been changed.
-    if ( exists $self->{_col_sizes}->{$col} ) {
+    if ( exists $self->{_col_sizes}->{$col}
+        and defined $self->{_col_sizes}->{$col} )
+    {
         my $width = $self->{_col_sizes}->{$col};
 
         # Convert to pixels.
-        if ( $width == 0) {
+        if ( $width == 0 ) {
             $pixels = 0;
         }
         elsif ( $width < 1 ) {
-            $pixels = int( $width * 12 + 0.5 );
+            $pixels = int( $width * ( $max_digit_width + $padding ) + 0.5 );
         }
         else {
             $pixels = int( $width * $max_digit_width + 0.5 ) + $padding;
@@ -4107,7 +4843,7 @@ sub _size_row {
         }
     }
     else {
-        $pixels = 20;
+        $pixels = int( 4 / 3 * $self->{_default_row_height} );
     }
 
     return $pixels;
@@ -4210,7 +4946,7 @@ sub _get_shared_string_index {
 
 ###############################################################################
 #
-# insert_chart( $row, $col, $chart, $x, $y, $scale_x, $scale_y )
+# insert_chart( $row, $col, $chart, $x, $y, $x_scale, $y_scale )
 #
 # Insert a chart into a worksheet. The $chart argument should be a Chart
 # object or else it is assumed to be a filename of an external binary file.
@@ -4230,8 +4966,8 @@ sub insert_chart {
     my $chart    = $_[2];
     my $x_offset = $_[3] || 0;
     my $y_offset = $_[4] || 0;
-    my $scale_x  = $_[5] || 1;
-    my $scale_y  = $_[6] || 1;
+    my $x_scale  = $_[5] || 1;
+    my $y_scale  = $_[6] || 1;
 
     croak "Insufficient arguments in insert_chart()" unless @_ >= 3;
 
@@ -4247,8 +4983,14 @@ sub insert_chart {
 
     }
 
+    # Use the values set with $chart->set_size(), if any.
+    $x_scale  = $chart->{_x_scale}  if $chart->{_x_scale} != 1;
+    $y_scale  = $chart->{_y_scale}  if $chart->{_y_scale} != 1;
+    $x_offset = $chart->{_x_offset} if $chart->{_x_offset};
+    $x_offset = $chart->{_y_offset} if $chart->{_y_offset};
+
     push @{ $self->{_charts} },
-      [ $row, $col, $chart, $x_offset, $y_offset, $scale_x, $scale_y ];
+      [ $row, $col, $chart, $x_offset, $y_offset, $x_scale, $y_scale ];
 }
 
 
@@ -4266,21 +5008,31 @@ sub _prepare_chart {
     my $drawing_id   = shift;
     my $drawing_type = 1;
 
-    my ( $row, $col, $chart, $x_offset, $y_offset, $scale_x, $scale_y ) =
+    my ( $row, $col, $chart, $x_offset, $y_offset, $x_scale, $y_scale ) =
       @{ $self->{_charts}->[$index] };
 
-    my $width  = int( 0.5 + ( 480 * $scale_x ) );
-    my $height = int( 0.5 + ( 288 * $scale_y ) );
+    $chart->{_id} = $chart_id - 1;
+
+    # Use user specified dimensions, if any.
+    my $width  = $chart->{_width}  if $chart->{_width};
+    my $height = $chart->{_height} if $chart->{_height};
+
+    $width  = int( 0.5 + ( $width  * $x_scale ) );
+    $height = int( 0.5 + ( $height * $y_scale ) );
 
     my @dimensions =
       $self->_position_object_emus( $col, $row, $x_offset, $y_offset, $width,
         $height );
 
+    # Set the chart name for the embedded object if it has been specified.
+    my $name = $chart->{_chart_name};
+
     # Create a Drawing object to use with worksheet unless one already exists.
     if ( !$self->{_drawing} ) {
 
         my $drawing = Excel::Writer::XLSX::Drawing->new();
-        $drawing->_add_drawing_object( $drawing_type, @dimensions );
+        $drawing->_add_drawing_object( $drawing_type, @dimensions, 0, 0,
+            $name );
         $drawing->{_embedded} = 1;
 
         $self->{_drawing} = $drawing;
@@ -4290,14 +5042,14 @@ sub _prepare_chart {
     }
     else {
         my $drawing = $self->{_drawing};
-        $drawing->_add_drawing_object( $drawing_type, @dimensions );
+        $drawing->_add_drawing_object( $drawing_type, @dimensions, 0, 0,
+            $name );
 
     }
 
     push @{ $self->{_drawing_links} },
       [ '/chart', '../charts/chart' . $chart_id . '.xml' ];
 }
-
 
 
 ###############################################################################
@@ -4324,14 +5076,14 @@ sub _get_range_data {
     for my $row_num ( $row_start .. $row_end ) {
 
         # Store undef if row doesn't exist.
-        if ( !$self->{_table}->[$row_num] ) {
+        if ( !exists $self->{_table}->{$row_num} ) {
             push @data, undef;
             next;
         }
 
         for my $col_num ( $col_start .. $col_end ) {
 
-            if ( my $cell = $self->{_table}->[$row_num]->[$col_num] ) {
+            if ( my $cell = $self->{_table}->{$row_num}->{$col_num} ) {
 
                 my $type  = $cell->[0];
                 my $token = $cell->[1];
@@ -4346,7 +5098,7 @@ sub _get_range_data {
 
                     # Store a string.
                     if ( $self->{_optimization} == 0 ) {
-                        push @data, { 'sst_id' => $token};
+                        push @data, { 'sst_id' => $token };
                     }
                     else {
                         push @data, $token;
@@ -4361,11 +5113,6 @@ sub _get_range_data {
 
                     # Store an array formula.
                     push @data, $cell->[4] || 0;
-                }
-                elsif ( $type eq 'l' ) {
-
-                    # Store the string part a hyperlink.
-                    push @data, { 'sst_id' => $token};
                 }
                 elsif ( $type eq 'b' ) {
 
@@ -4387,7 +5134,7 @@ sub _get_range_data {
 
 ###############################################################################
 #
-# insert_image( $row, $col, $filename, $x, $y, $scale_x, $scale_y )
+# insert_image( $row, $col, $filename, $x, $y, $x_scale, $y_scale )
 #
 # Insert an image into the worksheet.
 #
@@ -4405,14 +5152,14 @@ sub insert_image {
     my $image    = $_[2];
     my $x_offset = $_[3] || 0;
     my $y_offset = $_[4] || 0;
-    my $scale_x  = $_[5] || 1;
-    my $scale_y  = $_[6] || 1;
+    my $x_scale  = $_[5] || 1;
+    my $y_scale  = $_[6] || 1;
 
     croak "Insufficient arguments in insert_image()" unless @_ >= 3;
     croak "Couldn't locate $image: $!" unless -e $image;
 
     push @{ $self->{_images} },
-      [ $row, $col, $image, $x_offset, $y_offset, $scale_x, $scale_y ];
+      [ $row, $col, $image, $x_offset, $y_offset, $x_scale, $y_scale ];
 }
 
 
@@ -4435,11 +5182,11 @@ sub _prepare_image {
     my $drawing_type = 2;
     my $drawing;
 
-    my ( $row, $col, $image, $x_offset, $y_offset, $scale_x, $scale_y ) =
+    my ( $row, $col, $image, $x_offset, $y_offset, $x_scale, $y_scale ) =
       @{ $self->{_images}->[$index] };
 
-    $width  *= $scale_x;
-    $height *= $scale_y;
+    $width  *= $x_scale;
+    $height *= $y_scale;
 
     my @dimensions =
       $self->_position_object_emus( $col, $row, $x_offset, $y_offset, $width,
@@ -4469,24 +5216,309 @@ sub _prepare_image {
 
 
     push @{ $self->{_drawing_links} },
-      [ '/image', '../media/image' .  $image_id . '.' . $image_type ];
+      [ '/image', '../media/image' . $image_id . '.' . $image_type ];
 }
 
 
 ###############################################################################
 #
-# _prepare_comments()
+# insert_shape( $row, $col, $shape, $x, $y, $x_scale, $y_scale )
+#
+# Insert a shape into the worksheet.
+#
+sub insert_shape {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column.
+    if ( $_[0] =~ /^\D/ ) {
+        @_ = $self->_substitute_cellref( @_ );
+    }
+
+    # Check the number of arguments.
+    croak "Insufficient arguments in insert_shape()" unless @_ >= 3;
+
+    my $shape = $_[2];
+
+    # Verify we are being asked to insert a "shape" object.
+    croak "Not a Shape object in insert_shape()"
+      unless $shape->isa( 'Excel::Writer::XLSX::Shape' );
+
+    # Set the shape properties.
+    $shape->{_row_start}    = $_[0];
+    $shape->{_column_start} = $_[1];
+    $shape->{_x_offset}     = $_[3] || 0;
+    $shape->{_y_offset}     = $_[4] || 0;
+
+    # Override shape scale if supplied as an argument.  Otherwise, use the
+    # existing shape scale factors.
+    $shape->{_scale_x} = $_[5] if defined $_[5];
+    $shape->{_scale_y} = $_[6] if defined $_[6];
+
+    # Assign a shape ID.
+    my $needs_id = 1;
+    while ( $needs_id ) {
+        my $id = $shape->{_id} || 0;
+        my $used = exists $self->{_shape_hash}->{$id} ? 1 : 0;
+
+        # Test if shape ID is already used. Otherwise assign a new one.
+        if ( !$used && $id != 0 ) {
+            $needs_id = 0;
+        }
+        else {
+            $shape->{_id} = ++$self->{_last_shape_id};
+        }
+    }
+
+    $shape->{_element} = $#{ $self->{_shapes} } + 1;
+
+    # Allow lookup of entry into shape array by shape ID.
+    $self->{_shape_hash}->{ $shape->{_id} } = $shape->{_element};
+
+    # Create link to Worksheet color palette.
+    $shape->{_palette} = $self->{_palette};
+
+    if ( $shape->{_stencil} ) {
+
+        # Insert a copy of the shape, not a reference so that the shape is
+        # used as a stencil. Previously stamped copies don't get modified
+        # if the stencil is modified.
+        my $insert = { %{$shape} };
+
+       # For connectors change x/y coords based on location of connected shapes.
+        $self->_auto_locate_connectors( $insert );
+
+        # Bless the copy into this class, so AUTOLOADED _get, _set methods
+        #still work on the child.
+        bless $insert, ref $shape;
+
+        push @{ $self->{_shapes} }, $insert;
+        return $insert;
+    }
+    else {
+
+       # For connectors change x/y coords based on location of connected shapes.
+        $self->_auto_locate_connectors( $shape );
+
+        # Insert a link to the shape on the list of shapes. Connection to
+        # the parent shape is maintained
+        push @{ $self->{_shapes} }, $shape;
+        return $shape;
+    }
+}
+
+
+###############################################################################
+#
+# _prepare_shape()
+#
+# Set up drawing shapes
+#
+sub _prepare_shape {
+
+    my $self       = shift;
+    my $index      = shift;
+    my $drawing_id = shift;
+    my $shape      = $self->{_shapes}->[$index];
+    my $drawing;
+    my $drawing_type = 3;
+
+    # Create a Drawing object to use with worksheet unless one already exists.
+    if ( !$self->{_drawing} ) {
+
+        $drawing              = Excel::Writer::XLSX::Drawing->new();
+        $drawing->{_embedded} = 1;
+        $self->{_drawing}     = $drawing;
+
+        push @{ $self->{_external_drawing_links} },
+          [ '/drawing', '../drawings/drawing' . $drawing_id . '.xml' ];
+
+        $self->{_has_shapes} = 1;
+    }
+    else {
+        $drawing = $self->{_drawing};
+    }
+
+    # Validate the he shape against various rules.
+    $self->_validate_shape( $shape, $index );
+
+    $self->_position_shape_emus( $shape );
+
+    my @dimensions = (
+        $shape->{_column_start}, $shape->{_row_start},
+        $shape->{_x1},           $shape->{_y1},
+        $shape->{_column_end},   $shape->{_row_end},
+        $shape->{_x2},           $shape->{_y2},
+        $shape->{_x_abs},        $shape->{_y_abs},
+        $shape->{_width_emu},    $shape->{_height_emu},
+    );
+
+    $drawing->_add_drawing_object( $drawing_type, @dimensions, $shape->{_name},
+        $shape );
+}
+
+
+###############################################################################
+#
+# _auto_locate_connectors()
+#
+# Re-size connector shapes if they are connected to other shapes.
+#
+sub _auto_locate_connectors {
+
+    my $self  = shift;
+    my $shape = shift;
+
+    # Valid connector shapes.
+    my $connector_shapes = {
+        straightConnector => 1,
+        Connector         => 1,
+        bentConnector     => 1,
+        curvedConnector   => 1,
+        line              => 1,
+    };
+
+    my $shape_base = $shape->{_type};
+
+    # Remove the number of segments from end of type.
+    chop $shape_base;
+
+    $shape->{_connect} = $connector_shapes->{$shape_base} ? 1 : 0;
+
+    return unless $shape->{_connect};
+
+    # Both ends have to be connected to size it.
+    return unless ( $shape->{_start} and $shape->{_end} );
+
+    # Both ends need to provide info about where to connect.
+    return unless ( $shape->{_start_side} and $shape->{_end_side} );
+
+    my $sid = $shape->{_start};
+    my $eid = $shape->{_end};
+
+    my $slink_id = $self->{_shape_hash}->{$sid};
+    my ( $sls, $els );
+    if ( defined $slink_id ) {
+        $sls = $self->{_shapes}->[$slink_id];    # Start linked shape.
+    }
+    else {
+        warn "missing start connection for '$shape->{_name}', id=$sid\n";
+        return;
+    }
+
+    my $elink_id = $self->{_shape_hash}->{$eid};
+    if ( defined $elink_id ) {
+        $els = $self->{_shapes}->[$elink_id];    # Start linked shape.
+    }
+    else {
+        warn "missing end connection for '$shape->{_name}', id=$eid\n";
+        return;
+    }
+
+    # Assume shape connections are to the middle of an object, and
+    # not a corner (for now).
+    my $connect_type = $shape->{_start_side} . $shape->{_end_side};
+    my $smidx        = $sls->{_x_offset} + $sls->{_width} / 2;
+    my $emidx        = $els->{_x_offset} + $els->{_width} / 2;
+    my $smidy        = $sls->{_y_offset} + $sls->{_height} / 2;
+    my $emidy        = $els->{_y_offset} + $els->{_height} / 2;
+    my $netx         = abs( $smidx - $emidx );
+    my $nety         = abs( $smidy - $emidy );
+
+    if ( $connect_type eq 'bt' ) {
+        my $sy = $sls->{_y_offset} + $sls->{_height};
+        my $ey = $els->{_y_offset};
+
+        $shape->{_width} = abs( int( $emidx - $smidx ) );
+        $shape->{_x_offset} = int( min( $smidx, $emidx ) );
+        $shape->{_height} =
+          abs(
+            int( $els->{_y_offset} - ( $sls->{_y_offset} + $sls->{_height} ) )
+          );
+        $shape->{_y_offset} = int(
+            min( ( $sls->{_y_offset} + $sls->{_height} ), $els->{_y_offset} ) );
+        $shape->{_flip_h} = ( $smidx < $emidx ) ? 1 : 0;
+        $shape->{_rotation} = 90;
+
+        if ( $sy > $ey ) {
+            $shape->{_flip_v} = 1;
+
+            # Create 3 adjustments for an end shape vertically above a
+            # start shape. Adjustments count from the upper left object.
+            if ( $#{ $shape->{_adjustments} } < 0 ) {
+                $shape->{_adjustments} = [ -10, 50, 110 ];
+            }
+
+            $shape->{_type} = 'bentConnector5';
+        }
+    }
+    elsif ( $connect_type eq 'rl' ) {
+        $shape->{_width} =
+          abs(
+            int( $els->{_x_offset} - ( $sls->{_x_offset} + $sls->{_width} ) ) );
+        $shape->{_height} = abs( int( $emidy - $smidy ) );
+        $shape->{_x_offset} =
+          min( $sls->{_x_offset} + $sls->{_width}, $els->{_x_offset} );
+        $shape->{_y_offset} = min( $smidy, $emidy );
+
+        $shape->{_flip_h} = 1 if ( $smidx < $emidx ) and ( $smidy > $emidy );
+        $shape->{_flip_h} = 1 if ( $smidx > $emidx ) and ( $smidy < $emidy );
+        if ( $smidx > $emidx ) {
+
+            # Create 3 adjustments if end shape is left of start
+            if ( $#{ $shape->{_adjustments} } < 0 ) {
+                $shape->{_adjustments} = [ -10, 50, 110 ];
+            }
+
+            $shape->{_type} = 'bentConnector5';
+        }
+    }
+    else {
+        warn "Connection $connect_type not implemented yet\n";
+    }
+}
+
+
+###############################################################################
+#
+# _validate_shape()
+#
+# Check shape attributes to ensure they are valid.
+#
+sub _validate_shape {
+
+    my $self  = shift;
+    my $shape = shift;
+    my $index = shift;
+
+    if ( !grep ( /^$shape->{_align}$/, qw[l ctr r just] ) ) {
+        croak "Shape $index ($shape->{_type}) alignment ($shape->{align}), "
+          . "not in ('l', 'ctr', 'r', 'just')\n";
+    }
+
+    if ( !grep ( /^$shape->{_valign}$/, qw[t ctr b] ) ) {
+        croak "Shape $index ($shape->{_type}) vertical alignment "
+          . "($shape->{valign}), not ('t', 'ctr', 'b')\n";
+    }
+}
+
+
+###############################################################################
+#
+# _prepare_vml_objects()
 #
 # Turn the HoH that stores the comments into an array for easier handling
-# and set the external links.
+# and set the external links for comments and buttons.
 #
-sub _prepare_comments {
+sub _prepare_vml_objects {
 
-    my $self         = shift;
-    my $vml_data_id  = shift;
-    my $vml_shape_id = shift;
-    my $comment_id   = shift;
+    my $self           = shift;
+    my $vml_data_id    = shift;
+    my $vml_shape_id   = shift;
+    my $vml_drawing_id = shift;
+    my $comment_id     = shift;
     my @comments;
+
 
     # We sort the comments by row and column but that isn't strictly required.
     my @rows = sort { $a <=> $b } keys %{ $self->{_comments} };
@@ -4513,11 +5545,18 @@ sub _prepare_comments {
         }
     }
 
-    $self->{_comments_array} = \@comments;
 
-    push @{ $self->{_external_comment_links} },
-      [ '/vmlDrawing', '../drawings/vmlDrawing' . $comment_id . '.vml' ],
-      [ '/comments',   '../comments' . $comment_id . '.xml' ];
+    push @{ $self->{_external_vml_links} },
+      [ '/vmlDrawing', '../drawings/vmlDrawing' . $vml_drawing_id . '.vml' ];
+
+
+    if ( $self->{_has_comments} ) {
+
+        $self->{_comments_array} = \@comments;
+
+        push @{ $self->{_external_comment_links} },
+          [ '/comments', '../comments' . $comment_id . '.xml' ];
+    }
 
     my $count         = scalar @comments;
     my $start_data_id = $vml_data_id;
@@ -4532,6 +5571,37 @@ sub _prepare_comments {
     $self->{_vml_shape_id} = $vml_shape_id;
 
     return $count;
+}
+
+###############################################################################
+#
+# _prepare_tables()
+#
+# Set the table ids for the worksheet tables.
+#
+sub _prepare_tables {
+
+    my $self     = shift;
+    my $table_id = shift;
+
+
+    for my $table ( @{ $self->{_tables} } ) {
+
+        $table-> {_id} = $table_id;
+
+        # Set the table name unless defined by the user.
+        if ( !defined $table->{_name} ) {
+
+            # Set a default name.
+            $table->{_name} = 'Table' . $table_id;
+        }
+
+        # Store the link used for the rels file.
+        my $link = [ '/table', '../tables/table' . $table_id . '.xml' ];
+
+        push @{ $self->{_external_table_links} }, $link;
+        $table_id++;
+    }
 }
 
 
@@ -4554,18 +5624,18 @@ sub _comment_params {
     my $default_height = 74;
 
     my %params = (
-        author          => undef,
-        color           => 81,
-        start_cell      => undef,
-        start_col       => undef,
-        start_row       => undef,
-        visible         => undef,
-        width           => $default_width,
-        height          => $default_height,
-        x_offset        => undef,
-        x_scale         => 1,
-        y_offset        => undef,
-        y_scale         => 1,
+        author     => undef,
+        color      => 81,
+        start_cell => undef,
+        start_col  => undef,
+        start_row  => undef,
+        visible    => undef,
+        width      => $default_width,
+        height     => $default_height,
+        x_offset   => undef,
+        x_scale    => 1,
+        y_offset   => undef,
+        y_scale    => 1,
     );
 
 
@@ -4676,7 +5746,7 @@ sub _comment_params {
     my @vertices = $self->_position_object_pixels(
         $params{start_col}, $params{start_row}, $params{x_offset},
         $params{y_offset},  $params{width},     $params{height}
-      );
+    );
 
     # Add the width and height for VML.
     push @vertices, ( $params{width}, $params{height} );
@@ -4692,6 +5762,84 @@ sub _comment_params {
 
         [@vertices]
     );
+}
+
+
+###############################################################################
+#
+# _button_params()
+#
+# This method handles the parameters passed to insert_button() as well as
+# calculating the comment object position and vertices.
+#
+sub _button_params {
+
+    my $self = shift;
+    my $row    = shift;
+    my $col    = shift;
+    my $params = shift;
+    my $button = { _row => $row, _col => $col };
+
+    my $button_number = 1 + @{ $self->{_buttons_array} };
+
+    # Set the button caption.
+    my $caption = $params->{caption};
+
+    # Set a default caption if none was specified by user.
+    if ( !defined $caption ) {
+        $caption = 'Button ' . $button_number;
+    }
+
+    $button->{_font}->{_caption} = $caption;
+
+
+    # Set the macro name.
+    if ( $params->{macro} ) {
+        $button->{_macro} = '[0]!' . $params->{macro};
+    }
+    else {
+        $button->{_macro} = '[0]!Button' . $button_number . '_Click';
+    }
+
+
+    # Ensure that a width and height have been set.
+    my $default_width  = 64;
+    my $default_height = 20;
+    $params->{width}  = $default_width  if !$params->{width};
+    $params->{height} = $default_height if !$params->{height};
+
+    # Set the x/y offsets.
+    $params->{x_offset}  = 0  if !$params->{x_offset};
+    $params->{y_offset}  = 0  if !$params->{y_offset};
+
+    # Scale the size of the comment box if required.
+    if ( $params->{x_scale} ) {
+        $params->{width} = $params->{width} * $params->{x_scale};
+    }
+
+    if ( $params->{y_scale} ) {
+        $params->{height} = $params->{height} * $params->{y_scale};
+    }
+
+    # Round the dimensions to the nearest pixel.
+    $params->{width}  = int( 0.5 + $params->{width} );
+    $params->{height} = int( 0.5 + $params->{height} );
+
+    $params->{start_row} = $row;
+    $params->{start_col} = $col;
+
+    # Calculate the positions of comment object.
+    my @vertices = $self->_position_object_pixels(
+        $params->{start_col}, $params->{start_row}, $params->{x_offset},
+        $params->{y_offset},  $params->{width},     $params->{height}
+    );
+
+    # Add the width and height for VML.
+    push @vertices, ( $params->{width}, $params->{height} );
+
+    $button->{_vertices} = \@vertices;
+
+    return $button;
 }
 
 
@@ -4821,16 +5969,24 @@ sub _write_worksheet {
     my $xmlns                  = $schema . 'spreadsheetml/2006/main';
     my $xmlns_r                = $schema . 'officeDocument/2006/relationships';
     my $xmlns_mc               = $schema . 'markup-compatibility/2006';
-    my $xmlns_mv               = 'urn:schemas-microsoft-com:mac:vml';
-    my $mc_ignorable           = 'mv';
-    my $mc_preserve_attributes = 'mv:*';
 
     my @attributes = (
         'xmlns'   => $xmlns,
         'xmlns:r' => $xmlns_r,
     );
 
-    $self->{_writer}->startTag( 'worksheet', @attributes );
+    if ( $self->{_excel_version} == 2010 ) {
+        push @attributes, ( 'xmlns:mc' => $xmlns_mc );
+
+        push @attributes,
+          (     'xmlns:x14ac' => 'http://schemas.microsoft.com/'
+              . 'office/spreadsheetml/2009/9/ac' );
+
+        push @attributes, ( 'mc:Ignorable' => 'x14ac' );
+
+    }
+
+    $self->xml_start_tag( 'worksheet', @attributes );
 }
 
 
@@ -4848,25 +6004,29 @@ sub _write_sheet_pr {
     if (   !$self->{_fit_page}
         && !$self->{_filter_on}
         && !$self->{_tab_color}
-        && !$self->{_outline_changed} )
+        && !$self->{_outline_changed}
+        && !$self->{_vba_codename} )
     {
         return;
     }
 
-    push @attributes, ( 'filterMode' => 1 ) if $self->{_filter_on};
+
+    my $codename = $self->{_vba_codename};
+    push @attributes, ( 'codeName'   => $codename ) if $codename;
+    push @attributes, ( 'filterMode' => 1 )         if $self->{_filter_on};
 
     if (   $self->{_fit_page}
         || $self->{_tab_color}
         || $self->{_outline_changed} )
     {
-        $self->{_writer}->startTag( 'sheetPr', @attributes );
+        $self->xml_start_tag( 'sheetPr', @attributes );
         $self->_write_tab_color();
         $self->_write_outline_pr();
         $self->_write_page_set_up_pr();
-        $self->{_writer}->endTag( 'sheetPr' );
+        $self->xml_end_tag( 'sheetPr' );
     }
     else {
-        $self->{_writer}->emptyTag( 'sheetPr', @attributes );
+        $self->xml_empty_tag( 'sheetPr', @attributes );
     }
 }
 
@@ -4885,7 +6045,7 @@ sub _write_page_set_up_pr {
 
     my @attributes = ( 'fitToPage' => 1 );
 
-    $self->{_writer}->emptyTag( 'pageSetUpPr', @attributes );
+    $self->xml_empty_tag( 'pageSetUpPr', @attributes );
 }
 
 
@@ -4948,7 +6108,7 @@ sub _write_dimension {
 
     my @attributes = ( 'ref' => $ref );
 
-    $self->{_writer}->emptyTag( 'dimension', @attributes );
+    $self->xml_empty_tag( 'dimension', @attributes );
 }
 
 
@@ -4964,9 +6124,9 @@ sub _write_sheet_views {
 
     my @attributes = ();
 
-    $self->{_writer}->startTag( 'sheetViews', @attributes );
+    $self->xml_start_tag( 'sheetViews', @attributes );
     $self->_write_sheet_view();
-    $self->{_writer}->endTag( 'sheetViews' );
+    $self->xml_end_tag( 'sheetViews' );
 }
 
 
@@ -5045,13 +6205,13 @@ sub _write_sheet_view {
     push @attributes, ( 'workbookViewId' => $workbook_view_id );
 
     if ( @{ $self->{_panes} } || @{ $self->{_selections} } ) {
-        $self->{_writer}->startTag( 'sheetView', @attributes );
+        $self->xml_start_tag( 'sheetView', @attributes );
         $self->_write_panes();
         $self->_write_selections();
-        $self->{_writer}->endTag( 'sheetView' );
+        $self->xml_end_tag( 'sheetView' );
     }
     else {
-        $self->{_writer}->emptyTag( 'sheetView', @attributes );
+        $self->xml_empty_tag( 'sheetView', @attributes );
     }
 }
 
@@ -5090,7 +6250,7 @@ sub _write_selection {
     push @attributes, ( 'activeCell' => $active_cell ) if $active_cell;
     push @attributes, ( 'sqref'      => $sqref )       if $sqref;
 
-    $self->{_writer}->emptyTag( 'selection', @attributes );
+    $self->xml_empty_tag( 'selection', @attributes );
 }
 
 
@@ -5104,15 +6264,29 @@ sub _write_sheet_format_pr {
 
     my $self               = shift;
     my $base_col_width     = 10;
-    my $default_row_height = 15;
-    my $row_level      = $self->{_outline_row_level};
-    my $col_level      = $self->{_outline_col_level};
+    my $default_row_height = $self->{_default_row_height};
+    my $row_level          = $self->{_outline_row_level};
+    my $col_level          = $self->{_outline_col_level};
+    my $zero_height        = $self->{_default_row_zeroed};
 
     my @attributes = ( 'defaultRowHeight' => $default_row_height );
+
+    if ( $self->{_default_row_height} != 15 ) {
+        push @attributes, ( 'customHeight' => 1 );
+    }
+
+    if ( $self->{_default_row_zeroed} ) {
+        push @attributes, ( 'zeroHeight' => 1 );
+    }
+
     push @attributes, ( 'outlineLevelRow' => $row_level ) if $row_level;
     push @attributes, ( 'outlineLevelCol' => $col_level ) if $col_level;
 
-    $self->{_writer}->emptyTag( 'sheetFormatPr', @attributes );
+    if ( $self->{_excel_version} == 2010 ) {
+        push @attributes, ( 'x14ac:dyDescent' => '0.25' );
+    }
+
+    $self->xml_empty_tag( 'sheetFormatPr', @attributes );
 }
 
 
@@ -5127,15 +6301,15 @@ sub _write_cols {
     my $self = shift;
 
     # Exit unless some column have been formatted.
-    return unless @{ $self->{_colinfo} };
+    return unless %{ $self->{_colinfo} };
 
-    $self->{_writer}->startTag( 'cols' );
+    $self->xml_start_tag( 'cols' );
 
-    for my $col_info ( @{ $self->{_colinfo} } ) {
-        $self->_write_col_info( @$col_info );
+    for my $col ( sort keys %{ $self->{_colinfo} } ) {
+        $self->_write_col_info( @{ $self->{_colinfo}->{$col} } );
     }
 
-    $self->{_writer}->endTag( 'cols' );
+    $self->xml_end_tag( 'cols' );
 }
 
 
@@ -5160,7 +6334,7 @@ sub _write_col_info {
 
     # Get the format index.
     if ( ref( $format ) ) {
-        $xf_index =  $format->get_xf_index();
+        $xf_index = $format->get_xf_index();
     }
 
     # Set the Excel default col width.
@@ -5185,10 +6359,20 @@ sub _write_col_info {
     # Convert column width from user units to character width.
     my $max_digit_width = 7;    # For Calabri 11.
     my $padding         = 5;
+
     if ( $width > 0 ) {
-        $width = int(
-            ( $width * $max_digit_width + $padding ) / $max_digit_width * 256 )
-          / 256;
+        if ( $width < 1 ) {
+            $width =
+              int( ( int( $width * ($max_digit_width + $padding) + 0.5 ) ) /
+                  $max_digit_width *
+                  256 ) / 256;
+        }
+        else {
+            $width =
+              int( ( int( $width * $max_digit_width + 0.5 ) + $padding ) /
+                  $max_digit_width *
+                  256 ) / 256;
+        }
     }
 
     my @attributes = (
@@ -5204,7 +6388,7 @@ sub _write_col_info {
     push @attributes, ( 'collapsed'    => 1 )         if $collapsed;
 
 
-    $self->{_writer}->emptyTag( 'col', @attributes );
+    $self->xml_empty_tag( 'col', @attributes );
 }
 
 
@@ -5221,12 +6405,12 @@ sub _write_sheet_data {
     if ( not defined $self->{_dim_rowmin} ) {
 
         # If the dimensions aren't defined then there is no data to write.
-        $self->{_writer}->emptyTag( 'sheetData' );
+        $self->xml_empty_tag( 'sheetData' );
     }
     else {
-        $self->{_writer}->startTag( 'sheetData' );
+        $self->xml_start_tag( 'sheetData' );
         $self->_write_rows();
-        $self->{_writer}->endTag( 'sheetData' );
+        $self->xml_end_tag( 'sheetData' );
 
     }
 
@@ -5248,15 +6432,17 @@ sub _write_optimized_sheet_data {
     if ( not defined $self->{_dim_rowmin} ) {
 
         # If the dimensions aren't defined then there is no data to write.
-        $self->{_writer}->emptyTag( 'sheetData' );
+        $self->xml_empty_tag( 'sheetData' );
     }
     else {
-        $self->{_writer}->startTag( 'sheetData' );
 
-        my $xlsx_fh = $self->{_writer}->getOutput();
+        $self->xml_start_tag( 'sheetData' );
+
+        my $xlsx_fh = $self->xml_get_fh();
         my $cell_fh = $self->{_cell_data_fh};
 
         my $buffer;
+
         # Rewind the temp file.
         seek $cell_fh, 0, 0;
 
@@ -5265,7 +6451,7 @@ sub _write_optimized_sheet_data {
             print $xlsx_fh $buffer;
         }
 
-        $self->{_writer}->endTag( 'sheetData' );
+        $self->xml_end_tag( 'sheetData' );
     }
 }
 
@@ -5286,7 +6472,7 @@ sub _write_rows {
 
         # Skip row if it doesn't contain row formatting, cell data or a comment.
         if (   !$self->{_set_rows}->{$row_num}
-            && !$self->{_table}->[$row_num]
+            && !$self->{_table}->{$row_num}
             && !$self->{_comments}->{$row_num} )
         {
             next;
@@ -5296,7 +6482,7 @@ sub _write_rows {
         my $span       = $self->{_row_spans}->[$span_index];
 
         # Write the cells if the row contains data.
-        if ( my $row_ref = $self->{_table}->[$row_num] ) {
+        if ( my $row_ref = $self->{_table}->{$row_num} ) {
 
             if ( !$self->{_set_rows}->{$row_num} ) {
                 $self->_write_row( $row_num, $span );
@@ -5308,12 +6494,12 @@ sub _write_rows {
 
 
             for my $col_num ( $self->{_dim_colmin} .. $self->{_dim_colmax} ) {
-                if ( my $col_ref = $self->{_table}->[$row_num]->[$col_num] ) {
+                if ( my $col_ref = $self->{_table}->{$row_num}->{$col_num} ) {
                     $self->_write_cell( $row_num, $col_num, $col_ref );
                 }
             }
 
-            $self->{_writer}->endTag( 'row' );
+            $self->xml_end_tag( 'row' );
         }
         elsif ( $self->{_comments}->{$row_num} ) {
 
@@ -5323,7 +6509,7 @@ sub _write_rows {
         else {
 
             # Row attributes only.
-            $self->_write_empty_row( $row_num, undef,
+            $self->_write_empty_row( $row_num, $span,
                 @{ $self->{_set_rows}->{$row_num} } );
         }
     }
@@ -5350,14 +6536,14 @@ sub _write_single_row {
 
     # Skip row if it doesn't contain row formatting, cell data or a comment.
     if (   !$self->{_set_rows}->{$row_num}
-        && !$self->{_table}->[$row_num]
+        && !$self->{_table}->{$row_num}
         && !$self->{_comments}->{$row_num} )
     {
         return;
     }
 
     # Write the cells if the row contains data.
-    if ( my $row_ref = $self->{_table}->[$row_num] ) {
+    if ( my $row_ref = $self->{_table}->{$row_num} ) {
 
         if ( !$self->{_set_rows}->{$row_num} ) {
             $self->_write_row( $row_num );
@@ -5368,12 +6554,12 @@ sub _write_single_row {
         }
 
         for my $col_num ( $self->{_dim_colmin} .. $self->{_dim_colmax} ) {
-            if ( my $col_ref = $self->{_table}->[$row_num]->[$col_num] ) {
+            if ( my $col_ref = $self->{_table}->{$row_num}->{$col_num} ) {
                 $self->_write_cell( $row_num, $col_num, $col_ref );
             }
         }
 
-        $self->{_writer}->endTag( 'row' );
+        $self->xml_end_tag( 'row' );
     }
     else {
 
@@ -5383,7 +6569,7 @@ sub _write_single_row {
     }
 
     # Reset table.
-    $self->{_table} = [];
+    $self->{_table} = {};
 
 }
 
@@ -5409,10 +6595,10 @@ sub _calculate_spans {
     for my $row_num ( $self->{_dim_rowmin} .. $self->{_dim_rowmax} ) {
 
         # Calculate spans for cell data.
-        if ( my $row_ref = $self->{_table}->[$row_num] ) {
+        if ( my $row_ref = $self->{_table}->{$row_num} ) {
 
             for my $col_num ( $self->{_dim_colmin} .. $self->{_dim_colmax} ) {
-                if ( my $col_ref = $self->{_table}->[$row_num]->[$col_num] ) {
+                if ( my $col_ref = $self->{_table}->{$row_num}->{$col_num} ) {
 
                     if ( !defined $span_min ) {
                         $span_min = $col_num;
@@ -5481,13 +6667,13 @@ sub _write_row {
     my $empty_row = shift || 0;
     my $xf_index  = 0;
 
-    $height = 15 if !defined $height;
+    $height = $self->{_default_row_height} if !defined $height;
 
     my @attributes = ( 'r' => $r + 1 );
 
     # Get the format index.
     if ( ref( $format ) ) {
-        $xf_index =  $format->get_xf_index();
+        $xf_index = $format->get_xf_index();
     }
 
     push @attributes, ( 'spans'        => $spans )    if defined $spans;
@@ -5499,12 +6685,15 @@ sub _write_row {
     push @attributes, ( 'outlineLevel' => $level )    if $level;
     push @attributes, ( 'collapsed'    => 1 )         if $collapsed;
 
+    if ( $self->{_excel_version} == 2010 ) {
+        push @attributes, ( 'x14ac:dyDescent' => '0.25' );
+    }
 
     if ( $empty_row ) {
-        $self->{_writer}->emptyTag( 'row', @attributes );
+        $self->xml_empty_tag_unencoded( 'row', @attributes );
     }
     else {
-        $self->{_writer}->startTag( 'row', @attributes );
+        $self->xml_start_tag_unencoded( 'row', @attributes );
     }
 }
 
@@ -5522,7 +6711,7 @@ sub _write_empty_row {
     # Set the $empty_row parameter.
     $_[7] = 1;
 
-    $self->_write_row( @_);
+    $self->_write_row( @_ );
 }
 
 
@@ -5547,21 +6736,21 @@ sub _write_empty_row {
 #
 sub _write_cell {
 
-    my $self  = shift;
-    my $row   = shift;
-    my $col   = shift;
-    my $cell  = shift;
-    my $type  = $cell->[0];
-    my $token = $cell->[1];
-    my $xf    = $cell->[2];
+    my $self     = shift;
+    my $row      = shift;
+    my $col      = shift;
+    my $cell     = shift;
+    my $type     = $cell->[0];
+    my $token    = $cell->[1];
+    my $xf       = $cell->[2];
     my $xf_index = 0;
 
     # Get the format index.
     if ( ref( $xf ) ) {
-         $xf_index = $xf->get_xf_index();
+        $xf_index = $xf->get_xf_index();
     }
 
-    my $range = xl_rowcol_to_cell( $row, $col );
+    my $range = _xl_rowcol_to_cell( $row, $col );
     my @attributes = ( 'r' => $range );
 
     # Add the cell format index.
@@ -5582,23 +6771,15 @@ sub _write_cell {
     if ( $type eq 'n' ) {
 
         # Write a number.
-        $self->{_writer}->startTag( 'c', @attributes );
-        $self->_write_cell_value( $token );
-        $self->{_writer}->endTag( 'c' );
+        $self->xml_number_element( $token, @attributes );
     }
     elsif ( $type eq 's' ) {
 
         # Write a string.
         if ( $self->{_optimization} == 0 ) {
-            push @attributes, ( 't' => 's' );
-            $self->{_writer}->startTag( 'c', @attributes );
-            $self->_write_cell_value( $token );
-            $self->{_writer}->endTag( 'c' );
+            $self->xml_string_element( $token, @attributes );
         }
         else {
-            push @attributes, ( 't' => 'inlineStr' );
-            $self->{_writer}->startTag( 'c', @attributes );
-            $self->{_writer}->startTag( 'is' );
 
             my $string = $token;
 
@@ -5608,75 +6789,51 @@ sub _write_cell {
 
             # Write any rich strings without further tags.
             if ( $string =~ m{^<r>} && $string =~ m{</r>$} ) {
-                my $fh = $self->{_writer}->getOutput();
 
-                local $\ = undef;    # Protect print from -l on commandline.
-                print $fh $string;
+                $self->xml_rich_inline_string( $string, @attributes );
             }
             else {
-                my @t_attributes;
 
                 # Add attribute to preserve leading or trailing whitespace.
+                my $preserve = 0;
                 if ( $string =~ /^\s/ || $string =~ /\s$/ ) {
-                    push @t_attributes, ( 'xml:space' => 'preserve' );
+                    $preserve = 1;
                 }
-                $self->{_writer}->dataElement( 't', $string, @t_attributes );
-            }
 
-            $self->{_writer}->endTag( 'is' );
-            $self->{_writer}->endTag( 'c' );
+                $self->xml_inline_string( $string, $preserve, @attributes );
+            }
         }
     }
     elsif ( $type eq 'f' ) {
 
         # Write a formula.
-        $self->{_writer}->startTag( 'c', @attributes );
-        $self->_write_cell_formula( $token );
-        $self->_write_cell_value( $cell->[3] || 0 );
-        $self->{_writer}->endTag( 'c' );
+        my $value = $cell->[3] || 0;
+
+        # Check if the formula value is a string.
+        if (   $value
+            && $value !~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/ )
+        {
+            push @attributes, ( 't' => 'str' );
+            $value =
+              Excel::Writer::XLSX::Package::XMLwriter::_escape_data( $value );
+        }
+
+
+        $self->xml_formula_element( $token, $value, @attributes );
+
     }
     elsif ( $type eq 'a' ) {
 
         # Write an array formula.
-        $self->{_writer}->startTag( 'c', @attributes );
+        $self->xml_start_tag( 'c', @attributes );
         $self->_write_cell_array_formula( $token, $cell->[3] );
         $self->_write_cell_value( $cell->[4] );
-        $self->{_writer}->endTag( 'c' );
-    }
-    elsif ( $type eq 'l' ) {
-        my $link_type = $cell->[3];
-
-        # Write the string part a hyperlink.
-        push @attributes, ( 't' => 's' );
-
-        $self->{_writer}->startTag( 'c', @attributes );
-        $self->_write_cell_value( $token );
-        $self->{_writer}->endTag( 'c' );
-
-        if ( $link_type == 1 ) {
-
-            # External link with rel file relationship.
-            push @{ $self->{_hlink_refs} },
-              [
-                $link_type,              $row,       $col,
-                ++$self->{_hlink_count}, $cell->[5], $cell->[6]
-              ];
-
-            push @{ $self->{_external_hyper_links} },
-              [ '/hyperlink', $cell->[4], 'External' ];
-        }
-        elsif ( $link_type ) {
-
-            # External link with rel file relationship.
-            push @{ $self->{_hlink_refs} },
-              [ $link_type, $row, $col, $cell->[4], $cell->[5], $cell->[6] ];
-        }
-
+        $self->xml_end_tag( 'c' );
     }
     elsif ( $type eq 'b' ) {
 
         # Write a empty cell.
-        $self->{_writer}->emptyTag( 'c', @attributes );
+        $self->xml_empty_tag( 'c', @attributes );
     }
 }
 
@@ -5692,7 +6849,7 @@ sub _write_cell_value {
     my $self = shift;
     my $value = defined $_[0] ? $_[0] : '';
 
-    $self->{_writer}->dataElement( 'v', $value );
+    $self->xml_data_element( 'v', $value );
 }
 
 
@@ -5707,7 +6864,7 @@ sub _write_cell_formula {
     my $self = shift;
     my $formula = defined $_[0] ? $_[0] : '';
 
-    $self->{_writer}->dataElement( 'f', $formula );
+    $self->xml_data_element( 'f', $formula );
 }
 
 
@@ -5725,7 +6882,7 @@ sub _write_cell_array_formula {
 
     my @attributes = ( 't' => 'array', 'ref' => $range );
 
-    $self->{_writer}->dataElement( 'f', $formula, @attributes );
+    $self->xml_data_element( 'f', $formula, @attributes );
 }
 
 
@@ -5742,7 +6899,7 @@ sub _write_sheet_calc_pr {
 
     my @attributes = ( 'fullCalcOnLoad' => $full_calc_on_load );
 
-    $self->{_writer}->emptyTag( 'sheetCalcPr', @attributes );
+    $self->xml_empty_tag( 'sheetCalcPr', @attributes );
 }
 
 
@@ -5763,7 +6920,7 @@ sub _write_phonetic_pr {
         'type'   => $type,
     );
 
-    $self->{_writer}->emptyTag( 'phoneticPr', @attributes );
+    $self->xml_empty_tag( 'phoneticPr', @attributes );
 }
 
 
@@ -5786,7 +6943,7 @@ sub _write_page_margins {
         'footer' => $self->{_margin_footer},
     );
 
-    $self->{_writer}->emptyTag( 'pageMargins', @attributes );
+    $self->xml_empty_tag( 'pageMargins', @attributes );
 }
 
 
@@ -5851,69 +7008,12 @@ sub _write_page_setup {
         push @attributes, ( 'orientation' => 'portrait' );
     }
 
+    # Set start page.
+    if ( $self->{_page_start} != 0 ) {
+        push @attributes, ( 'useFirstPageNumber' => $self->{_page_start} );
+    }
 
-    $self->{_writer}->emptyTag( 'pageSetup', @attributes );
-}
-
-
-##############################################################################
-#
-# _write_ext_lst()
-#
-# Write the <extLst> element.
-#
-sub _write_ext_lst {
-
-    my $self = shift;
-
-    $self->{_writer}->startTag( 'extLst' );
-    $self->_write_ext();
-    $self->{_writer}->endTag( 'extLst' );
-}
-
-
-###############################################################################
-#
-# _write_ext()
-#
-# Write the <ext> element.
-#
-sub _write_ext {
-
-    my $self    = shift;
-    my $xmlnsmx = 'http://schemas.microsoft.com/office/mac/excel/2008/main';
-    my $uri     = 'http://schemas.microsoft.com/office/mac/excel/2008/main';
-
-    my @attributes = (
-        'xmlns:mx' => $xmlnsmx,
-        'uri'      => $uri,
-    );
-
-    $self->{_writer}->startTag( 'ext', @attributes );
-    $self->_write_mx_plv();
-    $self->{_writer}->endTag( 'ext' );
-}
-
-###############################################################################
-#
-# _write_mx_plv()
-#
-# Write the <mx:PLV> element.
-#
-sub _write_mx_plv {
-
-    my $self     = shift;
-    my $mode     = 1;
-    my $one_page = 0;
-    my $w_scale  = 0;
-
-    my @attributes = (
-        'Mode'    => $mode,
-        'OnePage' => $one_page,
-        'WScale'  => $w_scale,
-    );
-
-    $self->{_writer}->emptyTag( 'mx:PLV', @attributes );
+    $self->xml_empty_tag( 'pageSetup', @attributes );
 }
 
 
@@ -5933,7 +7033,7 @@ sub _write_merge_cells {
 
     my @attributes = ( 'count' => $count );
 
-    $self->{_writer}->startTag( 'mergeCells', @attributes );
+    $self->xml_start_tag( 'mergeCells', @attributes );
 
     for my $merged_range ( @$merged_cells ) {
 
@@ -5941,7 +7041,7 @@ sub _write_merge_cells {
         $self->_write_merge_cell( $merged_range );
     }
 
-    $self->{_writer}->endTag( 'mergeCells' );
+    $self->xml_end_tag( 'mergeCells' );
 }
 
 
@@ -5965,7 +7065,7 @@ sub _write_merge_cell {
 
     my @attributes = ( 'ref' => $ref );
 
-    $self->{_writer}->emptyTag( 'mergeCell', @attributes );
+    $self->xml_empty_tag( 'mergeCell', @attributes );
 }
 
 
@@ -6003,7 +7103,7 @@ sub _write_print_options {
     }
 
 
-    $self->{_writer}->emptyTag( 'printOptions', @attributes );
+    $self->xml_empty_tag( 'printOptions', @attributes );
 }
 
 
@@ -6019,10 +7119,10 @@ sub _write_header_footer {
 
     return unless $self->{_header_footer_changed};
 
-    $self->{_writer}->startTag( 'headerFooter' );
+    $self->xml_start_tag( 'headerFooter' );
     $self->_write_odd_header() if $self->{_header};
     $self->_write_odd_footer() if $self->{_footer};
-    $self->{_writer}->endTag( 'headerFooter' );
+    $self->xml_end_tag( 'headerFooter' );
 }
 
 
@@ -6037,7 +7137,7 @@ sub _write_odd_header {
     my $self = shift;
     my $data = $self->{_header};
 
-    $self->{_writer}->dataElement( 'oddHeader', $data );
+    $self->xml_data_element( 'oddHeader', $data );
 }
 
 
@@ -6052,7 +7152,7 @@ sub _write_odd_footer {
     my $self = shift;
     my $data = $self->{_footer};
 
-    $self->{_writer}->dataElement( 'oddFooter', $data );
+    $self->xml_data_element( 'oddFooter', $data );
 }
 
 
@@ -6076,13 +7176,13 @@ sub _write_row_breaks {
         'manualBreakCount' => $count,
     );
 
-    $self->{_writer}->startTag( 'rowBreaks', @attributes );
+    $self->xml_start_tag( 'rowBreaks', @attributes );
 
     for my $row_num ( @page_breaks ) {
         $self->_write_brk( $row_num, 16383 );
     }
 
-    $self->{_writer}->endTag( 'rowBreaks' );
+    $self->xml_end_tag( 'rowBreaks' );
 }
 
 
@@ -6106,13 +7206,13 @@ sub _write_col_breaks {
         'manualBreakCount' => $count,
     );
 
-    $self->{_writer}->startTag( 'colBreaks', @attributes );
+    $self->xml_start_tag( 'colBreaks', @attributes );
 
     for my $col_num ( @page_breaks ) {
         $self->_write_brk( $col_num, 1048575 );
     }
 
-    $self->{_writer}->endTag( 'colBreaks' );
+    $self->xml_end_tag( 'colBreaks' );
 }
 
 
@@ -6135,7 +7235,7 @@ sub _write_brk {
         'man' => $man,
     );
 
-    $self->{_writer}->emptyTag( 'brk', @attributes );
+    $self->xml_empty_tag( 'brk', @attributes );
 }
 
 
@@ -6157,17 +7257,17 @@ sub _write_auto_filter {
     if ( $self->{_filter_on} ) {
 
         # Autofilter defined active filters.
-        $self->{_writer}->startTag( 'autoFilter', @attributes );
+        $self->xml_start_tag( 'autoFilter', @attributes );
 
         $self->_write_autofilters();
 
-        $self->{_writer}->endTag( 'autoFilter' );
+        $self->xml_end_tag( 'autoFilter' );
 
     }
     else {
 
         # Autofilter defined without active filters.
-        $self->{_writer}->emptyTag( 'autoFilter', @attributes );
+        $self->xml_empty_tag( 'autoFilter', @attributes );
     }
 
 }
@@ -6195,7 +7295,8 @@ sub _write_autofilters {
         my @tokens = @{ $self->{_filter_cols}->{$col} };
         my $type   = $self->{_filter_type}->{$col};
 
-        $self->_write_filter_column( $col, $type, \@tokens );
+        # Filters are relative to first column in the autofilter.
+        $self->_write_filter_column( $col - $col1, $type, \@tokens );
     }
 }
 
@@ -6215,7 +7316,7 @@ sub _write_filter_column {
 
     my @attributes = ( 'colId' => $col_id );
 
-    $self->{_writer}->startTag( 'filterColumn', @attributes );
+    $self->xml_start_tag( 'filterColumn', @attributes );
 
 
     if ( $type == 1 ) {
@@ -6230,7 +7331,7 @@ sub _write_filter_column {
         $self->_write_custom_filters( @$filters );
     }
 
-    $self->{_writer}->endTag( 'filterColumn' );
+    $self->xml_end_tag( 'filterColumn' );
 }
 
 
@@ -6248,18 +7349,18 @@ sub _write_filters {
     if ( @filters == 1 && $filters[0] eq 'blanks' ) {
 
         # Special case for blank cells only.
-        $self->{_writer}->emptyTag( 'filters', 'blank' => 1 );
+        $self->xml_empty_tag( 'filters', 'blank' => 1 );
     }
     else {
 
         # General case.
-        $self->{_writer}->startTag( 'filters' );
+        $self->xml_start_tag( 'filters' );
 
         for my $filter ( @filters ) {
             $self->_write_filter( $filter );
         }
 
-        $self->{_writer}->endTag( 'filters' );
+        $self->xml_end_tag( 'filters' );
     }
 }
 
@@ -6277,7 +7378,7 @@ sub _write_filter {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'filter', @attributes );
+    $self->xml_empty_tag( 'filter', @attributes );
 }
 
 
@@ -6295,9 +7396,9 @@ sub _write_custom_filters {
     if ( @tokens == 2 ) {
 
         # One filter expression only.
-        $self->{_writer}->startTag( 'customFilters' );
+        $self->xml_start_tag( 'customFilters' );
         $self->_write_custom_filter( @tokens );
-        $self->{_writer}->endTag( 'customFilters' );
+        $self->xml_end_tag( 'customFilters' );
 
     }
     else {
@@ -6315,10 +7416,10 @@ sub _write_custom_filters {
         }
 
         # Write the two custom filters.
-        $self->{_writer}->startTag( 'customFilters', @attributes );
+        $self->xml_start_tag( 'customFilters', @attributes );
         $self->_write_custom_filter( $tokens[0], $tokens[1] );
         $self->_write_custom_filter( $tokens[3], $tokens[4] );
-        $self->{_writer}->endTag( 'customFilters' );
+        $self->xml_end_tag( 'customFilters' );
     }
 }
 
@@ -6359,7 +7460,7 @@ sub _write_custom_filter {
     push @attributes, ( 'operator' => $operator ) unless $operator eq 'equal';
     push @attributes, ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'customFilter', @attributes );
+    $self->xml_empty_tag( 'customFilter', @attributes );
 }
 
 
@@ -6367,17 +7468,76 @@ sub _write_custom_filter {
 #
 # _write_hyperlinks()
 #
-# Write the <hyperlinks> element. The attributes are different for internal
-# and external links.
+# Process any stored hyperlinks in row/col order and write the <hyperlinks>
+# element. The attributes are different for internal and external links.
 #
 sub _write_hyperlinks {
 
-    my $self       = shift;
-    my @hlink_refs = @{ $self->{_hlink_refs} };
+    my $self = shift;
+    my @hlink_refs;
 
-    return unless @hlink_refs;
+    # Sort the hyperlinks into row order.
+    my @row_nums = sort { $a <=> $b } keys %{ $self->{_hyperlinks} };
 
-    $self->{_writer}->startTag( 'hyperlinks' );
+    # Exit if there are no hyperlinks to process.
+    return if !@row_nums;
+
+    # Iterate over the rows.
+    for my $row_num ( @row_nums ) {
+
+        # Sort the hyperlinks into column order.
+        my @col_nums = sort { $a <=> $b }
+          keys %{ $self->{_hyperlinks}->{$row_num} };
+
+        # Iterate over the columns.
+        for my $col_num ( @col_nums ) {
+
+            # Get the link data for this cell.
+            my $link      = $self->{_hyperlinks}->{$row_num}->{$col_num};
+            my $link_type = $link->{_link_type};
+
+
+            # If the cell isn't a string then we have to add the url as
+            # the string to display.
+            my $display;
+            if (   $self->{_table}
+                && $self->{_table}->{$row_num}
+                && $self->{_table}->{$row_num}->{$col_num} )
+            {
+                my $cell = $self->{_table}->{$row_num}->{$col_num};
+                $display = $link->{_url} if $cell->[0] ne 's';
+            }
+
+
+            if ( $link_type == 1 ) {
+
+                # External link with rel file relationship.
+                push @hlink_refs,
+                  [
+                    $link_type,    $row_num,
+                    $col_num,      ++$self->{_rel_count},
+                    $link->{_str}, $display,
+                    $link->{_tip}
+                  ];
+
+                # Links for use by the packager.
+                push @{ $self->{_external_hyper_links} },
+                  [ '/hyperlink', $link->{_url}, 'External' ];
+            }
+            else {
+
+                # Internal link with rel file relationship.
+                push @hlink_refs,
+                  [
+                    $link_type,    $row_num,      $col_num,
+                    $link->{_url}, $link->{_str}, $link->{_tip}
+                  ];
+            }
+        }
+    }
+
+    # Write the hyperlink elements.
+    $self->xml_start_tag( 'hyperlinks' );
 
     for my $aref ( @hlink_refs ) {
         my ( $type, @args ) = @$aref;
@@ -6390,7 +7550,7 @@ sub _write_hyperlinks {
         }
     }
 
-    $self->{_writer}->endTag( 'hyperlinks' );
+    $self->xml_end_tag( 'hyperlinks' );
 }
 
 
@@ -6407,6 +7567,7 @@ sub _write_hyperlink_external {
     my $col      = shift;
     my $id       = shift;
     my $location = shift;
+    my $display  = shift;
     my $tooltip  = shift;
 
     my $ref = xl_rowcol_to_cell( $row, $col );
@@ -6418,9 +7579,10 @@ sub _write_hyperlink_external {
     );
 
     push @attributes, ( 'location' => $location ) if defined $location;
+    push @attributes, ( 'display' => $display )   if defined $display;
     push @attributes, ( 'tooltip'  => $tooltip )  if defined $tooltip;
 
-    $self->{_writer}->emptyTag( 'hyperlink', @attributes );
+    $self->xml_empty_tag( 'hyperlink', @attributes );
 }
 
 
@@ -6446,7 +7608,7 @@ sub _write_hyperlink_internal {
     push @attributes, ( 'tooltip' => $tooltip ) if defined $tooltip;
     push @attributes, ( 'display' => $display );
 
-    $self->{_writer}->emptyTag( 'hyperlink', @attributes );
+    $self->xml_empty_tag( 'hyperlink', @attributes );
 }
 
 
@@ -6542,7 +7704,7 @@ sub _write_freeze_panes {
     push @attributes, ( 'state'       => $state );
 
 
-    $self->{_writer}->emptyTag( 'pane', @attributes );
+    $self->xml_empty_tag( 'pane', @attributes );
 }
 
 
@@ -6624,7 +7786,7 @@ sub _write_split_panes {
     push @attributes, ( 'topLeftCell' => $top_left_cell );
     push @attributes, ( 'activePane' => $active_pane ) if $has_selection;
 
-    $self->{_writer}->emptyTag( 'pane', @attributes );
+    $self->xml_empty_tag( 'pane', @attributes );
 }
 
 
@@ -6645,10 +7807,10 @@ sub _calculate_x_split_width {
 
     # Convert to pixels.
     if ( $width < 1 ) {
-        $pixels = int( $width * 12 + 0.5 );
+        $pixels = int( $width * ( $max_digit_width + $padding ) + 0.5 );
     }
     else {
-        $pixels = int( $width * $max_digit_width + 0.5 ) + $padding;
+          $pixels = int( $width * $max_digit_width + 0.5 ) + $padding;
     }
 
     # Convert to points.
@@ -6681,7 +7843,7 @@ sub _write_tab_color {
 
     my @attributes = ( 'rgb' => $rgb );
 
-    $self->{_writer}->emptyTag( 'tabColor', @attributes );
+    $self->xml_empty_tag( 'tabColor', @attributes );
 }
 
 
@@ -6693,17 +7855,17 @@ sub _write_tab_color {
 #
 sub _write_outline_pr {
 
-    my $self        = shift;
+    my $self       = shift;
     my @attributes = ();
 
     return unless $self->{_outline_changed};
 
-    push @attributes, ( "applyStyles"  => 1 ) if $self->{_outline_style};
-    push @attributes, ( "summaryBelow" => 0 ) if !$self->{_outline_below};
-    push @attributes, ( "summaryRight" => 0 ) if !$self->{_outline_right};
+    push @attributes, ( "applyStyles"        => 1 ) if $self->{_outline_style};
+    push @attributes, ( "summaryBelow"       => 0 ) if !$self->{_outline_below};
+    push @attributes, ( "summaryRight"       => 0 ) if !$self->{_outline_right};
     push @attributes, ( "showOutlineSymbols" => 0 ) if !$self->{_outline_on};
 
-    $self->{_writer}->emptyTag( 'outlinePr', @attributes );
+    $self->xml_empty_tag( 'outlinePr', @attributes );
 }
 
 
@@ -6722,12 +7884,12 @@ sub _write_sheet_protection {
 
     my %arg = %{ $self->{_protect} };
 
-    push @attributes, ( "password" => $arg{password} ) if $arg{password};
-    push @attributes, ( "sheet"            => 1 ) if $arg{sheet};
-    push @attributes, ( "content"          => 1 ) if $arg{content};
-    push @attributes, ( "objects"          => 1 ) if !$arg{objects};
-    push @attributes, ( "scenarios"        => 1 ) if !$arg{scenarios};
-    push @attributes, ( "formatCells"      => 0 ) if $arg{format_cells};
+    push @attributes, ( "password"    => $arg{password} ) if $arg{password};
+    push @attributes, ( "sheet"       => 1 )              if $arg{sheet};
+    push @attributes, ( "content"     => 1 )              if $arg{content};
+    push @attributes, ( "objects"     => 1 )              if !$arg{objects};
+    push @attributes, ( "scenarios"   => 1 )              if !$arg{scenarios};
+    push @attributes, ( "formatCells" => 0 )              if $arg{format_cells};
     push @attributes, ( "formatColumns"    => 0 ) if $arg{format_columns};
     push @attributes, ( "formatRows"       => 0 ) if $arg{format_rows};
     push @attributes, ( "insertColumns"    => 0 ) if $arg{insert_columns};
@@ -6747,7 +7909,7 @@ sub _write_sheet_protection {
       if !$arg{select_unlocked_cells};
 
 
-    $self->{_writer}->emptyTag( 'sheetProtection', @attributes );
+    $self->xml_empty_tag( 'sheetProtection', @attributes );
 }
 
 
@@ -6763,7 +7925,7 @@ sub _write_drawings {
 
     return unless $self->{_drawing};
 
-    $self->_write_drawing( $self->{_hlink_count} + 1 );
+    $self->_write_drawing( ++$self->{_rel_count} );
 }
 
 
@@ -6781,7 +7943,7 @@ sub _write_drawing {
 
     my @attributes = ( 'r:id' => $r_id );
 
-    $self->{_writer}->emptyTag( 'drawing', @attributes );
+    $self->xml_empty_tag( 'drawing', @attributes );
 }
 
 
@@ -6796,16 +7958,14 @@ sub _write_legacy_drawing {
     my $self = shift;
     my $id;
 
-    return unless $self->{_has_comments};
+    return unless $self->{_has_vml};
 
     # Increment the relationship id for any drawings or comments.
-    $id = $self->{_hlink_count} + 1;
-    $id++ if $self->{_drawing};
-
+    $id = ++$self->{_rel_count};
 
     my @attributes = ( 'r:id' => 'rId' . $id );
 
-    $self->{_writer}->emptyTag( 'legacyDrawing', @attributes );
+    $self->xml_empty_tag( 'legacyDrawing', @attributes );
 }
 
 
@@ -6827,13 +7987,13 @@ sub _write_font {
     my $self   = shift;
     my $format = shift;
 
-    $self->{_rstring}->startTag( 'rPr' );
+    $self->{_rstring}->xml_start_tag( 'rPr' );
 
-    $self->{_rstring}->emptyTag( 'b' )       if $format->{_bold};
-    $self->{_rstring}->emptyTag( 'i' )       if $format->{_italic};
-    $self->{_rstring}->emptyTag( 'strike' )  if $format->{_font_strikeout};
-    $self->{_rstring}->emptyTag( 'outline' ) if $format->{_font_outline};
-    $self->{_rstring}->emptyTag( 'shadow' )  if $format->{_font_shadow};
+    $self->{_rstring}->xml_empty_tag( 'b' )       if $format->{_bold};
+    $self->{_rstring}->xml_empty_tag( 'i' )       if $format->{_italic};
+    $self->{_rstring}->xml_empty_tag( 'strike' )  if $format->{_font_strikeout};
+    $self->{_rstring}->xml_empty_tag( 'outline' ) if $format->{_font_outline};
+    $self->{_rstring}->xml_empty_tag( 'shadow' )  if $format->{_font_shadow};
 
     # Handle the underline variants.
     $self->_write_underline( $format->{_underline} ) if $format->{_underline};
@@ -6841,7 +8001,7 @@ sub _write_font {
     $self->_write_vert_align( 'superscript' ) if $format->{_font_script} == 1;
     $self->_write_vert_align( 'subscript' )   if $format->{_font_script} == 2;
 
-    $self->{_rstring}->emptyTag( 'sz', 'val', $format->{_size} );
+    $self->{_rstring}->xml_empty_tag( 'sz', 'val', $format->{_size} );
 
     if ( my $theme = $format->{_theme} ) {
         $self->_write_rstring_color( 'theme' => $theme );
@@ -6855,14 +8015,16 @@ sub _write_font {
         $self->_write_rstring_color( 'theme' => 1 );
     }
 
-    $self->{_rstring}->emptyTag( 'rFont',  'val', $format->{_font} );
-    $self->{_rstring}->emptyTag( 'family', 'val', $format->{_font_family} );
+    $self->{_rstring}->xml_empty_tag( 'rFont', 'val', $format->{_font} );
+    $self->{_rstring}
+      ->xml_empty_tag( 'family', 'val', $format->{_font_family} );
 
     if ( $format->{_font} eq 'Calibri' && !$format->{_hyperlink} ) {
-        $self->{_rstring}->emptyTag( 'scheme', 'val', $format->{_font_scheme} );
+        $self->{_rstring}
+          ->xml_empty_tag( 'scheme', 'val', $format->{_font_scheme} );
     }
 
-    $self->{_rstring}->endTag( 'rPr' );
+    $self->{_rstring}->xml_end_tag( 'rPr' );
 }
 
 
@@ -6892,7 +8054,7 @@ sub _write_underline {
         @attributes = ();    # Default to single underline.
     }
 
-    $self->{_rstring}->emptyTag( 'u', @attributes );
+    $self->{_rstring}->xml_empty_tag( 'u', @attributes );
 
 }
 
@@ -6910,7 +8072,7 @@ sub _write_vert_align {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_rstring}->emptyTag( 'vertAlign', @attributes );
+    $self->{_rstring}->xml_empty_tag( 'vertAlign', @attributes );
 }
 
 
@@ -6928,7 +8090,7 @@ sub _write_rstring_color {
 
     my @attributes = ( $name => $value );
 
-    $self->{_rstring}->emptyTag( 'color', @attributes );
+    $self->{_rstring}->xml_empty_tag( 'color', @attributes );
 }
 
 
@@ -6953,7 +8115,7 @@ sub _write_data_validations {
 
     my @attributes = ( 'count' => $count );
 
-    $self->{_writer}->startTag( 'dataValidations', @attributes );
+    $self->xml_start_tag( 'dataValidations', @attributes );
 
     for my $validation ( @validations ) {
 
@@ -6961,7 +8123,7 @@ sub _write_data_validations {
         $self->_write_data_validation( $validation );
     }
 
-    $self->{_writer}->endTag( 'dataValidations' );
+    $self->xml_end_tag( 'dataValidations' );
 }
 
 
@@ -7038,7 +8200,7 @@ sub _write_data_validation {
 
     push @attributes, ( 'sqref' => $sqref );
 
-    $self->{_writer}->startTag( 'dataValidation', @attributes );
+    $self->xml_start_tag( 'dataValidation', @attributes );
 
     # Write the formula1 element.
     $self->_write_formula_1( $param->{value} );
@@ -7046,7 +8208,7 @@ sub _write_data_validation {
     # Write the formula2 element.
     $self->_write_formula_2( $param->{maximum} ) if defined $param->{maximum};
 
-    $self->{_writer}->endTag( 'dataValidation' );
+    $self->xml_end_tag( 'dataValidation' );
 }
 
 
@@ -7062,14 +8224,14 @@ sub _write_formula_1 {
     my $formula = shift;
 
     # Convert a list array ref into a comma separated string.
-    if (ref $formula eq 'ARRAY') {
-        $formula   = join ',', @$formula;
-        $formula   = qq("$formula");
+    if ( ref $formula eq 'ARRAY' ) {
+        $formula = join ',', @$formula;
+        $formula = qq("$formula");
     }
 
     $formula =~ s/^=//;    # Remove formula symbol.
 
-    $self->{_writer}->dataElement( 'formula1', $formula );
+    $self->xml_data_element( 'formula1', $formula );
 }
 
 
@@ -7086,7 +8248,7 @@ sub _write_formula_2 {
 
     $formula =~ s/^=//;    # Remove formula symbol.
 
-    $self->{_writer}->dataElement( 'formula2', $formula );
+    $self->xml_data_element( 'formula2', $formula );
 }
 
 
@@ -7098,8 +8260,8 @@ sub _write_formula_2 {
 #
 sub _write_conditional_formats {
 
-    my $self     = shift;
-    my @ranges   = sort keys %{ $self->{_cond_formats} };
+    my $self   = shift;
+    my @ranges = sort keys %{ $self->{_cond_formats} };
 
     return unless scalar @ranges;
 
@@ -7124,7 +8286,7 @@ sub _write_conditional_formatting {
 
     my @attributes = ( 'sqref' => $range );
 
-    $self->{_writer}->startTag( 'conditionalFormatting', @attributes );
+    $self->xml_start_tag( 'conditionalFormatting', @attributes );
 
     for my $param ( @$params ) {
 
@@ -7132,7 +8294,7 @@ sub _write_conditional_formatting {
         $self->_write_cf_rule( $param );
     }
 
-    $self->{_writer}->endTag( 'conditionalFormatting' );
+    $self->xml_end_tag( 'conditionalFormatting' );
 }
 
 ##############################################################################
@@ -7156,7 +8318,7 @@ sub _write_cf_rule {
     if ( $param->{type} eq 'cellIs' ) {
         push @attributes, ( 'operator' => $param->{criteria} );
 
-        $self->{_writer}->startTag( 'cfRule', @attributes );
+        $self->xml_start_tag( 'cfRule', @attributes );
 
         if ( defined $param->{minimum} && defined $param->{maximum} ) {
             $self->_write_formula( $param->{minimum} );
@@ -7166,7 +8328,7 @@ sub _write_cf_rule {
             $self->_write_formula( $param->{value} );
         }
 
-        $self->{_writer}->endTag( 'cfRule' );
+        $self->xml_end_tag( 'cfRule' );
     }
     elsif ( $param->{type} eq 'aboveAverage' ) {
         if ( $param->{criteria} =~ /below/ ) {
@@ -7181,7 +8343,7 @@ sub _write_cf_rule {
             push @attributes, ( 'stdDev' => $1 );
         }
 
-        $self->{_writer}->emptyTag( 'cfRule', @attributes );
+        $self->xml_empty_tag( 'cfRule', @attributes );
     }
     elsif ( $param->{type} eq 'top10' ) {
         if ( defined $param->{criteria} && $param->{criteria} eq '%' ) {
@@ -7195,13 +8357,13 @@ sub _write_cf_rule {
         my $rank = $param->{value} || 10;
         push @attributes, ( 'rank' => $rank );
 
-        $self->{_writer}->emptyTag( 'cfRule', @attributes );
+        $self->xml_empty_tag( 'cfRule', @attributes );
     }
     elsif ( $param->{type} eq 'duplicateValues' ) {
-        $self->{_writer}->emptyTag( 'cfRule', @attributes );
+        $self->xml_empty_tag( 'cfRule', @attributes );
     }
     elsif ( $param->{type} eq 'uniqueValues' ) {
-        $self->{_writer}->emptyTag( 'cfRule', @attributes );
+        $self->xml_empty_tag( 'cfRule', @attributes );
     }
     elsif ($param->{type} eq 'containsText'
         || $param->{type} eq 'notContainsText'
@@ -7211,43 +8373,43 @@ sub _write_cf_rule {
         push @attributes, ( 'operator' => $param->{criteria} );
         push @attributes, ( 'text'     => $param->{value} );
 
-        $self->{_writer}->startTag( 'cfRule', @attributes );
+        $self->xml_start_tag( 'cfRule', @attributes );
         $self->_write_formula( $param->{formula} );
-        $self->{_writer}->endTag( 'cfRule' );
+        $self->xml_end_tag( 'cfRule' );
     }
     elsif ( $param->{type} eq 'timePeriod' ) {
         push @attributes, ( 'timePeriod' => $param->{criteria} );
 
-        $self->{_writer}->startTag( 'cfRule', @attributes );
+        $self->xml_start_tag( 'cfRule', @attributes );
         $self->_write_formula( $param->{formula} );
-        $self->{_writer}->endTag( 'cfRule' );
+        $self->xml_end_tag( 'cfRule' );
     }
     elsif ($param->{type} eq 'containsBlanks'
         || $param->{type} eq 'notContainsBlanks'
         || $param->{type} eq 'containsErrors'
         || $param->{type} eq 'notContainsErrors' )
     {
-        $self->{_writer}->startTag( 'cfRule', @attributes );
+        $self->xml_start_tag( 'cfRule', @attributes );
         $self->_write_formula( $param->{formula} );
-        $self->{_writer}->endTag( 'cfRule' );
+        $self->xml_end_tag( 'cfRule' );
     }
     elsif ( $param->{type} eq 'colorScale' ) {
 
-        $self->{_writer}->startTag( 'cfRule', @attributes );
+        $self->xml_start_tag( 'cfRule', @attributes );
         $self->_write_color_scale( $param );
-        $self->{_writer}->endTag( 'cfRule' );
+        $self->xml_end_tag( 'cfRule' );
     }
     elsif ( $param->{type} eq 'dataBar' ) {
 
-        $self->{_writer}->startTag( 'cfRule', @attributes );
+        $self->xml_start_tag( 'cfRule', @attributes );
         $self->_write_data_bar( $param );
-        $self->{_writer}->endTag( 'cfRule' );
+        $self->xml_end_tag( 'cfRule' );
     }
     elsif ( $param->{type} eq 'expression' ) {
 
-        $self->{_writer}->startTag( 'cfRule', @attributes );
+        $self->xml_start_tag( 'cfRule', @attributes );
         $self->_write_formula( $param->{criteria} );
-        $self->{_writer}->endTag( 'cfRule' );
+        $self->xml_end_tag( 'cfRule' );
     }
 }
 
@@ -7266,7 +8428,7 @@ sub _write_formula {
     # Remove equality from formula.
     $data =~ s/^=//;
 
-    $self->{_writer}->dataElement( 'formula', $data );
+    $self->xml_data_element( 'formula', $data );
 }
 
 
@@ -7281,7 +8443,7 @@ sub _write_color_scale {
     my $self  = shift;
     my $param = shift;
 
-    $self->{_writer}->startTag( 'colorScale' );
+    $self->xml_start_tag( 'colorScale' );
 
     $self->_write_cfvo( $param->{min_type}, $param->{min_value} );
 
@@ -7299,7 +8461,7 @@ sub _write_color_scale {
 
     $self->_write_color( 'rgb' => $param->{max_color} );
 
-    $self->{_writer}->endTag( 'colorScale' );
+    $self->xml_end_tag( 'colorScale' );
 }
 
 
@@ -7314,14 +8476,14 @@ sub _write_data_bar {
     my $self  = shift;
     my $param = shift;
 
-    $self->{_writer}->startTag( 'dataBar' );
+    $self->xml_start_tag( 'dataBar' );
 
     $self->_write_cfvo( $param->{min_type}, $param->{min_value} );
     $self->_write_cfvo( $param->{max_type}, $param->{max_value} );
 
     $self->_write_color( 'rgb' => $param->{bar_color} );
 
-    $self->{_writer}->endTag( 'dataBar' );
+    $self->xml_end_tag( 'dataBar' );
 }
 
 
@@ -7342,9 +8504,8 @@ sub _write_cfvo {
         'val'  => $val
     );
 
-    $self->{_writer}->emptyTag( 'cfvo', @attributes );
+    $self->xml_empty_tag( 'cfvo', @attributes );
 }
-
 
 
 ##############################################################################
@@ -7361,7 +8522,412 @@ sub _write_color {
 
     my @attributes = ( $name => $value );
 
-    $self->{_writer}->emptyTag( 'color', @attributes );
+    $self->xml_empty_tag( 'color', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_table_parts()
+#
+# Write the <tableParts> element.
+#
+sub _write_table_parts {
+
+    my $self   = shift;
+    my @tables = @{ $self->{_tables} };
+    my $count  = scalar @tables;
+
+    # Return if worksheet doesn't contain any tables.
+    return unless $count;
+
+    my @attributes = ( 'count' => $count, );
+
+    $self->xml_start_tag( 'tableParts', @attributes );
+
+    for my $table ( @tables ) {
+
+        # Write the tablePart element.
+        $self->_write_table_part( ++$self->{_rel_count} );
+
+    }
+
+    $self->xml_end_tag( 'tableParts' );
+}
+
+
+##############################################################################
+#
+# _write_table_part()
+#
+# Write the <tablePart> element.
+#
+sub _write_table_part {
+
+    my $self = shift;
+    my $id   = shift;
+    my $r_id = 'rId' . $id;
+
+    my @attributes = ( 'r:id' => $r_id, );
+
+    $self->xml_empty_tag( 'tablePart', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_ext_sparklines()
+#
+# Write the <extLst> element and sparkline subelements.
+#
+sub _write_ext_sparklines {
+
+    my $self       = shift;
+    my @sparklines = @{ $self->{_sparklines} };
+    my $count      = scalar @sparklines;
+
+    # Return if worksheet doesn't contain any sparklines.
+    return unless $count;
+
+
+    # Write the extLst element.
+    $self->xml_start_tag( 'extLst' );
+
+    # Write the ext element.
+    $self->_write_ext();
+
+    # Write the x14:sparklineGroups element.
+    $self->_write_sparkline_groups();
+
+    # Write the sparkline elements.
+    for my $sparkline ( reverse @sparklines ) {
+
+        # Write the x14:sparklineGroup element.
+        $self->_write_sparkline_group( $sparkline );
+
+        # Write the x14:colorSeries element.
+        $self->_write_color_series( $sparkline->{_series_color} );
+
+        # Write the x14:colorNegative element.
+        $self->_write_color_negative( $sparkline->{_negative_color} );
+
+        # Write the x14:colorAxis element.
+        $self->_write_color_axis();
+
+        # Write the x14:colorMarkers element.
+        $self->_write_color_markers( $sparkline->{_markers_color} );
+
+        # Write the x14:colorFirst element.
+        $self->_write_color_first( $sparkline->{_first_color} );
+
+        # Write the x14:colorLast element.
+        $self->_write_color_last( $sparkline->{_last_color} );
+
+        # Write the x14:colorHigh element.
+        $self->_write_color_high( $sparkline->{_high_color} );
+
+        # Write the x14:colorLow element.
+        $self->_write_color_low( $sparkline->{_low_color} );
+
+        if ( $sparkline->{_date_axis} ) {
+            $self->xml_data_element( 'xm:f', $sparkline->{_date_axis} );
+        }
+
+        $self->_write_sparklines( $sparkline );
+
+        $self->xml_end_tag( 'x14:sparklineGroup' );
+    }
+
+
+    $self->xml_end_tag( 'x14:sparklineGroups' );
+    $self->xml_end_tag( 'ext' );
+    $self->xml_end_tag( 'extLst' );
+}
+
+
+##############################################################################
+#
+# _write_sparklines()
+#
+# Write the <x14:sparklines> element and <x14:sparkline> subelements.
+#
+sub _write_sparklines {
+
+    my $self      = shift;
+    my $sparkline = shift;
+
+    # Write the sparkline elements.
+    $self->xml_start_tag( 'x14:sparklines' );
+
+    for my $i ( 0 .. $sparkline->{_count} - 1 ) {
+        my $range    = $sparkline->{_ranges}->[$i];
+        my $location = $sparkline->{_locations}->[$i];
+
+        $self->xml_start_tag( 'x14:sparkline' );
+        $self->xml_data_element( 'xm:f',     $range );
+        $self->xml_data_element( 'xm:sqref', $location );
+        $self->xml_end_tag( 'x14:sparkline' );
+    }
+
+
+    $self->xml_end_tag( 'x14:sparklines' );
+}
+
+
+##############################################################################
+#
+# _write_ext()
+#
+# Write the <ext> element.
+#
+sub _write_ext {
+
+    my $self       = shift;
+    my $schema     = 'http://schemas.microsoft.com/office/';
+    my $xmlns_x_14 = $schema . 'spreadsheetml/2009/9/main';
+    my $uri        = '{05C60535-1F16-4fd2-B633-F4F36F0B64E0}';
+
+    my @attributes = (
+        'xmlns:x14' => $xmlns_x_14,
+        'uri'       => $uri,
+    );
+
+    $self->xml_start_tag( 'ext', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_sparkline_groups()
+#
+# Write the <x14:sparklineGroups> element.
+#
+sub _write_sparkline_groups {
+
+    my $self     = shift;
+    my $xmlns_xm = 'http://schemas.microsoft.com/office/excel/2006/main';
+
+    my @attributes = ( 'xmlns:xm' => $xmlns_xm );
+
+    $self->xml_start_tag( 'x14:sparklineGroups', @attributes );
+
+}
+
+
+##############################################################################
+#
+# _write_sparkline_group()
+#
+# Write the <x14:sparklineGroup> element.
+#
+# Example for order.
+#
+# <x14:sparklineGroup
+#     manualMax="0"
+#     manualMin="0"
+#     lineWeight="2.25"
+#     type="column"
+#     dateAxis="1"
+#     displayEmptyCellsAs="span"
+#     markers="1"
+#     high="1"
+#     low="1"
+#     first="1"
+#     last="1"
+#     negative="1"
+#     displayXAxis="1"
+#     displayHidden="1"
+#     minAxisType="custom"
+#     maxAxisType="custom"
+#     rightToLeft="1">
+#
+sub _write_sparkline_group {
+
+    my $self     = shift;
+    my $opts     = shift;
+    my $empty    = $opts->{_empty};
+    my $user_max = 0;
+    my $user_min = 0;
+    my @a;
+
+    if ( defined $opts->{_max} ) {
+
+        if ( $opts->{_max} eq 'group' ) {
+            $opts->{_cust_max} = 'group';
+        }
+        else {
+            push @a, ( 'manualMax' => $opts->{_max} );
+            $opts->{_cust_max} = 'custom';
+        }
+    }
+
+    if ( defined $opts->{_min} ) {
+
+        if ( $opts->{_min} eq 'group' ) {
+            $opts->{_cust_min} = 'group';
+        }
+        else {
+            push @a, ( 'manualMin' => $opts->{_min} );
+            $opts->{_cust_min} = 'custom';
+        }
+    }
+
+
+    # Ignore the default type attribute (line).
+    if ( $opts->{_type} ne 'line' ) {
+        push @a, ( 'type' => $opts->{_type} );
+    }
+
+    push @a, ( 'lineWeight' => $opts->{_weight} ) if $opts->{_weight};
+    push @a, ( 'dateAxis' => 1 ) if $opts->{_date_axis};
+    push @a, ( 'displayEmptyCellsAs' => $empty ) if $empty;
+
+    push @a, ( 'markers'       => 1 )                  if $opts->{_markers};
+    push @a, ( 'high'          => 1 )                  if $opts->{_high};
+    push @a, ( 'low'           => 1 )                  if $opts->{_low};
+    push @a, ( 'first'         => 1 )                  if $opts->{_first};
+    push @a, ( 'last'          => 1 )                  if $opts->{_last};
+    push @a, ( 'negative'      => 1 )                  if $opts->{_negative};
+    push @a, ( 'displayXAxis'  => 1 )                  if $opts->{_axis};
+    push @a, ( 'displayHidden' => 1 )                  if $opts->{_hidden};
+    push @a, ( 'minAxisType'   => $opts->{_cust_min} ) if $opts->{_cust_min};
+    push @a, ( 'maxAxisType'   => $opts->{_cust_max} ) if $opts->{_cust_max};
+    push @a, ( 'rightToLeft'   => 1 )                  if $opts->{_reverse};
+
+    $self->xml_start_tag( 'x14:sparklineGroup', @a );
+}
+
+
+##############################################################################
+#
+# _write_spark_color()
+#
+# Helper function for the sparkline color functions below.
+#
+sub _write_spark_color {
+
+    my $self    = shift;
+    my $element = shift;
+    my $color   = shift;
+    my @attr;
+
+    push @attr, ( 'rgb'   => $color->{_rgb} )   if defined $color->{_rgb};
+    push @attr, ( 'theme' => $color->{_theme} ) if defined $color->{_theme};
+    push @attr, ( 'tint'  => $color->{_tint} )  if defined $color->{_tint};
+
+    $self->xml_empty_tag( $element, @attr );
+}
+
+
+##############################################################################
+#
+# _write_color_series()
+#
+# Write the <x14:colorSeries> element.
+#
+sub _write_color_series {
+
+    my $self = shift;
+
+    $self->_write_spark_color( 'x14:colorSeries', @_ );
+}
+
+
+##############################################################################
+#
+# _write_color_negative()
+#
+# Write the <x14:colorNegative> element.
+#
+sub _write_color_negative {
+
+    my $self = shift;
+
+    $self->_write_spark_color( 'x14:colorNegative', @_ );
+}
+
+
+##############################################################################
+#
+# _write_color_axis()
+#
+# Write the <x14:colorAxis> element.
+#
+sub _write_color_axis {
+
+    my $self = shift;
+
+    $self->_write_spark_color( 'x14:colorAxis', { _rgb => 'FF000000' } );
+}
+
+
+##############################################################################
+#
+# _write_color_markers()
+#
+# Write the <x14:colorMarkers> element.
+#
+sub _write_color_markers {
+
+    my $self = shift;
+
+    $self->_write_spark_color( 'x14:colorMarkers', @_ );
+}
+
+
+##############################################################################
+#
+# _write_color_first()
+#
+# Write the <x14:colorFirst> element.
+#
+sub _write_color_first {
+
+    my $self = shift;
+
+    $self->_write_spark_color( 'x14:colorFirst', @_ );
+}
+
+
+##############################################################################
+#
+# _write_color_last()
+#
+# Write the <x14:colorLast> element.
+#
+sub _write_color_last {
+
+    my $self = shift;
+
+    $self->_write_spark_color( 'x14:colorLast', @_ );
+}
+
+
+##############################################################################
+#
+# _write_color_high()
+#
+# Write the <x14:colorHigh> element.
+#
+sub _write_color_high {
+
+    my $self = shift;
+
+    $self->_write_spark_color( 'x14:colorHigh', @_ );
+}
+
+
+##############################################################################
+#
+# _write_color_low()
+#
+# Write the <x14:colorLow> element.
+#
+sub _write_color_low {
+
+    my $self = shift;
+
+    $self->_write_spark_color( 'x14:colorLow', @_ );
 }
 
 
@@ -7389,7 +8955,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-� MM-MMXII, John McNamara.
+(c) MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
-

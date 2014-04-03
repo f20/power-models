@@ -7,7 +7,7 @@ package Excel::Writer::XLSX::Format;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -20,7 +20,7 @@ use Carp;
 
 
 our @ISA     = qw(Exporter);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 our $AUTOLOAD;
 
 
@@ -130,12 +130,22 @@ sub copy {
     return unless defined $other;
     return unless ( ref( $self ) eq ref( $other ) );
 
+    # Store properties that we don't want over-ridden.
+    my $xf_index           = $self->{_xf_index};
+    my $dxf_index          = $self->{_dxf_index};
+    my $xf_format_indices  = $self->{_xf_format_indices};
+    my $dxf_format_indices = $self->{_dxf_format_indices};
+    my $palette            = $self->{_palette};
 
-    my $xf      = $self->{_xf_index};   # Store XF index assigned by Workbook.pm
-    my $palette = $self->{_palette};    # Store palette assigned by Workbook.pm
-    %$self             = %$other;       # Copy properties
-    $self->{_xf_index} = $xf;           # Restore XF index
-    $self->{_palette}  = $palette;      # Restore palette
+    # Copy properties.
+    %$self             = %$other;
+
+    # Restore original properties.
+    $self->{_xf_index}           = $xf_index;
+    $self->{_dxf_index}          = $dxf_index;
+    $self->{_xf_format_indices}  = $xf_format_indices;
+    $self->{_dxf_format_indices} = $dxf_format_indices;
+    $self->{_palette}            = $palette;
 }
 
 
@@ -248,8 +258,9 @@ sub get_format_key {
     my $key = join ':',
       (
         $self->get_font_key(), $self->get_border_key,
-        $self->get_fill_key(), $self->{_num_format},
-        $self->get_alignment_key(),
+        $self->get_fill_key(), $self->get_alignment_key(),
+        $self->{_num_format},  $self->{_locked},
+        $self->{_hidden}
       );
 
     return $key;
@@ -798,6 +809,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMXII, John McNamara.
+(c) MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

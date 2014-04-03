@@ -7,7 +7,7 @@ package Excel::Writer::XLSX::Package::ContentTypes;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -21,7 +21,7 @@ use Carp;
 use Excel::Writer::XLSX::Package::XMLwriter;
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -62,9 +62,9 @@ our @overrides = (
 sub new {
 
     my $class = shift;
-    my $self  = Excel::Writer::XLSX::Package::XMLwriter->new();
+    my $fh    = shift;
+    my $self  = Excel::Writer::XLSX::Package::XMLwriter->new( $fh );
 
-    $self->{_writer}    = undef;
     $self->{_defaults}  = [@defaults];
     $self->{_overrides} = [@overrides];
 
@@ -84,18 +84,15 @@ sub _assemble_xml_file {
 
     my $self = shift;
 
-    return unless $self->{_writer};
-
-    $self->_write_xml_declaration;
+    $self->xml_declaration;
     $self->_write_types();
     $self->_write_defaults();
     $self->_write_overrides();
 
-    $self->{_writer}->endTag( 'Types' );
+    $self->xml_end_tag( 'Types' );
 
-    # Close the XM writer object and filehandle.
-    $self->{_writer}->end();
-    $self->{_writer}->getOutput()->close();
+    # Close the XML writer filehandle.
+    $self->xml_get_fh()->close();
 }
 
 
@@ -283,6 +280,45 @@ sub _add_image_types {
 
 ###############################################################################
 #
+# _add_table_name()
+#
+# Add the name of a table to the ContentTypes overrides.
+#
+sub _add_table_name {
+
+    my $self       = shift;
+    my $table_name = shift;
+
+    $table_name = "/xl/tables/$table_name.xml";
+
+    $self->_add_override( $table_name,
+        $app_document . 'spreadsheetml.table+xml' );
+}
+
+
+###############################################################################
+#
+# _add_vba_project()
+#
+# Add a vbaProject to the ContentTypes defaults.
+#
+sub _add_vba_project {
+
+    my $self = shift;
+
+    # Change the workbook.xml content-type from xlsx to xlsm.
+    for my $aref ( @{ $self->{_overrides} } ) {
+        if ( $aref->[0] eq '/xl/workbook.xml' ) {
+            $aref->[1] = 'application/vnd.ms-excel.sheet.macroEnabled.main+xml';
+        }
+    }
+
+    $self->_add_default( 'bin', 'application/vnd.ms-office.vbaProject' );
+}
+
+
+###############################################################################
+#
 # Internal methods.
 #
 ###############################################################################
@@ -300,7 +336,7 @@ sub _write_defaults {
 
     for my $aref ( @{ $self->{_defaults} } ) {
         #<<<
-        $self->{_writer}->emptyTag(
+        $self->xml_empty_tag(
             'Default',
             'Extension',   $aref->[0],
             'ContentType', $aref->[1] );
@@ -321,7 +357,7 @@ sub _write_overrides {
 
     for my $aref ( @{ $self->{_overrides} } ) {
         #<<<
-        $self->{_writer}->emptyTag(
+        $self->xml_empty_tag(
             'Override',
             'PartName',    $aref->[0],
             'ContentType', $aref->[1] );
@@ -350,7 +386,7 @@ sub _write_types {
 
     my @attributes = ( 'xmlns' => $xmlns, );
 
-    $self->{_writer}->startTag( 'Types', @attributes );
+    $self->xml_start_tag( 'Types', @attributes );
 }
 
 ###############################################################################
@@ -370,7 +406,7 @@ sub _write_default {
         'ContentType' => $content_type,
     );
 
-    $self->{_writer}->emptyTag( 'Default', @attributes );
+    $self->xml_empty_tag( 'Default', @attributes );
 }
 
 
@@ -385,14 +421,14 @@ sub _write_override {
     my $self         = shift;
     my $part_name    = shift;
     my $content_type = shift;
-    my $writer       = $self->{_writer};
+    my $writer       = $self;
 
     my @attributes = (
         'PartName'    => $part_name,
         'ContentType' => $content_type,
     );
 
-    $self->{_writer}->emptyTag( 'Override', @attributes );
+    $self->xml_empty_tag( 'Override', @attributes );
 }
 
 
@@ -421,7 +457,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMXII, John McNamara.
+(c) MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

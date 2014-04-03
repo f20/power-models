@@ -8,7 +8,7 @@ package Excel::Writer::XLSX::Chart::Pie;
 #
 # See formatting note in Excel::Writer::XLSX::Chart.
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -22,7 +22,7 @@ use Carp;
 use Excel::Writer::XLSX::Chart;
 
 our @ISA     = qw(Excel::Writer::XLSX::Chart);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -53,7 +53,7 @@ sub _write_chart_type {
     my $self = shift;
 
     # Write the c:pieChart element.
-    $self->_write_pie_chart();
+    $self->_write_pie_chart( @_ );
 }
 
 
@@ -61,24 +61,25 @@ sub _write_chart_type {
 #
 # _write_pie_chart()
 #
-# Write the <c:pieChart> element.
+# Write the <c:pieChart> element.  Over-ridden method to remove axis_id code
+# since Pie charts don't require val and cat axes.
 #
 sub _write_pie_chart {
 
     my $self = shift;
 
-    $self->{_writer}->startTag( 'c:pieChart' );
+    $self->xml_start_tag( 'c:pieChart' );
 
     # Write the c:varyColors element.
     $self->_write_vary_colors();
 
     # Write the series elements.
-    $self->_write_series();
+    $self->_write_ser( $_ ) for @{ $self->{_series} };
 
-   # Write the c:firstSliceAng element.
+    # Write the c:firstSliceAng element.
     $self->_write_first_slice_ang();
 
-    $self->{_writer}->endTag( 'c:pieChart' );
+    $self->xml_end_tag( 'c:pieChart' );
 }
 
 
@@ -95,38 +96,16 @@ sub _write_plot_area {
 
     my $self = shift;
 
-    $self->{_writer}->startTag( 'c:plotArea' );
+    $self->xml_start_tag( 'c:plotArea' );
 
     # Write the c:layout element.
-    $self->_write_layout();
+    $self->_write_layout( $self->{_plotarea}->{_layout}, 'plot' );
 
     # Write the subclass chart type element.
     $self->_write_chart_type();
 
-    $self->{_writer}->endTag( 'c:plotArea' );
+    $self->xml_end_tag( 'c:plotArea' );
 }
-
-
-##############################################################################
-#
-# _write_series().
-#
-# Over-ridden method to remove axis_id code since Pie charts  don't require
-# val and cat axes.
-#
-# Write the series elements.
-#
-sub _write_series {
-
-    my $self = shift;
-
-    # Write each series with subelements.
-    my $index = 0;
-    for my $series ( @{ $self->{_series} } ) {
-        $self->_write_ser( $index++, $series );
-    }
-}
-
 
 
 ##############################################################################
@@ -139,11 +118,19 @@ sub _write_series {
 #
 sub _write_legend {
 
-    my $self = shift;
-    my $position = $self->{_legend_position};
-    my $overlay = 0;
+    my $self          = shift;
+    my $position      = $self->{_legend_position};
+    my $font          = $self->{_legend_font};
+    my @delete_series = ();
+    my $overlay       = 0;
 
-    if ($position =~ s/^overlay_//) {
+    if ( defined $self->{_legend_delete_series}
+        && ref $self->{_legend_delete_series} eq 'ARRAY' )
+    {
+        @delete_series = @{ $self->{_legend_delete_series} };
+    }
+
+    if ( $position =~ s/^overlay_// ) {
         $overlay = 1;
     }
 
@@ -159,23 +146,29 @@ sub _write_legend {
 
     $position = $allowed{$position};
 
-    $self->{_writer}->startTag( 'c:legend' );
+    $self->xml_start_tag( 'c:legend' );
 
     # Write the c:legendPos element.
     $self->_write_legend_pos( $position );
 
+    # Remove series labels from the legend.
+    for my $index ( @delete_series ) {
+
+        # Write the c:legendEntry element.
+        $self->_write_legend_entry( $index );
+    }
+
     # Write the c:layout element.
-    $self->_write_layout();
+    $self->_write_layout( $self->{_legend_layout}, 'legend' );
 
     # Write the c:overlay element.
     $self->_write_overlay() if $overlay;
 
     # Write the c:txPr element. Over-ridden.
-    $self->_write_tx_pr_legend();
+    $self->_write_tx_pr_legend( 0, $font );
 
-    $self->{_writer}->endTag( 'c:legend' );
+    $self->xml_end_tag( 'c:legend' );
 }
-
 
 
 ##############################################################################
@@ -186,21 +179,27 @@ sub _write_legend {
 #
 sub _write_tx_pr_legend {
 
-    my $self  = shift;
-    my $horiz = 0;
+    my $self     = shift;
+    my $horiz    = shift;
+    my $font     = shift;
+    my $rotation = undef;
 
-    $self->{_writer}->startTag( 'c:txPr' );
+    if ( $font && exists $font->{_rotation} ) {
+        $rotation = $font->{_rotation};
+    }
+
+    $self->xml_start_tag( 'c:txPr' );
 
     # Write the a:bodyPr element.
-    $self->_write_a_body_pr( $horiz );
+    $self->_write_a_body_pr( $rotation, $horiz );
 
     # Write the a:lstStyle element.
     $self->_write_a_lst_style();
 
     # Write the a:p element.
-    $self->_write_a_p_legend();
+    $self->_write_a_p_legend( $font );
 
-    $self->{_writer}->endTag( 'c:txPr' );
+    $self->xml_end_tag( 'c:txPr' );
 }
 
 
@@ -212,18 +211,18 @@ sub _write_tx_pr_legend {
 #
 sub _write_a_p_legend {
 
-    my $self  = shift;
-    my $title = shift;
+    my $self = shift;
+    my $font = shift;
 
-    $self->{_writer}->startTag( 'a:p' );
+    $self->xml_start_tag( 'a:p' );
 
     # Write the a:pPr element.
-    $self->_write_a_p_pr_legend();
+    $self->_write_a_p_pr_legend( $font );
 
     # Write the a:endParaRPr element.
     $self->_write_a_end_para_rpr();
 
-    $self->{_writer}->endTag( 'a:p' );
+    $self->xml_end_tag( 'a:p' );
 }
 
 
@@ -236,16 +235,17 @@ sub _write_a_p_legend {
 sub _write_a_p_pr_legend {
 
     my $self = shift;
+    my $font = shift;
     my $rtl  = 0;
 
     my @attributes = ( 'rtl' => $rtl );
 
-    $self->{_writer}->startTag( 'a:pPr', @attributes );
+    $self->xml_start_tag( 'a:pPr', @attributes );
 
     # Write the a:defRPr element.
-    $self->_write_a_def_rpr();
+    $self->_write_a_def_rpr( $font );
 
-    $self->{_writer}->endTag( 'a:pPr' );
+    $self->xml_end_tag( 'a:pPr' );
 }
 
 
@@ -262,7 +262,7 @@ sub _write_vary_colors {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:varyColors', @attributes );
+    $self->xml_empty_tag( 'c:varyColors', @attributes );
 }
 
 
@@ -279,7 +279,7 @@ sub _write_first_slice_ang {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:firstSliceAng', @attributes );
+    $self->xml_empty_tag( 'c:firstSliceAng', @attributes );
 }
 
 1;
@@ -338,7 +338,34 @@ These methods are explained in detail in L<Excel::Writer::XLSX::Chart>. Class sp
 
 =head1 Pie Chart Methods
 
-There aren't currently any pie chart specific methods. See the TODO section of L<Excel::Writer::XLSX::Chart>.
+It is possible to define chart colors for most types of Excel::Writer::XLSX charts via the add_series() method. However, Pie charts are a special case since each segment is represented as a point so it is necessary to assign formatting to each point in the series:
+
+    $chart->add_series(
+        values => '=Sheet1!$A$1:$A$3',
+        points => [
+            { fill => { color => '#FF0000' } },
+            { fill => { color => '#CC0000' } },
+            { fill => { color => '#990000' } },
+        ],
+    );
+
+See the main L<Excel::Writer::XLSX::Chart> documentation for more details.
+
+Pie charts support leader lines:
+
+    $chart->add_series(
+        name        => 'Pie sales data',
+        categories  => [ 'Sheet1', 1, 3, 0, 0 ],
+        values      => [ 'Sheet1', 1, 3, 1, 1 ],
+        data_labels => {
+            series_name  => 1,
+            percentage   => 1,
+            leader_lines => 1,
+            position     => 'outside_end'
+        },
+    );
+
+Note: Even when leader lines are turned on they aren't automatically visible in Excel or Excel::Writer::XLSX. Due to an Excel limitation (or design) leader lines only appear if the data label is moved manually or if the data labels are very close and need to be adjusted automatically.
 
 A Pie chart doesn't have an X or Y axis so the following common chart methods are ignored.
 
@@ -396,7 +423,7 @@ Here is a complete example that demonstrates most of the available features when
 
 <p>This will produce a chart that looks like this:</p>
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/2007/pie1.jpg" width="483" height="291" alt="Chart example." /></center></p>
+<p><center><img src="http://jmcnamara.github.com/excel-writer-xlsx/images/examples/pie1.jpg" width="483" height="291" alt="Chart example." /></center></p>
 
 =end html
 
@@ -407,7 +434,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright MM-MMXII, John McNamara.
+Copyright MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
-

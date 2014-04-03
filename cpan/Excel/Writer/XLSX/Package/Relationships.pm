@@ -6,7 +6,7 @@ package Excel::Writer::XLSX::Package::Relationships;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -20,7 +20,7 @@ use Carp;
 use Excel::Writer::XLSX::Package::XMLwriter;
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 our $schema_root     = 'http://schemas.openxmlformats.org';
 our $package_schema  = $schema_root . '/package/2006/relationships';
@@ -42,11 +42,11 @@ our $document_schema = $schema_root . '/officeDocument/2006/relationships';
 sub new {
 
     my $class = shift;
-    my $self  = Excel::Writer::XLSX::Package::XMLwriter->new();
+    my $fh    = shift;
+    my $self  = Excel::Writer::XLSX::Package::XMLwriter->new( $fh );
 
-    $self->{_writer} = undef;
-    $self->{_rels}   = [];
-    $self->{_id}     = 1;
+    $self->{_rels} = [];
+    $self->{_id}   = 1;
 
     bless $self, $class;
 
@@ -64,9 +64,7 @@ sub _assemble_xml_file {
 
     my $self = shift;
 
-    return unless $self->{_writer};
-
-    $self->_write_xml_declaration;
+    $self->xml_declaration;
     $self->_write_relationships();
 }
 
@@ -84,7 +82,6 @@ sub _add_document_relationship {
     my $target = shift;
 
     $type   = $document_schema . $type;
-    $target = $target;
 
     push @{ $self->{_rels} }, [ $type, $target ];
 }
@@ -103,11 +100,28 @@ sub _add_package_relationship {
     my $target = shift;
 
     $type   = $package_schema . $type;
-    $target = $target . '.xml';
 
     push @{ $self->{_rels} }, [ $type, $target ];
 }
 
+
+###############################################################################
+#
+# _add_ms_package_relationship()
+#
+# Add container relationship to XLSX .rels xml files. Uses MS schema.
+#
+sub _add_ms_package_relationship {
+
+    my $self   = shift;
+    my $type   = shift;
+    my $target = shift;
+    my $schema = 'http://schemas.microsoft.com/office/2006/relationships';
+
+    $type   = $schema . $type;
+
+    push @{ $self->{_rels} }, [ $type, $target ];
+}
 
 
 ###############################################################################
@@ -124,11 +138,9 @@ sub _add_worksheet_relationship {
     my $target_mode = shift;
 
     $type   = $document_schema . $type;
-    $target = $target;
 
     push @{ $self->{_rels} }, [ $type, $target, $target_mode ];
 }
-
 
 
 ###############################################################################
@@ -157,17 +169,16 @@ sub _write_relationships {
 
     my @attributes = ( 'xmlns' => $package_schema, );
 
-    $self->{_writer}->startTag( 'Relationships', @attributes );
+    $self->xml_start_tag( 'Relationships', @attributes );
 
     for my $rel ( @{ $self->{_rels} } ) {
         $self->_write_relationship( @$rel );
     }
 
-    $self->{_writer}->endTag( 'Relationships' );
+    $self->xml_end_tag( 'Relationships' );
 
-    # Close the XM writer object and filehandle.
-    $self->{_writer}->end();
-    $self->{_writer}->getOutput()->close();
+    # Close the XML writer filehandle.
+    $self->xml_get_fh()->close();
 }
 
 
@@ -192,7 +203,7 @@ sub _write_relationship {
 
     push @attributes, ( 'TargetMode' => $target_mode ) if $target_mode;
 
-    $self->{_writer}->emptyTag( 'Relationship', @attributes );
+    $self->xml_empty_tag( 'Relationship', @attributes );
 }
 
 
@@ -221,7 +232,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMXII, John McNamara.
+(c) MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

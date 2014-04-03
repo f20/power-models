@@ -6,7 +6,7 @@ package Excel::Writer::XLSX::Package::SharedStrings;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -17,10 +17,11 @@ use 5.008002;
 use strict;
 use warnings;
 use Carp;
+use Encode;
 use Excel::Writer::XLSX::Package::XMLwriter;
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -39,9 +40,9 @@ our $VERSION = '0.45';
 sub new {
 
     my $class = shift;
-    my $self  = Excel::Writer::XLSX::Package::XMLwriter->new();
+    my $fh    = shift;
+    my $self  = Excel::Writer::XLSX::Package::XMLwriter->new( $fh );
 
-    $self->{_writer}       = undef;
     $self->{_strings}      = [];
     $self->{_string_count} = 0;
     $self->{_unique_count} = 0;
@@ -62,9 +63,7 @@ sub _assemble_xml_file {
 
     my $self = shift;
 
-    return unless $self->{_writer};
-
-    $self->_write_xml_declaration;
+    $self->xml_declaration;
 
     # Write the sst table.
     $self->_write_sst( $self->{_string_count}, $self->{_unique_count} );
@@ -73,11 +72,10 @@ sub _assemble_xml_file {
     $self->_write_sst_strings();
 
     # Close the sst tag.
-    $self->{_writer}->endTag( 'sst' );
+    $self->xml_end_tag( 'sst' );
 
-    # Close the XML writer object and filehandle.
-    $self->{_writer}->end();
-    $self->{_writer}->getOutput()->close();
+    # Close the XML writer filehandle.
+    $self->xml_get_fh()->close();
 }
 
 
@@ -157,7 +155,7 @@ sub _write_sst {
         'uniqueCount' => $unique_count,
     );
 
-    $self->{_writer}->startTag( 'sst', @attributes );
+    $self->xml_start_tag( 'sst', @attributes );
 }
 
 
@@ -206,20 +204,19 @@ sub _write_si {
         push @attributes, ( 'xml:space' => 'preserve' );
     }
 
-    $self->{_writer}->startTag( 'si' );
 
     # Write any rich strings without further tags.
     if ( $string =~ m{^<r>} && $string =~ m{</r>$} ) {
-        my $fh = $self->{_writer}->getOutput();
 
-        local $\ = undef; # Protect print from -l on commandline.
-        print $fh $string;
+        # Prevent utf8 strings from getting double encoded.
+        $string = decode_utf8( $string );
+
+        $self->xml_rich_si_element( $string );
     }
     else {
-        $self->{_writer}->dataElement( 't', $string, @attributes );
+        $self->xml_si_element( $string, @attributes );
     }
 
-    $self->{_writer}->endTag( 'si' );
 }
 
 
@@ -248,7 +245,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMXII, John McNamara.
+(c) MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

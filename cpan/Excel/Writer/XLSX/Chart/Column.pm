@@ -8,7 +8,7 @@ package Excel::Writer::XLSX::Chart::Column;
 #
 # See formatting note in Excel::Writer::XLSX::Chart.
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -22,7 +22,7 @@ use Carp;
 use Excel::Writer::XLSX::Chart;
 
 our @ISA     = qw(Excel::Writer::XLSX::Chart);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -37,6 +37,14 @@ sub new {
 
     $self->{_subtype} = $self->{_subtype} || 'clustered';
     $self->{_horiz_val_axis} = 0;
+
+    # Override and reset the default axis values.
+    if ( $self->{_subtype} eq 'percent_stacked' ) {
+        $self->{_y_axis}->{_defaults}->{num_format} = '0%';
+    }
+
+    $self->set_y_axis();
+
 
     bless $self, $class;
 
@@ -55,7 +63,7 @@ sub _write_chart_type {
     my $self = shift;
 
     # Write the c:barChart element.
-    $self->_write_bar_chart();
+    $self->_write_bar_chart( @_ );
 }
 
 
@@ -68,11 +76,29 @@ sub _write_chart_type {
 sub _write_bar_chart {
 
     my $self = shift;
-    my $subtype = $self->{_subtype};
+    my %args = @_;
 
+    my @series;
+    if ( $args{primary_axes} ) {
+        @series = $self->_get_primary_axes_series;
+    }
+    else {
+        @series = $self->_get_secondary_axes_series;
+    }
+
+    return unless scalar @series;
+
+    my $subtype = $self->{_subtype};
     $subtype = 'percentStacked' if $subtype eq 'percent_stacked';
 
-    $self->{_writer}->startTag( 'c:barChart' );
+    # Set a default overlap for stacked charts.
+    if ($self->{_subtype} =~ /stacked/) {
+        if (!defined $self->{_series_overlap}) {
+            $self->{_series_overlap} = 100;
+        }
+    }
+
+    $self->xml_start_tag( 'c:barChart' );
 
     # Write the c:barDir element.
     $self->_write_bar_dir();
@@ -80,10 +106,22 @@ sub _write_bar_chart {
     # Write the c:grouping element.
     $self->_write_grouping( $subtype );
 
-    # Write the series elements.
-    $self->_write_series();
+    # Write the c:ser elements.
+    $self->_write_ser( $_ ) for @series;
 
-    $self->{_writer}->endTag( 'c:barChart' );
+    # Write the c:marker element.
+    $self->_write_marker_value();
+
+    # Write the c:gapWidth element.
+    $self->_write_gap_width( $self->{_series_gap} );
+
+    # Write the c:overlap element.
+    $self->_write_overlap( $self->{_series_overlap} );
+
+    # Write the c:axId elements
+    $self->_write_axis_ids( %args );
+
+    $self->xml_end_tag( 'c:barChart' );
 }
 
 
@@ -100,70 +138,18 @@ sub _write_bar_dir {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:barDir', @attributes );
+    $self->xml_empty_tag( 'c:barDir', @attributes );
 }
 
 
 ##############################################################################
 #
-# _write_series()
+# _write_err_dir()
 #
-# Over-ridden to add c:overlap.
+# Write the <c:errDir> element. Overridden from Chart class since it is not
+# used in Bar charts.
 #
-# Write the series elements.
-#
-sub _write_series {
-
-    my $self = shift;
-
-    # Write each series with subelements.
-    my $index = 0;
-    for my $series ( @{ $self->{_series} } ) {
-        $self->_write_ser( $index++, $series );
-    }
-
-    # Write the c:marker element.
-    $self->_write_marker_value();
-
-    # Write the c:overlap element.
-    $self->_write_overlap() if $self->{_subtype} =~ /stacked/;
-
-    # Generate the axis ids.
-    $self->_add_axis_id();
-    $self->_add_axis_id();
-
-    # Write the c:axId element.
-    $self->_write_axis_id( $self->{_axis_ids}->[0] );
-    $self->_write_axis_id( $self->{_axis_ids}->[1] );
-}
-
-
-##############################################################################
-#
-# _write_num_fmt()
-#
-# Over-ridden to add % format. TODO. This will be refactored back up to the
-# SUPER class later.
-#
-# Write the <c:numFmt> element.
-#
-sub _write_number_format {
-
-    my $self          = shift;
-    my $format_code   = shift || 'General';
-    my $source_linked = 1;
-
-    if ($self->{_subtype} eq 'percent_stacked') {
-        $format_code = '0%';
-    }
-
-    my @attributes = (
-        'formatCode'   => $format_code,
-        'sourceLinked' => $source_linked,
-    );
-
-    $self->{_writer}->emptyTag( 'c:numFmt', @attributes );
-}
+sub _write_err_dir {}
 
 
 1;
@@ -222,7 +208,7 @@ Once the object is created it can be configured via the following methods that a
 
 These methods are explained in detail in L<Excel::Writer::XLSX::Chart>. Class specific methods or settings, if any, are explained below.
 
-=head1 Column Chart Methods
+=head1 Column Chart Subtypes
 
 The C<Column> chart module also supports the following sub-types:
 
@@ -295,7 +281,7 @@ Here is a complete example that demonstrates most of the available features when
 
 <p>This will produce a chart that looks like this:</p>
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/2007/column1.jpg" width="483" height="291" alt="Chart example." /></center></p>
+<p><center><img src="http://jmcnamara.github.com/excel-writer-xlsx/images/examples/column1.jpg" width="483" height="291" alt="Chart example." /></center></p>
 
 =end html
 
@@ -306,7 +292,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright MM-MMXII, John McNamara.
+Copyright MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

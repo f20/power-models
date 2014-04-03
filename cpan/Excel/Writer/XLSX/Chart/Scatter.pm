@@ -8,7 +8,7 @@ package Excel::Writer::XLSX::Chart::Scatter;
 #
 # See formatting note in Excel::Writer::XLSX::Chart.
 #
-# Copyright 2000-2012, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2013, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -22,7 +22,7 @@ use Carp;
 use Excel::Writer::XLSX::Chart;
 
 our @ISA     = qw(Excel::Writer::XLSX::Chart);
-our $VERSION = '0.45';
+our $VERSION = '0.76';
 
 
 ###############################################################################
@@ -35,9 +35,11 @@ sub new {
     my $class = shift;
     my $self  = Excel::Writer::XLSX::Chart->new( @_ );
 
-    $self->{_subtype} = $self->{_subtype} || 'marker_only';
-    $self->{_cross_between} = 'midCat';
-    $self->{_horiz_val_axis}    = 0;
+    $self->{_subtype}          = $self->{_subtype} || 'marker_only';
+    $self->{_cross_between}    = 'midCat';
+    $self->{_horiz_val_axis}   = 0;
+    $self->{_val_axis_postion} = 'b';
+    $self->{_smooth_allowed}   = 1;
 
     bless $self, $class;
     return $self;
@@ -55,7 +57,7 @@ sub _write_chart_type {
     my $self = shift;
 
     # Write the c:scatterChart element.
-    $self->_write_scatter_chart();
+    $self->_write_scatter_chart( @_ );
 }
 
 
@@ -67,7 +69,19 @@ sub _write_chart_type {
 #
 sub _write_scatter_chart {
 
-    my $self    = shift;
+    my $self = shift;
+    my %args = @_;
+
+    my @series;
+    if ( $args{primary_axes} ) {
+        @series = $self->_get_primary_axes_series;
+    }
+    else {
+        @series = $self->_get_secondary_axes_series;
+    }
+
+    return unless scalar @series;
+
     my $style   = 'lineMarker';
     my $subtype = $self->{_subtype};
 
@@ -81,15 +95,21 @@ sub _write_scatter_chart {
     # Add default formatting to the series data.
     $self->_modify_series_formatting();
 
-    $self->{_writer}->startTag( 'c:scatterChart' );
+    $self->xml_start_tag( 'c:scatterChart' );
 
     # Write the c:scatterStyle element.
     $self->_write_scatter_style( $style );
 
     # Write the series elements.
-    $self->_write_series();
+    $self->_write_ser( $_ ) for @series;
 
-    $self->{_writer}->endTag( 'c:scatterChart' );
+    # Write the c:marker element.
+    $self->_write_marker_value();
+
+    # Write the c:axId elements
+    $self->_write_axis_ids( %args );
+
+    $self->xml_end_tag( 'c:scatterChart' );
 }
 
 
@@ -103,11 +123,11 @@ sub _write_scatter_chart {
 #
 sub _write_ser {
 
-    my $self       = shift;
-    my $index      = shift;
-    my $series     = shift;
+    my $self   = shift;
+    my $series = shift;
+    my $index  = $self->{_series_index}++;
 
-    $self->{_writer}->startTag( 'c:ser' );
+    $self->xml_start_tag( 'c:ser' );
 
     # Write the c:idx element.
     $self->_write_idx( $index );
@@ -124,11 +144,17 @@ sub _write_ser {
     # Write the c:marker element.
     $self->_write_marker( $series->{_marker} );
 
+    # Write the c:dPt element.
+    $self->_write_d_pt( $series->{_points} );
+
     # Write the c:dLbls element.
     $self->_write_d_lbls( $series->{_labels} );
 
     # Write the c:trendline element.
     $self->_write_trendline( $series->{_trendline} );
+
+    # Write the c:errBars element.
+    $self->_write_error_bars( $series->{_error_bars} );
 
     # Write the c:xVal element.
     $self->_write_x_val( $series );
@@ -137,9 +163,15 @@ sub _write_ser {
     $self->_write_y_val( $series );
 
     # Write the c:smooth element.
-    $self->_write_c_smooth();
+    if ( $self->{_subtype} =~ /smooth/ && !defined $series->{_smooth} ) {
+        # Default is on for smooth scatter charts.
+        $self->_write_c_smooth( 1 );
+    }
+    else {
+        $self->_write_c_smooth( $series->{_smooth} );
+    }
 
-    $self->{_writer}->endTag( 'c:ser' );
+    $self->xml_end_tag( 'c:ser' );
 }
 
 
@@ -156,22 +188,51 @@ sub _write_plot_area {
 
     my $self = shift;
 
-    $self->{_writer}->startTag( 'c:plotArea' );
+    $self->xml_start_tag( 'c:plotArea' );
 
     # Write the c:layout element.
-    $self->_write_layout();
+    $self->_write_layout( $self->{_plotarea}->{_layout}, 'plot' );
 
-    # Write the subclass chart type element.
-    $self->_write_chart_type();
+    # Write the subclass chart type elements for primary and secondary axes
+    $self->_write_chart_type( primary_axes => 1 );
+    $self->_write_chart_type( primary_axes => 0 );
 
-    # Write the c:catAx element.
-    $self->_write_cat_val_axis( 'b', 1 );
-
-    # Write the c:catAx element.
+    # Write c:catAx and c:valAx elements for series using primary axes
+    $self->_write_cat_val_axis(
+        x_axis   => $self->{_x_axis},
+        y_axis   => $self->{_y_axis},
+        axis_ids => $self->{_axis_ids},
+        position => 'b',
+    );
+    my $tmp = $self->{_horiz_val_axis};
     $self->{_horiz_val_axis} = 1;
-    $self->_write_val_axis( 'l' );
+    $self->_write_val_axis(
+        x_axis   => $self->{_x_axis},
+        y_axis   => $self->{_y_axis},
+        axis_ids => $self->{_axis_ids},
+        position => 'l',
+    );
+    $self->{_horiz_val_axis} = $tmp;
 
-    $self->{_writer}->endTag( 'c:plotArea' );
+    # Write c:valAx and c:catAx elements for series using secondary axes
+    $self->_write_cat_val_axis(
+        x_axis   => $self->{_x2_axis},
+        y_axis   => $self->{_y2_axis},
+        axis_ids => $self->{_axis2_ids},
+        position => 'b',
+    );
+    $self->{_horiz_val_axis} = 1;
+    $self->_write_val_axis(
+        x_axis   => $self->{_x2_axis},
+        y_axis   => $self->{_y2_axis},
+        axis_ids => $self->{_axis2_ids},
+        position => 'l',
+    );
+
+    # Write the c:spPr element for the plotarea formatting.
+    $self->_write_sp_pr( $self->{_plotarea} );
+
+    $self->xml_end_tag( 'c:plotArea' );
 }
 
 
@@ -189,7 +250,7 @@ sub _write_x_val {
     my $data_id = $series->{_cat_data_id};
     my $data    = $self->{_formula_data}->[$data_id];
 
-    $self->{_writer}->startTag( 'c:xVal' );
+    $self->xml_start_tag( 'c:xVal' );
 
     # Check the type of cached data.
     my $type = $self->_get_data_type( $data );
@@ -207,7 +268,7 @@ sub _write_x_val {
         $self->_write_num_ref( $formula, $data, $type );
     }
 
-    $self->{_writer}->endTag( 'c:xVal' );
+    $self->xml_end_tag( 'c:xVal' );
 }
 
 
@@ -225,23 +286,14 @@ sub _write_y_val {
     my $data_id = $series->{_val_data_id};
     my $data    = $self->{_formula_data}->[$data_id];
 
-    $self->{_writer}->startTag( 'c:yVal' );
+    $self->xml_start_tag( 'c:yVal' );
 
-    # Check the type of cached data.
-    my $type = $self->_get_data_type( $data );
+    # Unlike Cat axes data should only be numeric.
 
-    if ( $type eq 'str' ) {
+    # Write the c:numRef element.
+    $self->_write_num_ref( $formula, $data, 'num' );
 
-        # Write the c:numRef element.
-        $self->_write_str_ref( $formula, $data, $type );
-    }
-    else {
-
-        # Write the c:numRef element.
-        $self->_write_num_ref( $formula, $data, $type );
-    }
-
-    $self->{_writer}->endTag( 'c:yVal' );
+    $self->xml_end_tag( 'c:yVal' );
 }
 
 
@@ -258,27 +310,7 @@ sub _write_scatter_style {
 
     my @attributes = ( 'val' => $val );
 
-    $self->{_writer}->emptyTag( 'c:scatterStyle', @attributes );
-}
-
-
-##############################################################################
-#
-# _write_c_smooth()
-#
-# Write the <c:smooth> element.
-#
-sub _write_c_smooth {
-
-    my $self    = shift;
-    my $subtype = $self->{_subtype};
-    my $val     = 1;
-
-    return unless $subtype =~ /smooth/;
-
-    my @attributes = ( 'val' => $val );
-
-    $self->{_writer}->emptyTag( 'c:smooth', @attributes );
+    $self->xml_empty_tag( 'c:scatterStyle', @attributes );
 }
 
 
@@ -318,7 +350,7 @@ sub _modify_series_formatting {
         for my $series ( @{ $self->{_series} } ) {
 
             # Set a marker type unless there is already a user defined type.
-            if ( !$series->{_marker}->{_defined} ) {
+            if ( !$series->{_marker} ) {
                 $series->{_marker} = {
                     type     => 'none',
                     _defined => 1,
@@ -327,6 +359,35 @@ sub _modify_series_formatting {
         }
     }
 
+}
+
+
+##############################################################################
+#
+# _write_d_pt_point()
+#
+# Write an individual <c:dPt> element. Override the parent method to add
+# markers.
+#
+sub _write_d_pt_point {
+
+    my $self   = shift;
+    my $index = shift;
+    my $point = shift;
+
+        $self->xml_start_tag( 'c:dPt' );
+
+        # Write the c:idx element.
+        $self->_write_idx( $index );
+
+        $self->xml_start_tag( 'c:marker' );
+
+        # Write the c:spPr element.
+        $self->_write_sp_pr( $point );
+
+        $self->xml_end_tag( 'c:marker' );
+
+        $self->xml_end_tag( 'c:dPt' );
 }
 
 
@@ -386,7 +447,7 @@ Once the object is created it can be configured via the following methods that a
 
 These methods are explained in detail in L<Excel::Writer::XLSX::Chart>. Class specific methods or settings, if any, are explained below.
 
-=head1 Scatter Chart Methods
+=head1 Scatter Chart Subtypes
 
 The C<Scatter> chart module also supports the following sub-types:
 
@@ -465,7 +526,7 @@ Here is a complete example that demonstrates most of the available features when
 
 <p>This will produce a chart that looks like this:</p>
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/2007/scatter1.jpg" width="483" height="291" alt="Chart example." /></center></p>
+<p><center><img src="http://jmcnamara.github.com/excel-writer-xlsx/images/examples/scatter1.jpg" width="483" height="291" alt="Chart example." /></center></p>
 
 =end html
 
@@ -476,7 +537,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright MM-MMXII, John McNamara.
+Copyright MM-MMXIIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 
