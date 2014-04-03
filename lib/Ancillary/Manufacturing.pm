@@ -339,9 +339,10 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                     $addToList->( $data, $rule );
                 }
             }
-            $addToList->(
-                $data, ( sort { $b->[1] <=> $a->[1] } @scored )[0][0]
-            ) if @scored;
+            if (@scored) {
+                @scored = ( sort { $b->[1] <=> $a->[1] } @scored )[0];
+                $addToList->( $data, $scored[0] );
+            }
         }
         keys %files;
     };
