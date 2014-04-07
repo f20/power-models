@@ -1,5 +1,5 @@
 ---
-.: EDCM model L201 (LRIC) with 600 tariff pairs
+.: EDCM modernised LRIC model
 PerlModule: EDCM2
 dcp130: 1
 ldnoRev: ldnorev5
