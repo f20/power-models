@@ -1012,14 +1012,17 @@ EOT
     my $chargeOther = Arithmetic(
         name => 'Revenue less costs and '
           . (
-            $model->{dcp189} && $model->{dcp189} =~ /split/i ? 'other things'
+            $model->{dcp189} && $model->{dcp189} =~ /split/i
+            ? 'other things'
             : 'net forecast EDCM generation revenue'
           )
           . ' (£/year)',
         defaultFormat => '0softnz',
         arithmetic    => '=IV1-IV2-IV3-IV4-IV5'
           . (
-            $model->{dcp189} && $model->{dcp189} =~ /split/i ? '-IV6*IV7' : ''
+            $model->{dcp189} && $model->{dcp189} =~ /split/i
+            ? ( $model->{dcp189} =~ /reasonable/i ? '+' : '-' ) . 'IV6*IV7'
+            : ''
           ),
         arguments => {
             IV1 => $allowedRevenue,
@@ -1113,14 +1116,18 @@ EOT
         $totalRevenue3 = Arithmetic(
             name => 'Demand revenue target pot'
               . (
-                $model->{dcp189} && !$totalDcp189DiscountedAssets
-                ? ' adjusted for DCP 189'
+                $model->{dcp189}
+                  && !$totalDcp189DiscountedAssets ? ' adjusted for DCP 189'
                 : ''
               )
               . ' (£/year)',
             defaultFormat => '0softnz',
             arithmetic    => '=(IV11+IV12+IV13)*(IV21+IV22+IV23)'
-              . '+(IV14+IV15)*IV24+IV16*IV25',
+              . '+(IV14+IV15)*IV24+IV16*IV25'
+              . (
+                     $model->{dcp189}
+                  && $model->{dcp189} =~ /reasonable/i ? '-IV6*IV7' : ''
+              ),
             arguments => {
                 IV11 => $totalAssetsFixed,
                 IV12 => $totalAssetsCapacity,
@@ -1133,6 +1140,9 @@ EOT
                 IV23 => $rateIndirect,
                 IV24 => $rateOther,
                 IV25 => $rateExit,
+                $model->{dcp189} && $model->{dcp189} =~ /reasonable/i
+                ? ( IV6 => $rateDirect, IV7 => $totalDcp189DiscountedAssets, )
+                : (),
             }
         );
 

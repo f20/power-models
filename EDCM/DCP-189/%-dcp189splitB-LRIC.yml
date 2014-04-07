@@ -1,15 +1,15 @@
 ---
-.: DCP 189 FCP (split)
+.: DCP 189 LRIC (reasonable split)
 PerlModule: EDCM2
 dcp130: 1
-dcp189: split
+dcp189: reasonableSplit
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
-method: FCP
+method: LRIC
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
 validation: lenientnomsg
-wantTables: 911
+wantTables: 913

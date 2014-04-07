@@ -1,0 +1,15 @@
+---
+.: DCP 189 LRIC (absurd split)
+PerlModule: EDCM2
+dcp130: 1
+dcp189: split
+ldnoRev: ldnorev5
+lowerIntermittentCredit: 1
+method: LRIC
+noNegative: 1
+numLocationsDefault: 1200
+numTariffsDefault: 600
+protect: 1
+summaries: 1
+validation: lenientnomsg
+wantTables: 913

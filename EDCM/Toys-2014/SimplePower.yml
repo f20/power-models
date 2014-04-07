@@ -399,27 +399,27 @@
     _column: Name
   - 1: 1000
     2: 99000
-    3: 100
+    3: 10000
     _column: Maximum import capacity (kVA)
   - 1: VOID
     2: VOID
-    3: 100
+    3: 1000
     _column: Exempt export capacity (kVA)
   - 1: VOID
     2: VOID
-    3: 100
+    3: 1000
     _column: Non-exempt pre-2005 export capacity (kVA)
   - 1: VOID
     2: VOID
-    3: 100
+    3: 1000
     _column: Non-exempt 2005-2010 export capacity (kVA)
   - 1: VOID
     2: VOID
-    3: 100
+    3: 1000
     _column: Non-exempt post-2010 export capacity (kVA)
   - 1: 198000000
     2: 2000000
-    3: 25000
+    3: 0
     _column: Sole use asset MEAV (£)
   - 1: ''
     2: ''
