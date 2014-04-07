@@ -50,13 +50,12 @@ sub expenditureAlloc {
     ($preAllocated) = $model->ajust117( $meavPercentages, $preAllocated, )
       if $model->{dcp117};
 
-    push @{ $model->{calcTables} }, $allocationRules,
-      my $allocatedTotal = GroupBy(
+    my $allocatedTotal = GroupBy(
         name          => 'Amounts already allocated',
         source        => $preAllocated,
         rows          => $preAllocated->{rows},
         defaultFormat => '0softnz'
-      );
+    );
 
     my $lvOnly = Constant(
         name          => 'LV only',
@@ -144,7 +143,7 @@ sub expenditureAlloc {
         arguments     => { IV1 => $totalDirect, IV2 => $total }
     );
 
-    $afterAllocation, $direct;
+    $afterAllocation, $direct, $allocatedTotal;
 
 }
 

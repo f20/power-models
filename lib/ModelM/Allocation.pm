@@ -52,14 +52,6 @@ sub allocation {
         arguments => { IV1_IV2 => $allocationRules, IV3_IV4 => $expenditure }
       );
 
-    push @{ $model->{calcTables} },
-      my $toDeductDown = Arithmetic(
-        name => 'To be deducted from revenue and treated as "downstream" cost',
-        arithmetic =>
-'=SUMIF(IV1_IV2,"Deduct from revenue and treat as downstream",IV3_IV4)',
-        arguments => { IV1_IV2 => $allocationRules, IV3_IV4 => $expenditure }
-      ) if $model->{deductDownstream};    # not implemented (I think)
-
     my $expensed = Arithmetic(
         name => 'Complete allocation, adjusted for regulatory capitalisation',
         defaultFormat => '0softnz',

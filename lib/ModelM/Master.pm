@@ -83,10 +83,20 @@ END_OF_LIST
       $model->adjust118( $netCapexPercentages, $meavPercentages, )
       if $model->{dcp118};
 
-    my ( $afterAllocation, $direct, ) = $model->expenditureAlloc(
+    # because Numbers for iPad does not accept a SUMIF across sheets.
+    $expenditure = Stack( sources => [$expenditure] );
+
+    my ( $afterAllocation, $direct, $tableForColumnset ) =
+      $model->expenditureAlloc(
         $allocLevelset,   $allocationRules, $capitalised,
         $directIndicator, $expenditure,     $meavPercentages,
-    );
+      );
+
+    push @{ $model->{calcTables} }, $allocationRules,
+      Columnset(
+        columns => [ $expenditure, $tableForColumnset ],
+        name    => 'Expenditure data'
+      );
 
     ( $afterAllocation, $allocLevelset, $netCapexPercentages, $units ) =
       $model->realloc95( $afterAllocation, $allocationRules,

@@ -86,6 +86,7 @@ EOT
 
     my $theCols = $netCapexPercentages->{cols};
 
+# Duplicating $cdcmAssets for Numbers for iPad which cannot do SUMPRODUCT across sheets
     my $cdcmProp = Arithmetic(
         name => 'Proportion of EHV notional assets which are in the CDCM',
         defaultFormat => '%soft',
@@ -100,7 +101,7 @@ EOT
                 byrow => 1,
                 data  => [ [qw(1 1 1 1 1 1 0 0 0 0 0)] ]
             ),
-            IV4_IV5 => $cdcmAssets,
+            IV4_IV5 => Stack( sources => [$cdcmAssets] ),
         },
     );
 
@@ -120,13 +121,15 @@ EOT
     );
 
     map {
+        # for Numbers for iPad which cannot do SUMPRODUCT across sheets
+        my $dup = Stack( sources => [$_] );
         Arithmetic(
             name       => "$_->{name} after exclusions",
             arithmetic => '=IV1*IV2/SUMPRODUCT(IV3_IV4,IV5_IV6)',
             arguments  => {
-                IV1     => $_,
+                IV1     => $dup,
                 IV2     => $propKept,
-                IV3_IV4 => $_,
+                IV3_IV4 => $dup,
                 IV5_IV6 => $propKept,
             },
             defaultFormat => '%soft'
