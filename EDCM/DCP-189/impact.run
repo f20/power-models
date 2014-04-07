@@ -8,7 +8,7 @@ cd _$RUN.tmp
 
 DATASETS=../EDCM/Data-Test/*
 DATASETS=../EDCM/Toys-2014/*
-DATASETS=../EDCM/Toys-2014/Simple*
+DATASETS=../EDCM/Toys-2014/Test*
 
 perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* $DATASETS -xdata='{"rules":{"numLocations":2,"numTariffs":2}}'
 
@@ -16,7 +16,9 @@ perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"
 
 perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"preserveResidual","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189preserveResidual-Y"}}' $DATASETS
 
-perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"split","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189split-Y"}}' $DATASETS
+perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"splitShortfall","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189splitShortfall-Y"}}' $DATASETS
+
+perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"splitWrong","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189splitWrong-Y"}}' $DATASETS
 
 perl ../run/import.pl -calc -sqlite *.xlsx
 
@@ -24,8 +26,10 @@ perl ../run/export.pl -xlsx -edcm dcp189preservePot-Y -base=i70-FCP
 perl ../run/export.pl -xlsx -edcm dcp189preservePot-Y -base=i70-LRIC
 perl ../run/export.pl -xlsx -edcm dcp189preserveResidual-Y -base=i70-FCP
 perl ../run/export.pl -xlsx -edcm dcp189preserveResidual-Y -base=i70-LRIC
-perl ../run/export.pl -xlsx -edcm dcp189split-Y -base=i70-FCP
-perl ../run/export.pl -xlsx -edcm dcp189split-Y -base=i70-LRIC
+perl ../run/export.pl -xlsx -edcm dcp189splitWrong-Y -base=i70-FCP
+perl ../run/export.pl -xlsx -edcm dcp189splitWrong-Y -base=i70-LRIC
+perl ../run/export.pl -xlsx -edcm dcp189splitShortfall-Y -base=i70-FCP
+perl ../run/export.pl -xlsx -edcm dcp189splitShortfall-Y -base=i70-LRIC
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

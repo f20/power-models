@@ -1,8 +1,8 @@
 ---
-.: DCP 189 FCP (reasonable split)
+.: DCP 189 FCP (split shortfall)
 PerlModule: EDCM2
 dcp130: 1
-dcp189: reasonableSplit
+dcp189: splitShortfall
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: FCP

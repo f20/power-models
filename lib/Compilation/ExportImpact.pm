@@ -697,6 +697,8 @@ WPD WestM
 SimplePower
 DuckPower
 GoosePower
+TestPowerF
+TestPowerL
 EOL
     $or->{sheetTitles} ||=
       [ map { "$_: illustrative impact of $or->{dcpName}" } split /\n/, <<EOL ];
@@ -717,6 +719,8 @@ WPD West Midlands
 Simple Power Networks
 Duck Power Networks
 Goose Power Networks
+Test Power Networks FCP
+Test Power Networks LRIC
 EOL
 }
 

@@ -1,8 +1,8 @@
 ---
-.: DCP 189 LRIC (reasonable split)
+.: DCP 189 LRIC (wrong split)
 PerlModule: EDCM2
 dcp130: 1
-dcp189: reasonableSplit
+dcp189: split
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC
