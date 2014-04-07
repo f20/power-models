@@ -7,8 +7,8 @@ ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: FCP
 noNegative: 1
-numLocations: 1200
-numTariffs: 600
+numLocationsDefault: 1200
+numTariffsDefault: 600
 protect: 1
 summaries: 1
 validation: lenientnomsg

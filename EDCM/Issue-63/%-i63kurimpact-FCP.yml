@@ -1,5 +1,5 @@
 ---
-.: MIG issue 63+70 (with FCP unit rate) tool
+.: MIG issue 63 (with FCP unit rate) scenario tool
 PerlModule: EDCM2
 illustrative: 1
 lockedInputs: 1
@@ -8,9 +8,9 @@ method: FCP
 noNegative: 1
 numExtraLocations: 8
 numExtraTariffs: 0
-numLocations: 2
+numLocationsDefault: 2
 numSampleTariffs: 0
-numTariffs: 0
+numTariffsDefault: 0
 protect: 1
 removeDemandCharge1: keepunitrate
 summaries: 1

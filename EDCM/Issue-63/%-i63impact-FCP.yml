@@ -1,20 +1,20 @@
 ---
-.: MIG issue 63+70 (with LRIC unit rate) tool
+.: MIG issue 63+70 customer scenario tool (FCP)
 PerlModule: EDCM2
 illustrative: 1
 lockedInputs: 1
 lowerIntermittentCredit: 1
-method: LRIC
+method: FCP
 noNegative: 1
 numExtraLocations: 8
 numExtraTariffs: 0
-numLocations: 2
+numLocationsDefault: 2
 numSampleTariffs: 0
-numTariffs: 0
+numTariffsDefault: 0
 protect: 1
-removeDemandCharge1: keepunitrate
+removeDemandCharge1: 1
 summaries: 1
 transparency: impact
 validation: lenientnomsg
 version: without demand charge 1
-wantTables: 913
+wantTables: 911

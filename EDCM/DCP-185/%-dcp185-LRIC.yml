@@ -1,5 +1,5 @@
 ---
-.: DCP 185 LRIC
+.: DCP 185 LRIC (legacy code)
 PerlModule: EDCM2
 dcp130: 1
 dcp185: 1

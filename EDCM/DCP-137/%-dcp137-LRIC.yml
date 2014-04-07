@@ -1,5 +1,5 @@
 ---
-.: EDCM model L201 with DCP 137 (LRIC)
+.: EDCM DCP 137 LRIC (legacy code)
 PerlModule: EDCM2
 dcp130: 1
 dcp137: 1

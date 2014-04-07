@@ -1,5 +1,5 @@
 ---
-.: DCP 189 FCP
+.: DCP 189 FCP (legacy code)
 PerlModule: EDCM2
 dcp130: 1
 dcp189: 1

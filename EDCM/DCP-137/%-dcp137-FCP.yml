@@ -1,5 +1,5 @@
 ---
-.: EDCM model F201 with DCP 137 (FCP)
+.: EDCM DCP 137 FCP (legacy code)
 PerlModule: EDCM2
 dcp130: 1
 dcp137: 1
