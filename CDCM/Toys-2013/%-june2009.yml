@@ -1,10 +1,17 @@
 ---
 .: Similar to June 2009 consultation (no Method M)
 PerlModule: CDCM
+dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
 drm: top500gsp
 extraLevels: 1
 illustrative: 1
 matrices: big
+noLossAdj: 1
 noReplacement: 0.453
 portfolio: 1
 standing: sub132

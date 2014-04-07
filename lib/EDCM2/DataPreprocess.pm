@@ -90,6 +90,8 @@ sub preprocessDataset {
     my $daysInYear = $model->{dataset}{1113}[1]{$daysInYearKey};
     my ($hoursInRedKey) = grep { !/^_/ } keys %{ $model->{dataset}{1113}[3] };
     my $hoursInRed = $model->{dataset}{1113}[3]{$hoursInRedKey};
+    $model->{dataset}{1113}[1]{$daysInYearKey} = $daysInYear;
+    $model->{dataset}{1113}[3]{$hoursInRedKey} = $hoursInRed;
 
     if ( my $ds = $model->{dataset}{935} ) {
         my %tariffs;
@@ -182,8 +184,15 @@ sub preprocessDataset {
 
     }
 
-    $model->{dataset}{1113}[1]{$daysInYearKey} = $daysInYear;
-    $model->{dataset}{1113}[3]{$hoursInRedKey} = $hoursInRed;
+    if ( $model->{dataset}{1194} ) {
+        my ( $key1191, $key1192, $key1194 ) = map {
+            ( grep { !/^_/ } keys %{ $model->{dataset}{$_}[1] } )[0]
+        } qw(1191 1192 1194);
+        $model->{dataset}{1191}[4]{$key1191} =
+          $model->{dataset}{1194}[3]{$key1194};
+        $model->{dataset}{1192}[4]{$key1192} =
+          $model->{dataset}{1194}[1]{$key1194};
+    }
 
 }
 

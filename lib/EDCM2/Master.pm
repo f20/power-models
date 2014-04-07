@@ -323,7 +323,8 @@ EOT
                     'Baseline total marginal effect of demand adder (kVA)',
                     '0hard'
                 ],
-                'Baseline EDCM demand volumes'
+                [ 'Baseline revenue from demand charge 1 (£/year)', '0hard' ],
+                'Baseline EDCM demand aggregates'
             ],
             [
                 1192,
@@ -336,7 +337,11 @@ EOT
                     'Baseline total non-exempt post-2010 export capacity (kVA)',
                     '0hard'
                 ],
-                'Baseline EDCM generation volumes'
+                [
+                    'Baseline net forecast EDCM generation revenue (£/year)',
+                    '0hard'
+                ],
+                'Baseline EDCM generation aggregates'
             ],
             [
                 1193,
@@ -352,24 +357,14 @@ EOT
                       . ' notional assets subject to matching (£)',
                     '0hard'
                 ],
-                $model->{dcp189} && $model->{dcp189} =~ /preservePot/i
+                $model->{dcp189} && $model->{dcp189} =~ /preservePot|split/i
                 ? [
                         'Baseline total demand sole use assets '
                       . 'qualifying for DCP 189 discount (£)', '0hard'
                   ]
                 : (),
-                'Baseline EDCM assets and notional assets'
+                'Baseline EDCM notional asset aggregates'
             ],
-            [
-                1194,
-                [
-                    'Baseline net forecast EDCM generation revenue (£/year)',
-                    '0hard'
-                ],
-                [ 'Baseline EDCM demand pot (£/year)',              '0hard' ],
-                [ 'Baseline revenue from demand charge 1 (£/year)', '0hard' ],
-                'Baseline EDCM pots'
-            ]
           )
         {
             my @cols;
@@ -751,19 +746,6 @@ EOT
     );
     $model->{transparency}{olFYI}{1255} = $edcmRates if $model->{transparency};
 
-    my $fixed3contribution = Arithmetic(
-        name          => 'Demand fixed pot contribution p/day',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100/IV2*IV1*(IV6+IV7+IV88)',
-        arguments     => {
-            IV1  => $demandSoleUseAsset,
-            IV6  => $rateDirect,
-            IV7  => $rateIndirect,
-            IV88 => $rateRates,
-            IV2  => $daysInYear,
-        }
-    );
-
     my $fixedDcharge =
       $model->{dcp189}
       ? Arithmetic(
@@ -956,7 +938,7 @@ EOT
 '=IF(IV123,0,IV1)+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)/100+SUMPRODUCT(IV31_IV32,IV71_IV72,IV73_IV74)*IV75/100+SUMPRODUCT(IV41_IV42,IV83_IV84)*IV85/100',
         arguments => {
             IV123     => $model->{transparencyMasterFlag},
-            IV1       => $model->{transparency}{ol119401},
+            IV1       => $model->{transparency}{ol119204},
             IV21_IV22 => $model->{transparency},
             IV31_IV32 => $model->{transparency},
             IV41_IV42 => $model->{transparency},
@@ -985,20 +967,69 @@ EOT
         }
       );
 
-    $model->{transparency}{olTabCol}{119401} = $generationRevenue
+    $model->{transparency}{olTabCol}{119204} = $generationRevenue
       if $model->{transparency};
 
-    my $chargeOther = Arithmetic(
-        name =>
-'Revenue less costs and net forecast EDCM generation revenue (£/year)',
+    my $totalDcp189DiscountedAssets;
+
+    $totalDcp189DiscountedAssets =
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name => 'Total demand sole use assets '
+          . 'qualifying for DCP 189 discount (£)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IV1-IV2-IV3-IV4-IV5',
+        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
         arguments     => {
+            IV123     => $model->{transparencyMasterFlag},
+            IV1       => $model->{transparency}{ol119306},
+            IV11_IV12 => Arithmetic(
+                name => 'Demand sole use assets '
+                  . 'qualifying for DCP 189 discount (£)',
+                defaultFormat => '0softnz',
+                arithmetic    => '=IF(IV4="Y",IV1,0)',
+                arguments     => {
+                    IV1 => $demandSoleUseAsset,
+                    IV4 => $dcp189YesOrNo,
+                }
+            ),
+            IV15_IV16 => $model->{transparency},
+        },
+      )
+      : Arithmetic(
+        name => 'Total demand sole use assets '
+          . 'qualifying for DCP 189 discount (£)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=SUMIF(IV1_IV2,"Y",IV3_IV4)',
+        arguments     => {
+            IV1_IV2 => $dcp189YesOrNo,
+            IV3_IV4 => $demandSoleUseAsset,
+        }
+      ) if $model->{dcp189} && $model->{dcp189} =~ /preservePot|split/i;
+
+    $model->{transparency}{olTabCol}{119306} = $totalDcp189DiscountedAssets
+      if $model->{transparency} && $totalDcp189DiscountedAssets;
+
+    my $chargeOther = Arithmetic(
+        name => 'Revenue less costs and '
+          . (
+            $model->{dcp189} && $model->{dcp189} =~ /split/i ? 'other things'
+            : 'net forecast EDCM generation revenue'
+          )
+          . ' (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IV1-IV2-IV3-IV4-IV5'
+          . (
+            $model->{dcp189} && $model->{dcp189} =~ /split/i ? '-IV6*IV7' : ''
+          ),
+        arguments => {
             IV1 => $allowedRevenue,
             IV2 => $chargeDirect,
             IV3 => $chargeIndirect,
             IV4 => $chargeRates,
             IV5 => $generationRevenue,
+            $model->{dcp189} && $model->{dcp189} =~ /split/i
+            ? ( IV6 => $rateDirect, IV7 => $totalDcp189DiscountedAssets, )
+            : (),
         }
     );
     $model->{transparency}{olFYI}{1248} = $chargeOther
@@ -1006,7 +1037,7 @@ EOT
 
     my $rateOther = Arithmetic(
         name          => 'Other revenue charging rate',
-        arithmetic    => '=IV1/((IV21+IV22)+IV3+IV4)',
+        arithmetic    => '=IV1/(IV21+IV22+IV3+IV4)',
         defaultFormat => '%soft',
         arguments     => {
             IV1  => $chargeOther,
@@ -1021,57 +1052,93 @@ EOT
     );
     $model->{transparency}{olFYI}{1249} = $rateOther if $model->{transparency};
 
-    my $capacity3 = Arithmetic(
-        name          => 'Capacity pot contribution p/kVA/day',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100/IV3*((IV1+IV53)*(IV6+IV7+IV8+IV9)+IV41*IV42)',
-        arguments     => {
-            IV3  => $daysInYear,
-            IV1  => $assetsCapacity,
-            IV53 => $assetsConsumption,
-            IV41 => $rateExit,
-            IV42 => ref $redUseRate eq 'ARRAY' ? $redUseRate->[0] : $redUseRate,
-            IV6  => $rateDirect,
-            IV7  => $rateIndirect,
-            IV8  => $rateRates,
-            IV9  => $rateOther,
-        }
-    );
+    my $totalRevenue3;
 
-    my $revenue3 = Arithmetic(
-        name          => 'Pot contribution £/year',
-        defaultFormat => '0softnz',
-        arithmetic    => '=IV9*0.01*(IV1+IV2*IV3)',
-        arguments     => {
-            IV1 => $fixed3contribution,
-            IV2 => $capacity3,
-            IV3 => $importCapacity,
-            IV9 => $daysInYear,
-        }
-    );
+    if ( $model->{legacy201} ) {
 
-    push @{ $model->{calc3Tables} },
-      my $totalRevenue3 =
-      $model->{transparencyMasterFlag}
-      ? Arithmetic(
-        name          => 'Pot (£/year)',
-        defaultFormat => '0softnz',
-        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
-        arguments     => {
-            IV123     => $model->{transparencyMasterFlag},
-            IV1       => $model->{transparency}{ol119402},
-            IV11_IV12 => $revenue3,
-            IV15_IV16 => $model->{transparency},
-        },
-      )
-      : GroupBy(
-        name          => 'Pot £/year',
-        defaultFormat => '0softnz',
-        source        => $revenue3
-      );
+        my $fixed3contribution = Arithmetic(
+            name          => 'Demand fixed pot contribution p/day',
+            defaultFormat => '0.00softnz',
+            arithmetic    => '=100/IV2*IV1*(IV6+IV7+IV88)',
+            arguments     => {
+                IV1  => $demandSoleUseAsset,
+                IV6  => $rateDirect,
+                IV7  => $rateIndirect,
+                IV88 => $rateRates,
+                IV2  => $daysInYear,
+            }
+        );
 
-    $model->{transparency}{olTabCol}{119402} = $totalRevenue3
-      if $model->{transparency};
+        my $capacity3 = Arithmetic(
+            name          => 'Capacity pot contribution p/kVA/day',
+            defaultFormat => '0.00softnz',
+            arithmetic => '=100/IV3*((IV1+IV53)*(IV6+IV7+IV8+IV9)+IV41*IV42)',
+            arguments  => {
+                IV3  => $daysInYear,
+                IV1  => $assetsCapacity,
+                IV53 => $assetsConsumption,
+                IV41 => $rateExit,
+                IV42 => ref $redUseRate eq 'ARRAY'
+                ? $redUseRate->[0]
+                : $redUseRate,
+                IV6 => $rateDirect,
+                IV7 => $rateIndirect,
+                IV8 => $rateRates,
+                IV9 => $rateOther,
+            }
+        );
+
+        my $revenue3 = Arithmetic(
+            name          => 'Pot contribution £/year',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IV9*0.01*(IV1+IV2*IV3)',
+            arguments     => {
+                IV1 => $fixed3contribution,
+                IV2 => $capacity3,
+                IV3 => $importCapacity,
+                IV9 => $daysInYear,
+            }
+        );
+
+        $totalRevenue3 = GroupBy(
+            name          => 'Pot £/year',
+            defaultFormat => '0softnz',
+            source        => $revenue3
+        );
+
+    }
+
+    else {
+
+        $totalRevenue3 = Arithmetic(
+            name => 'Demand revenue target pot'
+              . (
+                $model->{dcp189} && !$totalDcp189DiscountedAssets
+                ? ' adjusted for DCP 189'
+                : ''
+              )
+              . ' (£/year)',
+            defaultFormat => '0softnz',
+            arithmetic    => '=(IV11+IV12+IV13)*(IV21+IV22+IV23)'
+              . '+(IV14+IV15)*IV24+IV16*IV25',
+            arguments => {
+                IV11 => $totalAssetsFixed,
+                IV12 => $totalAssetsCapacity,
+                IV13 => $totalAssetsConsumption,
+                IV14 => $totalAssetsCapacity,
+                IV15 => $totalAssetsConsumption,
+                IV16 => $edcmRedUse,
+                IV21 => $rateDirect,
+                IV22 => $rateRates,
+                IV23 => $rateIndirect,
+                IV24 => $rateOther,
+                IV25 => $rateExit,
+            }
+        );
+
+    }
+
+    push @{ $model->{calc3Tables} }, $totalRevenue3;
 
     my ( $scalingChargeFixed, $scalingChargeCapacity );
 
@@ -1167,8 +1234,8 @@ EOT
     if ( $model->{legacy201} ) {
 
         $capacityChargeT = Arithmetic(
-            name          => 'Import capacity charge before scaling (p/VA/day)',
-            arithmetic    => '=IV7+IF(IV6=0,1,IV4/IV5)*IV1',
+            name       => 'Import capacity charge before scaling (p/kVA/day)',
+            arithmetic => '=IV7+IF(IV6=0,1,IV4/IV5)*IV1',
             defaultFormat => '0.00softnz',
             arguments     => {
                 IV1 => $fcpLricDemandCapacityChargeBig,
@@ -1484,7 +1551,7 @@ EOT
 
         push @{ $model->{calc2Tables} },
           my $capacityChargeT1 = Arithmetic(
-            name          => 'Import capacity charge from charge 1 (p/VA/day)',
+            name          => 'Import capacity charge from charge 1 (p/kVA/day)',
             arithmetic    => '=IF(IV6=0,1,IV4/IV5)*IV1',
             defaultFormat => '0.00softnz',
             arguments     => {
@@ -1496,8 +1563,8 @@ EOT
           );
 
         $capacityChargeT = Arithmetic(
-            name          => 'Import capacity charge before scaling (p/VA/day)',
-            arithmetic    => '=IV7+IV1',
+            name       => 'Import capacity charge before scaling (p/kVA/day)',
+            arithmetic => '=IV7+IV1',
             defaultFormat => '0.00softnz',
             arguments     => {
                 IV1 => $capacityChargeT1,
@@ -1538,45 +1605,6 @@ EOT
             }
         );
 
-        my $totalDcp189DiscountedAssets;
-
-        $totalDcp189DiscountedAssets =
-          $model->{transparencyMasterFlag}
-          ? Arithmetic(
-            name => 'Total demand sole use assets '
-              . 'qualifying for DCP 189 discount (£)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
-            arguments     => {
-                IV123     => $model->{transparencyMasterFlag},
-                IV1       => $model->{transparency}{ol119306},
-                IV11_IV12 => Arithmetic(
-                    name => 'Demand sole use assets '
-                      . 'qualifying for DCP 189 discount (£)',
-                    defaultFormat => '0softnz',
-                    arithmetic    => '=IF(IV4="Y",IV1,0)',
-                    arguments     => {
-                        IV1 => $demandSoleUseAsset,
-                        IV4 => $dcp189YesOrNo,
-                    }
-                ),
-                IV15_IV16 => $model->{transparency},
-            },
-          )
-          : Arithmetic(
-            name => 'Total demand sole use assets '
-              . 'qualifying for DCP 189 discount (£)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=SUMIF(IV1_IV2,"Y",IV3_IV4)',
-            arguments     => {
-                IV1_IV2 => $dcp189YesOrNo,
-                IV3_IV4 => $demandSoleUseAsset,
-            }
-          ) if $model->{dcp189} && $model->{dcp189} =~ /preservePot/i;
-
-        $model->{transparency}{olTabCol}{119306} = $totalDcp189DiscountedAssets
-          if $model->{transparency} && $totalDcp189DiscountedAssets;
-
         my $demandScalingShortfall = Arithmetic(
             name          => 'Additional amount to be recovered (£/year)',
             defaultFormat => '0softnz',
@@ -1607,7 +1635,7 @@ EOT
 '=IF(IV123,0,IV1)+(SUMPRODUCT(IV64_IV65,IV31_IV32,IV33_IV34)+SUMPRODUCT(IV66_IV67,IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54)*IV9/100',
                         arguments => {
                             IV123     => $model->{transparencyMasterFlag},
-                            IV1       => $model->{transparency}{ol119403},
+                            IV1       => $model->{transparency}{ol119104},
                             IV31_IV32 => $capacityChargeT1,
                             IV33_IV34 => $importCapacity,
                             IV9       => $daysInYear,
@@ -1642,7 +1670,7 @@ EOT
 
         $model->{transparency}{olFYI}{1254} = $demandScalingShortfall
           if $model->{transparency};
-        $model->{transparency}{olTabCol}{119403} =
+        $model->{transparency}{olTabCol}{119104} =
           $demandScalingShortfall->{arguments}{IV9}
           if $model->{transparency}
           && $demandScalingShortfall->{arguments}{IV9};

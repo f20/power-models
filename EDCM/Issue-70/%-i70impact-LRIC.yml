@@ -1,6 +1,10 @@
 ---
 .: MIG issue 70 customer scenario tool (LRIC)
 PerlModule: EDCM2
+dataOverride:
+  1190:
+    - ~
+    - Enter TRUE or FALSE: FALSE
 forwardLinks: 1
 illustrative: 1
 lockedInputs: 1

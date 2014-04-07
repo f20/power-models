@@ -1,15 +1,15 @@
 ---
-.: EDCM model for MIG issue 70 (LRIC)
+.: DCP 189 LRIC (split)
 PerlModule: EDCM2
 dcp130: 1
-illustrative: 1
+dcp189: split
+ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1
-numLocationsDefault: 1200
-numTariffsDefault: 300
+numLocations: 1200
+numTariffs: 600
 protect: 1
 summaries: 1
-transparency: 1
 validation: lenientnomsg
 wantTables: 913

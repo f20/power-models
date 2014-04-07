@@ -2,6 +2,12 @@
 .: 'Simple scaling with replacement, DCP 130 and DCP 132'
 PerlModule: CDCM
 coincidenceAdj: groupums
+dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
 drm: top500gsp
 extraLevels: 1
 illustrative: 1

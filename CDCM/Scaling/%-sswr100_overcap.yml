@@ -2,6 +2,11 @@
 .: 'Simple scaling down, replacement, override 500 MW LV'
 PerlModule: CDCM
 dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
   1020:
     - ~
     - HV LV: 60000000

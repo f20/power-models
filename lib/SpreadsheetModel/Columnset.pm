@@ -196,7 +196,7 @@ sub wsWrite {
           map { $_->{arguments} ? $_->{arithmetic} : '' } @{ $self->{columns} };
         if ( grep { $_ } @formulas ) {
             @sourceLines =
-              _rewriteFormulae( \@formulas,
+              _rewriteFormulas( \@formulas,
                 [ map { $_->{arguments} } @{ $self->{columns} } ] );
             unless ( $self->{formulasDone} ) {
                 $self->{formulasDone} = 1;

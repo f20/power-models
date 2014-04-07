@@ -1,10 +1,11 @@
 ---
-.: EDCM model for MIG issue 70 (FCP)
+.: EDCM customer template maker for MIG issue 70 (LRIC)
 PerlModule: EDCM2
+customerTemplates: 1
 dcp130: 1
 illustrative: 1
 lowerIntermittentCredit: 1
-method: FCP
+method: LRIC
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 300
@@ -12,4 +13,4 @@ protect: 1
 summaries: 1
 transparency: 1
 validation: lenientnomsg
-wantTables: 911
+wantTables: 913

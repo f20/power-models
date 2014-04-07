@@ -3,6 +3,12 @@
 PerlModule: CDCM
 alwaysUseRAG: 1
 coincidenceAdj: none
+dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
 drm: top500gsp
 extraLevels: 1
 fixedCap: group

@@ -36,7 +36,7 @@ use SpreadsheetModel::Label;
 use Exporter;
 our @ISA = qw(Exporter);
 our @EXPORT_OK =
-  qw(_rewriteFormulae _shortName _shortNameRow _shortNameCol _numsort);
+  qw(_rewriteFormulas _shortName _shortNameRow _shortNameCol _numsort);
 our %EXPORT_TAGS = ( '_util' => \@EXPORT_OK );
 
 sub new {
@@ -233,7 +233,7 @@ sub _numsort {
     return $1 < 10 ? "0$_" : $_;
 }
 
-sub _rewriteFormulae {
+sub _rewriteFormulas {
     my ( $formulaListRef, $argumentHashListRef ) = @_;
     my @args;
     foreach my $i ( 0 .. $#$formulaListRef ) {

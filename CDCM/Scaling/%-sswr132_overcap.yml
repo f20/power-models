@@ -3,6 +3,11 @@
 PerlModule: CDCM
 coincidenceAdj: groupums
 dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
   1020:
     - ~
     - HV LV: 60000000

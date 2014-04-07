@@ -199,14 +199,14 @@ sub create {
             require SpreadsheetModel::ExportHtml;
             mkdir $dumpLoc;
             chmod 0770, $dumpLoc;
-            SpreadsheetModel::ExportHtml::writeHtml(
-                $options->{logger}{objects}, "$dumpLoc/" );
+            SpreadsheetModel::ExportHtml::writeHtml( $options->{logger},
+                "$dumpLoc/" );
         }
 
         if ( $options->{ExportText} ) {
             require SpreadsheetModel::ExportText;
-            SpreadsheetModel::ExportText::writeText(
-                $options->{logger}{objects}, "$dumpLoc-" );
+            SpreadsheetModel::ExportText::writeText( $options->{logger},
+                "$dumpLoc-" );
         }
 
         if ( $options->{ExportGraphviz} ) {

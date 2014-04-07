@@ -32,7 +32,7 @@ use strict;
 use utf8;
 
 sub writeHtml {    # $logger->{objects} is a good $objectList
-    my ( $objectList, $pathPrefix ) = @_;
+    my ( $logger, $pathPrefix ) = @_;
     $pathPrefix = '' unless defined $pathPrefix;
     my %htmlWriter;
     my @end;
@@ -58,7 +58,7 @@ sub writeHtml {    # $logger->{objects} is a good $objectList
         };
     }
     $_->htmlWrite( \%htmlWriter, $htmlWriter{Calculations} )
-      foreach @$objectList;
+      foreach grep { defined $_ } @{ $logger->{objects} };
     $_->() foreach @end;
 }
 

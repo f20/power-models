@@ -1,6 +1,12 @@
 ---
-.: 'Simple tariffs and simple scaling down'
+.: Simple tariffs and simple scaling down
 PerlModule: CDCM
+dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
 drm: top500gsp
 ehv: 1
 extraLevels: 0

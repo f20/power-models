@@ -72,7 +72,7 @@ EOT
         name => 'Assets in CDCM model (£) (from CDCM table 2705 or 2706)',
         defaultFormat => '0hard',
         cols          => $assetLevelset,
-        data          => [ map { 5e8 } @{ $assetLevelset->{list} } ],
+        data          => [ '', map { 5e8 } 2 .. @{ $assetLevelset->{list} } ],
         number        => 1131,
         dataset       => $model->{dataset},
         appendTo      => $model->{inputTables},

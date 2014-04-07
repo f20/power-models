@@ -2,6 +2,11 @@
 .: 'Simple scaling down, replacement costs, override 500 MW LV, no method M'
 PerlModule: CDCM
 dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
   1020:
     - ~
     - HV LV: 60000000
@@ -10,6 +15,7 @@ drm: top500gsp
 extraLevels: 1
 illustrative: 1
 matrices: big
+noLossAdj: 1
 noReplacement: 0.453
 portfolio: 1
 scaler: pickallnogencapped

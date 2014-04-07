@@ -335,7 +335,7 @@ sub worksheetsAndClosures {
             $_->wsWrite( $wbook, $wsheet ) foreach Notes(
                 lines => 'Updated baseline data
 
-This sheet contains data that can be used to populate tables 1191 to 1194 in an associated model.'
+This sheet contains data that can be used to populate tables 1191 to 1193 in an associated model.'
               ),
               (
                 map {

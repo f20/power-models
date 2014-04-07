@@ -32,18 +32,18 @@ use strict;
 use utf8;
 
 sub writeText {
-    my ( $objectList, $pathPrefix ) = @_;
+    my ( $logger, $pathPrefix ) = @_;
     $pathPrefix = '' unless defined $pathPrefix;
-    my %htmlWriter;
+    my %writer;
     my @end;
-    foreach my $pot (qw(Datasets Labelsets)) {
+    foreach my $pot (qw(Datasets Labelsets Tables)) {
         my $file  = "$pathPrefix$pot.txt";
         my $tfile = $pathPrefix . '~$' . $$ . '.' . $pot . '.html';
         open my $fh, '>', $tfile;
         binmode $fh, ':utf8';
         my $url = $file;
         $url =~ s/^.*\///s;
-        $htmlWriter{$pot} = sub {
+        $writer{$pot} = sub {
             print {$fh} map { _flatten(@$_); } @_;
             $url;
         };
@@ -52,10 +52,18 @@ sub writeText {
             rename $tfile, $file;
         };
     }
-    $htmlWriter{Inputs} = $htmlWriter{Calculations} = $htmlWriter{Datasets};
-    $htmlWriter{Ancillary} = $htmlWriter{Labelsets};
-    $_->htmlWrite( \%htmlWriter, $htmlWriter{Calculations} )
-      foreach @$objectList;
+    $writer{Inputs} = $writer{Calculations} = $writer{Datasets};
+    $writer{Ancillary} = $writer{Labelsets};
+    my @objects = grep { defined $_ } @{ $logger->{objects} };
+    $writer{Tables}->(
+        [
+            undef => join "\n",
+            $logger->{realRows}
+            ? @{ $logger->{realRows} }
+            : map { "$_->{name}" } @objects
+        ]
+    );
+    $_->htmlWrite( \%writer, $writer{Calculations} ) foreach @objects;
     $_->() foreach @end;
 }
 

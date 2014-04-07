@@ -1,6 +1,7 @@
 ---
-.: EDCM model for MIG issue 70 (FCP)
+.: EDCM customer template maker for MIG issue 70 (FCP)
 PerlModule: EDCM2
+customerTemplates: 1
 dcp130: 1
 illustrative: 1
 lowerIntermittentCredit: 1

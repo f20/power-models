@@ -69,8 +69,20 @@ sub wsUrl {
 sub htmlDescribe {
     my ( $self, $hb, $hs ) = @_;
     my $formula;
-    $formula = $self->{arithmetic} || $self->objectType
-      unless ref $self eq __PACKAGE__ && $hb->{Inputs} && $hs == $hb->{Inputs};
+    if ( $self->{arithmetic} && $self->{arguments} ) {
+        my @formula = $self->{arithmetic};
+        $self->{sourceLines} =
+          [ _rewriteFormulas( \@formula, [ $self->{arguments} ] ) ];
+        ($formula) = @formula;
+        $self->{formulaLines} = [ $self->objectType . " $formula" ];
+    }
+    else {
+        $formula = $self->{arithmetic}
+          || $self->objectType
+          unless ref $self eq __PACKAGE__
+          && $hb->{Inputs}
+          && $hs == $hb->{Inputs};
+    }
     my $argh = $self->{arguments};
     my $hsa = $hb->{Ancillary} || $hs;
     my @ph =
@@ -378,7 +390,7 @@ sub wsWrite {
     if ( $self->{arithmetic} && $self->{arguments} ) {
         my @formula = $self->{arithmetic};
         $self->{sourceLines} =
-          [ _rewriteFormulae( \@formula, [ $self->{arguments} ] ) ];
+          [ _rewriteFormulas( \@formula, [ $self->{arguments} ] ) ];
         $self->{formulaLines} = [ $self->objectType . " @formula" ];
     }
 

@@ -6,11 +6,11 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-time ../run/make.pl -xlsx ../CDCM/Current/%-clean132.yml ../CDCM/Toys-2014/%-sswr132_over_npcd_splits.yml ../CDCM/Data-2014-02/*
-time ../run/import.pl -calc -sqlite *.xlsx
-time ../run/export.pl -xlsx -dcp=sswr132_over_npcd_splits -name='integrated CDCM' -cdcmTariffImpact -cdcmPpuImpact
-time ../run/export.pl -xlsx /clean132/ 37 39
-time ../run/export.pl -xlsx /sswr132_over_npcd_splits/ 37 39
+perl ../run/make.pl ../CDCM/Current/%-clean132.yml ../CDCM/Toys-2014/%-sswr132_over_npcd_splits.yml ../CDCM/Data-2014-02/*
+perl ../run/import.pl -calc -sqlite *.xlsx
+perl ../run/export.pl -dcp=sswr132_over_npcd_splits -name='integrated CDCM' -cdcmTariffImpact -cdcmPpuImpact
+perl ../run/export.pl /clean132/ 37
+perl ../run/export.pl /sswr132_over_npcd_splits/ 37
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

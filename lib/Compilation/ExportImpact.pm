@@ -33,7 +33,6 @@ use utf8;
 
 sub edcmTariffImpact {
     my ( $self, $wbmodule, %options ) = @_;
-    $options{linesAfter} ||= [ 1 .. 6 ];
     $options{components} ||= [ split /\n/, <<EOL];
 Import super-red unit rate (p/kWh)
 Import fixed charge (p/day)
@@ -173,7 +172,7 @@ sub genericTariffImpact {
     _defaultOptions( \%options );
 
     my $wb = $wbmodule->new(
-        "Impact tariffs $options{dcpName}".$wbmodule->fileExtension);
+        "Impact tariffs $options{dcpName}" . $wbmodule->fileExtension );
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     my $linesAfter = $options{linesAfter};
@@ -203,6 +202,12 @@ sub genericTariffImpact {
       [ base => '%softpm', right => 5, right_color => 8 ];
 
     my @books = $self->listModels;
+    my $findRow =
+      $$self->prepare(
+        'select row from data where bid=? and tab=? and col=0 and v=?');
+    my $q =
+      $$self->prepare(
+        'select v from data where bid=? and tab=? and row=? and col=?');
 
     foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
         my $qr = $options{sheetNames}[$i];
@@ -215,14 +220,19 @@ sub genericTariffImpact {
           grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
         next unless $bida;
         $bida = $bida->[0];
-        my $findRow =
-          $$self->prepare( 'select row from data where bid=? and tab='
-              . $options{tableNumber}
-              . ' and col=0 and v=?' );
-        my $q =
-          $$self->prepare( 'select v from data where bid=? and tab='
-              . $options{tableNumber}
-              . ' and row=? and col=?' );
+
+        unless ( $options{linesAfter} ) {
+            $linesBefore = $linesAfter = [
+                map { @$_ } @{
+                    $$self->selectall_arrayref(
+                        'select v from data where bid=? and tab=?'
+                          . ' and col=0 and row>0',
+                        undef, $bida, $options{tableNumber}
+                    )
+                }
+            ];
+        }
+
         my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
         $ws->set_column( 0, 0,   48 );
         $ws->set_column( 1, 254, 12 );
@@ -254,16 +264,21 @@ sub genericTariffImpact {
         }
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
-            $findRow->execute( $bidb, $linesBefore->[$j] );
+            $findRow->execute( $bidb, $options{tableNumber},
+                $linesBefore->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
-            $findRow->execute( $bida, $linesAfter->[$j] );
+            $findRow->execute( $bida, $options{tableNumber},
+                $linesAfter->[$j] );
             my ($rowa) = $findRow->fetchrow_array;
             $ws->write_string(
                 4 + $j,
                 0,
                 $options{nameExtraColumn}
                 ? eval {
-                    $q->execute( $bida, $rowa, $options{nameExtraColumn} );
+                    $q->execute(
+                        $bida, $options{tableNumber},
+                        $rowa, $options{nameExtraColumn}
+                    );
                     my ($x) = $q->fetchrow_array;
                     $x =~ s/\[.*\]//;
                     "Tariff $linesAfter->[$j]: $x";
@@ -272,9 +287,15 @@ sub genericTariffImpact {
                 $thFormat
             );
             for ( my $k = 0 ; $k < $ncol ; ++$k ) {
-                $q->execute( $bidb, $rowb, $k + $options{firstColumn} );
+                $q->execute(
+                    $bidb, $options{tableNumber},
+                    $rowb, $k + $options{firstColumn}
+                );
                 my ($vb) = $q->fetchrow_array;
-                $q->execute( $bida, $rowa, $k + $options{firstColumn} );
+                $q->execute(
+                    $bida, $options{tableNumber},
+                    $rowa, $k + $options{firstColumn}
+                );
                 my ($va) = $q->fetchrow_array;
 
                 $ws->write( 4 + $j, $k + 1,         $vb, $format1[$k] );
@@ -307,7 +328,7 @@ sub cdcmPpuImpact {
     _defaultOptions( \%options );
 
     my $wb = $wbmodule->new(
-        "Impact pence per unit $options{dcpName}".$wbmodule->fileExtension);
+        "Impact pence per unit $options{dcpName}" . $wbmodule->fileExtension );
     $wb->setFormats( { colour => 'orange', alignment => 1 } );
 
     my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
@@ -351,7 +372,11 @@ EOL
     my @format3 =
       map { $wb->getFormat($_); } ( map { '%softpm' } 1 .. 1 );
 
-    my @books = $self->listModels;
+    my @books   = $self->listModels;
+    my $findRow = $$self->prepare(
+        'select row from data where bid=? and tab=3802 and col=0 and v=?');
+    my $q = $$self->prepare(
+        'select v from data where bid=? and tab=3802 and row=? and col=?');
 
     foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
         my $qr = $options{sheetNames}[$i];
@@ -364,10 +389,6 @@ EOL
           grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
         next unless $bida;
         $bida = $bida->[0];
-        my $findRow = $$self->prepare(
-            'select row from data where bid=? and tab=3802 and col=0 and v=?');
-        my $q = $$self->prepare(
-            'select v from data where bid=? and tab=3802 and row=? and col=?');
         my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
         $ws->set_column( 0, 0,   48 );
         $ws->set_column( 1, 254, 16 );
@@ -456,7 +477,6 @@ EOL
 
 sub edcmRevenueMatrixImpact {
     my ( $self, $wbmodule, %options ) = @_;
-    $options{linesAfter} ||= [ 1 .. 6 ];
     $options{tableNumber}     = 4601;
     $options{col1}            = 9;
     $options{col2}            = 33;
@@ -473,7 +493,7 @@ sub revenueMatrixImpact {
 
     my $wb =
       $wbmodule->new(
-        "Impact revenue $options{dcpName}".$wbmodule->fileExtension);
+        "Impact revenue $options{dcpName}" . $wbmodule->fileExtension );
     $wb->setFormats( { colour => 'orange' } );
 
     my $linesAfter = $options{linesAfter};
@@ -488,6 +508,12 @@ sub revenueMatrixImpact {
     my $format3     = $wb->getFormat('%softpm');
 
     my @books = $self->listModels;
+    my $findRow =
+      $$self->prepare(
+        'select row from data where bid=? and tab=? and col=0 and v=?');
+    my $q =
+      $$self->prepare(
+        'select v from data where bid=? and tab=? and row=? and col=?');
 
     foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
         my $qr = $options{sheetNames}[$i];
@@ -500,14 +526,19 @@ sub revenueMatrixImpact {
           grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
         next unless $bida;
         $bida = $bida->[0];
-        my $findRow =
-          $$self->prepare( 'select row from data where bid=? and tab='
-              . $options{tableNumber}
-              . ' and col=0 and v=?' );
-        my $q =
-          $$self->prepare( 'select v from data where bid=? and tab='
-              . $options{tableNumber}
-              . ' and row=? and col=?' );
+
+        unless ( $options{linesAfter} ) {
+            $linesBefore = $linesAfter = [
+                map { @$_ } @{
+                    $$self->selectall_arrayref(
+                        'select v from data where bid=? and tab=?'
+                          . ' and col=0 and row>0',
+                        undef, $bida, $options{tableNumber}
+                    )
+                }
+            ];
+        }
+
         my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
         $ws->set_column( 0, 0,   48 );
         $ws->set_column( 1, 254, 16 );
@@ -559,13 +590,18 @@ sub revenueMatrixImpact {
         my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,0)');
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
-            $findRow->execute( $bidb, $linesBefore->[$j] );
+            $findRow->execute( $bidb, $options{tableNumber},
+                $linesBefore->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
-            $findRow->execute( $bida, $linesAfter->[$j] );
+            $findRow->execute( $bida, $options{tableNumber},
+                $linesAfter->[$j] );
             my ($rowa) = $findRow->fetchrow_array;
             my $tariffName = $options{nameExtraColumn}
               ? eval {
-                $q->execute( $bida, $rowa, $options{nameExtraColumn} );
+                $q->execute(
+                    $bida, $options{tableNumber},
+                    $rowa, $options{nameExtraColumn}
+                );
                 my ($x) = $q->fetchrow_array;
                 $x =~ s/\[.*\]//;
                 "Tariff $linesAfter->[$j]: $x";
@@ -584,9 +620,15 @@ sub revenueMatrixImpact {
             my $tota = 0;
             my $totb = 0;
             for ( my $k = 1 ; $k < $options{col2} - $options{col1} ; ++$k ) {
-                $q->execute( $bidb, $rowb, $k + $options{col1} );
+                $q->execute(
+                    $bidb, $options{tableNumber},
+                    $rowb, $k + $options{col1}
+                );
                 my ($vb) = $q->fetchrow_array;
-                $q->execute( $bida, $rowa, $k + $options{col1} );
+                $q->execute(
+                    $bida, $options{tableNumber},
+                    $rowa, $k + $options{col1}
+                );
                 my ($va) = $q->fetchrow_array;
                 $ws->write( 6 + @$linesAfter + $j,     $k, $vb, $format1 );
                 $ws->write( 9 + 2 * @$linesAfter + $j, $k, $va, $format1 );
@@ -652,6 +694,9 @@ WPD EastM
 WPD SWales
 WPD SWest
 WPD WestM
+SimplePower
+DuckPower
+GoosePower
 EOL
     $or->{sheetTitles} ||=
       [ map { "$_: illustrative impact of $or->{dcpName}" } split /\n/, <<EOL ];
@@ -669,6 +714,9 @@ WPD East Midlands
 WPD South Wales
 WPD South West
 WPD West Midlands
+Simple Power Networks
+Duck Power Networks
+Goose Power Networks
 EOL
 }
 
