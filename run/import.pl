@@ -136,7 +136,7 @@ foreach (@ARGV) {
         my $book2 = $infile;
         $book2 =~ s/\.(xlsx?)$/-$$.$1/i;
         rename $infile, $book2;
-        if (`which osascript`) {
+        if (`which osascript`) { # this fails where directory paths are involved
             open my $fh, '| osascript';
             print $fh <<EOS;
 tell application "Microsoft Excel"
