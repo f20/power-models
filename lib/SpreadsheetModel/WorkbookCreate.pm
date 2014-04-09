@@ -152,6 +152,7 @@ sub create {
         foreach ( @{ $wsheetShowOrder[$i] } ) {
             my $ws = $wbook->add_worksheet($_);
             $ws->activate if exists $wsheetActive{$_};
+            $ws->set_paper(9);
             $ws->fit_to_pages( 1, 0 );
             $ws->set_header("&L&A&C&R&P of &N");
             $ws->set_footer("&F");
