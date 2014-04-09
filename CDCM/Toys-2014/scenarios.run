@@ -23,6 +23,7 @@ done
 
 perl ../run/import.pl -calc -sqlite *.xlsx
 perl ../run/export.pl all 37
+perl ../run/export.pl -dcp=integrated-453-1
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

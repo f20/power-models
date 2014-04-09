@@ -303,6 +303,7 @@ sub worksheetsAndClosures {
             'HSummary' => sub {
                 my ($wsheet) = @_;
                 $wsheet->freeze_panes( 1, 2 );
+                $wsheet->set_landscape;
                 $wsheet->set_column( 0, 0,   20 );
                 $wsheet->set_column( 1, 1,   50 );
                 $wsheet->set_column( 2, 250, 20 );
@@ -323,7 +324,6 @@ sub worksheetsAndClosures {
         'OneLiners' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->fit_to_pages( 1, 1 );
             $wsheet->set_column( 0, 250, 30 );
             my %olTabCol;
             while ( my ( $num, $obj ) =
