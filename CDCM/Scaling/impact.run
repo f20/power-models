@@ -1,17 +1,19 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
 while [ ! -e run/make.pl ]; do pwd; cd ..; done
-RUN=_dcp179opt-$$
+RUN=_CRM-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-time ../run/make.pl ../CDCM/Scaling/%-dcp123hybrid.yml ../CDCM/Scaling/%-ss132.yml ../CDCM/Scaling/%-nomatching132.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
-time ../run/import.pl -calc -sqlite *.xl*
+perl ../run/make.pl ../CDCM/Scaling/%-dcp123hybrid.yml ../CDCM/Scaling/%-ss132.yml ../CDCM/Scaling/%-nomatching132.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+perl ../run/import.pl -calc -sqlite *.xl*
 
-time ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=clean132
-time ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=dcp123hybrid
-time ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=ss132
+perl ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=clean132
+perl ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=dcp123hybrid
+perl ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=ss132
+perl ../run/export.pl -dcp=dcp123hybrid
+perl ../run/export.pl -dcp=ss132
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

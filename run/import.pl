@@ -107,12 +107,8 @@ foreach (@ARGV) {
         $writer = xlsFlattener();
         next;
     }
-    if (/^-+(tsv|txt|csv)$/i) {
-        $writer = tsvDumper($1);
-        next;
-    }
-    if (/^-+cat$/i) {
-        $writer = tsvDumper( \*STDOUT );
+    if (/^-+(?:tsv|txt|csv)$/i) {
+        $writer = tsvDumper();
         next;
     }
     if (/^-+split$/i) {
@@ -444,27 +440,18 @@ sub xlsSplitter {
 }
 
 sub tsvDumper {
-    my ($output) = @_;
-    my $joinChar = $output eq 'csv' ? ',' : "\t";
     sub {
         my ( $infile, $workbook ) = @_;
-        my $fh;
-        if ( ref $output ) {
-            $fh = $output;
-        }
-        else {
-            open $fh, '>', "$infile.$output";
-        }
+        open my $fh, '>', "$infile.txt";
         binmode $fh, ':utf8';
-        0 and print {$fh} join( $joinChar, qw(Book Sheet Row A B C) ) . "\n";
+        print {$fh} "Book\tSheet\tRow\tA\tB\tC\n";
         for my $worksheet ( $workbook->worksheets() ) {
             next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
             $col_min = 0;    # Use completely blank columns
             print {$fh} join(
-                $joinChar,
-                $infile,
+                "\t", $infile,
                 $worksheet->{Name},
                 0,
                 map {
@@ -474,8 +461,7 @@ sub tsvDumper {
             ) . "\n";
             for my $row ( $row_min .. $row_max ) {
                 print {$fh} join(
-                    $joinChar,
-                    $infile,
+                    "\t", $infile,
                     $worksheet->{Name},
                     1 + $row,
                     map {

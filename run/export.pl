@@ -98,6 +98,7 @@ if ( grep { /\btscs/i } @ARGV ) {
 
 if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
     my $options = {};
+    $options->{colour} = 'orange' if grep { /^-*orange$/ } @ARGV;
     if ( my ($yml) = grep { /\.ya?ml$/is } @ARGV ) {
         require YAML;
         $options = YAML::LoadFile($yml);

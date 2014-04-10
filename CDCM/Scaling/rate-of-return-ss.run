@@ -1,0 +1,23 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_C2014-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+for ror in 4.3
+do
+    perl ../run/make.pl ../CDCM/Scaling/%-ss132.yml ../CDCM/Data-2014-02/* -xdata='rules|template|%-ror-'$ror -xdata='1010|1|Financial and general assumptions|'$ror'e-2'
+done
+perl ../run/make.pl ../CDCM/Scaling/%-ss132.yml ../CDCM/Data-2014-02/*
+
+perl ../run/import.pl -calc -sqlite *.xlsx
+
+for ror in 4.3
+do
+    perl ../run/export.pl -dcp=ror-$ror -base=ss132 -name=$ror'% rate of return (with simple scaling)'
+done
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

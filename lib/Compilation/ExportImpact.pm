@@ -173,7 +173,12 @@ sub genericTariffImpact {
 
     my $wb = $wbmodule->new(
         "Impact tariffs $options{dcpName}" . $wbmodule->fileExtension );
-    $wb->setFormats( { colour => 'orange', alignment => 1 } );
+    $wb->setFormats(
+        {
+            $options{colour} ? ( colour => $options{colour} ) : (),
+            alignment => 1
+        }
+    );
 
     my $linesAfter = $options{linesAfter};
     my $linesBefore = $options{linesBefore} || $linesAfter;
@@ -329,7 +334,12 @@ sub cdcmPpuImpact {
 
     my $wb = $wbmodule->new(
         "Impact pence per unit $options{dcpName}" . $wbmodule->fileExtension );
-    $wb->setFormats( { colour => 'orange', alignment => 1 } );
+    $wb->setFormats(
+        {
+            $options{colour} ? ( colour => $options{colour} ) : (),
+            alignment => 1
+        }
+    );
 
     my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
 Domestic Unrestricted
@@ -494,7 +504,8 @@ sub revenueMatrixImpact {
     my $wb =
       $wbmodule->new(
         "Impact revenue $options{dcpName}" . $wbmodule->fileExtension );
-    $wb->setFormats( { colour => 'orange' } );
+    $wb->setFormats(
+        { $options{colour} ? ( colour => $options{colour} ) : () } );
 
     my $linesAfter = $options{linesAfter};
     my $linesBefore = $options{linesBefore} || $linesAfter;
