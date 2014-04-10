@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
-sub timeOfDaySpecial {
+sub timeOfDay {
 
     my ( $model, $networkLevels, $componentMap, $allEndUsers, $daysInYear,
         $loadCoefficients, $volumeByEndUser, $unitsByEndUser )
@@ -988,13 +988,7 @@ sub timeOfDayRunner {
 
             my $timebandLoadCoefficientAdjusted = Arithmetic(
                 name => 'Load coefficient correction factor'
-                  . ' (kW at peak in band / band average kW)'
-                  . (
-                    $model->{coincidenceAdj}
-                      && $model->{coincidenceAdj} =~ /group/i
-                    ? ' before grouping'
-                    : ''
-                  ),
+                  . ' (kW at peak in band / band average kW)',
                 arithmetic => $timebandLoadCoefficient
                 ? '=IF(IV5<>0,IV4/IV2/IV1,IV6)'
                 : '=IF(IV5<>0,IV4/IV2,IF(IV8<0,-1,1))',

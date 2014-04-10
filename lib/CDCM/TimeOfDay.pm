@@ -28,8 +28,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# Some features introduced into TimeOfDaySpecial might need to be ported to this file.
-
 use warnings;
 use strict;
 use utf8;

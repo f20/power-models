@@ -51,8 +51,6 @@ sub sheetPriority {
 sub worksheetsAndClosures {
     my ( $model, $wbook ) = @_;
 
-    $wbook->{lastSheetNumber} = 19;
-
     my @wsheetsAndClosures;
 
     push @wsheetsAndClosures,
@@ -61,10 +59,10 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
 
         # reset in case of building several models in a single workbook
-        $wbook->{lastSheetNumber} = 11;
         delete $wbook->{highestAutoTableNumber};
-        $wsheet->{sheetNumber} = 11;
+        $wbook->{lastSheetNumber} = 19;
 
+        $wsheet->{sheetNumber} = 11;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->{sheetNumber} ||= ++$wbook->{lastSheetNumber};
         my $t1001width =

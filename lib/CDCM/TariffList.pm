@@ -148,14 +148,14 @@ LV half hourly domestic:
   - Name: LV Network Domestic
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
-  - Included: dcp179|portfolio
+  - Included: pc12hh|dcp179|portfolio
 ---
 LV half hourly WC:
   - PC0
   - Name: LV Network Non-Domestic Non-CT
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
-  - Included: dcp179|portfolio
+  - Included: pc34hh|dcp179|portfolio
 ---
 LV half hourly CT:
   - PC0

@@ -50,12 +50,15 @@ use CDCM::SML;
 use CDCM::Standing;
 use CDCM::Summary;
 use CDCM::Tariffs;
-use CDCM::TimeOfDay;
 use CDCM::Yardsticks;
 
 sub requiredModulesForRuleset {
 
     my ( $class, $ruleset ) = @_;
+
+    my $todmodule = ucfirst( $ruleset->{timeOfDay} || 'timeOfDay' );
+    die "Time of day module $todmodule is unsafe"
+      unless $todmodule =~ /^[a-zA-Z0-9_]+$/s;
 
     $ruleset->{inYear} ? qw(CDCM::InYearAdjust CDCM::InYearSummaries)
       : $ruleset->{addVolumes}
@@ -69,9 +72,7 @@ sub requiredModulesForRuleset {
       $ruleset->{scaler}
       && $ruleset->{scaler} =~ /DCP123/i ? 'CDCM::Matching123' : (),
 
-      $ruleset->{timeOfDay} && $ruleset->{timeOfDay} eq 'timeOfDaySpecial'
-      ? 'CDCM::TimeOfDaySpecial'
-      : ();
+      "CDCM::$todmodule";
 
 }
 
@@ -634,21 +635,16 @@ EOT
 
     my ( $pseudoLoadCoefficientsAgainstSystemPeak, $pseudoLoadCoefficients );
     if ( $model->{maxUnitRates} && $model->{maxUnitRates} > 1 ) {
-
-        if ( my $todmethod = $model->{timeOfDay} ) {
-
-            $pseudoLoadCoefficients = $model->$todmethod(
+        if ( $model->{timeOfDay} ) {
+            $pseudoLoadCoefficients = $model->timeOfDay(
                 $drmExitLevels, $componentMap,     $allEndUsers,
                 $daysInYear,    $loadCoefficients, $volumesByEndUser,
                 $unitsByEndUser
             );
-
-            # Does not create $pseudoLoadCoefficientsAgainstSystemPeak
-            # This might preclude some old revenue matching methods.
-
         }
         else {
-
+           # Legacy code which creates $pseudoLoadCoefficientsAgainstSystemPeak,
+           # which is possibly used by some old revenue matching methods.
             (
                 $pseudoLoadCoefficientsAgainstSystemPeak,
                 $pseudoLoadCoefficients
@@ -658,9 +654,7 @@ EOT
                 $daysInYear,    $loadCoefficients, $volumesByEndUser,
                 $unitsByEndUser
               );
-
         }
-
     }
 
     my ( $forecastSml, $simultaneousMaximumLoadUnits,

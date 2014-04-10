@@ -52,6 +52,7 @@ sub yardsticks {
 
     # This unrestricted yardstick is used in reactive power calculations
     # even if all active power tariffs are on a multi-rate basis.
+    # NB: possible inaccuracies here under some coincidenceAdj options.
     my $yardstickUnitsComponents = Arithmetic(
         name => Label(
             'Pay-as-you-go p/kWh',
