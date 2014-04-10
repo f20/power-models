@@ -599,7 +599,7 @@ sub timeOfDayRunner {
     );
 
     my $relevantTariffs = $model->{pcd} ? $relevantEndUsers : Labelset(
-        name   => 'Tariffs for multiple unit rate calulation',
+        name   => 'Tariffs for multiple unit rate calculation',
         groups => $relevantEndUsers->{list}
     );
 

@@ -1,12 +1,10 @@
 ---
-.: DCP 179 April 2014 option 8
+.: DCP 179 April 2014 impact of using red/amber/green
 PerlModule: CDCM
 alwaysUseRAG: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-forwardLinks: 1
-impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

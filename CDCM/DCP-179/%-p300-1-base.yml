@@ -1,0 +1,16 @@
+---
+.: DCP 179 April 2014 re-implementation of baseline DCP 130 model
+PerlModule: CDCM
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDay179

@@ -39,7 +39,7 @@ sub timeOfDay {
         $loadCoefficients, $volumeByEndUser, $unitsByEndUser )
       = @_;
 
-    my ($pseudoLoadCoeffMeteredMulti) = $model->timeOfDayRunner(
+    my (@pseudoLoadCoeffMetered) = $model->timeOfDayRunner(
         $networkLevels,
         $componentMap,
         Labelset(
@@ -47,10 +47,9 @@ sub timeOfDay {
               'Metered end users with directly calculated multi-rate tariffs',
             list => [
                 grep {
-                    $componentMap->{$_}{'Unit rate 2 p/kWh'}
-                      && ( $componentMap->{$_}{'Capacity charge p/kVA/day'}
-                        || !$componentMap->{$_}{'Unite rates p/kWh'} )
-                      && !/unmeter/i;
+                    !/unmeter/i
+                      and $componentMap->{$_}{'Unit rate 0 p/kWh'}
+                      || $componentMap->{$_}{'Unit rate 2 p/kWh'};
                 } @{ $allEndUsers->{list} }
             ]
         ),
@@ -59,12 +58,10 @@ sub timeOfDay {
         $volumeByEndUser,
         $unitsByEndUser,
         '',
-        ,
+        $model->{agghhequalisation} ? 'equalisation' : 'none',
     );
 
-    my ( $pseudoLoadCoeffMeteredSingleRate, $pseudoLoadCoeffInferred );
-
-    my ($pseudoLoadCoeffUnmetered) = $model->timeOfDayRunner(
+    my (@pseudoLoadCoeffUnmetered) = $model->timeOfDayRunner(
         $networkLevels,
         $componentMap,
         Labelset(
@@ -76,27 +73,32 @@ sub timeOfDay {
         $volumeByEndUser,
         $unitsByEndUser,
         'special ',
-        1,
+        'groupAll',
     );
 
     my @pseudoLoadCoeffs =
       map {
-        my $r = $_ + 1;
+        my $r0      = $_;
+        my $r       = $r0 + 1;
+        my @sources = grep { $_ }
+          map { $_->[$r0] } @pseudoLoadCoeffMetered,
+          @pseudoLoadCoeffUnmetered;
+        my %userSet;
+        undef $userSet{$_} foreach map { @{ $_->{rows}{list} } } @sources;
+        my $endUsers = Labelset(
+            name => "Users which have a unit rate $r",
+            list => [ grep { exists $userSet{$_} } @{ $allEndUsers->{list} } ]
+        );
         Stack(
             name => "Unit rate $r"
               . ' pseudo load coefficient by network level (combined)',
-            rows    => $allEndUsers,
+            rows    => $endUsers,
             cols    => $networkLevels,
-            tariffs => $model->{pcd} ? $allEndUsers : Labelset(
+            tariffs => $model->{pcd} ? $endUsers : Labelset(
                 name   => "Tariffs which have a unit rate $r",
-                groups => $allEndUsers->{list}
+                groups => $endUsers->{list}
             ),
-            sources => [
-                $pseudoLoadCoeffInferred->[$_],
-                $pseudoLoadCoeffMeteredSingleRate->[$_],
-                $pseudoLoadCoeffMeteredMulti->[$_],
-                $pseudoLoadCoeffUnmetered->[$_],
-            ],
+            sources => \@sources,
         );
       } 0 .. $model->{maxUnitRates} - 1;
 
@@ -112,7 +114,7 @@ sub timeOfDayRunner {
         $model,           $networkLevels,  $componentMap,
         $allEndUsers,     $daysInYear,     $loadCoefficients,
         $volumeByEndUser, $unitsByEndUser, $blackYellowGreen,
-        $groupAll,
+        $correctionRules,
     ) = @_;
 
     my $timebandSet = Labelset(
@@ -123,7 +125,7 @@ sub timeOfDayRunner {
     );
 
     my $annualHoursByTimebandRaw = Dataset(
-        name => 'Typical annual hours by'
+        name => 'Typical annual hours by '
           . $blackYellowGreen
           . 'distribution time band',
         validation => {
@@ -151,7 +153,7 @@ sub timeOfDayRunner {
         name => Label(
             'Hours aggregate',
             'Total hours in the year'
-              . ' according to'
+              . ' according to '
               . $blackYellowGreen
               . 'time band hours input data'
         ),
@@ -160,7 +162,7 @@ sub timeOfDayRunner {
     );
 
     my $annualHoursByTimeband = Arithmetic(
-        name => 'Annual hours by'
+        name => 'Annual hours by '
           . $blackYellowGreen
           . 'distribution time band (reconciled to days in year)',
         singleRowName => 'Annual hours',
@@ -174,14 +176,14 @@ sub timeOfDayRunner {
     );
 
     Columnset(
-        name => 'Adjust annual hours by'
+        name => 'Adjust annual hours by '
           . $blackYellowGreen
           . 'distribution time band to match days in year',
         columns => [ $annualHoursByTimebandTotal, $annualHoursByTimeband ]
     );
 
     my $networkLevelsTimeband = Labelset(
-        name   => 'Network levels and' . $blackYellowGreen . 'time bands',
+        name   => 'Network levels and ' . $blackYellowGreen . 'time bands',
         groups => [
             map {
                 my $lev = "$_";
@@ -194,7 +196,7 @@ sub timeOfDayRunner {
     );
 
     my $networkLevelsTimebandAware = Labelset
-      name    => 'Network levels aware of' . $blackYellowGreen . 'time bands',
+      name    => 'Network levels aware of ' . $blackYellowGreen . 'time bands',
       list    => $networkLevelsTimeband->{groups},
       accepts => [$networkLevels];
 
@@ -345,7 +347,7 @@ sub timeOfDayRunner {
         );
 
         my $totalProbability = GroupBy(
-            name => 'Total'
+            name => 'Total '
               . $blackYellowGreen
               . 'probability (should be 100%)',
             rows          => $networkLevelsTimebandAware,
@@ -354,7 +356,7 @@ sub timeOfDayRunner {
         );
 
         $peakingProbabilitiesTable = Arithmetic(
-            name => 'Normalised' . $blackYellowGreen . 'peaking probabilities',
+            name => 'Normalised ' . $blackYellowGreen . 'peaking probabilities',
             defaultFormat => '%soft',
             arithmetic    => "=IF(IV3,IV1/IV2,IV8/IV9)",
             arguments     => {
@@ -367,7 +369,7 @@ sub timeOfDayRunner {
         );
 
         Columnset(
-            name => 'Normalisation of'
+            name => 'Normalisation of '
               . $blackYellowGreen
               . 'peaking probabilities',
             columns => [ $totalProbability, $peakingProbabilitiesTable ]
@@ -424,7 +426,7 @@ sub timeOfDayRunner {
     );
 
     my $relevantTariffs = $model->{pcd} ? $relevantEndUsers : Labelset(
-        name   => 'Tariffs for multiple unit rate calulation',
+        name   => 'Tariffs for multiple unit rate calculation',
         groups => $relevantEndUsers->{list}
     );
 
@@ -485,7 +487,7 @@ sub timeOfDayRunner {
             $inData = Dataset(
                 name => 'Average split of rate '
                   . $r
-                  . ' units by'
+                  . ' units by '
                   . $blackYellowGreen
                   . 'distribution time band',
                 validation => {
@@ -547,7 +549,7 @@ sub timeOfDayRunner {
         $conData = Constant(
             name => 'Split of rate '
               . $r
-              . ' units between'
+              . ' units between '
               . $blackYellowGreen
               . 'distribution time bands'
               . ' (default)',
@@ -564,7 +566,7 @@ sub timeOfDayRunner {
         $inData && $conData ? Stack(
             name => 'Split of rate '
               . $r
-              . ' units between'
+              . ' units between '
               . $blackYellowGreen
               . 'distribution time bands',
             rows          => $usersWithThisRate,
@@ -580,11 +582,9 @@ sub timeOfDayRunner {
       unless $model->{coincidenceAdj}
       && $model->{coincidenceAdj} =~ /none/i;
 
-    my $timebandLoadCoefficient;    # never used?
-
-    # unadjusted; to be replaced below if there is a coincidence adjustment
+    # unadjusted; will be replaced below if there is a coincidence adjustment
     my $pseudoLoadCoefficientBreakdown = Arithmetic(
-        name => 'Pseudo load coefficient by'
+        name => 'Pseudo load coefficient by '
           . $blackYellowGreen
           . 'time band and network level',
         rows       => $relevantEndUsersByRate[0],
@@ -598,6 +598,8 @@ sub timeOfDayRunner {
             IV2 => $loadCoefficients,
         }
     );
+
+    my @timebandUseByTariff;
 
     unless ( $model->{coincidenceAdj} && $model->{coincidenceAdj} =~ /none/i ) {
 
@@ -618,7 +620,7 @@ sub timeOfDayRunner {
           && $model->{coincidenceAdj} =~ /gspInsteadOfRed/i;
 
         my $timebandLoadCoefficientAccording = Stack(
-            name    => 'Peak band' . $blackYellowGreen . 'load coefficient',
+            name    => 'Peak band ' . $blackYellowGreen . 'load coefficient',
             rows    => $relevantEndUsersByRate[0],
             cols    => $peakBand,
             sources => [
@@ -642,13 +644,13 @@ sub timeOfDayRunner {
 
                         my $relevantUsers = Labelset
                           name =>
-"Non-related-MPAN demand end users with $rt-rate tariffs",
+"Non-related-MPAN demand end users'.' with $rt-rate tariffs",
                           list => \@relevant;
 
-                        my $timebandUseByRateTotal = Arithmetic(
+                        $timebandUseByTariff[$_] = Arithmetic(
                             rows => $relevantUsers,
                             cols => $timebandSet,
-                            name => 'Use of'
+                            name => 'Use of '
                               . $blackYellowGreen
                               . 'distribution time bands by units'
                               . " in demand forecast for $rt-rate tariffs",
@@ -660,8 +662,10 @@ sub timeOfDayRunner {
                                     "IV1$pad*IV2$pad"
                                 } 1 .. $r
                               )
-                              . ')/IV502,0)',
+                              . ')/IV502,IV7/IV8/24)',
                             arguments => {
+                                IV7   => $annualHoursByTimeband,
+                                IV8   => $daysInYear,
                                 IV501 => $unitsByEndUser,
                                 IV502 => $unitsByEndUser,
                                 map {
@@ -681,28 +685,24 @@ sub timeOfDayRunner {
                         my $implied =
                           $peakMatrix
                           ? SumProduct(
-                            name => 'Top network level'
+                            name => 'Top network level '
                               . $blackYellowGreen
                               . 'load coefficient for '
                               . $rt
                               . '-rate tariffs',
                             vector => $peakMatrix,
                             matrix => Arithmetic(
-                                name =>
-                                  ( $blackYellowGreen ? 'Special l' : 'L' )
-                                  . 'oad coefficient for '
-                                  . $rt
-                                  . '-rate tariffs',
-                                arithmetic => $timebandLoadCoefficient
-                                ? '=IF(IV6>0,IV1*IV2*IV4*24/IV5,0)'
-                                : '=IF(IV6>0,IV1*IV4*24/IV5,0)',
-                                cols      => $timebandSet,
-                                rows      => $relevantUsers,
-                                arguments => {
-                                    $timebandLoadCoefficient
-                                    ? ( IV2 => $timebandLoadCoefficient )
-                                    : (),
-                                    IV1 => $timebandUseByRateTotal,
+                                name => ucfirst(
+                                        $blackYellowGreen
+                                      . 'load coefficient for '
+                                      . $rt
+                                      . '-rate tariffs'
+                                ),
+                                arithmetic => '=IF(IV6>0,IV1*IV4*24/IV5,0)',
+                                cols       => $timebandSet,
+                                rows       => $relevantUsers,
+                                arguments  => {
+                                    IV1 => $timebandUseByTariff[$_],
                                     IV4 => $daysInYear,
                                     IV5 => $annualHoursByTimeband,
                                     IV6 => $annualHoursByTimeband
@@ -710,21 +710,16 @@ sub timeOfDayRunner {
                             )
                           )
                           : Arithmetic(
-                            name => 'Peak band'
+                            name => 'Peak band '
                               . $blackYellowGreen
                               . 'load coefficient for '
                               . $rt
                               . '-rate tariffs',
-                            arithmetic => $timebandLoadCoefficient
-                            ? '=IF(IV6>0,IV1*IV2*IV4*24/IV5,0)'
-                            : '=IF(IV6>0,IV1*IV4*24/IV5,0)',
-                            cols      => $peakBand,
-                            rows      => $relevantUsers,
-                            arguments => {
-                                $timebandLoadCoefficient
-                                ? ( IV2 => $timebandLoadCoefficient )
-                                : (),
-                                IV1 => $timebandUseByRateTotal,
+                            arithmetic => '=IF(IV6>0,IV1*IV4*24/IV5,0)',
+                            cols       => $peakBand,
+                            rows       => $relevantUsers,
+                            arguments  => {
+                                IV1 => $timebandUseByTariff[$_],
                                 IV4 => $daysInYear,
                                 IV5 => $annualHoursByTimeband,
                                 IV6 => $annualHoursByTimeband
@@ -732,10 +727,10 @@ sub timeOfDayRunner {
                           );
 
                         Columnset
-                          name => 'Calculation of implied'
+                          name => 'Calculation of implied '
                           . $blackYellowGreen
                           . "load coefficients for $rt-rate users",
-                          columns => [ $timebandUseByRateTotal, $implied ]
+                          columns => [ $timebandUseByTariff[$_], $implied ]
                           unless $peakMatrix;
 
                         $implied;
@@ -750,10 +745,8 @@ sub timeOfDayRunner {
         my $timebandLoadCoefficientAdjusted = Arithmetic(
             name => 'Load coefficient correction factor'
               . ' (kW at peak in band / band average kW)',
-            arithmetic => $timebandLoadCoefficient
-            ? '=IF(IV5<>0,IV4/IV2/IV1,IV6)'
-            : '=IF(IV5<>0,IV4/IV2,IF(IV8<0,-1,1))',
-            rows => $relevantEndUsersByRate[0],
+            arithmetic => '=IF(IV5<>0,IV4/IV2,IF(IV8<0,-1,1))',
+            rows       => $relevantEndUsersByRate[0],
             $model->{timebandCoef} && $model->{timebandCoef} =~ /detail/i
             ? ( cols => $networkLevelsTimeband )
             : (      $model->{coincidenceAdj}
@@ -761,59 +754,26 @@ sub timeOfDayRunner {
             ? ( cols => $peakBand )
             : (),
             arguments => {
-                $timebandLoadCoefficient
-                ? (
-                    IV1 => $timebandLoadCoefficient,
-                    IV6 => $timebandLoadCoefficient
-                  )
-                : (),
                 IV2 => $timebandLoadCoefficientAccording,
                 IV5 => $timebandLoadCoefficientAccording,
                 IV4 => $loadCoefficients,
                 IV8 => $loadCoefficients,
             }
         );
-        my $relevantUsers =
-          Labelset( list =>
-              [ grep { !/gener/i } @{ $relevantEndUsersByRate[0]{list} } ] );
 
-        my ( $tariffGroupset, $mapping );
+        if ( $correctionRules =~ /groupAll/i ) {
 
-        if ($groupAll) {
-
-            push @{ $model->{optionLines} },
-              'Coincidence correction factors grouped for UMS';
-
-            $relevantUsers =
-              @{ $relevantEndUsersByRate[0]{list} } == @relevantToGrouping
-              ? $relevantEndUsersByRate[0]    # hack
-              : Labelset( list => \@relevantToGrouping );
-
-            $tariffGroupset = Labelset( list => [ 'Unmetered', ] );
-
-            $mapping = Constant(
-                name => 'Mapping of tariffs to '
-                  . 'tariff groups for coincidence adjustment factor',
-                defaultFormat => '0connz',
-                rows          => $relevantUsers,
-                cols          => $tariffGroupset,
-                data          => [ map { 1; } @{ $relevantUsers->{list} } ],
-            );
+            my $relevantUsers = $relevantEndUsersByRate[0];
 
             my $red = Arithmetic(
                 name          => 'Contribution to peak band kW',
                 defaultFormat => '0softnz',
-                arithmetic    => $timebandLoadCoefficient
-                ? '=IV1*IV9*IV2/24/IV3*1000'
-                : '=IV1*IV2/24/IV3*1000',
-                rows      => $relevantUsers,
-                arguments => {
+                arithmetic    => '=IV1*IV2/24/IV3*1000',
+                rows          => $relevantUsers,
+                arguments     => {
                     IV1 => $timebandLoadCoefficientAccording,
                     IV2 => $unitsByEndUser,
                     IV3 => $daysInYear,
-                    $timebandLoadCoefficient
-                    ? ( IV9 => $timebandLoadCoefficient )
-                    : (),
                 },
             );
 
@@ -834,58 +794,19 @@ sub timeOfDayRunner {
             push @{ $model->{timeOfDayResults} },
               Columnset(
                 name    => 'Estimated contributions to peak demand',
-                columns => [
-                      $timebandLoadCoefficientAccording->{rows} == $red->{rows}
-                    ? $timebandLoadCoefficientAccording
-                    : (),
-                    $red,
-                    $coin,
-                ]
+                columns => [ $timebandLoadCoefficientAccording, $red, $coin, ]
               );
 
-            my $redG = SumProduct(
-                name          => 'Group contribution to peak band kW',
-                defaultFormat => '0softnz',
-                matrix        => $mapping,
-                vector        => $red,
+            $timebandLoadCoefficientAdjusted = Arithmetic(
+                name => 'Load coefficient correction factor for the group',
+                arithmetic => '=IF(SUM(IV1_IV5),SUM(IV2_IV6)/SUM(IV3_IV7),0)',
+                rows       => 0,
+                arguments  => {
+                    IV1_IV5 => $red,
+                    IV2_IV6 => $coin,
+                    IV3_IV7 => $red,
+                }
             );
-
-            my $coinG = SumProduct(
-                name          => 'Group contribution to system-peak-time kW',
-                defaultFormat => '0softnz',
-                matrix        => $mapping,
-                vector        => $coin,
-            );
-
-            $timebandLoadCoefficientAdjusted = Stack(
-                name    => 'Load coefficient correction factor (combined)',
-                rows    => $relevantEndUsersByRate[0],
-                cols    => 0,
-                sources => [
-                    SumProduct(
-                        name => 'Load coefficient correction factor '
-                          . '(based on group)',
-                        matrix => $mapping,
-                        vector => Arithmetic(
-                            name => 'Load coefficient correction factor'
-                              . ' for each group',
-                            arithmetic => '=IF(IV1,IV2/IV3,0)',
-                            rows       => 0,
-                            arguments  => {
-                                IV1 => $redG,
-                                IV2 => $coinG,
-                                IV3 => $redG,
-                            }
-                        ),
-                    ),
-                    $timebandLoadCoefficientAdjusted,
-                ]
-            );
-
-            $timebandLoadCoefficientAdjusted =
-              $timebandLoadCoefficientAdjusted->{sources}[0]
-              if $timebandLoadCoefficientAdjusted->lastRow ==
-              $timebandLoadCoefficientAdjusted->{sources}[0]->lastRow;   # hacky
 
         }
 
@@ -899,8 +820,10 @@ sub timeOfDayRunner {
 
         $pseudoLoadCoefficientBreakdown = Arithmetic(
             name => 'Pseudo load coefficient by time band and network level',
-            rows => $relevantEndUsersByRate[0],
-            cols => $networkLevelsTimeband,
+            $correctionRules =~ /groupAll/i
+            ? ()
+            : ( rows => $relevantEndUsersByRate[0] ),
+            cols       => $networkLevelsTimeband,
             arithmetic => '=IF(IV6>0,IV2*IV7*24*IV9/IV5,0)',
             arguments  => {
                 IV2 => $timebandLoadCoefficientAdjusted,
@@ -909,6 +832,207 @@ sub timeOfDayRunner {
                 IV7 => $peakingProbability,
                 IV9 => $daysInYear,
             }
+        );
+
+    }
+
+    if ( $correctionRules =~ /equalisation/i ) {
+
+        my $groupset = Labelset(
+            list => [
+                'Domestic equalisation group',
+                'Non-domestic equalisation group'
+            ]
+        );
+
+        my %eq;
+
+        $eq{prefix} = {
+            NHH1 => 'Single rate non half hourly',
+            NHH2 => 'Multi rate non half hourly',
+            AHH  => 'Aggregated half hourly'
+        };
+
+        $eq{userSet}{NHH1} = Labelset(
+            list => [
+                grep { /domestic/i && /unrestricted/i }
+                  @{ $allEndUsers->{list} }
+            ]
+        );
+
+        $eq{userSet}{NHH2} = Labelset(
+            list => [
+                grep {
+                         /domestic/i
+                      && /two.?rate/i
+                      && ( !/non.?dom/i || /small/i )
+                } @{ $allEndUsers->{list} }
+            ]
+        );
+
+        $eq{userSet}{AHH} = Labelset(
+            list => [
+                grep {
+                         !/gener/i
+                      && $componentMap->{$_}{'Unit rates p/kWh'}
+                      && !$componentMap->{$_}{'Capacity charge p/kVA/day'}
+                } @{ $allEndUsers->{list} }
+            ]
+        );
+
+        foreach ( values %{ $eq{userSet} } ) {
+            die $_ if @{ $_->{list} } != @{ $groupset->{list} };
+            push @{ $_->{accepts} },        $groupset;
+            push @{ $groupset->{accepts} }, $_;
+        }
+
+        $eq{units}{$_} = Stack(
+            name    => $eq{prefix}{$_} . ' timeband use',
+            rows    => $eq{userSet}{$_},
+            sources => [$unitsByEndUser]
+        ) foreach qw(NHH1 NHH2 AHH);
+
+        $eq{timebandUse}{$_} = Stack(
+            name    => $eq{prefix}{$_} . ' timeband use',
+            rows    => $eq{userSet}{$_},
+            sources => [ $timebandUseByTariff[ /NHH1/ ? 0 : /NHH2/ ? 1 : 2 ] ]
+        ) foreach qw(NHH1 NHH2 AHH);
+
+        $eq{tariffCoef}{$_} = Stack(
+            name    => $eq{prefix}{$_} . ' tariff load coefficient',
+            rows    => $eq{userSet}{$_},
+            sources => [$loadCoefficients],
+        ) foreach qw(NHH1);
+
+        $eq{timebandCoef}{$_} = Stack(
+            name    => $eq{prefix}{$_} . ' pseudo timeband load coefficients',
+            rows    => $eq{userSet}{$_},
+            sources => [$pseudoLoadCoefficientBreakdown]
+        ) foreach qw(NHH2 AHH);
+
+        $eq{tariffCoef}{$_} = SumProduct(
+            name   => $eq{prefix}{$_} . ' tariff pseudo load coefficient',
+            rows   => $eq{userSet}{$_},
+            cols   => $networkLevelsTimebandAware,
+            vector => $eq{timebandUse}{$_},
+            matrix => $eq{timebandCoef}{$_},
+        ) foreach qw(NHH2 AHH);
+
+        push @{ $eq{userSet}{AHH}{accepts} },
+          map { $eq{userSet}{$_} } qw(NHH1 NHH2);
+
+        $eq{tariffCoef}{hybrid} = SumProduct(
+            name => 'Aggregated half hourly tariff pseudo load coefficient'
+              . ' using average non half hourly unit mix',
+            rows   => $eq{userSet}{AHH},
+            cols   => $networkLevelsTimebandAware,
+            vector => Arithmetic(
+                name       => 'Average non half hourly timeband use',
+                rows       => $eq{userSet}{AHH},
+                cols       => $timebandSet,
+                arithmetic => '=(IV1*IV2+IV3*IV4)/(IV5+IV6)',
+                arguments  => {
+                    IV1 => $eq{units}{NHH1},
+                    IV2 => $eq{timebandUse}{NHH1},
+                    IV3 => $eq{units}{NHH2},
+                    IV4 => $eq{timebandUse}{NHH2},
+                    IV5 => $eq{units}{NHH1},
+                    IV6 => $eq{units}{NHH2},
+                },
+            ),
+            matrix => $eq{timebandCoef}{AHH},
+        );
+
+        $eq{tariffCoef}{NHH} = Arithmetic(
+            name => 'Average non half hourly tariff pseudo load coefficient',
+            rows => $groupset,
+            cols => $networkLevelsTimebandAware,
+            arithmetic => '=(IV1*IV2+IV3*IV4)/(IV7+IV8)',
+            arguments  => {
+                IV1 => $eq{units}{NHH1},
+                IV2 => $eq{tariffCoef}{NHH1},
+                IV3 => $eq{units}{NHH2},
+                IV4 => $eq{tariffCoef}{NHH2},
+                IV7 => $eq{units}{NHH1},
+                IV8 => $eq{units}{NHH2},
+            },
+        );
+
+        $eq{relCorr} = Arithmetic(
+            name =>
+              'Relative correction factor for aggregated half hourly tariff',
+            rows       => $groupset,
+            cols       => $networkLevelsTimebandAware,
+            arithmetic => '=IV1/IV9',
+            arguments  => {
+                IV1 => $eq{tariffCoef}{NHH},
+                IV9 => $eq{tariffCoef}{hybrid},
+            },
+        );
+
+        $eq{nhhCorr} = Arithmetic(
+            name       => 'Correction factor for non half hourly tariffs',
+            rows       => $groupset,
+            cols       => $networkLevelsTimebandAware,
+            arithmetic => '=(IV11*IV21+IV31*IV41+IV51*IV61)'
+              . '/(IV12*IV22+IV32*IV42+IV52*IV62*IV9)',
+            arguments => {
+                IV11 => $eq{units}{NHH1},
+                IV12 => $eq{units}{NHH1},
+                IV21 => $eq{tariffCoef}{NHH1},
+                IV22 => $eq{tariffCoef}{NHH1},
+                IV31 => $eq{units}{NHH2},
+                IV32 => $eq{units}{NHH2},
+                IV41 => $eq{tariffCoef}{NHH2},
+                IV42 => $eq{tariffCoef}{NHH2},
+                IV51 => $eq{units}{AHH},
+                IV52 => $eq{units}{AHH},
+                IV61 => $eq{tariffCoef}{AHH},
+                IV62 => $eq{tariffCoef}{AHH},
+                IV9  => $eq{relCorr},
+            },
+        );
+
+        $pseudoLoadCoefficientBreakdown = Stack(
+            name => 'Pseudo load coefficient by time band'
+              . ' and network level (equalised)',
+            rows    => $pseudoLoadCoefficientBreakdown->{rows},
+            cols    => $pseudoLoadCoefficientBreakdown->{cols},
+            sources => [
+                Arithmetic(
+                    name => $eq{prefix}{NHH1}
+                      . ' corrected pseudo timeband load coefficient',
+                    rows       => $eq{userSet}{NHH1},
+                    cols       => $networkLevelsTimeband,
+                    arithmetic => '=IV1*IV2',
+                    arguments  => {
+                        IV1 => $eq{tariffCoef}{NHH1},
+                        IV2 => $eq{nhhCorr},
+                    },
+                ),
+                Arithmetic(
+                    name => $eq{prefix}{NHH2}
+                      . ' corrected pseudo timeband load coefficient',
+                    rows       => $eq{userSet}{NHH2},
+                    arithmetic => '=IV1*IV2',
+                    arguments  => {
+                        IV1 => $eq{timebandCoef}{NHH2},
+                        IV2 => $eq{nhhCorr},
+                    },
+                ),
+                Arithmetic(
+                    name => $eq{prefix}{AHH}
+                      . ' corrected pseudo timeband load coefficient',
+                    rows       => $eq{userSet}{AHH},
+                    arithmetic => '=IV1*IV2*IV3',
+                    arguments  => {
+                        IV1 => $eq{timebandCoef}{AHH},
+                        IV2 => $eq{nhhCorr},
+                        IV3 => $eq{relCorr},
+                    },
+                ),
+                $pseudoLoadCoefficientBreakdown,
+            ],
         );
 
     }

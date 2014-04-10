@@ -207,10 +207,10 @@ sub standingCharges {
                 map {
                         /(additional|related) mpan/i ? [qw(0 0 0 0)]
                       : /domestic|1p|single/i && !/non.?dom/i ? [qw(1 0 0 0)]
-                      : /small/i  ? [qw(1 0 0 0)]
-                      : /lv sub/i ? [qw(0 0 1 0)]
-                      : /hv/i     ? [qw(0 0 0 1)]
-                      :             [qw(0 1 0 0)];
+                      : /small|\bWC\b|non.?CT/i ? [qw(1 0 0 0)]
+                      : /lv sub/i               ? [qw(0 0 1 0)]
+                      : /hv/i                   ? [qw(0 0 0 1)]
+                      :                           [qw(0 1 0 0)];
                 } @{ $standingForFixedEndUsers->{list} }
               ]
             : [
