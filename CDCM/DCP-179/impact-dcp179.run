@@ -11,8 +11,8 @@ time ../run/import.pl -calc -sqlite *.xl*
 
 for x in 1 2 3 4 5 6 7
 do
-time ../run/export.pl dcp179opt$x ../CDCM/DCP-179/+impactlines-current-dcp179-tariffs.yml -name='DCP 179 option '$x -cdcmTariffImpact 
-time ../run/export.pl dcp179opt$x ../CDCM/DCP-179/+impactlines-current-dcp179-revenue.yml -name='DCP 179 option '$x -cdcmPpuImpact -cdcmRevenueMatrixImpact
+time ../run/export.pl dcp179opt$x ../CDCM/DCP-179/+impactlines-dcp163-dcp179-tariffs.yml -name='DCP 179 option '$x -cdcmTariffImpact 
+time ../run/export.pl dcp179opt$x ../CDCM/DCP-179/+impactlines-dcp163-dcp179-revenue.yml -name='DCP 179 option '$x -cdcmPpuImpact -cdcmRevenueMatrixImpact
 done
 
 ../run/export.pl tscs 24

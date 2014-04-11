@@ -51,7 +51,8 @@ sub preprocess {
 
     $model->{locationData} = [ Stack( sources => [$locations] ) ];
 
-    push @{ $model->{locationData} }, my $maxkVA = Arithmetic(
+    push @{ $model->{locationData} },
+      my $maxkVA = Arithmetic(
         name          => 'Maximum demand scenario kVA',
         defaultFormat => '0soft',
         arithmetic    => $model->{method} =~ /LRIC/i ? '=SQRT(IV2^2+IV1^2)'
@@ -65,9 +66,10 @@ sub preprocess {
                 IV6 => $r1g,
             )
         }
-    );
+      );
 
-    push @{ $model->{locationData} }, my $rf1 = Arithmetic(
+    push @{ $model->{locationData} },
+      my $rf1 = Arithmetic(
         name       => 'Reactive factor in maximum demand scenario',
         arithmetic => '=IF(IV92=0,0,0-(IV1+IV4)/IV2)',
         arguments  => {
@@ -76,7 +78,7 @@ sub preprocess {
             IV92 => $maxkVA,
             IV4  => $r1g,
         }
-    ) unless $model->{method} =~ /LRIC/i;
+      ) unless $model->{method} =~ /LRIC/i;
 
     $maxkVA, $rf1;
 
@@ -92,17 +94,19 @@ sub charge1 {
 
     if ( $model->{method} eq 'none' ) {
 
-        push @{ $model->{matrixColumns} }, my $invpf1 = Constant(
+        push @{ $model->{matrixColumns} },
+          my $invpf1 = Constant(
             name => 'Inverse power factor, maximum demand (kVA/kW)',
             rows => $tariffLoc->{rows},
             data => [ map { 1 } @{ $tariffLoc->{rows}{list} } ],
-        );
+          );
 
         return [ undef, undef, undef ], [ undef, $invpf1, undef ], [];
 
     }
 
-    push @{ $model->{matrixColumns} }, my $locMatchA = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $locMatchA = Arithmetic(
         name          => 'Location',
         defaultFormat => 'thloc',
         arithmetic    => '=MATCH(IV1,IV5_IV6,0)',
@@ -110,7 +114,7 @@ sub charge1 {
             IV1     => $tariffLoc,
             IV5_IV6 => $locations,
         }
-    ) if $tariffLoc;
+      ) if $tariffLoc;
 
     if ( $model->{method} =~ /LRIC/i ) {
 
@@ -118,7 +122,8 @@ sub charge1 {
         my $last = $model->{linkedLoc} || 8;
         --$last;
 
-        push @{ $model->{matrixColumns} }, $locMatch[$_] = Arithmetic(
+        push @{ $model->{matrixColumns} },
+          $locMatch[$_] = Arithmetic(
             name          => "Linked location $_",
             defaultFormat => 'thloc',
             arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
@@ -127,10 +132,11 @@ sub charge1 {
                 IV5_IV6 => $locations,
                 IV7_IV8 => $locParent,
             }
-        ) foreach 1 .. $last;
+          ) foreach 1 .. $last;
 
         my @c1l = map {
-            push @{ $model->{matrixColumns} }, my $ca = Arithmetic(
+            push @{ $model->{matrixColumns} },
+              my $ca = Arithmetic(
                 name       => 'Local charge 1 £/kVA/year at ' . $_->{name},
                 arithmetic => $model->{noNegative}
                 ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
@@ -140,12 +146,13 @@ sub charge1 {
                     IV52      => $_,
                     IV53_IV54 => $c1->[0],
                 }
-            );
+              );
             $ca;
         } @locMatch;
 
         my @c1n = map {
-            push @{ $model->{matrixColumns} }, my $ca = Arithmetic(
+            push @{ $model->{matrixColumns} },
+              my $ca = Arithmetic(
                 name       => 'Network charge 1 £/kVA/year at ' . $_->{name},
                 arithmetic => $model->{noNegative}
                 ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
@@ -155,12 +162,13 @@ sub charge1 {
                     IV52      => $_,
                     IV53_IV54 => $c1->[1],
                 }
-            );
+              );
             $ca;
         } @locMatch;
 
         my @kVA1 = map {
-            push @{ $model->{matrixColumns} }, my $ca = Arithmetic(
+            push @{ $model->{matrixColumns} },
+              my $ca = Arithmetic(
                 name       => 'Maximum demand run kVA at ' . $_->{name},
                 arithmetic => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
                 arguments  => {
@@ -168,7 +176,7 @@ sub charge1 {
                     IV52      => $_,
                     IV53_IV54 => $maxkVA,
                 }
-            );
+              );
             $ca;
         } @locMatch;
 
@@ -266,7 +274,8 @@ sub charge1 {
 
     }
 
-    push @{ $model->{matrixColumns} }, my $locMatchB = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $locMatchB = Arithmetic(
         name          => 'Parent location',
         defaultFormat => 'thloc',
         arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
@@ -275,9 +284,10 @@ sub charge1 {
             IV5_IV6 => $locations,
             IV7_IV8 => $locParent,
         }
-    ) if $tariffLoc;
+      ) if $tariffLoc;
 
-    push @{ $model->{matrixColumns} }, my $locMatchC = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $locMatchC = Arithmetic(
         name          => 'Grandparent location',
         defaultFormat => 'thloc',
         arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
@@ -286,9 +296,10 @@ sub charge1 {
             IV5_IV6 => $locations,
             IV7_IV8 => $locParent,
         }
-    ) if $tariffLoc;
+      ) if $tariffLoc;
 
-    push @{ $model->{matrixColumns} }, my $ca1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $ca1 = Arithmetic(
         name       => 'Location charge 1 £/kVA/year',
         arithmetic => $model->{noNegative}
         ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
@@ -298,9 +309,10 @@ sub charge1 {
             IV52      => $locMatchA,
             IV53_IV54 => $c1,
         }
-    ) if $tariffLoc;
+      ) if $tariffLoc;
 
-    push @{ $model->{matrixColumns} }, my $cb1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $cb1 = Arithmetic(
         name => (
             $model->{method} =~ /LRIC/i ? 'Linked location 1'
             : 'Parent location'
@@ -314,9 +326,10 @@ sub charge1 {
             IV52      => $locMatchB,
             IV53_IV54 => $c1,
         }
-    ) if $tariffLoc;
+      ) if $tariffLoc;
 
-    push @{ $model->{matrixColumns} }, my $cc1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $cc1 = Arithmetic(
         name       => ('Grandparent location') . ' charge 1 £/kVA/year',
         arithmetic => $model->{noNegative}
         ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
@@ -326,9 +339,10 @@ sub charge1 {
             IV52      => $locMatchC,
             IV53_IV54 => $c1,
         }
-    );
+      );
 
-    push @{ $model->{matrixColumns} }, my $rfa1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $rfa1 = Arithmetic(
         name => 'Network group reactive factor, maximum demand (kVAr/kVA)',
         arithmetic => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
         arguments  => {
@@ -336,15 +350,17 @@ sub charge1 {
             IV52      => $locMatchA,
             IV53_IV54 => $rf1,
         }
-    );
+      );
 
-    push @{ $model->{matrixColumns} }, my $pfa1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $pfa1 = Arithmetic(
         name       => 'Network group power factor, maximum demand (kW/kVA)',
         arithmetic => '=SQRT(1-IV1^2)',
         arguments  => { IV1 => $rfa1 }
-    );
+      );
 
-    push @{ $model->{matrixColumns} }, my $rfb1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $rfb1 = Arithmetic(
         name       => 'Parent group reactive factor, maximum demand (kVAr/kVA)',
         arithmetic => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
         arguments  => {
@@ -352,15 +368,17 @@ sub charge1 {
             IV52      => $locMatchB,
             IV53_IV54 => $rf1,
         }
-    );
+      );
 
-    push @{ $model->{matrixColumns} }, my $pfb1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $pfb1 = Arithmetic(
         name       => 'Parent group power factor, maximum demand (kW/kVA)',
         arithmetic => '=SQRT(1-IV1^2)',
         arguments  => { IV1 => $rfb1 }
-    );
+      );
 
-    push @{ $model->{matrixColumns} }, my $rfc1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $rfc1 = Arithmetic(
         name => 'Grandparent group reactive factor, maximum demand (kVAr/kVA)',
         arithmetic => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
         arguments  => {
@@ -368,15 +386,17 @@ sub charge1 {
             IV52      => $locMatchC,
             IV53_IV54 => $rf1,
         }
-    );
+      );
 
-    push @{ $model->{matrixColumns} }, my $pfc1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $pfc1 = Arithmetic(
         name       => 'Grandparent group power factor, maximum demand (kW/kVA)',
         arithmetic => '=SQRT(1-IV1^2)',
         arguments  => { IV1 => $rfc1 }
-    );
+      );
 
-    push @{ $model->{matrixColumns} }, my $rft1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $rft1 = Arithmetic(
         name       => 'Top level reactive factor, maximum demand (kVAr/kVA)',
         arithmetic => '=IF(ISNUMBER(IV3),IV6,IF(ISNUMBER(IV2),IV5,IV4))',
         arguments  => {
@@ -387,13 +407,14 @@ sub charge1 {
             IV5 => $rfb1,
             IV6 => $rfc1,
         }
-    );
+      );
 
-    push @{ $model->{matrixColumns} }, my $pft1 = Arithmetic(
+    push @{ $model->{matrixColumns} },
+      my $pft1 = Arithmetic(
         name       => 'Top level power factor, maximum demand (kW/kVA)',
         arithmetic => '=SQRT(1-IV1^2)',
         arguments  => { IV1 => $rft1 }
-    );
+      );
 
     [ $ca1, $cb1, $cc1 ], [ $pfa1, $pfb1, $pfc1 ], [ $rfa1, $rfb1, $rfc1 ];
 

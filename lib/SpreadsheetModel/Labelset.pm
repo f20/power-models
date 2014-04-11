@@ -74,7 +74,9 @@ sub htmlDescribe {
             ]
         } @{ $self->{groups} }
       )
-      : ( map { [ div => "$_" ] } @{ $self->{list} } ), $self->{accepts} ? [
+      : ( map { [ div => "$_" ] } @{ $self->{list} } ),
+      $self->{accepts}
+      ? [
         fieldset => [
             [ legend => 'Accepts' ],
             map { [ div => $_->htmlLink( $hb, $hs ) ] } @{ $self->{accepts} }

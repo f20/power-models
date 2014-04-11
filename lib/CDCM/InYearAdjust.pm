@@ -176,7 +176,7 @@ sub inYearAdjustUsingBefore {
                     rowFormats => [
                         map {
                             $componentMap->{$_}{$tariffComponent} ? undef
-                              :   'unavailable';
+                              : 'unavailable';
                         } @{ $volumeData->{$_}{rows}{list} }
                     ],
                     data => [
@@ -221,7 +221,7 @@ sub inYearAdjustUsingBefore {
                     rowFormats => [
                         map {
                             $componentMap->{$_}{$tariffComponent} ? undef
-                              :   'unavailable';
+                              : 'unavailable';
                         } @{ $volumeData->{$_}{rows}{list} }
                     ],
                     data => [
@@ -317,7 +317,8 @@ sub inYearAdjustUsingBefore {
                     arguments => \%args,
                 )
             ];
-            push @{ $model->{revenueMatching} }, my @revBef = (
+            push @{ $model->{revenueMatching} },
+              my @revBef = (
                 GroupBy(
                     name =>
 "Total net revenue in the period covered by tables 1097/1098 (£)",
@@ -330,7 +331,7 @@ sub inYearAdjustUsingBefore {
                     defaultFormat => '0soft',
                     source        => $model->{inYearRevenues}[1],
                 )
-            );
+              );
             push @{ $model->{adjustRevenuesBefore} },
               Dataset(
                 name =>
@@ -484,7 +485,7 @@ sub inYearAdjustUsingBefore {
                         rowFormats => [
                             map {
                                 $componentMap->{$_}{$tariffComponent} ? undef
-                                  :   'unavailable';
+                                  : 'unavailable';
                             } @{ $volumeData->{$_}{rows}{list} }
                         ],
                         data => [
@@ -590,7 +591,8 @@ sub inYearAdjustUsingBefore {
 
     }
 
-    push @{ $model->{volumeData} }, $$unitsInYearAfter = Arithmetic(
+    push @{ $model->{volumeData} },
+      $$unitsInYearAfter = Arithmetic(
         defaultFormat => '0softnz',
         name          => 'All units after tariff change (MWh)',
         arithmetic    => '='
@@ -600,7 +602,7 @@ sub inYearAdjustUsingBefore {
               1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz'
-    );
+      );
 
     Columnset(
         name =>
@@ -700,7 +702,8 @@ sub inYearAdjustUsingAfter {
         dataset       => $model->{dataset},
     ) if $revenueBefore;
 
-    push @{ $model->{volumeData} }, $$unitsInYearAfter = Arithmetic(
+    push @{ $model->{volumeData} },
+      $$unitsInYearAfter = Arithmetic(
         noCopy        => 1,
         defaultFormat => '0softnz',
         name          => 'All units after tariff change (MWh)',
@@ -711,7 +714,7 @@ sub inYearAdjustUsingAfter {
               1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz'
-    );
+      );
 
     if ( $model->{pcd} ) {
         my %intermediateAfter = map {
@@ -785,7 +788,8 @@ sub displayWholeYearTarget {
         $args{"IV3$pad"} = $volumeData->{$_};
         $rows ||= $volumeData->{$_}{rows};
     }
-    push @{ $model->{revenueSummary} }, my $annualisedRevenue = GroupBy(
+    push @{ $model->{revenueSummary} },
+      my $annualisedRevenue = GroupBy(
         name => 'Total net revenue if applied to the whole year (£/year)',
         defaultFormat => '0soft',
         source        => Arithmetic(
@@ -802,7 +806,7 @@ sub displayWholeYearTarget {
               ),
             arguments => \%args,
         )
-    );
+      );
     push @{ $model->{revenueSummary} },
       Arithmetic(
         name => 'Suggested adjustment to model 100 target revenue (£/year)',

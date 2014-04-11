@@ -140,13 +140,16 @@ sub usetBoundaryCosts {
 
 sub detailedAssets {
     my ( $self, $usage ) = @_;
-    my $notionalAssets=SumProduct(
-            name          => 'Notional assets (£)',
-            matrix        => $usage,
-            vector        => $self->assetRate,
-            defaultFormat => '0softnz',
-        );
-        Columnset(name=>'Notional assets by user',columns=>[Stack(sources=>[$usage->{names}]),$notionalAssets]) if $usage->{names};
+    my $notionalAssets = SumProduct(
+        name          => 'Notional assets (£)',
+        matrix        => $usage,
+        vector        => $self->assetRate,
+        defaultFormat => '0softnz',
+    );
+    Columnset(
+        name    => 'Notional assets by user',
+        columns => [ Stack( sources => [ $usage->{names} ] ), $notionalAssets ]
+    ) if $usage->{names};
     push @{ $self->{model}{detailedTables2} },
       GroupBy(
         name          => 'Total notional assets (£)',

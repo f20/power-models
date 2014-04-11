@@ -33,13 +33,13 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
-sub timeOfDay {
+sub timeOfDay179 {
 
     my ( $model, $networkLevels, $componentMap, $allEndUsers, $daysInYear,
         $loadCoefficients, $volumeByEndUser, $unitsByEndUser )
       = @_;
 
-    my (@pseudoLoadCoeffMetered) = $model->timeOfDayRunner(
+    my (@pseudoLoadCoeffMetered) = $model->timeOfDay179Runner(
         $networkLevels,
         $componentMap,
         Labelset(
@@ -61,7 +61,7 @@ sub timeOfDay {
         $model->{agghhequalisation} ? 'equalisation' : 'none',
     );
 
-    my (@pseudoLoadCoeffUnmetered) = $model->timeOfDayRunner(
+    my (@pseudoLoadCoeffUnmetered) = $model->timeOfDay179Runner(
         $networkLevels,
         $componentMap,
         Labelset(
@@ -108,7 +108,7 @@ sub timeOfDay {
 
 }
 
-sub timeOfDayRunner {
+sub timeOfDay179Runner {
 
     my (
         $model,           $networkLevels,  $componentMap,

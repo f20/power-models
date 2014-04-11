@@ -635,8 +635,8 @@ EOT
 
     my ( $pseudoLoadCoefficientsAgainstSystemPeak, $pseudoLoadCoefficients );
     if ( $model->{maxUnitRates} && $model->{maxUnitRates} > 1 ) {
-        if ( $model->{timeOfDay} ) {
-            $pseudoLoadCoefficients = $model->timeOfDay(
+        if ( my $timeOfDay = $model->{timeOfDay} ) {
+            $pseudoLoadCoefficients = $model->$timeOfDay(
                 $drmExitLevels, $componentMap,     $allEndUsers,
                 $daysInYear,    $loadCoefficients, $volumesByEndUser,
                 $unitsByEndUser

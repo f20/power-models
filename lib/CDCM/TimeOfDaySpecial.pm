@@ -33,7 +33,7 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
-sub timeOfDay {
+sub timeOfDaySpecial {
 
     my ( $model, $networkLevels, $componentMap, $allEndUsers, $daysInYear,
         $loadCoefficients, $volumeByEndUser, $unitsByEndUser )
@@ -89,7 +89,7 @@ sub timeOfDay {
         }
     }
 
-    my ( $ignore1, $plca1 ) = $model->timeOfDayRunner(
+    my ( $ignore1, $plca1 ) = $model->timeOfDaySpecialRunner(
         $networkLevels,
         $componentMap,
         Labelset(
@@ -102,7 +102,7 @@ sub timeOfDay {
         $unitsByEndUser,
     );
 
-    my ( $ignore2, $plca2 ) = $model->timeOfDayRunner(
+    my ( $ignore2, $plca2 ) = $model->timeOfDaySpecialRunner(
         $networkLevels,
         $componentMap,
         Labelset(
@@ -272,7 +272,7 @@ sub timeOfDay {
 
 }
 
-sub timeOfDayRunner {
+sub timeOfDaySpecialRunner {
 
     my (
         $model,           $networkLevels,  $componentMap,

@@ -1,0 +1,25 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_300-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+perl ../run/make.pl ../CDCM/DCP-179/%-300*.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+perl ../run/import.pl -calc -sqlite *.xl*
+
+perl ../run/export.pl -dcp=300-min ../CDCM/DCP-179/+impactlines-dcp163-300-tariffs.yml -name='DCP 179 minimum change solution' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=300-min ../CDCM/DCP-179/+impactlines-dcp163-300-revenue.yml -name='DCP 179 minimum change solution' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+
+perl ../run/export.pl -dcp=300baseline ../CDCM/DCP-179/+impactlines-dcp163-300-tariffs.yml -name='DCP 179 baseline model' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=300baseline ../CDCM/DCP-179/+impactlines-dcp163-300-revenue.yml -name='DCP 179 baseline model' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+
+perl ../run/export.pl -dcp=300rag ../CDCM/DCP-179/+impactlines-dcp163-300-tariffs.yml -name='DCP 179 uncorrected' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=300rag ../CDCM/DCP-179/+impactlines-dcp163-300-revenue.yml -name='DCP 179 uncorrected' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+
+perl ../run/export.pl -base=300-min -dcp=300-proof1 ../CDCM/DCP-179/+impactlines-300-300.yml -name='DCP 179 minimum change proof of the pudding'
+perl ../run/export.pl -base=300-min -dcp=300-proof2 ../CDCM/DCP-179/+impactlines-300-300.yml -name='DCP 179 minimum change counter-proof'
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

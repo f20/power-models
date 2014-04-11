@@ -574,7 +574,7 @@ EOT
         );
     }
 
-    if (!$model->{ldnoSplits} && $idnoDataInputTariffs) { # old way, LV only
+    if ( !$model->{ldnoSplits} && $idnoDataInputTariffs ) {   # old way, LV only
 
         $routeingFactors = Stack(
             rows    => $allTariffsByEndUser,

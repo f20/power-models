@@ -1,5 +1,5 @@
 ---
-.: DCP 179 April 2014 minimum change option
+.: DCP 179 minimum change solution
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

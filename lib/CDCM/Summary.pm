@@ -882,11 +882,12 @@ Change something below to put something like table 1095 in full-year models inst
                 } @{ $atwMarginTariffs->{list} }
             ],
         );
-        push @{ $model->{consultationInput} }, my $irev = Stack(
+        push @{ $model->{consultationInput} },
+          my $irev = Stack(
             name    => "LDNO $idnoType charges (normalised £)",
             rows    => $tariffset,
             sources => [$rev]
-        );
+          );
         push @rev,
           Arithmetic(
             name          => "LDNO $idnoType margin (normalised £)",

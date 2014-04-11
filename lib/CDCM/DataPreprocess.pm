@@ -270,7 +270,7 @@ EOY
         foreach ( 1 .. 8 ) {
             my $col = $d->{1025}[$_];
             $col->{'LV Network Non-Domestic Non-CT'} =
-              $col->{ 'Small Non Domestic Unrestricted' };
+              $col->{'Small Non Domestic Unrestricted'};
         }
     }
     if ( $model->{tariffs} =~ /dcp179/i
@@ -320,11 +320,12 @@ EOY
             }
         }
     }
+
     if (   $model->{tariffs} =~ /dcp179|pc12hh|pc34hh/i
         && exists $d->{1061}[1]{'Domestic Two Rate'}
         && !exists $d->{1061}[1]{'Domestic Unrestricted'} )
     {
-        $d->{1000}[3]{'Company charging year data version'} .= ' (modified)';
+        $model->addModifiedWarning;
         foreach my $t ( 'Domestic', 'Small Non Domestic' ) {
             foreach ( 1, 2, 3 ) {
                 $d->{1061}[$_]{ $t . ' Unrestricted' } =
@@ -332,9 +333,62 @@ EOY
                   0.15 * ( $d->{1062}[$_]{ $t . ' Two Rate' } || 0 );
             }
         }
-
     }
 
+    if ( $d->{p300} ) {
+        foreach ( 'Domestic', 'Small Non Domestic' ) {
+            $model->addModifiedWarning;
+            my $hhTariffName =
+              $_ eq 'Domestic'
+              ? 'LV Network Domestic'
+              : 'LV Network Non-Domestic Non-CT';
+            my $units1 = $d->{1053}[1]{"$_ Unrestricted"};
+            my $units2 =
+              $d->{1053}[1]{"$_ Two Rate"} + $d->{1053}[2]{"$_ Two Rate"};
+            $d->{1041}[2]{$hhTariffName} =
+              ( $units1 + $units2 ) /
+              ( $units1 / $d->{1041}[2]{"$_ Unrestricted"} +
+                  $units2 / $d->{1041}[2]{"$_ Two Rate"} );
+            $d->{1041}[1]{$hhTariffName} =
+              $d->{1041}[2]{$hhTariffName} *
+              ( $units1 * $d->{1041}[1]{"$_ Unrestricted"} /
+                  $d->{1041}[2]{"$_ Unrestricted"} +
+                  $units2 * $d->{1041}[1]{"$_ Two Rate"} /
+                  $d->{1041}[2]{"$_ Two Rate"} ) /
+              ( $units1 + $units2 );
+            if ( my $prop = $d->{p300}[1]{$_} ) {
+                foreach my $rate ( 1 .. 3 ) {
+                    $d->{1053}[$rate]{$hhTariffName} =
+                      $prop *
+                      ( $d->{1053}[1]{"$_ Unrestricted"} *
+                          $d->{1061}[$rate]{"$_ Unrestricted"} +
+                          $d->{1053}[1]{"$_ Two Rate"} *
+                          $d->{1061}[$rate]{"$_ Two Rate"} +
+                          $d->{1053}[2]{"$_ Two Rate"} *
+                          ( $d->{1062}[$rate]{"$_ Two Rate"} || 0 ) );
+                }
+                $d->{1053}[4]{$hhTariffName} =
+                  $prop *
+                  ( $d->{1053}[4]{"$_ Unrestricted"} +
+                      $d->{1053}[4]{"$_ Two Rate"} );
+                foreach my $c ( 1, 4 ) {
+                    $d->{1053}[$c]{"$_ Unrestricted"} *= 1 - $prop;
+                }
+                foreach my $c ( 1, 2, 4 ) {
+                    $d->{1053}[$c]{"$_ Two Rate"} *= 1 - $prop;
+                }
+            }
+        }
+    }
+
+}
+
+sub addModifiedWarning {
+    my ($model) = @_;
+    return if $model->{datasetModifiedWarning};
+    $model->{datasetModifiedWarning} = 1;
+    $model->{dataset}{1000}[3]{'Company charging year data version'} .=
+      ' (modified)';
 }
 
 1;

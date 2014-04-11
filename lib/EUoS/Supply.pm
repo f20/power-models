@@ -53,7 +53,7 @@ sub new {
                     number   => 1588,
                     appendTo => $self->{model}{inputTables},
                     dataset  => $self->{model}{dataset},
-                    data     => [ map { 10 } @{ $uosTariffs->[0]{rows}{list} } ],
+                    data => [ map { 10 } @{ $uosTariffs->[0]{rows}{list} } ],
                 ),
                 IV2 => $uosTariffs->[0],
             },

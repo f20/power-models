@@ -660,7 +660,8 @@ sub siteSpecificSoleUse {
         data => [ map { /\sEHV$/i ? 100e6 : 0 } @{ $drmLevels->{list} } ]
     );
 
-    push @{ $model->{siteSpecific} }, my $ssr = Arithmetic(
+    push @{ $model->{siteSpecific} },
+      my $ssr = Arithmetic(
         name => 'Income for site specific sole use asset replacement (£/year)',
         defaultFormat => '0softnz',
         arithmetic    => '=IV1*IV3*IV5',
@@ -669,7 +670,7 @@ sub siteSpecificSoleUse {
             IV3 => $annuityRate,
             IV5 => $proportionChargeable
         }
-    );
+      );
 
     $sssua, $ssr;
 

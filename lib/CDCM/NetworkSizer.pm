@@ -1,4 +1,4 @@
-package CDCM;
+﻿package CDCM;
 
 =head Copyright licence and disclaimer
 
@@ -446,12 +446,13 @@ but it might be more sensible to size HV networks by primaries.
 
     my $drmSize = $drmOptions =~ /([0-9]+)/ ? $1 : 0;
 
-    push @{ $model->{optionLines} }, $drmSize
+    push @{ $model->{optionLines} },
+      $drmSize
       ? "Network model: $drmSize MW"
       . (
           $drmOptions =~ /sub/i ? ' at each substation level'
         : $drmOptions =~ /gsp/i ? ' at time of GSP peak'
-        : ' at time of GSP Group peak'
+        :                         ' at time of GSP Group peak'
       )
       : 'Network model: £/kW cost';
 
@@ -552,8 +553,8 @@ but it might be more sensible to size HV networks by primaries.
       Columnset(
         name    => 'Rescaling of network model',
         columns => [
-            $unscaledMw ? $unscaledMw : (),
-            $drmOptions =~ /sys/i ? $wantedMw : (),
+            $unscaledMw           ? $unscaledMw : (),
+            $drmOptions =~ /sys/i ? $wantedMw   : (),
             $sizingMw, $modelSml
         ]
       ) unless $drmOptions =~ /ext|top/i;
