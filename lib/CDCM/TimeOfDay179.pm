@@ -887,14 +887,16 @@ sub timeOfDay179Runner {
         }
 
         $eq{units}{$_} = Stack(
-            name    => $eq{prefix}{$_} . ' timeband use',
-            rows    => $eq{userSet}{$_},
-            sources => [$unitsByEndUser]
+            name          => $eq{prefix}{$_} . ' units (MWh)',
+            defaultFormat => '0softnz',
+            rows          => $eq{userSet}{$_},
+            sources       => [$unitsByEndUser]
         ) foreach qw(NHH1 NHH2 AHH);
 
         $eq{timebandUse}{$_} = Stack(
-            name    => $eq{prefix}{$_} . ' timeband use',
-            rows    => $eq{userSet}{$_},
+            name          => $eq{prefix}{$_} . ' timeband use',
+            defaultFormat => '%softnz',
+            rows          => $eq{userSet}{$_},
             sources => [ $timebandUseByTariff[ /NHH1/ ? 0 : /NHH2/ ? 1 : 2 ] ]
         ) foreach qw(NHH1 NHH2 AHH);
 
@@ -927,11 +929,12 @@ sub timeOfDay179Runner {
             rows   => $eq{userSet}{AHH},
             cols   => $networkLevelsTimebandAware,
             vector => Arithmetic(
-                name       => 'Average non half hourly timeband use',
-                rows       => $eq{userSet}{AHH},
-                cols       => $timebandSet,
-                arithmetic => '=(IV1*IV2+IV3*IV4)/(IV5+IV6)',
-                arguments  => {
+                name          => 'Average non half hourly timeband use',
+                defaultFormat => '%softnz',
+                rows          => $eq{userSet}{AHH},
+                cols          => $timebandSet,
+                arithmetic    => '=(IV1*IV2+IV3*IV4)/(IV5+IV6)',
+                arguments     => {
                     IV1 => $eq{units}{NHH1},
                     IV2 => $eq{timebandUse}{NHH1},
                     IV3 => $eq{units}{NHH2},
