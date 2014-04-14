@@ -538,7 +538,7 @@ sub timeOfDay179Runner {
             );
 
             Columnset(
-                name => "Normalisation of split of rate $r units by"
+                name => "Normalisation of split of rate $r units by "
                   . $blackYellowGreen
                   . 'time band',
                 columns => [ $totals, $inData ]
@@ -643,8 +643,8 @@ sub timeOfDay179Runner {
                     {
 
                         my $relevantUsers = Labelset
-                          name =>
-"Non-related-MPAN demand end users'.' with $rt-rate tariffs",
+                          name => 'Non-related-MPAN demand end users'
+                          . " with $rt-rate tariffs",
                           list => \@relevant;
 
                         $timebandUseByTariff[$_] = Arithmetic(
@@ -839,6 +839,7 @@ sub timeOfDay179Runner {
     if ( $correctionRules =~ /equalisation/i ) {
 
         my $groupset = Labelset(
+            name => 'HH/NHH equalisation groups',
             list => [
                 'Domestic equalisation group',
                 'Non-domestic equalisation group'
@@ -850,7 +851,8 @@ sub timeOfDay179Runner {
         $eq{prefix} = {
             NHH1 => 'Single rate non half hourly',
             NHH2 => 'Multi rate non half hourly',
-            AHH  => 'Aggregated half hourly'
+            NHH0 => 'Off-peak non half hourly',
+            AHH  => 'Aggregated half hourly',
         };
 
         $eq{userSet}{NHH1} = Labelset(
@@ -865,6 +867,16 @@ sub timeOfDay179Runner {
                 grep {
                          /domestic/i
                       && /two.?rate/i
+                      && ( !/non.?dom/i || /small/i )
+                } @{ $allEndUsers->{list} }
+            ]
+        );
+
+        $eq{userSet}{NHH0} = Labelset(
+            list => [
+                grep {
+                         /domestic/i
+                      && /off.?peak|additional|related/i
                       && ( !/non.?dom/i || /small/i )
                 } @{ $allEndUsers->{list} }
             ]
@@ -886,19 +898,29 @@ sub timeOfDay179Runner {
             push @{ $groupset->{accepts} }, $_;
         }
 
+        push @{ $eq{userSet}{AHH}{accepts} },
+          map { $eq{userSet}{$_} } qw(NHH1 NHH2 NHH0);
+
         $eq{units}{$_} = Stack(
             name          => $eq{prefix}{$_} . ' units (MWh)',
             defaultFormat => '0softnz',
             rows          => $eq{userSet}{$_},
             sources       => [$unitsByEndUser]
-        ) foreach qw(NHH1 NHH2 AHH);
+        ) foreach qw(NHH1 NHH2 NHH0 AHH);
 
         $eq{timebandUse}{$_} = Stack(
             name          => $eq{prefix}{$_} . ' timeband use',
             defaultFormat => '%softnz',
             rows          => $eq{userSet}{$_},
-            sources => [ $timebandUseByTariff[ /NHH1/ ? 0 : /NHH2/ ? 1 : 2 ] ]
-        ) foreach qw(NHH1 NHH2 AHH);
+            sources       => [ $timebandUseByRate[0] ]
+        ) foreach qw(NHH1 NHH0);
+
+        $eq{timebandUse}{$_} = Stack(
+            name          => $eq{prefix}{$_} . ' timeband use',
+            defaultFormat => '%softnz',
+            rows          => $eq{userSet}{$_},
+            sources => [ $timebandUseByTariff[ /NHH2/ ? 1 : /AHH/ ? 2 : 0 ] ]
+        ) foreach qw(NHH2 AHH);
 
         foreach ( $model->{agghhequalisation} =~ /rag/i ? () : qw(NHH1) ) {
             $eq{timebandCoef}{$_} = $eq{tariffCoef}{$_} = Stack(
@@ -909,7 +931,7 @@ sub timeOfDay179Runner {
         }
 
         foreach ( $model->{agghhequalisation} =~ /rag/i ? qw(NHH1) : (),
-            qw(NHH2 AHH) )
+            qw(NHH2 NHH0 AHH) )
         {
             $eq{timebandCoef}{$_} = Stack(
                 name => $eq{prefix}{$_} . ' pseudo timeband load coefficients',
@@ -925,9 +947,6 @@ sub timeOfDay179Runner {
             );
         }
 
-        push @{ $eq{userSet}{AHH}{accepts} },
-          map { $eq{userSet}{$_} } qw(NHH1 NHH2);
-
         $eq{tariffCoef}{hybrid} = SumProduct(
             name => 'Aggregated half hourly tariff pseudo load coefficient'
               . ' using average non half hourly unit mix',
@@ -938,14 +957,22 @@ sub timeOfDay179Runner {
                 defaultFormat => '%softnz',
                 rows          => $eq{userSet}{AHH},
                 cols          => $timebandSet,
-                arithmetic    => '=(IV1*IV2+IV3*IV4)/(IV5+IV6)',
-                arguments     => {
+                arithmetic    => $model->{agghhequalisation} =~ /nooffpeak/i
+                ? '=(IV1*IV2+IV3*IV4)/(IV7+IV8)'
+                : '=(IV1*IV2+IV3*IV4+IV5*IV6)/(IV7+IV8+IV9)',
+                arguments => {
                     IV1 => $eq{units}{NHH1},
                     IV2 => $eq{timebandUse}{NHH1},
                     IV3 => $eq{units}{NHH2},
                     IV4 => $eq{timebandUse}{NHH2},
-                    IV5 => $eq{units}{NHH1},
-                    IV6 => $eq{units}{NHH2},
+                    IV7 => $eq{units}{NHH1},
+                    IV8 => $eq{units}{NHH2},
+                    $model->{agghhequalisation} =~ /nooffpeak/i ? ()
+                    : (
+                        IV5 => $eq{units}{NHH0},
+                        IV6 => $eq{timebandUse}{NHH0},
+                        IV9 => $eq{units}{NHH0}
+                    ),
                 },
             ),
             matrix => $eq{timebandCoef}{AHH},
@@ -955,14 +982,22 @@ sub timeOfDay179Runner {
             name => 'Average non half hourly tariff pseudo load coefficient',
             rows => $groupset,
             cols => $networkLevelsTimebandAware,
-            arithmetic => '=(IV1*IV2+IV3*IV4)/(IV7+IV8)',
-            arguments  => {
+            arithmetic => $model->{agghhequalisation} =~ /nooffpeak/i
+            ? '=(IV1*IV2+IV3*IV4)/(IV7+IV8)'
+            : '=(IV1*IV2+IV3*IV4+IV5*IV6)/(IV7+IV8+IV9)',
+            arguments => {
                 IV1 => $eq{units}{NHH1},
                 IV2 => $eq{tariffCoef}{NHH1},
                 IV3 => $eq{units}{NHH2},
                 IV4 => $eq{tariffCoef}{NHH2},
                 IV7 => $eq{units}{NHH1},
                 IV8 => $eq{units}{NHH2},
+                $model->{agghhequalisation} =~ /nooffpeak/i ? ()
+                : (
+                    IV5 => $eq{units}{NHH0},
+                    IV6 => $eq{tariffCoef}{NHH0},
+                    IV9 => $eq{units}{NHH0},
+                ),
             },
         );
 
@@ -982,8 +1017,11 @@ sub timeOfDay179Runner {
             name       => 'Correction factor for non half hourly tariffs',
             rows       => $groupset,
             cols       => $networkLevelsTimebandAware,
-            arithmetic => '=(IV11*IV21+IV31*IV41+IV51*IV61)'
-              . '/(IV12*IV22+IV32*IV42+IV52*IV62*IV9)',
+            arithmetic => $model->{agghhequalisation} =~ /nooffpeak/i
+            ? '=(IV11*IV21+IV31*IV41+IV71*IV81)'
+              . '/(IV12*IV22+IV32*IV42+IV72*IV82*IV9)'
+            : '=(IV11*IV21+IV31*IV41+IV51*IV61+IV71*IV81)'
+              . '/(IV12*IV22+IV32*IV42+IV52*IV62+IV72*IV82*IV9)',
             arguments => {
                 IV11 => $eq{units}{NHH1},
                 IV12 => $eq{units}{NHH1},
@@ -993,11 +1031,18 @@ sub timeOfDay179Runner {
                 IV32 => $eq{units}{NHH2},
                 IV41 => $eq{tariffCoef}{NHH2},
                 IV42 => $eq{tariffCoef}{NHH2},
-                IV51 => $eq{units}{AHH},
-                IV52 => $eq{units}{AHH},
-                IV61 => $eq{tariffCoef}{AHH},
-                IV62 => $eq{tariffCoef}{AHH},
+                IV71 => $eq{units}{AHH},
+                IV72 => $eq{units}{AHH},
+                IV81 => $eq{tariffCoef}{AHH},
+                IV82 => $eq{tariffCoef}{AHH},
                 IV9  => $eq{relCorr},
+                $model->{agghhequalisation} =~ /nooffpeak/i ? ()
+                : (
+                    IV51 => $eq{units}{NHH0},
+                    IV52 => $eq{units}{NHH0},
+                    IV61 => $eq{tariffCoef}{NHH0},
+                    IV62 => $eq{tariffCoef}{NHH0},
+                ),
             },
         );
 
@@ -1020,7 +1065,10 @@ sub timeOfDay179Runner {
                                 IV2 => $eq{nhhCorr},
                             },
                           )
-                    } qw(NHH1 NHH2)
+                      } qw(NHH1 NHH2),
+                    $model->{agghhequalisation} =~ /nooffpeak/i
+                    ? ()
+                    : qw(NHH0),
                 ),
                 Arithmetic(
                     name => $eq{prefix}{AHH}

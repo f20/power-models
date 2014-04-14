@@ -22,6 +22,7 @@ perl ../run/export.pl -dcp=300rageq ../CDCM/DCP-179/+impactlines-dcp163-300-reve
 
 perl ../run/export.pl -base=300-min -dcp=300-proof1 ../CDCM/DCP-179/+impactlines-300-300.yml -name='DCP 179 minimum change proof of the pudding'
 perl ../run/export.pl -base=300-min -dcp=300-proof2 ../CDCM/DCP-179/+impactlines-300-300.yml -name='DCP 179 minimum change counter-proof'
+perl ../run/export.pl -base=300-proof2 -dcp=300-proof3nooff ../CDCM/DCP-179/+impactlines-300-300.yml -name='Impact of ignoring off-peak'
 
 perl ../run/export.pl -base=300ragneq -dcp=300rageq ../CDCM/DCP-179/+impactlines-300-300.yml -name='DCP 179 red amber green proof'
 

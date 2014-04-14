@@ -343,10 +343,11 @@ EOY
               ? 'LV Network Domestic'
               : 'LV Network Non-Domestic Non-CT';
             my $units1 = $d->{1053}[1]{"$_ Unrestricted"};
+            my $units0 = $d->{1053}[1]{"$_ Off Peak related MPAN"};
             my $units2 =
               $d->{1053}[1]{"$_ Two Rate"} + $d->{1053}[2]{"$_ Two Rate"};
             $d->{1041}[2]{$hhTariffName} =
-              ( $units1 + $units2 ) /
+              ( $units1 + $units2 + $units0 ) /
               ( $units1 / $d->{1041}[2]{"$_ Unrestricted"} +
                   $units2 / $d->{1041}[2]{"$_ Two Rate"} );
             $d->{1041}[1]{$hhTariffName} =
@@ -355,13 +356,16 @@ EOY
                   $d->{1041}[2]{"$_ Unrestricted"} +
                   $units2 * $d->{1041}[1]{"$_ Two Rate"} /
                   $d->{1041}[2]{"$_ Two Rate"} ) /
-              ( $units1 + $units2 );
+              ( $units1 + $units2 + $units0 );
             if ( my $prop = $d->{p300}[1]{$_} ) {
+
                 foreach my $rate ( 1 .. 3 ) {
                     $d->{1053}[$rate]{$hhTariffName} =
                       $prop *
                       ( $d->{1053}[1]{"$_ Unrestricted"} *
                           $d->{1061}[$rate]{"$_ Unrestricted"} +
+                          $d->{1053}[1]{"$_ Off Peak related MPAN"} *
+                          $d->{1061}[$rate]{"$_ Off Peak related MPAN"} +
                           $d->{1053}[1]{"$_ Two Rate"} *
                           $d->{1061}[$rate]{"$_ Two Rate"} +
                           $d->{1053}[2]{"$_ Two Rate"} *
@@ -372,7 +376,9 @@ EOY
                   ( $d->{1053}[4]{"$_ Unrestricted"} +
                       $d->{1053}[4]{"$_ Two Rate"} );
                 foreach my $c ( 1, 4 ) {
-                    $d->{1053}[$c]{"$_ Unrestricted"} *= 1 - $prop;
+                    $d->{1053}[$c]{$_} *= 1 - $prop
+                      foreach grep { $d->{1053}[$c]{$_} } "$_ Unrestricted",
+                      "$_ Off Peak related MPAN";
                 }
                 foreach my $c ( 1, 2, 4 ) {
                     $d->{1053}[$c]{"$_ Two Rate"} *= 1 - $prop;

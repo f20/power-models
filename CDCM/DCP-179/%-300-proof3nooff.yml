@@ -1,0 +1,23 @@
+---
+.: 'DCP 179 minimum change without off-peak'
+PerlModule: CDCM
+agghhequalisation: nooffpeak
+alwaysUseRAG: 1
+dataOverride:
+  p300:
+    - ~
+    - Domestic: 0.1
+      Small Non Domestic: 0.5
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179
