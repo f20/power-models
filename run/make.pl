@@ -66,7 +66,7 @@ foreach (@ARGV) {
         elsif (/^-+pickbest/is)  { $maker->{pickBestRules}->(); }
         elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
         elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
-        elsif (/^-+(html|text|perl|yaml)/is) {
+        elsif (/^-+(html|text|perl|yaml|graphviz)/is) {
             $override{ 'Export' . ucfirst( lc($1) ) } = 1;
         }
         elsif (/^-+defaultcol/is) { $override{defaultColours} = 1; }

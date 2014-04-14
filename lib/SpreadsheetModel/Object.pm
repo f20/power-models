@@ -148,6 +148,7 @@ sub wsWrite {
 sub htmlWrite {
     my ( $self, $hb, $hs ) = @_;
     return $self->{$hb} if $self->{$hb};
+    $self->{$hb} = [];    # Avoid a loop
     my $id = sprintf 'x%x', $self;
     $self->{$hb} = [
         $hs->(
