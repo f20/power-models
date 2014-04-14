@@ -900,25 +900,30 @@ sub timeOfDay179Runner {
             sources => [ $timebandUseByTariff[ /NHH1/ ? 0 : /NHH2/ ? 1 : 2 ] ]
         ) foreach qw(NHH1 NHH2 AHH);
 
-        $eq{tariffCoef}{$_} = Stack(
-            name    => $eq{prefix}{$_} . ' tariff load coefficient',
-            rows    => $eq{userSet}{$_},
-            sources => [$loadCoefficients],
-        ) foreach qw(NHH1);
+        foreach ( $model->{agghhequalisation} =~ /rag/i ? () : qw(NHH1) ) {
+            $eq{timebandCoef}{$_} = $eq{tariffCoef}{$_} = Stack(
+                name    => $eq{prefix}{$_} . ' tariff load coefficient',
+                rows    => $eq{userSet}{$_},
+                sources => [$loadCoefficients],
+            );
+        }
 
-        $eq{timebandCoef}{$_} = Stack(
-            name    => $eq{prefix}{$_} . ' pseudo timeband load coefficients',
-            rows    => $eq{userSet}{$_},
-            sources => [$pseudoLoadCoefficientBreakdown]
-        ) foreach qw(NHH2 AHH);
-
-        $eq{tariffCoef}{$_} = SumProduct(
-            name   => $eq{prefix}{$_} . ' tariff pseudo load coefficient',
-            rows   => $eq{userSet}{$_},
-            cols   => $networkLevelsTimebandAware,
-            vector => $eq{timebandUse}{$_},
-            matrix => $eq{timebandCoef}{$_},
-        ) foreach qw(NHH2 AHH);
+        foreach ( $model->{agghhequalisation} =~ /rag/i ? qw(NHH1) : (),
+            qw(NHH2 AHH) )
+        {
+            $eq{timebandCoef}{$_} = Stack(
+                name => $eq{prefix}{$_} . ' pseudo timeband load coefficients',
+                rows => $eq{userSet}{$_},
+                sources => [$pseudoLoadCoefficientBreakdown]
+            );
+            $eq{tariffCoef}{$_} = SumProduct(
+                name   => $eq{prefix}{$_} . ' tariff pseudo load coefficient',
+                rows   => $eq{userSet}{$_},
+                cols   => $networkLevelsTimebandAware,
+                vector => $eq{timebandUse}{$_},
+                matrix => $eq{timebandCoef}{$_},
+            );
+        }
 
         push @{ $eq{userSet}{AHH}{accepts} },
           map { $eq{userSet}{$_} } qw(NHH1 NHH2);
@@ -1002,26 +1007,20 @@ sub timeOfDay179Runner {
             rows    => $pseudoLoadCoefficientBreakdown->{rows},
             cols    => $pseudoLoadCoefficientBreakdown->{cols},
             sources => [
-                Arithmetic(
-                    name => $eq{prefix}{NHH1}
-                      . ' corrected pseudo timeband load coefficient',
-                    rows       => $eq{userSet}{NHH1},
-                    cols       => $networkLevelsTimeband,
-                    arithmetic => '=IV1*IV2',
-                    arguments  => {
-                        IV1 => $eq{tariffCoef}{NHH1},
-                        IV2 => $eq{nhhCorr},
-                    },
-                ),
-                Arithmetic(
-                    name => $eq{prefix}{NHH2}
-                      . ' corrected pseudo timeband load coefficient',
-                    rows       => $eq{userSet}{NHH2},
-                    arithmetic => '=IV1*IV2',
-                    arguments  => {
-                        IV1 => $eq{timebandCoef}{NHH2},
-                        IV2 => $eq{nhhCorr},
-                    },
+                (
+                    map {
+                        Arithmetic(
+                            name => $eq{prefix}{$_}
+                              . ' corrected pseudo timeband load coefficient',
+                            rows       => $eq{userSet}{$_},
+                            cols       => $networkLevelsTimeband,
+                            arithmetic => '=IV1*IV2',
+                            arguments  => {
+                                IV1 => $eq{timebandCoef}{$_},
+                                IV2 => $eq{nhhCorr},
+                            },
+                          )
+                    } qw(NHH1 NHH2)
                 ),
                 Arithmetic(
                     name => $eq{prefix}{AHH}

@@ -15,11 +15,15 @@ perl ../run/export.pl -dcp=300-min ../CDCM/DCP-179/+impactlines-dcp163-300-reven
 perl ../run/export.pl -dcp=300baseline ../CDCM/DCP-179/+impactlines-dcp163-300-tariffs.yml -name='DCP 179 baseline model' -cdcmTariffImpact 
 perl ../run/export.pl -dcp=300baseline ../CDCM/DCP-179/+impactlines-dcp163-300-revenue.yml -name='DCP 179 baseline model' -cdcmPpuImpact -cdcmRevenueMatrixImpact
 
-perl ../run/export.pl -dcp=300rag ../CDCM/DCP-179/+impactlines-dcp163-300-tariffs.yml -name='DCP 179 uncorrected' -cdcmTariffImpact 
-perl ../run/export.pl -dcp=300rag ../CDCM/DCP-179/+impactlines-dcp163-300-revenue.yml -name='DCP 179 uncorrected' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+perl ../run/export.pl -dcp=300ragneq ../CDCM/DCP-179/+impactlines-dcp163-300-tariffs.yml -name='DCP 179 red amber green uncorrected' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=300ragneq ../CDCM/DCP-179/+impactlines-dcp163-300-revenue.yml -name='DCP 179 red amber green uncorrected' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+perl ../run/export.pl -dcp=300rageq ../CDCM/DCP-179/+impactlines-dcp163-300-tariffs.yml -name='DCP 179 red amber green equalised' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=300rageq ../CDCM/DCP-179/+impactlines-dcp163-300-revenue.yml -name='DCP 179 red amber green equalised' -cdcmPpuImpact -cdcmRevenueMatrixImpact
 
 perl ../run/export.pl -base=300-min -dcp=300-proof1 ../CDCM/DCP-179/+impactlines-300-300.yml -name='DCP 179 minimum change proof of the pudding'
 perl ../run/export.pl -base=300-min -dcp=300-proof2 ../CDCM/DCP-179/+impactlines-300-300.yml -name='DCP 179 minimum change counter-proof'
+
+perl ../run/export.pl -base=300ragneq -dcp=300rageq ../CDCM/DCP-179/+impactlines-300-300.yml -name='DCP 179 red amber green proof'
 
 cd ..
 mv _$RUN.tmp $RUN.tmp
