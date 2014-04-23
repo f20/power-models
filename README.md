@@ -13,12 +13,21 @@ use of system charges.
 
 To see this code in action, go to http://dcmf.co.uk/models/.
 
-To create models on your own computer using this code, clone this repository, check that you
-have Perl 5.8.8 or higher installed and working, change to the root of the repository, and try
-some of the following sample commands.  You might need to install some modules from CPAN; error
-messages should say which.  Here are a few sample commands:
+To create models on your own computer using this code:
+
+Step 1. Ensure that you have Perl 5 installed and working (at least version 5.8.8).
+
+Step 2. Download https://github.com/f20/power-models/archive/master.zip and extract all the files from it
+(or, if you have Git, clone this repository using git clone https://github.com/f20/power-models.git).
+
+Step 3. Change to the root of the repository and try this sample command:
 
     perl run/make.pl CDCM/Current/%-wfl132.yml CDCM/Data-2014-02/NPG-Northeast.yml
+
+Step 4. If there is any error message flagging missing modules, install those from CPAN and re-run the command in Step 3.
+
+Step 5. Once things are working, you can try the following sample commands to explore some of the functionality:
+
     perl run/make.pl -xls CDCM/Current/%-clean132.yml CDCM/Current/Blank1001.yml
     perl run/make.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
     perl run/make.pl EDCM/Issue-70/%-i70-FCP.yml EDCM/Issue-70/%-i70-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/WPD-WestM.yml Extras/Blank.yml
@@ -35,4 +44,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 6 April 2014.
+Franck Latrémolière, 23 April 2014.

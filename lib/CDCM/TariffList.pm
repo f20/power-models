@@ -406,6 +406,15 @@ LV generation non half hourly:
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio
+  - Excluded: pc12hh|pc34hh|dcp179
+
+---
+LV generation non half hourly:
+  - PC8&0
+  - Name: LV Generation NHH or Aggregate HH
+  - Fixed charge p/MPAN/day
+  - Unit rate 1 p/kWh
+  - Included: pc12hh|pc34hh|dcp179|portfolio
 ---
 LV generation (GDP) non half hourly:
   - PC8

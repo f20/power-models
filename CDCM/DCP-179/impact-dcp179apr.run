@@ -1,0 +1,30 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_dcp179apr-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+perl ../run/make.pl ../CDCM/DCP-179/%-dcp179apr*.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+perl ../run/import.pl -calc -sqlite *.xl*
+
+perl ../run/export.pl -dcp=dcp179apr-min ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 minimum change solution' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=dcp179apr-min ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 minimum change solution' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+
+perl ../run/export.pl -dcp=dcp179aprbaseline ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 baseline model' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=dcp179aprbaseline ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 baseline model' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+
+perl ../run/export.pl -dcp=dcp179aprragneq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 red amber green uncorrected' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=dcp179aprragneq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 red amber green uncorrected' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+perl ../run/export.pl -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 red amber green equalised' -cdcmTariffImpact 
+perl ../run/export.pl -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 red amber green equalised' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+
+perl ../run/export.pl -base=dcp179apr-min -dcp=dcp179apr-proof1 ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='DCP 179 minimum change proof of the pudding'
+perl ../run/export.pl -base=dcp179apr-min -dcp=dcp179apr-proof2 ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='DCP 179 minimum change counter-proof'
+perl ../run/export.pl -base=dcp179apr-proof2 -dcp=dcp179apr-proof3nooff ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='Impact of ignoring off-peak'
+
+perl ../run/export.pl -base=dcp179aprragneq -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='DCP 179 red amber green proof'
+
+cd ..
+mv _$RUN.tmp $RUN.tmp
