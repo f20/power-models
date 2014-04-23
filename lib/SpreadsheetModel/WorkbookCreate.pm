@@ -68,11 +68,12 @@ sub _applyDataOverride {
 
 sub create {
 
-    my ( $module, $fileName, $instructions, $streamMaker ) = @_;
+    my ( $module, $fileName, $instructions, %settings ) = @_;
     my @optionArray =
       ref $instructions eq 'ARRAY' ? @$instructions : $instructions;
     my @localTime = localtime;
     my $tmpDir;
+    my $streamMaker = $settings{streamMaker};
     $streamMaker ||= sub {
         $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
         mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
@@ -196,7 +197,7 @@ sub create {
         $dumpLoc =~ s/\.xlsx?$//i;
         $dumpLoc .= $modelCount;
 
-        if ( $options->{ExportHtml} ) {
+        if ( $settings{ExportHtml} ) {
             require SpreadsheetModel::ExportHtml;
             mkdir $dumpLoc;
             chmod 0770, $dumpLoc;
@@ -204,13 +205,12 @@ sub create {
                 "$dumpLoc/" );
         }
 
-        if ( $options->{ExportText} ) {
+        if ( $settings{ExportText} ) {
             require SpreadsheetModel::ExportText;
-            SpreadsheetModel::ExportText::writeText( $options->{logger},
-                "$dumpLoc-" );
+            SpreadsheetModel::ExportText::writeText( $options, "$dumpLoc-" );
         }
 
-        if ( $options->{ExportGraphviz} ) {
+        if ( $settings{ExportGraphviz} ) {
             require SpreadsheetModel::ExportGraphviz;
             my $dir = "$dumpLoc-graphs";
             mkdir $dir;
@@ -220,7 +220,7 @@ sub create {
                 $wbook, "$dir/" );
         }
 
-        if ( $options->{ExportYaml} || $options->{ExportPerl} ) {
+        if ( $settings{ExportYaml} || $settings{ExportPerl} ) {
             my @objects = grep { defined $_ } @{ $options->{logger}{objects} };
             my $objNames = join( "\n",
                 $options->{logger}{realRows}
@@ -229,7 +229,7 @@ sub create {
             my @coreObj =
               map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
               @objects;
-            if ( $options->{ExportYaml} ) {
+            if ( $settings{ExportYaml} ) {
                 require YAML;
                 open my $fh, '>', "$dumpLoc.$$";
                 binmode $fh, ':utf8';
@@ -242,7 +242,7 @@ sub create {
                 close $fh;
                 rename "$dumpLoc.$$", "$dumpLoc.yaml";
             }
-            if ( $options->{ExportPerl} ) {
+            if ( $settings{ExportPerl} ) {
                 require Data::Dumper;
                 my %counter;
                 local $_ =

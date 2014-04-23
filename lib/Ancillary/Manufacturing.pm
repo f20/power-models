@@ -62,6 +62,14 @@ sub factory {
 
     my $processRuleset = sub {
         local $_ = $_[0];
+        die "$_->{PerlModule} looks unsafe"
+          unless {
+            CDCM      => 1,
+            EDCMw     => 1,
+            EUoS      => 1,
+            ModelM    => 1,
+            Quantiles => 1,
+          }->{ $_->{PerlModule} };    # hack
         _loadModules( $_, "$_->{PerlModule}::Master" ) || return;
         $_->{PerlModule}->can('requiredModulesForRuleset')
           and
@@ -272,11 +280,6 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
             $_->{revisionText} = $db->revisionText( YAML::Dump($_) ) if $db;
         }
 
-        # Keep dataOverride, illustrative, template, version and suchlike.
-        # The purpose of this revision number is to help find or produce rules
-        # to reproduce the same model, not just to describe the modelling rules.
-        # This also avoids a cloning operation.
-
     };
 
     my $score = sub {
@@ -297,7 +300,8 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
             $spreadsheetFile .= $rule->{revisionText};
         }
         $spreadsheetFile =~ s/%/$data->{'~datasetName'}/;
-        $spreadsheetFile .= $workbookModule->fileExtension;
+        $spreadsheetFile .= eval { $workbookModule->fileExtension; }
+          || ( $workbookModule =~ /xlsx/i ? '.xlsx' : '.xls' );
         if ( $files{$spreadsheetFile} ) {
             $files{$spreadsheetFile} = [
                 undef,

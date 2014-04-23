@@ -1,0 +1,65 @@
+---
+PerlModule: CDCM
+coincidenceAdj: groupums
+colour: orange
+drm: top500gsp
+extraLevels: 1
+inputData: dataSheet
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+protect: 1
+revisionText: r6428
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: consultation
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+template: '%-dcp161ctables+'
+timeOfDay: timeOfDaySpecial
+unauth: day
+validation: lenientnomsg
+'~codeValidation':
+  Ancillary/Validation.pm: 3654bbaa7b87feb68586bd73ec7cf260a709c477
+  CDCM/AML.pm: ee8a67f3b746fb3d1151846220afbb5b45e235d4
+  CDCM/Aggregation.pm: 4472877782bf9e84c66fc7d3292cbc305617d8b1
+  CDCM/Contributions.pm: 2f31246642588d289e13d0aea0f8c2cf61eb4d3b
+  CDCM/Loads.pm: 83f0ec5251a230358df1a9ffdee0b4ab943853a9
+  CDCM/Master.pm: 10eff56398895b8ff4fd76548c6c8554d2dc3afa
+  CDCM/Matching.pm: d81128fb35c766acb5a3e9e89aaa4b595f9fe402
+  CDCM/NetworkSizer.pm: bdf602ddce9e7d22fac359a83148d17e075c71f0
+  CDCM/Operating.pm: 44208c4912d7cd552726cce14284999a3a0b5a30
+  CDCM/Reactive.pm: 123211c1681680ec6c0f32291329f042a5d38160
+  CDCM/Revenue.pm: 5ac88d48b3f27e3bcfe429b76e902aad6c9a8ded
+  CDCM/Routeing.pm: 0e5e62f069ad2d08e090ef489b6d38832fd2fb02
+  CDCM/SML.pm: 9a59ad5be0f50b659561a33cd43b28b764d8f07d
+  CDCM/ServiceModels.pm: f00bf237abf463d5f9f18bfa6013bcc412d749df
+  CDCM/Setup.pm: b54690e66166bcd6c403e199d9db536713bae46b
+  CDCM/Sheets.pm: ca6fe2c5e9cad79e0dd3f8a24f9db72f655dd4fd
+  CDCM/Standing.pm: df5daee9e7c80401b0043ad402d14c8f72e1615a
+  CDCM/Summary.pm: 1eccb192ac89b85a44781e29819a44bd2b181834
+  CDCM/Table1001.pm: 0bce133d49de5a9547a03adcf8642b0120a8b373
+  CDCM/TariffList.pm: 1638ce82fc50ab85d05113f8b21f6afbeed37c7f
+  CDCM/Tariffs.pm: 8050f59a1a368909e901eb609906d38b8c96674c
+  CDCM/TimeOfDay.pm: ef933e27c171de4813bdd9271d8e9b321255cb5c
+  CDCM/TimeOfDaySpecial.pm: 2518306526ad24cd1892423e7c1fa93873f117d3
+  CDCM/Yardsticks.pm: 1b0fcc22094667a2fa5dd6d31ffa4f4f6394bd31
+  SpreadsheetModel/Arithmetic.pm: 670ae75296cec7af2e634ed927328908a52d5f67
+  SpreadsheetModel/Columnset.pm: 4d45f1f3a295aae737c05e92ef90e041bb0e1cec
+  SpreadsheetModel/Custom.pm: ba775a3f973deebb6f66fb33b97e32847a1700ad
+  SpreadsheetModel/Dataset.pm: 230f519ea5605012627456643c1fa3267daac03c
+  SpreadsheetModel/GroupBy.pm: 289df4c58bbfea7cee8fbc376fa82bb2c266eeff
+  SpreadsheetModel/Label.pm: 053d8801da63a168d467ae3cf12c6c32325befe3
+  SpreadsheetModel/Labelset.pm: 9ac999149c79c639b786029d804b610cb9fc0af9
+  SpreadsheetModel/Logger.pm: a6f3198e56f5877e30b62cc047611c03350dba01
+  SpreadsheetModel/Notes.pm: 3aa0785b624198b8b6988267744e80842c757883
+  SpreadsheetModel/Object.pm: 3364cbb0498753ec3901d2b29d25b04b5d9da009
+  SpreadsheetModel/Reshape.pm: db327684ed6c50c3084959ea625b473eb287e3c8
+  SpreadsheetModel/SegmentRoot.pm: ecdfe570dcb673e31228edd1da3569cc1140a6a7
+  SpreadsheetModel/Shortcuts.pm: 81b68efc70dd2263c3478f3ce3269cf6ebb3ee8b
+  SpreadsheetModel/Stack.pm: 757c731ccef3cd72dc951699ff98fb1077369be9
+  SpreadsheetModel/SumProduct.pm: 25580363232a65f6bf14f9c3c5941af65abcfea7
+  SpreadsheetModel/WorkbookCreate.pm: f34f3976df1d3a3024ef53ed0e5ef104e22543c7
+  SpreadsheetModel/WorkbookFormats.pm: 719330a80e943d14a8248d5bdb8e25f1b718b887
+  SpreadsheetModel/WorkbookXLSX.pm: 942f35791f0a6568f635ed9ea71c23d60718de41

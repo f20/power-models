@@ -32,13 +32,22 @@ use strict;
 use utf8;
 
 sub writeText {
-    my ( $logger, $pathPrefix ) = @_;
+    my ( $options, $pathPrefix ) = @_;
+    if ( my $yaml = $options->{yaml} ) {
+        my $file  = "${pathPrefix}Rules.txt";
+        my $tfile = $pathPrefix . $$ . '.txt';
+        open my $fh, '>', $tfile;
+        binmode $fh, ':utf8';
+        print $fh $yaml;
+        rename $tfile, $file;
+    }
+    my $logger = $options->{logger};
     $pathPrefix = '' unless defined $pathPrefix;
     my %writer;
     my @end;
     foreach my $pot (qw(Datasets Labelsets Tables)) {
         my $file  = "$pathPrefix$pot.txt";
-        my $tfile = $pathPrefix . '~$' . $$ . '.' . $pot . '.html';
+        my $tfile = $pathPrefix  . $$ . '.' . $pot . 'txt';
         open my $fh, '>', $tfile;
         binmode $fh, ':utf8';
         my $url = $file;

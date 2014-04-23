@@ -67,7 +67,7 @@ foreach (@ARGV) {
         elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
         elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
         elsif (/^-+(html|text|perl|yaml|graphviz)/is) {
-            $override{ 'Export' . ucfirst( lc($1) ) } = 1;
+            $maker->{addOptions}->( 'Export' . ucfirst( lc($1) ), 1 );
         }
         elsif (/^-+defaultcol/is) { $override{defaultColours} = 1; }
         elsif (/^-+gold/is) {
@@ -83,10 +83,24 @@ foreach (@ARGV) {
             $override{template} = $2 || time . "-$$";
         }
         elsif (
-/^-+(numExtraLocations|numExtraTariffs|numLocations|numSampleTariffs|numTariffs)=([0-9]+)/is
+            /^-+( numExtraLocations|
+                  numExtraTariffs|
+                  numLocations|
+                  numSampleTariffs|
+                  numTariffs
+                )=([0-9]+)/xis
           )
         {
             $override{$1} = $2;
+        }
+        elsif (/^-+lib=(\S+)/is) {
+            my $d = catdir( $perl5dir, $1 );
+            if ( -d $d ) {
+                lib->import($d);
+            }
+            else {
+                die "Special lib $d not found";
+            }
         }
         elsif (/^-+xdata=?(.*)/is) {
             $xdata .= "$1\n";
