@@ -70,7 +70,8 @@ sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
     $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
-      $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : ();
+      $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
+      $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
 }
 
 sub new {
@@ -1664,8 +1665,10 @@ EOT
                     IV9 => $model->{transparencyMasterFlag} ? Arithmetic(
                         name => 'Revenue from demand charge 1 (£/year)',
                         defaultFormat => '0softnz',
-                        arithmetic =>
-'=IF(IV123,0,IV1)+(SUMPRODUCT(IV64_IV65,IV31_IV32,IV33_IV34)+SUMPRODUCT(IV66_IV67,IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54)*IV9/100',
+                        arithmetic    => '=IF(IV123,0,IV1)+('
+                          . 'SUMPRODUCT(IV64_IV65,IV31_IV32,IV33_IV34)+'
+                          . 'SUMPRODUCT(IV66_IV67,IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54'
+                          . ')*IV9/100',
                         arguments => {
                             IV123     => $model->{transparencyMasterFlag},
                             IV1       => $model->{transparency}{ol119104},
@@ -1684,8 +1687,10 @@ EOT
                     : Arithmetic(
                         name => 'Revenue from demand charge 1 (£/year)',
                         defaultFormat => '0softnz',
-                        arithmetic =>
-'=(SUMPRODUCT(IV31_IV32,IV33_IV34)+SUMPRODUCT(IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54)*IV9/100',
+                        arithmetic    => '=('
+                          . 'SUMPRODUCT(IV31_IV32,IV33_IV34)+'
+                          . 'SUMPRODUCT(IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54'
+                          . ')*IV9/100',
                         arguments => {
                             IV31_IV32 => $capacityChargeT1,
                             IV33_IV34 => $importCapacity,
@@ -1730,8 +1735,9 @@ EOT
         $model->{summaryInformationColumns}[2] = Arithmetic(
             name          => 'Direct cost allocation (£/year)',
             defaultFormat => '0softnz',
-            arithmetic =>
-'=IV1*(MAX(IV2,0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))))*IV3*0.01*IV7/IV9',
+            arithmetic    => '=IV1*MAX(IV2,'
+              . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
+              . ')*IV3*0.01*IV7/IV9',
             arguments => {
                 IV1  => $importCapacity,
                 IV2  => $scalingChargeCapacity,
@@ -1756,8 +1762,9 @@ EOT
         $model->{summaryInformationColumns}[4] = Arithmetic(
             name          => 'Network rates allocation (£/year)',
             defaultFormat => '0softnz',
-            arithmetic =>
-'=IV1*(MAX(IV2,0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))))*IV3*0.01*IV8/IV9',
+            arithmetic    => '=IV1*MAX(IV2,'
+              . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
+              . ')*IV3*0.01*IV8/IV9',
             arguments => {
                 IV1  => $importCapacity,
                 IV2  => $scalingChargeCapacity,
@@ -1782,8 +1789,9 @@ EOT
         $model->{summaryInformationColumns}[7] = Arithmetic(
             name          => 'Demand scaling asset based (£/year)',
             defaultFormat => '0softnz',
-            arithmetic =>
-'=IV1*(MAX(IV2,0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))))*IV3*0.01*(1-(IV8+IV7)/IV9)',
+            arithmetic    => '=IV1*MAX(IV2,'
+              . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
+              . ')*IV3*0.01*(1-(IV8+IV7)/IV9)',
             arguments => {
                 IV1  => $importCapacity,
                 IV2  => $scalingChargeCapacity,
@@ -1823,9 +1831,10 @@ EOT
           : Stack( sources => [$capacityChargeT] );
 
         $SuperRedRateFcpLric = Arithmetic(
-            name => 'Super red rate p/kWh',
-            arithmetic =>
-'=IF(IV3,IF(IV1=0,IV9,MAX(0,MIN(IV4,IV41+(IV5/IV11*(IV7-IV71)/(IV8-IV81))))),0)',
+            name       => 'Super red rate p/kWh',
+            arithmetic => '=IF(IV3,IF(IV1=0,IV9,'
+              . 'MAX(0,MIN(IV4,IV41+(IV5/IV11*(IV7-IV71)/(IV8-IV81))))'
+              . '),0)',
             arguments => {
                 IV1  => $activeCoincidence,
                 IV11 => $activeCoincidence935,
@@ -1940,20 +1949,33 @@ EOT
           $exportCapacityChargeRound,
           $fixedGchargeTrue;
 
+        my @tariffColumns = (
+            Stack( sources => [$tariffs] ),
+            $SuperRedRateFcpLricRound,
+            $fixedDchargeTrueRound,
+            $importCapacityScaledRound,
+            $importCapacityExceededRound,
+            Stack( sources => [$genCreditRound] ),
+            Stack( sources => [$fixedGchargeTrue] ),
+            Stack( sources => [$netexportCapacityChargeRound] ),
+            $exportCapacityExceeded,
+        );
+
+        if ( $model->{checksums} ) {
+            push @tariffColumns,
+              SpreadsheetModel::Checksum->new(
+                name => $_,
+                /recursive|model/i ? ( recursive => 1 ) : (),
+                digits => /([0-9])/ ? $1 : 6,
+                columns => [ @tariffColumns[ 1 .. 8 ] ],
+                factors => [qw(1000 100 100 100 1000 100 100 100 )]
+              ) foreach split /;\s*/, $model->{checksums};
+        }
+
         push @{ $model->{tariffTables} },
           $thisIsTheTariffTable = Columnset(
             name    => 'EDCM charge',
-            columns => [
-                Stack( sources => [$tariffs] ),
-                $SuperRedRateFcpLricRound,
-                $fixedDchargeTrueRound,
-                $importCapacityScaledRound,
-                $importCapacityExceededRound,
-                Stack( sources => [$genCreditRound] ),
-                Stack( sources => [$fixedGchargeTrue] ),
-                Stack( sources => [$netexportCapacityChargeRound] ),
-                $exportCapacityExceeded,
-            ]
+            columns => \@tariffColumns,
           );
 
     }

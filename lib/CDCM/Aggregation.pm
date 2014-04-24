@@ -449,7 +449,8 @@ sub roundingAndFinishing {
             number                => 3701,
         ),    # hacks to get the LLFCs to copy
         columns => $model->{pcd}
-          || $model->{noLLFCs} ? $model->{allTariffColumns} : [
+          || !$model->{checksums}
+          && $model->{noLLFCs} ? $model->{allTariffColumns} : [
             Dataset(
                 rows          => $allTariffs,
                 defaultFormat => 'texthard',
@@ -475,6 +476,25 @@ sub roundingAndFinishing {
                 data          => [ map { '' } @{ $allTariffs->{list} } ],
                 name          => 'Closed LLFCs',
             ),
+            !$model->{pcd} && $model->{checksums}
+            ? (
+                map {
+                    SpreadsheetModel::Checksum->new(
+                        name => $_,
+                        /recursive|model/i ? ( recursive => 1 ) : (),
+                        digits => /([0-9])/ ? $1 : 6,
+                        columns => $model->{allTariffColumns},
+                        factors => [
+                            map {
+                                     $_->{defaultFormat}
+                                  && $_->{defaultFormat} !~ /000/ ? 100 : 1000;
+                            } @{ $model->{allTariffColumns} }
+                        ]
+                    );
+                  } split /;\s*/,
+                $model->{checksums}
+              )
+            : (),
           ]
     );
 

@@ -60,27 +60,23 @@ $threads ||= 1;
 foreach (@ARGV) {
 
     if (/^-/s) {
-        if    (/^-+$/s)          { $maker->{processStream}->( \*STDIN ); }
-        elsif (/^-+xlsx$/is)     { $maker->{useXLSX}->(); }
-        elsif (/^-+xls$/is)      { $maker->{useXLS}->(); }
-        elsif (/^-+pickbest/is)  { $maker->{pickBestRules}->(); }
-        elsif (/^-+(right.*)/is) { $override{alignment} = $1; }
-        elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
+        if (/^-+$/s) { $maker->{processStream}->( \*STDIN ); }
+        elsif (/^-+check/is) {
+            $override{activeSheets} = 'Result|Tariff';
+            $override{checksums}    = 'Tariff checksum 5; Model checksum 7';
+        }
+        elsif (/^-+debug/is) { $override{debug} = 1; }
         elsif (/^-+(html|text|perl|yaml|graphviz)/is) {
             $maker->{addOptions}->( 'Export' . ucfirst( lc($1) ), 1 );
         }
-        elsif (/^-+defaultcol/is) { $override{defaultColours} = 1; }
-        elsif (/^-+gold/is) {
-            $override{colour}   = 'gold';
-            $override{password} = rand();
-        }
-        elsif (/^-+orange/is)        { $override{colour}   = 'orange'; }
-        elsif (/^-+debug/is)         { $override{debug}    = 1; }
-        elsif (/^-+password=(.+)/is) { $override{password} = $1; }
-        elsif (/^-+single/is)        { $threads            = 1; }
-        elsif (/^-+([0-9]+)/is)      { $threads            = $1; }
-        elsif (/^-+onefile(=(.+))?/is) {
-            $override{template} = $2 || time . "-$$";
+        elsif (/^-+lib=(\S+)/is) {
+            my $d = catdir( $perl5dir, $1 );
+            if ( -d $d ) {
+                lib->import($d);
+            }
+            else {
+                die "Special lib $d not found";
+            }
         }
         elsif (
             /^-+( numExtraLocations|
@@ -93,15 +89,20 @@ foreach (@ARGV) {
         {
             $override{$1} = $2;
         }
-        elsif (/^-+lib=(\S+)/is) {
-            my $d = catdir( $perl5dir, $1 );
-            if ( -d $d ) {
-                lib->import($d);
-            }
-            else {
-                die "Special lib $d not found";
-            }
+        elsif (/^-+orange/is) { $override{colour} = 'orange'; }
+        elsif (/^-+gold/is) {
+            $override{colour}   = 'gold';
+            $override{password} = rand();
         }
+        elsif (/^-+onefile(=(.+))?/is) {
+            $override{template} = $2 || time . "-$$";
+        }
+        elsif (/^-+pickbest/is)         { $maker->{pickBestRules}->(); }
+        elsif (/^-+password=(.+)/is)    { $override{password} = $1; }
+        elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
+        elsif (/^-+(right.*)/is)        { $override{alignment} = $1; }
+        elsif (/^-+single/is)           { $threads = 1; }
+        elsif (/^-+([0-9]+)/is)         { $threads = $1; }
         elsif (/^-+xdata=?(.*)/is) {
             $xdata .= "$1\n";
             unless ($xdata) {
@@ -110,6 +111,8 @@ foreach (@ARGV) {
                 $xdata .= <STDIN>;
             }
         }
+        elsif (/^-+xls$/is)  { $maker->{useXLS}->(); }
+        elsif (/^-+xlsx$/is) { $maker->{useXLSX}->(); }
         else {
             warn "Unrecognised option: $_";
         }

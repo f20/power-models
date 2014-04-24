@@ -1,13 +1,13 @@
 ---
 1100:
   - _table: '1100. Company, charging year, data version'
-  - Company charging year data version: Duck Power Networks
+  - Company charging year data version: Duck Power
     _column: Company
   - Company charging year data version: 2014/2015
     _column: Year
-  - Company charging year data version: Full illustrative dataset
+  - Company charging year data version: Model checksum 383 0513
     _column: Version
-  - Company charging year data version: 'Checksum 8606 using =MOD(4499*(ROUND(J50*100,0)+MOD(4499*(ROUND(I50*100,0)+MOD(4499*(ROUND(H50*100,0)+MOD(4499*(ROUND(G50*1000,0)+MOD(4499*(ROUND(F50*100,0)+MOD(4499*(ROUND(E50*100,0)+MOD(4499*(ROUND(D50*100,0)+MOD(4499*ROUND(C50*1000,0)+K51,8999)),8999)),8999)),8999)),8999)),8999)),8999)),8999)'
+  - Company charging year data version: ''
 1105:
   - _table: 1105. Diversity allowance between level exit and GSP Group (from CDCM table 2611)
   - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.015
@@ -136,7 +136,7 @@
   - _table: 1190. Is this the master model containing all the tariff data?
   - Enter TRUE or FALSE: TRUE
     _column: Is this the master model containing all the tariff data?
-  - Enter TRUE or FALSE: 'Checksum 90505 using =MOD(449997*(ROUND(J50*100,0)+MOD(449997*(ROUND(I50*100,0)+MOD(449997*(ROUND(H50*100,0)+MOD(449997*(ROUND(G50*1000,0)+MOD(449997*(ROUND(F50*100,0)+MOD(449997*(ROUND(E50*100,0)+MOD(449997*(ROUND(D50*100,0)+MOD(449997*ROUND(C50*1000,0)+K51,899981)),899981)),899981)),899981)),899981)),899981)),899981)),899981)'
+  - Enter TRUE or FALSE: ''
 1191:
   - _table: 1191. Baseline EDCM demand aggregates
   - Baseline EDCM demand aggregates: 131484.758511968

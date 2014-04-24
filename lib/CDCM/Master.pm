@@ -60,7 +60,9 @@ sub requiredModulesForRuleset {
     die "Time of day module $todmodule is unsafe"
       unless $todmodule =~ /^[a-zA-Z0-9_]+$/s;
 
-    $ruleset->{inYear} ? qw(CDCM::InYearAdjust CDCM::InYearSummaries)
+    $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : (),
+
+      $ruleset->{inYear} ? qw(CDCM::InYearAdjust CDCM::InYearSummaries)
       : $ruleset->{addVolumes}
       && $ruleset->{addVolumes} =~ /matching/i ? 'CDCM::InYearAdjust'
       : (),
@@ -1134,6 +1136,27 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                     data          => [ map { '' } @{ $allTariffs->{list} } ],
                     name          => 'Closed LLFCs',
                 ),
+                $model->{checksums}
+                ? (
+                    map {
+                        SpreadsheetModel::Checksum->new(
+                            name => $_,
+                            /recursive|model/i ? ( recursive => 1 ) : (),
+                            digits => /([0-9])/ ? $1 : 6,
+                            columns => \@allTariffColumns,
+                            factors => [
+                                map {
+                                         $_->{defaultFormat}
+                                      && $_->{defaultFormat} !~ /000/
+                                      ? 100
+                                      : 1000;
+                                } @allTariffColumns
+                            ]
+                        );
+                      } split /;\s*/,
+                    $model->{checksums}
+                  )
+                : (),
             ]
         );
 

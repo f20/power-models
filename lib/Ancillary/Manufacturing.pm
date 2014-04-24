@@ -60,26 +60,6 @@ sub factory {
     my @options;
     my ( $pickBestRules, $workbookModule, @rulesets, @datasets, %files );
 
-    my $processRuleset = sub {
-        local $_ = $_[0];
-        die "$_->{PerlModule} looks unsafe"
-          unless {
-            CDCM      => 1,
-            EDCM2     => 1,
-            EUoS      => 1,
-            ModelM    => 1,
-            Quantiles => 1,
-          }->{ $_->{PerlModule} };    # hack
-        _loadModules( $_, "$_->{PerlModule}::Master" ) || return;
-        $_->{PerlModule}->can('requiredModulesForRuleset')
-          and
-          _loadModules( $_, $_->{PerlModule}->requiredModulesForRuleset($_) )
-          || return;
-        $_->{protect} = 1 unless exists $_->{protect};
-        $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
-        push @rulesets, $_;
-    };
-
     $self->{processStream} = sub {
         my ( $fileHandle, $fileName ) = @_;
         binmode $fileHandle, ':utf8';
@@ -104,13 +84,13 @@ sub factory {
         }
         foreach ( grep { ref $_ eq 'HASH' } @objects ) {
             if ( exists $_->{template} ) {
-                $processRuleset->($_);
+                push @rulesets, $_;
             }
             elsif ( defined $fileName
                 && $fileName =~ /([^\\\/]*%[^\\\/]*)\.(?:yml|yaml|json)$/is )
             {
                 $_->{template} = $1;
-                $processRuleset->($_);
+                push @rulesets, $_;
             }
             else {
                 my $datasetName;
@@ -259,6 +239,24 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
 
     $self->{validate} = sub {
         my ( $perl5dir, $dbString ) = @_;
+
+        foreach (@rulesets) {
+            die "$_->{PerlModule} looks unsafe"
+              unless {
+                CDCM      => 1,
+                EDCM2     => 1,
+                EUoS      => 1,
+                ModelM    => 1,
+                Quantiles => 1,
+              }->{ $_->{PerlModule} };    # hack
+            _loadModules( $_, "$_->{PerlModule}::Master" ) || return;
+            $_->{PerlModule}->can('requiredModulesForRuleset')
+              and _loadModules( $_,
+                $_->{PerlModule}->requiredModulesForRuleset($_) )
+              || return;
+            $_->{protect} = 1 unless exists $_->{protect};
+            $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
+        }
 
         $self->{useXLSX}->() unless $workbookModule;
 
