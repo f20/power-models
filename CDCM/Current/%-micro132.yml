@@ -1,10 +1,12 @@
 ---
-.: Micro-model for ARP after DCP 163
+.: Micro-model for ARP after DCP 132
 PerlModule: CDCM
 arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
+nickName: After DCP 132
+noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
 pcd: 1
@@ -13,5 +15,5 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163
+tariffs: commongensubdcp130
 timeOfDay: timeOfDaySpecial

@@ -1,12 +1,13 @@
 ---
-.: Model with pre-election bung adjustments
+.: Micro-model for ARP after DCP 163
 PerlModule: CDCM
+arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
-electionBung: 1
 extraLevels: 1
-illustrative: 1
-matrices: big
+nickName: After DCP 163
+noLLFCs: 1
+noLinks: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1

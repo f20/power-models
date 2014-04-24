@@ -33,6 +33,7 @@ use utf8;
 
 require SpreadsheetModel::Object;
 our @ISA = qw(SpreadsheetModel::Object);
+use Spreadsheet::WriteExcel::Utility;
 
 sub objectType {
     'Notes';
@@ -53,6 +54,19 @@ sub lastCol {
 
 sub lastRow {
     $#{ $_[0]{lines} };
+}
+
+sub wsUrl {
+    my ( $self, $wb ) = @_;
+    return unless $self->{$wb};
+    my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
+    my $ce = xl_rowcol_to_cell( $ro, $co );
+    my $wn =
+        $wo
+      ? $wo->get_name
+      : die( join "\n", "No worksheet for $self->{name}",
+        $self->{debug}, "$self->{rows} x $self->{cols}" );
+    "internal:'$wn'!$ce";
 }
 
 sub wsWrite {
@@ -108,19 +122,25 @@ sub wsWrite {
     if ( !$wb->{noLinks} && $self->{sourceLines} ) {
         my $linkFormat = $wb->getFormat('link');
         foreach ( @{ $self->{sourceLines} } ) {
-            if ( ref($_) =~ /^SpreadsheetModel::/ ) {
-                if ( my $url = $_->wsUrl($wb) ) {
-                    $ws->write_url( $row++, $col, $url, "$_->{name}",
-                        $linkFormat );
+            my @cells = ref $_ eq 'ARRAY' ? @$_ : $_;
+            for ( my $c = 0 ; $c < @cells ; ++$c ) {
+                next unless defined( local $_ = $cells[$c] );
+                if ( ref($_) =~ /^SpreadsheetModel::/ ) {
+                    if ( my $url = $_->wsUrl($wb) ) {
+                        $ws->write_url( $row, $col + $c, $url,
+                            "$_->{name}" || $_->{lines}[0], $linkFormat );
+                    }
+                    else {
+                        $ws->write_string( $row, $col + $c,
+                            "$_->{name}" || $_->{lines}[0],
+                            $defaultFormat );
+                    }
                 }
-                else {
-                    $ws->write_string( $row++, $col, "$_->{name}",
-                        $defaultFormat );
+                else {    # formulas allowed here
+                    $ws->write( $row, $col + $c, "$_", $defaultFormat );
                 }
             }
-            else {
-                $ws->write_string( $row++, $col, "$_", $defaultFormat );
-            }
+            ++$row;
         }
     }
 

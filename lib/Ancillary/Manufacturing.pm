@@ -282,14 +282,13 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
 
     };
 
-    my $score = sub {
+    my $scorer = sub {
         my ( $metadata, $rule ) = @_;
         my $score = 0;
         $score += 9000 if $metadata->[0] eq $rule->{PerlModule};
-        if ( $rule->{PerlModule} eq 'CDCM' ) {
-            $score += 100
-              if $rule->{tariffs} =~ /dcp130/i xor $metadata->[1] lt '2012-10';
-        }
+        my $scoringModule = "$rule->{PerlModule}::Scoring";
+        $score += $scoringModule->score( $rule, $metadata )
+          if eval "require $scoringModule";
     };
 
     my $addToList = sub {
@@ -324,7 +323,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
             my $metadata;
             $metadata =
               [ $data->{'~datasetSource'}{file} =~
-                  /([A-Z0-9-]+)\/Data.*(20[0-9][0-9]-[0-9][0-9]).*/ ]
+                  /([A-Z0-9-]+)\/(?:Data.*(20[0-9][0-9]-[0-9][0-9]))?.*/ ]
               if $pickBestRules
               && $data->{'~datasetSource'}
               && $data->{'~datasetSource'}{file};
@@ -337,7 +336,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                       || $data->{dataset}{yaml} !~ /^$_:/m
                   } split /\s+/, $rule->{wantTables};
                 if ($metadata) {
-                    push @scored, [ $rule, $score->( $metadata, $rule ) ];
+                    push @scored, [ $rule, $scorer->( $metadata, $rule ) ];
                 }
                 else {
                     $addToList->( $data, $rule );

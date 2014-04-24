@@ -5,6 +5,8 @@ arp: 1
 drm: top500gsp
 extraLevels: 1
 matrices: big
+nickName: Model 100
+noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
 pcd: 1

@@ -44,8 +44,15 @@ sub sheetPriority {
             : qw(Index Overview)
         ) ? ( $sheet =~ /^(?:Overview|Index)$/is ? 2 : 1 ) : 0
     ) unless $_[0]{arp};
-    { 'ARP$' => 40, Index => 30, Tariffs => 20, Summary => 10, 'M-ATW' => 5, }
-    ->{$sheet};
+    {
+        'ARP$'         => 80,
+        'Comparisons$' => 70,
+        'Assumptions$' => 60,
+        Index          => 30,
+        Tariffs        => 20,
+        Summary        => 10,
+        'M-ATW'        => 5,
+    }->{$sheet};
 }
 
 sub worksheetsAndClosures {
@@ -72,35 +79,44 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
         $wsheet->{nextFree} = 2;
-        my $te = Dataset(
+        my ( $sh, $ro, $co ) = Dataset(
             number        => 1000,
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),
             defaultFormat => 'texthard',
             data => [ 'Illustrative company', 'Year', 'Illustrative dataset' ]
-        );
-        my ( $sh, $ro, $co ) = $te->wsWrite( $wbook, $wsheet );
-
-        # require Spreadsheet::WriteExcel::Utility;
+        )->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
-        {
-            $wbook->{titleAppend} =
-                qq%" for "&'$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
-              . qq%&" in "&'$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
-                $co + 1 )
-              . qq%&" ("&'$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
-                $co + 2 )
-              . '&")"';
+        $wbook->{titleAppend} =
+            qq%" for "&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
+          . qq%&" in "&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 1 )
+          . qq%&" ("&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
+          . '&")"';
+
+        if ( $model->{nickName} ) {
+            use bytes;
+            $model->{nickName} =
+              qq%="$model->{nickName}"&$wbook->{titleAppend}%;
         }
         $_->wsWrite( $wbook, $wsheet )
           foreach sort { ( $a->{number} || 9999 ) <=> ( $b->{number} || 9999 ) }
           @{ $model->{inputTables} };
+        push @{ $model->{sheetLinks} },
+          my $inputDataNotes = $model->inputDataNotes;
         my $nextFree = delete $wsheet->{nextFree};
-        $model->inputDataNotes->wsWrite( $wbook, $wsheet );
+        my $width    = 1;
+        foreach ( @{ $model->{inputTables} } ) {
+            my $w = 0;
+            $w += 1 + $_->lastCol
+              foreach $_->{columns} ? @{ $_->{columns} } : $_;
+            $width = $w if $w > $width;
+        }
+        $wsheet->print_area( 0, 0, $nextFree - 1, $width );
+        $inputDataNotes->wsWrite( $wbook, $wsheet );
         $wsheet->{nextFree} = $nextFree;
       };
 
@@ -342,8 +358,10 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 250, 20 );
         $wbook->{lastSheetNumber} = 36 if $wbook->{lastSheetNumber} < 36;
         push @{ $wbook->{prohibitedTableNumbers} }, 3701 if $model->{pcd};
+        push @{ $model->{sheetLinks} }, my $notes = Notes( name => 'Tariffs' );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Tariffs' ), @{ $model->{tariffSummary} };
+          foreach $notes,
+          @{ $model->{tariffSummary} };
 
       };
 
@@ -407,8 +425,7 @@ EOL
         $wsheet->fit_to_pages( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
-
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+        push @{ $model->{sheetLinks} }, my $notes = Notes(
             name  => 'Summary statistics',
             lines => [
                 split /\n/,
@@ -416,7 +433,9 @@ EOL
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
             ]
-          ),
+        );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $notes,
           @{ $model->{overallSummary} };
 
       }
