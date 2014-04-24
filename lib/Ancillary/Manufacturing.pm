@@ -65,7 +65,7 @@ sub factory {
         die "$_->{PerlModule} looks unsafe"
           unless {
             CDCM      => 1,
-            EDCMw     => 1,
+            EDCM2     => 1,
             EUoS      => 1,
             ModelM    => 1,
             Quantiles => 1,
