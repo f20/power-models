@@ -214,7 +214,10 @@ EOT
         dataset  => $model->{dataset},
         appendTo => $model->{inputTables},
         number   => 1190,
-    ) if $model->{transparency} && !$model->{legacy201};
+      )
+      if $model->{transparency}
+      && $model->{transparency} !~ /outputonly/i
+      && !$model->{legacy201};
 
     if ( $model->{transparency} ) {
 
@@ -281,6 +284,9 @@ EOT
 
             $model->{transparencyImpact} = 1;
 
+        }
+        elsif ( $model->{transparency} =~ /outputonly/i ) {
+            $model->{transparency} = {};
         }
         else {
             delete $model->{transparency};
@@ -609,7 +615,7 @@ EOT
       );
 
     my $edcmRedUse =
-      $model->{transparency}
+      $model->{transparencyMasterFlag}
       ? Arithmetic(
         name          => 'Total EDCM peak time consumption (kW)',
         defaultFormat => '0softnz',
@@ -1655,7 +1661,7 @@ EOT
                 IV6 => $edcmRedUse,
                 $model->{removeDemandCharge1} ? ()
                 : (
-                    IV9 => $model->{transparency} ? Arithmetic(
+                    IV9 => $model->{transparencyMasterFlag} ? Arithmetic(
                         name => 'Revenue from demand charge 1 (£/year)',
                         defaultFormat => '0softnz',
                         arithmetic =>

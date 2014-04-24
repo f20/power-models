@@ -321,7 +321,7 @@ sub worksheetsAndClosures {
 
       $model->{transparency}
       ? (
-        'OneLiners' => sub {
+        'Aggregates' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 250, 30 );
@@ -332,15 +332,11 @@ sub worksheetsAndClosures {
                 my $number = int( $num / 100 );
                 $olTabCol{$number}[ $num - $number * 100 - 1 ] = $obj;
             }
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                lines => 'Updated baseline data
-
-This sheet contains data that can be used to populate tables 1191 to 1193 in an associated model.'
-              ),
-              (
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Aggregates' ), (
                 map {
                     Columnset(
-                        name    => "Data for table $_",
+                        name => 'Summary aggregate data part ' . ( $_ - 1190 ),
                         number  => 3600 + $_,
                         columns => [
                             map { Stack( sources => [$_] ) } @{ $olTabCol{$_} }

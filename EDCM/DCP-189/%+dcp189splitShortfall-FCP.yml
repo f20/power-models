@@ -1,15 +1,15 @@
 ---
-.: EDCM modernised LRIC model
+.: DCP 189 FCP (split shortfall)
 PerlModule: EDCM2
 dcp130: 1
+dcp189: splitShortfall
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
-method: LRIC
+method: FCP
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
-transparency: outputonly
 validation: lenientnomsg
-wantTables: 913
+wantTables: 911
