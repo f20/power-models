@@ -1265,6 +1265,8 @@ EOT
         $SuperRedRateFcpLric,
     );
 
+    my $demandScalingShortfall;
+
     if ( $model->{legacy201} ) {
 
         $capacityChargeT = Arithmetic(
@@ -1313,7 +1315,7 @@ EOT
             }
         );
 
-        my $demandScalingShortfall = Arithmetic(
+        $demandScalingShortfall = Arithmetic(
             name          => 'Additional amount to be recovered (£/year)',
             defaultFormat => '0softnz',
             arithmetic =>
@@ -1331,254 +1333,6 @@ EOT
                 IV54      => $daysInYear,
             }
         );
-
-        $model->fudge41(
-            $activeCoincidence,             $importCapacity,
-            $edcmIndirect,                  $edcmDirect,
-            $edcmRates,                     $daysInYear,
-            \$capacityChargeT,              \$demandScalingShortfall,
-            $indirectExposure,              $assetsCapacityDoubleCooked,
-            $assetsConsumptionDoubleCooked, $reactiveCoincidence,
-            $powerFactorInModel,            $demandScalingShortfall,
-        );
-
-        push @{ $model->{calc4Tables} }, $demandScalingShortfall;
-
-        ($scalingChargeCapacity) = $model->demandScaling41(
-            $importCapacity,       $demandScalingShortfall,
-            $daysInYear,           $assetsFixed,
-            $assetsCapacityCooked, $assetsConsumptionCooked,
-            $capacityChargeT,      $fixedDcharge,
-        );
-
-        $model->{summaryInformationColumns}[2] = Arithmetic(
-            name          => 'Direct cost allocation (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic =>
-'=IV1*(MAX(IV2,0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))))*IV3*0.01*IV7/IV9',
-            arguments => {
-                IV1  => $importCapacity,
-                IV2  => $scalingChargeCapacity,
-                IV21 => $capacityChargeT,
-                IV22 => $activeCoincidence935,
-                IV5  => $demandConsumptionFcpLric,
-                IV51 => $chargeableCapacity,
-                IV52 => $importCapacity,
-                IV53 => $importCapacity,
-                IV3  => $daysInYear,
-                IV7  => $edcmDirect,
-                IV8  => $edcmRates,
-                IV9  => $demandScalingShortfall,
-                IV54 => $hoursInRed,
-                IV55 => $tariffHoursInRedNot,
-                IV56 => $tariffDaysInYearNot,
-                IV31 => $daysInYear,
-                IV32 => $daysInYear,
-            },
-        );
-
-        $model->{summaryInformationColumns}[4] = Arithmetic(
-            name          => 'Network rates allocation (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic =>
-'=IV1*(MAX(IV2,0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))))*IV3*0.01*IV8/IV9',
-            arguments => {
-                IV1  => $importCapacity,
-                IV2  => $scalingChargeCapacity,
-                IV21 => $capacityChargeT,
-                IV22 => $activeCoincidence935,
-                IV5  => $demandConsumptionFcpLric,
-                IV51 => $chargeableCapacity,
-                IV52 => $importCapacity,
-                IV53 => $importCapacity,
-                IV3  => $daysInYear,
-                IV7  => $edcmDirect,
-                IV8  => $edcmRates,
-                IV9  => $demandScalingShortfall,
-                IV54 => $hoursInRed,
-                IV55 => $tariffHoursInRedNot,
-                IV56 => $tariffDaysInYearNot,
-                IV31 => $daysInYear,
-                IV32 => $daysInYear,
-            },
-        );
-
-        $model->{summaryInformationColumns}[7] = Arithmetic(
-            name          => 'Demand scaling asset based (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic =>
-'=IV1*(MAX(IV2,0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))))*IV3*0.01*(1-(IV8+IV7)/IV9)',
-            arguments => {
-                IV1  => $importCapacity,
-                IV2  => $scalingChargeCapacity,
-                IV21 => $capacityChargeT,
-                IV22 => $activeCoincidence935,
-                IV5  => $demandConsumptionFcpLric,
-                IV51 => $chargeableCapacity,
-                IV52 => $importCapacity,
-                IV53 => $importCapacity,
-                IV3  => $daysInYear,
-                IV7  => $edcmDirect,
-                IV8  => $edcmRates,
-                IV9  => $demandScalingShortfall,
-                IV54 => $hoursInRed,
-                IV55 => $tariffHoursInRedNot,
-                IV56 => $tariffDaysInYearNot,
-                IV31 => $daysInYear,
-                IV32 => $daysInYear,
-            },
-        );
-
-        $importCapacityScaled =
-          $scalingChargeCapacity
-          ? Arithmetic(
-            name          => 'Total import capacity charge p/kVA/day',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=MAX(0-(IV3*IV31*IV33/IV32),IV1+IV2)',
-            arguments     => {
-                IV1  => $capacityChargeT,
-                IV3  => $unitRateFcpLricNonDSM,
-                IV31 => $activeCoincidence,
-                IV32 => $daysInYear,
-                IV33 => $hoursInRed,
-                IV2  => $scalingChargeCapacity,
-            }
-          )
-          : Stack( sources => [$capacityChargeT] );
-
-        $SuperRedRateFcpLric = Arithmetic(
-            name => 'Super red rate p/kWh',
-            arithmetic =>
-'=IF(IV3,IF(IV1=0,IV9,MAX(0,MIN(IV4,IV41+(IV5/IV11*(IV7-IV71)/(IV8-IV81))))),0)',
-            arguments => {
-                IV1  => $activeCoincidence,
-                IV11 => $activeCoincidence935,
-                IV3  => $importEligible,
-                IV4  => $unitRateFcpLricDSM,
-                IV41 => $unitRateFcpLricDSM,
-                IV9  => $unitRateFcpLricDSM,
-                IV5  => $importCapacityScaled,
-                IV51 => $demandConsumptionFcpLric,
-                IV7  => $daysInYear,
-                IV71 => $tariffDaysInYearNot,
-                IV8  => $hoursInRed,
-                IV81 => $tariffHoursInRedNot,
-            }
-        ) if $unitRateFcpLricDSM;
-
-        push @{ $model->{calc4Tables} },
-          $importCapacityScaledSaved = $importCapacityScaled;
-
-        $importCapacityScaled = Arithmetic(
-            name       => 'Import capacity charge p/kVA/day',
-            arithmetic => '=IF(IV3,MAX(0,IV1),0)',
-            arguments  => {
-                IV1 => $importCapacityScaled,
-                IV3 => $importEligible,
-            },
-            defaultFormat => '0.00softnz'
-        );
-
-        $importCapacityExceeded = Arithmetic(
-            name          => 'Exceeded import capacity charge (p/kVA/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=IV7+IV2',
-            defaultFormat => '0.00softnz',
-            arguments     => {
-                IV3 => $fcpLricDemandCapacityChargeBig,
-                IV2 => $importCapacityExceededAdjustment,
-                IV4 => $chargeableCapacity,
-                IV5 => $importCapacity,
-                IV1 => $importCapacity,
-                IV7 => $importCapacityScaled,
-            },
-            defaultFormat => '0.00softnz'
-        );
-
-        $model->{summaryInformationColumns}[5] = Arithmetic(
-            name          => 'FCP/LRIC charge (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic =>
-              '=0.01*(IV11*IV9*IV2+IV1*IV4*IV8*(IV6-IV61)*(IV91/(IV92-IV71)))',
-            arguments => {
-                IV1  => $importCapacity,
-                IV2  => $fcpLricDemandCapacityChargeBig,
-                IV3  => $capacityChargeT->{arguments}{IV1},
-                IV9  => $daysInYear,
-                IV4  => $unitRateFcpLricDSM,
-                IV41 => $activeCoincidence,
-                IV6  => $hoursInRed,
-                IV61 => $tariffHoursInRedNot,
-                IV8  => $activeCoincidence935,
-                IV91 => $daysInYear,
-                IV92 => $daysInYear,
-                IV71 => $tariffDaysInYearNot,
-                IV11 => $chargeableCapacity,
-                IV51 => $importCapacity,
-                IV62 => $importCapacity,
-
-            },
-        );
-
-        push @{ $model->{tablesG} }, $genCredit, $genCreditCapacity,
-          $exportCapacityCharge;
-
-        $fixedDchargeTrueRound = Arithmetic(
-            name          => 'Import fixed charge (p/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=ROUND(IV1,2)',
-            arguments     => { IV1 => $fixedDchargeTrue, },
-        );
-
-        $SuperRedRateFcpLricRound = Arithmetic(
-            name          => 'Import super-red unit rate (p/kWh)',
-            defaultFormat => '0.000softnz',
-            arithmetic    => '=ROUND(IV1,3)',
-            arguments     => { IV1 => $SuperRedRateFcpLric, },
-        );
-
-        $importCapacityScaledRound = Arithmetic(
-            name          => 'Import capacity rate (p/kVA/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=ROUND(IV1,2)',
-            arguments     => { IV1 => $importCapacityScaled, },
-        );
-
-        $exportCapacityExceeded = Arithmetic(
-            name          => 'Export exceeded capacity rate (p/kVA/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=IV1',
-            arguments     => { IV1 => $exportCapacityChargeRound, },
-        );
-
-        my $importCapacityExceededRound = Arithmetic(
-            name          => 'Import exceeded capacity rate (p/kVA/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=ROUND(IV1,2)',
-            arguments     => { IV1 => $importCapacityExceeded, },
-        );
-
-        push @{ $model->{calc4Tables} }, $SuperRedRateFcpLric,
-          $importCapacityScaled,
-          $fixedDchargeTrue, $importCapacityExceeded,
-          $exportCapacityChargeRound,
-          $fixedGchargeTrue;
-
-        push @{ $model->{tariffTables} },
-          $thisIsTheTariffTable = Columnset(
-            name    => 'EDCM charge',
-            columns => [
-                Stack( sources => [$tariffs] ),
-                $SuperRedRateFcpLricRound,
-                $fixedDchargeTrueRound,
-                $importCapacityScaledRound,
-                $importCapacityExceededRound,
-                Stack( sources => [$genCreditRound] ),
-                Stack( sources => [$fixedGchargeTrue] ),
-                Stack( sources => [$netexportCapacityChargeRound] ),
-                $exportCapacityExceeded,
-            ]
-          );
 
     }
     else {    # not legacy201
@@ -1639,7 +1393,7 @@ EOT
             }
         );
 
-        my $demandScalingShortfall = Arithmetic(
+        $demandScalingShortfall = Arithmetic(
             name          => 'Additional amount to be recovered (£/year)',
             defaultFormat => '0softnz',
             arithmetic    => '=IV1-IV2*'
@@ -1713,272 +1467,271 @@ EOT
           if $model->{transparency}
           && $demandScalingShortfall->{arguments}{IV9};
 
-        $model->fudge41(
-            $activeCoincidence,             $importCapacity,
-            $edcmIndirect,                  $edcmDirect,
-            $edcmRates,                     $daysInYear,
-            \$capacityChargeT,              \$demandScalingShortfall,
-            $indirectExposure,              $assetsCapacityDoubleCooked,
-            $assetsConsumptionDoubleCooked, $reactiveCoincidence,
-            $powerFactorInModel,            $demandScalingShortfall,
-        );
-
-        push @{ $model->{calc4Tables} }, $demandScalingShortfall;
-
-        ($scalingChargeCapacity) = $model->demandScaling41(
-            $importCapacity,       $demandScalingShortfall,
-            $daysInYear,           $assetsFixed,
-            $assetsCapacityCooked, $assetsConsumptionCooked,
-            $capacityChargeT,      $fixedDcharge,
-        );
-
-        $model->{summaryInformationColumns}[2] = Arithmetic(
-            name          => 'Direct cost allocation (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IV1*MAX(IV2,'
-              . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
-              . ')*IV3*0.01*IV7/IV9',
-            arguments => {
-                IV1  => $importCapacity,
-                IV2  => $scalingChargeCapacity,
-                IV21 => $capacityChargeT,
-                IV22 => $activeCoincidence935,
-                IV5  => $demandConsumptionFcpLric,
-                IV51 => $chargeableCapacity,
-                IV52 => $importCapacity,
-                IV53 => $importCapacity,
-                IV3  => $daysInYear,
-                IV7  => $edcmDirect,
-                IV8  => $edcmRates,
-                IV9  => $demandScalingShortfall,
-                IV54 => $hoursInRed,
-                IV55 => $tariffHoursInRedNot,
-                IV56 => $tariffDaysInYearNot,
-                IV31 => $daysInYear,
-                IV32 => $daysInYear,
-            },
-        );
-
-        $model->{summaryInformationColumns}[4] = Arithmetic(
-            name          => 'Network rates allocation (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IV1*MAX(IV2,'
-              . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
-              . ')*IV3*0.01*IV8/IV9',
-            arguments => {
-                IV1  => $importCapacity,
-                IV2  => $scalingChargeCapacity,
-                IV21 => $capacityChargeT,
-                IV22 => $activeCoincidence935,
-                IV5  => $demandConsumptionFcpLric,
-                IV51 => $chargeableCapacity,
-                IV52 => $importCapacity,
-                IV53 => $importCapacity,
-                IV3  => $daysInYear,
-                IV7  => $edcmDirect,
-                IV8  => $edcmRates,
-                IV9  => $demandScalingShortfall,
-                IV54 => $hoursInRed,
-                IV55 => $tariffHoursInRedNot,
-                IV56 => $tariffDaysInYearNot,
-                IV31 => $daysInYear,
-                IV32 => $daysInYear,
-            },
-        );
-
-        $model->{summaryInformationColumns}[7] = Arithmetic(
-            name          => 'Demand scaling asset based (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IV1*MAX(IV2,'
-              . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
-              . ')*IV3*0.01*(1-(IV8+IV7)/IV9)',
-            arguments => {
-                IV1  => $importCapacity,
-                IV2  => $scalingChargeCapacity,
-                IV21 => $capacityChargeT,
-                IV22 => $activeCoincidence935,
-                IV5  => $demandConsumptionFcpLric,
-                IV51 => $chargeableCapacity,
-                IV52 => $importCapacity,
-                IV53 => $importCapacity,
-                IV3  => $daysInYear,
-                IV7  => $edcmDirect,
-                IV8  => $edcmRates,
-                IV9  => $demandScalingShortfall,
-                IV54 => $hoursInRed,
-                IV55 => $tariffHoursInRedNot,
-                IV56 => $tariffDaysInYearNot,
-                IV31 => $daysInYear,
-                IV32 => $daysInYear,
-            },
-        );
-
-        $importCapacityScaled =
-          $scalingChargeCapacity
-          ? Arithmetic(
-            name          => 'Total import capacity charge p/kVA/day',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=MAX(0-(IV3*IV31*IV33/IV32),IV1+IV2)',
-            arguments     => {
-                IV1  => $capacityChargeT,
-                IV3  => $unitRateFcpLricNonDSM,
-                IV31 => $activeCoincidence,
-                IV32 => $daysInYear,
-                IV33 => $hoursInRed,
-                IV2  => $scalingChargeCapacity,
-            }
-          )
-          : Stack( sources => [$capacityChargeT] );
-
-        $SuperRedRateFcpLric = Arithmetic(
-            name       => 'Super red rate p/kWh',
-            arithmetic => '=IF(IV3,IF(IV1=0,IV9,'
-              . 'MAX(0,MIN(IV4,IV41+(IV5/IV11*(IV7-IV71)/(IV8-IV81))))'
-              . '),0)',
-            arguments => {
-                IV1  => $activeCoincidence,
-                IV11 => $activeCoincidence935,
-                IV3  => $importEligible,
-                IV4  => $unitRateFcpLricDSM,
-                IV41 => $unitRateFcpLricDSM,
-                IV9  => $unitRateFcpLricDSM,
-                IV5  => $importCapacityScaled,
-                IV51 => $demandConsumptionFcpLric,
-                IV7  => $daysInYear,
-                IV71 => $tariffDaysInYearNot,
-                IV8  => $hoursInRed,
-                IV81 => $tariffHoursInRedNot,
-            }
-        ) if $unitRateFcpLricDSM;
-
-        push @{ $model->{calc4Tables} },
-          $importCapacityScaledSaved = $importCapacityScaled;
-
-        $importCapacityScaled = Arithmetic(
-            name       => 'Import capacity charge p/kVA/day',
-            arithmetic => '=IF(IV3,MAX(0,IV1),0)',
-            arguments  => {
-                IV1 => $importCapacityScaled,
-                IV3 => $importEligible,
-            },
-            defaultFormat => '0.00softnz'
-        );
-
-        $importCapacityExceeded = Arithmetic(
-            name          => 'Exceeded import capacity charge (p/kVA/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=IV7+IV2',
-            defaultFormat => '0.00softnz',
-            arguments     => {
-                IV3 => $fcpLricDemandCapacityChargeBig,
-                IV2 => $importCapacityExceededAdjustment,
-                IV4 => $chargeableCapacity,
-                IV5 => $importCapacity,
-                IV1 => $importCapacity,
-                IV7 => $importCapacityScaled,
-            },
-            defaultFormat => '0.00softnz'
-        );
-
-        $model->{summaryInformationColumns}[5] = Arithmetic(
-            name          => 'FCP/LRIC charge (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic =>
-              '=0.01*(IV11*IV9*IV2+IV1*IV4*IV8*(IV6-IV61)*(IV91/(IV92-IV71)))',
-            arguments => {
-                IV1  => $importCapacity,
-                IV2  => $fcpLricDemandCapacityChargeBig,
-                IV3  => $capacityChargeT->{arguments}{IV1},
-                IV9  => $daysInYear,
-                IV4  => $unitRateFcpLricDSM,
-                IV41 => $activeCoincidence,
-                IV6  => $hoursInRed,
-                IV61 => $tariffHoursInRedNot,
-                IV8  => $activeCoincidence935,
-                IV91 => $daysInYear,
-                IV92 => $daysInYear,
-                IV71 => $tariffDaysInYearNot,
-                IV11 => $chargeableCapacity,
-                IV51 => $importCapacity,
-                IV62 => $importCapacity,
-
-            },
-        );
-
-        push @{ $model->{tablesG} }, $genCredit, $genCreditCapacity,
-          $exportCapacityCharge;
-
-        $fixedDchargeTrueRound = Arithmetic(
-            name          => 'Import fixed charge (p/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=ROUND(IV1,2)',
-            arguments     => { IV1 => $fixedDchargeTrue, },
-        );
-
-        $SuperRedRateFcpLricRound = Arithmetic(
-            name          => 'Import super-red unit rate (p/kWh)',
-            defaultFormat => '0.000softnz',
-            arithmetic    => '=ROUND(IV1,3)',
-            arguments     => { IV1 => $SuperRedRateFcpLric, },
-        );
-
-        $importCapacityScaledRound = Arithmetic(
-            name          => 'Import capacity rate (p/kVA/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=ROUND(IV1,2)',
-            arguments     => { IV1 => $importCapacityScaled, },
-        );
-
-        $exportCapacityExceeded = Arithmetic(
-            name          => 'Export exceeded capacity rate (p/kVA/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=IV1',
-            arguments     => { IV1 => $exportCapacityChargeRound, },
-        );
-
-        my $importCapacityExceededRound = Arithmetic(
-            name          => 'Import exceeded capacity rate (p/kVA/day)',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=ROUND(IV1,2)',
-            arguments     => { IV1 => $importCapacityExceeded, },
-        );
-
-        push @{ $model->{calc4Tables} }, $SuperRedRateFcpLric,
-          $importCapacityScaled,
-          $fixedDchargeTrue, $importCapacityExceeded,
-          $exportCapacityChargeRound,
-          $fixedGchargeTrue;
-
-        my @tariffColumns = (
-            Stack( sources => [$tariffs] ),
-            $SuperRedRateFcpLricRound,
-            $fixedDchargeTrueRound,
-            $importCapacityScaledRound,
-            $importCapacityExceededRound,
-            Stack( sources => [$genCreditRound] ),
-            Stack( sources => [$fixedGchargeTrue] ),
-            Stack( sources => [$netexportCapacityChargeRound] ),
-            $exportCapacityExceeded,
-        );
-
-        if ( $model->{checksums} ) {
-            push @tariffColumns,
-              SpreadsheetModel::Checksum->new(
-                name => $_,
-                /recursive|model/i ? ( recursive => 1 ) : (),
-                digits => /([0-9])/ ? $1 : 6,
-                columns => [ @tariffColumns[ 1 .. 8 ] ],
-                factors => [qw(1000 100 100 100 1000 100 100 100 )]
-              ) foreach split /;\s*/, $model->{checksums};
-        }
-
-        push @{ $model->{tariffTables} },
-          $thisIsTheTariffTable = Columnset(
-            name    => 'EDCM charge',
-            columns => \@tariffColumns,
-          );
-
     }
+
+    $model->fudge41(
+        $activeCoincidence,             $importCapacity,
+        $edcmIndirect,                  $edcmDirect,
+        $edcmRates,                     $daysInYear,
+        \$capacityChargeT,              \$demandScalingShortfall,
+        $indirectExposure,              $assetsCapacityDoubleCooked,
+        $assetsConsumptionDoubleCooked, $reactiveCoincidence,
+        $powerFactorInModel,            $demandScalingShortfall,
+    );
+
+    push @{ $model->{calc4Tables} }, $demandScalingShortfall;
+
+    ($scalingChargeCapacity) = $model->demandScaling41(
+        $importCapacity,       $demandScalingShortfall,
+        $daysInYear,           $assetsFixed,
+        $assetsCapacityCooked, $assetsConsumptionCooked,
+        $capacityChargeT,      $fixedDcharge,
+    );
+
+    $model->{summaryInformationColumns}[2] = Arithmetic(
+        name          => 'Direct cost allocation (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IV1*MAX(IV2,'
+          . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
+          . ')*IV3*0.01*IV7/IV9',
+        arguments => {
+            IV1  => $importCapacity,
+            IV2  => $scalingChargeCapacity,
+            IV21 => $capacityChargeT,
+            IV22 => $activeCoincidence935,
+            IV5  => $demandConsumptionFcpLric,
+            IV51 => $chargeableCapacity,
+            IV52 => $importCapacity,
+            IV53 => $importCapacity,
+            IV3  => $daysInYear,
+            IV7  => $edcmDirect,
+            IV8  => $edcmRates,
+            IV9  => $demandScalingShortfall,
+            IV54 => $hoursInRed,
+            IV55 => $tariffHoursInRedNot,
+            IV56 => $tariffDaysInYearNot,
+            IV31 => $daysInYear,
+            IV32 => $daysInYear,
+        },
+    );
+
+    $model->{summaryInformationColumns}[4] = Arithmetic(
+        name          => 'Network rates allocation (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IV1*MAX(IV2,'
+          . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
+          . ')*IV3*0.01*IV8/IV9',
+        arguments => {
+            IV1  => $importCapacity,
+            IV2  => $scalingChargeCapacity,
+            IV21 => $capacityChargeT,
+            IV22 => $activeCoincidence935,
+            IV5  => $demandConsumptionFcpLric,
+            IV51 => $chargeableCapacity,
+            IV52 => $importCapacity,
+            IV53 => $importCapacity,
+            IV3  => $daysInYear,
+            IV7  => $edcmDirect,
+            IV8  => $edcmRates,
+            IV9  => $demandScalingShortfall,
+            IV54 => $hoursInRed,
+            IV55 => $tariffHoursInRedNot,
+            IV56 => $tariffDaysInYearNot,
+            IV31 => $daysInYear,
+            IV32 => $daysInYear,
+        },
+    );
+
+    $model->{summaryInformationColumns}[7] = Arithmetic(
+        name          => 'Demand scaling asset based (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IV1*MAX(IV2,'
+          . '0-(IV21+IF(IV22=0,0,(1-IV55/IV54)*IV31/(IV32-IV56)*IF(IV52=0,1,IV51/IV53)*IV5))'
+          . ')*IV3*0.01*(1-(IV8+IV7)/IV9)',
+        arguments => {
+            IV1  => $importCapacity,
+            IV2  => $scalingChargeCapacity,
+            IV21 => $capacityChargeT,
+            IV22 => $activeCoincidence935,
+            IV5  => $demandConsumptionFcpLric,
+            IV51 => $chargeableCapacity,
+            IV52 => $importCapacity,
+            IV53 => $importCapacity,
+            IV3  => $daysInYear,
+            IV7  => $edcmDirect,
+            IV8  => $edcmRates,
+            IV9  => $demandScalingShortfall,
+            IV54 => $hoursInRed,
+            IV55 => $tariffHoursInRedNot,
+            IV56 => $tariffDaysInYearNot,
+            IV31 => $daysInYear,
+            IV32 => $daysInYear,
+        },
+    );
+
+    $importCapacityScaled =
+      $scalingChargeCapacity
+      ? Arithmetic(
+        name          => 'Total import capacity charge p/kVA/day',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=MAX(0-(IV3*IV31*IV33/IV32),IV1+IV2)',
+        arguments     => {
+            IV1  => $capacityChargeT,
+            IV3  => $unitRateFcpLricNonDSM,
+            IV31 => $activeCoincidence,
+            IV32 => $daysInYear,
+            IV33 => $hoursInRed,
+            IV2  => $scalingChargeCapacity,
+        }
+      )
+      : Stack( sources => [$capacityChargeT] );
+
+    $SuperRedRateFcpLric = Arithmetic(
+        name       => 'Super red rate p/kWh',
+        arithmetic => '=IF(IV3,IF(IV1=0,IV9,'
+          . 'MAX(0,MIN(IV4,IV41+(IV5/IV11*(IV7-IV71)/(IV8-IV81))))' . '),0)',
+        arguments => {
+            IV1  => $activeCoincidence,
+            IV11 => $activeCoincidence935,
+            IV3  => $importEligible,
+            IV4  => $unitRateFcpLricDSM,
+            IV41 => $unitRateFcpLricDSM,
+            IV9  => $unitRateFcpLricDSM,
+            IV5  => $importCapacityScaled,
+            IV51 => $demandConsumptionFcpLric,
+            IV7  => $daysInYear,
+            IV71 => $tariffDaysInYearNot,
+            IV8  => $hoursInRed,
+            IV81 => $tariffHoursInRedNot,
+        }
+    ) if $unitRateFcpLricDSM;
+
+    push @{ $model->{calc4Tables} },
+      $importCapacityScaledSaved = $importCapacityScaled;
+
+    $importCapacityScaled = Arithmetic(
+        name       => 'Import capacity charge p/kVA/day',
+        arithmetic => '=IF(IV3,MAX(0,IV1),0)',
+        arguments  => {
+            IV1 => $importCapacityScaled,
+            IV3 => $importEligible,
+        },
+        defaultFormat => '0.00softnz'
+    );
+
+    $importCapacityExceeded = Arithmetic(
+        name          => 'Exceeded import capacity charge (p/kVA/day)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=IV7+IV2',
+        defaultFormat => '0.00softnz',
+        arguments     => {
+            IV3 => $fcpLricDemandCapacityChargeBig,
+            IV2 => $importCapacityExceededAdjustment,
+            IV4 => $chargeableCapacity,
+            IV5 => $importCapacity,
+            IV1 => $importCapacity,
+            IV7 => $importCapacityScaled,
+        },
+        defaultFormat => '0.00softnz'
+    );
+
+    $model->{summaryInformationColumns}[5] = Arithmetic(
+        name          => 'FCP/LRIC charge (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic =>
+          '=0.01*(IV11*IV9*IV2+IV1*IV4*IV8*(IV6-IV61)*(IV91/(IV92-IV71)))',
+        arguments => {
+            IV1  => $importCapacity,
+            IV2  => $fcpLricDemandCapacityChargeBig,
+            IV3  => $capacityChargeT->{arguments}{IV1},
+            IV9  => $daysInYear,
+            IV4  => $unitRateFcpLricDSM,
+            IV41 => $activeCoincidence,
+            IV6  => $hoursInRed,
+            IV61 => $tariffHoursInRedNot,
+            IV8  => $activeCoincidence935,
+            IV91 => $daysInYear,
+            IV92 => $daysInYear,
+            IV71 => $tariffDaysInYearNot,
+            IV11 => $chargeableCapacity,
+            IV51 => $importCapacity,
+            IV62 => $importCapacity,
+
+        },
+    );
+
+    push @{ $model->{tablesG} }, $genCredit, $genCreditCapacity,
+      $exportCapacityCharge;
+
+    $fixedDchargeTrueRound = Arithmetic(
+        name          => 'Import fixed charge (p/day)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=ROUND(IV1,2)',
+        arguments     => { IV1 => $fixedDchargeTrue, },
+    );
+
+    $SuperRedRateFcpLricRound = Arithmetic(
+        name          => 'Import super-red unit rate (p/kWh)',
+        defaultFormat => '0.000softnz',
+        arithmetic    => '=ROUND(IV1,3)',
+        arguments     => { IV1 => $SuperRedRateFcpLric, },
+    );
+
+    $importCapacityScaledRound = Arithmetic(
+        name          => 'Import capacity rate (p/kVA/day)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=ROUND(IV1,2)',
+        arguments     => { IV1 => $importCapacityScaled, },
+    );
+
+    $exportCapacityExceeded = Arithmetic(
+        name          => 'Export exceeded capacity rate (p/kVA/day)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=IV1',
+        arguments     => { IV1 => $exportCapacityChargeRound, },
+    );
+
+    my $importCapacityExceededRound = Arithmetic(
+        name          => 'Import exceeded capacity rate (p/kVA/day)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=ROUND(IV1,2)',
+        arguments     => { IV1 => $importCapacityExceeded, },
+    );
+
+    push @{ $model->{calc4Tables} }, $SuperRedRateFcpLric,
+      $importCapacityScaled,
+      $fixedDchargeTrue, $importCapacityExceeded,
+      $exportCapacityChargeRound,
+      $fixedGchargeTrue;
+
+    my @tariffColumns = (
+        Stack( sources => [$tariffs] ),
+        $SuperRedRateFcpLricRound,
+        $fixedDchargeTrueRound,
+        $importCapacityScaledRound,
+        $importCapacityExceededRound,
+        Stack( sources => [$genCreditRound] ),
+        Stack( sources => [$fixedGchargeTrue] ),
+        Stack( sources => [$netexportCapacityChargeRound] ),
+        $exportCapacityExceeded,
+    );
+
+    if ( $model->{checksums} ) {
+        push @tariffColumns,
+          SpreadsheetModel::Checksum->new(
+            name => $_,
+            /recursive|model/i ? ( recursive => 1 ) : (),
+            digits => /([0-9])/ ? $1 : 6,
+            columns => [ @tariffColumns[ 1 .. 8 ] ],
+            factors => [qw(1000 100 100 100 1000 100 100 100 )]
+          ) foreach split /;\s*/, $model->{checksums};
+    }
+
+    push @{ $model->{tariffTables} },
+      $thisIsTheTariffTable = Columnset(
+        name    => 'EDCM charge',
+        columns => \@tariffColumns,
+      );
 
     return $model unless $model->{summaries};
 
