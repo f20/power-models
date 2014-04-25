@@ -313,9 +313,7 @@ EOT
         },
     ) if $model->{transparencyMasterFlag} && !defined $model->{transparency};
 
-    if ( $model->{transparencyMasterFlag}
-        || !$model->{legacy201} && $model->{transparency} )
-    {
+    if ( $model->{transparencyMasterFlag} ) {
 
         foreach my $set (
             [
