@@ -260,7 +260,8 @@ sub worksheetsAndClosures {
           : ();
       },
 
-      ( $model->{tariffs} =~ /dcp179/i ? 'AggCap' : 'NHH' ) => sub {
+      ( $model->{tariffs} =~ /dcp179|pc12hh|pc34hh/i ? 'AggCap' : 'NHH' ) =>
+      sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;

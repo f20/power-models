@@ -662,10 +662,8 @@ sub timeOfDay179Runner {
                                     "IV1$pad*IV2$pad"
                                 } 1 .. $r
                               )
-                              . ')/IV502,IV7/IV8/24)',
+                              . ')/IV502,0)',
                             arguments => {
-                                IV7   => $annualHoursByTimeband,
-                                IV8   => $daysInYear,
                                 IV501 => $unitsByEndUser,
                                 IV502 => $unitsByEndUser,
                                 map {
@@ -893,7 +891,7 @@ sub timeOfDay179Runner {
         );
 
         foreach ( values %{ $eq{userSet} } ) {
-            die $_ if @{ $_->{list} } != @{ $groupset->{list} };
+            die 'Mismatch' if @{ $_->{list} } != @{ $groupset->{list} };
             push @{ $_->{accepts} },        $groupset;
             push @{ $groupset->{accepts} }, $_;
         }
