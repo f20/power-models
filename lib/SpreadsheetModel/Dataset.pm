@@ -69,9 +69,10 @@ sub wsUrl {
 sub htmlDescribe {
     my ( $self, $hb, $hs ) = @_;
     my $formula;
+    my $sourceRef = [];
     if ( $self->{arithmetic} && $self->{arguments} ) {
         my @formula = $self->{arithmetic};
-        $self->{sourceLines} =
+        $sourceRef =
           [ _rewriteFormulas( \@formula, [ $self->{arguments} ] ) ];
         ($formula) = @formula;
         $self->{formulaLines} = [ $self->objectType . " $formula" ];
@@ -83,29 +84,20 @@ sub htmlDescribe {
           && $hb->{Inputs}
           && $hs == $hb->{Inputs};
     }
-    my $argh = $self->{arguments};
     my $hsa = $hb->{Ancillary} || $hs;
-    my @ph =
-      sort { ( index $formula, $a ) <=> ( index $formula, $b ) }
-      grep { -1 < index $formula, $_ } sort keys %$argh;
     my @arglist;
     my @forlist = $formula ? split( "\n", $formula ) : ();
     @forlist = ( shift @forlist, map { [ br => undef ], $_ } @forlist )
       if @forlist > 1;
 
-    foreach my $i ( 1 .. @ph ) {
-        my $ph   = $ph[ $i - 1 ];
-        my $ar   = $argh->{$ph};
+    foreach my $i ( 1 .. @$sourceRef ) {
+        my $ar = $sourceRef->[ $i - 1 ];
         my $href = join '#', @{ $ar->htmlWrite( $hb, $hsa ) };
-        @forlist = map {
-            /(.*)$ph\b(.*)/
-              ? ( $1, [ a => "x$i", href => $href ], $2 )
-              : $_
-        } @forlist;
         push @arglist,
           [ div =>
               [ [ '' => "x$i = " ], [ a => "$ar->{name}", href => $href ] ] ];
     }
+
     [
         p => [
             [
