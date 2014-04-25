@@ -1,5 +1,5 @@
 ---
-.: EDCM modernised FCP model
+.: EDCM modernised FCP model with checksums
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7
