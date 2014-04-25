@@ -523,7 +523,7 @@ sub timeOfDay179Runner {
             );
 
             $inData = Arithmetic(
-                name => "Normalised split of rate $r units by"
+                name => "Normalised split of rate $r units by "
                   . $blackYellowGreen
                   . 'distribution time band',
                 defaultFormat => '%soft',
