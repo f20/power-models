@@ -84,19 +84,19 @@ sub htmlDescribe {
           && $hb->{Inputs}
           && $hs == $hb->{Inputs};
     }
-    my $hsa = $hb->{Ancillary} || $hs;
     my @arglist;
     my @forlist = $formula ? split( "\n", $formula ) : ();
     @forlist = ( shift @forlist, map { [ br => undef ], $_ } @forlist )
       if @forlist > 1;
-
     foreach my $i ( 1 .. @$sourceRef ) {
         my $ar = $sourceRef->[ $i - 1 ];
-        my $href = join '#', @{ $ar->htmlWrite( $hb, $hsa ) };
+        my $href = join '#', @{ $ar->htmlWrite( $hb, $hs ) };
         push @arglist,
           [ div =>
               [ [ '' => "x$i = " ], [ a => "$ar->{name}", href => $href ] ] ];
     }
+
+    my $hsa = $hb->{Ancillary} || $hs;
 
     [
         p => [
