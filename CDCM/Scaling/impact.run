@@ -1,7 +1,7 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
 while [ ! -e run/make.pl ]; do pwd; cd ..; done
-RUN=_CRM-$$
+RUN=_CDCM-RM-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
@@ -14,6 +14,7 @@ perl ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=dcp
 perl ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=ss132
 perl ../run/export.pl -dcp=dcp123hybrid
 perl ../run/export.pl -dcp=ss132
+perl ../run/export.pl tscs 10 37
 
 cd ..
 mv _$RUN.tmp $RUN.tmp
