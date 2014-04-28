@@ -66,7 +66,7 @@ foreach (@ARGV) {
             $override{checksums}    = 'Tariff checksum 5; Model checksum 7';
         }
         elsif (/^-+debug/is) { $override{debug} = 1; }
-        elsif (/^-+(html|text|perl|yaml|graphviz)/is) {
+        elsif (/^-+(html|text|rtf|perl|yaml|graphviz)/is) {
             $maker->{addOptions}->( 'Export' . ucfirst( lc($1) ), 1 );
         }
         elsif (/^-+lib=(\S+)/is) {

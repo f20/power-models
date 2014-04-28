@@ -210,6 +210,11 @@ sub create {
             SpreadsheetModel::ExportText::writeText( $options, "$dumpLoc-" );
         }
 
+        if ( $settings{ExportRtf} ) {
+            require SpreadsheetModel::ExportRtf;
+            SpreadsheetModel::ExportRtf::write( $options, $dumpLoc );
+        }
+
         if ( $settings{ExportGraphviz} ) {
             require SpreadsheetModel::ExportGraphviz;
             my $dir = "$dumpLoc-graphs";

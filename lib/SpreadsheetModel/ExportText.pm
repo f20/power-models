@@ -39,6 +39,7 @@ sub writeText {
         open my $fh, '>', $tfile;
         binmode $fh, ':utf8';
         print $fh $yaml;
+        close $fh;
         rename $tfile, $file;
     }
     my $logger = $options->{logger};
@@ -47,7 +48,7 @@ sub writeText {
     my @end;
     foreach my $pot (qw(Datasets Labelsets Tables)) {
         my $file  = "$pathPrefix$pot.txt";
-        my $tfile = $pathPrefix  . $$ . '.' . $pot . 'txt';
+        my $tfile = $pathPrefix . $$ . '.' . $pot . 'txt';
         open my $fh, '>', $tfile;
         binmode $fh, ':utf8';
         my $url = $file;
@@ -76,13 +77,19 @@ sub writeText {
     $_->() foreach @end;
 }
 
+sub _pmarks {
+    ( local $_ ) = @_;
+    s/\r?\n/¶/gs;
+    $_;
+}
+
 sub _flatten {
     return join '', map { ref $_ eq 'ARRAY' ? _flatten(@$_) : $_ } @_
       if ref $_[0] eq 'ARRAY';
-    return $_[1] unless $_[0];
+    return _pmarks( $_[1] ) unless $_[0];
     my ( $e, $c ) = splice @_, 0, 2;
     ( $e eq 'fieldset' ? "-\n" : '' )
-      . ( !defined $c ? '' : ref $c ? _flatten($c) : $c )
+      . ( !defined $c ? '' : ref $c ? _flatten($c) : _pmarks($c) )
       . ( $e eq 'legend' || $e eq 'div' || $e eq 'p' ? "\n" : '' );
 }
 
