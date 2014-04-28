@@ -1,0 +1,16 @@
+---
+.: EDCM DCP 206 (FCP with no demand charge 1, with tables 1191-1193)
+PerlModule: EDCM2
+dcp130: 1
+ldnoRev: ldnorev5
+lowerIntermittentCredit: 1
+method: FCP
+noNegative: 1
+numLocationsDefault: 1200
+numTariffsDefault: 600
+protect: 1
+removeDemandCharge1: 1
+summaries: 1
+transparency: 1
+validation: lenientnomsg
+wantTables: 911
