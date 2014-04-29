@@ -1,12 +1,12 @@
 ---
-.: 'DCP 179 minimum change: counter-proof'
+.: 'DCP 179 minimum change: scenario 50%'
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
 dataOverride:
   p300:
     - ~
-    - Domestic: 0.1
+    - Domestic: 0.5
       Small Non Domestic: 0.5
 drm: top500gsp
 extraLevels: 1

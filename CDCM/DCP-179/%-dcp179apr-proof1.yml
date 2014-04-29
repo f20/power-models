@@ -1,13 +1,13 @@
 ---
-.: 'DCP 179 minimum change: proof of the pudding'
+.: 'DCP 179 minimum change: scenario 1%'
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
 dataOverride:
   p300:
     - ~
-    - Domestic: 0.001
-      Small Non Domestic: 0.001
+    - Domestic: 0.01
+      Small Non Domestic: 0.01
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4

@@ -19,7 +19,7 @@ linesAfter:
   - NHH UMS category C
   - NHH UMS category D
   - LV UMS (Pseudo HH Metered)
-  - LV Generation NHH
+  - LV Generation NHH or Aggregate HH
   - LV Sub Generation NHH
   - LV Generation Intermittent
   - LV Generation Non-Intermittent
@@ -47,7 +47,7 @@ linesBefore:
   - NHH UMS category C
   - NHH UMS category D
   - LV UMS (Pseudo HH Metered)
-  - LV Generation NHH
+  - LV Generation NHH or Aggregate HH
   - LV Sub Generation NHH
   - LV Generation Intermittent
   - LV Generation Non-Intermittent
