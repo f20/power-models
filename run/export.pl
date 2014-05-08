@@ -98,11 +98,11 @@ if ( grep { /\btscs/i } @ARGV ) {
 
 if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
     my $options = {};
-    $options->{colour} = 'orange' if grep { /^-*orange$/ } @ARGV;
     if ( my ($yml) = grep { /\.ya?ml$/is } @ARGV ) {
         require YAML;
         $options = YAML::LoadFile($yml);
     }
+    $options->{colour} = 'orange' if grep { /^-*orange$/ } @ARGV;
     my ($name) = map { /-+name=(.*)/i ? $1 : (); } @ARGV;
     my ($base) = map { /-+base=(.+)/i ? $1 : (); } @ARGV;
     if ($base) { $name ||= $dcp . ' v ' . $base; }
@@ -116,7 +116,7 @@ if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
         dcpName   => $name,
         basematch => sub { $_[0] =~ /$base/i; },
         dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
-        %$options
+        %$options,
     );
     my @outputs = map { /^-+(cdcm\S*|edcm\S*)/ ? $1 : (); } @ARGV;
     @outputs = qw(cdcm) unless @outputs;

@@ -1,13 +1,8 @@
 ---
-.: 'DCP 179 minimum change with paragraph 74: scenario 1%'
+.: DCP 179 minimum change solution with CTables and paragraph 74
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
-dataOverride:
-  p300:
-    - ~
-    - Domestic: 0.01
-      Small Non Domestic: 0.01
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
@@ -17,7 +12,7 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132par74
-summary: 1
+summary: consultation
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hh
 timeOfDay: timeOfDay179

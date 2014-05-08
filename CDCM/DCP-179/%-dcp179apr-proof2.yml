@@ -1,5 +1,5 @@
 ---
-.: 'DCP 179 minimum change: scenario 50%'
+.: 'DCP 179 minimum change with paragraph 74: scenario 50%'
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
@@ -16,7 +16,7 @@ noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
-standing: sub132
+standing: sub132par74
 summary: 1
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hh
