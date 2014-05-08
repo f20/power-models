@@ -1,0 +1,16 @@
+---
+.: Post-DCP 132 model that complies with paragraph 74
+PerlModule: CDCM
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132par74
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130
+timeOfDay: timeOfDaySpecial

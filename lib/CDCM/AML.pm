@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -95,8 +95,14 @@ sub diversity {
                     ? [qw(0 0 0 0 0 .2 1 1)]
                     : [qw(0 0 0 0 0 0 0 1)]
                   )
-                  : /HV sub/i   ? [qw(0 0 0 1 1 0 0 0)]
-                  : /HV/i       ? [qw(0 0 0 .2 1 1 0 0)]
+                  : /HV sub/i ? [qw(0 0 0 1 1 0 0 0)]
+                  : /HV/i     ? (
+                    !$model->{standing}
+                      || $model->{standing} !~ /par74/i
+                      || $componentMap->{$_}{'Capacity charge p/kVA/day'}
+                    ? [qw(0 0 0 .2 1 1 0 0)]
+                    : [qw(0 0 0 0 0 1 0 0)]
+                  )
                   : /33kV sub/i ? [
                     $model->{ehv} && $model->{ehv} =~ /cap|33/i
                     ? qw(1 1 1 0 0 0 0 0)
