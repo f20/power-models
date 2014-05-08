@@ -8,7 +8,7 @@ cd _$RUN.tmp
 
 ../run/make.pl ../CDCM/Current/%-post132par74.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
 ../run/import.pl -calc -sqlite *.xl*
-../run/export.pl -dcp=par74 -name='paragraph 74 compliance'
+../run/export.pl -dcp=post132par74 -name='paragraph 74 compliance'
 
 cd ..
 mv _$RUN.tmp $RUN.tmp
