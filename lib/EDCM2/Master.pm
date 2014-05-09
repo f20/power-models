@@ -1170,6 +1170,9 @@ EOT
 
     }
 
+    $model->{transparency}{olFYI}{1201} = $totalRevenue3
+      if $model->{transparency};
+
     push @{ $model->{calc3Tables} }, $totalRevenue3;
 
     my ( $scalingChargeFixed, $scalingChargeCapacity );
