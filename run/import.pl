@@ -143,7 +143,8 @@ foreach (@ARGV) {
     }
     if ($calculate) {
         warn "Calculating $infile";
-        my $originalFile = rel2abs($infile);
+        my $originalLocation = $infile;
+        my $originalFile     = rel2abs($infile);
         $originalFile =~ s/\.(xls.?)$/-$$.$1/i;
         rename $infile, $originalFile;
         if (`which osascript`) {
@@ -166,7 +167,7 @@ tell application "Microsoft Excel"
 end tell
 EOS
             close $fh;
-            rename $originalFile, $infile unless $calculate > 1;
+            rename $originalFile, $originalLocation;
         }
         elsif (`which ssconvert`) {
             my $b1 = $infile;
