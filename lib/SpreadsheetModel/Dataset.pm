@@ -159,9 +159,12 @@ sub lastRow {
 }
 
 sub dataset {
-    my ($self) = @_;
+    my ( $self, $wb, $ws ) = @_;
     return unless $self->{number} && $self->{dataset};
-    $self->{dataset}{ $self->{number} };
+    my $d = $self->{dataset}{ $self->{number} };
+    $d = $self->{dataset}{defaultClosure}->( $self->{number}, $wb, $ws )
+      if !$d && $self->{dataset}{defaultClosure};
+    ref $d eq 'CODE' ? $d->( $self->{number}, $wb, $ws ) : $d;
 }
 
 sub wsPrepare {
@@ -169,7 +172,7 @@ sub wsPrepare {
     my $noData =
       $wb->{noData} && ref $self eq __PACKAGE__ && !$self->{useIllustrative};
     my ( @overrideColumns, @rowKeys );
-    if ( my $dataset = $self->dataset ) {
+    if ( my $dataset = $self->dataset( $wb, $ws ) ) {
         my $fc = $self->{colOffset} || 0;
         ++$fc unless $self->{noRowLabels};
         my $lc = $fc + $self->lastCol;
@@ -183,7 +186,7 @@ sub wsPrepare {
                 s/ +/ /g;
                 s/^ //;
                 s/ $//;
-                $_
+                $_;
               } $self->{rows} ? @{ $self->{rows}{list} }
               : $self->{location}
               && ref $self->{location} eq 'SpreadsheetModel::Columnset'
@@ -413,6 +416,7 @@ sub wsWrite {
 
     my $dataset;
     $dataset = $self->{dataset}{ $self->{number} } if $self->{number};
+    undef $dataset unless ref $dataset eq 'ARRAY';
 
     if (OLD_STYLE_SCRIBBLES) {
         my $note;

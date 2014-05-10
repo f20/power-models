@@ -5,7 +5,7 @@ arp: 1
 drm: top500gsp
 extraLevels: 1
 matrices: big
-nickName: Model 100
+nickName: CDCM model (original)
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
@@ -13,5 +13,5 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: 1
+summary: arp
 tariffs: commongensub

@@ -1,19 +1,16 @@
 ---
-.: Micro-model for ARP after DCP 163
+.: Cleaned-up model implementing DCP 163
 PerlModule: CDCM
-arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
-nickName: CDCM model (after DCP 163)
-noLLFCs: 1
-noLinks: 1
+matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: arpstatistics
+summary: 1
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163
 timeOfDay: timeOfDaySpecial

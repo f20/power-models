@@ -315,7 +315,7 @@ sub summaryOfRevenues {
     );
 
     push @{ $model->{overallSummary} }, Columnset(
-        name => 'Revenue summary'
+        name => $model->{summary} =~ /arp/i ? '' : 'Revenue summary'
           . (
             $model->{inYear}
             ? (
@@ -353,80 +353,82 @@ sub summaryOfRevenues {
 
             $averageByMpan,
 
-            1 ? () : Arithmetic(
-                name          => 'Average p/MPAN/day',
-                defaultFormat => '0.00softnz',
-                arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
-                arguments     => {
-                    IV1 => $revenuesFromTariffs,
-                    IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
-                    IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
-                    IV4 => $daysInYear,
-                }
-            ),
+            $model->{summary} =~ /arp/i ? () : (
 
-            1 ? () : Arithmetic(
-                name          => 'Average p/kVA/day',
-                defaultFormat => '0.00softnz',
-                arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
-                arguments     => {
-                    IV1 => $revenuesFromTariffs,
-                    IV2 => $volumeData->{'Capacity charge p/kVA/day'},
-                    IV3 => $volumeData->{'Capacity charge p/kVA/day'},
-                    IV4 => $daysInYear,
-                }
-            ),
+                1 ? () : Arithmetic(
+                    name          => 'Average p/MPAN/day',
+                    defaultFormat => '0.00softnz',
+                    arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
+                    arguments     => {
+                        IV1 => $revenuesFromTariffs,
+                        IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        IV4 => $daysInYear,
+                    }
+                ),
 
-            0 ? () : $averageUnitRate,
+                1 ? () : Arithmetic(
+                    name          => 'Average p/kVA/day',
+                    defaultFormat => '0.00softnz',
+                    arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
+                    arguments     => {
+                        IV1 => $revenuesFromTariffs,
+                        IV2 => $volumeData->{'Capacity charge p/kVA/day'},
+                        IV3 => $volumeData->{'Capacity charge p/kVA/day'},
+                        IV4 => $daysInYear,
+                    }
+                ),
 
-            1 ? () : (
-                map {
-                    Stack(
-                        sources       => [$_],
-                        defaultFormat => !$_->{defaultFormat}
-                          || $_->{defaultFormat} =~ /000/
-                        ? '0.000copynz'
-                        : '0.00copynz'
-                    );
-                } @{ $model->{allTariffColumns} }
-            ),
+                0 ? () : $averageUnitRate,
 
-            @unitProportion ? ( @revenuesFromUnits, @unitProportion ) : (),
+                1 ? () : (
+                    map {
+                        Stack(
+                            sources       => [$_],
+                            defaultFormat => !$_->{defaultFormat}
+                              || $_->{defaultFormat} =~ /000/
+                            ? '0.000copynz'
+                            : '0.00copynz'
+                        );
+                    } @{ $model->{allTariffColumns} }
+                ),
 
-            $fixedProportion ? $fixedProportion : (),
+                @unitProportion ? ( @revenuesFromUnits, @unitProportion ) : (),
 
-            $capacityProportion ? $capacityProportion : (),
+                $fixedProportion ? $fixedProportion : (),
 
-            $unauthProportion ? $unauthProportion : (),
+                $capacityProportion ? $capacityProportion : (),
 
-            $reactiveProportion ? $reactiveProportion : (),
+                $unauthProportion ? $unauthProportion : (),
 
-            1 ? () : Arithmetic(
-                name          => 'Fixed charge proportion',
-                defaultFormat => '%softnz',
-                arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
-                arguments     => {
-                    IV1 => $revenuesFromTariffs,
-                    IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
-                    IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
-                    IV4 => $daysInYear,
-                    IV5 => $tariffTable->{'Fixed charge p/MPAN/day'},
-                }
-            ),
+                $reactiveProportion ? $reactiveProportion : (),
 
-            1 ? () : Arithmetic(
-                name          => 'Capacity charge proportion',
-                defaultFormat => '%softnz',
-                arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
-                arguments     => {
-                    IV1 => $revenuesFromTariffs,
-                    IV2 => $volumeData->{'Capacity charge p/kVA/day'},
-                    IV3 => $volumeData->{'Capacity charge p/kVA/day'},
-                    IV4 => $daysInYear,
-                    IV5 => $tariffTable->{'Capacity charge p/kVA/day'},
-                }
-            ),
+                1 ? () : Arithmetic(
+                    name          => 'Fixed charge proportion',
+                    defaultFormat => '%softnz',
+                    arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
+                    arguments     => {
+                        IV1 => $revenuesFromTariffs,
+                        IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        IV4 => $daysInYear,
+                        IV5 => $tariffTable->{'Fixed charge p/MPAN/day'},
+                    }
+                ),
 
+                1 ? () : Arithmetic(
+                    name          => 'Capacity charge proportion',
+                    defaultFormat => '%softnz',
+                    arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
+                    arguments     => {
+                        IV1 => $revenuesFromTariffs,
+                        IV2 => $volumeData->{'Capacity charge p/kVA/day'},
+                        IV3 => $volumeData->{'Capacity charge p/kVA/day'},
+                        IV4 => $daysInYear,
+                        IV5 => $tariffTable->{'Capacity charge p/kVA/day'},
+                    }
+                ),
+            )
           ]
 
     );
@@ -543,7 +545,7 @@ sub summaryOfRevenues {
             $totalRevenuesFromUnauth   ? $totalRevenuesFromUnauth   : (),
             $totalRevenuesFromReactive ? $totalRevenuesFromReactive : (),
         ]
-      );
+      ) unless $model->{summary} =~ /arp/i;
 
     $revenuesFromTariffs;
 

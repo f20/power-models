@@ -199,7 +199,6 @@ sub table1001 {
                               } keys %$data;
                         }
                         defined $v ? $v : '#VALUE!', $format;
-
                     };
                 };
                 my $dataEntry = $dataEntryMaker->($format);
@@ -334,13 +333,17 @@ sub table1001 {
 
         my %avoidDoublePush;
 
+        my $moneyInputFormat =
+          $model->{targetRevenue} =~ /million/i
+          ? 'millionhard'
+          : '0hard';
         my $inputs = Dataset(
             name       => 'Value',
             rows       => $labelset,
-            rowFormats => [ map { /A2/ ? '0.000hard' : undef; } @descriptions ],
-            defaultFormat => $model->{targetRevenue} =~ /million/i
-            ? 'millionhard'
-            : '0hard',
+            rowFormats => [
+                map { /^A2/ ? '0.000hard' : /=/ ? undef : $moneyInputFormat; }
+                  @descriptions
+            ],
             data => [ map { /=/ ? undef : ''; } @descriptions ],
         );
 
@@ -446,7 +449,7 @@ sub table1001 {
         my $rowFormatsc =
           [ map { /=/ ? $textnocolourbc : undef; } @descriptions ];
 
-        Columnset(
+        $model->{table1001} = Columnset(
             name     => 'CDCM target revenue',
             number   => 1001,
             appendTo => $model->{inputTables},

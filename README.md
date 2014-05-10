@@ -32,7 +32,9 @@ Step 5. Once things are working, you can try the following sample commands to ex
     perl run/make.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
     perl run/make.pl EDCM/Issue-70/%-i70-FCP.yml EDCM/Issue-70/%-i70-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/WPD-WestM.yml Extras/Blank.yml
     perl run/make.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-model132.yml CDCM/Current/Blank1001.yml
-    perl run/make.pl -pickbest -onefile=ARP-South-Wales CDCM/Previous/%-micro100.yml CDCM/Current/%-micro132.yml CDCM/Data-20??-02/*Wal*.yml CDCM/Current/Blank1001.yml CDCM/Current/Blank1001.yml CDCM/Current/Blank1001.yml CDCM/Current/Blank1001.yml
+    perl run/make.pl -pickbest -template=%%-ARP CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wal*.yml CDCM/Future/Data-20??-02/*Wal*.yml
+    perl run/make.pl -pickbest -template=%%-ARP-179 CDCM/*/%-micro*.yml CDCM/Data-20??-02/*Wal*.yml CDCM/Future/Data-20??-02/*Wal*.yml
+    perl run/make.pl -pickbest -template=%%-test CDCM/Current/%-micro*.yml CDCM/Data-2014-02/ENW* CDCM/Future/Data-2015-02/ENW*
     
 This software is licensed under open source licences. Check the source code for details.
 
@@ -45,4 +47,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 1 May 2014.
+Franck Latrémolière, 2 May 2014.

@@ -299,6 +299,10 @@ sub wsWrite {
 
     my $dataset;
     $dataset = $self->{dataset}{ $self->{number} } if $self->{number};
+    $dataset = $self->{dataset}{defaultClosure}->( $self->{number}, $wb, $ws )
+      if !$dataset && $self->{dataset}{defaultClosure};
+    $dataset = $dataset->( $self->{number}, $wb, $ws )
+      if ref $dataset eq 'CODE';
 
     if ( $self->{name} ) {
 
@@ -580,7 +584,6 @@ use ->shortName here.
                         s/ +/ /g;
                         s/^ //;
                         s/ $//;
-                        $_ = "a$_" if /^[0-9]/;
                         $nd->{$_};
                       } $self->{rows}
                       ? @{ $self->{rows}{list} }

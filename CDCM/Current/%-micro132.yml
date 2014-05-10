@@ -5,7 +5,7 @@ arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
-nickName: After DCP 132
+nickName: CDCM model (after DCP 132)
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
@@ -13,7 +13,7 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: 1
+summary: arpstatistics
 targetRevenue: dcp132
 tariffs: commongensubdcp130
 timeOfDay: timeOfDaySpecial

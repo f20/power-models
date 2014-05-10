@@ -44,15 +44,14 @@ sub sheetPriority {
             : qw(Index Overview)
         ) ? ( $sheet =~ /^(?:Overview|Index)$/is ? 2 : 1 ) : 0
     ) unless $_[0]{arp};
-    {
-        'ARP$'         => 80,
-        'Comparisons$' => 70,
+    my $score = {
+        'Index$'       => 80,
         'Assumptions$' => 60,
-        Index          => 30,
-        Tariffs        => 20,
-        Summary        => 10,
-        'M-ATW'        => 5,
+        'Tariffs$'     => 40,
+        'Summary$'     => 30,
     }->{$sheet};
+    $score = 50 if !$score && $sheet =~ /\$$/;
+    $score;
 }
 
 sub worksheetsAndClosures {
@@ -79,13 +78,16 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
         $wsheet->{nextFree} = 2;
-        my ( $sh, $ro, $co ) = Dataset(
-            number        => 1000,
-            dataset       => $model->{dataset},
-            name          => 'Company, charging year, data version',
-            cols          => Labelset( list => [qw(Company Year Version)] ),
-            defaultFormat => 'texthard',
-            data => [ 'Illustrative company', 'Year', 'Illustrative dataset' ]
+        my ( $sh, $ro, $co ) = (
+            $model->{table1000} = Dataset(
+                number        => 1000,
+                dataset       => $model->{dataset},
+                name          => 'Company, charging year, data version',
+                cols          => Labelset( list => [qw(Company Year Version)] ),
+                defaultFormat => 'texthard',
+                data =>
+                  [ 'Illustrative company', 'Year', 'Illustrative dataset' ]
+            )
         )->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
         $wbook->{titleAppend} =
@@ -352,9 +354,10 @@ sub worksheetsAndClosures {
 
       'Tariffs' => sub {
         my ($wsheet) = @_;
-        0 and $wsheet->activate;
-        $wsheet->freeze_panes( 1, 1 );
-        $wsheet->fit_to_pages( 1, 1 );
+        unless ( $model->{arp} ) {
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->fit_to_pages( 1, 1 );
+        }
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
         $wbook->{lastSheetNumber} = 36 if $wbook->{lastSheetNumber} < 36;
@@ -421,13 +424,15 @@ EOL
 
       'Summary' => sub {
         my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
-        $wsheet->fit_to_pages( 1, 1 );
+        unless ( $model->{arp} ) {
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->fit_to_pages( 1, 1 );
+        }
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
         push @{ $model->{sheetLinks} }, my $notes = Notes(
-            name  => 'Summary statistics',
+            name  => 'Summary',
             lines => [
                 split /\n/,
                 <<'EOL'
@@ -442,6 +447,34 @@ EOL
       }
 
       if $model->{summary} && $model->{summary} !~ /change/i;
+
+    push @wsheetsAndClosures,
+
+      'Stats' => sub {
+        my ($wsheet) = @_;
+        $wsheet->set_landscape;
+        unless ( $model->{arp} ) {
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->set_column( 0, 0,   50 );
+            $wsheet->set_column( 1, 250, 20 );
+        }
+        push @{ $model->{sheetLinks} }, my $notes = Notes(
+            name  => 'Statistics',
+            lines => [
+                split /\n/,
+                <<'EOL'
+This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
+EOL
+            ]
+        );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $notes,
+          @{ $model->{statisticsTables} };
+
+      }
+
+      if $model->{statisticsTables};
 
     push @wsheetsAndClosures,
 
@@ -641,19 +674,23 @@ EOL
 
     return @wsheetsAndClosures unless $model->{arp};
 
-    my %closures = @wsheetsAndClosures;
-    @wsheetsAndClosures = (
-        CDCM => sub {
-            my ($wsheet) = @_;
-            map { $_->(@_) } grep { $_ } map { $closures{$_} } qw(Input Adjust);
-            $model->technicalNotes->wsWrite( $wbook, $wsheet );
-        },
-        map { $_ => $closures{$_}; } grep { $closures{$_} } qw(Tariffs Summary)
-    );
-    return $model->{arpSharedData}
+    for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
+        if ( $wsheetsAndClosures[$i] =~ /^(Index$|Overview$|M-)/ ) {
+            splice @wsheetsAndClosures, $i, 2;
+            $i -= 2;
+        }
+        elsif ( $wsheetsAndClosures[$i] =~ /^(Tariffs|Summary)$/ ) {
+            $wsheetsAndClosures[$i] .= '$';
+        }
+        else {
+            $wsheetsAndClosures[$i] = "CDCM/$wsheetsAndClosures[$i]";
+        }
+    }
+
+    $model->{arpSharedData}
+      ? $model->{arpSharedData}
       ->worksheetsAndClosuresWithArp( $model, $wbook, @wsheetsAndClosures )
-      if $model->{arpSharedData};
-    @wsheetsAndClosures;
+      : @wsheetsAndClosures;
 
 }
 

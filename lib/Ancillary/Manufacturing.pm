@@ -58,15 +58,20 @@ sub factory {
     my $self = bless {}, $class;
     my $threads1 = 2;
     my @options;
-    my ( $pickBestRules, $workbookModule, @rulesets, @datasets, %files );
+    my ( $workbookModule, @rulesets, @datasets, %files, $pickBestRules );
 
     $self->{processStream} = sub {
-        my ( $fileHandle, $fileName ) = @_;
-        binmode $fileHandle, ':utf8';
-        local undef $/;
-        my $blob    = <$fileHandle>;
-        my @objects = ();
-        if ( $blob =~ /^---/s ) {
+        my ( $blob, $fileName ) = @_;
+        if ( ref $blob eq 'GLOB' ) {
+            binmode $blob, ':utf8';
+            local undef $/;
+            $blob = <$blob>;
+        }
+        my @objects;
+        if ( ref $blob ) {
+            @objects = $blob;
+        }
+        elsif ( $blob =~ /^---/s ) {
             @objects = length($blob) < 32_768
               || defined $fileName
               && $fileName =~ /%/ ? YAML::Load($blob) : { yaml => $blob };
@@ -296,7 +301,9 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
             $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
             $spreadsheetFile .= $rule->{revisionText};
         }
-        $spreadsheetFile =~ s/%/$data->{'~datasetName'}/;
+        $spreadsheetFile =~
+          s/%%/($data->{'~datasetName'}=~m#(.*)-[0-9]{4}-[0-9]{2}#)[0]/eg;
+        $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
         $spreadsheetFile .= eval { $workbookModule->fileExtension; }
           || ( $workbookModule =~ /xlsx/i ? '.xlsx' : '.xls' );
         if ( $files{$spreadsheetFile} ) {
@@ -319,12 +326,13 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         foreach my $data (@datasets) {
             my @scored;
             my $metadata;
-            $metadata =
-              [ $data->{'~datasetSource'}{file} =~
-                  /([A-Z0-9-]+)\/(?:Data.*(20[0-9][0-9]-[0-9][0-9]))?.*/ ]
-              if $pickBestRules
-              && $data->{'~datasetSource'}
-              && $data->{'~datasetSource'}{file};
+            $metadata = [
+                  $data->{'~datasetSource'} && $data->{'~datasetSource'}{file}
+                ? $data->{'~datasetSource'}{file} =~
+                  /([A-Z0-9-]+)\/(?:.*(20[0-9][0-9]-[0-9][0-9]))?.*/
+                : ''
+              ]
+              if $pickBestRules;
             foreach my $rule (@rulesets) {
                 next
                   if $rule->{wantTables} && keys %{ $data->{dataset} }

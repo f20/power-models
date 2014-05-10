@@ -96,21 +96,36 @@ sub create {
     my ( %allClosures, @wsheetShowOrder, %wsheetActive, %wsheetPassword );
     my @forwardLinkFindingRun;
     my $multiModelSharing;
+    my %sheetDisplayName;
+
+    foreach my $i ( 0 .. $#optionArray ) {
+        if ( $optionArray[$i]{dataset} ) {
+            $wbook->{noData} = !$optionArray[$i]{illustrative};
+            if ( my $yaml = delete $optionArray[$i]{dataset}{yaml} )
+            {                            # deferred parsing
+                require YAML;
+                $optionArray[$i]{dataset} = YAML::Load($yaml);
+            }
+            if ( my $prev = $optionArray[$i]{dataset}{baseDataset} ) {
+                unless ( $prev > $i ) {
+                    push @{ $optionArray[ $i - $prev ]{requestsToSeeModel} },
+                      sub {
+                        $optionArray[$i]{sourceModel} = $_[0];
+                      };
+                }
+            }
+            else {
+                $optionArray[$i]{dataset} =
+                  _applyDataOverride(
+                    Storable::dclone( $optionArray[$i]{dataset} ),
+                    $optionArray[$i]{dataOverride} )
+                  if $optionArray[$i]{dataOverride};
+            }
+        }
+    }
 
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
-        if ( $options->{dataset} ) {
-            $wbook->{noData} = !$options->{illustrative};
-            if ( my $yaml = delete $options->{dataset}{yaml} )
-            {                            # deferred parsing
-                require YAML;
-                $options->{dataset} = YAML::Load($yaml);
-            }
-            $options->{dataset} =
-              _applyDataOverride( Storable::dclone( $options->{dataset} ),
-                $options->{dataOverride} )
-              if $options->{dataOverride} && $options->{dataset};
-        }
         my $modelCount = $_ ? ".$_" : '';
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
         $options->{PerlModule}
@@ -118,6 +133,8 @@ sub create {
             \@optionArray )
           if UNIVERSAL::can( $options->{PerlModule}, 'setUpMultiModelSharing' );
         my $model = $options->{PerlModule}->new(%$options);
+        map { $_->($model); } @{ $options->{requestsToSeeModel} }
+          if $options->{requestsToSeeModel};
         $forwardLinkFindingRun[$_] = $model if $options->{forwardLinks};
         $options->{revisionText} ||= '';
         0 and $wbook->{titlePrefix} ||= $options->{revisionText};
@@ -135,7 +152,9 @@ sub create {
         while ( ( local $_, my $closure ) = splice @pairs, 0, 2 ) {
             my $priority = $canPriority ? $model->sheetPriority($_)
               || 0 : /^(?:Index|Overview)$/is ? 1 : 0;
-            my $fullName = /(.*)\$$/ ? $1 : $_ . $modelCount;
+            my $fullName = $_ . $modelCount;
+            $sheetDisplayName{$fullName} =
+              m#(.*)/# ? $1 . $modelCount : /(.*)\$$/ ? $1 : $_ . $modelCount;
             push @{ $options->{wsheetRunOrder} }, $fullName;
             push @{ $wsheetShowOrder[$priority] }, $fullName;
             $allClosures{$fullName} = $closure;
@@ -150,16 +169,22 @@ sub create {
     my %wsheet;
 
     for ( my $i = $#wsheetShowOrder ; $i >= 0 ; --$i ) {
+        my %byDisplayName;
         foreach ( @{ $wsheetShowOrder[$i] } ) {
-            my $ws = $wbook->add_worksheet($_);
-            $ws->activate if exists $wsheetActive{$_};
-            $ws->set_paper(9);
-            $ws->fit_to_pages( 1, 0 );
-            $ws->set_header("&L&A&C&R&P of &N");
-            $ws->set_footer("&F");
-            $ws->hide_gridlines(2);
-            $ws->protect( $wsheetPassword{$_} ) if exists $wsheetPassword{$_};
-            $wsheet{$_} = $ws;
+            my $dn = $sheetDisplayName{$_};
+            my $ws = $byDisplayName{$dn};
+            unless ($ws) {
+                $ws = $wbook->add_worksheet($dn);
+                $ws->set_paper(9);
+                $ws->fit_to_pages( 1, 0 );
+                $ws->set_header("&L&A&C&R&P of &N");
+                $ws->set_footer("&F");
+                $ws->hide_gridlines(2);
+                $ws->protect( $wsheetPassword{$_} )
+                  if exists $wsheetPassword{$_};
+                $ws->activate if exists $wsheetActive{$_};
+            }
+            $wsheet{$_} = $byDisplayName{$dn} = $ws;
         }
     }
 
@@ -190,8 +215,11 @@ sub create {
           foreach grep { exists $options->{$_} }
           qw(copy debug forwardLinks logAll logger noLinks rowHeight validation);
 
-        $allClosures{$_}->( $wsheet{$_} )
-          foreach @{ $options->{wsheetRunOrder} };
+        foreach ( @{ $options->{wsheetRunOrder} } ) {
+            delete $wsheet{$_}{sheetNumber};
+            delete $wsheet{$_}{lastTableNumber};
+            $allClosures{$_}->( $wsheet{$_} );
+        }
 
         my $dumpLoc = $fileName;
         $dumpLoc =~ s/\.xlsx?$//i;

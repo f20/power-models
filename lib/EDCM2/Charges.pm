@@ -210,19 +210,19 @@ sub chargesFcpLric {
         data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
-    my $capacityChargeBeforeScaling = Arithmetic(
-        name          => 'FCP/LRIC capacity charge p/kVA/day',
+    $model->{method} =~ /FCP/i
+      ? Arithmetic(
+        name          => 'FCP capacity charge p/kVA/day',
         defaultFormat => '0.00softnz',
         arithmetic    => '=IF(IV3=0,IV1+IV2,IV11)',
         arguments     => {
             IV1  => $demandCapacityFcpLric,
             IV11 => $demandCapacityFcpLric,
             IV3  => $activeCoincidenceUndoctored,
-            IV2  => $demandConsumptionFcpLric
+            IV2  => $demandConsumptionFcpLric,
         }
-    );
-
-    $capacityChargeBeforeScaling, $genCredit, $unitRateFcpLric,
+      )
+      : $demandCapacityFcpLric, $genCredit, $unitRateFcpLric,
       $genCreditCapacity, $demandConsumptionFcpLric;
 
 }

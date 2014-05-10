@@ -1,5 +1,5 @@
 ---
-.: Cleaned-up model with additional information (post DCP 163)
+.: Cleaned-up model (post DCP 163 with forward links)
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp

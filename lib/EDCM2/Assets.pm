@@ -139,7 +139,8 @@ sub notionalAssets {
 
     my $customerCategory;
 
-    # this should only run if $model->{legacy201}
+    # Should upgrade to code from quartiles instead of this mess
+
     push @{ $model->{tablesG} },
       $customerCategory = Arithmetic(
         name       => 'Tariff type and category',

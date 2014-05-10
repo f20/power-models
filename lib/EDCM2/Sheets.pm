@@ -103,9 +103,11 @@ sub worksheetsAndClosures {
         Impact => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   16 );
-            $wsheet->set_column( 1, 10,  40 );
-            $wsheet->set_column( 2, 250, 16 );
+            $wsheet->set_column( 0,  0,   16 );
+            $wsheet->set_column( 1,  1,   40 );
+            $wsheet->set_column( 2,  8,   16 );
+            $wsheet->set_column( 9,  9,   40 );
+            $wsheet->set_column( 10, 250, 16 );
             my $noLinks = delete $wbook->{noLinks};
             $wbook->{noLinks} = 1;
             $_->wsWrite( $wbook, $wsheet )

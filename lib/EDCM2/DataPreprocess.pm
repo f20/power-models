@@ -36,6 +36,15 @@ sub preprocessDataset {
 
     my ($model) = @_;
 
+    if ( my $d = $model->{dataset} ) {
+        foreach (
+            qw(numTariffs numLocations numExtraTariffs numSampleTariffs numExtraLocations)
+          )
+        {
+            $model->{$_} = $d->{$_} if exists $d->{$_};
+        }
+    }
+
     $model->{dataset}{1100}[3]{'Company charging year data version'} =
       $model->{version}
       if $model->{version};

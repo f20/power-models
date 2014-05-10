@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 201-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -54,7 +54,8 @@ sub mangleLoadFlowInputs {
     my $existingLocs = $inputs[0]{rows};
     my @newLocs =
       $model->{numExtraLocations}
-      ? map { 4000 + $_ } 1 .. $model->{numExtraLocations}
+      ? map { 9999 - $model->{numExtraLocations} + $_ }
+      1 .. $model->{numExtraLocations}
       : ();
     my $data = [ map { '' } @newLocs ];
     my $newLocs = Labelset(
@@ -120,7 +121,7 @@ sub mangleLoadFlowInputs {
 sub mangleTariffInputs {
     my ( $model, @columns ) = @_;
 
-=head Columns
+=head Columns (not compatible with DCP 189)
 
 0	tariffs
 1	importCapacity
@@ -154,11 +155,15 @@ sub mangleTariffInputs {
       ( $model->{numSampleTariffs} || 0 ) > 1;
     my $existingTariffs   = $columns[0]{rows};
     my @additionalTariffs = (
-        $model->{numExtraTariffs} ? map { 'New tariff ' . ( 500 + $_ ) }
-          1 .. $model->{numExtraTariffs}
+        $model->{numExtraTariffs} ?
+          map { chr( 64 + int( $_ / 26 ) ) . chr( 65 + $_ % 26 ) . ' [ADDED]'; }
+          0 .. ( $model->{numExtraLocations} - 1 )
         : (),
-        $model->{numSampleTariffs} ? map { 'Sample ' . ( 900 + $_ ) }
-          1 .. $model->{numSampleTariffs}
+        $model->{numSampleTariffs} ?
+          map { chr( 64 + int( $_ / 26 ) ) . chr( 65 + $_ % 26 ); }
+          ( $model->{numExtraTariffs} || 0 ) .. (
+            ( $model->{numExtraTariffs} || 0 ) + $model->{numSampleTariffs} - 1
+          )
         : ()
     );
     my $newTariffs = Labelset(
@@ -278,14 +283,24 @@ sub mangleTariffInputs {
         name    => 'Tariff scenarios: customer and usage',
         number  => 937,
         columns => [
+            Stack(
+                sources       => [ $model->{amendedTariffset} ],
+                defaultFormat => 'textcopy',
+            ),
             $newTariffsActualRedDemand,
-            map { $_->{sources}[1] } @columns[ 10, 11, 13, 12, 16, 15, 14 ]
+            ( map { $_->{sources}[1] } @columns[ 10, 11, 13, 12, 16, 15, 14 ] ),
         ],
       ),
       Columnset(
         name    => 'Tariff scenarios: distribution network data',
         number  => 938,
-        columns => [ map { $_->{sources}[1] } @columns[ 7, 6, 8, 9 ] ],
+        columns => [
+            ( map { $_->{sources}[1] } @columns[ 7, 6, 8, 9 ] ),
+            Stack(
+                sources       => [ $model->{amendedTariffset} ],
+                defaultFormat => 'textcopy',
+            ),
+        ],
       );
 
     push @columns,

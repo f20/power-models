@@ -32,7 +32,7 @@ ok( test_sumif( newTestArea('test-sumif_2.xlsx'), '"forty two"' ) );
 if ( -f 'README.md' ) {
     system 'grep ^\  README.md | while read x; do $x; done';
     system
-'perl run/make.pl -onefile ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/*';
+'perl run/make.pl -template ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/*';
 }
 
 sub newTestArea {

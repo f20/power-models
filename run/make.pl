@@ -65,7 +65,8 @@ foreach (@ARGV) {
             $override{activeSheets} = 'Result|Tariff';
             $override{checksums}    = 'Tariff checksum 5; Model checksum 7';
         }
-        elsif (/^-+debug/is) { $override{debug} = 1; }
+        elsif (/^-+debug/is)   { $override{debug}        = 1; }
+        elsif (/^-+forward/is) { $override{forwardLinks} = 1; }
         elsif (/^-+(html|text|rtf|perl|yaml|graphviz)/is) {
             $maker->{addOptions}->( 'Export' . ucfirst( lc($1) ), 1 );
         }
@@ -91,11 +92,9 @@ foreach (@ARGV) {
         }
         elsif (/^-+orange/is) { $override{colour} = 'orange'; }
         elsif (/^-+gold/is) {
-            $override{colour}   = 'gold';
+            $override{colour} = 'gold';
+            srand();
             $override{password} = rand();
-        }
-        elsif (/^-+onefile(=(.+))?/is) {
-            $override{template} = $2 || time . "-$$";
         }
         elsif (/^-+pickbest/is)         { $maker->{pickBestRules}->(); }
         elsif (/^-+password=(.+)/is)    { $override{password} = $1; }
@@ -103,6 +102,9 @@ foreach (@ARGV) {
         elsif (/^-+(right.*)/is)        { $override{alignment} = $1; }
         elsif (/^-+single/is)           { $threads = 1; }
         elsif (/^-+([0-9]+)/is)         { $threads = $1; }
+        elsif (/^-+template(?:=(.+))?/is) {
+            $override{template} = $1 || ( time . "-$$" );
+        }
         elsif (/^-+xdata=?(.*)/is) {
             $xdata .= "$1\n";
             unless ($xdata) {

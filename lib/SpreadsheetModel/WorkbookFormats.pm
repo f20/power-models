@@ -293,6 +293,13 @@ Keys used in %$options:
         '%copy'   => [ locked => 1, @sizeNumber, @numPercent, @colourCopy, ],
         '%hard'   => [ locked => 0, @sizeNumber, @numPercent, @colourHard, ],
         '%soft'   => [ locked => 1, @sizeNumber, @numPercent, @colourSoft, ],
+        '%hardpm' => [
+            locked => 0,
+            @sizeNumber,
+            num_format => $plus . '????0.0%;' . $minus . '????0.0%;[Green]=;@',
+            align      => 'center',
+            @colourHard,
+        ],
         '%softpm' => [
             locked => 1,
             @sizeNumber,

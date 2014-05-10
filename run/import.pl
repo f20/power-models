@@ -131,6 +131,11 @@ foreach (@ARGV) {
         $calculate = 1;
         next;
     }
+    if (/^-+convert/i) {
+        warn "Converting before";
+        $calculate = 2;
+        next;
+    }
     my $infile = $_;
     unless ( -f $infile ) {
         warn "No such file: $infile";
@@ -138,27 +143,37 @@ foreach (@ARGV) {
     }
     if ($calculate) {
         warn "Calculating $infile";
-        my $book2 = $infile;
-        $book2 =~ s/\.(xlsx?)$/-$$.$1/i;
-        rename $infile, $book2;
-        if (`which osascript`) { # this fails where directory paths are involved
+        my $originalFile = rel2abs($infile);
+        $originalFile =~ s/\.(xls.?)$/-$$.$1/i;
+        rename $infile, $originalFile;
+        if (`which osascript`) {
+            my $savingCommands = 'close theWorkbook saving yes';
+            if ( $calculate > 1 ) {
+                $infile =~ s/\.xls.?$/\.xls/i;
+                my $calcFile = rel2abs($infile);
+                $savingCommands = <<EOS;
+	set theFile to POSIX file "$calcFile" as string
+	save workbook as theWorkbook filename theFile file format Excel98to2004 file format
+	close active workbook saving no
+EOS
+            }
             open my $fh, '| osascript';
             print $fh <<EOS;
 tell application "Microsoft Excel"
-	set wbf to POSIX file "$cwd/$book2"
-	set wb to open workbook workbook file name wbf
+	set theWorkbook to open workbook workbook file name POSIX file "$originalFile"
 	set calculate before save to true
-	close wb saving yes
+	$savingCommands
 end tell
 EOS
             close $fh;
-            rename $book2, $infile;
+            rename $originalFile, $infile unless $calculate > 1;
         }
         elsif (`which ssconvert`) {
-            my $book = $infile;
-            $book =~ s/'/'"'"'/g;
-            $book2 =~ s/'/'"'"'/g;
-            system qq%ssconvert --recalc '$book2' '$book' 2>/dev/null%;
+            my $b1 = $infile;
+            my $b2 = $originalFile;
+            $b1 =~ s/'/'"'"'/g;
+            $b2 =~ s/'/'"'"'/g;
+            system qq%ssconvert --recalc '$b2' '$b1' 2>/dev/null%;
         }
         else {
             die 'I do not know how to calculate';

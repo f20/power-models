@@ -44,10 +44,6 @@ sub log {
           || $#{ $_->{sources} }
           || $_->{cols} != $_->{sources}[0]{cols}
           || $_->{rows} != $_->{sources}[0]{rows}
-
-          # this is probably a heuristic for some more precise conditions
-          # improved in June 2009
-
     } @_;
 }
 

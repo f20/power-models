@@ -60,7 +60,7 @@ sub requiredModulesForRuleset {
     die "Time of day module $todmodule is unsafe"
       unless $todmodule =~ /^[a-zA-Z0-9_]+$/s;
 
-    $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : (),
+    "CDCM::$todmodule",
 
       $ruleset->{inYear} ? qw(CDCM::InYearAdjust CDCM::InYearSummaries)
       : $ruleset->{addVolumes}
@@ -74,7 +74,10 @@ sub requiredModulesForRuleset {
       $ruleset->{scaler}
       && $ruleset->{scaler} =~ /DCP123/i ? 'CDCM::Matching123' : (),
 
-      "CDCM::$todmodule";
+      $ruleset->{summary}
+      && $ruleset->{summary} =~ /stat(?:istic)?s/i ? 'CDCM::Statistics' : (),
+
+      $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
 
 }
 
@@ -95,12 +98,23 @@ sub new {
     $model->{timebands} = 10 if $model->{timebands} > 10;
     $model->{drm} = 'top500gsp' unless $model->{drm};
 
-    # Keep CDCM::DataPreprocess out of the scope of revision numbers.
+    # Keep CDCM::DataPreprocess and CDCM::DataDerivative
+    # out of the scope of revision number construction.
+
     if ( $model->{dataset}
         && keys %{ $model->{dataset} } )
     {
         if ( eval { require CDCM::DataPreprocess; } ) {
             $model->preprocessDataset;
+        }
+        else {
+            warn $@;
+        }
+    }
+
+    if ( my $sm = $model->{sourceModel} ) {
+        if ( eval { require CDCM::DataDerivative; } ) {
+            $model->derivativeDataset($sm);
         }
         else {
             warn $@;
@@ -1100,10 +1114,10 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         push @{ $model->{roundingResults} }, pop @{ $model->{tariffSummary} };
 
         unshift @{ $model->{tariffSummary} }, Columnset(
-            name => 'Tariffs',
             $model->{noLLFCs}
-            ? ()
+            ? ( name => '' )
             : (
+                name                  => 'Tariffs',
                 dataset               => $model->{dataset},
                 doNotCopyInputColumns => 1,
                 number                => 3701,
@@ -1167,15 +1181,23 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         push @{ $model->{optionLines} },
           'The list of options above is not comprehensive', ' ';
 
-        push @{ $model->{overallSummary} },
-          Columnset(
+        my $buildOptions = Columnset(
             name => $model->{model100}
             ? 'Workbook build options and main parameters'
             : 'Headline parameters',
-            1 ? () : ( singleRowName => 'Parameter value' ),
             $model->{model100} ? ( lines => $model->{optionLines} ) : (),
             columns => $model->{summaryColumns},
-          );
+        );
+
+        if ( $model->{summary} =~ /stat(?:istic)?s/i ) {
+            push @{ $model->{statisticsTables} }, $buildOptions;
+            $model->makeStatisticsTables( $tariffTable, $daysInYear,
+                $nonExcludedComponents,
+                $componentMap, $allTariffs, $unitsInYear );
+        }
+        elsif ( $model->{summary} !~ /arp/i ) {
+            push @{ $model->{overallSummary} }, $buildOptions;
+        }
 
         my $revenuesByTariff;
 
