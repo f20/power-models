@@ -76,14 +76,12 @@ foreach
   my $modelsMatching ( map { /\ball\b/i ? '.' : m#^/(.+)/$# ? $1 : (); } @ARGV )
 {
     require Compilation::ExportTabs;
-    my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @ARGV;
-    @tablesMatching = ('.') unless @tablesMatching;
-    foreach my $tablesMatching (@tablesMatching) {
-        local $_ = "Compilation $modelsMatching$tablesMatching";
-        s/ *[^ a-zA-Z0-9-^]//g;
-        $db->tableCompilations( $workbookModule, $options,
-            $_ => ( $modelsMatching, $tablesMatching ) );
-    }
+    my $tablesMatching = join '|', map { /^([0-9]+)$/ ? "^$1" : (); } @ARGV;
+    $tablesMatching ||= '.';
+    local $_ = "Compilation $modelsMatching$tablesMatching";
+    s/ *[^ a-zA-Z0-9-^]//g;
+    $db->tableCompilations( $workbookModule, $options,
+        $_ => ( $modelsMatching, $tablesMatching ) );
 }
 
 if ( grep { /\btscs/i } @ARGV ) {

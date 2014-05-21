@@ -1,0 +1,12 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_compil-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+pushd _$RUN.tmp
+../run/make.pl ../CDCM/Current/%-clean163.yml ../CDCM/Data-2014-02/*
+../run/import.pl -calc -sqlite *.xl*
+../run/export.pl all 37 38 39
+popd
+mv _$RUN.tmp $RUN.tmp

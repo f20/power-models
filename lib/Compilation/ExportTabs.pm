@@ -34,7 +34,8 @@ use utf8;
 sub _preventOverwriting {
     my $ws = shift;
     my $k  = "@_";
-    die join " ", $k, caller if exists $ws->{$k};
+    die join ' ', 'Overwrite prevention:', $ws->get_name, $k, caller
+      if exists $ws->{$k};
     undef $ws->{$k};
 }
 
@@ -86,7 +87,6 @@ sub tableCompilations {
 
     while ( my $tabNumber = $tabList->fetchrow_array ) {
 
-        warn $tabNumber;
         next
           unless $tabNumber > 0
           and $tabNumber =~ /^$tabSearch/;
@@ -103,7 +103,7 @@ sub tableCompilations {
 
         my $topRow = 0;
 
-        0 and warn "Table $tabNumber $topRow..$lastRow x $lastCol";
+        1 and warn "Table $tabNumber $topRow..$lastRow x $lastCol";
 
         my @textCols = 0 ? ( 1 .. $lastCol ) : ();
         my @textRows = 0 ? ( 1 .. ( $lastRow - $topRow ) ) : ();
@@ -135,14 +135,6 @@ sub tableCompilations {
         $wsr->set_column( 1, 250, 18 );
         $wsr->hide_gridlines(2);
         $wsr->freeze_panes( 1, 1 );
-
-        if (undef) {
-            my $wst = $wb->add_worksheet( $tabNumber . 't' );
-            $wst->set_column( 0, 0,   38 );
-            $wst->set_column( 1, 250, 18 );
-            $wst->hide_gridlines(2);
-            $wst->freeze_panes( 1, 1 );
-        }
 
         {
             my $tableName = $$self->selectrow_array(
