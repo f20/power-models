@@ -1,0 +1,18 @@
+---
+1000:
+  - _table: '1000. Company, charging year, data version'
+  - Company charging year data version: Electricity North West
+    _column: Company
+  - Company charging year data version: 2015/2016
+    _column: Year
+  - Company charging year data version: Alternative
+    _column: Version
+1061:
+  - ~
+  - Domestic Unrestricted: 0.086
+    Small Non Domestic Unrestricted: 0.074
+  - Domestic Unrestricted: 0.35
+    Small Non Domestic Unrestricted: 0.483
+  - Domestic Unrestricted: 0.564
+    Small Non Domestic Unrestricted: 0.443
+baseDataset: 2

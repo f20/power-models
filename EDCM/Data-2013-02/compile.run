@@ -1,0 +1,13 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_EDCM-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+DATASETS=../EDCM/Data-2013-02/*
+perl ../run/make.pl ../EDCM/Issue-70/\%-i70-* $DATASETS -xdata='{"rules":{"numLocations":2,"numTariffs":2}}'
+perl ../run/import.pl -calc -sqlite *.xlsx
+perl ../run/export.pl all
+cd ..
+mv _$RUN.tmp $RUN.tmp

@@ -47,10 +47,12 @@ sub sheetPriority {
     my $score = {
         'Index$'       => 80,
         'Assumptions$' => 60,
-        'Tariffs$'     => 40,
-        'Summary$'     => 30,
+        'Schedule 15$' => 50,
+        'Statistics$'  => 40,
+        'Tariffs$'     => 30,
+        'Summary$'     => 20,
     }->{$sheet};
-    $score = 50 if !$score && $sheet =~ /\$$/;
+    $score = 10 if !$score && $sheet =~ /\$$/;
     $score;
 }
 
@@ -431,7 +433,7 @@ EOL
         }
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
-        push @{ $model->{sheetLinks} }, my $notes = Notes(
+        my $notes = Notes(
             name  => 'Summary',
             lines => [
                 split /\n/,
@@ -440,6 +442,7 @@ This sheet is for information only.  It can be deleted without affecting any cal
 EOL
             ]
         );
+        push @{ $model->{sheetLinks} }, $notes;
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,
           @{ $model->{overallSummary} };
@@ -459,7 +462,7 @@ EOL
             $wsheet->set_column( 0, 0,   50 );
             $wsheet->set_column( 1, 250, 20 );
         }
-        push @{ $model->{sheetLinks} }, my $notes = Notes(
+        my $notes = Notes(
             name  => 'Statistics',
             lines => [
                 split /\n/,
@@ -470,11 +473,12 @@ EOL
         );
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,
-          @{ $model->{statisticsTables} };
+          $model->{statisticsTables} ? @{ $model->{statisticsTables} } : (),
+          $model->{statisticsForArp} ? @{ $model->{statisticsForArp} } : ();
 
       }
 
-      if $model->{statisticsTables};
+      if $model->{statisticsTables} || $model->{statisticsForArp};
 
     push @wsheetsAndClosures,
 

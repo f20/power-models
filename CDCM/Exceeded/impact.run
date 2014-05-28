@@ -6,13 +6,17 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-../run/make.pl -xlsx ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-dcp161.yml -xdata='rules|template|%-basecase'
-../run/make.pl -xlsx ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-dcp161.yml # -xdata='{"rules":{"template":"%-scenario"},"exceedprop":[0,{"LV HH Metered":0.01,"HV HH Metered":0.01,"LV Sub HH Metered":0.01}]}'
+../run/make.pl -xlsx ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-base163.yml ../CDCM/Exceeded/%-dcp161adj.yml ../CDCM/Exceeded/%-dcp161unadj.yml
+../run/make.pl -xlsx ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-dcp161adj.yml -xdata='{"rules":{"template":"%-scenario161"},"exceedprop":[0,{"LV HH Metered":0.01,"HV HH Metered":0.01,"LV Sub HH Metered":0.01}]}'
 ../run/import.pl -sqlite -calc *
+
+# NB: illustrative ppu impact uses the wrong column in a DCP 161 model.
+../run/export.pl -xlsx -base=base163 -dcp=dcp161adj -name='DCP 161 (adjusted)' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
+../run/export.pl -xlsx -base=base163 -dcp=dcp161unadj -name='DCP 161 (unadjusted)' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
+../run/export.pl -xlsx -base=dcp161adj -dcp=scenario161 -name='Reduce to 1% exceeded capacity' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
+
 ../run/export.pl -xlsx tscs
-../run/export.pl -xlsx all
-../run/export.pl -xlsx -base=basecase -dcp=scenario ../CDCM/Exceeded/+impact.yml
-# NB: from a DCP 161 model, illustrative ppu impact uses the wrong column.
+# ../run/export.pl -xlsx all
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

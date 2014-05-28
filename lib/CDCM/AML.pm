@@ -510,7 +510,27 @@ EOL
         );
 
         push @{ $model->{forecastAml} },
-          $forecastAmlCapacity = Arithmetic(
+          $forecastAmlCapacity =
+             $model->{unauth}
+          && $model->{unauth} =~ /day/i && $model->{unauth} =~ /otex/i
+          ? Arithmetic(
+            name => Label(
+                    'Capacity-based contributions to chargeable aggregate '
+                  . 'maximum load by network level (kW)'
+            ),
+            arithmetic => '=(IV1+IV6)*IV2*IV4*IV5',
+            cols       => $diversityLevels,
+            rows       => $demandTariffsCapacity,
+            arguments  => {
+                IV1 => $volumeData->{'Capacity charge p/kVA/day'},
+                IV6 => $volumeData->{'Exceeded capacity charge p/kVA/day'},
+                IV2 => $powerFactorInModel,
+                IV4 => $standingFactors,
+                IV5 => $lineLossFactors,
+            },
+            defaultFormat => '0softnz',
+          )
+          : Arithmetic(
             name => Label(
                     'Capacity-based contributions to chargeable aggregate '
                   . 'maximum load by network level (kW)'
@@ -522,7 +542,7 @@ EOL
                 IV1 => $volumeData->{'Capacity charge p/kVA/day'},
                 IV2 => $powerFactorInModel,
                 IV4 => $standingFactors,
-                IV5 => $lineLossFactors
+                IV5 => $lineLossFactors,
             },
             defaultFormat => '0softnz',
           ) if $volumeData->{'Capacity charge p/kVA/day'};

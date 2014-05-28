@@ -1,0 +1,18 @@
+---
+1000:
+  - _table: '1000. Company, charging year, data version'
+  - Company charging year data version: London Power Networks
+    _column: Company
+  - Company charging year data version: 2015/2016
+    _column: Year
+  - Company charging year data version: Scenario
+    _column: Version
+1061:
+  - ~
+  - Domestic Unrestricted: 0.187
+    Small Non Domestic Unrestricted: 0.218
+  - Domestic Unrestricted: 0.374
+    Small Non Domestic Unrestricted: 0.431
+  - Domestic Unrestricted: 0.439
+    Small Non Domestic Unrestricted: 0.351
+baseDataset: 1

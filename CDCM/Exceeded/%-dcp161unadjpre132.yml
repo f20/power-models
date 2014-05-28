@@ -1,7 +1,6 @@
 ---
-.: DCP 161 based on clean post DCP 130/132/163
+.: DCP 161 (unadjusted) based on clean model 100
 PerlModule: CDCM
-coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 matrices: big
@@ -11,7 +10,6 @@ portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
-targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163
-timeOfDay: timeOfDaySpecial
+tariffs: commongensub
 unauth: day
+version: DCP 161 experiment

@@ -1,0 +1,18 @@
+---
+1000:
+  - _table: '1000. Company, charging year, data version'
+  - Company charging year data version: WPD West Midlands
+    _column: Company
+  - Company charging year data version: 2015/2016
+    _column: Year
+  - Company charging year data version: Scenario
+    _column: Version
+1061:
+  - ~
+  - Domestic Unrestricted: 0.125993479
+    Small Non Domestic Unrestricted: 0.109973092
+  - Domestic Unrestricted: 0.345033047
+    Small Non Domestic Unrestricted: 0.486385219
+  - Domestic Unrestricted: 0.528973474
+    Small Non Domestic Unrestricted: 0.403641689
+baseDataset: 1

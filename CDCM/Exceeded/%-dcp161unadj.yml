@@ -1,6 +1,7 @@
 ---
-.: Toy model for DCP 161 based on clean model 100
+.: DCP 161 (unadjusted) based on clean post DCP 130/132/163
 PerlModule: CDCM
+coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 matrices: big
@@ -10,6 +11,7 @@ portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: 1
-tariffs: commongensub
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDaySpecial
 unauth: day
-version: DCP 161 experiment

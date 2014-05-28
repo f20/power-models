@@ -1,0 +1,18 @@
+---
+1000:
+  - _table: '1000. Company, charging year, data version'
+  - Company charging year data version: SHEPD
+    _column: Company
+  - Company charging year data version: 2015/2016
+    _column: Year
+  - Company charging year data version: Scenario
+    _column: Version
+1061:
+  - ~
+  - Domestic Unrestricted: 0.256
+    Small Non Domestic Unrestricted: 0.233
+  - Domestic Unrestricted: 0.306
+    Small Non Domestic Unrestricted: 0.402
+  - Domestic Unrestricted: 0.438
+    Small Non Domestic Unrestricted: 0.365
+baseDataset: 1

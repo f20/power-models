@@ -1,5 +1,5 @@
 ---
-.: Post-DCP 163 without higher exceeded capacity charges
+.: DCP 161 (adjusted) based on post DCP 163 with CTables
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
@@ -10,8 +10,8 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: 1
+summary: consultation
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163
 timeOfDay: timeOfDaySpecial
-unauth: daysame
+unauth: dayotex

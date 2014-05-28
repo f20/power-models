@@ -523,6 +523,21 @@ sub summaryOfRevenues {
         }
     ) if $totalRevenuesFromCapacity;
 
+    my @revenueColumns = (
+        $totalUnits,
+        $totalMpans,
+        $totalRevenuesFromTariffs,
+        $totalRevenuesFromUnitRates,
+        $totalRevenuesFromFixed,
+        $totalRevenuesFromCapacity ? $totalRevenuesFromCapacity : (),
+        $totalRevenuesFromUnauth   ? $totalRevenuesFromUnauth   : (),
+        $totalRevenuesFromReactive ? $totalRevenuesFromReactive : (),
+    );
+
+    $model->{arpSharedData}
+      ->addStats( $model, $totalUnits, $totalMpans, $totalRevenuesFromTariffs )
+      if $model->{arpSharedData};
+
     push @{ $model->{overallSummary} },
       Columnset(
         name => 'Revenue summary by tariff component'
@@ -535,16 +550,7 @@ sub summaryOfRevenues {
               )
             : ''
           ),
-        columns => [
-            $totalUnits,
-            $totalMpans,
-            $totalRevenuesFromTariffs,
-            $totalRevenuesFromUnitRates,
-            $totalRevenuesFromFixed,
-            $totalRevenuesFromCapacity ? $totalRevenuesFromCapacity : (),
-            $totalRevenuesFromUnauth   ? $totalRevenuesFromUnauth   : (),
-            $totalRevenuesFromReactive ? $totalRevenuesFromReactive : (),
-        ]
+        columns => \@revenueColumns
       ) unless $model->{summary} =~ /arp/i;
 
     $revenuesFromTariffs;

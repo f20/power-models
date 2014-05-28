@@ -1,0 +1,18 @@
+---
+1000:
+  - _table: '1000. Company, charging year, data version'
+  - Company charging year data version: Eastern Power Networks
+    _column: Company
+  - Company charging year data version: 2015/2016
+    _column: Year
+  - Company charging year data version: Alternative
+    _column: Version
+1061:
+  - ~
+  - Domestic Unrestricted: 0.127
+    Small Non Domestic Unrestricted: 0.101
+  - Domestic Unrestricted: 0.433
+    Small Non Domestic Unrestricted: 0.528
+  - Domestic Unrestricted: 0.440
+    Small Non Domestic Unrestricted: 0.371
+baseDataset: 2

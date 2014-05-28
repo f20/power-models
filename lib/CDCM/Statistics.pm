@@ -41,18 +41,11 @@ sub makeStatisticsTables {
     # Need a way to find out hours per unit rate for each tariff.
     # Probably a side-channel in the $model object.
 
-    push @{ $model->{statisticsTables} },
-      Constant(
-        name          => 'Placeholder 1',
-        data          => [ ['=RAND()*100'] ],
-        defaultFormat => '0.000soft',
-      ),
-      Constant(
-        name => 'Placeholder 2',
-        data => [ [ map { '=RAND()*1e7'; } 1 .. 3 ] ],
-        rows          => Labelset( list => [qw(A B C)] ),
-        defaultFormat => 'millionsoft',
-      );
+    # Need a way to access ARP shared assumptions about demand.
+
+    # Nothing implemented yet.
+
+    push @{ $model->{statisticsTables} }, ();
 
 }
 

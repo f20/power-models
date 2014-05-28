@@ -1,0 +1,18 @@
+---
+1000:
+  - _table: '1000. Company, charging year, data version'
+  - Company charging year data version: Northern Powergrid (Northeast)
+    _column: Company
+  - Company charging year data version: 2015/2016
+    _column: Year
+  - Company charging year data version: Alternative
+    _column: Version
+1061:
+  - ~
+  - Domestic Unrestricted: 0.149
+    Small Non Domestic Unrestricted: 0.122
+  - Domestic Unrestricted: 0.347
+    Small Non Domestic Unrestricted: 0.489
+  - Domestic Unrestricted: 0.504
+    Small Non Domestic Unrestricted: 0.389
+baseDataset: 2

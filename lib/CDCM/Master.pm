@@ -1020,7 +1020,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                 , data => [ map { '' } @{ $allTariffs->{list} } ]
             );
             push @{ $model->{summaryColumns} },
-              Arithmetic(
+              my $totalImpactOfElectionBung = Arithmetic(
                 name =>
                   'Revenue impact of election bung (£, not accounted for)',
                 defaultFormat => '0soft',
@@ -1032,6 +1032,9 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                       ->{'Fixed charge p/MPAN/day'}
                 }
               );
+            $model->{arpSharedData}
+              ->addStats( $model, $totalImpactOfElectionBung )
+              if $model->{arpSharedData};
         }
 
         $tariffTable = {
@@ -1190,7 +1193,6 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         );
 
         if ( $model->{summary} =~ /stat(?:istic)?s/i ) {
-            push @{ $model->{statisticsTables} }, $buildOptions;
             $model->makeStatisticsTables( $tariffTable, $daysInYear,
                 $nonExcludedComponents,
                 $componentMap, $allTariffs, $unitsInYear );
