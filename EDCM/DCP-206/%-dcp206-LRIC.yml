@@ -1,5 +1,5 @@
 ---
-.: EDCM DCP 206 (LRIC with no demand charge 1)
+.: EDCM DCP 206 LRIC
 PerlModule: EDCM2
 dcp130: 1
 ldnoRev: ldnorev5

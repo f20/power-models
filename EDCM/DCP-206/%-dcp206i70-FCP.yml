@@ -1,5 +1,5 @@
 ---
-.: EDCM DCP 206 (FCP with no demand charge 1, with tables 1191-1193)
+.: EDCM DCP 206 FCP with tables 1191-1193
 PerlModule: EDCM2
 dcp130: 1
 ldnoRev: ldnorev5
