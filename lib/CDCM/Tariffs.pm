@@ -98,24 +98,24 @@ sub tariffs {
             if ( $model->{portfolio}
                 && 'portfolio' =~ $included )
             {
-                my @boundaryLevels =
-                     $model->{portfolio} =~ /umsone/i
-                  && $endUser =~ /ums|unmeter/i ? 'Any'
+                my @boundaryLevels;
+                push @boundaryLevels, 'Any'
+                  if $model->{portfolio} =~ /umsone/i
+                  && $endUser =~ /ums|unmeter/i;
+                push @boundaryLevels, 'LV',
+                  $model->{portfolio} =~ /lvsub/i ? 'LV Sub' : (), 'HV',
+                  $model->{portfolio} =~ /15/
+                  ? qw(0000 0001 0002 0010 0011 0100 0101 0110 0111 1000 1001 1100 1101 1110 1111)
                   : (
-                    'LV',
-                    $model->{portfolio} =~ /lvsub/i ? 'LV Sub' : (),
-                    'HV',
-                    $model->{portfolio} =~ /15/
-                    ? qw(0000 0001 0002 0010 0011 0100 0101 0110 0111 1000 1001 1100 1101 1110 1111)
-                    : (
-                        $model->{portfolio} =~ /hvsub/i ? 'HV Sub' : (),
-                        $model->{portfolio} =~ /ehv/i
-                        ? ( '33kV', '33kV Sub', '132kV' )
-                        : (),
-                        $model->{portfolio} =~ /gsp/i ? 'GSP'
-                        : (),
-                    )
-                  );
+                    $model->{portfolio} =~ /hvsub/i ? 'HV Sub' : (),
+                    $model->{portfolio} =~ /ehv/i
+                    ? ( '33kV', '33kV Sub', '132kV' )
+                    : (),
+                    $model->{portfolio} =~ /gsp/i ? 'GSP'
+                    : (),
+                  )
+                  unless $model->{portfolio} =~ /umsoneonly/i
+                  && $endUser =~ /ums|unmeter/i;
                 foreach my $l (@boundaryLevels) {
                          $endUser =~ /^(HV|33|132)/i  && $l =~ /^LV/i
                       || $endUser =~ /^(33|132)/i     && $l =~ /^HV/i

@@ -53,6 +53,7 @@ sub pcdPreprocessVolumes {
     foreach ( @{ $model->{pcd}{allTariffsByEndUser}{list} } ) {
         my $combi =
             /gener/i                              ? 'No discount'
+          : /^LDNO Any: .*(?:ums|unmeter)/i       ? "LDNO Any: Unmetered"
           : /^(LDNO (?:.*?): (?:\S+V(?: Sub)?))/i ? "$1 user"
           :                                         'No discount';
         push @combinations, $combi
@@ -90,8 +91,8 @@ sub pcdPreprocessVolumes {
             map {
                     /^no/i         ? undef
                   : /LDNO LV: LV/i ? 0.3
-                  : /LDNO HV: LV/i ? 0.4
-                  :                  0;
+                  : /LDNO HV: LV/i ? 0.5
+                  :                  0.4;
             } @combinations
         ]
     );
