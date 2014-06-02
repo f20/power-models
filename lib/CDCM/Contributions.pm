@@ -47,11 +47,9 @@ HV network
 HV substation
 EOL
             $model->{ehv}
-              || $model->{portfolio}
-              && $model->{portfolio} > 2 ? '33kV network' : (),
-            $model->{ehv} || $model->{portfolio} && $model->{portfolio} > 3
-            ? ( '33kV substation', '132kV network' )
-            : (), $model->{ehv} ? 'GSP' : ()
+              || $model->{portfolio} && $model->{portfolio} =~ /ehv/i
+            ? ( '33kV network', '33kV substation', '132kV network', 'GSP' )
+            : (),
         ]
     );
 

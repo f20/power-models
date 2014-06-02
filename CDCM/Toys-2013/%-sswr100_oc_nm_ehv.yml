@@ -18,7 +18,7 @@ illustrative: 1
 matrices: big
 noLossAdj: 1
 noReplacement: 0.453
-portfolio: 4
+portfolio: hvsub_ehv
 scaler: pickallnogencapped
 standing: sub132
 summary: no

@@ -96,42 +96,27 @@ sub tariffs {
             my @tariffs = $endUser;    # "$endUser (directly connected)"
 
             if ( $model->{portfolio}
-                and 'portfolio' =~ $included
-                || @allTariffs < $model->{portfolio} )
+                && 'portfolio' =~ $included )
             {
-                foreach my $l (
-                    'LV',              # 'LV Sub'
+                my @boundaryLevels =
+                     $model->{portfolio} =~ /umsone/i
+                  && $endUser =~ /ums|unmeter/i ? 'Any'
+                  : (
+                    'LV',
+                    $model->{portfolio} =~ /lvsub/i ? 'LV Sub' : (),
                     'HV',
-                    $model->{pcd} && $model->{portfolio} == 15
-                    ? (
-                        split /\n/, <<EOL
-0000
-0001
-0002
-0010
-0011
-0100
-0101
-0110
-0111
-1000
-1001
-1100
-1101
-1110
-1111
-EOL
-                    )
-                    : $model->{pcd} && $model->{portfolio} == 5
-                    ? ( 'GSP', 'EHV Sub', 'EHV', 'HV Sub' )
+                    $model->{portfolio} =~ /15/
+                    ? qw(0000 0001 0002 0010 0011 0100 0101 0110 0111 1000 1001 1100 1101 1110 1111)
                     : (
-                        $model->{portfolio} > 1 ? 'HV Sub' : (),
-                        $model->{portfolio} > 2 ? '33kV'   : (),
-                        $model->{portfolio} > 3 ? ( '33kV Sub', '132kV' )
-                        : ()
+                        $model->{portfolio} =~ /hvsub/i ? 'HV Sub' : (),
+                        $model->{portfolio} =~ /ehv/i
+                        ? ( '33kV', '33kV Sub', '132kV' )
+                        : (),
+                        $model->{portfolio} =~ /gsp/i ? 'GSP'
+                        : (),
                     )
-                  )
-                {
+                  );
+                foreach my $l (@boundaryLevels) {
                          $endUser =~ /^(HV|33|132)/i  && $l =~ /^LV/i
                       || $endUser =~ /^(33|132)/i     && $l =~ /^HV/i
                       || $endUser =~ /^132/i          && $l =~ /^33/i

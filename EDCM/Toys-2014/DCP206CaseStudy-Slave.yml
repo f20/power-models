@@ -137,7 +137,7 @@
     _column: Is this the master model containing all the tariff data?
 1191:
   - _table: 1191. Baseline EDCM demand aggregates
-  - Baseline EDCM demand aggregates: 115
+  - Baseline EDCM demand aggregates: 115000
     _column: Baseline total EDCM peak time consumption (kW)
   - Baseline EDCM demand aggregates: 290000
     _column: Baseline total marginal effect of indirect cost adder (kVA)
@@ -251,5 +251,5 @@
     _column: LLFC import
   - 1: ''
     _column: LLFC export
-numLocations: 2
-numTariffs: 2
+numLocations: 1
+numTariffs: 1
