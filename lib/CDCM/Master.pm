@@ -822,7 +822,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
     if ( $model->{summary} ) {
 
         push @{ $model->{optionLines} },
-          'The list of options above is not comprehensive', ' ';
+          'The list of options above is not comprehensive',
+          'This is just padding', 'This is just padding', ' ';
 
         my $buildOptions = Columnset(
             name => $model->{model100}
@@ -832,14 +833,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             columns => $model->{summaryColumns},
         );
 
-        if ( $model->{summary} =~ /stat(?:istic)?s/i ) {
-            $model->makeStatisticsTables( $tariffTable, $daysInYear,
-                $nonExcludedComponents,
-                $componentMap, $allTariffs, $unitsInYear );
-        }
-        elsif ( $model->{summary} !~ /arp/i ) {
-            push @{ $model->{overallSummary} }, $buildOptions;
-        }
+        push @{ $model->{overallSummary} }, $buildOptions
+          unless $model->{summary} =~ /arp|stat(?:istic)?s/i;
 
         my $revenuesByTariff;
 
@@ -873,6 +868,10 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
               $revenuesByTariffHybrid[$#revenuesByTariffHybrid]
               if $model->{summary} =~ /hybrid/i;
         }
+
+        $model->makeStatisticsTables( $tariffTable, $daysInYear,
+            $nonExcludedComponents, $componentMap, $allTariffs, $unitsInYear )
+          if $model->{summary} =~ /stat(?:istic)?s/i;
 
         $model->consultationSummary(
             $revenuesByTariff,

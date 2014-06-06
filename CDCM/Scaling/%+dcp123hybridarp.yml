@@ -1,0 +1,18 @@
+---
+.: DCP 123 weird orange model for ARP
+PerlModule: CDCM
+arp: 1
+coincidenceAdj: groupums
+colour: orange
+drm: top500gsp
+extraLevels: 1
+model100: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: dcp123hybridadder
+standing: sub132
+summary: 1
+targetRevenue: single
+tariffs: commongensubdcp130
+timeOfDay: timeOfDaySpecial
