@@ -1,0 +1,14 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_dcp179jun-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+perl ../run/make.pl -stats ../CDCM/DCP-179/%-dcp179apr-ctables.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+perl ../run/import.pl -calc -sqlite *.xl*
+perl ../run/export.pl -tscs 37 40
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

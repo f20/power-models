@@ -60,7 +60,7 @@ sub wsUrl {
     my ( $self, $wb ) = @_;
     return unless $self->{$wb};
     my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
-    my $ce = xl_rowcol_to_cell( $ro, $co );
+    my $ce = xl_rowcol_to_cell( $ro + 1, $co );
     my $wn =
         $wo
       ? $wo->get_name

@@ -32,20 +32,186 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
+sub makeStatisticsAssumptions {
+
+    my ($model) = @_;
+
+    return @{ $model->{arpSharedData}{statisticsAssumptionsStructure} }
+      if $model->{arpSharedData}
+      && $model->{arpSharedData}{statisticsAssumptionsStructure};
+
+    my $kw6524 = 65 * 365.25 * 24;
+    my $kw6511 = 65 * 365.25 * 11;
+
+    my @rows =
+      split /\n/, <<EOL;
+Domestic Unrestricted | Low usage,1900
+Domestic Unrestricted | Medium usage,3800
+Domestic Unrestricted | High usage,7600
+Small Non Domestic Unrestricted | Medium usage,$kw6511
+Small Non Domestic Unrestricted | High usage,$kw6524
+LV Network Non-Domestic Non-CT | Off peak load,,,0,0,715
+LV Network Non-Domestic Non-CT | Continuous load,,,65
+LV HH Metered | Small off peak load,,69,0,0,715
+LV HH Metered | Small continuous load,,69,65
+HV HH Metered | Continuous load,,5000,4500
+HV HH Metered | Off peak load,,5000,0,0,49500
+HV HH Metered | Peaky load,,5000,2000,2500,0
+EOL
+
+    my @defaultDataColumns = map { [] } 0 .. 4;
+
+    for ( my $i = 0 ; $i < @rows ; ++$i ) {
+        my @a = split /,\s*/, $rows[$i];
+        $rows[$i] = shift @a;
+        for ( my $j = 0 ; $j < @a ; ++$j ) {
+            $defaultDataColumns[$j][$i] = $a[$j];
+        }
+    }
+
+    my $rowset = Labelset( list => \@rows );
+
+    my @columns;
+
+    push @columns,
+      Dataset(
+        name          => 'Annual consumption (kWh)',
+        defaultFormat => '0hardnz',
+        rows          => $rowset,
+        data          => [ $defaultDataColumns[0] ],
+      );
+
+    push @columns,
+      Dataset(
+        name          => 'Capacity (kVA)',
+        defaultFormat => '0hardnz',
+        rows          => $rowset,
+        data          => [ $defaultDataColumns[1] ],
+      );
+
+    push @columns,
+      Dataset(
+        name          => 'Continuous usage (kW)',
+        defaultFormat => '0hardnz',
+        rows          => $rowset,
+        data          => [ $defaultDataColumns[2] ],
+      );
+
+    push @columns,
+      Dataset(
+        name          => 'Additional red usage (kW)',
+        defaultFormat => '0hardnz',
+        rows          => $rowset,
+        data          => [ $defaultDataColumns[3] ],
+      );
+
+    push @columns,
+      Dataset(
+        name          => 'Additional green usage (kWh/day)',
+        defaultFormat => '0hardnz',
+        rows          => $rowset,
+        data          => [ $defaultDataColumns[4] ],
+      );
+
+    Columnset(
+        name     => 'Illustrative customer assumptions',
+        number   => 1202,
+        appendTo => $model->{arpSharedData}
+        ? $model->{arpSharedData}{statsAssumptions}
+        : $model->{inputTables},
+        dataset => $model->{dataset},
+        columns => \@columns,
+    );
+
+    $model->{arpSharedData}{statisticsAssumptionsStructure} =
+      [ \@rows, @columns ]
+      if $model->{arpSharedData};
+
+    \@rows, @columns;
+
+}
+
 sub makeStatisticsTables {
 
     my ( $model, $tariffTable, $daysInYear, $nonExcludedComponents,
-        $componentMap, $allTariffs, $unitsInYear )
+        $componentMap, $allTariffs, $unitsInYear, )
       = @_;
 
-    # Need a way to find out hours per unit rate for each tariff.
-    # Probably a side-channel in the $model object.
+    my ( $rows, $annualUnits, $capacity, $generalkW, $redkW, $green, ) =
+      $model->makeStatisticsAssumptions;
 
-    # Need a way to access ARP shared assumptions about demand.
+    my @tariffTableRows = map {
+        my $s = $_;
+        $s =~ s/ *\|.*//;
+        $s = qr($s);
+        $s = (
+            (
+                grep {
+                    local $_ = $allTariffs->{list}[$_];
+                    !/^>/ && /$s/;
+                } 0 .. $#{ $allTariffs->{list} }
+            )[0]
+        );
+    } @$rows;
 
-    # Nothing implemented yet.
+    my $stats = SpreadsheetModel::Custom->new(
+        name          => 'Illustrative customer charge (£/year)',
+        defaultFormat => '0softnz',
+        rows          => $annualUnits->{rows},
+        custom        => [
+            '=0.01*(IV1*IV91+IV71*IV94)',
+            '=0.01*('
+              . '(IV31+IV4)*IV61*IV91+IV32*IV62*IV92+(IV33*IV63+IV5*IV72)*IV93'
+              . '+IV71*(IV94+IV2*IV95))'
+        ],
+        arguments => {
+            IV1  => $annualUnits,
+            IV2  => $capacity,
+            IV31 => $generalkW,
+            IV32 => $generalkW,
+            IV33 => $generalkW,
+            IV4  => $redkW,
+            IV5  => $green,
+            IV61 => $model->{hoursByRedAmberGreen},
+            IV62 => $model->{hoursByRedAmberGreen},
+            IV63 => $model->{hoursByRedAmberGreen},
+            IV71 => $daysInYear,
+            IV72 => $daysInYear,
+            IV91 => $tariffTable->{'Unit rate 1 p/kWh'},
+            IV92 => $tariffTable->{'Unit rate 2 p/kWh'},
+            IV93 => $tariffTable->{'Unit rate 3 p/kWh'},
+            IV94 => $tariffTable->{'Fixed charge p/MPAN/day'},
+            IV95 => $tariffTable->{'Capacity charge p/kVA/day'},
+        },
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                my $tariffY = $tariffTableRows[$y];
+                return '', $wb->getFormat('unavailable') unless $tariffY;
+                my $tariff = $allTariffs->{list}[$tariffY];
+                my $style  = $tariff !~ /gener/i
+                  && !$componentMap->{$tariff}{'Unit rate 2 p/kWh'} ? 0 : 1;
+                '', $format, $formula->[$style], map {
+                    $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{$_} + (
+                              /^IV9/         ? $tariffY
+                            : /^IV(?:[1-5])/ ? $y
+                            : 0
+                        ),
+                        $colh->{$_} +
+                          ( $_ eq 'IV62' ? 1 : $_ eq 'IV63' ? 2 : 0 ),
+                        1, 1,
+                      )
+                } @$pha;
+            };
+        },
+    );
 
-    push @{ $model->{statisticsTables} }, ();
+    $model->{arpSharedData}->addStats( $model, $stats )
+      if $model->{arpSharedData};
+
+    push @{ $model->{statisticsTables} }, $stats;
 
 }
 

@@ -35,9 +35,10 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     bless {
-        historical => [],
-        scenario   => [],
-        allmodels  => 0,
+        historical       => [],
+        scenario         => [],
+        statsAssumptions => [],
+        allmodels        => 0,
       },
       shift;
 }
@@ -52,225 +53,256 @@ sub worksheetsAndClosuresWithArp {
         delete $wbook->{noLinks};
     };
 
-    push @pairs, 'Index$' => sub {
-        my ($wsheet) = @_;
-        push @{ $arp->{finishClosures} }, sub {
-            $wsheet->set_column( 0, 0,   70 );
-            $wsheet->set_column( 1, 255, 14 );
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                name  => 'Annual Review Pack',
-                lines => [
-                         $model->{colour}
-                      && $model->{colour} =~ /orange|gold/ ? <<EOL : (),
+    unless ( @{ $arp->{historical} } || @{ $arp->{scenario} } ) {
+
+        push @pairs,
+
+          'Index$' => sub {
+            my ($wsheet) = @_;
+            push @{ $arp->{finishClosures} }, sub {
+                my $noLinks = delete $wbook->{noLinks};
+                $wsheet->set_column( 0, 0,   70 );
+                $wsheet->set_column( 1, 255, 14 );
+                $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                    name  => 'Annual Review Pack',
+                    lines => [
+                             $model->{colour}
+                          && $model->{colour} =~ /orange|gold/ ? <<EOL : (),
 
 This document, model or dataset has been prepared by Reckon LLP on the instructions of the DCUSA Panel or
 one of its working groups.  Only the DCUSA Panel and its working groups have authority to approve this
 material as meeting their requirements.  Reckon LLP makes no representation about the suitability of this
 material for the purposes of complying with any licence conditions or furthering any relevant objective.
 EOL
-                ]
-              ),
-              $model->licenceNotes;
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                name        => 'Historical models',
-                sourceLines => [
-                    map { [ $_->{nickName}, undef, @{ $_->{sheetLinks} }, ]; }
-                      @{ $arp->{historical} }
-                ],
-              ),
-              Notes(
-                name        => 'Scenario models',
-                sourceLines => [
-                    map {
-                        [
-                            $_->{nickName}, $arp->{assumptions},
-                            @{ $_->{sheetLinks} },
-                        ];
-                    } @{ $arp->{scenario} }
-                ],
-              );
-        };
-      },
 
-      1 ? () : (
+                        <<'EOL',
 
-        'Timebands$' => sub {
-            my ($wsheet) = @_;
-            push @{ $arp->{finishClosures} }, sub {
-                $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                    name  => 'Specification of distribution time bands',
-                    lines => 'This sheet has not yet been designed.',
+Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others. 
+The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
+Use and distribution of the source code is subject to the conditions stated therein. 
+Any redistribution of this software must retain the following disclaimer:
+THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+EOL
+
+                    ]
                 );
-            };
-        },
-
-        'EDCM$' => sub {
-            my ($wsheet) = @_;
-            push @{ $arp->{finishClosures} }, sub {
                 $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                    name  => 'EDCM information',
-                    lines => 'This sheet has not yet been designed.',
-                );
-            };
-        },
-
-        'DCP 087$' => sub {
-            my ($wsheet) = @_;
-            push @{ $arp->{finishClosures} }, sub {
-                $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                    name  => 'DCP 087 (smoothing) calculations',
-                    lines => 'This sheet is under construction. '
-                      . 'It will mirror "Smoothed Input Details" in the current ARP.',
-                );
-              }
-        },
-
-      ),
-
-      'Schedule 15$' => sub {
-        my ($wsheet) = @_;
-        $wsheet->set_column( 0, 0,   60 );
-        $wsheet->set_column( 1, 254, 20 );
-        $wsheet->freeze_panes( 0, 1 );
-        push @{ $arp->{finishClosures} }, sub {
-            Notes( name => 'Analysis of allowed revenue (DCUSA schedule 15)' )
-              ->wsWrite( $wbook, $wsheet );
-            my @t1001 = map {
-                     $_->{table1001}
-                  && $_->{targetRevenue} !~ /DCP132longlabels/i
-                  ? $_->{table1001}
-                  : undef
-            } @{ $arp->{models} };
-            my ($first1001) = grep { $_ } @t1001 or return;
-            my $rowset     = $first1001->{columns}[0]{rows};
-            my $rowformats = $first1001->{columns}[3]{rowFormats};
-            $wbook->{noLinks} = 1;
-            my $needNote1 = 1;
-            Columnset(
-                name => 'Schedule 15 table 1',
-                columns => [
-                    (
+                    name        => 'Historical models',
+                    sourceLines => [
                         map {
-                            Stack(
-                                name    => $_->{name},
-                                rows    => $rowset,
-                                sources => [
-                                    $_,
-                                    Constant(
-                                        rows => $rowset,
-                                        data => [
-                                            [ map { '' } @{ $rowset->{list} } ]
-                                        ]
-                                    )
-                                ],
-                                defaultFormat => 'textnocolour',
-                            );
-                        } @{ $first1001->{columns} }[ 0 .. 2 ]
-                    ),
-                    (
+                            [ $_->{nickName}, undef, @{ $_->{sheetLinks} }, ];
+                        } @{ $arp->{historical} }
+                    ],
+                  ),
+                  Notes(
+                    name        => 'Scenario models',
+                    sourceLines => [
                         map {
-                            my $t1001 = $t1001[ $_ - 1 ];
-                            $t1001
-                              ? SpreadsheetModel::Custom->new(
-                                name          => "Model $_",
-                                rows          => $rowset,
-                                custom        => [ '=IV1', '=IV2' ],
-                                defaultFormat => 'millioncopy',
-                                arguments     => {
-                                    IV1 => $t1001->{columns}[3],
-                                    IV2 => $t1001->{columns}[4],
-                                },
-                                table1000 =>
-                                  $arp->{models}[ $_ - 1 ]{table1000},
-                                wsPrepare => sub {
-                                    my ( $self, $wb, $ws, $format, $formula,
-                                        $pha, $rowh, $colh )
-                                      = @_;
-                                    my ( $w, $r, $c ) =
-                                      $self->{table1000}->wsWrite( $wb, $ws );
-                                    $self->{name} = q%='%
-                                      . $w->get_name . q%'!%
-                                      . xl_rowcol_to_cell( $r, $c + 1 );
-                                    if ($needNote1) {
-                                        undef $needNote1;
-                                        push
-                                          @{ $self->{location}{postWriteCalls}
-                                              {$wb} }, sub {
-                                            $ws->write_string(
-                                                $ws->{nextFree}++,
-                                                0,
-                                                'Note 1: '
-                                                  . 'Cost categories associated '
-                                                  . 'with excluded services should only be populated '
-                                                  . 'if the Company recovers the costs of providing '
-                                                  . 'these services from Use of System Charges.',
-                                                $wb->getFormat('text')
-                                            );
-                                              };
-                                    }
-                                    my $boldFormat = $wb->getFormat(
-                                        [
-                                            base => 'millioncopy',
-                                            bold => 1
-                                        ]
-                                    );
+                            [
+                                $_->{nickName}, $arp->{assumptions},
+                                @{ $_->{sheetLinks} },
+                            ];
+                        } @{ $arp->{scenario} }
+                    ],
+                  );
+                $wbook->{noLinks} = $noLinks if defined $noLinks;
+            };
+          },
 
-                                    sub {
-                                        my ( $x, $y ) = @_;
-                                        local $_ = $rowformats->[$y];
-                                        $_ && /hard/
-                                          ? (
-                                            '',
-                                            /(0\.0+)hard/
-                                            ? $wb->getFormat( $1 . 'copy' )
-                                            : $format,
-                                            $formula->[0],
-                                            IV1 => xl_rowcol_to_cell(
-                                                $rowh->{IV1} + $y,
-                                                $colh->{IV1},
-                                                1
-                                            )
-                                          )
-                                          : (
-                                            '',
-                                            $boldFormat,
-                                            $formula->[1],
-                                            IV2 => xl_rowcol_to_cell(
-                                                $rowh->{IV2} + $y,
-                                                $colh->{IV2},
-                                                1
-                                            )
-                                          );
-                                    };
-                                },
-                              )
-                              : ();
-                        } 1 .. @t1001,
-                    )
-                ]
-            )->wsWrite( $wbook, $wsheet );
-        };
-      },
+          1 ? () : (
 
-      'Statistics$' => sub {
-        my ($wsheet) = @_;
-        $wsheet->set_column( 0, 255, 50 );
-        $wsheet->set_column( 1, 255, 20 );
-        $wsheet->freeze_panes( 0, 1 );
-        push @{ $arp->{finishClosures} }, sub {
-            $wbook->{noLinks} = 1;
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                name  => 'Statistical time series',
-                lines => [
-                        'The items below are only examples of some of'
-                      . ' the statistical outputs that could'
-                      . ' be included in this sheet.',
-                ],
-              ),
-              $arp->statisticsColumnsets( $wbook, $wsheet );
-        };
-      }
-      unless @{ $arp->{historical} } || @{ $arp->{scenario} };
+            'Timebands$' => sub {
+                my ($wsheet) = @_;
+                push @{ $arp->{finishClosures} }, sub {
+                    $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                        name  => 'Specification of distribution time bands',
+                        lines => 'This sheet has not yet been designed.',
+                    );
+                };
+            },
+
+            'EDCM$' => sub {
+                my ($wsheet) = @_;
+                push @{ $arp->{finishClosures} }, sub {
+                    $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                        name  => 'EDCM information',
+                        lines => 'This sheet has not yet been designed.',
+                    );
+                };
+            },
+
+            'DCP 087$' => sub {
+                my ($wsheet) = @_;
+                push @{ $arp->{finishClosures} }, sub {
+                    $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                        name  => 'DCP 087 (smoothing) calculations',
+                        lines => 'This sheet is under construction. '
+                          . 'It will mirror "Smoothed Input Details" in the current ARP.',
+                    );
+                  }
+            },
+
+          ),
+
+          'Schedule 15$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->set_column( 0, 0,   60 );
+            $wsheet->set_column( 1, 254, 20 );
+            $wsheet->freeze_panes( 0, 1 );
+            push @{ $arp->{finishClosures} }, sub {
+                Notes(
+                    name => 'Analysis of allowed revenue (DCUSA schedule 15)' )
+                  ->wsWrite( $wbook, $wsheet );
+                my @t1001 = map {
+                         $_->{table1001}
+                      && $_->{targetRevenue} !~ /DCP132longlabels/i
+                      ? $_->{table1001}
+                      : undef
+                } @{ $arp->{models} };
+                my ($first1001) = grep { $_ } @t1001 or return;
+                my $rowset     = $first1001->{columns}[0]{rows};
+                my $rowformats = $first1001->{columns}[3]{rowFormats};
+                $wbook->{noLinks} = 1;
+                my $needNote1 = 1;
+                Columnset(
+                    name    => 'Schedule 15 table 1',
+                    columns => [
+                        (
+                            map {
+                                Stack(
+                                    name    => $_->{name},
+                                    rows    => $rowset,
+                                    sources => [
+                                        $_,
+                                        Constant(
+                                            rows => $rowset,
+                                            data => [
+                                                [
+                                                    map { '' }
+                                                      @{ $rowset->{list} }
+                                                ]
+                                            ]
+                                        )
+                                    ],
+                                    defaultFormat => 'textnocolour',
+                                );
+                            } @{ $first1001->{columns} }[ 0 .. 2 ]
+                        ),
+                        (
+                            map {
+                                my $t1001 = $t1001[ $_ - 1 ];
+                                $t1001
+                                  ? SpreadsheetModel::Custom->new(
+                                    name          => "Model $_",
+                                    rows          => $rowset,
+                                    custom        => [ '=IV1', '=IV2' ],
+                                    defaultFormat => 'millioncopy',
+                                    arguments     => {
+                                        IV1 => $t1001->{columns}[3],
+                                        IV2 => $t1001->{columns}[4],
+                                    },
+                                    table1000 =>
+                                      $arp->{models}[ $_ - 1 ]{table1000},
+                                    wsPrepare => sub {
+                                        my ( $self, $wb, $ws, $format, $formula,
+                                            $pha, $rowh, $colh )
+                                          = @_;
+                                        my ( $w, $r, $c ) =
+                                          $self->{table1000}
+                                          ->wsWrite( $wb, $ws );
+                                        $self->{name} = q%='%
+                                          . $w->get_name . q%'!%
+                                          . xl_rowcol_to_cell( $r, $c + 1 );
+                                        if ($needNote1) {
+                                            undef $needNote1;
+                                            push @{ $self->{location}
+                                                  {postWriteCalls}{$wb} }, sub {
+                                                $ws->write_string(
+                                                    $ws->{nextFree}++,
+                                                    0,
+                                                    'Note 1: '
+                                                      . 'Cost categories associated '
+                                                      . 'with excluded services should only be populated '
+                                                      . 'if the Company recovers the costs of providing '
+                                                      . 'these services from Use of System Charges.',
+                                                    $wb->getFormat('text')
+                                                );
+                                                  };
+                                        }
+                                        my $boldFormat = $wb->getFormat(
+                                            [
+                                                base => 'millioncopy',
+                                                bold => 1
+                                            ]
+                                        );
+
+                                        sub {
+                                            my ( $x, $y ) = @_;
+                                            local $_ = $rowformats->[$y];
+                                            $_ && /hard/
+                                              ? (
+                                                '',
+                                                /(0\.0+)hard/
+                                                ? $wb->getFormat( $1 . 'copy' )
+                                                : $format,
+                                                $formula->[0],
+                                                IV1 => xl_rowcol_to_cell(
+                                                    $rowh->{IV1} + $y,
+                                                    $colh->{IV1},
+                                                    1
+                                                )
+                                              )
+                                              : (
+                                                '',
+                                                $boldFormat,
+                                                $formula->[1],
+                                                IV2 => xl_rowcol_to_cell(
+                                                    $rowh->{IV2} + $y,
+                                                    $colh->{IV2},
+                                                    1
+                                                )
+                                              );
+                                        };
+                                    },
+                                  )
+                                  : ();
+                            } 1 .. @t1001,
+                        )
+                    ]
+                )->wsWrite( $wbook, $wsheet );
+            };
+          };
+
+        unshift @pairs,
+
+          'Statistics$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->set_column( 0, 255, 50 );
+            $wsheet->set_column( 1, 255, 20 );
+            $wsheet->freeze_panes( 0, 1 );
+            my $noData = delete $wbook->{noData};
+            $_->wsWrite( $wbook, $wsheet )
+              foreach @{ $arp->{statsAssumptions} };
+            $wbook->{noData} = $noData if defined $noData;
+            push @{ $arp->{finishClosures} }, sub {
+                $wbook->{noLinks} = 1;
+                $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                    name  => 'Statistical time series',
+                    lines => [
+                            'The items below are only examples of some of'
+                          . ' the statistical outputs that could'
+                          . ' be included in this sheet.',
+                    ],
+                  ),
+                  $arp->statisticsColumnsets( $wbook, $wsheet );
+            };
+          };
+
+    }
 
     push @{ $arp->{models} }, $model;
 
@@ -427,7 +459,7 @@ sub statisticsColumnsets {
                 custom    => [ map { "=IV1$_"; } 0 .. $#$tableref ],
                 arguments => {
                     map {
-                        my $t = $tableref->[$_];
+                        my $t = $tableref->[$_][0];
                         $t ? ( "IV1$_" => $t ) : ();
                     } 0 .. $#$tableref
                 },
@@ -436,7 +468,7 @@ sub statisticsColumnsets {
                         $pha, $rowh, $colh ) = @_;
                     my @formats = map {
                         if ($_) {
-                            local $_ = $_->{defaultFormat}
+                            local $_ = $_->[0]{defaultFormat}
                               || '0.001soft';
                             s/(?:soft|hard|con)/copy/ unless ref $_;
                             $wb->getFormat($_);
@@ -445,14 +477,14 @@ sub statisticsColumnsets {
                     } @$tableref;
                     sub {
                         my ( $x, $y ) = @_;
+                        return '' unless $tableref->[$y];
                         my $t = $y;
-                        $x = 0;
-                        $y = 0;
+                        my ( $table, $offx, $offy ) = @{ $tableref->[$y] };
                         my $ph = "IV1$t";
                         '', $formats[$t], $formula->[$t], $ph,
                           xl_rowcol_to_cell(
-                            $rowh->{$ph} + $x,
-                            $colh->{$ph} + $y,
+                            $rowh->{$ph} + $offy,
+                            $colh->{$ph} + $offx,
                             1, 1,
                           );
                     };
@@ -469,16 +501,32 @@ sub statisticsColumnsets {
 sub addStats {
     my ( $arp, $model, @tables ) = @_;
     foreach my $table (@tables) {
-        push @{ $model->{statisticsForArp} }, $table;
-
-        # Only single-cell tables implemented at present
-        my $name      = "$table->{name}";
-        my $rowNumber = $arp->{statsRowMap}{$name};
-        unless ( defined $rowNumber ) {
-            push @{ $arp->{statsRows} }, $table->{name};
-            $rowNumber = $arp->{statsRowMap}{$name} = $#{ $arp->{statsRows} };
+        if ( my $lastRow = $table->lastRow ) {
+            for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
+                my $name      = "$table->{rows}{list}[$row]";
+                my $rowNumber = $arp->{statsRowMap}{$name};
+                unless ( defined $rowNumber ) {
+                    push @{ $arp->{statsRows} }, $name;
+                    $rowNumber = $arp->{statsRowMap}{$name} =
+                      $#{ $arp->{statsRows} };
+                }
+                $arp->{statsMap}{ 0 + $model }[$rowNumber] =
+                  [ $table, 0, $row ];
+            }
         }
-        $arp->{statsMap}{ 0 + $model }[$rowNumber] = $table;
+        else {
+            my $name =
+              UNIVERSAL::can( $table->{name}, 'shortName' )
+              ? $table->{name}->shortName
+              : "$table->{name}";
+            my $rowNumber = $arp->{statsRowMap}{$name};
+            unless ( defined $rowNumber ) {
+                push @{ $arp->{statsRows} }, $name;
+                $rowNumber = $arp->{statsRowMap}{$name} =
+                  $#{ $arp->{statsRows} };
+            }
+            $arp->{statsMap}{ 0 + $model }[$rowNumber] = [ $table, 0, 0 ];
+        }
     }
 }
 

@@ -453,35 +453,6 @@ EOL
 
     push @wsheetsAndClosures,
 
-      'Stats' => sub {
-        my ($wsheet) = @_;
-        $wsheet->set_landscape;
-        unless ( $model->{arp} ) {
-            $wsheet->freeze_panes( 1, 1 );
-            $wsheet->fit_to_pages( 1, 1 );
-            $wsheet->set_column( 0, 0,   50 );
-            $wsheet->set_column( 1, 250, 20 );
-        }
-        my $notes = Notes(
-            name  => 'Statistics',
-            lines => [
-                split /\n/,
-                <<'EOL'
-This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
-EOL
-            ]
-        );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach $notes,
-          $model->{statisticsTables} ? @{ $model->{statisticsTables} } : (),
-          $model->{statisticsForArp} ? @{ $model->{statisticsForArp} } : ();
-
-      }
-
-      if $model->{statisticsTables} || $model->{statisticsForArp};
-
-    push @wsheetsAndClosures,
-
       'M-ATW' => sub {
         return if $wbook->{findForwardLinks};
         my ($wsheet) = @_;
@@ -624,6 +595,33 @@ EOL
 
     push @wsheetsAndClosures,
 
+      'Stats' => sub {
+        my ($wsheet) = @_;
+        $wsheet->set_landscape;
+        unless ( $model->{arp} ) {
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->set_column( 0, 0,   50 );
+            $wsheet->set_column( 1, 250, 20 );
+        }
+        my $notes = Notes(
+            name  => 'Statistics',
+            lines => [
+                split /\n/,
+                <<'EOL'
+This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
+EOL
+            ]
+        );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $notes, @{ $model->{statisticsTables} };
+
+      }
+
+      if $model->{statisticsTables};
+
+    push @wsheetsAndClosures,
+
       'CData' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 1 );
@@ -664,26 +662,23 @@ EOL
 
       ( $model->{model100} ? 'Overview' : 'Index' ) => sub {
         my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->fit_to_pages( 1, 2 );
-        $wsheet->set_column( 0, 0,   30 );
-        $wsheet->set_column( 1, 1,   120 );
-        $wsheet->set_column( 2, 250, 30 );
-        $_->wsWrite( $wbook, $wsheet ) foreach $model->topNotes;
-        $wbook->writeColourCode($wsheet);
-        $_->wsWrite( $wbook, $wsheet )
-          foreach $model->licenceNotes, $wbook->{logger},
-          $model->technicalNotes;
+        unless ( $model->{arp} ) {
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->fit_to_pages( 1, 2 );
+            $wsheet->set_column( 0, 0,   30 );
+            $wsheet->set_column( 1, 1,   120 );
+            $wsheet->set_column( 2, 250, 30 );
+            $model->topNotes->wsWrite( $wbook, $wsheet );
+            $wbook->writeColourCode($wsheet);
+            $wbook->{logger}->wsWrite( $wbook, $wsheet );
+        }
+        $model->technicalNotes->wsWrite( $wbook, $wsheet );
       };
 
     return @wsheetsAndClosures unless $model->{arp};
 
     for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
-        if ( $wsheetsAndClosures[$i] =~ /^(Index$|Overview$|M-)/ ) {
-            splice @wsheetsAndClosures, $i, 2;
-            $i -= 2;
-        }
-        elsif ( $wsheetsAndClosures[$i] =~ /^(Tariffs|Summary)$/ ) {
+        if ( $wsheetsAndClosures[$i] =~ /^(Tariffs|Summary)$/ ) {
             $wsheetsAndClosures[$i] .= '$';
         }
         else {
@@ -746,6 +741,20 @@ relevant table column heading of the relevant table. Scrolling up or down is usu
 a hyperlink in order to bring the relevant data and/or headings into view. Some versions of Microsoft Excel
 can display a "Back" button, which can be useful when using hyperlinks to navigate around the workbook.
 EOL
+
+            <<'EOL',
+
+Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others. 
+The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
+Use and distribution of the source code is subject to the conditions stated therein. 
+Any redistribution of this software must retain the following disclaimer:
+THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+EOL
+
         ]
     );
 }
@@ -1004,23 +1013,6 @@ The following shorthand is used:
 PAYG: higher unit rates applicable to tariffs with no standing charges (as opposed to "Standard").
 Yardstick: single unit rates (as opposed to "1", "2" etc.)
 
-EOL
-    );
-}
-
-sub licenceNotes {
-    Notes(
-        name  => '',
-        lines => <<'EOL',
-Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others. 
-The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
-Use and distribution of the source code is subject to the conditions stated therein. 
-Any redistribution of this software must retain the following disclaimer:
-THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 EOL
     );
 }

@@ -314,8 +314,10 @@ sub create {
 }
 
 sub writeColourCode {
-    my ( $wbook, $wsheet, $row ) = @_;
-    $row ||= 1;
+    my ( $wbook, $wsheet ) = @_;
+    my $row = $wsheet->{nextFree} || 0;
+    $row -= 9;
+    $row = 1 if $row < 1;
     $wsheet->write_string(
         ++$row, 2,
         'Colour coding',
@@ -353,10 +355,9 @@ sub writeColourCode {
         'Unlocked cell for notes',
         $wbook->getFormat('scribbles')
     );
-
-    unless ( $wsheet->{nextFree} && $wsheet->{nextFree} > ++$row ) {
-        $wsheet->{nextFree} = ++$row;
-    }
+    ++$row;
+    $wsheet->{nextFree} = $row
+      unless $wsheet->{nextFree} && $wsheet->{nextFree} > $row;
 }
 
 sub writeColourCodeSimple {

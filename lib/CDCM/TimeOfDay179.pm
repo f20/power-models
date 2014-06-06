@@ -175,6 +175,9 @@ sub timeOfDay179Runner {
         }
     );
 
+    $model->{hoursByRedAmberGreen} = $annualHoursByTimeband
+      unless $blackYellowGreen;
+
     Columnset(
         name => 'Adjust annual hours by '
           . $blackYellowGreen

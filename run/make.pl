@@ -101,7 +101,11 @@ foreach (@ARGV) {
         elsif (/^-+(no|skip)protect/is) { $override{protect} = 0; }
         elsif (/^-+(right.*)/is)        { $override{alignment} = $1; }
         elsif (/^-+single/is)           { $threads = 1; }
-        elsif (/^-+([0-9]+)/is)         { $threads = $1; }
+        elsif (/^-+stats/is) {
+            $override{summary}      = 'statistics';
+            $override{illustrative} = 1;
+        }
+        elsif (/^-+([0-9]+)/is) { $threads = $1; }
         elsif (/^-+template(?:=(.+))?/is) {
             $override{template} = $1 || ( time . "-$$" );
         }

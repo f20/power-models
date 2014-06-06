@@ -114,6 +114,8 @@ sub timeOfDay {
         }
     );
 
+    $model->{hoursByRedAmberGreen} = $annualHoursByTimeband;
+
     Columnset(
         name =>
           'Adjust annual hours by distribution time band to match days in year',

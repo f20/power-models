@@ -88,7 +88,7 @@ sub wsWrite {
     my @objectList = sort {
         ( $a->{$wb}{worksheet}{sheetNumber} || 666 )
           <=> ( $b->{$wb}{worksheet}{sheetNumber} || 666 )
-    } grep { $_->{$wb}{worksheet} } @{ $self->{objects} };
+    } grep { $_->{$wb}{worksheet} && $_->{name} } @{ $self->{objects} };
 
     my $r = 0;
     my %columnsetDone;
