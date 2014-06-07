@@ -38,7 +38,10 @@ sub new {
         historical       => [],
         scenario         => [],
         statsAssumptions => [],
-        allmodels        => 0,
+        statsSections    => [ split /\n/, <<EOL ],
+General aggregates
+Illustrative charges
+EOL
       },
       shift;
 }
@@ -103,10 +106,11 @@ EOL
                     sourceLines => [
                         map {
                             [
-                                $_->{nickName}, $arp->{assumptions},
-                                @{ $_->{sheetLinks} },
+                                $arp->{scenario}[$_]{nickName},
+                                $arp->{assumptionColumns}[$_],
+                                @{ $arp->{scenario}[$_]{sheetLinks} },
                             ];
-                        } @{ $arp->{scenario} }
+                        } 0 .. $#{ $arp->{scenario} }
                     ],
                   );
                 $wbook->{noLinks} = $noLinks if defined $noLinks;
@@ -285,20 +289,20 @@ EOL
             $wsheet->set_column( 1, 255, 20 );
             $wsheet->freeze_panes( 0, 1 );
             my $noData = delete $wbook->{noData};
-            $_->wsWrite( $wbook, $wsheet )
-              foreach @{ $arp->{statsAssumptions} };
+            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                name  => 'Statistical time series',
+                lines => [
+                        'The items below are only examples of some of'
+                      . ' the statistical outputs that could'
+                      . ' be included in this sheet.',
+                ],
+              ),
+              @{ $arp->{statsAssumptions} };
             $wbook->{noData} = $noData if defined $noData;
             push @{ $arp->{finishClosures} }, sub {
                 $wbook->{noLinks} = 1;
-                $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                    name  => 'Statistical time series',
-                    lines => [
-                            'The items below are only examples of some of'
-                          . ' the statistical outputs that could'
-                          . ' be included in this sheet.',
-                    ],
-                  ),
-                  $arp->statisticsColumnsets( $wbook, $wsheet );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach $arp->statisticsColumnsets( $wbook, $wsheet );
             };
           };
 
@@ -397,6 +401,7 @@ EOL
 
     push @{ $arp->{assumptionColumns} },
       $arp->{assumptionsByModel}{ 0 + $model } = Constant(
+        name          => 'Assumptions',
         model         => $model,
         rows          => $arp->{assumptionRowset},
         defaultFormat => '%hardpm',
@@ -444,74 +449,110 @@ sub assumptionsLocator {
 
 sub statisticsColumnsets {
     my ( $arp, $wbook, $wsheet ) = @_;
-    return unless $arp->{statsRows};
-    my $rows = Labelset( list => $arp->{statsRows} );
-    my @columns =
-      map {
-        if ( my $tableref = $arp->{statsMap}{ 0 + $_ } ) {
-            my ( $w, $r, $c ) =
-              $_->{table1000}->wsWrite( $wbook, $wsheet );
-            SpreadsheetModel::Custom->new(
-                name => q%='%
-                  . $w->get_name . q%'!%
-                  . xl_rowcol_to_cell( $r, $c + 1 ),
-                rows      => $rows,
-                custom    => [ map { "=IV1$_"; } 0 .. $#$tableref ],
-                arguments => {
-                    map {
-                        my $t = $tableref->[$_][0];
-                        $t ? ( "IV1$_" => $t ) : ();
-                    } 0 .. $#$tableref
-                },
-                wsPrepare => sub {
-                    my ( $self, $wb, $ws, $format, $formula,
-                        $pha, $rowh, $colh ) = @_;
-                    my @formats = map {
-                        if ($_) {
-                            local $_ = $_->[0]{defaultFormat}
-                              || '0.001soft';
-                            s/(?:soft|hard|con)/copy/ unless ref $_;
-                            $wb->getFormat($_);
-                        }
-                        else { undef; }
-                    } @$tableref;
-                    sub {
-                        my ( $x, $y ) = @_;
-                        return '' unless $tableref->[$y];
-                        my $t = $y;
-                        my ( $table, $offx, $offy ) = @{ $tableref->[$y] };
-                        my $ph = "IV1$t";
-                        '', $formats[$t], $formula->[$t], $ph,
-                          xl_rowcol_to_cell(
-                            $rowh->{$ph} + $offy,
-                            $colh->{$ph} + $offx,
-                            1, 1,
-                          );
-                    };
-                },
+    map {
+        if ( $arp->{statsRows}[$_] ) {
+            my $rows = Labelset( list => $arp->{statsRows}[$_] );
+            my $statsMaps = $arp->{statsMap}[$_];
+            my @columns =
+              map {
+                if ( my $relevantMap = $statsMaps->{ 0 + $_ } ) {
+                    my ( $w, $r, $c ) =
+                      $_->{table1000}->wsWrite( $wbook, $wsheet );
+                    SpreadsheetModel::Custom->new(
+                        name => q%='%
+                          . $w->get_name . q%'!%
+                          . xl_rowcol_to_cell( $r, $c + 1 ),
+                        rows      => $rows,
+                        custom    => [ map { "=IV1$_"; } 0 .. $#$relevantMap ],
+                        arguments => {
+                            map {
+                                my $t;
+                                $t = $relevantMap->[$_][0]
+                                  if $relevantMap->[$_];
+                                $t ? ( "IV1$_" => $t ) : ();
+                            } 0 .. $#$relevantMap
+                        },
+                        defaultFormat => '0.000copy',
+                        rowFormats    => [
+                            map {
+                                if ( $_ && $_->[0] ) {
+                                    local $_ = $_->[0]{rowFormats}[ $_->[2] ]
+                                      || $_->[0]{defaultFormat};
+                                    s/(?:soft|hard|con)/copy/ if $_ && !ref $_;
+                                    $_;
+                                }
+                                else { 'unavailable'; }
+                            } @$relevantMap
+                        ],
+                        wsPrepare => sub {
+                            my ( $self, $wb, $ws, $format, $formula,
+                                $pha, $rowh, $colh )
+                              = @_;
+                            sub {
+                                my ( $x, $y ) = @_;
+                                my $cellFormat =
+                                    $self->{rowFormats}[$y]
+                                  ? $wb->getFormat( $self->{rowFormats}[$y] )
+                                  : $format;
+                                return '', $cellFormat
+                                  unless $relevantMap->[$y];
+                                my ( $table, $offx, $offy ) =
+                                  @{ $relevantMap->[$y] };
+                                my $ph = "IV1$y";
+                                '', $cellFormat, $formula->[$y], $ph,
+                                  xl_rowcol_to_cell(
+                                    $rowh->{$ph} + $offy,
+                                    $colh->{$ph} + $offx,
+                                    1, 1,
+                                  );
+                            };
+                        },
+                    );
+                }
+                else {
+                    ();
+                }
+              } @{ $arp->{models} };
+            Columnset(
+                name    => $arp->{statsSections}[$_],
+                columns => \@columns,
             );
         }
-        else {
-            ();
-        }
-      } @{ $arp->{models} };
-    Columnset( name => '', columns => \@columns, );
+        else { (); }
+    } 0 .. $#{ $arp->{statsSections} };
 }
 
 sub addStats {
-    my ( $arp, $model, @tables ) = @_;
-    foreach my $table (@tables) {
+    my $arp     = shift;
+    my $section = shift;
+    my $model;
+    if ( ref $section eq 'CDCM' ) {
+        $model   = $section;
+        $section = 'General aggregates';
+    }
+    else {
+        $model = shift;
+    }
+    my ($sectionNumber) = grep { $section eq $arp->{statsSections}[$_]; }
+      0 .. $#{ $arp->{statsSections} };
+    unless ( defined $sectionNumber ) {
+        push @{ $arp->{statsSections} }, $section;
+        $sectionNumber = $#{ $arp->{statsSections} };
+    }
+    foreach my $table (@_) {
         if ( my $lastRow = $table->lastRow ) {
             for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
                 my $name      = "$table->{rows}{list}[$row]";
-                my $rowNumber = $arp->{statsRowMap}{$name};
+                my $rowNumber = $arp->{statsRowMap}[$sectionNumber]{$name};
                 unless ( defined $rowNumber ) {
-                    push @{ $arp->{statsRows} }, $name;
-                    $rowNumber = $arp->{statsRowMap}{$name} =
-                      $#{ $arp->{statsRows} };
+                    push @{ $arp->{statsRows}[$sectionNumber] }, $name;
+                    $rowNumber = $arp->{statsRowMap}[$sectionNumber]{$name} =
+                      $#{ $arp->{statsRows}[$sectionNumber] };
                 }
-                $arp->{statsMap}{ 0 + $model }[$rowNumber] =
-                  [ $table, 0, $row ];
+                $arp->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
+                  [ $table, 0, $row ]
+                  unless $table->{rows}{groupid}
+                  && !defined $table->{rows}{groupid}[$row];
             }
         }
         else {
@@ -519,13 +560,14 @@ sub addStats {
               UNIVERSAL::can( $table->{name}, 'shortName' )
               ? $table->{name}->shortName
               : "$table->{name}";
-            my $rowNumber = $arp->{statsRowMap}{$name};
+            my $rowNumber = $arp->{statsRowMap}[$sectionNumber]{$name};
             unless ( defined $rowNumber ) {
-                push @{ $arp->{statsRows} }, $name;
-                $rowNumber = $arp->{statsRowMap}{$name} =
-                  $#{ $arp->{statsRows} };
+                push @{ $arp->{statsRows}[$sectionNumber] }, $name;
+                $rowNumber = $arp->{statsRowMap}[$sectionNumber]{$name} =
+                  $#{ $arp->{statsRows}[$sectionNumber] };
             }
-            $arp->{statsMap}{ 0 + $model }[$rowNumber] = [ $table, 0, 0 ];
+            $arp->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
+              [ $table, 0, 0 ];
         }
     }
 }

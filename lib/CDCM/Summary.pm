@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -315,7 +315,7 @@ sub summaryOfRevenues {
     );
 
     push @{ $model->{overallSummary} }, Columnset(
-        name => $model->{summary} =~ /arp/i ? '' : 'Revenue summary'
+        name => 'Revenue summary'
           . (
             $model->{inYear}
             ? (
@@ -353,82 +353,80 @@ sub summaryOfRevenues {
 
             $averageByMpan,
 
-            $model->{summary} =~ /arp/i ? () : (
+            1 ? () : Arithmetic(
+                name          => 'Average p/MPAN/day',
+                defaultFormat => '0.00softnz',
+                arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
+                arguments     => {
+                    IV1 => $revenuesFromTariffs,
+                    IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
+                    IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
+                    IV4 => $daysInYear,
+                }
+            ),
 
-                1 ? () : Arithmetic(
-                    name          => 'Average p/MPAN/day',
-                    defaultFormat => '0.00softnz',
-                    arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
-                    arguments     => {
-                        IV1 => $revenuesFromTariffs,
-                        IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV4 => $daysInYear,
-                    }
-                ),
+            1 ? () : Arithmetic(
+                name          => 'Average p/kVA/day',
+                defaultFormat => '0.00softnz',
+                arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
+                arguments     => {
+                    IV1 => $revenuesFromTariffs,
+                    IV2 => $volumeData->{'Capacity charge p/kVA/day'},
+                    IV3 => $volumeData->{'Capacity charge p/kVA/day'},
+                    IV4 => $daysInYear,
+                }
+            ),
 
-                1 ? () : Arithmetic(
-                    name          => 'Average p/kVA/day',
-                    defaultFormat => '0.00softnz',
-                    arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
-                    arguments     => {
-                        IV1 => $revenuesFromTariffs,
-                        IV2 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV3 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV4 => $daysInYear,
-                    }
-                ),
+            0 ? () : $averageUnitRate,
 
-                0 ? () : $averageUnitRate,
+            1 ? () : (
+                map {
+                    Stack(
+                        sources       => [$_],
+                        defaultFormat => !$_->{defaultFormat}
+                          || $_->{defaultFormat} =~ /000/
+                        ? '0.000copynz'
+                        : '0.00copynz'
+                    );
+                } @{ $model->{allTariffColumns} }
+            ),
 
-                1 ? () : (
-                    map {
-                        Stack(
-                            sources       => [$_],
-                            defaultFormat => !$_->{defaultFormat}
-                              || $_->{defaultFormat} =~ /000/
-                            ? '0.000copynz'
-                            : '0.00copynz'
-                        );
-                    } @{ $model->{allTariffColumns} }
-                ),
+            @unitProportion ? ( @revenuesFromUnits, @unitProportion ) : (),
 
-                @unitProportion ? ( @revenuesFromUnits, @unitProportion ) : (),
+            $fixedProportion ? $fixedProportion : (),
 
-                $fixedProportion ? $fixedProportion : (),
+            $capacityProportion ? $capacityProportion : (),
 
-                $capacityProportion ? $capacityProportion : (),
+            $unauthProportion ? $unauthProportion : (),
 
-                $unauthProportion ? $unauthProportion : (),
+            $reactiveProportion ? $reactiveProportion : (),
 
-                $reactiveProportion ? $reactiveProportion : (),
+            1 ? () : Arithmetic(
+                name          => 'Fixed charge proportion',
+                defaultFormat => '%softnz',
+                arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
+                arguments     => {
+                    IV1 => $revenuesFromTariffs,
+                    IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
+                    IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
+                    IV4 => $daysInYear,
+                    IV5 => $tariffTable->{'Fixed charge p/MPAN/day'},
+                }
+            ),
 
-                1 ? () : Arithmetic(
-                    name          => 'Fixed charge proportion',
-                    defaultFormat => '%softnz',
-                    arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
-                    arguments     => {
-                        IV1 => $revenuesFromTariffs,
-                        IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV4 => $daysInYear,
-                        IV5 => $tariffTable->{'Fixed charge p/MPAN/day'},
-                    }
-                ),
+            1 ? () : Arithmetic(
+                name          => 'Capacity charge proportion',
+                defaultFormat => '%softnz',
+                arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
+                arguments     => {
+                    IV1 => $revenuesFromTariffs,
+                    IV2 => $volumeData->{'Capacity charge p/kVA/day'},
+                    IV3 => $volumeData->{'Capacity charge p/kVA/day'},
+                    IV4 => $daysInYear,
+                    IV5 => $tariffTable->{'Capacity charge p/kVA/day'},
+                }
+            ),
 
-                1 ? () : Arithmetic(
-                    name          => 'Capacity charge proportion',
-                    defaultFormat => '%softnz',
-                    arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
-                    arguments     => {
-                        IV1 => $revenuesFromTariffs,
-                        IV2 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV3 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV4 => $daysInYear,
-                        IV5 => $tariffTable->{'Capacity charge p/kVA/day'},
-                    }
-                ),
-            )
           ]
 
     );
@@ -534,9 +532,14 @@ sub summaryOfRevenues {
         $totalRevenuesFromReactive ? $totalRevenuesFromReactive : (),
     );
 
-    $model->{arpSharedData}
-      ->addStats( $model, $totalUnits, $totalMpans, $totalRevenuesFromTariffs )
-      if $model->{arpSharedData};
+    if ( $model->{arpSharedData} ) {
+        $model->{arpSharedData}->addStats( $model, $totalUnits, $totalMpans,
+            $totalRevenuesFromTariffs );
+        if ( $model->{arp} && $model->{arp} =~ /permpan/i ) {
+            $model->{arpSharedData}
+              ->addStats( 'Average charge per MPAN', $model, $averageByMpan );
+        }
+    }
 
     push @{ $model->{overallSummary} },
       Columnset(
@@ -551,7 +554,7 @@ sub summaryOfRevenues {
             : ''
           ),
         columns => \@revenueColumns
-      ) unless $model->{summary} =~ /arp/i;
+      );
 
     $revenuesFromTariffs;
 

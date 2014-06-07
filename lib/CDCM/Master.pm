@@ -891,6 +891,9 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
 
     }
 
+    $model->{arpSharedData}->addStats( $model, $totalRevenuesFromMatching )
+      if $model->{arpSharedData};
+
     $model;
 
 }

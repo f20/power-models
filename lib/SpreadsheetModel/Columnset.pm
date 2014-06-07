@@ -86,7 +86,7 @@ ERR
         $_->{name} =
           new SpreadsheetModel::Label( $_->{name},
             "$_->{name} (in $self->{name})" )
-          if index( $_->{name}, " (in $self->{name})" ) < 0;
+          if $self->{name} && index( $_->{name}, " (in $self->{name})" ) < 0;
         $_->{dataset} ||= $self->{dataset}
           if ref $_ eq 'SpreadsheetModel::Dataset';
         $_->{number} ||= $self->{number};

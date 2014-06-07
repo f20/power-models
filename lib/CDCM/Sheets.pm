@@ -50,7 +50,6 @@ sub sheetPriority {
         'Schedule 15$' => 50,
         'Statistics$'  => 40,
         'Tariffs$'     => 30,
-        'Summary$'     => 20,
     }->{$sheet};
     $score = 10 if !$score && $sheet =~ /\$$/;
     $score;
@@ -430,9 +429,9 @@ EOL
         unless ( $model->{arp} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->set_column( 0, 0,   50 );
+            $wsheet->set_column( 1, 250, 20 );
         }
-        $wsheet->set_column( 0, 0,   50 );
-        $wsheet->set_column( 1, 250, 20 );
         my $notes = Notes(
             name  => 'Summary',
             lines => [
@@ -442,7 +441,6 @@ This sheet is for information only.  It can be deleted without affecting any cal
 EOL
             ]
         );
-        push @{ $model->{sheetLinks} }, $notes;
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,
           @{ $model->{overallSummary} };
@@ -678,7 +676,7 @@ EOL
     return @wsheetsAndClosures unless $model->{arp};
 
     for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
-        if ( $wsheetsAndClosures[$i] =~ /^(Tariffs|Summary)$/ ) {
+        if ( $wsheetsAndClosures[$i] eq 'Tariffs' ) {
             $wsheetsAndClosures[$i] .= '$';
         }
         else {

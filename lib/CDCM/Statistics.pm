@@ -65,7 +65,8 @@ EOL
         my @a = split /,\s*/, $rows[$i];
         $rows[$i] = shift @a;
         for ( my $j = 0 ; $j < @a ; ++$j ) {
-            $defaultDataColumns[$j][$i] = $a[$j];
+            $defaultDataColumns[$j][$i] = $a[$j]
+              if defined $a[$j] && length $a[$j];
         }
     }
 
@@ -183,16 +184,21 @@ sub makeStatisticsTables {
             IV94 => $tariffTable->{'Fixed charge p/MPAN/day'},
             IV95 => $tariffTable->{'Capacity charge p/kVA/day'},
         },
+        rowFormats => [ map { $_ ? undef : 'unavailable'; } @tariffTableRows ],
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;
+                my $cellFormat =
+                    $self->{rowFormats}[$y]
+                  ? $wb->getFormat( $self->{rowFormats}[$y] )
+                  : $format;
                 my $tariffY = $tariffTableRows[$y];
-                return '', $wb->getFormat('unavailable') unless $tariffY;
+                return '', $cellFormat unless $tariffY;
                 my $tariff = $allTariffs->{list}[$tariffY];
                 my $style  = $tariff !~ /gener/i
                   && !$componentMap->{$tariff}{'Unit rate 2 p/kWh'} ? 0 : 1;
-                '', $format, $formula->[$style], map {
+                '', $cellFormat, $formula->[$style], map {
                     $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + (
                               /^IV9/         ? $tariffY
@@ -208,7 +214,7 @@ sub makeStatisticsTables {
         },
     );
 
-    $model->{arpSharedData}->addStats( $model, $stats )
+    $model->{arpSharedData}->addStats( 'Illustrative charges', $model, $stats )
       if $model->{arpSharedData};
 
     push @{ $model->{statisticsTables} }, $stats;

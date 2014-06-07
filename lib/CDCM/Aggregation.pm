@@ -400,8 +400,6 @@ sub roundingAndFinishing {
             arithmetic    => '=IV1/IV2',
             arguments     => { IV1 => $revenueError, IV2 => $allowedRevenue }
           );
-        $model->{arpSharedData}->addStats( $model, $totalRevenuesFromMatching )
-          if $model->{arpSharedData};
     }
 
     my %tariffTable =
