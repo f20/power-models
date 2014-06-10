@@ -314,9 +314,9 @@ sub create {
 }
 
 sub writeColourCode {
-    my ( $wbook, $wsheet ) = @_;
+    my ( $wbook, $wsheet, $simpleFlag ) = @_;
     my $row = $wsheet->{nextFree} || 0;
-    $row -= 9;
+    $row -= 8;
     $row = 1 if $row < 1;
     $wsheet->write_string(
         ++$row, 2,
@@ -329,7 +329,7 @@ sub writeColourCode {
         ++$row, 2,
         'Constant value',
         $wbook->getFormat('0.000con')
-    );
+    ) unless $simpleFlag;
     $wsheet->write_string(
         ++$row, 2,
         'Formula: calculation',
@@ -337,46 +337,26 @@ sub writeColourCode {
     );
     $wsheet->write_string(
         ++$row, 2,
-        'Formula: copy',
+        $simpleFlag ? 'Data from tariff model' : 'Formula: copy',
         $wbook->getFormat('0.000copy')
     );
     $wsheet->write_string(
         ++$row, 2,
-        'Void cell in input data table',
+        'Unused cell in input data table',
         $wbook->getFormat('unused')
-    );
+    ) unless $simpleFlag;
     $wsheet->write_string(
         ++$row, 2,
-        'Void cell in other table',
+        'Unused cell in other table',
         $wbook->getFormat('unavailable')
-    );
+    ) unless $simpleFlag;
     $wsheet->write_string(
         ++$row, 2,
         'Unlocked cell for notes',
         $wbook->getFormat('scribbles')
-    );
-    ++$row;
+    ) unless $simpleFlag;
     $wsheet->{nextFree} = $row
       unless $wsheet->{nextFree} && $wsheet->{nextFree} > $row;
-}
-
-sub writeColourCodeSimple {
-    my ( $wbook, $wsheet, $row ) = @_;
-    $row ||= 1;
-    $wsheet->write_string(
-        ++$row, 2,
-        'Colour coding',
-        $wbook->getFormat('thc')
-    );
-    $wsheet->write_string( ++$row, 2, 'Input data',
-        $wbook->getFormat('0.000hard') );
-    $wsheet->write_string( ++$row, 2, 'Calculation',
-        $wbook->getFormat('0.000soft') );
-    $wsheet->write_string(
-        ++$row, 2,
-        'Data from tariff model',
-        $wbook->getFormat('0.000copy')
-    );
 }
 
 1;

@@ -251,17 +251,14 @@ sub topNotes {
         lines => [
             <<EOL,
 
-UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING
-PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
+UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
 EOL
             $model->{noLinks} ? () : <<EOL,
 
-This workbook is structured as a series of named and numbered tables. There is a list of tables below, with
-hyperlinks.  Above each calculation table, there is a description of the calculations made, and a hyperlinked
-list of the tables or parts of tables from which data are used in the calculation. Hyperlinks point to the
-relevant table column heading of the relevant table. Scrolling up or down is usually required after clicking
-a hyperlink in order to bring the relevant data and/or headings into view. Some versions of Microsoft Excel
-can display a "Back" button, which can be useful when using hyperlinks to navigate around the workbook.
+This workbook is structured as a series of named and numbered tables. There is a list of tables below, with hyperlinks.  Above each calculation table,
+there is a description of the calculations and hyperlinks to tables from which data are used. Hyperlinks point to the relevant table column heading of
+the relevant table. Scrolling up or down is usually required after clicking a hyperlink in order to bring the relevant data and/or headings into view.
+Some versions of Microsoft Excel can display a "Back" button, which can be useful when using hyperlinks to navigate around the workbook.
 EOL
         ]
     );
