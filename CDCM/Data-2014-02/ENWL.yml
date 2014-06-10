@@ -193,6 +193,11 @@
     HV LV: ''
     LV circuits: ''
     _column: Diversity allowance between top and bottom of network level
+1017dcp133:
+  - ~
+  - 132kV: 0.142535922027681
+    EHV: 0.0499640657261722
+    HV: 0.880244592740501
 1018:
   - _table: 1018. Proportion of relevant load going through 132kV/HV direct transformation
   - EHV HV: 0
@@ -212,6 +217,15 @@
     HV LV: 94490955.355104
     LV circuits: 62237013.0043722
     _column: Gross assets £
+1020dcp133:
+  - ~
+  - 132kV: 86758645
+    132kV EHV: 15973000
+    EHV: 92423988
+    EHV HV: 31562000
+    HV: 135746706
+    HV LV: 51831512
+    LV circuits: 155397130
 1022:
   - _table: 1022. LV service model asset cost (£)
   - LV service model asset cost: 9806.13402764829

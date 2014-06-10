@@ -33,6 +33,17 @@ use warnings;
 use strict;
 use utf8;
 
+sub _override {
+    my ( $table, $override ) = @_;
+    return unless ref $table eq 'ARRAY' && ref $override eq 'ARRAY';
+    for ( my $c = 0 ; $c < @$override ; ++$c ) {
+        next unless ref $override->[$c] eq 'HASH';
+        while ( my ( $k, $v ) = each %{ $override->[$c] } ) {
+            $table->[$c]{$k} = $v;
+        }
+    }
+}
+
 sub preprocessDataset {
 
     my ($model) = @_;
@@ -41,6 +52,11 @@ sub preprocessDataset {
 
     $d->{1000}[3]{'Company charging year data version'} = $model->{version}
       if $model->{version};
+
+    if ( $model->{dcp133} ) {
+        $d->{1000}[3]{'Company charging year data version'} .= ' (DCP 133)';
+        _override( $d->{$_}, $d->{ $_ . 'dcp133' } ) foreach qw(1017 1018 1020);
+    }
 
     if ( $model->{unauth} && $model->{unauth} =~ /day/ ) {
         my $vd = $d->{1053};

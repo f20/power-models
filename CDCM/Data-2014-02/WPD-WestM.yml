@@ -193,10 +193,19 @@
     HV LV: ''
     LV circuits: ''
     _column: Diversity allowance between top and bottom of network level
+1017dcp133:
+  - ~
+  - 132kV: 0.0107245423605125
+    EHV: 0.0171622696150169
+    GSPs: 0.0564904083184108
+    HV: 0.180228798251678
 1018:
   - _table: 1018. Proportion of relevant load going through 132kV/HV direct transformation
   - EHV HV: 0.692565629168188
     _column: 132kV/HV
+1018dcp133:
+  - ~
+  - EHV HV: 0.732303293086694
 1019:
   - _table: 1019. Network model GSP peak demand (MW)
   - Network model GSP peak demand MW: 500
@@ -212,6 +221,16 @@
     HV LV: 68061984
     LV circuits: 94672478
     _column: Gross assets £
+1020dcp133:
+  - ~
+  - 132kV: 79362461.0970643
+    132kV EHV: 5972361.56890088
+    132kV HV: 36210847.6204999
+    EHV: 15439187.0789656
+    EHV HV: 12518909.47752
+    HV: 72622135.333702
+    HV LV: 41379890.4126337
+    LV circuits: 58295315.1629406
 1022:
   - _table: 1022. LV service model asset cost (£)
   - LV service model asset cost: 4689.776689
