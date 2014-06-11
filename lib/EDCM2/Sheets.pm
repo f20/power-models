@@ -407,7 +407,8 @@ sub worksheetsAndClosures {
             my $logger  = delete $wbook->{logger};
             my $noLinks = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
-            0 and $wbook->writeColourCode( $wsheet, 1 );
+            splice @{ $model->{tablesTemplateImport} }, 1, 0,
+              $wbook->colourCode(1);
             $_->wsWrite( $wbook, $wsheet )
               foreach @{ $model->{tablesTemplateImport} };
             delete $wbook->{noLinks};
@@ -422,7 +423,8 @@ sub worksheetsAndClosures {
             my $logger  = delete $wbook->{logger};
             my $noLinks = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
-            0 and $wbook->writeColourCode( $wsheet, 1 );
+            splice @{ $model->{tablesTemplateExport} }, 1, 0,
+              $wbook->colourCode(1);
             $_->wsWrite( $wbook, $wsheet )
               foreach @{ $model->{tablesTemplateExport} };
             delete $wbook->{noLinks};
@@ -481,11 +483,9 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   30 );
         $wsheet->set_column( 1, 1,   105 );
         $wsheet->set_column( 2, 250, 30 );
-        $_->wsWrite( $wbook, $wsheet ) foreach $model->topNotes;
-        $wbook->writeColourCode($wsheet);
         $_->wsWrite( $wbook, $wsheet )
-          foreach $model->licenceNotes, $wbook->{logger},
-          $model->technicalNotes;
+          foreach $model->topNotes, $model->licenceNotes, $wbook->colourCode,
+          $wbook->{logger}, $model->technicalNotes;
       };
 
 }

@@ -314,9 +314,20 @@ sub create {
 }
 
 sub writeColourCode {
-    my ( $wbook, $wsheet, $simpleFlag ) = @_;
+    my $wbook  = shift;
+    my $wsheet = shift;
+    $wbook->colourCode(@_)->wsWrite( $wbook, $wsheet );
+}
+
+sub colourCode {
+    shift;
+    bless [@_], 'SpreadsheetModel::ColourCodeWriter';
+}
+
+sub SpreadsheetModel::ColourCodeWriter::wsWrite {
+    my ( $colourCode, $wbook, $wsheet ) = @_;
     my $row = $wsheet->{nextFree} || 0;
-    $row -= 8;
+    $row -= $colourCode->[0] ? 5 : 8;
     $row = 1 if $row < 1;
     $wsheet->write_string(
         ++$row, 2,
@@ -329,7 +340,7 @@ sub writeColourCode {
         ++$row, 2,
         'Constant value',
         $wbook->getFormat('0.000con')
-    ) unless $simpleFlag;
+    ) unless $colourCode->[0];
     $wsheet->write_string(
         ++$row, 2,
         'Formula: calculation',
@@ -337,24 +348,24 @@ sub writeColourCode {
     );
     $wsheet->write_string(
         ++$row, 2,
-        $simpleFlag ? 'Data from tariff model' : 'Formula: copy',
+        $colourCode->[0] ? 'Data from tariff model' : 'Formula: copy',
         $wbook->getFormat('0.000copy')
     );
     $wsheet->write_string(
         ++$row, 2,
         'Unused cell in input data table',
         $wbook->getFormat('unused')
-    ) unless $simpleFlag;
+    ) unless $colourCode->[0];
     $wsheet->write_string(
         ++$row, 2,
         'Unused cell in other table',
         $wbook->getFormat('unavailable')
-    ) unless $simpleFlag;
+    ) unless $colourCode->[0];
     $wsheet->write_string(
         ++$row, 2,
         'Unlocked cell for notes',
         $wbook->getFormat('scribbles')
-    ) unless $simpleFlag;
+    ) unless $colourCode->[0];
     $wsheet->{nextFree} = $row
       unless $wsheet->{nextFree} && $wsheet->{nextFree} > $row;
 }

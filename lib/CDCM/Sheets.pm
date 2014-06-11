@@ -666,9 +666,9 @@ EOL
             $wsheet->set_column( 0, 0,   30 );
             $wsheet->set_column( 1, 1,   105 );
             $wsheet->set_column( 2, 250, 30 );
-            $model->topNotes->wsWrite( $wbook, $wsheet );
-            $wbook->writeColourCode($wsheet);
-            $wbook->{logger}->wsWrite( $wbook, $wsheet );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach $model->topNotes, $wbook->colourCode,
+              $wbook->{logger};
         }
         $model->technicalNotes->wsWrite( $wbook, $wsheet );
       };

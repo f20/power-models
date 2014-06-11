@@ -222,7 +222,8 @@ supplier under an EHV Distribution Charging Methodology (EDCM).
 Charges between supplier and end customer are a bilateral contractual matter.  A supplier may apply
 its own charges in addition to, or instead of, the charges that this template illustrates.
 
-This template is for illustration only.  In case of conflict, the published statement of Distribution Use of System charges takes precedence. 
+This template is for illustration only.  In case of conflict, the published statement of
+Distribution Use of System charges takes precedence. 
 
 EOX
       ),
