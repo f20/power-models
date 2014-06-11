@@ -448,9 +448,9 @@ EOL
             'Network use factor'
         ),
         lines => <<'EOT'
-These network use factors indicate to what extent each network level is used by each tariff.
-This table reflects the policy that generators receive credits only in respect of network levels above the voltage of connection. Generators do not receive credits at the voltage of connection.
-The factors in this table are before any adjustment for a 132kV/HV network level or for generation-dominated areas.
+These network use factors indicate to what extent each network level is used by each tariff. This table reflects the policy that
+generators receive credits only in respect of network levels above the voltage of connection. Generators do not receive credits at the
+voltage of connection. The factors in this table are before any adjustment for a 132kV/HV network level or for generation-dominated areas.
 EOT
     );
 

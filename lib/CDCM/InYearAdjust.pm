@@ -79,10 +79,11 @@ sub inYearAdjustUsingBefore {
         };
 
         Columnset(
-            name =>
-'If modelling a second in-year tariff change, volumes within the charging year to which tariffs in table 1097 apply (if any)',
+            name => 'If modelling a second in-year tariff change, '
+              . 'volumes within the charging year to which tariffs in table 1097 apply (if any)',
             lines => [
-'Leave this table blank unless you are modelling a second in-year tariff change.'
+                    'Leave this table blank unless '
+                  . 'you are modelling a second in-year tariff change.'
             ],
             number   => 1098,
             appendTo => $model->{inputTables},
@@ -115,8 +116,8 @@ sub inYearAdjustUsingBefore {
         };
 
         Columnset(
-            name =>
-'If modelling an in-year tariff change, volumes within the charging year to which tariffs in table 1095 apply (if any)',
+            name => 'If modelling an in-year tariff change, '
+              . 'volumes within the charging year to which tariffs in table 1095 apply (if any)',
             lines => [
 'Leave this table blank if setting tariffs for a full financial year.'
             ],

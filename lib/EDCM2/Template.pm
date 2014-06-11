@@ -266,24 +266,25 @@ EOX
       <<EOL,
 From the National Terms of Connection
 
-12.6 Except where a variation requires a Modification, either party may propose a variation to the Maximum Import Capacity and/or Maximum Export
-Capacity by notice in writing to the other Party. The Company and the Customer shall negotiate in good faith such a variation, but where it is
-not agreed section 23 of the Act may entitle the Customer to refer the matter to the Authority.
+12.6 Except where a variation requires a Modification, either party may propose a variation to the Maximum Import Capacity and/or Maximum
+Export Capacity by notice in writing to the other Party. The Company and the Customer shall negotiate in good faith such a variation, but
+where it is not agreed section 23 of the Act may entitle the Customer to refer the matter to the Authority.
 
-12.7 Any reduction in the Maximum Import Capacity or the Maximum Export Capacity pursuant to Clause 12.6 shall, where the Parties have within
-the preceding 12 months agreed the Maximum Import Capacity or the Maximum Export Capacity (as applicable), only take effect following the expiry
-of 12 months from the date of such previous agreement (unless the Company expressly agrees otherwise).
+12.7 Any reduction in the Maximum Import Capacity or the Maximum Export Capacity pursuant to Clause 12.6 shall, where the Parties have
+within the preceding 12 months agreed the Maximum Import Capacity or the Maximum Export Capacity (as applicable), only take effect
+following the expiry of 12 months from the date of such previous agreement (unless the Company expressly agrees otherwise).
 EOL
 
       <<EOL,
 From the CDCM
 
-149. The level of MIC will be agreed at the time of connection and when an increase has been approved. Following such an agreement (be it at the
-time of connection or an increase) no reduction in MIC will be allowed for a period of one year.
+149. The level of MIC will be agreed at the time of connection and when an increase has been approved. Following such an agreement (be it
+at the time of connection or an increase) no reduction in MIC will be allowed for a period of one year.
 
-150. Reductions to the MIC may only be permitted once in a 12 month period and no retrospective changes will be allowed. Where MIC is reduced
-the new lower level will be agreed with reference to the level of the customers’ maximum demand. It should be noted that where a new lower level
-is agreed the original capacity may not be available in the future without the need for network reinforcement and associated cost.
+150. Reductions to the MIC may only be permitted once in a 12 month period and no retrospective changes will be allowed. Where MIC is
+reduced the new lower level will be agreed with reference to the level of the customers’ maximum demand. It should be noted that where a
+new lower level is agreed the original capacity may not be available in the future without the need for network reinforcement and
+associated cost.
 EOL
 
       [
@@ -359,15 +360,14 @@ sub templateExport {
 
 ELECTRICITY DISTRIBUTION CHARGES INFORMATION FOR EXPORT
 
-This template is intended to illustrate the use of system charges that a distributor might levy on a
-generator or supplier under an EHV Distribution Charging Methodology (EDCM).
+This template is intended to illustrate the use of system charges that a distributor might levy
+on a generator or supplier under an EHV Distribution Charging Methodology (EDCM).
 
-Any charges between generator, supplier, customer and site owner are contractual matters.  They may
-or may not reflect the charges that this template illustrates.
+Any charges between generator, supplier, customer and site owner are contractual matters.  They
+may or may not reflect the charges that this template illustrates.
 
-This template is for illustration only.  In case of conflict, the published statement of Distribution Use of System charges takes precedence.
-
-This template is not complete.
+This template is not complete, and  is for illustration only.  In case of conflict, the
+published statement of Distribution Use of System charges takes precedence.
 
 EOX
 

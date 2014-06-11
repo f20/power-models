@@ -322,9 +322,9 @@ Source: load data analysis.
 This table relates to the $xst TPR or charging period for each tariff.
 EOT
                   . ( $r > 1 ? 'See notes on table 1061.' : <<'EOT'),
-Each line relates to a different user type and tariff structure.
-For each user type and tariff structure, the figure entered against each of the time bands used for network analysis is
-the proportion of the units recorded on the relevant TPR or within the relevant charging period that would fall with each time band.
+Each line relates to a different user type and tariff structure. For each user type and tariff structure, the
+figure entered against each of the time bands used for network analysis is the proportion of the units recorded
+on the relevant TPR or within the relevant charging period that would fall with each time band.
 EOT
                 rows  => $usersWithInput,
                 cols  => $timebandSet,

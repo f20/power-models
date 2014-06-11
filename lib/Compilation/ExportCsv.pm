@@ -78,21 +78,24 @@ sub csvCreate {
             'line',
             map { $_->[0] } @{
                 $$self->selectall_arrayref(
-'select "t" || tab || "c" || col from columns order by colid'
+                        'select "t" || tab || "c" || col'
+                      . ' from columns order by colid'
                 )
             }
         );
         my $q =
-          $$self->prepare(
-'select bid, company, row from companies inner join data using (bid) where tab=? and col=1 and row>0 order by company, row'
-          );
+          $$self->prepare( 'select bid, company, row from '
+              . 'companies inner join data using (bid)'
+              . ' where tab=? and col=1 and row>0 order by company, row' );
         $q->execute($tab);
         while ( my ( $bid, $co, $row ) = $q->fetchrow_array ) {
             _writeCsvLine(
                 $fh, $co, $row,
                 map { $_ && defined $_->[0] ? $_->[0] : undef } @{
                     $$self->selectall_arrayref(
-'select v from columns left join data on (data.tab=columns.tab and data.col=columns.col and bid=? and row=?) order by colid',
+                        'select v from columns left join data on '
+                          . '(data.tab=columns.tab and data.col=columns.col and bid=? and row=?)'
+                          . ' order by colid',
                         undef, $bid, $row
                     )
                 }
@@ -102,7 +105,10 @@ sub csvCreate {
     }
     if (
         0 < $$self->do(
-'insert into columns (tab, col) select tab, col from data where tab>1099 and tab<1181 and col>0 and row=1 and exists (select * from data as d2 where d2.tab=data.tab and d2.col=data.col+1 and d2.bid=data.bid) group by tab, col order by tab, col'
+                'insert into columns (tab, col) select tab, col from data '
+              . 'where tab>1099 and tab<1181 and col>0 and row=1 and '
+              . 'exists (select * from data as d2 where d2.tab=data.tab and d2.col=data.col+1 and d2.bid=data.bid) '
+              . 'group by tab, col order by tab, col'
         )
       )
     {
@@ -113,7 +119,8 @@ sub csvCreate {
             'company',
             map { $_->[0] } @{
                 $$self->selectall_arrayref(
-'select "t" || tab || "c" || col from columns order by colid'
+                        'select "t" || tab || "c" || col '
+                      . 'from columns order by colid'
                 )
             }
         );
@@ -126,7 +133,9 @@ sub csvCreate {
                 $fh, $co,
                 map { $_->[0] } @{
                     $$self->selectall_arrayref(
-'select v from columns left join data on (data.tab=columns.tab and data.col=columns.col and data.row=1 and bid=?) order by colid',
+                        'select v from columns left join data on '
+                          . '(data.tab=columns.tab and data.col=columns.col and data.row=1 and bid=?)'
+                          . ' order by colid',
                         undef, $bid
                     )
                 }

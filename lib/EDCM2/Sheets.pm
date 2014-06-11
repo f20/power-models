@@ -479,7 +479,7 @@ sub worksheetsAndClosures {
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->fit_to_pages( 1, 2 );
         $wsheet->set_column( 0, 0,   30 );
-        $wsheet->set_column( 1, 1,   90 );
+        $wsheet->set_column( 1, 1,   105 );
         $wsheet->set_column( 2, 250, 30 );
         $_->wsWrite( $wbook, $wsheet ) foreach $model->topNotes;
         $wbook->writeColourCode($wsheet);
@@ -515,9 +515,10 @@ sub topNotes {
         lines => [
             $model->{colour} && $model->{colour} =~ /orange|gold/ ? <<EOL : (),
 
-This document, model or dataset has been prepared by Reckon LLP on the instructions of the DCUSA Panel or one of its working groups.  Only the DCUSA
-Panel and its working groups have authority to approve this material as meeting their requirements.  Reckon LLP makes no representation about the
-suitability of this material for the purposes of complying with any licence conditions or furthering any relevant objective.
+This document, model or dataset has been prepared by Reckon LLP on the instructions of the DCUSA Panel or one of its working
+groups.  Only the DCUSA Panel and its working groups have authority to approve this material as meeting their requirements. 
+Reckon LLP makes no representation about the suitability of this material for the purposes of complying with any licence
+conditions or furthering any relevant objective.
 EOL
             $model->{colour} && $model->{colour} =~ /gold/ ? <<EOL :
 
@@ -529,10 +530,11 @@ UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES 
 EOL
             $model->{noLinks} ? () : <<EOL,
 
-This workbook is structured as a series of named and numbered tables. There is a list of tables below, with hyperlinks.  Above each calculation table,
-there is a description of the calculations and hyperlinks to tables from which data are used. Hyperlinks point to the relevant table column heading of
-the relevant table. Scrolling up or down is usually required after clicking a hyperlink in order to bring the relevant data and/or headings into view.
-Some versions of Microsoft Excel can display a "Back" button, which can be useful when using hyperlinks to navigate around the workbook.
+This workbook is structured as a series of named and numbered tables. There is a list of tables below, with hyperlinks.  Above
+each calculation table, there is a description of the calculations and hyperlinks to tables from which data are used. Hyperlinks
+point to the relevant table column heading of the relevant table. Scrolling up or down is usually required after clicking a
+hyperlink in order to bring the relevant data and/or headings into view. Some versions of Microsoft Excel can display a "Back"
+button, which can be useful when using hyperlinks to navigate around the workbook.
 EOL
         ]
     );
@@ -546,11 +548,12 @@ Copyright 2009-2012 Energy Networks Association Limited and others.  Copyright 2
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
 Use and distribution of the source code is subject to the conditions stated therein. 
 Any redistribution of this software must retain the following disclaimer:
-THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 EOL
     );
 }

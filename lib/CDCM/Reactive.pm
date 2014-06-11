@@ -148,8 +148,8 @@ sub reactive {
             'Network use factor (reactive)'
         ),
         lines => <<'EOT'
-These factors differ from the network use factors for active power charges/credits in the case of generators,
-who do not qualify for active power credits at the voltage of connection but are charged reactive unit charges for costs caused at that voltage.
+These factors differ from the network use factors for active power charges/credits in the case of generators, who do not qualify
+for active power credits at the voltage of connection but are charged reactive unit charges for costs caused at that voltage.
 EOT
     );
 

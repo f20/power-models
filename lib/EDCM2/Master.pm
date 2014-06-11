@@ -939,8 +939,9 @@ EOT
       ? Arithmetic(
         name          => 'Net forecast EDCM generation revenue (£/year)',
         defaultFormat => '0softnz',
-        arithmetic =>
-'=IF(IV123,0,IV1)+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)/100+SUMPRODUCT(IV31_IV32,IV71_IV72,IV73_IV74)*IV75/100+SUMPRODUCT(IV41_IV42,IV83_IV84)*IV85/100',
+        arithmetic    => '=IF(IV123,0,IV1)'
+          . '+SUMPRODUCT(IV21_IV22,IV51_IV52,IV53_IV54)/100'
+          . '+SUMPRODUCT(IV31_IV32,IV71_IV72,IV73_IV74)*IV75/100+SUMPRODUCT(IV41_IV42,IV83_IV84)*IV85/100',
         arguments => {
             IV123     => $model->{transparencyMasterFlag},
             IV1       => $model->{transparency}{ol119204},
@@ -1319,8 +1320,10 @@ EOT
         $demandScalingShortfall = Arithmetic(
             name          => 'Additional amount to be recovered (£/year)',
             defaultFormat => '0softnz',
-            arithmetic =>
-'=IV1-(SUM(IV21_IV22)+SUMPRODUCT(IV31_IV32,IV33_IV34)+SUMPRODUCT(IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54)*IV9/100',
+            arithmetic    => '=IV1'
+              . '-(SUM(IV21_IV22)+SUMPRODUCT(IV31_IV32,IV33_IV34)'
+              . '+SUMPRODUCT(IV41_IV42,IV43_IV44,IV35_IV36,IV51_IV52)/IV54'
+              . ')*IV9/100',
             arguments => {
                 IV1       => $totalRevenue3,
                 IV31_IV32 => $capacityChargeT,
