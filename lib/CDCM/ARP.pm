@@ -39,8 +39,8 @@ sub new {
         scenario         => [],
         statsAssumptions => [],
         statsSections    => [ split /\n/, <<EOL ],
-General aggregates
-Illustrative charges
+Annual charges for illustrative customers (£/year)
+DNO-wide aggregates
 EOL
       },
       shift;

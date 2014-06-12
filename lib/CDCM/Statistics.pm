@@ -115,7 +115,7 @@ EOL
       );
 
     Columnset(
-        name     => 'Illustrative customer assumptions',
+        name     => 'Assumed usage for illustrative customers',
         number   => 1202,
         appendTo => $model->{arpSharedData}
         ? $model->{arpSharedData}{statsAssumptions}
@@ -156,7 +156,7 @@ sub makeStatisticsTables {
     } @$rows;
 
     my $stats = SpreadsheetModel::Custom->new(
-        name          => 'Illustrative customer charge (£/year)',
+        name          => 'Annual charges for illustrative customers (£/year)',
         defaultFormat => '0softnz',
         rows          => $annualUnits->{rows},
         custom        => [
@@ -214,7 +214,9 @@ sub makeStatisticsTables {
         },
     );
 
-    $model->{arpSharedData}->addStats( 'Illustrative charges', $model, $stats )
+    $model->{arpSharedData}
+      ->addStats( 'Annual charges for illustrative customers (£/year)',
+        $model, $stats )
       if $model->{arpSharedData};
 
     push @{ $model->{statisticsTables} }, $stats;

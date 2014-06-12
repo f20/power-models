@@ -35,7 +35,7 @@ explore some of the functionality of this code:
     perl run/make.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
     perl run/make.pl EDCM/Issue-70/%-i70-FCP.yml EDCM/Issue-70/%-i70-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/WPD-WestM.yml Extras/Blank.yml
     perl run/make.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-model132.yml CDCM/Current/Blank1001.yml
-    perl run/make.pl -pickbest -template=%%-ARP CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wales*.yml CDCM/Future/Data-20*/*Wales*.yml
+    perl run/make.pl -pickbest -template=%%-ARP CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wales*.yml CDCM/Future/Data-20??-02/*Wales*.yml
     perl run/make.pl -pickbest -template=%%-ARP-179 CDCM/*/%-micro*.yml CDCM/Data-20??-02/*SHEPD*.yml CDCM/Future/Data-20??-02/*SHEPD*.yml
     perl run/make.pl -pickbest -template=%%-test CDCM/Current/%-micro*.yml CDCM/Data-2014-02/ENW* CDCM/Future/Data-201?-02/ENW*
     
@@ -50,4 +50,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 28 May 2014.
+Franck Latrémolière, 12 June 2014.
