@@ -1,0 +1,20 @@
+---
+.: Micro-model for DCP 123 after DCP 163
+PerlModule: CDCM
+arp: permpan
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+nickName: CDCM model (DCP 123)
+noLLFCs: 1
+noLinks: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: dcp123hybridadder
+standing: sub132
+summary: arpstatistics
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDaySpecial
+version: DCP 123

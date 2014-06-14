@@ -57,8 +57,8 @@ sub factory {
     my ($class) = @_;
     my $self = bless {}, $class;
     my $threads1 = 2;
-    my @options;
-    my ( $workbookModule, @rulesets, @datasets, %files, $pickBestRules );
+    my ( $workbookModule, @rulesets, @datasets, %files, @createOptions,
+        %manufacturingSettings );
 
     $self->{processStream} = sub {
         my ( $blob, $fileName ) = @_;
@@ -147,8 +147,8 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         $self;
     };
 
-    $self->{pickBestRules} = sub {
-        $pickBestRules = exists $_[0] ? $_[0] : 1;
+    $self->{setSettings} = sub {
+        %manufacturingSettings = ( %manufacturingSettings, @_ );
     };
 
     $self->{useXLSX} = sub {
@@ -295,7 +295,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
     };
 
     my $addToList = sub {
-        my ( $data, $rule ) = @_;
+        my ( $data, $rule, $extras ) = @_;
         my $spreadsheetFile = $rule->{template};
         if ( $rule->{revisionText} ) {
             $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
@@ -304,8 +304,13 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         $spreadsheetFile =~
           s/%%/($data->{'~datasetName'}=~m#(.*)-[0-9]{4}-[0-9]{2}#)[0]/eg;
         $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
+        if ( exists $manufacturingSettings{output} ) {
+            $spreadsheetFile =~ tr/-/ /;
+            $extras->{identification} = $spreadsheetFile;
+            $spreadsheetFile = $manufacturingSettings{output} ||'';
+        }
         $spreadsheetFile .= eval { $workbookModule->fileExtension; }
-          || ( $workbookModule =~ /xlsx/i ? '.xlsx' : '.xls' );
+          || ( $workbookModule =~ /xlsx/i ? '.xlsx' : '.xls' ) if $spreadsheetFile;
         if ( $files{$spreadsheetFile} ) {
             $files{$spreadsheetFile} = [
                 undef,
@@ -313,12 +318,12 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                       $files{$spreadsheetFile}[0]
                     ? $files{$spreadsheetFile}
                     : @{ $files{$spreadsheetFile}[1] },
-                    [ $rule, $data ]
+                    [ $rule, $data, $extras || () ]
                 ]
             ];
         }
         else {
-            $files{$spreadsheetFile} = [ $rule, $data ];
+            $files{$spreadsheetFile} = [ $rule, $data, $extras || () ];
         }
     };
 
@@ -332,7 +337,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                   /([A-Z0-9-]+)\/(?:.*(20[0-9][0-9]-[0-9][0-9]))?.*/
                 : ''
               ]
-              if $pickBestRules;
+              if $manufacturingSettings{pickBestRules};
             foreach my $rule (@rulesets) {
                 next
                   if $rule->{wantTables} && keys %{ $data->{dataset} }
@@ -359,16 +364,16 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
     $self->{prepare} = sub {
         map {
             $files{$_}
-              && ( $files{$_} = _mergeRuleData( @{ $files{$_} } ) ) ? $_ : ();
+              && ( $files{$_} = _merge( @{ $files{$_} } ) ) ? $_ : ();
         } @_;
     };
 
     $self->{addOptions} = sub {
-        push @options, @_;
+        push @createOptions, @_;
     };
 
     $self->{run} = sub {
-        $workbookModule->create( $_, $files{$_}, @options ) foreach @_;
+        $workbookModule->create( $_, $files{$_}, @createOptions ) foreach @_;
     };
 
     $self->{setThreads} = sub {
@@ -381,7 +386,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         foreach (@_) {
             Ancillary::ParallelRunning::waitanypid($threads1);
             Ancillary::ParallelRunning::registerpid(
-                $workbookModule->bgCreate( $_, $files{$_}, @options ) );
+                $workbookModule->bgCreate( $_, $files{$_}, @createOptions ) );
         }
         Ancillary::ParallelRunning::waitanypid(0);
     };
@@ -390,13 +395,12 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
 
 }
 
-sub _mergeRuleData {
-    my ( $rule, $data ) = @_;
-    if ( !$rule && ref $data eq 'ARRAY' ) {
-        my @result = map { _mergeRuleData(@$_); } @$data;
+sub _merge {
+    if ( !$_[0] && ref $_[1] eq 'ARRAY' ) {
+        my @result = map { _merge(@$_); } @{ $_[1] };
         return wantarray ? @result : \@result;
     }
-    my %options = ( %$rule, %$data );
+    my %options = map { %$_ } @_;
     my %opt = %options;
     delete $opt{$_} foreach qw(dataset datasetOverride);
     $opt{password} = "***" if $opt{password};

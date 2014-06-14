@@ -281,8 +281,8 @@ sub pcdApplyDiscounts {
                   ->{'Fixed charge p/MPAN/day'}
             }
           );
-        $model->{arpSharedData}->addStats( $model, $totalImpactOfElectionBung )
-          if $model->{arpSharedData};
+        $model->{sharedData}->addStats( $model, $totalImpactOfElectionBung )
+          if $model->{sharedData};
     }
 
     $tariffTable = {
@@ -313,117 +313,8 @@ sub pcdApplyDiscounts {
         } @$allComponents
     };
 
-    my $allTariffsReordered = $allTariffs;
-    my @allTariffColumns    = @{$tariffTable}{@$allComponents};
-    $model->{allTariffColumns} = \@allTariffColumns;
-
-    unless ( $model->{tariffOrder} ) {
-
-        push @{ $model->{postPcdApplicationResults} },
-          Columnset(
-            name    => 'Tariffs',
-            columns => [ @{$tariffTable}{@$allComponents} ],
-          );
-
-        my @allT = map { $allTariffs->{list}[$_] } $allTariffs->indices;
-
-        $allTariffsReordered = Labelset(
-            name => 'All tariffs',
-            list => [
-                ( grep { !/LDNO/i } @allT ),
-                ( grep { /LDNO lv/i } @allT ),
-                ( grep { /LDNO hv/i && !/LDNO hv sub/i } @allT ),
-                ( grep { /LDNO hv sub/i } @allT ),
-                ( grep { /LDNO 33/i && !/LDNO 33kV sub/i } @allT ),
-                ( grep { /LDNO 33kV sub/i } @allT ),
-                ( grep { /LDNO 132/i } @allT ),
-                (
-                    grep {
-                             /LDNO/i
-                          && !/LDNO lv/i
-                          && !/LDNO hv/i
-                          && !/LDNO 33/i
-                          && !/LDNO 132/i
-                    } @allT
-                )
-            ]
-        );
-
-        @allTariffColumns =
-          map {
-            Stack(
-                name          => $tariffTable->{$_}{name},
-                defaultFormat => $tariffTable->{$_}{defaultFormat},
-                rows          => $allTariffsReordered,
-                cols          => $tariffTable->{$_}{cols},
-                sources       => [ $tariffTable->{$_} ]
-              )
-          } @$allComponents;
-
-    }
-
     push @{ $model->{roundingResults} }, pop @{ $model->{tariffSummary} };
 
-    unshift @{ $model->{tariffSummary} }, Columnset(
-        $model->{noLLFCs}
-        ? ( name => '' )
-        : (
-            name                  => 'Tariffs',
-            dataset               => $model->{dataset},
-            doNotCopyInputColumns => 1,
-            number                => 3701,
-        ),    # hacks to get the LLFCs to copy
-        columns => [
-            $model->{noLLFCs} ? () : (
-                Dataset(
-                    rows          => $allTariffsReordered,
-                    defaultFormat => 'texthard',
-                    data          => [ map { '' } @{ $allTariffs->{list} } ],
-                    name          => 'Open LLFCs',
-                ),
-                Constant(
-                    rows          => $allTariffsReordered,
-                    defaultFormat => 'textcon',
-                    data          => [
-                        map {
-                            my ($pc) = map { /^PC(.*)/ ? $1 : () }
-                              keys %{ $componentMap->{$_} };
-                            $pc || '';
-                        } @{ $allTariffsReordered->{list} }
-                    ],
-                    name => 'PCs',
-                )
-            ),
-            @allTariffColumns,
-            $model->{noLLFCs} ? () : Dataset(
-                rows          => $allTariffsReordered,
-                defaultFormat => 'texthard',
-                data          => [ map { '' } @{ $allTariffs->{list} } ],
-                name          => 'Closed LLFCs',
-            ),
-            $model->{checksums}
-            ? (
-                map {
-                    SpreadsheetModel::Checksum->new(
-                        name => $_,
-                        /recursive|model/i ? ( recursive => 1 ) : (),
-                        digits => /([0-9])/ ? $1 : 6,
-                        columns => \@allTariffColumns,
-                        factors => [
-                            map {
-                                     $_->{defaultFormat}
-                                  && $_->{defaultFormat} !~ /000/
-                                  ? 100
-                                  : 1000;
-                            } @allTariffColumns
-                        ]
-                    );
-                  } split /;\s*/,
-                $model->{checksums}
-              )
-            : (),
-        ]
-    );
 
     $tariffTable, $unitsInYear;
 

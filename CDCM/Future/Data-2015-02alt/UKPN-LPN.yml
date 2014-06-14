@@ -3,7 +3,7 @@
   - _table: '1000. Company, charging year, data version'
   - Company charging year data version: London Power Networks
     _column: Company
-  - Company charging year data version: 2015/2016
+  - Company charging year data version: 2015/2016 alt
     _column: Year
   - Company charging year data version: Alternative
     _column: Version

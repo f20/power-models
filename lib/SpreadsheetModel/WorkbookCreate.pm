@@ -75,14 +75,18 @@ sub create {
     my $tmpDir;
     my $streamMaker = $settings{streamMaker};
     $streamMaker ||= sub {
+        my ($fn) = @_;
+        unless ($fn) {
+            binmode STDOUT;
+            return \*STDOUT;
+        }
         $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
         mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
-        open my $handle, '>',
-          $tmpDir ? catfile( $tmpDir, $fileName ) : $fileName;
+        open my $handle, '>', $tmpDir ? catfile( $tmpDir, $fn ) : $fn;
         binmode $handle;
         $handle, sub {
             if ($tmpDir) {
-                rename catfile( $tmpDir, $fileName ), $fileName;
+                rename catfile( $tmpDir, $fn ), $fn;
                 rmdir $tmpDir;
             }
         };
@@ -99,12 +103,12 @@ sub create {
     my %sheetDisplayName;
 
     foreach my $i ( 0 .. $#optionArray ) {
-        if ( $optionArray[$i]{dataset} ) {
+        if ( my $dataset = $optionArray[$i]{dataset} ) {
             $wbook->{noData} = !$optionArray[$i]{illustrative};
-            if ( my $yaml = delete $optionArray[$i]{dataset}{yaml} )
-            {                            # deferred parsing
-                require YAML;
-                $optionArray[$i]{dataset} = YAML::Load($yaml);
+            if ( my $yaml = $dataset->{yaml} ) {
+                require YAML;            # for deferred parsing
+                my $parsed = YAML::Load($yaml);
+                %$dataset = %$parsed;
             }
             if ( my $prev = $optionArray[$i]{dataset}{baseDataset} ) {
                 unless ( $prev > $i ) {
@@ -131,7 +135,8 @@ sub create {
         $options->{PerlModule}
           ->setUpMultiModelSharing( \$multiModelSharing, $options,
             \@optionArray )
-          if UNIVERSAL::can( $options->{PerlModule}, 'setUpMultiModelSharing' );
+          if $#optionArray
+          && UNIVERSAL::can( $options->{PerlModule}, 'setUpMultiModelSharing' );
         my $model = $options->{PerlModule}->new(%$options);
         map { $_->($model); } @{ $options->{requestsToSeeModel} }
           if $options->{requestsToSeeModel};
@@ -309,7 +314,7 @@ sub create {
       if UNIVERSAL::can( $multiModelSharing, 'finish' );
 
     $wbook->close;
-    $closer->();
+    $closer->() if $closer;
 
 }
 

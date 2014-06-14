@@ -1,4 +1,4 @@
-﻿package CDCM::ARP;
+﻿package CDCM::MultiModel;
 
 =head Copyright licence and disclaimer
 
@@ -40,29 +40,30 @@ sub new {
         statsAssumptions => [],
         statsSections    => [ split /\n/, <<EOL ],
 Annual charges for illustrative customers (£/year)
+Distribution costs for illustrative customers (£/MWh)
 DNO-wide aggregates
 EOL
       },
       shift;
 }
 
-sub worksheetsAndClosuresWithArp {
+sub worksheetsAndClosuresMulti {
 
-    my ( $arp, $model, $wbook, @pairs ) = @_;
+    my ( $me, $model, $wbook, @pairs ) = @_;
 
-    push @{ $arp->{finishClosures} }, sub {
+    push @{ $me->{finishClosures} }, sub {
         delete $wbook->{logger};
         delete $wbook->{titleAppend};
         delete $wbook->{noLinks};
     };
 
-    unless ( @{ $arp->{historical} } || @{ $arp->{scenario} } ) {
+    unless ( @{ $me->{historical} } || @{ $me->{scenario} } ) {
 
         push @pairs,
 
           'Index$' => sub {
             my ($wsheet) = @_;
-            push @{ $arp->{finishClosures} }, sub {
+            push @{ $me->{finishClosures} }, sub {
                 my $noLinks = delete $wbook->{noLinks};
                 $wsheet->set_column( 0, 0,   70 );
                 $wsheet->set_column( 1, 255, 14 );
@@ -98,71 +99,44 @@ EOL
 
                     ]
                 );
-                $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                $_->wsWrite( $wbook, $wsheet ) foreach
+
+                  @{ $me->{historical} }
+                  ? Notes(
                     name        => 'Historical models',
                     sourceLines => [
                         map {
                             [ $_->{nickName}, undef, @{ $_->{sheetLinks} }, ];
-                        } @{ $arp->{historical} }
+                        } @{ $me->{historical} }
                     ],
-                  ),
-                  Notes(
+                  )
+                  : (),
+
+                  @{ $me->{scenario} }
+                  ? Notes(
                     name        => 'Scenario models',
                     sourceLines => [
                         map {
                             [
-                                $arp->{scenario}[$_]{nickName},
-                                $arp->{assumptionColumns}[$_],
-                                @{ $arp->{scenario}[$_]{sheetLinks} },
+                                $me->{scenario}[$_]{nickName},
+                                $me->{assumptionColumns}[$_],
+                                @{ $me->{scenario}[$_]{sheetLinks} },
                             ];
-                        } 0 .. $#{ $arp->{scenario} }
+                        } 0 .. $#{ $me->{scenario} }
                     ],
-                  );
+                  )
+                  : ();
+
                 $wbook->{noLinks} = $noLinks if defined $noLinks;
             };
           },
 
-          1 ? () : (
-
-            'Timebands$' => sub {
-                my ($wsheet) = @_;
-                push @{ $arp->{finishClosures} }, sub {
-                    $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                        name  => 'Specification of distribution time bands',
-                        lines => 'This sheet has not yet been designed.',
-                    );
-                };
-            },
-
-            'EDCM$' => sub {
-                my ($wsheet) = @_;
-                push @{ $arp->{finishClosures} }, sub {
-                    $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                        name  => 'EDCM information',
-                        lines => 'This sheet has not yet been designed.',
-                    );
-                };
-            },
-
-            'DCP 087$' => sub {
-                my ($wsheet) = @_;
-                push @{ $arp->{finishClosures} }, sub {
-                    $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                        name  => 'DCP 087 (smoothing) calculations',
-                        lines => 'This sheet is under construction. '
-                          . 'It will mirror "Smoothed Input Details" in the current ARP.',
-                    );
-                  }
-            },
-
-          ),
-
           'Schedule 15$' => sub {
             my ($wsheet) = @_;
             $wsheet->set_column( 0, 0,   60 );
-            $wsheet->set_column( 1, 254, 20 );
+            $wsheet->set_column( 1, 254, 16 );
             $wsheet->freeze_panes( 0, 1 );
-            push @{ $arp->{finishClosures} }, sub {
+            push @{ $me->{finishClosures} }, sub {
                 Notes(
                     name => 'Analysis of allowed revenue (DCUSA schedule 15)' )
                   ->wsWrite( $wbook, $wsheet );
@@ -171,7 +145,7 @@ EOL
                       && $_->{targetRevenue} !~ /DCP132longlabels/i
                       ? $_->{table1001}
                       : undef
-                } @{ $arp->{models} };
+                } @{ $me->{models} };
                 my ($first1001) = grep { $_ } @t1001 or return;
                 my $rowset     = $first1001->{columns}[0]{rows};
                 my $rowformats = $first1001->{columns}[3]{rowFormats};
@@ -214,18 +188,13 @@ EOL
                                         IV1 => $t1001->{columns}[3],
                                         IV2 => $t1001->{columns}[4],
                                     },
-                                    table1000 =>
-                                      $arp->{models}[ $_ - 1 ]{table1000},
+                                    model     => $me->{models}[ $_ - 1 ],
                                     wsPrepare => sub {
                                         my ( $self, $wb, $ws, $format, $formula,
                                             $pha, $rowh, $colh )
                                           = @_;
-                                        my ( $w, $r, $c ) =
-                                          $self->{table1000}
-                                          ->wsWrite( $wb, $ws );
-                                        $self->{name} = q%='%
-                                          . $w->get_name . q%'!%
-                                          . xl_rowcol_to_cell( $r, $c + 1 );
+                                        $self->{name} = $self->{model}
+                                          ->modelIdentification( $wb, $ws );
                                         if ($needNote1) {
                                             undef $needNote1;
                                             push @{ $self->{location}
@@ -259,21 +228,23 @@ EOL
                                                 ? $wb->getFormat( $1 . 'copy' )
                                                 : $format,
                                                 $formula->[0],
-                                                IV1 => xl_rowcol_to_cell(
+                                                qr/\bIV1\b/ =>
+                                                  xl_rowcol_to_cell(
                                                     $rowh->{IV1} + $y,
                                                     $colh->{IV1},
                                                     1
-                                                )
+                                                  )
                                               )
                                               : (
                                                 '',
                                                 $boldFormat,
                                                 $formula->[1],
-                                                IV2 => xl_rowcol_to_cell(
+                                                qr/\bIV2\b/ =>
+                                                  xl_rowcol_to_cell(
                                                     $rowh->{IV2} + $y,
                                                     $colh->{IV2},
                                                     1
-                                                )
+                                                  )
                                               );
                                         };
                                     },
@@ -291,7 +262,7 @@ EOL
           'Statistics$' => sub {
             my ($wsheet) = @_;
             $wsheet->set_column( 0, 255, 50 );
-            $wsheet->set_column( 1, 255, 20 );
+            $wsheet->set_column( 1, 255, 16 );
             $wsheet->freeze_panes( 0, 1 );
             my $noData = delete $wbook->{noData};
             $_->wsWrite( $wbook, $wsheet ) foreach Notes(
@@ -302,27 +273,27 @@ EOL
                       . ' be included in this sheet.',
                 ],
               ),
-              @{ $arp->{statsAssumptions} };
+              @{ $me->{statsAssumptions} };
             $wbook->{noData} = $noData if defined $noData;
-            push @{ $arp->{finishClosures} }, sub {
+            push @{ $me->{finishClosures} }, sub {
                 $wbook->{noLinks} = 1;
                 $_->wsWrite( $wbook, $wsheet )
-                  foreach $arp->statisticsColumnsets( $wbook, $wsheet );
+                  foreach $me->statisticsColumnsets( $wbook, $wsheet );
             };
           };
 
     }
 
-    push @{ $arp->{models} }, $model;
+    push @{ $me->{models} }, $model;
 
     if ( ref $model->{dataset} eq 'HASH' && !$model->{dataset}{baseDataset} ) {
-        push @{ $arp->{historical} }, $model;
+        push @{ $me->{historical} }, $model;
         return @pairs;
     }
 
-    unless ( $arp->{assumptionColumns} ) {
-        $arp->{assumptionColumns} = [];
-        $arp->{assumptionRowset}  = Labelset(
+    unless ( $me->{assumptionColumns} ) {
+        $me->{assumptionColumns} = [];
+        $me->{assumptionRowset}  = Labelset(
             list => [
                 'Change in the price control index (RPI)',              #  0
                 'MEAV change: 132kV',                                   #  1
@@ -361,32 +332,24 @@ EOL
             my $noLinks     = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
             $_->wsWrite( $wbook, $wsheet )
-              foreach $arp->{assumptions} = Notes( name => 'Assumptions' );
+              foreach $me->{assumptions} = Notes( name => 'Assumptions' );
             my $headerRowForLater = ++$wsheet->{nextFree};
             ++$wsheet->{nextFree};
-            push @{ $arp->{finishClosures} }, sub {
+            push @{ $me->{finishClosures} }, sub {
 
-                for ( my $i = 0 ; $i < @{ $arp->{assumptionColumns} } ; ++$i ) {
-                    my $model = $arp->{assumptionColumns}[$i]{model};
-                    my ( $w, $r, $c ) =
-                      $model->{table1000}->wsWrite( $wbook, $wsheet );
+                for ( my $i = 0 ; $i < @{ $me->{assumptionColumns} } ; ++$i ) {
+                    my $model = $me->{assumptionColumns}[$i]{model};
                     $wsheet->write(
                         $headerRowForLater + 1,
                         $i + 1,
-                        q%="To "&'%
-                          . $w->get_name . q%'!%
-                          . xl_rowcol_to_cell( $r, $c + 1 ),
+                        $model->modelIdentification( $wbook, $wsheet ),
                         $wbook->getFormat('thc')
                     );
-                    ( $w, $r, $c ) =
-                      $model->{sourceModel}{table1000}
-                      ->wsWrite( $wbook, $wsheet );
                     $wsheet->write(
                         $headerRowForLater,
                         $i + 1,
-                        q%="From "&'%
-                          . $w->get_name . q%'!%
-                          . xl_rowcol_to_cell( $r, $c + 1 ),
+                        $model->{sourceModel}
+                          ->modelIdentification( $wbook, $wsheet ),
                         $wbook->getFormat('thc')
                     );
                 }
@@ -394,7 +357,7 @@ EOL
             $_->wsWrite( $wbook, $wsheet ) foreach Columnset(
                 name      => '',
                 noHeaders => 1,
-                columns   => $arp->{assumptionColumns},
+                columns   => $me->{assumptionColumns},
             );
             $wbook->{logger}      = $logger;
             $wbook->{titleAppend} = $titleAppend;
@@ -402,13 +365,13 @@ EOL
         };
     }
 
-    push @{ $arp->{scenario} }, $model;
+    push @{ $me->{scenario} }, $model;
 
-    push @{ $arp->{assumptionColumns} },
-      $arp->{assumptionsByModel}{ 0 + $model } = Constant(
+    push @{ $me->{assumptionColumns} },
+      $me->{assumptionsByModel}{ 0 + $model } = Constant(
         name          => 'Assumptions',
         model         => $model,
-        rows          => $arp->{assumptionRowset},
+        rows          => $me->{assumptionRowset},
         defaultFormat => '%hardpm',
         data          => [
             [
@@ -428,18 +391,18 @@ EOL
 }
 
 sub assumptionsLocator {
-    my ( $arp, $model, $sourceModel ) = @_;
+    my ( $me, $model, $sourceModel ) = @_;
     my @assumptionsColumnLocationArray;
     sub {
         my ( $wb, $ws, $row ) = @_;
         unless ( $row =~ /^[0-9]+$/s ) {
             my $q = qr/$row/;
-            ($row) = grep { $arp->{assumptionRowset}{list}[$_] =~ /$q/; }
-              0 .. $#{ $arp->{assumptionRowset}{list} };
+            ($row) = grep { $me->{assumptionRowset}{list}[$_] =~ /$q/; }
+              0 .. $#{ $me->{assumptionRowset}{list} };
         }
         unless (@assumptionsColumnLocationArray) {
             @assumptionsColumnLocationArray =
-              $arp->{assumptionsByModel}{ 0 + $model }->wsWrite( $wb, $ws );
+              $me->{assumptionsByModel}{ 0 + $model }->wsWrite( $wb, $ws );
             $assumptionsColumnLocationArray[0] =
               q%'% . $assumptionsColumnLocationArray[0]->get_name . q%'!%;
         }
@@ -453,21 +416,22 @@ sub assumptionsLocator {
 }
 
 sub statisticsColumnsets {
-    my ( $arp, $wbook, $wsheet ) = @_;
+    my ( $me, $wbook, $wsheet ) = @_;
     map {
-        if ( $arp->{statsRows}[$_] ) {
-            my $rows = Labelset( list => $arp->{statsRows}[$_] );
-            my $statsMaps = $arp->{statsMap}[$_];
+        if ( $me->{statsRows}[$_] ) {
+            my $rows = Labelset( list => $me->{statsRows}[$_] );
+            my $statsMaps = $me->{statsMap}[$_];
+            $rows->{groups} = 'fake';
+            for ( my $r = 0 ; $r < @{ $rows->{list} } ; ++$r ) {
+                $rows->{groupid}[$r] = 'fake'
+                  if grep { $_->[$r] } values %$statsMaps;
+            }
             my @columns =
               map {
                 if ( my $relevantMap = $statsMaps->{ 0 + $_ } ) {
-                    my ( $w, $r, $c ) =
-                      $_->{table1000}->wsWrite( $wbook, $wsheet );
                     SpreadsheetModel::Custom->new(
-                        name => q%='%
-                          . $w->get_name . q%'!%
-                          . xl_rowcol_to_cell( $r, $c + 1 ),
-                        rows      => $rows,
+                        name => $_->modelIdentification( $wbook, $wsheet ),
+                        rows => $rows,
                         custom    => [ map { "=IV1$_"; } 0 .. $#$relevantMap ],
                         arguments => {
                             map {
@@ -517,18 +481,18 @@ sub statisticsColumnsets {
                 else {
                     ();
                 }
-              } @{ $arp->{models} };
+              } @{ $me->{models} };
             Columnset(
-                name    => $arp->{statsSections}[$_],
+                name    => $me->{statsSections}[$_],
                 columns => \@columns,
             );
         }
         else { (); }
-    } 0 .. $#{ $arp->{statsSections} };
+    } 0 .. $#{ $me->{statsSections} };
 }
 
 sub addStats {
-    my $arp     = shift;
+    my $me      = shift;
     my $section = shift;
     my $model;
     if ( ref $section eq 'CDCM' ) {
@@ -538,23 +502,23 @@ sub addStats {
     else {
         $model = shift;
     }
-    my ($sectionNumber) = grep { $section eq $arp->{statsSections}[$_]; }
-      0 .. $#{ $arp->{statsSections} };
+    my ($sectionNumber) = grep { $section eq $me->{statsSections}[$_]; }
+      0 .. $#{ $me->{statsSections} };
     unless ( defined $sectionNumber ) {
-        push @{ $arp->{statsSections} }, $section;
-        $sectionNumber = $#{ $arp->{statsSections} };
+        push @{ $me->{statsSections} }, $section;
+        $sectionNumber = $#{ $me->{statsSections} };
     }
     foreach my $table (@_) {
         if ( my $lastRow = $table->lastRow ) {
             for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
                 my $name      = "$table->{rows}{list}[$row]";
-                my $rowNumber = $arp->{statsRowMap}[$sectionNumber]{$name};
+                my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
                 unless ( defined $rowNumber ) {
-                    push @{ $arp->{statsRows}[$sectionNumber] }, $name;
-                    $rowNumber = $arp->{statsRowMap}[$sectionNumber]{$name} =
-                      $#{ $arp->{statsRows}[$sectionNumber] };
+                    push @{ $me->{statsRows}[$sectionNumber] }, $name;
+                    $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name} =
+                      $#{ $me->{statsRows}[$sectionNumber] };
                 }
-                $arp->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
+                $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
                   [ $table, 0, $row ]
                   unless $table->{rows}{groupid}
                   && !defined $table->{rows}{groupid}[$row];
@@ -565,13 +529,13 @@ sub addStats {
               UNIVERSAL::can( $table->{name}, 'shortName' )
               ? $table->{name}->shortName
               : "$table->{name}";
-            my $rowNumber = $arp->{statsRowMap}[$sectionNumber]{$name};
+            my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
             unless ( defined $rowNumber ) {
-                push @{ $arp->{statsRows}[$sectionNumber] }, $name;
-                $rowNumber = $arp->{statsRowMap}[$sectionNumber]{$name} =
-                  $#{ $arp->{statsRows}[$sectionNumber] };
+                push @{ $me->{statsRows}[$sectionNumber] }, $name;
+                $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name} =
+                  $#{ $me->{statsRows}[$sectionNumber] };
             }
-            $arp->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
+            $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
               [ $table, 0, 0 ];
         }
     }

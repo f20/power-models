@@ -532,11 +532,11 @@ sub summaryOfRevenues {
         $totalRevenuesFromReactive ? $totalRevenuesFromReactive : (),
     );
 
-    if ( $model->{arpSharedData} ) {
-        $model->{arpSharedData}->addStats( $model, $totalUnits, $totalMpans,
+    if ( $model->{sharedData} ) {
+        $model->{sharedData}->addStats( $model, $totalUnits, $totalMpans,
             $totalRevenuesFromTariffs );
         if ( $model->{arp} && $model->{arp} =~ /permpan/i ) {
-            $model->{arpSharedData}
+            $model->{sharedData}
               ->addStats( 'Average charge per MPAN', $model, $averageByMpan );
         }
     }
@@ -883,7 +883,7 @@ Change something below to put something like table 1095 in full-year models inst
 
     push @rev, $atwRev;
 
-    foreach my $idnoType ( 'LV', 'HV', 'HV Sub' ) {
+    foreach my $idnoType ( 'LV', 'HV', 'HV Sub', 'Any' ) {
         next unless grep { /^LDNO $idnoType:/ } @{ $allTariffs->{list} };
         push @{ $atwMarginTariffs->{accepts} }, my $tariffset = Labelset(
             list => [
@@ -903,8 +903,12 @@ Change something below to put something like table 1095 in full-year models inst
           Arithmetic(
             name          => "LDNO $idnoType margin (normalised £)",
             defaultFormat => '0.00soft',
-            arithmetic    => '=IF(IV3,IV1-IV2,"")',
-            arguments     => { IV1 => $atwRev, IV2 => $irev, IV3 => $irev }
+            rowFormats    => [
+                map { $_ eq 'N/A' ? 'unavailable' : undef }
+                  @{ $tariffset->{list} }
+            ],
+            arithmetic => '=IF(IV3,IV1-IV2,"")',
+            arguments  => { IV1 => $atwRev, IV2 => $irev, IV3 => $irev }
           );
     }
 

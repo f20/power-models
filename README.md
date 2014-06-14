@@ -22,7 +22,7 @@ Step 2. Download https://github.com/f20/power-models/archive/master.zip and extr
 
 Step 3. Change to the root of the repository and try this sample command:
 
-    perl run/make.pl CDCM/Current/%-wfl132.yml CDCM/Data-2014-02/NPG-Northeast.yml
+    perl run/make.pl -stats CDCM/Current/%-wfl132.yml CDCM/Data-2014-02/NPG-Northeast.yml
 
 Step 4. If this fails, examine the error messages.  Usually the problem is a missing module
 which can be installed from CPAN.  Once you have solved the problem, re-run the test command in
@@ -35,9 +35,11 @@ explore some of the functionality of this code:
     perl run/make.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
     perl run/make.pl EDCM/Issue-70/%-i70-FCP.yml EDCM/Issue-70/%-i70-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/WPD-WestM.yml Extras/Blank.yml
     perl run/make.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-model132.yml CDCM/Current/Blank1001.yml
-    perl run/make.pl -pickbest -template=%%-ARP CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wales*.yml CDCM/Future/Data-20??-02/*Wales*.yml
-    perl run/make.pl -pickbest -template=%%-ARP-179 CDCM/*/%-micro*.yml CDCM/Data-20??-02/*SHEPD*.yml CDCM/Future/Data-20??-02/*SHEPD*.yml
-    perl run/make.pl -pickbest -template=%%-test CDCM/Current/%-micro*.yml CDCM/Data-2014-02/ENW* CDCM/Future/Data-201?-02/ENW*
+    perl run/make.pl -output ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/*.yml > All-DNOs-2014-02-postDCP118.xlsx
+    perl run/make.pl -output=DCP-123-2014-02 CDCM/Current/%-micro163.yml CDCM/Scaling/%-micro123.yml CDCM/Data-2014-02/*.yml
+    perl run/make.pl -template=%%-ARP -pickbest CDCM/Current/%-micro*.yml CDCM/Data-2014-02/ENW* CDCM/Future/Data-2015-02/ENW*
+    perl run/make.pl -template=%%-ARP -pickbest CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wales*.yml CDCM/Future/Data-20??-02/*Wales*.yml
+    perl run/make.pl -template=%%-ARP-DCPs -pickbest CDCM/*/%-micro*.yml CDCM/Data-20??-02/*SHEPD*.yml CDCM/Future/Data-20??-02/*SHEPD*.yml
     
 This software is licensed under open source licences. Check the source code for details.
 
@@ -50,4 +52,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 12 June 2014.
+Franck Latrémolière, 14 June 2014.

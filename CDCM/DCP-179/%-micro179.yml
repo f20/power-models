@@ -7,6 +7,7 @@ arp: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
+illustrative: 1
 nickName: CDCM model (with DCP 179)
 noLLFCs: 1
 noLinks: 1

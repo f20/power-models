@@ -599,7 +599,7 @@ EOL
         unless ( $model->{arp} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 1 );
-            $wsheet->set_column( 0, 0,   50 );
+            $wsheet->set_column( 0, 0,   64 );
             $wsheet->set_column( 1, 250, 20 );
         }
         my $notes = Notes(
@@ -684,11 +684,21 @@ EOL
         }
     }
 
-    $model->{arpSharedData}
-      ? $model->{arpSharedData}
-      ->worksheetsAndClosuresWithArp( $model, $wbook, @wsheetsAndClosures )
+    $model->{sharedData}
+      ? $model->{sharedData}
+      ->worksheetsAndClosuresMulti( $model, $wbook, @wsheetsAndClosures )
       : @wsheetsAndClosures;
 
+}
+
+sub modelIdentification {
+    my ( $model, $wb, $ws ) = @_;
+    return $model->{identification} if $model->{identification};
+    my ( $w, $r, $c ) = $model->{table1000}->wsWrite( $wb, $ws );
+    $model->{identification} =
+        q%='%
+      . $w->get_name . q%'!%
+      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $r, $c + 1 );
 }
 
 sub technicalNotes {

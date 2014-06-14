@@ -48,7 +48,6 @@ sub requiredModulesForRuleset {
 
 sub setUpMultiModelSharing {
     my ( $module, $mmsRef, $options, $oaRef ) = @_;
-    return unless $#$oaRef;
     require ModelM::MultiModel;
     $options->{multiModelSharing} = $$mmsRef ||= ModelM::MultiModel->new;
 }

@@ -88,9 +88,9 @@ sub derivativeDataset {
     $setDatasetTable->( defaultClosure => sub { my ($cell) = @_; "=$cell"; } );
 
     if (
-        $model->{arpSharedData}
+        $model->{sharedData}
         && ( my $getAssumptionCell =
-            $model->{arpSharedData}->assumptionsLocator( $model, $sourceModel )
+            $model->{sharedData}->assumptionsLocator( $model, $sourceModel )
         )
       )
     {

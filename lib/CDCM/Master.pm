@@ -85,9 +85,8 @@ sub requiredModulesForRuleset {
 
 sub setUpMultiModelSharing {
     my ( $module, $mmsRef, $options, $oaRef ) = @_;
-    return unless $#$oaRef;
-    require CDCM::ARP;
-    $options->{arpSharedData} = $$mmsRef ||= CDCM::ARP->new;
+    require CDCM::MultiModel;
+    $options->{sharedData} = $$mmsRef ||= CDCM::MultiModel->new;
 }
 
 sub new {
@@ -819,6 +818,119 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         );
     }
 
+    my $allTariffsReordered  = $allTariffs;
+    my $tariffTableReordered = $tariffTable;
+
+    unless ( $model->{tariffOrder} ) {
+
+        push @{ $model->{postPcdApplicationResults} },
+          Columnset(
+            name    => 'Tariffs',
+            columns => [ @{$tariffTable}{@$allComponents} ],
+          );
+
+        my @allT = map { $allTariffs->{list}[$_] } $allTariffs->indices;
+
+        $allTariffsReordered = Labelset(
+            name => 'All tariffs',
+            list => [
+                ( grep { !/LDNO/i } @allT ),
+                ( grep { /LDNO lv/i } @allT ),
+                ( grep { /LDNO hv/i && !/LDNO hv sub/i } @allT ),
+                ( grep { /LDNO hv sub/i } @allT ),
+                ( grep { /LDNO 33/i && !/LDNO 33kV sub/i } @allT ),
+                ( grep { /LDNO 33kV sub/i } @allT ),
+                ( grep { /LDNO 132/i } @allT ),
+                (
+                    grep {
+                             /LDNO/i
+                          && !/LDNO lv/i
+                          && !/LDNO hv/i
+                          && !/LDNO 33/i
+                          && !/LDNO 132/i
+                    } @allT
+                )
+            ]
+        );
+
+        $tariffTableReordered = {
+            map {
+                $_ => Stack(
+                    name          => $tariffTable->{$_}{name},
+                    defaultFormat => $tariffTable->{$_}{defaultFormat},
+                    rows          => $allTariffsReordered,
+                    cols          => $tariffTable->{$_}{cols},
+                    sources       => [ $tariffTable->{$_} ]
+                );
+            } @$allComponents
+        };
+
+    }
+
+    my @allTariffColumns = @{$tariffTableReordered}{@$allComponents};
+    $model->{allTariffColumns} = \@allTariffColumns;
+
+    unshift @{ $model->{tariffSummary} }, Columnset(
+        $model->{noLLFCs}
+        ? ( name => '' )
+        : (
+            name                  => 'Tariffs',
+            dataset               => $model->{dataset},
+            doNotCopyInputColumns => 1,
+            number                => 3701,
+        ),    # hacks to get the LLFCs to copy
+        columns => [
+            $model->{noLLFCs} ? () : (
+                Dataset(
+                    rows          => $allTariffsReordered,
+                    defaultFormat => 'texthard',
+                    data          => [ map { '' } @{ $allTariffs->{list} } ],
+                    name          => 'Open LLFCs',
+                ),
+                Constant(
+                    rows          => $allTariffsReordered,
+                    defaultFormat => 'textcon',
+                    data          => [
+                        map {
+                            my ($pc) = map { /^PC(.*)/ ? $1 : () }
+                              keys %{ $componentMap->{$_} };
+                            $pc || '';
+                        } @{ $allTariffsReordered->{list} }
+                    ],
+                    name => 'PCs',
+                )
+            ),
+            @allTariffColumns,
+            $model->{noLLFCs} ? () : Dataset(
+                rows          => $allTariffsReordered,
+                defaultFormat => 'texthard',
+                data          => [ map { '' } @{ $allTariffs->{list} } ],
+                name          => 'Closed LLFCs',
+            ),
+            $model->{checksums}
+            ? (
+                map {
+                    SpreadsheetModel::Checksum->new(
+                        name => $_,
+                        /recursive|model/i ? ( recursive => 1 ) : (),
+                        digits => /([0-9])/ ? $1 : 6,
+                        columns => \@allTariffColumns,
+                        factors => [
+                            map {
+                                     $_->{defaultFormat}
+                                  && $_->{defaultFormat} !~ /000/
+                                  ? 100
+                                  : 1000;
+                            } @allTariffColumns
+                        ]
+                    );
+                  } split /;\s*/,
+                $model->{checksums}
+              )
+            : (),
+        ]
+    );
+
     if ( $model->{summary} ) {
 
         push @{ $model->{optionLines} },
@@ -869,9 +981,10 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
               if $model->{summary} =~ /hybrid/i;
         }
 
-        $model->makeStatisticsTables( $tariffTable, $daysInYear,
-            $nonExcludedComponents, $componentMap, $allTariffs, $unitsInYear )
-          if $model->{summary} =~ /stat(?:istic)?s/i;
+        $model->makeStatisticsTables(
+            $tariffTableReordered, $daysInYear, $nonExcludedComponents,
+            $componentMap,         $unitsInYear,
+        ) if $model->{summary} =~ /stat(?:istic)?s/i;
 
         $model->consultationSummary(
             $revenuesByTariff,
@@ -891,8 +1004,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
 
     }
 
-    $model->{arpSharedData}->addStats( $model, $totalRevenuesFromMatching )
-      if $model->{arpSharedData};
+    $model->{sharedData}->addStats( $model, $totalRevenuesFromMatching )
+      if $model->{sharedData};
 
     $model;
 
