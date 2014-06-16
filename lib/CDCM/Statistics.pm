@@ -60,6 +60,8 @@ sub makeStatisticsAssumptions {
     Customer 33 Small off-peak: 69
     Customer 33 Small peak-time: 69
     Customer 51 Continuous: 500
+    Customer 53 Off-peak: 500
+    Customer 55 Peak-time: 500
     Customer 81 Large continuous: 5000
     Customer 83 Large off-peak: 5000
     Customer 85 Large peak-time: 5000
@@ -68,6 +70,8 @@ sub makeStatisticsAssumptions {
     Customer 33 Small off-peak: 65
     Customer 33 Small peak-time: 65
     Customer 51 Continuous: 450
+    Customer 53 Off-peak: 450
+    Customer 55 Peak-time: 450
     Customer 81 Large continuous: 4500
     Customer 83 Large off-peak: 4500
     Customer 85 Large peak-time: 4500
@@ -76,29 +80,35 @@ sub makeStatisticsAssumptions {
     Customer 33 Small off-peak: 77
     Customer 33 Small peak-time: 0
     Customer 51 Continuous: 168
+    Customer 53 Off-peak: 77
+    Customer 55 Peak-time: 0
     Customer 81 Large continuous: 168
     Customer 83 Large off-peak: 77
     Customer 85 Large peak-time: 0
     _column: Off-peak hours/week
   - Customer 31 Small continuous: 0
     Customer 33 Small off-peak: 0
-    Customer 33 Small peak-time: 45
+    Customer 33 Small peak-time: 48
     Customer 51 Continuous: 0
+    Customer 53 Off-peak: 0
+    Customer 55 Peak-time: 48
     Customer 81 Large continuous: 0
     Customer 83 Large off-peak: 0
-    Customer 85 Large peak-time: 45
+    Customer 85 Large peak-time: 48
     _column: Peak-time hours/week
   - ~
   - Customer 11 Low use: '/(?:^|: )Domestic Unrestricted/'
     Customer 12 Medium use: '/(?:^|: )Domestic Unrestricted/'
-    Customer 15 High use: /Unrestricted/
+    Customer 15 High use: '/(?:^|^Small Non )Domestic Unrestricted/'
     Customer 31 Small continuous: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
     Customer 33 Small off-peak: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
     Customer 33 Small peak-time: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
-    Customer 51 Continuous: /(?:LV|LV Sub|HV) HH/
-    Customer 81 Large continuous: '/^HV HH|LDNO HV: (?:LV|LV Sub) HH/'
-    Customer 83 Large off-peak: '/^HV HH|LDNO HV: (?:LV|LV Sub) HH/'
-    Customer 85 Large peak-time: '/^HV HH|LDNO HV: (?:LV|LV Sub) HH/'
+    Customer 51 Continuous: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
+    Customer 53 Off-peak: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
+    Customer 55 Peak-time: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
+    Customer 81 Large continuous: /HV HH/
+    Customer 83 Large off-peak: /HV HH/
+    Customer 85 Large peak-time: /HV HH/
 EOY
 
 =head Omitted for now
@@ -133,7 +143,7 @@ EOY
 
     my @columns = map {
         my $col = $_;
-        Dataset(
+        Constant( # Editable constant: populates irrespective of data from dataset
             name          => $col->{_column},
             defaultFormat => '0hardnz',
             rows          => $rowset,
@@ -227,8 +237,7 @@ sub makeStatisticsTables {
 
     my $charge = SpreadsheetModel::Custom->new(
         name => Label(
-            'Charge £/year',
-            'Annual charges for illustrative customers (£/year)'
+            '£/year', 'Annual charges for illustrative customers (£/year)'
         ),
         defaultFormat => '0softnz',
         rows          => $fullRowset,
@@ -305,13 +314,13 @@ sub makeStatisticsTables {
     );
 
     my $stats = Arithmetic(
-        name          => '£/MWh for illustrative customers',
+        name => Label(
+            '£/MWh', 'Average charges for illustrative customers (£/MWh)'
+        ),
         defaultFormat => '0.00soft',
         arithmetic    => '=IV1/IV2',
         arguments     => { IV1 => $charge, IV2 => $units, }
     );
-
-    push @{ $model->{statisticsTables} }, $stats;
 
     if ( $model->{sharedData} ) {
         $model->{sharedData}
@@ -321,6 +330,12 @@ sub makeStatisticsTables {
           ->addStats( 'Distribution costs for illustrative customers (£/MWh)',
             $model, $stats );
     }
+
+    push @{ $model->{statisticsTables} },
+      Columnset(
+        name    => 'Statistics for illustrative customers',
+        columns => [ $charge, $stats ],
+      );
 
 }
 

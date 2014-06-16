@@ -1,5 +1,5 @@
 ---
-.: Cleaned-up model implementing DCP 163
+.: Cleaned-up model implementing DCP 163 (with stats)
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp
@@ -10,7 +10,7 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: 1
+summary: statistics
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163
 timeOfDay: timeOfDaySpecial
