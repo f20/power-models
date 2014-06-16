@@ -42,16 +42,16 @@ sub makeStatisticsAssumptions {
 
     my $colspec;
     $colspec = $model->{statistics} if ref $model->{statistics} eq 'ARRAY';
-    $colspec = $model->{dataset}{1202}
+    $colspec = $model->{dataset}{$1}
       if !$colspec
-      && $model->{summary} =~ /1202/
+      && $model->{summary} =~ /([0-9]{3,4})/
       && $model->{dataset}
-      && $model->{dataset}[1202];
+      && $model->{dataset}{$1};
     unless ($colspec) {
         require YAML;
         ($colspec) = YAML::Load(<<'EOY');
 ---
-1202:
+1234:
   - Customer 11 Low use: 1900
     Customer 12 Medium use: 3800
     Customer 15 High use: 7600
@@ -120,7 +120,7 @@ EOY
 
 =cut
 
-        $colspec = $colspec->{1202};
+        ($colspec) = values %$colspec;
     }
 
     my %capabilities;
@@ -152,12 +152,10 @@ EOY
     } grep { $_->{_column} } @$colspec;
 
     Columnset(
-        name     => 'Assumed usage for illustrative customers',
-        number   => 1202,
-        appendTo => $model->{sharedData}
-        ? $model->{sharedData}{statsAssumptions}
-        : $model->{inputTables},
-        dataset => $model->{dataset},
+        name => 'Assumed usage for illustrative customers',
+        $model->{sharedData}
+        ? ( appendTo => $model->{sharedData}{statsAssumptions} )
+        : (),
         columns => \@columns,
     );
 
@@ -172,10 +170,11 @@ EOY
 sub makeStatisticsTables {
 
     my ( $model, $tariffTable, $daysInYear, $nonExcludedComponents,
-        $componentMap, $unitsInYear )
+        $componentMap, )
       = @_;
 
-    my $allTariffs = ( values %$tariffTable )[0]{rows};
+    my ($allTariffs) = values %$tariffTable;
+    $allTariffs = $allTariffs->{rows};
 
     my ( $users, $capabilities, @columns ) = $model->makeStatisticsAssumptions;
 
@@ -216,22 +215,6 @@ sub makeStatisticsTables {
     my ($capacity) =
       grep { $_->{name} =~ m#kVA# && $_->{name} !~ /kVArh/i } @columns;
 
-    my $units = Arithmetic(
-        name => Label(
-            'MWh/year',
-            'Annual consumption of illustrative customers (MWh/year)'
-        ),
-        rows       => Labelset( list => \@groups ),
-        arithmetic => '=0.001*(IV1+IV2*(IV3+IV4)/7*IV5)',
-        arguments  => {
-            IV1 => $annualUnits,
-            IV2 => $kW,
-            IV3 => $offhours,
-            IV4 => $peakhours,
-            IV5 => $daysInYear,
-        },
-    );
-
     my $fullRowset = Labelset( groups => \@groups );
     my @map = @map{ @{ $fullRowset->{list} } };
 
@@ -242,7 +225,7 @@ sub makeStatisticsTables {
         defaultFormat => '0softnz',
         rows          => $fullRowset,
         custom        => [
-            '=10*IV1*IV91+0.01*IV71*IV94',
+            '=0.01*((IV11+IV12*(IV13+IV14)/7*IV78)*IV91+IV71*IV94)',
             '=0.01*(IV3*('
               . 'MIN(IV61,IV72/7*IV51+MAX(0,IV77/7*IV43-IV631-IV623))*IV91'
               . '+MIN(IV62,MAX(0,IV73/7*IV52-IV611)+MAX(0,IV75/7*IV42-IV632))*IV92'
@@ -250,7 +233,10 @@ sub makeStatisticsTables {
               . ')+IV71*(IV94+IV2*IV95))'
         ],
         arguments => {
-            IV1   => $units,
+            IV11  => $annualUnits,
+            IV12  => $kW,
+            IV13  => $offhours,
+            IV14  => $peakhours,
             IV2   => $capacity,
             IV3   => $kW,
             IV41  => $offhours,
@@ -275,6 +261,7 @@ sub makeStatisticsTables {
             IV75  => $daysInYear,
             IV76  => $daysInYear,
             IV77  => $daysInYear,
+            IV78  => $daysInYear,
             IV91  => $tariffTable->{'Unit rate 1 p/kWh'},
             IV92  => $tariffTable->{'Unit rate 2 p/kWh'},
             IV93  => $tariffTable->{'Unit rate 3 p/kWh'},
@@ -318,8 +305,15 @@ sub makeStatisticsTables {
             '£/MWh', 'Average charges for illustrative customers (£/MWh)'
         ),
         defaultFormat => '0.00soft',
-        arithmetic    => '=IV1/IV2',
-        arguments     => { IV1 => $charge, IV2 => $units, }
+        arithmetic    => '=IV1/(IV11+IV12*(IV13+IV14)/7*IV78)*1000',
+        arguments     => {
+            IV1  => $charge,
+            IV11 => $annualUnits,
+            IV12 => $kW,
+            IV13 => $offhours,
+            IV14 => $peakhours,
+            IV78 => $daysInYear,
+        }
     );
 
     if ( $model->{sharedData} ) {

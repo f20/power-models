@@ -982,8 +982,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         }
 
         $model->makeStatisticsTables(
-            $tariffTableReordered, $daysInYear, $nonExcludedComponents,
-            $componentMap,         $unitsInYear,
+            $tariffTableReordered,  $daysInYear,
+            $nonExcludedComponents, $componentMap,
         ) if $model->{summary} =~ /stat(?:istic)?s/i;
 
         $model->consultationSummary(
