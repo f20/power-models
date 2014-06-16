@@ -175,7 +175,7 @@ sub makeStatisticsTables {
         $componentMap, $unitsInYear )
       = @_;
 
-    my $allTariffs ||= ( values %$tariffTable )[0]{rows};
+    my $allTariffs = ( values %$tariffTable )[0]{rows};
 
     my ( $users, $capabilities, @columns ) = $model->makeStatisticsAssumptions;
 
