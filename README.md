@@ -22,7 +22,7 @@ Step 2. Download https://github.com/f20/power-models/archive/master.zip and extr
 
 Step 3. Change to the root of the repository and try this sample command:
 
-    perl run/make.pl -stats CDCM/Current/%-wfl132.yml CDCM/Data-2014-02/NPG-Northeast.yml
+    perl run/make.pl CDCM/Current/%-after163.yml CDCM/Data-2014-02/SPEN-SPM.yml
 
 Step 4. If this fails, examine the error messages.  Usually the problem is a missing module
 which can be installed from CPAN.  Once you have solved the problem, re-run the test command in
@@ -52,4 +52,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 14 June 2014.
+Franck Latrémolière, 16 June 2014.
