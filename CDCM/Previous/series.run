@@ -6,7 +6,7 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-time ../run/make.pl -pickbest ../CDCM/*/%-clean100.yml  ../CDCM/*/%-clean132.yml  ../CDCM/*/%-clean163.yml ../CDCM/Data-*-02/*
+time ../run/make.pl -pickbest ../CDCM/*/%-clean100.yml  ../CDCM/*/%-clean132.yml  ../CDCM/*/%-after163.yml ../CDCM/Data-*-02/*
 time ../run/import.pl -calc -sqlite *.xlsx
 time ../run/export.pl tscs
 

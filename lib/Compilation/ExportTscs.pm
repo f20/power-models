@@ -66,6 +66,9 @@ insert into columns select com, per, tab, col, v from models inner join data usi
 drop table if exists rows;
 create table rows (com integer, per integer, tab integer, row integer, myrow char, primary key (com, per, tab, row));
 insert into rows select com, per, tab, row, v from models inner join data using (bid) where col=0 group by com, per, tab, row;
+drop table if exists rownumbers;
+create table rownumbers (rowtab integer, rowname char, rownumber integer, primary key (rowtab, rowname));
+insert into rownumbers select tab, myrow, min(row) from rows group by myrow, tab;
 drop table if exists tscs;
 create table tscs ( com integer, per integer, tab integer, col integer, row integer, v double, primary key (tab, col, row, com, per));
 insert into tscs (com, per, tab, col, row, v) select com, per, tab, col, row, v from data inner join models using (bid) where not (row<0 or row=0 and col=0);
@@ -105,7 +108,7 @@ sub tscsCreateOutputFiles {
     $tabList->execute;
     my $fetch =
       $$self->prepare(
-'select c, tscs.per, mycolumn, myrow, tscs.v, abs(tscs.v)<1000 from tscs, companies, columns, rows where tscs.tab=? and tscs.com=companies.com and tscs.com=columns.com and tscs.per=columns.per and tscs.tab=columns.tab and tscs.col=columns.col and tscs.com=rows.com and tscs.per=rows.per and tscs.tab=rows.tab and tscs.row=rows.row order by tscs.com, tscs.tab, tscs.col, tscs.row, tscs.per'
+'select c, tscs.per, mycolumn, myrow, tscs.v, abs(tscs.v)<1000 from tscs, companies, columns, rows, rownumbers where rowname=myrow and tscs.tab=rowtab and tscs.tab=? and tscs.com=companies.com and tscs.com=columns.com and tscs.per=columns.per and tscs.tab=columns.tab and tscs.col=columns.col and tscs.com=rows.com and tscs.per=rows.per and tscs.tab=rows.tab and tscs.row=rows.row order by tscs.com, tscs.tab, tscs.col, rownumber, myrow, tscs.per'
       );
     my $tab1 = 0;
 

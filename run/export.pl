@@ -106,7 +106,7 @@ if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
     if ($base) { $name ||= $dcp . ' v ' . $base; }
     else {
         $name ||= $dcp;
-        $base = qr/original|clean|master|mini|F201|L201|F600|L600/i;
+        $base = qr/original|clean|after|master|mini|F201|L201|F600|L600/i;
     }
     require Compilation::ExportImpact;
     my @arguments = (

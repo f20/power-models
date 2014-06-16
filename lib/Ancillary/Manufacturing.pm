@@ -307,10 +307,11 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         if ( exists $manufacturingSettings{output} ) {
             $spreadsheetFile =~ tr/-/ /;
             $extras->{identification} = $spreadsheetFile;
-            $spreadsheetFile = $manufacturingSettings{output} ||'';
+            $spreadsheetFile = $manufacturingSettings{output} || '';
         }
         $spreadsheetFile .= eval { $workbookModule->fileExtension; }
-          || ( $workbookModule =~ /xlsx/i ? '.xlsx' : '.xls' ) if $spreadsheetFile;
+          || ( $workbookModule =~ /xlsx/i ? '.xlsx' : '.xls' )
+          if $spreadsheetFile;
         if ( $files{$spreadsheetFile} ) {
             $files{$spreadsheetFile} = [
                 undef,
@@ -328,34 +329,34 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
     };
 
     $self->{fileList} = sub {
-        foreach my $data (@datasets) {
-            my @scored;
-            my $metadata;
-            $metadata = [
-                  $data->{'~datasetSource'} && $data->{'~datasetSource'}{file}
-                ? $data->{'~datasetSource'}{file} =~
-                  /([A-Z0-9-]+)\/(?:.*(20[0-9][0-9]-[0-9][0-9]))?.*/
-                : ''
-              ]
-              if $manufacturingSettings{pickBestRules};
-            foreach my $rule (@rulesets) {
-                next
-                  if $rule->{wantTables} && keys %{ $data->{dataset} }
-                  and grep {
-                          !$data->{dataset}{$_}
-                      and !$data->{dataset}{yaml}
-                      || $data->{dataset}{yaml} !~ /^$_:/m
-                  } split /\s+/, $rule->{wantTables};
-                if ($metadata) {
+        if ( $manufacturingSettings{pickBestRules} ) {
+            foreach my $data (@datasets) {
+                my @scored;
+                my $metadata = [
+                    $data->{'~datasetSource'} && $data->{'~datasetSource'}{file}
+                    ? $data->{'~datasetSource'}{file} =~
+                      /([A-Z0-9-]+)\/(?:.*(20[0-9][0-9]-[0-9][0-9]))?.*/
+                    : ''
+                ];
+                foreach my $rule (@rulesets) {
+                    next
+                      if $rule->{wantTables} && keys %{ $data->{dataset} }
+                      and grep {
+                              !$data->{dataset}{$_}
+                          and !$data->{dataset}{yaml}
+                          || $data->{dataset}{yaml} !~ /^$_:/m
+                      } split /\s+/, $rule->{wantTables};
                     push @scored, [ $rule, $scorer->( $metadata, $rule ) ];
                 }
-                else {
-                    $addToList->( $data, $rule );
+                if (@scored) {
+                    @scored = sort { $b->[1] <=> $a->[1] } @scored;
+                    $addToList->( $data, $scored[0][0] );
                 }
             }
-            if (@scored) {
-                @scored = sort { $b->[1] <=> $a->[1] } @scored;
-                $addToList->( $data, $scored[0][0] );
+        }
+        else {
+            foreach my $rule (@rulesets) {
+                foreach my $data (@datasets) { $addToList->( $data, $rule ); }
             }
         }
         keys %files;
