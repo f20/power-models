@@ -131,7 +131,7 @@ EOY
               foreach grep { $_ ne '_column' } keys %$_;
         }
         else {
-            while ( my ( $k, $v ) = each $_ ) {
+            while ( my ( $k, $v ) = each %$_ ) {
                 push @{ $capabilities{$k} }, $v;
             }
         }
