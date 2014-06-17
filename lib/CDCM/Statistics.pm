@@ -56,6 +56,10 @@ sub makeStatisticsAssumptions {
     Customer 12 Medium use: 3800
     Customer 15 High use: 7600
     _column: Total consumption (kWh/year)
+  - Customer 15 High use: 5000
+    Customer 11 Low use: 475
+    Customer 12 Medium use: 950
+    _column: Rate 2 consumption (kWh/year)
   - Customer 31 Small continuous: 69
     Customer 33 Small off-peak: 69
     Customer 33 Small peak-time: 69
@@ -97,30 +101,22 @@ sub makeStatisticsAssumptions {
     Customer 85 Large peak-time: 48
     _column: Peak-time hours/week
   - ~
-  - Customer 11 Low use: '/(?:^|: )Domestic Unrestricted/'
-    Customer 12 Medium use: '/(?:^|: )Domestic Unrestricted/'
-    Customer 15 High use: '/(?:^|^Small Non )Domestic Unrestricted/'
+  - Customer 11 Low use: '/^(?:|LDNO.*: )Domestic Unrestricted/'
+    Customer 12 Medium use: '/^(?:|LDNO.*: )Domestic Unrestricted/'
+    Customer 15 High use: '/^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium)/'
     Customer 31 Small continuous: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
     Customer 33 Small off-peak: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
     Customer 33 Small peak-time: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
     Customer 51 Continuous: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
     Customer 53 Off-peak: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
     Customer 55 Peak-time: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
-    Customer 81 Large continuous: /HV HH/
-    Customer 83 Large off-peak: /HV HH/
-    Customer 85 Large peak-time: /HV HH/
+    Customer 81 Large continuous: /^HV HH/
+    Customer 83 Large off-peak: /^HV HH/
+    Customer 85 Large peak-time: /^HV HH/
 EOY
 
-=head Omitted for now
-
-  - Customer 15 High use: 1900
-    Customer 11 Low use: 475
-    Customer 12 Medium use: 950
-    _column: Rate 2 consumption (kWh/year)
-
-=cut
-
         ($colspec) = values %$colspec;
+
     }
 
     my %capabilities;
@@ -143,7 +139,7 @@ EOY
 
     my @columns = map {
         my $col = $_;
-        Constant( # Editable constant: populates irrespective of data from dataset
+        Constant( # Editable constant: auto-populates irrespective of data from dataset
             name          => $col->{_column},
             defaultFormat => '0hardnz',
             rows          => $rowset,
@@ -202,41 +198,59 @@ sub makeStatisticsTables {
             $tariff =~ s/^.*\n//s;
             my $row = "$short ($tariff)";
             push @list, $row;
-            $map{$row} = [ $uid, $tid ];
+            $map{$row} = [ $uid, $tid, $#list ];
+            if ( $tariff =~ /^LDNO ([^:]+): (.+)/ ) {
+                my $boundary = $1;
+                my $atw      = $2;
+                if ( my $atwmapped = $map{"$short ($atw)"} ) {
+                    my $marginrow = "$short (Margin $boundary: $atw)";
+                    push @list, $marginrow;
+                    $map{$marginrow} =
+                      [ undef, $atwmapped->[2] - $#list, $#list ];
+                }
+            }
         }
         push @groups, Labelset( name => $user, list => \@list );
     }
 
     my ($annualUnits) =
-      grep { $_->{name} =~ m#kWh/year# && $_->{name} =~ /total/i } @columns;
-    my ($kW) = grep { $_->{name} =~ m#kW# && $_->{name} !~ /kWh/i } @columns;
+      grep { $_->{name} =~ m#kWh/year#i && $_->{name} =~ /total/i } @columns;
+    my ($rate2Units) =
+      grep { $_->{name} =~ m#kWh/year#i && $_->{name} =~ /rate 2/i } @columns;
+    my ($kW) = grep { $_->{name} =~ /kW/i && $_->{name} !~ /kWh/i } @columns;
     my ($offhours)  = grep { $_->{name} =~ /off[- ]peak hours/i } @columns;
     my ($peakhours) = grep { $_->{name} =~ /peak[- ]time hours/i } @columns;
     my ($capacity) =
-      grep { $_->{name} =~ m#kVA# && $_->{name} !~ /kVArh/i } @columns;
+      grep { $_->{name} =~ /kVA/i && $_->{name} !~ /kVArh/i } @columns;
 
     my $fullRowset = Labelset( groups => \@groups );
     my @map = @map{ @{ $fullRowset->{list} } };
 
     my $charge = SpreadsheetModel::Custom->new(
         name => Label(
-            '£/year', 'Annual charges for illustrative customers (£/year)'
+            '£/year', 'Annual charges for illustrative customers (£/year)',
         ),
         defaultFormat => '0softnz',
         rows          => $fullRowset,
         custom        => [
             '=0.01*((IV11+IV12*(IV13+IV14)/7*IV78)*IV91+IV71*IV94)',
+            '=0.01*('
+              . '(IV11+IV12*(IV13+IV14)/7*IV78-IV17)*IV91'
+              . '+IV18*IV92+IV71*IV94)',
             '=0.01*(IV3*('
               . 'MIN(IV61,IV72/7*IV51+MAX(0,IV77/7*IV43-IV631-IV623))*IV91'
               . '+MIN(IV62,MAX(0,IV73/7*IV52-IV611)+MAX(0,IV75/7*IV42-IV632))*IV92'
               . '+MIN(IV63,MAX(0,IV74/7*IV53-IV612-IV622)+IV76/7*IV41)*IV93'
-              . ')+IV71*(IV94+IV2*IV95))'
+              . ')+IV71*(IV94+IV2*IV95))',
+            '=IV81-IV82',
         ],
         arguments => {
             IV11  => $annualUnits,
             IV12  => $kW,
             IV13  => $offhours,
             IV14  => $peakhours,
+            IV17  => $rate2Units,
+            IV18  => $rate2Units,
             IV2   => $capacity,
             IV3   => $kW,
             IV41  => $offhours,
@@ -279,10 +293,25 @@ sub makeStatisticsTables {
                   : $format;
                 return '', $cellFormat unless $map[$y];
                 my ( $uid, $tid ) = @{ $map[$y] };
+                unless ( defined $uid ) {
+                    return '', $cellFormat, $formula->[3],
+                      qr/\bIV81\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $self->{$wb}{row} + $y + $tid,
+                        $self->{$wb}{col}
+                      ),
+                      qr/\bIV82\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $self->{$wb}{row} + $y - 1,
+                        $self->{$wb}{col} );
+                }
                 my $tariff = $allTariffs->{list}[$tid];
                 '', $cellFormat,
-                  $formula->[ $tariff !~ /gener/i
-                  && !$componentMap->{$tariff}{'Unit rates p/kWh'} ? 0 : 1 ],
+                  $formula->[
+                    $componentMap->{$tariff}{'Unit rates p/kWh'}  ? 2
+                  : $componentMap->{$tariff}{'Unit rate 2 p/kWh'} ? 1
+                  : 0
+                  ],
                   map {
                     qr/\b$_\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
