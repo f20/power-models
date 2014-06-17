@@ -101,8 +101,8 @@ sub makeStatisticsAssumptions {
     Customer 85 Large peak-time: 48
     _column: Peak-time hours/week
   - ~
-  - Customer 11 Low use: '/^(?:|LDNO.*: )Domestic Unrestricted/'
-    Customer 12 Medium use: '/^(?:|LDNO.*: )Domestic Unrestricted/'
+  - Customer 11 Low use: '/^(?:|LDNO.*: |Margin.*: )Domestic Unrestricted/'
+    Customer 12 Medium use: '/^(?:|LDNO.*: |Margin.*: )Domestic Unrestricted/'
     Customer 15 High use: '/^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium)/'
     Customer 31 Small continuous: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
     Customer 33 Small off-peak: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
@@ -180,7 +180,7 @@ sub makeStatisticsTables {
         my $short = my $user = $users->[$uid];
         $short =~ s/^Customer *[0-9]+ *//;
         my $caps = $capabilities->{$user};
-        my @list;
+        my ( @list, @listmargin );
       TARIFF: for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
             next
               if $allTariffs->{groupid}
@@ -202,13 +202,22 @@ sub makeStatisticsTables {
             if ( $tariff =~ /^LDNO ([^:]+): (.+)/ ) {
                 my $boundary = $1;
                 my $atw      = $2;
+                my $margin   = "Margin $boundary: $atw";
+                foreach (@$caps) {
+                    if (m#^/(.+)/$#s) {
+                        next TARIFF unless $margin =~ /$1/m;
+                    }
+                }
                 if ( my $atwmapped = $map{"$short ($atw)"} ) {
-                    my $marginrow = "$short (Margin $boundary: $atw)";
-                    push @list, $marginrow;
-                    $map{$marginrow} =
-                      [ undef, $atwmapped->[2] - $#list, $#list ];
+                    my $marginrow = "$short ($margin)";
+                    push @listmargin, $marginrow;
+                    $map{$marginrow} = [ $atwmapped->[2], $#list ];
                 }
             }
+        }
+        foreach (@listmargin) {
+            push @list, $_;
+            $map{$_} = [ undef, $map{$_}[0] - $#list, $map{$_}[1] - $#list, ];
         }
         push @groups, Labelset( name => $user, list => \@list );
     }
@@ -292,7 +301,7 @@ sub makeStatisticsTables {
                   ? $wb->getFormat( $self->{rowFormats}[$y] )
                   : $format;
                 return '', $cellFormat unless $map[$y];
-                my ( $uid, $tid ) = @{ $map[$y] };
+                my ( $uid, $tid, $eid ) = @{ $map[$y] };
                 unless ( defined $uid ) {
                     return '', $cellFormat, $formula->[3],
                       qr/\bIV81\b/ =>
@@ -302,7 +311,7 @@ sub makeStatisticsTables {
                       ),
                       qr/\bIV82\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $self->{$wb}{row} + $y - 1,
+                        $self->{$wb}{row} + $y + $eid,
                         $self->{$wb}{col} );
                 }
                 my $tariff = $allTariffs->{list}[$tid];

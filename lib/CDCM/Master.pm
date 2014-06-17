@@ -946,7 +946,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         );
 
         push @{ $model->{overallSummary} }, $buildOptions
-          unless $model->{summary} =~ /arp|stat(?:istic)?s/i;
+          unless $model->{summary} =~ /arp/i;
 
         my $revenuesByTariff;
 
