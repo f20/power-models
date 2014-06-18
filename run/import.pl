@@ -190,10 +190,17 @@ EOS
     my $workbook;
     eval {
         if (/\.xlsx$/is) {
-            require Ancillary::XLSX;
-            $SIG{__WARN__} = sub { };
-            $workbook = Ancillary::XLSX->new($infile);
-            delete $SIG{__WARN__};
+            if ( eval 'require Ancillary::ParseXLSX' ) {
+                my $parser = Ancillary::ParseXLSX->new;
+                $workbook = $parser->parse($infile);
+            }
+            else {
+                warn "Using Ancillary::XLSX\n";
+                require Ancillary::XLSX;
+                $SIG{__WARN__} = sub { };
+                $workbook = Ancillary::XLSX->new($infile);
+                delete $SIG{__WARN__};
+            }
         }
         else {
             require Spreadsheet::ParseExcel;
