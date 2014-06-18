@@ -190,7 +190,9 @@ sub wsPrepare {
           if $self->{rowFormats}
           && $self->{rowFormats}[$y]
           && $self->{rowFormats}[$y] eq 'unavailable';
-        '', $format, $formula, map {
+        '', $self->{rowFormats} && $self->{rowFormats}[$y]
+          ? $wb->getFormat( $self->{rowFormats}[$y] )
+          : $format, $formula, map {
             if ( my ( $a, $b ) = (/^([A-Z0-9]+)_([A-Z0-9]+)$/) ) {
                 my $arg = $self->{arguments}{$_};
                 qr/\b$a\b/   => xl_rowcol_to_cell( $row{$_}, $col{$_}, 1, 1 ),
@@ -234,7 +236,7 @@ sub wsPrepare {
                     ref $modx{$_} ? $modx{$_}[$x] >= 0 : $modx{$_} > 0
                 );
             }
-        } @placeholders;
+          } @placeholders;
     };
 }
 

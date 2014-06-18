@@ -328,17 +328,24 @@ Keys used in %$options:
         '0.00soft'    => [ locked => 1, @sizeNumber, @num_00,    @colourSoft, ],
         '0.0soft'     => [ locked => 1, @sizeNumber, @num_0,     @colourSoft, ],
         '0.00000soft' => [ locked => 1, @sizeNumber, @num_00000, @colourSoft, ],
-        '0.00softpm'  => [
+        '0.000softpm' => [
+            locked => 1,
+            @sizeNumber,
+            num_format => $plus . '?0.000;' . $minus . '?0.000;[Green]=;@',
+            align      => 'center',
+            @colourSoft,
+        ],
+        '0.00softpm' => [
             locked => 1,
             @sizeNumber,
             num_format => $plus . '??0.00;' . $minus . '??0.00;[Green]=;@',
             align      => 'center',
             @colourSoft,
         ],
-        '0.000softpm' => [
+        '0.0softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => $plus . '?0.000;' . $minus . '?0.000;[Green]=;@',
+            num_format => $plus . '??0.0;' . $minus . '??0.0;[Green]=;@',
             align      => 'center',
             @colourSoft,
         ],

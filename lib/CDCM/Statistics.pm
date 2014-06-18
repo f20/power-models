@@ -342,7 +342,7 @@ sub makeStatisticsTables {
         name => Label(
             '£/MWh', 'Average charges for illustrative customers (£/MWh)'
         ),
-        defaultFormat => '0.00soft',
+        defaultFormat => '0.0soft',
         arithmetic    => '=IV1/(IV11+IV12*(IV13+IV14)/7*IV78)*1000',
         arguments     => {
             IV1  => $charge,

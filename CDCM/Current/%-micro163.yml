@@ -1,7 +1,7 @@
 ---
 .: Micro-model for ARP after DCP 163
 PerlModule: CDCM
-arp: permpan
+arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1

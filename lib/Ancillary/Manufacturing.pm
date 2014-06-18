@@ -354,9 +354,16 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                 }
             }
         }
-        else {
+        elsif ( $manufacturingSettings{groupByRule} ) {
             foreach my $rule (@rulesets) {
                 foreach my $data (@datasets) { $addToList->( $data, $rule ); }
+            }
+        }
+        else {
+            foreach my $data (@datasets) {
+                foreach my $rule (@rulesets) {
+                    $addToList->( $data, $rule );
+                }
             }
         }
         keys %files;

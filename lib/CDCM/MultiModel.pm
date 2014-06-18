@@ -68,7 +68,7 @@ sub worksheetsAndClosuresMulti {
                 $wsheet->set_column( 0, 0,   70 );
                 $wsheet->set_column( 1, 255, 14 );
                 $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                    name  => 'Annual Review Pack',
+                    name  => 'Multiple CDCM model',
                     lines => [
                              $model->{colour}
                           && $model->{colour} =~ /orange|gold/ ? <<EOL : (),
@@ -257,36 +257,55 @@ EOL
             };
           };
 
-        unshift @pairs,
-
-          'Statistics$' => sub {
+        unshift @pairs, 'Changes$' => sub {
             my ($wsheet) = @_;
             $wsheet->set_column( 0, 255, 50 );
             $wsheet->set_column( 1, 255, 16 );
             $wsheet->freeze_panes( 0, 1 );
-            my $noData = delete $wbook->{noData};
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                name  => 'Statistical time series',
-                lines => [
-                        'The items below are only examples of some of'
-                      . ' the statistical outputs that could'
-                      . ' be included in this sheet.',
-                ],
-              ),
+            $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Changes', );
+            push @{ $me->{finishClosures} }, sub {
+                $wbook->{noLinks} = 1;
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach $me->changeColumnsets( $wbook, $wsheet );
+            };
+        };
+
+        unshift @pairs, 'Statistics$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{sheetNumber}     = 12;
+            $wsheet->{lastTableNumber} = 1201;
+            $wsheet->set_column( 0, 255, 50 );
+            $wsheet->set_column( 1, 255, 16 );
+            $wsheet->freeze_panes( 0, 1 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Statistical outputs', ),
               @{ $me->{statsAssumptions} };
-            $wbook->{noData} = $noData if defined $noData;
             push @{ $me->{finishClosures} }, sub {
                 $wbook->{noLinks} = 1;
                 $_->wsWrite( $wbook, $wsheet )
                   foreach $me->statisticsColumnsets( $wbook, $wsheet );
             };
-          };
+        };
 
     }
 
     push @{ $me->{models} }, $model;
 
-    if ( ref $model->{dataset} eq 'HASH' && !$model->{dataset}{baseDataset} ) {
+    my $assumptionZero;
+
+    if ( ref $model->{dataset} eq 'HASH' ) {
+        if ( my $sourceModel = $me->{modelByDataset}{ 0 + $model->{dataset} } )
+        {
+            $model->{sourceModel} = $sourceModel;
+            $assumptionZero = 1;
+        }
+        elsif ( !$model->{dataset}{baseDataset} ) {
+            $me->{modelByDataset}{ 0 + $model->{dataset} } = $model;
+            push @{ $me->{historical} }, $model;
+            return @pairs;
+        }
+    }
+    else {
         push @{ $me->{historical} }, $model;
         return @pairs;
     }
@@ -375,7 +394,9 @@ EOL
         defaultFormat => '%hardpm',
         data          => [
             [
-                qw(0.035
+                $assumptionZero
+                ? ( map { '' } @{ $me->{assumptionRowset}{list} } )
+                : qw(0.035
                   0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
                   0.02 0.02 0.02 0.02
                   -0.01 0
@@ -418,77 +439,132 @@ sub assumptionsLocator {
 sub statisticsColumnsets {
     my ( $me, $wbook, $wsheet ) = @_;
     map {
-        if ( $me->{statsRows}[$_] ) {
-            my $rows = Labelset( list => $me->{statsRows}[$_] );
-            my $statsMaps = $me->{statsMap}[$_];
-            $rows->{groups} = 'fake';
-            for ( my $r = 0 ; $r < @{ $rows->{list} } ; ++$r ) {
-                $rows->{groupid}[$r] = 'fake'
-                  if grep { $_->[$r] } values %$statsMaps;
+        my $rows = Labelset( list => $me->{statsRows}[$_] );
+        my $statsMaps = $me->{statsMap}[$_];
+        $rows->{groups} = 'fake';
+        for ( my $r = 0 ; $r < @{ $rows->{list} } ; ++$r ) {
+            $rows->{groupid}[$r] = 'fake'
+              if grep { $_->[$r] } values %$statsMaps;
+        }
+        my @columns =
+          map {
+            if ( my $relevantMap = $statsMaps->{ 0 + $_ } ) {
+                SpreadsheetModel::Custom->new(
+                    name => $_->modelIdentification( $wbook, $wsheet ),
+                    rows => $rows,
+                    custom    => [ map { "=IV1$_"; } 0 .. $#$relevantMap ],
+                    arguments => {
+                        map {
+                            my $t;
+                            $t = $relevantMap->[$_][0]
+                              if $relevantMap->[$_];
+                            $t ? ( "IV1$_" => $t ) : ();
+                        } 0 .. $#$relevantMap
+                    },
+                    defaultFormat => '0.000copy',
+                    rowFormats    => [
+                        map {
+                            if ( $_ && $_->[0] ) {
+                                local $_ = $_->[0]{rowFormats}[ $_->[2] ]
+                                  || $_->[0]{defaultFormat};
+                                s/(?:soft|hard|con)/copy/ if $_ && !ref $_;
+                                $_;
+                            }
+                            else { 'unavailable'; }
+                        } @$relevantMap
+                    ],
+                    wsPrepare => sub {
+                        my ( $self, $wb, $ws, $format, $formula,
+                            $pha, $rowh, $colh )
+                          = @_;
+                        sub {
+                            my ( $x, $y ) = @_;
+                            my $cellFormat =
+                                $self->{rowFormats}[$y]
+                              ? $wb->getFormat( $self->{rowFormats}[$y] )
+                              : $format;
+                            return '', $cellFormat
+                              unless $relevantMap->[$y];
+                            my ( $table, $offx, $offy ) =
+                              @{ $relevantMap->[$y] };
+                            my $ph = "IV1$y";
+                            '', $cellFormat, $formula->[$y], $ph,
+                              xl_rowcol_to_cell(
+                                $rowh->{$ph} + $offy,
+                                $colh->{$ph} + $offx,
+                                1, 1,
+                              );
+                        };
+                    },
+                );
             }
-            my @columns =
-              map {
-                if ( my $relevantMap = $statsMaps->{ 0 + $_ } ) {
-                    SpreadsheetModel::Custom->new(
-                        name => $_->modelIdentification( $wbook, $wsheet ),
-                        rows => $rows,
-                        custom    => [ map { "=IV1$_"; } 0 .. $#$relevantMap ],
-                        arguments => {
-                            map {
-                                my $t;
-                                $t = $relevantMap->[$_][0]
-                                  if $relevantMap->[$_];
-                                $t ? ( "IV1$_" => $t ) : ();
-                            } 0 .. $#$relevantMap
-                        },
-                        defaultFormat => '0.000copy',
-                        rowFormats    => [
-                            map {
-                                if ( $_ && $_->[0] ) {
-                                    local $_ = $_->[0]{rowFormats}[ $_->[2] ]
-                                      || $_->[0]{defaultFormat};
-                                    s/(?:soft|hard|con)/copy/ if $_ && !ref $_;
-                                    $_;
-                                }
-                                else { 'unavailable'; }
-                            } @$relevantMap
-                        ],
-                        wsPrepare => sub {
-                            my ( $self, $wb, $ws, $format, $formula,
-                                $pha, $rowh, $colh )
-                              = @_;
-                            sub {
-                                my ( $x, $y ) = @_;
-                                my $cellFormat =
-                                    $self->{rowFormats}[$y]
-                                  ? $wb->getFormat( $self->{rowFormats}[$y] )
-                                  : $format;
-                                return '', $cellFormat
-                                  unless $relevantMap->[$y];
-                                my ( $table, $offx, $offy ) =
-                                  @{ $relevantMap->[$y] };
-                                my $ph = "IV1$y";
-                                '', $cellFormat, $formula->[$y], $ph,
-                                  xl_rowcol_to_cell(
-                                    $rowh->{$ph} + $offy,
-                                    $colh->{$ph} + $offx,
-                                    1, 1,
-                                  );
-                            };
-                        },
-                    );
-                }
-                else {
-                    ();
-                }
-              } @{ $me->{models} };
-            Columnset(
-                name    => $me->{statsSections}[$_],
-                columns => \@columns,
+            else {
+                ();
+            }
+          } @{ $me->{models} };
+        $me->{statsColumnsets}[$_] = Columnset(
+            name    => $me->{statsSections}[$_],
+            columns => \@columns,
+        );
+    } grep { $me->{statsRows}[$_] } 0 .. $#{ $me->{statsSections} };
+}
+
+sub changeColumnsets {
+    my ($me) = @_;
+    my %modelMap =
+      map { ( 0 + $me->{models}[$_], $_ ) } 0 .. $#{ $me->{models} };
+    my @modelNumbers =
+      map {
+        my $model = $_->{model};
+        [ $modelMap{ 0 + $model->{sourceModel} }, $modelMap{ 0 + $model } ]
+      } @{ $me->{assumptionColumns} };
+    map {
+        my $cols = $_->{columns};
+        my (@columns12);
+        foreach (@modelNumbers) {
+            my ( $before, $after ) = @{$cols}[@$_];
+            push @columns12, Arithmetic(
+                name          => $after->{name},
+                defaultFormat => '0.000softpm',
+                rowFormats    => [
+                    map {
+                             !defined $before->{rowFormats}[$_]
+                          || !defined $after->{rowFormats}[$_] ? undef
+                          : $before->{rowFormats}[$_] eq 'unavailable'
+                          || $after->{rowFormats}[$_] eq 'unavailable'
+                          ? 'unavailable'
+                          : eval {
+                            local $_ = $after->{rowFormats}[$_];
+                            s/copy|soft/softpm/;
+                            $_;
+                          };
+                    } 0 .. $#{ $after->{rows}{list} }
+                ],
+                arithmetic => '=IV1-IV2',
+                arguments  => { IV1 => $after, IV2 => $before, },
+            );
+            push @columns12, Arithmetic(
+                name          => $after->{name},
+                defaultFormat => '%softpm',
+                rowFormats    => [
+                    map {
+                             !defined $before->{rowFormats}[$_]
+                          || !defined $after->{rowFormats}[$_] ? undef
+                          : $before->{rowFormats}[$_] eq 'unavailable'
+                          || $after->{rowFormats}[$_] eq 'unavailable'
+                          ? 'unavailable'
+                          : undef;
+                    } 0 .. $#{ $after->{rows}{list} }
+                ],
+                arithmetic => '=IF(IV2,IV1/IV3-1,"")',
+                arguments => { IV1 => $after, IV2 => $before, IV3 => $before, },
             );
         }
-        else { (); }
-    } 0 .. $#{ $me->{statsSections} };
+        Columnset(
+            name    => "Change: $_->{name}",
+            columns => \@columns12,
+        );
+    } grep { $_ && @{ $_->{columns} } } @{ $me->{statsColumnsets} };
 }
 
 sub addStats {
