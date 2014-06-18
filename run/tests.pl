@@ -33,6 +33,11 @@ if ( -f 'README.md' ) {
     system 'grep ^\  README.md | while read x; do $x; done';
     system
 'perl run/make.pl -template ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/*';
+
+# Tests that don't really work well:
+# perl run/make.pl -template=%%-ARPtest -pickbest CDCM/Current/%-micro*.yml CDCM/Data-2014-02/ENW* CDCM/Future/Data-2015-02/ENW*
+# perl run/make.pl -template=%%-ARP-DCPs -pickbest CDCM/*/%-micro*.yml CDCM/Data-20??-02/*SHEPD*.yml CDCM/Future/Data-20??-02/*SHEPD*.yml
+
 }
 
 sub newTestArea {

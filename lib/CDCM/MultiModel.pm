@@ -138,8 +138,14 @@ EOL
             $wsheet->freeze_panes( 0, 1 );
             push @{ $me->{finishClosures} }, sub {
                 Notes(
-                    name => 'Analysis of allowed revenue (DCUSA schedule 15)' )
-                  ->wsWrite( $wbook, $wsheet );
+                    name  => 'Analysis of allowed revenue (DCUSA schedule 15)',
+                    lines => [
+                        'To change RPI assumptions, use the Assumptions sheet.',
+                        'To make other data changes, '
+                          . 'please edit the blue cells '
+                          . 'in input data table 1001 for each year.'
+                    ],
+                )->wsWrite( $wbook, $wsheet );
                 my @t1001 = map {
                          $_->{table1001}
                       && $_->{targetRevenue} !~ /DCP132longlabels/i
@@ -513,16 +519,30 @@ sub changeColumnsets {
     my ($me) = @_;
     my %modelMap =
       map { ( 0 + $me->{models}[$_], $_ ) } 0 .. $#{ $me->{models} };
-    my @modelNumbers =
-      map {
+    my @modelNumbers;
+    foreach ( 1 .. $#{ $me->{historical} } ) {
+        my $old = $me->{historical}[ $_ - 1 ]{dataset}{1000}[2]
+          {'Company charging year data version'};
+        my $new = $me->{historical}[$_]{dataset}{1000}[2]
+          {'Company charging year data version'};
+        next unless $old && $new && $old ne $new;
+        push @modelNumbers,
+          [
+            $modelMap{ 0 + $me->{historical}[ $_ - 1 ] },
+            $modelMap{ 0 + $me->{historical}[$_] },
+          ];
+    }
+    foreach ( @{ $me->{assumptionColumns} } ) {
         my $model = $_->{model};
-        [ $modelMap{ 0 + $model->{sourceModel} }, $modelMap{ 0 + $model } ]
-      } @{ $me->{assumptionColumns} };
+        push @modelNumbers,
+          [ $modelMap{ 0 + $model->{sourceModel} }, $modelMap{ 0 + $model }, ];
+    }
     map {
         my $cols = $_->{columns};
         my (@columns12);
         foreach (@modelNumbers) {
             my ( $before, $after ) = @{$cols}[@$_];
+            next unless $before && $after;
             push @columns12, Arithmetic(
                 name          => $after->{name},
                 defaultFormat => '0.000softpm',
@@ -560,10 +580,12 @@ sub changeColumnsets {
                 arguments => { IV1 => $after, IV2 => $before, IV3 => $before, },
             );
         }
-        Columnset(
+        @columns12
+          ? Columnset(
             name    => "Change: $_->{name}",
             columns => \@columns12,
-        );
+          )
+          : ();
     } grep { $_ && @{ $_->{columns} } } @{ $me->{statsColumnsets} };
 }
 

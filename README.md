@@ -37,9 +37,7 @@ explore some of the functionality of this code:
     perl run/make.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-model132.yml CDCM/Current/Blank1001.yml
     perl run/make.pl -output ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/*.yml > All-DNOs-2014-02-postDCP118.xlsx
     perl run/make.pl -output=DCP-123-2014-02 CDCM/Current/%-micro163.yml CDCM/Scaling/%-micro123.yml CDCM/Data-2014-02/*.yml
-    perl run/make.pl -template=%%-ARPtest -pickbest CDCM/Current/%-micro*.yml CDCM/Data-2014-02/ENW* CDCM/Future/Data-2015-02/ENW*
     perl run/make.pl -template=%%-ARP -pickbest CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wales*.yml CDCM/Future/Data-20??-02/*Wales*.yml
-    perl run/make.pl -template=%%-ARP-DCPs -pickbest CDCM/*/%-micro*.yml CDCM/Data-20??-02/*SHEPD*.yml CDCM/Future/Data-20??-02/*SHEPD*.yml
     
 This software is licensed under open source licences. Check the source code for details.
 

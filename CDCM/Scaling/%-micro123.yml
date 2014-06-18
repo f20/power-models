@@ -5,7 +5,7 @@ arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
-nickName: CDCM model (DCP 123)
+nickName: CDCM model (with DCP 123)
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
