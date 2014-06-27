@@ -339,13 +339,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                     : ''
                 ];
                 foreach my $rule (@rulesets) {
-                    next
-                      if $rule->{wantTables} && keys %{ $data->{dataset} }
-                      and grep {
-                              !$data->{dataset}{$_}
-                          and !$data->{dataset}{yaml}
-                          || $data->{dataset}{yaml} !~ /^$_:/m
-                      } split /\s+/, $rule->{wantTables};
+                    next if _notPossible( $rule, $data );
                     push @scored, [ $rule, $scorer->( $metadata, $rule ) ];
                 }
                 if (@scored) {
@@ -356,13 +350,17 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         }
         elsif ( $manufacturingSettings{groupByRule} ) {
             foreach my $rule (@rulesets) {
-                foreach my $data (@datasets) { $addToList->( $data, $rule ); }
+                foreach my $data (@datasets) {
+                    $addToList->( $data, $rule )
+                      unless _notPossible( $rule, $data );
+                }
             }
         }
         else {
             foreach my $data (@datasets) {
                 foreach my $rule (@rulesets) {
-                    $addToList->( $data, $rule );
+                    $addToList->( $data, $rule )
+                      unless _notPossible( $rule, $data );
                 }
             }
         }
@@ -414,6 +412,16 @@ sub _merge {
     $opt{password} = "***" if $opt{password};
     $options{yaml} = YAML::Dump( \%opt );
     \%options;
+}
+
+sub _notPossible {
+    my ( $rule, $data ) = @_;
+    $rule->{wantTables} && keys %{ $data->{dataset} }
+      and grep {
+              !$data->{dataset}{$_}
+          and !$data->{dataset}{yaml}
+          || $data->{dataset}{yaml} !~ /^$_:/m
+      } split /\s+/, $rule->{wantTables};
 }
 
 sub _runInFolder {
