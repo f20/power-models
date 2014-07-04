@@ -1482,6 +1482,6 @@
     _column: Closed LLFCs
 exceedprop:
   - _table: Percentage of unauthorised capacity in total kVA
-  - HV HH Metered: 0.015
-    LV HH Metered: 0.086
-    LV Sub HH Metered: 0.030
+  - HV HH Metered: 0.015208122
+    LV HH Metered: 0.083080519
+    LV Sub HH Metered: 0.029778116

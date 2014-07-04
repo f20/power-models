@@ -63,9 +63,10 @@ sub preprocessDataset {
         if ( $vd and !$vd->[6]{_column} || $vd->[6]{_column} !~ /exceed/i ) {
             splice @$vd, 6, 0, { map { ( $_ => '' ); } keys %{ $vd->[5] } };
             if ( my $pd = $d->{exceedprop} ) {
+                my $add = $model->{unauth} =~ /add/i;
                 while ( my ( $t, $p ) = each %{ $pd->[1] } ) {
                     $vd->[6]{$t} = $vd->[5]{$t} * $p;
-                    $vd->[5]{$t} -= $vd->[6]{$t};
+                    $vd->[5]{$t} -= $vd->[6]{$t} unless $add;
                 }
             }
         }
