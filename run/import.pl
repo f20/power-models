@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Reckon LLP and others.
+Copyright 2008-2014 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -51,6 +51,7 @@ BEGIN {
     chdir $cwd;
 }
 use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
+use Spreadsheet::ParseXLSX;
 
 BEGIN {
     my %pids;
@@ -71,8 +72,15 @@ BEGIN {
     }
 }
 
+sub NOOP_CLASS::AUTOLOAD { }
+
 my ( $sheetFilter, $writer, $calculate, $doNotImport );
-my $threads1 = 2;
+
+my $threads1;    # one less than the number of import worker threads we want
+$threads1 = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
+chomp $threads1 if $threads1;
+$threads1 ||= 2;
+$threads1 -= 2;    # keep one thread free for Excel
 
 foreach (@ARGV) {
     if (/^-+([0-9]+)$/i) {
@@ -189,35 +197,33 @@ EOS
     }
     my $workbook;
     eval {
-        if (/\.xlsx$/is) {
-            if ( eval 'require Ancillary::ParseXLSX' ) {
-                my $parser = Ancillary::ParseXLSX->new;
-                $workbook = $parser->parse($infile);
-            }
-            else {
-                warn "Using Ancillary::XLSX\n";
-                require Ancillary::XLSX;
-                $SIG{__WARN__} = sub { };
-                $workbook = Ancillary::XLSX->new($infile);
-                delete $SIG{__WARN__};
-            }
+        if ( $infile =~ /\.xlsx$/is ) {
+            require Spreadsheet::ParseXLSX;
+            my $parser = Spreadsheet::ParseXLSX->new;
+            $workbook = $parser->parse( $infile, 'NOOP_CLASS' );
         }
         else {
             require Spreadsheet::ParseExcel;
             my $parser = Spreadsheet::ParseExcel->new;
             local %SIG;
             $SIG{__WARN__} = sub { };
-            $workbook = $parser->Parse($infile);
+            $workbook = $parser->Parse( $infile, 'NOOP_CLASS' );
             delete $SIG{__WARN__};
         }
     };
-    warn $@ if $@;
-    unless ($workbook) {
-        warn "Cannot parse $infile";
-        next;
+    warn "$@ for $infile" if $@;
+    if ($workbook) {
+        if ($writer) {
+            eval { $writer->( $infile, $workbook ); };
+            warn "$@ for $infile" if $@;
+        }
+        else {
+            warn "No output specified for $infile";
+        }
     }
-    die "No output specified" unless $writer;
-    $writer->( $infile, $workbook );
+    else {
+        warn "Cannot parse $infile";
+    }
     exit 0 if defined $pid;
 }
 

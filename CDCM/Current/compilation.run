@@ -5,9 +5,11 @@ RUN=_compil-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 pushd _$RUN.tmp
-../run/make.pl ../CDCM/Current/%-after163.yml ../CDCM/Data-2014-02/*
-../run/import.pl -calc -sqlite *.xl*
-../run/export.pl all 10 37 38 39
-../run/export.pl tscs
+time ../run/make.pl ../CDCM/Current/%-after163.yml ../CDCM/Data-2014-02/*
+time ../run/import.pl -convert -sqlite *.xl*
+time ../run/export.pl all 10 37 38 39
+time ../run/export.pl tscs
 popd
 mv _$RUN.tmp $RUN.tmp
+echo 'Press any key to exit'
+read

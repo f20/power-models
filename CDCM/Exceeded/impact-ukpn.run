@@ -7,7 +7,7 @@ mkdir _$RUN.tmp
 cd _$RUN.tmp
 
 ../run/make.pl -xlsx ../CDCM/Data-2014-02/UK* ../CDCM/Exceeded/%-base163.yml ../CDCM/Exceeded/%-dcp161unadd.yml
-../run/import.pl -sqlite -calc *
+../run/import.pl -sqlite -convert *
 ../run/export.pl -xlsx -base=base163 -dcp=dcp161unadd -name='DCP 161 (cooked)' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
 
 cd ..
