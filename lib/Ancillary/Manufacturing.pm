@@ -379,7 +379,11 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
     };
 
     $self->{run} = sub {
-        $workbookModule->create( $_, $files{$_}, @createOptions ) foreach @_;
+        foreach (@_) {
+            $workbookModule->create( $_, $files{$_}, @createOptions );
+            $manufacturingSettings{PostProcessing}->($_)
+              if $manufacturingSettings{PostProcessing};
+        }
     };
 
     $self->{setThreads} = sub {
@@ -392,7 +396,8 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         foreach (@_) {
             Ancillary::ParallelRunning::waitanypid($threads1);
             Ancillary::ParallelRunning::registerpid(
-                $workbookModule->bgCreate( $_, $files{$_}, @createOptions ) );
+                $workbookModule->bgCreate( $_, $files{$_}, @createOptions ),
+                $manufacturingSettings{PostProcessing} );
         }
         Ancillary::ParallelRunning::waitanypid(0);
     };

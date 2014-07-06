@@ -1,0 +1,15 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_dcp161-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+../run/make.pl ../CDCM/Data-2014-02/UK* ../CDCM/Exceeded/%-base163.yml ../CDCM/Exceeded/%-dcp161unadd.yml
+../run/import.pl -sqlite -convert *
+../run/export.pl -base=base163 -dcp=dcp161unadd -name='DCP 161 (cooked)' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
+../run/export.pl /base163/ 1053
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

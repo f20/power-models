@@ -96,16 +96,21 @@ foreach (@ARGV) {
             srand();
             $override{password} = rand();
         }
-        elsif (/^-+output=?(.*)/is)    {
+        elsif (/^-+output=?(.*)/is) {
             $maker->{setSettings}->( output => $1 );
         }
-      elsif (/^-+pickbest/is) {
+        elsif (/^-+pickbest/is) {
             $maker->{setSettings}->( pickBestRules => 1 );
         }
         elsif (/^-+password=(.+)/is)    { $override{password}  = $1; }
         elsif (/^-+(no|skip)protect/is) { $override{protect}   = 0; }
         elsif (/^-+(right.*)/is)        { $override{alignment} = $1; }
         elsif (/^-+single/is)           { $threads             = 1; }
+        elsif (/^-+(sqlite.*)/is) {
+            require Compilation::Import;
+            $maker->{setSettings}->( PostProcessing =>
+                  Compilation::Import::makePostProcessor( $threads, $1 ) );
+        }
         elsif (/^-+stats/is) {
             $override{summary}      = 'statistics';
             $override{illustrative} = 1;

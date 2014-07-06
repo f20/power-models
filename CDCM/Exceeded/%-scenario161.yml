@@ -1,0 +1,24 @@
+---
+.: DCP 161 adjusted with 1 per cent exceeded
+PerlModule: CDCM
+coincidenceAdj: groupums
+dataOverride:
+  exceedprop:
+    - ~
+    - HV HH Metered: 0.01
+      LV HH Metered: 0.01
+      LV Sub HH Metered: 0.01
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+template: '%-scenario161'
+timeOfDay: timeOfDaySpecial
+unauth: dayotex

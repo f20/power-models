@@ -33,13 +33,18 @@ use utf8;
 use base 'Exporter';
 our @EXPORT_OK = qw(registerpid waitanypid);
 
-my %pids;
+my %names;
+my %conts;
 
 sub registerpid {
-    my ( $pid, $name ) = @_;
+    my ( $pid, $name, $continuation ) = @_;
     if ( defined $pid ) {
-        $pids{$pid} = $name;
+        $names{$pid} = $name;
+        $conts{$pid} = $continuation if $continuation;
         warn "$name started ($pid)\n";
+    }
+    elsif ($continuation) {
+        $continuation->($name);
     }
     else {
         warn "$name done (could not fork)";
@@ -48,10 +53,15 @@ sub registerpid {
 
 sub waitanypid {
     my ($limit) = @_;
-    while ( keys %pids > $limit ) {
-        my $pid = waitpid -1, 0;    # WNOHANG
-        warn "$pids{$pid} complete ($pid)\n";
-        delete $pids{$pid};
+    while ( keys %names > $limit ) {
+        my $pid = waitpid -1, 0;          # WNOHANG
+        my $name = delete $names{$pid};
+        if ( my $continuation = delete $conts{$pid} ) {
+            $continuation->($name);
+        }
+        else {
+            warn "$name complete ($pid)\n";
+        }
     }
 }
 

@@ -6,13 +6,14 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-../run/make.pl ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-base163.yml ../CDCM/Exceeded/%-dcp161adj.yml ../CDCM/Exceeded/%-dcp161unadd.yml
+../run/make.pl ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-base163.yml ../CDCM/Exceeded/%-dcp161adj.yml
 ../run/make.pl ../CDCM/Data-2014-02/* ../CDCM/Exceeded/%-dcp161adj.yml -xdata='{"rules":{"template":"%-scenario161"},"exceedprop":[0,{"LV HH Metered":0.01,"HV HH Metered":0.01,"LV Sub HH Metered":0.01}]}'
 ../run/import.pl -sqlite -convert *
 
+../run/export.pl /base163/ 1053
+
 # NB: PPU impact not done as it would use the wrong column in a DCP 161 model.
-../run/export.pl -base=base163 -dcp=dcp161adj -name='DCP 161 (adjusted)' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
-../run/export.pl -base=base163 -dcp=dcp161unadd -name='DCP 161 (cooked)' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
+../run/export.pl -base=base163 -dcp=dcp161adj -name='DCP 161' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
 ../run/export.pl -base=dcp161adj -dcp=scenario161 -name='Reduce to 1% exceeded capacity' ../CDCM/Exceeded/+impact.yml -cdcmTariffImpact -cdcmRevenueMatrixImpact
 
 cd ..
