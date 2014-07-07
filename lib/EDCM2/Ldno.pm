@@ -264,6 +264,21 @@ Capacity charge p/kVA/day
 Reactive power charge p/kVArh
 EOL
 
+    my @volnames = split /\n/, <<EOF ;
+Rate 1 units (MWh)
+Rate 2 units (MWh)
+Rate 3 units (MWh)
+MPANs
+Import capacity (kVA)
+Reactive power units (MVArh)
+EOF
+
+    if ( $model->{dcp161} ) {
+        splice @tariffComponents, 5, 0, 'Exceeded capacity charge p/kVA/day';
+        splice @volnames,         5, 0, 'Exceeded capacity (kVA)';
+        s/^(....)(.)/$1$2$2/ foreach @tariffComponentMatrix;
+    }
+
     my $allTariffsByBoundaryLevelNotUsed = Labelset(
         groups => [
             map {
@@ -477,15 +492,6 @@ EOL
         name    => 'Discounted LDNO tariffs',
         columns => \@allTariffs
       ) if $model->{ldnoRev} =~ /tar/i;
-
-    my @volnames = split /\n/, <<EOF ;
-Rate 1 units (MWh)
-Rate 2 units (MWh)
-Rate 3 units (MWh)
-MPANs
-Import capacity (kVA)
-Reactive power units (MVArh)
-EOF
 
     my @volumeData = map {
         Dataset(

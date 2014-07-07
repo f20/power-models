@@ -1,0 +1,16 @@
+---
+.: EDCM DCP 161 legacy model (FCP with 600 tariff pairs)
+PerlModule: EDCM2
+dcp130: 1
+dcp161: 1
+ldnoRev: ldnorev5
+legacy201: 1
+lowerIntermittentCredit: 1
+method: FCP
+noNegative: 1
+numLocations: 1200
+numTariffs: 600
+protect: 1
+summaries: 1
+validation: lenientnomsg
+wantTables: 911
