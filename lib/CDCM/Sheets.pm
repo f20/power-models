@@ -675,7 +675,14 @@ EOL
     return @wsheetsAndClosures unless $model->{arp};
 
     for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
-        if ( { Tariffs => 1, Summary => 1, }->{ $wsheetsAndClosures[$i] } ) {
+        if (
+            {
+                Tariffs => 1,
+                $model->{summary}
+                  && $model->{summary} =~ /arp/i ? () : ( Summary => 1 ),
+            }->{ $wsheetsAndClosures[$i] }
+          )
+        {
             $wsheetsAndClosures[$i] .= '$';
         }
         else {

@@ -122,7 +122,8 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                                         require Encode;
                                         Digest::SHA1::sha1_hex(
                                             Encode::encode_utf8($blob) );
-                                    },
+                                    }
+                                      || 'Digest::SHA1 not working',
                                 }
                               )
                             : ()
