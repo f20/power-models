@@ -1,19 +1,20 @@
 ---
-.: DCP 161 orange model for old ARP
+.: Micro-model for ARP after DCP 161
 PerlModule: CDCM
 arp: 1
 coincidenceAdj: groupums
-colour: orange
 drm: top500gsp
 extraLevels: 1
-illustrative: 1
+nickName: CDCM model (after DCP 161)
+noLLFCs: 1
+noLinks: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: 1
-targetRevenue: single
-tariffs: commongensubdcp130
+summary: arpstatistics
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
 timeOfDay: timeOfDaySpecial
 unauth: dayotex

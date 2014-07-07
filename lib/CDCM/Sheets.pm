@@ -427,12 +427,10 @@ EOL
       'Summary' => sub {
         my ($wsheet) = @_;
         $wsheet->set_landscape;
-        unless ( $model->{arp} ) {
-            $wsheet->freeze_panes( 1, 1 );
-            $wsheet->fit_to_pages( 1, 1 );
-            $wsheet->set_column( 0, 0,   50 );
-            $wsheet->set_column( 1, 250, 20 );
-        }
+        $wsheet->freeze_panes( 1, 1 );
+        $wsheet->fit_to_pages( 1, 1 );
+        $wsheet->set_column( 0, 0,   50 );
+        $wsheet->set_column( 1, 250, 20 );
         my $notes = Notes(
             name  => 'Summary',
             lines => [
@@ -677,7 +675,7 @@ EOL
     return @wsheetsAndClosures unless $model->{arp};
 
     for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
-        if ( $wsheetsAndClosures[$i] eq 'Tariffs' ) {
+        if ( { Tariffs => 1, Summary => 1, }->{ $wsheetsAndClosures[$i] } ) {
             $wsheetsAndClosures[$i] .= '$';
         }
         else {

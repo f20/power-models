@@ -10,6 +10,7 @@ sub score {
     my $score = 0;
     $score += 100 if $rule->{tariffs} =~ /dcp130/i xor $month lt '2012-10';
     $score += 50  if $rule->{tariffs} =~ /dcp163/i xor $month lt '2013-10';
+    $score += 100 if $rule->{unauth} xor $month lt '2014-10';
     $score += 100 if $rule->{tariffs} =~ /pc34hh/i xor $month lt '2014-10';
     0
       and warn(

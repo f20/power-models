@@ -90,8 +90,7 @@ sub derivativeDataset {
     if (
         $model->{sharedData}
         && ( my $getAssumptionCell =
-            $model->{sharedData}->assumptionsLocator( $model, $sourceModel )
-        )
+            $model->{sharedData}->assumptionsLocator( $model, $sourceModel ) )
       )
     {
 
@@ -99,7 +98,18 @@ sub derivativeDataset {
             1001 => sub {
                 my ( $cell, $row, $col, $wb, $ws ) = @_;
                 return "=$cell"
-                  unless $col == 4 && $row =~ /RPI Indexation Factor/i;
+                  unless $col == 4;
+                if ( my $override =
+                    $model->{sharedData}
+                    ->table1001Overrides( $model, $wb, $ws, $row ) )
+                {
+                    return qq%=IF($override<>"",$override*1e6,$cell)%
+                      unless $row =~ /RPI Indexation Factor/i;
+                    my $ac = $getAssumptionCell->( $wb, $ws, 'RPI' );
+                    return qq%=IF($override<>"",$override,(1+$ac)*$cell)%;
+                }
+                return "=$cell"
+                  unless $row =~ /RPI Indexation Factor/i;
                 my $ac = $getAssumptionCell->( $wb, $ws, 'RPI' );
                 "=(1+$ac)*$cell";
             }

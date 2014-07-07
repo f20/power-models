@@ -68,7 +68,7 @@ sub worksheetsAndClosuresMulti {
                 $wsheet->set_column( 0, 0,   70 );
                 $wsheet->set_column( 1, 255, 14 );
                 $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                    name  => 'Multiple CDCM model',
+                    name  => 'CDCM models',
                     lines => [
                              $model->{colour}
                           && $model->{colour} =~ /orange|gold/ ? <<EOL : (),
@@ -142,22 +142,11 @@ EOL
                          $_->{table1001}
                       && $_->{targetRevenue} !~ /DCP132longlabels/i
                       ? $_->{table1001}
-                      : undef
+                      : ();
                 } @{ $me->{models} };
 
-                Notes(
-                    name  => 'Allowed revenue (DCUSA schedule 15)',
-                    lines => [
-                        ( grep { ref $_->{columns}[2] =~ /Custom/ } @t1001 )
-                        ? 'Data in blue cells feed into CDCM models.'
-                        : (),
-                        ( grep { ref $_->{columns}[2] =~ /Dataset/ } @t1001 )
-                        ? 'Data in green cells are derived from input '
-                          . 'data table 1001 of the CDCM model for each year.'
-                        : (),
-                        'Data in white cells are not used in the CDCM.',
-                    ],
-                )->wsWrite( $wbook, $wsheet );
+                Notes( name => 'Allowed revenue summary (DCUSA schedule 15)', )
+                  ->wsWrite( $wbook, $wsheet );
 
                 my ($first1001) = grep { $_ } @t1001 or return;
                 my $rowset     = $first1001->{columns}[0]{rows};
@@ -365,32 +354,80 @@ EOL
             $wbook->{noLinks} = 1;
             $_->wsWrite( $wbook, $wsheet )
               foreach $me->{assumptions} = Notes( name => 'Assumptions' );
+
+            my $table1001headerRowForLater;
+            if (
+                my @table1001Overridable =
+                map {
+                        !$_->{table1001}
+                      || $_->{targetRevenue} =~ /DCP132longlabels/i ? ()
+                      : ( ref $_->{table1001}{columns}[3] ) =~ /Dataset/
+                      ? [ $_, $_->{table1001}{columns}[3] ]
+                      : ();
+                } @{ $me->{scenario} }
+              )
+            {
+                my $rows = $table1001Overridable[0][1]{rows};
+                $me->{table1001Overrides} = {
+                    map {
+                        (
+                            0 + $_->[0] => Constant(
+                                name          => '',
+                                rows          => $rows,
+                                defaultFormat => '0.0hard',
+                                rowFormats    => [
+                                    map {
+                                        /RPI|Index|index/ ? '0.000hard' : undef;
+                                    } @{ $rows->{list} }
+                                ],
+                                data => [
+                                    map { defined $_ ? '' : undef; }
+                                      @{ $_->[1]{data} }
+                                ],
+                            )
+                        );
+                    } @table1001Overridable
+                };
+                Notes( name => 'DCUSA schedule 15 input data in £ million' )
+                  ->wsWrite( $wbook, $wsheet );
+                $table1001headerRowForLater = ++$wsheet->{nextFree};
+                Columnset(
+                    name      => '',
+                    noHeaders => 1,
+                    columns   => [
+                        map { $me->{table1001Overrides}{ 0 + $_->[0] } }
+                          @table1001Overridable
+                    ],
+                )->wsWrite( $wbook, $wsheet );
+            }
+
+            Notes( name => 'Assumptions about cost and volume changes' )
+              ->wsWrite( $wbook, $wsheet );
             my $headerRowForLater = ++$wsheet->{nextFree};
             ++$wsheet->{nextFree};
-            push @{ $me->{finishClosures} }, sub {
-
-                for ( my $i = 0 ; $i < @{ $me->{assumptionColumns} } ; ++$i ) {
-                    my $model = $me->{assumptionColumns}[$i]{model};
-                    $wsheet->write(
-                        $headerRowForLater + 1,
-                        $i + 1,
-                        $model->modelIdentification( $wbook, $wsheet ),
-                        $wbook->getFormat('thc')
-                    );
-                    $wsheet->write(
-                        $headerRowForLater,
-                        $i + 1,
-                        $model->{sourceModel}
-                          ->modelIdentification( $wbook, $wsheet ),
-                        $wbook->getFormat('thc')
-                    );
-                }
-            };
             $_->wsWrite( $wbook, $wsheet ) foreach Columnset(
                 name      => '',
                 noHeaders => 1,
                 columns   => $me->{assumptionColumns},
             );
+            push @{ $me->{finishClosures} }, sub {
+                my $thc = $wbook->getFormat('thc');
+                for ( my $i = 0 ; $i < @{ $me->{assumptionColumns} } ; ++$i ) {
+                    my $model = $me->{assumptionColumns}[$i]{model};
+                    my $id = $model->modelIdentification( $wbook, $wsheet );
+                    $wsheet->write( $headerRowForLater + 1, $i + 1, $id, $thc );
+                    $wsheet->write( $table1001headerRowForLater,
+                        $i + 1, $id, $thc )
+                      if defined $table1001headerRowForLater;
+                    $wsheet->write(
+                        $headerRowForLater,
+                        $i + 1,
+                        $model->{sourceModel}
+                          ->modelIdentification( $wbook, $wsheet ),
+                        $thc
+                    );
+                }
+            };
             $wbook->{logger}      = $logger;
             $wbook->{titleAppend} = $titleAppend;
             $wbook->{noLinks}     = $noLinks;
@@ -422,6 +459,18 @@ EOL
 
     @pairs;
 
+}
+
+sub table1001Overrides {
+    my ( $me, $model, $wb, $ws, $rowName ) = @_;
+    my $dataset = $me->{table1001Overrides}{ 0 + $model };
+    return unless $dataset;
+    my ($row) = grep { $rowName eq $dataset->{rows}{list}[$_]; }
+      0 .. $#{ $dataset->{rows}{list} };
+    return unless $row;
+    my ( $wsheet, $ro, $co ) = $dataset->wsWrite( $wb, $ws );
+    return unless $wsheet;
+    q%'% . $wsheet->get_name . q%'!% . xl_rowcol_to_cell( $ro + $row, $co );
 }
 
 sub assumptionsLocator {
