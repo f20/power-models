@@ -247,6 +247,12 @@ sub pcdApplyDiscounts {
         $daysAfter, $tariffTable,   $volumeData, $volumeDataAfter,
     ) = @_;
 
+    push @{ $model->{roundingResults} },
+      Columnset(
+        name    => 'All the way tariffs',
+        columns => $model->{allTariffColumns},
+      );
+
     my $unitsInYear = Arithmetic(
         noCopy     => 1,
         name       => 'All units (MWh)',
@@ -312,9 +318,6 @@ sub pcdApplyDiscounts {
             );
         } @$allComponents
     };
-
-    push @{ $model->{roundingResults} }, pop @{ $model->{tariffSummary} };
-
 
     $tariffTable, $unitsInYear;
 

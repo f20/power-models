@@ -857,10 +857,16 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             map {
                 $_ => Stack(
                     name          => $tariffTable->{$_}{name},
-                    defaultFormat => $tariffTable->{$_}{defaultFormat},
-                    rows          => $allTariffsReordered,
-                    cols          => $tariffTable->{$_}{cols},
-                    sources       => [ $tariffTable->{$_} ]
+                    defaultFormat => (
+                        map {
+                            local $_ = $_;
+                            s/soft/copy/ if defined $_;
+                            $_;
+                        } $tariffTable->{$_}{defaultFormat}
+                    ),
+                    rows    => $allTariffsReordered,
+                    cols    => $tariffTable->{$_}{cols},
+                    sources => [ $tariffTable->{$_} ]
                 );
             } @$allComponents
         };

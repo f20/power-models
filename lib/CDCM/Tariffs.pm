@@ -285,10 +285,10 @@ EOL
             groups => \@endUserTypeList
         );
 
-        $allTariffs = $noLdno
-          || $model->{tariffOrder} ? $allTariffsByEndUser : Labelset(
+        $allTariffs =
+          !$model->{reorderTariffsInSummary} ? $allTariffsByEndUser : Labelset(
             name => 'All tariffs',
-            list => $model->{tariffOrder} ? \@allTariffs : [
+            list => [
                 ( grep { !/LDNO/i } @allTariffs ),
                 ( grep { /LDNO lv/i } @allTariffs ),
                 ( grep { /LDNO hv/i && !/LDNO hv sub/i } @allTariffs ),
