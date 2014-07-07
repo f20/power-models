@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012 Reckon LLP and others.
+Copyright 2012-2014 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ use strict;
 use utf8;
 use DBI;
 use IO::File;
-use Digest::SHA1;
+use Ancillary::Validation;
 
 use constant {
     PATH      => 0,
@@ -73,10 +73,10 @@ sub connect {
 
         if (@importRev) {
             warn 'Importing data for ' . @importRev . ' revision(s)';
-            my $sha1Machine = new Digest::SHA1;
+            my $digestMachine = Ancillary::Validation::digestMachine();
             my $i = $dbh->prepare('insert into l (i, h) values (?, ?)');
             $i->execute( $_,
-                $sha1Machine->addfile( new IO::File "< $path/r$_.yml" )
+                $digestMachine->addfile( new IO::File "< $path/r$_.yml" )
                   ->digest )
               foreach @importRev;
         }
@@ -87,18 +87,18 @@ sub connect {
 
 sub revisionText {
     my ( $self, $yaml ) = @_;
-    my $sha1Machine = new Digest::SHA1;
-    my $sha1        = $sha1Machine->add($yaml)->digest;
-    my $dbh         = $self->[HANDLE];
+    my $digestMachine = Ancillary::Validation::digestMachine();
+    my $digest        = $digestMachine->add($yaml)->digest;
+    my $dbh           = $self->[HANDLE];
     my $revision;
     unless ( ($revision) =
-        $dbh->selectrow_array( $self->[STATEMENT], undef, $sha1 ) )
+        $dbh->selectrow_array( $self->[STATEMENT], undef, $digest ) )
     {
         while ( !$dbh->do('begin immediate transaction') ) { }
-        $dbh->do( 'insert into l (h) values (?)', undef, $sha1 );
+        $dbh->do( 'insert into l (h) values (?)', undef, $digest );
         sleep 1 while !$dbh->commit;
         if ( ($revision) =
-            $dbh->selectrow_array( $self->[STATEMENT], undef, $sha1 ) )
+            $dbh->selectrow_array( $self->[STATEMENT], undef, $digest ) )
         {
             my $ymlFile = "$self->[PATH]/r$revision.yml";
             open my $f, '>', $ymlFile;

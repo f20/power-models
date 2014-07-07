@@ -32,6 +32,7 @@ use strict;
 use utf8;
 require Storable;
 require YAML;
+require Ancillary::Validation;
 
 sub _loadModules {
     my $ruleset = shift;
@@ -118,12 +119,12 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                                 '~datasetSource' => {
                                     file       => $fileName,
                                     validation => eval {
-                                        require Digest::SHA1;
                                         require Encode;
-                                        Digest::SHA1::sha1_hex(
-                                            Encode::encode_utf8($blob) );
+                                        Ancillary::Validation::digestMachine()
+                                          ->add( Encode::encode_utf8($blob) )
+                                          ->hexdigest;
                                     }
-                                      || 'Digest::SHA1 not working',
+                                      || 'Digest not working',
                                 }
                               )
                             : ()
@@ -228,12 +229,11 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         return unless $od && keys %$od;
         my ( $key, $hash ) = ( rand(), 'error' );
         eval {
-            require Digest::SHA1;
+            my $digestMachine = Ancillary::Validation::digestMachine();
             require JSON::PP;
-            $key =
-              Digest::SHA1::sha1(
-                JSON::PP->new->canonical(1)->utf8->encode($od) );
-            $hash = substr( Digest::SHA1::sha1_hex($key), 5, 8 );
+            $key = $digestMachine->add(
+                JSON::PP->new->canonical(1)->utf8->encode($od) )->digest;
+            $hash = substr( digestMachine->add($key)->hexdigest, 5, 8 );
         };
 
         foreach (@datasets) {
@@ -266,11 +266,11 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
 
         $self->{useXLSX}->() unless $workbookModule;
 
-        use Ancillary::Validation qw(sha1File sourceCodeSha1);
-        my $sourceCodeSha1 = sourceCodeSha1($perl5dir);
+        my $sourceCodeDigest =
+          Ancillary::Validation::sourceCodeDigest($perl5dir);
 
         # Omitted from validation: this file, and anything "require"d below.
-        delete $sourceCodeSha1->{'Ancillary/Manufacturing.pm'};
+        delete $sourceCodeDigest->{'Ancillary/Manufacturing.pm'};
 
         my ($db);
         if ( $dbString && require Ancillary::RevisionNumbering ) {
@@ -279,7 +279,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         }
 
         foreach (@rulesets) {
-            $_->{'~codeValidation'} = $sourceCodeSha1;
+            $_->{'~codeValidation'} = $sourceCodeDigest;
             delete $_->{'.'};
             $_->{revisionText} = $db->revisionText( YAML::Dump($_) ) if $db;
         }

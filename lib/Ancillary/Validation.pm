@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2013 Reckon LLP and others.
+Copyright 2009-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,35 +30,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use base 'Exporter';
-our @EXPORT_OK = qw(sha1File sourceCodeSha1);
 
-sub sha1File {
-    my ($file) = @_;
-    return 'no file' unless -f $file;
-    my $sha1 = eval {
-        require Digest::SHA1;
-        my $sha1Machine = new Digest::SHA1;
-        open my $fh, '<', $file;
-        $sha1Machine->addfile($fh)->hexdigest;
-    };
-    warn $@ if $@;
-    $sha1;
+my $_digestMachine;
+
+sub digestMachine {
+    return $_digestMachine if $_digestMachine;
+    foreach (qw(Digest::SHA Digest::SHA1 Digest::SHA::PurePerl)) {
+        eval "require $_";
+        eval { $_digestMachine = $_->new; };
+        return $_digestMachine if $_digestMachine;
+    }
 }
 
-sub sourceCodeSha1 {
+sub digestFile {
+    my ($file) = @_;
+    return 'no file' unless -f $file;
+    my $digest = eval {
+        my $digestMachine = digestMachine();
+        open my $fh, '<', $file;
+        $digestMachine->addfile($fh)->hexdigest;
+    };
+    warn $@ if $@;
+    $digest;
+}
+
+sub sourceCodeDigest {
     my ($perl5dir) = @_;
     my $l = length $perl5dir;
     my %hash;
     eval {
-        require Digest::SHA1;
-        my $sha1Machine = new Digest::SHA1;
+        my $digestMachine = digestMachine();
         %hash =
           map {
             substr( $INC{$_}, 0, $l ) eq $perl5dir
               ? do {
                 open my $fh, '<', $INC{$_};
-                ( $_ => $sha1Machine->addfile($fh)->hexdigest );
+                ( $_ => $digestMachine->addfile($fh)->hexdigest );
               }
               : ();
           } keys %INC;
