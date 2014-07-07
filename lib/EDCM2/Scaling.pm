@@ -204,7 +204,7 @@ sub fudge41 {
     );
 
     my $fixedAdderAmount = Arithmetic(
-        name => 'Amount to be recovered from adders ex indirects (£/year)',
+        name => 'Amount to be recovered from adders ex costs (£/year)',
         defaultFormat => '0soft',
         arithmetic    => '=IV1-IV7-IV91-IV92',
         arguments     => {
@@ -348,8 +348,9 @@ sub fudge41 {
     $$shortfallRef = Arithmetic(
         name          => 'Residual residual (£/year)',
         defaultFormat => '0softnz',
-        arithmetic    => '=(1-IV1)*(IV2-IV3-IV71-IV72)+IV81+IV82',
-        arguments     => {
+        arithmetic    => '=(1-IV1)*(IV2-IV3-IV71-IV72)+IV81+IV82'
+          . ( $model->{assetScalerAddition} ? '+IV99' : '' ),
+        arguments => {
             IV1  => $ynonFudge41,
             IV2  => $$shortfallRef,
             IV3  => $indirect,
@@ -357,6 +358,18 @@ sub fudge41 {
             IV81 => $direct,
             IV72 => $rates,
             IV82 => $rates,
+            $model->{assetScalerAddition}
+            ? (
+                IV99 => Dataset(
+                    name          => 'Addition to asset scaler (£/year)',
+                    defaultFormat => '0hardnz',
+                    number        => 1195,
+                    appendTo      => $model->{inputTables},
+                    dataset       => $model->{dataset},
+                    data          => [ [''] ],
+                )
+              )
+            : (),
         },
     );
     $model->{transparency}{olFYI}{1257} = $$shortfallRef
