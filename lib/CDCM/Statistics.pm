@@ -62,7 +62,7 @@ sub makeStatisticsAssumptions {
     _column: Rate 2 consumption (kWh/year)
   - Customer 31 Small continuous: 69
     Customer 33 Small off-peak: 69
-    Customer 33 Small peak-time: 69
+    Customer 35 Small peak-time: 69
     Customer 51 Continuous: 500
     Customer 53 Off-peak: 500
     Customer 55 Peak-time: 500
@@ -72,7 +72,7 @@ sub makeStatisticsAssumptions {
     _column: Capacity (kVA)
   - Customer 31 Small continuous: 65
     Customer 33 Small off-peak: 65
-    Customer 33 Small peak-time: 65
+    Customer 35 Small peak-time: 65
     Customer 51 Continuous: 450
     Customer 53 Off-peak: 450
     Customer 55 Peak-time: 450
@@ -82,7 +82,7 @@ sub makeStatisticsAssumptions {
     _column: Consumption (kW)
   - Customer 31 Small continuous: 168
     Customer 33 Small off-peak: 77
-    Customer 33 Small peak-time: 0
+    Customer 35 Small peak-time: 0
     Customer 51 Continuous: 168
     Customer 53 Off-peak: 77
     Customer 55 Peak-time: 0
@@ -92,7 +92,7 @@ sub makeStatisticsAssumptions {
     _column: Off-peak hours/week
   - Customer 31 Small continuous: 0
     Customer 33 Small off-peak: 0
-    Customer 33 Small peak-time: 48
+    Customer 35 Small peak-time: 48
     Customer 51 Continuous: 0
     Customer 53 Off-peak: 0
     Customer 55 Peak-time: 48
@@ -106,7 +106,7 @@ sub makeStatisticsAssumptions {
     Customer 15 High use: '/^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium)/'
     Customer 31 Small continuous: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
     Customer 33 Small off-peak: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
-    Customer 33 Small peak-time: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
+    Customer 35 Small peak-time: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
     Customer 51 Continuous: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
     Customer 53 Off-peak: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
     Customer 55 Peak-time: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'

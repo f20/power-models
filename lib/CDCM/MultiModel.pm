@@ -137,21 +137,28 @@ EOL
             $wsheet->set_column( 1, 254, 16 );
             $wsheet->freeze_panes( 0, 1 );
             push @{ $me->{finishClosures} }, sub {
-                Notes(
-                    name  => 'Analysis of allowed revenue (DCUSA schedule 15)',
-                    lines => [
-                        'To change RPI assumptions, use the Assumptions sheet.',
-                        'To make other data changes, '
-                          . 'please edit the blue cells '
-                          . 'in input data table 1001 for each year.'
-                    ],
-                )->wsWrite( $wbook, $wsheet );
+
                 my @t1001 = map {
                          $_->{table1001}
                       && $_->{targetRevenue} !~ /DCP132longlabels/i
                       ? $_->{table1001}
                       : undef
                 } @{ $me->{models} };
+
+                Notes(
+                    name  => 'Allowed revenue (DCUSA schedule 15)',
+                    lines => [
+                        ( grep { ref $_->{columns}[2] =~ /Custom/ } @t1001 )
+                        ? 'Data in blue cells feed into CDCM models.'
+                        : (),
+                        ( grep { ref $_->{columns}[2] =~ /Dataset/ } @t1001 )
+                        ? 'Data in green cells are derived from input '
+                          . 'data table 1001 of the CDCM model for each year.'
+                        : (),
+                        'Data in white cells are not used in the CDCM.',
+                    ],
+                )->wsWrite( $wbook, $wsheet );
+
                 my ($first1001) = grep { $_ } @t1001 or return;
                 my $rowset     = $first1001->{columns}[0]{rows};
                 my $rowformats = $first1001->{columns}[3]{rowFormats};

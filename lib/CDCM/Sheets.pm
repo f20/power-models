@@ -48,9 +48,9 @@ sub sheetPriority {
         'Index$'       => 80,
         'Assumptions$' => 70,
         'Schedule 15$' => 60,
-        'Statistics$'  => 50,
-        'Changes$'     => 40,
-        'Tariffs$'     => 30,
+        'Tariffs$'     => 50,
+        'Statistics$'  => 40,
+        'Changes$'     => 30,
     }->{$sheet};
     $score = 10 if !$score && $sheet =~ /\$$/;
     $score;
