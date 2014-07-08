@@ -1,0 +1,19 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_dcp189j-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+DATASETS=../EDCM/Data-Test/*
+
+perl ../run/make.pl -sqlite ../EDCM/Issue-70/\%-i70-* $DATASETS -xdata='{"rules":{"numLocations":2,"numTariffs":2}}'
+
+perl ../run/make.pl -sqlite ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"proportionsplitShortfall","dcp189default":"1","numLocations":2,"numTariffs":2,"template":"%-dcp189splitShortfall"}}' $DATASETS
+
+perl ../run/export.pl -edcm dcp189splitShortfall -base=i70-FCP
+perl ../run/export.pl -edcm dcp189splitShortfall -base=i70-LRIC
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

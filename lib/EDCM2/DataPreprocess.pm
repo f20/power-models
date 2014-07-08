@@ -107,7 +107,7 @@ sub preprocessDataset {
 
         splice @$ds, 8, 0,
           {
-            map { ( $_ => $model->{dcp189default} || 'N' ); }
+            map { ( $_ => $model->{dcp189default} || '' ); }
               keys %{ $ds->[1] }
           }
           if $model->{dcp189}

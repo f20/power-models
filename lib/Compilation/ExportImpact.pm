@@ -39,7 +39,7 @@ Import fixed charge (p/day)
 Import capacity rate (p/kVA/day)
 Import exceeded capacity rate (p/kVA/day)
 Export super-red unit rate (p/kWh)
-Export fixed charge p/day
+Export fixed charge (p/day)
 Export capacity rate (p/kVA/day)
 Export exceeded capacity rate (p/kVA/day)
 EOL

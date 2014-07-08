@@ -492,7 +492,20 @@ sub tariffInputs {
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
-        $model->{dcp189} ? Dataset(
+        !$model->{dcp189} ? () : $model->{dcp189} =~ /proportion/i ? Dataset(
+            name => 'Percentage of sole use assets where '
+              . 'Customer is entitled to reduction for capitalised O&M',
+            defaultFormat => '%hard',
+            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+            rows          => $model->{tariffSet},
+            dataset       => $model->{dataset},
+            validation    => {
+                validate => 'decimal',
+                criteria => 'between',
+                minimum  => 0,
+                maximum  => 1,
+            },
+          ) : Dataset(
             name => 'Customer entitled to reduction for capitalised O&M',
             defaultFormat => '0hard',
             data          => [ map { 'N' } 1 .. $model->{numTariffs} ],
@@ -502,7 +515,7 @@ sub tariffInputs {
                 validate => 'list',
                 value    => [qw(N Y)],
             },
-          ) : (),
+          ),
         $model->{method} =~ /LRIC/i ? Dataset(
             name          => 'LRIC location',
             defaultFormat => 'texthard',

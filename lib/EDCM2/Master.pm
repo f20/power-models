@@ -132,7 +132,7 @@ EOT
         $tariffs,                          $importCapacity,
         $exportCapacityExempt,             $exportCapacityChargeablePre2005,
         $exportCapacityChargeable20052010, $exportCapacityChargeablePost2010,
-        $tariffSoleUseMeav,                $dcp189YesOrNo,
+        $tariffSoleUseMeav,                $dcp189Input,
         $tariffLoc,                        $tariffCategory,
         $useProportions,                   $activeCoincidence,
         $reactiveCoincidence,              $indirectExposure,
@@ -152,7 +152,7 @@ EOT
             $exportCapacityChargeable20052010,
             $exportCapacityChargeablePost2010,
             $tariffSoleUseMeav,
-            $dcp189YesOrNo,
+            $dcp189Input,
             $tariffLoc,
             $tariffCategory,
             $useProportions,
@@ -752,20 +752,7 @@ EOT
     $model->{transparency}{olFYI}{1255} = $edcmRates if $model->{transparency};
 
     my $fixedDcharge =
-      $model->{dcp189}
-      ? Arithmetic(
-        name          => 'Demand fixed charge p/day (scaled for part year)',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100/IV2*IV1*(IF(IV4="Y",0,IV6)+IV88)',
-        arguments     => {
-            IV1  => $demandSoleUseAsset,
-            IV4  => $dcp189YesOrNo,
-            IV6  => $rateDirect,
-            IV88 => $rateRates,
-            IV2  => $daysInYear,
-        }
-      )
-      : Arithmetic(
+      !$model->{dcp189} ? Arithmetic(
         name          => 'Demand fixed charge p/day (scaled for part year)',
         defaultFormat => '0.00softnz',
         arithmetic    => '=100/IV2*IV1*(IV6+IV88)',
@@ -775,17 +762,53 @@ EOT
             IV88 => $rateRates,
             IV2  => $daysInYear,
         }
+      )
+      : $model->{dcp189} =~ /proportion/i ? Arithmetic(
+        name          => 'Demand fixed charge p/day (scaled for part year)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=100/IV2*IV1*((1-IV4)*IV6+IV88)',
+        arguments     => {
+            IV1  => $demandSoleUseAsset,
+            IV4  => $dcp189Input,
+            IV6  => $rateDirect,
+            IV88 => $rateRates,
+            IV2  => $daysInYear,
+        }
+      )
+      : Arithmetic(
+        name          => 'Demand fixed charge p/day (scaled for part year)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=100/IV2*IV1*(IF(IV4="Y",0,IV6)+IV88)',
+        arguments     => {
+            IV1  => $demandSoleUseAsset,
+            IV4  => $dcp189Input,
+            IV6  => $rateDirect,
+            IV88 => $rateRates,
+            IV2  => $daysInYear,
+        }
       );
 
     my $fixedDchargeTrue =
-      $model->{dcp189}
+      !$model->{dcp189}
       ? Arithmetic(
         name          => 'Demand fixed charge p/day',
         defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(IV3,(100/IV2*IV1*(IF(IV4="Y",0,IV6)+IV88)),0)',
+        arithmetic    => '=IF(IV3,(100/IV2*IV1*(IV6+IV88)),0)',
         arguments     => {
             IV1  => $demandSoleUseAssetUnscaled,
-            IV4  => $dcp189YesOrNo,
+            IV6  => $rateDirect,
+            IV88 => $rateRates,
+            IV2  => $daysInYear,
+            IV3  => $importEligible,
+        }
+      )
+      : $model->{dcp189} =~ /proportion/i ? Arithmetic(
+        name          => 'Demand fixed charge p/day',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=IF(IV3,(100/IV2*IV1*((1-IV4)*IV6+IV88)),0)',
+        arguments     => {
+            IV1  => $demandSoleUseAssetUnscaled,
+            IV4  => $dcp189Input,
             IV6  => $rateDirect,
             IV88 => $rateRates,
             IV2  => $daysInYear,
@@ -795,9 +818,10 @@ EOT
       : Arithmetic(
         name          => 'Demand fixed charge p/day',
         defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(IV3,(100/IV2*IV1*(IV6+IV88)),0)',
+        arithmetic    => '=IF(IV3,(100/IV2*IV1*(IF(IV4="Y",0,IV6)+IV88)),0)',
         arguments     => {
             IV1  => $demandSoleUseAssetUnscaled,
+            IV4  => $dcp189Input,
             IV6  => $rateDirect,
             IV88 => $rateRates,
             IV2  => $daysInYear,
@@ -980,26 +1004,50 @@ EOT
 
     $totalDcp189DiscountedAssets =
       $model->{transparencyMasterFlag}
-      ? Arithmetic(
+      ? (
+        $model->{dcp189} =~ /proportion/i
+        ? Arithmetic(
+            name => 'Total demand sole use assets '
+              . 'qualifying for DCP 189 discount (£)',
+            defaultFormat => '0softnz',
+            arithmetic =>
+              '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV13_IV14,IV15_IV16)',
+            arguments => {
+                IV123     => $model->{transparencyMasterFlag},
+                IV1       => $model->{transparency}{ol119306},
+                IV11_IV12 => $demandSoleUseAsset,
+                IV13_IV14 => $dcp189Input,
+                IV15_IV16 => $model->{transparency},
+            },
+          )
+        : Arithmetic(
+            name => 'Total demand sole use assets '
+              . 'qualifying for DCP 189 discount (£)',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
+            arguments     => {
+                IV123     => $model->{transparencyMasterFlag},
+                IV1       => $model->{transparency}{ol119306},
+                IV11_IV12 => Arithmetic(
+                    name => 'Demand sole use assets '
+                      . 'qualifying for DCP 189 discount (£)',
+                    defaultFormat => '0softnz',
+                    arithmetic    => '=IF(IV4="Y",IV1,0)',
+                    arguments     => {
+                        IV1 => $demandSoleUseAsset,
+                        IV4 => $dcp189Input,
+                    }
+                ),
+                IV15_IV16 => $model->{transparency},
+            },
+        )
+      )
+      : $model->{dcp189} =~ /proportion/i ? SumProduct(
         name => 'Total demand sole use assets '
           . 'qualifying for DCP 189 discount (£)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
-        arguments     => {
-            IV123     => $model->{transparencyMasterFlag},
-            IV1       => $model->{transparency}{ol119306},
-            IV11_IV12 => Arithmetic(
-                name => 'Demand sole use assets '
-                  . 'qualifying for DCP 189 discount (£)',
-                defaultFormat => '0softnz',
-                arithmetic    => '=IF(IV4="Y",IV1,0)',
-                arguments     => {
-                    IV1 => $demandSoleUseAsset,
-                    IV4 => $dcp189YesOrNo,
-                }
-            ),
-            IV15_IV16 => $model->{transparency},
-        },
+        matrix        => $dcp189Input,
+        vector        => $demandSoleUseAsset,
       )
       : Arithmetic(
         name => 'Total demand sole use assets '
@@ -1007,7 +1055,7 @@ EOT
         defaultFormat => '0softnz',
         arithmetic    => '=SUMIF(IV1_IV2,"Y",IV3_IV4)',
         arguments     => {
-            IV1_IV2 => $dcp189YesOrNo,
+            IV1_IV2 => $dcp189Input,
             IV3_IV4 => $demandSoleUseAsset,
         }
       ) if $model->{dcp189} && $model->{dcp189} =~ /preservePot|split/i;
