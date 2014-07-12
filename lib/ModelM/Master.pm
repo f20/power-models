@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,9 +32,11 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use ModelM::Inputs;
 use ModelM::Options;
 use ModelM::Sheets;
+use ModelM::Inputs;
+use ModelM::Meav;
+use ModelM::NetCapex;
 use ModelM::Expenditure;
 use ModelM::Allocation;
 use ModelM::Discounts;
@@ -43,7 +45,8 @@ sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
     $ruleset->{dcp095}   ? qw(ModelM::Dcp095) : (),
       $ruleset->{dcp117} ? qw(ModelM::Dcp117) : (),
-      $ruleset->{dcp118} ? qw(ModelM::Dcp118) : ();
+      $ruleset->{dcp118} ? qw(ModelM::Dcp118) : (),
+      $ruleset->{edcm}   ? qw(ModelM::Edcm)   : ();
 }
 
 sub setUpMultiModelSharing {
@@ -117,6 +120,8 @@ END_OF_LIST
     my $discountCall = $model->{dcp095} ? 'discounts95' : 'discounts';
     $model->$discountCall( $alloc, $allocLevelset, $dcp071, $direct, $hvSplit,
         $lvSplit, );
+
+    $model->discountEdcm( $alloc, $direct ) if $model->{edcm};
 
     $model;
 }
