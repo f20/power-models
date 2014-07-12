@@ -49,7 +49,7 @@ sub worksheetsAndClosures {
         $wsheet->{sheetNumber} = 13;
 
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 20 );
         $wsheet->{nextFree} = 2;    # One comment line under "Input data" title
         $model->{inputTables} ||= [];

@@ -252,6 +252,236 @@
     _column: HV
   - MEAV percentages: 0.277643922485322
     _column: EHV&132
+1355:
+  - _table: 1355. MEAV data
+  - 132kV: 0
+    132kV EHV remote terminal unit ground-mounted: 408
+    132kV EHV remote terminal unit pole-mounted: 58
+    132kV auxiliary transformer: 31
+    132kV breaker: 229
+    132kV other switchgear: 1078
+    132kV overhead: 0
+    132kV overhead pole conductor km: 10
+    132kV overhead tower conductor km: 1151
+    132kV pole: 107
+    132kV submarine: 0
+    132kV submarine km: 0
+    132kV switchgear: 0
+    132kV tower: 2701
+    132kV tower fittings: 3928
+    132kV transformer: 165
+    132kV transformers: 0
+    132kV underground: 0
+    132kV underground gas km: 66
+    132kV underground non-pressurised km: 49
+    132kV underground oil km: 239
+    20kV breaker distribution: 0
+    20kV breaker ground-mounted: 0
+    20kV breaker pole-mounted: 0
+    20kV breaker primary: 0
+    20kV other switchgear ground-mounted: 0
+    20kV other switchgear pole-mounted: 0
+    20kV overhead covered km: 0
+    20kV overhead open pm: 0
+    20kV overhead support: 0
+    20kV ring main unit: 0
+    20kV switch ground-mounted: 0
+    20kV switch pole-mounted: 0
+    20kV transformer ground-mounted: 0
+    20kV transformer pole-mounted: 0
+    20kV underground km: 0
+    33kV auxiliary transformer: 23
+    33kV breaker indoors: 718
+    33kV breaker outdoors: 24
+    33kV other switchgear: 741
+    33kV overhead pole line km: 1230
+    33kV overhead tower line km: 83
+    33kV pole: 12005
+    33kV ring main unit: 2
+    33kV switch ground-mounted: 14
+    33kV switch pole-mounted: 0
+    33kV tower: 516
+    33kV transformer ground-mounted: 471
+    33kV transformer pole-mounted: 1
+    33kV underground gas km: 7
+    33kV underground non-pressurised km: 836
+    33kV underground oil km: 498
+    6 6 11kV breaker distribution: 0
+    6 6 11kV breaker ground-mounted: 4874
+    6 6 11kV breaker pole-mounted: 795
+    6 6 11kV breaker primary: 0
+    6 6 11kV other switchgear ground-mounted: 0
+    6 6 11kV other switchgear pole-mounted: 4333
+    6 6 11kV overhead covered km: 508
+    6 6 11kV overhead open km: 5205
+    6 6 11kV overhead support: 69724
+    6 6 11kV ring main unit: 11122
+    6 6 11kV switch ground-mounted: 16489
+    6 6 11kV switch pole-mounted: 40
+    6 6 11kV transformer ground-mounted: 20261
+    6 6 11kV transformer pole-mounted: 13622
+    6 6 11kV underground km: 11899.297
+    66kV auxiliary transformer: 0
+    66kV breaker: 0
+    66kV other switchgear: 0
+    66kV overhead pole line km: 0
+    66kV overhead tower line km: 0
+    66kV pole: 0
+    66kV tower: 0
+    66kV transformer: 0
+    66kV underground gas km: 0
+    66kV underground non-pressurised km: 0
+    66kV underground oil km: 0
+    EHV: 0
+    EHV overhead: 0
+    EHV submarine: 0
+    EHV submarine km: 0
+    EHV switchgear: 0
+    EHV transformers: 0
+    EHV underground: 0
+    HV network: 0
+    HV network switchgear: 0
+    HV overhead: 0
+    HV remote terminal unit ground-mounted: 1967
+    HV remote terminal unit pole-mounted: 806
+    HV submarine: 0
+    HV submarine km: 0
+    HV switchgear: 0
+    HV transformers: 0
+    HV underground: 0
+    LV board underground: 28421
+    LV board wall-mounted: 147
+    LV fuse pole-mounted: 13710
+    LV fuse tower-mounted: 0
+    LV main overhead line km: 4578.6
+    LV main underground consac km: 12
+    LV main underground paper km: 18601
+    LV main underground plastic km: 7478
+    LV network: 0
+    LV overhead: 0
+    LV overhead support: 129615
+    LV pillar indoors: 8364
+    LV pillar outdoors: 12013
+    LV service overhead: 119175
+    LV service underground: 1582548
+    LV switchgear: 0
+    LV underground: 0
+    SCADA: 0
+    _column: Quantity
+  - 132kV: 0
+    132kV EHV remote terminal unit ground-mounted: 0
+    132kV EHV remote terminal unit pole-mounted: 0
+    132kV auxiliary transformer: 0
+    132kV breaker: 1064800
+    132kV other switchgear: 0
+    132kV overhead: 0
+    132kV overhead pole conductor km: 100000
+    132kV overhead tower conductor km: 185400
+    132kV pole: 26000
+    132kV submarine: 0
+    132kV submarine km: 0
+    132kV switchgear: 0
+    132kV tower: 161000
+    132kV tower fittings: 11000
+    132kV transformer: 1752000
+    132kV transformers: 0
+    132kV underground: 0
+    132kV underground gas km: 1245000
+    132kV underground non-pressurised km: 1245000
+    132kV underground oil km: 1245000
+    20kV breaker distribution: 0
+    20kV breaker ground-mounted: 0
+    20kV breaker pole-mounted: 0
+    20kV breaker primary: 0
+    20kV other switchgear ground-mounted: 0
+    20kV other switchgear pole-mounted: 0
+    20kV overhead covered km: 0
+    20kV overhead open pm: 0
+    20kV overhead support: 0
+    20kV ring main unit: 0
+    20kV switch ground-mounted: 0
+    20kV switch pole-mounted: 0
+    20kV transformer ground-mounted: 0
+    20kV transformer pole-mounted: 0
+    20kV underground km: 0
+    33kV auxiliary transformer: 0
+    33kV breaker indoors: 124300
+    33kV breaker outdoors: 69300
+    33kV other switchgear: 0
+    33kV overhead pole line km: 79200
+    33kV overhead tower line km: 40664
+    33kV pole: 3600
+    33kV ring main unit: 285450
+    33kV switch ground-mounted: 13500
+    33kV switch pole-mounted: 10200
+    33kV tower: 39022
+    33kV transformer ground-mounted: 552500
+    33kV transformer pole-mounted: 6032
+    33kV underground gas km: 326800
+    33kV underground non-pressurised km: 326800
+    33kV underground oil km: 326800
+    6 6 11kV breaker distribution: 0
+    6 6 11kV breaker ground-mounted: 52800
+    6 6 11kV breaker pole-mounted: 11600
+    6 6 11kV breaker primary: 0
+    6 6 11kV other switchgear ground-mounted: 0
+    6 6 11kV other switchgear pole-mounted: 0
+    6 6 11kV overhead covered km: 29200
+    6 6 11kV overhead open km: 29200
+    6 6 11kV overhead support: 3800
+    6 6 11kV ring main unit: 17400
+    6 6 11kV switch ground-mounted: 7500
+    6 6 11kV switch pole-mounted: 3800
+    6 6 11kV transformer ground-mounted: 17900
+    6 6 11kV transformer pole-mounted: 2100
+    6 6 11kV underground km: 73900
+    66kV auxiliary transformer: 0
+    66kV breaker: 0
+    66kV other switchgear: 0
+    66kV overhead pole line km: 0
+    66kV overhead tower line km: 0
+    66kV pole: 0
+    66kV tower: 0
+    66kV transformer: 0
+    66kV underground gas km: 0
+    66kV underground non-pressurised km: 0
+    66kV underground oil km: 0
+    EHV: 0
+    EHV overhead: 0
+    EHV submarine: 0
+    EHV submarine km: 0
+    EHV switchgear: 0
+    EHV transformers: 0
+    EHV underground: 0
+    HV network: 0
+    HV network switchgear: 0
+    HV overhead: 0
+    HV remote terminal unit ground-mounted: 0
+    HV remote terminal unit pole-mounted: 0
+    HV submarine: 0
+    HV submarine km: 0
+    HV switchgear: 0
+    HV transformers: 0
+    HV underground: 0
+    LV board underground: 4700
+    LV board wall-mounted: 9240
+    LV fuse pole-mounted: 0
+    LV fuse tower-mounted: 0
+    LV main overhead line km: 30000
+    LV main underground consac km: 80500
+    LV main underground paper km: 80500
+    LV main underground plastic km: 80500
+    LV network: 0
+    LV overhead: 0
+    LV overhead support: 2000
+    LV pillar indoors: 5800
+    LV pillar outdoors: 5800
+    LV service overhead: 400
+    LV service underground: 1100
+    LV switchgear: 0
+    LV underground: 0
+    SCADA: 0
+    _column: Unit MEAV
 1360:
   - _table: '1360. MEAV: ratio of LV service to LV total'
   - LV service: 0.394066080561226

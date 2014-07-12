@@ -293,11 +293,146 @@ sub expenditure {
 
 }
 
+sub meavRawData {
+
+    my ($model) = @_;
+    return unless $model->{meav};
+    return $model->{meav} if ref $model->{meav};
+    my $rows = Labelset( name => 'MEAV rows', list => [ split /\n/, <<EOL] );
+LV main overhead line km
+LV service overhead
+LV overhead support
+LV main underground consac km
+LV main underground plastic km
+LV main underground paper km
+LV service underground 
+LV pillar indoors
+LV pillar outdoors
+LV board wall-mounted
+LV board underground
+LV fuse pole-mounted
+LV fuse tower-mounted
+6.6/11kV overhead open km
+6.6/11kV overhead covered km
+20kV overhead open pm
+20kV overhead covered km
+6.6/11kV overhead support
+20kV overhead support
+6.6/11kV underground km
+20kV underground km
+HV submarine km
+6.6/11kV breaker pole-mounted
+6.6/11kV breaker ground-mounted
+6.6/11kV switch pole-mounted
+6.6/11kV switch ground-mounted
+6.6/11kV ring main unit
+6.6/11kV other switchgear pole-mounted
+6.6/11kV other switchgear ground-mounted
+20kV breaker pole-mounted
+20kV breaker ground-mounted
+20kV switch pole-mounted
+20kV switch ground-mounted
+20kV ring main unit
+20kV other switchgear pole-mounted
+20kV other switchgear ground-mounted
+6.6/11kV transformer pole-mounted
+6.6/11kV transformer ground-mounted
+20kV transformer pole-mounted
+20kV transformer ground-mounted
+33kV overhead pole line km
+33kV overhead tower line km
+66kV overhead pole line km
+66kV overhead tower line km
+33kV pole
+33kV tower
+66kV pole
+66kV tower
+33kV underground non-pressurised km
+33kV underground oil km
+33kV underground gas km
+66kV underground non-pressurised km
+66kV underground oil km
+66kV underground gas km
+EHV submarine km
+33kV breaker indoors
+33kV breaker outdoors
+33kV switch ground-mounted
+33kV switch pole-mounted
+33kV ring main unit
+33kV other switchgear
+66kV breaker
+66kV other switchgear
+33kV transformer pole-mounted
+33kV transformer ground-mounted
+33kV auxiliary transformer
+66kV transformer
+66kV auxiliary transformer
+132kV overhead pole conductor km
+132kV overhead tower conductor km 
+132kV pole
+132kV tower
+132kV tower fittings
+132kV underground non-pressurised km
+132kV underground oil km
+132kV underground gas km
+132kV submarine km
+132kV breaker
+132kV other switchgear
+132kV transformer
+132kV auxiliary transformer
+132kV/EHV remote terminal unit pole-mounted
+132kV/EHV remote terminal unit ground-mounted
+HV remote terminal unit pole-mounted
+HV remote terminal unit ground-mounted
+EOL
+    my @d = (
+        Dataset(
+            name          => 'Asset quantity',
+            defaultFormat => '0hard',
+            rows          => $rows,
+            data          => [ map { 0 } @{ $rows->{list} } ],
+            validation    => {
+                validate => 'decimal',
+                criteria => '>=',
+                value    => 0,
+            },
+        ),
+        Dataset(
+            name          => 'Unit MEAV (£)',
+            defaultFormat => '0hard',
+            rows          => $rows,
+            data          => [ map { 0 } @{ $rows->{list} } ],
+            validation    => {
+                validate => 'decimal',
+                criteria => '>=',
+                value    => 0,
+            },
+        ),
+    );
+    Columnset(
+        name          => 'MEAV data',
+        lines         => 'From sheet Calc-MEAV or Data-MEAV',
+        defaultFormat => '%hard',
+        number        => 1355,
+        dataset       => $model->{dataset},
+        appendTo      => $model->{inputTables},
+        columns       => \@d,
+    );
+    $model->{meav} = Arithmetic(
+        name          => 'MEAV (£)',
+        defaultFormat => 'millionsoft',
+        arithmetic    => '=IV1*IV2',
+        arguments     => { IV1 => $d[0], IV2 => $d[1], },
+    );
+
+}
+
 sub meavPercentages {
 
     my ( $model, $allocLevelset ) = @_;
 
-    Dataset(
+    my $meav = $model->meavRawData;
+    return Dataset(
         name => 'MEAV percentages',
         lines =>
           'From sheet Calc-Drivers row 22 or Calc-MEAV starting at cell H6',
@@ -312,15 +447,147 @@ sub meavPercentages {
             criteria => '>=',
             value    => 0,
         },
+    ) unless $meav;
+
+    my $mapping = Constant(
+        name          => 'MEAV mapping',
+        rows          => $meav->{rows},
+        cols          => $allocLevelset,
+        byrow         => 1,
+        defaultFormat => '0con',
+        data          => [
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 1, 0, 0, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 1, 0, 0 ],
+            [ 0, 1, 0, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 1, 0, 0 ],
+            [ 0, 1, 0, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 1, 0, 0 ],
+            [ 0, 1, 0, 0 ],
+            [ 0, 1, 0, 0 ],
+            [ 0, 1, 0, 0 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 0, 1 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+            [ 0, 0, 1, 0 ],
+        ],
     );
 
+    if ( ref( $meav->{location} ) eq 'SpreadsheetModel::Columnset' ) {
+        push @{ $meav->{location}{columns} }, $mapping;
+        $mapping->{location} = $meav->{location};
+    }
+    else {
+        Columnset(
+            name    => 'MEAV calculations',
+            columns => [ $meav, $mapping ]
+        );
+    }
+
+    my $totalMeav = SumProduct(
+        name          => 'MEAV by network level (£)',
+        defaultFormat => $meav->{defaultFormat},
+        matrix        => $mapping,
+        vector        => $meav,
+    );
+
+    Arithmetic(
+        name          => 'MEAV percentages',
+        defaultFormat => '%soft',
+        cols          => $allocLevelset,
+        arithmetic    => '=IV6/SUM(IV8_IV9)',
+        arguments     => {
+            IV6     => $totalMeav,
+            IV8_IV9 => $totalMeav,
+        },
+    );
+
+}
+
+sub netCapexRawData {
 }
 
 sub netCapexPercentages {
 
     my ( $model, $allocLevelset ) = @_;
 
-    Dataset(
+    my $netCapex = $model->netCapexRawData;
+    return Dataset(
         name => 'Net capex percentages',
         lines =>
 'From sheet Calc-Drivers row 17 or Calc-Net capex starting at cell H6',
@@ -335,7 +602,7 @@ sub netCapexPercentages {
             criteria => '>=',
             value    => 0,
         },
-    );
+    ) unless $netCapex;
 
 }
 
@@ -387,7 +654,8 @@ sub meavPercentageServiceLV {
 
     my ( $model, $lvOnly, $lvServiceOnly ) = @_;
 
-    Dataset(
+    my $meav = $model->meavRawData;
+    return Dataset(
         name          => 'MEAV: ratio of LV service to LV total',
         data          => [.5],
         defaultFormat => '%hard',
@@ -400,6 +668,46 @@ sub meavPercentageServiceLV {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
+        },
+    ) unless $meav;
+
+    my $lvService = Constant(
+        name          => 'MEAV mapping: LV services',
+        rows          => $meav->{rows},
+        defaultFormat => '0con',
+        data          => [ undef, 1, ( map { undef } 1 .. 4 ), 1 ],
+    );
+
+    my $lvTotal = Constant(
+        name          => 'MEAV mapping: LV total',
+        rows          => $meav->{rows},
+        defaultFormat => '0con',
+        data          => [ map { 1; } 1 .. 13 ],
+    );
+
+    if ( ref( $meav->{location} ) eq 'SpreadsheetModel::Columnset' ) {
+        push @{ $meav->{location}{columns} }, $lvService, $lvTotal;
+        $_->{location} = $meav->{location} foreach $lvService, $lvTotal;
+    }
+    else {
+        Columnset(
+            name    => 'MEAV calculations',
+            columns => [ $meav, $lvService, $lvTotal, ]
+        );
+    }
+
+    Arithmetic(
+        name          => 'MEAV: ratio of LV service to LV total',
+        defaultFormat => '%soft',
+        cols          => $lvOnly,
+        rows          => $lvServiceOnly,
+        arithmetic =>
+          '=SUMPRODUCT(IV2_IV3,IV4_IV5)/SUMPRODUCT(IV6_IV7,IV8_IV9)',
+        arguments => {
+            IV2_IV3 => $lvService,
+            IV4_IV5 => $meav,
+            IV6_IV7 => $lvTotal,
+            IV8_IV9 => $meav,
         },
     );
 
