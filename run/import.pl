@@ -51,6 +51,7 @@ BEGIN {
     chdir $cwd;
 }
 use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
+use Compilation::Import;
 
 BEGIN {
     my %pids;
@@ -71,18 +72,16 @@ BEGIN {
     }
 }
 
-my ( $sheetFilter, $writer, $calculate, $doNotImport );
-our ( $WHICH_osascript, $WHICH_ssconvert );
+my ( $sheetFilter, $writer, $settings, $postProcessor );
 
-my $threads1;    # one less than the number of import worker threads we want
-$threads1 = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
-chomp $threads1 if $threads1;
-$threads1 ||= 2;
-$threads1 -= 2;    # keep one thread free for Excel
+my $threads;
+$threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
+chomp $threads if $threads;
+$threads ||= 1;
 
 foreach (@ARGV) {
     if (/^-+([0-9]+)$/i) {
-        $threads1 = $1 - 1 if $1 > 0;
+        $threads = $1 if $1 > 0;
         next;
     }
     if (/^-+(ya?ml.*)/i) {
@@ -98,7 +97,6 @@ foreach (@ARGV) {
             $wantedSheet =~ s/^=//;
             $sheetFilter = sub { $_[0] eq $wantedSheet; };
         }
-        require Compilation::Import;
         $writer = Compilation::Import::makeSQLiteWriter( undef, $sheetFilter );
         next;
     }
@@ -119,133 +117,25 @@ foreach (@ARGV) {
         next;
     }
     if (/^-+cat$/i) {
-        $threads1 = 0;
-        $writer   = tsvDumper( \*STDOUT );
+        $threads = 1;
+        $writer  = tsvDumper( \*STDOUT );
         next;
     }
     if (/^-+split$/i) {
         $writer = xlsSplitter();
         next;
     }
-    if (/^-+calconly/i) {
-        warn "Calculating only";
-        $calculate   = 1;
-        $doNotImport = 1;
+    if (/^-+(calc|convert.*)/i) {
+        $settings = $1;
         next;
     }
-    if (/^-+calc/i) {
-        warn "Calculating before";
-        $calculate = 1;
-        next;
-    }
-    if (/^-+convertxlsx/i) {
-        warn "Converting before";
-        $calculate = 3;
-        next;
-    }
-    if (/^-+convert/i) {
-        warn "Converting before";
-        $calculate = 2;
-        next;
-    }
-    my $infile = $_;
-    unless ( -f $infile ) {
-        warn "No such file: $infile";
-        next;
-    }
-    if ($calculate) {
-        warn "Calculating $infile";
-        my $originalLocation = $infile;
-        my $originalFile     = rel2abs($infile);
-        $originalFile =~ s/\.(xls.?)$/-$$.$1/i;
-        rename $infile, $originalFile;
-        if (
-            defined $WHICH_osascript
-            ? $WHICH_osascript
-            : ( $WHICH_osascript = `which osascript` )
-          )
-        {
-            my $savingCommands = 'close theWorkbook saving yes';
-            if ( $calculate > 1 ) {
-                $infile =~ s/\.xls.?$/\.xls/i;
-                $infile .= 'x' unless $calculate == 2;
-                my $calcFile = rel2abs($infile);
-                $savingCommands = $calculate == 2
-                  ? <<EOS
-	set theFile to POSIX file "$calcFile" as string
-	save workbook as theWorkbook filename theFile file format Excel98to2004 file format
-	close active workbook saving no
-EOS
-                  : <<EOS;
-	set theFile to POSIX file "$calcFile" as string
-	save workbook as theWorkbook filename theFile
-	close active workbook saving no
-EOS
-            }
-            open my $fh, '| osascript';
-            print $fh <<EOS;
-tell application "Microsoft Excel"
-	set theWorkbook to open workbook workbook file name POSIX file "$originalFile"
-	set calculate before save to true
-	$savingCommands
-end tell
-EOS
-            close $fh;
-            rename $originalFile, $originalLocation;
-        }
-        elsif (
-            defined $WHICH_ssconvert
-            ? $WHICH_ssconvert
-            : ( $WHICH_ssconvert = `which ssconvert` )
-          )
-        {
-            my $b1 = $infile;
-            my $b2 = $originalFile;
-            $b1 =~ s/'/'"'"'/g;
-            $b2 =~ s/'/'"'"'/g;
-            system qq%ssconvert --recalc '$b2' '$b1' 2>/dev/null%;
-        }
-        else {
-            die 'I do not know how to calculate';
-        }
-    }
-    next if $doNotImport;
-    waitanypid($threads1);
-    my $pid = fork;
-    if ($pid) {
-        registerpid( $pid, $_ );
-        next;
-    }
-    my $workbook;
-    eval {
-        if ( $infile =~ /\.xlsx$/is ) {
-            require Spreadsheet::ParseXLSX;
-            my $parser = Spreadsheet::ParseXLSX->new;
-            $workbook = $parser->parse( $infile, 'NOOP2_CLASS' );
-        }
-        else {
-            require Spreadsheet::ParseExcel;
-            my $parser = Spreadsheet::ParseExcel->new;
-            local %SIG;
-            $SIG{__WARN__} = sub { };
-            $workbook = $parser->Parse( $infile, 'NOOP2_CLASS' );
-            delete $SIG{__WARN__};
-        }
-    };
-    warn "$@ for $infile" if $@;
-    if ($workbook) {
-        if ($writer) {
-            eval { $writer->( $infile, $workbook ); };
-            warn "$@ for $infile" if $@;
-        }
-        else {
-            warn "No output specified for $infile";
-        }
-    }
-    else {
-        warn "Cannot parse $infile";
-    }
-    exit 0 if defined $pid;
+
+    (
+        $postProcessor ||= Compilation::Import::makePostProcessor(
+            $threads, $writer, $settings
+        )
+    )->($_);
+
 }
 
 waitanypid(0);

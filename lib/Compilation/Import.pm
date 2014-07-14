@@ -33,20 +33,24 @@ use utf8;
 use File::Spec::Functions qw(rel2abs abs2rel);
 
 sub makePostProcessor {
-    my ( $threads1, $settings ) = @_;
-    $threads1 = defined $threads1 && $threads1 > 1 ? $threads1 - 2 : 0;
-    require Ancillary::ParallelRunning;
-    my $calculator = makeCalculator($settings);
-    my $writer     = makeSQLiteWriter($settings);
+    my ( $threads1, $writer, $settings ) = @_;
+    $threads1 = $threads1 && $threads1 > 1 ? $threads1 - 1 : 0;
+    require Ancillary::ParallelRunning if $threads1;
+    my ( $calculator1, $calculator2 );
+    ( $calculator1, $calculator2 ) = makeCalculators($settings)
+      if $settings && $settings =~ /calc|convert/i;
     sub {
-        my ($infile) = @_;
-        my $calcFile = $calculator->($infile);
-        Ancillary::ParallelRunning::waitanypid($threads1);
-        if ( my $pid = fork ) {
+        my ($inFile) = @_;
+        my $calcFile = $inFile;
+        $calcFile = $calculator1->($inFile) if $calculator1;
+        Ancillary::ParallelRunning::waitanypid($threads1) if $threads1;
+        my $pid;
+        if ( $threads1 && ( $pid = fork ) ) {
             Ancillary::ParallelRunning::registerpid( $pid, $calcFile );
         }
         else {
             $0 = "perl: $calcFile";
+            $calcFile = $calculator2->($inFile) if $calculator2;
             my $workbook;
             eval {
                 if ( $calcFile =~ /\.xlsx$/is ) {
@@ -76,10 +80,28 @@ sub makePostProcessor {
     };
 }
 
-sub makeCalculator {
+sub makeCalculators {
 
-    my ($settings) = @_;
-    die 'This code assumes a Mac with Microsoft Excel' unless `which osascript`;
+    my ($convert) = @_;
+
+    unless (`which osascript`) {
+        die 'No spreadsheet calculator found' unless `which ssconvert`;
+        return undef, sub {
+            my ($inname) = @_;
+            my $inpath   = rel2abs($inname);
+            my $outpath  = $inpath;
+            $outpath =~ s/\.xls.?$/\.xls/i;
+            my $outname = abs2rel($outpath);
+            s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
+            rename $inname, $inpath;
+            my @b = ( $inpath, $outpath );
+            s/'/'"'"'/g foreach @b;
+            system qq%ssconvert --recalc '$b[0]' '$b[1]' 2>/dev/null%;
+            rename $inpath,  $inname;
+            rename $outpath, $outname;
+            $outname;
+        };
+    }
 
     return sub {
         my ($inname) = @_;
@@ -98,7 +120,10 @@ EOS
         rename $inpath, $inname;
         $inname;
       }
-      if $settings =~ /xls/;
+      if $convert && $convert =~ /calc/;
+
+    $convert = $convert
+      && $convert =~ /xlsx/i ? '' : ' file format Excel98to2004 file format';
 
     sub {
         my ($inname) = @_;
@@ -114,7 +139,7 @@ tell application "Microsoft Excel"
 	set theWorkbook to open workbook workbook file name POSIX file "$inpath"
 	set calculate before save to true
 	set theFile to POSIX file "$outpath" as string
-	save workbook as theWorkbook filename theFile file format Excel98to2004 file format
+	save workbook as theWorkbook filename theFile$convert
 	close active workbook saving no
 end tell
 EOS

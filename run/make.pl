@@ -107,9 +107,14 @@ foreach (@ARGV) {
         elsif (/^-+(right.*)/is)        { $override{alignment} = $1; }
         elsif (/^-+single/is)           { $threads             = 1; }
         elsif (/^-+(sqlite.*)/is) {
+            my $settings = "convert$1";
             require Compilation::Import;
-            $maker->{setSettings}->( PostProcessing =>
-                  Compilation::Import::makePostProcessor( $threads, $1 ) );
+            $maker->{setSettings}->(
+                PostProcessing => Compilation::Import::makePostProcessor(
+                    $threads, Compilation::Import::makeSQLiteWriter($settings),
+                    $settings
+                )
+            );
         }
         elsif (/^-+stats/is) {
             $override{summary}      = 'statistics';
