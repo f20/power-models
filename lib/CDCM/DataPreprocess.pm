@@ -55,7 +55,9 @@ sub preprocessDataset {
 
     if ( $model->{dcp133} ) {
         $d->{1000}[3]{'Company charging year data version'} .= ' (DCP 133)';
-        _override( $d->{$_}, $d->{ $_ . 'dcp133' } ) foreach qw(1017 1018 1020);
+        _override( $d->{$_}, $d->{ $_ . 'dcp133' } )
+          foreach $model->{dcp133} =~ /nodivers/i ? () : qw(1017),
+          qw(1018 1020);
     }
 
     if ( $model->{unauth} && $model->{unauth} =~ /day/ ) {

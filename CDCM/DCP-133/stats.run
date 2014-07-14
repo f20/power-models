@@ -6,7 +6,7 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-../run/make.pl -sqlite -stats ../CDCM/Data-2014-02/* ../CDCM/DCP-133/%-dcp133.yml ../CDCM/Current/%-after163.yml
+../run/make.pl -sqlite -stats ../CDCM/Data-2014-02/* ../CDCM/DCP-133/%-*.yml ../CDCM/Current/%-after163.yml
 ../run/export.pl dcp133
 ../run/export.pl tscs 40
 
