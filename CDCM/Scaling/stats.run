@@ -1,0 +1,14 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_dcp123stats-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+../run/make.pl -sqlite ../CDCM/Data-2014-02/* ../CDCM/Scaling/%+after163-extrastats.yml ../CDCM/Scaling/%+dcp123-extrastats.yml
+../run/export.pl dcp123
+../run/export.pl tscs 40
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

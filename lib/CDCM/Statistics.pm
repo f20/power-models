@@ -79,7 +79,7 @@ sub makeStatisticsAssumptions {
     Customer 81 Large continuous: 4500
     Customer 83 Large off-peak: 4500
     Customer 85 Large peak-time: 4500
-    _column: Consumption (kW)
+    _column: Off-peak load (kW)
   - Customer 31 Small continuous: 168
     Customer 33 Small off-peak: 77
     Customer 35 Small peak-time: 0
@@ -90,6 +90,16 @@ sub makeStatisticsAssumptions {
     Customer 83 Large off-peak: 77
     Customer 85 Large peak-time: 0
     _column: Off-peak hours/week
+  - Customer 31 Small continuous: 0
+    Customer 33 Small off-peak: 0
+    Customer 35 Small peak-time: 65
+    Customer 51 Continuous: 0
+    Customer 53 Off-peak: 0
+    Customer 55 Peak-time: 450
+    Customer 81 Large continuous: 0
+    Customer 83 Large off-peak: 0
+    Customer 85 Large peak-time: 4500
+    _column: Peak-time load (kW)
   - Customer 31 Small continuous: 0
     Customer 33 Small off-peak: 0
     Customer 35 Small peak-time: 48
@@ -226,7 +236,7 @@ sub makeStatisticsTables {
       grep { $_->{name} =~ m#kWh/year#i && $_->{name} =~ /total/i } @columns;
     my ($rate2Units) =
       grep { $_->{name} =~ m#kWh/year#i && $_->{name} =~ /rate 2/i } @columns;
-    my ($kW) = grep { $_->{name} =~ /kW/i && $_->{name} !~ /kWh/i } @columns;
+    my (@kW) = grep { $_->{name} =~ /kW/i && $_->{name} !~ /kWh/i } @columns;
     my ($offhours)  = grep { $_->{name} =~ /off[- ]peak hours/i } @columns;
     my ($peakhours) = grep { $_->{name} =~ /peak[- ]time hours/i } @columns;
     my ($capacity) =
@@ -242,26 +252,32 @@ sub makeStatisticsTables {
         defaultFormat => '0softnz',
         rows          => $fullRowset,
         custom        => [
-            '=0.01*((IV11+IV12*(IV13+IV14)/7*IV78)*IV91+IV71*IV94)',
+            '=0.01*((IV11+(IV12*IV13+IV15*IV14)/7*IV78)*IV91+IV71*IV94)',
             '=0.01*('
-              . '(IV11+IV12*(IV13+IV14)/7*IV78-IV17)*IV91'
+              . '(IV11+(IV12*IV13+IV15*IV14)/7*IV78-IV17)*IV91'
               . '+IV18*IV92+IV71*IV94)',
-            '=0.01*(IV3*('
-              . 'MIN(IV61,IV72/7*IV51+MAX(0,IV77/7*IV43-IV631-IV623))*IV91'
-              . '+MIN(IV62,MAX(0,IV73/7*IV52-IV611)+MAX(0,IV75/7*IV42-IV632))*IV92'
-              . '+MIN(IV63,MAX(0,IV74/7*IV53-IV612-IV622)+IV76/7*IV41)*IV93'
-              . ')+IV71*(IV94+IV2*IV95))',
+            '=0.01*('
+              . '(IV311*MIN(IV61,IV72/7*IV51)+IV301*MAX(0,IV77/7*IV43-IV631-IV623))*IV91'
+              . '+(IV312*MIN(IV620,MAX(0,IV73/7*IV52-IV611))+IV302*MIN(IV621,MAX(0,IV75/7*IV42-IV632)))*IV92'
+              . '+(IV313*MAX(0,IV74/7*IV53-IV612-IV622)+IV303*MIN(IV63,IV76/7*IV41))*IV93'
+              . '+IV71*(IV94+IV2*IV95))',
             '=IV81-IV82',
         ],
         arguments => {
             IV11  => $annualUnits,
-            IV12  => $kW,
+            IV12  => $kW[0],
             IV13  => $offhours,
             IV14  => $peakhours,
+            IV15  => $kW[1],
             IV17  => $rate2Units,
             IV18  => $rate2Units,
             IV2   => $capacity,
-            IV3   => $kW,
+            IV301 => $kW[0],
+            IV302 => $kW[0],
+            IV303 => $kW[0],
+            IV311 => $kW[1],
+            IV312 => $kW[1],
+            IV313 => $kW[1],
             IV41  => $offhours,
             IV42  => $offhours,
             IV43  => $offhours,
@@ -271,7 +287,8 @@ sub makeStatisticsTables {
             IV61  => $model->{hoursByRedAmberGreen},
             IV611 => $model->{hoursByRedAmberGreen},
             IV612 => $model->{hoursByRedAmberGreen},
-            IV62  => $model->{hoursByRedAmberGreen},
+            IV620 => $model->{hoursByRedAmberGreen},
+            IV621 => $model->{hoursByRedAmberGreen},
             IV622 => $model->{hoursByRedAmberGreen},
             IV623 => $model->{hoursByRedAmberGreen},
             IV63  => $model->{hoursByRedAmberGreen},
@@ -343,14 +360,15 @@ sub makeStatisticsTables {
             '£/MWh', 'Average charges for illustrative customers (£/MWh)'
         ),
         defaultFormat => '0.0soft',
-        arithmetic    => '=IV1/(IV11+IV12*(IV13+IV14)/7*IV78)*1000',
+        arithmetic    => '=IV1/(IV11+(IV120*IV13+IV121*IV14)/7*IV78)*1000',
         arguments     => {
-            IV1  => $charge,
-            IV11 => $annualUnits,
-            IV12 => $kW,
-            IV13 => $offhours,
-            IV14 => $peakhours,
-            IV78 => $daysInYear,
+            IV1   => $charge,
+            IV11  => $annualUnits,
+            IV120 => $kW[0],
+            IV121 => $kW[1],
+            IV13  => $offhours,
+            IV14  => $peakhours,
+            IV78  => $daysInYear,
         }
     );
 

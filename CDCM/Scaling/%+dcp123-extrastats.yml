@@ -1,0 +1,31 @@
+---
+.: DCP 123 hybrid with additional statistics
+PerlModule: CDCM
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: dcp123hybridadder
+standing: sub132
+statistics:
+  - _column: Total consumption (kWh/year)
+  - _column: Rate 2 consumption (kWh/year)
+  - Load-managing HV customer: 2000
+    _column: Capacity (kVA)
+  - Load-managing HV customer: 1700
+    _column: Off-peak load (kW)
+  - Load-managing HV customer: 77
+    _column: Off-peak hours/week
+  - Load-managing HV customer: 200
+    _column: Peak-time load (kW)
+  - Load-managing HV customer: 168
+    _column: Peak-time hours/week
+  - ~
+  - Load-managing HV customer: '/^(HV HH|LDNO HV: LV HH Metered)/'
+summary: statistics
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDaySpecial

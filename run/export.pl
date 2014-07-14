@@ -113,7 +113,7 @@ if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
         $workbookModule,
         dcpName   => $name,
         basematch => sub { $_[0] =~ /$base/i; },
-        dcpmatch  => sub { $_[0] =~ /-$dcp/i; },
+        dcpmatch  => sub { $_[0] =~ /[-+]$dcp/i; },
         %$options,
     );
     my @outputs = map { /^-+(cdcm\S*|edcm\S*)/ ? $1 : (); } @ARGV;
