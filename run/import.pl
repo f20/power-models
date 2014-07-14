@@ -138,6 +138,11 @@ foreach (@ARGV) {
         $calculate = 1;
         next;
     }
+    if (/^-+convertxlsx/i) {
+        warn "Converting before";
+        $calculate = 3;
+        next;
+    }
     if (/^-+convert/i) {
         warn "Converting before";
         $calculate = 2;
@@ -163,10 +168,17 @@ foreach (@ARGV) {
             my $savingCommands = 'close theWorkbook saving yes';
             if ( $calculate > 1 ) {
                 $infile =~ s/\.xls.?$/\.xls/i;
+                $infile .= 'x' unless $calculate == 2;
                 my $calcFile = rel2abs($infile);
-                $savingCommands = <<EOS;
+                $savingCommands = $calculate == 2
+                  ? <<EOS
 	set theFile to POSIX file "$calcFile" as string
 	save workbook as theWorkbook filename theFile file format Excel98to2004 file format
+	close active workbook saving no
+EOS
+                  : <<EOS;
+	set theFile to POSIX file "$calcFile" as string
+	save workbook as theWorkbook filename theFile
 	close active workbook saving no
 EOS
             }

@@ -1,5 +1,5 @@
 ---
-.: Method M after DCP 118 using raw MEAV data
+.: EDCM Method M with DCP 118 applied
 PerlModule: ModelM
 dcp071: 1
 dcp095: 1

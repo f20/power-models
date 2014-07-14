@@ -5,9 +5,9 @@
     _column: Company
   - Company charging year data version: 2014/2015
     _column: Year
-  - Company charging year data version: February 2014 corrected
+  - Company charging year data version: February 2014 CDCM
     _column: Version
-  - Company charging year data version: Input data compiled by Franck from public sources. E&OE. Without changes to 2007/2008 revenues.
+  - Company charging year data version: Input data compiled by Franck from public sources. E&OE. This dataset is intended to match the February 2014 CDCM price notice.
 1301:
   - _table: 1301. DNO LV main usage
   - DNO LV main usage: 0.313
@@ -28,7 +28,7 @@
   - _table: 1315. Analysis of allowed revenue for 2007/2008
   - Analysis of allowed revenue for 2007 2008: 273416694
     _column: Total revenue
-  - Analysis of allowed revenue for 2007 2008: 0
+  - Analysis of allowed revenue for 2007 2008: 1908994.41190992
     _column: Net incentive revenue
 1320:
   - _table: 1320. Units flowing
