@@ -71,7 +71,7 @@ sub worksheetsAndClosuresWithController {
             $_->wsWrite( $wbook, $wsheet ) foreach map {
                 my $tableNo    = $_;
                 my $leadTable  = $mms->{impactTableSets}[0][$tableNo];
-                my $leadColumn = $leadTable->{columns}[0] || $leadTable;
+                my $leadColumn = $leadTable->{columns}[0];
                 my ( $sh, $ro, $co ) = $leadColumn->wsWrite( $wbook, $wsheet );
                 $sh = $sh->get_name;
                 my $colset = Labelset(
@@ -109,7 +109,8 @@ sub worksheetsAndClosuresWithController {
                         } @{ $mms->{impactTableSets} }
                     ]
                 );
-            } 0 .. $#{ $mms->{impactTableSets}[0] };
+              } grep { $mms->{impactTableSets}[0][$_]{columns}; }
+              0 .. $#{ $mms->{impactTableSets}[0] };
         };
 
       },
