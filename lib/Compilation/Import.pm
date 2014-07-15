@@ -31,6 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use File::Spec::Functions qw(rel2abs abs2rel);
+use Ancillary::ParallelRunning;
 
 sub makePostProcessor {
     my ( $threads1, $writer, $settings ) = @_;

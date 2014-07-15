@@ -52,25 +52,7 @@ BEGIN {
 }
 use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 use Compilation::Import;
-
-BEGIN {
-    my %pids;
-
-    sub registerpid {
-        my ( $pid, $name ) = @_;
-        $pids{$pid} = $name;
-        warn "$name started ($pid)\n";
-    }
-
-    sub waitanypid {
-        my ($limit) = @_;
-        while ( keys %pids > $limit ) {
-            my $pid = waitpid -1, 0;    # WNOHANG
-            warn "$pids{$pid} complete ($pid)\n";
-            delete $pids{$pid};
-        }
-    }
-}
+use Ancillary::ParallelRunning;
 
 my ( $sheetFilter, $writer, $settings, $postProcessor );
 
@@ -138,7 +120,7 @@ foreach (@ARGV) {
 
 }
 
-waitanypid(0);
+Ancillary::ParallelRunning::waitanypid(0) if $threads > 1;
 
 sub updateTree {
     my ( $workbook, $tree, $options ) = @_;
@@ -431,13 +413,3 @@ sub tsvDumper {
         }
     };
 }
-
-package NOOP2_CLASS;
-our $AUTOLOAD;
-
-sub AUTOLOAD {
-    no strict 'refs';
-    *{$AUTOLOAD} = sub { };
-    return;
-}
-
