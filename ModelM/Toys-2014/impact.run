@@ -6,11 +6,10 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-time ../run/make.pl -xlsx ../ModelM/Current/%-*.yml ../ModelM/Previous/%-*.yml ../ModelM/Toys-2014/%-*.yml ../ModelM/Data-2014-02/*
-time ../run/import.pl -calc -sqlite *.xlsx
-time ../run/export.pl -xlsx tscs
-time ../run/export.pl -xlsx /postDCP118/
-for x in original postDCP071 postDCP096 postDCP118 indirectprop withtelecoms; do time ../run/export.pl -xlsx /$x/ 1502; done
+time ../run/make.pl -sqlite ../ModelM/Current/%-*.yml ../ModelM/Previous/%-*.yml ../ModelM/Toys-2014/%-*.yml ../ModelM/Data-2014-02/*
+time ../run/export.pl tscs
+time ../run/export.pl /postDCP118/
+for x in original postDCP071 postDCP096 postDCP118 indirectprop withtelecoms; do time ../run/export.pl /$x/ 1502; done
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

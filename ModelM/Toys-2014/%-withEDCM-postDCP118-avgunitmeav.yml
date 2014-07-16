@@ -1,0 +1,100 @@
+---
+.: EDCM Method M with DCP 118 and average unit MEAV
+PerlModule: ModelM
+dataOverride:
+  1355:
+    - ~
+    - ~
+    - 132kV EHV remote terminal unit ground-mounted: 35698
+      132kV EHV remote terminal unit pole-mounted: 62645
+      132kV auxiliary transformer: 11636.82123
+      132kV breaker: 801071.826538461
+      132kV other switchgear: 666647.149
+      132kV overhead pole conductor km: 210477.987732
+      132kV overhead tower conductor km: 305618.006507692
+      132kV pole: 11404.342485
+      132kV submarine km: 2687000
+      132kV tower: 89010.46885
+      132kV tower fittings: 8278.2403344
+      132kV transformer: 1376668.59361538
+      132kV underground gas km: 1410058.5815
+      132kV underground non-pressurised km: 1265051.06841667
+      132kV underground oil km: 1373078.62009091
+      20kV breaker ground-mounted: 13560
+      20kV breaker pole-mounted: 9478.44
+      20kV other switchgear ground-mounted: ''
+      20kV other switchgear pole-mounted: ''
+      20kV overhead covered km: ''
+      20kV overhead open pm: 35595
+      20kV overhead support: 2263.90415
+      20kV ring main unit: 15501.453
+      20kV switch ground-mounted: 11413
+      20kV switch pole-mounted: ''
+      20kV transformer ground-mounted: 13947.378
+      20kV transformer pole-mounted: 5666.95
+      20kV underground km: 92095
+      33kV auxiliary transformer: 14218.410615
+      33kV breaker indoors: 134111.959207143
+      33kV breaker outdoors: 105762.493536364
+      33kV other switchgear: 98199.48578
+      33kV overhead pole line km: 69996.6819807692
+      33kV overhead tower line km: 75369.807713
+      33kV pole: 2749.2320023
+      33kV ring main unit: 356355.708333333
+      33kV switch ground-mounted: 47635.28865
+      33kV switch pole-mounted: 19105.68385
+      33kV tower: 35298.9876575
+      33kV transformer ground-mounted: 458540.515578571
+      33kV transformer pole-mounted: 212718.92826
+      33kV underground gas km: 424736.341477778
+      33kV underground non-pressurised km: 372075.801021429
+      33kV underground oil km: 425360.934525
+      6 6 11kV breaker ground-mounted: 44958.1664578571
+      6 6 11kV breaker pole-mounted: 10437.7767584615
+      6 6 11kV other switchgear ground-mounted: 11282.99961
+      6 6 11kV other switchgear pole-mounted: 3658.7538644
+      6 6 11kV overhead covered km: 44835.1804485714
+      6 6 11kV overhead open km: 33848.5327215385
+      6 6 11kV overhead support: 2067.60448645455
+      6 6 11kV ring main unit: 15656.2246364286
+      6 6 11kV switch ground-mounted: 9200.3049425
+      6 6 11kV switch pole-mounted: 4331.52992466667
+      6 6 11kV transformer ground-mounted: 14905.8111128571
+      6 6 11kV transformer pole-mounted: 4212.83666484615
+      6 6 11kV underground km: 99846.11321
+      66kV auxiliary transformer: 15183.56014
+      66kV breaker: 501342.7706
+      66kV other switchgear: 252614.485233333
+      66kV overhead pole line km: 120926.8468
+      66kV overhead tower line km: 116814.8468
+      66kV pole: 2854.01303633333
+      66kV tower: 71465
+      66kV transformer: 1127354.841625
+      66kV underground gas km: 1459412.5
+      66kV underground non-pressurised km: 1107412.190125
+      66kV underground oil km: 1364549.58683333
+      EHV submarine km: 761385
+      HV remote terminal unit ground-mounted: 35698
+      HV remote terminal unit pole-mounted: 42122.5
+      HV submarine km: 416707.7081
+      LV board underground: 4872.22775225
+      LV board wall-mounted: 12489.38938275
+      LV fuse pole-mounted: 1000
+      LV fuse tower-mounted: ''
+      LV main overhead line km: 29971.8162461538
+      LV main underground consac km: 100208.835909091
+      LV main underground paper km: 101027.926818182
+      LV main underground plastic km: 103762.993928571
+      LV overhead support: 1500.70722309091
+      LV pillar indoors: 7732.13938275
+      LV pillar outdoors: 7646.02477428571
+      LV service overhead: 555.067259415385
+      LV service underground: 1211.14530978571
+      _column: Unit MEAV (£)
+dcp071: 1
+dcp095: 1
+dcp096: 1
+dcp118: 1
+edcm: 1
+forwardLinks: 1
+meav: 1

@@ -1,0 +1,13 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_m-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+../run/make.pl -sqlite ../ModelM/Data-2014-02/* ../ModelM/Toys-2014/%-withEDCM-postDCP118.yml
+../run/export.pl all
+
+cd ..
+mv _$RUN.tmp $RUN.tmp
