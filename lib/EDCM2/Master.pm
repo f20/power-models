@@ -648,7 +648,7 @@ EOT
     $model->{transparency}{olFYI}{1237} = $cdcmRedUse if $model->{transparency};
 
     my $overallRedUse = Arithmetic(
-        name          => 'Estimated total peak-time consumption (MW)',
+        name          => 'Estimated total peak-time consumption (kW)',
         defaultFormat => '0softnz',
         arithmetic    => '=IV1+IV2',
         arguments     => { IV1 => $cdcmRedUse, IV2 => $edcmRedUse }
