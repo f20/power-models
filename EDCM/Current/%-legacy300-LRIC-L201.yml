@@ -1,0 +1,15 @@
+---
+.: EDCM legacy model L201
+PerlModule: EDCM2
+dcp130: 1
+ldnoRev: ldnorev5
+legacy201: 1
+lowerIntermittentCredit: 1
+method: LRIC
+noNegative: 1
+numLocations: 1200
+numTariffs: 300
+protect: 1
+summaries: 1
+validation: lenientnomsg
+wantTables: 913

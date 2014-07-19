@@ -157,64 +157,99 @@ sub worksheetsAndClosures {
 
         ,
 
-        'Calc1' => sub {
-            my ($wsheet) = @_;
-            $wsheet->{lastTableNumber} =
-              $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
-            $wsheet->{tableNumberIncrement} = 2;
-            $wsheet->freeze_panes( 1, 1 );
-            $wsheet->set_column( 0, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Calculations part 1' ),
-              @{ $model->{calc1Tables} };
-          }
+        $model->{legacy201} || !$model->{locationTables} ? () : (
+            Loc => sub {
+                my ($wsheet) = @_;
+                $wsheet->{sheetNumber} = 39;
+                $wsheet->freeze_panes( 1, 2 );
+                $wsheet->set_column( 0, 0,   16 );
+                $wsheet->set_column( 1, 1,   50 );
+                $wsheet->set_column( 2, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Preprocessing of location data' ),
+                  @{ $model->{locationTables} };
+            }
+        ),
 
         ,
 
-        'Calc2' => sub {
-            my ($wsheet) = @_;
-            $wsheet->{lastTableNumber} =
-              $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
-            $wsheet->{tableNumberIncrement} = 2;
-            $wsheet->freeze_panes( 1, 1 );
-            $wsheet->set_column( 0, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Calculations part 2' ),
-              @{ $model->{calc2Tables} };
-          }
+        $model->{newOrder}
+        ? (
+            Calc => sub {
+                my ($wsheet) = @_;
+                $wsheet->{sheetNumber} = 40;
+                $wsheet->freeze_panes( 1, 1 );
+                $wsheet->set_column( 0, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Calculations' ),
+                  @{ $model->{newOrder} };
+            },
+          )
 
-        ,
+        :
 
-        'Calc3' => sub {
-            my ($wsheet) = @_;
-            $wsheet->{lastTableNumber} =
-              $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
-            $wsheet->{tableNumberIncrement} = 2;
-            $wsheet->freeze_panes( 1, 1 );
-            $wsheet->set_column( 0, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Calculations part 3' ),
-              @{ $model->{calc3Tables} };
-          }
+          (
+            'Calc1' => sub {
+                my ($wsheet) = @_;
+                $wsheet->{lastTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{tableNumberIncrement} = 2;
+                $wsheet->freeze_panes( 1, 1 );
+                $wsheet->set_column( 0, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Calculations part 1' ),
+                  @{ $model->{calc1Tables} };
+              }
 
-        ,
+            ,
 
-        'Calc4' => sub {
-            my ($wsheet) = @_;
-            $wsheet->{lastTableNumber} =
-              $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
-            $wsheet->{tableNumberIncrement} = 2;
-            $wsheet->freeze_panes( 1, 1 );
-            $wsheet->set_column( 0, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Calculations part 4' ),
-              @{ $model->{calc4Tables} };
-          }
+            'Calc2' => sub {
+                my ($wsheet) = @_;
+                $wsheet->{lastTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{tableNumberIncrement} = 2;
+                $wsheet->freeze_panes( 1, 1 );
+                $wsheet->set_column( 0, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Calculations part 2' ),
+                  @{ $model->{calc2Tables} };
+              }
+
+            ,
+
+            'Calc3' => sub {
+                my ($wsheet) = @_;
+                $wsheet->{lastTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{tableNumberIncrement} = 2;
+                $wsheet->freeze_panes( 1, 1 );
+                $wsheet->set_column( 0, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Calculations part 3' ),
+                  @{ $model->{calc3Tables} };
+              }
+
+            ,
+
+            'Calc4' => sub {
+                my ($wsheet) = @_;
+                $wsheet->{lastTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{tableNumberIncrement} = 2;
+                $wsheet->freeze_panes( 1, 1 );
+                $wsheet->set_column( 0, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Calculations part 4' ),
+                  @{ $model->{calc4Tables} };
+              }
+
+          )
 
         ,
 
         'Results' => sub {
             my ($wsheet) = @_;
+            $wsheet->{sheetNumber} = 45;
             $wsheet->freeze_panes( 1, 2 );
             $wsheet->set_column( 0, 0,   20 );
             $wsheet->set_column( 1, 1,   50 );
@@ -304,6 +339,7 @@ sub worksheetsAndClosures {
           (
             'HSummary' => sub {
                 my ($wsheet) = @_;
+                $wsheet->{sheetNumber} = 46;
                 $wsheet->freeze_panes( 1, 2 );
                 $wsheet->set_landscape;
                 $wsheet->set_column( 0, 0,   20 );
@@ -367,13 +403,14 @@ sub worksheetsAndClosures {
                   } sort { $a <=> $b }
                   keys %{ $model->{transparency}{olFYI} }
               );
-            $wbook->{lastSheetNumber} = $wsheet->{sheetNumber} = 48;
+            $wsheet->{sheetNumber} = 48;
         }
       )
       : $model->{noOneLiners} ? ()
       : (
         'OneLiners' => sub {
             my ($wsheet) = @_;
+            $wsheet->{sheetNumber} = 47;
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->fit_to_pages( 1, 1 );
             $wsheet->set_column( 0, 250, 30 );
@@ -447,7 +484,7 @@ sub worksheetsAndClosures {
 
         'LDNORev' => sub {
             my ($wsheet) = @_;
-            $wbook->{lastSheetNumber} = $wsheet->{sheetNumber} = 60;
+            $wsheet->{sheetNumber} = 60;
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 0,   50 );
             $wsheet->set_column( 1, 250, 20 );
@@ -464,6 +501,7 @@ sub worksheetsAndClosures {
       ? (
         'Total' => sub {
             my ($wsheet) = @_;
+            $wsheet->{sheetNumber} = 61;
             $wsheet->freeze_panes( 1, 2 );
             $wsheet->set_column( 0, 0,   20 );
             $wsheet->set_column( 1, 1,   50 );

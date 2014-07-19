@@ -30,8 +30,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-require Carp;
-$SIG{__DIE__} = \&Carp::confess;
 use File::Spec::Functions qw(rel2abs abs2rel catfile catdir);
 use File::Basename 'dirname';
 my ( $homedir, $perl5dir );
@@ -61,6 +59,10 @@ foreach (@ARGV) {
 
     if (/^-/s) {
         if (/^-+$/s) { $maker->{processStream}->( \*STDIN ); }
+        elsif (/^-+(?:carp|confess)/is) {
+            require Carp;
+            $SIG{__DIE__} = \&Carp::confess;
+        }
         elsif (/^-+check/is) {
             $override{activeSheets} = 'Result|Tariff';
             $override{checksums}    = 'Tariff checksum 5; Model checksum 7';

@@ -49,9 +49,9 @@ sub preprocess {
 
     my ( $model, $locations, $a1d, $r1d, $a1g, $r1g, ) = @_;
 
-    $model->{locationData} = [ Stack( sources => [$locations] ) ];
+    my @columns = Stack( sources => [$locations] );
 
-    push @{ $model->{locationData} },
+    push @columns,
       my $maxkVA = Arithmetic(
         name          => 'Maximum demand scenario kVA',
         defaultFormat => '0soft',
@@ -68,7 +68,7 @@ sub preprocess {
         }
       );
 
-    push @{ $model->{locationData} },
+    push @columns,
       my $rf1 = Arithmetic(
         name       => 'Reactive factor in maximum demand scenario',
         arithmetic => '=IF(IV92=0,0,0-(IV1+IV4)/IV2)',
@@ -79,6 +79,13 @@ sub preprocess {
             IV4  => $r1g,
         }
       ) unless $model->{method} =~ /LRIC/i;
+
+    $model->{locationTables} = [
+        Columnset(
+            name    => 'Preprocessing of location data',
+            columns => \@columns,
+        )
+    ];
 
     $maxkVA, $rf1;
 

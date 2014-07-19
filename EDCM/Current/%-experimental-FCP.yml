@@ -1,12 +1,11 @@
 ---
-.: EDCM modernised LRIC model with checksums
+.: EDCM experimental FCP model
 PerlModule: EDCM2
-activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
-ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
-method: LRIC
+method: FCP
+newOrder: 1
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
@@ -14,4 +13,4 @@ protect: 1
 summaries: 1
 transparency: outputonly
 validation: lenientnomsg
-wantTables: 913
+wantTables: 911

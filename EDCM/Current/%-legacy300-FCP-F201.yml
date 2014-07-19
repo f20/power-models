@@ -1,5 +1,5 @@
 ---
-.: EDCM model F201 (FCP)
+.: EDCM legacy model F201
 PerlModule: EDCM2
 dcp130: 1
 ldnoRev: ldnorev5

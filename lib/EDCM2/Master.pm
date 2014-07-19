@@ -789,8 +789,7 @@ EOT
       );
 
     my $fixedDchargeTrue =
-      !$model->{dcp189}
-      ? Arithmetic(
+      !$model->{dcp189} ? Arithmetic(
         name          => 'Demand fixed charge p/day',
         defaultFormat => '0.00softnz',
         arithmetic    => '=IF(IV3,(100/IV2*IV1*(IV6+IV88)),0)',
@@ -1767,6 +1766,95 @@ EOT
         Stack( sources => [$netexportCapacityChargeRound] ),
         $exportCapacityExceeded,
     );
+
+    if ( $model->{newOrder} ) {
+
+        my ( %calcTables, %dependencies );
+        my $addCalcTable;
+        $addCalcTable = sub {
+            my ( $ob, $destination ) = @_;
+            return
+                 if !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Dataset' )
+              || $ob->{location}
+              || !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Constant' )
+              && !$ob->{sourceLines};
+            $calcTables{ 0 + ( $ob->{rows} || 0 ) }{ 0 + $ob } = $ob;
+            undef $dependencies{ 0 + $destination }{ 0 + $ob }
+              if $destination;
+            $addCalcTable->( $_, $ob ) foreach @{ $ob->{sourceLines} };
+        };
+        $addCalcTable->($_)
+          foreach map { $_->{sourceLines} ? @{ $_->{sourceLines} } : (); }
+          @tariffColumns;
+        my ( %deepDep, $getDeepDep );
+        $getDeepDep = sub {
+            my ($dst) = @_;
+            my $dep = $dependencies{$dst} || {};
+            $deepDep{$dst} ||=
+              { %$dep, map { %{ $getDeepDep->($_) } } keys %$dep };
+        };
+        my ( %singlesRemaining, %tariffsRemaining );
+        while ( my ( $rows, $tset ) = each %calcTables ) {
+            if ( !$rows ) {
+                %singlesRemaining = %$tset;
+            }
+            elsif ( !%tariffsRemaining && values %$tset > 5 ) {
+                %tariffsRemaining = %$tset;
+            }
+        }
+        my (@ordered);
+        my $singleDataCounter = 0;
+        my $tariffDataCounter = 0;
+
+        while ( %singlesRemaining || %tariffsRemaining ) {
+
+            if (%singlesRemaining) {
+                my @columns = ();
+                while (
+                    my @toAdd = grep {
+                        !grep {
+                                 $singlesRemaining{$_}
+                              || $tariffsRemaining{$_}
+                          }
+                          keys %{ $getDeepDep->($_) };
+                    } keys %singlesRemaining
+                  )
+                {
+                    push @columns, delete $singlesRemaining{$_} foreach @toAdd;
+                }
+                push @ordered,
+                  Columnset(
+                    name => 'Aggregate data #' . ( ++$singleDataCounter ),
+                    columns => \@columns
+                  ) if @columns;
+            }
+
+            if (%tariffsRemaining) {
+                my @columns = ();
+                while (
+                    my @toAdd = grep {
+                        !grep {
+                                 $singlesRemaining{$_}
+                              || $tariffsRemaining{$_}
+                          }
+                          keys %{ $getDeepDep->($_) };
+                    } keys %tariffsRemaining
+                  )
+                {
+                    push @columns, delete $tariffsRemaining{$_} foreach @toAdd;
+                }
+                push @ordered,
+                  Columnset(
+                    name => 'Tariffs data #' . ( ++$tariffDataCounter ),
+                    columns => \@columns
+                  ) if @columns;
+            }
+
+        }
+
+        $model->{newOrder} = \@ordered;
+
+    }
 
     if ( $model->{checksums} ) {
         push @tariffColumns,
