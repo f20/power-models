@@ -30,6 +30,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
 use File::Spec::Functions qw(rel2abs abs2rel catfile catdir);
 use File::Basename 'dirname';
 my ( $homedir, $perl5dir );

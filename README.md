@@ -33,10 +33,10 @@ explore some of the functionality of this code:
 
     perl run/make.pl -xls CDCM/Current/%-clean132.yml CDCM/Current/Blank1001.yml
     perl run/make.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
-    perl run/make.pl EDCM/Issue-70/%-i70-FCP.yml EDCM/Issue-70/%-i70-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/WPD-WestM.yml Extras/Blank.yml
+    perl run/make.pl EDCM/Issue-70/%-i70-FCP.yml EDCM/Issue-70/%-i70-LRIC.yml EDCM/Data-2013-02/ENWL.yml EDCM/Data-2013-02/WPD-WestM.yml other/Blank.yml
     perl run/make.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-model132.yml CDCM/Current/Blank1001.yml
-    perl run/make.pl -output ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/*.yml > All-DNOs-2014-02-postDCP118.xlsx
-    perl run/make.pl -output=DCP-123-2014-02 CDCM/Current/%-micro163.yml CDCM/Scaling/%-micro123.yml CDCM/Data-2014-02/*.yml
+    perl run/make.pl -template=All-DNOs-2014-02-postDCP118 ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/*.yml
+    perl run/make.pl -template=DCP-123-2014-02 CDCM/Current/%-micro163.yml CDCM/Scaling/%-micro123.yml CDCM/Data-2014-02/*.yml
     perl run/make.pl -template=%%-DCPARPtest -pickbest CDCM/DCP-137/%-micro*.yml CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-2014-02/ENW*.yml CDCM/Future/Data-201*-02/ENW*.yml
     perl run/make.pl -template=%%-ARP -pickbest CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wales*.yml CDCM/Future/Data-20??-02/*Wales*.yml
     
@@ -51,4 +51,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 12 July 2014.
+Franck Latrémolière, 20 July 2014.
