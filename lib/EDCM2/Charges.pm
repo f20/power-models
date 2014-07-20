@@ -97,7 +97,7 @@ sub chargesFcpLric {
 
     $model->{demandConsumptionFcpLric} = my $demandConsumptionFcpLric =
       (     !$model->{removeDemandCharge1}
-          || $model->{removeDemandCharge1} =~ /keepunitrate/ )
+          || $model->{removeDemandCharge1} =~ /keepunitrate/i )
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Import demand charge p/kVA/day',
@@ -148,7 +148,7 @@ sub chargesFcpLric {
             IV2 => $daysInYear,
         }
       )
-      : $model->{removeDemandCharge1} =~ /keepunitrate/ ? Arithmetic(
+      : $model->{removeDemandCharge1} =~ /keepunitrate/i ? Arithmetic(
         name       => 'Deduct unit rate charge 1 from capacity p/kVA/day',
         arithmetic => '=0-IV1',
         arguments  => { IV1 => $demandConsumptionFcpLric, },
@@ -167,7 +167,7 @@ sub chargesFcpLric {
     # Weirdness further increased on 1 June 2012.
     my $unitRateFcpLric =
       (     !$model->{removeDemandCharge1}
-          || $model->{removeDemandCharge1} =~ /keepunitrate/ )
+          || $model->{removeDemandCharge1} =~ /keepunitrate/i )
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Super red rate p/kWh',

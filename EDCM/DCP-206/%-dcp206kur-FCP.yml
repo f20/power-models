@@ -1,9 +1,10 @@
 ---
-.: 'EDCM model for MIG issue 63 (LRIC, demand charge 1 for units only)'
+.: Use charge 1 for unit rate only (FCP)
 PerlModule: EDCM2
 dcp130: 1
 lowerIntermittentCredit: 1
-method: LRIC
+method: FCP
+newOrder: 191
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
@@ -12,4 +13,4 @@ removeDemandCharge1: keepunitrate
 summaries: 1
 transparency: 1
 validation: lenientnomsg
-wantTables: 913
+wantTables: 911

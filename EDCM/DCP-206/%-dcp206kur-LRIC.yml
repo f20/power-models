@@ -1,15 +1,15 @@
 ---
-.: EDCM DCP 206 solution 2 LRIC
+.: Use charge 1 for unit rate only (LRIC)
 PerlModule: EDCM2
 dcp130: 1
-ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC
+newOrder: 191
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
-removeDemandCharge1: useVoltageLevelRule
+removeDemandCharge1: keepunitrate
 summaries: 1
 transparency: 1
 validation: lenientnomsg

@@ -521,6 +521,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   30 );
         $wsheet->set_column( 1, 1,   105 );
         $wsheet->set_column( 2, 250, 30 );
+        $wbook->{logger}{showColumns} = 1 if $model->{newOrder};
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->topNotes, $model->licenceNotes, $wbook->colourCode,
           $wbook->{logger}, $model->technicalNotes;

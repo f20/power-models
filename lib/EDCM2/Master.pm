@@ -405,10 +405,9 @@ EOT
 
     my $importEligible = Arithmetic(
         name       => 'Has import charges?',
-        arithmetic => '=IV11<>"VOID"',
+        arithmetic => '=IV1<>"VOID"',
         arguments  => {
-            IV1  => $importCapacity,
-            IV11 => $importCapacity,
+            IV1 => $importCapacity,
         }
     );
 
@@ -418,7 +417,6 @@ EOT
         arithmetic    => '=IF(IV12="VOID",0,(IV1*(1-IV2/IV3)))',
         arguments     => {
             IV1  => $importCapacity,
-            IV11 => $importCapacity,
             IV12 => $importCapacity,
             IV2  => $tariffDaysInYearNot,
             IV3  => $daysInYear,
@@ -466,7 +464,6 @@ EOT
         arithmetic    => '=IF(IV12="VOID",0,IV1*(1-IV2/IV3))',
         arguments     => {
             IV1  => $_,
-            IV11 => $_,
             IV12 => $_,
             IV2  => $tariffDaysInYearNot,
             IV3  => $daysInYear,
@@ -595,15 +592,14 @@ EOT
     );
 
     my (
-        $cdcmUse,                 $lossFactors,
-        $diversity,               $redUseRate,
-        $capUseRate,              $assetsFixed,
-        $assetsCapacity,          $assetsConsumption,
-        $totalAssetsFixed,        $totalAssetsCapacity,
-        $totalAssetsConsumption,  $totalAssetsGenerationSoleUse,
-        $totalEdcmAssets,         $assetsCapacityCooked,
-        $assetsConsumptionCooked, $assetsCapacityDoubleCooked,
-        $assetsConsumptionDoubleCooked,
+        $cdcmUse,                $lossFactors,
+        $diversity,              $redUseRate,
+        $capUseRate,             $assetsFixed,
+        $assetsCapacity,         $assetsConsumption,
+        $totalAssetsFixed,       $totalAssetsCapacity,
+        $totalAssetsConsumption, $totalAssetsGenerationSoleUse,
+        $totalEdcmAssets,        $assetsCapacityCooked,
+        $assetsConsumptionCooked,
       )
       = $model->notionalAssets(
         $activeCoincidence,      $reactiveCoincidence,
@@ -861,7 +857,8 @@ EOT
 
     my ( $charges1, $acCoef, $reCoef ) =
       $model->charge1( $tariffLoc, $locations, $locParent, $c1, $a1d, $r1d,
-        $a1g, $r1g, $model->preprocess( $locations, $a1d, $r1d, $a1g, $r1g, ),
+        $a1g, $r1g,
+        $model->preprocessLocationData( $locations, $a1d, $r1d, $a1g, $r1g, ),
       ) if $locations;
 
     my ( $fcpLricDemandCapacityChargeBig,
@@ -1521,13 +1518,12 @@ EOT
     }
 
     $model->fudge41(
-        $activeCoincidence,             $importCapacity,
-        $edcmIndirect,                  $edcmDirect,
-        $edcmRates,                     $daysInYear,
-        \$capacityChargeT,              \$demandScalingShortfall,
-        $indirectExposure,              $assetsCapacityDoubleCooked,
-        $assetsConsumptionDoubleCooked, $reactiveCoincidence,
-        $powerFactorInModel,            $demandScalingShortfall,
+        $activeCoincidence,  $importCapacity,
+        $edcmIndirect,       $edcmDirect,
+        $edcmRates,          $daysInYear,
+        \$capacityChargeT,   \$demandScalingShortfall,
+        $indirectExposure,   $reactiveCoincidence,
+        $powerFactorInModel, $demandScalingShortfall,
     );
 
     push @{ $model->{calc4Tables} }, $demandScalingShortfall;
@@ -1802,54 +1798,83 @@ EOT
                 %tariffsRemaining = %$tset;
             }
         }
-        my (@ordered);
-        my $singleDataCounter = 0;
-        my $tariffDataCounter = 0;
+        my $dataExtractor = sub {
+            my ($hashref) = @_;
+            return unless %$hashref;
+            my @columns = ();
+            my $ncol    = 0;
+            while (
+                my @toAdd =
+                sort { $hashref->{$a}{debug} cmp $hashref->{$b}{debug} } grep {
+                    !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
+                      keys %{ $getDeepDep->($_) };
+                } keys %$hashref
+              )
+            {
+                foreach (@toAdd) {
+                    push @columns, delete $hashref->{$_};
+                }
+            }
+            @columns;
+        };
+
+        my @ordered;
+
+        if (%singlesRemaining) {
+            my @columns =
+              grep { ref $_ eq 'SpreadsheetModel::Constant'; }
+              values %singlesRemaining;
+            delete $singlesRemaining{ 0 + $_ } foreach @columns;
+            @columns = map {
+                if ( $_->lastCol > 0 ) {
+                    push @ordered, $_;
+                    ();
+                }
+                else {
+                    $_;
+                }
+            } @columns;
+            push @ordered,
+              Columnset(
+                name    => 'Other constant parameters',
+                columns => \@columns
+              ) if @columns > 1;
+        }
+
+        my $columnsetMaker = sub {
+            my ($prefix) = @_;
+            my $counter;
+            sub {
+                my (@columns) = @_;
+                my $width = 0;
+                $width += 1 + $_->lastCol foreach @columns;
+                my $setwidth =
+                  int(
+                    $width / ( 1 + int( ( $width - 1 ) / $model->{newOrder} ) )
+                  );
+                while (@columns) {
+                    my @cols = ();
+                    my $w    = 0;
+                    while (@columns) {
+                        my $x = shift @columns;
+                        push @cols, $x;
+                        $w += 1 + $x->lastCol;
+                        last if $w > $setwidth;
+                    }
+                    push @ordered,
+                      !@cols ? () : @cols == 1 ? @cols : Columnset(
+                        name    => "$prefix data #" . ++$counter,
+                        columns => \@cols,
+                      );
+                }
+            };
+        };
+        my $singleMaker = $columnsetMaker->('Aggregate');
+        my $tariffMaker = $columnsetMaker->('Tariff-specific');
 
         while ( %singlesRemaining || %tariffsRemaining ) {
-
-            if (%singlesRemaining) {
-                my @columns = ();
-                while (
-                    my @toAdd = grep {
-                        !grep {
-                                 $singlesRemaining{$_}
-                              || $tariffsRemaining{$_}
-                          }
-                          keys %{ $getDeepDep->($_) };
-                    } keys %singlesRemaining
-                  )
-                {
-                    push @columns, delete $singlesRemaining{$_} foreach @toAdd;
-                }
-                push @ordered,
-                  Columnset(
-                    name => 'Aggregate data #' . ( ++$singleDataCounter ),
-                    columns => \@columns
-                  ) if @columns;
-            }
-
-            if (%tariffsRemaining) {
-                my @columns = ();
-                while (
-                    my @toAdd = grep {
-                        !grep {
-                                 $singlesRemaining{$_}
-                              || $tariffsRemaining{$_}
-                          }
-                          keys %{ $getDeepDep->($_) };
-                    } keys %tariffsRemaining
-                  )
-                {
-                    push @columns, delete $tariffsRemaining{$_} foreach @toAdd;
-                }
-                push @ordered,
-                  Columnset(
-                    name => 'Tariffs data #' . ( ++$tariffDataCounter ),
-                    columns => \@columns
-                  ) if @columns;
-            }
-
+            $singleMaker->( $dataExtractor->( \%singlesRemaining ) );
+            $tariffMaker->( $dataExtractor->( \%tariffsRemaining ) );
         }
 
         $model->{newOrder} = \@ordered;

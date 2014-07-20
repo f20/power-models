@@ -1,15 +1,19 @@
 ---
-.: EDCM modernised model LRIC
+.: EDCM review solution 3 LRIC
 PerlModule: EDCM2
+activeSheets: '^Results$'
+checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
-ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC
+newOrder: 11
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
+removeDemandCharge1: solution3
 summaries: 1
-transparency: outputonly
+transparency: 1
+unitRate: all
 validation: lenientnomsg
 wantTables: 913

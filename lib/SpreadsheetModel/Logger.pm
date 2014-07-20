@@ -37,8 +37,8 @@ our @ISA = qw(SpreadsheetModel::Object);
 use Spreadsheet::WriteExcel::Utility;
 
 sub log {
-    my $self = shift;
-    push @{ $self->{objects} }, grep {
+    my $logger = shift;
+    push @{ $logger->{objects} }, grep {
              $_->{location}
           || !$_->{sources}
           || $#{ $_->{sources} }
@@ -48,10 +48,11 @@ sub log {
 }
 
 sub check {
-    my ($self) = @_;
-    $self->{lines} = [ SpreadsheetModel::Object::splitLines( $self->{lines} ) ]
-      if $self->{lines};
-    $self->{objects} = [];
+    my ($logger) = @_;
+    $logger->{lines} =
+      [ SpreadsheetModel::Object::splitLines( $logger->{lines} ) ]
+      if $logger->{lines};
+    $logger->{objects} = [];
     return;
 }
 
@@ -64,23 +65,23 @@ sub lastRow {
 }
 
 sub wsWrite {
-    my ( $self, $wb, $ws, $row, $col ) = @_;
+    my ( $logger, $wb, $ws, $row, $col ) = @_;
     ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )
       unless defined $row && defined $col;
     $ws->set_row( $row, 21 );
-    $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
+    $ws->write( $row++, $col, "$logger->{name}", $wb->getFormat('caption') );
     my $numFormat0 = $wb->getFormat('0softnz');
     my $numFormat1 = $wb->getFormat('0.000soft');
     my $textFormat = $wb->getFormat('text');
     my $linkFormat = $wb->getFormat('link');
 
-    if ( $self->{lines} ) {
+    if ( $logger->{lines} ) {
         $ws->write( $row++, $col, "$_", $textFormat )
-          foreach @{ $self->{lines} };
+          foreach @{ $logger->{lines} };
     }
 
     my @h = ( 'Worksheet', 'Data table', 'Type of table' );
-    push @h, 'Dimensions', 'Count', 'Average' if $wb->{logAll};
+    push @h, 'Dimensions', 'Count', 'Average' if $logger->{showDetails};
 
     $ws->write( $row, $col + $_, "$h[$_]", $wb->getFormat('th') ) for 0 .. $#h;
     $row++;
@@ -88,39 +89,41 @@ sub wsWrite {
     my @objectList = sort {
         ( $a->{$wb}{worksheet}{sheetNumber} || 666 )
           <=> ( $b->{$wb}{worksheet}{sheetNumber} || 666 )
-    } grep { $_->{$wb}{worksheet} && $_->{name} } @{ $self->{objects} };
+    } grep { $_->{$wb}{worksheet} && $_->{name} } @{ $logger->{objects} };
 
     my $r = 0;
     my %columnsetDone;
     foreach my $obj (@objectList) {
-        my $cset;
 
-        unless ( $wb->{logAll} ) {
-            $cset = $obj->{location};
-            undef $cset unless ref $cset eq 'SpreadsheetModel::Columnset';
-            if ($cset) {
-                next if exists $columnsetDone{$cset};
-                undef $columnsetDone{$cset};
-            }
+        my $cset = $obj->{location};
+        undef $cset
+          if ref $cset ne 'SpreadsheetModel::Columnset'
+          || $logger->{showColumns} && grep {
+            ref $_ ne 'SpreadsheetModel::Stack' || @{ $_->{sources} } > 1;
+          } @{ $cset->{columns} };
+        if ($cset) {
+            next if exists $columnsetDone{$cset};
+            undef $columnsetDone{$cset};
         }
 
         my ( $wo, $ro, $co ) = @{ $obj->{$wb} }{qw(worksheet row col)};
         my $ty = $cset ? $cset->objectType : $obj->objectType;
         $ty .= ' (not used further)'
-          if $self->{finalTablesBold}
+          if $logger->{finalTablesBold}
           && !( $cset ? $cset->{forwardLinks} : $obj->{forwardLinks} );
         my $ce = xl_rowcol_to_cell( $ro - 1, $co );
         my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
         $wn =~ s/\000//g;    # squash strange rare bug
         my $na = $cset ? "$cset->{name}" : "$obj->{name}";
         0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
-        $self->{realRows}[$r] = $na;
+        $logger->{realRows}[$r] = $na;
         $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
             $linkFormat );
         $ws->write_string( $row + $r, $col + 2, $ty, $textFormat );
         $ws->write_string( $row + $r, $col,     $wn, $textFormat );
 
-        if ( $wb->{logAll} && $obj->isa('SpreadsheetModel::Dataset') ) {
+        if ( $logger->{showDetails} && $obj->isa('SpreadsheetModel::Dataset') )
+        {
             my ( $wss, $rows, $cols ) = $obj->wsWrite( $wb, $ws );
             my $wsn = $wss ? $wss->get_name : 'BROKEN LINK';
             my $c1 =

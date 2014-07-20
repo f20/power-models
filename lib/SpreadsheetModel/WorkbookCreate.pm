@@ -149,6 +149,7 @@ sub create {
         $options->{logger} = new SpreadsheetModel::Logger(
             name            => 'List of data tables',
             finalTablesBold => $model->{forwardLinks},
+            showDetails     => $model->{debug},
         );
 
         my $canPriority = $model->can('sheetPriority');
@@ -218,7 +219,7 @@ sub create {
 
         $wbook->{$_} = $options->{$_}
           foreach grep { exists $options->{$_} }
-          qw(copy debug forwardLinks logAll logger noLinks rowHeight validation);
+          qw(copy debug forwardLinks logger noLinks rowHeight validation);
 
         foreach ( @{ $options->{wsheetRunOrder} } ) {
             delete $wsheet{$_}{sheetNumber};

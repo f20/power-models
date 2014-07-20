@@ -43,13 +43,12 @@ use SpreadsheetModel::Shortcuts ':all';
 sub fudge41 {
 
     my (
-        $model,                      $activeCoincidence,
-        $agreedCapacity,             $indirect,
-        $direct,                     $rates,
-        $daysInYear,                 $capacityChargeRef,
-        $shortfallRef,               $indirectExposure,
-        $assetsCapacityDoubleCooked, $assetsConsumptionDoubleCooked,
-        $reactiveCoincidence,        $powerFactorInModel,
+        $model,               $activeCoincidence,
+        $agreedCapacity,      $indirect,
+        $direct,              $rates,
+        $daysInYear,          $capacityChargeRef,
+        $shortfallRef,        $indirectExposure,
+        $reactiveCoincidence, $powerFactorInModel,
         $scalingAmountToTestForNegative,
     ) = @_;
 

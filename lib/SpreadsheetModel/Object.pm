@@ -42,7 +42,7 @@ our %EXPORT_TAGS = ( '_util' => \@EXPORT_OK );
 sub new {
     my $className = shift;
     die join ' ', 'Not an even number:', @_ if @_ % 2;
-    my $self = { @_, debug => join ' line ', (caller)[ 1, 2 ] };
+    my $self = { @_, debug => sprintf( '%s line %4d', (caller)[ 1, 2 ] ) };
     unless ( defined $self->{name} ) {
         my @c = caller;
         $self->{name} = "Untitled, $c[1] line $c[2]";
