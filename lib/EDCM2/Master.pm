@@ -485,9 +485,10 @@ EOT
     );
 
     $activeCoincidence = Arithmetic(
-        name       => 'Super red kW divided by kVA adjusted for part-year',
-        arithmetic => '=IV1*(1-IV2/IV3)/(1-IV4/IV5)',
-        arguments  => {
+        name         => 'Super red kW divided by kVA adjusted for part-year',
+        newColumnset => 1,
+        arithmetic   => '=IV1*(1-IV2/IV3)/(1-IV4/IV5)',
+        arguments    => {
             IV1 => $activeCoincidence,
             IV2 => $tariffHoursInRedNot,
             IV3 => $hoursInRed,
@@ -565,6 +566,29 @@ EOT
     my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
       $model->cdcmAssets;
 
+    my $cdcmUse = Dataset(
+        name => 'Forecast system simultaneous maximum load (kW)'
+          . ' from CDCM users (from CDCM table 2506)',
+        defaultFormat => '0hardnz',
+        cols          => $ehvAssetLevelset,
+        data          => [qw(5e6 5e6 5e6 5e6 5e6 5e6)],
+        number        => 1122,
+        dataset       => $model->{dataset},
+        appendTo      => $model->{inputTables},
+        validation    => {
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        }
+    );
+
+    my $cdcmRedUse = Stack(
+        cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
+        name    => 'Total CDCM peak time consumption (kW)',
+        sources => [$cdcmUse]
+    );
+    $model->{transparency}{olFYI}{1237} = $cdcmRedUse if $model->{transparency};
+
     push @{ $model->{calc3Tables} }, $cdcmHvLvService, $cdcmEhvAssets,
       $cdcmHvLvShared
       if $model->{legacy201};
@@ -592,14 +616,13 @@ EOT
     );
 
     my (
-        $cdcmUse,                $lossFactors,
-        $diversity,              $redUseRate,
-        $capUseRate,             $assetsFixed,
-        $assetsCapacity,         $assetsConsumption,
-        $totalAssetsFixed,       $totalAssetsCapacity,
-        $totalAssetsConsumption, $totalAssetsGenerationSoleUse,
-        $totalEdcmAssets,        $assetsCapacityCooked,
-        $assetsConsumptionCooked,
+        $lossFactors,                  $diversity,
+        $redUseRate,                   $capUseRate,
+        $assetsFixed,                  $assetsCapacity,
+        $assetsConsumption,            $totalAssetsFixed,
+        $totalAssetsCapacity,          $totalAssetsConsumption,
+        $totalAssetsGenerationSoleUse, $totalEdcmAssets,
+        $assetsCapacityCooked,         $assetsConsumptionCooked,
       )
       = $model->notionalAssets(
         $activeCoincidence,      $reactiveCoincidence,
@@ -607,6 +630,7 @@ EOT
         $tariffCategory,         $demandSoleUseAsset,
         $generationSoleUseAsset, $cdcmAssets,
         $useProportions,         $ehvAssetLevelset,
+        $cdcmUse,
       );
 
     my $edcmRedUse =
@@ -635,13 +659,6 @@ EOT
 
     $model->{transparency}{olTabCol}{119101} = $edcmRedUse
       if $model->{transparency};
-
-    my $cdcmRedUse = Stack(
-        cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
-        name    => 'Total CDCM peak time consumption (kW)',
-        sources => [$cdcmUse]
-    );
-    $model->{transparency}{olFYI}{1237} = $cdcmRedUse if $model->{transparency};
 
     my $overallRedUse = Arithmetic(
         name          => 'Estimated total peak-time consumption (kW)',
@@ -724,6 +741,7 @@ EOT
     my $edcmDirect = Arithmetic(
         name => 'Direct costs on EDCM demand except'
           . ' through sole use asset charges (£/year)',
+        newColumnset  => 1,
         defaultFormat => '0softnz',
         arithmetic    => '=IV1*(IV20+IV23)',
         arguments     => {
@@ -1266,6 +1284,7 @@ EOT
     my $importCapacityExceededAdjustment = Arithmetic(
         name =>
           'Adjustment to exceeded import capacity charge for DSM (p/kVA/day)',
+        newColumnset  => 1,
         defaultFormat => '0.00softnz',
         arithmetic =>
 '=IF(IV1=0,0,(1-IV4/IV5)*(IV3+IF(IV23=0,0,(IV2*IV21*(IV22-IV24)/(IV9-IV91)))))',
@@ -1733,7 +1752,7 @@ EOT
 
     $exportCapacityExceeded = Arithmetic(
         name          => 'Export exceeded capacity rate (p/kVA/day)',
-        defaultFormat => '0.00softnz',
+        defaultFormat => '0.00copynz',
         arithmetic    => '=IV1',
         arguments     => { IV1 => $exportCapacityChargeRound, },
     );
@@ -1798,13 +1817,14 @@ EOT
                 %tariffsRemaining = %$tset;
             }
         }
+
         my $dataExtractor = sub {
             my ($hashref) = @_;
             return unless %$hashref;
             my @columns = ();
             my $ncol    = 0;
             while (
-                my @toAdd =
+                ( local $_ ) =
                 sort { $hashref->{$a}{serial} <=> $hashref->{$b}{serial} }
                 grep {
                     !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
@@ -1812,72 +1832,51 @@ EOT
                 } keys %$hashref
               )
             {
-                foreach (@toAdd) {
-                    push @columns, delete $hashref->{$_};
-                }
+                push @columns, delete $hashref->{$_};
             }
             @columns;
         };
 
         my @ordered;
 
-        if (%singlesRemaining) {
-            my @columns =
-              grep { ref $_ eq 'SpreadsheetModel::Constant'; }
-              values %singlesRemaining;
-            delete $singlesRemaining{ 0 + $_ } foreach @columns;
-            @columns = map {
-                if ( $_->lastCol > 0 ) {
-                    push @ordered, $_;
-                    ();
-                }
-                else {
-                    $_;
-                }
-            } @columns;
-            push @ordered,
-              Columnset(
-                name    => 'Other constant parameters',
-                columns => \@columns
-              ) if @columns > 1;
-        }
-
         my $columnsetMaker = sub {
             my ($prefix) = @_;
             my $counter;
             sub {
                 my (@columns) = @_;
-                my $width = 0;
-                $width += 1 + $_->lastCol foreach @columns;
-                my $setwidth =
-                  int(
-                    $width / ( 1 + int( ( $width - 1 ) / $model->{newOrder} ) )
-                  );
-                while (@columns) {
-                    my @cols = ();
-                    my $w    = 0;
-                    while (@columns) {
-                        my $x = shift @columns;
-                        push @cols, $x;
-                        $w += 1 + $x->lastCol;
-                        last if $w > $setwidth;
+                my $cols = [];
+                my @result;
+                foreach ( @columns, { newColumnset => 1 } ) {
+                    if ( $_->{newColumnset} ) {
+                        push
+                          @result,  # "#" has magical powers in a Columnset name
+                          !@$cols ? () : @$cols == 1 ? @$cols : Columnset(
+                            name    => "$prefix data #" . ++$counter,
+                            columns => $cols,
+                          );
+                        $cols = [];
                     }
-                    push @ordered, !@cols ? () : @cols == 1 ? @cols : Columnset(
-
-                        # "#" has magical powers in a Columnset name
-                        name    => "$prefix data #" . ++$counter,
-                        columns => \@cols,
-
-                    );
+                    push @$cols, $_;
                 }
+                @result;
             };
         };
+
+        my @constants =
+          sort { $a->{serial} <=> $b->{serial} }
+          grep { ref $_ eq 'SpreadsheetModel::Constant'; }
+          values %singlesRemaining;
+        delete $singlesRemaining{ 0 + $_ } foreach @constants;
+        $columnsetMaker->('Fixed parameter')
+          ->( grep { !$_->lastCol } @constants );
+
         my $singleMaker = $columnsetMaker->('Aggregate');
         my $tariffMaker = $columnsetMaker->('Tariff-specific');
-
         while ( %singlesRemaining || %tariffsRemaining ) {
-            $singleMaker->( $dataExtractor->( \%singlesRemaining ) );
-            $tariffMaker->( $dataExtractor->( \%tariffsRemaining ) );
+            push @ordered,
+              $singleMaker->( $dataExtractor->( \%singlesRemaining ) );
+            push @ordered,
+              $tariffMaker->( $dataExtractor->( \%tariffsRemaining ) );
         }
 
         $model->{newOrder} = \@ordered;

@@ -118,6 +118,7 @@ sub charge1 {
 
     my $locMatchA = Arithmetic(
         name          => 'Location',
+        newColumnset  => 1,
         defaultFormat => 'thloc',
         arithmetic    => '=MATCH(IV1,IV5_IV6,0)',
         arguments     => {
@@ -146,7 +147,8 @@ sub charge1 {
         my @c1l = map {
 
             my $ca = Arithmetic(
-                name       => 'Local charge 1 £/kVA/year at ' . $_->{name},
+                name => 'Local charge 1 £/kVA/year at ' . $_->{name},
+                $_ == $locMatchA ? ( newColumnset => 1 ) : (),
                 arithmetic => $model->{noNegative}
                 ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
                 : '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
@@ -162,7 +164,8 @@ sub charge1 {
         my @c1n = map {
 
             my $ca = Arithmetic(
-                name       => 'Network charge 1 £/kVA/year at ' . $_->{name},
+                name => 'Network charge 1 £/kVA/year at ' . $_->{name},
+                $_ == $locMatchA ? ( newColumnset => 1 ) : (),
                 arithmetic => $model->{noNegative}
                 ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
                 : '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
@@ -190,7 +193,8 @@ sub charge1 {
                 }
               )
               : Arithmetic(
-                name          => 'Maximum demand run kVA at ' . $_->{name},
+                name => 'Maximum demand run kVA at ' . $_->{name},
+                $_ == $locMatchA ? ( newColumnset => 1 ) : (),
                 defaultFormat => '0soft',
                 arithmetic    => '=IF(ISNUMBER(IV1),SQRT('
                   . 'INDEX(IV53_IV54,IV52)^2+INDEX(IV63_IV64,IV62)^2),0)',
@@ -206,8 +210,9 @@ sub charge1 {
         } @locMatch;
 
         my $c1l = Arithmetic(
-            name       => 'Average local charge 1 (£/kVA/year)',
-            arithmetic => '=IF('
+            name         => 'Average local charge 1 (£/kVA/year)',
+            newColumnset => 1,
+            arithmetic   => '=IF('
               . join( '+', map { 'IV' . ( 1 + $_ ) } 0 .. $last )
               . '=0,IF(COUNT('
               . join( ',', map { "IU8$_" } 0 .. $last ) . '),('

@@ -48,59 +48,13 @@ sub chargesFcpLric {
         $reactiveCoincidenceUndoctored, $reactiveCoincidence935
     ) = @_;
 
-    my $genCredit = Arithmetic(
-        name          => 'Generation credit (before exempt adjustment) p/kWh',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=-100*('
-          . join( '+',
-            $charges1->[0] ? "IU90*IV1" : (),
-            map { $charges1->[$_] ? "IU9$_" : () } 1 .. $#$charges1 )
-          . ')/IV2',
-        arguments => {
-            IV2 => $redHoursGen,
-            IV1 => $sFactor,
-            map { $charges1->[$_] ? ( "IU9$_" => $charges1->[$_] ) : () }
-              0 .. $#$charges1
-        }
-    );
-
-    if ( $model->{lowerIntermittentCredit} ) {
-        $genCredit = Arithmetic(
-            name => 'Generation credit (before exempt adjustment) p/kWh',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=-100*IV1*('
-              . join( '+',
-                $charges1->[0] ? "IU90" : (),
-                map { $charges1->[$_] ? "IU9$_" : () } 1 .. $#$charges1 )
-              . ')/IV2',
-            arguments => {
-                IV2 => $redHoursGen,
-                IV1 => $sFactor,
-                map { $charges1->[$_] ? ( "IU9$_" => $charges1->[$_] ) : () }
-                  0 .. $#$charges1
-            }
-        );
-    }
-
-    my $genCreditCapacity = Arithmetic(
-        name          => 'Generation credit (unrounded) p/kVA/day',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(IV1,-100*IU91/IV2*IV6/IV52,0)',
-        arguments     => {
-            IV2  => $daysInYear,
-            IV1  => $chargeableGenerationCapacity,
-            IV52 => $chargeableGenerationCapacity,
-            IV6  => $creditableCapacity,
-            IU91 => $rateExit,
-        }
-    );
-
     $model->{demandConsumptionFcpLric} = my $demandConsumptionFcpLric =
       (     !$model->{removeDemandCharge1}
           || $model->{removeDemandCharge1} =~ /keepunitrate/i )
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Import demand charge p/kVA/day',
+        newColumnset  => 1,
         defaultFormat => '0.00softnz',
         rows          => $demandCapacity->{rows},
         arithmetic    => '=100*(' . join(
@@ -133,9 +87,10 @@ sub chargesFcpLric {
         }
       )
       : Constant(
-        rows => $demandCapacity->{rows},
-        name => 'Import demand charge before matching p/kVA/day',
-        data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
+        rows         => $demandCapacity->{rows},
+        newColumnset => 1,
+        name         => 'Import demand charge before matching p/kVA/day',
+        data         => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
     $model->{demandCapacityFcpLric} = my $demandCapacityFcpLric =
@@ -210,8 +165,7 @@ sub chargesFcpLric {
         data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
-    $model->{method} =~ /FCP/i
-      ? Arithmetic(
+    $demandCapacityFcpLric = Arithmetic(
         name          => 'FCP capacity charge p/kVA/day',
         defaultFormat => '0.00softnz',
         arithmetic    => '=IF(IV3=0,IV1+IV2,IV11)',
@@ -221,8 +175,56 @@ sub chargesFcpLric {
             IV3  => $activeCoincidenceUndoctored,
             IV2  => $demandConsumptionFcpLric,
         }
-      )
-      : $demandCapacityFcpLric, $genCredit, $unitRateFcpLric,
+    ) if $model->{method} =~ /FCP/i;
+
+    my $genCredit = Arithmetic(
+        name          => 'Generation credit (before exempt adjustment) p/kWh',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=-100*('
+          . join( '+',
+            $charges1->[0] ? "IU90*IV1" : (),
+            map { $charges1->[$_] ? "IU9$_" : () } 1 .. $#$charges1 )
+          . ')/IV2',
+        arguments => {
+            IV2 => $redHoursGen,
+            IV1 => $sFactor,
+            map { $charges1->[$_] ? ( "IU9$_" => $charges1->[$_] ) : () }
+              0 .. $#$charges1
+        }
+    );
+
+    if ( $model->{lowerIntermittentCredit} ) {
+        $genCredit = Arithmetic(
+            name => 'Generation credit (before exempt adjustment) p/kWh',
+            defaultFormat => '0.00softnz',
+            arithmetic    => '=-100*IV1*('
+              . join( '+',
+                $charges1->[0] ? "IU90" : (),
+                map { $charges1->[$_] ? "IU9$_" : () } 1 .. $#$charges1 )
+              . ')/IV2',
+            arguments => {
+                IV2 => $redHoursGen,
+                IV1 => $sFactor,
+                map { $charges1->[$_] ? ( "IU9$_" => $charges1->[$_] ) : () }
+                  0 .. $#$charges1
+            }
+        );
+    }
+
+    my $genCreditCapacity = Arithmetic(
+        name          => 'Generation credit (unrounded) p/kVA/day',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=IF(IV1,-100*IU91/IV2*IV6/IV52,0)',
+        arguments     => {
+            IV2  => $daysInYear,
+            IV1  => $chargeableGenerationCapacity,
+            IV52 => $chargeableGenerationCapacity,
+            IV6  => $creditableCapacity,
+            IU91 => $rateExit,
+        }
+    );
+
+    $demandCapacityFcpLric, $genCredit, $unitRateFcpLric,
       $genCreditCapacity, $demandConsumptionFcpLric;
 
 }

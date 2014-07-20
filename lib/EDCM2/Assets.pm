@@ -134,7 +134,7 @@ sub notionalAssets {
         $model,          $activeCoincidence,  $reactiveCoincidence,
         $agreedCapacity, $powerFactorInModel, $tariffCategory,
         $tariffSUimport, $tariffSUexport,     $cdcmAssets,
-        $useProportions, $ehvAssetLevelset,
+        $useProportions, $ehvAssetLevelset,   $cdcmUse,
     ) = @_;
 
     my $lossFactors = Dataset(
@@ -146,22 +146,6 @@ sub notionalAssets {
         dataset    => $model->{dataset},
         appendTo   => $model->{inputTables},
         validation => {
-            validate => 'decimal',
-            criteria => '>=',
-            value    => 0,
-        }
-    );
-
-    my $cdcmUse = Dataset(
-        name => 'Forecast system simultaneous maximum load (kW)'
-          . ' from CDCM users (from CDCM table 2506)',
-        defaultFormat => '0hardnz',
-        cols          => $ehvAssetLevelset,
-        data          => [qw(5e6 5e6 5e6 5e6 5e6 5e6)],
-        number        => 1122,
-        dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
-        validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
@@ -225,7 +209,12 @@ EOL
         name          => 'Mapping of customer category to loss factor',
         defaultFormat => '0con',
         rows          => $tariffCategoryset,
-        data          => [ [qw(1 2 3 3 4 0 4 4 6 6 6 6 5 0 5 5 5)] ],
+        data          => [
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(1 2 3 3 4 . 4 4 6 6 6 6 5 . 5 5 5)
+            ]
+        ],
     );
 
     my $classificationMap = Constant(
@@ -234,18 +223,34 @@ EOL
         rows          => $tariffCategoryset,
         cols          => $useProportions->{cols},
         data          => [
-            [qw(0 1 0 2 0 0 0 3 0 3 0 3 0 0 0 4 0)],
-            [qw(0 0 1 1 0 0 2 2 0 0 2 2 0 0 3 3 0)],
-            [qw(0 0 0 0 1 0 1 1 0 0 0 0 2 0 2 2 0)],
-            [qw(0 0 0 0 0 0 0 0 0 0 1 1 1 0 1 1 1)],
-            [qw(0 0 0 0 0 0 0 0 1 1 0 0 0 0 0 0 0)],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 1 0 2 0 . 0 3 0 3 0 3 0 . 0 4 0)
+            ],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 0 1 1 0 . 2 2 0 0 2 2 0 . 3 3 0)
+            ],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 0 0 0 1 . 1 1 0 0 0 0 2 . 2 2 0)
+            ],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 0 0 0 0 . 0 0 0 0 1 1 1 . 1 1 1)
+            ],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 0 0 0 0 . 0 0 1 1 0 0 0 . 0 0 0)
+            ],
         ],
     );
 
-    Columnset(
-        name    => 'Customer category rules',
+    push @{ $model->{multicellConstants} },
+      Columnset(
+        name    => 'Rules applicable to customer categories',
         columns => [ $lossFactorMap, $classificationMap, ],
-    );
+      );
 
     my $tariffLossFactor = Arithmetic(
         name       => 'Loss factor to transmission',
@@ -340,30 +345,12 @@ EOL
         appendTo => $model->{inputTables}
     );
 
-    my $useProportionsCapped = Arithmetic(
-        name       => 'Network use factors (capped only)',
-        arithmetic => '=MIN(IV1+0,IV2+0)',
-        arguments  => {
-            IV1 => $useProportions,
-            IV2 => $usePropCap,
-        }
-    );
-
-    my $useProportionsCooked = Arithmetic(
-        name       => 'Network use factors (second set)',
-        arithmetic => '=MAX(IV3+0,MIN(IV1+0,IV2+0))',
-        arguments  => {
-            IV1 => $useProportions,
-            IV2 => $usePropCap,
-            IV3 => $usePropCollar,
-        }
-    );
-
     push @{ $model->{calc1Tables} },
       my $accretion = Arithmetic(
-        name       => 'Notional asset rate (£/kW)',
-        arithmetic => '=IF(IV1,IV2/IV3/IV4,0)',
-        arguments  => {
+        name         => 'Notional asset rate (£/kW)',
+        newColumnset => 1,
+        arithmetic   => '=IF(IV1,IV2/IV3/IV4,0)',
+        arguments    => {
             IV1 => $cdcmUse,
             IV2 => $cdcmAssets,
             IV3 => $cdcmUse,
@@ -411,6 +398,19 @@ EOL
         $assetsCapacityCooked, $assetsConsumptionCooked
     );
 
+    my $useProportionsCooked = sub {
+        Arithmetic(
+            name         => 'Network use factors (second set)',
+            newColumnset => 1,
+            arithmetic   => '=MAX(IV3+0,MIN(IV1+0,IV2+0))',
+            arguments    => {
+                IV1 => $useProportions,
+                IV2 => $usePropCap,
+                IV3 => $usePropCollar,
+            }
+        );
+    };
+
     if ( $model->{voltageRulesTransparency} ) {
 
         $accretion = Stack(
@@ -425,7 +425,8 @@ EOL
             SumProduct(
                 name   => $name1,
                 matrix => SpreadsheetModel::Custom->new(
-                    name   => $name2,
+                    name => $name2,
+                    $diversity ? ( newColumnset => 1 ) : (),
                     custom => [
                             '=IF(INDEX(IV5:IV6,IV4)'
                           . ( $diversity ? '=1' : '>1' )
@@ -492,17 +493,19 @@ EOL
             'Adjusted network use by capacity',
             $useProportions, $capUseRate, $diversity
         );
+        $assetsConsumption = $machine->(
+            'Consumption assets (£/kVA)',
+            'Adjusted network use by consumption',
+            $useProportions, $redUseRate
+        );
+
+        $useProportionsCooked = $useProportionsCooked->();
         $assetsCapacityCooked = $machine->(
             'Second set of capacity assets (£/kVA)',
             'Second set of adjusted network use by capacity',
             $useProportionsCooked,
             $capUseRate,
             $diversity
-        );
-        $assetsConsumption = $machine->(
-            'Consumption assets (£/kVA)',
-            'Adjusted network use by consumption',
-            $useProportions, $redUseRate
         );
         $assetsConsumptionCooked = $machine->(
             'Second set of consumption assets (£/kVA)',
@@ -520,6 +523,8 @@ EOL
             cols    => $ehvAssetLevelset,
             sources => [ $accretion132hvcombined, $accretion ]
         );
+
+        $useProportionsCooked = $useProportionsCooked->();
 
         my (
             @assetsCapacity,       @assetsConsumption,
@@ -1102,6 +1107,15 @@ qq@=IF(OR(IV1="D1000",ISNUMBER(SEARCH("G????",IV20))),0,IV4*IV9$starIV5)@,
                 },
               );
 
+            my $useProportionsCapped = Arithmetic(
+                name       => 'Network use factors (capped only)',
+                arithmetic => '=MIN(IV1+0,IV2+0)',
+                arguments  => {
+                    IV1 => $useProportions,
+                    IV2 => $usePropCap,
+                }
+            );
+
             push @assetsConsumptionCooked,
               Arithmetic(
                 name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
@@ -1547,7 +1561,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
     $model->{transparency}{olFYI}{1229} = $totalAssets
       if $model->{transparency};
 
-    $cdcmUse, $lossFactors, $diversity, $redUseRate, $capUseRate,
+    $lossFactors, $diversity, $redUseRate, $capUseRate,
       $tariffSUimport,    $assetsCapacity,
       $assetsConsumption, $totalAssetsFixed,
       $totalAssetsCapacity,
