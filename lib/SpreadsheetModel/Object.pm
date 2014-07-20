@@ -39,10 +39,16 @@ our @EXPORT_OK =
   qw(_rewriteFormulas _shortName _shortNameRow _shortNameCol _numsort);
 our %EXPORT_TAGS = ( '_util' => \@EXPORT_OK );
 
+our $SERIAL;
+
 sub new {
     my $className = shift;
     die join ' ', 'Not an even number:', @_ if @_ % 2;
-    my $self = { @_, debug => sprintf( '%s line %4d', (caller)[ 1, 2 ] ) };
+    my $self = {
+        @_,
+        serial => ++$SERIAL,
+        debug  => join( ' line ', (caller)[ 1, 2 ] ) . " #$SERIAL",
+    };
     unless ( defined $self->{name} ) {
         my @c = caller;
         $self->{name} = "Untitled, $c[1] line $c[2]";

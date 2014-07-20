@@ -1805,7 +1805,8 @@ EOT
             my $ncol    = 0;
             while (
                 my @toAdd =
-                sort { $hashref->{$a}{debug} cmp $hashref->{$b}{debug} } grep {
+                sort { $hashref->{$a}{serial} <=> $hashref->{$b}{serial} }
+                grep {
                     !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
                       keys %{ $getDeepDep->($_) };
                 } keys %$hashref
@@ -1861,11 +1862,13 @@ EOT
                         $w += 1 + $x->lastCol;
                         last if $w > $setwidth;
                     }
-                    push @ordered,
-                      !@cols ? () : @cols == 1 ? @cols : Columnset(
+                    push @ordered, !@cols ? () : @cols == 1 ? @cols : Columnset(
+
+                        # "#" has magical powers in a Columnset name
                         name    => "$prefix data #" . ++$counter,
                         columns => \@cols,
-                      );
+
+                    );
                 }
             };
         };

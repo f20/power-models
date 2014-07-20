@@ -6,7 +6,7 @@ checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
 lowerIntermittentCredit: 1
 method: LRIC
-newOrder: 11
+newOrder: 13
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600

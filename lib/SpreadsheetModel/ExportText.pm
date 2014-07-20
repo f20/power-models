@@ -53,10 +53,14 @@ sub writeText {
         binmode $fh, ':utf8';
         my $url = $file;
         $url =~ s/^.*\///s;
-        $writer{$pot} = sub {
+        $writer{$pot} = $pot eq 'Tables'
+          ? sub {
+            print {$fh} join "\n", @_;
+          }
+          : sub {
             print {$fh} map { _flatten(@$_); } @_;
             $url;
-        };
+          };
         push @end, sub {
             close $fh;
             rename $tfile, $file;
@@ -66,12 +70,9 @@ sub writeText {
     $writer{Ancillary} = $writer{Labelsets};
     my @objects = grep { defined $_ } @{ $logger->{objects} };
     $writer{Tables}->(
-        [
-            undef => join "\n",
-            $logger->{realRows}
-            ? @{ $logger->{realRows} }
-            : map { "$_->{name}" } @objects
-        ]
+        $logger->{realRows}
+        ? @{ $logger->{realRows} }
+        : map { "$_->{name}" } @objects
     );
     $_->htmlWrite( \%writer, $writer{Calculations} ) foreach @objects;
     $_->() foreach @end;

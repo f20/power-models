@@ -146,6 +146,7 @@ sub worksheetsAndClosures {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber} = 9;
             $wsheet->freeze_panes( 1, 2 );
+            $wsheet->set_landscape;
             my $locationColumn = $model->{dcp189} ? 9 : 8;
             $wsheet->set_column( 0,                   0,                   16 );
             $wsheet->set_column( 1,                   1,                   50 );
