@@ -124,6 +124,7 @@ sub wsPrepare {
     }
     return sub { die $someArgumentsAreMissingAtThisStage; }
       if $someArgumentsAreMissingAtThisStage;
+    $arithmetic =~ s/^\+/=/s;
     my $formula = $ws->store_formula($arithmetic);
     my $format  = $wb->getFormat( $self->{defaultFormat}
           || [ base => '0soft', num_format => $numFormat ] );
