@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -50,15 +50,17 @@ use lib catdir( $homedir, 'cpan' ), $perl5dir;
 
 use Ancillary::Manufacturing;
 my $maker = Ancillary::Manufacturing->factory;
+my %dataAccumulator;
 my %override;
 my $xdata = '';
+
 my $threads;
 $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
 chomp $threads if $threads;
 $threads ||= 1;
 
-foreach (@ARGV) {
-
+my $processArg = sub {
+    local $_ = $_[0];
     if (/^-/s) {
         if (/^-+$/s) { $maker->{processStream}->( \*STDIN ); }
         elsif (/^-+(?:carp|confess)/is) {
@@ -150,15 +152,60 @@ foreach (@ARGV) {
             open $dh, join ' ', ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
               "'$_'", '|';
         }
-        elsif (/\.(?:ya?ml|json)$/si) {
+        elsif (/\.(?:ya?ml|json|dta)$/si) {
             open $dh, '<', $_;
         }
-        $maker->{processStream}->( $dh, abs2rel($_) ) if $dh;
+        unless ($dh) {
+            warn "Cannot open $_";
+            return;
+        }
+        if (/\.dta$/is) {
+            require Parse::Stata::DtaReader;
+            warn "Reading $_\n";
+            my $dta = Parse::Stata::DtaReader->new($dh);
+            my ( @table, @column );
+            for ( my $i = 1 ; $i < $dta->{nvar} ; ++$i ) {
+                if ( $dta->{varlist}[$i] =~ /t([0-9]+)c([0-9]+)/ ) {
+                    $table[$i]  = $1;
+                    $column[$i] = $2;
+                }
+            }
+            while ( my @row = $dta->readRow ) {
+                my $book = $row[0];
+                my $line = $table[1] ? 'Single-line CSV' : $row[1];
+                $dataAccumulator{$book}{ $table[$_] }[ $column[$_] ]{$line} =
+                  $row[$_]
+                  foreach grep { $table[$_] } 1 .. $#table;
+            }
+            return;
+        }
+        $maker->{processStream}->( $dh, abs2rel($_) );
     }
     else {
         warn "Cannot handle this argument: $_";
     }
+};
+
+$processArg->($_) foreach @ARGV;
+
+if (%dataAccumulator) {
+    require YAML;
+    while ( my ( $book, $data ) = each %dataAccumulator ) {
+        $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?(-r[0-9]+)?$//is;
+        my $yml = "$book.yml";
+        if ( 0 && -e $yml ) {
+            my $no = 0;
+            $yml = $book . --$no . '.yml' while -e $yml;
+        }
+        warn "Writing $book data\n";
+        open my $h, '>', $yml;
+        binmode $h, ':utf8';
+        print {$h} YAML::Dump $data;
+        close $h;
+        $processArg->($yml);
+    }
 }
+
 $maker->{overrideRules}->(%override) if %override;
 $maker->{overrideData}->($xdata)     if $xdata;
 $maker->{setThreads}->($threads);

@@ -8,6 +8,7 @@ Icon?
 *.xlsx
 *.xlsm
 *.csv
+*.dta
 *.bak
 *.tdy
 *.orig

@@ -95,13 +95,6 @@ sub preprocessDataset {
         }
     }
 
-    my ($daysInYearKey) = grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
-    my $daysInYear = $model->{dataset}{1113}[1]{$daysInYearKey};
-    my ($hoursInRedKey) = grep { !/^_/ } keys %{ $model->{dataset}{1113}[3] };
-    my $hoursInRed = $model->{dataset}{1113}[3]{$hoursInRedKey};
-    $model->{dataset}{1113}[1]{$daysInYearKey} = $daysInYear;
-    $model->{dataset}{1113}[3]{$hoursInRedKey} = $hoursInRed;
-
     if ( my $ds = $model->{dataset}{935} ) {
         my %tariffs;
 
@@ -167,6 +160,14 @@ sub preprocessDataset {
             $ds->[1]{$_} = "Tariff $_" foreach keys %{ $ds->[1] };
         }
 
+        my ( $daysInYearKey, $hoursInRedKey );
+        if ( $model->{dataset}{1113} ) {
+            ($daysInYearKey) =
+              grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
+            ($hoursInRedKey) =
+              grep { !/^_/ } keys %{ $model->{dataset}{1113}[3] };
+        }
+
         foreach my $k ( 1 .. $model->{numTariffs} ) {
             my $v = $ds->[1]{$k};
             if (    $v
@@ -179,9 +180,17 @@ sub preprocessDataset {
                 $ds->[$_]{$k} || ( $ds->[$_]{$k} = 'VOID' ) foreach 2 .. 6;
                 exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
                   foreach 7 .. $#$ds;
-                $_ && /^[0-9.]+$/s && $_ > $daysInYear && ( $daysInYear = $_ )
+                $_
+                  && /^[0-9.]+$/s
+                  && $daysInYearKey
+                  && $_ > $model->{dataset}{1113}[1]{$daysInYearKey}
+                  && ( $model->{dataset}{1113}[1]{$daysInYearKey} = $_ )
                   foreach $ds->[22]{$k};
-                $_ && /^[0-9.]+$/s && $_ > $hoursInRed && ( $hoursInRed = $_ )
+                $_
+                  && /^[0-9.]+$/s
+                  && $hoursInRedKey
+                  && $_ > $model->{dataset}{1113}[3]{$hoursInRedKey}
+                  && ( $model->{dataset}{1113}[3]{$hoursInRedKey} = $_ )
                   foreach $ds->[23]{$k};
             }
             else {
