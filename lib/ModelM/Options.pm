@@ -97,7 +97,7 @@ END_OF_LIST
     my @c = (
         Constant(
             name          => 'Allocation key',
-            lines         => 'From sheet Opex Allocation, starting at cell AJ6',
+            lines         => 'From sheet Calc-Opex, starting at cell K7.',
             data          => \@rules,
             defaultFormat => $model->{multiModelSharing}
             ? 'texthard'
@@ -106,7 +106,7 @@ END_OF_LIST
         ),
         Constant(
             name  => 'Percentage capitalised',
-            lines => 'From sheet Opex Allocation, starting at cell AJ6',
+            lines => 'From sheet Calc-Opex, starting at cell AL7.',
             data  => [
                 qw(1 1
                   .235 .235 .235 .235

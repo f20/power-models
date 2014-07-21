@@ -152,7 +152,7 @@ EOL
     );
     Columnset(
         name          => 'MEAV data',
-        lines         => 'From sheet Calc-MEAV or Data-MEAV',
+        lines         => 'From sheet Data-MEAV.',
         defaultFormat => '%hard',
         number        => 1355,
         dataset       => $model->{dataset},
@@ -174,16 +174,15 @@ sub meavPercentages {
 
     my $meav = $model->meavRawData;
     return Dataset(
-        name => 'MEAV percentages',
-        lines =>
-          'From sheet Calc-Drivers row 22 or Calc-MEAV starting at cell H6',
-        data          => [ map { 0 } @{ $allocLevelset->{list} } ],
+        name  => 'MEAV percentages',
+        lines => 'From pre-DCP 118 sheet Calc-MEAV starting at cell H6.',
+        data  => [ map { 0 } @{ $allocLevelset->{list} } ],
         defaultFormat => '%hard',
         number        => 1350,
         cols          => $allocLevelset,
         dataset       => $model->{dataset},
-        appendTo   => $model->{inputTables},
-        validation => {
+        appendTo      => $model->{inputTables},
+        validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,

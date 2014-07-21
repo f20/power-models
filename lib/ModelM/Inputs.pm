@@ -175,7 +175,7 @@ sub totalDpcr {
 
     Columnset(
         name     => 'DPCR4 aggregate allowances',
-        lines    => 'From sheet Final Allocation, cells D45, D46, D47',
+        lines    => 'From sheet Calc-Allocation, cells C47, C48, C49.',
         columns  => \@columns,
         number   => 1310,
         dataset  => $model->{dataset},
@@ -223,7 +223,7 @@ sub oneYearDpcr {
 
     Columnset(
         name     => 'Analysis of allowed revenue for 2007/2008',
-        lines    => 'From sheet Final Allocation, cells G64, G61, G66',
+        lines    => 'From sheet Calc-Allocation, cells F66 and F63.',
         columns  => \@columns,
         number   => 1315,
         dataset  => $model->{dataset},
@@ -239,7 +239,7 @@ sub units {
 
     Dataset(
         name          => 'Units flowing',
-        lines         => 'From sheet Calc-Units, cells C21, C21, D21, E21',
+        lines         => 'From sheet Calc-Units, cells C23, C23, D23, E23.',
         data          => [ map { 100 } @{ $allocLevelset->{list} } ],
         defaultFormat => '0hard',
         number        => 1320,
@@ -260,9 +260,10 @@ sub allocated {
     my ( $model, $allocLevelset, $expenditureSet, ) = @_;
 
     Dataset(
-        name => 'Allocated costs',
-        lines =>
-'From sheet Opex Allocation, starting at cell H6, reversing column order',
+        name  => 'Allocated costs',
+        lines => 'From sheet Calc-Opex, '
+          . 'starting at cell H7, '
+          . 'reversing column order.',
         data => [
             map {
                 [ map { 0 } @{ $expenditureSet->{list} } ]
@@ -284,7 +285,7 @@ sub expenditure {
 
     Dataset(
         name          => 'Total costs',
-        lines         => 'From sheet Opex Allocation, starting at cell D8',
+        lines         => 'From sheet Calc-Opex, starting at cell D7.',
         data          => [ map { 0 } @{ $expenditureSet->{list} } ],
         defaultFormat => '0hard',
         number        => 1335,
@@ -300,16 +301,14 @@ sub networkLengthPercentages {
     my ( $model, $allocLevelset ) = @_;
 
     Dataset(
-        name => 'Network length percentages',
-        lines =>
-'From sheet Calc-Drivers row 17 or Calc-Net capex starting at cell H6',
+        name          => 'Network length percentages',
         data          => [ map { 0 } @{ $allocLevelset->{list} } ],
         defaultFormat => '%hard',
         number        => 1375,
         cols          => $allocLevelset,
         dataset       => $model->{dataset},
-        appendTo   => $model->{inputTables},
-        validation => {
+        appendTo      => $model->{inputTables},
+        validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,

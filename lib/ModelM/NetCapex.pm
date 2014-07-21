@@ -43,16 +43,15 @@ sub netCapexPercentages {
 
     my $netCapex = $model->netCapexRawData;
     return Dataset(
-        name => 'Net capex percentages',
-        lines =>
-'From sheet Calc-Drivers row 17 or Calc-Net capex starting at cell H6',
-        data          => [ map { 0 } @{ $allocLevelset->{list} } ],
+        name  => 'Net capex percentages',
+        lines => 'From pre-DCP 118 sheet Calc-Net capex starting at cell H6.',
+        data  => [ map { 0 } @{ $allocLevelset->{list} } ],
         defaultFormat => '%hard',
         number        => 1370,
         cols          => $allocLevelset,
         dataset       => $model->{dataset},
-        appendTo   => $model->{inputTables},
-        validation => {
+        appendTo      => $model->{inputTables},
+        validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
