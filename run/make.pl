@@ -172,7 +172,7 @@ my $processArg = sub {
             }
             while ( my @row = $dta->readRow ) {
                 my $book = $row[0];
-                my $line = $table[1] ? 'Single-line CSV' : $row[1];
+                next unless my $line = $table[1] ? 'Single-line CSV' : $row[1];
                 $dataAccumulator{$book}{ $table[$_] }[ $column[$_] ]{$line} =
                   $row[$_]
                   foreach grep { $table[$_] } 1 .. $#table;
@@ -198,10 +198,11 @@ if (%dataAccumulator) {
             $yml = $book . --$no . '.yml' while -e $yml;
         }
         warn "Writing $book data\n";
-        open my $h, '>', $yml;
+        open my $h, '>', $yml . $$;
         binmode $h, ':utf8';
         print {$h} YAML::Dump $data;
         close $h;
+        rename $yml . $$, $yml;
         $processArg->($yml);
     }
 }
