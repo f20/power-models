@@ -65,7 +65,7 @@ sub netCapexPercentageServiceLV {
     my ( $model, $lvOnly, $lvServiceOnly ) = @_;
 
     Dataset(
-        name          => 'Net capex: ratio of LV service to LV total',
+        name          => 'Net capex: ratio of LV services to LV total',
         data          => [.5],
         defaultFormat => '%hard',
         number        => 1380,

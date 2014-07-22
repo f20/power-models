@@ -11,13 +11,13 @@
       Input data compiled by Franck from public sources. E&OE.
       This dataset is intended to show what would have happened if only the HV split had been updated.
 1301:
-  - _table: 1301. DNO LV main usage
-  - DNO LV main usage: 0.144
-    _column: DNO LV main usage
+  - _table: 1301. DNO LV mains usage
+  - DNO LV mains usage: 0.144
+    _column: DNO LV mains usage
 1302:
-  - _table: 1302. DNO HV main usage
-  - DNO HV main usage: 0.54
-    _column: DNO HV main usage
+  - _table: 1302. DNO HV mains usage
+  - DNO HV mains usage: 0.54
+    _column: DNO HV mains usage
 1310:
   - _table: 1310. DPCR4 aggregate allowances
   - DPCR4 aggregate allowances: 342800000
@@ -228,8 +228,8 @@
   - MEAV percentages: 0.170447412
     _column: EHV&132
 1360:
-  - _table: '1360. MEAV: ratio of LV service to LV total'
-  - LV service: 0.619586214419177
+  - _table: '1360. MEAV: ratio of LV services to LV total'
+  - LV services: 0.619586214419177
     _column: LV
 1370:
   - _table: 1370. Net capex percentages
@@ -252,12 +252,12 @@
   - Network length percentages: 0.0918
     _column: EHV&132
 1380:
-  - _table: '1380. Net capex: ratio of LV service to LV total'
-  - LV service: 0.369528133040512
+  - _table: '1380. Net capex: ratio of LV services to LV total'
+  - LV services: 0.369528133040512
     _column: LV
 1385:
-  - _table: '1385. Network length: ratio of LV service to LV total'
-  - LV service: '#VALUE!'
+  - _table: '1385. Network length: ratio of LV services to LV total'
+  - LV services: '#VALUE!'
     _column: LV
 1399:
   - _table: 1399. Current LDNO discounts

@@ -43,7 +43,7 @@ sub splits {
 
     (
         $model->{lvSplit} ||= Dataset(
-            name          => 'DNO LV main usage',
+            name          => 'DNO LV mains usage',
             data          => [ [0.1] ],
             defaultFormat => '%hard',
             number        => 1301,
@@ -56,7 +56,7 @@ sub splits {
             },
         ),
         $model->{hvSplit} ||= Dataset(
-            name          => 'DNO HV main usage',
+            name          => 'DNO HV mains usage',
             data          => [ [0.4] ],
             defaultFormat => '%hard',
             number        => 1302,
@@ -343,7 +343,7 @@ sub networkLengthPercentageServiceLV {
     my ( $model, $lvOnly, $lvServiceOnly ) = @_;
 
     Dataset(
-        name          => 'Network length: ratio of LV service to LV total',
+        name          => 'Network length: ratio of LV services to LV total',
         data          => [.5],
         defaultFormat => '%hard',
         number        => 1385,
@@ -365,7 +365,7 @@ sub customerNumbersPercentageServiceLV {
     my ( $model, $lvOnly, $lvServiceOnly ) = @_;
 
     Dataset(
-        name          => 'Customer numbers: ratio of LV service to LV total',
+        name          => 'Customer numbers: ratio of LV services to LV total',
         data          => [.5],
         defaultFormat => '%hard',
         number        => 1387,

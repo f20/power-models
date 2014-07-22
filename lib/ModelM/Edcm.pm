@@ -179,7 +179,7 @@ EOT
         my $splitDirect = SpreadsheetModel::Custom->new(
             name          => 'Splitting factors',
             defaultFormat => '%soft',
-            cols => Labelset( list => [ 'LV main', 'HV', 'EHV', '132kV' ] ),
+            cols => Labelset( list => [ 'LV mains', 'HV', 'EHV', '132kV' ] ),
             custom => [ '=1-IV2*IV9', '=1-IV3*IV9', '=1-IV9' ],
             arguments =>
               { IV2 => $splits[0], IV3 => $splits[1], IV9 => $direct, },
@@ -209,7 +209,7 @@ EOT
             },
         );
         my @sources = $dnoBypassMatrix;
-        foreach my $level ( 'LV main', 'HV', 'EHV', '132kV' ) {
+        foreach my $level ( 'LV mains', 'HV', 'EHV', '132kV' ) {
             my ($col) = grep { $allLevelset->{list}[$_] eq $level }
               0 .. $#{ $allLevelset->{list} };
             my $set = Labelset(

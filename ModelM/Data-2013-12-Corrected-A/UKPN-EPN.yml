@@ -11,15 +11,15 @@
       Input data compiled by Franck from public sources. E&OE.
       This dataset is based on the December 2013 indicatives but reverts UKPN's unexplained change to net capex.
 1301:
-  - _table: 1301. DNO LV main usage
-  - DNO LV main usage: 0.186
-    _column: DNO LV main usage
-  - DNO LV main usage: ''
+  - _table: 1301. DNO LV mains usage
+  - DNO LV mains usage: 0.186
+    _column: DNO LV mains usage
+  - DNO LV mains usage: ''
 1302:
-  - _table: 1302. DNO HV main usage
-  - DNO HV main usage: 0.4
-    _column: DNO HV main usage
-  - DNO HV main usage: ''
+  - _table: 1302. DNO HV mains usage
+  - DNO HV mains usage: 0.4
+    _column: DNO HV mains usage
+  - DNO HV mains usage: ''
 1310:
   - _table: 1310. DPCR4 aggregate allowances
   - DPCR4 aggregate allowances: 502782052.68636
@@ -327,10 +327,10 @@
     _column: EHV&132
   - MEAV percentages: ''
 1360:
-  - _table: '1360. MEAV: ratio of LV service to LV total'
-  - LV service: 0.392035499751796
+  - _table: '1360. MEAV: ratio of LV services to LV total'
+  - LV services: 0.392035499751796
     _column: LV
-  - LV service: ''
+  - LV services: ''
 1370:
   - _table: 1370. Net capex percentages
   - Net capex percentages: 0.161377890105775
@@ -354,15 +354,15 @@
     _column: EHV&132
   - Network length percentages: ''
 1380:
-  - _table: '1380. Net capex: ratio of LV service to LV total'
-  - LV service: 0.383777239709443
+  - _table: '1380. Net capex: ratio of LV services to LV total'
+  - LV services: 0.383777239709443
     _column: LV
-  - LV service: ''
+  - LV services: ''
 1385:
-  - _table: '1385. Network length: ratio of LV service to LV total'
-  - LV service: '#VALUE!'
+  - _table: '1385. Network length: ratio of LV services to LV total'
+  - LV services: '#VALUE!'
     _column: LV
-  - LV service: ''
+  - LV services: ''
 1399:
   - _table: 1037. Embedded network (LDNO) discounts
   - LDNO discount: 0.289162486322386

@@ -43,16 +43,16 @@ sub realloc95 {
     my $allocLevelset95 = Labelset(
         name => 'Allocation levels DCP 095',
         list => [ split /\n/, <<END_OF_LIST ] );
-LV service
-LV main
+LV services
+LV mains
 HV/LV
 HV
 EHV&132
 END_OF_LIST
 
     my $lvOnly        = Labelset( list => ['LV'] );
-    my $lvServiceOnly = Labelset( list => ['LV service'] );
-    my $lvMainOnly    = Labelset( list => ['LV main'] );
+    my $lvServiceOnly = Labelset( list => ['LV services'] );
+    my $lvMainOnly    = Labelset( list => ['LV mains'] );
 
     my $meavLvServProp =
       $model->meavPercentageServiceLV( $lvOnly, $lvServiceOnly );
@@ -97,7 +97,7 @@ END_OF_LIST
         cols    => $allocLevelset95,
         sources => [
             Arithmetic(
-                name       => 'Allocation to LV service',
+                name       => 'Allocation to LV services',
                 cols       => $lvServiceOnly,
                 arithmetic => '=IV1*IV2',
                 arguments =>
@@ -105,7 +105,7 @@ END_OF_LIST
                 defaultFormat => '0soft',
             ),
             Arithmetic(
-                name       => 'Allocation to LV main',
+                name       => 'Allocation to LV mains',
                 cols       => $lvMainOnly,
                 arithmetic => '=IV1*(1-IV2)',
                 arguments =>
@@ -128,7 +128,7 @@ END_OF_LIST
         cols    => $allocLevelset95,
         sources => [
             Arithmetic(
-                name       => 'Allocation to LV service',
+                name       => 'Allocation to LV services',
                 cols       => $lvServiceOnly,
                 arithmetic => '=IV1*IV2',
                 arguments =>
@@ -136,7 +136,7 @@ END_OF_LIST
                 defaultFormat => '%soft',
             ),
             Arithmetic(
-                name       => 'Allocation to LV main',
+                name       => 'Allocation to LV mains',
                 cols       => $lvMainOnly,
                 arithmetic => '=IV1*(1-IV2)',
                 arguments =>
@@ -159,14 +159,14 @@ END_OF_LIST
         cols    => $allocLevelset95,
         sources => [
             Arithmetic(
-                name          => 'Allocation to LV service',
+                name          => 'Allocation to LV services',
                 cols          => $lvServiceOnly,
                 arithmetic    => '=IV1',
                 arguments     => { IV1 => $unitsLv, },
                 defaultFormat => '0copy',
             ),
             Arithmetic(
-                name          => 'Allocation to LV main',
+                name          => 'Allocation to LV mains',
                 cols          => $lvMainOnly,
                 arithmetic    => '=IV1',
                 arguments     => { IV1 => $unitsLv, },
@@ -186,13 +186,13 @@ sub discounts95 {
       = @_;
 
     my $lvServiceAllocation = Stack(
-        name    => 'LV service allocation',
-        cols    => Labelset( list => ['LV service'] ),
+        name    => 'LV services allocation',
+        cols    => Labelset( list => ['LV services'] ),
         sources => [$alloc]
     );
     my $lvMainAllocation = Stack(
-        name    => 'LV main allocation',
-        cols    => Labelset( list => ['LV main'] ),
+        name    => 'LV mains allocation',
+        cols    => Labelset( list => ['LV mains'] ),
         sources => [$alloc]
     );
     my $hvLvAllocation = Stack(

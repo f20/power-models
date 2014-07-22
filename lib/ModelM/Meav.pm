@@ -325,7 +325,7 @@ sub meavPercentageServiceLV {
 
     my $meav = $model->meavRawData;
     return Dataset(
-        name          => 'MEAV: ratio of LV service to LV total',
+        name          => 'MEAV: ratio of LV services to LV total',
         data          => [.5],
         defaultFormat => '%hard',
         number        => 1360,
@@ -366,7 +366,7 @@ sub meavPercentageServiceLV {
     }
 
     Arithmetic(
-        name          => 'MEAV: ratio of LV service to LV total',
+        name          => 'MEAV: ratio of LV services to LV total',
         defaultFormat => '%soft',
         cols          => $lvOnly,
         rows          => $lvServiceOnly,

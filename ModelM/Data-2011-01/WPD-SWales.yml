@@ -13,15 +13,15 @@
     _column: Version
   - Company charging year data version: ''
 1301:
-  - _table: 301. DNO LV main usage
-  - DNO LV main usage: 0.1844
-    _column: DNO LV main usage
-  - DNO LV main usage: ''
+  - _table: 301. DNO LV mains usage
+  - DNO LV mains usage: 0.1844
+    _column: DNO LV mains usage
+  - DNO LV mains usage: ''
 1302:
-  - _table: 302. DNO HV main usage
-  - DNO HV main usage: 0.4545
-    _column: DNO HV main usage
-  - DNO HV main usage: ''
+  - _table: 302. DNO HV mains usage
+  - DNO HV mains usage: 0.4545
+    _column: DNO HV mains usage
+  - DNO HV mains usage: ''
 1310:
   - _table: 310. DPCR4 aggregate allowances
   - DPCR4 aggregate allowances: 216578688.76116
