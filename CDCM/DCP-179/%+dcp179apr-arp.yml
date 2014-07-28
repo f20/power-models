@@ -1,0 +1,20 @@
+---
+.: DCP 179 orange model for old ARP
+PerlModule: CDCM
+agghhequalisation: 1
+alwaysUseRAG: 1
+arp: 1
+colour: orange
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+illustrative: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: 1
+targetRevenue: single
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179
