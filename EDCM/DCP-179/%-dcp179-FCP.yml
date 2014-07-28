@@ -1,16 +1,15 @@
 ---
-.: EDCM legacy DCP 137 LRIC
+.: EDCM legacy DCP 179 FCP
 PerlModule: EDCM2
-dcp130: 1
-dcp137: 1
+dcp179: 1
 ldnoRev: ldnorev5
 legacy201: 1
 lowerIntermittentCredit: 1
-method: LRIC
+method: FCP
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
 validation: lenientnomsg
-wantTables: 913
+wantTables: 911

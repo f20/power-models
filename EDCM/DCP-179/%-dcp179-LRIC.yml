@@ -1,8 +1,7 @@
 ---
-.: EDCM legacy DCP 137 LRIC
+.: EDCM legacy DCP 179 LRIC
 PerlModule: EDCM2
-dcp130: 1
-dcp137: 1
+dcp179: 1
 ldnoRev: ldnorev5
 legacy201: 1
 lowerIntermittentCredit: 1

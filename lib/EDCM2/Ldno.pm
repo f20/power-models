@@ -44,183 +44,106 @@ use SpreadsheetModel::Shortcuts ':all';
 sub ldnoRev {
     my ($model) = @_;
 
-    my $endUsers = Labelset( list => [ split /\n/, <<EOL] );
-Domestic Unrestricted
-Domestic Two Rate
-Domestic Off Peak (related MPAN)
-Small Non Domestic Unrestricted
-Small Non Domestic Two Rate
-Small Non Domestic Off Peak (related MPAN)
-LV Medium Non-Domestic
-LV Sub Medium Non-Domestic
-HV Medium Non-Domestic
-LV HH Metered
-LV Sub HH Metered
-HV HH Metered
-NHH UMS
-LV UMS (Pseudo HH Metered)
-LV Generation NHH
-LV Sub Generation NHH
-LV Generation Intermittent
-LV Generation Non-Intermittent
-LV Sub Generation Intermittent
-LV Sub Generation Non-Intermittent
-HV Generation Intermittent
-HV Generation Non-Intermittent
-EOL
+    my ( @endUsers, @tariffComponentMatrix );
 
-    my @tariffComponentMatrix = split /\n/, <<EOL;
-ynnynn
-yynynn
-ynnnnn
-ynnynn
-yynynn
-ynnnnn
-yynynn
-yynynn
-yynynn
-yyyyyy
-yyyyyy
-yyyyyy
-ynnnnn
-yyynnn
-ynnynn
-ynnynn
-ynnyny
-yyyyny
-ynnyny
-yyyyny
-ynnyny
-yyyyny
+    foreach (
+        $model->{dcp179}
+        ? split /\n/, <<EOL
+ynnynn	Domestic Unrestricted
+yynynn	Domestic Two Rate
+ynnnnn	Domestic Off Peak (related MPAN)
+ynnynn	Small Non Domestic Unrestricted
+yynynn	Small Non Domestic Two Rate
+ynnnnn	Small Non Domestic Off Peak (related MPAN)
+yynynn	LV Medium Non-Domestic
+yynynn	LV Sub Medium Non-Domestic
+yynynn	HV Medium Non-Domestic
+yyyynn	LV Network Domestic
+yyyynn	LV Network Non-Domestic Non-CT
+yyyyyy	LV HH Metered
+yyyyyy	LV Sub HH Metered
+yyyyyy	HV HH Metered
+ynnnnn	NHH UMS category A
+ynnnnn	NHH UMS category B
+ynnnnn	NHH UMS category C
+ynnnnn	NHH UMS category D
+yyynnn	LV UMS (Pseudo HH Metered)
+ynnynn	LV Generation NHH or Aggregate HH
+ynnynn	LV Sub Generation NHH
+ynnyny	LV Generation Intermittent
+yyyyny	LV Generation Non-Intermittent
+ynnyny	LV Sub Generation Intermittent
+yyyyny	LV Sub Generation Non-Intermittent
+ynnyny	HV Generation Intermittent
+yyyyny	HV Generation Non-Intermittent
 EOL
-
-    if ( $model->{dcp130} ) {
-        $endUsers = Labelset( list => [ split /\n/, <<EOL] );
-Domestic Unrestricted
-Domestic Two Rate
-Domestic Off Peak (related MPAN)
-Small Non Domestic Unrestricted
-Small Non Domestic Two Rate
-Small Non Domestic Off Peak (related MPAN)
-LV Medium Non-Domestic
-LV Sub Medium Non-Domestic
-HV Medium Non-Domestic
-LV HH Metered
-LV Sub HH Metered
-HV HH Metered
-NHH UMS category A
-NHH UMS category B
-NHH UMS category C
-NHH UMS category D
-LV UMS (Pseudo HH Metered)
-LV Generation NHH
-LV Sub Generation NHH
-LV Generation Intermittent
-LV Generation Non-Intermittent
-LV Sub Generation Intermittent
-LV Sub Generation Non-Intermittent
-HV Generation Intermittent
-HV Generation Non-Intermittent
+        : $model->{dcp130} ? split /\n/, <<EOL
+ynnynn	Domestic Unrestricted
+yynynn	Domestic Two Rate
+ynnnnn	Domestic Off Peak (related MPAN)
+ynnynn	Small Non Domestic Unrestricted
+yynynn	Small Non Domestic Two Rate
+ynnnnn	Small Non Domestic Off Peak (related MPAN)
+yynynn	LV Medium Non-Domestic
+yynynn	LV Sub Medium Non-Domestic
+yynynn	HV Medium Non-Domestic
+yyyyyy	LV HH Metered
+yyyyyy	LV Sub HH Metered
+yyyyyy	HV HH Metered
+ynnnnn	NHH UMS category A
+ynnnnn	NHH UMS category B
+ynnnnn	NHH UMS category C
+ynnnnn	NHH UMS category D
+yyynnn	LV UMS (Pseudo HH Metered)
+ynnynn	LV Generation NHH
+ynnynn	LV Sub Generation NHH
+ynnyny	LV Generation Intermittent
+yyyyny	LV Generation Non-Intermittent
+ynnyny	LV Sub Generation Intermittent
+yyyyny	LV Sub Generation Non-Intermittent
+ynnyny	HV Generation Intermittent
+yyyyny	HV Generation Non-Intermittent
 EOL
-
-        @tariffComponentMatrix = split /\n/, <<EOL;
-ynnynn
-yynynn
-ynnnnn
-ynnynn
-yynynn
-ynnnnn
-yynynn
-yynynn
-yynynn
-yyyyyy
-yyyyyy
-yyyyyy
-ynnnnn
-ynnnnn
-ynnnnn
-ynnnnn
-yyynnn
-ynnynn
-ynnynn
-ynnyny
-yyyyny
-ynnyny
-yyyyny
-ynnyny
-yyyyny
+        : split /\n/, <<EOL
+ynnynn	Domestic Unrestricted
+yynynn	Domestic Two Rate
+ynnnnn	Domestic Off Peak (related MPAN)
+ynnynn	Small Non Domestic Unrestricted
+yynynn	Small Non Domestic Two Rate
+ynnnnn	Small Non Domestic Off Peak (related MPAN)
+yynynn	LV Medium Non-Domestic
+yynynn	LV Sub Medium Non-Domestic
+yynynn	HV Medium Non-Domestic
+yyyyyy	LV HH Metered
+yyyyyy	LV Sub HH Metered
+yyyyyy	HV HH Metered
+ynnnnn	NHH UMS
+yyynnn	LV UMS (Pseudo HH Metered)
+ynnynn	LV Generation NHH
+ynnynn	LV Sub Generation NHH
+ynnyny	LV Generation Intermittent
+yyyyny	LV Generation Non-Intermittent
+ynnyny	LV Sub Generation Intermittent
+yyyyny	LV Sub Generation Non-Intermittent
+ynnyny	HV Generation Intermittent
+yyyyny	HV Generation Non-Intermittent
 EOL
+      )
+    {
+        if ( my ( $a, $b ) = /^([yn]+)\s+(.+)/ ) {
+            if ( $model->{dcp137} && $b =~ /HV Generation/i ) {
+                push @tariffComponentMatrix, $a, $a, $a, $a;
+                push @endUsers, $b, "$b Low GDA", "$b Medium GDA",
+                  "$b High GDA";
+            }
+            else {
+                push @tariffComponentMatrix, $a;
+                push @endUsers,              $b;
+            }
+        }
     }
 
-    if ( $model->{dcp137} ) {
-        $endUsers = Labelset( list => [ split /\n/, <<EOL] );
-Domestic Unrestricted
-Domestic Two Rate
-Domestic Off Peak (related MPAN)
-Small Non Domestic Unrestricted
-Small Non Domestic Two Rate
-Small Non Domestic Off Peak (related MPAN)
-LV Medium Non-Domestic
-LV Sub Medium Non-Domestic
-HV Medium Non-Domestic
-LV HH Metered
-LV Sub HH Metered
-HV HH Metered
-NHH UMS category A
-NHH UMS category B
-NHH UMS category C
-NHH UMS category D
-LV UMS (Pseudo HH Metered)
-LV Generation NHH
-LV Sub Generation NHH
-LV Generation Intermittent
-LV Generation Non-Intermittent
-LV Sub Generation Intermittent
-LV Sub Generation Non-Intermittent
-HV Generation Intermittent
-HV Generation Intermittent Low GDA
-HV Generation Intermittent Medium GDA
-HV Generation Intermittent High GDA
-HV Generation Non-Intermittent
-HV Generation Non-Intermittent Low GDA
-HV Generation Non-Intermittent Medium GDA
-HV Generation Non-Intermittent High GDA
-EOL
-
-        @tariffComponentMatrix = split /\n/, <<EOL;
-ynnynn
-yynynn
-ynnnnn
-ynnynn
-yynynn
-ynnnnn
-yynynn
-yynynn
-yynynn
-yyyyyy
-yyyyyy
-yyyyyy
-ynnnnn
-ynnnnn
-ynnnnn
-ynnnnn
-yyynnn
-ynnynn
-ynnynn
-ynnyny
-yyyyny
-ynnyny
-yyyyny
-ynnyny
-ynnyny
-ynnyny
-ynnyny
-yyyyny
-yyyyny
-yyyyny
-yyyyny
-EOL
-    }
+    my $endUsers = Labelset( list => \@endUsers );
 
     my $ldnoLevels = $model->{ldnoRev} =~ /5/
       ? Labelset( list => [ split /\n/, <<EOL] )
