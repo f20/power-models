@@ -1199,7 +1199,8 @@ EOT
                 ? '+((IV14+IV15)*(IV51-IV52-IV53-IV54-IV55)-IV31*IV32*(IV33+IV34))'
                 : '+(IV14+IV15)*(IV51-IV52-IV53-IV54-IV55-IV31*IV32)'
               )
-              . '/(IV41+IV42+IV43+IV44)',
+              . '/(IV41+IV42+IV43+IV44)'
+              . ( $model->{potExtra} ? '+IV99' : '' ),
             arguments => {
                 IV5  => $rateExit,
                 IV6  => $edcmRedUse,
@@ -1228,6 +1229,18 @@ EOT
                 IV42 => $cdcmHvLvShared,
                 IV43 => $totalAssetsCapacity,
                 IV44 => $totalAssetsConsumption,
+                $model->{potExtra}
+                ? (
+                    IV99 => Dataset(
+                        name => 'Adjustment to EDCM demand pot (£/year)',
+                        defaultFormat => '0hardnz',
+                        data          => [0],
+                        number        => 1114,
+                        dataset       => $model->{dataset},
+                        appendTo      => $model->{inputTables},
+                    )
+                  )
+                : (),
             },
         );
 
@@ -1324,10 +1337,9 @@ EOT
 
     my (
         $importCapacityScaledRound, $SuperRedRateFcpLricRound,
-        $fixedDchargeTrueRound,     $thisIsTheTariffTable,
-        $importCapacityScaledSaved, $importCapacityExceeded,
-        $exportCapacityExceeded,    $importCapacityScaled,
-        $SuperRedRateFcpLric,
+        $fixedDchargeTrueRound,     $importCapacityScaledSaved,
+        $importCapacityExceeded,    $exportCapacityExceeded,
+        $importCapacityScaled,      $SuperRedRateFcpLric,
     );
 
     my $demandScalingShortfall;
@@ -1883,22 +1895,24 @@ EOT
 
     }
 
-    if ( $model->{checksums} ) {
-        push @tariffColumns,
-          SpreadsheetModel::Checksum->new(
-            name => $_,
-            /recursive|model/i ? ( recursive => 1 ) : (),
-            digits => /([0-9])/ ? $1 : 6,
-            columns => [ @tariffColumns[ 1 .. 8 ] ],
-            factors => [qw(1000 100 100 100 1000 100 100 100 )]
-          ) foreach split /;\s*/, $model->{checksums};
-    }
-
-    push @{ $model->{tariffTables} },
-      $thisIsTheTariffTable = Columnset(
+    push @{ $model->{tariffTables} }, Columnset(
         name    => 'EDCM charge',
-        columns => \@tariffColumns,
-      );
+        columns => $model->{checksums}
+        ? [
+            @tariffColumns,
+            map {
+                SpreadsheetModel::Checksum->new(
+                    name => $_,
+                    /recursive|model/i ? ( recursive => 1 ) : (),
+                    digits => /([0-9])/ ? $1 : 6,
+                    columns => [ @tariffColumns[ 1 .. 8 ] ],
+                    factors => [qw(1000 100 100 100 1000 100 100 100 )]
+                );
+              } split /;\s*/,
+            $model->{checksums}
+          ]
+        : \@tariffColumns,
+    );
 
     return $model unless $model->{summaries};
 
@@ -2047,10 +2061,7 @@ EOT
     push @{ $model->{revenueTables} }, Columnset(
         name    => 'Horizontal information',
         columns => [
-            (
-                map { Stack( sources => [$_] ) }
-                  @{ $thisIsTheTariffTable->{columns} }
-            ),
+            ( map { Stack( sources => [$_] ) } @tariffColumns ),
             @revenueBitsD,
             @revenueBitsG,
             $rev2d, $rev1d,
@@ -2169,7 +2180,7 @@ EOT
         $importCapacity, $activeCoincidence, $charges1, );
 
     push @{ $model->{revenueTables} },
-      $model->impactFinancialSummary( $tariffs, $thisIsTheTariffTable,
+      $model->impactFinancialSummary( $tariffs, \@tariffColumns,
         $actualRedDemandRate, \@revenueBitsD, @revenueBitsG, $rev2g )
       if $model->{transparencyImpact};
 
@@ -2185,7 +2196,7 @@ EOT
         $tariffNetworkSupportFactor,       $tariffDaysInYearNot,
         $tariffHoursInRedNot,              $previousChargeImport,
         $previousChargeExport,             $llfcImport,
-        $llfcExport,                       $thisIsTheTariffTable,
+        $llfcExport,                       \@tariffColumns,
         $daysInYear,                       $hoursInRed,
     ) if $model->{customerTemplates};
 

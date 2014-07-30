@@ -46,27 +46,27 @@ sub templates {
         $tariffDaysInYearNot,              $tariffHoursInRedNot,
         $previousChargeImport,             $previousChargeExport,
         $llfcImport,                       $llfcExport,
-        $thisIsTheTariffTable,             $daysInYear,
+        $tariffColumns,                    $daysInYear,
         $hoursInRed,
     ) = @_;
 
     push @{ $model->{tablesTemplateImport} },
       $model->templateImport(
-        $tariffs,        $llfcImport,          $thisIsTheTariffTable,
+        $tariffs,        $llfcImport,          $tariffColumns,
         $importCapacity, $activeCoincidence,   $daysInYear,
         $hoursInRed,     $tariffDaysInYearNot, $tariffHoursInRedNot,
       );
 
     push @{ $model->{tablesTemplateExport} },
-      $model->templateExport( $tariffs, $llfcImport, $thisIsTheTariffTable );
+      $model->templateExport( $tariffs, $llfcImport, $tariffColumns );
 }
 
 sub templateImport {
 
     my (
-        $model,                $tariffs,        $llfcImport,
-        $thisIsTheTariffTable, $importCapacity, $activeCoincidence,
-        $daysInYear,           $hoursInRed,     $tariffDaysInYearNot,
+        $model,         $tariffs,        $llfcImport,
+        $tariffColumns, $importCapacity, $activeCoincidence,
+        $daysInYear,    $hoursInRed,     $tariffDaysInYearNot,
         $tariffHoursInRedNot,
     ) = @_;
 
@@ -85,7 +85,7 @@ sub templateImport {
             ? '0.000copy'
             : '0.00copy',
         );
-    } @{ $thisIsTheTariffTable->{columns} }[ 1 .. 4 ];
+    } @{$tariffColumns}[ 1 .. 4 ];
 
     my $agreedCapacity = Arithmetic(
         name          => 'Maximum import capacity (kVA)',
@@ -307,7 +307,7 @@ EOL
 
 sub templateExport {
 
-    my ( $model, $tariffs, $llfcImport, $thisIsTheTariffTable, ) = @_;
+    my ( $model, $tariffs, $llfcImport, $tariffColumns, ) = @_;
 
     $model->{exportTariffIndex} = my $index = Dataset(
         name          => 'Number',
@@ -324,7 +324,7 @@ sub templateExport {
             ? '0.000copy'
             : '0.00copy',
         );
-    } @{ $thisIsTheTariffTable->{columns} }[ 5 .. 8 ];
+    } @{$tariffColumns}[ 5 .. 8 ];
 
     my @psv;
     my $col = 1;

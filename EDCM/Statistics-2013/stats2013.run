@@ -1,0 +1,12 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_edcm2013-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+pushd _$RUN.tmp
+time ../run/make.pl -sqlite -xdata='rules|transparency|1' ../EDCM/Current/%-beta*.yml ../EDCM/DCP-206/%-b206*.yml ../EDCM/Statistics-2013/*.yml
+time ../run/export.pl /beta/ 11 45 46 47 48
+time ../run/export.pl /b206/ 11 45 46 47 48
+popd
+mv _$RUN.tmp $RUN.tmp

@@ -1,16 +1,18 @@
 ---
-.: EDCM customer template maker for MIG issue 70 (FCP)
+.: EDCM experimental DCP 206 FCP
 PerlModule: EDCM2
-customerTemplates: 1
+activeSheets: HSummary
 dcp130: 1
-illustrative: 1
 lowerIntermittentCredit: 1
 method: FCP
+newOrder: 1
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
+removeDemandCharge1: 1
 summaries: 1
-transparency: 1
+transparency: outputonly
 validation: lenientnomsg
+voltageRulesTransparency: 1
 wantTables: 911

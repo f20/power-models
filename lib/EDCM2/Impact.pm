@@ -330,7 +330,7 @@ sub mangleTariffInputs {
 }
 
 sub impactFinancialSummary {
-    my ( $model, $tariffs, $thisIsTheTariffTable, $actualRedDemandRate,
+    my ( $model, $tariffs, $tariffColumns, $actualRedDemandRate,
         $revenueBitsDref, @revenueBitsG )
       = @_;
 
@@ -390,10 +390,8 @@ sub impactFinancialSummary {
         name     => 'Tariffs for demand',
         location => 'Impact',
         number   => 4991,
-        columns  => [
-            map { Stack( sources => [$_] ) }
-              @{ $thisIsTheTariffTable->{columns} }[ 0 .. 4 ]
-        ],
+        columns =>
+          [ map { Stack( sources => [$_] ) } @{$tariffColumns}[ 0 .. 4 ] ],
       ),
       Columnset(
         name     => 'Financial summary for demand',
@@ -411,10 +409,8 @@ sub impactFinancialSummary {
         name     => 'Tariffs for generation',
         location => 'Impact',
         number   => 4996,
-        columns  => [
-            map { Stack( sources => [$_] ) }
-              @{ $thisIsTheTariffTable->{columns} }[ 0, 5 .. 8 ]
-        ],
+        columns =>
+          [ map { Stack( sources => [$_] ) } @{$tariffColumns}[ 0, 5 .. 8 ] ],
       ),
       Columnset(
         name     => 'Financial summary for generation',
