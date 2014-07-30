@@ -38,7 +38,31 @@ sub ajust117 {
 
     my ( $model, $meavPercentages, $preAllocated, ) = @_;
 
-    if ( $model->{dcp117} =~ /half[ -]?baked/i ) {
+    if ( $model->{dcp117} =~ /2014/ ) {
+
+        $preAllocated = Stack(
+            name    => 'Table 1330 allocated costs, after DCP 117 adjustments',
+            rows    => $preAllocated->{rows},
+            cols    => $preAllocated->{cols},
+            sources => [
+                Dataset(
+                    name => 'Net new connections and reinforcement costs (£)',
+                    rows =>
+                      Labelset( list => [ $preAllocated->{rows}{list}[0] ] ),
+                    cols          => $preAllocated->{cols},
+                    defaultFormat => '0hard',
+                    data     => [ map { '' } @{ $preAllocated->{cols}{list} } ],
+                    number   => 1329,
+                    dataset  => $model->{dataset},
+                    appendTo => $model->{inputTables},
+                ),
+                $preAllocated
+            ],
+        );
+
+    }
+    elsif ( $model->{dcp117} =~ /half[ -]?baked/i ) {
+
         $preAllocated = Stack(
             name    => 'Table 1330 allocated costs, after DCP 117 adjustments',
             rows    => $preAllocated->{rows},
@@ -59,8 +83,10 @@ sub ajust117 {
                 $preAllocated
             ],
         );
+
     }
     else {
+
         my $dcp117negative = Stack(
             name => 'DCP 117: negative number being removed',
             rows => Labelset(

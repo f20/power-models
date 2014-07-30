@@ -40,6 +40,12 @@
     _column: HV
   - Units flowing: 25333548951
     _column: EHV&132
+1329:
+  - ~
+  - Load related new connections reinforcement net of contributions: -12392665.2648234
+  - Load related new connections reinforcement net of contributions: ''
+  - Load related new connections reinforcement net of contributions: 3654798.86187813
+  - Load related new connections reinforcement net of contributions: 26253757.3344828
 1330:
   - _table: 1330. Allocated costs
   - Atypical cash costs: ''
