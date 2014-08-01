@@ -1,0 +1,27 @@
+---
+.: 'Simple scaling, replacement, override 500 MW LV, post DCP 163'
+PerlModule: CDCM
+coincidenceAdj: groupums
+dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
+  1020:
+    - ~
+    - HV LV: 60000000
+      LV circuits: 200000000
+drm: top500gsp
+extraLevels: 1
+illustrative: 1
+matrices: big
+noReplacement: 0.453
+pcd: 1
+portfolio: 1
+scaler: pickallnogen
+standing: sub132
+summary: statistics
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDaySpecial

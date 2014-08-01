@@ -5,8 +5,9 @@ RUN=_cdcm2013-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 pushd _$RUN.tmp
-time ../run/make.pl -sqlite ../CDCM/Current/%-extras163.yml ../CDCM/Scaling/%+dcp123-stats.yml ../CDCM/Data-2013-02/*
+time ../run/make.pl -sqlite ../CDCM/Current/%-extras163.yml ../CDCM/Scaling/%+dcp123-stats.yml ../CDCM/Scaling/%-sswr163_over.yml ../CDCM/Data-2013-02/*
 time ../run/export.pl /extras163/ 10 22 37 38 39 40
 time ../run/export.pl /dcp123/ 10 22 37 38 39 40
+time ../run/export.pl /sswr163_over/ 10 22 37 38 39 40
 popd
 mv _$RUN.tmp $RUN.tmp
