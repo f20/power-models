@@ -99,7 +99,7 @@ EOT
                 name  => 'EHV asset levels',
                 cols  => $assetLevelset,
                 byrow => 1,
-                data  => [ [qw(1 1 1 1 1 1 0 0 0 0 0)] ]
+                data  => [ [qw(0 1 1 1 1 1 0 0 0 0 0)] ]
             ),
             IV4_IV5 => Stack( sources => [$cdcmAssets] ),
         },
