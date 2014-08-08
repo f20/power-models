@@ -186,7 +186,7 @@ my $processArg = sub {
     }
 };
 
-$processArg->($_) foreach @ARGV;
+$processArg->( decode_utf8 $_) foreach @ARGV;
 
 if (%dataAccumulator) {
     require YAML;
