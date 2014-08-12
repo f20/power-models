@@ -7,15 +7,11 @@ Icon?
 *.xls
 *.xlsx
 *.xlsm
-*.csv
-*.dta
-*.bak
 *.tdy
 *.orig
 *.lnk
 nytprof*
 O_*
 X_*
-Y_*
 *.tmp
 *.app
