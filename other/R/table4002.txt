@@ -1,0 +1,10 @@
+library(DBI);
+library(RSQLite);
+db <- dbConnect("SQLite", dbname = "~$database.sqlite");
+frame <- dbGetQuery(db, "select company, period, option, a.v as tariff, b.v as peryear, c.v as permwh from data as a inner join data as b using (bid, tab, row) inner join data as c using (bid, tab, row) left join books using (bid) where a.tab=4002 and a.row>0 and a.col=0 and b.col=1 and c.col=2");
+company <- factor(frame$company);
+period <- factor(frame$period);
+option <- factor(frame$option);
+tariff <- factor(frame$tariff);
+peryear <- frame$peryear;
+permwh <- frame$permwh;

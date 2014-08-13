@@ -40,13 +40,13 @@ sub _writeCsvLine {
 sub csvCreate {
     my ( $self, $small ) = @_;
     my $numCo = 0;
-    $$self->do(
+    $self->do(
 'create temporary table companies ( cid integer primary key, bid int, company char)'
     );
     my $findCo =
-      $$self->prepare('select bid, filename from books order by filename');
+      $self->prepare('select bid, filename from books order by filename');
     my $addCo =
-      $$self->prepare('insert into companies (bid, company) values (?, ?)');
+      $self->prepare('insert into companies (bid, company) values (?, ?)');
     $findCo->execute;
     while ( my ( $bid, $co ) = $findCo->fetchrow_array ) {
         next unless $co =~ s/\.xlsx?$//is;
@@ -54,11 +54,11 @@ sub csvCreate {
         ++$numCo;
     }
     warn "$numCo datasets";
-    $$self->do(
+    $self->do(
 'create temporary table columns ( colid integer primary key, tab int, col int)'
     );
-    $$self->do('create unique index columnstabcol on columns (tab, col)');
-    my $tabq = $$self->prepare(
+    $self->do('create unique index columnstabcol on columns (tab, col)');
+    my $tabq = $self->prepare(
         $small
         ? 'select tab from data where tab like "45__" or tab like "9__" group by tab'
         : 'select tab from data where tab>0 group by tab'
@@ -67,8 +67,8 @@ sub csvCreate {
     while ( my ($tab) = $tabq->fetchrow_array ) {
         warn $tab;
         open my $fh, '>', $tab . '.csv';
-        $$self->do('delete from columns');
-        $$self->do(
+        $self->do('delete from columns');
+        $self->do(
 'insert into columns (tab, col) select tab, col from data where tab=? and col>0 group by tab, col order by tab, col',
             undef, $tab
         );
@@ -77,14 +77,14 @@ sub csvCreate {
             'company',
             'line',
             map { $_->[0] } @{
-                $$self->selectall_arrayref(
+                $self->selectall_arrayref(
                         'select "t" || tab || "c" || col'
                       . ' from columns order by colid'
                 )
             }
         );
         my $q =
-          $$self->prepare( 'select bid, company, row from '
+          $self->prepare( 'select bid, company, row from '
               . 'companies inner join data using (bid)'
               . ' where tab=? and col=1 and row>0 order by company, row' );
         $q->execute($tab);
@@ -92,7 +92,7 @@ sub csvCreate {
             _writeCsvLine(
                 $fh, $co, $row,
                 map { $_ && defined $_->[0] ? $_->[0] : undef } @{
-                    $$self->selectall_arrayref(
+                    $self->selectall_arrayref(
                         'select v from columns left join data on '
                           . '(data.tab=columns.tab and data.col=columns.col and bid=? and row=?)'
                           . ' order by colid',
@@ -101,10 +101,10 @@ sub csvCreate {
                 }
             );
         }
-        $$self->do('delete from columns');
+        $self->do('delete from columns');
     }
     if (
-        0 < $$self->do(
+        0 < $self->do(
                 'insert into columns (tab, col) select tab, col from data '
               . 'where tab>1099 and tab<1181 and col>0 and row=1 and '
               . 'exists (select * from data as d2 where d2.tab=data.tab and d2.col=data.col+1 and d2.bid=data.bid) '
@@ -118,21 +118,20 @@ sub csvCreate {
             $fh,
             'company',
             map { $_->[0] } @{
-                $$self->selectall_arrayref(
+                $self->selectall_arrayref(
                         'select "t" || tab || "c" || col '
                       . 'from columns order by colid'
                 )
             }
         );
         my $q =
-          $$self->prepare(
-            'select bid, company from companies order by company');
+          $self->prepare('select bid, company from companies order by company');
         $q->execute;
         while ( my ( $bid, $co ) = $q->fetchrow_array ) {
             _writeCsvLine(
                 $fh, $co,
                 map { $_->[0] } @{
-                    $$self->selectall_arrayref(
+                    $self->selectall_arrayref(
                         'select v from columns left join data on '
                           . '(data.tab=columns.tab and data.col=columns.col and data.row=1 and bid=?)'
                           . ' order by colid',

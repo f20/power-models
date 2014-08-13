@@ -77,7 +77,7 @@ sub summariesByCompany {
     my ( $self, $workbookModule, $name, @sheets ) = @_;
     my %bidMap;
     foreach (
-        @{ $$self->selectall_arrayref('select bid, filename from books') } )
+        @{ $self->selectall_arrayref('select bid, filename from books') } )
     {
         ( my $bid, local $_ ) = @$_;
         s/\.xlsx?$//is;
@@ -88,11 +88,11 @@ sub summariesByCompany {
     }
 
     my $getTitle =
-      $$self->prepare(
+      $self->prepare(
         'select v from data where bid=? and tab=? and col=? and row=0');
 
     my $getData =
-      $$self->prepare(
+      $self->prepare(
         'select row, v from data where bid=? and tab=? and col=? and row>0');
 
     while ( my ( $company, $optionhr ) = each %bidMap ) {

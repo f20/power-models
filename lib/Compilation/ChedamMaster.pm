@@ -32,7 +32,7 @@ use strict;
 use utf8;
 
 sub runFromDatabase {
-    require Compilation::Extract;
+    require Compilation::Master;
     require Ancillary::DotDiagrams;
     require Compilation::ChedamDataLocator;
     require Compilation::ChedamToDot;

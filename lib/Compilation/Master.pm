@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2013 Franck Latrémolière and others. All rights reserved.
+Copyright 2009-2012 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,11 +30,112 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use DBI;
+
+use constant {
+    DB_HANDLE => 0,
+    INSERT    => 1,
+};
+
+our $AUTOLOAD;
+
+sub AUTOLOAD {
+    my $method = $AUTOLOAD;
+    $method =~ s/.*://;
+    no strict 'refs';
+    (
+        *{$method} = sub {
+            my $self = shift;
+            $self->[DB_HANDLE]->$method(@_);
+        }
+    )->(@_);
+}
+
+sub DESTROY {
+    $_[0][DB_HANDLE]->disconnect;
+}
+
+sub new {
+    my ( $class, $create ) = @_;
+    require DBI;
+    my $databaseHandle = DBI->connect( 'dbi:SQLite:dbname=~$database.sqlite',
+        '', '', { sqlite_unicode => 1, AutoCommit => 1, } )
+      or die "Cannot open sqlite database: $!";
+    eval { $databaseHandle->do('pragma journal_mode=wal') or die $!; };
+    warn "Cannot set WAL journal: $@" if $@;
+    if ($create) {
+        $databaseHandle->do('begin exclusive transaction') or die $!;
+        $databaseHandle->do($_) foreach grep { $_ } split /;\s*/s, <<EOSQL;
+create table if not exists books (
+	bid integer primary key,
+	filename char,
+	company char,
+	period char,
+	option char
+);
+create table if not exists data (
+	bid integer,
+	tab integer,
+	row integer,
+	col integer,
+	v double,
+	primary key (bid, tab, col, row)
+);
+create index if not exists datatcr on data (tab, col, row);
+EOSQL
+        $databaseHandle->commit or die $!;
+    }
+    eval { $databaseHandle->sqlite_busy_timeout(3_600_000) or die $!; };
+    warn "Cannot set timeout: $@" if $@;
+    $databaseHandle->{AutoCommit} = 0;
+    $databaseHandle->{RaiseError} = 1;
+    bless [$databaseHandle], $class;
+}
+
+sub addModel {
+    my ( $self, $filename ) = @_;
+    local $_ = $filename;
+    s/\.xlsx?$//is;
+    s/^M-//;
+    s/^CE-NEDL/NPG-Northeast/;
+    s/^CE-YEDL/NPG-Yorkshire/;
+    s/^CN-East/WPD-EastM/;
+    s/^CN-West/WPD-WestM/;
+    s/^EDFEN/UKPN/;
+    s/^NP-/NPG-/;
+    s/^SP-/SPEN-/;
+    s/^SSE-/SSEPD-/;
+    s/^WPD-Wales/WPD-SWales/;
+    s/^WPD-West\b/WPD-SWest/;
+    my @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})([+-].*)$/s;
+    @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})?(-[^-]*)?$/s unless @a;
+    map { $_ = '' unless defined $_; tr/-/ /; s/^ //; } @a;
+    my $insert = $self->[INSERT] ||=
+      $self->[DB_HANDLE]->prepare(
+'insert or ignore into books (bid, filename, company, period, option) values (?, ?, ?, ?, ?)'
+      );
+    srand();
+    my $bid;
+    do {
+        $bid = int( rand() * 800 ) + 100;
+        my $done = $insert->execute( $bid, $filename, @a );
+        undef $bid if !$done || $done < 1;
+    } while !$bid;
+    $bid;
+}
+
+sub listModels {
+    @{
+        $_[0][DB_HANDLE]->selectall_arrayref(
+                'select bid, filename, company, period, option from books'
+              . ' order by company, period, option'
+        )
+    };
+}
 
 sub makeDatabaseReader {
-    my $db = DBI->connect('dbi:SQLite:dbname=~$database.sqlite')
+    my $db = __PACKAGE__->new
       or die "Cannot open sqlite database: $!";
+    $db = $db->[DB_HANDLE];
     my $q = $db->prepare(
         'select v from data where bid=? and tab=? and col=? and row=?');
     my $s = $db->prepare(

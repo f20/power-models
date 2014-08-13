@@ -45,15 +45,15 @@ sub tableCompilations {
     my $spacing;
     my $numCo = 0;
     {
-        $$self->do(
+        $self->do(
 'create temporary table models ( cid integer primary key, bid int, model char)'
         );
         my $findCo =
-          $$self->prepare(
+          $self->prepare(
 'select bid, filename from books where filename regexp ? order by filename'
           );
         my $addCo =
-          $$self->prepare('insert into models (bid, model) values (?, ?)');
+          $self->prepare('insert into models (bid, model) values (?, ?)');
         $findCo->execute($fileSearch);
         my @models;
 
@@ -77,9 +77,9 @@ sub tableCompilations {
 
     warn "$numCo datasets for $optionName ($fileSearch $tabSearch)";
     $spacing = $numCo + 3;
-    my $leadBid = $$self->selectrow_array('select bid from models limit 1');
+    my $leadBid = $self->selectrow_array('select bid from models limit 1');
     my $tabList =
-      $$self->prepare('select tab from data where bid=? group by tab');
+      $self->prepare('select tab from data where bid=? group by tab');
     $tabList->execute($leadBid);
     my ( $file, $wb, $smallNumberFormat, $bigNumberFormat, $thFormat,
         $thcFormat, $captionFormat, $titleFormat )
@@ -92,12 +92,12 @@ sub tableCompilations {
           and $tabNumber =~ /^$tabSearch/;
 
         my $lastRow =
-          $$self->selectrow_array(
+          $self->selectrow_array(
             'select max(row) from data where bid=? and tab=?',
             undef, $leadBid, $tabNumber );
 
         my $lastCol =
-          $$self->selectrow_array(
+          $self->selectrow_array(
             'select max(col) from data where bid=? and tab=?',
             undef, $leadBid, $tabNumber );
 
@@ -137,7 +137,7 @@ sub tableCompilations {
         $wsr->freeze_panes( 1, 1 );
 
         {
-            my $tableName = $$self->selectrow_array(
+            my $tableName = $self->selectrow_array(
 'select v from data where bid=? and tab=? and col=0 order by row limit 1',
                 undef, $leadBid, $tabNumber
             );
@@ -148,7 +148,7 @@ sub tableCompilations {
         }
 
         {
-            my $q = $$self->prepare('select cid, model from models');
+            my $q = $self->prepare('select cid, model from models');
             $q->execute;
             while ( my ( $cid, $co ) = $q->fetchrow_array ) {
                 $co =~ s#.*/##;
@@ -173,7 +173,7 @@ sub tableCompilations {
 
         {
             my $q =
-              $$self->prepare( 'select col, v from data where bid='
+              $self->prepare( 'select col, v from data where bid='
                   . $leadBid
                   . ' and tab='
                   . $tabNumber
@@ -196,7 +196,7 @@ sub tableCompilations {
 
         {
             my $q =
-              $$self->prepare( 'select row, v from data where bid='
+              $self->prepare( 'select row, v from data where bid='
                   . $leadBid
                   . ' and tab='
                   . $tabNumber
@@ -225,7 +225,7 @@ sub tableCompilations {
 
         foreach my $col (@valueCols) {
             $format[$col] =
-              $$self->selectrow_array( 'select 1 from models inner join'
+              $self->selectrow_array( 'select 1 from models inner join'
                   . ' data using (bid) where abs(v) > 9999 and tab='
                   . $tabNumber
                   . ' and col='
@@ -233,7 +233,7 @@ sub tableCompilations {
                   . ' and row>'
                   . $topRow ) ? $bigNumberFormat : $smallNumberFormat;
             my $q =
-              $$self->prepare( 'select cid, row, v from models inner join'
+              $self->prepare( 'select cid, row, v from models inner join'
                   . ' data using (bid) where tab='
                   . $tabNumber
                   . ' and col='
@@ -255,7 +255,7 @@ sub tableCompilations {
 
         foreach my $row (@valueRows) {
             my $q =
-              $$self->prepare( 'select cid, col, v from models inner join'
+              $self->prepare( 'select cid, col, v from models inner join'
                   . ' data using (bid) where tab='
                   . $tabNumber
                   . ' and col>0 and row='
@@ -272,7 +272,7 @@ sub tableCompilations {
 
         foreach my $col (@textCols) {
             my $q =
-              $$self->prepare( 'select cid, row, v from models inner join'
+              $self->prepare( 'select cid, row, v from models inner join'
                   . ' data using (bid) where tab='
                   . $tabNumber
                   . ' and col='
@@ -294,7 +294,7 @@ sub tableCompilations {
 
         foreach my $row (@textRows) {
             my $q =
-              $$self->prepare( 'select cid, col, v from models inner join'
+              $self->prepare( 'select cid, col, v from models inner join'
                   . ' data using (bid) where tab='
                   . $tabNumber
                   . ' and col>0 and row='

@@ -33,19 +33,19 @@ use utf8;
 
 sub tscsCreateIntermediateTables {
     my ($self) = @_;
-    $$self->do('begin immediate transaction') or die $!;
-    $$self->do(
-'create temporary table models ( bid int, model char, company char, period char, com integer, per integer)'
+    $self->do('begin immediate transaction') or die $!;
+    $self->do( 'create temporary table models'
+          . ' (bid int, model char, company char, period char, com integer, per integer)'
     );
     my $addCo =
-      $$self->prepare(
+      $self->prepare(
         'insert into models (bid, model, company, period) values (?, ?, ?, ?)'
       );
-    $addCo->execute( $_->[0], $_->[1], $_->[3], join ' ',
-        grep { $_ } @{$_}[ 4, 5 ] )
+    $addCo->execute( $_->[0], $_->[1], $_->[2], join ' ',
+        grep { $_ } @{$_}[ 3, 4 ] )
       foreach $self->listModels;
 
-    $$self->do($_) foreach grep { $_ } split /;\n*/, <<EOSQL;
+    $self->do($_) foreach grep { $_ } split /;\n*/, <<EOSQL;
 drop table if exists companies;
 create table companies (com integer primary key, c char);
 create index companiesc on companies (c);
@@ -86,7 +86,7 @@ drop table mytables;
 
 =cut
 
-    sleep 2 while !$$self->commit;
+    sleep 2 while !$self->commit;
 }
 
 sub tscsCreateOutputFiles {
@@ -96,18 +96,18 @@ sub tscsCreateOutputFiles {
     $file = '';
     my @topLine =
       map { $_->[0]; }
-      @{ $$self->selectall_arrayref('select p from periods order by per') };
+      @{ $self->selectall_arrayref('select p from periods order by per') };
     my @topLineCsv =
       ( qw(dno col row), map { local $_ = $_; s/[^0-9]//g; "v$_"; } @topLine );
     @topLine = ( qw(DNO Column Row), @topLine );
 
     my $tabList =
-      $$self->prepare(
+      $self->prepare(
 'select tab, mytable from mytables group by tab, mytable order by tab, mytable'
       );
     $tabList->execute;
     my $fetch =
-      $$self->prepare(
+      $self->prepare(
 'select c, tscs.per, mycolumn, myrow, tscs.v, abs(tscs.v)<1000 from tscs, companies, columns, rows, rownumbers where rowname=myrow and tscs.tab=rowtab and tscs.tab=? and tscs.com=companies.com and tscs.com=columns.com and tscs.per=columns.per and tscs.tab=columns.tab and tscs.col=columns.col and tscs.com=rows.com and tscs.per=rows.per and tscs.tab=rows.tab and tscs.row=rows.row order by tscs.com, tscs.tab, tscs.col, rownumber, myrow, tscs.per'
       );
     my $tab1 = 0;

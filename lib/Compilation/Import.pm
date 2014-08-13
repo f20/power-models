@@ -156,67 +156,25 @@ sub makeSQLiteWriter {
 
     my ( $settings, $sheetFilter, ) = @_;
 
-    require DBI;
-    use constant { DB_FILE_NAME => '~$database.sqlite' };
-
-    my ( $db, $s, $bid );
+    require Compilation::Master;
+    my $db = Compilation->new(1);
+    my $s  = $db->prepare( 'insert into data (bid, tab, row, col, v)'
+          . ' values (?, ?, ?, ?, ?)' );
+    my ($bid);
 
     my $writer = sub {
         $s->execute( $bid, @_ );
     };
 
-    my $newDb = sub {
-        return if $db && $db->ping;
-        die $!
-          unless $db = DBI->connect( 'DBI:SQLite:dbname=' . DB_FILE_NAME,
-            '', '', { sqlite_unicode => 1 } );
-        $db->do($_) foreach grep { $_ } split /;\s*/s, <<EOSQL;
-create table if not exists books (
-	bid integer primary key,
-	filename char
-);
-create table if not exists data (
-	bid integer,
-	tab integer,
-	row integer,
-	col integer,
-	v double,
-	primary key (bid, tab, col, row)
-);
-create index if not exists datatcr on data (tab, col, row);
-EOSQL
-
-        eval { $db->do('pragma journal_mode=wal') or die $!; };
-        warn "Cannot set WAL journal: $@" if $@;
-
-        eval { $db->sqlite_busy_timeout(3_600_000) or die $!; };
-        warn "Cannot set timeout: $@" if $@;
-
-        $db->{AutoCommit} = 0;
-        $db->{RaiseError} = 1;
-        $s =
-          $db->prepare( 'insert into data (bid, tab, row, col, v)'
-              . ' values (?, ?, ?, ?, ?)' );
-    };
-
     my $cleanup = sub {
         sleep 2 while !$db->do('commit');
-        $db->disconnect();
         undef $db;
     };
 
     my $newBook = sub {
-        srand();
         die $! unless $db->do('begin immediate transaction');
-        my $done;
-        do {
-            $bid = int( rand() * 800 ) + 100;
-            $done =
-              $db->do(
-                'insert or ignore into books (filename, bid) values (?, ?)',
-                undef, $_[0], $bid );
-        } while !$done || $done < 1;
-        die $! unless $db->do('commit');
+        $bid = $db->addModel( $_[0] );
+        die $! unless $db->commit;
         die $! unless $db->do('begin transaction');
     };
 
@@ -239,8 +197,6 @@ EOSQL
     sub {
 
         my ( $book, $workbook ) = @_;
-
-        $newDb->();
 
         if ( !defined $book ) {    # pruning
             my $gbid =

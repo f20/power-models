@@ -208,10 +208,10 @@ sub genericTariffImpact {
 
     my @books = $self->listModels;
     my $findRow =
-      $$self->prepare(
+      $self->prepare(
         'select row from data where bid=? and tab=? and col=0 and v=?');
     my $q =
-      $$self->prepare(
+      $self->prepare(
         'select v from data where bid=? and tab=? and row=? and col=?');
 
     foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
@@ -229,7 +229,7 @@ sub genericTariffImpact {
         unless ( $options{linesAfter} ) {
             $linesBefore = $linesAfter = [
                 map { @$_ } @{
-                    $$self->selectall_arrayref(
+                    $self->selectall_arrayref(
                         'select v from data where bid=? and tab=?'
                           . ' and col=0 and row>0',
                         undef, $bida, $options{tableNumber}
@@ -383,9 +383,9 @@ EOL
       map { $wb->getFormat($_); } ( map { '%softpm' } 1 .. 1 );
 
     my @books   = $self->listModels;
-    my $findRow = $$self->prepare(
+    my $findRow = $self->prepare(
         'select row from data where bid=? and tab=3802 and col=0 and v=?');
-    my $q = $$self->prepare(
+    my $q = $self->prepare(
         'select v from data where bid=? and tab=3802 and row=? and col=?');
 
     foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
@@ -520,10 +520,10 @@ sub revenueMatrixImpact {
 
     my @books = $self->listModels;
     my $findRow =
-      $$self->prepare(
+      $self->prepare(
         'select row from data where bid=? and tab=? and col=0 and v=?');
     my $q =
-      $$self->prepare(
+      $self->prepare(
         'select v from data where bid=? and tab=? and row=? and col=?');
 
     foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
@@ -541,7 +541,7 @@ sub revenueMatrixImpact {
         unless ( $options{linesAfter} ) {
             $linesBefore = $linesAfter = [
                 map { @$_ } @{
-                    $$self->selectall_arrayref(
+                    $self->selectall_arrayref(
                         'select v from data where bid=? and tab=?'
                           . ' and col=0 and row>0',
                         undef, $bida, $options{tableNumber}
@@ -572,7 +572,7 @@ sub revenueMatrixImpact {
             0, 'Percentage change', $thcaFormat );
 
         my @list = map { local $_ = $_->[0]; s/[\r\n]+/\n/g; $_; } @{
-            $$self->selectall_arrayref(
+            $self->selectall_arrayref(
                 'select v from data where bid=? and tab='
                   . $options{tableNumber}
                   . ' and row=0 and col>'

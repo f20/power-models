@@ -46,7 +46,7 @@ BEGIN {
 use lib map { catdir( $homedir, $_ ); } qw(cpan lib);
 
 if ( grep { /extract1076from1001/i } @ARGV ) {
-    require Compilation::Extract;
+    require Compilation::Master;
     Compilation->extract1076from1001;
 }
 
@@ -55,7 +55,7 @@ if ( grep { /chedam/i } @ARGV ) {
     Compilation::Chedam->runFromDatabase;
 }
 
-require Compilation::Export;
+require Compilation::Master;
 my $db = Compilation->new;
 
 if ( grep { /\bcsv\b/i } @ARGV ) {
