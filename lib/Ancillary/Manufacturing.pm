@@ -78,15 +78,7 @@ sub factory {
               && $fileName =~ /%/ ? YAML::Load($blob) : { yaml => $blob };
         }
         else {
-            eval {
-                require JSON;
-                @objects = JSON::from_json($blob);
-            };
-            eval {
-                require JSON::PP;
-                require Encode;
-                @objects = JSON::PP::decode_json( Encode::encode_utf8($blob) );
-            } if $@;
+            eval { @objects = _jsonMachine()->decode($blob); };
         }
         foreach ( grep { ref $_ eq 'HASH' } @objects ) {
             if ( exists $_->{template} ) {
@@ -185,8 +177,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         foreach (@_) {
             if (s/\{(.*)\}//s) {
                 foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
-                    require JSON::PP;
-                    my $d = JSON::PP::decode_json( '{' . $_ . '}' );
+                    my $d = _jsonMachine()->decode( '{' . $_ . '}' );
                     next unless ref $d eq 'HASH';
                     $takeOutRules->($d);
                     while ( my ( $tab, $dat ) = each %$d ) {
@@ -227,13 +218,11 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
             $takeOutRules->($od);
         }
         return unless $od && keys %$od;
-        my ( $key, $hash ) = ( rand(), 'error' );
+        my ( $key, $hash ) = ( rand(), 'hashing-error' );
         eval {
             my $digestMachine = Ancillary::Validation::digestMachine();
-            require JSON::PP;
-            $key = $digestMachine->add(
-                JSON::PP->new->canonical(1)->utf8->encode($od) )->digest;
-            $hash = substr( digestMachine->add($key)->hexdigest, 5, 8 );
+            $key = $digestMachine->add( _jsonMachine()->encode($od) )->digest;
+            $hash = substr( $digestMachine->add($key)->hexdigest, 5, 8 );
         };
 
         foreach (@datasets) {
@@ -445,6 +434,16 @@ sub _runInFolder {
     chdir shift;
     exec @_;
     die "exec @_: $!";
+}
+
+my $_jsonMachine;
+
+sub _jsonMachine {
+    return $_jsonMachine if $_jsonMachine;
+    foreach (qw(JSON JSON::PP)) {
+        return $_jsonMachine = $_->new->utf8->canonical(1) if eval "require $_";
+    }
+    die 'No JSON module';
 }
 
 1;
