@@ -6,17 +6,14 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-for ror in 6.9 5.6 4.3
+for ror in 5.6 5.5 4.6
 do
-    perl ../run/make.pl ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/* -xdata='rules|template|%-ror-'$ror -xdata='1010|1|Financial and general assumptions|'$ror'e-2'
+    perl ../run/make.pl -sqlite ../CDCM/Current/%-after163.yml ../CDCM/Data-2014-02/* -xdata='rules|template|%-ror-'$ror -xdata='1010|1|Financial and general assumptions|'$ror'e-2'
 done
-perl ../run/make.pl ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
 
-perl ../run/import.pl -calc -sqlite *.xlsx
-
-for ror in 6.9 5.6 4.3
+for ror in 5.5 4.6
 do
-    perl ../run/export.pl -dcp=ror-$ror -name=$ror'% rate of return'
+    perl ../run/export.pl -base=ror-5.6 -dcp=ror-$ror -name=$ror'% rate of return'
 done
 
 cd ..
