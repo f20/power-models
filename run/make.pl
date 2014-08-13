@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use Encode qw(decode_utf8);
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 use File::Spec::Functions qw(rel2abs abs2rel catfile catdir);
