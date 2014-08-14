@@ -247,6 +247,11 @@ EOY
         };
     }
 
+    if ( $d->{1001} && $model->{revenueAdj} ) {
+        $d->{1001}[4]{'Pass-Through Others'} ||= 0;
+        $d->{1001}[4]{'Pass-Through Others'} += $model->{revenueAdj};
+    }
+
     if ( $model->{tariffs} =~ /dcp137/i ) {
         $d->{1028}[0] = sub {
             my ($key) = @_;

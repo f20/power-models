@@ -1,0 +1,17 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_cdcm-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+pushd _$RUN.tmp
+time ../run/make.pl -sqlite ../CDCM/Current/%-extras163.yml ../CDCM/Data-2013-02/* ../CDCM/Data-2014-02/*
+time ../run/make.pl -sqlite ../CDCM/Current/%-extras163.yml -xdata='rules|revenueAdj|-5e6' -xdata='rules|template|%-less5m' ../CDCM/Data-2013-02/* ../CDCM/Data-2014-02/*
+time ../run/export.pl /2013-02-extras163/ 10 40
+time ../run/export.pl /2014-02-extras163/ 10 40
+time ../run/export.pl /2013-02-less5m/ 10 40
+time ../run/export.pl /2014-02-less5m/ 10 40
+popd
+mv _$RUN.tmp $RUN.tmp
+echo 'Press any key to exit'
+read

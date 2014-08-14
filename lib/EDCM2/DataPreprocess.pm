@@ -160,6 +160,12 @@ sub preprocessDataset {
             $ds->[1]{$_} = "Tariff $_" foreach keys %{ $ds->[1] };
         }
 
+        if ( $model->{dataset}{1113} && $model->{revenueAdj} ) {
+            my ($key) =
+              grep { !/^_/ } keys %{ $model->{dataset}{1113}[4] };
+            $model->{dataset}{1113}[4]{$key} += $model->{revenueAdj};
+        }
+
         my ( $daysInYearKey, $hoursInRedKey );
         if ( $model->{dataset}{1113} ) {
             ($daysInYearKey) =
