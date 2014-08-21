@@ -126,7 +126,12 @@ sub updateTree {
     my ( $workbook, $tree, $options ) = @_;
     $tree ||= {};
     my $sheetNumber = 0;
-    for my $worksheet ( $workbook->worksheets() ) {
+    for my $worksheet (
+        $options->{worksheets}
+        ? @{ $options->{worksheets} }
+        : $workbook->worksheets()
+      )
+    {
         next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
         my ( $row_min, $row_max ) = $worksheet->row_range();
         my ( $col_min, $col_max ) = $worksheet->col_range();
@@ -218,11 +223,37 @@ sub updateTree {
 
 sub ymlWriter {
     my ($arg) = @_;
+    require YAML;
+
+    return sub {
+        my ( $book, $workbook ) = @_;
+        die unless $book;
+        foreach my $sheet ( $workbook->worksheets ) {
+            my $yml = "$book $sheet->{Name}.yml";
+            $yml =~ s/\.xlsx?\.yml$/.yml/is;
+            my $tree;
+            if ( -e $yml ) {
+                open my $h, '<', $yml;
+                binmode $h, ':utf8';
+                local undef $/;
+                $tree = YAML::Load(<$h>);
+            }
+            open my $h, '>', $yml;
+            binmode $h, ':utf8';
+            print $h YAML::Dump(
+                updateTree(
+                    $workbook, $tree,
+                    { minimum => 1, worksheets => [$sheet] }
+                )
+            );
+        }
+      }
+      if $arg =~ /bysheet/i;
+
     my $options = {
         $arg =~ /array/i ? ( preferArrays => 1 ) : (),
         $arg =~ /min/i   ? ( minimum      => 1 ) : (),
     };
-    require YAML;
     sub {
         my ( $book, $workbook ) = @_;
         die unless $book;

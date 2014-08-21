@@ -1,0 +1,50 @@
+#!/bin/bash
+cd "`dirname \"$0\"`"
+while [ ! -e run/make.pl ]; do pwd; cd ..; done
+RUN=_dcp133-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+
+../run/make.pl -sqlite -stats ../CDCM/Data-2014-02/* ../CDCM/Current/%-clean163.yml ../CDCM/DCP-133/%-*.yml ../CDCM/Scaling/%-nomatching163.yml
+# ../run/export.pl dcp133
+# ../run/export.pl tscs 40
+
+R --vanilla --slave <<EOR
+source('../other/R/england-wales-scotland.txt');
+source('../other/R/plotit.txt');
+source('../other/R/table4002.txt');
+p <- levels(period)[1];
+for (t in levels(tariff)) {
+    for (u in c('MWh', 'year')) {
+        pd<-permwh;
+        digit <- 0;
+        form <- '%2.1f';
+        if (u == 'year') {
+            pd <- peryear;
+            form <- '%3.0f';
+        }
+        title <- paste('CDCM distribution charge \U{a3}', u, sep='/');
+        box <- c(t);
+        mincol <- min(pd[getSet(period==p&tariff==t)], na.rm=T);
+        maxcol <- max(pd[getSet(period==p&tariff==t)], na.rm=T);
+        if (!is.na(maxcol)&maxcol<300) {
+            if (maxcol<8) digit <- 1;
+            prices <- c();
+            for (o in 1:length(levels(option))) {
+                pr <- pd[getSet(period==p&option==levels(option)[o]&tariff==t)];
+                if (length(prices)>0) prices <- data.frame(prices, pr) else prices <- pr;
+            }
+            names(prices) <- levels(option);
+            plotit(name=paste(u, 'without matching', t), prices=prices[,c(6,5,4)], pixels='1080p', form=form, digit=digit, title=title, box=box);
+            plotit(name=paste(u, 'with matching', t), prices=prices[,c(1,3,2)], pixels='1080p', form=form, digit=digit, title=title, box=box);
+            plotit(name=paste(u, 'status quo', t), prices=prices[,c(6,1)], pixels='1080p', form=form, digit=digit, title=title, box=box);
+            plotit(name=paste(u, 'DCP 133 old diversities', t), prices=prices[,c(5,3)], pixels='1080p', form=form, digit=digit, title=title, box=box);
+            plotit(name=paste(u, 'DCP 133 with diversities', t), prices=prices[,c(4,2)], pixels='1080p', form=form, digit=digit, title=title, box=box);
+        }
+    }
+}
+EOR
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

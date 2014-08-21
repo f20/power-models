@@ -1,122 +1,45 @@
-#!/bin/bash
+#!/bin/sh
 cd "`dirname \"$0\"`"
-MAP="`pwd`/rate-or-return-mapR.txt"
 while [ ! -e run/make.pl ]; do cd ..; done
 RUN=_C2014-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
+core=../CDCM/Current/%-after163.yml
+core+=' '
+core+=../CDCM/Data-2014-02/*.yml
+perl ../run/make.pl -sqlite $core -xdata='rules|template|%-ror-'5.6 -xdata='1010|1|Financial and general assumptions|'5.6'e-2' -newrules -newdata $core -xdata='rules|template|%-ror-'5.5 -xdata='1010|1|Financial and general assumptions|'5.5'e-2' -newrules -newdata $core -xdata='rules|template|%-ror-'3 -xdata='1010|1|Financial and general assumptions|'3'e-2' -newrules -newdata
+perl ../run/export.pl -base=ror-5.6 -dcp=ror-5.5 -name=5.5'% rate of return' &
+perl ../run/export.pl -base=ror-5.6 -dcp=ror-3 -name=3'% rate of return' &
 
-for ror in 5.6 5.5 4.6
+for countries in england wales scotland england-wales england-wales-scotland
 do
-    perl ../run/make.pl -sqlite ../CDCM/Current/%-after163.yml ../CDCM/Data-2014-02/* -xdata='rules|template|%-ror-'$ror -xdata='1010|1|Financial and general assumptions|'$ror'e-2'
-done
-
-for ror in 5.5 4.6
-do
-    perl ../run/export.pl -base=ror-5.6 -dcp=ror-$ror -name=$ror'% rate of return'
-done
-
-( cat ../other/R/EWS.txt ../other/R/table4002.txt; cat <<EOR ) | R --vanilla --slave
-tar <- 'Large continuous (HV HH Metered)';
-per <- levels(period)[1];
-
-  png('Rate of return impact map.png', width=144*6.25, height=144*6.25, res=144*6.25/8); # 144 dpi 6.25 inches
-# png('Rate of return impact map.png', width=600, height=600, res=75); # Twitter
-# pdf('Rate of return impact map.pdf', width=7.58, height=11); # PDF within A4, layout is wrong
-# pdf('Rate of return impact map.pdf', width=8.27, height=11.69); # PDF full A4, layout is wrong
-# pdf('Rate of return impact map.pdf', width=8, height=8); # Square PDF
-
-lines.title<-c(
-    'Impact of rate of return on CDCM HV continuous load'
-);
-
-lines.box<-c(
+( cat ../other/R/$countries.txt ../other/R/plotit.txt ../other/R/table4002.txt; cat <<EOR ) | R --vanilla --slave &
+t <- 'Large continuous (HV HH Metered)';
+p <- levels(period)[1];
+title <- 'Impact of rate of return on CDCM HV continuous load';
+box <- c(
     'Electricity distribution use of system charge',
-    tar,
+    t,
     'Maximum import capacity: 5,000kVA',
     'Consumption: 4,500kW continuous',
     'All figures in \U{a3}/MWh'
 );
-
-opt <- levels(option)[1];
-set <- 1:length(company);
-set <- set[period==per&option==opt&tariff==tar];
-set <- set[order(company[set])];
-labels <- c(opt);
-set1 <- set;
-
-opt <- levels(option)[3];
-set <- 1:length(company);
-set <- set[period==per&option==opt&tariff==tar];
-set <- set[order(company[set])];
-labels <- c(labels, opt);
-set2 <- set;
-
-labels <- paste("Option", labels);
-
-prices<-list(permwh[set1], permwh[set2]);
-
-library(sp);
-library(plotrix);
-library(shape);
-minx<-min(x, na.rm=T);
-maxx<-max(c(x,400), na.rm=T);
-miny<-min(y, na.rm=T);
-maxy<-max(c(y,1000), na.rm=T);
-shift<-(maxx-minx)*(0:1);
-mincol<-5;
-maxcol<-19;
-opacity<-1;
-getcol<-function(v) {
-    i<-floor(101*(maxcol-v)/(maxcol-mincol));
-    if (i<0) i<-0;
-    if (i>100) i<-100;
-    hsv(0.0025*i, 0.6+0.004*i, 1-0.0025*i);
-};
-par(mar=c(0, 0, 0, 0));
-xrange<-c(min(shift)+minx, max(shift)+maxx)
-yrange<-c(miny, maxy);
-plot(xrange, yrange, asp=1, pch='', bty ="n", frame.plot=F, ann=FALSE, axes=F, xaxt='n', yaxt='n');
-for (g in 1:length(shift)) {
-    for (a in 1:14) {
-        if (length(z[z==a])>0) {
-            polypath(shift[g]+x[z==a], y[z==a], col=getcol(prices[[g]][a]), rule="evenodd", lwd=0.2, fg="black");
-            text(shift[g]+mean(x[z==a], na.rm=T), mean(y[z==a], na.rm=T), sprintf('%2.1f', prices[[g]][a]), cex=0.75);
-        }
-    }
-    text(shift[g]+400, 0, labels[g], cex=1.25, font=2);
+prices <- data.frame(
+    permwh[getSet(period==p&option==levels(option)[3]&tariff==t)],
+    permwh[getSet(period==p&option==levels(option)[2]&tariff==t)],
+    permwh[getSet(period==p&option==levels(option)[1]&tariff==t)]
+);
+names(prices) <- c('5.6% rate of return', '5.5% rate of return', '3% rate of return');
+for (pix in c('Twitter', 1024, 'pdf')) {
+    plotit(name=paste('One', '$countries', pix), pixels=pix, mincol=0, maxcol=20, title=title, box=box, prices=prices[,1]);
+    plotit(name=paste('Two', '$countries', pix), pixels=pix, mincol=5, maxcol=20, title=title, box=box, prices=(prices[,c(1,3)]));
+    plotit(name=paste('Three', '$countries', pix), pixels=pix, mincol=5, maxcol=20, title=title, box=box, prices=prices);
 }
-top<-max(yrange);
-bot<-top;
-prop<-c(0, 0.75);
-xr<-max(xrange)*prop+min(xrange)*(1-prop);
-mar<-c(4, 4, 8, 4);
-cex<-1.25;
-for (l in 1:length(lines.title)) {
-    bot<-textbox(xr, bot, lines.title[l], fill="white", border=F, margin=mar, cex=cex, font=2);
-}
-bot<-top;
-for (l in 1:length(lines.title)) {
-    bot<-textbox(xr, bot, lines.title[l], border=F, margin=mar, cex=cex, font=2);
-}
-prop<-c(0.02, 0.58);
-xr<-max(xrange)*prop+min(xrange)*(1-prop);
-top<-bot-20;
-bot<-top;
-mar<-c(4, 4, 8, 4);
-cex<-1.0;
-for (l in 1:length(lines.box)) {
-    bot<-textbox(xr, bot, lines.box[l], fill="white", border=F, margin=mar, cex=cex);
-}
-bot<-top;
-for (l in 1:length(lines.box)) {
-    bot<-textbox(xr, bot, lines.box[l], border=F, margin=mar, cex=cex);
-}
-rect(xr[1], bot, xr[2], top);
-colorlegend(col=sapply(5+c(0:100)*0.01*15, getcol), c(5, 20), zlevels=3, posx=c(0.95,0.975), posy=c(.75,.95), left=T);
-graphics.off();
 EOR
+done
 
+open .
+wait
 cd ..
 mv _$RUN.tmp $RUN.tmp

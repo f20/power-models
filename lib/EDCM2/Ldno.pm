@@ -410,7 +410,7 @@ EOF
           )
     } 0 .. $#tariffComponents;
 
-    return Notes( lines => 'LDNO discounted tariffs' ),
+    return Notes( lines => 'LDNO discounted tariffs' ), undef,
       Columnset(
         name    => 'Discounted LDNO tariffs',
         columns => \@allTariffs

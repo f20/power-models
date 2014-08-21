@@ -1,0 +1,116 @@
+plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, title='Title', box=c('line 1', 'line 2'), form='%2.1f', digit=0) {
+
+    if (!is.data.frame(prices)) {
+        numMaps<-1;
+        prices<-data.frame(prices);
+    } else numMaps<-length(prices);
+
+    if (pixels == 'Twitter') {
+        # pixels <- 600;
+        if (numMaps == 2) pixels <- 600 else pixels <- 1024;
+    } else if (pixels == 'iPad') {
+        if (numMaps == 2) pixels <- 1536 else pixels <- 2048;
+    } else if (pixels == 'mob1080') {
+        if (numMaps == 2) pixels <- 1080 else pixels <- 1620;
+    } else if (pixels == 'mob720') {
+        if (numMaps == 2) pixels <- 720 else pixels <- 1080;
+    } else if (pixels == 'iPhone') {
+        if (numMaps == 2) pixels <- 640 else pixels <- 960;
+    } else if (pixels == 'Doc') {
+        # 192 dpi up to 6.25" wide by 9.375" tall
+        if (numMaps == 1) pixels <- 1800 else pixels <- 1200;
+    } else if ( pixels == 'Slide' | pixels == 'Slides' ) {
+        # 192 dpi up to 10" by 6.7" images for 10" by 7.5" slides
+        if (numMaps == 3) pixels <- 1920 else pixels <- 1280;
+    } else if ( pixels == '1080p' | pixels == 'FullHD' ) {
+        if (numMaps == 3) pixels <- 1080*1.5 else pixels <- 1080;
+    } else if ( pixels == '720p' | pixels == 'HD' ) {
+        if (numMaps == 3) pixels <- 720*1.5 else pixels <- 720;
+    } else if (pixels == 'Retina15') {
+        if (numMaps == 3) pixels <- 2700 else pixels <- 1800;
+    }
+    if ( pixels == 'pdf' | pixels == 'PDF' ) {
+        print(filename<-paste(name, '.pdf', sep=''));
+        if (numMaps == 1) pdf(filename, height=11, width=7.58) else
+        if (numMaps == 2) pdf(filename, width=7.58, height=7.58) else
+        if (numMaps == 3) pdf(filename, width=11, height=7.58) else
+        pdf(paste(name, '.pdf', sep=''), width=11.69, height=8.27); # PDF full A4
+    } else if ( pixels == 'svg' | pixels == 'SVG' ) {
+        print(filename<-paste(name, '.svg', sep=''));
+        if (numMaps == 1) svg(filename, height=11, width=7.58) else
+        if (numMaps == 2) svg(filename, width=7.58, height=7.58) else
+        if (numMaps == 3) svg(filename, width=11, height=7.58);
+    } else if ( pixels == 'jpg' | pixels == 'jpeg' | pixels == 'JPG' | pixels == 'JPEG' ) {
+        pixels <- 2048;
+        print(filename<-paste(name, '.jpeg', sep=''));
+        if (numMaps == 1) jpeg(filename, width=pixels/1.5, height=pixels, res=pixels/10.0) else
+        if (numMaps == 2) jpeg(filename, width=pixels, height=pixels, res=pixels/8.0) else
+        if (numMaps == 3) jpeg(filename, width=pixels, height=pixels/1.5, res=pixels/10.0);
+    } else {
+        pixels <- as.integer(pixels);
+        print(filename<-paste(name, '.png', sep=''));
+        if (numMaps == 1) png(filename, width=pixels/1.5, height=pixels, res=pixels/10.0) else
+        if (numMaps == 2) png(filename, width=pixels, height=pixels, res=pixels/8.0) else
+        if (numMaps == 3) png(filename, width=pixels, height=pixels/1.5, res=pixels/10.0);
+    }
+
+    library(sp);
+    library(plotrix);
+    library(shape);
+    minx<-min(x, na.rm=T);
+    maxx<-max(x, na.rm=T);
+    miny<-min(y, na.rm=T)-20;
+    maxy<-max(y, na.rm=T);
+    if(maxy<1000)maxy<-maxy+200;
+    shift<-(maxx-minx)*(1:numMaps - 1);
+    if (is.na(mincol)) mincol<-min(prices);
+    if (is.na(maxcol)) maxcol<-max(prices);
+    getcol<-function(v) {
+        i<-floor(101*(maxcol-v)/(maxcol-mincol));
+        if (i<0) i<-0;
+        if (i>100) i<-100;
+        hsv(0.0025*i, 0.6+0.004*i, 1-0.0025*i);
+    };
+    xrange<-c(min(shift)+minx, max(shift)+maxx)
+    yrange<-c(miny, maxy);
+    par(mar=c(0, 0, 0, 0));
+    plot(xrange, yrange, asp=1, pch='', bty='n', frame.plot=F, ann=F, axes=F, xaxt='n', yaxt='n');
+    for (g in 1:numMaps) {
+        for (a in 1:14) {
+            if (length(z[z == a])>0&!is.na(prices[[g]][a])) {
+                polypath(shift[g]+x[z == a], y[z == a], col=getcol(prices[[g]][a]), rule="evenodd", lwd=0.2, fg="black");
+                text(shift[g]+mean(x[z == a], na.rm=T), mean(y[z == a], na.rm=T), sprintf(form, prices[[g]][a]), cex=0.75);
+            }
+        }
+        if (numMaps>1) text(shift[g]+0.5*(maxx+minx), miny, names(prices)[g], cex=1.25, font=2);
+    }
+    top<-max(yrange);
+    bot<-top;
+    if (numMaps == 1) prop<-c(0, 0.85) else prop<-c(0, 0.75);
+    xr<-max(xrange)*prop+min(xrange)*(1-prop);
+    mar<-c(4, 4, 8, 4);
+    cex<-1.25;
+    bot<-textbox(xr, bot, title, fill="white", border=F, margin=mar, cex=cex, font=2);
+    bot<-top;
+    bot<-textbox(xr, bot, title, border=F, margin=mar, cex=cex, font=2);
+    if (numMaps == 1) prop<-c(0.02, 0.77) else prop<-c(0.02, 0.58);
+    xr<-max(xrange)*prop+min(xrange)*(1-prop);
+    top<-bot-20;
+    bot<-top;
+    mar<-c(4, 4, 8, 4);
+    cex<-1.0;
+    for (l in 1:length(box)) {
+        bot<-textbox(xr, bot, box[l], fill="white", border=F, margin=mar, cex=cex);
+    }
+    bot<-top;
+    for (l in 1:length(box)) {
+        bot<-textbox(xr, bot, box[l], border=F, margin=mar, cex=cex);
+    }
+    rect(xr[1], bot, xr[2], top);
+    scale<-10;
+    if (maxcol>70) scale<-50;
+    max2<-ceiling(maxcol/scale)*scale;
+    colorlegend(col=sapply(0.01*(0*(100:0)+max2*(0:100)), getcol), c(0, max2), zlevels=4, posx=c(0.95,0.975), posy=c(.7,.95), left=T, digit=digit);
+    graphics.off();
+    
+}

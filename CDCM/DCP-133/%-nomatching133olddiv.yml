@@ -1,8 +1,8 @@
 ---
-.: No revenue matching (using DCP 133 data)
+.: No revenue matching (using DCP 133 asset values but not diversities)
 PerlModule: CDCM
 coincidenceAdj: groupums
-dcp133: 1
+dcp133: nodiversity
 drm: top500gsp
 extraLevels: 1
 matrices: big
@@ -11,7 +11,7 @@ pcd: 1
 portfolio: 1
 scaler: none
 standing: sub132
-summary: statistics
+summary: 1
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163
 timeOfDay: timeOfDaySpecial

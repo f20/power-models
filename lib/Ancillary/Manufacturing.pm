@@ -34,40 +34,75 @@ require Storable;
 require YAML;
 require Ancillary::Validation;
 
-sub _loadModules {
-    my $ruleset = shift;
-    return 1 unless @_;
-    my %savedINC = %INC;
-    foreach (@_) {
-        eval "require $_";
-        if ($@) {
-            %INC = %savedINC;
-            my $for =
-              defined $ruleset->{template} ? " for $ruleset->{template}" : '';
-            warn <<EOW;
-Cannot load $_$for:
-$@
-EOW
+sub factory {
+    my ( $class, %factorySettings ) = @_;
+    my $self     = bless {}, $class;
+    my $threads1 = 0;
+    my %settings = %factorySettings;
+    my ( @rulesets, %ruleOverrides, @datasets, @xdata, %dataAccumulator );
+    my %rulesDataSettings;
+
+    $self->{prepare} = sub {
+        warn '{prepare} does nothing and is deprecated';
+    };
+
+    $self->{resetSettings} = sub {
+        %settings = %factorySettings;
+    };
+
+    $self->{resetRules} = sub {
+        @rulesets      = ();
+        %ruleOverrides = ();
+    };
+
+    $self->{resetData} = sub {
+        @datasets = ();
+        @xdata    = ();
+    };
+
+    $self->{setting} = sub {
+        %settings = ( %settings, @_ );
+    };
+
+    $self->{setRule} = sub {
+        %ruleOverrides = ( %ruleOverrides, @_ );
+    };
+
+    $self->{xdata} = sub {
+        push @xdata, @_;
+    };
+
+    my $processStream = $self->{processStream} = sub {
+
+        my ( $blob, $fileName ) = @_;
+
+        if ( $fileName =~ /\.dta$/is ) {    # $blob must be a file handle
+            require Parse::Stata::DtaReader;
+            warn "Reading $_ with Parse::Stata::DtaReader\n";
+            my $dta = Parse::Stata::DtaReader->new($blob);
+            my ( @table, @column );
+            for ( my $i = 1 ; $i < $dta->{nvar} ; ++$i ) {
+                if ( $dta->{varlist}[$i] =~ /t([0-9]+)c([0-9]+)/ ) {
+                    $table[$i]  = $1;
+                    $column[$i] = $2;
+                }
+            }
+            while ( my @row = $dta->readRow ) {
+                my $book = $row[0];
+                next unless my $line = $table[1] ? 'Single-line CSV' : $row[1];
+                $dataAccumulator{$book}{ $table[$_] }[ $column[$_] ]{$line} =
+                  $row[$_]
+                  foreach grep { $table[$_] } 1 .. $#table;
+            }
             return;
         }
-    }
-    1;
-}
 
-sub factory {
-    my ($class) = @_;
-    my $self = bless {}, $class;
-    my $threads1 = 2;
-    my ( $workbookModule, @rulesets, @datasets, %files, @createOptions,
-        %manufacturingSettings );
-
-    $self->{processStream} = sub {
-        my ( $blob, $fileName ) = @_;
         if ( ref $blob eq 'GLOB' ) {
             binmode $blob, ':utf8';
             local undef $/;
             $blob = <$blob>;
         }
+
         my @objects;
         if ( ref $blob ) {
             @objects = $blob;
@@ -80,6 +115,7 @@ sub factory {
         else {
             eval { @objects = _jsonMachine()->decode($blob); };
         }
+
         foreach ( grep { ref $_ eq 'HASH' } @objects ) {
             if ( exists $_->{template} ) {
                 push @rulesets, $_;
@@ -92,9 +128,10 @@ sub factory {
             }
             else {
                 my $datasetName;
-                if ( defined $fileName
-                    && $fileName =~
-m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
+                if (
+                    defined $fileName
+                    && $fileName =~ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?
+                        [/\\]?([^/\\]+)\.(?:yml|yaml|json)$#six
                   )
                 {
                     $datasetName = $2;
@@ -128,35 +165,10 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                 };
             }
         }
+
     };
 
-    $self->{useXLS} = sub {
-        if ( eval 'require SpreadsheetModel::Workbook' ) {
-            $workbookModule = 'SpreadsheetModel::Workbook';
-        }
-        else {
-            warn 'Could not load SpreadsheetModel::Workbook';
-            warn $@;
-        }
-        $self;
-    };
-
-    $self->{setSettings} = sub {
-        %manufacturingSettings = ( %manufacturingSettings, @_ );
-    };
-
-    $self->{useXLSX} = sub {
-        if ( eval 'require SpreadsheetModel::WorkbookXLSX' ) {
-            $workbookModule = 'SpreadsheetModel::WorkbookXLSX';
-        }
-        else {
-            warn 'Could not load SpreadsheetModel::WorkbookXLSX';
-            warn $@;
-        }
-        $self;
-    };
-
-    $self->{overrideRules} = sub {
+    my $overrideRules = $self->{overrideRules} = sub {
         my %override = @_;
         my $suffix = ( grep { !/^Export/ } keys %override ) ? '+' : '';
         foreach (@rulesets) {
@@ -165,10 +177,11 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
         }
     };
 
-    $self->{overrideData} = sub {
+    my $overrideData = $self->{overrideData} =
+      sub {    # this processes any kind of xdata, not just data overrides
         my $od;
         my $takeOutRules = sub {
-            $self->{overrideRules}->( ref $_ eq 'ARRAY' ? @$_ : %$_ )
+            $overrideRules->( ref $_ eq 'ARRAY' ? @$_ : %$_ )
               foreach grep { $_; }
               map          { delete $_[0]{$_}; }
               grep         { /^rules?$/i; }
@@ -230,9 +243,9 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
             $_->{'~datasetName'} .= "-$hash" if defined $_->{'~datasetName'};
         }
         ( $key, $hash );
-    };
+      };
 
-    $self->{validate} = sub {
+    my $validate = $self->{validate} = sub {
         my ( $perl5dir, $dbString ) = @_;
 
         foreach (@rulesets) {
@@ -253,7 +266,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
             $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
         }
 
-        $self->{useXLSX}->() unless $workbookModule;
+        require SpreadsheetModel::WorkbookCreate;
 
         my $sourceCodeDigest =
           Ancillary::Validation::sourceCodeDigest($perl5dir);
@@ -284,42 +297,70 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
           if eval "require $scoringModule";
     };
 
-    my $addToList = sub {
-        my ( $data, $rule, $extras ) = @_;
-        my $spreadsheetFile = $rule->{template};
-        if ( $rule->{revisionText} ) {
-            $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
-            $spreadsheetFile .= $rule->{revisionText};
-        }
-        $spreadsheetFile =~
-          s/%%/($data->{'~datasetName'}=~m#(.*)-[0-9]{4}-[0-9]{2}#)[0]/eg;
-        $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
-        if ( exists $manufacturingSettings{output} ) {
-            $spreadsheetFile =~ tr/-/ /;
-            $extras->{identification} = $spreadsheetFile;
-            $spreadsheetFile = $manufacturingSettings{output} || '';
-        }
-        $spreadsheetFile .= eval { $workbookModule->fileExtension; }
-          || ( $workbookModule =~ /xlsx/i ? '.xlsx' : '.xls' )
-          if $spreadsheetFile;
-        if ( $files{$spreadsheetFile} ) {
-            $files{$spreadsheetFile} = [
-                undef,
-                [
-                      $files{$spreadsheetFile}[0]
-                    ? $files{$spreadsheetFile}
-                    : @{ $files{$spreadsheetFile}[1] },
-                    [ $rule, $data, $extras || () ]
-                ]
-            ];
-        }
-        else {
-            $files{$spreadsheetFile} = [ $rule, $data, $extras || () ];
-        }
+    my ( $xlsModule, $xlsxModule, $workbookModule );
+
+    $workbookModule = sub {
+        return $xlsModule ||= eval {
+            require SpreadsheetModel::Workbook;
+            'SpreadsheetModel::Workbook';
+        } || $workbookModule->() if $_[0];
+        $xlsxModule ||= eval {
+            require SpreadsheetModel::WorkbookXLSX;
+            'SpreadsheetModel::WorkbookXLSX';
+        } || $workbookModule->(1);
     };
 
     $self->{fileList} = sub {
-        if ( $manufacturingSettings{pickBestRules} ) {
+
+        if (%dataAccumulator) {
+            while ( my ( $book, $data ) = each %dataAccumulator ) {
+                $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?([+-]r[0-9]+)?$//is;
+                my $blob     = YAML::Dump $data;
+                my $fileName = "$book.yml";
+                warn "Writing $book data\n";
+                open my $h, '>', $fileName . $$;
+                binmode $h, ':utf8';
+                print {$h} $blob;
+                close $h;
+                rename $fileName . $$, $fileName;
+                $processStream->( $blob, $fileName );
+            }
+        }
+
+        $overrideData->(@xdata)                 if @xdata;
+        $overrideRules->(%ruleOverrides)        if %ruleOverrides;
+        $validate->( @{ $settings{validate} } ) if $settings{validate};
+
+        my $extension = $workbookModule->( $settings{xls} )->fileExtension;
+        my $addToList = sub {
+            my ( $data, $rule ) = @_;
+            my $spreadsheetFile = $rule->{template};
+            if ( $rule->{revisionText} ) {
+                $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
+                $spreadsheetFile .= $rule->{revisionText};
+            }
+            $spreadsheetFile =~
+              s/%%/($data->{'~datasetName'}=~m#(.*)-[0-9]{4}-[0-9]{2}#)[0]/eg;
+            $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
+            $spreadsheetFile .= $extension;
+            if ( $rulesDataSettings{$spreadsheetFile} ) {
+                $rulesDataSettings{$spreadsheetFile} = [
+                    undef,
+                    [
+                          $rulesDataSettings{$spreadsheetFile}[0]
+                        ? $rulesDataSettings{$spreadsheetFile}
+                        : @{ $rulesDataSettings{$spreadsheetFile}[1] },
+                        [ $rule, $data, \%settings ]
+                    ]
+                ];
+            }
+            else {
+                $rulesDataSettings{$spreadsheetFile} =
+                  [ $rule, $data, \%settings ];
+            }
+        };
+
+        if ( $settings{pickBestRules} ) {
             foreach my $data (@datasets) {
                 my @scored;
                 my $metadata = [
@@ -338,7 +379,7 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                 }
             }
         }
-        elsif ( $manufacturingSettings{groupByRule} ) {
+        elsif ( $settings{groupByRule} ) {
             foreach my $rule (@rulesets) {
                 foreach my $data (@datasets) {
                     $addToList->( $data, $rule )
@@ -354,46 +395,58 @@ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?[/\\]?([^/\\]+)\.(?:yml|yaml|json)$#si
                 }
             }
         }
-        keys %files;
+        return keys %rulesDataSettings if wantarray;
     };
 
-    $self->{prepare} = sub {
-        map {
-            $files{$_}
-              && ( $files{$_} = _merge( @{ $files{$_} } ) ) ? $_ : ();
-        } @_;
-    };
-
-    $self->{addOptions} = sub {
-        push @createOptions, @_;
+    $self->{threads} = sub {
+        my ($threads) = @_;
+        $threads1 = $threads - 1
+          if $threads && $threads > 0 && $threads < 1_000;
+        1 + $threads1;
     };
 
     $self->{run} = sub {
-        foreach (@_) {
-            $workbookModule->create( $_, $files{$_}, @createOptions );
-            $manufacturingSettings{PostProcessing}->($_)
-              if $manufacturingSettings{PostProcessing};
+        my @fileNames = keys %rulesDataSettings;
+        my %instructionsSettings =
+          map {
+            $_ => [
+                _merge( @{ $rulesDataSettings{$_} }[ 0, 1 ] ),
+                $rulesDataSettings{$_}[2]
+            ];
+          } @fileNames;
+        if ( $threads1 && eval 'require Ancillary::ParallelRunning' ) {
+            foreach (@fileNames) {
+                Ancillary::ParallelRunning::waitanypid($threads1);
+                Ancillary::ParallelRunning::registerpid(
+                    $workbookModule->( $instructionsSettings{$_}[1]{xls} )
+                      ->bgCreate( $_, @{ $instructionsSettings{$_} } ),
+                    $instructionsSettings{$_}[1]{PostProcessing}
+                );
+            }
+            Ancillary::ParallelRunning::waitanypid(0);
         }
-    };
-
-    $self->{setThreads} = sub {
-        my ($threads) = @_;
-        $threads1 = $threads - 1 if $threads > 0 && $threads < 1_000;
-    };
-
-    $self->{runParallel} = sub {
-        require Ancillary::ParallelRunning or goto &{ $self->{run} };
-        foreach (@_) {
-            Ancillary::ParallelRunning::waitanypid($threads1);
-            Ancillary::ParallelRunning::registerpid(
-                $workbookModule->bgCreate( $_, $files{$_}, @createOptions ),
-                $manufacturingSettings{PostProcessing} );
+        else {
+            foreach (@fileNames) {
+                $workbookModule->( $instructionsSettings{$_}[1]{xls} )
+                  ->create( $_, @{ $instructionsSettings{$_} } );
+                $instructionsSettings{$_}[1]{PostProcessing}->($_)
+                  if $instructionsSettings{$_}[1]{PostProcessing};
+            }
         }
-        Ancillary::ParallelRunning::waitanypid(0);
     };
 
     $self;
 
+}
+
+my $_jsonMachine;
+
+sub _jsonMachine {
+    return $_jsonMachine if $_jsonMachine;
+    foreach (qw(JSON JSON::PP)) {
+        return $_jsonMachine = $_->new->utf8->canonical(1) if eval "require $_";
+    }
+    die 'No JSON module';
 }
 
 sub _merge {
@@ -419,31 +472,24 @@ sub _notPossible {
       } split /\s+/, $rule->{wantTables};
 }
 
-sub _runInFolder {
-    pipe local *IN, local *OUT;
-    if ( my $pid = fork ) {
-        close OUT;
-        my @result = <IN>;
-        chomp @result;
-        waitpid $pid, 0;
-        return "@_ says $?" if $? >> 8;
-        return wantarray ? @result : $result[0];
+sub _loadModules {
+    my $ruleset = shift;
+    return 1 unless @_;
+    my %savedINC = %INC;
+    foreach (@_) {
+        eval "require $_";
+        if ($@) {
+            %INC = %savedINC;
+            my $for =
+              defined $ruleset->{template} ? " for $ruleset->{template}" : '';
+            warn <<EOW;
+Cannot load $_$for:
+$@
+EOW
+            return;
+        }
     }
-    open STDOUT, '>&OUT';
-    close IN;
-    chdir shift;
-    exec @_;
-    die "exec @_: $!";
-}
-
-my $_jsonMachine;
-
-sub _jsonMachine {
-    return $_jsonMachine if $_jsonMachine;
-    foreach (qw(JSON JSON::PP)) {
-        return $_jsonMachine = $_->new->utf8->canonical(1) if eval "require $_";
-    }
-    die 'No JSON module';
+    1;
 }
 
 1;

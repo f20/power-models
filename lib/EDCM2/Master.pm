@@ -2158,11 +2158,11 @@ EOT
                 arguments     => {
                     IV1 => $totalForDemandAllTariffs,
                     IV2 => $totalForGenerationAllTariffs,
-                    IV3 => $model->{ldnoRevTables}->[1],
+                    IV3 => $model->{ldnoRevTables}[1],
                 }
             )
         ]
-      ) if $model->{ldnoRevTables};
+      ) if $model->{ldnoRevTables} && $model->{ldnoRevTables}[1];
 
     my $revenue = $model->revenue(
         $daysInYear,             $tariffs,

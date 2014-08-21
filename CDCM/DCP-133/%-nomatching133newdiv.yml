@@ -1,0 +1,17 @@
+---
+.: No revenue matching (using DCP 133 data)
+PerlModule: CDCM
+coincidenceAdj: groupums
+dcp133: 1
+drm: top500gsp
+extraLevels: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: none
+standing: sub132
+summary: 1
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDaySpecial

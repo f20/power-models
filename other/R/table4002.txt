@@ -8,3 +8,12 @@ option <- factor(frame$option);
 tariff <- factor(frame$tariff);
 peryear <- frame$peryear;
 permwh <- frame$permwh;
+company.name<-c('ENWL', 'NPG Northeast', 'NPG Yorkshire', 'SPEN SPD', 'SPEN SPM', 'SSEPD SEPD', 'SSEPD SHEPD', 'UKPN EPN', 'UKPN LPN', 'UKPN SPN', 'WPD EastM', 'WPD SWales', 'WPD SWest', 'WPD WestM');
+getSet<-function(bitmap) {
+    set <- rep(NA, length(company.name));
+    for (a in 1:length(set)) {
+        t <- (1:length(company))[bitmap&company==company.name[a]];
+        if (length(t)>0) set[a] <- t[1];
+    }
+    set;
+};

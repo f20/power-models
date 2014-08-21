@@ -40,7 +40,7 @@ sub bgCreate {
     $module->create( $fileName, @arguments );
     exit 0 if defined $pid;
 
-    # NB: if we do not want to rely on "exit", then do something like:
+    # NB: if we do not want to use exit, then do something like:
     #     $ENV{PATH} = '';
     #     eval { File::Temp::cleanup(); };
     #     exec '/bin/test';
@@ -48,32 +48,14 @@ sub bgCreate {
     $pid;
 }
 
-sub _applyDataOverride {
-    my ( $dataset, $override ) = @_;
-    foreach my $itable ( keys %$override ) {
-        for (
-            my $icolumn = 1 ;
-            $icolumn < @{ $override->{$itable} } ;
-            ++$icolumn
-          )
-        {
-            foreach my $irow ( keys %{ $override->{$itable}[$icolumn] } ) {
-                $dataset->{$itable}[$icolumn]{$irow} =
-                  $override->{$itable}[$icolumn]{$irow};
-            }
-        }
-    }
-    $dataset;
-}
-
 sub create {
 
-    my ( $module, $fileName, $instructions, %settings ) = @_;
+    my ( $module, $fileName, $instructions, $settings ) = @_;
     my @optionArray =
       ref $instructions eq 'ARRAY' ? @$instructions : $instructions;
     my @localTime = localtime;
     my $tmpDir;
-    my $streamMaker = $settings{streamMaker};
+    my $streamMaker = $settings->{streamMaker};
     $streamMaker ||= sub {
         my ($fn) = @_;
         unless ($fn) {
@@ -118,12 +100,24 @@ sub create {
                       };
                 }
             }
-            else {
-                $optionArray[$i]{dataset} =
-                  _applyDataOverride(
-                    Storable::dclone( $optionArray[$i]{dataset} ),
-                    $optionArray[$i]{dataOverride} )
-                  if $optionArray[$i]{dataOverride};
+            elsif ( my $override = $optionArray[$i]{dataOverride} ) {
+                my $dataset = Storable::dclone( $optionArray[$i]{dataset} );
+                foreach my $itable ( keys %$override ) {
+                    for (
+                        my $icolumn = 1 ;
+                        $icolumn < @{ $override->{$itable} } ;
+                        ++$icolumn
+                      )
+                    {
+                        foreach
+                          my $irow ( keys %{ $override->{$itable}[$icolumn] } )
+                        {
+                            $dataset->{$itable}[$icolumn]{$irow} =
+                              $override->{$itable}[$icolumn]{$irow};
+                        }
+                    }
+                }
+                $optionArray[$i]{dataset} = $dataset;
             }
         }
     }
@@ -231,7 +225,7 @@ sub create {
         $dumpLoc =~ s/\.xlsx?$//i;
         $dumpLoc .= $modelCount;
 
-        if ( $settings{ExportHtml} ) {
+        if ( $settings->{ExportHtml} ) {
             require SpreadsheetModel::ExportHtml;
             mkdir $dumpLoc;
             chmod 0770, $dumpLoc;
@@ -239,17 +233,17 @@ sub create {
                 "$dumpLoc/" );
         }
 
-        if ( $settings{ExportText} ) {
+        if ( $settings->{ExportText} ) {
             require SpreadsheetModel::ExportText;
             SpreadsheetModel::ExportText::writeText( $options, "$dumpLoc-" );
         }
 
-        if ( $settings{ExportRtf} ) {
+        if ( $settings->{ExportRtf} ) {
             require SpreadsheetModel::ExportRtf;
             SpreadsheetModel::ExportRtf::write( $options, $dumpLoc );
         }
 
-        if ( $settings{ExportGraphviz} ) {
+        if ( $settings->{ExportGraphviz} ) {
             require SpreadsheetModel::ExportGraphviz;
             my $dir = "$dumpLoc-graphs";
             mkdir $dir;
@@ -259,7 +253,7 @@ sub create {
                 $wbook, "$dir/" );
         }
 
-        if ( $settings{ExportYaml} || $settings{ExportPerl} ) {
+        if ( $settings->{ExportYaml} || $settings->{ExportPerl} ) {
             my @objects = grep { defined $_ } @{ $options->{logger}{objects} };
             my $objNames = join( "\n",
                 $options->{logger}{realRows}
@@ -268,7 +262,7 @@ sub create {
             my @coreObj =
               map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
               @objects;
-            if ( $settings{ExportYaml} ) {
+            if ( $settings->{ExportYaml} ) {
                 require YAML;
                 open my $fh, '>', "$dumpLoc.$$";
                 binmode $fh, ':utf8';
@@ -281,7 +275,7 @@ sub create {
                 close $fh;
                 rename "$dumpLoc.$$", "$dumpLoc.yaml";
             }
-            if ( $settings{ExportPerl} ) {
+            if ( $settings->{ExportPerl} ) {
                 require Data::Dumper;
                 my %counter;
                 local $_ =

@@ -1,12 +1,12 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
 while [ ! -e run/make.pl ]; do pwd; cd ..; done
-RUN=_cdcmts-$$
+RUN=_edcmts-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
-time ../run/make.pl -pickbest -stats -sqlite ../CDCM/*/%-clean100.yml  ../CDCM/*/%-clean132.yml  ../CDCM/*/%-after163.yml ../CDCM/Data-*-02/*
-time ../run/export.pl tscs 10 37 38 39 40
+time ../run/make.pl -stats -sqlite ../EDCM/*/%-beta-*.yml  ../EDCM/*/%-b206-*.yml  ../EDCM/Data-*-02/*
+time ../run/export.pl tscs 11 45 46 47 48
 cd ..
 mv _$RUN.tmp $RUN.tmp
 echo "$RUN.tmp complete; press any key to exit"

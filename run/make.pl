@@ -31,6 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use Encode qw(decode_utf8);
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 use File::Spec::Functions qw(rel2abs abs2rel catfile catdir);
@@ -50,18 +51,19 @@ BEGIN {
 use lib catdir( $homedir, 'cpan' ), $perl5dir;
 
 use Ancillary::Manufacturing;
-my $maker = Ancillary::Manufacturing->factory;
-my %dataAccumulator;
-my %override;
-my $xdata = '';
+my $maker =
+  Ancillary::Manufacturing->factory(
+    validate => [ $perl5dir, grep { -d $_ } catdir( $homedir, 'X_Revisions' ) ]
+  );
 
-my $threads;
-$threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
-chomp $threads if $threads;
-$threads ||= 1;
+if ( $^O !~ /win32/i ) {
+    if ( my $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` ) {
+        chomp $threads;
+        $maker->{threads}->($threads);
+    }
+}
 
-my $processArg = sub {
-    local $_ = $_[0];
+foreach ( map { decode_utf8 $_} @ARGV ) {
     if (/^-/s) {
         if (/^-+$/s) { $maker->{processStream}->( \*STDIN ); }
         elsif (/^-+(?:carp|confess)/is) {
@@ -69,13 +71,24 @@ my $processArg = sub {
             $SIG{__DIE__} = \&Carp::confess;
         }
         elsif (/^-+check/is) {
-            $override{activeSheets} = 'Result|Tariff';
-            $override{checksums}    = 'Tariff checksum 5; Model checksum 7';
+            $maker->{setRule}->(
+                activeSheets => 'Result|Tariff',
+                checksums    => 'Tariff checksum 5; Model checksum 7'
+            );
         }
-        elsif (/^-+debug/is)   { $override{debug}        = 1; }
-        elsif (/^-+forward/is) { $override{forwardLinks} = 1; }
-        elsif (/^-+(html|text|rtf|perl|yaml|graphviz)/is) {
-            $maker->{addOptions}->( 'Export' . ucfirst( lc($1) ), 1 );
+        elsif (/^-+debug/is)   { $maker->{setRule}->( debug        => 1 ); }
+        elsif (/^-+forward/is) { $maker->{setRule}->( forwardLinks => 1 ); }
+        elsif (
+            /^-+( graphviz|
+                  html|
+                  perl|
+                  rtf|
+                  text|
+                  yaml
+                )=([0-9]+)/xis
+          )
+        {
+            $maker->{setting}->( 'Export' . ucfirst( lc($1) ), 1 );
         }
         elsif (/^-+lib=(\S+)/is) {
             my $d = catdir( $perl5dir, $1 );
@@ -95,52 +108,53 @@ my $processArg = sub {
                 )=([0-9]+)/xis
           )
         {
-            $override{$1} = $2;
+            $maker->{setRule}->( $1 => $2 );
         }
-        elsif (/^-+orange/is) { $override{colour} = 'orange'; }
+        elsif (/^-+orange/is) { $maker->{setRule}->( colour => 'orange' ); }
         elsif (/^-+gold/is) {
-            $override{colour} = 'gold';
             srand();
-            $override{password} = rand();
-        }
-        elsif (/^-+output=?(.*)/is) {
-            $maker->{setSettings}->( output => $1 );
+            $maker->{setRule}->( colour => 'gold', password => rand() );
         }
         elsif (/^-+pickbest/is) {
-            $maker->{setSettings}->( pickBestRules => 1 );
+            $maker->{setting}->( pickBestRules => 1 );
         }
-        elsif (/^-+password=(.+)/is)    { $override{password}  = $1; }
-        elsif (/^-+(no|skip)protect/is) { $override{protect}   = 0; }
-        elsif (/^-+(right.*)/is)        { $override{alignment} = $1; }
-        elsif (/^-+single/is)           { $threads             = 1; }
+        elsif (/^-+password=(.+)/is) { $maker->{setRule}->( password => $1 ); }
+        elsif (/^-+(no|skip)protect/is) { $maker->{setRule}->( protect => 0 ); }
+        elsif (/^-+(right.*)/is) { $maker->{setRule}->( alignment => $1 ); }
+        elsif (/^-+single/is)    { $maker->{threads}->(1); }
         elsif (/^-+(sqlite.*)/is) {
             my $settings = "convert$1";
             require Compilation::Import;
-            $maker->{setSettings}->(
+            $maker->{setting}->(
                 PostProcessing => Compilation::Import::makePostProcessor(
-                    $threads, Compilation::Import::makeSQLiteWriter($settings),
-                    $settings
+                    $maker->{threads}->(),
+                    Compilation::Import::makeSQLiteWriter($settings), $settings
                 )
             );
         }
         elsif (/^-+stats/is) {
-            $override{summary}      = 'statistics';
-            $override{illustrative} = 1;
+            $maker->{setRule}->( summary => 'statistics', illustrative => 1 );
         }
-        elsif (/^-+([0-9]+)/is) { $threads = $1; }
+        elsif (/^-+([0-9]+)/is) { $maker->{threads}->($1); }
         elsif (/^-+template(?:=(.+))?/is) {
-            $override{template} = $1 || ( time . "-$$" );
+            $maker->{setRule}->( template => $1 || ( time . "-$$" ) );
         }
         elsif (/^-+xdata=?(.*)/is) {
-            $xdata .= "$1\n";
-            unless ($xdata) {
+            if ($1) {
+                $maker->{xdata}->($1);
+            }
+            else {
                 local undef $/;
                 print "Enter xdata:\n";
-                $xdata .= <STDIN>;
+                $maker->{xdata}->(<STDIN>);
             }
         }
-        elsif (/^-+xls$/is)  { $maker->{useXLS}->(); }
-        elsif (/^-+xlsx$/is) { $maker->{useXLSX}->(); }
+        elsif (/^-+xls$/is)  { $maker->{setting}->( xls => 1 ); }
+        elsif (/^-+xlsx$/is) { $maker->{setting}->( xls => 0 ); }
+        elsif (/^-+new(data|rules|settings)/is) {
+            $maker->{fileList}->();
+            $maker->{ 'reset' . ucfirst( lc($1) ) }->();
+        }
         else {
             warn "Unrecognised option: $_";
         }
@@ -153,65 +167,19 @@ my $processArg = sub {
             open $dh, join ' ', ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
               "'$_'", '|';
         }
-        elsif (/\.(?:ya?ml|json|dta)$/si) {
+        else {
             open $dh, '<', $_;
         }
         unless ($dh) {
-            warn "Cannot open $_";
-            return;
-        }
-        if (/\.dta$/is) {
-            require Parse::Stata::DtaReader;
-            warn "Reading $_\n";
-            my $dta = Parse::Stata::DtaReader->new($dh);
-            my ( @table, @column );
-            for ( my $i = 1 ; $i < $dta->{nvar} ; ++$i ) {
-                if ( $dta->{varlist}[$i] =~ /t([0-9]+)c([0-9]+)/ ) {
-                    $table[$i]  = $1;
-                    $column[$i] = $2;
-                }
-            }
-            while ( my @row = $dta->readRow ) {
-                my $book = $row[0];
-                next unless my $line = $table[1] ? 'Single-line CSV' : $row[1];
-                $dataAccumulator{$book}{ $table[$_] }[ $column[$_] ]{$line} =
-                  $row[$_]
-                  foreach grep { $table[$_] } 1 .. $#table;
-            }
-            return;
+            warn "Could not open file: $_";
+            next;
         }
         $maker->{processStream}->( $dh, abs2rel($_) );
     }
     else {
         warn "Cannot handle this argument: $_";
     }
-};
-
-$processArg->( decode_utf8 $_) foreach @ARGV;
-
-if (%dataAccumulator) {
-    require YAML;
-    while ( my ( $book, $data ) = each %dataAccumulator ) {
-        $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?(-r[0-9]+)?$//is;
-        my $yml = "$book.yml";
-        if ( 0 && -e $yml ) {
-            my $no = 0;
-            $yml = $book . --$no . '.yml' while -e $yml;
-        }
-        warn "Writing $book data\n";
-        open my $h, '>', $yml . $$;
-        binmode $h, ':utf8';
-        print {$h} YAML::Dump $data;
-        close $h;
-        rename $yml . $$, $yml;
-        $processArg->($yml);
-    }
 }
 
-$maker->{overrideRules}->(%override) if %override;
-$maker->{overrideData}->($xdata)     if $xdata;
-$maker->{setThreads}->($threads);
-$maker->{validate}
-  ->( $perl5dir, grep { -e $_ } catdir( $homedir, 'X_Revisions' ) );
-$maker->{ $threads > 1 ? 'runParallel' : 'run' }
-  ->( $maker->{prepare}->( $maker->{fileList}->() ) );
+$maker->{fileList}->();
+$maker->{run}->();
