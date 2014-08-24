@@ -57,9 +57,8 @@ create index periodsp on periods (p);
 insert into periods (p) select period from models group by period order by period;
 update models set per = (select per from periods where p=period); 
 drop table if exists mytables;
-create table mytables (com integer, per integer, tab integer, mytable char, b1 integer, mr integer, primary key (com, per, tab));
-insert into mytables (com, per, b1, tab, mr) select com, per, bid, tab, min(row) from models inner join data using (bid) where tab > 0 group by com, per, bid, tab;
-update mytables set mytable=(select v from data where bid=b1 and tab=mytables.tab and row=mr and col=0);
+create table mytables (tab integer, per integer, bidone integer, minrow integer, primary key (tab, per));
+insert into mytables (per, bidone, tab, minrow) select per, bid, tab, min(row) from models inner join data using (bid) where tab > 0 group by per, tab;
 drop table if exists columns;
 create table columns (com integer, per integer, tab integer, col integer, mycolumn char, primary key (com, per, tab, col));
 insert into columns select com, per, tab, col, v from models inner join data using (bid) where row=0 group by com, per, tab, col;
@@ -75,7 +74,7 @@ insert into tscs (com, per, tab, col, row, v) select com, per, tab, col, row, v 
 drop table models;
 EOSQL
 
-=head Not done
+=head Disabled
 
 insert into tscs (com, per, tab, col, row, v) select com, 0, 0, 0, 0, c from companies;
 drop table companies;
@@ -91,9 +90,21 @@ drop table mytables;
 
 sub tscsCreateOutputFiles {
     my ( $self, $workbookModule, $options ) = @_;
-    my ( $file, $wb, $smallNumberFormat, $bigNumberFormat, $thFormat,
+
+    my $tabList =
+      $self->prepare('select tab from mytables group by tab order by tab');
+    $tabList->execute;
+    my $fetch =
+      $self->prepare(
+'select c, tscs.per, mycolumn, myrow, tscs.v, abs(tscs.v)<1000 from tscs, companies, columns, rows, rownumbers where rowname=myrow and tscs.tab=rowtab and tscs.tab=? and tscs.com=companies.com and tscs.com=columns.com and tscs.per=columns.per and tscs.tab=columns.tab and tscs.col=columns.col and tscs.com=rows.com and tscs.per=rows.per and tscs.tab=rows.tab and tscs.row=rows.row order by tscs.com, tscs.tab, tscs.col, rownumber, myrow, tscs.per'
+      );
+    my $qTableTitles = $self->prepare(
+'select v from periods left join mytables on (periods.per=mytables.per and mytables.tab=?) left join data on (bid=bidone and row=minrow and col=0 and data.tab=mytables.tab) order by periods.per'
+    );
+
+    my ( $wb, $smallNumberFormat, $bigNumberFormat, $thFormat,
         $thcFormat, $captionFormat, $titleFormat );
-    $file = '';
+    my $file = '';
     my @topLine =
       map { $_->[0]; }
       @{ $self->selectall_arrayref('select p from periods order by per') };
@@ -101,20 +112,7 @@ sub tscsCreateOutputFiles {
       ( qw(dno col row), map { local $_ = $_; s/[^0-9]//g; "v$_"; } @topLine );
     @topLine = ( qw(DNO Column Row), @topLine );
 
-    my $tabList =
-      $self->prepare(
-'select tab, mytable from mytables group by tab, mytable order by tab, mytable'
-      );
-    $tabList->execute;
-    my $fetch =
-      $self->prepare(
-'select c, tscs.per, mycolumn, myrow, tscs.v, abs(tscs.v)<1000 from tscs, companies, columns, rows, rownumbers where rowname=myrow and tscs.tab=rowtab and tscs.tab=? and tscs.com=companies.com and tscs.com=columns.com and tscs.per=columns.per and tscs.tab=columns.tab and tscs.col=columns.col and tscs.com=rows.com and tscs.per=rows.per and tscs.tab=rows.tab and tscs.row=rows.row order by tscs.com, tscs.tab, tscs.col, rownumber, myrow, tscs.per'
-      );
-    my $tab1 = 0;
-
-    my $counter = 0;
-
-    while ( my ( $tab, $table ) = $tabList->fetchrow_array ) {
+    while ( my ($tab) = $tabList->fetchrow_array ) {
         next
           if $options->{tablesMatching} && !grep { $tab =~ /$_/ }
           @{ $options->{tablesMatching} };
@@ -133,20 +131,20 @@ sub tscsCreateOutputFiles {
                 $captionFormat     = $wb->getFormat('caption');
                 $titleFormat       = $wb->getFormat('notes');
             }
-            if ( $tab == $tab1 ) {
-                $counter ||= -1;
-                --$counter;
-            }
-            else {
-                $counter = '';
-            }
-            $ws   = $wb->add_worksheet( $tab . $counter );
-            $tab1 = $tab;
+            $ws = $wb->add_worksheet($tab);
             $ws->set_column( 0, 2,   36 );
             $ws->set_column( 3, 250, 18 );
             $ws->hide_gridlines(2);
             $ws->freeze_panes( 1, 0 );
-            $ws->write_string( 0, 0, $table, $titleFormat );
+            $ws->write_string( 0, 0, "Table $tab", $titleFormat );
+            $qTableTitles->execute($tab);
+            my $col = 3;
+
+            while ( my ($tableName) = $qTableTitles->fetchrow_array ) {
+                $ws->write_string( 0, $col, $tableName, $titleFormat )
+                  if $tableName;
+                ++$col;
+            }
             $row = 2;
             $ws->write_string( $row, $_, $topLine[$_], $thcFormat )
               for 0 .. $#topLine;
