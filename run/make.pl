@@ -85,7 +85,7 @@ foreach ( map { decode_utf8 $_} @ARGV ) {
                   rtf|
                   text|
                   yaml
-                )=([0-9]+)/xis
+                )/xis
           )
         {
             $maker->{setting}->( 'Export' . ucfirst( lc($1) ), 1 );
