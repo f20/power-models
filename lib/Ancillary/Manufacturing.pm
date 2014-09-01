@@ -450,10 +450,8 @@ sub _jsonMachine {
 }
 
 sub _merge {
-    if ( !$_[0] && ref $_[1] eq 'ARRAY' ) {
-        my @result = map { _merge(@$_); } @{ $_[1] };
-        return wantarray ? @result : \@result;
-    }
+    return [ map { _merge(@$_); } @{ $_[1] } ]
+      if !$_[0] && ref $_[1] eq 'ARRAY';
     my %options = map { %$_ } @_;
     my %opt = %options;
     delete $opt{$_} foreach qw(dataset datasetOverride);
