@@ -453,6 +453,16 @@ sub _merge {
     return [ map { _merge(@$_); } @{ $_[1] } ]
       if !$_[0] && ref $_[1] eq 'ARRAY';
     my %options = map { %$_ } @_;
+    $options{identification} ||= join ' ', map {
+        if ( local $_ = $_ ) {
+            tr/-/ /;
+            s/ (20[0-9][0-9] [0-9][0-9])/\t$1/;
+            $_;
+        }
+        else {
+            ();
+        }
+    } @options{qw(~datasetName version)};
     my %opt = %options;
     delete $opt{$_} foreach qw(dataset datasetOverride);
     $opt{password} = "***" if $opt{password};

@@ -36,7 +36,7 @@ sub makeStatisticsAssumptions {
 
     my ($model) = @_;
 
-    return @{ $model->{sharedData}{statisticsAssumptionsStructure} }
+    return $model->{sharedData}{statisticsAssumptionsStructure}
       if $model->{sharedData}
       && $model->{sharedData}{statisticsAssumptionsStructure};
 
@@ -49,127 +49,40 @@ sub makeStatisticsAssumptions {
       && $model->{dataset}{$1};
     unless ($colspec) {
         require YAML;
-        ($colspec) = YAML::Load(<<'EOY');
----
-1234:
-  - Customer 11 Low use: 1900
-    Customer 12 Medium use: 3800
-    Customer 15 High use: 7600
-    _column: Total consumption (kWh/year)
-  - Customer 15 High use: 5000
-    Customer 11 Low use: 475
-    Customer 12 Medium use: 950
-    _column: Rate 2 consumption (kWh/year)
-  - Customer 31 Small continuous: 69
-    Customer 33 Small off-peak: 69
-    Customer 35 Small peak-time: 69
-    Customer 51 Continuous: 500
-    Customer 53 Off-peak: 500
-    Customer 55 Peak-time: 500
-    Customer 81 Large continuous: 5000
-    Customer 83 Large off-peak: 5000
-    Customer 85 Large peak-time: 5000
-    _column: Capacity (kVA)
-  - Customer 31 Small continuous: 65
-    Customer 33 Small off-peak: 65
-    Customer 35 Small peak-time: 65
-    Customer 51 Continuous: 450
-    Customer 53 Off-peak: 450
-    Customer 55 Peak-time: 450
-    Customer 81 Large continuous: 4500
-    Customer 83 Large off-peak: 4500
-    Customer 85 Large peak-time: 4500
-    _column: Off-peak load (kW)
-  - Customer 31 Small continuous: 168
-    Customer 33 Small off-peak: 77
-    Customer 35 Small peak-time: 0
-    Customer 51 Continuous: 168
-    Customer 53 Off-peak: 77
-    Customer 55 Peak-time: 0
-    Customer 81 Large continuous: 168
-    Customer 83 Large off-peak: 77
-    Customer 85 Large peak-time: 0
-    _column: Off-peak hours/week
-  - Customer 31 Small continuous: 0
-    Customer 33 Small off-peak: 0
-    Customer 35 Small peak-time: 65
-    Customer 51 Continuous: 0
-    Customer 53 Off-peak: 0
-    Customer 55 Peak-time: 450
-    Customer 81 Large continuous: 0
-    Customer 83 Large off-peak: 0
-    Customer 85 Large peak-time: 4500
-    _column: Peak-time load (kW)
-  - Customer 31 Small continuous: 0
-    Customer 33 Small off-peak: 0
-    Customer 35 Small peak-time: 48
-    Customer 51 Continuous: 0
-    Customer 53 Off-peak: 0
-    Customer 55 Peak-time: 48
-    Customer 81 Large continuous: 0
-    Customer 83 Large off-peak: 0
-    Customer 85 Large peak-time: 48
-    _column: Peak-time hours/week
-  - ~
-  - Customer 11 Low use: '/^(?:|LDNO.*: |Margin.*: )Domestic Unrestricted/'
-    Customer 12 Medium use: '/^(?:|LDNO.*: |Margin.*: )Domestic Unrestricted/'
-    Customer 15 High use: '/^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium)/'
-    Customer 31 Small continuous: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
-    Customer 33 Small off-peak: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
-    Customer 35 Small peak-time: /^Small Non Domestic Unrestricted|^LV HH|^LV Network Non/
-    Customer 51 Continuous: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
-    Customer 53 Off-peak: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
-    Customer 55 Peak-time: '/^(?:LV|LV Sub|HV|LDNO HV: (?:LV|LV Sub)) HH/'
-    Customer 81 Large continuous: /^HV HH/
-    Customer 83 Large off-peak: /^HV HH/
-    Customer 85 Large peak-time: /^HV HH/
-EOY
-
+        ($colspec) = YAML::Load(<DATA>);
         ($colspec) = values %$colspec;
-
     }
 
-    my %capabilities;
-    foreach (@$colspec) {
-        next unless ref $_ eq 'HASH';
-        if ( my $colName = $_->{_column} ) {
-            push @{ $capabilities{$_} }, $colName
-              foreach grep { $_ ne '_column' } keys %$_;
-        }
-        else {
-            while ( my ( $k, $v ) = each %$_ ) {
-                push @{ $capabilities{$k} }, $v;
-            }
-        }
-    }
-
-    my @rows = sort keys %capabilities;
+    my @rows = sort grep { $_ ne '_column'; } keys %{ $colspec->[1] };
 
     my $rowset = Labelset( list => \@rows );
 
+  # Editable constant columns so that they auto-populate irrespective of dataset
     my @columns = map {
         my $col = $_;
-        Constant( # Editable constant: auto-populates irrespective of data from dataset
+        Constant(
             name          => $col->{_column},
-            defaultFormat => '0hardnz',
-            rows          => $rowset,
-            data          => [ map { $col->{$_} } @rows ],
+            defaultFormat => $col->{_column} =~ /hours\/week/ ? '0.0hard'
+            : $col->{_column} =~ /kVA/ ? '0hard'
+            : '0.000hard',
+            rows => $rowset,
+            data => [ @$_{@rows} ],
           )
-    } grep { $_->{_column} } @$colspec;
+    } @$colspec[ 2 .. 7 ];
 
-    Columnset(
-        name => 'Assumed usage for illustrative customers',
+    my $result = Columnset(
+        name => 'Consumption assumptions for illustrative customers',
         $model->{sharedData}
         ? ( appendTo => $model->{sharedData}{statsAssumptions} )
         : (),
         columns => \@columns,
+        regex   => $colspec->[1],
     );
 
-    $model->{sharedData}{statisticsAssumptionsStructure} =
-      [ \@rows, \%capabilities, @columns ]
+    $model->{sharedData}{statisticsAssumptionsStructure} = $result
       if $model->{sharedData};
 
-    \@rows, \%capabilities, @columns;
+    $result;
 
 }
 
@@ -182,29 +95,251 @@ sub makeStatisticsTables {
     my ($allTariffs) = values %$tariffTable;
     $allTariffs = $allTariffs->{rows};
 
-    my ( $users, $capabilities, @columns ) = $model->makeStatisticsAssumptions;
+    my $assumptions = $model->makeStatisticsAssumptions;
+
+    my ( %override, @columns2 );
+
+    unless ( $model->{sharedData} ) {
+
+        my $blank = [ map { '' } @{ $assumptions->{rows}{list} } ];
+        push @columns2,
+          $override{$_} = Constant(
+            name          => "Override\t$_ kWh/year",
+            defaultFormat => '0hard',
+            rows          => $assumptions->{rows},
+            data          => $blank,
+          ) foreach qw(red amber green);
+
+        push @columns2,
+          $override{total} = Arithmetic(
+            name          => "Override\ttotal kWh/year",
+            defaultFormat => '0soft',
+            arithmetic    => '=IV1+IV2+IV3',
+            arguments     => {
+                IV1 => $override{red},
+                IV2 => $override{amber},
+                IV3 => $override{green},
+            },
+          );
+
+    }
+
+    push @columns2,
+      my $totalUnits = Arithmetic(
+        name          => 'Total kWh/year',
+        defaultFormat => '0soft',
+        rows          => $assumptions->{rows},
+        arithmetic    => %override
+        ? '=IF(IV5,IV6,(C8*E8+D8*F8+(168-C81-D81)*G8)*IV2/7)'
+        : '=(C8*E8+D8*F8+(168-C81-D81)*G8)*IV2/7',
+        arguments => {
+            IV2 => $daysInYear,
+            %override ? ( IV5 => $override{total}, IV6 => $override{total} )
+            : (),
+            C8  => $assumptions->{columns}[0],
+            C81 => $assumptions->{columns}[0],
+            D8  => $assumptions->{columns}[1],
+            D81 => $assumptions->{columns}[1],
+            E8  => $assumptions->{columns}[2],
+            F8  => $assumptions->{columns}[3],
+            G8  => $assumptions->{columns}[4],
+        },
+      );
+
+    push @columns2,
+      my $rate2 = Arithmetic(
+        name          => 'Rate 2 kWh/year',
+        defaultFormat => '0soft',
+        arithmetic    => '=IV1*IV3*IV2/7',
+        arguments     => {
+            IV1 => $assumptions->{columns}[1],
+            IV3 => $assumptions->{columns}[1],
+            IV2 => $daysInYear,
+        },
+      );
+
+    push @columns2, my $red = SpreadsheetModel::Custom->new(
+        name          => 'Red kWh/year',
+        defaultFormat => '0soft',
+        rows          => $assumptions->{rows},
+        custom        => [
+            %override
+            ? '=IF(IV10,IV11,IV321*IV613+(IV311-IV322)*MIN(IV61,IV72/7*IV51)+'
+              . '(IV301-IV323)*MAX(0,IV77/7*IV43-IV631-IV623))'
+            : '=IV321*IV613+(IV311-IV322)*MIN(IV61,IV72/7*IV51)+'
+              . '(IV301-IV323)*MAX(0,IV77/7*IV43-IV631-IV623)'
+        ],
+        arguments => {
+            %override
+            ? (
+                IV10 => $override{total},
+                IV11 => $override{red}
+              )
+            : (),
+            IV301 => $assumptions->{columns}[3],
+            IV311 => $assumptions->{columns}[2],
+            IV321 => $assumptions->{columns}[4],
+            IV322 => $assumptions->{columns}[4],
+            IV323 => $assumptions->{columns}[4],
+            IV61  => $model->{hoursByRedAmberGreen},
+            IV613 => $model->{hoursByRedAmberGreen},
+            IV623 => $model->{hoursByRedAmberGreen},
+            IV631 => $model->{hoursByRedAmberGreen},
+            IV43  => $assumptions->{columns}[1],
+            IV51  => $assumptions->{columns}[0],
+            IV72  => $daysInYear,
+            IV77  => $daysInYear,
+        },
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                '', $format, $formula->[0], map {
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{$_} + (
+                            /^IV[1-5]/
+                            ? $y
+                            : 0
+                        ),
+                        $colh->{$_} + ( /^IV62/ ? 1 : /^IV63/ ? 2 : 0 ),
+                        /^IV[1-5]/ ? 0 : 1,
+                        1,
+                      )
+                } @$pha;
+            };
+        },
+    );
+
+    push @columns2, my $amber = SpreadsheetModel::Custom->new(
+        name          => 'Amber kWh/year',
+        defaultFormat => '0soft',
+        rows          => $assumptions->{rows},
+        custom        => [
+            %override
+            ? '=IF(IV10,IV12,'
+              . 'IV324*IV624+(IV312-IV325)*MIN(IV620,MAX(0,IV73/7*IV52-IV611))+'
+              . '(IV302-IV326)*MIN(IV621,MAX(0,IV75/7*IV42-IV632)))'
+            : '=IV324*IV624+(IV312-IV325)*MIN(IV620,MAX(0,IV73/7*IV52-IV611))+'
+              . '(IV302-IV326)*MIN(IV621,MAX(0,IV75/7*IV42-IV632))'
+        ],
+        arguments => {
+            %override
+            ? (
+                IV10 => $override{total},
+                IV12 => $override{amber}
+              )
+            : (),
+            IV302 => $assumptions->{columns}[3],
+            IV312 => $assumptions->{columns}[2],
+            IV324 => $assumptions->{columns}[4],
+            IV325 => $assumptions->{columns}[4],
+            IV326 => $assumptions->{columns}[4],
+            IV42  => $assumptions->{columns}[1],
+            IV52  => $assumptions->{columns}[0],
+            IV611 => $model->{hoursByRedAmberGreen},
+            IV620 => $model->{hoursByRedAmberGreen},
+            IV621 => $model->{hoursByRedAmberGreen},
+            IV624 => $model->{hoursByRedAmberGreen},
+            IV632 => $model->{hoursByRedAmberGreen},
+            IV73  => $daysInYear,
+            IV75  => $daysInYear,
+        },
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                '', $format, $formula->[0], map {
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{$_} + ( /^IV[1-5]/ ? $y : 0 ),
+                        $colh->{$_} + ( /^IV62/ ? 1 : /^IV63/ ? 2 : 0 ),
+                        /^IV[1-5]/ ? 0 : 1,
+                        1,
+                      )
+                } @$pha;
+            };
+        },
+    );
+
+    push @columns2, my $green = SpreadsheetModel::Custom->new(
+        name          => 'Green kWh/year',
+        defaultFormat => '0soft',
+        rows          => $assumptions->{rows},
+        custom        => [
+            %override
+            ? '=IF(IV10,IV13,'
+              . 'IV327*IV633+(IV313-IV328)*MAX(0,IV74/7*IV53-IV612-IV622)+'
+              . '(IV303-IV329)*MIN(IV63,IV76/7*IV41))'
+            : '=IV327*IV633+(IV313-IV328)*MAX(0,IV74/7*IV53-IV612-IV622)+'
+              . '(IV303-IV329)*MIN(IV63,IV76/7*IV41)'
+        ],
+        arguments => {
+            %override
+            ? (
+                IV10 => $override{total},
+                IV13 => $override{green}
+              )
+            : (),
+            IV303 => $assumptions->{columns}[3],
+            IV313 => $assumptions->{columns}[2],
+            IV327 => $assumptions->{columns}[4],
+            IV328 => $assumptions->{columns}[4],
+            IV329 => $assumptions->{columns}[4],
+            IV41  => $assumptions->{columns}[1],
+            IV53  => $assumptions->{columns}[0],
+            IV612 => $model->{hoursByRedAmberGreen},
+            IV622 => $model->{hoursByRedAmberGreen},
+            IV63  => $model->{hoursByRedAmberGreen},
+            IV633 => $model->{hoursByRedAmberGreen},
+            IV74  => $daysInYear,
+            IV76  => $daysInYear,
+        },
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                '', $format, $formula->[0], map {
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{$_} + (
+                            /^IV[1-5]/
+                            ? $y
+                            : 0
+                        ),
+                        $colh->{$_} + ( /^IV62/ ? 1 : /^IV63/ ? 2 : 0 ),
+                        /^IV[1-5]/ ? 0 : 1,
+                        1,
+                      )
+                } @$pha;
+            };
+        },
+    );
+
+    Columnset(
+        name => (
+            %override
+            ? 'Additional consumption assumptions'
+            : 'Consumption calculations'
+          )
+          . ' for illustrative customers',
+        columns => \@columns2,
+    );
+
+    my $users = $assumptions->{rows}{list};
 
     my ( %map, @groups );
-
     for ( my $uid = 0 ; $uid < @$users ; ++$uid ) {
+        my ( @list, @listmargin );
         my $short = my $user = $users->[$uid];
         $short =~ s/^Customer *[0-9]+ *//;
-        my $caps = $capabilities->{$user};
-        my ( @list, @listmargin );
-      TARIFF: for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
+        my $regex = qr/$assumptions->{regex}{$user}/m;
+        for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
             next
               if $allTariffs->{groupid}
               && !defined $allTariffs->{groupid}[$tid];
             my $tariff = $allTariffs->{list}[$tid];
-            foreach (@$caps) {
-                if (m#^/(.+)/$#s) {
-                    next TARIFF unless $tariff =~ /$1/m;
-                    next;
-                }
-                next TARIFF
-                  if m#kWh/year#
-                  && $componentMap->{$tariff}{'Unit rates p/kWh'};
-            }
+            next unless $tariff =~ /$regex/m;
             $tariff =~ s/^.*\n//s;
             my $row = "$short ($tariff)";
             push @list, $row;
@@ -213,11 +348,7 @@ sub makeStatisticsTables {
                 my $boundary = $1;
                 my $atw      = $2;
                 my $margin   = "Margin $boundary: $atw";
-                foreach (@$caps) {
-                    if (m#^/(.+)/$#s) {
-                        next TARIFF unless $margin =~ /$1/m;
-                    }
-                }
+                next unless $margin =~ /$regex/m;
                 if ( my $atwmapped = $map{"$short ($atw)"} ) {
                     my $marginrow = "$short ($margin)";
                     push @listmargin, $marginrow;
@@ -232,16 +363,6 @@ sub makeStatisticsTables {
         push @groups, Labelset( name => $user, list => \@list );
     }
 
-    my ($annualUnits) =
-      grep { $_->{name} =~ m#kWh/year#i && $_->{name} =~ /total/i } @columns;
-    my ($rate2Units) =
-      grep { $_->{name} =~ m#kWh/year#i && $_->{name} =~ /rate 2/i } @columns;
-    my (@kW) = grep { $_->{name} =~ /kW/i && $_->{name} !~ /kWh/i } @columns;
-    my ($offhours)  = grep { $_->{name} =~ /off[- ]peak hours/i } @columns;
-    my ($peakhours) = grep { $_->{name} =~ /peak[- ]time hours/i } @columns;
-    my ($capacity) =
-      grep { $_->{name} =~ /kVA/i && $_->{name} !~ /kVArh/i } @columns;
-
     my $fullRowset = Labelset( groups => \@groups );
     my @map = @map{ @{ $fullRowset->{list} } };
 
@@ -252,63 +373,28 @@ sub makeStatisticsTables {
         defaultFormat => '0softnz',
         rows          => $fullRowset,
         custom        => [
-            '=0.01*((IV11+(IV12*IV13+IV15*IV14)/7*IV78)*IV91+IV71*IV94)',
-            '=0.01*('
-              . '(IV11+(IV12*IV13+IV15*IV14)/7*IV78-IV17)*IV91'
-              . '+IV18*IV92+IV71*IV94)',
-            '=0.01*('
-              . '(IV311*MIN(IV61,IV72/7*IV51)+IV301*MAX(0,IV77/7*IV43-IV631-IV623))*IV91'
-              . '+(IV312*MIN(IV620,MAX(0,IV73/7*IV52-IV611))+IV302*MIN(IV621,MAX(0,IV75/7*IV42-IV632)))*IV92'
-              . '+(IV313*MAX(0,IV74/7*IV53-IV612-IV622)+IV303*MIN(IV63,IV76/7*IV41))*IV93'
-              . '+IV71*(IV94+IV2*IV95))',
+            '=0.01*(IV11*IV91+IV71*IV94)',
+            '=0.01*(IV11*IV91+IV12*IV13/7*IV78*(IV92-IV911)+IV71*IV94)',
+            '=0.01*(IV31*IV91+IV32*IV92+IV33*IV93+IV71*(IV94+IV2*IV95))',
             '=IV81-IV82',
         ],
         arguments => {
-            IV11  => $annualUnits,
-            IV12  => $kW[0],
-            IV13  => $offhours,
-            IV14  => $peakhours,
-            IV15  => $kW[1],
-            IV17  => $rate2Units,
-            IV18  => $rate2Units,
-            IV2   => $capacity,
-            IV301 => $kW[0],
-            IV302 => $kW[0],
-            IV303 => $kW[0],
-            IV311 => $kW[1],
-            IV312 => $kW[1],
-            IV313 => $kW[1],
-            IV41  => $offhours,
-            IV42  => $offhours,
-            IV43  => $offhours,
-            IV51  => $peakhours,
-            IV52  => $peakhours,
-            IV53  => $peakhours,
-            IV61  => $model->{hoursByRedAmberGreen},
-            IV611 => $model->{hoursByRedAmberGreen},
-            IV612 => $model->{hoursByRedAmberGreen},
-            IV620 => $model->{hoursByRedAmberGreen},
-            IV621 => $model->{hoursByRedAmberGreen},
-            IV622 => $model->{hoursByRedAmberGreen},
-            IV623 => $model->{hoursByRedAmberGreen},
-            IV63  => $model->{hoursByRedAmberGreen},
-            IV631 => $model->{hoursByRedAmberGreen},
-            IV632 => $model->{hoursByRedAmberGreen},
+            IV11  => $totalUnits,
+            IV12  => $assumptions->{columns}[3],
+            IV13  => $assumptions->{columns}[1],
+            IV2   => $assumptions->{columns}[5],
+            IV31  => $red,
+            IV32  => $amber,
+            IV33  => $green,
             IV71  => $daysInYear,
-            IV72  => $daysInYear,
-            IV73  => $daysInYear,
-            IV74  => $daysInYear,
-            IV75  => $daysInYear,
-            IV76  => $daysInYear,
-            IV77  => $daysInYear,
             IV78  => $daysInYear,
             IV91  => $tariffTable->{'Unit rate 1 p/kWh'},
+            IV911 => $tariffTable->{'Unit rate 1 p/kWh'},
             IV92  => $tariffTable->{'Unit rate 2 p/kWh'},
             IV93  => $tariffTable->{'Unit rate 3 p/kWh'},
             IV94  => $tariffTable->{'Fixed charge p/MPAN/day'},
             IV95  => $tariffTable->{'Capacity charge p/kVA/day'},
         },
-        rowFormats => [ map { $_ ? undef : 'unavailable'; } @map ],
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
@@ -360,15 +446,10 @@ sub makeStatisticsTables {
             '£/MWh', 'Average charges for illustrative customers (£/MWh)'
         ),
         defaultFormat => '0.0soft',
-        arithmetic    => '=IV1/(IV11+(IV120*IV13+IV121*IV14)/7*IV78)*1000',
+        arithmetic    => '=IV1/IV2*1000',
         arguments     => {
-            IV1   => $charge,
-            IV11  => $annualUnits,
-            IV120 => $kW[0],
-            IV121 => $kW[1],
-            IV13  => $offhours,
-            IV14  => $peakhours,
-            IV78  => $daysInYear,
+            IV1 => $charge,
+            IV2 => $totalUnits,
         }
     );
 
@@ -390,3 +471,92 @@ sub makeStatisticsTables {
 }
 
 1;
+
+__DATA__
+---
+1202:
+  - _table: 1202. Consumption assumptions for illustrative customers
+  - 1A Domestic: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
+    1B Domestic: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
+    2 Domestic or Non: '^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium|LV Network)'
+    3A Sub 100 kW: '^(?:|LDNO .*: |Margin.*: )(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
+    3B Sub 100 kW: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
+    4A LV: '^(?:|LDNO .*: |Margin.*: )LV.*HH Metered$'
+    4B LV: '^LV.*HH Metered$'
+    5A LV or HV: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    5B LV or HV: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    6A HV: '^HV HH Metered$'
+    6B HV: '^HV HH Metered$'
+    _column: Tariff selection
+  - 1A Domestic: 35
+    1B Domestic: 35
+    2 Domestic or Non: 35
+    3A Sub 100 kW: 35
+    3B Sub 100 kW: ''
+    4A LV: 55
+    4B LV: ''
+    5A LV or HV: 35
+    5B LV or HV: ''
+    6A HV: ''
+    6B HV: ''
+    _column: Peak-time hours/week
+  - 1A Domestic: ''
+    1B Domestic: ''
+    2 Domestic or Non: 48
+    3A Sub 100 kW: 100
+    3B Sub 100 kW: ''
+    4A LV: ''
+    4B LV: 77
+    5A LV or HV: 100
+    5B LV or HV: ''
+    6A HV: 77
+    6B HV: ''
+    _column: Off-peak hours/week
+  - 1A Domestic: 0.4165
+    1B Domestic: 0.8325
+    2 Domestic or Non: 0.75
+    3A Sub 100 kW: 60
+    3B Sub 100 kW: ''
+    4A LV: 200
+    4B LV: ''
+    5A LV or HV: 400
+    5B LV or HV: ''
+    6A HV: ''
+    6B HV: ''
+    _column: Peak-time load (kW)
+  - 1A Domestic: ''
+    1B Domestic: ''
+    2 Domestic or Non: 0.9995
+    3A Sub 100 kW: 1
+    3B Sub 100 kW: ''
+    4A LV: ''
+    4B LV: 200
+    5A LV or HV: 100
+    5B LV or HV: ''
+    6A HV: 4500
+    6B HV: ''
+    _column: Off-peak load (kW)
+  - 1A Domestic: 0.15
+    1B Domestic: 0.3
+    2 Domestic or Non: 0.3
+    3A Sub 100 kW: 50
+    3B Sub 100 kW: 65
+    4A LV: ''
+    4B LV: ''
+    5A LV or HV: 300
+    5B LV or HV: 450
+    6A HV: ''
+    6B HV: 4500
+    _column: Load at other times (kW)
+  - 1A Domestic: ''
+    1B Domestic: ''
+    2 Domestic or Non: 6
+    3A Sub 100 kW: 68
+    3B Sub 100 kW: 68
+    4A LV: 250
+    4B LV: 250
+    5A LV or HV: 500
+    5B LV or HV: 500
+    6A HV: 5000
+    6B HV: 5000
+    _column: Capacity (kVA)

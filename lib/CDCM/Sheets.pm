@@ -598,8 +598,8 @@ EOL
         unless ( $model->{arp} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 1 );
-            $wsheet->set_column( 0, 0,   64 );
-            $wsheet->set_column( 1, 250, 20 );
+            $wsheet->set_column( 0, 0,   48 );
+            $wsheet->set_column( 1, 250, 16 );
         }
         my $notes = Notes(
             name  => 'Statistics',
