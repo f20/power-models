@@ -155,7 +155,7 @@ sub wsPrepare {
 
     my %formula;
     my %rowcol;
-    my $broken;
+    my $provisionallyBroken;
 
     for ( @{ $self->{sources} } ) {
         if ( ref $_ eq 'SpreadsheetModel::Constant'
@@ -174,7 +174,7 @@ sub wsPrepare {
         else {
             my ( $srcsheet, $srcr, $srcc ) =
               $_->wsWrite( $wb, $ws, undef, undef, 1 );
-            $broken =
+            $provisionallyBroken =
               "UNFEASIBLE LINK to source for $self->{name} $self->{debug}"
               unless $srcsheet;
             $formula{ 0 + $_ } = $ws->store_formula(
@@ -186,8 +186,8 @@ sub wsPrepare {
         }
     }
 
-    return sub { die $broken; }
-      if $broken;
+    return sub { die $provisionallyBroken; }
+      if $provisionallyBroken;
 
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000copy' );
     my $unavailable = $wb->getFormat('unavailable');

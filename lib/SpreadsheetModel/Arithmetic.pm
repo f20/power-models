@@ -116,7 +116,7 @@ sub wsPrepare {
 
     my $arithmetic = $self->{arithmetic};
     my $volatile;
-    my $broken;
+    my $provisionallyBroken;
 
     my @placeholders = keys %{ $self->{arguments} };
 
@@ -128,26 +128,22 @@ sub wsPrepare {
         ( my $ws2, $row{$ph}, $col{$ph} ) =
           $self->{arguments}{$ph}->wsWrite( $wb, $ws );
         if ( !$ws2 ) {
-            $broken = "UNFEASIBLE LINK: $ph in $self->{name} $self->{debug}";
+            $provisionallyBroken =
+              "UNFEASIBLE LINK: $ph in $self->{name} $self->{debug}";
         }
-        if ( my ( $a, $b ) = ( $ph =~ /^([A-Z0-9]+)_([A-Z0-9]+)$/ ) ) {
-            use bytes;
-            if ( $ws2 && $ws2 != $ws ) {
-                my $sheet = $ws2->get_name;
-                $arithmetic =~ s/\b$ph\b/'$sheet:$sheet'!$ph/;
-            }
-            $arithmetic =~ s/\b$ph\b/$a:$b/;
-            $volatile = 1;
-        }
-        elsif ( $ws2 && $ws2 != $ws ) {
+        if ( $ws2 && $ws2 != $ws ) {
             my $sheet = $ws2->get_name;
             use bytes;
             $arithmetic =~ s/\b$ph\b/'$sheet'!$ph/;
         }
+        if ( my ( $a, $b ) = ( $ph =~ /^([A-Z0-9]+)_([A-Z0-9]+)$/ ) ) {
+            $arithmetic =~ s/\b$ph\b/$a:$b/;
+            $volatile = 1;
+        }
     }
 
-    return sub { die $broken; }
-      if $broken;
+    return sub { die $provisionallyBroken; }
+      if $provisionallyBroken;
 
     $volatile = 1 if $arithmetic =~ /\bM(IN|AX)\b/;
 
@@ -190,7 +186,8 @@ sub wsPrepare {
           if $self->{rowFormats}
           && $self->{rowFormats}[$y]
           && $self->{rowFormats}[$y] eq 'unavailable';
-        '', $self->{rowFormats} && $self->{rowFormats}[$y]
+        '',
+          $self->{rowFormats} && $self->{rowFormats}[$y]
           ? $wb->getFormat( $self->{rowFormats}[$y] )
           : $format, $formula, map {
             if ( my ( $a, $b ) = (/^([A-Z0-9]+)_([A-Z0-9]+)$/) ) {

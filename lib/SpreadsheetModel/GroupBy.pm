@@ -84,12 +84,13 @@ sub check {
 sub wsPrepare {
 
     my ( $self, $wb, $ws ) = @_;
-    my $broken;
+    my $provisionallyBroken;
     my ( $srcsheet, $srcr, $srcc ) = $self->{source}->wsWrite( $wb, $ws );
-    $broken = "UNFEASIBLE LINK to source for $self->{name} $self->{debug}"
+    $provisionallyBroken =
+      "UNFEASIBLE LINK to source for $self->{name} $self->{debug}"
       unless $srcsheet;
-    return sub { die $broken; }
-      if $broken;
+    return sub { die $provisionallyBroken; }
+      if $provisionallyBroken;
     $srcsheet = !$srcsheet
       || $srcsheet == $ws ? '' : "'" . $srcsheet->get_name . "'!";
 

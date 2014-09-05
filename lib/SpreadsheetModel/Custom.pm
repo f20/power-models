@@ -76,12 +76,13 @@ sub wsPrepare {
     my @custom       = @{ $self->{custom} };
     my @placeholders = keys %{ $self->{arguments} };
     my ( %row, %col );
-    my $broken;
+    my $provisionallyBroken;
     for my $ph (@placeholders) {
         0 and warn "$self->{name} $ph";
         ( my $ws2, $row{$ph}, $col{$ph} ) =
           $self->{arguments}{$ph}->wsWrite( $wb, $ws );
-        $broken = "UNFEASIBLE LINK $ph for $self->{name} $self->{debug}"
+        $provisionallyBroken =
+          "UNFEASIBLE LINK $ph for $self->{name} $self->{debug}"
           unless $ws2;
         unless ( !$ws2 || $ws2 == $ws ) {
             my $sheet = $ws2->get_name;
@@ -89,8 +90,8 @@ sub wsPrepare {
             s/\b$ph\b/'$sheet'!$ph/ foreach @custom;
         }
     }
-    return sub { die $broken; }
-      if $broken;
+    return sub { die $provisionallyBroken; }
+      if $provisionallyBroken;
     $self->{wsPrepare}->(
         $self,
         $wb,

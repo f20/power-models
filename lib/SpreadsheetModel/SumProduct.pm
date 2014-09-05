@@ -166,14 +166,14 @@ ERR
 sub wsPrepare {
 
     my ( $self, $wb, $ws ) = @_;
-    my $broken;
+    my $provisionallyBroken;
 
     my ( $matsheet, $matr, $matc ) = $self->{matrix}->wsWrite( $wb, $ws );
     my ( $vecsheet, $vecr, $vecc ) = $self->{vector}->wsWrite( $wb, $ws );
-    $broken = "UNFEASIBLE LINK in $self->{name} $self->{debug}"
+    $provisionallyBroken = "UNFEASIBLE LINK in $self->{name} $self->{debug}"
       unless $matsheet && $vecsheet;
-    return sub { die $broken; }
-      if $broken;
+    return sub { die $provisionallyBroken; }
+      if $provisionallyBroken;
     $matsheet = !$matsheet
       || $matsheet == $ws ? '' : "'" . $matsheet->get_name . "'!";
     $vecsheet = !$vecsheet
