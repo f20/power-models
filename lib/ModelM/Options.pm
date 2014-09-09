@@ -74,7 +74,8 @@ Non activity costs and reconciling amounts (note 3)
 END_OF_LIST
 
     my @rules = (
-        $model->{dcp094} ? 'Kill' : 'MEAV',
+        $model->{dcp094}                ? 'Kill'            : $model->{dcp117}
+          && $model->{dcp117} =~ /2014/ ? 'Do not allocate' : 'MEAV',
         ( map { 'MEAV' } 1 .. 11 ),
         $model->{dcp097A} || $model->{dcp097} ? ( 'LV only', 'MEAV', 'MEAV' )
         : ( map { 'MEAV' } 1 .. 3 ),

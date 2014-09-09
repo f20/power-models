@@ -41,10 +41,11 @@ sub ajust117 {
     if ( $model->{dcp117} =~ /2014/ ) {
 
         $preAllocated = Stack(
-            name    => 'Table 1330 allocated costs, after DCP 117 adjustments',
-            rows    => $preAllocated->{rows},
-            cols    => $preAllocated->{cols},
-            sources => [
+            name => 'Table 1330 allocated costs, after DCP 117 adjustments',
+            defaultFormat => '0copy',
+            rows          => $preAllocated->{rows},
+            cols          => $preAllocated->{cols},
+            sources       => [
                 Dataset(
                     name => 'Net new connections and reinforcement costs (£)',
                     rows =>

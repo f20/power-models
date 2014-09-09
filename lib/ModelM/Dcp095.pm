@@ -155,9 +155,10 @@ END_OF_LIST
     );
 
     $units = Stack(
-        name    => 'Units',
-        cols    => $allocLevelset95,
-        sources => [
+        name          => 'Units',
+        defaultFormat => '0copy',
+        cols          => $allocLevelset95,
+        sources       => [
             Arithmetic(
                 name          => 'Allocation to LV services',
                 cols          => $lvServiceOnly,
