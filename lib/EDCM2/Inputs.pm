@@ -643,7 +643,7 @@ EOL
         ),
         Dataset(
             name          => 'Hours in super-red for which not a customer',
-            defaultFormat => '0hard',
+            defaultFormat => '0.0hard',
             data          => [ map { '' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
