@@ -112,7 +112,7 @@ sub makeStatisticsTables {
 
         push @columns2,
           $override{total} = Arithmetic(
-            name          => "Override\ttotal kWh/year",
+            name          => "Total override kWh/year",
             defaultFormat => '0soft',
             arithmetic    => '=IV1+IV2+IV3',
             arguments     => {
@@ -476,87 +476,94 @@ __DATA__
 ---
 1202:
   - _table: 1202. Consumption assumptions for illustrative customers
-  - 1A Domestic: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
-    1B Domestic: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
-    2 Domestic or Non: '^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium|LV Network)'
-    3A Sub 100 kW: '^(?:|LDNO .*: |Margin.*: )(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
-    3B Sub 100 kW: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
-    4A LV: '^(?:|LDNO .*: |Margin.*: )LV.*HH Metered$'
-    4B LV: '^LV.*HH Metered$'
-    5A LV or HV: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    5B LV or HV: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    6A HV: '^HV HH Metered$'
-    6B HV: '^HV HH Metered$'
+  - Customer A: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
+    Customer B: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
+    Customer C: '^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium|LV Network)'
+    Customer D: '^(?:|LDNO .*: |Margin.*: )(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
+    Customer E: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
+    Customer F: '^(?:|LDNO .*: |Margin.*: )LV.*HH Metered$'
+    Customer G: '^LV.*HH Metered$'
+    Customer H: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Customer I: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Customer J: '^HV HH Metered$'
+    Customer K: '^HV HH Metered$'
+    Customer L: '^HV HH Metered$'
     _column: Tariff selection
-  - 1A Domestic: 35
-    1B Domestic: 35
-    2 Domestic or Non: 35
-    3A Sub 100 kW: 35
-    3B Sub 100 kW: ''
-    4A LV: 55
-    4B LV: ''
-    5A LV or HV: 35
-    5B LV or HV: ''
-    6A HV: ''
-    6B HV: ''
+  - Customer A: 35
+    Customer B: 35
+    Customer C: 35
+    Customer D: 35
+    Customer E: ''
+    Customer F: 55
+    Customer G: ''
+    Customer H: 35
+    Customer I: ''
+    Customer J: ''
+    Customer K: ''
+    Customer L: 55
     _column: Peak-time hours/week
-  - 1A Domestic: ''
-    1B Domestic: ''
-    2 Domestic or Non: 48
-    3A Sub 100 kW: 100
-    3B Sub 100 kW: ''
-    4A LV: ''
-    4B LV: 77
-    5A LV or HV: 100
-    5B LV or HV: ''
-    6A HV: 77
-    6B HV: ''
+  - Customer A: ''
+    Customer B: ''
+    Customer C: 48
+    Customer D: 100
+    Customer E: ''
+    Customer F: ''
+    Customer G: 77
+    Customer H: 100
+    Customer I: ''
+    Customer J: 77
+    Customer K: ''
+    Customer L: ''
     _column: Off-peak hours/week
-  - 1A Domestic: 0.4165
-    1B Domestic: 0.8325
-    2 Domestic or Non: 0.75
-    3A Sub 100 kW: 60
-    3B Sub 100 kW: ''
-    4A LV: 200
-    4B LV: ''
-    5A LV or HV: 400
-    5B LV or HV: ''
-    6A HV: ''
-    6B HV: ''
+  - Customer A: 0.4165
+    Customer B: 0.8325
+    Customer C: 0.75
+    Customer D: 60
+    Customer E: ''
+    Customer F: 200
+    Customer G: ''
+    Customer H: 400
+    Customer I: ''
+    Customer J: ''
+    Customer K: ''
+    Customer L: 4500
     _column: Peak-time load (kW)
-  - 1A Domestic: ''
-    1B Domestic: ''
-    2 Domestic or Non: 0.9995
-    3A Sub 100 kW: 1
-    3B Sub 100 kW: ''
-    4A LV: ''
-    4B LV: 200
-    5A LV or HV: 100
-    5B LV or HV: ''
-    6A HV: 4500
-    6B HV: ''
+  - Customer A: ''
+    Customer B: ''
+    Customer C: 0.9995
+    Customer D: 1
+    Customer E: ''
+    Customer F: ''
+    Customer G: 200
+    Customer H: 100
+    Customer I: ''
+    Customer J: 4500
+    Customer K: ''
+    Customer L: ''
     _column: Off-peak load (kW)
-  - 1A Domestic: 0.15
-    1B Domestic: 0.3
-    2 Domestic or Non: 0.3
-    3A Sub 100 kW: 50
-    3B Sub 100 kW: 65
-    4A LV: ''
-    4B LV: ''
-    5A LV or HV: 300
-    5B LV or HV: 450
-    6A HV: ''
-    6B HV: 4500
+  - Customer A: 0.15
+    Customer B: 0.3
+    Customer C: 0.3
+    Customer D: 50
+    Customer E: 65
+    Customer F: ''
+    Customer G: ''
+    Customer H: 300
+    Customer I: 450
+    Customer J: ''
+    Customer K: 4500
+    Customer L: ''
     _column: Load at other times (kW)
-  - 1A Domestic: ''
-    1B Domestic: ''
-    2 Domestic or Non: 6
-    3A Sub 100 kW: 68
-    3B Sub 100 kW: 68
-    4A LV: 250
-    4B LV: 250
-    5A LV or HV: 500
-    5B LV or HV: 500
-    6A HV: 5000
-    6B HV: 5000
+  - Customer A: ''
+    Customer B: ''
+    Customer C: 6
+    Customer D: 68
+    Customer E: 68
+    Customer F: 250
+    Customer G: 250
+    Customer H: 500
+    Customer I: 500
+    Customer J: 5000
+    Customer K: 5000
+    Customer L: 5000
     _column: Capacity (kVA)
