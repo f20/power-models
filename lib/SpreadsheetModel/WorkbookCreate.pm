@@ -68,7 +68,16 @@ sub create {
         binmode $handle;
         $handle, sub {
             if ($tmpDir) {
-                rename catfile( $tmpDir, $fn ), $fn;
+                my $finalFile = $fn;
+                if (
+                    $fn !~ m#/#
+                    and ( my ($folder) =
+                        grep { -d $_ && -w _; } qw(~$models models.tmp) )
+                  )
+                {
+                    $finalFile = catfile( $folder, $fn );
+                }
+                rename catfile( $tmpDir, $fn ), $finalFile;
                 rmdir $tmpDir;
             }
         };

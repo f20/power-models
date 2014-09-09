@@ -4,14 +4,5 @@
 .~*
 Icon?
 ~$*
-*.xls
-*.xlsx
-*.xlsm
-*.tdy
-*.orig
-*.lnk
-nytprof*
-O_*
-X_*
 *.tmp
 *.app
