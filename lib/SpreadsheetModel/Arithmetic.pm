@@ -148,7 +148,6 @@ sub wsPrepare {
     $volatile = 1 if $arithmetic =~ /\bM(IN|AX)\b/;
 
     my $formula = $ws->store_formula($arithmetic);
-
     if ($volatile) {
         s/_ref2d/_ref2dV/ foreach @$formula;
         s/_ref3d/_ref3dV/ foreach @$formula;

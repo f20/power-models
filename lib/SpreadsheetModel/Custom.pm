@@ -93,11 +93,18 @@ sub wsPrepare {
     return sub { die $provisionallyBroken; }
       if $provisionallyBroken;
     $self->{wsPrepare}->(
-        $self,
-        $wb,
-        $ws,
+        $self, $wb, $ws,
         $wb->getFormat( $self->{defaultFormat} || '0.000soft' ),
-        [ map { $ws->store_formula($_) } @custom ],
+        [
+            map {
+                my $formula = $ws->store_formula($_);
+                if (/\b(?:MIN|MAX|AVERAGE|INDEX|MATCH)\b/) {
+                    s/_ref2d/_ref2dV/ foreach @$formula;
+                    s/_ref3d/_ref3dV/ foreach @$formula;
+                }
+                $formula;
+            } @custom
+        ],
         \@placeholders,
         \%row,
         \%col

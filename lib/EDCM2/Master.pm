@@ -295,6 +295,17 @@ EOT
 
     }
 
+    $model->{transparencyMasterFlag} = Arithmetic(
+        name       => 'Is this the master model?',
+        arithmetic => '=IF(ISERROR(IV5),TRUE,'
+          . 'IF(IV4="FALSE",FALSE,IF(IV3=FALSE,FALSE,TRUE)))',
+        arguments => {
+            IV3 => $model->{transparencyMasterFlag},
+            IV4 => $model->{transparencyMasterFlag},
+            IV5 => $model->{transparencyMasterFlag},
+        },
+    );
+
     $model->{transparency} = Arithmetic(
         name  => 'Weighting of each tariff for reconciliation of totals',
         lines => [
@@ -302,14 +313,13 @@ EOT
 '-1 means that the tariff is included in the table 119x aggregates but should be removed.',
 '1 means that the tariff is active and is not included in the table 119x aggregates.',
         ],
-        arithmetic => '=IF(OR(IV3,IV4="TRUE",'
+        arithmetic => '=IF(OR(IV3,'
           . 'NOT(ISERROR(SEARCH("[ADDED]",IV2))))' . ',1,'
           . 'IF(ISERROR(SEARCH("[REMOVED]",IV1)),0,-1)' . ')',
         arguments => {
             IV1 => $tariffs,
             IV2 => $tariffs,
             IV3 => $model->{transparencyMasterFlag},
-            IV4 => $model->{transparencyMasterFlag},
         },
     ) if $model->{transparencyMasterFlag} && !defined $model->{transparency};
 
