@@ -212,7 +212,7 @@ EOL
         data          => [
             [
                 map { $_ eq '.' ? undef : $_ }
-                  qw(1 2 3 3 4 . 4 4 6 6 6 6 5 . 5 5 5)
+                  qw(1 2 3 3 4 . 4 4 6 6 5 5 5 . 5 5 5)
             ]
         ],
     );
@@ -263,7 +263,7 @@ EOL
               . 'IF(ISNUMBER(SEARCH("???10",IV22)),4,'
               . 'IF(ISNUMBER(SEARCH("??001",IV23)),6,5)))))'
             : $model->{voltageRulesTransparency} ? 'INDEX(IV5_IV6,IV1)'
-            :   'IF(IV1,IF(MOD(IV12,1000),IF(MOD(IV13,100),IF(MOD(IV14,10),IF(IV15=2,5,6),4),3),2),1)'
+            :   'IF(IV1,IF(MOD(IV12,1000),IF(MOD(IV13,100),IF(MOD(IV14,10),IF(MOD(IV15,1000)=1,6,5),4),3),2),1)'
           )
           . ')',
         arguments => {
