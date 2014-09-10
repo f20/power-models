@@ -166,9 +166,8 @@ sub makeSQLiteWriter {
         $s->execute( $bid, @_ );
     };
 
-    my $cleanup = sub {
-        sleep 2 while !$db->do('commit');
-        undef $db;
+    my $commit = sub {
+        sleep 1 while !$db->do('commit');
     };
 
     my $newBook = sub {
@@ -200,9 +199,9 @@ sub makeSQLiteWriter {
 
         if ( !defined $book ) {    # pruning
             my $gbid =
-              $db->prepare(
-'select bid, filename from books where filename like ? order by filename'
-              ) or die $!;
+              $db->prepare( 'select bid, filename from books '
+                  . 'where filename like ? order by filename' )
+              or die $!;
             foreach ( split /:/, $workbook ) {
                 $gbid->execute($_);
                 while ( my ( $bid, $filename ) = $gbid->fetchrow_array ) {
@@ -217,7 +216,7 @@ sub makeSQLiteWriter {
                     }
                 }
             }
-            $cleanup->();
+            $commit->();
             return;
         }
 
@@ -256,7 +255,7 @@ sub makeSQLiteWriter {
         }
         eval {
             warn "Committing $book ($$)\n";
-            $cleanup->();
+            $commit->();
         };
         warn "$@ for $book ($$)\n" if $@;
 

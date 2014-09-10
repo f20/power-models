@@ -60,8 +60,9 @@ sub new {
     my $databaseHandle = DBI->connect( 'dbi:SQLite:dbname=~$database.sqlite',
         '', '', { sqlite_unicode => 1, AutoCommit => 1, } )
       or die "Cannot open sqlite database: $!";
-    eval { $databaseHandle->do('pragma journal_mode=wal') or die $!; };
-    warn "Cannot set WAL journal: $@" if $@;
+
+    # eval { $databaseHandle->do('pragma journal_mode=wal') or die $!; };
+
     if ($create) {
         $databaseHandle->do('begin exclusive transaction') or die $!;
         $databaseHandle->do($_) foreach grep { $_ } split /;\s*/s, <<EOSQL;
