@@ -304,7 +304,7 @@ EOT
             IV4 => $model->{transparencyMasterFlag},
             IV5 => $model->{transparencyMasterFlag},
         },
-    );
+    ) if $model->{transparencyMasterFlag};
 
     $model->{transparency} = Arithmetic(
         name  => 'Weighting of each tariff for reconciliation of totals',
