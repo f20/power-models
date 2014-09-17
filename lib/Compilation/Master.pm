@@ -61,10 +61,11 @@ sub new {
         '', '', { sqlite_unicode => 1, AutoCommit => 1, } )
       or die "Cannot open sqlite database: $!";
 
-    # eval { $databaseHandle->do('pragma journal_mode=wal') or die $!; };
+    eval { $databaseHandle->do('pragma journal_mode=wal') or die $!; };
+    warn "Cannot set WAL mode: $@" if $@;
 
     if ($create) {
-        $databaseHandle->do('begin exclusive transaction') or die $!;
+        sleep 1 while !$databaseHandle->do('begin exclusive transaction');
         $databaseHandle->do($_) foreach grep { $_ } split /;\s*/s, <<EOSQL;
 create table if not exists books (
 	bid integer primary key,
@@ -83,7 +84,7 @@ create table if not exists data (
 );
 create index if not exists datatcr on data (tab, col, row);
 EOSQL
-        $databaseHandle->commit or die $!;
+        sleep 1 while !$databaseHandle->commit;
     }
     eval { $databaseHandle->sqlite_busy_timeout(3_600_000) or die $!; };
     warn "Cannot set timeout: $@" if $@;
@@ -134,13 +135,21 @@ sub listModels {
 }
 
 sub makeDatabaseReader {
-    my $db = __PACKAGE__->new
-      or die "Cannot open sqlite database: $!";
+    my $db;
+    sleep 1 while !( $db = __PACKAGE__->new );
     $db = $db->[DB_HANDLE];
-    my $q = $db->prepare(
-        'select v from data where bid=? and tab=? and col=? and row=?');
-    my $s = $db->prepare(
-        'select sum(v) from data where bid=? and tab=? and col=? and row>0');
+    my $q;
+    sleep 1
+      while !(
+        $q = $db->prepare(
+            'select v from data where bid=? and tab=? and col=? and row=?')
+      );
+    my $s;
+    sleep 1
+      while !(
+        $s = $db->prepare(
+            'select sum(v) from data where bid=? and tab=? and col=? and row>0')
+      );
     my $dataReader = sub {
         my ( $bid, $data ) = @_;
         ( $data->{$_} ) =

@@ -43,10 +43,10 @@ use ModelM::Discounts;
 
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
-    $ruleset->{dcp095}   ? qw(ModelM::Dcp095) : (),
-      $ruleset->{dcp117} ? qw(ModelM::Dcp117) : (),
-      $ruleset->{dcp118} ? qw(ModelM::Dcp118) : (),
-      $ruleset->{edcm}   ? qw(ModelM::Edcm)   : ();
+    $ruleset->{dcp095} ? qw(ModelM::Dcp095) : (), $ruleset->{dcp117}
+      && $ruleset->{dcp117} !~ /2014/ ? qw(ModelM::Dcp117) : (),
+      $ruleset->{dcp118}              ? qw(ModelM::Dcp118) : (),
+      $ruleset->{edcm}                ? qw(ModelM::Edcm)   : ();
 }
 
 sub setUpMultiModelSharing {

@@ -47,8 +47,8 @@ sub expenditureAlloc {
     my ( $preAllocated, ) =
       $model->allocated( $allocLevelset, $allocationRules->{rows} );
 
-    ($preAllocated) = $model->ajust117( $meavPercentages, $preAllocated, )
-      if $model->{dcp117};
+    ($preAllocated) = $model->adjust117( $meavPercentages, $preAllocated, )
+      if $model->{dcp117} && $model->{dcp117} !~ /2014/;
 
     my $allocatedTotal = GroupBy(
         name          => 'Amounts already allocated',

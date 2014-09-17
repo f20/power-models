@@ -76,9 +76,10 @@ sub fudge41 {
     my $slope =
       $model->{dcp185}
       ? Arithmetic(
-        name       => 'Marginal revenue effect of demand adder',
-        arithmetic => '=IV1*(IV4+IV5)*IF(IV6<0,1,IV7)',
-        arguments  => {
+        name          => 'Marginal revenue effect of demand adder',
+        defaultFormat => '0soft',
+        arithmetic    => '=IV1*(IV4+IV5)*IF(IV6<0,1,IV7)',
+        arguments     => {
             IV1 => $agreedCapacity,
             IV4 => $ynonFudge,
             IV5 => $activeCoincidence,
@@ -87,9 +88,10 @@ sub fudge41 {
         }
       )
       : Arithmetic(
-        name       => 'Marginal revenue effect of demand adder',
-        arithmetic => '=IV1*(IV4+IV5)',
-        arguments  => {
+        name          => 'Marginal revenue effect of demand adder',
+        defaultFormat => '0soft',
+        arithmetic    => '=IV1*(IV4+IV5)',
+        arguments     => {
             IV1 => $agreedCapacity,
             IV4 => $ynonFudge,
             IV5 => $activeCoincidence,
@@ -97,9 +99,10 @@ sub fudge41 {
       );
 
     my $fudgeIndirect = Arithmetic(
-        name       => 'Data for capacity-based allocation of indirect costs',
-        arithmetic => '=IV1*(IV2+IV3)',
-        arguments  => {
+        name          => 'Data for capacity-based allocation of indirect costs',
+        defaultFormat => '0soft',
+        arithmetic    => '=IV1*(IV2+IV3)',
+        arguments     => {
             IV2 => $ynonFudge,
             IV3 => $activeCoincidence,
             IV1 => $indirectExposure,

@@ -261,8 +261,9 @@ sub charge1 {
         );
 
         my $active1 = Arithmetic(
-            name       => 'Total active power in maximum demand scenario (kW)',
-            arithmetic => '=0-' . join(
+            name => 'Total active power in maximum demand scenario (kW)',
+            defaultFormat => '0soft',
+            arithmetic    => '=0-' . join(
                 '-',
                 map {
                         'IF(ISNUMBER(IV'
@@ -355,7 +356,7 @@ sub charge1 {
     ) if $tariffLoc;
 
     my $cc1 = Arithmetic(
-        name       => ('Grandparent location') . ' charge 1 £/kVA/year',
+        name       => 'Grandparent location charge 1 £/kVA/year',
         arithmetic => $model->{noNegative}
         ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
         : '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
@@ -381,8 +382,9 @@ sub charge1 {
     }
     else {
         my $kVA = Arithmetic(
-            name       => 'Network group maximum demand (kVA)',
-            arithmetic => '=IF(ISNUMBER(IV1),'
+            name          => 'Network group maximum demand (kVA)',
+            defaultFormat => '0soft',
+            arithmetic    => '=IF(ISNUMBER(IV1),'
               . 'SQRT((INDEX(IV53_IV54,IV52)+INDEX(IV73_IV74,IV72))^2+'
               . '(INDEX(IV63_IV64,IV62)+INDEX(IV83_IV84,IV82))^2)' . ',0)',
             arguments => {
@@ -425,8 +427,9 @@ sub charge1 {
     }
     else {
         my $kVA = Arithmetic(
-            name       => 'Parent group maximum demand (kVA)',
-            arithmetic => '=IF(ISNUMBER(IV1),'
+            name          => 'Parent group maximum demand (kVA)',
+            defaultFormat => '0soft',
+            arithmetic    => '=IF(ISNUMBER(IV1),'
               . 'SQRT((INDEX(IV53_IV54,IV52)+INDEX(IV73_IV74,IV72))^2+'
               . '(INDEX(IV63_IV64,IV62)+INDEX(IV83_IV84,IV82))^2)' . ',0)',
             arguments => {
@@ -470,8 +473,9 @@ sub charge1 {
     }
     else {
         my $kVA = Arithmetic(
-            name       => 'Grandparent group maximum demand (kVA)',
-            arithmetic => '=IF(ISNUMBER(IV1),'
+            name          => 'Grandparent group maximum demand (kVA)',
+            defaultFormat => '0soft',
+            arithmetic    => '=IF(ISNUMBER(IV1),'
               . 'SQRT((INDEX(IV53_IV54,IV52)+INDEX(IV73_IV74,IV72))^2+'
               . '(INDEX(IV63_IV64,IV62)+INDEX(IV83_IV84,IV82))^2)' . ',0)',
             arguments => {

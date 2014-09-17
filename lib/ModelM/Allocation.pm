@@ -73,7 +73,7 @@ sub allocation {
         arguments     => { IV1 => $expensedTotals, IV2_IV3 => $expensedTotals }
     );
 
-    my $ppusingle = Arithmetic(
+    my $ppuSingleNotUsed = Arithmetic(
         name => 'p/kWh split (single-step calculation)',
         arithmetic =>
 '=100*((IV31+IV41)*IV2+IV51*IV1)/(IV32+IV42+IV52)*(IV9-IV81-IV82)/IV7',
@@ -116,8 +116,7 @@ sub allocation {
         },
     );
 
-    push @{ $model->{calcTables} },
-      my $ppu = Arithmetic(
+    my $ppu = Arithmetic(
         name       => 'p/kWh split',
         arithmetic => '=((1-IV52)*IV2+IV51*IV1)*IV6/IV7*100',
         arguments  => {
@@ -128,7 +127,34 @@ sub allocation {
             IV52 => $propOp,
             IV6  => $revenueToBeAllocated,
         }
-      );
+    );
+
+    if ( $model->{dcp117} && $model->{dcp117} =~ /2014/ ) {
+        $ppu = Arithmetic(
+            name       => 'p/kWh split (DCP 117 modified)',
+            arithmetic => '=(((1-IV52)*IV2+IV51*IV1)*IV6+IV8*IV18)/IV7*100',
+            arguments  => {
+                IV1  => $expensedPercentages,
+                IV2  => $netCapexPercentages,
+                IV7  => $units,
+                IV51 => $propOp,
+                IV52 => $propOp,
+                IV6  => $revenueToBeAllocated,
+                IV1  => $expensedPercentages,
+                IV18 => $expensedPercentages,
+                IV8  => Dataset(
+                    name          => 'Income for connections indirects (£)',
+                    defaultFormat => '0hard',
+                    data          => [''],
+                    number        => 1328,
+                    dataset       => $model->{dataset},
+                    appendTo      => $model->{inputTables},
+                ),
+            }
+        );
+    }
+
+    push @{ $model->{calcTables} }, $ppu;
 
     my $ppuNotSplit = Arithmetic(
         name => 'p/kWh not split',

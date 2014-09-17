@@ -34,7 +34,7 @@ use utf8;
 
 use SpreadsheetModel::Shortcuts ':all';
 
-sub ajust117 {
+sub adjust117 {
 
     my ( $model, $meavPercentages, $preAllocated, ) = @_;
 

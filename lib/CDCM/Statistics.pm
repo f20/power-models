@@ -32,6 +32,12 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
+use YAML;
+local undef $/;
+binmode DATA, ':utf8';
+my ($colspecDefault) = Load <DATA>;
+($colspecDefault) = values %$colspecDefault;
+
 sub makeStatisticsAssumptions {
 
     my ($model) = @_;
@@ -47,11 +53,7 @@ sub makeStatisticsAssumptions {
       && $model->{summary} =~ /([0-9]{3,4})/
       && $model->{dataset}
       && $model->{dataset}{$1};
-    unless ($colspec) {
-        require YAML;
-        ($colspec) = YAML::Load(<DATA>);
-        ($colspec) = values %$colspec;
-    }
+    $colspec ||= $colspecDefault;
 
     my @rows = sort grep { $_ ne '_column'; } keys %{ $colspec->[1] };
 

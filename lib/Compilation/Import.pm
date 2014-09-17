@@ -154,13 +154,11 @@ EOS
 
 sub makeSQLiteWriter {
 
-    my ( $settings, $sheetFilter, ) = @_;
+    my ( $settings, $sheetFilter ) = @_;
 
-    require Compilation::Master;
-    my $db = Compilation->new(1);
-    my $s  = $db->prepare( 'insert into data (bid, tab, row, col, v)'
-          . ' values (?, ?, ?, ?, ?)' );
-    my ($bid);
+    my $db;
+    my $s;
+    my $bid;
 
     my $writer = sub {
         $s->execute( $bid, @_ );
@@ -171,10 +169,19 @@ sub makeSQLiteWriter {
     };
 
     my $newBook = sub {
-        die $! unless $db->do('begin immediate transaction');
+        require Compilation::Master;
+        $db = Compilation->new(1);
+        sleep 1 while !$db->do('begin immediate transaction');
         $bid = $db->addModel( $_[0] );
-        die $! unless $db->commit;
-        die $! unless $db->do('begin transaction');
+        sleep 1 while !$db->commit;
+        sleep 1 while !$db->do('begin transaction');
+        sleep 1
+          while !(
+            $s = $db->prepare(
+                    'insert into data (bid, tab, row, col, v)'
+                  . ' values (?, ?, ?, ?, ?)'
+            )
+          );
     };
 
     my $processTable = sub {
@@ -198,10 +205,14 @@ sub makeSQLiteWriter {
         my ( $book, $workbook ) = @_;
 
         if ( !defined $book ) {    # pruning
-            my $gbid =
-              $db->prepare( 'select bid, filename from books '
-                  . 'where filename like ? order by filename' )
-              or die $!;
+            my $gbid;
+            sleep 1
+              while !(
+                $gbid = $db->prepare(
+                        'select bid, filename from books '
+                      . 'where filename like ? order by filename'
+                )
+              );
             foreach ( split /:/, $workbook ) {
                 $gbid->execute($_);
                 while ( my ( $bid, $filename ) = $gbid->fetchrow_array ) {
