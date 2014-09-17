@@ -735,4 +735,176 @@ Test Power Networks LRIC
 EOL
 }
 
+sub cdcmUserImpact {
+
+    my ( $self, $wbmodule, %options ) = @_;
+
+    _defaultOptions( \%options );
+
+    my $wb = $wbmodule->new(
+        "Impact users $options{dcpName}" . $wbmodule->fileExtension );
+    $wb->setFormats(
+        {
+            $options{colour} ? ( colour => $options{colour} ) : (),
+            alignment => 1
+        }
+    );
+
+    my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
+Customer A (Domestic Unrestricted)
+Customer A (Margin LV: Domestic Unrestricted)
+Customer A (Margin HV: Domestic Unrestricted)
+Customer B (Domestic Unrestricted)
+Customer B (Margin LV: Domestic Unrestricted)
+Customer B (Margin HV: Domestic Unrestricted)
+Customer C (Domestic Unrestricted)
+Customer C (Domestic Two Rate)
+Customer C (Small Non Domestic Unrestricted)
+Customer C (Small Non Domestic Two Rate)
+Customer C (LV Medium Non-Domestic)
+Customer C (LV Sub Medium Non-Domestic)
+Customer D (Small Non Domestic Unrestricted)
+Customer D (Small Non Domestic Two Rate)
+Customer D (LV Medium Non-Domestic)
+Customer D (LV Sub Medium Non-Domestic)
+Customer D (LV HH Metered)
+Customer D (LV Sub HH Metered)
+Customer D (Margin LV: Small Non Domestic Unrestricted)
+Customer D (Margin LV: Small Non Domestic Two Rate)
+Customer D (Margin LV: LV Medium Non-Domestic)
+Customer D (Margin LV: LV HH Metered)
+Customer D (Margin HV: Small Non Domestic Unrestricted)
+Customer D (Margin HV: Small Non Domestic Two Rate)
+Customer D (Margin HV: LV Medium Non-Domestic)
+Customer D (Margin HV: LV HH Metered)
+Customer D (Margin HV: LV Sub HH Metered)
+Customer E (Small Non Domestic Unrestricted)
+Customer E (Small Non Domestic Two Rate)
+Customer E (LV Medium Non-Domestic)
+Customer E (LV Sub Medium Non-Domestic)
+Customer E (LV HH Metered)
+Customer E (LV Sub HH Metered)
+Customer F (LV HH Metered)
+Customer F (LV Sub HH Metered)
+Customer F (Margin LV: LV HH Metered)
+Customer F (Margin HV: LV HH Metered)
+Customer F (Margin HV: LV Sub HH Metered)
+Customer G (LV HH Metered)
+Customer G (LV Sub HH Metered)
+Customer H (LV HH Metered)
+Customer H (LV Sub HH Metered)
+Customer H (HV HH Metered)
+Customer H (LDNO LV: LV HH Metered)
+Customer H (LDNO HV: LV HH Metered)
+Customer H (LDNO HV: LV Sub HH Metered)
+Customer H (LDNO HV: HV HH Metered)
+Customer I (LV HH Metered)
+Customer I (LV Sub HH Metered)
+Customer I (HV HH Metered)
+Customer I (LDNO LV: LV HH Metered)
+Customer I (LDNO HV: LV HH Metered)
+Customer I (LDNO HV: LV Sub HH Metered)
+Customer I (LDNO HV: HV HH Metered)
+Customer J (HV HH Metered)
+Customer K (HV HH Metered)
+Customer L (HV HH Metered)
+EOL
+
+    my $linesBefore = $options{linesBefore} || $linesAfter;
+
+    my $titleFormat   = $wb->getFormat('notes');
+    my $thFormat      = $wb->getFormat('th');
+    my $thcFormat     = $wb->getFormat('thc');
+    my $thcaFormat    = $wb->getFormat('caption');
+    my $scalingFactor = $options{MWh} ? 1 : 0.1;
+    my $ppuFormatCore = $options{MWh} ? '0.00' : '0.000';
+    my @format1 =
+      map { $wb->getFormat($_); } '0copy', $ppuFormatCore . 'copy';
+    my @format2 =
+      map { $wb->getFormat($_); } '0softpm', $ppuFormatCore . 'softpm';
+    my @format3 =
+      map { $wb->getFormat($_); } '%softpm';
+
+    my @books   = $self->listModels;
+    my $findRow = $self->prepare(
+        'select row from data where bid=? and tab=4003 and col=0 and v=?');
+    my $q = $self->prepare(
+        'select v from data where bid=? and tab=4003 and row=? and col=?');
+
+    foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
+        my $qr = $options{sheetNames}[$i];
+        $qr =~ tr/ /-/;
+        my ($bidb) =
+          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+        next unless $bidb;
+        $bidb = $bidb->[0];
+        my ($bida) =
+          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+        next unless $bida;
+        $bida = $bida->[0];
+        my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
+        $ws->set_column( 0, 0,   48 );
+        $ws->set_column( 1, 254, 16 );
+        $ws->hide_gridlines(2);
+        $ws->freeze_panes( 1, 1 );
+        $ws->write_string( 0, 0, $options{sheetTitles}[$i], $titleFormat );
+
+        $ws->write_string( 2, 1, 'Baseline £/year',     $thcFormat );
+        $ws->write_string( 2, 2, 'Baseline p/kWh',      $thcFormat );
+        $ws->write_string( 2, 3, '£/year on new basis', $thcFormat );
+        $ws->write_string( 2, 4, 'p/kWh on new basis',  $thcFormat );
+        $ws->write_string( 2, 5, 'Change (£/year)',     $thcFormat );
+        $ws->write_string( 2, 6, 'Change (p/kWh)',      $thcFormat );
+        $ws->write_string( 2, 7, 'Percentage change',   $thcFormat );
+
+        use Spreadsheet::WriteExcel::Utility;
+        my $diff = $ws->store_formula('=IV2-IV1');
+        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,0)');
+
+        for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
+            $ws->write_string( 3 + $j, 0, $linesAfter->[$j], $thFormat );
+            $findRow->execute( $bidb, $linesBefore->[$j] );
+            my ($rowb) = $findRow->fetchrow_array;
+            $findRow->execute( $bida, $linesAfter->[$j] );
+            my ($rowa) = $findRow->fetchrow_array;
+            {
+                $q->execute( $bidb, $rowb, 1 );
+                my ($vb) = $q->fetchrow_array;
+                $q->execute( $bida, $rowa, 1 );
+                my ($va) = $q->fetchrow_array;
+                $ws->write( 3 + $j, 1, $vb, $format1[0] );
+                $ws->write( 3 + $j, 3, $va, $format1[0] );
+                my $old = xl_rowcol_to_cell( 3 + $j, 1 );
+                my $new = xl_rowcol_to_cell( 3 + $j, 3 );
+                $ws->repeat_formula(
+                    3 + $j, 5, $diff, $format2[0],
+                    IV1 => $old,
+                    IV2 => $new,
+                );
+                $ws->repeat_formula(
+                    3 + $j, 7, $perc, $format3[0],
+                    IV1 => $old,
+                    IV2 => $old,
+                    IV3 => $new,
+                );
+            }
+            {
+                $q->execute( $bidb, $rowb, 2 );
+                my ($vb) = $q->fetchrow_array;
+                $q->execute( $bida, $rowa, 2 );
+                my ($va) = $q->fetchrow_array;
+                $ws->write( 3 + $j, 2, $vb * $scalingFactor, $format1[1] );
+                $ws->write( 3 + $j, 4, $va * $scalingFactor, $format1[1] );
+                my $old = xl_rowcol_to_cell( 3 + $j, 2 );
+                my $new = xl_rowcol_to_cell( 3 + $j, 4 );
+                $ws->repeat_formula(
+                    3 + $j, 6, $diff, $format2[1],
+                    IV1 => $old,
+                    IV2 => $new,
+                );
+            }
+        }
+    }
+}
+
 1;

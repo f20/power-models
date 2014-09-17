@@ -155,7 +155,7 @@ sub makeStatisticsTables {
         arithmetic    => '=IV1*IV3*IV2/7',
         arguments     => {
             IV1 => $assumptions->{columns}[1],
-            IV3 => $assumptions->{columns}[1],
+            IV3 => $assumptions->{columns}[3],
             IV2 => $daysInYear,
         },
       );

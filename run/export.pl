@@ -120,7 +120,7 @@ if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @ARGV ) {
     @outputs = qw(cdcm) unless @outputs;
     $db->$_(@arguments) foreach map {
         $_ eq 'cdcm'
-          ? qw(cdcmTariffImpact cdcmPpuImpact cdcmRevenueMatrixImpact)
+          ? qw(cdcmTariffImpact cdcmPpuImpact cdcmRevenueMatrixImpact cdcmUserImpact)
           : $_ eq 'edcm' ? qw(edcmTariffImpact edcmRevenueMatrixImpact)
           :                $_;
     } @outputs;
