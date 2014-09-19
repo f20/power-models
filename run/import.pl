@@ -98,6 +98,10 @@ foreach (@ARGV) {
         $writer = tsvDumper($1);
         next;
     }
+    if (/^-+tall(csv)?$/i) {
+        $writer = tallDumper( $1 || 'xls' );
+        next;
+    }
     if (/^-+cat$/i) {
         $threads = 1;
         $writer  = tsvDumper( \*STDOUT );
@@ -410,7 +414,6 @@ sub tsvDumper {
             open $fh, '>', "$infile.$output";
         }
         binmode $fh, ':utf8';
-        0 and print {$fh} join( $joinChar, qw(Book Sheet Row A B C) ) . "\n";
         for my $worksheet ( $workbook->worksheets() ) {
             next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
@@ -441,6 +444,47 @@ sub tsvDumper {
                     } $col_min .. $col_max
                 ) . "\n";
             }
+        }
+    };
+}
+
+sub tallDumper {
+    my ($output) = @_;
+    my $joinChar = $output eq 'csv' ? ',' : "\t";
+    sub {
+        my ( $infile, $workbook ) = @_;
+        my $fh;
+        if ( ref $output ) {
+            $fh = $output;
+        }
+        else {
+            open $fh, '>', "$infile.$output";
+        }
+        binmode $fh, ':utf8';
+        print {$fh} join( $joinChar, qw(File Sheet Row Column Cell Contents) )
+          . "\n";
+        for my $worksheet ( $workbook->worksheets() ) {
+            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
+            my ( $row_min, $row_max ) = $worksheet->row_range();
+            my ( $col_min, $col_max ) = $worksheet->col_range();
+            for my $row ( $row_min .. $row_max ) {
+                foreach ( $col_min .. $col_max ) {
+                    my $aa = int( $_ / 26 );
+                    $aa =
+                      ( $aa ? chr( 64 + $aa ) : '' ) . chr( 65 + ( $_ % 26 ) );
+                    my $cell = $worksheet->get_cell( $row, $_ );
+                    next unless $cell;
+                    my $v = $cell->unformatted;
+                    next unless defined $v && $v ne '';
+                    $v =~ s/\n/\\n/gs;
+                    $v =~ s/\r/\\r/gs;
+                    print {$fh} join( $joinChar,
+                        $infile, $worksheet->{Name}, 1 + $row, 1 + $_,
+                        $aa . ( 1 + $row ), $v, )
+                      . "\n";
+                }
+            }
+
         }
     };
 }
