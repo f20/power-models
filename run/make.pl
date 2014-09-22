@@ -124,12 +124,14 @@ foreach ( map { decode_utf8 $_} @ARGV ) {
         elsif (/^-+single/is)    { $maker->{threads}->(1); }
         elsif (/^-+(sqlite.*)/is) {
             my $settings = "convert$1";
-            require Compilation::Import;
+            require Compilation::ImportCalcSqlite;
             $maker->{setting}->(
-                PostProcessing => Compilation::Import::makePostProcessor(
+                PostProcessing =>
+                  Compilation::ImportCalcSqlite::makePostProcessor(
                     $maker->{threads}->(),
-                    Compilation::Import::makeSQLiteWriter($settings), $settings
-                )
+                    Compilation::ImportCalcSqlite::makeSQLiteWriter($settings),
+                    $settings
+                  )
             );
         }
         elsif (/^-+stats/is) {

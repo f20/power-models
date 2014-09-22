@@ -38,10 +38,10 @@ sub _writeCsvLine {
 }
 
 sub csvCreate {
-    my ( $self, $small ) = @_;
+    my ( $self, $edcmInputsOuputsOnly ) = @_;
     my $numCo = 0;
     $self->do(
-'create temporary table companies ( cid integer primary key, bid int, company char)'
+'create temporary table companies ( cid integer primary key, bid int, company char )'
     );
     my $findCo =
       $self->prepare('select bid, filename from books order by filename');
@@ -55,11 +55,11 @@ sub csvCreate {
     }
     warn "$numCo datasets";
     $self->do(
-'create temporary table columns ( colid integer primary key, tab int, col int)'
+'create temporary table columns ( colid integer primary key, tab int, col int )'
     );
     $self->do('create unique index columnstabcol on columns (tab, col)');
     my $tabq = $self->prepare(
-        $small
+        $edcmInputsOuputsOnly
         ? 'select tab from data where tab like "45__" or tab like "9__" group by tab'
         : 'select tab from data where tab>0 group by tab'
     );
@@ -69,7 +69,8 @@ sub csvCreate {
         open my $fh, '>', $tab . '.csv';
         $self->do('delete from columns');
         $self->do(
-'insert into columns (tab, col) select tab, col from data where tab=? and col>0 group by tab, col order by tab, col',
+            'insert into columns (tab, col) select tab, col from data '
+              . 'where tab=? and col>0 group by tab, col order by tab, col',
             undef, $tab
         );
         _writeCsvLine(

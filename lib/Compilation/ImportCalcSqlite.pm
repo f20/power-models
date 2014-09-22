@@ -1,4 +1,4 @@
-﻿package Compilation::Import;
+﻿package Compilation::ImportCalcSqlite;
 
 =head Copyright licence and disclaimer
 
@@ -42,6 +42,10 @@ sub makePostProcessor {
       if $settings && $settings =~ /calc|convert/i;
     sub {
         my ($inFile) = @_;
+        unless ( -f $inFile ) {
+            $inFile = '~$models/' . $inFile;
+            return unless -f $inFile;
+        }
         my $calcFile = $inFile;
         $calcFile = $calculator1->($inFile) if $calculator1;
         Ancillary::ParallelRunning::waitanypid($threads1) if $threads1;
@@ -169,7 +173,7 @@ sub makeSQLiteWriter {
     };
 
     my $newBook = sub {
-        require Compilation::Master;
+        require Compilation::Database;
         $db = Compilation->new(1);
         sleep 1 while !$db->do('begin immediate transaction');
         $bid = $db->addModel( $_[0] );

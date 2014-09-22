@@ -2,13 +2,10 @@
 cd "`dirname \"$0\"`"
 while [ ! -e run/make.pl ]; do pwd; cd ..; done
 RUN=_par74-$$
-rm -rf _$RUN.tmp
-mkdir _$RUN.tmp
-cd _$RUN.tmp
+rm -rf _$RUN
+mkdir _$RUN
+cd _$RUN
+mkdir '~$models'
 
-../run/make.pl ../CDCM/Current/%-post132par74.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
-../run/import.pl -calc -sqlite *.xl*
+../run/make.pl -sqlite ../CDCM/Current/%-post132par74.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
 ../run/export.pl -dcp=post132par74 -name='paragraph 74 compliance'
-
-cd ..
-mv _$RUN.tmp $RUN.tmp

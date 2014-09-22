@@ -96,6 +96,7 @@ EOSQL
 sub addModel {
     my ( $self, $filename ) = @_;
     local $_ = $filename;
+    s#.*[/\\]##s;
     s/\.xlsx?$//is;
     s/^M-//;
     s/^CE-NEDL/NPG-Northeast/;
@@ -112,9 +113,8 @@ sub addModel {
     @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})?(-[^-]*)?$/s unless @a;
     map { $_ = '' unless defined $_; tr/-/ /; s/^ //; } @a;
     my $insert = $self->[INSERT] ||=
-      $self->[DB_HANDLE]->prepare(
-'insert or ignore into books (bid, filename, company, period, option) values (?, ?, ?, ?, ?)'
-      );
+      $self->[DB_HANDLE]->prepare( 'insert or ignore into books '
+          . '(bid, filename, company, period, option) values (?, ?, ?, ?, ?)' );
     srand();
     my $bid;
     do {
