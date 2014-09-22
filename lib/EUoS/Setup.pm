@@ -44,8 +44,8 @@ sub daysInYear {
         validation => {
             validate => 'decimal',
             criteria => 'between',
-            minimum  => 1,
-            maximum  => 999,
+            minimum  => 365,
+            maximum  => 366,
         },
         data          => [365],
         defaultFormat => '0hard'

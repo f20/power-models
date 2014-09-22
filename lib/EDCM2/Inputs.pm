@@ -59,9 +59,10 @@ sub generalInputs {
         dataset       => $model->{dataset},
         validation    => {
             validate => 'decimal',
-            criteria => '>=',
-            value    => 0,
-        }
+            criteria => 'between',
+            minimum  => 365,
+            maximum  => 366,
+        },
     );
 
     $model->{daysInYear} = $days;

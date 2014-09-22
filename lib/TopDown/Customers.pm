@@ -33,98 +33,8 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, $setup ) = @_;
-    bless { model => $model, setup => $setup }, $class;
-}
-
-sub totalDemand {
-    my ( $self, $usetName ) = @_;
-    return $self->{totalDemand}{$usetName} if $self->{totalDemand}{$usetName};
-    my $tariffSet       = $self->tariffSet;
-    my $userLabelset    = $self->userLabelset;
-    my $detailedVolumes = $self->detailedVolumes;
-    push @{ $self->{scenarioProportions} },
-      my $prop = Dataset(
-        name          => "Proportion in $usetName",
-        rows          => $userLabelset,
-        defaultFormat => '%hardnz',
-        data          => [ map { 1; } @{ $userLabelset->{list} } ]
-      );
-    my $columns = [
-        map {
-            SumProduct(
-                name          => $_->{name},
-                matrix        => $prop,
-                vector        => $_,
-                rows          => $tariffSet,
-                usetName      => $usetName,
-                defaultFormat => '0softnz',
-            );
-        } @$detailedVolumes
-    ];
-    push @{ $self->{model}{volumeTables} },
-      Columnset(
-        name    => "Forecast volume for $usetName",
-        columns => $columns,
-      );
-    $self->{totalDemand}{$usetName} = $columns;
-}
-
-sub individualDemand {
-    my ( $self, $usetName ) = @_;
-    return $self->{individualDemand}{$usetName}
-      if $self->{individualDemand}{$usetName};
-    my $spcol   = $self->totalDemand($usetName);
-    my $columns = [
-        map {
-            Arithmetic(
-                name          => $_->{name},
-                arguments     => { IV1 => $_->{matrix}, IV2 => $_->{vector}, },
-                arithmetic    => '=IV1*IV2',
-                defaultFormat => '0soft',
-                names         => $self->{names},
-            );
-        } @$spcol
-    ];
-    push @{ $self->{model}{volumeTables} },
-      Columnset(
-        name    => "Individual customer volumes in $usetName",
-        columns => $columns,
-      );
-    $self->{individualDemand}{$usetName} = $columns;
-}
-
-sub userLabelset {
-    my ($self) = @_;
-    return $self->{userLabelset} if $self->{userLabelset};
-    return $self->{userLabelset} = Labelset(
-        name   => 'Detailed list of customers',
-        groups => [
-            map { Labelset( name => keys %$_, list => values %$_ ); }
-              @{ $self->{model}{ulist} }
-        ]
-    ) if $self->{model}{ulist};
-    my $cat          = 0;
-    my $userLabelset = Labelset(
-        name   => 'Detailed list of customers',
-        groups => [
-            map {
-                $cat += 10_000;
-                my ( $name, $count ) = each %$_;
-                Labelset(
-                    name => $name,
-                    list => [ map { "User " . ( $cat + $_ ); } 1 .. $count ]
-                );
-            } @{ $self->{model}{ucount} }
-        ]
-    );
-    $self->{names} = Dataset(
-        defaultFormat => 'texthard',
-        data          => [ map { '' } @{ $userLabelset->{list} } ],
-        name          => 'Name',
-        rows          => $userLabelset
-    );
-    $self->{userLabelset} = $userLabelset;
+    my ( $class, $model ) = @_;
+    bless { model => $model, }, $class;
 }
 
 sub detailedVolumes {
@@ -144,47 +54,24 @@ sub detailedVolumes {
     return $self->{detailedVolumes};
 }
 
-sub tariffSet {
-    my ($self) = @_;
-    $self->{tariffSet} ||= Labelset(
-        name => 'Set of customer categories',
-        list => $self->userLabelset->{groups},
-    );
+sub componentSet {
+
 }
 
-sub finish {
-    my ( $self, $model ) = @_;
-    if ( $model->{table1653} ) {
-        $model->{table1653} = Columnset(
-            name     => 'Individual user data',
-            number   => 1653,
-            location => 1653,
-            dataset  => $self->{model}{dataset},
-            columns  => [
-                $self->{names} ? $self->{names} : (),
-                @{ $self->{scenarioProportions} },
-                @{ $self->{detailedVolumes} },
-                $self->{compareppu} ? $self->{compareppu} : (),
-            ],
-            doNotCopyInputColumns => 1,
-        );
-    }
-    else {
-        Columnset(
-            name     => 'Forecast volumes',
-            number   => 1512,
-            appendTo => $self->{model}{inputTables},
-            dataset  => $self->{model}{dataset},
-            columns  => $self->{detailedVolumes},
-        ) if $self->{detailedVolumes};
-        Columnset(
-            name     => 'Definition of user sets',
-            number   => 1514,
-            appendTo => $self->{model}{inputTables},
-            dataset  => $self->{model}{dataset},
-            columns  => $self->{scenarioProportions},
-        ) if $self->{scenarioProportions};
-    }
+sub tariffSet {
+
+}
+
+sub volumesByExempt {
+
+}
+
+sub volumesByTariff {
+
+}
+
+sub volumesByComponent {
+
 }
 
 1;

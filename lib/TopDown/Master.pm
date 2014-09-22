@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,53 +31,40 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use TopDown::Sheets;
-use TopDown::Setup;
+
 use TopDown::Customers;
+use TopDown::Pots;
+use TopDown::Routeing;
 use TopDown::Usage;
-use TopDown::Charging;
+use TopDown::Rates;
 use TopDown::Tariffs;
+use TopDown::Sheets;
 
 sub new {
-    my $class     = shift;
-    my $model     = bless { inputTables => [], @_ }, $class;
-    my $setup     = TopDown::Setup->new($model);
-    my $customers = TopDown::Customers->new( $model, $setup );
-    my $usage     = TopDown::Usage->new( $model, $setup, $customers );
-    my $charging  = TopDown::Charging->new( $model, $setup, $usage );
+    my $class = shift;
+    my $model = bless { inputTables => [], @_ }, $class;
+    my @needFinish;
 
-    foreach (    # the order affects the column order in input data
-        qw(
-        usetMatchAssets
-        usetBoundaryCosts
-        usetRunningCosts
-        )
-      )
-    {
-        my $usetName = $model->{$_};
-        next unless $usetName;
-        my $doNotApply = 0;
-        $doNotApply = 1 if $usetName =~ s/ \(information only\)$//i;
-        $charging->$_( $usage->totalUsage( $customers->totalDemand($usetName) ),
-            $doNotApply );
-    }
+    push @needFinish, my $customers = TopDown::Customers->new($model);
 
-    my $tariffs = TopDown::Tariffs->new( $model, $setup, $usage, $charging );
+    push @needFinish, my $pots = TopDown::Pots->new($model);
 
-    if ( my $usetName = $model->{usetRevenues} ) {
-        $tariffs->revenues( $customers->totalDemand($usetName) );
-    }
+    push @needFinish,
+      my $routeing = TopDown::Routeing->new( $model, $customers, $pots );
 
-    $charging->detailedAssets(
-        $usage->totalUsage( $customers->detailedVolumes )->{source} )
-      if $model->{detailedAssets};
+    push @needFinish,
+      my $usage = TopDown::Usage->new( $model, $customers, $pots, $routeing );
 
-    $_->finish($model)
-      foreach grep { $_; } $setup, $usage, $charging, $customers, $tariffs,
-      $supplyTariffs;
+    push @needFinish, my $rates = TopDown::Rates->new( $model, $usage, $pots );
 
+    push @needFinish,
+      my $tariffs =
+      TopDown::Tariffs->new( $model, $customers, $rates, $routeing );
+
+    $tariffs->revenueSummary($customers);
+
+    $_->finish($model) foreach @needFinish;
     $model;
-
 }
 
 1;

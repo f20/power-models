@@ -95,8 +95,12 @@ sub new {
             dataset       => $model->{dataset},
             appendTo      => $model->{inputTables},
             number        => 1111,
-            validation =>
-              { validate => 'decimal', criteria => '>=', value => 0, }
+            validation    => {
+                validate => 'decimal',
+                criteria => 'between',
+                minimum  => 365,
+                maximum  => 366,
+            },
         );
         $model->{ldnoRevTables} = [ $model->ldnoRev ];
         return $model;

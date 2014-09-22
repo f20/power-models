@@ -1,0 +1,163 @@
+---
+PerlModule: TopDown
+exemptDemandList:
+  -
+    - Drained highway
+    - &1
+      - Drainage charge £/m2/year
+      - Drained area m2
+routeingList:
+  -
+    - Flow m3 from effluent m3
+    - &2
+      - Volumetric charge £/m3
+      - Flow m3/year
+    - &3
+      - Effluent volume charge £/m3
+      - Effluent m3/year
+  -
+    - Oxygen kg from effluent oxygen kg
+    - &4
+      - Oxygen charge £/kg
+      - Oxygen demand kg/year
+    - &5
+      - Effluent oxygen charge £/kg
+      - Oxygen demand kg/year
+  -
+    - Sludge kg from effluent sludge kg
+    - &6
+      - Sludge charge £/kg
+      - Suspended solids kg/year
+    - &7
+      - Effluent sludge charge £/kg
+      - Suspended solids kg/year
+  -
+    - Flow m3 from sewage m3
+    - *2
+    - &8
+      - Sewage charge £/m3
+      - Sewage m3/year
+  -
+    - Oxygen kg from sewage m3
+    - *4
+    - *8
+  -
+    - Sludge kg from sewage m3
+    - *6
+    - *8
+  -
+    - Flow m3/year from drained area m2
+    - *2
+    - *1
+  -
+    - Oxygen kg/year from drained area m2
+    - *4
+    - *1
+  -
+    - Sludge kg/year from drained area m2
+    - *6
+    - *1
+  -
+    - Flow m3/year from property
+    - *2
+    - &9
+      - Fixed charge £/property/year
+      - Properties
+  -
+    - Oxygen kg/year from property
+    - *4
+    - *9
+  -
+    - Sludge kg/year from property
+    - *6
+    - *9
+tariffList:
+  -
+    - Domestic metered with surface water
+    - *8
+    - *9
+  -
+    - Domestic metered without surface water
+    - *8
+    - *9
+  -
+    - Trade effluent (up to 225mm)
+    - *3
+    - *5
+    - *7
+  -
+    - Trade effluent (more than to 225mm)
+    - *3
+    - *5
+    - *7
+  -
+    - Surface water drainage
+    - *1
+usageList:
+  -
+    - Large sewers
+    - *2
+    -
+      - Operating expenses
+      - Depreciation (IRC)
+      - Return on capital
+  -
+    - Small combined sewers
+    - *2
+    -
+      - Operating expenses
+      - Depreciation (IRC)
+      - Return on capital
+  -
+    - Small foul sewers
+    - *2
+    -
+      - Operating expenses
+      - Depreciation (IRC)
+      - Return on capital
+  -
+    - Small drains
+    - *2
+    -
+      - Operating expenses
+      - Depreciation (IRC)
+      - Return on capital
+  -
+    - Reception
+    - *2
+    -
+      - Operating expenses
+      - Depreciation
+      - Return on capital
+  -
+    - Wastewater settlement
+    - *2
+    -
+      - Depreciation
+      - Return on capital
+  -
+    - Biological oxidation
+    - *4
+    -
+      - Operating expenses
+  -
+    - Sludge transport
+    - *6
+    -
+      - Operating expenses
+      - Depreciation
+      - Return on capital
+  -
+    - Sludge treatment
+    - *6
+    -
+      - Operating expenses
+      - Depreciation
+      - Return on capital
+  -
+    - Sludge disposal
+    - *6
+    -
+      - Operating expenses
+      - Depreciation
+      - Return on capital
