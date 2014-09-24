@@ -746,7 +746,6 @@ sub cdcmUserImpact {
     $wb->setFormats(
         {
             $options{colour} ? ( colour => $options{colour} ) : (),
-            alignment => 1
         }
     );
 

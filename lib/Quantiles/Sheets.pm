@@ -165,7 +165,7 @@ sub technicalNotes {
         name       => '',
         rowFormats => ['caption'],
         lines      => [
-            'Technical notes, configuration and code identification',
+            'Technical model rules and version control',
             $model->{yaml},
             '',
             'Generated on '

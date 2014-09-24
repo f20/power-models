@@ -6,10 +6,9 @@ rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
 
-time ../run/make.pl -xlsx ../CDCM/Current/%-clean132.yml ../CDCM/Data-2013-02/* ../CDCM/Data-2014-02/*
-time ../run/import.pl -calc -sqlite *.xlsx
-time ../run/export.pl -xlsx -dcp=2014-02 -base=2013-02
-time ../run/export.pl -xlsx tscs
+time ../run/make.pl -sqlite ../CDCM/Current/%-after163.yml ../CDCM/Data-2013-02/* ../CDCM/Data-2014-02/*
+time ../run/export.pl -dcp=2014-02 -base=2013-02
+time ../run/export.pl tscs
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

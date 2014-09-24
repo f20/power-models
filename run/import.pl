@@ -55,7 +55,7 @@ use Compilation::ImportDumpers;
 use Compilation::ImportCalcSqlite;
 use Ancillary::ParallelRunning;
 
-my ( $sheetFilter, $writer, $settings, $postProcessor );
+my ( $writer, $settings, $postProcessor );
 
 my $threads;
 $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` unless $^O =~ /win32/i;
@@ -76,6 +76,7 @@ foreach (@ARGV) {
         next;
     }
     if (/^-+sqlite3?(=.*)?$/i) {
+        my $sheetFilter;
         if ( my $wantedSheet = $1 ) {
             $wantedSheet =~ s/^=//;
             $sheetFilter = sub { $_[0] eq $wantedSheet; };

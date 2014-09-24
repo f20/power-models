@@ -41,7 +41,6 @@ sub _updateTree {
         : $workbook->worksheets()
       )
     {
-        next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
         my ( $row_min, $row_max ) = $worksheet->row_range();
         my ( $col_min, $col_max ) = $worksheet->col_range();
         my $tableNumber = --$sheetNumber;
@@ -224,7 +223,6 @@ sub xlsWriter {
         }
         my $outputBook = new Spreadsheet::WriteExcel($outfile);
         for my $worksheet ( $workbook->worksheets() ) {
-            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my $outputSheet = $outputBook->add_worksheet( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
@@ -257,7 +255,6 @@ sub xlsFlattener {
         my $outputSheet = $outputBook->add_worksheet('Flattened');
         my $outputRow   = -1;
         for my $worksheet ( $workbook->worksheets() ) {
-            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
             for my $row ( $row_min .. $row_max ) {
@@ -287,8 +284,7 @@ sub xlsSplitter {
                 warn "$infile skipped";
                 next;
             }
-            my $outputBook = new Spreadsheet::WriteExcel($outfile);
-            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
+            my $outputBook  = new Spreadsheet::WriteExcel($outfile);
             my $outputSheet = $outputBook->add_worksheet( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
@@ -320,7 +316,6 @@ sub tsvDumper {
         }
         binmode $fh, ':utf8';
         for my $worksheet ( $workbook->worksheets() ) {
-            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
             $col_min = 0;    # Use completely blank columns
@@ -369,7 +364,6 @@ sub tallDumper {
         print {$fh} join( $joinChar, qw(File Sheet Row Column Cell Contents) )
           . "\n";
         for my $worksheet ( $workbook->worksheets() ) {
-            next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
             for my $row ( $row_min .. $row_max ) {

@@ -188,20 +188,16 @@ sub makeSQLiteWriter {
           );
     };
 
-    my $processTable = sub {
-        my $tableNumber = shift;
-        my $offset      = $#_;
-        --$offset while !defined $_[$offset][0];
-        --$offset while $offset && defined $_[$offset][0];
+    my $processTable = sub { };
 
-        for my $row ( 0 .. $#_ ) {
-            my $r  = $_[$row];
-            my $rn = $row - $offset;
-            for my $col ( 0 .. $#$r ) {
-                $writer->( $tableNumber, $rn, $col, $r->[$col] )
-                  if defined $r->[$col];
-            }
+    my $yamlCounter = -1;
+    my $processYml  = sub {
+        my @a;
+        while ( my $b = shift ) {
+            push @a, $b->[0];
         }
+        $writer->( 0, 0, ++$yamlCounter, join "\n", @a, '' );
+        $processTable = sub { };
     };
 
     sub {
@@ -244,8 +240,7 @@ sub makeSQLiteWriter {
             next if $sheetFilter && !$sheetFilter->( $worksheet->{Name} );
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
-            my $tableNumber = --$sheetNumber;
-            my $tableTop    = 0;
+            my $tableTop = 0;
             my @table;
             for my $row ( $row_min .. $row_max ) {
                 for my $col ( $col_min .. $col_max ) {
@@ -253,20 +248,43 @@ sub makeSQLiteWriter {
                     next unless $cell;
                     my $v = $cell->unformatted;
                     next unless defined $v;
-                    if ( $col == 0 && $v =~ /^([0-9]{2,})\. / ) {
-                        $processTable->( $tableNumber, @table )
-                          if @table && $tableNumber > 0;
-                        $tableNumber = $1;
-                        $tableTop    = $row;
-                        @table       = [$v];
+                    if ( $col == 0 ) {
+                        if ( $v eq '---' ) {
+                            $processTable->(@table) if @table;
+                            $tableTop     = $row;
+                            @table        = ();
+                            $processTable = $processYml;
+                        }
+                        elsif ( $v =~ /^([0-9]{2,})\. / ) {
+                            $processTable->(@table) if @table;
+                            $tableTop = $row;
+                            @table    = ();
+                            my $tableNumber = $1;
+                            $processTable = sub {
+                                my $offset = $#_;
+                                --$offset while !defined $_[$offset][0];
+                                --$offset
+                                  while $offset && defined $_[$offset][0];
+
+                                for my $row ( 0 .. $#_ ) {
+                                    my $r  = $_[$row];
+                                    my $rn = $row - $offset;
+                                    for my $col ( 0 .. $#$r ) {
+                                        $writer->(
+                                            $tableNumber, $rn, $col, $r->[$col]
+                                        ) if defined $r->[$col];
+                                    }
+                                }
+
+                                $processTable = sub { };
+                            };
+                        }
                     }
-                    else {
-                        $table[ $row - $tableTop ][$col] = $v;
-                    }
+                    $table[ $row - $tableTop ][$col] = $v;
                 }
             }
-            $processTable->( $tableNumber, @table )
-              if @table && $tableNumber > 0;
+            $processTable->(@table)
+              if @table;
         }
         eval {
             warn "Committing $book ($$)\n";

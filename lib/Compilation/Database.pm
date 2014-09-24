@@ -98,7 +98,7 @@ sub addModel {
     local $_ = $filename;
     s#.*[/\\]##s;
     s/\.xlsx?$//is;
-    s/^M-//;
+
     s/^CE-NEDL/NPG-Northeast/;
     s/^CE-YEDL/NPG-Yorkshire/;
     s/^CN-East/WPD-EastM/;
@@ -109,6 +109,7 @@ sub addModel {
     s/^SSE-/SSEPD-/;
     s/^WPD-Wales/WPD-SWales/;
     s/^WPD-West\b/WPD-SWest/;
+
     my @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})([+-].*)$/s;
     @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})?(-[^-]*)?$/s unless @a;
     map { $_ = '' unless defined $_; tr/-/ /; s/^ //; } @a;
