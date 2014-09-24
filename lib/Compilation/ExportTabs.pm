@@ -77,7 +77,7 @@ sub tableCompilations {
 
     warn "$numCo datasets for $optionName ($fileSearch $tabSearch)";
     $spacing = $numCo + 3;
-    my $leadBid = $self->selectrow_array('select bid from models limit 1');
+    my ($leadBid) = $self->selectrow_array('select bid from models limit 1');
     my $tabList =
       $self->prepare('select tab from data where bid=? group by tab');
     $tabList->execute($leadBid);
@@ -85,7 +85,7 @@ sub tableCompilations {
         $thcFormat, $captionFormat, $titleFormat )
       = ('XXX');
 
-    while ( my $tabNumber = $tabList->fetchrow_array ) {
+    while ( my ($tabNumber) = $tabList->fetchrow_array ) {
 
         next
           unless $tabNumber > 0

@@ -130,21 +130,20 @@ sub makeStatisticsTables {
       my $totalUnits = Arithmetic(
         name          => 'Total kWh/year',
         defaultFormat => '0soft',
-        rows          => $assumptions->{rows},
         arithmetic    => %override
-        ? '=IF(IV5,IV6,(C8*E8+D8*F8+(168-C81-D81)*G8)*IV2/7)'
-        : '=(C8*E8+D8*F8+(168-C81-D81)*G8)*IV2/7',
+        ? '=IF(IV8,IV9,(IV1*IV3+IV2*IV4+(168-IV11-IV21)*IV5)*IV7/7)'
+        : '=(IV1*IV3+IV2*IV4+(168-IV11-IV21)*IV5)*IV7/7',
         arguments => {
-            IV2 => $daysInYear,
-            %override ? ( IV5 => $override{total}, IV6 => $override{total} )
+            IV7 => $daysInYear,
+            %override ? ( IV8 => $override{total}, IV9 => $override{total} )
             : (),
-            C8  => $assumptions->{columns}[0],
-            C81 => $assumptions->{columns}[0],
-            D8  => $assumptions->{columns}[1],
-            D81 => $assumptions->{columns}[1],
-            E8  => $assumptions->{columns}[2],
-            F8  => $assumptions->{columns}[3],
-            G8  => $assumptions->{columns}[4],
+            IV1  => $assumptions->{columns}[0],
+            IV11 => $assumptions->{columns}[0],
+            IV2  => $assumptions->{columns}[1],
+            IV21 => $assumptions->{columns}[1],
+            IV3  => $assumptions->{columns}[2],
+            IV4  => $assumptions->{columns}[3],
+            IV5  => $assumptions->{columns}[4],
         },
       );
 
@@ -478,94 +477,94 @@ __DATA__
 ---
 1202:
   - _table: 1202. Consumption assumptions for illustrative customers
-  - Customer A: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
+  - 500kVA continuous: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    500kVA off-peak: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    500kVA peaky: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    5MVA continuous: '^HV HH Metered$'
+    5MVA off-peak: '^HV HH Metered$'
+    5MVA peaky: '^HV HH Metered$'
+    Customer A: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
     Customer B: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
     Customer C: '^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium|LV Network)'
     Customer D: '^(?:|LDNO .*: |Margin.*: )(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
     Customer E: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
     Customer F: '^(?:|LDNO .*: |Margin.*: )LV.*HH Metered$'
-    Customer G: '^LV.*HH Metered$'
-    Customer H: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Customer I: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Customer J: '^HV HH Metered$'
-    Customer K: '^HV HH Metered$'
-    Customer L: '^HV HH Metered$'
     _column: Tariff selection
-  - Customer A: 35
+  - 500kVA continuous: ''
+    500kVA off-peak: ''
+    500kVA peaky: 55
+    5MVA continuous: ''
+    5MVA off-peak: ''
+    5MVA peaky: 55
+    Customer A: 35
     Customer B: 35
     Customer C: 35
     Customer D: 35
     Customer E: ''
-    Customer F: 55
-    Customer G: ''
-    Customer H: 35
-    Customer I: ''
-    Customer J: ''
-    Customer K: ''
-    Customer L: 55
+    Customer F: 35
     _column: Peak-time hours/week
-  - Customer A: ''
+  - 500kVA continuous: ''
+    500kVA off-peak: 77
+    500kVA peaky: ''
+    5MVA continuous: ''
+    5MVA off-peak: 77
+    5MVA peaky: ''
+    Customer A: ''
     Customer B: ''
     Customer C: 48
     Customer D: 100
     Customer E: ''
-    Customer F: ''
-    Customer G: 77
-    Customer H: 100
-    Customer I: ''
-    Customer J: 77
-    Customer K: ''
-    Customer L: ''
+    Customer F: 48
     _column: Off-peak hours/week
-  - Customer A: 0.4165
+  - 500kVA continuous: ''
+    500kVA off-peak: ''
+    500kVA peaky: 250
+    5MVA continuous: ''
+    5MVA off-peak: ''
+    5MVA peaky: 250
+    Customer A: 0.4165
     Customer B: 0.8325
     Customer C: 0.75
     Customer D: 60
     Customer E: ''
-    Customer F: 200
-    Customer G: ''
-    Customer H: 400
-    Customer I: ''
-    Customer J: ''
-    Customer K: ''
-    Customer L: 4500
+    Customer F: 140
     _column: Peak-time load (kW)
-  - Customer A: ''
+  - 500kVA continuous: ''
+    500kVA off-peak: 450
+    500kVA peaky: ''
+    5MVA continuous: ''
+    5MVA off-peak: 4500
+    5MVA peaky: ''
+    Customer A: ''
     Customer B: ''
     Customer C: 0.9995
     Customer D: 1
     Customer E: ''
-    Customer F: ''
-    Customer G: 200
-    Customer H: 100
-    Customer I: ''
-    Customer J: 4500
-    Customer K: ''
-    Customer L: ''
+    Customer F: 160
     _column: Off-peak load (kW)
-  - Customer A: 0.15
+  - 500kVA continuous: 450
+    500kVA off-peak: ''
+    500kVA peaky: ''
+    5MVA continuous: 4500
+    5MVA off-peak: ''
+    5MVA peaky: ''
+    Customer A: 0.15
     Customer B: 0.3
     Customer C: 0.3
     Customer D: 50
     Customer E: 65
-    Customer F: ''
-    Customer G: ''
-    Customer H: 300
-    Customer I: 450
-    Customer J: ''
-    Customer K: 4500
-    Customer L: ''
+    Customer F: 32.5
     _column: Load at other times (kW)
-  - Customer A: ''
+  - 500kVA continuous: 500
+    500kVA off-peak: 500
+    500kVA peaky: 500
+    5MVA continuous: 5000
+    5MVA off-peak: 5000
+    5MVA peaky: 5000
+    Customer A: ''
     Customer B: ''
     Customer C: 6
     Customer D: 68
     Customer E: 68
-    Customer F: 250
-    Customer G: 250
-    Customer H: 500
-    Customer I: 500
-    Customer J: 5000
-    Customer K: 5000
-    Customer L: 5000
+    Customer F: 500
     _column: Capacity (kVA)
