@@ -1,4 +1,4 @@
-plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, title='Title', box=NA, form='%2.1f', digit=0) {
+plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, showValues=T, showLegend=T, title=NA, box=NA, form='%2.1f', digit=0) {
 
     if (!is.data.frame(prices)) {
         numMaps<-1;
@@ -79,7 +79,7 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, t
         for (a in 1:14) {
             if (length(z[z == a])>0&!is.na(prices[[g]][a])) {
                 polypath(shift[g]+x[z == a], y[z == a], col=getcol(prices[[g]][a]), rule="evenodd", lwd=0.2, fg="black");
-                text(shift[g]+mean(x[z == a], na.rm=T), mean(y[z == a], na.rm=T), sprintf(form, prices[[g]][a]), cex=0.75);
+                if (showValues) text(shift[g]+mean(x[z == a], na.rm=T), mean(y[z == a], na.rm=T), sprintf(form, prices[[g]][a]), cex=0.75);
             }
         }
         if (numMaps>1) text(shift[g]+0.5*(maxx+minx), miny, names(prices)[g], cex=1.25, font=2);
@@ -90,9 +90,11 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, t
     xr<-max(xrange)*prop+min(xrange)*(1-prop);
     mar<-c(4, 4, 8, 4);
     cex<-1.25;
-    bot<-textbox(xr, bot, title, fill="white", border=F, margin=mar, cex=cex, font=2);
-    bot<-top;
-    bot<-textbox(xr, bot, title, border=F, margin=mar, cex=cex, font=2);
+    if (!is.na(title)) {
+        bot<-textbox(xr, bot, title, fill="white", border=F, margin=mar, cex=cex, font=2);
+        bot<-top;
+        bot<-textbox(xr, bot, title, border=F, margin=mar, cex=cex, font=2);
+    }
     if (numMaps == 1) prop<-c(0.02, 0.77) else prop<-c(0.02, 0.58);
     xr<-max(xrange)*prop+min(xrange)*(1-prop);
     top<-bot-20;
@@ -109,10 +111,15 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, t
         }
         rect(xr[1], bot, xr[2], top);
     }
-    scale<-10;
-    if (maxcol>70) scale<-50;
-    max2<-ceiling(maxcol/scale)*scale;
-    colorlegend(col=sapply(0.01*(0*(100:0)+max2*(0:100)), getcol), c(0, max2), zlevels=4, posx=c(0.95,0.975), posy=c(.7,.95), left=T, digit=digit);
+    
+    if (showLegend) {
+        quantum<-10;
+        if (maxcol-mincol>70) quantum<-50;
+        min2<-floor(mincol/quantum)*quantum;
+        max2<-ceiling(maxcol/quantum)*quantum;
+        colorlegend(col=sapply(0.01*(min2*(100:0)+max2*(0:100)), getcol), c(min2, max2), zlevels=4, posx=c(0.95,0.975), posy=c(.7,.95), left=T, digit=digit);
+    }
+    
     graphics.off();
     
 }
