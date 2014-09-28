@@ -55,7 +55,16 @@ sub makeStatisticsAssumptions {
       && $model->{dataset}{$1};
     $colspec ||= $colspecDefault;
 
-    my @rows = sort grep { $_ ne '_column'; } keys %{ $colspec->[1] };
+    my @rows = sort {
+        my @n =
+          map {
+            my $n = 0;
+            $n = $1        if /([0-9]+)\s*kVA/;
+            $n = $1 * 1000 if /([0-9]+)\s*MVA/;
+            $n;
+          } $a, $b;
+        $n[0] <=> $n[1] || $a cmp $b;
+    } grep { $_ ne '_column'; } keys %{ $colspec->[1] };
 
     my $rowset = Labelset( list => \@rows );
 
@@ -477,94 +486,146 @@ __DATA__
 ---
 1202:
   - _table: 1202. Consumption assumptions for illustrative customers
-  - 500kVA continuous: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+  - 500kVA business: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    500kVA continuous: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
     500kVA off-peak: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    500kVA peaky: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    500kVA random: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    5MVA business: '^HV HH Metered$'
     5MVA continuous: '^HV HH Metered$'
     5MVA off-peak: '^HV HH Metered$'
-    5MVA peaky: '^HV HH Metered$'
-    Customer A: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
-    Customer B: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
-    Customer C: '^(?:(Small Non )?Domestic (?:Unrestricted|Two)|LV.*Medium|LV Network)'
-    Customer D: '^(?:|LDNO .*: |Margin.*: )(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
-    Customer E: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
-    Customer F: '^(?:|LDNO .*: |Margin.*: )LV.*HH Metered$'
+    5MVA random: '^HV HH Metered$'
+    68kVA business: '^(?:|LDNO .*: |Margin.*: )(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
+    68kVA continuous: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
+    68kVA off-peak: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
+    68kVA random: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
+    Average home: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
+    Average home x250: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Average home x2500: '^HV HH Metered$'
+    Electric heating home: '^(?:|LDNO .*: |Margin.*: )(?:Domestic (?:Unrestricted|Two)|LV Network Dom)'
+    Electric heating home x100: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Electric heating home x1000: '^HV HH Metered$'
+    Low use home: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
     _column: Tariff selection
-  - 500kVA continuous: ''
+  - 500kVA business: 66
+    500kVA continuous: ''
     500kVA off-peak: ''
-    500kVA peaky: 55
+    500kVA random: ''
+    5MVA business: 66
     5MVA continuous: ''
     5MVA off-peak: ''
-    5MVA peaky: 55
-    Customer A: 35
-    Customer B: 35
-    Customer C: 35
-    Customer D: 35
-    Customer E: ''
-    Customer F: 35
+    5MVA random: ''
+    68kVA business: 66
+    68kVA continuous: ''
+    68kVA off-peak: ''
+    68kVA random: ''
+    Average home: 35
+    Average home x250: 35
+    Average home x2500: 35
+    Electric heating home: 35
+    Electric heating home x100: 35
+    Electric heating home x1000: 35
+    Low use home: 35
     _column: Peak-time hours/week
-  - 500kVA continuous: ''
-    500kVA off-peak: 77
-    500kVA peaky: ''
+  - 500kVA business: 77
+    500kVA continuous: ''
+    500kVA off-peak: 74.6666666666667
+    500kVA random: ''
+    5MVA business: 77
     5MVA continuous: ''
-    5MVA off-peak: 77
-    5MVA peaky: ''
-    Customer A: ''
-    Customer B: ''
-    Customer C: 48
-    Customer D: 100
-    Customer E: ''
-    Customer F: 48
+    5MVA off-peak: 74.6666666666667
+    5MVA random: ''
+    68kVA business: 77
+    68kVA continuous: ''
+    68kVA off-peak: 74.6666666666667
+    68kVA random: ''
+    Average home: 49
+    Average home x250: 49
+    Average home x2500: 49
+    Electric heating home: 49
+    Electric heating home x100: 49
+    Electric heating home x1000: 49
+    Low use home: 49
     _column: Off-peak hours/week
-  - 500kVA continuous: ''
+  - 500kVA business: 355
+    500kVA continuous: ''
     500kVA off-peak: ''
-    500kVA peaky: 250
+    500kVA random: ''
+    5MVA business: 3550
     5MVA continuous: ''
     5MVA off-peak: ''
-    5MVA peaky: 250
-    Customer A: 0.4165
-    Customer B: 0.8325
-    Customer C: 0.75
-    Customer D: 60
-    Customer E: ''
-    Customer F: 140
+    5MVA random: ''
+    68kVA business: 48.28
+    68kVA continuous: ''
+    68kVA off-peak: ''
+    68kVA random: ''
+    Average home: 1
+    Average home x250: 250
+    Average home x2500: 2500
+    Electric heating home: 1.25
+    Electric heating home x100: 125
+    Electric heating home x1000: 1250
+    Low use home: 0.5
     _column: Peak-time load (kW)
-  - 500kVA continuous: ''
+  - 500kVA business: 100
+    500kVA continuous: ''
     500kVA off-peak: 450
-    500kVA peaky: ''
+    500kVA random: ''
+    5MVA business: 1000
     5MVA continuous: ''
     5MVA off-peak: 4500
-    5MVA peaky: ''
-    Customer A: ''
-    Customer B: ''
-    Customer C: 0.9995
-    Customer D: 1
-    Customer E: ''
-    Customer F: 160
+    5MVA random: ''
+    68kVA business: 13.6
+    68kVA continuous: ''
+    68kVA off-peak: 61.2
+    68kVA random: ''
+    Average home: 0.1
+    Average home x250: 25
+    Average home x2500: 250
+    Electric heating home: 1.5
+    Electric heating home x100: 150
+    Electric heating home x1000: 1500
+    Low use home: 0.05
     _column: Off-peak load (kW)
-  - 500kVA continuous: 450
+  - 500kVA business: 100
+    500kVA continuous: 450
     500kVA off-peak: ''
-    500kVA peaky: ''
+    500kVA random: 200
+    5MVA business: 1000
     5MVA continuous: 4500
     5MVA off-peak: ''
-    5MVA peaky: ''
-    Customer A: 0.15
-    Customer B: 0.3
-    Customer C: 0.3
-    Customer D: 50
-    Customer E: 65
-    Customer F: 32.5
+    5MVA random: 2000
+    68kVA business: 13.6
+    68kVA continuous: 61.2
+    68kVA off-peak: ''
+    68kVA random: 27.2
+    Average home: 0.4
+    Average home x250: 100
+    Average home x2500: 1000
+    Electric heating home: 0.5
+    Electric heating home x100: 50
+    Electric heating home x1000: 500
+    Low use home: 0.2
     _column: Load at other times (kW)
-  - 500kVA continuous: 500
+  - 500kVA business: 500
+    500kVA continuous: 500
     500kVA off-peak: 500
-    500kVA peaky: 500
+    500kVA random: 500
+    5MVA business: 5000
     5MVA continuous: 5000
     5MVA off-peak: 5000
-    5MVA peaky: 5000
-    Customer A: ''
-    Customer B: ''
-    Customer C: 6
-    Customer D: 68
-    Customer E: 68
-    Customer F: 500
+    5MVA random: 5000
+    68kVA business: 68
+    68kVA continuous: 68
+    68kVA off-peak: 68
+    68kVA random: 68
+    Average home: 6
+    Average home x250: 500
+    Average home x2500: 5000
+    Electric heating home: 18
+    Electric heating home x100: 500
+    Electric heating home x1000: 5000
+    Low use home: 3
     _column: Capacity (kVA)
+  - _column: Total kWh/year
+  - _column: Rate 2 kWh/year
+  - _column: Load factor (kW/kVA)

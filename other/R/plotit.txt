@@ -1,4 +1,4 @@
-plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, title='Title', box=c('line 1', 'line 2'), form='%2.1f', digit=0) {
+plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, title='Title', box=NA, form='%2.1f', digit=0) {
 
     if (!is.data.frame(prices)) {
         numMaps<-1;
@@ -48,7 +48,7 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, t
         if (numMaps == 3) jpeg(filename, width=pixels, height=pixels/1.5, res=pixels/10.0);
     } else {
         pixels <- as.integer(pixels);
-        print(filename<-paste(name, '.png', sep=''));
+        filename<-paste(name, '.png', sep='');
         if (numMaps == 1) png(filename, width=pixels/1.5, height=pixels, res=pixels/10.0) else
         if (numMaps == 2) png(filename, width=pixels, height=pixels, res=pixels/8.0) else
         if (numMaps == 3) png(filename, width=pixels, height=pixels/1.5, res=pixels/10.0);
@@ -99,14 +99,16 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, t
     bot<-top;
     mar<-c(4, 4, 8, 4);
     cex<-1.0;
-    for (l in 1:length(box)) {
-        bot<-textbox(xr, bot, box[l], fill="white", border=F, margin=mar, cex=cex);
+    if (!is.na(box)) {
+        for (l in 1:length(box)) {
+            bot<-textbox(xr, bot, box[l], fill="white", border=F, margin=mar, cex=cex);
+        }
+        bot<-top;
+        for (l in 1:length(box)) {
+            bot<-textbox(xr, bot, box[l], border=F, margin=mar, cex=cex);
+        }
+        rect(xr[1], bot, xr[2], top);
     }
-    bot<-top;
-    for (l in 1:length(box)) {
-        bot<-textbox(xr, bot, box[l], border=F, margin=mar, cex=cex);
-    }
-    rect(xr[1], bot, xr[2], top);
     scale<-10;
     if (maxcol>70) scale<-50;
     max2<-ceiling(maxcol/scale)*scale;
