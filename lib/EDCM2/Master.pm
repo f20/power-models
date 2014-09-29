@@ -903,8 +903,8 @@ EOT
         $tariffNetworkSupportFactor, $hoursInRed,
         $hoursInRed,                 $importCapacity,
         $exportCapacityChargeable,   $creditableCapacity,
-        $redUseRate,                 $rateExit,
-        $activeCoincidence935,       $reactiveCoincidence935,
+        $rateExit,                   $activeCoincidence935,
+        $reactiveCoincidence935,
       );
 
     $genCredit = Arithmetic(

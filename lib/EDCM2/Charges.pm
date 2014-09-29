@@ -37,15 +37,15 @@ use SpreadsheetModel::Shortcuts ':all';
 sub chargesFcpLric {
 
     my (
-        $model,                         $acCoef,
-        $activeCoincidence,             $charges1,
-        $daysInYear,                    $reactiveCoincidence,
-        $reCoef,                        $sFactor,
-        $redHours,                      $redHoursGen,
-        $demandCapacity,                $chargeableGenerationCapacity,
-        $creditableCapacity,            $redUseRate,
-        $rateExit,                      $activeCoincidenceUndoctored,
-        $reactiveCoincidenceUndoctored, $reactiveCoincidence935
+        $model,                       $acCoef,
+        $activeCoincidence,           $charges1,
+        $daysInYear,                  $reactiveCoincidence,
+        $reCoef,                      $sFactor,
+        $redHours,                    $redHoursGen,
+        $demandCapacity,              $chargeableGenerationCapacity,
+        $creditableCapacity,          $rateExit,
+        $activeCoincidenceUndoctored, $reactiveCoincidenceUndoctored,
+        $reactiveCoincidence935
     ) = @_;
 
     $model->{demandConsumptionFcpLric} = my $demandConsumptionFcpLric =

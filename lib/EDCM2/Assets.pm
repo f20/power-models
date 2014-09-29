@@ -481,7 +481,9 @@ EOL
                         IV5_IV6 => $classificationMap,
                         IV4     => $customerCategory,
                         $diversity ? ( IV3 => $diversity ) : (),
-                        IV8 => $useRate,
+                        IV8 => ref $useRate eq 'ARRAY'
+                        ? $useRate->[1]
+                        : $useRate,
                     },
                 ),
                 vector => $accretion,
