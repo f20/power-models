@@ -1,20 +1,21 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_CDCM-RM-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
+mkdir '~$models'
 
-perl ../run/make.pl -stats ../CDCM/Scaling/%-dcp123hybrid.yml ../CDCM/Scaling/%-ss132.yml ../CDCM/Scaling/%-nomatching132.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
-perl ../run/import.pl -calc -sqlite *.xl*
+perl ../pmod.pl -stats ../CDCM/Scaling/%-dcp123hybrid.yml ../CDCM/Scaling/%-ss132.yml ../CDCM/Scaling/%-nomatching132.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+perl ../pmod.pl -calc -sqlite '~$models'/*.xl*
 
-perl ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=clean132
-perl ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=dcp123hybrid
-perl ../run/export.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=ss132
-perl ../run/export.pl -dcp=dcp123hybrid
-perl ../run/export.pl -dcp=ss132
-perl ../run/export.pl tscs 10 37 40
+perl ../pmod.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=clean132
+perl ../pmod.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=dcp123hybrid
+perl ../pmod.pl -cdcmTariffImpact -cdcmPpuImpact -base=nomatching -dcp=ss132
+perl ../pmod.pl -dcp=dcp123hybrid
+perl ../pmod.pl -dcp=ss132
+perl ../pmod.pl tscs 10 37 40
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

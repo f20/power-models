@@ -1,21 +1,22 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_dcp179opt-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
+mkdir '~$models'
 
-time ../run/make.pl ../CDCM/DCP-179/%-dcp179opt?.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
-time ../run/import.pl -calc -sqlite *.xl*
+perl ../pmod.pl ../CDCM/DCP-179/%-dcp179opt?.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+perl ../pmod.pl -calc -sqlite '~$models'/*.xl*
 
 for x in 1 2 3 4 5 6 7
 do
-time ../run/export.pl dcp179opt$x ../CDCM/DCP-179/+impactlines-dcp163-dcp179-tariffs.yml -name='DCP 179 option '$x -cdcmTariffImpact 
-time ../run/export.pl dcp179opt$x ../CDCM/DCP-179/+impactlines-dcp163-dcp179-revenue.yml -name='DCP 179 option '$x -cdcmPpuImpact -cdcmRevenueMatrixImpact
+perl ../pmod.pl dcp179opt$x ../CDCM/DCP-179/+impactlines-dcp163-dcp179-tariffs.yml -name='DCP 179 option '$x -cdcmTariffImpact 
+perl ../pmod.pl dcp179opt$x ../CDCM/DCP-179/+impactlines-dcp163-dcp179-revenue.yml -name='DCP 179 option '$x -cdcmPpuImpact -cdcmRevenueMatrixImpact
 done
 
-../run/export.pl tscs 24
+perl ../pmod.pl tscs 24
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

@@ -1,30 +1,31 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_dcp189-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
+mkdir '~$models'
 
 DATASETS=../EDCM/Data-Test/*
 # DATASETS=../EDCM/Toys-2014/Test*
 
-perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* $DATASETS -xdata='{"rules":{"numLocations":2,"numTariffs":2}}'
+perl ../pmod.pl -xlsx ../EDCM/Issue-70/\%-i70-* $DATASETS -xdata='{"rules":{"numLocations":2,"numTariffs":2}}'
 
-# perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"preservePot","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189preservePot-Y"}}' $DATASETS
+# perl ../pmod.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"preservePot","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189preservePot-Y"}}' $DATASETS
 
-# perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"preserveResidual","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189preserveResidual-Y"}}' $DATASETS
+# perl ../pmod.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"preserveResidual","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189preserveResidual-Y"}}' $DATASETS
 
-perl ../run/make.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"splitShortfall","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189splitShortfall-Y"}}' $DATASETS
+perl ../pmod.pl -xlsx ../EDCM/Issue-70/\%-i70-* -xdata='{"rules":{"dcp189":"splitShortfall","dcp189default":"Y","numLocations":2,"numTariffs":2,"template":"%-dcp189splitShortfall-Y"}}' $DATASETS
 
-perl ../run/import.pl -calc -sqlite *.xlsx
+perl ../pmod.pl -calc -sqlite *.xlsx
 
-# perl ../run/export.pl -xlsx -edcm dcp189preservePot-Y -base=i70-FCP
-# perl ../run/export.pl -xlsx -edcm dcp189preservePot-Y -base=i70-LRIC
-# perl ../run/export.pl -xlsx -edcm dcp189preserveResidual-Y -base=i70-FCP
-# perl ../run/export.pl -xlsx -edcm dcp189preserveResidual-Y -base=i70-LRIC
-perl ../run/export.pl -xlsx -edcm dcp189splitShortfall-Y -base=i70-FCP
-perl ../run/export.pl -xlsx -edcm dcp189splitShortfall-Y -base=i70-LRIC
+# perl ../pmod.pl -xlsx -edcm dcp189preservePot-Y -base=i70-FCP
+# perl ../pmod.pl -xlsx -edcm dcp189preservePot-Y -base=i70-LRIC
+# perl ../pmod.pl -xlsx -edcm dcp189preserveResidual-Y -base=i70-FCP
+# perl ../pmod.pl -xlsx -edcm dcp189preserveResidual-Y -base=i70-LRIC
+perl ../pmod.pl -xlsx -edcm dcp189splitShortfall-Y -base=i70-FCP
+perl ../pmod.pl -xlsx -edcm dcp189splitShortfall-Y -base=i70-LRIC
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

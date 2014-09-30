@@ -1,12 +1,13 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_edcmts-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
-time ../run/make.pl -stats -sqlite ../EDCM/*/%-beta-*.yml  ../EDCM/*/%-b206-*.yml  ../EDCM/Data-*-02/*
-time ../run/export.pl tscs 11 45 46 47 48
+mkdir '~$models'
+perl ../pmod.pl -stats -sqlite ../EDCM/*/%-beta-*.yml  ../EDCM/*/%-b206-*.yml  ../EDCM/Data-*-02/*
+perl ../pmod.pl tscs 11 45 46 47 48
 cd ..
 mv _$RUN.tmp $RUN.tmp
 echo "$RUN.tmp complete; press any key to exit"

@@ -1,11 +1,14 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_par74-$$
-rm -rf _$RUN
-mkdir _$RUN
-cd _$RUN
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
 mkdir '~$models'
 
-../run/make.pl -sqlite ../CDCM/Current/%-post132par74.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
-../run/export.pl -dcp=post132par74 -name='paragraph 74 compliance'
+perl ../pmod.pl -sqlite ../CDCM/Current/%-post132par74.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+perl ../pmod.pl -dcp=post132par74 -name='paragraph 74 compliance'
+
+cd ..
+mv _$RUN.tmp $RUN.tmp

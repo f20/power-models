@@ -1,11 +1,12 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_dcp123stats-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
-../run/make.pl -sqlite -stats ../CDCM/Data-2014-02/* ../CDCM/Current/%-after163.yml ../CDCM/Scaling/%-ss163.yml ../CDCM/Scaling/%-dcp123hybrid.yml
-../run/export.pl tscs 40
+mkdir '~$models'
+perl ../pmod.pl -sqlite -stats ../CDCM/Data-2014-02/* ../CDCM/Current/%-after163.yml ../CDCM/Scaling/%-ss163.yml ../CDCM/Scaling/%-dcp123hybrid.yml
+perl ../pmod.pl tscs 40
 cd ..
 mv _$RUN.tmp $RUN.tmp

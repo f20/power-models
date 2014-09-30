@@ -1,13 +1,14 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_m-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
+mkdir '~$models'
 
-perl ../run/make.pl -sqlite ../ModelM/Toys-2014/%-withEDCM-postDCP118.yml ../ModelM/Toys-2014/%-withEDCM-postDCP118-avgunitmeav.yml ../ModelM/Data-2014-02/*
-perl ../run/export.pl tscs
+perl ../pmod.pl -sqlite ../ModelM/Toys-2014/%-withEDCM-postDCP118.yml ../ModelM/Toys-2014/%-withEDCM-postDCP118-avgunitmeav.yml ../ModelM/Data-2014-02/*
+perl ../pmod.pl tscs
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

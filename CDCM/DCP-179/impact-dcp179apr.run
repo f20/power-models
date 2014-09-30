@@ -1,33 +1,34 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_dcp179apr-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
+mkdir '~$models'
 
-perl ../run/make.pl ../CDCM/DCP-179/%-dcp179apr-ct*.yml ../CDCM/DCP-179/%-dcp179apr-proof?.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
-perl ../run/import.pl -calc -sqlite *.xl*
+perl ../pmod.pl ../CDCM/DCP-179/%-dcp179apr-ct*.yml ../CDCM/DCP-179/%-dcp179apr-proof?.yml ../CDCM/Current/%-clean132.yml ../CDCM/Data-2014-02/*
+perl ../pmod.pl -calc -sqlite '~$models'/*.xl*
 
-perl ../run/export.pl -dcp=dcp179apr-ctables ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 minimum change' -cdcmTariffImpact 
-perl ../run/export.pl -dcp=dcp179apr-ctables ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 minimum change' -cdcmPpuImpact -cdcmRevenueMatrixImpact
-perl ../run/export.pl -orange -dcp=dcp179apr-ctpar74 ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 minimum change with paragraph 74' -cdcmTariffImpact 
-perl ../run/export.pl -orange -dcp=dcp179apr-ctpar74 ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 minimum change with paragraph 74' -cdcmPpuImpact -cdcmRevenueMatrixImpact
-perl ../run/export.pl -orange -dcp=dcp179apr-proof1 ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 minimum change with paragraph 74 and 1%' -cdcmTariffImpact 
-perl ../run/export.pl -orange -dcp=dcp179apr-proof1 ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 minimum change with paragraph 74 and 1%' -cdcmPpuImpact -cdcmRevenueMatrixImpact
-perl ../run/export.pl -base=dcp179apr-ctpar74 -dcp=dcp179apr-proof1 ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='Impact of switching 1% to half hourly'
-perl ../run/export.pl -orange -base=dcp179apr-ctpar74 -dcp=dcp179apr-proof2 ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='Impact of switching 50% to half hourly'
+perl ../pmod.pl -dcp=dcp179apr-ctables ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 minimum change' -cdcmTariffImpact 
+perl ../pmod.pl -dcp=dcp179apr-ctables ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 minimum change' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+perl ../pmod.pl -orange -dcp=dcp179apr-ctpar74 ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 minimum change with paragraph 74' -cdcmTariffImpact 
+perl ../pmod.pl -orange -dcp=dcp179apr-ctpar74 ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 minimum change with paragraph 74' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+perl ../pmod.pl -orange -dcp=dcp179apr-proof1 ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 minimum change with paragraph 74 and 1%' -cdcmTariffImpact 
+perl ../pmod.pl -orange -dcp=dcp179apr-proof1 ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 minimum change with paragraph 74 and 1%' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+perl ../pmod.pl -base=dcp179apr-ctpar74 -dcp=dcp179apr-proof1 ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='Impact of switching 1% to half hourly'
+perl ../pmod.pl -orange -base=dcp179apr-ctpar74 -dcp=dcp179apr-proof2 ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='Impact of switching 50% to half hourly'
 
-# perl ../run/export.pl -dcp=dcp179aprbaseline ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 baseline model' -cdcmTariffImpact 
-# perl ../run/export.pl -dcp=dcp179aprbaseline ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 baseline model' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+# perl ../pmod.pl -dcp=dcp179aprbaseline ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 baseline model' -cdcmTariffImpact 
+# perl ../pmod.pl -dcp=dcp179aprbaseline ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 baseline model' -cdcmPpuImpact -cdcmRevenueMatrixImpact
 
-# perl ../run/export.pl -dcp=dcp179aprragneq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 red amber green uncorrected' -cdcmTariffImpact 
-# perl ../run/export.pl -dcp=dcp179aprragneq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 red amber green uncorrected' -cdcmPpuImpact -cdcmRevenueMatrixImpact
-# perl ../run/export.pl -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 red amber green equalised' -cdcmTariffImpact 
-# perl ../run/export.pl -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 red amber green equalised' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+# perl ../pmod.pl -dcp=dcp179aprragneq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 red amber green uncorrected' -cdcmTariffImpact 
+# perl ../pmod.pl -dcp=dcp179aprragneq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 red amber green uncorrected' -cdcmPpuImpact -cdcmRevenueMatrixImpact
+# perl ../pmod.pl -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-tariffs.yml -name='DCP 179 red amber green equalised' -cdcmTariffImpact 
+# perl ../pmod.pl -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp163-dcp179apr-revenue.yml -name='DCP 179 red amber green equalised' -cdcmPpuImpact -cdcmRevenueMatrixImpact
 
-# perl ../run/export.pl -base=dcp179apr-proof2 -dcp=dcp179apr-proof3nooff ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='Impact of ignoring off-peak'
-# perl ../run/export.pl -base=dcp179aprragneq -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='DCP 179 impact of red amber green'
+# perl ../pmod.pl -base=dcp179apr-proof2 -dcp=dcp179apr-proof3nooff ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='Impact of ignoring off-peak'
+# perl ../pmod.pl -base=dcp179aprragneq -dcp=dcp179aprrageq ../CDCM/DCP-179/+impactlines-dcp179apr-dcp179apr.yml -name='DCP 179 impact of red amber green'
 
 cd ..
 mv _$RUN.tmp $RUN.tmp

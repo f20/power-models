@@ -1,14 +1,15 @@
 #!/bin/bash
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do pwd; cd ..; done
+while [ ! -e pmod.pl ]; do pwd; cd ..; done
 RUN=_dcp133-$$
 rm -rf _$RUN.tmp
 mkdir _$RUN.tmp
 cd _$RUN.tmp
+mkdir '~$models'
 
-../run/make.pl -sqlite -stats ../CDCM/Data-2014-02/* ../CDCM/Current/%-clean163.yml ../CDCM/DCP-133/%-*.yml ../CDCM/Scaling/%-nomatching163.yml
-# ../run/export.pl dcp133
-# ../run/export.pl tscs 40
+perl ../pmod.pl -sqlite -stats ../CDCM/Data-2014-02/* ../CDCM/Current/%-clean163.yml ../CDCM/DCP-133/%-*.yml ../CDCM/Scaling/%-nomatching163.yml
+# perl ../pmod.pl dcp133
+# perl ../pmod.pl tscs 40
 
 R --vanilla --slave <<EOR
 source('../other/R/england-wales-scotland.txt');

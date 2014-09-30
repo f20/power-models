@@ -1,18 +1,18 @@
 #!/bin/sh
 cd "`dirname \"$0\"`"
-while [ ! -e run/make.pl ]; do cd ..; done
+while [ ! -e pmod.pl ]; do cd ..; done
 RUN=_C2014-$$
-rm -rf _$RUN
-mkdir _$RUN
-cd _$RUN
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
 mkdir '~$models'
 
 core=../CDCM/Current/%-after163.yml
 core+=' '
 core+=../CDCM/Data-2014-02/*.yml
-perl ../run/make.pl -sqlite $core -xdata='rules|template|%-ror-'5.6 -xdata='1010|1|Financial and general assumptions|'5.6'e-2' -newrules -newdata $core -xdata='rules|template|%-ror-'5.5 -xdata='1010|1|Financial and general assumptions|'5.5'e-2' -newrules -newdata $core -xdata='rules|template|%-ror-'3 -xdata='1010|1|Financial and general assumptions|'3'e-2' -newrules -newdata
-perl ../run/export.pl -base=ror-5.6 -dcp=ror-5.5 -name=5.5'% rate of return' &
-perl ../run/export.pl -base=ror-5.6 -dcp=ror-3 -name=3'% rate of return' &
+perl ../pmod.pl -sqlite $core -xdata='rules|template|%-ror-'5.6 -xdata='1010|1|Financial and general assumptions|'5.6'e-2' -newrules -newdata $core -xdata='rules|template|%-ror-'5.5 -xdata='1010|1|Financial and general assumptions|'5.5'e-2' -newrules -newdata $core -xdata='rules|template|%-ror-'3 -xdata='1010|1|Financial and general assumptions|'3'e-2' -newrules -newdata
+perl ../pmod.pl -base=ror-5.6 -dcp=ror-5.5 -name=5.5'% rate of return' &
+perl ../pmod.pl -base=ror-5.6 -dcp=ror-3 -name=3'% rate of return' &
 
 for country in england wales scotland england-wales england-wales-scotland
 do
@@ -41,5 +41,6 @@ for (pix in c('Twitter', 1024, 'pdf')) {
 EOR
 done
 
-open .
+cd ..
+mv _$RUN.tmp $RUN.tmp
 wait
