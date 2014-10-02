@@ -216,7 +216,7 @@ sub export {
 
     if ( grep { /\bcsv\b/i } @_ ) {
         require Compilation::ExportCsv;
-        $db->csvCreate( grep { /small/i } @_ );
+        $db->csvCreateEdcm( grep { /all/i } @_ );
         exit 0;
     }
 
@@ -237,8 +237,18 @@ sub export {
         $tablesMatching ||= '.';
         local $_ = "Compilation $modelsMatching$tablesMatching";
         s/ *[^ a-zA-Z0-9-^]//g;
-        $db->tableCompilations( $workbookModule, $options,
-            $_ => ( $modelsMatching, $tablesMatching ) );
+        $db->tableCompilations( $workbookModule, $options, $_, $modelsMatching,
+            $tablesMatching );
+        return;
+    }
+
+    if ( grep { /csv/i } @_ ) {
+        require Compilation::ExportCsv;
+        $options->{tablesMatching} =
+          [qw(^11 ^911$ ^913$ ^935$ ^4501$ ^4601$ ^47)]
+          unless grep { /all/i } @_;
+        $db->csvCompilation( $options, );
+        return;
     }
 
     if ( grep { /\btscs/i } @_ ) {
@@ -246,14 +256,10 @@ sub export {
         my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @_;
         @tablesMatching = ('.') unless @tablesMatching;
         $options->{tablesMatching} = \@tablesMatching;
-        $db->tscsCreateIntermediateTables unless grep { /norebuild/i } @_;
-        $db->tscsCreateOutputFiles(
-            $workbookModule,
-            {
-                %$options, ( ( grep { /csv/i } @_ ) ? 'csv' : 'wb' ) => 1,
-                ( grep { /edcm/i || /stata/i } @_ ) ? ( edcm => 1 ) : (),
-            }
-        );
+        $db->tscsCreateIntermediateTables($options)
+          unless grep { /norebuild/i } @_;
+        $db->tscsCompilation( $workbookModule, $options, );
+        return;
     }
 
     if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @_ ) {
@@ -286,7 +292,9 @@ sub export {
               : $_ eq 'edcm' ? qw(edcmTariffImpact edcmRevenueMatrixImpact)
               :                $_;
         } @outputs;
+        return;
     }
+
 }
 
 sub import {

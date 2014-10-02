@@ -1,13 +1,12 @@
 ---
-.: DCP 183 LRIC (experimental code)
+.: DCP 185 FCP (experimental code)
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
-dcp183: 1
 dcp185: 1
 lowerIntermittentCredit: 1
-method: LRIC
+method: FCP
 newOrder: 1
 noNegative: 1
 numLocationsDefault: 1200
@@ -17,4 +16,4 @@ summaries: 1
 transparency: 1
 validation: lenientnomsg
 voltageRulesTransparency: 1
-wantTables: 913
+wantTables: 911

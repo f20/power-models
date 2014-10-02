@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Reckon LLP and others.
+Copyright 2009-2014 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -37,111 +37,174 @@ sub _writeCsvLine {
       "\n";
 }
 
-sub csvCreate {
-    my ( $self, $edcmInputsOuputsOnly ) = @_;
+sub csvCreateEdcm {
+
+    my ( $self, $allTables ) = @_;
     my $numCo = 0;
-    $self->do(
-'create temporary table companies ( cid integer primary key, bid int, company char )'
+    $self->do( 'create temporary table companies'
+          . ' ( cid integer primary key, bid int, company char, settings char )'
     );
     my $findCo =
-      $self->prepare('select bid, filename from books order by filename');
+      $self->prepare( 'select books.bid, filename, v from books'
+          . ' left join data on ('
+          . 'books.bid=data.bid and tab=0 and row=0 and col=0'
+          . ') order by filename' );
     my $addCo =
-      $self->prepare('insert into companies (bid, company) values (?, ?)');
+      $self->prepare(
+        'insert into companies (bid, company, settings) values (?, ?, ?)');
     $findCo->execute;
-    while ( my ( $bid, $co ) = $findCo->fetchrow_array ) {
+    my %exclude =
+      ( identification => undef, method => undef, wantTables => undef, );
+    while ( my ( $bid, $co, $option ) = $findCo->fetchrow_array ) {
         next unless $co =~ s/\.xlsx?$//is;
-        $addCo->execute( $bid, $co );
+        $co =~ s/.*\///s;
+        $addCo->execute(
+            $bid, $co,
+            join "\n",
+            map {
+                local $_ = $_;
+                s/-(?:FCP|LRIC)//;
+                $_;
+              } grep { /^([a-zA-Z]\S+): \S/ && !exists $exclude{$1}; }
+              split /\n/,
+            $option
+        );
         ++$numCo;
     }
     warn "$numCo datasets";
-    $self->do(
-'create temporary table columns ( colid integer primary key, tab int, col int )'
-    );
+    return unless $numCo;
+
+    $self->do( 'create temporary table columns'
+          . ' ( colid integer primary key, tab int, col int )' );
     $self->do('create unique index columnstabcol on columns (tab, col)');
-    my $tabq = $self->prepare(
-        $edcmInputsOuputsOnly
-        ? 'select tab from data where tab like "45__" or tab like "9__" group by tab'
-        : 'select tab from data where tab>0 group by tab'
-    );
-    $tabq->execute();
-    while ( my ($tab) = $tabq->fetchrow_array ) {
-        warn $tab;
-        open my $fh, '>', $tab . '.csv';
-        $self->do('delete from columns');
-        $self->do(
-            'insert into columns (tab, col) select tab, col from data '
-              . 'where tab=? and col>0 group by tab, col order by tab, col',
-            undef, $tab
-        );
-        _writeCsvLine(
-            $fh,
-            'company',
-            'line',
-            map { $_->[0] } @{
-                $self->selectall_arrayref(
-                        'select "t" || tab || "c" || col'
-                      . ' from columns order by colid'
-                )
-            }
-        );
-        my $q =
-          $self->prepare( 'select bid, company, row from '
-              . 'companies inner join data using (bid)'
-              . ' where tab=? and col=1 and row>0 order by company, row' );
-        $q->execute($tab);
-        while ( my ( $bid, $co, $row ) = $q->fetchrow_array ) {
-            _writeCsvLine(
-                $fh, $co, $row,
-                map { $_ && defined $_->[0] ? $_->[0] : undef } @{
-                    $self->selectall_arrayref(
-                        'select v from columns left join data on '
-                          . '(data.tab=columns.tab and data.col=columns.col and bid=? and row=?)'
-                          . ' order by colid',
-                        undef, $bid, $row
-                    )
-                }
+
+    my $fetchSets =
+      $self->prepare('select settings from companies group by settings');
+    my $numSets = $fetchSets->execute;
+
+    while ( my ($set) = $fetchSets->fetchrow_array ) {
+        my $setName = '_';
+        $setName = "CSV-$1" if $set =~ /^template: (\S.*)/m;
+        $setName =~ s/['"]//g;
+        $setName .= '_' while !mkdir $setName;
+        {
+            my %zero = (
+                lowerIntermittentCredit => 0,
+                checksums               => 0,
             );
-        }
-        $self->do('delete from columns');
-    }
-    if (
-        0 < $self->do(
-                'insert into columns (tab, col) select tab, col from data '
-              . 'where tab>1099 and tab<1181 and col>0 and row=1 and '
-              . 'exists (select * from data as d2 where d2.tab=data.tab and d2.col=data.col+1 and d2.bid=data.bid) '
-              . 'group by tab, col order by tab, col'
-        )
-      )
-    {
-        warn 11;
-        open my $fh, '>', '11.csv';
-        _writeCsvLine(
-            $fh,
-            'company',
-            map { $_->[0] } @{
-                $self->selectall_arrayref(
-                        'select "t" || tab || "c" || col '
-                      . 'from columns order by colid'
-                )
+            foreach ( split /\n/, $set ) {
+                next unless /^(\S+): '?([^']*)'?$/;
+                $zero{$1} = $2 unless $2 eq '' || $2 eq '~';
             }
+            open my $fh, '>', $setName . '/0.csv';
+            my @k = sort keys %zero;
+            print {$fh} join( ',', @k ) . "\n";
+            print {$fh} join( ',', map { /,/ ? qq%"$_"% : $_; } @zero{@k} )
+              . "\n";
+        }
+
+        my $tabq = $self->prepare(
+            $allTables
+            ? 'select tab from data inner join companies using (bid) where settings=?'
+              . ' and tab>0 group by tab'
+            : 'select tab from data inner join companies using (bid) where settings=?'
+              . ' and tab like "9__" or tab=4501 or tab=4601 group by tab'
         );
-        my $q =
-          $self->prepare('select bid, company from companies order by company');
-        $q->execute;
-        while ( my ( $bid, $co ) = $q->fetchrow_array ) {
+        $tabq->execute($set);
+        while ( my ($tab) = $tabq->fetchrow_array ) {
+            warn $tab;
+            open my $fh, '>', $setName . '/' . $tab . '.csv';
+            $self->do('delete from columns');
+            $self->do(
+                'insert into columns (tab, col) select tab, col from'
+                  . ' companies inner join data using (bid) '
+                  . 'where settings=? and tab=? and col>0'
+                  . ' group by tab, col order by tab, col',
+                undef, $set, $tab
+            );
             _writeCsvLine(
-                $fh, $co,
+                $fh,
+                'company',
+                'line',
                 map { $_->[0] } @{
                     $self->selectall_arrayref(
-                        'select v from columns left join data on '
-                          . '(data.tab=columns.tab and data.col=columns.col and data.row=1 and bid=?)'
-                          . ' order by colid',
-                        undef, $bid
+                            'select "t" || tab || "c" || col'
+                          . ' from columns order by colid'
                     )
                 }
             );
+            my $q =
+              $self->prepare( 'select bid, company, row from '
+                  . 'companies inner join data using (bid)'
+                  . ' where settings=? and tab=? and col=1 and row>0'
+                  . ' order by company, row' );
+            $q->execute( $set, $tab );
+            while ( my ( $bid, $co, $row ) = $q->fetchrow_array ) {
+                _writeCsvLine(
+                    $fh, $co, $row,
+                    map { $_ && defined $_->[0] ? $_->[0] : undef } @{
+                        $self->selectall_arrayref(
+                            'select v from columns left join data on '
+                              . '(data.tab=columns.tab and data.col=columns.col and bid=? and row=?)'
+                              . ' order by colid',
+                            undef, $bid, $row
+                        )
+                    }
+                );
+            }
+            $self->do('delete from columns');
+        }
+
+        foreach my $group ( [ 11, 1099, 1181 ], [ 47, 4789, 4800 ] ) {
+            if (
+                0 < $self->do(
+                    'insert into columns (tab, col) select tab, col from data'
+                      . ' inner join companies using (bid) '
+                      . 'where settings=? and tab>? and tab<? and col>0 and row=1 and '
+                      . 'exists (select * from data as d2 where d2.tab=data.tab'
+                      . ' and d2.col=data.col+1 and d2.bid=data.bid) '
+                      . 'group by tab, col order by tab, col',
+                    undef,
+                    $set,
+                    @{$group}[ 1, 2 ]
+                )
+              )
+            {
+                warn $group = $group->[0];
+                open my $fh, '>', "$setName/$group.csv";
+                _writeCsvLine(
+                    $fh,
+                    'company',
+                    map { $_->[0] } @{
+                        $self->selectall_arrayref(
+                                'select "t" || tab || "c" || col '
+                              . 'from columns order by colid'
+                        )
+                    }
+                );
+                my $q =
+                  $self->prepare( 'select bid, company from companies'
+                      . ' where settings=? order by company' );
+                $q->execute($set);
+                while ( my ( $bid, $co ) = $q->fetchrow_array ) {
+                    _writeCsvLine(
+                        $fh, $co,
+                        map { $_->[0] } @{
+                            $self->selectall_arrayref(
+                                'select v from columns left join data on'
+                                  . ' (data.tab=columns.tab and data.col=columns.col'
+                                  . ' and data.row=1 and bid=?)'
+                                  . ' order by colid',
+                                undef, $bid
+                            )
+                        }
+                    );
+                }
+            }
+            $self->do('delete from columns');
         }
     }
+
 }
 
 1;

@@ -1,10 +1,9 @@
 ---
-.: DCP 183 LRIC (experimental code)
+.: DCP 185 LRIC (experimental code)
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
-dcp183: 1
 dcp185: 1
 lowerIntermittentCredit: 1
 method: LRIC
