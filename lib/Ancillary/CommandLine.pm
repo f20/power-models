@@ -31,7 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use Encode qw(decode_utf8);
-use File::Spec::Functions qw(abs2rel catdir);
+use File::Spec::Functions qw(abs2rel catdir catfile);
 use File::Basename 'dirname';
 
 use constant {
@@ -174,21 +174,10 @@ sub make {
             }
         }
         elsif ( -f $_ ) {
-            my $dh;
-            if (/\.(ygz|ybz|bz2|gz)$/si) {
-                local $_ = $_;
-                s/'/'"'"'/g;
-                open $dh, join ' ', ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
-                  "'$_'", '|';
-            }
-            else {
-                open $dh, '<', $_;
-            }
-            unless ($dh) {
-                warn "Could not open file: $_";
-                next;
-            }
-            $maker->{processStream}->( $dh, abs2rel($_) );
+            $maker->{addFile}->( abs2rel($_) );
+        }
+        elsif ( -f ( my $file = catfile( $self->[HOMEDIR], $_ ) ) ) {
+            $maker->{addFile}->( abs2rel($file) );
         }
         else {
             warn "Cannot handle this argument: $_";

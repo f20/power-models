@@ -168,6 +168,25 @@ sub factory {
 
     };
 
+    $self->{addFile} = sub {
+        ( local $_ ) = @_;
+        my $dh;
+        if (/\.(ygz|ybz|bz2|gz)$/si) {
+            local $_ = $_;
+            s/'/'"'"'/g;
+            open $dh, join ' ', ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
+              "'$_'", '|';
+        }
+        else {
+            open $dh, '<', $_;
+        }
+        unless ($dh) {
+            warn "Could not open file: $_";
+            next;
+        }
+        $processStream->( $dh, $_ );
+    };
+
     my $overrideRules = $self->{overrideRules} = sub {
         my %override = @_;
         my $suffix = ( grep { !/^Export/ } keys %override ) ? '+' : '';

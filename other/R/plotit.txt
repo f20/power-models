@@ -63,13 +63,17 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, s
     maxy<-max(y, na.rm=T);
     if(maxy<1000)maxy<-maxy+200;
     shift<-(maxx-minx)*(1:numMaps - 1);
-    if (is.na(mincol)) mincol<-min(prices);
-    if (is.na(maxcol)) maxcol<-max(prices);
+    if (is.na(mincol)) mincol<-min(prices, na.rm=T);
+    if (is.na(maxcol)) maxcol<-max(prices, na.rm=T);
     getcol<-function(v) {
         i<-floor(101*(maxcol-v)/(maxcol-mincol));
-        if (i<0) i<-0;
-        if (i>100) i<-100;
-        hsv(0.0025*i, 0.6+0.004*i, 1-0.0025*i);
+        if (is.na(i)) {
+            "white";
+        } else {
+            if (i<0) i<-0;
+            if (i>100) i<-100;
+            hsv(0.0025*i, 0.6+0.004*i, 1-0.0025*i);
+        }
     };
     xrange<-c(min(shift)+minx, max(shift)+maxx)
     yrange<-c(miny, maxy);
