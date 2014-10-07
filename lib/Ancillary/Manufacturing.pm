@@ -334,6 +334,7 @@ sub factory {
         if (%dataAccumulator) {
             while ( my ( $book, $data ) = each %dataAccumulator ) {
                 $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?([+-]r[0-9]+)?$//is;
+                $data->{numTariffs} = 2;
                 my $blob     = YAML::Dump($data);
                 my $fileName = "$book.yml";
                 warn "Writing $book data\n";

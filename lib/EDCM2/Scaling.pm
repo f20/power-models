@@ -43,14 +43,25 @@ use SpreadsheetModel::Shortcuts ':all';
 sub fudge41 {
 
     my (
-        $model,               $activeCoincidence,
-        $agreedCapacity,      $indirect,
-        $direct,              $rates,
-        $daysInYear,          $capacityChargeRef,
-        $shortfallRef,        $indirectExposure,
-        $reactiveCoincidence, $powerFactorInModel,
-        $scalingAmountToTestForNegative,
+        $model,            $activeCoincidence,   $agreedCapacity,
+        $indirect,         $direct,              $rates,
+        $daysInYear,       $capacityChargeRef,   $shortfallRef,
+        $indirectExposure, $reactiveCoincidence, $powerFactorInModel,
     ) = @_;
+
+    my $adderAmount = Arithmetic(
+        name          => 'Amount to be recovered from adders ex costs (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IV1-IV7-IV91-IV92',
+        arguments     => {
+            IV1  => $$shortfallRef,
+            IV7  => $indirect,
+            IV91 => $direct,
+            IV92 => $rates,
+        },
+    );
+    $model->{transparency}{olFYI}{1259} = $adderAmount
+      if $model->{transparency};
 
     my $ynonFudge = Constant(
         name => 'Factor for the allocation of capacity scaling',
@@ -76,14 +87,15 @@ sub fudge41 {
     my $slope =
       $model->{dcp185}
       ? Arithmetic(
-        name          => 'Marginal revenue effect of demand adder',
+        name => 'Marginal revenue effect of demand'
+          . ( $model->{dcp185} == 2 ? ' and indirect cost adders' : ' adder' ),
         defaultFormat => '0soft',
         arithmetic    => '=IV1*(IV4+IV5)*IF(IV6<0,1,IV7)',
         arguments     => {
             IV1 => $agreedCapacity,
             IV4 => $ynonFudge,
             IV5 => $activeCoincidence,
-            IV6 => $scalingAmountToTestForNegative,
+            IV6 => $adderAmount,
             IV7 => $indirectExposure,
         }
       )
@@ -98,16 +110,27 @@ sub fudge41 {
         }
       );
 
-    my $fudgeIndirect = Arithmetic(
-        name          => 'Data for capacity-based allocation of indirect costs',
-        defaultFormat => '0soft',
-        arithmetic    => '=IV1*(IV2+IV3)',
-        arguments     => {
+    my $fudgeIndirect =
+      $model->{dcp185} && $model->{dcp185} == 2
+      ? Arithmetic(
+        name       => 'Data for capacity-based allocation of indirect costs',
+        arithmetic => '=IF(IV6<0,1,IV1)*(IV2+IV3)',
+        arguments  => {
+            IV2 => $ynonFudge,
+            IV3 => $activeCoincidence,
+            IV1 => $indirectExposure,
+            IV6 => $adderAmount,
+        }
+      )
+      : Arithmetic(
+        name       => 'Data for capacity-based allocation of indirect costs',
+        arithmetic => '=IV1*(IV2+IV3)',
+        arguments  => {
             IV2 => $ynonFudge,
             IV3 => $activeCoincidence,
             IV1 => $indirectExposure,
         }
-    );
+      );
 
     my $totalIndirectFudge =
       $model->{transparencyMasterFlag}
@@ -205,20 +228,6 @@ sub fudge41 {
         },
     );
 
-    my $fixedAdderAmount = Arithmetic(
-        name          => 'Amount to be recovered from adders ex costs (£/year)',
-        defaultFormat => '0soft',
-        arithmetic    => '=IV1-IV7-IV91-IV92',
-        arguments     => {
-            IV1  => $$shortfallRef,
-            IV7  => $indirect,
-            IV91 => $direct,
-            IV92 => $rates,
-        },
-    );
-    $model->{transparency}{olFYI}{1259} = $fixedAdderAmount
-      if $model->{transparency};
-
     my $totalSlope =
       $model->{transparencyMasterFlag}
       ? Arithmetic(
@@ -248,8 +257,8 @@ sub fudge41 {
         arithmetic => '=IF(IV9,IV1*IV2/SUM(IV4_IV5),0)',
         arguments  => {
             IV1     => $ynonFudge41,
-            IV2     => $fixedAdderAmount,
-            IV9     => $fixedAdderAmount,
+            IV2     => $adderAmount,
+            IV9     => $adderAmount,
             IV4_IV5 => $slope,
         },
       )
@@ -258,8 +267,8 @@ sub fudge41 {
         arithmetic => '=IF(IV9,IV1*IV2/IV4,0)',
         arguments  => {
             IV1 => $ynonFudge41,
-            IV2 => $fixedAdderAmount,
-            IV9 => $fixedAdderAmount,
+            IV2 => $adderAmount,
+            IV9 => $adderAmount,
             IV4 => $totalSlope,
         },
       );
@@ -279,7 +288,7 @@ sub fudge41 {
             IV9 => $daysInYear,
             $model->{dcp185}
             ? (
-                IV6 => $scalingAmountToTestForNegative,
+                IV6 => $adderAmount,
                 IV8 => $indirectExposure,
               )
             : (),
@@ -325,7 +334,7 @@ sub fudge41 {
             IV72 => $activeCoincidence,
             $model->{dcp185}
             ? (
-                IV6 => $scalingAmountToTestForNegative,
+                IV6 => $adderAmount,
                 IV8 => $indirectExposure,
               )
             : (),

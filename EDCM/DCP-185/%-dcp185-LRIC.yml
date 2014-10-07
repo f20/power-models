@@ -2,7 +2,7 @@
 .: DCP 185 LRIC (legacy code)
 PerlModule: EDCM2
 dcp130: 1
-dcp185: 1
+dcp185: 2
 ldnoRev: ldnorev5
 legacy201: 1
 lowerIntermittentCredit: 1
@@ -13,5 +13,4 @@ numTariffs: 300
 protect: 1
 summaries: 1
 validation: lenientnomsg
-version: DCP 185 LRIC
 wantTables: 913

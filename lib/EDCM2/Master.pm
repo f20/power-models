@@ -1563,12 +1563,12 @@ EOT
     }
 
     $model->fudge41(
-        $activeCoincidence,  $importCapacity,
-        $edcmIndirect,       $edcmDirect,
-        $edcmRates,          $daysInYear,
-        \$capacityChargeT,   \$demandScalingShortfall,
-        $indirectExposure,   $reactiveCoincidence,
-        $powerFactorInModel, $demandScalingShortfall,
+        $activeCoincidence, $importCapacity,
+        $edcmIndirect,      $edcmDirect,
+        $edcmRates,         $daysInYear,
+        \$capacityChargeT,  \$demandScalingShortfall,
+        $indirectExposure,  $reactiveCoincidence,
+        $powerFactorInModel,
     );
 
     push @{ $model->{calc4Tables} }, $demandScalingShortfall;

@@ -269,7 +269,8 @@ sub dataset {
 }
 
 sub check {
-    $_[0]{defaultFormat} ||= '0.000con';
+    $_[0]{defaultFormat}        ||= '0.000con';
+    $_[0]{defaultMissingFormat} ||= 'unavailable';
     return "No data in constant $_[0]{name}" unless 'ARRAY' eq ref $_[0]{data};
     $_[0]{arithmetic} = '[ ' . join(
         ( $_[0]{byrow} ? ",\n" : ', ' ),

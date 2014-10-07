@@ -86,11 +86,15 @@ sub csvCreateEdcm {
         my $setName = '_';
         $setName = "CSV-$1" if $set =~ /^template: (\S.*)/m;
         $setName =~ s/['"]//g;
-        $setName .= '_' while !mkdir $setName;
+        $setName .= '_' while -e $setName && !-d _;
         {
             my %zero = (
                 lowerIntermittentCredit => 0,
                 checksums               => 0,
+                dcp183                  => 0,
+                dcp185                  => 0,
+                dcp189                  => 0,
+                dcp206                  => 0,
             );
             foreach ( split /\n/, $set ) {
                 next unless /^(\S+): '?([^']*)'?$/;
@@ -118,7 +122,7 @@ sub csvCreateEdcm {
             $self->do(
                 'insert into columns (tab, col) select tab, col from'
                   . ' companies inner join data using (bid) '
-                  . 'where settings=? and tab=? and col>0'
+                  . 'where settings=? and tab=?'
                   . ' group by tab, col order by tab, col',
                 undef, $set, $tab
             );
@@ -129,7 +133,7 @@ sub csvCreateEdcm {
                 map { $_->[0] } @{
                     $self->selectall_arrayref(
                             'select "t" || tab || "c" || col'
-                          . ' from columns order by colid'
+                          . ' from columns where col>0 order by colid'
                     )
                 }
             );
@@ -141,7 +145,7 @@ sub csvCreateEdcm {
             $q->execute( $set, $tab );
             while ( my ( $bid, $co, $row ) = $q->fetchrow_array ) {
                 _writeCsvLine(
-                    $fh, $co, $row,
+                    $fh, $co,
                     map { $_ && defined $_->[0] ? $_->[0] : undef } @{
                         $self->selectall_arrayref(
                             'select v from columns left join data on '
