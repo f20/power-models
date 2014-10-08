@@ -66,35 +66,25 @@
   - Assets in CDCM model from CDCM table 2705: ''
     Assets in CDCM model from CDCM table 2705 or 2706: ''
     _column: GSP
-  - Assets in CDCM model from CDCM table 2705: 0
-    Assets in CDCM model from CDCM table 2705 or 2706: 0
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV circuits
-  - Assets in CDCM model from CDCM table 2705: 0
-    Assets in CDCM model from CDCM table 2705 or 2706: 0
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV/EHV
-  - Assets in CDCM model from CDCM table 2705: 150880305.375245
-    Assets in CDCM model from CDCM table 2705 or 2706: 150880305.375245
+  - Assets in CDCM model from CDCM table 2705 or 2706: 150880305.375245
     _column: EHV circuits
-  - Assets in CDCM model from CDCM table 2705: 193822390.761628
-    Assets in CDCM model from CDCM table 2705 or 2706: 193822390.761628
+  - Assets in CDCM model from CDCM table 2705 or 2706: 193822390.761628
     _column: EHV/HV
-  - Assets in CDCM model from CDCM table 2705: 0
-    Assets in CDCM model from CDCM table 2705 or 2706: 0
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV/HV
-  - Assets in CDCM model from CDCM table 2705: 582198724.306462
-    Assets in CDCM model from CDCM table 2705 or 2706: 582198724.306462
+  - Assets in CDCM model from CDCM table 2705 or 2706: 582198724.306462
     _column: HV circuits
-  - Assets in CDCM model from CDCM table 2705: 141780546.571726
-    Assets in CDCM model from CDCM table 2705 or 2706: 141780546.571726
+  - Assets in CDCM model from CDCM table 2705 or 2706: 141780546.571726
     _column: HV/LV
-  - Assets in CDCM model from CDCM table 2705: 214613627.389646
-    Assets in CDCM model from CDCM table 2705 or 2706: 214613627.389646
+  - Assets in CDCM model from CDCM table 2705 or 2706: 214613627.389646
     _column: LV circuits
-  - Assets in CDCM model from CDCM table 2705: 267828607.958875
-    Assets in CDCM model from CDCM table 2705 or 2706: 267828607.958875
+  - Assets in CDCM model from CDCM table 2705 or 2706: 267828607.958875
     _column: LV customer
-  - Assets in CDCM model from CDCM table 2705: 11764986.2692859
-    Assets in CDCM model from CDCM table 2705 or 2706: 11764986.2692859
+  - Assets in CDCM model from CDCM table 2705 or 2706: 11764986.2692859
     _column: HV customer
 1132:
   - _table: 1132. Override notional asset rate for 132kV/HV (£/kW)
@@ -1516,20 +1506,20 @@
     8: ''
     9: ''
     _column: Export charge in previous charging year (£/year)
-  - 1: ' '
+  - 1: ''
     10: ''
     11: ''
     12: ''
     13: ''
     14: ''
     15: ''
-    16: ' '
-    17: ' '
-    18: ' '
-    19: ' '
-    2: ' '
-    20: ' '
-    21: ' '
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
     22: ''
     23: ''
     24: ''
@@ -1538,7 +1528,7 @@
     27: ''
     28: ''
     29: ''
-    3: ' '
+    3: ''
     30: ''
     31: ''
     32: ''
@@ -1549,33 +1539,33 @@
     37: ''
     38: ''
     39: ''
-    4: ' '
+    4: ''
     40: ''
     41: ''
     42: ''
     43: ''
     44: ''
     45: ''
-    5: ' '
-    6: ' '
+    5: ''
+    6: ''
     7: ''
     8: ''
     9: ''
     _column: LLFC import
-  - 1: ' '
+  - 1: ''
     10: ''
     11: ''
     12: ''
     13: ''
     14: ''
     15: ''
-    16: ' '
-    17: ' '
-    18: ' '
-    19: ' '
-    2: ' '
-    20: ' '
-    21: ' '
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
     22: ''
     23: ''
     24: ''
@@ -1584,7 +1574,7 @@
     27: ''
     28: ''
     29: ''
-    3: ' '
+    3: ''
     30: ''
     31: ''
     32: ''
@@ -1595,18 +1585,18 @@
     37: ''
     38: ''
     39: ''
-    4: ' '
+    4: ''
     40: ''
     41: ''
     42: ''
     43: ''
     44: ''
     45: ''
-    5: ' '
-    6: ' '
+    5: ''
+    6: ''
     7: ''
     8: ''
     9: ''
     _column: LLFC export
-numLocations: 2
+numLocations: 127
 numTariffs: 45
