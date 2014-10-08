@@ -86,7 +86,8 @@ sub csvCreateEdcm {
         my $setName = '_';
         $setName = "CSV-$1" if $set =~ /^template: (\S.*)/m;
         $setName =~ s/['"]//g;
-        $setName .= '_' while -e $setName && !-d _;
+        $setName .= '_' while !mkdir($setName) && !( -d $setName && -w _ );
+        my $tempFile = '~$tmp-' . $$ . '.csv';
         {
             my %zero = (
                 lowerIntermittentCredit => 0,
@@ -100,11 +101,13 @@ sub csvCreateEdcm {
                 next unless /^(\S+): '?([^']*)'?$/;
                 $zero{$1} = $2 unless $2 eq '' || $2 eq '~';
             }
-            open my $fh, '>', $setName . '/0.csv';
+            open my $fh, '>', $tempFile;
             my @k = sort keys %zero;
             print {$fh} join( ',', @k ) . "\n";
             print {$fh} join( ',', map { /,/ ? qq%"$_"% : $_; } @zero{@k} )
               . "\n";
+            close $fh;
+            rename $tempFile, $setName . '/0.csv';
         }
 
         my $tabq = $self->prepare(
@@ -117,7 +120,7 @@ sub csvCreateEdcm {
         $tabq->execute($set);
         while ( my ($tab) = $tabq->fetchrow_array ) {
             warn $tab;
-            open my $fh, '>', $setName . '/' . $tab . '.csv';
+            open my $fh, '>', $tempFile;
             $self->do('delete from columns');
             $self->do(
                 'insert into columns (tab, col) select tab, col from'
@@ -156,6 +159,8 @@ sub csvCreateEdcm {
                     }
                 );
             }
+            close $fh;
+            rename $tempFile, $setName . '/' . $tab . '.csv';
             $self->do('delete from columns');
         }
 
@@ -175,7 +180,7 @@ sub csvCreateEdcm {
               )
             {
                 warn $group = $group->[0];
-                open my $fh, '>', "$setName/$group.csv";
+                open my $fh, '>', $tempFile;
                 _writeCsvLine(
                     $fh,
                     'company',
@@ -204,6 +209,8 @@ sub csvCreateEdcm {
                         }
                     );
                 }
+                close $fh;
+                rename $tempFile, "$setName/$group.csv";
             }
             $self->do('delete from columns');
         }

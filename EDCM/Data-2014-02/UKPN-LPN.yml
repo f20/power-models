@@ -351,55 +351,8 @@
     _column: Baseline total notional consumption assets (£)
   - Baseline EDCM notional asset aggregates: 62369713.8829279
     _column: Baseline total non sole use notional assets subject to matching (£)
-4014:
-  - _table: 4014. Rules applicable to customer categories
-  - Not used: ''
-    _column: Mapping of customer category to loss factor
-  - Not used: ''
-    _column: 132kV circuits
-  - Not used: ''
-    _column: 132kV/EHV
-  - Not used: ''
-    _column: EHV circuits
-  - Not used: ''
-    _column: EHV/HV
-  - Not used: ''
-    _column: 132kV/HV
 913:
   - _table: 913. LRIC power flow modelling data
-  - 1: '#VALUE!'
-    2: '#VALUE!'
-    _column: Location name/ID
-  - 1: '#VALUE!'
-    2: '#VALUE!'
-    _column: Demand or Generation
-  - 1: '#VALUE!'
-    2: '#VALUE!'
-    _column: Linked location (if any)
-  - 1: '#VALUE!'
-    2: '#VALUE!'
-    _column: Local charge 1 £/kVA/year
-  - 1: '#VALUE!'
-    2: '#VALUE!'
-    _column: Remote charge 1 £/kVA/year
-  - 1: 0
-    2: 0
-    _column: Not used
-  - 1: 0
-    2: 0
-    _column: Not used
-  - 1: '#VALUE!'
-    2: '#VALUE!'
-    _column: 'Maximum demand run: kW'
-  - 1: '#VALUE!'
-    2: '#VALUE!'
-    _column: 'Maximum demand run: kVAr'
-  - 1: 0
-    2: 0
-    _column: Not used
-  - 1: 0
-    2: 0
-    _column: Not used
 935:
   - _table: 935. Tariff data
   - 1: Continuous demand category 0000
@@ -1644,4 +1597,5 @@
     8: ''
     9: ''
     _column: LLFC export
+numLocations: 2
 numTariffs: 45

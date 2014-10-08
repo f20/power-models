@@ -41,7 +41,8 @@ explore some of the functionality of this code:
     perl pmod.pl -template=%%-DCPARPtest -pickbest CDCM/DCP-137/%-micro*.yml CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-2014-02/ENW*.yml CDCM/Future/Data-201*-02/ENW*.yml
     perl pmod.pl -template=%%-ARP -pickbest CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wales*.yml CDCM/Future/Data-20??-02/*Wales*.yml
 
-For information on how to use the Stata tools for EDCM verification, see the README.md file in the "Stata EDCM" folder.
+For information on how to use the Stata tools to test EDCM spreadsheets, see the file
+"How to use.txt" in the "Stata EDCM" folder.
 
 This software is licensed under open source licences. Check the source code for details.
 
