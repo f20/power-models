@@ -1,11 +1,10 @@
-===========================
 github.com/f20/power-models
-Help for Stata EDCM code
-===========================
 
-This file contains information on how to use the Stata do files included in the "other/Stata
-EDCM" and "other/Stata random generator" subfolders of the code repository available from
-github.com/f20/power-models.
+Help for Stata EDCM code
+========================
+
+This file contains information on how to use the Stata do files included in the
+"Stata EDCM" folder of the github.com/f20/power-models code repository.
 
 Using these files requires Stata (www.stata.com), a commercial software package for statistical
 analysis.
@@ -21,14 +20,14 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-===
+-
 
-= Part A.  Creating random data to test EDCM models
+Part A.  Creating random data to test EDCM models
+------
 
 To create a set of random data for EDCM testing purposes using Stata:
 
-Step A1.  In Stata, change directory to the "Stata random generator" within the "other" folder
-in the repository.
+Step A1.  In Stata, change directory to the "Random generator" subfolder within the "Stata EDCM" folder.
 
 Step A2.  Run the Prog_SimulateData.do file from the do file editor or give the following
 command to Stata:
@@ -43,9 +42,10 @@ Step A4.  Give the following command to Stata:
 
 This will create a new folder containing a set of .dta files with the random data.
 
-===
+-
 
-= Part B.  Using random data to create EDCM models
+Part B.  Using random data to create EDCM models
+------
 
 To create EDCM models populated by the random data from Part A, using Perl:
 
@@ -63,9 +63,10 @@ Step B3.  Give the following command to the shell interpreter:
 
 This will generate a set of Microsoft Excel EDCM models.
 
-===
+-
 
-= Part C.  Collating the results of a set of EDCM models
+Part C.  Collating the results of a set of EDCM models
+------
 
 To collate the results of a set of Microsoft Excel EDCM models, using Microsoft Excel and Perl:
 
@@ -84,15 +85,15 @@ Step C3.  Give the following command to the shell interpreter:
 This will create a series of folders with a name starting "CSV-", each containing a compilation
 of the options, input data and results of the models in comma separated variables (CSV) files.
 
-===
+-
 
-= Part D.  Checking the results of a set of EDCM models
+Part D.  Checking the results of a set of EDCM models
+------
 
 To check that the results are consistent with the input data in a collation from Microsoft Excel
 EDCM models, using Stata:
 
-Step D1.  In Stata, change directory to the "Stata EDCM" folder within the "other" folder in the
-repository.
+Step D1.  In Stata, change directory to the "Stata EDCM".
 
 Step D2.  Run the Model.do file from the do file editor or give the following command to Stata:
 
@@ -110,10 +111,10 @@ tariffs/charges for which the Stata model does not agree with the results from t
 
 Step D5.  To view the results, give either of the following commands to Stata:
 
-    view Res4501.smcl
+    view "Res4501.smcl"
 
-    view Res4601.smcl
+    view "Res4601.smcl"
 
---
+-
 
 Reckon LLP, 8 October 2014.
