@@ -1,0 +1,119 @@
+===========================
+github.com/f20/power-models
+Help for Stata EDCM code
+===========================
+
+This file contains information on how to use the Stata do files included in the "other/Stata
+EDCM" and "other/Stata random generator" subfolders of the code repository available from
+github.com/f20/power-models.
+
+Using these files requires Stata (www.stata.com), a commercial software package for statistical
+analysis.
+
+This software is licensed under open source licences. Check the source code for details.
+
+THIS SOFTWARE AND DATA ARE PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,
+BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL ANY AUTHOR OR CONTRIBUTOR BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+===
+
+= Part A.  Creating random data to test EDCM models
+
+To create a set of random data for EDCM testing purposes using Stata:
+
+Step A1.  In Stata, change directory to the "Stata random generator" within the "other" folder
+in the repository.
+
+Step A2.  Run the Prog_SimulateData.do file from the do file editor or give the following
+command to Stata:
+
+	run "Prog_SimulateData.do"
+
+Step A3.  in Stata, change directory to where you want the data to be saved.
+
+Step A4.  Give the following command to Stata:
+
+	simulatedata
+
+This will create a new folder containing a set of .dta files with the random data.
+
+===
+
+= Part B.  Using random data to create EDCM models
+
+To create EDCM models populated by the random data from Part A, using Perl:
+
+Step B1.  Using a shell interpreter such as sh, bash, or cmd.exe, set the current directory to
+the folder containing the .dta files generated in Part A.
+
+Step B2.  Determine the path to the pmod.pl file on your system.  The pmod.pl file is in the
+root folder of the repository.  The code below assumes that pmod.pl is at
+/Users/example/Documents/power-models/pmod.pl, amend the commands as necessary.
+/
+Step B3.  Give the following command to the shell interpreter:
+
+	perl /Users/example/Documents/power-models/pmod.pl *.dta EDCM/Current/%-beta-FCP.yml
+	EDCM/Current/%-beta-LRIC.yml
+
+This will generate a set of Microsoft Excel EDCM models.
+
+===
+
+= Part C.  Collating the results of a set of EDCM models
+
+To collate the results of a set of Microsoft Excel EDCM models, using Microsoft Excel and Perl:
+
+Step C1.  Open and save each Microsoft Excel file using Microsoft Excel or compatible software.
+This is necessary to perform and record the calculations specified in the spreadsheets.
+
+Step C2.  Follow the same procedure as in steps B1 and B2 if necessary, then give the following
+command to the shell interpreter:
+
+	perl /Users/example/Documents/power-models/pmod.pl -sqlite *.xl*
+
+Step C3.  Give the following command to the shell interpreter:
+
+	perl /Users/example/Documents/power-models/pmod.pl csv
+
+This will create a series of folders with a name starting "CSV-", each containing a compilation
+of the options, input data and results of the models in comma separated variables (CSV) files.
+
+===
+
+= Part D.  Checking the results of a set of EDCM models
+
+To check that the results are consistent with the input data in a collation from Microsoft Excel
+EDCM models, using Stata:
+
+Step D1.  In Stata, change directory to the "Stata EDCM" folder within the "other" folder in the
+repository.
+
+Step D2.  Run the Model.do file from the do file editor or give the following command to Stata:
+
+	run "Model.do"
+
+Step D3.  In Stata, change directory to a folder containing CSV files as created in Part C.
+
+Step D4.  Give the following command to Stata:
+
+	EDCMCombined
+
+This will create two Stata log files, "Res4501.smcl" and "Res4601.smcl", which list any
+tariffs/charges for which the Stata model does not agree with the results from tables 4501 and
+4601 of the spreadsheet models.
+
+Step D5.  To view the results, give either of the following commands to Stata:
+
+	view Res4501.smcl
+
+	view Res4601.smcl
+
+--
+
+Reckon LLP, 8 October 2014.
