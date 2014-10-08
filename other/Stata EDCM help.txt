@@ -33,13 +33,13 @@ in the repository.
 Step A2.  Run the Prog_SimulateData.do file from the do file editor or give the following
 command to Stata:
 
-	run "Prog_SimulateData.do"
+    run "Prog_SimulateData.do"
 
 Step A3.  in Stata, change directory to where you want the data to be saved.
 
 Step A4.  Give the following command to Stata:
 
-	simulatedata
+    simulatedata
 
 This will create a new folder containing a set of .dta files with the random data.
 
@@ -58,8 +58,8 @@ root folder of the repository.  The code below assumes that pmod.pl is at
 /
 Step B3.  Give the following command to the shell interpreter:
 
-	perl /Users/example/Documents/power-models/pmod.pl *.dta EDCM/Current/%-beta-FCP.yml
-	EDCM/Current/%-beta-LRIC.yml
+    perl /Users/example/Documents/power-models/pmod.pl *.dta EDCM/Current/%-beta-FCP.yml
+    EDCM/Current/%-beta-LRIC.yml
 
 This will generate a set of Microsoft Excel EDCM models.
 
@@ -75,11 +75,11 @@ This is necessary to perform and record the calculations specified in the spread
 Step C2.  Follow the same procedure as in steps B1 and B2 if necessary, then give the following
 command to the shell interpreter:
 
-	perl /Users/example/Documents/power-models/pmod.pl -sqlite *.xl*
+    perl /Users/example/Documents/power-models/pmod.pl -sqlite *.xl*
 
 Step C3.  Give the following command to the shell interpreter:
 
-	perl /Users/example/Documents/power-models/pmod.pl csv
+    perl /Users/example/Documents/power-models/pmod.pl csv
 
 This will create a series of folders with a name starting "CSV-", each containing a compilation
 of the options, input data and results of the models in comma separated variables (CSV) files.
@@ -96,13 +96,13 @@ repository.
 
 Step D2.  Run the Model.do file from the do file editor or give the following command to Stata:
 
-	run "Model.do"
+    run "Model.do"
 
 Step D3.  In Stata, change directory to a folder containing CSV files as created in Part C.
 
 Step D4.  Give the following command to Stata:
 
-	EDCMCombined
+    EDCMCombined
 
 This will create two Stata log files, "Res4501.smcl" and "Res4601.smcl", which list any
 tariffs/charges for which the Stata model does not agree with the results from tables 4501 and
@@ -110,9 +110,9 @@ tariffs/charges for which the Stata model does not agree with the results from t
 
 Step D5.  To view the results, give either of the following commands to Stata:
 
-	view Res4501.smcl
+    view Res4501.smcl
 
-	view Res4601.smcl
+    view Res4601.smcl
 
 --
 
