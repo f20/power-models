@@ -17,7 +17,7 @@ perl ../pmod.pl -base=ror-5.6 -dcp=ror-3 -name=3'% rate of return' &
 for country in england wales scotland england-wales england-wales-scotland
 do
 ( cat ../other/R/$country.txt ../other/R/plotit.txt ../other/R/table4003.txt; cat <<EOR ) | R --vanilla --slave &
-t <- 'Customer K (HV HH Metered)';
+t <- '5MVA continuous (HV HH Metered)';
 p <- levels(period)[1];
 title <- 'Impact of rate of return on CDCM HV continuous load';
 box <- c(

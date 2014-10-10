@@ -1051,6 +1051,42 @@ sub timeOfDaySpecialRunner {
                 );
 
             }
+
+            elsif (
+                $model->{coincidenceAdj} =~ /hhcap/i
+                && (
+                    my @relevantToGrouping2 =
+                    grep {
+                             $componentMap->{$_}{'Capacity charge p/kVA/day'}
+                          && $componentMap->{$_}{'Unit rates p/kWh'};
+                    } @{ $relevantUsers->{list} }
+                )
+              )
+            {
+
+                push @{ $model->{optionLines} },
+                  'Coincidence correction factors grouped for'
+                  . ' half hourly tariffs with capacity charges';
+
+                $relevantUsers =
+                  @{ $relevantEndUsersByRate[0]{list} } == @relevantToGrouping2
+                  ? $relevantEndUsersByRate[0]    # hack
+                  : Labelset( list => \@relevantToGrouping2 );
+
+                $tariffGroupset =
+                  Labelset( list => [ 'Half hourly with capacity charges', ] );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => [ map { 1; } @{ $relevantUsers->{list} } ],
+                );
+
+            }
+
             elsif ( $model->{coincidenceAdj} =~ /voltage/i ) {
 
                 push @{ $model->{optionLines} },
@@ -1082,6 +1118,7 @@ sub timeOfDaySpecialRunner {
                 );
 
             }
+
             elsif ( $model->{coincidenceAdj} =~ /3|three/i ) {
 
                 $tariffGroupset = Labelset(
@@ -1105,6 +1142,7 @@ sub timeOfDaySpecialRunner {
                 );
 
             }
+
             elsif ( $model->{coincidenceAdj} =~ /pick/i ) {
 
                 $tariffGroupset = Labelset( list =>
@@ -1140,6 +1178,7 @@ sub timeOfDaySpecialRunner {
                 );
 
             }
+
             elsif ( $model->{coincidenceAdj} =~ /domnondomvoltctnonct/i ) {
 
                 $tariffGroupset = Labelset(
@@ -1172,6 +1211,7 @@ sub timeOfDaySpecialRunner {
                 );
 
             }
+
             elsif ( $model->{coincidenceAdj} =~ /domnondomvolt/i ) {
 
                 $tariffGroupset = Labelset(
@@ -1201,6 +1241,7 @@ sub timeOfDaySpecialRunner {
                 );
 
             }
+
             elsif ( $model->{coincidenceAdj} =~ /domnondom/i ) {
 
                 $tariffGroupset =
@@ -1221,6 +1262,7 @@ sub timeOfDaySpecialRunner {
                 );
 
             }
+
             elsif ( $model->{coincidenceAdj} =~ /all/i ) {
 
                 push @{ $model->{optionLines} },

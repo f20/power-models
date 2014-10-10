@@ -1,0 +1,36 @@
+#!/bin/sh
+cd "`dirname \"$0\"`"
+while [ ! -e pmod.pl ]; do cd ..; done
+RUN=_grouphh-$$
+rm -rf _$RUN.tmp
+mkdir _$RUN.tmp
+cd _$RUN.tmp
+mkdir '~$models'
+
+core=../CDCM/Current/%-after163.yml
+core+=' '
+core+=../CDCM/Toys-2014/%-grouphhcap.yml
+core+=' '
+core+=../CDCM/Data-2014-02/*.yml
+perl ../pmod.pl -sqlite $core
+perl ../pmod.pl -base=after163 -dcp=grouphhcap &
+
+country=england-wales-scotland
+( cat ../other/R/$country.txt ../other/R/plotit.txt ../other/R/table4003.txt; cat <<EOR ) | R --vanilla --slave &
+for ( t in c('Average home (Domestic Unrestricted)', '5MVA continuous (HV HH Metered)')) {
+    p <- levels(period)[1];
+    title <- paste('Impact of HH coincidence grouping on DUoS charges for', t);
+    prices <- data.frame(
+        permwh[getSet(period==p&option==levels(option)[1]&tariff==t)],
+        permwh[getSet(period==p&option==levels(option)[2]&tariff==t)]
+    );
+    names(prices) <- c('Base case £/MWh', 'Scenario £/MWh');
+    for (pix in c('pdf')) {
+        plotit(name=paste(t, '$country', pix), pixels=pix, title=title, prices=(prices));
+    }
+}
+EOR
+
+cd ..
+mv _$RUN.tmp $RUN.tmp
+wait

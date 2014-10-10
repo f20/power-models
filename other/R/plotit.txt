@@ -30,19 +30,19 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, s
         if (numMaps == 3) pixels <- 2700 else pixels <- 1800;
     }
     if ( pixels == 'pdf' | pixels == 'PDF' ) {
-        print(filename<-paste(name, '.pdf', sep=''));
+        filename<-paste(name, '.pdf', sep='');
         if (numMaps == 1) pdf(filename, height=11, width=7.58) else
         if (numMaps == 2) pdf(filename, width=7.58, height=7.58) else
         if (numMaps == 3) pdf(filename, width=11, height=7.58) else
         pdf(paste(name, '.pdf', sep=''), width=11.69, height=8.27); # PDF full A4
     } else if ( pixels == 'svg' | pixels == 'SVG' ) {
-        print(filename<-paste(name, '.svg', sep=''));
+        filename<-paste(name, '.svg', sep='');
         if (numMaps == 1) svg(filename, height=11, width=7.58) else
         if (numMaps == 2) svg(filename, width=7.58, height=7.58) else
         if (numMaps == 3) svg(filename, width=11, height=7.58);
     } else if ( pixels == 'jpg' | pixels == 'jpeg' | pixels == 'JPG' | pixels == 'JPEG' ) {
         pixels <- 2048;
-        print(filename<-paste(name, '.jpeg', sep=''));
+        filename<-paste(name, '.jpeg', sep='');
         if (numMaps == 1) jpeg(filename, width=pixels/1.5, height=pixels, res=pixels/10.0) else
         if (numMaps == 2) jpeg(filename, width=pixels, height=pixels, res=pixels/8.0) else
         if (numMaps == 3) jpeg(filename, width=pixels, height=pixels/1.5, res=pixels/10.0);
