@@ -608,9 +608,10 @@ EOT
       if $model->{legacy201};
 
     $reactiveCoincidence = Arithmetic(
-        name => 'Super-red kVAr/agreed kVA (capped)',
-        arithmetic =>
-          '=MAX(MIN(SQRT(1-MIN(1,IV2)^2),IV1),0-SQRT(1-MIN(1,IV3)^2))',
+        name       => 'Super-red kVAr/agreed kVA (capped)',
+        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,IV2)^2),'
+          . ( $model->{legacy201} ? '' : '0+' )
+          . 'IV1),0-SQRT(1-MIN(1,IV3)^2))',
         arguments => {
             IV1 => $reactiveCoincidence,
             IV2 => $activeCoincidence,
@@ -619,9 +620,10 @@ EOT
     );
 
     $reactiveCoincidence935 = Arithmetic(
-        name => 'Unadjusted but capped red kVAr/agreed kVA',
-        arithmetic =>
-          '=MAX(MIN(SQRT(1-MIN(1,IV2)^2),IV1),0-SQRT(1-MIN(1,IV3)^2))',
+        name       => 'Unadjusted but capped red kVAr/agreed kVA',
+        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,IV2)^2),'
+          . ( $model->{legacy201} ? '' : '0+' )
+          . 'IV1),0-SQRT(1-MIN(1,IV3)^2))',
         arguments => {
             IV1 => $reactiveCoincidence935,
             IV2 => $activeCoincidence935,
