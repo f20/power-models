@@ -184,7 +184,8 @@ sub make {
         }
     }
 
-    $maker->{fileList}->();
+    my @files = $maker->{fileList}->();
+    mkdir '~$models' if @files > 3 and !-e '~$models';
     $maker->{run}->();
 }
 
