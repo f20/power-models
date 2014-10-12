@@ -37,11 +37,10 @@ sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
 
-    $wbook->{lastSheetNumber} = 11;
-
     'Input' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 12;
+        $wsheet->{sheetNumber}    = 12;
+        $wbook->{lastSheetNumber} = 12;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 20 );

@@ -205,6 +205,8 @@ sub makeSQLiteWriter {
         my ( $book, $workbook ) = @_;
 
         if ( !defined $book ) {    # pruning
+            require Compilation::Database;
+            $db ||= Compilation->new(1);
             my $gbid;
             sleep 1
               while !(

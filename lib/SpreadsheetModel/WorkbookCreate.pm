@@ -203,6 +203,7 @@ sub create {
         my $modelCount = $_ ? ".$_" : '';
         $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
         $wbook->{dataSheet} = $wsheet{ 'Input' . $modelCount };
+        delete $wbook->{highestAutoTableNumber};
 
         if ( $forwardLinkFindingRun[$_] ) {
             open my $h2, '>', '/dev/null';

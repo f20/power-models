@@ -1093,54 +1093,57 @@ EOT
     $model->{transparency}{olTabCol}{119306} = $totalDcp189DiscountedAssets
       if $model->{transparency} && $totalDcp189DiscountedAssets;
 
+    my $chargeOther = Arithmetic(
+        name => 'Revenue less costs and '
+          . (
+            !$totalDcp189DiscountedAssets
+              || $model->{dcp189} =~ /preservePot/i
+            ? 'net forecast EDCM generation revenue'
+            : 'adjustments'
+          )
+          . ' (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IV1-IV2-IV3-IV4-IV5'
+          . (
+            !$totalDcp189DiscountedAssets
+              || $model->{dcp189} =~ /preservePot/i ? ''
+            : '+IV31*IV32'
+          ),
+        arguments => {
+            IV1 => $allowedRevenue,
+            IV2 => $chargeDirect,
+            IV3 => $chargeIndirect,
+            IV4 => $chargeRates,
+            IV5 => $generationRevenue,
+            $totalDcp189DiscountedAssets
+            ? (
+                IV31 => $rateDirect,
+                IV32 => $totalDcp189DiscountedAssets,
+              )
+            : (),
+        }
+    );
+    $model->{transparency}{olFYI}{1248} = $chargeOther
+      if $model->{transparency};
+
+    my $rateOther = Arithmetic(
+        name          => 'Other revenue charging rate',
+        arithmetic    => '=IV1/(IV21+IV22+IV3+IV4)',
+        defaultFormat => '%soft',
+        arguments     => {
+            IV1  => $chargeOther,
+            IV21 => $totalAssetsCapacity,
+            IV22 => $totalAssetsConsumption,
+            IV3  => $cdcmEhvAssets,
+            IV4  => $cdcmHvLvShared,
+        }
+    );
+    $model->{transparency}{olFYI}{1249} = $rateOther
+      if $model->{transparency};
+
     my $totalRevenue3;
 
-    if ( $model->{legacy201} ) {
-
-        my $chargeOther = Arithmetic(
-            name => 'Revenue less costs and '
-              . (
-                $model->{dcp189} && $model->{dcp189} =~ /split/i
-                ? 'other things'
-                : 'net forecast EDCM generation revenue'
-              )
-              . ' (£/year)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IV1-IV2-IV3-IV4-IV5'
-              . (
-                $model->{dcp189} && $model->{dcp189} =~ /split/i
-                ? ( $model->{dcp189} =~ /reasonable/i ? '+' : '-' ) . 'IV6*IV7'
-                : ''
-              ),
-            arguments => {
-                IV1 => $allowedRevenue,
-                IV2 => $chargeDirect,
-                IV3 => $chargeIndirect,
-                IV4 => $chargeRates,
-                IV5 => $generationRevenue,
-                $model->{dcp189} && $model->{dcp189} =~ /split/i
-                ? ( IV6 => $rateDirect, IV7 => $totalDcp189DiscountedAssets, )
-                : (),
-            }
-        );
-        $model->{transparency}{olFYI}{1248} = $chargeOther
-          if $model->{transparency};
-
-        my $rateOther = Arithmetic(
-            name          => 'Other revenue charging rate',
-            arithmetic    => '=IV1/(IV21+IV22+IV3+IV4)',
-            defaultFormat => '%soft',
-            arguments     => {
-                IV1  => $chargeOther,
-                IV21 => $totalAssetsCapacity,
-                IV22 => $totalAssetsConsumption,
-                IV3  => $cdcmEhvAssets,
-                IV4  => $cdcmHvLvShared,
-                IV2  => $totalEdcmAssets,
-            }
-        );
-        $model->{transparency}{olFYI}{1249} = $rateOther
-          if $model->{transparency};
+    if ( $model->{legacy201} && !$model->{dcp189} ) {
 
         my $fixed3contribution = Arithmetic(
             name          => 'Demand fixed pot contribution p/day',
@@ -1197,26 +1200,13 @@ EOT
     else {
 
         $totalRevenue3 = Arithmetic(
-            name => 'Demand revenue target pot'
-              . (
-                $model->{dcp189}
-                  && !$totalDcp189DiscountedAssets ? ' adjusted for DCP 189'
-                : ''
-              )
-              . ' (£/year)',
+            name          => 'Demand revenue target pot (£/year)',
             defaultFormat => '0softnz',
             arithmetic    => '=IV5*IV6'
               . '+(IV11+IV12+IV13)*(IV21+IV22+IV23)'
-              . (
-                !$totalDcp189DiscountedAssets
-                  || $model->{dcp189} =~ /preservePot/i
-                ? '+(IV14+IV15)*(IV51-IV52-IV53-IV54-IV55)'
-                : $model->{dcp189} !~ /wrong/i
-                ? '+((IV14+IV15)*(IV51-IV52-IV53-IV54-IV55)-IV31*IV32*(IV33+IV34))'
-                : '+(IV14+IV15)*(IV51-IV52-IV53-IV54-IV55-IV31*IV32)'
-              )
-              . '/(IV41+IV42+IV43+IV44)'
-              . ( $model->{potExtra} ? '+IV99' : '' ),
+              . '+(IV14+IV15)*IV24'
+              . ( $totalDcp189DiscountedAssets ? '-IV31*IV32' : '' )
+              . ( $model->{potExtra}           ? '+IV99'      : '' ),
             arguments => {
                 IV5  => $rateExit,
                 IV6  => $edcmRedUse,
@@ -1228,23 +1218,13 @@ EOT
                 IV21 => $rateDirect,
                 IV22 => $rateRates,
                 IV23 => $rateIndirect,
-                IV51 => $allowedRevenue,
-                IV52 => $chargeDirect,
-                IV53 => $chargeIndirect,
-                IV54 => $chargeRates,
-                IV55 => $generationRevenue,
+                IV24 => $rateOther,
                 $totalDcp189DiscountedAssets
                 ? (
                     IV31 => $rateDirect,
                     IV32 => $totalDcp189DiscountedAssets,
-                    IV33 => $cdcmEhvAssets,
-                    IV34 => $cdcmHvLvShared,
                   )
                 : (),
-                IV41 => $cdcmEhvAssets,
-                IV42 => $cdcmHvLvShared,
-                IV43 => $totalAssetsCapacity,
-                IV44 => $totalAssetsConsumption,
                 $model->{potExtra}
                 ? (
                     IV99 => Dataset(

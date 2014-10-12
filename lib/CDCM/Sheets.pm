@@ -66,13 +66,10 @@ sub worksheetsAndClosures {
       'Input' => sub {
         my ($wsheet) = @_;
 
-        # reset in case of building several models in a single workbook
-        delete $wbook->{highestAutoTableNumber};
+        $wsheet->{sheetNumber}    = 11;
         $wbook->{lastSheetNumber} = 19;
 
-        $wsheet->{sheetNumber} = 11;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->{sheetNumber} ||= ++$wbook->{lastSheetNumber};
         my $t1001width =
              $model->{targetRevenue}
           && $model->{targetRevenue} =~ /DCP132/i

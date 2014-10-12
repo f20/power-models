@@ -47,7 +47,7 @@ sub factory {
 sub run {
     goto \&make if grep { /\.(?:ya?ml|json|dta)$/si } @_;
     shift;
-    goto \&import if grep { /\.xl\S+$/si } @_;
+    goto \&import if grep { /\.xl\S+$/si || /^-+prune=/si; } @_;
     goto \&export if -s '~$database.sqlite';
     warn "pmod.pl: nothing to do\n";
 }

@@ -43,9 +43,7 @@ sub worksheetsAndClosures {
     push @pairs, 'Input' => sub {
         my ($wsheet) = @_;
 
-        # reset in case of building several models in a single workbook
         $wbook->{lastSheetNumber} = 13;
-        delete $wbook->{highestAutoTableNumber};
         $wsheet->{sheetNumber} = 13;
 
         $wsheet->freeze_panes( 1, 0 );

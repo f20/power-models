@@ -49,6 +49,20 @@ sub preprocessDataset {
       $model->{version}
       if $model->{version};
 
+    if ( $model->{dataset}{1113} && $model->{revenueAdj} ) {
+        my ($key) =
+          grep { !/^_/ } keys %{ $model->{dataset}{1113}[4] };
+        $model->{dataset}{1113}[4]{$key} += $model->{revenueAdj};
+    }
+
+    my ( $daysInYearKey, $hoursInRedKey );
+    if ( $model->{dataset}{1113} ) {
+        ($daysInYearKey) =
+          grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
+        ($hoursInRedKey) =
+          grep { !/^_/ } keys %{ $model->{dataset}{1113}[3] };
+    }
+
     if ( $model->{dataset}
         && ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) )
     {
@@ -154,56 +168,41 @@ sub preprocessDataset {
                 list          => \@tariffs,
                 defaultFormat => 'thtar',
             );
+            foreach my $k (@tariffs) {
+                my $v = $ds->[1]{$k};
+                if (    $v
+                    and $v ne 'Not used'
+                    and $v ne '#VALUE!'
+                    and $v ne '#N/A'
+                    and $v ne 'VOID'
+                    and $v !~ /^\s*$/s )
+                {
+                    $ds->[$_]{$k} || ( $ds->[$_]{$k} = 'VOID' ) foreach 2 .. 6;
+                    exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
+                      foreach 7 .. $#$ds;
+                    $_
+                      && /^[0-9.]+$/s
+                      && $daysInYearKey
+                      && $_ > $model->{dataset}{1113}[1]{$daysInYearKey}
+                      && ( $model->{dataset}{1113}[1]{$daysInYearKey} = $_ )
+                      foreach $ds->[22]{$k};
+                    $_
+                      && /^[0-9.]+$/s
+                      && $hoursInRedKey
+                      && $_ > $model->{dataset}{1113}[3]{$hoursInRedKey}
+                      && ( $model->{dataset}{1113}[3]{$hoursInRedKey} = $_ )
+                      foreach $ds->[23]{$k};
+                }
+                else {
+                    $ds->[1]{$k} = ' ';
+                    $ds->[$_]{$k} = 'VOID' foreach 2 .. 6;
+                    $ds->[$_]{$k} = ''     foreach 7 .. $#$ds;
+                }
+            }
         }
 
         if ( $model->{nonames} ) {
             $ds->[1]{$_} = "Tariff $_" foreach keys %{ $ds->[1] };
-        }
-
-        if ( $model->{dataset}{1113} && $model->{revenueAdj} ) {
-            my ($key) =
-              grep { !/^_/ } keys %{ $model->{dataset}{1113}[4] };
-            $model->{dataset}{1113}[4]{$key} += $model->{revenueAdj};
-        }
-
-        my ( $daysInYearKey, $hoursInRedKey );
-        if ( $model->{dataset}{1113} ) {
-            ($daysInYearKey) =
-              grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
-            ($hoursInRedKey) =
-              grep { !/^_/ } keys %{ $model->{dataset}{1113}[3] };
-        }
-
-        foreach my $k ( 1 .. $model->{numTariffs} ) {
-            my $v = $ds->[1]{$k};
-            if (    $v
-                and $v ne 'Not used'
-                and $v ne '#VALUE!'
-                and $v ne '#N/A'
-                and $v ne 'VOID'
-                and $v !~ /^\s*$/s )
-            {
-                $ds->[$_]{$k} || ( $ds->[$_]{$k} = 'VOID' ) foreach 2 .. 6;
-                exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
-                  foreach 7 .. $#$ds;
-                $_
-                  && /^[0-9.]+$/s
-                  && $daysInYearKey
-                  && $_ > $model->{dataset}{1113}[1]{$daysInYearKey}
-                  && ( $model->{dataset}{1113}[1]{$daysInYearKey} = $_ )
-                  foreach $ds->[22]{$k};
-                $_
-                  && /^[0-9.]+$/s
-                  && $hoursInRedKey
-                  && $_ > $model->{dataset}{1113}[3]{$hoursInRedKey}
-                  && ( $model->{dataset}{1113}[3]{$hoursInRedKey} = $_ )
-                  foreach $ds->[23]{$k};
-            }
-            else {
-                $ds->[1]{$k} = ' ';
-                $ds->[$_]{$k} = 'VOID' foreach 2 .. 6;
-                $ds->[$_]{$k} = ''     foreach 7 .. $#$ds;
-            }
         }
 
     }

@@ -29,7 +29,10 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, s
     } else if (pixels == 'Retina15') {
         if (numMaps == 3) pixels <- 2700 else pixels <- 1800;
     }
-    if ( pixels == 'pdf' | pixels == 'PDF' ) {
+    if ( pixels == 'pdfa4' | pixels == 'PDFA4' ) {
+        filename<-paste(name, '.pdf', sep='');
+        pdf(paste(name, '.pdf', sep=''), width=11.69, height=8.27);
+    } else if ( pixels == 'pdf' | pixels == 'PDF' ) {
         filename<-paste(name, '.pdf', sep='');
         if (numMaps == 1) pdf(filename, height=11, width=7.58) else
         if (numMaps == 2) pdf(filename, width=7.58, height=7.58) else
@@ -105,7 +108,7 @@ plotit <- function (name='plotit', prices, pixels='pdf', mincol=NA, maxcol=NA, s
     bot<-top;
     mar<-c(4, 4, 8, 4);
     cex<-1.0;
-    if (!is.na(box)) {
+    if (!is.na(box[1])) {
         for (l in 1:length(box)) {
             bot<-textbox(xr, bot, box[l], fill="white", border=F, margin=mar, cex=cex);
         }
