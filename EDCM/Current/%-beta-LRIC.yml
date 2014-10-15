@@ -1,5 +1,5 @@
 ---
-.: EDCM experimental model LRIC
+.: EDCM beta LRIC
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7

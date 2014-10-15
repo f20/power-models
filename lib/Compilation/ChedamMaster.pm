@@ -33,11 +33,11 @@ use utf8;
 
 sub runFromDatabase {
     require Compilation::Database;
-    require Ancillary::DotDiagrams;
+    require Compilation::DotDiagrams;
     require Compilation::ChedamDataLocator;
     require Compilation::ChedamToDot;
     my ( $dataReader, $bookTableIndexHash ) = Compilation->makeDatabaseReader;
-    Ancillary::DotDiagrams::writeDotDiagrams(
+    Compilation::DotDiagrams::writeDotDiagrams(
         map { $_->calculate->toDot } map {
             my $filename = $_;
             map { $dataReader->( $bookTableIndexHash->{$filename}{bid}, $_ ); }

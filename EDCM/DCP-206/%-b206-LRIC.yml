@@ -12,7 +12,7 @@ numTariffsDefault: 600
 protect: 1
 removeDemandCharge1: 1
 summaries: 1
-transparency: outputonly
+transparency: 1
 validation: lenientnomsg
 voltageRulesTransparency: 1
 wantTables: 913
