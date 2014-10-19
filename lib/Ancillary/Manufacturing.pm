@@ -174,15 +174,19 @@ sub factory {
         if (/\.(ygz|ybz|bz2|gz)$/si) {
             local $_ = $_;
             s/'/'"'"'/g;
-            open $dh, join ' ', ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
-              "'$_'", '|';
+            unless ( open $dh, join ' ',
+                ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
+                "'$_'", '|' )
+            {
+                warn "Could not open file: $_";
+                return;
+            }
         }
         else {
-            open $dh, '<', $_;
-        }
-        unless ($dh) {
-            warn "Could not open file: $_";
-            next;
+            unless ( open $dh, '<', $_ ) {
+                warn "Could not open file: $_";
+                return;
+            }
         }
         $processStream->( $dh, $_ );
     };
