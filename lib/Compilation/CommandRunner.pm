@@ -58,7 +58,7 @@ sub makeFolder {
             delete $self->[C_LOG];
         }
         chdir '..';
-        my $tmp = '~$tmp-$$ ' . $self->[C_FOLDER];
+        my $tmp = '~$tmp-' . $$ . ' ' . $self->[C_FOLDER];
         return if rmdir $tmp;
         rename $self->[C_FOLDER], $tmp . '/~$old-' . $$
           if -e $self->[C_FOLDER];
@@ -66,8 +66,7 @@ sub makeFolder {
         delete $self->[C_FOLDER];
     }
     if ($folder) {
-        $self->[C_FOLDER] = $folder;
-        my $tmp = '~$tmp-$$ ' . $self->[C_FOLDER];
+        my $tmp = '~$tmp-' . $$ . ' ' . ( $self->[C_FOLDER] = $folder );
         mkdir $tmp;
         chdir $tmp;
     }

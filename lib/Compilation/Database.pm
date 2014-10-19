@@ -51,7 +51,7 @@ sub AUTOLOAD {
 }
 
 sub DESTROY {
-    $_[0][DB_HANDLE]->disconnect;
+    $_[0][DB_HANDLE]->disconnect if $_[0][DB_HANDLE];
 }
 
 sub new {

@@ -346,7 +346,8 @@ EOL
     );
 
     push @{ $model->{calc1Tables} },
-      my $accretion = Arithmetic(
+      my $accretion = $model->{legacy201}
+      ? Arithmetic(
         name         => 'Notional asset rate (£/kW)',
         newColumnset => 1,
         arithmetic   => '=IF(IV1,IV2/IV3/IV4,0)',
@@ -354,6 +355,16 @@ EOL
             IV1 => $cdcmUse,
             IV2 => $cdcmAssets,
             IV3 => $cdcmUse,
+            IV4 => $lossFactors
+        }
+      )
+      : Arithmetic(
+        name         => 'Notional asset rate (£/kW)',
+        newColumnset => 1,
+        arithmetic   => '=IV2/IV1/IV4',
+        arguments    => {
+            IV1 => $cdcmUse,
+            IV2 => $cdcmAssets,
             IV4 => $lossFactors
         }
       );
