@@ -412,12 +412,13 @@ sub operating {
         );
     }
 
-    Columnset(
+    push @{ $model->{operatingExpenditure} },
+      Columnset(
         name    => 'Data for allocation of operating expenditure',
         columns => [
             $modelAssetsByLevelPossiblyScaled, $modelAssetsPossiblyScaledTotal
         ]
-    );
+      );
 
     my $abaters;
 

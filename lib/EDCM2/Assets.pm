@@ -69,7 +69,7 @@ HV customer
 EOT
 
     my $allAssets = Dataset(
-        name => 'Assets in CDCM model (£) (from CDCM table 2705 or 2706)',
+        name => 'Assets in CDCM model (£) (from CDCM table 2705, 2706 or 2707)',
         defaultFormat => '0hard',
         cols          => $assetLevelset,
         data          => [ '', map { 5e8 } 2 .. @{ $assetLevelset->{list} } ],
@@ -346,7 +346,8 @@ EOL
     );
 
     push @{ $model->{calc1Tables} },
-      my $accretion = $model->{legacy201}
+      my $accretion =
+      $model->{legacy201}
       ? Arithmetic(
         name         => 'Notional asset rate (£/kW)',
         newColumnset => 1,
