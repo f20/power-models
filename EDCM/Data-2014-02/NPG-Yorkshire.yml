@@ -23,9 +23,9 @@
     _column: 132kV/HV
 1113:
   - _table: 1113. General inputs
-  - General inputs: REFUSED
+  - General inputs: 365
     _column: Days in year
-  - General inputs: REFUSED
+  - General inputs: 0.2
     _column: O&M charging rate based on FBPQ data (£/kW/year)
   - General inputs: REFUSED
     _column: Annual hours in super red
@@ -93,15 +93,15 @@
   - _table: 1133. Maximum network use factor
   - Maximum network use factor: '#VALUE!'
     _column: GSP
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 2.29638700532534
     _column: 132kV circuits
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 1.59866125481175
     _column: 132kV/EHV
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 3.13537039824026
     _column: EHV circuits
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 2.534951601493
     _column: EHV/HV
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 3.47419555898094
     _column: 132kV/HV
   - Maximum network use factor: ''
     _column: ''
@@ -109,15 +109,15 @@
   - _table: 1134. Minimum network use factor
   - Minimum network use factor: '#VALUE!'
     _column: GSP
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.266004312285333
     _column: 132kV circuits
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.665627588707983
     _column: 132kV/EHV
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.340098493419422
     _column: EHV circuits
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.630933393818333
     _column: EHV/HV
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.89995655379091
     _column: 132kV/HV
   - Minimum network use factor: ''
     _column: ''

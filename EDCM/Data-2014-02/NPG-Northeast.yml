@@ -9,35 +9,35 @@
     _column: Version
 1105:
   - _table: 1105. Diversity allowance between level exit and GSP Group (from CDCM table 2611)
-  - Diversity allowance between level exit and GSP Group from CDCM table 2611: REFUSED
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.145384112753137
     _column: GSP
-  - Diversity allowance between level exit and GSP Group from CDCM table 2611: REFUSED
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.457370309746371
     _column: 132kV circuits
-  - Diversity allowance between level exit and GSP Group from CDCM table 2611: REFUSED
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.457370309746371
     _column: 132kV/EHV
-  - Diversity allowance between level exit and GSP Group from CDCM table 2611: REFUSED
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.767372548290472
     _column: EHV circuits
-  - Diversity allowance between level exit and GSP Group from CDCM table 2611: REFUSED
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.767372548290472
     _column: EHV/HV
-  - Diversity allowance between level exit and GSP Group from CDCM table 2611: REFUSED
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.457370309746371
     _column: 132kV/HV
 1113:
   - _table: 1113. General inputs
-  - General inputs: REFUSED
+  - General inputs: 365
     _column: Days in year
-  - General inputs: REFUSED
+  - General inputs: 0.2
     _column: O&M charging rate based on FBPQ data (£/kW/year)
-  - General inputs: REFUSED
+  - General inputs: 297.5
     _column: Annual hours in super red
-  - General inputs: REFUSED
+  - General inputs: 317070337.597559
     _column: 'The amount of money that the DNO wants to raise from use of system charges, less transmission exit (£/year)'
-  - General inputs: REFUSED
+  - General inputs: 20581528.115
     _column: Transmission exit charges (£/year)
-  - General inputs: REFUSED
+  - General inputs: 16341487.7668604
     _column: Direct cost (£/year)
-  - General inputs: REFUSED
+  - General inputs: 63901718.4851886
     _column: Indirect cost (£/year)
-  - General inputs: REFUSED
+  - General inputs: 14460791.99375
     _column: Network rates (£/year)
   - General inputs: REFUSED
     _column: Average adjusted GP (£/year)
@@ -49,59 +49,59 @@
     _column: Total CDCM generation capacity post-2010 (kVA)
 1122:
   - _table: 1122. Forecast system simultaneous maximum load (kW) from CDCM users (from CDCM table 2506)
-  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: REFUSED
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 2604423.94046413
     _column: GSP
-  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: REFUSED
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 2593242.18067059
     _column: 132kV circuits
-  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: REFUSED
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 2588091.74932865
     _column: 132kV/EHV
-  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: REFUSED
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 2574193.25955005
     _column: EHV circuits
-  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: REFUSED
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 2561499.99890138
     _column: EHV/HV
-  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: REFUSED
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 0
     _column: 132kV/HV
 1131:
   - _table: 1131. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
   - Assets in CDCM model from CDCM table 2705 or 2706: ''
     _column: GSP
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 244964414.374841
     _column: 132kV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 98281841.9005824
     _column: 132kV/EHV
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 526223036.071435
     _column: EHV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 150965840.228392
     _column: EHV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 773461413.073934
     _column: HV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 319655218.217323
     _column: HV/LV
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 366408551.834294
     _column: LV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 1301424884.4845
     _column: LV customer
-  - Assets in CDCM model from CDCM table 2705 or 2706: REFUSED
+  - Assets in CDCM model from CDCM table 2705 or 2706: 20923714.7003583
     _column: HV customer
 1132:
   - _table: 1132. Override notional asset rate for 132kV/HV (£/kW)
-  - Override notional asset rate for 132kV HV kW: REFUSED
+  - Override notional asset rate for 132kV HV kW: 999999999999.999
     _column: 132kV/HV
 1133:
   - _table: 1133. Maximum network use factor
   - Maximum network use factor: '#VALUE!'
     _column: GSP
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 2.29638700532534
     _column: 132kV circuits
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 1.59866125481175
     _column: 132kV/EHV
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 3.13537039824026
     _column: EHV circuits
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 2.534951601493
     _column: EHV/HV
-  - Maximum network use factor: REFUSED
+  - Maximum network use factor: 3.47419555898094
     _column: 132kV/HV
   - Maximum network use factor: ''
     _column: ''
@@ -109,31 +109,31 @@
   - _table: 1134. Minimum network use factor
   - Minimum network use factor: '#VALUE!'
     _column: GSP
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.266004312285333
     _column: 132kV circuits
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.665627588707983
     _column: 132kV/EHV
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.340098493419422
     _column: EHV circuits
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.630933393818333
     _column: EHV/HV
-  - Minimum network use factor: REFUSED
+  - Minimum network use factor: 0.89995655379091
     _column: 132kV/HV
   - Minimum network use factor: ''
     _column: ''
 1135:
   - _table: 1135. Loss adjustment factor to transmission for each network level (from CDCM table 2004)
-  - Loss adjustment factor to transmission for each network level from CDCM table 2004: REFUSED
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1
     _column: GSP
-  - Loss adjustment factor to transmission for each network level from CDCM table 2004: REFUSED
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.005
     _column: 132kV circuits
-  - Loss adjustment factor to transmission for each network level from CDCM table 2004: REFUSED
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.007
     _column: 132kV/EHV
-  - Loss adjustment factor to transmission for each network level from CDCM table 2004: REFUSED
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.009
     _column: EHV circuits
-  - Loss adjustment factor to transmission for each network level from CDCM table 2004: REFUSED
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.014
     _column: EHV/HV
-  - Loss adjustment factor to transmission for each network level from CDCM table 2004: REFUSED
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.014
     _column: 132kV/HV
 1181:
   - _table: 1181. LDNO discounts
