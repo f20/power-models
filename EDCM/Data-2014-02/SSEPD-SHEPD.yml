@@ -63,8 +63,7 @@
     _column: 132kV/HV
 1131:
   - _table: 1131. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
-  - Assets in CDCM model from CDCM table 2705: ''
-    Assets in CDCM model from CDCM table 2705 or 2706: ''
+  - Assets in CDCM model from CDCM table 2705 or 2706: ''
     _column: GSP
   - Assets in CDCM model from CDCM table 2705 or 2706: 0
     _column: 132kV circuits
