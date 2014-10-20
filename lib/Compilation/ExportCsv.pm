@@ -90,12 +90,13 @@ sub csvCreateEdcm {
         my $tempFile = '~$tmp-' . $$ . '.csv';
         {
             my %zero = (
-                lowerIntermittentCredit => 0,
                 checksums               => 0,
                 dcp183                  => 0,
                 dcp185                  => 0,
                 dcp189                  => 0,
                 dcp206                  => 0,
+                legacy201               => 0,
+                lowerIntermittentCredit => 0,
             );
             foreach ( split /\n/, $set ) {
                 next unless /^(\S+): '?([^']*)'?$/;
