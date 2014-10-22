@@ -52,11 +52,12 @@ global OptionProblem = 0
 *************************************************
 *****Defining options and values of options******
 
-local Options "lowerIntermittentCredit checksums dcp185"
+local Options "lowerIntermittentCredit checksums dcp185 legacy201"
 
 local Val_lowerIntermittentCredit "0 1"
 local Val_checksums "0 Tariffchecksum5;Modelchecksum7"
 local Val_dcp185 "0 1 2"
+local Val_legacy201 "0 1"
 
 *************************************************
 *************************************************

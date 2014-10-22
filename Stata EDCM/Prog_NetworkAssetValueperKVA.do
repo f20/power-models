@@ -49,7 +49,7 @@ quietly{
 *Calculating average network asset value for capacity and demand at different levels
 
         local j = `i'+1
-*        Replacing missing values in input data with zeros
+*       Replacing missing values in input data with zeros
         replace t1122c`j' = 0 if t1122c`j'==.
         replace t1131c`j' = 0 if t1131c`j'==.
         replace t1135c`j' = 0 if t1135c`j'==.
@@ -58,9 +58,17 @@ quietly{
 
 * NOTE: It is important that missing values in t1132c1 are not replaced as 0 in earlier stages of program
 
+
         if `i'==5 {
-            replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.
-        }
+	
+			if "$Optiontemplate"=="1" {
+				replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.
+			    }
+
+			if "$Optiontemplate"=="0" {
+			     replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.&t1132c1~=0
+			    }
+	             }
 
         gen TempVar`i' = (1+t1105c`j') if CapacityFlagLevel`i'==1
         replace TempVar`i' = 99 if CapacityFlagLevel`i'~=1
