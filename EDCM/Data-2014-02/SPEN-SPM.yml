@@ -27,17 +27,17 @@
     _column: Days in year
   - General inputs: 0.2
     _column: O&M charging rate based on FBPQ data (£/kW/year)
-  - General inputs: REFUSED
+  - General inputs: 255
     _column: Annual hours in super red
-  - General inputs: REFUSED
+  - General inputs: 392401232.210169
     _column: 'The amount of money that the DNO wants to raise from use of system charges, less transmission exit (£/year)'
-  - General inputs: REFUSED
+  - General inputs: 16740000
     _column: Transmission exit charges (£/year)
-  - General inputs: REFUSED
+  - General inputs: 25529257.9071773
     _column: Direct cost (£/year)
-  - General inputs: REFUSED
+  - General inputs: 97204107.2354798
     _column: Indirect cost (£/year)
-  - General inputs: REFUSED
+  - General inputs: 14630000
     _column: Network rates (£/year)
   - General inputs: REFUSED
     _column: Average adjusted GP (£/year)
