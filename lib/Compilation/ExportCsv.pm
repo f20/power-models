@@ -165,7 +165,9 @@ sub csvCreateEdcm {
             $self->do('delete from columns');
         }
 
-        foreach my $group ( [ 11, 1099, 1181 ], [ 47, 4789, 4800 ] ) {
+        foreach my $group ( [ 11, 1099, 1181 ], [ 47, 4789, 4800 ],
+            [ 48, 4799, 4900 ] )
+        {
             if (
                 0 < $self->do(
                     'insert into columns (tab, col) select tab, col from data'

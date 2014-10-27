@@ -1205,8 +1205,7 @@ EOT
             arithmetic    => '=IV5*IV6'
               . '+(IV11+IV12+IV13)*(IV21+IV22+IV23)'
               . '+(IV14+IV15)*IV24'
-              . ( $totalDcp189DiscountedAssets ? '-IV31*IV32' : '' )
-              . ( $model->{potExtra}           ? '+IV99'      : '' ),
+              . ( $totalDcp189DiscountedAssets ? '-IV31*IV32' : '' ),
             arguments => {
                 IV5  => $rateExit,
                 IV6  => $edcmRedUse,
@@ -1223,18 +1222,6 @@ EOT
                 ? (
                     IV31 => $rateDirect,
                     IV32 => $totalDcp189DiscountedAssets,
-                  )
-                : (),
-                $model->{potExtra}
-                ? (
-                    IV99 => Dataset(
-                        name => 'Adjustment to EDCM demand pot (£/year)',
-                        defaultFormat => '0hardnz',
-                        data          => [0],
-                        number        => 1114,
-                        dataset       => $model->{dataset},
-                        appendTo      => $model->{inputTables},
-                    )
                   )
                 : (),
             },

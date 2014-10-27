@@ -29,7 +29,7 @@
     _column: O&M charging rate based on FBPQ data (£/kW/year)
   - General inputs: 255
     _column: Annual hours in super red
-  - General inputs: 392401232.210169
+  - General inputs: 427511617
     _column: 'The amount of money that the DNO wants to raise from use of system charges, less transmission exit (£/year)'
   - General inputs: 16740000
     _column: Transmission exit charges (£/year)
