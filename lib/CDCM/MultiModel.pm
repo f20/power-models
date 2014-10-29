@@ -142,9 +142,8 @@ EOL
                          $_->{table1001}
                       && $_->{targetRevenue} !~ /DCP132longlabels/i
                       ? $_->{table1001}
-                      : ();
+                      : undef;
                 } @{ $me->{models} };
-
                 Notes( name => 'Allowed revenue summary (DCUSA schedule 15)', )
                   ->wsWrite( $wbook, $wsheet );
 
@@ -371,13 +370,13 @@ EOL
                 $me->{table1001Overrides} = {
                     map {
                         (
-                            0 + $_->[0] => Constant(
+                            0 + $_->[0] => Dataset(
                                 name          => '',
                                 rows          => $rows,
                                 defaultFormat => '0.0hard',
                                 rowFormats    => [
                                     map {
-                                        /RPI|Index|index/ ? '0.000hard' : undef;
+                                        /RPI|\bIndex\b/i ? '0.000hard' : undef;
                                     } @{ $rows->{list} }
                                 ],
                                 data => [
@@ -467,7 +466,7 @@ sub table1001Overrides {
     return unless $dataset;
     my ($row) = grep { $rowName eq $dataset->{rows}{list}[$_]; }
       0 .. $#{ $dataset->{rows}{list} };
-    return unless $row;
+    return unless defined $row;
     my ( $wsheet, $ro, $co ) = $dataset->wsWrite( $wb, $ws );
     return unless $wsheet;
     q%'% . $wsheet->get_name . q%'!% . xl_rowcol_to_cell( $ro + $row, $co );
