@@ -62,11 +62,12 @@ sub factory {
     };
 
     my $setRule = $self->{setRule} = sub {
-        %ruleOverrides = { %ruleOverrides, @_ };
+        %ruleOverrides = ( %ruleOverrides, @_ );
     };
 
     $self->{xdata} = sub {
         foreach (@_) {
+            local $_ = $_;
             if (s/\{(.*)\}//s) {
                 foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
                     my $d = _jsonMachine()->decode( '{' . $_ . '}' );
