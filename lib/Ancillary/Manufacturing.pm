@@ -254,6 +254,13 @@ sub factory {
     my $validate = $self->{validate} = sub {
         my ( $perl5dir, $dbString ) = @_;
 
+        if (%ruleOverrides) {
+            foreach (@rulesets) {
+                $_->{template} .= '+' if $_->{template};
+                $_ = { %$_, %ruleOverrides };
+            }
+        }
+
         foreach (@rulesets) {
             die "$_->{PerlModule} looks unsafe"
               unless {
@@ -333,13 +340,6 @@ sub factory {
                 $processStream->( $blob, $fileName );
             }
             %dataAccumulator = ();
-        }
-
-        if (%ruleOverrides) {
-            foreach (@rulesets) {
-                $_->{template} .= '+' if $_->{template};
-                $_ = { %$_, %ruleOverrides };
-            }
         }
 
         if (%dataOverrides) {
