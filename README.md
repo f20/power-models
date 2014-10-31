@@ -1,20 +1,3 @@
-====================
-=== DRAFT BRANCH ===
-====================
-
-
-* Sort out the evil of Future/Data-*.
-
-* More flexible sheet 40 stats, without falling into the EDCM-like index/match trap for sheet 40.
-
-* Share data between CDCM/EDCM etc models by using Datasets that are Arithmetic/Stack with hard formatting.  Links should work?
-
-* TopDown
-
-================================
-=== TEST BEFORE DISTRIBUTING ===
-================================
-
 ===========================
 github.com/f20/power-models
 ===========================
