@@ -1,17 +1,19 @@
 ---
-.: Cleaned-up model implementing DCP 163 (with stats)
+.: Micro-model for ARP after DCP 132
 PerlModule: CDCM
-checksums: Tariff checksum 5; Model checksum 7
+arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
-matrices: big
+nickName: CDCM model (after DCP 132)
+noLLFCs: 1
+noLinks: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: statistics
+summary: arpstatistics
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163
+tariffs: commongensubdcp130
 timeOfDay: timeOfDaySpecial

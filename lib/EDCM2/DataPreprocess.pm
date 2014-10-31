@@ -56,7 +56,7 @@ sub preprocessDataset {
     }
 
     my ( $daysInYearKey, $hoursInRedKey );
-    if ( $model->{dataset}{1113} ) {
+    if ( $model->{dataset}{1113} && ref $model->{dataset}{1113}[1] eq 'HASH' ) {
         ($daysInYearKey) =
           grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
         ($hoursInRedKey) =
@@ -69,142 +69,251 @@ sub preprocessDataset {
         delete $model->{dataset}{$_} foreach qw(1181 1182 1183);
     }
 
-    if (
-           $model->{method}
-        && $model->{method} !~ /none/i
-        && (
+    if (   $model->{method}
+        && $model->{method} !~ /none/i )
+    {
+        if (
             my $h = $model->{dataset}{
                 $model->{method} =~ /FCP/i
                 ? 911
                 : 913
             }[1]
-        )
-      )
-    {
-        my $max = $model->{numLocations} || 0;
-        foreach ( keys %$h ) {
-            if (   $h->{$_}
-                && $h->{$_} ne 'Not used'
-                && $h->{$_} ne '#VALUE!'
-                && $h->{$_} !~ /^\s*$/s )
-            {
-                $max = $_ if /^[0-9]+$/ && $_ > $max;
+          )
+        {
+            if ( ref $h eq 'HASH' ) {
+                my $max = $model->{numLocations} || 0;
+                foreach ( keys %$h ) {
+                    if (   $h->{$_}
+                        && $h->{$_} ne 'Not used'
+                        && $h->{$_} ne '#VALUE!'
+                        && $h->{$_} !~ /^\s*$/s )
+                    {
+                        $max = $_ if /^[0-9]+$/ && $_ > $max;
+                    }
+                    else {
+                        $h->{$_} = 'Not used';
+                    }
+                }
+                $model->{numLocations} =
+                  (      $model->{randomise}
+                      || $model->{small}
+                      || defined $model->{numLocations} ? 0 : 16 ) +
+                  $max;
+                my $ds = $model->{dataset}{
+                    $model->{method} =~ /FCP/i
+                    ? 911
+                    : 913
+                };
+                foreach my $k ( 1 .. $model->{numLocations} ) {
+                    exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
+                      foreach 0 .. $#$ds;
+                }
             }
-            else {
-                $h->{$_} = 'Not used';
-            }
-        }
-        $model->{numLocations} =
-          (      $model->{randomise}
-              || $model->{small}
-              || defined $model->{numLocations} ? 0 : 16 ) +
-          $max;
-        my $ds = $model->{dataset}{
-            $model->{method} =~ /FCP/i
-            ? 911
-            : 913
-        };
-        foreach my $k ( 1 .. $model->{numLocations} ) {
-            exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' ) foreach 0 .. $#$ds;
         }
     }
 
     if ( my $ds = $model->{dataset}{935} ) {
-        my %tariffs;
+        if ( ref $ds->[1] eq 'HASH' ) {
+            my %tariffs;
 
-        splice @$ds, 8, 0,
-          {
-            map { ( $_ => $model->{dcp189default} || '' ); }
-              keys %{ $ds->[1] }
-          }
-          if $model->{dcp189}
-          and !$ds->[8]
-          || !$ds->[8]{'_column'}
-          || $ds->[8]{'_column'} !~ /reduction/i;
+            splice @$ds, 8, 0,
+              {
+                map { ( $_ => $model->{dcp189default} || '' ); }
+                  keys %{ $ds->[1] }
+              }
+              if $model->{dcp189}
+              and !$ds->[8]
+              || !$ds->[8]{'_column'}
+              || $ds->[8]{'_column'} !~ /reduction/i;
 
-        my $max = 0;
-        $ds->[1]{$_} ||= "Tariff $_" foreach grep {
-            my $t = $_;
-            grep {
-                     defined $ds->[$_]{$t}
-                  && $ds->[$_]{$t} ne 'VOID'
-                  && $ds->[$_]{$t} ne '#VALUE!';
-            } 2 .. 66;
-        } keys %{ $ds->[2] };
-        while ( my ( $k, $v ) = each %{ $ds->[1] } ) {
-            next
-              unless $k =~ /^[0-9]+$/
-              && $v
-              && $v ne 'Not used'
-              && $v ne '#VALUE!'
-              && $v !~ /^\s*$/s;
-            undef $tariffs{$k};
-            $max = $k
-              if $k > $max;
-        }
-
-        if ($max) {
-            my @tariffs;
-            if (   $model->{numTariffs}
-                && $max <= $model->{numTariffs} )
-            {
-                $model->{numTariffs} = 2
-                  unless $model->{transparency}
-                  && $model->{transparency} =~ /impact/i
-                  || $model->{numTariffs} > 1;
-                @tariffs = ( 1 .. $model->{numTariffs} );
+            my $max = 0;
+            $ds->[1]{$_} ||= "Tariff $_" foreach grep {
+                my $t = $_;
+                grep {
+                         defined $ds->[$_]{$t}
+                      && $ds->[$_]{$t} ne 'VOID'
+                      && $ds->[$_]{$t} ne '#VALUE!';
+                } 2 .. 6;
+            } keys %{ $ds->[2] };
+            while ( my ( $k, $v ) = each %{ $ds->[1] } ) {
+                next
+                  unless $k =~ /^[0-9]+$/
+                  && $v
+                  && $v ne 'Not used'
+                  && $v ne '#VALUE!'
+                  && $v !~ /^\s*$/s;
+                undef $tariffs{$k};
+                $max = $k
+                  if $k > $max;
             }
-            else {
-                @tariffs = sort { $a <=> $b } keys %tariffs,
-                  defined $model->{numTariffs} ? () : ( $max + 1 .. $max + 16 );
-                push @tariffs, $max + 1
-                  unless $model->{transparency}
-                  && $model->{transparency} =~ /impact/i
-                  || @tariffs > 1;
-                $model->{numTariffs} = @tariffs;
-            }
-            $model->{tariffSet} = Labelset(
-                name          => 'Tariffs',
-                list          => \@tariffs,
-                defaultFormat => 'thtar',
-            );
-            foreach my $k (@tariffs) {
-                my $v = $ds->[1]{$k};
-                if (    $v
-                    and $v ne 'Not used'
-                    and $v ne '#VALUE!'
-                    and $v ne '#N/A'
-                    and $v ne 'VOID'
-                    and $v !~ /^\s*$/s )
+
+            if ($max) {
+                my @tariffs;
+                if (   $model->{numTariffs}
+                    && $max <= $model->{numTariffs} )
                 {
-                    $ds->[$_]{$k} || ( $ds->[$_]{$k} = 'VOID' ) foreach 2 .. 6;
-                    exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
-                      foreach 7 .. $#$ds;
-                    $_
-                      && /^[0-9.]+$/s
-                      && $daysInYearKey
-                      && $_ > $model->{dataset}{1113}[1]{$daysInYearKey}
-                      && ( $model->{dataset}{1113}[1]{$daysInYearKey} = $_ )
-                      foreach $ds->[22]{$k};
-                    $_
-                      && /^[0-9.]+$/s
-                      && $hoursInRedKey
-                      && $_ > $model->{dataset}{1113}[3]{$hoursInRedKey}
-                      && ( $model->{dataset}{1113}[3]{$hoursInRedKey} = $_ )
-                      foreach $ds->[23]{$k};
+                    $model->{numTariffs} = 2
+                      unless $model->{transparency}
+                      && $model->{transparency} =~ /impact/i
+                      || $model->{numTariffs} > 1;
+                    @tariffs = ( 1 .. $model->{numTariffs} );
                 }
                 else {
-                    $ds->[1]{$k} = ' ';
-                    $ds->[$_]{$k} = 'VOID' foreach 2 .. 6;
-                    $ds->[$_]{$k} = ''     foreach 7 .. $#$ds;
+                    @tariffs =
+                      sort { $a <=> $b } keys %tariffs,
+                      defined $model->{numTariffs}
+                      ? ()
+                      : ( $max + 1 .. $max + 16 );
+                    push @tariffs, $max + 1
+                      unless $model->{transparency}
+                      && $model->{transparency} =~ /impact/i
+                      || @tariffs > 1;
+                    $model->{numTariffs} = @tariffs;
                 }
+                $model->{tariffSet} = Labelset(
+                    name          => 'Tariffs',
+                    list          => \@tariffs,
+                    defaultFormat => 'thtar',
+                );
+                foreach my $k (@tariffs) {
+                    my $v = $ds->[1]{$k};
+                    if (    $v
+                        and $v ne 'Not used'
+                        and $v ne '#VALUE!'
+                        and $v ne '#N/A'
+                        and $v ne 'VOID'
+                        and $v !~ /^\s*$/s )
+                    {
+                        $ds->[$_]{$k} || ( $ds->[$_]{$k} = 'VOID' )
+                          foreach 2 .. 6;
+                        exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
+                          foreach 7 .. $#$ds;
+                        $_
+                          && /^[0-9.]+$/s
+                          && $daysInYearKey
+                          && $_ > $model->{dataset}{1113}[1]{$daysInYearKey}
+                          && ( $model->{dataset}{1113}[1]{$daysInYearKey} = $_ )
+                          foreach $ds->[22]{$k};
+                        $_
+                          && /^[0-9.]+$/s
+                          && $hoursInRedKey
+                          && $_ > $model->{dataset}{1113}[3]{$hoursInRedKey}
+                          && ( $model->{dataset}{1113}[3]{$hoursInRedKey} = $_ )
+                          foreach $ds->[23]{$k};
+                    }
+                    else {
+                        $ds->[1]{$k} = ' ';
+                        $ds->[$_]{$k} = 'VOID' foreach 2 .. 6;
+                        $ds->[$_]{$k} = ''     foreach 7 .. $#$ds;
+                    }
+                }
+            }
+
+            if ( $model->{nonames} ) {
+                $ds->[1]{$_} = "Tariff $_" foreach keys %{ $ds->[1] };
             }
         }
 
-        if ( $model->{nonames} ) {
-            $ds->[1]{$_} = "Tariff $_" foreach keys %{ $ds->[1] };
-        }
+        else {
 
+            my %tariffs;
+
+            splice @$ds, 8, 0,
+              {
+                map { ( $_ => $model->{dcp189default} || '' ); }
+                  keys %{ $ds->[1] }
+              }
+              if $model->{dcp189}
+              and !$ds->[8] || !$ds->[8][0] || $ds->[8][0] !~ /reduction/i;
+
+            my $max = 0;
+            $ds->[1][$_] ||= "Tariff $_" foreach grep {
+                my $t = $_;
+                grep {
+                         defined $ds->[$_][$t]
+                      && $ds->[$_][$t] ne 'VOID'
+                      && $ds->[$_][$t] ne '#VALUE!';
+                } 2 .. 6;
+            } 1 .. $#{ $ds->[2] };
+            for ( my $k = 1 ; $k < @{ $ds->[1] } ; ++$k ) {
+                my $v = $ds->[1][$k];
+                next
+                  unless $k =~ /^[0-9]+$/
+                  && $v
+                  && $v ne 'Not used'
+                  && $v ne '#VALUE!'
+                  && $v !~ /^\s*$/s;
+                undef $tariffs{$k};
+                $max = $k
+                  if $k > $max;
+            }
+
+            if ($max) {
+                my @tariffs;
+                if (   $model->{numTariffs}
+                    && $max <= $model->{numTariffs} )
+                {
+                    $model->{numTariffs} = 2
+                      unless $model->{transparency}
+                      && $model->{transparency} =~ /impact/i
+                      || $model->{numTariffs} > 1;
+                    @tariffs = ( 1 .. $model->{numTariffs} );
+                }
+                else {
+                    @tariffs =
+                      sort { $a <=> $b } keys %tariffs,
+                      defined $model->{numTariffs}
+                      ? ()
+                      : ( $max + 1 .. $max + 16 );
+                    push @tariffs, $max + 1
+                      unless $model->{transparency}
+                      && $model->{transparency} =~ /impact/i
+                      || @tariffs > 1;
+                    $model->{numTariffs} = @tariffs;
+                }
+                $model->{tariffSet} = Labelset(
+                    name          => 'Tariffs',
+                    list          => \@tariffs,
+                    defaultFormat => 'thtar',
+                );
+                foreach my $k (@tariffs) {
+                    my $v = $ds->[1][$k];
+                    if (    $v
+                        and $v ne 'Not used'
+                        and $v ne '#VALUE!'
+                        and $v ne '#N/A'
+                        and $v ne 'VOID'
+                        and $v !~ /^\s*$/s )
+                    {
+                        $ds->[$_][$k] || ( $ds->[$_][$k] = 'VOID' )
+                          foreach 2 .. 6;
+                        exists $ds->[$_][$k] || ( $ds->[$_][$k] = '' )
+                          foreach 7 .. $#$ds;
+                        $_
+                          && /^[0-9.]+$/s
+                          && $daysInYearKey
+                          && $_ > $model->{dataset}{1113}[1]{$daysInYearKey}
+                          && ( $model->{dataset}{1113}[1]{$daysInYearKey} = $_ )
+                          foreach $ds->[22][$k];
+                        $_
+                          && /^[0-9.]+$/s
+                          && $hoursInRedKey
+                          && $_ > $model->{dataset}{1113}[3]{$hoursInRedKey}
+                          && ( $model->{dataset}{1113}[3]{$hoursInRedKey} = $_ )
+                          foreach $ds->[23][$k];
+                    }
+                    else {
+                        $ds->[1][$k] = ' ';
+                        $ds->[$_][$k] = 'VOID' foreach 2 .. 6;
+                        $ds->[$_][$k] = ''     foreach 7 .. $#$ds;
+                    }
+                }
+            }
+
+            if ( $model->{nonames} ) {
+                $ds->[1][$_] = "Tariff $_" foreach 1 .. $#{ $ds->[1] };
+            }
+        }
     }
 
     if ( $model->{dataset}{1194} ) {

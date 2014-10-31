@@ -1,1 +1,10 @@
--template=%%-ARP -pickbest CDCM/Current/%-micro*.yml CDCM/Previous/%-micro*.yml CDCM/Data-20??-02/*Wales*.yml CDCM/Future/Data-20??-02/*Wales*.yml
+makeModels
+	-template=%%-ARP
+	-pickbest
+	CDCM/Previous/*micro*
+	CDCM/Current/*micro*
+	CDCM/Data*-02/*SPM*
+	CDCM/Future/Data*15-02/*SPM*
+	CDCM/Future/Data*16-02/*SPM*
+	CDCM/Future/Data*17-02/*SPM*
+	CDCM/Future/Data*18-02/*SPM*

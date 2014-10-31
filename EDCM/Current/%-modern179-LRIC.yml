@@ -1,17 +1,17 @@
 ---
-.: DCP 185 LRIC (legacy code)
+.: EDCM modernised model LRIC after DCP 179
 PerlModule: EDCM2
-checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
+dcp179: 1
 dcp185: 2
 ldnoRev: ldnorev5
-legacy201: 1
 lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1
-numLocations: 1200
-numTariffs: 300
+numLocationsDefault: 1200
+numTariffsDefault: 600
 protect: 1
 summaries: 1
+transparency: outputonly
 validation: lenientnomsg
 wantTables: 913

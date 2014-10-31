@@ -1,4 +1,4 @@
-﻿package Compilation::CommandParser;
+﻿package Ancillary::CommandParser;
 
 =head Copyright licence and disclaimer
 

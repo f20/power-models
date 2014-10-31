@@ -7,9 +7,6 @@
     _column: Year
   - Company charging year data version: Scenario
     _column: Version
-1010:
-  - _table: 1010. Financial and general assumptions
-  - Financial and general assumptions: 0.055
 1061:
   - ~
   - Domestic Unrestricted: 0.256

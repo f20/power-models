@@ -1,0 +1,17 @@
+---
+.: EDCM modernised model FCP after DCP 179
+PerlModule: EDCM2
+dcp130: 1
+dcp179: 1
+dcp185: 2
+ldnoRev: ldnorev5
+lowerIntermittentCredit: 1
+method: FCP
+noNegative: 1
+numLocationsDefault: 1200
+numTariffsDefault: 600
+protect: 1
+summaries: 1
+transparency: outputonly
+validation: lenientnomsg
+wantTables: 911

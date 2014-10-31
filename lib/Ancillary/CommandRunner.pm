@@ -1,4 +1,4 @@
-﻿package Compilation::CommandRunner;
+﻿package Ancillary::CommandRunner;
 
 =head Copyright licence and disclaimer
 
@@ -31,7 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use Encode qw(decode_utf8);
-use File::Spec::Functions qw(abs2rel catdir catfile);
+use File::Spec::Functions qw(abs2rel catdir catfile rel2abs);
 use File::Basename 'dirname';
 
 use constant {
@@ -182,15 +182,13 @@ sub makeModels {
             elsif (/^-+single/is) { $maker->{threads}->(1); }
             elsif (/^-+(sqlite.*)/is) {
                 my $settings = "convert$1";
-                require Compilation::ImportCalcSqlite;
+                require Compilation::DataExtraction;
                 $maker->{setting}->(
-                    PostProcessing =>
-                      Compilation::ImportCalcSqlite::makePostProcessor(
+                    PostProcessing => _makePostProcessor(
                         $maker->{threads}->(),
-                        Compilation::ImportCalcSqlite::makeSQLiteWriter(
-                            $settings),
+                        Compilation::DataExtraction::databaseWriter($settings),
                         $settings
-                      )
+                    )
                 );
             }
             elsif (/^-+stats/is) {
@@ -348,10 +346,6 @@ sub fillDatabase {
 
     my $self = shift;
 
-    require Compilation::ImportDumpers;
-    require Compilation::ImportCalcSqlite;
-    require Ancillary::ParallelRunning;
-
     my ( $writer, $settings, $postProcessor );
 
     my $threads;
@@ -366,22 +360,23 @@ sub fillDatabase {
             next;
         }
         if (/^-+(ya?ml.*)/i) {
-            $writer = Compilation::ImportDumpers::ymlWriter($1);
+            require Compilation::DataExtraction;
+            $writer = Compilation::DataExtraction::ymlWriter($1);
             next;
         }
         if (/^-+(json.*)/i) {
-            $writer = Compilation::ImportDumpers::jsonWriter($1);
+            require Compilation::DataExtraction;
+            $writer = Compilation::DataExtraction::jsonWriter($1);
             next;
         }
         if (/^-+sqlite3?(=.*)?$/i) {
-            my $sheetFilter;
+            my %settings;
             if ( my $wantedSheet = $1 ) {
                 $wantedSheet =~ s/^=//;
-                $sheetFilter = sub { $_[0] eq $wantedSheet; };
+                $settings{sheetFilter} = sub { $_[0]{Name} eq $wantedSheet; };
             }
-            $writer =
-              Compilation::ImportCalcSqlite::makeSQLiteWriter( undef,
-                $sheetFilter );
+            require Compilation::DataExtraction;
+            $writer = Compilation::DataExtraction::databaseWriter( \%settings );
             next;
         }
         if (/^-+prune=(.*)$/i) {
@@ -389,28 +384,34 @@ sub fillDatabase {
             next;
         }
         if (/^-+xls$/i) {
-            $writer = Compilation::ImportDumpers::xlsWriter();
+            require Compilation::Dumpers;
+            $writer = Compilation::Dumpers::xlsWriter();
             next;
         }
         if (/^-+flat/i) {
-            $writer = Compilation::ImportDumpers::xlsFlattener();
+            require Compilation::Dumpers;
+            $writer = Compilation::Dumpers::xlsFlattener();
             next;
         }
         if (/^-+(tsv|txt|csv)$/i) {
-            $writer = Compilation::ImportDumpers::tsvDumper($1);
+            require Compilation::Dumpers;
+            $writer = Compilation::Dumpers::tsvDumper($1);
             next;
         }
         if (/^-+tall(csv)?$/i) {
-            $writer = Compilation::ImportDumpers::tallDumper( $1 || 'xls' );
+            require Compilation::Dumpers;
+            $writer = Compilation::Dumpers::tallDumper( $1 || 'xls' );
             next;
         }
         if (/^-+cat$/i) {
             $threads = 1;
-            $writer  = Compilation::ImportDumpers::tsvDumper( \*STDOUT );
+            require Compilation::Dumpers;
+            $writer = Compilation::Dumpers::tsvDumper( \*STDOUT );
             next;
         }
         if (/^-+split$/i) {
-            $writer = Compilation::ImportDumpers::xlsSplitter();
+            require Compilation::Dumpers;
+            $writer = Compilation::Dumpers::xlsSplitter();
             next;
         }
         if (/^-+(calc|convert.*)/i) {
@@ -418,16 +419,141 @@ sub fillDatabase {
             next;
         }
 
-        (
-            $postProcessor ||= Compilation::ImportCalcSqlite::makePostProcessor(
-                $threads, $writer, $settings
-            )
-        )->($_);
+        ( $postProcessor ||=
+              _makePostProcessor( $threads, $writer, $settings ) )->($_);
 
     }
 
     Ancillary::ParallelRunning::waitanypid(0) if $threads > 1;
 
+}
+
+sub _makePostProcessor {
+
+    my ( $threads1, $writer, $settings ) = @_;
+    $threads1 = $threads1 && $threads1 > 1 ? $threads1 - 1 : 0;
+    require Ancillary::ParallelRunning if $threads1;
+
+    my ( $calculator_prefork, $calculator_postfork );
+    if ( $settings && $settings =~ /calc|convert/i ) {
+        if (`which osascript`) {
+            if ( $settings =~ /calc/ ) {
+                $calculator_prefork = sub {
+                    my ($inname) = @_;
+                    my $inpath = rel2abs($inname);
+                    $inpath =~ s/\.(xls.?)$/-$$.$1/i;
+                    rename $inname, $inpath;
+                    open my $fh, '| osascript';
+                    print $fh <<EOS;
+tell application "Microsoft Excel"
+	set theWorkbook to open workbook workbook file name POSIX file "$inpath"
+	set calculate before save to true
+	close theWorkbook saving yes
+end tell
+EOS
+                    close $fh;
+                    rename $inpath, $inname;
+                    $inname;
+                };
+            }
+            else {
+                my $convert =
+                  $settings =~ /xlsx/i
+                  ? ''
+                  : ' file format Excel98to2004 file format';
+                $calculator_prefork = sub {
+                    my ($inname) = @_;
+                    my $inpath   = rel2abs($inname);
+                    my $outpath  = $inpath;
+                    $outpath =~ s/\.xls.?$/\.xls/i;
+                    my $outname = abs2rel($outpath);
+                    s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
+                    rename $inname, $inpath;
+                    open my $fh, '| osascript';
+                    print $fh <<EOS;
+tell application "Microsoft Excel"
+	set theWorkbook to open workbook workbook file name POSIX file "$inpath"
+	set calculate before save to true
+	set theFile to POSIX file "$outpath" as string
+	save workbook as theWorkbook filename theFile$convert
+	close active workbook saving no
+end tell
+EOS
+                    close $fh;
+                    rename $inpath,  $inname;
+                    rename $outpath, $outname;
+                    $outname;
+                };
+            }
+        }
+        else {
+            if (`which ssconvert`) {
+                warn 'Using ssconvert';
+                $calculator_postfork = sub {
+                    my ($inname) = @_;
+                    my $inpath   = rel2abs($inname);
+                    my $outpath  = $inpath;
+                    $outpath =~ s/\.xls.?$/\.xls/i;
+                    my $outname = abs2rel($outpath);
+                    s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
+                    rename $inname, $inpath;
+                    my @b = ( $inpath, $outpath );
+                    s/'/'"'"'/g foreach @b;
+                    system qq%ssconvert --recalc '$b[0]' '$b[1]' 2>/dev/null%;
+                    rename $inpath,  $inname;
+                    rename $outpath, $outname;
+                    $outname;
+                };
+            }
+            else {
+                warn 'No calculator found';
+            }
+        }
+    }
+
+    sub {
+        my ($inFile) = @_;
+        unless ( -f $inFile ) {
+            $inFile = '~$models/' . $inFile;
+            return unless -f $inFile;
+        }
+        my $calcFile = $inFile;
+        $calcFile = $calculator_prefork->($inFile) if $calculator_prefork;
+        Ancillary::ParallelRunning::waitanypid($threads1) if $threads1;
+        my $pid;
+        if ( $threads1 && ( $pid = fork ) ) {
+            Ancillary::ParallelRunning::registerpid( $pid, $calcFile );
+        }
+        else {
+            $0 = "perl: $calcFile";
+            $calcFile = $calculator_postfork->($inFile) if $calculator_postfork;
+            my $workbook;
+            eval {
+                if ( $calcFile =~ /\.xlsx$/is ) {
+                    require Spreadsheet::ParseXLSX;
+                    my $parser = Spreadsheet::ParseXLSX->new;
+                    $workbook = $parser->parse( $calcFile, 'NOOP_CLASS' );
+                }
+                else {
+                    require Spreadsheet::ParseExcel;
+                    my $parser = Spreadsheet::ParseExcel->new;
+                    local %SIG;
+                    $SIG{__WARN__} = sub { };
+                    $workbook = $parser->Parse( $calcFile, 'NOOP_CLASS' );
+                    delete $SIG{__WARN__};
+                }
+            };
+            warn "$@ for $calcFile" if $@;
+            if ( $workbook && $writer ) {
+                eval { $writer->( $calcFile, $workbook ); };
+                warn "$@ for $calcFile" if $@;
+            }
+            else {
+                warn "Cannot parse $calcFile";
+            }
+            exit 0 if defined $pid;
+        }
+    };
 }
 
 our $AUTOLOAD;

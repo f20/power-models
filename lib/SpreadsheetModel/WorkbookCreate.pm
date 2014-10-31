@@ -71,8 +71,10 @@ sub create {
                 my $finalFile = $fn;
                 if (
                     $fn !~ m#/#
-                    and ( my ($folder) =
-                        grep { -d $_ && -w _; } qw(~$models models.tmp) )
+                    and (
+                        my ($folder) =
+                        grep { -d $_ && -w _; } qw(~$models models.tmp)
+                    )
                   )
                 {
                     $finalFile = catfile( $folder, $fn );
@@ -109,20 +111,24 @@ sub create {
                       };
                 }
             }
-            elsif ( my $override = $optionArray[$i]{dataOverride} ) {
+            elsif ( my $overrides = $optionArray[$i]{dataOverride} ) {
                 my $dataset = Storable::dclone( $optionArray[$i]{dataset} );
-                foreach my $itable ( keys %$override ) {
-                    for (
-                        my $icolumn = 1 ;
-                        $icolumn < @{ $override->{$itable} } ;
-                        ++$icolumn
-                      )
-                    {
-                        foreach
-                          my $irow ( keys %{ $override->{$itable}[$icolumn] } )
+                foreach my $override (
+                    ref $overrides eq 'ARRAY' ? @$overrides : $overrides )
+                {
+                    foreach my $itable ( keys %$override ) {
+                        for (
+                            my $icolumn = 1 ;
+                            $icolumn < @{ $override->{$itable} } ;
+                            ++$icolumn
+                          )
                         {
-                            $dataset->{$itable}[$icolumn]{$irow} =
-                              $override->{$itable}[$icolumn]{$irow};
+                            foreach my $irow (
+                                keys %{ $override->{$itable}[$icolumn] } )
+                            {
+                                $dataset->{$itable}[$icolumn]{$irow} =
+                                  $override->{$itable}[$icolumn]{$irow};
+                            }
                         }
                     }
                 }

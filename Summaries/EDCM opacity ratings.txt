@@ -23,7 +23,7 @@ R
         plotit(
             v[,2:3],
             file.name='EDCM opacity ratings', file.type=t, number.show=F, legend.show=F
-            , title='EDCM opacity ratings',
+            , title='EDCM opacity ratings'
             , box=c(paste(
                 "Green is good, red is bad.",
                 "Ratings reflect Franck's experience in seeking non-confidential",

@@ -1,11 +1,14 @@
 ---
-.: Micro-model for ARP after DCP 132
+.: Micro-model for ARP after DCP 161
 PerlModule: CDCM
-arp: permpan
+agghhequalisation: 1
+alwaysUseRAG: 1
+arp: 1
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
-nickName: CDCM model (after DCP 132)
+fixedCap: 1-4
+nickName: CDCM model (after DCP 179)
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
@@ -15,5 +18,6 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: arpstatistics
 targetRevenue: dcp132
-tariffs: commongensubdcp130
-timeOfDay: timeOfDaySpecial
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179
+unauth: dayotex

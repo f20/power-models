@@ -20,12 +20,13 @@ BEGIN {
     }
 }
 use lib catdir( $homedir, 'cpan' ), $perl5dir;
-use Compilation::CommandParser;
-my $parser = Compilation::CommandParser->factory;
+use Ancillary::CommandParser;
+my $parser = Ancillary::CommandParser->factory;
 @ARGV ? $parser->dispatch(@ARGV) : $parser->interpret( \*STDIN );
-use Compilation::CommandRunner;
-my $runner = Compilation::CommandRunner->factory( $perl5dir, $homedir );
+use Ancillary::CommandRunner;
+my $runner = Ancillary::CommandRunner->factory( $perl5dir, $homedir );
 while ( my ( $verb, @objects ) = $parser->readCommand ) {
+    warn "$verb: @objects\n";
     $runner->log( $verb, @objects );
     $runner->$verb(@objects);
 }

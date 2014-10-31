@@ -1,10 +1,13 @@
 ---
-.: Cleaned-up model implementing DCP 163 (with stats)
+.: CDCM model after DCP 179 (clean with stats)
 PerlModule: CDCM
+agghhequalisation: 1
+alwaysUseRAG: 1
 checksums: Tariff checksum 5; Model checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
+fixedCap: 1-4
 matrices: big
 noReplacement: blanket
 pcd: 1
@@ -13,5 +16,5 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: statistics
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163
-timeOfDay: timeOfDaySpecial
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179

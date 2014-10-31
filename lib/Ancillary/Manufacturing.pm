@@ -39,12 +39,9 @@ sub factory {
     my $self     = bless {}, $class;
     my $threads1 = 0;
     my %settings = %factorySettings;
-    my ( @rulesets, %ruleOverrides, @datasets, @xdata, %dataAccumulator );
+    my ( %ruleOverrides, %dataOverrides );
+    my ( @rulesets, @datasets, %dataAccumulator );
     my %rulesDataSettings;
-
-    $self->{prepare} = sub {
-        warn '{prepare} does nothing and is deprecated';
-    };
 
     $self->{resetSettings} = sub {
         %settings = %factorySettings;
@@ -56,20 +53,82 @@ sub factory {
     };
 
     $self->{resetData} = sub {
-        @datasets = ();
-        @xdata    = ();
+        @datasets      = ();
+        %dataOverrides = ();
     };
 
     $self->{setting} = sub {
         %settings = ( %settings, @_ );
     };
 
-    $self->{setRule} = sub {
-        %ruleOverrides = ( %ruleOverrides, @_ );
+    my $setRule = $self->{setRule} = sub {
+        $settings{ruleOverrides} = { %{ $settings{ruleOverrides} }, @_ };
     };
 
     $self->{xdata} = sub {
-        push @xdata, @_;
+        foreach (@_) {
+            if (s/\{(.*)\}//s) {
+                foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
+                    my $d = _jsonMachine()->decode( '{' . $_ . '}' );
+                    next unless ref $d eq 'HASH';
+                    $setRule->(
+                        map { %$_; } grep { $_; }
+                          map  { delete $_[0]{$_}; }
+                          grep { /^rules?$/is; }
+                          keys %$d
+                    );
+                    while ( my ( $tab, $dat ) = each %$d ) {
+                        if ( ref $dat eq 'HASH' ) {
+                            while ( my ( $row, $rd ) = each %$dat ) {
+                                next unless ref $rd eq 'ARRAY';
+                                for ( my $col = 0 ; $col < @$rd ; ++$col ) {
+                                    $dataOverrides{$tab}[ $col + 1 ]{$row} =
+                                      $rd->[$col];
+                                }
+                            }
+                        }
+                        elsif ( ref $dat eq 'ARRAY' ) {
+                            for ( my $col = 0 ; $col < @$dat ; ++$col ) {
+                                my $cd = $dat->[$col];
+                                next unless ref $cd eq 'HASH';
+                                while ( my ( $row, $v ) = each %$cd ) {
+                                    $dataOverrides{$tab}[$col]{$row} = $v;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            while (s/(\S.*\|.*\S)//m) {
+                my ( $tab, $col, @more ) = split /\|/, $1, -1;
+                next unless $tab;
+                if ( $tab =~ /^rules$/is ) {
+                    $setRule->( $col, @more );
+                }
+                elsif ( @more == 1 ) {
+                    $dataOverrides{$tab}{$col} = $more[0];
+                }
+                elsif (@more == 2
+                    && $tab =~ /^[0-9]+$/s
+                    && $col
+                    && $col =~ /^[0-9]+$/s )
+                {
+                    $dataOverrides{$tab}[$col]{ $more[0] } = $more[1];
+                }
+            }
+        }
+
+        return unless %dataOverrides;
+        my $key = rand();
+        $dataOverrides{hash} = 'hashing-error';
+        eval {
+            my $digestMachine = Ancillary::Validation::digestMachine();
+            $key = $digestMachine->add( Dump( \%dataOverrides ) )->digest;
+            $dataOverrides{hash} =
+              substr( $digestMachine->add($key)->hexdigest, 5, 8 );
+        };
+        $key;
+
     };
 
     my $processStream = $self->{processStream} = sub {
@@ -98,11 +157,10 @@ sub factory {
         }
 
         if ( ref $blob eq 'GLOB' ) {
-            binmode $blob, ':utf8';
             local undef $/;
+            binmode $blob, ':utf8';
             $blob = <$blob>;
         }
-
         my @objects;
         if ( ref $blob ) {
             @objects = $blob;
@@ -114,6 +172,7 @@ sub factory {
         }
         else {
             eval { @objects = _jsonMachine()->decode($blob); };
+            warn "$fileName: $@" if $@;
         }
 
         foreach ( grep { ref $_ eq 'HASH' } @objects ) {
@@ -191,83 +250,6 @@ sub factory {
         $processStream->( $dh, $_ );
     };
 
-    my $overrideRules = $self->{overrideRules} = sub {
-        my %override = @_;
-        my $suffix = ( grep { !/^Export/ } keys %override ) ? '+' : '';
-        foreach (@rulesets) {
-            $_->{template} .= $suffix if $_->{template};
-            $_ = { %$_, %override };
-        }
-    };
-
-    my $overrideData = $self->{overrideData} =
-      sub {    # this processes any kind of xdata, not just data overrides
-        my $od;
-        my $takeOutRules = sub {
-            $overrideRules->( ref $_ eq 'ARRAY' ? @$_ : %$_ )
-              foreach grep { $_; }
-              map          { delete $_[0]{$_}; }
-              grep         { /^rules?$/i; }
-              keys %{ $_[0] };
-        };
-        foreach (@_) {
-            if (s/\{(.*)\}//s) {
-                foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
-                    my $d = _jsonMachine()->decode( '{' . $_ . '}' );
-                    next unless ref $d eq 'HASH';
-                    $takeOutRules->($d);
-                    while ( my ( $tab, $dat ) = each %$d ) {
-                        if ( ref $dat eq 'HASH' ) {
-                            while ( my ( $row, $rd ) = each %$dat ) {
-                                next unless ref $rd eq 'ARRAY';
-                                for ( my $col = 0 ; $col < @$rd ; ++$col ) {
-                                    $od->{$tab}[ $col + 1 ]{$row} = $rd->[$col];
-                                }
-                            }
-                        }
-                        elsif ( ref $dat eq 'ARRAY' ) {
-                            for ( my $col = 0 ; $col < @$dat ; ++$col ) {
-                                my $cd = $dat->[$col];
-                                next unless ref $cd eq 'HASH';
-                                while ( my ( $row, $v ) = each %$cd ) {
-                                    $od->{$tab}[$col]{$row} = $v;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            while (s/(\S.*\|.*\S)//m) {
-                my ( $tab, $col, @more ) = split /\|/, $1, -1;
-                if ( @more == 1 ) {
-                    $od->{$tab}{$col} = $more[0];
-                }
-                if (   @more == 2
-                    && $tab
-                    && $col
-                    && $tab =~ /^[0-9]+$/s
-                    && $col =~ /^[0-9]+$/s )
-                {
-                    $od->{$tab}[$col]{ $more[0] } = $more[1];
-                }
-            }
-            $takeOutRules->($od);
-        }
-        return unless $od && keys %$od;
-        my ( $key, $hash ) = ( rand(), 'hashing-error' );
-        eval {
-            my $digestMachine = Ancillary::Validation::digestMachine();
-            $key = $digestMachine->add( _jsonMachine()->encode($od) )->digest;
-            $hash = substr( $digestMachine->add($key)->hexdigest, 5, 8 );
-        };
-
-        foreach (@datasets) {
-            $_->{dataOverride} = $od;
-            $_->{'~datasetName'} .= "-$hash" if defined $_->{'~datasetName'};
-        }
-        ( $key, $hash );
-      };
-
     my $validate = $self->{validate} = sub {
         my ( $perl5dir, $dbString ) = @_;
 
@@ -311,11 +293,11 @@ sub factory {
 
     };
 
-    my $scorer = sub {
+    my $pickBestScorer = sub {
         my ( $metadata, $rule ) = @_;
         my $score = 0;
         $score += 9000 if $metadata->[0] eq $rule->{PerlModule};
-        my $scoringModule = "$rule->{PerlModule}::Scoring";
+        my $scoringModule = "$rule->{PerlModule}::PickBest";
         $score += $scoringModule->score( $rule, $metadata )
           if eval "require $scoringModule";
     };
@@ -349,10 +331,25 @@ sub factory {
                 rename $fileName . $$, $fileName;
                 $processStream->( $blob, $fileName );
             }
+            %dataAccumulator = ();
         }
 
-        $overrideData->(@xdata)                 if @xdata;
-        $overrideRules->(%ruleOverrides)        if %ruleOverrides;
+        if (%ruleOverrides) {
+            foreach (@rulesets) {
+                $_->{template} .= '+' if $_->{template};
+                $_ = { %$_, %ruleOverrides };
+            }
+        }
+
+        if (%dataOverrides) {
+            my $suffix = '-' . delete $dataOverrides{hash};
+            foreach (@datasets) {
+                $_->{dataOverride2} = \%dataOverrides;
+                $_->{'~datasetName'} .= $suffix
+                  if defined $_->{'~datasetName'};
+            }
+        }
+
         $validate->( @{ $settings{validate} } ) if $settings{validate};
 
         my $extension = $workbookModule->( $settings{xls} )->fileExtension;
@@ -395,19 +392,12 @@ sub factory {
                 ];
                 foreach my $rule (@rulesets) {
                     next if _notPossible( $rule, $data );
-                    push @scored, [ $rule, $scorer->( $metadata, $rule ) ];
+                    push @scored,
+                      [ $rule, $pickBestScorer->( $metadata, $rule ) ];
                 }
                 if (@scored) {
                     @scored = sort { $b->[1] <=> $a->[1] } @scored;
                     $addToList->( $data, $scored[0][0] );
-                }
-            }
-        }
-        elsif ( $settings{groupByRule} ) {
-            foreach my $rule (@rulesets) {
-                foreach my $data (@datasets) {
-                    $addToList->( $data, $rule )
-                      unless _notPossible( $rule, $data );
                 }
             }
         }
@@ -434,7 +424,7 @@ sub factory {
         my %instructionsSettings =
           map {
             $_ => [
-                _merge( @{ $rulesDataSettings{$_} }[ 0, 1 ] ),
+                _mergeRulesData( @{ $rulesDataSettings{$_} }[ 0, 1 ] ),
                 $rulesDataSettings{$_}[2]
             ];
           } @fileNames;
@@ -468,13 +458,14 @@ my $_jsonMachine;
 sub _jsonMachine {
     return $_jsonMachine if $_jsonMachine;
     foreach (qw(JSON JSON::PP)) {
-        return $_jsonMachine = $_->new->utf8->canonical(1) if eval "require $_";
+        return $_jsonMachine = $_->new
+          if eval "require $_";
     }
     die 'No JSON module';
 }
 
-sub _merge {
-    return [ map { _merge(@$_); } @{ $_[1] } ]
+sub _mergeRulesData {
+    return [ map { _mergeRulesData(@$_); } @{ $_[1] } ]
       if !$_[0] && ref $_[1] eq 'ARRAY';
     my %options = map { %$_ } @_;
     $options{identification} ||= join ' ', map {
@@ -489,7 +480,7 @@ sub _merge {
     } @options{qw(~datasetName version)};
     my %opt = %options;
     delete $opt{$_} foreach qw(dataset datasetOverride);
-    $opt{password} = "***" if $opt{password};
+    $opt{password} = '***' if $opt{password};
     $options{yaml} = YAML::Dump( \%opt );
     \%options;
 }

@@ -84,7 +84,10 @@ sub makeStatisticsAssumptions {
     my $result = Columnset(
         name => 'Consumption assumptions for illustrative customers',
         $model->{sharedData}
-        ? ( appendTo => $model->{sharedData}{statsAssumptions} )
+        ? (
+            number   => 4001,
+            appendTo => $model->{sharedData}{statsAssumptions},
+          )
         : (),
         columns => \@columns,
         regex   => $colspec->[1],
@@ -484,8 +487,8 @@ sub makeStatisticsTables {
 
 __DATA__
 ---
-1202:
-  - _table: 1202. Consumption assumptions for illustrative customers
+4001:
+  - _table: 4001. Consumption assumptions for illustrative customers
   - 500kVA business: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
     500kVA continuous: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
     500kVA off-peak: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
