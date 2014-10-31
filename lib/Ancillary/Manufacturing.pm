@@ -62,7 +62,7 @@ sub factory {
     };
 
     my $setRule = $self->{setRule} = sub {
-        $settings{ruleOverrides} = { %{ $settings{ruleOverrides} }, @_ };
+        %ruleOverrides = { %ruleOverrides, @_ };
     };
 
     $self->{xdata} = sub {
