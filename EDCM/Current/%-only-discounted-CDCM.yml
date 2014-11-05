@@ -1,7 +1,8 @@
 ---
-.: EDCM - LDNO discounts only
+.: Only discounted CDCM tariffs (with DCP 179)
 PerlModule: EDCM2
 dcp130: 1
+dcp179: 1
 ldnoRev: onlyrev5
 protect: 1
 summaries: 1

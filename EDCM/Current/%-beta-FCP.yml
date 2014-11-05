@@ -1,5 +1,5 @@
 ---
-.: EDCM beta FCP
+.: EDCM beta FCP (no discounted CDCM tariffs)
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7
