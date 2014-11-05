@@ -572,7 +572,7 @@ sub wsWrite {
                 my $nd = $dataset->[ $lastCol + $_ + 1 ];
                 @note = map { $nd->{ $self->{rowKeys}[$_] } } 0 .. $lastRow;
                 @note = ( $dataset->[0]{_note} )
-                  if !$#note && $dataset->[0]{_note};
+                  if !$#note && $dataset->[0] && $dataset->[0]{_note};
             }
             foreach my $y ( 0 .. $lastRow ) {
                 $ws->write( $row + $y, $c2, $note[$y], $scribbleFormat );
