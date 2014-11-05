@@ -677,7 +677,7 @@ EOL
         );
 
         my $notes = Notes(
-            name  => 'Statistics',
+            name  => 'Data for EDCM sheet 11',
             lines => ['This sheet is for information only.']
         );
 
@@ -712,6 +712,7 @@ EOL
         if (
             {
                 Tariffs => 1,
+                '⇒11'   => 1,
                 $model->{summary}
                   && $model->{summary} =~ /arp/i ? () : ( Summary => 1 ),
             }->{ $wsheetsAndClosures[$i] }
