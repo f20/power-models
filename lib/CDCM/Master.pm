@@ -124,6 +124,8 @@ sub new {
 
     $model->{inputTables} = [];
 
+    $model->{edcmTables} = [ [] ] if $model->{edcmTables};
+
     my ( $daysInYear, $daysBefore, $daysAfter, $modelLife, $annuityRate,
         $powerFactorInModel, $drmLevels, $drmExitLevels, )
       = $model->setUp;

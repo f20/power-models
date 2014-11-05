@@ -1,0 +1,11 @@
+makeModels
+	-template=%%-ARP
+	-pickbest
+	CDCM/Previous/*micro*
+	CDCM/Current/*micro*
+	CDCM/Data-2013-02/*
+	CDCM/Data-2014-02/*
+	CDCM/Data-2015-02/+.yml
+	CDCM/Data-2016-02/+.yml
+	CDCM/Data-2017-02/+.yml
+	CDCM/Data-2018-02/+.yml

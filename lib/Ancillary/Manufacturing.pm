@@ -40,7 +40,7 @@ sub factory {
     my $threads1 = 0;
     my %settings = %factorySettings;
     my ( %ruleOverrides, %dataOverrides );
-    my ( @rulesets, @datasets, %dataAccumulator );
+    my ( @rulesets, @datasets, %deferredData );
     my %rulesDataSettings;
 
     $self->{resetSettings} = sub {
@@ -150,7 +150,7 @@ sub factory {
             while ( my @row = $dta->readRow ) {
                 my $book = $row[0];
                 next unless my $line = $table[1] ? 'Single-line CSV' : $row[1];
-                $dataAccumulator{$book}{ $table[$_] }[ $column[$_] ]{$line} =
+                $deferredData{$book}{ $table[$_] }[ $column[$_] ]{$line} =
                   $row[$_]
                   foreach grep { $table[$_] } 1 .. $#table;
             }
@@ -186,12 +186,20 @@ sub factory {
                 $_->{template} = $1;
                 push @rulesets, $_;
             }
+            elsif (
+                defined $fileName
+                && $fileName =~ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?
+                        [/\\]*\+\.(?:yml|yaml|json)$#six
+              )
+            {
+                $deferredData{'+'}{ $1 ? "-$1" : '' } = [ $_, $fileName ];
+            }
             else {
                 my $datasetName;
                 if (
                     defined $fileName
                     && $fileName =~ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?
-                        [/\\]?([^/\\]+)\.(?:yml|yaml|json)$#six
+                        [/\\+]*([^/\\+]+)\.(?:yml|yaml|json)$#six
                   )
                 {
                     $datasetName = $2;
@@ -325,21 +333,48 @@ sub factory {
 
     $self->{fileList} = sub {
 
-        if (%dataAccumulator) {
-            while ( my ( $book, $data ) = each %dataAccumulator ) {
-                $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?([+-]r[0-9]+)?$//is;
-                $data->{numTariffs} = 2;
-                my $blob     = YAML::Dump($data);
-                my $fileName = "$book.yml";
-                warn "Writing $book data\n";
-                open my $h, '>', $fileName . $$;
-                binmode $h, ':utf8';
-                print {$h} $blob;
-                close $h;
-                rename $fileName . $$, $fileName;
-                $processStream->( $blob, $fileName );
+        if (%deferredData) {
+            while ( my ( $book, $data ) = each %deferredData ) {
+                if ( $book eq '+' ) {
+                    my %nameset;
+                    require Ancillary::DnoAreas;
+                    map {
+                        undef
+                          $nameset{ Ancillary::DnoAreas::normaliseDnoName(
+                                $_->[0] ) }{ $_->[1]
+                              || '' };
+                      } grep { $_->[0] }
+                      map    { [m#(.*)(-[0-9]{4}-[0-9]{2})#] }
+                      grep { $_ } map { $_->{'~datasetName'} } @datasets;
+                    foreach my $dno ( keys %nameset ) {
+                        foreach my $suffix ( sort keys %$data ) {
+                            next if exists $nameset{$dno}{$suffix};
+                            local $_ = $data->{$suffix}[1];
+                            s/\+\./+$dno./;
+                            push @datasets,
+                              {
+                                '~datasetName'   => $dno . $suffix,
+                                dataset          => $data->{$suffix}[0],
+                                '~datasetSource' => { file => $_ },
+                              };
+                        }
+                    }
+                }
+                else {
+                    $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?([+-]r[0-9]+)?$//is;
+                    $data->{numTariffs} = 2;
+                    my $blob     = YAML::Dump($data);
+                    my $fileName = "$book.yml";
+                    warn "Writing $book data\n";
+                    open my $h, '>', $fileName . $$;
+                    binmode $h, ':utf8';
+                    print {$h} $blob;
+                    close $h;
+                    rename $fileName . $$, $fileName;
+                    $processStream->( $blob, $fileName );
+                }
             }
-            %dataAccumulator = ();
+            %deferredData = ();
         }
 
         if (%dataOverrides) {
@@ -361,8 +396,10 @@ sub factory {
                 $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
                 $spreadsheetFile .= $rule->{revisionText};
             }
-            $spreadsheetFile =~
-              s/%%/($data->{'~datasetName'}=~m#(.*)-[0-9]{4}-[0-9]{2}#)[0]/eg;
+            $spreadsheetFile =~ s/%%/
+                require Ancillary::DnoAreas;
+                Ancillary::DnoAreas::normaliseDnoName($data->{'~datasetName'}=~m#(.*)-[0-9]{4}-[0-9]{2}#);
+              /eg;
             $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
             $spreadsheetFile .= $extension;
             if ( $rulesDataSettings{$spreadsheetFile} ) {

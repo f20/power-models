@@ -55,16 +55,9 @@ sub makeStatisticsAssumptions {
       && $model->{dataset}{$1};
     $colspec ||= $colspecDefault;
 
-    my @rows = sort {
-        my @n =
-          map {
-            my $n = 0;
-            $n = $1        if /([0-9]+)\s*kVA/;
-            $n = $1 * 1000 if /([0-9]+)\s*MVA/;
-            $n;
-          } $a, $b;
-        $n[0] <=> $n[1] || $a cmp $b;
-    } grep { $_ ne '_column'; } keys %{ $colspec->[1] };
+    my @rows =
+      sort { $colspec->[1]{$a} <=> $colspec->[1]{$b} }
+      grep { !/^_/; } keys %{ $colspec->[1] };
 
     my $rowset = Labelset( list => \@rows );
 
@@ -79,7 +72,7 @@ sub makeStatisticsAssumptions {
             rows => $rowset,
             data => [ @$_{@rows} ],
           )
-    } @$colspec[ 2 .. 7 ];
+    } @$colspec[ 3 .. 8 ];
 
     my $result = Columnset(
         name => 'Consumption assumptions for illustrative customers',
@@ -90,7 +83,7 @@ sub makeStatisticsAssumptions {
           )
         : (),
         columns => \@columns,
-        regex   => $colspec->[1],
+        regex   => $colspec->[2],
     );
 
     $model->{sharedData}{statisticsAssumptionsStructure} = $result
@@ -489,146 +482,219 @@ __DATA__
 ---
 4001:
   - _table: 4001. Consumption assumptions for illustrative customers
-  - 500kVA business: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    500kVA continuous: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    500kVA off-peak: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    500kVA random: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    5MVA business: '^HV HH Metered$'
-    5MVA continuous: '^HV HH Metered$'
-    5MVA off-peak: '^HV HH Metered$'
-    5MVA random: '^HV HH Metered$'
-    68kVA business: '^(?:|LDNO .*: |Margin.*: )(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
-    68kVA continuous: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
-    68kVA off-peak: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
-    68kVA random: '^(?:Small Non Domestic (?:Unrestricted|Two)|LV.*(?:HH Metered$|Medium)|LV Network)'
-    Average home: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
-    Average home x250: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Average home x2500: '^HV HH Metered$'
-    Electric heating home: '^(?:|LDNO .*: |Margin.*: )(?:Domestic (?:Unrestricted|Two)|LV Network Dom)'
-    Electric heating home x100: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Electric heating home x1000: '^HV HH Metered$'
-    Low use home: '^(?:|LDNO .*: |Margin.*: )(?:Domestic Unrestricted|LV Network Dom)'
+  - Home electric heat: 801
+    Home low use: 803
+    Home standard: 802
+    Large windmill: 500
+    Size L Continuous: 205
+    Size L Homes electric: 763
+    Size L Homes standard: 773
+    Size L Intermittent: 203
+    Size L Off-peak: 202
+    Size L Peaky: 204
+    Size M Continuous: 305
+    Size M Homes electric: 764
+    Size M Homes standard: 774
+    Size M Intermittent: 303
+    Size M Off-peak: 302
+    Size M Peaky: 304
+    Size S Continuous: 405
+    Size S Intermittent: 403
+    Size S Off-peak: 402
+    Size S Peaky: 404
+    Size XL Continuous: 105
+    Size XL Homes electric: 762
+    Size XL Homes standard: 772
+    Size XL Intermittent: 103
+    Size XL Off-peak: 102
+    Size XL Peaky: 104
+    _column: ''
+  - Home electric heat: '(?:^|: |Network)Domestic [UT]'
+    Home low use: '(?:^|: |Network)Domestic [UT]'
+    Home standard: '(?:^|: |Network)Domestic [UT]'
+    Large windmill: '^HV.*Gener'
+    Size L Continuous: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Size L Homes electric: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Size L Homes standard: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Size L Intermittent: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Size L Off-peak: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Size L Peaky: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Size M Continuous: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UT]|$)|HH Metered$)'
+    Size M Homes electric: '^(?:Small|LV).*(?:Non[- ]Domestic [UT]|HH Metered$)'
+    Size M Homes standard: '^(?:Small|LV).*(?:Non[- ]Domestic [UT]|HH Metered$)'
+    Size M Intermittent: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UT]|$)|HH Metered$)'
+    Size M Off-peak: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UT]|$)|HH Metered$)'
+    Size M Peaky: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UT]|$)|HH Metered$)'
+    Size S Continuous: '^(?:Small|LV).*Non[- ]Domestic(?: [UT]|$)'
+    Size S Intermittent: '^(?:Small|LV).*Non[- ]Domestic(?: [UT]|$)'
+    Size S Off-peak: '^(?:Small|LV).*Non[- ]Domestic(?: [UT]|$)'
+    Size S Peaky: '^(?:Small|LV).*Non[- ]Domestic(?: [UT]|$)'
+    Size XL Continuous: '^(?:|LDNO .*)HV HH Metered$'
+    Size XL Homes electric: '^(?:|LDNO .*)HV HH Metered$'
+    Size XL Homes standard: '^(?:|LDNO .*)HV HH Metered$'
+    Size XL Intermittent: '^(?:|LDNO .*)HV HH Metered$'
+    Size XL Off-peak: '^(?:|LDNO .*)HV HH Metered$'
+    Size XL Peaky: '^(?:|LDNO .*)HV HH Metered$'
     _column: Tariff selection
-  - 500kVA business: 66
-    500kVA continuous: ''
-    500kVA off-peak: ''
-    500kVA random: ''
-    5MVA business: 66
-    5MVA continuous: ''
-    5MVA off-peak: ''
-    5MVA random: ''
-    68kVA business: 66
-    68kVA continuous: ''
-    68kVA off-peak: ''
-    68kVA random: ''
-    Average home: 35
-    Average home x250: 35
-    Average home x2500: 35
-    Electric heating home: 35
-    Electric heating home x100: 35
-    Electric heating home x1000: 35
-    Low use home: 35
+  - Home electric heat: 35
+    Home low use: 35
+    Home standard: 35
+    Large windmill: ''
+    Size L Continuous: ''
+    Size L Homes electric: 35
+    Size L Homes standard: 35
+    Size L Intermittent: ''
+    Size L Off-peak: ''
+    Size L Peaky: 66
+    Size M Continuous: ''
+    Size M Homes electric: 35
+    Size M Homes standard: 35
+    Size M Intermittent: ''
+    Size M Off-peak: ''
+    Size M Peaky: 66
+    Size S Continuous: ''
+    Size S Intermittent: ''
+    Size S Off-peak: ''
+    Size S Peaky: 66
+    Size XL Continuous: ''
+    Size XL Homes electric: 35
+    Size XL Homes standard: 35
+    Size XL Intermittent: ''
+    Size XL Off-peak: ''
+    Size XL Peaky: 66
     _column: Peak-time hours/week
-  - 500kVA business: 77
-    500kVA continuous: ''
-    500kVA off-peak: 74.6666666666667
-    500kVA random: ''
-    5MVA business: 77
-    5MVA continuous: ''
-    5MVA off-peak: 74.6666666666667
-    5MVA random: ''
-    68kVA business: 77
-    68kVA continuous: ''
-    68kVA off-peak: 74.6666666666667
-    68kVA random: ''
-    Average home: 49
-    Average home x250: 49
-    Average home x2500: 49
-    Electric heating home: 49
-    Electric heating home x100: 49
-    Electric heating home x1000: 49
-    Low use home: 49
+  - Home electric heat: 49
+    Home low use: 49
+    Home standard: 49
+    Large windmill: ''
+    Size L Continuous: ''
+    Size L Homes electric: 49
+    Size L Homes standard: 49
+    Size L Intermittent: ''
+    Size L Off-peak: 74.6666666666667
+    Size L Peaky: 77
+    Size M Continuous: ''
+    Size M Homes electric: 49
+    Size M Homes standard: 49
+    Size M Intermittent: ''
+    Size M Off-peak: 74.6666666666667
+    Size M Peaky: 77
+    Size S Continuous: ''
+    Size S Intermittent: ''
+    Size S Off-peak: 74.6666666666667
+    Size S Peaky: 77
+    Size XL Continuous: ''
+    Size XL Homes electric: 49
+    Size XL Homes standard: 49
+    Size XL Intermittent: ''
+    Size XL Off-peak: 74.6666666666667
+    Size XL Peaky: 77
     _column: Off-peak hours/week
-  - 500kVA business: 355
-    500kVA continuous: ''
-    500kVA off-peak: ''
-    500kVA random: ''
-    5MVA business: 3550
-    5MVA continuous: ''
-    5MVA off-peak: ''
-    5MVA random: ''
-    68kVA business: 48.28
-    68kVA continuous: ''
-    68kVA off-peak: ''
-    68kVA random: ''
-    Average home: 1
-    Average home x250: 250
-    Average home x2500: 2500
-    Electric heating home: 1.25
-    Electric heating home x100: 125
-    Electric heating home x1000: 1250
-    Low use home: 0.5
+  - Home electric heat: 1.1
+    Home low use: 0.4
+    Home standard: 0.8
+    Large windmill: ''
+    Size L Continuous: ''
+    Size L Homes electric: 110
+    Size L Homes standard: 200
+    Size L Intermittent: ''
+    Size L Off-peak: ''
+    Size L Peaky: 350
+    Size M Continuous: ''
+    Size M Homes electric: 11
+    Size M Homes standard: 20
+    Size M Intermittent: ''
+    Size M Off-peak: ''
+    Size M Peaky: 48.3
+    Size S Continuous: ''
+    Size S Intermittent: ''
+    Size S Off-peak: ''
+    Size S Peaky: 16.1
+    Size XL Continuous: ''
+    Size XL Homes electric: 1100
+    Size XL Homes standard: 2000
+    Size XL Intermittent: ''
+    Size XL Off-peak: ''
+    Size XL Peaky: 3500
     _column: Peak-time load (kW)
-  - 500kVA business: 100
-    500kVA continuous: ''
-    500kVA off-peak: 450
-    500kVA random: ''
-    5MVA business: 1000
-    5MVA continuous: ''
-    5MVA off-peak: 4500
-    5MVA random: ''
-    68kVA business: 13.6
-    68kVA continuous: ''
-    68kVA off-peak: 61.2
-    68kVA random: ''
-    Average home: 0.1
-    Average home x250: 25
-    Average home x2500: 250
-    Electric heating home: 1.5
-    Electric heating home x100: 150
-    Electric heating home x1000: 1500
-    Low use home: 0.05
+  - Home electric heat: 1.6
+    Home low use: 0.125
+    Home standard: 0.25
+    Large windmill: ''
+    Size L Continuous: ''
+    Size L Homes electric: 160
+    Size L Homes standard: 62.5
+    Size L Intermittent: ''
+    Size L Off-peak: 450
+    Size L Peaky: 100
+    Size M Continuous: ''
+    Size M Homes electric: 16
+    Size M Homes standard: 6.25
+    Size M Intermittent: ''
+    Size M Off-peak: 62.1
+    Size M Peaky: 13.8
+    Size S Continuous: ''
+    Size S Intermittent: ''
+    Size S Off-peak: 20.7
+    Size S Peaky: 4.6
+    Size XL Continuous: ''
+    Size XL Homes electric: 1600
+    Size XL Homes standard: 625
+    Size XL Intermittent: ''
+    Size XL Off-peak: 4500
+    Size XL Peaky: 1000
     _column: Off-peak load (kW)
-  - 500kVA business: 100
-    500kVA continuous: 450
-    500kVA off-peak: ''
-    500kVA random: 200
-    5MVA business: 1000
-    5MVA continuous: 4500
-    5MVA off-peak: ''
-    5MVA random: 2000
-    68kVA business: 13.6
-    68kVA continuous: 61.2
-    68kVA off-peak: ''
-    68kVA random: 27.2
-    Average home: 0.4
-    Average home x250: 100
-    Average home x2500: 1000
-    Electric heating home: 0.5
-    Electric heating home x100: 50
-    Electric heating home x1000: 500
-    Low use home: 0.2
+  - Home electric heat: 0.434817351598174
+    Home low use: 0.194206621004566
+    Home standard: 0.388413242009132
+    Large windmill: 500
+    Size L Continuous: 450
+    Size L Homes electric: 43.4817351598174
+    Size L Homes standard: 97.1033105022831
+    Size L Intermittent: 200
+    Size L Off-peak: ''
+    Size L Peaky: 112
+    Size M Continuous: 62.1
+    Size M Homes electric: 4.34817351598174
+    Size M Homes standard: 9.71033105022831
+    Size M Intermittent: 27.6
+    Size M Off-peak: ''
+    Size M Peaky: 15.456
+    Size S Continuous: 20.7
+    Size S Intermittent: 9.2
+    Size S Off-peak: ''
+    Size S Peaky: 5.152
+    Size XL Continuous: 4500
+    Size XL Homes electric: 434.817351598174
+    Size XL Homes standard: 971.033105022831
+    Size XL Intermittent: 2000
+    Size XL Off-peak: ''
+    Size XL Peaky: 1120
     _column: Load at other times (kW)
-  - 500kVA business: 500
-    500kVA continuous: 500
-    500kVA off-peak: 500
-    500kVA random: 500
-    5MVA business: 5000
-    5MVA continuous: 5000
-    5MVA off-peak: 5000
-    5MVA random: 5000
-    68kVA business: 68
-    68kVA continuous: 68
-    68kVA off-peak: 68
-    68kVA random: 68
-    Average home: 6
-    Average home x250: 500
-    Average home x2500: 5000
-    Electric heating home: 18
-    Electric heating home x100: 500
-    Electric heating home x1000: 5000
-    Low use home: 3
+  - Home electric heat: 18
+    Home low use: 6
+    Home standard: 9
+    Large windmill: 1500
+    Size L Continuous: 500
+    Size L Homes electric: 500
+    Size L Homes standard: 500
+    Size L Intermittent: 500
+    Size L Off-peak: 500
+    Size L Peaky: 500
+    Size M Continuous: 69
+    Size M Homes electric: 69
+    Size M Homes standard: 69
+    Size M Intermittent: 69
+    Size M Off-peak: 69
+    Size M Peaky: 69
+    Size S Continuous: 23
+    Size S Intermittent: 23
+    Size S Off-peak: 23
+    Size S Peaky: 23
+    Size XL Continuous: 5000
+    Size XL Homes electric: 5000
+    Size XL Homes standard: 5000
+    Size XL Intermittent: 5000
+    Size XL Off-peak: 5000
+    Size XL Peaky: 5000
     _column: Capacity (kVA)
-  - _column: Total kWh/year
-  - _column: Rate 2 kWh/year
-  - _column: Load factor (kW/kVA)

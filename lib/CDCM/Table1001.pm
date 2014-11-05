@@ -527,6 +527,32 @@ sub table1001 {
             },
         );
 
+        $model->{edcmTables}[0][4] = new SpreadsheetModel::Custom(
+            name => 'The amount of money that the DNO wants to raise from use'
+              . ' of system charges, less transmission exit (£/year)',
+            defaultFormat => '0hard',
+            custom        => ['=IV1+IV2-IV3'],
+            arithmetic    => '=IV1+IV2-IV3',
+            objectType    => 'Special calculation',
+            arguments     => {
+                IV1 => $target,
+                IV2 => $inputs,
+                IV3 => $model->{edcmTables}[0][5]{sources}[0],
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    '', $format, $formula->[0],
+                      IV1 => xl_rowcol_to_cell( $rowh->{IV1}, $colh->{IV1} ),
+                      IV2 =>
+                      xl_rowcol_to_cell( $rowh->{IV2} + 33, $colh->{IV2} ),
+                      IV3 => xl_rowcol_to_cell( $rowh->{IV3}, $colh->{IV3} );
+                };
+            },
+        ) if $model->{edcmTables};
+
         Columnset(
             name    => 'Target CDCM revenue',
             columns => [

@@ -300,7 +300,7 @@ EOL
             $model->{sourceModel} = $sourceModel;
             $assumptionZero = 1;
         }
-        elsif ( !$model->{dataset}{baseDataset} ) {
+        elsif ( !$model->{sourceModel} ) {
             $me->{modelByDataset}{ 0 + $model->{dataset} } = $model;
             push @{ $me->{historical} }, $model;
             return @pairs;
@@ -359,6 +359,7 @@ EOL
                 my @table1001Overridable =
                 map {
                         !$_->{table1001}
+                      || $_->{has1001data}
                       || $_->{targetRevenue} =~ /DCP132longlabels/i ? ()
                       : ( ref $_->{table1001}{columns}[3] ) =~ /Dataset/
                       ? [ $_, $_->{table1001}{columns}[3] ]
@@ -380,7 +381,7 @@ EOL
                                     } @{ $rows->{list} }
                                 ],
                                 data => [
-                                    map { defined $_ ? '' : undef; }
+                                    map { defined $_ ? '#N/A' : undef; }
                                       @{ $_->[1]{data} }
                                 ],
                             )
@@ -664,17 +665,58 @@ sub addStats {
     foreach my $table (@_) {
         if ( my $lastRow = $table->lastRow ) {
             for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
+                my $groupid;
+                $groupid = $table->{rows}{groupid}[$row]
+                  if $table->{rows}{groupid};
                 my $name      = "$table->{rows}{list}[$row]";
                 my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
                 unless ( defined $rowNumber ) {
-                    push @{ $me->{statsRows}[$sectionNumber] }, $name;
-                    $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name} =
-                      $#{ $me->{statsRows}[$sectionNumber] };
+                    if ( defined $groupid ) {
+                        my $group = "$table->{rows}{groups}[$groupid]";
+                        my $groupRowNumber =
+                          $me->{statsRowMap}[$sectionNumber]{$group};
+                        if ( defined $groupRowNumber ) {
+                            for (
+                                my $i = $groupRowNumber + 1 ;
+                                $i <= $#{ $me->{statsRows}[$sectionNumber] } ;
+                                ++$i
+                              )
+                            {
+                                if ( $me->{statsRows}[$sectionNumber][$i] !~
+                                    /^$group \(/ )
+                                {
+                                    $rowNumber = $i;
+                                    last;
+                                }
+                            }
+                        }
+                        if ( defined $rowNumber ) {
+                            splice @{ $me->{statsRows}[$sectionNumber] },
+                              $rowNumber, 0, $name;
+                            foreach my $ma (
+                                values %{ $me->{statsMap}[$sectionNumber] } )
+                            {
+                                for ( my $i = @$ma ; $i > $rowNumber ; --$i ) {
+                                    $ma->[$i] = $ma->[ $i - 1 ];
+                                }
+                            }
+                            map    { ++$_ }
+                              grep { $_ >= $rowNumber }
+                              values %{ $me->{statsRowMap}[$sectionNumber] };
+                            $me->{statsRowMap}[$sectionNumber]{$name} =
+                              $rowNumber;
+                        }
+                    }
+                    unless ( defined $rowNumber ) {
+                        push @{ $me->{statsRows}[$sectionNumber] }, $name;
+                        $rowNumber =
+                          $me->{statsRowMap}[$sectionNumber]{$name} =
+                          $#{ $me->{statsRows}[$sectionNumber] };
+                    }
                 }
                 $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
                   [ $table, 0, $row ]
-                  unless $table->{rows}{groupid}
-                  && !defined $table->{rows}{groupid}[$row];
+                  unless $table->{rows}{groupid} && !defined $groupid;
             }
         }
         else {

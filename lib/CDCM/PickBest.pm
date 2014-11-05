@@ -24,7 +24,9 @@ sub score {
       if $rule->{unauth}
       && $rule->{unauth} =~ /dayotex/i xor $month lt '2015-10';
 
-    warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month, $score;
+    0
+      and warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month,
+      $score;
 
     $score;
 

@@ -1,0 +1,11 @@
+makeModels
+	-sqlite
+	-stats
+	CDCM/Current/%-after163.yml
+	CDCM/DCP-179/%-dcp179apr-proof3nooff.yml
+	CDCM/Data-2014-02/*
+
+useDatabase
+	-base=after163
+	-dcp=dcp179apr
+	-name=DCP 179 impact

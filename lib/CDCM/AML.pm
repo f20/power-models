@@ -730,6 +730,25 @@ EOL
             ]
           ) unless $model->{useLvAml};
 
+        push @{ $model->{edcmTables} },
+          Stack(
+            name => 'Diversity allowance between level exit and GSP Group',
+            defaultFormat => '0.000hard',
+            number        => 1105,
+            rows          => 0,
+            cols          => Labelset(
+                list => [
+                    @{
+                        (
+                                 $diversityAllowances->{cols}
+                              || $diversityAllowances->{rows}
+                        )->{list}
+                    }[ 0 .. 5 ]
+                ]
+            ),
+            sources => [$diversityAllowances]
+          ) if $model->{edcmTables};
+
         push @{ $model->{forecastAml} },
           $forecastSml = Arithmetic(
             name => 'Forecast simultaneous maximum load (kW)'

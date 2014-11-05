@@ -29,63 +29,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use Spreadsheet::WriteExcel::Utility;
+use SpreadsheetModel::DatasetDerivation;
 
 sub derivativeDataset {
 
     my ( $model, $sourceModel ) = @_;
 
-    my $sourceTableHashref;
-    my $setDatasetTable = sub {
-        my ( $theTable, $formulaMaker ) = @_;
-        my $hardData = $model->{dataset}{$theTable};
-        return if ref $hardData eq 'CODE';
-        $model->{dataset}{$theTable} = sub {
-            my ( $table, $wb, $ws ) = @_;
-            $sourceTableHashref ||=
-              { map { $_->{number} => $_ } @{ $sourceModel->{inputTables} } };
-            my @columns;
-            if ( my $d = $sourceTableHashref->{$table} ) {
-                my ( $s, $r, $c ) =
-                  ( $d->{columns} ? $d->{columns}[0] : $d )
-                  ->wsWrite( $wb, $ws );
-                $s = $s->get_name;
-                my $width = 0;
-                if ( $d->{columns} ) {
-                    $width += $_->lastCol + 1 foreach @{ $d->{columns} };
-                }
-                else {
-                    $width = 1 + $d->lastCol;
-                }
-                my @rows = $d->{rows} ? @{ $d->{rows}{list} } : 'z';
-                for ( my $i = 0 ; $i < @rows ; ++$i ) {
-                    local $_ = $rows[$i];
-                    s/.*\n//s;
-                    s/[^A-Za-z0-9 -]/ /g;
-                    s/- / /g;
-                    s/ +/ /g;
-                    s/^ //;
-                    s/ $//;
-                    my $row = $_;
-                    $columns[$_]{$row} = $formulaMaker->(
-                        "'$s'!" . xl_rowcol_to_cell( $r + $i, $c + $_ - 1 ),
-                        $rows[$i], $_, $wb, $ws,
-                    ) foreach 1 .. $width;
-                }
-            }
-            map {
-                for ( my $icolumn = 1 ; $icolumn < @$_ ; ++$icolumn ) {
-                    foreach my $irow ( keys %{ $_->[$icolumn] } ) {
-                        $columns[$icolumn]{$irow} =
-                          $_->[$icolumn]{$irow};
-                    }
-                }
-            } grep { $_ } $hardData, $model->{dataOverride}{$theTable};
-            \@columns;
-        };
-    };
-
-    $setDatasetTable->( defaultClosure => sub { my ($cell) = @_; "=$cell"; } );
+    my $addSourceDatasetAdjuster =
+      SpreadsheetModel::DatasetDerivation::setupDerivativeDataset( $model,
+        $sourceModel );
 
     if (
         $model->{sharedData}
@@ -94,7 +46,11 @@ sub derivativeDataset {
       )
     {
 
-        $setDatasetTable->(
+        $model->{has1001data} = 1
+          if $model->{dataset}
+          && ref $model->{dataset}{1001} eq 'ARRAY'
+          && keys %{ $model->{dataset}{1001}[3] };
+        $addSourceDatasetAdjuster->(
             1001 => sub {
                 my ( $cell, $row, $col, $wb, $ws ) = @_;
                 return "=$cell"
@@ -103,10 +59,11 @@ sub derivativeDataset {
                     $model->{sharedData}
                     ->table1001Overrides( $model, $wb, $ws, $row ) )
                 {
-                    return qq%=IF($override<>"",$override*1e6,$cell)%
+                    return qq%=IF(ISERROR(0+$override),$cell,1e6*$override)%
                       unless $row =~ /RPI Indexation Factor/i;
                     my $ac = $getAssumptionCell->( $wb, $ws, 'RPI' );
-                    return qq%=IF($override<>"",$override,(1+$ac)*$cell)%;
+                    return
+                      qq%=IF(ISERROR(0+$override),(1+$ac)*$cell,$override)%;
                 }
                 return "=$cell"
                   unless $row =~ /RPI Indexation Factor/i;
@@ -115,7 +72,7 @@ sub derivativeDataset {
             }
         );
 
-        $setDatasetTable->(
+        $addSourceDatasetAdjuster->(
             1020 => sub {
                 ( my $cell, local $_, my $col, my $wb, my $ws ) = @_;
                 my $ac = $getAssumptionCell->(
@@ -136,7 +93,7 @@ sub derivativeDataset {
 
         {
             my $ac;
-            $setDatasetTable->(
+            $addSourceDatasetAdjuster->(
                 1022 => sub {
                     ( my $cell, local $_, my $col, my $wb, my $ws ) = @_;
                     $ac ||= $getAssumptionCell->( $wb, $ws, 10 );
@@ -147,7 +104,7 @@ sub derivativeDataset {
 
         {
             my $ac;
-            $setDatasetTable->(
+            $addSourceDatasetAdjuster->(
                 1023 => sub {
                     ( my $cell, local $_, my $col, my $wb, my $ws ) = @_;
                     $ac ||= $getAssumptionCell->( $wb, $ws, 7 );
@@ -156,8 +113,8 @@ sub derivativeDataset {
             );
         }
 
-        $setDatasetTable->(
-            1053 => sub {
+        $addSourceDatasetAdjuster->(
+            1053 => sub {    # This does not support DCP 161 implementation
                 ( my $cell, local $_, my $col, my $wb, my $ws ) = @_;
                 my $ac = $getAssumptionCell->(
                     $wb, $ws,
@@ -173,7 +130,7 @@ sub derivativeDataset {
             }
         );
 
-        $setDatasetTable->(
+        $addSourceDatasetAdjuster->(
             1055 => sub {
                 ( my $cell, local $_, my $col, my $wb, my $ws ) = @_;
                 my $ac = $getAssumptionCell->( $wb, $ws, 14 );
@@ -181,7 +138,7 @@ sub derivativeDataset {
             }
         );
 
-        $setDatasetTable->(
+        $addSourceDatasetAdjuster->(
             1059 => sub {
                 ( my $cell, local $_, my $col, my $wb, my $ws ) = @_;
                 my $no;
@@ -197,7 +154,7 @@ sub derivativeDataset {
 
     }
 
-    $setDatasetTable->( $_ => sub { my ($cell) = @_; "=$cell"; } )
+    $addSourceDatasetAdjuster->( $_ => sub { my ($cell) = @_; "=$cell"; } )
       foreach grep { /^[0-9]+$/s } keys %{ $model->{dataset} };
 
 }

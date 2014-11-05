@@ -744,129 +744,24 @@ sub cdcmUserImpact {
     my $wb = $wbmodule->new(
         "Impact users $options{dcpName}" . $wbmodule->fileExtension );
     $wb->setFormats(
-        {
-            $options{colour} ? ( colour => $options{colour} ) : (),
-        }
-    );
+        { $options{colour} ? ( colour => $options{colour} ) : (), } );
 
-    my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
-Average home (Domestic Unrestricted)
-Average home (LDNO LV: Domestic Unrestricted)
-Average home (LDNO HV: Domestic Unrestricted)
-Average home (Margin LV: Domestic Unrestricted)
-Average home (Margin HV: Domestic Unrestricted)
-Average home x250 (LV HH Metered)
-Average home x250 (LV Sub HH Metered)
-Average home x250 (HV HH Metered)
-Average home x250 (LDNO LV: LV HH Metered)
-Average home x250 (LDNO HV: LV HH Metered)
-Average home x250 (LDNO HV: LV Sub HH Metered)
-Average home x250 (LDNO HV: HV HH Metered)
-Average home x2500 (HV HH Metered)
-Electric heating home (Domestic Unrestricted)
-Electric heating home (Domestic Two Rate)
-Electric heating home (LDNO LV: Domestic Unrestricted)
-Electric heating home (LDNO LV: Domestic Two Rate)
-Electric heating home (LDNO HV: Domestic Unrestricted)
-Electric heating home (LDNO HV: Domestic Two Rate)
-Electric heating home (Margin LV: Domestic Unrestricted)
-Electric heating home (Margin LV: Domestic Two Rate)
-Electric heating home (Margin HV: Domestic Unrestricted)
-Electric heating home (Margin HV: Domestic Two Rate)
-Electric heating home x100 (LV HH Metered)
-Electric heating home x100 (LV Sub HH Metered)
-Electric heating home x100 (HV HH Metered)
-Electric heating home x100 (LDNO LV: LV HH Metered)
-Electric heating home x100 (LDNO HV: LV HH Metered)
-Electric heating home x100 (LDNO HV: LV Sub HH Metered)
-Electric heating home x100 (LDNO HV: HV HH Metered)
-Electric heating home x1000 (HV HH Metered)
-Low use home (Domestic Unrestricted)
-Low use home (LDNO LV: Domestic Unrestricted)
-Low use home (LDNO HV: Domestic Unrestricted)
-Low use home (Margin LV: Domestic Unrestricted)
-Low use home (Margin HV: Domestic Unrestricted)
-68kVA business (Small Non Domestic Unrestricted)
-68kVA business (Small Non Domestic Two Rate)
-68kVA business (LV Medium Non-Domestic)
-68kVA business (LV Sub Medium Non-Domestic)
-68kVA business (LV HH Metered)
-68kVA business (LV Sub HH Metered)
-68kVA business (LDNO LV: Small Non Domestic Unrestricted)
-68kVA business (LDNO LV: Small Non Domestic Two Rate)
-68kVA business (LDNO LV: LV Medium Non-Domestic)
-68kVA business (LDNO LV: LV HH Metered)
-68kVA business (LDNO HV: Small Non Domestic Unrestricted)
-68kVA business (LDNO HV: Small Non Domestic Two Rate)
-68kVA business (LDNO HV: LV Medium Non-Domestic)
-68kVA business (LDNO HV: LV HH Metered)
-68kVA business (LDNO HV: LV Sub HH Metered)
-68kVA business (Margin LV: Small Non Domestic Unrestricted)
-68kVA business (Margin LV: Small Non Domestic Two Rate)
-68kVA business (Margin LV: LV Medium Non-Domestic)
-68kVA business (Margin LV: LV HH Metered)
-68kVA business (Margin HV: Small Non Domestic Unrestricted)
-68kVA business (Margin HV: Small Non Domestic Two Rate)
-68kVA business (Margin HV: LV Medium Non-Domestic)
-68kVA business (Margin HV: LV HH Metered)
-68kVA business (Margin HV: LV Sub HH Metered)
-68kVA continuous (Small Non Domestic Unrestricted)
-68kVA continuous (Small Non Domestic Two Rate)
-68kVA continuous (LV Medium Non-Domestic)
-68kVA continuous (LV Sub Medium Non-Domestic)
-68kVA continuous (LV HH Metered)
-68kVA continuous (LV Sub HH Metered)
-68kVA off-peak (Small Non Domestic Unrestricted)
-68kVA off-peak (Small Non Domestic Two Rate)
-68kVA off-peak (LV Medium Non-Domestic)
-68kVA off-peak (LV Sub Medium Non-Domestic)
-68kVA off-peak (LV HH Metered)
-68kVA off-peak (LV Sub HH Metered)
-68kVA random (Small Non Domestic Unrestricted)
-68kVA random (Small Non Domestic Two Rate)
-68kVA random (LV Medium Non-Domestic)
-68kVA random (LV Sub Medium Non-Domestic)
-68kVA random (LV HH Metered)
-68kVA random (LV Sub HH Metered)
-500kVA business (LV HH Metered)
-500kVA business (LV Sub HH Metered)
-500kVA business (HV HH Metered)
-500kVA business (LDNO LV: LV HH Metered)
-500kVA business (LDNO HV: LV HH Metered)
-500kVA business (LDNO HV: LV Sub HH Metered)
-500kVA business (LDNO HV: HV HH Metered)
-500kVA continuous (LV HH Metered)
-500kVA continuous (LV Sub HH Metered)
-500kVA continuous (HV HH Metered)
-500kVA continuous (LDNO LV: LV HH Metered)
-500kVA continuous (LDNO HV: LV HH Metered)
-500kVA continuous (LDNO HV: LV Sub HH Metered)
-500kVA continuous (LDNO HV: HV HH Metered)
-500kVA off-peak (LV HH Metered)
-500kVA off-peak (LV Sub HH Metered)
-500kVA off-peak (HV HH Metered)
-500kVA off-peak (LDNO LV: LV HH Metered)
-500kVA off-peak (LDNO HV: LV HH Metered)
-500kVA off-peak (LDNO HV: LV Sub HH Metered)
-500kVA off-peak (LDNO HV: HV HH Metered)
-500kVA random (LV HH Metered)
-500kVA random (LV Sub HH Metered)
-500kVA random (HV HH Metered)
-500kVA random (LDNO LV: LV HH Metered)
-500kVA random (LDNO HV: LV HH Metered)
-500kVA random (LDNO HV: LV Sub HH Metered)
-500kVA random (LDNO HV: HV HH Metered)
-5MVA business (HV HH Metered)
-5MVA continuous (HV HH Metered)
-5MVA off-peak (HV HH Metered)
-5MVA random (HV HH Metered)
-EOL
+    my $linesAfter = $options{linesAfter}
+      || [
+        map { $_->[0] } @{
+            $self->selectall_arrayref(
+                    'select v from data where tab=4003 and'
+                  . ' col=0 and row>0 group by v order by min(row)'
+            )
+        }
+      ];
 
     my $linesBefore = $options{linesBefore} || $linesAfter;
 
     my $titleFormat   = $wb->getFormat('notes');
     my $thFormat      = $wb->getFormat('th');
     my $thcFormat     = $wb->getFormat('thc');
+    my $thgFormat     = $wb->getFormat('thg');
     my $thcaFormat    = $wb->getFormat('caption');
     my $scalingFactor = $options{MWh} ? 1 : 0.1;
     my $ppuFormatCore = $options{MWh} ? '0.00' : '0.000';
@@ -914,7 +809,8 @@ EOL
         my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,0)');
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
-            $ws->write_string( 3 + $j, 0, $linesAfter->[$j], $thFormat );
+            $ws->write_string( 3 + $j, 0, $linesAfter->[$j],
+                $linesAfter->[$j] =~ /\(/ ? $thFormat : $thgFormat );
             $findRow->execute( $bidb, $linesBefore->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $linesAfter->[$j] );
@@ -924,6 +820,7 @@ EOL
                 my ($vb) = $q->fetchrow_array;
                 $q->execute( $bida, $rowa, 1 );
                 my ($va) = $q->fetchrow_array;
+                next unless defined $va && defined $vb;
                 $ws->write( 3 + $j, 1, $vb, $format1[0] );
                 $ws->write( 3 + $j, 3, $va, $format1[0] );
                 my $old = xl_rowcol_to_cell( 3 + $j, 1 );
@@ -945,6 +842,7 @@ EOL
                 my ($vb) = $q->fetchrow_array;
                 $q->execute( $bida, $rowa, 2 );
                 my ($va) = $q->fetchrow_array;
+                next unless defined $va && defined $vb;
                 $ws->write( 3 + $j, 2, $vb * $scalingFactor, $format1[1] );
                 $ws->write( 3 + $j, 4, $va * $scalingFactor, $format1[1] );
                 my $old = xl_rowcol_to_cell( 3 + $j, 2 );

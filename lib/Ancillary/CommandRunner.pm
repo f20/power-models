@@ -131,6 +131,7 @@ sub makeModels {
                 );
             }
             elsif (/^-+debug/is)   { $maker->{setRule}->( debug        => 1 ); }
+            elsif (/^-+edcm/is)    { $maker->{setRule}->( edcmTables   => 1 ); }
             elsif (/^-+forward/is) { $maker->{setRule}->( forwardLinks => 1 ); }
             elsif (
                 /^-+( graphviz|
@@ -186,7 +187,7 @@ sub makeModels {
                 $maker->{setting}->(
                     PostProcessing => _makePostProcessor(
                         $maker->{threads}->(),
-                        Compilation::DataExtraction::databaseWriter($settings),
+                        Compilation::DataExtraction::databaseWriter(),
                         $settings
                     )
                 );
@@ -419,6 +420,8 @@ sub fillDatabase {
             next;
         }
 
+        die 'Nothing to do' unless $writer;
+
         ( $postProcessor ||=
               _makePostProcessor( $threads, $writer, $settings ) )->($_);
 
@@ -544,7 +547,7 @@ EOS
                 }
             };
             warn "$@ for $calcFile" if $@;
-            if ( $workbook && $writer ) {
+            if ($workbook) {
                 eval { $writer->( $calcFile, $workbook ); };
                 warn "$@ for $calcFile" if $@;
             }
@@ -565,6 +568,15 @@ sub DESTROY { }
 sub AUTOLOAD {
     no strict 'refs';
     warn "$AUTOLOAD not implemented";
+    *{$AUTOLOAD} = sub { };
+    return;
+}
+
+package NOOP_CLASS;
+our $AUTOLOAD;
+
+sub AUTOLOAD {
+    no strict 'refs';
     *{$AUTOLOAD} = sub { };
     return;
 }

@@ -79,7 +79,7 @@ sub interpret {
         local $_ = $file;
         s#.*/##s;
         s/\.te?xt$//i;
-        push @$self, [ makeFolder => $_ ];
+        push @$self, [ makeFolder => "Results - $_" ];
     }
     binmode $fh, ':utf8';
     local $/ = "\n";

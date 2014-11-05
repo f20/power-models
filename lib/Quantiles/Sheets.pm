@@ -30,8 +30,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-require Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
+require Spreadsheet::WriteExcel::Utility;
+require SpreadsheetModel::ColourCodeWriter;
 
 sub worksheetsAndClosures {
 
@@ -149,7 +150,8 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 1,   105 );
         $wsheet->set_column( 2, 250, 30 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach $model->topNotes, $model->licenceNotes, $wbook->colourCode,
+          foreach $model->topNotes, $model->licenceNotes,
+          SpreadsheetModel::ColourCodeWriter->new,
           $wbook->{logger}, $model->technicalNotes;
       }
 

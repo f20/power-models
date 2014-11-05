@@ -31,8 +31,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-require Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
+require Spreadsheet::WriteExcel::Utility;
+require SpreadsheetModel::ColourCodeWriter;
 
 sub worksheetsAndClosures {
 
@@ -44,7 +45,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
 
         $wbook->{lastSheetNumber} = 13;
-        $wsheet->{sheetNumber} = 13;
+        $wsheet->{sheetNumber}    = 13;
 
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   60 );
@@ -127,7 +128,8 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 1,   105 );
         $wsheet->set_column( 2, 250, 30 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach $model->topNotes, $model->licenceNotes, $wbook->colourCode,
+          foreach $model->topNotes, $model->licenceNotes,
+          SpreadsheetModel::ColourCodeWriter->new,
           $wbook->{logger}, $model->technicalNotes;
     };
 

@@ -97,6 +97,11 @@ sub operating {
         ]
       );
 
+    $model->{edcmTables}[0][5] = Stack(
+        defaultFormat => '0hard',
+        sources       => [ $operatingExpenditureCodedByLevel->{sources}[0] ]
+    ) if $model->{edcmTables};
+
     my $operatingLvCustomer =
       Labelset( list =>
           [ grep { /LV customer/i } @{ $operatingCustomerLevels->{list} } ] );
@@ -204,6 +209,12 @@ sub operating {
                 }
             )
         );
+
+        @{ $model->{edcmTables}[0] }[ 6 .. 8 ] =
+          map { Stack( defaultFormat => '0hard', sources => [$_] ); }
+          @otex[ 0, 1, 3 ]
+          if $model->{edcmTables};
+
         Columnset(
             name          => 'Other expenditure',
             singleRowName => 'Other expenditure',
@@ -411,6 +422,14 @@ sub operating {
             defaultFormat => $modelAssetsByLevelPossiblyScaled->{defaultFormat}
         );
     }
+
+    push @{ $model->{edcmTables} },
+      Stack(
+        name          => 'Assets in CDCM model (£)',
+        defaultFormat => '0hard',
+        number        => 1131,
+        sources       => [$modelAssetsByLevelPossiblyScaled]
+      ) if $model->{edcmTables};
 
     push @{ $model->{operatingExpenditure} },
       Columnset(

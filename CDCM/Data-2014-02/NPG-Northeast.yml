@@ -792,6 +792,7 @@
     HV Generation Intermittent: 0
     HV Generation Non-Intermittent: 0
     HV HH Metered: 1031327.5369863
+    HV HH Metered exceedprop: 0.033363346
     HV Medium Non-Domestic: 0
     HV Sub Generation Intermittent: 0
     HV Sub Generation Non-Intermittent: 0
@@ -839,11 +840,13 @@
     LV Generation NHH: 0
     LV Generation Non-Intermittent: 0
     LV HH Metered: 1045221.37534247
+    LV HH Metered exceedprop: 0.045681591
     LV Medium Non-Domestic: 0
     LV Sub Generation Intermittent: 0
     LV Sub Generation NHH: 0
     LV Sub Generation Non-Intermittent: 0
     LV Sub HH Metered: 69445.1452054794
+    LV Sub HH Metered exceedprop: 0.036534522
     LV Sub Medium Non-Domestic: 0
     LV UMS Pseudo HH Metered: 0
     NHH UMS category A: 0
@@ -1344,69 +1347,64 @@
     HV Generation Non-Intermittent: '707, 708, 712, 721, 731, 732, 735, 743, 745, 747, 751, 753, 791'
     HV HH Metered: '610, 666, 674, 677'
     HV Medium Non-Domestic: '303, 323, 324'
-    HV Sub Generation Intermittent: -
-    HV Sub Generation Non-Intermittent: -
-    HV Sub HH Metered: -
-    LDNO HV Domestic Off Peak related MPAN: -
-    LDNO HV Domestic Two Rate: -
-    LDNO HV Domestic Unrestricted: -
-    LDNO HV HV Generation Intermittent: -
-    LDNO HV HV Generation Non-Intermittent: -
-    LDNO HV HV HH Metered: -
-    LDNO HV LV Generation Intermittent: -
-    LDNO HV LV Generation NHH: -
-    LDNO HV LV Generation Non-Intermittent: -
-    LDNO HV LV HH Metered: -
-    LDNO HV LV Medium Non-Domestic: -
-    LDNO HV LV Sub Generation Intermittent: -
-    LDNO HV LV Sub Generation NHH: -
-    LDNO HV LV Sub Generation Non-Intermittent: -
-    LDNO HV LV Sub HH Metered: -
-    LDNO HV LV UMS Pseudo HH Metered: -
-    LDNO HV NHH UMS category A: -
-    LDNO HV NHH UMS category B: -
-    LDNO HV NHH UMS category C: -
-    LDNO HV NHH UMS category D: -
-    LDNO HV Small Non Domestic Off Peak related MPAN: -
-    LDNO HV Small Non Domestic Two Rate: -
-    LDNO HV Small Non Domestic Unrestricted: -
-    LDNO LV Domestic Off Peak related MPAN: -
-    LDNO LV Domestic Two Rate: -
-    LDNO LV Domestic Unrestricted: -
-    LDNO LV LV Generation Intermittent: -
-    LDNO LV LV Generation NHH: -
-    LDNO LV LV Generation Non-Intermittent: -
-    LDNO LV LV HH Metered: -
-    LDNO LV LV Medium Non-Domestic: -
-    LDNO LV LV UMS Pseudo HH Metered: -
-    LDNO LV NHH UMS category A: -
-    LDNO LV NHH UMS category B: -
-    LDNO LV NHH UMS category C: -
-    LDNO LV NHH UMS category D: -
-    LDNO LV Small Non Domestic Off Peak related MPAN: -
-    LDNO LV Small Non Domestic Two Rate: -
-    LDNO LV Small Non Domestic Unrestricted: -
+    HV Sub Generation Intermittent: '-'
+    HV Sub Generation Non-Intermittent: '-'
+    HV Sub HH Metered: '-'
+    LDNO HV Domestic Off Peak related MPAN: '-'
+    LDNO HV Domestic Two Rate: '-'
+    LDNO HV Domestic Unrestricted: '-'
+    LDNO HV HV Generation Intermittent: '-'
+    LDNO HV HV Generation Non-Intermittent: '-'
+    LDNO HV HV HH Metered: '-'
+    LDNO HV LV Generation Intermittent: '-'
+    LDNO HV LV Generation NHH: '-'
+    LDNO HV LV Generation Non-Intermittent: '-'
+    LDNO HV LV HH Metered: '-'
+    LDNO HV LV Medium Non-Domestic: '-'
+    LDNO HV LV Sub Generation Intermittent: '-'
+    LDNO HV LV Sub Generation NHH: '-'
+    LDNO HV LV Sub Generation Non-Intermittent: '-'
+    LDNO HV LV Sub HH Metered: '-'
+    LDNO HV LV UMS Pseudo HH Metered: '-'
+    LDNO HV NHH UMS category A: '-'
+    LDNO HV NHH UMS category B: '-'
+    LDNO HV NHH UMS category C: '-'
+    LDNO HV NHH UMS category D: '-'
+    LDNO HV Small Non Domestic Off Peak related MPAN: '-'
+    LDNO HV Small Non Domestic Two Rate: '-'
+    LDNO HV Small Non Domestic Unrestricted: '-'
+    LDNO LV Domestic Off Peak related MPAN: '-'
+    LDNO LV Domestic Two Rate: '-'
+    LDNO LV Domestic Unrestricted: '-'
+    LDNO LV LV Generation Intermittent: '-'
+    LDNO LV LV Generation NHH: '-'
+    LDNO LV LV Generation Non-Intermittent: '-'
+    LDNO LV LV HH Metered: '-'
+    LDNO LV LV Medium Non-Domestic: '-'
+    LDNO LV LV UMS Pseudo HH Metered: '-'
+    LDNO LV NHH UMS category A: '-'
+    LDNO LV NHH UMS category B: '-'
+    LDNO LV NHH UMS category C: '-'
+    LDNO LV NHH UMS category D: '-'
+    LDNO LV Small Non Domestic Off Peak related MPAN: '-'
+    LDNO LV Small Non Domestic Two Rate: '-'
+    LDNO LV Small Non Domestic Unrestricted: '-'
     LV Generation Intermittent: '705, 716, 720, 722, 724, 725, 733, 736, 746, 758, 770'
     LV Generation NHH: '772, 773, 775, 800, 801'
     LV Generation Non-Intermittent: '713, 739, 740, 744, 790'
     LV HH Metered: '253, 655'
     LV Medium Non-Domestic: '256, 267, 268, 276, 277, 287, 288'
-    LV Sub Generation Intermittent: -
-    LV Sub Generation NHH: -
-    LV Sub Generation Non-Intermittent: -
-    LV Sub HH Metered: -
+    LV Sub Generation Intermittent: '-'
+    LV Sub Generation NHH: '-'
+    LV Sub Generation Non-Intermittent: '-'
+    LV Sub HH Metered: '-'
     LV Sub Medium Non-Domestic: '264, 284, 285'
-    LV UMS Pseudo HH Metered: -
-    NHH UMS category A: -
-    NHH UMS category B: -
-    NHH UMS category C: -
-    NHH UMS category D: -
+    LV UMS Pseudo HH Metered: '-'
+    NHH UMS category A: '-'
+    NHH UMS category B: '-'
+    NHH UMS category C: '-'
+    NHH UMS category D: '-'
     Small Non Domestic Off Peak related MPAN: 225
     Small Non Domestic Two Rate: '201, 221, 224'
     Small Non Domestic Unrestricted: '202, 222, 223'
     _column: Closed LLFCs
-exceedprop:
-  - _table: Percentage of unauthorised capacity in total kVA
-  - HV HH Metered: 0.033363346
-    LV HH Metered: 0.045681591
-    LV Sub HH Metered: 0.036534522

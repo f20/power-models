@@ -40,12 +40,11 @@ sub bgCreate {
     $module->create( $fileName, @arguments );
     exit 0 if defined $pid;
 
-    # NB: if we do not want to use exit, then do something like:
+    # NB: if you need to avoid exit, then do something like:
     #     $ENV{PATH} = '';
     #     eval { File::Temp::cleanup(); };
     #     exec '/bin/test';
 
-    $pid;
 }
 
 sub create {
@@ -88,6 +87,12 @@ sub create {
     my $wbook = $module->new($handle);
     $wbook->set_tempdir($tmpDir)
       if $tmpDir && $module !~ /xlsx/i;  # work around taint issue with IO::File
+    my @exports = grep { $settings->{$_} && /^Export/ } keys %$settings;
+    my $exporter;
+    eval {
+        require SpreadsheetModel::WorkbookExport;
+        $exporter = SpreadsheetModel::WorkbookExport->new( $fileName, $wbook );
+    } if @exports;
     $wbook->setFormats( $optionArray[0] );
     my @models;
     my ( %allClosures, @wsheetShowOrder, %wsheetActive, %wsheetPassword );
@@ -99,7 +104,7 @@ sub create {
         if ( my $dataset = $optionArray[$i]{dataset} ) {
             $wbook->{noData} = !$optionArray[$i]{illustrative};
             if ( my $yaml = $dataset->{yaml} ) {
-                require YAML;            # for deferred parsing
+                require YAML;    # for deferred parsing
                 my $parsed = YAML::Load($yaml);
                 %$dataset = %$parsed;
             }
@@ -237,86 +242,9 @@ sub create {
             $allClosures{$_}->( $wsheet{$_} );
         }
 
-        my $dumpLoc = $fileName;
-        $dumpLoc =~ s/\.xlsx?$//i;
-        $dumpLoc .= $modelCount;
-
-        if ( $settings->{ExportHtml} ) {
-            require SpreadsheetModel::ExportHtml;
-            mkdir $dumpLoc;
-            chmod 0770, $dumpLoc;
-            SpreadsheetModel::ExportHtml::writeHtml( $options->{logger},
-                "$dumpLoc/" );
-        }
-
-        if ( $settings->{ExportText} ) {
-            require SpreadsheetModel::ExportText;
-            SpreadsheetModel::ExportText::writeText( $options, "$dumpLoc-" );
-        }
-
-        if ( $settings->{ExportRtf} ) {
-            require SpreadsheetModel::ExportRtf;
-            SpreadsheetModel::ExportRtf::write( $options, $dumpLoc );
-        }
-
-        if ( $settings->{ExportGraphviz} ) {
-            require SpreadsheetModel::ExportGraphviz;
-            my $dir = "$dumpLoc-graphs";
-            mkdir $dir;
-            chmod 0770, $dir;
-            SpreadsheetModel::ExportGraphviz::writeGraphs(
-                $options->{logger}{objects},
-                $wbook, "$dir/" );
-        }
-
-        if ( $settings->{ExportYaml} || $settings->{ExportPerl} ) {
-            my @objects = grep { defined $_ } @{ $options->{logger}{objects} };
-            my $objNames = join( "\n",
-                $options->{logger}{realRows}
-                ? @{ $options->{logger}{realRows} }
-                : map { "$_->{name}" } @objects );
-            my @coreObj =
-              map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; }
-              @objects;
-            if ( $settings->{ExportYaml} ) {
-                require YAML;
-                open my $fh, '>', "$dumpLoc.$$";
-                binmode $fh, ':utf8';
-                print {$fh} YAML::Dump(
-                    {
-                        '.' => $objNames,
-                        map { ( ref $_ ? $_->{name} : $_, $_ ); } @coreObj
-                    }
-                );
-                close $fh;
-                rename "$dumpLoc.$$", "$dumpLoc.yaml";
-            }
-            if ( $settings->{ExportPerl} ) {
-                require Data::Dumper;
-                my %counter;
-                local $_ =
-                  Data::Dumper->new( [ $objNames, @coreObj ] )->Indent(1)
-                  ->Names(
-                    [
-                        'tableNames',
-                        map {
-                            my $n =
-                              ref $_
-                              ? $_->{name}
-                              : $_;
-                            $n =~ s/[^a-z0-9]+/_/gi;
-                            $n =~ s/^([0-9]+)[0-9]{2}/$1/s;
-                            "t$n" . ( $counter{$n}++ ? "_$counter{$n}" : '' );
-                        } @coreObj
-                    ]
-                  )->Dump;
-                s/\\x\{([0-9a-f]+)\}/chr (hex ($1))/eg;
-                open my $fh, '>', "$dumpLoc.$$";
-                binmode $fh, ':utf8';
-                print {$fh} $_;
-                close $fh;
-                rename "$dumpLoc.$$", "$dumpLoc.pl";
-            }
+        if ($exporter) {
+            $exporter->setModel( $modelCount, $options );
+            $exporter->$_() foreach @exports;
         }
 
     }
@@ -327,63 +255,6 @@ sub create {
     $wbook->close;
     $closer->() if $closer;
 
-}
-
-sub writeColourCode {
-    my $wbook  = shift;
-    my $wsheet = shift;
-    $wbook->colourCode(@_)->wsWrite( $wbook, $wsheet );
-}
-
-sub colourCode {
-    shift;
-    bless [@_], 'SpreadsheetModel::ColourCodeWriter';
-}
-
-sub SpreadsheetModel::ColourCodeWriter::wsWrite {
-    my ( $colourCode, $wbook, $wsheet ) = @_;
-    my $row = $wsheet->{nextFree} || 0;
-    $row -= $colourCode->[0] ? 5 : 8;
-    $row = 1 if $row < 1;
-    $wsheet->write_string(
-        ++$row, 2,
-        'Colour coding',
-        $wbook->getFormat('thc')
-    );
-    $wsheet->write_string( ++$row, 2, 'Input data',
-        $wbook->getFormat('0.000hard') );
-    $wsheet->write_string(
-        ++$row, 2,
-        'Constant value',
-        $wbook->getFormat('0.000con')
-    ) unless $colourCode->[0];
-    $wsheet->write_string(
-        ++$row, 2,
-        'Formula: calculation',
-        $wbook->getFormat('0.000soft')
-    );
-    $wsheet->write_string(
-        ++$row, 2,
-        $colourCode->[0] ? 'Data from tariff model' : 'Formula: copy',
-        $wbook->getFormat('0.000copy')
-    );
-    $wsheet->write_string(
-        ++$row, 2,
-        'Unused cell in input data table',
-        $wbook->getFormat('unused')
-    ) unless $colourCode->[0];
-    $wsheet->write_string(
-        ++$row, 2,
-        'Unused cell in other table',
-        $wbook->getFormat('unavailable')
-    ) unless $colourCode->[0];
-    $wsheet->write_string(
-        ++$row, 2,
-        'Unlocked cell for notes',
-        $wbook->getFormat('scribbles')
-    ) unless $colourCode->[0];
-    $wsheet->{nextFree} = $row
-      unless $wsheet->{nextFree} && $wsheet->{nextFree} > $row;
 }
 
 1;

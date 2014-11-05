@@ -31,8 +31,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use SpreadsheetModel::Shortcuts ':all';
 require Spreadsheet::WriteExcel::Utility;
-use SpreadsheetModel::Shortcuts 'Notes';
+require SpreadsheetModel::ColourCodeWriter;
 
 sub sheetPriority {
     my ( $model, $sheet ) = @_;
@@ -654,6 +655,42 @@ EOL
 
     push @wsheetsAndClosures,
 
+      '⇒11' => sub {
+        my ($wsheet) = @_;
+        $wsheet->set_landscape;
+        unless ( $model->{arp} ) {
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->set_column( 0, 0,   48 );
+            $wsheet->set_column( 1, 250, 16 );
+        }
+        my $col = shift @{ $model->{edcmTables} };
+        push @{ $model->{edcmTables} }, Columnset(
+            name    => 'General inputs',
+            number  => 1113,
+            columns => [
+                map {
+                    $col->[$_]
+                      || Constant( name => 'Placeholder', data => [], );
+                } 1 .. 12
+            ],
+        );
+
+        my $notes = Notes(
+            name  => 'Statistics',
+            lines => ['This sheet is for information only.']
+        );
+
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $notes,
+          sort { $a->{number} <=> $b->{number} } @{ $model->{edcmTables} };
+
+      }
+
+      if $model->{edcmTables};
+
+    push @wsheetsAndClosures,
+
       ( $model->{model100} ? 'Overview' : 'Index' ) => sub {
         my ($wsheet) = @_;
         unless ( $model->{arp} ) {
@@ -663,7 +700,7 @@ EOL
             $wsheet->set_column( 1, 1,   105 );
             $wsheet->set_column( 2, 250, 30 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach $model->topNotes, $wbook->colourCode,
+              foreach $model->topNotes, SpreadsheetModel::ColourCodeWriter->new,
               $wbook->{logger};
         }
         $model->technicalNotes->wsWrite( $wbook, $wsheet );

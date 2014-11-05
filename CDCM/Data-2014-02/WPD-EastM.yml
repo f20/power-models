@@ -796,6 +796,7 @@
     HV Generation Intermittent: ''
     HV Generation Non-Intermittent: ''
     HV HH Metered: 2689000
+    HV HH Metered exceedprop: 0.018911491
     HV Medium Non-Domestic: ''
     HV Sub Generation Intermittent: ''
     HV Sub Generation Non-Intermittent: ''
@@ -843,11 +844,13 @@
     LV Generation NHH: ''
     LV Generation Non-Intermittent: ''
     LV HH Metered: 1557000
+    LV HH Metered exceedprop: 0.015175337
     LV Medium Non-Domestic: ''
     LV Sub Generation Intermittent: ''
     LV Sub Generation NHH: ''
     LV Sub Generation Non-Intermittent: ''
     LV Sub HH Metered: 29000
+    LV Sub HH Metered exceedprop: 0.002379310
     LV Sub Medium Non-Domestic: ''
     LV UMS Pseudo HH Metered: ''
     NHH UMS category A: ''
@@ -1483,8 +1486,3 @@
     Small Non Domestic Two Rate: '16, 28, 31, 49, 52'
     Small Non Domestic Unrestricted: '22, 34, 43'
     _column: Closed LLFCs
-exceedprop:
-  - _table: Percentage of unauthorised capacity in total kVA
-  - HV HH Metered: 0.018911491
-    LV HH Metered: 0.015175337
-    LV Sub HH Metered: 0.002379310

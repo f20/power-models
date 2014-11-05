@@ -59,16 +59,9 @@ sub tableCompilations {
 
         while ( my ( $bid, $co ) = $findCo->fetchrow_array ) {
             next unless $co =~ s/\.xlsx?$//is;
-            my $sort = $co;
-            $sort =~ s/CE-NEDL/NPG-Northeast/;
-            $sort =~ s/CE-YEDL/NPG-Yorkshire/;
-            $sort =~ s/^NP-/NPG-/;
-            $sort =~ s/CN-East/WPD-EastM/;
-            $sort =~ s/CN-West/WPD-WestM/;
-            $sort =~ s/EDFEN/UKPN/;
-            $sort =~ s/WPD-Wales/WPD-SWales/;
-            $sort =~ s/WPD-West\b/WPD-SWest/;
-            push @models, [ $bid, $co, $sort ];
+            require Ancillary::DnoAreas;
+            push @models,
+              [ $bid, $co, Ancillary::DnoAreas::normaliseDnoName($co) ];
             ++$numCo;
         }
         $addCo->execute( @{$_}[ 0, 1 ] )

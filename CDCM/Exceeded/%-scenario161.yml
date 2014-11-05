@@ -3,11 +3,15 @@
 PerlModule: CDCM
 coincidenceAdj: groupums
 dataOverride:
-  exceedprop:
+  1053:
     - ~
-    - HV HH Metered: 0.01
-      LV HH Metered: 0.01
-      LV Sub HH Metered: 0.01
+    - ~
+    - ~
+    - ~
+    - ~
+    - HV HH Metered exceedprop: 0.01
+      LV HH Metered exceedprop: 0.01
+      LV Sub HH Metered exceedprop: 0.01
 drm: top500gsp
 extraLevels: 1
 matrices: big

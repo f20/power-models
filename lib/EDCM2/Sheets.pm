@@ -37,8 +37,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-require Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
+require Spreadsheet::WriteExcel::Utility;
+require SpreadsheetModel::ColourCodeWriter;
 
 sub worksheetsAndClosures {
 
@@ -153,7 +154,7 @@ sub worksheetsAndClosures {
             $wsheet->set_column( $locationColumn,     $locationColumn,     50 );
             $wsheet->set_column( $locationColumn + 1, 250,                 20 );
             $_->wsWrite( $wbook, $wsheet ) foreach $model->{table935};
-          }
+        }
 
         ,
 
@@ -202,7 +203,7 @@ sub worksheetsAndClosures {
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'Calculations part 1' ),
                   @{ $model->{calc1Tables} };
-              }
+            }
 
             ,
 
@@ -216,7 +217,7 @@ sub worksheetsAndClosures {
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'Calculations part 2' ),
                   @{ $model->{calc2Tables} };
-              }
+            }
 
             ,
 
@@ -230,7 +231,7 @@ sub worksheetsAndClosures {
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'Calculations part 3' ),
                   @{ $model->{calc3Tables} };
-              }
+            }
 
             ,
 
@@ -244,7 +245,7 @@ sub worksheetsAndClosures {
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'Calculations part 4' ),
                   @{ $model->{calc4Tables} };
-              }
+            }
 
           )
 
@@ -259,7 +260,7 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 2, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( lines => 'Results' ), @{ $model->{tariffTables} };
-          }
+        }
 
         ,
 
@@ -448,7 +449,7 @@ sub worksheetsAndClosures {
             my $noLinks = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
             splice @{ $model->{tablesTemplateImport} }, 1, 0,
-              $wbook->colourCode(1);
+              SpreadsheetModel::ColourCodeWriter->new(1);
             $_->wsWrite( $wbook, $wsheet )
               foreach @{ $model->{tablesTemplateImport} };
             delete $wbook->{noLinks};
@@ -464,7 +465,7 @@ sub worksheetsAndClosures {
             my $noLinks = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
             splice @{ $model->{tablesTemplateExport} }, 1, 0,
-              $wbook->colourCode(1);
+              SpreadsheetModel::ColourCodeWriter->new(1);
             $_->wsWrite( $wbook, $wsheet )
               foreach @{ $model->{tablesTemplateExport} };
             delete $wbook->{noLinks};
@@ -493,7 +494,7 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 1, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach grep { $_; } @{ $model->{ldnoRevTables} };
-          }
+        }
 
       )
 
@@ -527,7 +528,8 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 2, 250, 30 );
         $wbook->{logger}{showColumns} = 1 if $model->{newOrder};
         $_->wsWrite( $wbook, $wsheet )
-          foreach $model->topNotes, $model->licenceNotes, $wbook->colourCode,
+          foreach $model->topNotes, $model->licenceNotes,
+          SpreadsheetModel::ColourCodeWriter->new,
           $wbook->{logger}, $model->technicalNotes;
       };
 

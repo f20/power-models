@@ -156,7 +156,7 @@ sub networkUse {
 
         $simultaneousMaximumLoadCapacity = Arithmetic(
             name => Label(
-                    'Contributions of users on Generation capacity rates '
+                    'Contributions of users on generation capacity rates '
                   . 'to simultaneous maximum load by network level (kW)'
             ),
             arithmetic => '=-1*IV1*IV3*IV5',
@@ -170,13 +170,13 @@ sub networkUse {
         );
 
         $forecastSml = Arithmetic
-          name       => 'Forecast simultaneous maximum load (kW)',
+          name       => 'Forecast system simultaneous maximum load (kW)',
           arithmetic => '=IV1+IV2',
           arguments  => {
             IV1 => $forecastSml,
             IV2 => GroupBy(
                 name => 'Adjustment to simultaneous maximum load'
-                  . ' from users on Generation capacity rates (kW)',
+                  . ' from users on generation capacity rates (kW)',
                 cols   => $drmExitLevels,
                 source => $simultaneousMaximumLoadCapacity
             )
@@ -185,6 +185,16 @@ sub networkUse {
     }
 
     push @{ $model->{forecastSml} }, $forecastSml;
+
+    push @{ $model->{edcmTables} },
+      Stack(
+        name          => 'Assets in CDCM model (£)',
+        defaultFormat => '0hard',
+        number        => 1122,
+        cols =>
+          Labelset( list => [ @{ $forecastSml->{cols}{list} }[ 0 .. 5 ] ] ),
+        sources => [$forecastSml]
+      ) if $model->{edcmTables};
 
     $forecastSml, $simultaneousMaximumLoadUnits,
       $simultaneousMaximumLoadCapacity;

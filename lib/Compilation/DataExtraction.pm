@@ -112,17 +112,15 @@ sub _extractInputData {
                             $tableNumber = $1;
                             undef $columnHeadingsRow;
                             $to1 = $tree->{$tableNumber};
-                            $byWorksheet{" $worksheet->{Name}"}{$tableNumber} =
-                              $to2 = [
+                            $to2 = [
                                 ref $to1->[0] ne 'HASH'
                                   and ref $to1->[0] eq 'ARRAY'
                                   || $options->{preferArrays}
                                   && $tableNumber !~ /00$/ ? [$v]
                                 : $options->{minimum} ? {}
                                 :                       { '_table' => $v }
-                              ];
-                            $tree->{$tableNumber} = $to1 = $to2
-                              unless $to1->[0];
+                            ];
+                            $to1 = $to2 unless $to1->[0];
                             $dirtyOverall ||= $dirty{$tableNumber};
                             $dirty{$tableNumber} = 1;
                         }
@@ -155,27 +153,34 @@ sub _extractInputData {
                         }
                     }
                 }
-                elsif ( !$rowName ) {
-                    $columnHeadingsRow = $row;
-                    if ( ref $to1->[0] eq 'ARRAY' ) {
-                        $to1->[$col] ||= [$v];
-                        $to2->[$col] ||= [$v];
+                elsif ($tableNumber) {
+                    if ( !$rowName ) {
+                        $columnHeadingsRow = $row;
+                        if ( ref $to1->[0] eq 'ARRAY' ) {
+                            $to1->[$col] ||= [$v];
+                            $to2->[$col] ||= [$v];
+                        }
+                        else {
+                            $to1->[$col]{'_column'} = $to2->[$col]{'_column'} =
+                              $v
+                              unless $options->{minimum};
+                        }
                     }
-                    else {
-                        $to1->[$col]{'_column'} = $to2->[$col]{'_column'} = $v
-                          unless $options->{minimum};
-                    }
-                }
-                elsif (ref $cell->{Format}
-                    && !$cell->{Format}{Lock}
-                    && ( $v || $to1->[$col] ) )
-                {
-                    if ( ref $to1->[$col] eq 'ARRAY' ) {
-                        $to1->[$col][ $row - $columnHeadingsRow ] =
-                          $to2->[$col][ $row - $columnHeadingsRow ] = $v;
-                    }
-                    else {
-                        $to1->[$col]{$rowName} = $to2->[$col]{$rowName} = $v;
+                    elsif (ref $cell->{Format}
+                        && !$cell->{Format}{Lock}
+                        && ( $v || $to1->[$col] ) )
+                    {
+                        if ( ref $to1->[$col] eq 'ARRAY' ) {
+                            $to1->[$col][ $row - $columnHeadingsRow ] =
+                              $to2->[$col][ $row - $columnHeadingsRow ] = $v;
+                        }
+                        else {
+                            $to1->[$col]{$rowName} = $to2->[$col]{$rowName} =
+                              $v;
+                        }
+                        $tree->{$tableNumber} ||= $to1;
+                        $byWorksheet{" $worksheet->{Name}"}{$tableNumber} ||=
+                          $to2;
                     }
                 }
             }
@@ -328,15 +333,6 @@ sub databaseWriter {
 
     };
 
-}
-
-package NOOP_CLASS;
-our $AUTOLOAD;
-
-sub AUTOLOAD {
-    no strict 'refs';
-    *{$AUTOLOAD} = sub { };
-    return;
 }
 
 1;

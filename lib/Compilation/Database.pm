@@ -98,17 +98,8 @@ sub addModel {
     local $_ = $filename;
     s#.*[/\\]##s;
     s/\.xlsx?$//is;
-
-    s/^CE-NEDL/NPG-Northeast/;
-    s/^CE-YEDL/NPG-Yorkshire/;
-    s/^CN-East/WPD-EastM/;
-    s/^CN-West/WPD-WestM/;
-    s/^EDFEN/UKPN/;
-    s/^NP-/NPG-/;
-    s/^SP-/SPEN-/;
-    s/^SSE-/SSEPD-/;
-    s/^WPD-Wales/WPD-SWales/;
-    s/^WPD-West\b/WPD-SWest/;
+    require Ancillary::DnoAreas;
+    Ancillary::DnoAreas::normaliseDnoName($_);
 
     my @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})([+-].*)$/s;
     @a = /^(.+?)(-20[0-9]{2}-[0-9]{2})?(-[^-]*)?$/s unless @a;

@@ -149,6 +149,17 @@ EOL
         cols => $customerTypesForLosses
     );
 
+    push @{ $model->{edcmTables} },
+      Stack(
+        name          => 'Diversity allowance between level exit and GSP Group',
+        defaultFormat => '0.000hard',
+        number        => 1135,
+        cols          => Labelset(
+            list => [ @{ $lineLossFactorsData->{cols}{list} }[ 0 .. 5 ] ]
+        ),
+        sources => [$lineLossFactorsData]
+      ) if $model->{edcmTables};
+
     0 and $lineLossFactorsData = Stack(
         cols    => $customerTypesForLosses,
         rows    => 0,
