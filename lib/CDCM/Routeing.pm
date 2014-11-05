@@ -373,11 +373,11 @@ EOL
 
     push @{ $model->{edcmTables} },
       Stack(
-        name          => 'Diversity allowance between level exit and GSP Group',
+        name          => 'Loss adjustment factor to transmission',
         defaultFormat => '0.000hard',
         number        => 1135,
         cols          => Labelset(
-            list => [ @{ $lineLossFactorsNetwork->{cols}{list} }[ 0 .. 4 ] ]
+            list => [ @{ $lineLossFactorsNetwork->{cols}{list} }[ 0 .. 5 ] ]
         ),
         sources => [$lineLossFactorsNetwork]
       ) if $model->{edcmTables};

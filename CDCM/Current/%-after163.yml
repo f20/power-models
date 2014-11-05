@@ -1,5 +1,5 @@
 ---
-.: Cleaned-up model implementing DCP 163 (with stats)
+.: CDCM model after DCP 163 (clean with stats)
 PerlModule: CDCM
 checksums: Tariff checksum 5; Model checksum 7
 coincidenceAdj: groupums
