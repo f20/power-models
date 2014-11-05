@@ -149,17 +149,6 @@ EOL
         cols => $customerTypesForLosses
     );
 
-    push @{ $model->{edcmTables} },
-      Stack(
-        name          => 'Diversity allowance between level exit and GSP Group',
-        defaultFormat => '0.000hard',
-        number        => 1135,
-        cols          => Labelset(
-            list => [ @{ $lineLossFactorsData->{cols}{list} }[ 0 .. 5 ] ]
-        ),
-        sources => [$lineLossFactorsData]
-      ) if $model->{edcmTables};
-
     0 and $lineLossFactorsData = Stack(
         cols    => $customerTypesForLosses,
         rows    => 0,
@@ -381,6 +370,17 @@ EOL
         matrix => $lineLossFactorsData,
         name => 'Loss adjustment factor to transmission for each network level',
     );
+
+    push @{ $model->{edcmTables} },
+      Stack(
+        name          => 'Diversity allowance between level exit and GSP Group',
+        defaultFormat => '0.000hard',
+        number        => 1135,
+        cols          => Labelset(
+            list => [ @{ $lineLossFactorsNetwork->{cols}{list} }[ 0 .. 4 ] ]
+        ),
+        sources => [$lineLossFactorsNetwork]
+      ) if $model->{edcmTables};
 
     my $lineLossFactorsPure = Arithmetic(
         cols       => $coreExitLevels,
