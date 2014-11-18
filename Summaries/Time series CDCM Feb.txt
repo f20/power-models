@@ -1,2 +1,0 @@
--sqlite -pickbest -stats CDCM/*/%-clean100.yml CDCM/*/%-clean132.yml CDCM/*/%-after163.yml CDCM/Data-*-02/*
-tscs 10 37 38 39 40

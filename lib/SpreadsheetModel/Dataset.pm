@@ -437,7 +437,7 @@ sub wsWrite {
         my $xc         = 0;
         foreach (
             $self->{lines} ? @{ $self->{lines} } : (),
-            !$wb->{noLinks} && $self->{sourceLines}
+            !$wb->{noLinks} && $self->{sourceLines} && @{ $self->{sourceLines} }
             ? ( 'Data sources:', @{ $self->{sourceLines} } )
             : (),
             !$wb->{noLinks}
@@ -445,12 +445,11 @@ sub wsWrite {
             : ()
           )
         {
-
-            # $ws->set_row( $row, undef, $f );
-
             if ( ref($_) =~ /^SpreadsheetModel::/ ) {
                 my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                 if ( my $url = $_->wsUrl($wb) ) {
+                    $ws->set_row( $row, undef, undef, 1, 1 )
+                      if $wb->{hideFormulas};
                     $ws->write_url( $row++, $col, $url, $na, $linkFormat );
                     (
                         $_->{location}
@@ -461,16 +460,22 @@ sub wsWrite {
                       if $wb->{findForwardLinks};
                 }
                 else {
+                    $ws->set_row( $row, undef, undef, 1, 1 )
+                      if $wb->{hideFormulas};
                     $ws->write_string( $row++, $col, $na, $textFormat );
                 }
             }
             elsif (/^(https?|mailto:)/) {
+                $ws->set_row( $row, undef, undef, 1, 1 ) if $wb->{hideFormulas};
                 $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
             }
             else {
+                $ws->set_row( $row, undef, undef, 1, 1 ) if $wb->{hideFormulas};
                 $ws->write_string( $row++, $col, "$_", $textFormat );
             }
         }
+        $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
+          if $wb->{hideFormulas};
     }
 
     ++$row if BLANK_LINE;

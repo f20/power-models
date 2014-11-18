@@ -234,7 +234,7 @@ sub create {
 
         $wbook->{$_} = $options->{$_}
           foreach grep { exists $options->{$_} }
-          qw(copy debug forwardLinks logger noLinks rowHeight validation);
+          qw(copy debug forwardLinks hideFormulas logger noLinks rowHeight validation);
 
         foreach ( @{ $options->{wsheetRunOrder} } ) {
             delete $wsheet{$_}{sheetNumber};

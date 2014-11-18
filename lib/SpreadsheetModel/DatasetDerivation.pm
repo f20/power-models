@@ -88,7 +88,7 @@ sub setupDerivativeDataset {
                         $columns[$col]{$row} = $formulaMaker->(
                             "'$s'!"
                               . xl_rowcol_to_cell( $r + $i, $c + $col - 1 ),
-                            $rows[$i], $col, $wb, $ws
+                            $rows[$i], $col, $wb, $ws, $row
                         );
                     }
 

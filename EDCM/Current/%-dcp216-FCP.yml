@@ -1,0 +1,20 @@
+---
+.: EDCM beta FCP with DCP 216
+PerlModule: EDCM2
+dcp130: 1
+dcp179: 1
+dcp185: 2
+hideFormulas: 1
+ldnoRev: ldnorev5
+lowerIntermittentCredit: 1
+method: FCP
+newOrder: 2
+noNegative: 1
+numLocationsDefault: 1200
+numTariffsDefault: 600
+protect: 1
+summaries: 1
+transparency: outputonly
+validation: lenientnomsg
+voltageRulesTransparency: 1
+wantTables: 911

@@ -1,7 +1,7 @@
 makeModels
-	-template=%%-ARP
+	-template=%%
 	-pickbest
-	CDCM/Previous/*micro*
+	-edcm
 	CDCM/Current/*micro*
 	CDCM/Data-2013-02/*
 	CDCM/Data-2014-02/*
@@ -9,3 +9,7 @@ makeModels
 	CDCM/Data-2016-02/*
 	CDCM/Data-2017-02/*
 	CDCM/Data-2018-02/*
+	CDCM/Data-2019-02/*
+	CDCM/Data-2020-02/*
+	CDCM/Data-2021-02/*
+	CDCM/Data-2022-02/*

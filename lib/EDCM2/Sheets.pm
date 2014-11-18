@@ -174,20 +174,24 @@ sub worksheetsAndClosures {
 
         ,
 
-        $model->{newOrder}
+        $model->{newOrdering}
         ? (
-            Calc => sub {
-                my ($wsheet) = @_;
-                $wsheet->{sheetNumber} = 40;
-                $wsheet->{lastTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Calculations' ),
-                  @{ $model->{newOrder} };
-            },
+              $model->{newOrder} == 2
+            ? $model->makeCalcSheets($wbook)
+            : (
+                Calc => sub {
+                    my ($wsheet) = @_;
+                    $wsheet->{sheetNumber} = 40;
+                    $wsheet->{lastTableNumber} =
+                      $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                    $wsheet->{tableNumberIncrement} = 2;
+                    $wsheet->freeze_panes( 1, 1 );
+                    $wsheet->set_column( 0, 250, 20 );
+                    $_->wsWrite( $wbook, $wsheet )
+                      foreach Notes( lines => 'Calculations' ),
+                      @{ $model->{newOrdering} };
+                },
+            )
           )
 
         :

@@ -113,14 +113,22 @@ sub _extractInputData {
                             undef $columnHeadingsRow;
                             $to1 = $tree->{$tableNumber};
                             $to2 = [
-                                ref $to1->[0] ne 'HASH'
-                                  and ref $to1->[0] eq 'ARRAY'
-                                  || $options->{preferArrays}
-                                  && $tableNumber !~ /00$/ ? [$v]
+                                (
+                                          ref $to1->[0] ne 'HASH'
+                                      and ref $to1->[0] eq 'ARRAY'
+                                      || $options->{preferArrays}
+                                      && $tableNumber !~ /00$/
+                                )                     ? [$v]
                                 : $options->{minimum} ? {}
                                 :                       { '_table' => $v }
                             ];
-                            $to1 = $to2 unless $to1->[0];
+                            $to1 = [
+                                $options->{preferArrays}
+                                  && $tableNumber !~ /00$/ ? [$v]
+                                : $options->{minimum} ? {}
+                                :                       { '_table' => $v }
+                              ]
+                              unless $to1->[0];
                             $dirtyOverall ||= $dirty{$tableNumber};
                             $dirty{$tableNumber} = 1;
                         }
@@ -157,13 +165,12 @@ sub _extractInputData {
                     if ( !$rowName ) {
                         $columnHeadingsRow = $row;
                         if ( ref $to1->[0] eq 'ARRAY' ) {
-                            $to1->[$col] ||= [$v];
-                            $to2->[$col] ||= [$v];
+                            $to1->[$col][0] ||= $v;
+                            $to2->[$col][0] ||= $v;
                         }
-                        else {
-                            $to1->[$col]{'_column'} = $to2->[$col]{'_column'} =
-                              $v
-                              unless $options->{minimum};
+                        elsif ( !$options->{minimum} ) {
+                            $to1->[$col]{'_column'} ||= $v;
+                            $to2->[$col]{'_column'} ||= $v;
                         }
                     }
                     elsif (ref $cell->{Format}
@@ -179,7 +186,7 @@ sub _extractInputData {
                               $v;
                         }
                         $tree->{$tableNumber} ||= $to1;
-                        $byWorksheet{" $worksheet->{Name}"}{$tableNumber} ||=
+                        $byWorksheet{" $worksheet->{Name}"}{$tableNumber} =
                           $to2;
                     }
                 }

@@ -54,7 +54,7 @@ sub chargesFcpLric {
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Import demand charge p/kVA/day',
-        newColumnset  => 1,
+        newBlock      => 1,
         defaultFormat => '0.00softnz',
         rows          => $demandCapacity->{rows},
         arithmetic    => '=100*(' . join(
@@ -87,10 +87,10 @@ sub chargesFcpLric {
         }
       )
       : Constant(
-        rows         => $demandCapacity->{rows},
-        newColumnset => 1,
-        name         => 'Import demand charge before matching p/kVA/day',
-        data         => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
+        rows     => $demandCapacity->{rows},
+        newBlock => 1,
+        name     => 'Import demand charge before matching p/kVA/day',
+        data     => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
     $model->{demandCapacityFcpLric} = my $demandCapacityFcpLric =
@@ -125,7 +125,7 @@ sub chargesFcpLric {
           || $model->{removeDemandCharge1} =~ /keepunitrate/i )
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
-        name          => 'Super red rate p/kWh',
+        name          => 'Super-red rate p/kWh',
         rows          => $demandCapacity->{rows},
         defaultFormat => '0.00softnz',
         arithmetic    => '=100*(' . join(
@@ -161,7 +161,7 @@ sub chargesFcpLric {
       )
       : Constant(
         rows => $demandCapacity->{rows},
-        name => 'Super red rate p/kWh',
+        name => 'Super-red rate p/kWh',
         data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 

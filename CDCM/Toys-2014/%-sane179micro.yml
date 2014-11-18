@@ -1,6 +1,9 @@
 ---
-.: 'Simple scaling, replacement, override 500 MW LV, no method M, DCP 130, DCP 132'
+.: Micro-model for ARP after DCP XXX
 PerlModule: CDCM
+agghhequalisation: 1
+alwaysUseRAG: 1
+arp: 1
 coincidenceAdj: groupums
 dataOverride:
   1010:
@@ -10,19 +13,23 @@ dataOverride:
     - Financial and general assumptions: 0.453
   1020:
     - ~
-    - HV LV: 60000000
-      LV circuits: 200000000
+    - LV circuits: 200000000
 drm: top500gsp
 extraLevels: 1
+fixedCap: 1-4
 illustrative: 1
+impliedLoadFactors: 1
 ldnoSplits: 1
 matrices: big
+nickName: CDCM model (after DCP XXX)
+noLLFCs: 1
+noLinks: 1
 noLossAdj: 1
 noReplacement: 0.453
 portfolio: 1
 scaler: pickallnogen
 standing: sub132
-summary: 1
+summary: arpstatisticsbrief
 targetRevenue: dcp132
-tariffs: commongensubdcp130
-timeOfDay: timeOfDaySpecial
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179

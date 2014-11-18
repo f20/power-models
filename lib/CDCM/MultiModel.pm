@@ -359,11 +359,9 @@ EOL
                 my @table1001Overridable =
                 map {
                         !$_->{table1001}
-                      || $_->{has1001data}
-                      || $_->{targetRevenue} =~ /DCP132longlabels/i ? ()
-                      : ( ref $_->{table1001}{columns}[3] ) =~ /Dataset/
-                      ? [ $_, $_->{table1001}{columns}[3] ]
-                      : ();
+                      || $_->{targetRevenue} =~ /DCP132longlabels/i
+                      ? ()
+                      : [ $_, $_->{table1001}{columns}[3] ];
                 } @{ $me->{scenario} }
               )
             {
@@ -401,7 +399,7 @@ EOL
                 )->wsWrite( $wbook, $wsheet );
             }
 
-            Notes( name => 'Assumptions about cost and volume changes' )
+            Notes( name => 'Assumed rates of change in costs and volumes' )
               ->wsWrite( $wbook, $wsheet );
             my $headerRowForLater = ++$wsheet->{nextFree};
             ++$wsheet->{nextFree};
@@ -595,11 +593,11 @@ sub changeColumnsets {
     }
     map {
         my $cols = $_->{columns};
-        my (@columns12);
+        my ( @cola, @colb );
         foreach (@modelNumbers) {
             my ( $before, $after ) = @{$cols}[@$_];
             next unless $before && $after;
-            push @columns12, Arithmetic(
+            push @cola, Arithmetic(
                 name          => $after->{name},
                 defaultFormat => '0.000softpm',
                 rowFormats    => [
@@ -619,7 +617,7 @@ sub changeColumnsets {
                 arithmetic => '=IV1-IV2',
                 arguments  => { IV1 => $after, IV2 => $before, },
             );
-            push @columns12, Arithmetic(
+            push @colb, Arithmetic(
                 name          => $after->{name},
                 defaultFormat => '%softpm',
                 rowFormats    => [
@@ -636,13 +634,20 @@ sub changeColumnsets {
                 arguments => { IV1 => $after, IV2 => $before, IV3 => $before, },
             );
         }
-        @columns12
-          ? Columnset(
-            name    => "Change: $_->{name}",
-            columns => \@columns12,
-          )
-          : ();
-    } grep { $_ && @{ $_->{columns} } } @{ $me->{statsColumnsets} };
+        (
+            @cola ? Columnset(
+                name    => "Change: $_->{name}",
+                columns => \@cola,
+              )
+            : (),
+            @colb ? Columnset(
+                name    => "Relative change: $_->{name}",
+                columns => \@colb,
+              )
+            : ()
+        );
+      } grep { $_ && @{ $_->{columns} } && $_->{name} !~ m#£/year#; }
+      @{ $me->{statsColumnsets} };
 }
 
 sub addStats {

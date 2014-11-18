@@ -177,7 +177,7 @@ sub generalInputs {
     );
 
     my $hoursInRed = Dataset(
-        name          => 'Annual hours in super red',
+        name          => 'Annual hours in super-red',
         defaultFormat => '0.0hardnz',
         data          => [300],
     );
@@ -582,13 +582,13 @@ EOL
         ),
 
         Dataset(
-            name    => 'Super red kW import divided by kVA capacity',
+            name    => 'Super-red kW import divided by kVA capacity',
             data    => [ map { '' } 1 .. $model->{numTariffs} ],
             rows    => $model->{tariffSet},
             dataset => $model->{dataset}
         ),
         Dataset(
-            name    => 'Super red kVAr import divided by kVA capacity',
+            name    => 'Super-red kVAr import divided by kVA capacity',
             data    => [ map { '' } 1 .. $model->{numTariffs} ],
             rows    => $model->{tariffSet},
             dataset => $model->{dataset}
@@ -615,7 +615,7 @@ EOL
         ),
 
         Dataset(
-            name          => 'Super red units exported (kWh)',
+            name          => 'Super-red units exported (kWh)',
             defaultFormat => '0hard',
             data          => [ map { '' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},

@@ -33,7 +33,7 @@ explore some of the functionality of this code:
 
     perl pmod.pl -xls CDCM/Current/%-after163.yml CDCM/Data-2014-02/WPD-SWest.yml
     perl pmod.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
-    perl pmod.pl EDCM/Current/%-beta-*.yml EDCM/Data-2014-02/UKPN-EPN.yml
+    perl pmod.pl EDCM/Current/%-beta189-*.yml EDCM/Data-2014-02/UKPN-EPN.yml
     perl pmod.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-wfl179.yml CDCM/Current/Blank1001.yml
 
 For information on how to use the Stata tools to test EDCM spreadsheets, see the file
@@ -50,5 +50,5 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 3 November 2014.
+Franck Latrémolière, 18 November 2014.
 

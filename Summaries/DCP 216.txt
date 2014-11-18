@@ -1,0 +1,8 @@
+folder ~$models
+makeModels
+	EDCM/Data-2014-02/ENWL.yml
+	EDCM/Current/%-beta185-*
+	EDCM/Data-2014-02/SSEPD-SHEPD.yml
+	-newrules
+	EDCM/Current/%-dcp216-*
+	-xdata=rules|transparency|1

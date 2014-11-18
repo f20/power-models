@@ -354,7 +354,7 @@ EOY
     if (  !exists $d->{1061}[1]{'Domestic Unrestricted'}
         && exists $d->{1061}[1]{'Domestic Two Rate'} )
     {
-        $model->addModifiedWarning;
+        0 and $model->addModifiedWarning;
         foreach my $t ( 'Domestic', 'Small Non Domestic' ) {
             foreach ( 1, 2, 3 ) {
                 $d->{1061}[$_]{ $t . ' Unrestricted' } =

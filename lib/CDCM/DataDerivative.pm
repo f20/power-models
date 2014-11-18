@@ -39,6 +39,10 @@ sub derivativeDataset {
       SpreadsheetModel::DatasetDerivation::setupDerivativeDataset( $model,
         $sourceModel );
 
+    my $table1001data;
+    $table1001data = delete $model->{dataset}{1001}
+      if $model->{dataset} && $model->{dataset}{1001};
+
     if (
         $model->{sharedData}
         && ( my $getAssumptionCell =
@@ -46,15 +50,15 @@ sub derivativeDataset {
       )
     {
 
-        $model->{has1001data} = 1
-          if $model->{dataset}
-          && ref $model->{dataset}{1001} eq 'ARRAY'
-          && keys %{ $model->{dataset}{1001}[3] };
         $addSourceDatasetAdjuster->(
             1001 => sub {
-                my ( $cell, $row, $col, $wb, $ws ) = @_;
-                return "=$cell"
-                  unless $col == 4;
+                my ( $cell, $row, $col, $wb, $ws, $irow ) = @_;
+                my $copyCell = "=$cell";
+                $copyCell = $cell = $table1001data->[$col]{$irow}
+                  if $table1001data
+                  && $table1001data->[$col]
+                  && defined $table1001data->[$col]{$irow};
+                return $copyCell unless $col == 4;
                 if ( my $override =
                     $model->{sharedData}
                     ->table1001Overrides( $model, $wb, $ws, $row ) )
@@ -65,8 +69,7 @@ sub derivativeDataset {
                     return
                       qq%=IF(ISERROR(0+$override),(1+$ac)*$cell,$override)%;
                 }
-                return "=$cell"
-                  unless $row =~ /RPI Indexation Factor/i;
+                return $copyCell unless $row =~ /RPI Indexation Factor/i;
                 my $ac = $getAssumptionCell->( $wb, $ws, 'RPI' );
                 "=(1+$ac)*$cell";
             }

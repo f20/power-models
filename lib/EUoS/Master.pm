@@ -77,7 +77,7 @@ sub new {
         $supplyTariffs->margin( $customers->totalDemand($usetName) )
           if $model->{energyMargin};
         $customers->{compareppu} = Dataset(
-            number   => 1599,
+            $model->{table1653} ? () : ( number => 1599 ),
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
             name     => 'Comparison p/kWh',

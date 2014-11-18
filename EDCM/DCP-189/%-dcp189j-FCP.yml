@@ -1,5 +1,5 @@
 ---
-.: DCP 189 FCP (split assets, split shortfall)
+.: 'DCP 189 FCP (split assets, split shortfall)'
 PerlModule: EDCM2
 dcp130: 1
 dcp189: proportionsplitShortfall

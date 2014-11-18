@@ -340,6 +340,8 @@ sub wsWrite {
                 elsif ( ref($_) =~ /^SpreadsheetModel::/ ) {
                     my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                     if ( my $url = $_->wsUrl($wb) ) {
+                        $ws->set_row( $row, undef, undef, 1, 1 )
+                          if $wb->{hideFormulas};
                         $ws->write_url( $row++, $col, $url, $na, $linkFormat );
                         (
                             $_->{location}
@@ -351,13 +353,19 @@ sub wsWrite {
                           if $wb->{findForwardLinks};
                     }
                     else {
+                        $ws->set_row( $row, undef, undef, 1, 1 )
+                          if $wb->{hideFormulas};
                         $ws->write_string( $row++, $col, $na, $textFormat );
                     }
                 }
                 elsif (/^(https?|mailto:)/) {
+                    $ws->set_row( $row, undef, undef, 1, 1 )
+                      if $wb->{hideFormulas};
                     $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
                 }
                 else {
+                    $ws->set_row( $row, undef, undef, 1, 1 )
+                      if $wb->{hideFormulas};
                     $ws->write_string( $row++, $col, "$_", $textFormat );
                 }
             }
@@ -381,9 +389,14 @@ sub wsWrite {
                           foreach 1 .. $self->{columns}[$cn]{cols}
                           && $#{ $self->{columns}[$cn]{cols}{list} };
                     }
+                    $ws->set_row( $row, undef, undef, 1, 1 )
+                      if $wb->{hideFormulas};
                     ++$row;
                 }
             }
+
+            $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
+              if $wb->{hideFormulas};
 
         }
 

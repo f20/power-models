@@ -246,7 +246,7 @@ EOL
         ],
     );
 
-    push @{ $model->{multicellConstants} },
+    push @{ $model->{generalTables} },
       Columnset(
         name    => 'Rules applicable to customer categories',
         columns => [ $lossFactorMap, $classificationMap, ],
@@ -349,10 +349,10 @@ EOL
       my $accretion =
       $model->{legacy201}
       ? Arithmetic(
-        name         => 'Notional asset rate (£/kW)',
-        newColumnset => 1,
-        arithmetic   => '=IF(IV1,IV2/IV3/IV4,0)',
-        arguments    => {
+        name       => 'Notional asset rate (£/kW)',
+        newBlock   => 1,
+        arithmetic => '=IF(IV1,IV2/IV3/IV4,0)',
+        arguments  => {
             IV1 => $cdcmUse,
             IV2 => $cdcmAssets,
             IV3 => $cdcmUse,
@@ -360,10 +360,10 @@ EOL
         }
       )
       : Arithmetic(
-        name         => 'Notional asset rate (£/kW)',
-        newColumnset => 1,
-        arithmetic   => '=IV2/IV1/IV4',
-        arguments    => {
+        name       => 'Notional asset rate (£/kW)',
+        newBlock   => 1,
+        arithmetic => '=IV2/IV1/IV4',
+        arguments  => {
             IV1 => $cdcmUse,
             IV2 => $cdcmAssets,
             IV4 => $lossFactors
@@ -412,10 +412,10 @@ EOL
 
     my $useProportionsCooked = sub {
         Arithmetic(
-            name         => 'Network use factors (second set)',
-            newColumnset => 1,
-            arithmetic   => '=MAX(IV3+0,MIN(IV1+0,IV2+0))',
-            arguments    => {
+            name       => 'Network use factors (second set)',
+            newBlock   => 1,
+            arithmetic => '=MAX(IV3+0,MIN(IV1+0,IV2+0))',
+            arguments  => {
                 IV1 => $useProportions,
                 IV2 => $usePropCap,
                 IV3 => $usePropCollar,
@@ -438,7 +438,7 @@ EOL
                 name   => $name1,
                 matrix => SpreadsheetModel::Custom->new(
                     name => $name2,
-                    $diversity ? ( newColumnset => 1 ) : (),
+                    $diversity ? ( newBlock => 1 ) : (),
                     custom => [
                             '=IF(INDEX(IV5:IV6,IV4)'
                           . ( $diversity ? '=1' : '>1' )

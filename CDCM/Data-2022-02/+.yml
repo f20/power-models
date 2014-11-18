@@ -2,7 +2,7 @@
 1000:
   - _table: '1000. Company, charging year, data version'
   - ~
-  - Company charging year data version: 2022/20123
+  - Company charging year data version: 2022/2023
     _column: Year
   - Company charging year data version: Scenario
     _column: Version

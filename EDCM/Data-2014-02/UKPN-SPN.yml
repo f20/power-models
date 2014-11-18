@@ -351,6 +351,8 @@
     _column: Baseline total notional consumption assets (£)
   - Baseline EDCM notional asset aggregates: 78382983.8952762
     _column: Baseline total non sole use notional assets subject to matching (£)
+  - Baseline EDCM notional asset aggregates: 0
+    _column: Baseline total demand sole use assets qualifying for DCP 189 discount (£)
 913:
   - _table: 913. LRIC power flow modelling data
 935:

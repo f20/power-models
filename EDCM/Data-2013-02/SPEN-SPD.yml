@@ -163,6 +163,8 @@
     _column: Baseline total notional consumption assets (£)
   - Baseline EDCM assets and notional assets: 11854467.9319674
     _column: Baseline total non sole use notional assets subject to matching (£)
+  - Baseline EDCM notional asset aggregates: 0
+    _column: Baseline total demand sole use assets qualifying for DCP 189 discount (£)
 1194:
   - _table: 1194. Baseline EDCM pots
   - Baseline EDCM pots: 2258676.8553319

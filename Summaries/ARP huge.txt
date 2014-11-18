@@ -1,6 +1,0 @@
-makeModels
-	-template=%%-ARP
-	-pickbest
-	CDCM/Previous/*micro*
-	CDCM/Current/*micro*
-	CDCM/Data*/*-EPN*

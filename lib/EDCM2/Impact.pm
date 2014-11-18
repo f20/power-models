@@ -340,7 +340,7 @@ sub impactFinancialSummary {
             defaultFormat => '0copy',
         ),
         Arithmetic(
-            name          => 'Super red charge for demand (£/year)',
+            name          => 'Super-red charge for demand (£/year)',
             defaultFormat => '0softnz',
             arithmetic    => '=0.01*(IV9-IV7)*IV1*IV6*IV8',
             arguments     => {

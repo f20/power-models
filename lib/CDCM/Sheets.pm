@@ -658,12 +658,10 @@ EOL
       '⇒11' => sub {
         my ($wsheet) = @_;
         $wsheet->set_landscape;
-        unless ( $model->{arp} ) {
-            $wsheet->freeze_panes( 1, 1 );
-            $wsheet->fit_to_pages( 1, 1 );
-            $wsheet->set_column( 0, 0,   48 );
-            $wsheet->set_column( 1, 250, 16 );
-        }
+        $wsheet->freeze_panes( 1, 1 );
+        $wsheet->fit_to_pages( 1, 1 );
+        $wsheet->set_column( 0, 0,   48 );
+        $wsheet->set_column( 1, 250, 16 );
         my $col = shift @{ $model->{edcmTables} };
         push @{ $model->{edcmTables} }, Columnset(
             name    => 'General inputs',
@@ -709,16 +707,14 @@ EOL
     return @wsheetsAndClosures unless $model->{arp};
 
     for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
-        if (
-            {
-                Tariffs => 1,
-                '⇒11'   => 1,
-                $model->{summary}
-                  && $model->{summary} =~ /arp/i ? () : ( Summary => 1 ),
-            }->{ $wsheetsAndClosures[$i] }
-          )
-        {
-            $wsheetsAndClosures[$i] .= '$';
+        my $suffix = {
+            Tariffs => '$',
+            '⇒11'   => '',
+            $model->{summary}
+              && $model->{summary} =~ /arp/i ? () : ( Summary => '$' ),
+        }->{ $wsheetsAndClosures[$i] };
+        if ( defined $suffix ) {
+            $wsheetsAndClosures[$i] .= $suffix;
         }
         else {
             $wsheetsAndClosures[$i] = "CDCM/$wsheetsAndClosures[$i]";
@@ -734,7 +730,7 @@ EOL
 
 sub modelIdentification {
     my ( $model, $wb, $ws ) = @_;
-    return $model->{identification} if $model->{identification};
+    return $model->{manufacturingId} if $model->{useManufacturingId};
     my ( $w, $r, $c ) = $model->{table1000}->wsWrite( $wb, $ws );
     $model->{identification} =
         q%='%

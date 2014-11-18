@@ -71,6 +71,7 @@ sub requiredModulesForRuleset {
     $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
       $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
+      $ruleset->{newOrder}                     ? qw(EDCM2::NewOrder) : (),
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
 }
 
@@ -406,6 +407,24 @@ EOT
 
     }
 
+    my $exportEligible = Arithmetic(
+        name       => 'Has export charges?',
+        arithmetic => '=OR(IV1<>"VOID",IV2<>"VOID",IV3<>"VOID")',
+        arguments  => {
+            IV1 => $exportCapacityChargeablePre2005,
+            IV2 => $exportCapacityChargeable20052010,
+            IV3 => $exportCapacityChargeablePost2010,
+        }
+    );
+
+    my $importEligible = Arithmetic(
+        name       => 'Has import charges?',
+        arithmetic => '=IV1<>"VOID"',
+        arguments  => {
+            IV1 => $importCapacity,
+        }
+    );
+
     my $importCapacityUnscaled = $importCapacity;
     my $chargeableCapacity     = Arithmetic(
         name          => 'Import capacity not subject to DSM (kVA)',
@@ -417,14 +436,6 @@ EOT
     my $activeCoincidence935   = $activeCoincidence;
     my $reactiveCoincidence935 = $reactiveCoincidence;
 
-    my $importEligible = Arithmetic(
-        name       => 'Has import charges?',
-        arithmetic => '=IV1<>"VOID"',
-        arguments  => {
-            IV1 => $importCapacity,
-        }
-    );
-
     $importCapacity = Arithmetic(
         name          => 'Maximum import capacity adjusted for part-year (kVA)',
         defaultFormat => '0soft',
@@ -434,7 +445,8 @@ EOT
             IV12 => $importCapacity,
             IV2  => $tariffDaysInYearNot,
             IV3  => $daysInYear,
-        }
+        },
+        newBlock => 1,
     );
 
     $chargeableCapacity = Arithmetic(
@@ -457,16 +469,6 @@ EOT
             IV1 => $exportCapacityChargeablePre2005,
             IV4 => $exportCapacityChargeable20052010,
             IV5 => $exportCapacityChargeablePost2010,
-        }
-    );
-
-    my $exportEligible = Arithmetic(
-        name       => 'Has export charges?',
-        arithmetic => '=OR(IV1<>"VOID",IV2<>"VOID",IV3<>"VOID")',
-        arguments  => {
-            IV1 => $exportCapacityChargeablePre2005,
-            IV2 => $exportCapacityChargeable20052010,
-            IV3 => $exportCapacityChargeablePost2010,
         }
     );
 
@@ -499,10 +501,9 @@ EOT
     );
 
     $activeCoincidence = Arithmetic(
-        name         => 'Super red kW divided by kVA adjusted for part-year',
-        newColumnset => 1,
-        arithmetic   => '=IV1*(1-IV2/IV3)/(1-IV4/IV5)',
-        arguments    => {
+        name       => 'Super-red kW divided by kVA adjusted for part-year',
+        arithmetic => '=IV1*(1-IV2/IV3)/(1-IV4/IV5)',
+        arguments  => {
             IV1 => $activeCoincidence,
             IV2 => $tariffHoursInRedNot,
             IV3 => $hoursInRed,
@@ -512,7 +513,7 @@ EOT
     );
 
     $reactiveCoincidence = Arithmetic(
-        name       => 'Super red kVAr divided by kVA adjusted for part-year',
+        name       => 'Super-red kVAr divided by kVA adjusted for part-year',
         arithmetic => '=IV1*(1-IV2/IV3)/(1-IV4/IV5)',
         arguments  => {
             IV1 => $reactiveCoincidence,
@@ -703,7 +704,8 @@ EOT
             IV4 => $cdcmHvLvShared,
             IV5 => $cdcmHvLvService,
             IV6 => $ehvIntensity,
-        }
+        },
+        newBlock => 1,
     );
     $model->{transparency}{olFYI}{1245} = $rateDirect if $model->{transparency};
 
@@ -757,7 +759,6 @@ EOT
     my $edcmDirect = Arithmetic(
         name => 'Direct costs on EDCM demand except'
           . ' through sole use asset charges (£/year)',
-        newColumnset  => 1,
         defaultFormat => '0softnz',
         arithmetic    => '=IV1*(IV20+IV23)',
         arguments     => {
@@ -1251,7 +1252,7 @@ EOT
         push @{ $model->{matricesData}[0] },
           Arithmetic(
             name =>
-              'Notional super red unit rate for transmission exit (p/kWh)',
+              'Notional super-red unit rate for transmission exit (p/kWh)',
             rows       => $tariffs->{rows},
             arithmetic => '=100/IV2*IV41',
             arguments  => {
@@ -1280,7 +1281,6 @@ EOT
     my $importCapacityExceededAdjustment = Arithmetic(
         name =>
           'Adjustment to exceeded import capacity charge for DSM (p/kVA/day)',
-        newColumnset  => 1,
         defaultFormat => '0.00softnz',
         arithmetic =>
 '=IF(IV1=0,0,(1-IV4/IV5)*(IV3+IF(IV23=0,0,(IV2*IV21*(IV22-IV24)/(IV9-IV91)))))',
@@ -1303,7 +1303,7 @@ EOT
 
     push @{ $model->{calc2Tables} },
       my $unitRateFcpLricDSM = Arithmetic(
-        name          => 'Super red unit rate adjusted for DSM (p/kWh)',
+        name          => 'Super-red unit rate adjusted for DSM (p/kWh)',
         arithmetic    => '=IF(IV6=0,1,IV4/IV5)*IV1',
         defaultFormat => '0.000softnz',
         arguments     => {
@@ -1648,7 +1648,7 @@ EOT
       : Stack( sources => [$capacityChargeT] );
 
     $SuperRedRateFcpLric = Arithmetic(
-        name       => 'Super red rate p/kWh',
+        name       => 'Super-red rate p/kWh',
         arithmetic => '=IF(IV3,IF(IV1=0,IV9,'
           . 'MAX(0,MIN(IV4,IV41+(IV5/IV11*(IV7-IV71)/(IV8-IV81))))' . '),0)',
         arguments => {
@@ -1777,106 +1777,12 @@ EOT
         $exportCapacityExceeded,
     );
 
-    if ( $model->{newOrder} ) {
-
-        my ( %calcTables, %dependencies );
-        my $addCalcTable;
-        $addCalcTable = sub {
-            my ( $ob, $destination ) = @_;
-            return
-                 if !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Dataset' )
-              || $ob->{location}
-              || !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Constant' )
-              && !$ob->{sourceLines};
-            $calcTables{ 0 + ( $ob->{rows} || 0 ) }{ 0 + $ob } = $ob;
-            undef $dependencies{ 0 + $destination }{ 0 + $ob }
-              if $destination;
-            $addCalcTable->( $_, $ob ) foreach @{ $ob->{sourceLines} };
-        };
-        $addCalcTable->($_)
-          foreach map { $_->{sourceLines} ? @{ $_->{sourceLines} } : (); }
-          @tariffColumns;
-        my ( %deepDep, $getDeepDep );
-        $getDeepDep = sub {
-            my ($dst) = @_;
-            my $dep = $dependencies{$dst} || {};
-            $deepDep{$dst} ||=
-              { %$dep, map { %{ $getDeepDep->($_) } } keys %$dep };
-        };
-        my ( %singlesRemaining, %tariffsRemaining );
-        while ( my ( $rows, $tset ) = each %calcTables ) {
-            if ( !$rows ) {
-                %singlesRemaining = %$tset;
-            }
-            elsif ( !%tariffsRemaining && values %$tset > 5 ) {
-                %tariffsRemaining = %$tset;
-            }
-        }
-
-        my $dataExtractor = sub {
-            my ($hashref) = @_;
-            return unless %$hashref;
-            my @columns = ();
-            my $ncol    = 0;
-            while (
-                ( local $_ ) =
-                sort { $hashref->{$a}{serial} <=> $hashref->{$b}{serial} }
-                grep {
-                    !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
-                      keys %{ $getDeepDep->($_) };
-                } keys %$hashref
-              )
-            {
-                push @columns, delete $hashref->{$_};
-            }
-            @columns;
-        };
-
-        my @ordered;
-
-        my $columnsetMaker = sub {
-            my ($prefix) = @_;
-            my $counter;
-            sub {
-                my (@columns) = @_;
-                my $cols = [];
-                my @result;
-                foreach ( @columns, { newColumnset => 1 } ) {
-                    if ( $_->{newColumnset} ) {
-                        push
-                          @result,  # "#" has magical powers in a Columnset name
-                          !@$cols ? () : @$cols == 1 ? @$cols : Columnset(
-                            name    => "$prefix data #" . ++$counter,
-                            columns => $cols,
-                          );
-                        $cols = [];
-                    }
-                    push @$cols, $_;
-                }
-                @result;
-            };
-        };
-
-        my @constants =
-          sort { $a->{serial} <=> $b->{serial} }
-          grep { ref $_ eq 'SpreadsheetModel::Constant'; }
-          values %singlesRemaining;
-        delete $singlesRemaining{ 0 + $_ } foreach @constants;
-        $columnsetMaker->('Fixed parameter')
-          ->( grep { !$_->lastCol } @constants );
-
-        my $singleMaker = $columnsetMaker->('Aggregate');
-        my $tariffMaker = $columnsetMaker->('Tariff-specific');
-        while ( %singlesRemaining || %tariffsRemaining ) {
-            push @ordered,
-              $singleMaker->( $dataExtractor->( \%singlesRemaining ) );
-            push @ordered,
-              $tariffMaker->( $dataExtractor->( \%tariffsRemaining ) );
-        }
-
-        $model->{newOrder} = \@ordered;
-
-    }
+    $model->newOrder(
+        { sourceLines => [$exportEligible] },
+        @tariffColumns[ 5, 7, 8 ],
+        { sourceLines => [$importEligible] },
+        @tariffColumns[ 6, 2, 1, 3, 4 ]
+    ) if $model->{newOrder};
 
     push @{ $model->{tariffTables} }, Columnset(
         name    => 'EDCM charge',
@@ -1916,7 +1822,7 @@ EOT
         ),
 
         Arithmetic(
-            name          => 'Super red charge for demand (£/year)',
+            name          => 'Super-red charge for demand (£/year)',
             defaultFormat => '0softnz',
             arithmetic    => '=0.01*(IV9-IV7)*IV1*IV6*(IV91/(IV92-IV71))*IV8',
             arguments     => {
@@ -1969,7 +1875,7 @@ EOT
         ),
 
         Arithmetic(
-            name          => 'Super red credit (£/year)',
+            name          => 'Super-red credit (£/year)',
             defaultFormat => '0softnz',
             arithmetic    => '=0.01*IV1*IV6',
             arguments     => {
@@ -2053,7 +1959,7 @@ EOT
             1 ? ()
             : (
                 Arithmetic(
-                    name          => 'Super red units (kWh)',
+                    name          => 'Super-red units (kWh)',
                     defaultFormat => '0softnz',
                     arithmetic    => '=IV1*(IV3-IV7)*IV5',
                     arguments     => {

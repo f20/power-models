@@ -460,15 +460,17 @@ EOS
                 };
             }
             else {
-                my $convert =
-                  $settings =~ /xlsx/i
-                  ? ''
-                  : ' file format Excel98to2004 file format';
+                my $convert          = ' file format Excel98to2004 file format';
+                my $convertExtension = '.xls';
+                if ( $settings =~ /xlsx/i ) {
+                    $convert          = '';
+                    $convertExtension = '.xlsx';
+                }
                 $calculator_prefork = sub {
                     my ($inname) = @_;
                     my $inpath   = rel2abs($inname);
                     my $outpath  = $inpath;
-                    $outpath =~ s/\.xls.?$/\.xls/i;
+                    $outpath =~ s/\.xls.?$/$convertExtension/i;
                     my $outname = abs2rel($outpath);
                     s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
                     rename $inname, $inpath;

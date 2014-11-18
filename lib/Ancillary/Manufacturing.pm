@@ -30,8 +30,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use YAML;
 require Storable;
-require YAML;
 require Ancillary::Validation;
 
 sub factory {
@@ -128,6 +128,7 @@ sub factory {
             $dataOverrides{hash} =
               substr( $digestMachine->add($key)->hexdigest, 5, 8 );
         };
+        warn "Data overrides hashing error: $@" if $@;
         $key;
 
     };
@@ -169,7 +170,7 @@ sub factory {
         elsif ( $blob =~ /^---/s ) {
             @objects = length($blob) < 32_768
               || defined $fileName
-              && $fileName =~ /%/ ? YAML::Load($blob) : { yaml => $blob };
+              && $fileName =~ /%/ ? Load($blob) : { yaml => $blob };
         }
         else {
             eval { @objects = _jsonMachine()->decode($blob); };
@@ -304,7 +305,7 @@ sub factory {
         foreach (@rulesets) {
             $_->{'~codeValidation'} = $sourceCodeDigest;
             delete $_->{'.'};
-            $_->{revisionText} = $db->revisionText( YAML::Dump($_) ) if $db;
+            $_->{revisionText} = $db->revisionText( Dump($_) ) if $db;
         }
 
     };
@@ -363,7 +364,7 @@ sub factory {
                 else {
                     $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?([+-]r[0-9]+)?$//is;
                     $data->{numTariffs} = 2;
-                    my $blob     = YAML::Dump($data);
+                    my $blob     = Dump($data);
                     my $fileName = "$book.yml";
                     warn "Writing $book data\n";
                     open my $h, '>', $fileName . $$;
@@ -506,7 +507,7 @@ sub _mergeRulesData {
     return [ map { _mergeRulesData(@$_); } @{ $_[1] } ]
       if !$_[0] && ref $_[1] eq 'ARRAY';
     my %options = map { %$_ } @_;
-    $options{identification} ||= join ' ', map {
+    $options{manufacturingId} ||= join ' ', map {
         if ( local $_ = $_ ) {
             tr/-/ /;
             s/ (20[0-9][0-9] [0-9][0-9])/\t$1/;
@@ -519,7 +520,7 @@ sub _mergeRulesData {
     my %opt = %options;
     delete $opt{$_} foreach qw(dataset datasetOverride);
     $opt{password} = '***' if $opt{password};
-    $options{yaml} = YAML::Dump( \%opt );
+    $options{yaml} = Dump( \%opt );
     \%options;
 }
 
