@@ -147,6 +147,10 @@ sub factory {
                     $table[$i]  = $1;
                     $column[$i] = $2;
                 }
+                else {
+                    $table[$i]  = $dta->{varlist}[$i];
+                    $column[$i] = 0;
+                }
             }
             while ( my @row = $dta->readRow ) {
                 my $book = $row[0];
@@ -507,6 +511,14 @@ sub _mergeRulesData {
     return [ map { _mergeRulesData(@$_); } @{ $_[1] } ]
       if !$_[0] && ref $_[1] eq 'ARRAY';
     my %options = map { %$_ } @_;
+    my @keys =
+      grep { exists $options{$_}; } qw(password dataset datasetOverride);
+    my @removed = map { delete $options{$_}; } @keys;
+    $options{password} = '***' if $keys[0] && $keys[0] eq 'password';
+    $options{yaml} = Dump( \%options );
+    for ( my $i = 0 ; $i < @keys ; ++$i ) {
+        $options{ $keys[$i] } = $removed[$i];
+    }
     $options{manufacturingId} ||= join ' ', map {
         if ( local $_ = $_ ) {
             tr/-/ /;
@@ -517,10 +529,6 @@ sub _mergeRulesData {
             ();
         }
     } @options{qw(~datasetName version)};
-    my %opt = %options;
-    delete $opt{$_} foreach qw(dataset datasetOverride);
-    $opt{password} = '***' if $opt{password};
-    $options{yaml} = Dump( \%opt );
     \%options;
 }
 
