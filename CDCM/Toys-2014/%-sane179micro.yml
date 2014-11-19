@@ -4,7 +4,7 @@ PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
 arp: 1
-coincidenceAdj: groupums
+coincidenceAdj: groupumshhcap
 dataOverride:
   1010:
     - ~
@@ -20,7 +20,6 @@ fixedCap: 1-4
 illustrative: 1
 impliedLoadFactors: 1
 ldnoSplits: 1
-matrices: big
 nickName: CDCM model (after DCP XXX)
 noLLFCs: 1
 noLinks: 1

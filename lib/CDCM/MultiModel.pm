@@ -39,9 +39,14 @@ sub new {
         scenario         => [],
         statsAssumptions => [],
         statsSections    => [ split /\n/, <<EOL ],
-Annual charges for illustrative customers (£/year)
-Distribution costs for illustrative customers (£/MWh)
+Input data (general)
+Input data (15 months notice of network model etc)
+Input data (15 months notice of service models)
+Input data (no notice requirement)
 DNO-wide aggregates
+Average pence per unit
+Illustrative charges (£/MWh)
+Illustrative charges (£/year)
 EOL
       },
       shift;
@@ -258,20 +263,7 @@ EOL
             };
           };
 
-        unshift @pairs, 'Changes$' => sub {
-            my ($wsheet) = @_;
-            $wsheet->set_column( 0, 255, 50 );
-            $wsheet->set_column( 1, 255, 16 );
-            $wsheet->freeze_panes( 0, 1 );
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Changes', );
-            push @{ $me->{finishClosures} }, sub {
-                $wbook->{noLinks} = 1;
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach $me->changeColumnsets( $wbook, $wsheet );
-            };
-        };
-
-        unshift @pairs, 'Statistics$' => sub {
+        push @pairs, 'Inputs$' => sub {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber}     = 12;
             $wsheet->{lastTableNumber} = 1;
@@ -279,12 +271,64 @@ EOL
             $wsheet->set_column( 1, 255, 16 );
             $wsheet->freeze_panes( 0, 1 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Statistical outputs', ),
+              foreach Notes( name => 'Input data', );
+            push @{ $me->{finishClosures} }, sub {
+                $wbook->{noLinks} = 1;
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach $me->statisticsColumnsets( $wbook, $wsheet,
+                    sub { $_[0] =~ /input/i; } );
+            };
+        };
+
+        push @pairs, 'Illustrative$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{sheetNumber}     = 12;
+            $wsheet->{lastTableNumber} = 1;
+            $wsheet->set_column( 0, 255, 50 );
+            $wsheet->set_column( 1, 255, 16 );
+            $wsheet->freeze_panes( 0, 1 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Illustrative charges', ),
               @{ $me->{statsAssumptions} };
             push @{ $me->{finishClosures} }, sub {
                 $wbook->{noLinks} = 1;
                 $_->wsWrite( $wbook, $wsheet )
-                  foreach $me->statisticsColumnsets( $wbook, $wsheet );
+                  foreach $me->statisticsColumnsets( $wbook, $wsheet,
+                    sub { $_[0] =~ /illustrative/i; } );
+            };
+        };
+
+        push @pairs, 'Other$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{sheetNumber}     = 12;
+            $wsheet->{lastTableNumber} = 1;
+            $wsheet->set_column( 0, 255, 50 );
+            $wsheet->set_column( 1, 255, 16 );
+            $wsheet->freeze_panes( 0, 1 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Other statistics', );
+            push @{ $me->{finishClosures} }, sub {
+                $wbook->{noLinks} = 1;
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach $me->statisticsColumnsets( $wbook, $wsheet,
+                    sub { $_[0] !~ /input|illustrative/i; } );
+            };
+        };
+
+        push @pairs, 'Changes$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->set_column( 0, 255, 50 );
+            $wsheet->set_column( 1, 255, 16 );
+            $wsheet->freeze_panes( 0, 1 );
+            $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Changes', );
+            push @{ $me->{finishClosures} }, sub {
+                $wbook->{noLinks} = 1;
+                $_->wsWrite( $wbook, $wsheet ) foreach $me->changeColumnsets(
+                    sub {
+                        $_[0] =~ /input/i
+                          || $_[0] =~ /illustrative/i && $_[0] !~ m¢£/year¢;
+                    }
+                );
             };
         };
 
@@ -497,7 +541,7 @@ sub assumptionsLocator {
 }
 
 sub statisticsColumnsets {
-    my ( $me, $wbook, $wsheet ) = @_;
+    my ( $me, $wbook, $wsheet, $filter ) = @_;
     map {
         my $rows = Labelset( list => $me->{statsRows}[$_] );
         my $statsMaps = $me->{statsMap}[$_];
@@ -566,11 +610,15 @@ sub statisticsColumnsets {
             name    => $me->{statsSections}[$_],
             columns => \@columns,
         );
-    } grep { $me->{statsRows}[$_] } 0 .. $#{ $me->{statsSections} };
+      } grep {
+        $me->{statsRows}[$_]
+          && @{ $me->{statsRows}[$_] }
+          && $filter->( $me->{statsSections}[$_] );
+      } 0 .. $#{ $me->{statsSections} };
 }
 
 sub changeColumnsets {
-    my ($me) = @_;
+    my ( $me, $filter ) = @_;
     my %modelMap =
       map { ( 0 + $me->{models}[$_], $_ ) } 0 .. $#{ $me->{models} };
     my @modelNumbers;
@@ -592,7 +640,7 @@ sub changeColumnsets {
           [ $modelMap{ 0 + $model->{sourceModel} }, $modelMap{ 0 + $model }, ];
     }
     map {
-        my $cols = $_->{columns};
+        my $cols = $me->{statsColumnsets}[$_]{columns};
         my ( @cola, @colb );
         foreach (@modelNumbers) {
             my ( $before, $after ) = @{$cols}[@$_];
@@ -636,107 +684,112 @@ sub changeColumnsets {
         }
         (
             @cola ? Columnset(
-                name    => "Change: $_->{name}",
+                name    => "Change: $me->{statsColumnsets}[$_]{name}",
                 columns => \@cola,
               )
             : (),
             @colb ? Columnset(
-                name    => "Relative change: $_->{name}",
+                name    => "Relative change: $me->{statsColumnsets}[$_]{name}",
                 columns => \@colb,
               )
             : ()
         );
-      } grep { $_ && @{ $_->{columns} } && $_->{name} !~ m#£/year#; }
-      @{ $me->{statsColumnsets} };
+      } grep {
+        $me->{statsColumnsets}[$_] && $filter->( $me->{statsSections}[$_] );
+      } 0 .. $#{ $me->{statsSections} };
+
 }
 
 sub addStats {
-    my $me      = shift;
-    my $section = shift;
-    my $model;
-    if ( ref $section eq 'CDCM' ) {
-        $model   = $section;
-        $section = 'General aggregates';
-    }
-    else {
-        $model = shift;
-    }
+    my ( $me, $section, $model, @tables ) = @_;
     my ($sectionNumber) = grep { $section eq $me->{statsSections}[$_]; }
       0 .. $#{ $me->{statsSections} };
     unless ( defined $sectionNumber ) {
         push @{ $me->{statsSections} }, $section;
         $sectionNumber = $#{ $me->{statsSections} };
     }
-    foreach my $table (@_) {
+    foreach my $table (@tables) {
+        my $lastCol = $table->lastCol;
         if ( my $lastRow = $table->lastRow ) {
-            for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
-                my $groupid;
-                $groupid = $table->{rows}{groupid}[$row]
-                  if $table->{rows}{groupid};
-                my $name      = "$table->{rows}{list}[$row]";
-                my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
-                unless ( defined $rowNumber ) {
-                    if ( defined $groupid ) {
-                        my $group = "$table->{rows}{groups}[$groupid]";
-                        my $groupRowNumber =
-                          $me->{statsRowMap}[$sectionNumber]{$group};
-                        if ( defined $groupRowNumber ) {
-                            for (
-                                my $i = $groupRowNumber + 1 ;
-                                $i <= $#{ $me->{statsRows}[$sectionNumber] } ;
-                                ++$i
-                              )
-                            {
-                                if ( $me->{statsRows}[$sectionNumber][$i] !~
-                                    /^$group \(/ )
-                                {
-                                    $rowNumber = $i;
-                                    last;
-                                }
-                            }
-                        }
-                        if ( defined $rowNumber ) {
-                            splice @{ $me->{statsRows}[$sectionNumber] },
-                              $rowNumber, 0, $name;
-                            foreach my $ma (
-                                values %{ $me->{statsMap}[$sectionNumber] } )
-                            {
-                                for ( my $i = @$ma ; $i > $rowNumber ; --$i ) {
-                                    $ma->[$i] = $ma->[ $i - 1 ];
-                                }
-                            }
-                            map    { ++$_ }
-                              grep { $_ >= $rowNumber }
-                              values %{ $me->{statsRowMap}[$sectionNumber] };
-                            $me->{statsRowMap}[$sectionNumber]{$name} =
-                              $rowNumber;
-                        }
-                    }
+            for ( my $col = 0 ; $col <= $lastCol ; ++$col ) {
+                for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
+                    my $groupid;
+                    $groupid = $table->{rows}{groupid}[$row]
+                      if $table->{rows}{groupid};
+                    my $name = "$table->{rows}{list}[$row]";
+                    $name .= " $table->{cols}{list}[$col]" if $lastCol;
+                    my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
                     unless ( defined $rowNumber ) {
-                        push @{ $me->{statsRows}[$sectionNumber] }, $name;
-                        $rowNumber =
-                          $me->{statsRowMap}[$sectionNumber]{$name} =
-                          $#{ $me->{statsRows}[$sectionNumber] };
+                        if ( defined $groupid ) {
+                            my $group = "$table->{rows}{groups}[$groupid]";
+                            my $groupRowNumber =
+                              $me->{statsRowMap}[$sectionNumber]{$group};
+                            if ( defined $groupRowNumber ) {
+                                for (
+                                    my $i = $groupRowNumber + 1 ;
+                                    $i <=
+                                    $#{ $me->{statsRows}[$sectionNumber] } ;
+                                    ++$i
+                                  )
+                                {
+                                    if ( $me->{statsRows}[$sectionNumber][$i] !~
+                                        /^$group \(/ )
+                                    {
+                                        $rowNumber = $i;
+                                        last;
+                                    }
+                                }
+                            }
+                            if ( defined $rowNumber ) {
+                                splice @{ $me->{statsRows}[$sectionNumber] },
+                                  $rowNumber, 0, $name;
+                                foreach my $ma (
+                                    values %{ $me->{statsMap}[$sectionNumber] }
+                                  )
+                                {
+                                    for ( my $i = @$ma ;
+                                        $i > $rowNumber ; --$i )
+                                    {
+                                        $ma->[$i] = $ma->[ $i - 1 ];
+                                    }
+                                }
+                                map    { ++$_ }
+                                  grep { $_ >= $rowNumber }
+                                  values %{ $me->{statsRowMap}[$sectionNumber]
+                                  };
+                                $me->{statsRowMap}[$sectionNumber]{$name} =
+                                  $rowNumber;
+                            }
+                        }
+                        unless ( defined $rowNumber ) {
+                            push @{ $me->{statsRows}[$sectionNumber] }, $name;
+                            $rowNumber =
+                              $me->{statsRowMap}[$sectionNumber]{$name} =
+                              $#{ $me->{statsRows}[$sectionNumber] };
+                        }
                     }
+                    $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
+                      [ $table, $col, $row ]
+                      unless $table->{rows}{groupid} && !defined $groupid;
                 }
-                $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
-                  [ $table, 0, $row ]
-                  unless $table->{rows}{groupid} && !defined $groupid;
             }
         }
         else {
-            my $name =
-              UNIVERSAL::can( $table->{name}, 'shortName' )
-              ? $table->{name}->shortName
-              : "$table->{name}";
-            my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
-            unless ( defined $rowNumber ) {
-                push @{ $me->{statsRows}[$sectionNumber] }, $name;
-                $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name} =
-                  $#{ $me->{statsRows}[$sectionNumber] };
+            for ( my $col = 0 ; $col <= $lastCol ; ++$col ) {
+                my $name =
+                  UNIVERSAL::can( $table->{name}, 'shortName' )
+                  ? $table->{name}->shortName
+                  : "$table->{name}";
+                $name .= " $table->{cols}{list}[$col]" if $lastCol;
+                my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
+                unless ( defined $rowNumber ) {
+                    push @{ $me->{statsRows}[$sectionNumber] }, $name;
+                    $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name} =
+                      $#{ $me->{statsRows}[$sectionNumber] };
+                }
+                $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
+                  [ $table, $col, 0 ];
             }
-            $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
-              [ $table, 0, 0 ];
         }
     }
 }

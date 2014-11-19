@@ -417,6 +417,10 @@ EOL
 
         push @{ $model->{serviceModels} }, $serviceModelTotal;
 
+        $model->{sharedData}->addStats( 'Input data (Schedule 16 paragraph 33)',
+            $model, $serviceModelTotal )
+          if $model->{sharedData};
+
         if (
             my @list =
             grep {
@@ -490,6 +494,11 @@ EOL
                 },
             );
 
+            $model->{sharedData}
+              ->addStats( 'Input data (Schedule 16 paragraph 35A)',
+                $model, $serviceModelMatrix )
+              if $model->{sharedData};
+
             push @{ $model->{serviceModels} },
               my $serviceModelAssetsPerCustomer = SumProduct(
                 name   => "Asset £/customer from $voltage service models",
@@ -500,6 +509,11 @@ EOL
               );
 
             push @serviceModelAssetArray, $serviceModelAssetsPerCustomer;
+
+            $model->{sharedData}
+              ->addStats( 'Input data (15 months notice of service models)',
+                $model, $serviceModelAssetsPerCustomer )
+              if $model->{sharedData};
 
         }
 
@@ -567,6 +581,11 @@ EOL
                 cols   => $relevantLevel,
                 defaultFormat => '0softnz',
             );
+
+            $model->{sharedData}
+              ->addStats( 'Input data (15 months notice of service models)',
+                $model, $serviceModelAssetsPerAnnualMwh )
+              if $model->{sharedData};
 
             $serviceModelCostPerAnnualMwh = Arithmetic(
                 name => 'Service model asset p/kWh charge for'

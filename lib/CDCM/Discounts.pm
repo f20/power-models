@@ -287,7 +287,8 @@ sub pcdApplyDiscounts {
                   ->{'Fixed charge p/MPAN/day'}
             }
           );
-        $model->{sharedData}->addStats( $model, $totalImpactOfElectionBung )
+        $model->{sharedData}->addStats( 'DNO-wide aggregates',
+            $model, $totalImpactOfElectionBung )
           if $model->{sharedData};
     }
 

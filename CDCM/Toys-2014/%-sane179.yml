@@ -3,7 +3,7 @@
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
-coincidenceAdj: groupums
+coincidenceAdj: groupumshhcap
 dataOverride:
   1010:
     - ~

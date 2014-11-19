@@ -1,7 +1,7 @@
 ---
 .: 'Simple scaling, replacement, override 500 MW LV, no method M, DCP 132'
 PerlModule: CDCM
-coincidenceAdj: groupums
+coincidenceAdj: groupumshhcap
 dataOverride:
   1010:
     - ~

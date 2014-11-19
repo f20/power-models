@@ -533,8 +533,10 @@ sub summaryOfRevenues {
     );
 
     if ( $model->{sharedData} ) {
-        $model->{sharedData}->addStats( $model, $totalUnits, $totalMpans,
-            $totalRevenuesFromTariffs );
+        $model->{sharedData}->addStats( 'DNO-wide aggregates',
+            $model, $totalUnits, $totalMpans, $totalRevenuesFromTariffs );
+        $model->{sharedData}
+          ->addStats( 'Average pence per unit', $model, $averageByUnit );
         if ( $model->{arp} && $model->{arp} =~ /permpan/i ) {
             $model->{sharedData}
               ->addStats( 'Average charge per MPAN', $model, $averageByMpan );

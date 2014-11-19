@@ -1012,7 +1012,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
 
     }
 
-    $model->{sharedData}->addStats( $model, $totalRevenuesFromMatching )
+    $model->{sharedData}
+      ->addStats( 'DNO-wide aggregates', $model, $totalRevenuesFromMatching )
       if $model->{sharedData};
 
     $model;

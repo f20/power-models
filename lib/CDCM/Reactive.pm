@@ -217,6 +217,11 @@ EOT
             data => [ map { 0.3 } @{ $drmExitLevels->{list} } ]
         );
 
+        $model->{sharedData}
+          ->addStats( 'Input data (15 months notice of network model etc)',
+            $model, $averageKvarByKva )
+          if $model->{sharedData};
+
         $paygReactive = Arithmetic(
             name       => 'Pay-as-you-go reactive p/kVArh',
             cols       => $chargingDrmExitLevels,

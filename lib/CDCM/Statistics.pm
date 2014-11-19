@@ -463,11 +463,9 @@ sub makeStatisticsTables {
 
     if ( $model->{sharedData} ) {
         $model->{sharedData}
-          ->addStats( 'Annual charges for illustrative customers (£/year)',
-            $model, $ppy );
+          ->addStats( 'Illustrative charges (£/year)', $model, $ppy );
         $model->{sharedData}
-          ->addStats( 'Distribution costs for illustrative customers (£/MWh)',
-            $model, $ppu );
+          ->addStats( 'Illustrative charges (£/MWh)', $model, $ppu );
     }
 
     push @{ $model->{statisticsTables} },

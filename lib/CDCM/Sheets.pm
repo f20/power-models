@@ -46,12 +46,14 @@ sub sheetPriority {
         ) ? ( $sheet =~ /^(?:Overview|Index)$/is ? 2 : 1 ) : 0
     ) unless $_[0]{arp};
     my $score = {
-        'Index$'       => 80,
-        'Assumptions$' => 70,
-        'Schedule 15$' => 60,
-        'Tariffs$'     => 50,
-        'Statistics$'  => 40,
-        'Changes$'     => 30,
+        'Index$'        => 80,
+        'Assumptions$'  => 70,
+        'Schedule 15$'  => 60,
+        'Inputs$'       => 55,
+        'Tariffs$'      => 50,
+        'Illustrative$' => 40,
+        'Changes$'      => 30,
+        'Other$'        => 25,
     }->{$sheet};
     $score = 10 if !$score && $sheet =~ /\$$/;
     $score;
