@@ -103,7 +103,7 @@ EOL
         : (
             name  => 'Volume forecasts for the charging year',
             lines => [
-            <<'EOL'
+                <<'EOL'
 Source: forecast.
 Please include MPAN counts for tariffs with no fixed charge (e.g. off-peak tariffs), but exclude MPANs on tariffs with a fixed
 charge that are not subject to a fixed charge due to a site grouping arrangement.
@@ -348,7 +348,11 @@ sub loadProfiles {
             number   => 1041,
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
-            columns  => [ $coincidenceFactors, $loadFactors ],
+            columns  => [
+                grep { ref $_ eq 'SpreadsheetModel::Dataset' }
+                  $coincidenceFactors,
+                $loadFactors
+            ],
         );
 
     }

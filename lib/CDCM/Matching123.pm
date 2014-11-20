@@ -518,7 +518,7 @@ sub matchingdcp123 {
 
     }
 
-    {    # reactive
+    if ( $hybridTargets[3] ) {    # reactive
 
         my @columns = grep { /kVArh/ } @$nonExcludedComponents;
 

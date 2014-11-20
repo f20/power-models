@@ -154,7 +154,8 @@ sub factory {
             }
             while ( my @row = $dta->readRow ) {
                 my $book = $row[0];
-                next unless my $line = $table[1] ? 'Single-line CSV' : $row[1];
+                my $line = 'Value';
+                $line = $row[1] if $row[1] && $row[1] =~ /^[0-9]+$/s;
                 $deferredData{$book}{ $table[$_] }[ $column[$_] ]{$line} =
                   $row[$_]
                   foreach grep { $table[$_] } 1 .. $#table;
