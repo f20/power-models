@@ -280,7 +280,7 @@ EOL
             };
         };
 
-        push @pairs, 'Illustrative$' => sub {
+        unshift @pairs, 'Illustrative$' => sub {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber}     = 12;
             $wsheet->{lastTableNumber} = 1;

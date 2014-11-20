@@ -4,6 +4,7 @@ makeModels
 	-edcm
 	CDCM/Previous/*micro*
 	CDCM/Current/*micro*
+	CDCM/Future/*micro*
 	CDCM/Toys-2014/*micro*
 	CDCM/Data-2012-02/*Wales*
 	CDCM/Data-2013-02/*Wales*
