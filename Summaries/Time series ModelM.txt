@@ -1,0 +1,2 @@
+-sqlite -pickbest -stats ModelM/*/%-*.yml ModelM/Data-*/*
+tscs

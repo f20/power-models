@@ -22,7 +22,9 @@ sub score {
     # DCP 118
     $score += 100 if $rule->{dcp118} && !$rule->{edcm} xor $month lt '2013-10';
 
-    warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month, $score;
+    0
+      and warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month,
+      $score;
 
     $score;
 
