@@ -61,6 +61,7 @@ do "$Home/Seg12 Tariff summary.do"
 do "$Home/Seg13 Result output.do"
 do "$Home/Seg14 Checksums.do"
 
-auditresultsrandom
 }
+auditresultsrandom
+
 end

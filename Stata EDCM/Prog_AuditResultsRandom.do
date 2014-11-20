@@ -86,6 +86,8 @@ forvalues j =1/`m' {
 
 *Have a check that number in two lists is the same
 
+    noisily: list company if company[_n-1]!=company
+
     forvalues i = 1/`n' {
 
         local StataVar: word `i' of `StataGrp`CSVTable''

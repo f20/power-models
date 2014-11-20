@@ -114,6 +114,20 @@ clear
 insheet using 935.csv, c n
 replace company= subinstr(company," ","-",.)
 
+*(preliminary) Dealing with case where option dcp189=="proportionsplitShortfall"
+*(1) Renaming variable t935c8 as t935dcp189
+*(2) Renaming variables t935cX as t935c[X-1] where X>=9, because dcp189 inserts additional column
+
+if "$Optiondcp189"=="proportionsplitShortfall" {
+
+	ren t935c8 t935dcp189
+
+	forvalues i = 9/28{
+		local j = `i'-1
+		rename t935c`i' t935c`j' 
+		}
+}
+
 *(a) Transform missing values into 0
 
 HashValueToMissing t935c7 t935c10 t935c11 t935c12 t935c13 t935c14 t935c15 t935c16 t935c17 t935c18 t935c19 t935c20 t935c21 t935c22 t935c23 t935c24 t935c25

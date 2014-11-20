@@ -175,11 +175,11 @@ gen ShareChargeableExportCap=ChargeableExportCap/MaximumExportCap if MaximumExpo
 
 *Dealing with option "lowerIntermittentCredit"
 
-if $OptionlowerIntermittentCredit==0 {
+if "$OptionlowerIntermittentCredit"=="0" {
 gen CreditGenLRICTariff=-100*(t935c21*Cluster_Local_Charge1+Cluster_Remote_Charge1)*(ShareChargeableExportCap)/t1113c3 if MaximumExportCap~=0
 }
 
-if $OptionlowerIntermittentCredit==1 {
+if "$OptionlowerIntermittentCredit"=="1" {
 gen CreditGenLRICTariff=-100*t935c21*(Cluster_Local_Charge1+Cluster_Remote_Charge1)*(ShareChargeableExportCap)/t1113c3 if MaximumExportCap~=0
 }
 

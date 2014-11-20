@@ -106,6 +106,12 @@ gen IndirectOpCostsContributionRate = t1113c7/(RawAggDemSS + TotalSoleUseAsset+E
 *4 - Calculating fixed charge on sole use assets in p/day  and associated revenue
 
 gen DemFixedChargeSolePenceDay=(100/t1113c1)*SoleUseAssetsImport*( NetworkRatesContributionRate+ DirectOpCostsContributionRate)
+
+if "$Optiondcp189"=="proportionsplitShortfall" {
+	rename DemFixedChargeSolePenceDay DemFixedChargeSolePDayNodcp189	
+	gen DemFixedChargeSolePenceDay=(100/t1113c1)*SoleUseAssetsImport*( NetworkRatesContributionRate+ (1-t935dcp189)*DirectOpCostsContributionRate)
+	}
+
 gen GenFixedChargeSolePenceDay=(100/t1113c1)*SoleUseAssetsExportNotExempt*( NetworkRatesContributionRate+ DirectOpCostsContributionRate)
 
 *Calculate annual revenue from fixed charges in �,
@@ -113,6 +119,12 @@ gen GenFixedChargeSolePenceDay=(100/t1113c1)*SoleUseAssetsExportNotExempt*( Netw
 
 gen DemFixedChargePoundAnnual=(t1113c1-t935c22)*DemFixedChargeSolePenceDay/100
 by company, sort: egen DemFixedChargeRecovery=sum(DemFixedChargePoundAnnual)
+
+if "$Optiondcp189"=="proportionsplitShortfall" {
+	gen DemFixedChargePdAnnualNodcp189=(t1113c1-t935c22)*DemFixedChargeSolePDayNodcp189/100
+	by company, sort: egen DemFixedChargeRecoveryNodcp189=sum(DemFixedChargePdAnnualNodcp189)
+	}
+
 
 gen GenFixedChargePoundAnnual=(t1113c1-t935c22)*round(GenFixedChargeSolePenceDay, 0.01)/100
 by company, sort: egen GenFixedChargeRecovery=sum(GenFixedChargePoundAnnual)
@@ -163,6 +175,7 @@ gen DemSoleUseAssetDirectContr = SoleUseImportPartTime* DirectOpCostsContributio
 
 gen DemSoleUseAssetIndirectContr = SoleUseImportPartTime*IndirectOpCostsContributionRate
 
+
 *9. Calculating aggregate EDCM demand revenue target
 
 BlankToZero ImportCapNetRatesContr ImportCapDirectContr ImportCapIndirectContr ImportCapResidualRevContr DemSoleUseAssetNetworkRatesContr DemSoleUseAssetDirectContr DemSoleUseAssetIndirectContr
@@ -170,6 +183,16 @@ BlankToZero ImportCapNetRatesContr ImportCapDirectContr ImportCapIndirectContr I
 gen TempVar=(ImportCapNetRatesContr+ImportCapDirectContr+ImportCapIndirectContr+ImportCapResidualRevContr)+(DemSoleUseAssetNetworkRatesContr+DemSoleUseAssetDirectContr+DemSoleUseAssetIndirectContr)
 
 by company, sort: egen AggDemandRevenueTarget=  sum(TempVar)
+
+*10. Calculating fixed charge reduction assoicated with DCP189 
+
+if "$Optiondcp189"=="proportionsplitShortfall" {
+
+	gen OMR = DemFixedChargeRecoveryNodcp189 - DemFixedChargeRecovery
+	gen FCR = OMR*(EHVAssets + HVandLVAssets)/(RawAggDemSS + EHVAssets + HVandLVAssets)
+	replace AggDemandRevenueTarget=AggDemandRevenueTarget - FCR
+
+	}
 
 drop TempVar
 

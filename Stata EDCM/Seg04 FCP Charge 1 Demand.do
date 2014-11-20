@@ -268,11 +268,11 @@ gen ShareChargeableExportCap=ChargeableExportCap/MaximumExportCap if MaximumExpo
 
 *Dealing with option "lowerIntermittentCredit"
 
-if $OptionlowerIntermittentCredit==0 {
+if "$OptionlowerIntermittentCredit"=="0" {
 gen CreditGenFCPTariff=-100*(t935c21*t911c4+ Parent_Charge1_kVAyear+Grandparent_Charge1_kVAyear)*(ShareChargeableExportCap)/t1113c3 if MaximumExportCap~=0}
 }
 
-if $OptionlowerIntermittentCredit==1 {
+if "$OptionlowerIntermittentCredit"=="1" {
 gen CreditGenFCPTariff=-100*t935c21*(t911c4+ Parent_Charge1_kVAyear+Grandparent_Charge1_kVAyear)*(ShareChargeableExportCap)/t1113c3 if MaximumExportCap~=0
 }
 
