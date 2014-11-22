@@ -44,7 +44,7 @@ sub sheetPriority {
             ? @{ $model->{frontSheets} }
             : qw(Index Overview)
         ) ? ( $sheet =~ /^(?:Overview|Index)$/is ? 2 : 1 ) : 0
-    ) unless $_[0]{arp};
+    ) unless $_[0]{compact};
     my $score = {
         'Index$'        => 80,
         'Assumptions$'  => 70,
@@ -356,7 +356,7 @@ sub worksheetsAndClosures {
 
       'Tariffs' => sub {
         my ($wsheet) = @_;
-        unless ( $model->{arp} ) {
+        unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 1 );
         }
@@ -594,8 +594,9 @@ EOL
 
       'Stats' => sub {
         my ($wsheet) = @_;
+        $wbook->{lastSheetNumber} = 41 if $wbook->{lastSheetNumber} < 41;
         $wsheet->set_landscape;
-        unless ( $model->{arp} ) {
+        unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 1 );
             $wsheet->set_column( 0, 0,   48 );
@@ -693,7 +694,7 @@ EOL
 
       ( $model->{model100} ? 'Overview' : 'Index' ) => sub {
         my ($wsheet) = @_;
-        unless ( $model->{arp} ) {
+        unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->fit_to_pages( 1, 2 );
             $wsheet->set_column( 0, 0,   30 );
@@ -706,14 +707,12 @@ EOL
         $model->technicalNotes->wsWrite( $wbook, $wsheet );
       };
 
-    return @wsheetsAndClosures unless $model->{arp};
+    return @wsheetsAndClosures unless $model->{compact};
 
     for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
         my $suffix = {
             Tariffs => '$',
             '⇒11'   => '',
-            $model->{summary}
-              && $model->{summary} =~ /arp/i ? () : ( Summary => '$' ),
         }->{ $wsheetsAndClosures[$i] };
         if ( defined $suffix ) {
             $wsheetsAndClosures[$i] .= $suffix;
@@ -732,12 +731,16 @@ EOL
 
 sub modelIdentification {
     my ( $model, $wb, $ws ) = @_;
-    return $model->{manufacturingId} if $model->{useManufacturingId};
+    return $model->{identification} if $model->{identification};
     my ( $w, $r, $c ) = $model->{table1000}->wsWrite( $wb, $ws );
-    $model->{identification} =
-        q%='%
-      . $w->get_name . q%'!%
-      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $r, $c + 1 );
+    $model->{identification} = [
+        map {
+                q%'%
+              . $w->get_name . q%'!%
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $r,
+                $c + $_ )
+        } 0 .. 2
+    ];
 }
 
 sub technicalNotes {

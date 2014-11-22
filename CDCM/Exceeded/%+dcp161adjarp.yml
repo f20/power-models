@@ -1,7 +1,7 @@
 ---
-.: DCP 161 orange model for old ARP
+.: DCP 161 micro orange model
 PerlModule: CDCM
-arp: 1
+compact: 1
 coincidenceAdj: groupums
 colour: orange
 drm: top500gsp

@@ -76,11 +76,46 @@ sub makeStatisticsAssumptions {
           )
     } @$colspec[ 3 .. 8 ];
 
+    if ( $model->{sharedData} ) {
+        push @columns,
+          Arithmetic(
+            name          => 'Average kW',
+            defaultFormat => '0soft',
+            arithmetic    => '=(IV1*IV2+IV3*IV4+(168-IV51-IV52)*IV6)/168',
+            arguments     => {
+                IV1  => $columns[0],
+                IV2  => $columns[2],
+                IV3  => $columns[1],
+                IV4  => $columns[3],
+                IV51 => $columns[0],
+                IV52 => $columns[1],
+                IV6  => $columns[4],
+            },
+          );
+        push @columns,
+          Arithmetic(
+            name          => 'Average annual kWh',
+            defaultFormat => '0soft',
+            arithmetic    => '=365.25*24*IV1',
+            arguments     => { IV1 => $columns[6], },
+          );
+        push @columns,
+          Arithmetic(
+            name          => 'Average off-peak kWh',
+            defaultFormat => '0soft',
+            arithmetic    => '=365.25/7*IV1*IV4',
+            arguments     => {
+                IV1  => $columns[1],
+                IV4  => $columns[3],
+            },
+          );
+    }
+
     my $result = Columnset(
         name => 'Consumption assumptions for illustrative customers',
         $model->{sharedData}
         ? (
-            number   => 4001,
+            number   => 4201,
             appendTo => $model->{sharedData}{statsAssumptions},
           )
         : (),
@@ -480,8 +515,8 @@ sub makeStatisticsTables {
 
 __DATA__
 ---
-4001:
-  - _table: 4001. Consumption assumptions for illustrative customers
+4201:
+  - _table: 4201. Consumption assumptions for illustrative customers
   - Domestic electric heat: 740
     Domestic low use: 700
     Domestic standard: 720

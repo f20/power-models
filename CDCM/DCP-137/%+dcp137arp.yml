@@ -1,7 +1,7 @@
 ---
-.: DCP 137 orange model for ARP
+.: DCP 137 mciro orange model
 PerlModule: CDCM
-arp: 1
+compact: 1
 coincidenceAdj: groupums
 colour: orange
 drm: top500gsp

@@ -941,20 +941,19 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
 
     if ( $model->{summary} ) {
 
-        push @{ $model->{optionLines} },
-          'The list of options above is not comprehensive',
-          'This is just padding', 'This is just padding', ' ';
-
-        my $buildOptions = Columnset(
-            name => $model->{model100}
-            ? 'Workbook build options and main parameters'
-            : 'Headline parameters',
-            $model->{model100} ? ( lines => $model->{optionLines} ) : (),
-            columns => $model->{summaryColumns},
-        );
-
-        push @{ $model->{overallSummary} }, $buildOptions
-          unless $model->{summary} =~ /arp/i;
+        if ( $model->{summary} =~ /1/ ) {
+            push @{ $model->{optionLines} },
+              'The list of options above is not comprehensive',
+              'This is just padding', 'This is just padding', ' ';
+            push @{ $model->{overallSummary} },
+              Columnset(
+                name => $model->{model100}
+                ? 'Workbook build options and main parameters'
+                : 'Headline parameters',
+                $model->{model100} ? ( lines => $model->{optionLines} ) : (),
+                columns => $model->{summaryColumns},
+              );
+        }
 
         my $revenuesByTariff;
 

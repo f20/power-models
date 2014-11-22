@@ -265,7 +265,7 @@ EOY
     }
 
     # Things below are mostly for DCP 179 and similar.
-    # Applied in all cases to help ARP manufacturing.
+    # Applied in all cases to help multi-model manufacturing.
 
     if (  !exists $d->{1025}[1]{'LV Network Non-Domestic CT'}
         && exists $d->{1025}[1]{'LV HH Metered'} )

@@ -1,7 +1,7 @@
 ---
-.: DCP 123 weird orange model for ARP
+.: DCP 123 micro orange model
 PerlModule: CDCM
-arp: 1
+compact: 1
 coincidenceAdj: groupums
 colour: orange
 drm: top500gsp

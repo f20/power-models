@@ -520,16 +520,6 @@ sub _mergeRulesData {
     for ( my $i = 0 ; $i < @keys ; ++$i ) {
         $options{ $keys[$i] } = $removed[$i];
     }
-    $options{manufacturingId} ||= join ' ', map {
-        if ( local $_ = $_ ) {
-            tr/-/ /;
-            s/ (20[0-9][0-9] [0-9][0-9])/\t$1/;
-            $_;
-        }
-        else {
-            ();
-        }
-    } @options{qw(~datasetName version)};
     \%options;
 }
 

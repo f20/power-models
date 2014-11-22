@@ -1,9 +1,9 @@
 ---
-.: Micro-model for ARP after DCP XXX
+.: Micro-model after DCP XXX
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
-arp: 1
+compact: 1
 coincidenceAdj: groupumshhcap
 dataOverride:
   1010:
@@ -28,7 +28,7 @@ noReplacement: 0.453
 portfolio: 1
 scaler: pickallnogen
 standing: sub132
-summary: arpstatisticsbrief
+summary: statisticsbrief
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hh
 timeOfDay: timeOfDay179

@@ -575,10 +575,10 @@ EOL
             );
 
             $serviceModelAssetsPerAnnualMwh = SumProduct(
-                name   => "Asset £/(MWh/year) from $voltage service models",
-                matrix => $serviceModelMatrix,
-                vector => $serviceModelTotal,
-                cols   => $relevantLevel,
+                name => "$voltage unmetered service model assets £/(MWh/year)",
+                matrix        => $serviceModelMatrix,
+                vector        => $serviceModelTotal,
+                cols          => $relevantLevel,
                 defaultFormat => '0softnz',
             );
 
@@ -588,8 +588,7 @@ EOL
               if $model->{sharedData};
 
             $serviceModelCostPerAnnualMwh = Arithmetic(
-                name => 'Service model asset p/kWh charge for'
-                  . ' unmetered tariffs',
+                name => '$voltage unmetered service model asset charge (p/kWh)',
                 arithmetic => '=0.1*IV5*IV1*IV3',
                 arguments  => {
                     IV1 => $serviceModelAssetsPerAnnualMwh,

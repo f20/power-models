@@ -537,10 +537,8 @@ sub summaryOfRevenues {
             $model, $totalUnits, $totalMpans, $totalRevenuesFromTariffs );
         $model->{sharedData}
           ->addStats( 'Average pence per unit', $model, $averageByUnit );
-        if ( $model->{arp} && $model->{arp} =~ /permpan/i ) {
-            $model->{sharedData}
-              ->addStats( 'Average charge per MPAN', $model, $averageByMpan );
-        }
+        $model->{sharedData}
+          ->addStats( 'Average charge per MPAN', $model, $averageByMpan );
     }
 
     push @{ $model->{overallSummary} },

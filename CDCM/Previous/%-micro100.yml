@@ -1,7 +1,7 @@
 ---
-.: Micro-model for ARP (original CDCM)
+.: Micro CDCM model (original)
 PerlModule: CDCM
-arp: permpan
+compact: permpan
 drm: top500gsp
 extraLevels: 1
 nickName: CDCM model (original)
@@ -12,5 +12,5 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: arpstatisticsbrief
+summary: statisticsbrief
 tariffs: commongensub
