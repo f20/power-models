@@ -36,6 +36,9 @@ local Vers =  subinstr(subinstr(c(current_date)+ "-" + c(current_time)," ","",.)
 
 mkdir Rand`Vers'
 
+insheet using "$SimulationHome/Companies.csv", c n
+save Rand`Vers'/companies.dta, replace
+
 run "$SimulationHome/Prog_Jumble.do"
 
 local LRICName "Littleneck Lobster Lamprey Ling Limpet "
@@ -129,7 +132,7 @@ if `table'==2 {
     restore
 
     drop root	    
-    cross using "$SimulationHome/companies.dta"
+    cross using Rand`Vers'/companies.dta
     keep if regexm(company,"FCP")==1
 
     }
@@ -161,7 +164,7 @@ if `table'==3 {
     restore
 
     drop root
-    cross using "$SimulationHome/companies.dta"
+    cross using Rand`Vers'/companies.dta
     keep if regexm(company,"LRIC")==1
     }
 
@@ -179,7 +182,7 @@ if `table'==4 {
         ren t`x'c1 t935c8
         sample 1, count by(line)
 
-        cross using "$SimulationHome/companies.dta"
+        cross using Rand`Vers'/companies.dta
 
         if `x'==911 {
                 keep if regexm(company,"FCP")==1
@@ -279,6 +282,7 @@ replace t935c23=cond(uniform()<0.75,0,t1113c3*uniform())
 drop t1113c3
 save Rand`Vers'/935.dta, replace
 
+erase Rand`Vers'/companies.dta
 erase Rand`Vers'/t911root.dta
 erase Rand`Vers'/t913root.dta
 erase Rand`Vers'/Shell935FCP.dta
