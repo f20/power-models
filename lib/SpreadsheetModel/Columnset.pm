@@ -323,9 +323,10 @@ sub wsWrite {
         }
 
         if ( $self->{lines} || !$wb->{noLinks} && @sourceLines ) {
-            my $textFormat = $wb->getFormat('text');
-            my $linkFormat = $wb->getFormat('link');
-            my $xc         = 0;
+            my $hideFormulas = $wb->{hideFormulas} && @sourceLines;
+            my $textFormat   = $wb->getFormat('text');
+            my $linkFormat   = $wb->getFormat('link');
+            my $xc           = 0;
             my @arrayLines;
             foreach (
                 $self->{lines} ? @{ $self->{lines} } : (),
@@ -341,7 +342,7 @@ sub wsWrite {
                     my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                     if ( my $url = $_->wsUrl($wb) ) {
                         $ws->set_row( $row, undef, undef, 1, 1 )
-                          if $wb->{hideFormulas};
+                          if $hideFormulas;
                         $ws->write_url( $row++, $col, $url, $na, $linkFormat );
                         (
                             $_->{location}
@@ -354,18 +355,18 @@ sub wsWrite {
                     }
                     else {
                         $ws->set_row( $row, undef, undef, 1, 1 )
-                          if $wb->{hideFormulas};
+                          if $hideFormulas;
                         $ws->write_string( $row++, $col, $na, $textFormat );
                     }
                 }
                 elsif (/^(https?|mailto:)/) {
                     $ws->set_row( $row, undef, undef, 1, 1 )
-                      if $wb->{hideFormulas};
+                      if $hideFormulas;
                     $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
                 }
                 else {
                     $ws->set_row( $row, undef, undef, 1, 1 )
-                      if $wb->{hideFormulas};
+                      if $hideFormulas;
                     $ws->write_string( $row++, $col, "$_", $textFormat );
                 }
             }
@@ -390,13 +391,13 @@ sub wsWrite {
                           && $#{ $self->{columns}[$cn]{cols}{list} };
                     }
                     $ws->set_row( $row, undef, undef, 1, 1 )
-                      if $wb->{hideFormulas};
+                      if $hideFormulas;
                     ++$row;
                 }
             }
 
             $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
-              if $wb->{hideFormulas};
+              if $hideFormulas;
 
         }
 

@@ -371,7 +371,14 @@ EOL
       );
 
     my $accretion132hvHard = Dataset(
-        name => 'Override notional asset rate for 132kV/HV (£/kW)',
+        name  => 'Override notional asset rate for 132kV/HV (£/kW)',
+        lines => [
+            'This value will only be used if it is not zero.',
+            'If there are no 132kV/HV assets in the 500 MW model,'
+              . ' then a non-zero value must be entered here.',
+            'This value only affects tariffs'
+              . ' if there are 132kV/HV non-sole-use assets in the EDCM model.',
+        ],
         data => ['#VALUE!'],
         cols => Labelset(
             list =>
@@ -490,6 +497,7 @@ EOL
                     cols      => $useProportions->{cols},
                     arguments => {
                         IV1     => $useProportions,
+                        IV5     => $classificationMap,
                         IV5_IV6 => $classificationMap,
                         IV4     => $customerCategory,
                         $diversity ? ( IV3 => $diversity ) : (),
