@@ -372,7 +372,9 @@ sub checksumWriter {
                             $check = 5.5e-8 + 1e-7 * $check;
                             $check =~ s/.*\.(...)(....)5.*/$1 $2/;
                         }
-                        warn "$book\t$tableNumber\t$check\n";
+                        my $fh;
+                        open $fh, '>>', 'Model checksums.csv' or $fh = \*STDOUT;
+                        print $fh qq%"$book",$tableNumber,"$check"\n%;
                     }
                 }
             }

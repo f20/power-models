@@ -124,11 +124,21 @@ sub makeModels {
                 require Carp;
                 $SIG{__DIE__} = \&Carp::confess;
             }
-            elsif (/^-+check/is) {
+            elsif (/^-+(auto)?check/is) {
                 $maker->{setRule}->(
                     activeSheets => 'Result|Tariff',
                     checksums    => 'Tariff checksum 5; Model checksum 7'
                 );
+                if (/^-+autocheck/is) {
+                    require Compilation::DataExtraction;
+                    $maker->{setting}->(
+                        PostProcessing => _makePostProcessor(
+                            $maker->{threads}->(),
+                            Compilation::DataExtraction::checksumWriter(),
+                            'convert'
+                        )
+                    );
+                }
             }
             elsif (/^-+debug/is)   { $maker->{setRule}->( debug        => 1 ); }
             elsif (/^-+edcm/is)    { $maker->{setRule}->( edcmTables   => 1 ); }
@@ -182,13 +192,12 @@ sub makeModels {
             elsif (/^-+(right.*)/is) { $maker->{setRule}->( alignment => $1 ); }
             elsif (/^-+single/is) { $maker->{threads}->(1); }
             elsif (/^-+(sqlite.*)/is) {
-                my $settings = "convert$1";
                 require Compilation::DataExtraction;
                 $maker->{setting}->(
                     PostProcessing => _makePostProcessor(
                         $maker->{threads}->(),
                         Compilation::DataExtraction::databaseWriter(),
-                        $settings
+                        "convert$1"
                     )
                 );
             }
