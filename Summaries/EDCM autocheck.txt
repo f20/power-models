@@ -1,0 +1,1 @@
+-autocheck EDCM/Current/* EDCM/Data-2014-11/*.yml
