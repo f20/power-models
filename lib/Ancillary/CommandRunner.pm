@@ -365,6 +365,11 @@ sub fillDatabase {
             $writer = Compilation::DataExtraction::ymlWriter($1);
             next;
         }
+        if (/^-+modelcheck/i) {
+            require Compilation::DataExtraction;
+            $writer = Compilation::DataExtraction::checksumWriter();
+            next;
+        }
         if (/^-+(json.*)/i) {
             require Compilation::DataExtraction;
             $writer = Compilation::DataExtraction::jsonWriter($1);
