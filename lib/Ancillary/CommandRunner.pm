@@ -365,6 +365,11 @@ sub fillDatabase {
             $writer = Compilation::DataExtraction::ymlWriter($1);
             next;
         }
+        if (/^-+jbz/i) {
+            require Compilation::DataExtraction;
+            $writer = Compilation::DataExtraction::jbzWriter();
+            next;
+        }
         if (/^-+modelcheck/i) {
             require Compilation::DataExtraction;
             $writer = Compilation::DataExtraction::checksumWriter();

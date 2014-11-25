@@ -32,48 +32,6 @@ use strict;
 use utf8;
 use Ancillary::ParallelRunning;
 
-sub checksumWriter {
-    sub {
-        my ( $book, $workbook ) = @_;
-        $book =~ s#.*/##;
-        for my $worksheet ( $workbook->worksheets() ) {
-            my ( $row_min, $row_max ) = $worksheet->row_range();
-            my ( $col_min, $col_max ) = $worksheet->col_range();
-            my $tableNumber;
-          ROW: for my $row ( $row_min .. $row_max ) {
-                my $rowName;
-              COL: for my $col ( $col_min .. $col_max ) {
-                    my $cell = $worksheet->get_cell( $row, $col );
-                    my $v;
-                    $v = $cell->unformatted if $cell;
-                    next unless defined $v;
-                    if ( $col == 0 ) {
-                        if ( !ref $cell->{Format} || $cell->{Format}{Lock} ) {
-                            if ( $v && $v =~ /^([0-9]{2,})\. / ) {
-                                $tableNumber = $1;
-                                next ROW;
-                            }
-                        }
-                        else {
-                            next ROW if $v;
-                            next COL;
-                        }
-                    }
-                    if ( $tableNumber && $v =~ /model checksum/i ) {
-                        my $check =
-                          $worksheet->get_cell( $row + 1, $col )->unformatted;
-                        if ( $v =~ /7/ ) {
-                            $check = 5.5e-8 + 1e-7 * $check;
-                            $check =~ s/.*\.(...)(....)5.*/$1 $2/;
-                        }
-                        warn "$book\t$tableNumber\t$check\n";
-                    }
-                }
-            }
-        }
-    };
-}
-
 sub ymlWriter {
     my ($arg) = @_;
     my $options = {
@@ -378,6 +336,91 @@ sub databaseWriter {
 
     };
 
+}
+
+sub checksumWriter {
+    sub {
+        my ( $book, $workbook ) = @_;
+        $book =~ s#.*/##;
+        for my $worksheet ( $workbook->worksheets() ) {
+            my ( $row_min, $row_max ) = $worksheet->row_range();
+            my ( $col_min, $col_max ) = $worksheet->col_range();
+            my $tableNumber;
+          ROW: for my $row ( $row_min .. $row_max ) {
+                my $rowName;
+              COL: for my $col ( $col_min .. $col_max ) {
+                    my $cell = $worksheet->get_cell( $row, $col );
+                    my $v;
+                    $v = $cell->unformatted if $cell;
+                    next unless defined $v;
+                    if ( $col == 0 ) {
+                        if ( !ref $cell->{Format} || $cell->{Format}{Lock} ) {
+                            if ( $v && $v =~ /^([0-9]{2,})\. / ) {
+                                $tableNumber = $1;
+                                next ROW;
+                            }
+                        }
+                        else {
+                            next ROW if $v;
+                            next COL;
+                        }
+                    }
+                    if ( $tableNumber && $v =~ /model checksum/i ) {
+                        my $check =
+                          $worksheet->get_cell( $row + 1, $col )->unformatted;
+                        if ( $v =~ /7/ ) {
+                            $check = 5.5e-8 + 1e-7 * $check;
+                            $check =~ s/.*\.(...)(....)5.*/$1 $2/;
+                        }
+                        warn "$book\t$tableNumber\t$check\n";
+                    }
+                }
+            }
+        }
+    };
+}
+
+sub _setSha1 {
+    my ( $scalar, $key, $value ) = @_;
+    if ( $key =~ s#^([^/]*)/## ) {
+        $scalar->{$1} = _setSha1( $scalar->{$1}, $key, $value );
+    }
+    else { $scalar->{$key} = $value; }
+    $scalar;
+}
+
+sub jbzWriter {
+    sub {
+        my ( $book, $workbook ) = @_;
+        my %scalars;
+        for my $worksheet ( $workbook->worksheets() ) {
+            my $scalar;
+            my ( $row_min, $row_max ) = $worksheet->row_range();
+            for my $row ( $row_min .. $row_max ) {
+                my $cell = $worksheet->get_cell( $row, 0 );
+                my $v;
+                $v = $cell->unformatted if $cell;
+                $scalar = _setSha1( $scalar, $1, $2 )
+                  if $v && $v =~ /(\S+): ([0-9a-fA-F]{40})/;
+            }
+            $scalars{ $worksheet->{Name} } = $scalar if $scalar;
+        }
+        return unless %scalars;
+        use JSON;
+        $book =~ s/\.xl\S+//i;
+        $book .= '.jbz';
+        $book =~ s/'/'"'"'/g;
+        open my $fh, qq%|bzip2>'$book'% or goto FAIL;
+        binmode $fh or goto FAIL;
+        print {$fh}
+          JSON->new->canonical(1)
+          ->utf8->pretty->encode(
+            keys %scalars > 1 ? \%scalars : values %scalars )
+          or goto FAIL;
+        return;
+      FAIL: warn $!;
+        return;
+    };
 }
 
 1;
