@@ -51,12 +51,11 @@ local TableGrp "4501 4601"
 
 local m: word count `TableGrp'
 
+capture log close
+
 forvalues j =1/`m' {
 
     local CSVTable: word `j' of `TableGrp'
-
-    log using Res`CSVTable', replace
-    log close
 
     *Merging the Stata with the CSV file
 
@@ -86,6 +85,7 @@ forvalues j =1/`m' {
 
 *Have a check that number in two lists is the same
 
+    log using Res`CSVTable', replace
     noisily: list company if company[_n-1]!=company
 
     forvalues i = 1/`n' {
@@ -106,13 +106,14 @@ forvalues j =1/`m' {
         gen Match`ExcelVar'="OK" if (diff`ExcelVar'>0.999999&diff`ExcelVar'<1.000001)
         sort company line
 
-        log using Res`CSVTable', append
         display as error "``StataVar' `ExcelVar'"
         noisily: list comp line `StataVar' `ExcelVar' diff`ExcelVar' if Match`ExcelVar'~="OK"
-        log close
         save ResultsAudit.dta, replace
 
         }
+
+    log close
+
     }
 
 }
