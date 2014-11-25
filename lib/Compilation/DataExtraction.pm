@@ -400,7 +400,9 @@ sub jbzWriter {
                 my $cell = $worksheet->get_cell( $row, 0 );
                 my $v;
                 $v = $cell->unformatted if $cell;
-                $scalar = _setSha1( $scalar, $1, $2 )
+                $scalar =
+                  _setSha1( $scalar, $1 eq 'validation' ? 'dataset.yml' : $1,
+                    $2 )
                   if $v && $v =~ /(\S+): ([0-9a-fA-F]{40})/;
             }
             $scalars{ $worksheet->{Name} } = $scalar if $scalar;
