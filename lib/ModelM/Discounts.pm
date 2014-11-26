@@ -34,7 +34,7 @@ use utf8;
 
 use SpreadsheetModel::Shortcuts ':all';
 
-sub discounts {
+sub discounts { # Not used if DCP 095
 
     my ( $model, $alloc, $allocLevelset, $dcp071, $direct, $hvSplit, $lvSplit, )
       = @_;
@@ -76,88 +76,101 @@ sub discounts {
         columns => [ $lvDirect, $hvDirect ]
       ) unless $model->{fixedIndirectPercentage};
 
+    my @columns = (
+        Arithmetic(
+            name       => 'LDNO LV: LV user',
+            arithmetic => $model->{fixedIndirectPercentage}
+            ? '=IV1*(1-IV2)'
+            : '=IV1*(1-IV2*IV3)',
+            arguments => {
+                IV1 => $lvAllocation,
+                IV2 => $lvSplit,
+                $model->{fixedIndirectPercentage}
+                ? ()
+                : ( IV3 => $lvDirect ),
+            },
+            defaultFormat => '%soft',
+        ),
+        Arithmetic(
+            name       => 'LDNO HV: LV user',
+            arithmetic => $dcp071
+            ? (
+                $model->{fixedIndirectPercentage}
+                ? '=IV1+IV2+IV3*(1-IV4)'
+                : '=IV1+IV2+IV3*(1-IV4*IV5)'
+              )
+            : '=IV1+IV2',
+            arguments => {
+                IV1 => $lvAllocation,
+                IV2 => $hvLvAllocation,
+                $dcp071
+                ? (
+                    IV3 => $hvAllocation,
+                    IV4 => $hvSplit,
+                    $model->{fixedIndirectPercentage}
+                    ? ()
+                    : ( IV5 => $hvDirect ),
+                  )
+                : (),
+            },
+            defaultFormat => '%soft',
+        ),
+        Arithmetic(
+            name       => 'LDNO HV: LV Sub user',
+            arithmetic => $dcp071
+            ? (
+                $model->{fixedIndirectPercentage}
+                ? '=(IV2+IV3*(1-IV4))/(1-IV1)'
+                : '=(IV2+IV3*(1-IV4*IV5))/(1-IV1)'
+              )
+            : '=IV2/(1-IV1)',
+            arguments => {
+                IV1 => $lvAllocation,
+                IV2 => $hvLvAllocation,
+                $dcp071
+                ? (
+                    IV3 => $hvAllocation,
+                    IV4 => $hvSplit,
+                    $model->{fixedIndirectPercentage}
+                    ? ()
+                    : ( IV5 => $hvDirect ),
+                  )
+                : (),
+            },
+            defaultFormat => '%soft',
+        ),
+        Arithmetic(
+            name       => 'LDNO HV: HV user',
+            arithmetic => $model->{fixedIndirectPercentage}
+            ? '=IV1*(1-IV2)/(1-IV4-IV5)'
+            : '=IV1*(1-IV2*IV3)/(1-IV4-IV5)',
+            arguments => {
+                IV1 => $hvAllocation,
+                IV2 => $hvSplit,
+                $model->{fixedIndirectPercentage}
+                ? ()
+                : ( IV3 => $hvDirect ),
+                IV4 => $lvAllocation,
+                IV5 => $hvLvAllocation,
+            },
+            defaultFormat => '%soft',
+        ),
+    );
+
+    push @columns, map {
+        SpreadsheetModel::Checksum->new(
+            name => $_,
+            /recursive|model/i ? ( recursive => 1 ) : (),
+            digits => /([0-9])/ ? $1 : 6,
+            columns => [@columns],
+            factors => [ map { 1000 } @columns ]
+        );
+      } split /;\s*/, $model->{checksums}
+      if $model->{checksums};
+
     my $discount = Columnset(
         name    => 'LDNO discounts',
-        columns => [
-            Arithmetic(
-                name       => 'LDNO LV: LV user',
-                arithmetic => $model->{fixedIndirectPercentage}
-                ? '=IV1*(1-IV2)'
-                : '=IV1*(1-IV2*IV3)',
-                arguments => {
-                    IV1 => $lvAllocation,
-                    IV2 => $lvSplit,
-                    $model->{fixedIndirectPercentage}
-                    ? ()
-                    : ( IV3 => $lvDirect ),
-                },
-                defaultFormat => '%soft',
-            ),
-            Arithmetic(
-                name       => 'LDNO HV: LV user',
-                arithmetic => $dcp071
-                ? (
-                    $model->{fixedIndirectPercentage}
-                    ? '=IV1+IV2+IV3*(1-IV4)'
-                    : '=IV1+IV2+IV3*(1-IV4*IV5)'
-                  )
-                : '=IV1+IV2',
-                arguments => {
-                    IV1 => $lvAllocation,
-                    IV2 => $hvLvAllocation,
-                    $dcp071
-                    ? (
-                        IV3 => $hvAllocation,
-                        IV4 => $hvSplit,
-                        $model->{fixedIndirectPercentage}
-                        ? ()
-                        : ( IV5 => $hvDirect ),
-                      )
-                    : (),
-                },
-                defaultFormat => '%soft',
-            ),
-            Arithmetic(
-                name       => 'LDNO HV: LV Sub user',
-                arithmetic => $dcp071
-                ? (
-                    $model->{fixedIndirectPercentage}
-                    ? '=(IV2+IV3*(1-IV4))/(1-IV1)'
-                    : '=(IV2+IV3*(1-IV4*IV5))/(1-IV1)'
-                  )
-                : '=IV2/(1-IV1)',
-                arguments => {
-                    IV1 => $lvAllocation,
-                    IV2 => $hvLvAllocation,
-                    $dcp071
-                    ? (
-                        IV3 => $hvAllocation,
-                        IV4 => $hvSplit,
-                        $model->{fixedIndirectPercentage}
-                        ? ()
-                        : ( IV5 => $hvDirect ),
-                      )
-                    : (),
-                },
-                defaultFormat => '%soft',
-            ),
-            Arithmetic(
-                name       => 'LDNO HV: HV user',
-                arithmetic => $model->{fixedIndirectPercentage}
-                ? '=IV1*(1-IV2)/(1-IV4-IV5)'
-                : '=IV1*(1-IV2*IV3)/(1-IV4-IV5)',
-                arguments => {
-                    IV1 => $hvAllocation,
-                    IV2 => $hvSplit,
-                    $model->{fixedIndirectPercentage}
-                    ? ()
-                    : ( IV3 => $hvDirect ),
-                    IV4 => $lvAllocation,
-                    IV5 => $hvLvAllocation,
-                },
-                defaultFormat => '%soft',
-            ),
-        ]
+        columns => \@columns,
     );
 
     push @{ $model->{impactTables} }, $discount;

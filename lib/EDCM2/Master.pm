@@ -1795,7 +1795,7 @@ EOT
                     /recursive|model/i ? ( recursive => 1 ) : (),
                     digits => /([0-9])/ ? $1 : 6,
                     columns => [ @tariffColumns[ 1 .. 8 ] ],
-                    factors => [qw(1000 100 100 100 1000 100 100 100 )]
+                    factors => [qw(1000 100 100 100 1000 100 100 100)]
                 );
               } split /;\s*/,
             $model->{checksums}

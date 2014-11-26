@@ -345,7 +345,7 @@ sub checksumWriter {
         for my $worksheet ( $workbook->worksheets() ) {
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
-            my $tableNumber;
+            my $tableNumber = '';
           ROW: for my $row ( $row_min .. $row_max ) {
                 my $rowName;
               COL: for my $col ( $col_min .. $col_max ) {
@@ -365,16 +365,24 @@ sub checksumWriter {
                             next COL;
                         }
                     }
-                    if ( $tableNumber && $v =~ /model checksum/i ) {
-                        my $check =
-                          $worksheet->get_cell( $row + 1, $col )->unformatted;
-                        if ( $v =~ /7/ ) {
+                    if ( $v =~ /model checksum/i ) {
+                        my $check = $worksheet->get_cell( $row + 1, $col );
+                        next unless $check;
+                        $check = $check->unformatted;
+                        next unless $check && $check =~ /^[0-9]+$/;
+                        if ( $v =~ / 7$/ ) {
                             $check = 5.5e-8 + 1e-7 * $check;
                             $check =~ s/.*\.(...)(....)5.*/$1 $2/;
                         }
                         my $fh;
-                        open $fh, '>>', 'Model checksums.csv' or $fh = \*STDOUT;
-                        print $fh qq%"$book",$tableNumber,"$check"\n%;
+                        my $csvFileName = 'Model checksums.csv';
+                        my $newFileFlag = !-e $csvFileName;
+                        unless ( open $fh, '>>', $csvFileName ) {
+                            $fh = \*STDOUT;
+                            undef $newFileFlag;
+                        }
+                        print $fh qq%Workbook,Table,Checksum\n% if $newFileFlag;
+                        print $fh qq%"$book",$tableNumber,$check\n%;
                     }
                 }
             }

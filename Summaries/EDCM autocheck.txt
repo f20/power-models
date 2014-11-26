@@ -1,1 +1,1 @@
--autocheck EDCM/Current/* EDCM/Data-2014-11/*.yml
+-autocheck EDCM/Current/%-*.yml EDCM/Data-2014-11/*.yml

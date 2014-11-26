@@ -256,6 +256,24 @@ EOT
             IV1 => $dnoBypassed,
         },
     );
+
+    $discounts = Columnset(
+        name    => 'Discount factors',
+        columns => [
+            $discounts,
+            map {
+                SpreadsheetModel::Checksum->new(
+                    name => $_,
+                    /recursive|model/i ? ( recursive => 1 ) : (),
+                    digits => /([0-9])/ ? $1 : 6,
+                    columns => [$discounts],
+                    factors => [1000]
+                );
+              } split /;\s*/,
+            $model->{checksums}
+        ],
+    ) if $model->{checksums};
+
     push @{ $model->{impactTables} }, $discounts;
 }
 
