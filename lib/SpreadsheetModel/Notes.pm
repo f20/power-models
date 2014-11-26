@@ -93,9 +93,10 @@ sub wsWrite {
     if ( $self->{name} ) {
         my $n = $self->{name};
         $n = "$wb->{titlePrefix}: $n" if $wb->{titlePrefix};
-        if ( $wb->{titleAppend} ) {
+        if ( local $_ = $wb->{titleAppend} ) {
             use bytes;
-            $n = qq%="$n"&$wb->{titleAppend}%;
+            s/^"/="$n/s or s/^/="$n"&/s;
+            $n = $_;
         }
 
         # 'Not calculated' thing not working with .xlsx
