@@ -87,12 +87,18 @@ sub create {
     my $wbook = $module->new($handle);
     $wbook->set_tempdir($tmpDir)
       if $tmpDir && $module !~ /xlsx/i;  # work around taint issue with IO::File
+
     my @exports = grep { $settings->{$_} && /^Export/ } keys %$settings;
     my $exporter;
-    eval {
-        require SpreadsheetModel::WorkbookExport;
-        $exporter = SpreadsheetModel::WorkbookExport->new( $fileName, $wbook );
-    } if @exports;
+    if (@exports) {
+        eval {
+            require SpreadsheetModel::WorkbookExport;
+            $exporter =
+              SpreadsheetModel::WorkbookExport->new( $fileName, $wbook );
+        };
+        warn "@exports: $@" if $@;
+    }
+
     $wbook->setFormats( $optionArray[0] );
     my @models;
     my ( %allClosures, @wsheetShowOrder, %wsheetActive, %wsheetPassword );

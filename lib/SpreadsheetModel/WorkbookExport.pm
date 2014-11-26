@@ -83,17 +83,21 @@ sub ExportObjects {
         $_[0][WE_MODEL]{logger}{realRows}
         ? @{ $_[0][WE_MODEL]{logger}{realRows} }
         : map { "$_->{name}" } @objects );
-    map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; } @objects;
+    (
+        $objNames,
+        map { UNIVERSAL::can( $_, 'getCore' ) ? $_->getCore : "$_"; } @objects
+    );
 }
 
 sub ExportYaml {
     require YAML;
     open my $fh, '>', $_[0][WE_LOC] . $$;
     binmode $fh, ':utf8';
+    my ( $objNames, @coreObj ) = $_[0]->ExportObjects;
     print {$fh} YAML::Dump(
         {
             '.' => $objNames,
-            map { ( ref $_ ? $_->{name} : $_, $_ ); } $_[0]->ExportObjects
+            map { ( ref $_ ? $_->{name} : $_, $_ ); } @coreObj
         }
     );
     close $fh;
@@ -102,7 +106,7 @@ sub ExportYaml {
 
 sub ExportPerl {
     require Data::Dumper;
-    my @coreObj = $_[0]->ExportObjects;
+    my ( $objNames, @coreObj ) = $_[0]->ExportObjects;
     my %counter;
     local $_ = Data::Dumper->new( [ $objNames, @coreObj ] )->Indent(1)->Names(
         [
