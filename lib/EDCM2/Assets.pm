@@ -371,14 +371,18 @@ EOL
       );
 
     my $accretion132hvHard = Dataset(
-        name  => 'Override notional asset rate for 132kV/HV (£/kW)',
-        lines => [
-            'This value will only be used if it is not zero.',
-            'If there are no 132kV/HV assets in the 500 MW model,'
-              . ' then a non-zero value must be entered here.',
-            'This value only affects tariffs'
-              . ' if there are 132kV/HV non-sole-use assets in the EDCM model.',
-        ],
+        name => 'Override notional asset rate for 132kV/HV (£/kW)',
+        $model->{legacy201}
+        ? ()
+        : (
+            lines => [
+                'This value will only be used if it is not zero.',
+                'If there are no 132kV/HV assets in the 500 MW model,'
+                  . ' then a non-zero value must be entered here.',
+                'This value only affects tariffs'
+                  . ' if there are 132kV/HV non-sole-use assets in the EDCM model.',
+            ]
+        ),
         data => ['#VALUE!'],
         cols => Labelset(
             list =>
@@ -1484,6 +1488,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
         );
 
     }
+
+    $model->{transparency}{olFYI}{1225} = $accretion
+      if $model->{transparency};
 
     my $totalAssetsFixed =
       $model->{transparencyMasterFlag}
