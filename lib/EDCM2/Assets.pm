@@ -376,12 +376,14 @@ EOL
         ? ()
         : (
             lines => [
-                'This value will only be used if it is not zero.',
+                'This value only affects tariffs if there are'
+                  . ' 132kV/HV non-sole-use assets in the EDCM model. '
+                  . 'It will not be used if set to zero or blank.',
                 'If the forecast system simultaneous maximum load (kW)'
                   . ' from CDCM users at the 132kV/HV network level is zero,'
                   . ' then a non-zero non-blank value must be entered here.',
-                'This value only affects tariffs'
-                  . ' if there are 132kV/HV non-sole-use assets in the EDCM model.',
+                'An arbitrary non-zero non-blank value should be entered here'
+                  . ' if there are no 132kV/HV assets in the EDCM or in the 500 MW model.',
             ]
         ),
         data => ['#VALUE!'],
