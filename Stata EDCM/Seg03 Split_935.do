@@ -24,7 +24,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*File: 1 Split_935.do
 *Aim: 
 *1. To split table 935 between FCP and LRIC and save these as 935FCP.dta and 935LRIC.dta respectively
 ***************

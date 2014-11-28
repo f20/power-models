@@ -24,7 +24,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*File: 8 EDCM demand revenue target.do
 *Aim: Calculate EDCM demand revenue target (Annex 3)
 ***************
 

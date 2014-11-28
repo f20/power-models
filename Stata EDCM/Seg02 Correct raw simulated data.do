@@ -154,7 +154,7 @@ destring t935c9, force replace
 
 save All935.dta, replace
 
-*Drop rows where there are no export or import capacities; as these will not be considered to be tariifs covered by EDCM
+*Drop rows where there are no export or import capacities; as these will not be considered to be tariffs covered by EDCM
 drop if ExportCapNA==1&ImportCapNA==1
 save 935.dta, replace
 

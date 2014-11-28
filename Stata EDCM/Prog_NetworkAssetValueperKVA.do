@@ -61,11 +61,11 @@ quietly{
 
         if `i'==5 {
 	
-			if "$Optiontemplate"=="1" {
+			if "$Optionlegacy201"=="1" {
 				replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.
 			    }
 
-			if "$Optiontemplate"=="0" {
+			if "$Optionlegacy201"=="0" {
 			     replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.&t1132c1~=0
 			    }
 	             }

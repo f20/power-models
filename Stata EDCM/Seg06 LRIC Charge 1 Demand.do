@@ -24,7 +24,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*File: 4 LRIC Charge 1 Demand
 *Aim: Calculate LRIC charge 1 - covers (a) super red rate LRIC , (b) local capacity charge 1 LRIC and (c) LRIC exceed capacity charge
 ***************
 

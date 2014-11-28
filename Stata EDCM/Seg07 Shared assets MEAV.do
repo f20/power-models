@@ -24,7 +24,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*File: 5 Shared assets MEAV.do
 *Aim: Calculate site-specific assets (raw and cap-and-collared)
 ***************
 

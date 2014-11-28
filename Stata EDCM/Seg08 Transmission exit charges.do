@@ -24,7 +24,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*File: 6 Transmission exit charges.do
 *Aim: Calculate transmission exit charges (demand)
 ***************
 

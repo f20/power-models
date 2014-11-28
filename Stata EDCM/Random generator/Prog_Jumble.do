@@ -45,11 +45,12 @@ matrix input ascii = (9, 10)
 *Not including asterisk (ascii 42) because of feature of Excel's MATCH
 *Not including the equal sign (ascii 61) because it messes up perl code
 *Not including dollar sign $ (ascii 36) because it messes up Stata code (global macro)
+*Not including quotation mark " (ascii 34) because it messes up Stata code
 
 local i = 32
 
 while `i'<126 {
-    if `i'~=42&`i'~=61&`i'~=36 {
+    if `i'~=42&`i'~=61&`i'~=36&`i'~=34 {
         matrix ascii=(ascii,`i')
     }
     local i = `i'+1

@@ -24,8 +24,8 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*File: 7
 *Aim: Calculate Export capacity charges for generation
+***************
 
 clear
 use 935

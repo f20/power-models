@@ -23,6 +23,8 @@
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+clear
+
 global SimulationHome `c(pwd)'
 
 capture program drop simulatedata
@@ -222,7 +224,11 @@ if `table'==1 {
         replace stringt1132c1=cond(runiform()<.5,stringt1132c1,"#VALUE!")
 	  drop t1132c1
 	  ren stringt1132c1 t1132c1
-        }
+
+*Setting very high direct costs to ensure negative scaling
+
+	replace t1113c6=cond(runiform()<.4, t1113c6,2*t1113c4)
+	  }
 
 if `table'==2 {
         replace t911c7=cond(runiform()<.8,0,t911c7) if t911c6==0

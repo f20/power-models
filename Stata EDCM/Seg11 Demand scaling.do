@@ -24,7 +24,7 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*Aim: Going through annex 6
+*Aim: Going through annex 6 of Schedules 17 and 18
 ***************
 
 ***************

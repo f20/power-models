@@ -24,7 +24,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*File: 2 FCP Charge 1 Demand.do
 *Aim: Calculate FCP charge 1 - covers (a) super red rate FCP, (b) local capacity charge 1 FCP (c) FCP exceeded capacity charge
 ***************
 

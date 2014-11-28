@@ -24,7 +24,6 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*File: 3 Linkages.do
 *Aim: Defining set of clusters of linked locations (for LRIC)
 ***************
 
