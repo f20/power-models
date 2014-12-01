@@ -162,8 +162,11 @@ sub create {
           if $options->{requestsToSeeModel};
         $forwardLinkFindingRun[$_] = $model if $options->{forwardLinks};
         $options->{revisionText} ||= '';
-        $wbook->{titlePrefix} = $options->{revisionText}
-          if $wbook->{titlePrefix} && $wbook->{titlePrefix} eq 'revision';
+        $wbook->{titlePrefix} =
+            $options->{titlePrefix} eq 'revision'
+          ? $options->{revisionText}
+          : $options->{titlePrefix}
+          if $options->{titlePrefix};
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
