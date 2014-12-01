@@ -1,5 +1,5 @@
 ---
-.: EDCM LRIC after DCP 189
+.: EDCM FCP after DCP 189 (less transparency)
 PerlModule: EDCM2
 dcp130: 1
 dcp179: 1
@@ -7,12 +7,11 @@ dcp185: 2
 dcp189: proportionsplitShortfall
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
-method: LRIC
+method: FCP
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
-transparency: outputonly
 validation: lenientnomsg
-wantTables: 913
+wantTables: 911

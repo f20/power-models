@@ -1,5 +1,5 @@
 ---
-.: EDCM modernised model FCP after DCP 189
+.: EDCM FCP after DCP 189
 PerlModule: EDCM2
 dcp130: 1
 dcp179: 1

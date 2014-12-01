@@ -1,5 +1,5 @@
 ---
-.: EDCM LRIC after DCP 189
+.: EDCM LRIC after DCP 189 (less transparency)
 PerlModule: EDCM2
 dcp130: 1
 dcp179: 1
@@ -13,6 +13,5 @@ numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
-transparency: outputonly
 validation: lenientnomsg
 wantTables: 913

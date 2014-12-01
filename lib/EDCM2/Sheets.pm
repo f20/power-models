@@ -414,7 +414,6 @@ sub worksheetsAndClosures {
             $wsheet->{sheetNumber} = 48;
         }
       )
-      : $model->{noOneLiners} ? ()
       : (
         'OneLiners' => sub {
             my ($wsheet) = @_;
