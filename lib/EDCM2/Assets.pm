@@ -163,8 +163,11 @@ sub notionalAssets {
         appendTo      => $model->{inputTables}
     );
 
+    my $useTextMatching =
+      $model->{legacy201} || $model->{textCustomerCategories};
+
     my $customerCategory =
-      $model->{legacy201}
+      $useTextMatching
       ? Arithmetic(
         name       => 'Tariff type and category',
         arithmetic => '="D"&TEXT(IV1,"0000")',
@@ -256,7 +259,7 @@ EOL
         name       => 'Loss factor to transmission',
         arithmetic => '=INDEX(IV8_IV9,'
           . (
-            $model->{legacy201}
+            $useTextMatching
             ? 'IF(ISNUMBER(SEARCH("?0000",IV1)),1,'
               . 'IF(ISNUMBER(SEARCH("?1000",IV20)),2,'
               . 'IF(ISNUMBER(SEARCH("??100",IV21)),3,'
@@ -267,7 +270,7 @@ EOL
           )
           . ')',
         arguments => {
-            $model->{legacy201}
+            $useTextMatching
             ? (
                 IV1  => $customerCategory,
                 IV20 => $customerCategory,
@@ -347,7 +350,7 @@ EOL
 
     push @{ $model->{calc1Tables} },
       my $accretion =
-      $model->{legacy201}
+      $useTextMatching
       ? Arithmetic(
         name       => 'Notional asset rate (£/kW)',
         newBlock   => 1,
@@ -372,18 +375,10 @@ EOL
 
     my $accretion132hvHard = Dataset(
         name => 'Override notional asset rate for 132kV/HV (£/kW)',
-        $model->{legacy201} ? ()
+        $useTextMatching
+        ? ()
         : (
-            lines => $model->{legacynov2014}
-            ? [
-                'This value will only be used if it is not zero.',
-                'If the forecast system simultaneous maximum load (kW)'
-                  . ' from CDCM users at the 132kV/HV network level is zero,'
-                  . ' then a non-zero non-blank value must be entered here.',
-                'This value only affects tariffs'
-                  . ' if there are 132kV/HV non-sole-use assets in the EDCM model.',
-              ]
-            : [
+            lines => [
                 'This value only affects tariffs if there are'
                   . ' 132kV/HV non-sole-use assets in the EDCM model. '
                   . 'It will not be used if set to zero or blank.',
@@ -406,7 +401,7 @@ EOL
 
     my $accretion132hvcombined = Arithmetic(
         name => 'Notional asset rate for 132kV/HV (£/kW)',
-        $model->{legacy201}
+        $useTextMatching
         ? (
             arithmetic => '=IF(ISNUMBER(IV1),IV2,IV3)',
             arguments  => {
@@ -571,7 +566,7 @@ EOL
         my $starIV5       = $useProportions       ? '*IV5' : '';
         my $starIV5Cooked = $useProportionsCooked ? '*IV5' : '';
 
-        if ( !$model->{legacy201} ) {    # not legacy, without allowInvalid
+        if ( !$useTextMatching ) {    # does not support allowInvalid
 
             push @assetsCapacity,
               Arithmetic(
