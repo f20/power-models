@@ -372,10 +372,18 @@ EOL
 
     my $accretion132hvHard = Dataset(
         name => 'Override notional asset rate for 132kV/HV (£/kW)',
-        $model->{legacy201}
-        ? ()
+        $model->{legacy201} ? ()
         : (
-            lines => [
+            lines => $model->{legacynov2014}
+            ? [
+                'This value will only be used if it is not zero.',
+                'If the forecast system simultaneous maximum load (kW)'
+                  . ' from CDCM users at the 132kV/HV network level is zero,'
+                  . ' then a non-zero non-blank value must be entered here.',
+                'This value only affects tariffs'
+                  . ' if there are 132kV/HV non-sole-use assets in the EDCM model.',
+              ]
+            : [
                 'This value only affects tariffs if there are'
                   . ' 132kV/HV non-sole-use assets in the EDCM model. '
                   . 'It will not be used if set to zero or blank.',
