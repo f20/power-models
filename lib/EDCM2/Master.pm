@@ -28,29 +28,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-=head Table numbers used in this file
-
-1111 (shared)
-1168 (shared)
-1192
-
-=cut
-
-=head Table number availability
-
-110x Inputs Assets Scaling Sheets
-111x Inputs Master
-112x Assets
-113x Assets
-114x Scaling
-115x 
-116x Ldno Master
-117x
-118x
-119x Master
-
-=cut
-
 use warnings;
 use strict;
 use utf8;

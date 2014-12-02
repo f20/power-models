@@ -28,20 +28,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-=head Table numbers used in this file
-
-1105
-1122
-1131
-1132
-1133
-1134
-1135
-1136
-1137
-
-=cut
-
 use warnings;
 use strict;
 use utf8;
@@ -69,7 +55,8 @@ HV customer
 EOT
 
     my $allAssets = Dataset(
-        name => 'Assets in CDCM model (£) (from CDCM table 2705, 2706 or 2707)',
+        name => 'Assets in CDCM model (£)'
+          . ( $model->{transparency} ? '' : ' (from CDCM table 2706)' ),
         defaultFormat => '0hard',
         cols          => $assetLevelset,
         data          => [ '', map { 5e8 } 2 .. @{ $assetLevelset->{list} } ],
@@ -139,7 +126,8 @@ sub notionalAssets {
 
     my $lossFactors = Dataset(
         name => 'Loss adjustment factor to transmission'
-          . ' for each network level (from CDCM table 2004)',
+          . ' for each network level'
+          . ( $model->{transparency} ? '' : ' (from CDCM table 2004)' ),
         cols       => $ehvAssetLevelset,
         data       => [qw(1 1.01 1.02 1.03 1.04 1.04)],
         number     => 1135,
@@ -154,7 +142,8 @@ sub notionalAssets {
 
     my $diversity = Dataset(
         name => 'Diversity allowance between level exit '
-          . 'and GSP Group (from CDCM table 2611)',
+          . 'and GSP Group'
+          . ( $model->{transparency} ? '' : ' (from CDCM table 2611)' ),
         defaultFormat => '%hard',
         cols          => $ehvAssetLevelset,
         data          => [qw(0.1 0.1 0.3 0.3 0.3 0.7)],

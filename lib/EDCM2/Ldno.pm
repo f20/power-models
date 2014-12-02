@@ -27,14 +27,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-=head Table numbers used in this file
-
-1181
-1182
-1183
-
-=cut
-
 use warnings;
 use strict;
 use utf8;
