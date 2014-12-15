@@ -105,8 +105,8 @@ sub makeStatisticsAssumptions {
             defaultFormat => '0soft',
             arithmetic    => '=365.25/7*IV1*IV4',
             arguments     => {
-                IV1  => $columns[1],
-                IV4  => $columns[3],
+                IV1 => $columns[1],
+                IV4 => $columns[3],
             },
           );
     }
@@ -376,13 +376,26 @@ sub makeStatisticsTables {
         my ( @list, @listmargin );
         my $short = my $user = $users->[$uid];
         $short =~ s/^Customer *[0-9]+ *//;
-        my $regex = qr/$assumptions->{regex}{$user}/m;
+        my $filter;
+        {
+            my $regex = $assumptions->{regex}{$user};
+            if ( $regex eq 'All-the-way demand' ) {
+                $filter = sub { $_[0] !~ /^LDNO /i && $_[0] !~ /gener/i; };
+            }
+            elsif ( $regex eq 'All-the-way generation' ) {
+                $filter = sub { $_[0] !~ /^LDNO /i && $_[0] !~ /gener/i; };
+            }
+            else {
+                $regex = qr/$regex/m;
+                $filter = sub { $_[0] =~ /$regex/m; };
+            }
+        }
         for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
             next
               if $allTariffs->{groupid}
               && !defined $allTariffs->{groupid}[$tid];
             my $tariff = $allTariffs->{list}[$tid];
-            next unless $tariff =~ /$regex/m;
+            next unless $filter->($tariff);
             $tariff =~ s/^.*\n//s;
             my $row = "$short ($tariff)";
             push @list, $row;
@@ -391,7 +404,7 @@ sub makeStatisticsTables {
                 my $boundary = $1;
                 my $atw      = $2;
                 my $margin   = "Margin $boundary: $atw";
-                next unless $margin =~ /$regex/m;
+                next unless $filter->($margin);
                 if ( my $atwmapped = $map{"$short ($atw)"} ) {
                     my $marginrow = "$short ($margin)";
                     push @listmargin, $marginrow;
@@ -517,10 +530,12 @@ __DATA__
 ---
 4201:
   - _table: 4201. Consumption assumptions for illustrative customers
-  - Domestic electric heat: 740
+  - Other demand 1: 815
+    Other demand 2: 825
+    Other generation: 835
+    Domestic electric heat: 740
     Domestic low use: 700
     Domestic standard: 720
-    Generator: 805
     Large business: 310
     Large continuous: 320
     Large housing electric: 355
@@ -544,16 +559,18 @@ __DATA__
     XL intermittent: 445
     XL off-peak: 430
     _column: Order
-  - Domestic electric heat: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
+  - Other demand 1: All-the-way demand
+    Other demand 2: All-the-way demand
+    Other generation: All-the-way generation
+    Domestic electric heat: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
     Domestic low use: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
     Domestic standard: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
-    Generator: '^HV.*Gener'
-    Large business: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Large continuous: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Large housing electric: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Large housing standard: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Large intermittent: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
-    Large off-peak: '^(?:LV|LV Sub|HV|LDNO .*) HH Metered$'
+    Large business: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
+    Large continuous: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
+    Large housing electric: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
+    Large housing standard: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
+    Large intermittent: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
+    Large off-peak: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
     Medium business: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UT]|$)|HH Metered$)'
     Medium continuous: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UT]|$)|HH Metered$)'
     Medium housing electric: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UT]|$)|HH Metered$)'
@@ -564,17 +581,19 @@ __DATA__
     Small continuous: '^(?:Small|LV).*Non[- ]Domestic(?: [UT]|$)'
     Small intermittent: '^(?:Small|LV).*Non[- ]Domestic(?: [UT]|$)'
     Small off-peak: '^(?:Small|LV).*Non[- ]Domestic(?: [UT]|$)'
-    XL business: '^(?:|LDNO .*)HV HH Metered$'
-    XL continuous: '^(?:|LDNO .*)HV HH Metered$'
-    XL housing electric: '^(?:|LDNO .*)HV HH Metered$'
-    XL housing standard: '^(?:|LDNO .*)HV HH Metered$'
-    XL intermittent: '^(?:|LDNO .*)HV HH Metered$'
-    XL off-peak: '^(?:|LDNO .*)HV HH Metered$'
+    XL business: '^(?:|LDNO .*: )HV HH Metered$'
+    XL continuous: '^(?:|LDNO .*: )HV HH Metered$'
+    XL housing electric: '^(?:|LDNO .*: )HV HH Metered$'
+    XL housing standard: '^(?:|LDNO .*: )HV HH Metered$'
+    XL intermittent: '^(?:|LDNO .*: )HV HH Metered$'
+    XL off-peak: '^(?:|LDNO .*: )HV HH Metered$'
     _column: Tariff selection
-  - Domestic electric heat: 35
+  - Other demand 1: 0
+    Other demand 2: 0
+    Other generation: 0
+    Domestic electric heat: 35
     Domestic low use: 35
     Domestic standard: 35
-    Generator: 0
     Large business: 66
     Large continuous: 0
     Large housing electric: 35
@@ -598,10 +617,12 @@ __DATA__
     XL intermittent: 0
     XL off-peak: 0
     _column: Peak-time hours/week
-  - Domestic electric heat: 49
+  - Other demand 1: 0
+    Other demand 2: 0
+    Other generation: 0
+    Domestic electric heat: 49
     Domestic low use: 49
     Domestic standard: 49
-    Generator: 0
     Large business: 0
     Large continuous: 0
     Large housing electric: 49
@@ -625,10 +646,12 @@ __DATA__
     XL intermittent: 0
     XL off-peak: 74.6666666666667
     _column: Off-peak hours/week
-  - Domestic electric heat: 1.1
+  - Other demand 1: 0
+    Other demand 2: 0
+    Other generation: 0
+    Domestic electric heat: 1.1
     Domestic low use: 0.4
     Domestic standard: 0.8
-    Generator: 0
     Large business: 350
     Large continuous: 0
     Large housing electric: 110
@@ -652,10 +675,12 @@ __DATA__
     XL intermittent: 0
     XL off-peak: 0
     _column: Peak-time load (kW)
-  - Domestic electric heat: 1.6
+  - Other demand 1: 0
+    Other demand 2: 0
+    Other generation: 0
+    Domestic electric heat: 1.6
     Domestic low use: 0.125
     Domestic standard: 0.25
-    Generator: 0
     Large business: 0
     Large continuous: 0
     Large housing electric: 160
@@ -679,10 +704,12 @@ __DATA__
     XL intermittent: 0
     XL off-peak: 4500
     _column: Off-peak load (kW)
-  - Domestic electric heat: 0.434817351598174
+  - Other demand 1: 0.5
+    Other demand 2: 0.5
+    Other generation: 0.5
+    Domestic electric heat: 0.434817351598174
     Domestic low use: 0.194206621004566
     Domestic standard: 0.388413242009132
-    Generator: 600
     Large business: 102.941176470588
     Large continuous: 450
     Large housing electric: 43.4817351598174
@@ -706,10 +733,12 @@ __DATA__
     XL intermittent: 2000
     XL off-peak: 0
     _column: Load at other times (kW)
-  - Domestic electric heat: 18
+  - Other demand 1: 0
+    Other demand 2: 0
+    Other generation: 0
+    Domestic electric heat: 18
     Domestic low use: 6
     Domestic standard: 9
-    Generator: 1500
     Large business: 500
     Large continuous: 500
     Large housing electric: 500
@@ -733,3 +762,7 @@ __DATA__
     XL intermittent: 5000
     XL off-peak: 5000
     _column: Capacity (kVA)
+  - _column: Average kWh/year
+  - _column: Average rate 2 kWh/year
+  - _column: Load factor (kW/kVA)
+  - _column: Peak to average load ratio
