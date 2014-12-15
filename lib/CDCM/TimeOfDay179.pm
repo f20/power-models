@@ -811,13 +811,14 @@ sub timeOfDay179Runner {
 
         }
 
-        Columnset(
+        push @{ $model->{timeOfDayResults} },
+          Columnset(
             name    => 'Calculation of adjusted time band load coefficients',
             columns => [
                 $timebandLoadCoefficientAccording,
                 $timebandLoadCoefficientAdjusted
             ]
-        ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
+          ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
 
         $pseudoLoadCoefficientBreakdown = Arithmetic(
             name => 'Pseudo load coefficient by time band and network level',

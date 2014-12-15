@@ -1398,7 +1398,8 @@ sub timeOfDaySpecialRunner {
                         )
                     ]
                 );
-                Columnset(
+                push @{ $model->{timeOfDayResults} },
+                  Columnset(
                     name =>
                       'Calculation of adjusted time band load coefficients',
                     columns => [
@@ -1411,14 +1412,15 @@ sub timeOfDaySpecialRunner {
                   && $model->{coincidenceAdj} =~ /group/i;
             }
             else {
-                Columnset(
+                push @{ $model->{timeOfDayResults} },
+                  Columnset(
                     name =>
                       'Calculation of adjusted time band load coefficients',
                     columns => [
                         $timebandLoadCoefficientAccording,
                         $timebandLoadCoefficientAdjusted
                     ]
-                ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
+                  ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
             }
 
             $pseudoLoadCoefficientBreakdown = Arithmetic(
