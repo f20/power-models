@@ -265,7 +265,7 @@ EOY
     }
 
     # Things below are mostly for DCP 179 and similar.
-    # Applied in all cases to help multi-model manufacturing.
+    # They are applied to all cases to help multi-model manufacturing.
 
     if (  !exists $d->{1025}[1]{'LV Network Non-Domestic CT'}
         && exists $d->{1025}[1]{'LV HH Metered'} )
@@ -371,6 +371,15 @@ EOY
             my $col = $d->{1025}[$_];
             $col->{'LV Generation NHH or Aggregate HH'} ||=
               $col->{'LV Generation NHH'};
+        }
+    }
+    elsif ( !exists $d->{1025}[1]{'LV Generation NHH'}
+        && exists $d->{1025}[1]{'LV Generation NHH or Aggregate HH'} )
+    {
+        foreach ( 1 .. 8 ) {
+            my $col = $d->{1025}[$_];
+            $col->{'LV Generation NHH'} ||=
+              $col->{'LV Generation NHH or Aggregate HH'};
         }
     }
 

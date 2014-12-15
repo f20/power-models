@@ -8,4 +8,4 @@
     CDCM/Data-2014-02/*
     -xdata=rules|revenueAdj|-5e6
     -xdata=rules|template|%-5m
-tscs 10 37 38 39 40
+tscs 10 37 38 39 42

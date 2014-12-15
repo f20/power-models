@@ -1,2 +1,2 @@
 -sqlite CDCM/Current/%-after163.yml CDCM/Data-2014-02/*
-all 10 22 31 37 38 39 40
+all 10 22 31 37 38 39 42
