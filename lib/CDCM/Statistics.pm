@@ -380,10 +380,12 @@ sub makeStatisticsTables {
         {
             my $regex = $assumptions->{regex}{$user};
             if ( $regex eq 'All-the-way demand' ) {
-                $filter = sub { $_[0] !~ /^LDNO /i && $_[0] !~ /gener/i; };
+                $filter = sub {
+                    $_[0] !~ /^LDNO /i && $_[0] !~ /\bunmeter|\bums\b|\bgener/i;
+                };
             }
             elsif ( $regex eq 'All-the-way generation' ) {
-                $filter = sub { $_[0] !~ /^LDNO /i && $_[0] !~ /gener/i; };
+                $filter = sub { $_[0] !~ /^LDNO /i && $_[0] =~ /\bgener/i; };
             }
             else {
                 $regex = qr/$regex/m;
