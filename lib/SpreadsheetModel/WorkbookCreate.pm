@@ -122,28 +122,33 @@ sub create {
                       };
                 }
             }
-            elsif ( my $overrides = $optionArray[$i]{dataOverride} ) {
-                my $dataset = Storable::dclone( $optionArray[$i]{dataset} );
-                foreach my $override (
-                    ref $overrides eq 'ARRAY' ? @$overrides : $overrides )
+            else {
+                foreach my $overrides ( grep { $_ }
+                    map { $optionArray[$i]{$_} }
+                    qw(dataOverride dataOverride2) )
                 {
-                    foreach my $itable ( keys %$override ) {
-                        for (
-                            my $icolumn = 1 ;
-                            $icolumn < @{ $override->{$itable} } ;
-                            ++$icolumn
-                          )
-                        {
-                            foreach my $irow (
-                                keys %{ $override->{$itable}[$icolumn] } )
+                    my $dataset = Storable::dclone( $optionArray[$i]{dataset} );
+                    foreach my $override (
+                        ref $overrides eq 'ARRAY' ? @$overrides : $overrides )
+                    {
+                        foreach my $itable ( keys %$override ) {
+                            for (
+                                my $icolumn = 1 ;
+                                $icolumn < @{ $override->{$itable} } ;
+                                ++$icolumn
+                              )
                             {
-                                $dataset->{$itable}[$icolumn]{$irow} =
-                                  $override->{$itable}[$icolumn]{$irow};
+                                foreach my $irow (
+                                    keys %{ $override->{$itable}[$icolumn] } )
+                                {
+                                    $dataset->{$itable}[$icolumn]{$irow} =
+                                      $override->{$itable}[$icolumn]{$irow};
+                                }
                             }
                         }
                     }
+                    $optionArray[$i]{dataset} = $dataset;
                 }
-                $optionArray[$i]{dataset} = $dataset;
             }
         }
     }

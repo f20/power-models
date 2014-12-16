@@ -233,15 +233,22 @@ sub makeModels {
             $maker->{addFile}->( abs2rel($_) );
         }
         else {
-            my $file = catfile( $self->[C_HOMEDIR], $_ );
-            if ( -f $file ) {
-                $maker->{addFile}->( abs2rel($file) );
-            }
-            elsif ( my @list = <"$file"> ) {
-                $maker->{addFile}->( abs2rel($_) ) foreach @list;
+            s/^\s+//s;
+            s/\s+$//s;
+            if ( -f $_ ) {
+                $maker->{addFile}->( abs2rel($_) );
             }
             else {
-                warn "Cannot handle this argument: $_";
+                my $file = catfile( $self->[C_HOMEDIR], $_ );
+                if ( -f $file ) {
+                    $maker->{addFile}->( abs2rel($file) );
+                }
+                elsif ( my @list = <"$file"> ) {
+                    $maker->{addFile}->( abs2rel($_) ) foreach @list;
+                }
+                else {
+                    warn "Cannot handle this argument: $_";
+                }
             }
         }
     }

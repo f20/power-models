@@ -1,0 +1,13 @@
+---
+1000:
+  - _table: '1300. Company, charging year, data version'
+  - ~
+  - Company charging year data version: 2015/2016
+    _column: Year
+  - Company charging year data version: Scenario
+    _column: Version
+1302:
+  - _table: 1302. DNO HV mains usage
+  - DNO HV mains usage: 0.55
+    _column: DNO HV mains usage
+baseDataset: 1
