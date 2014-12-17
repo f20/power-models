@@ -1,5 +1,5 @@
 makeModels
-	-template=%%-ARP
+	-template=%%-generic
 	-pickbest
 	CDCM/Previous/*micro*
 	CDCM/Current/*micro*

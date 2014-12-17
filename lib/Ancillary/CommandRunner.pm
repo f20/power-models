@@ -201,9 +201,12 @@ sub makeModels {
                     )
                 );
             }
-            elsif (/^-+stats/is) {
-                $maker->{setRule}
-                  ->( summary => 'statistics', illustrative => 1 );
+            elsif (/^-+stats=?(.*)/is) {
+                $maker->{setRule}->(
+                    summary      => 'statistics',
+                    illustrative => 1,
+                    $1 ? ( statistics => $1 ) : (),
+                );
             }
             elsif (/^-+([0-9]+)/is) { $maker->{threads}->($1); }
             elsif (/^-+template(?:=(.+))?/is) {

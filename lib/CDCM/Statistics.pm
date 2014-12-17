@@ -36,7 +36,6 @@ use YAML;
 local undef $/;
 binmode DATA, ':utf8';
 my ($colspecDefault) = Load <DATA>;
-($colspecDefault) = values %$colspecDefault;
 
 sub makeStatisticsAssumptions {
 
@@ -53,7 +52,11 @@ sub makeStatisticsAssumptions {
       && $model->{summary} =~ /([0-9]{3,4})/
       && $model->{dataset}
       && $model->{dataset}{$1};
-    $colspec ||= $colspecDefault;
+    $colspec ||= $colspecDefault->{
+        $model->{statistics} =~ /simple/
+        ? '4201simple'
+        : 4201
+    };
 
     my @rows =
       sort { $colspec->[1]{$a} <=> $colspec->[1]{$b} }
@@ -764,7 +767,29 @@ __DATA__
     XL intermittent: 5000
     XL off-peak: 5000
     _column: Capacity (kVA)
-  - _column: Average kWh/year
-  - _column: Average rate 2 kWh/year
-  - _column: Load factor (kW/kVA)
-  - _column: Peak to average load ratio
+4201simple:
+  - _table: 4201. Consumption assumptions for illustrative customers
+  - Domestic low use: 1700
+    Domestic standard: 1720
+    _column: Order
+  - Domestic low use: '(?:^|: )Domestic U'
+    Domestic standard: '(?:^|: )Domestic U'
+    _column: Tariff selection
+  - Domestic low use: 35
+    Domestic standard: 35
+    _column: Peak-time hours/week
+  - Domestic low use: 49
+    Domestic standard: 49
+    _column: Off-peak hours/week
+  - Domestic low use: 0.4
+    Domestic standard: 0.8
+    _column: Peak-time load (kW)
+  - Domestic low use: 0.125
+    Domestic standard: 0.25
+    _column: Off-peak load (kW)
+  - Domestic low use: 0.194206621004566
+    Domestic standard: 0.388413242009132
+    _column: Load at other times (kW)
+  - Domestic low use: 6
+    Domestic standard: 9
+    _column: Capacity (kVA)

@@ -24,6 +24,10 @@ sub score {
       if $rule->{unauth}
       && $rule->{unauth} =~ /dayotex/i xor $month lt '2015-10';
 
+    # Bung
+    $score += 10
+      if $rule->{electionBung} && $month gt '2013-10' && $month lt '2015-10';
+
     # Fun
     $score += 999 if !$rule->{pcd} xor $month lt '2017-10';
 

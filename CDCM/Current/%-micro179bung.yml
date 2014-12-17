@@ -1,0 +1,23 @@
+---
+.: Micro-model after DCP 179 (election bung edition)
+PerlModule: CDCM
+agghhequalisation: 1
+alwaysUseRAG: 1
+coincidenceAdj: groupums
+compact: 1
+drm: top500gsp
+electionBung: 1
+extraLevels: 1
+fixedCap: 1-4
+nickName: CDCM model (after DCP 179 + bung)
+noLLFCs: 1
+noLinks: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: statisticsbrief
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179

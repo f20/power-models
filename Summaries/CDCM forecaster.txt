@@ -1,5 +1,5 @@
 makeModels
-	-template=%%-ARPtoy
+	-template=%%
 	-pickbest
 	-edcm
 	CDCM/Previous/*micro*

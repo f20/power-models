@@ -308,7 +308,7 @@ sub sheetsForFirstModel {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber}     = 12;
         $wsheet->{lastTableNumber} = 1;
-        $wsheet->set_column( 0, 255, 50 );
+        $wsheet->set_column( 0, 255, 64 );
         $wsheet->set_column( 1, 255, 16 );
         $wsheet->freeze_panes( 0, 1 );
         $_->wsWrite( $wbook, $wsheet )
