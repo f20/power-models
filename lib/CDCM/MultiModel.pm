@@ -288,21 +288,24 @@ sub sheetsForFirstModel {
         };
       },
 
-      'Inputs$' => sub {
-        my ($wsheet) = @_;
-        $wsheet->{sheetNumber}     = 12;
-        $wsheet->{lastTableNumber} = 1;
-        $wsheet->set_column( 0, 255, 50 );
-        $wsheet->set_column( 1, 255, 16 );
-        $wsheet->freeze_panes( 0, 1 );
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Input data', );
-        push @{ $me->{finishClosures} }, sub {
-            $wbook->{noLinks} = 1;
+      1 ? () : (
+        'Inputs$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{sheetNumber}     = 12;
+            $wsheet->{lastTableNumber} = 1;
+            $wsheet->set_column( 0, 255, 50 );
+            $wsheet->set_column( 1, 255, 16 );
+            $wsheet->freeze_panes( 0, 1 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach $me->statisticsColumnsets( $wbook, $wsheet,
-                sub { $_[0] =~ /input/i; } );
-        };
-      },
+              foreach Notes( name => 'Input data', );
+            push @{ $me->{finishClosures} }, sub {
+                $wbook->{noLinks} = 1;
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach $me->statisticsColumnsets( $wbook, $wsheet,
+                    sub { $_[0] =~ /input/i; } );
+            };
+        }
+      ),
 
       'Illustrative$' => sub {
         my ($wsheet) = @_;
@@ -322,22 +325,24 @@ sub sheetsForFirstModel {
         };
       },
 
-      'Other$' => sub {
-        my ($wsheet) = @_;
-        $wsheet->{sheetNumber}     = 12;
-        $wsheet->{lastTableNumber} = 1;
-        $wsheet->set_column( 0, 255, 50 );
-        $wsheet->set_column( 1, 255, 16 );
-        $wsheet->freeze_panes( 0, 1 );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Other statistics', );
-        push @{ $me->{finishClosures} }, sub {
-            $wbook->{noLinks} = 1;
+      1 ? () : (
+        'Other$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{sheetNumber}     = 12;
+            $wsheet->{lastTableNumber} = 1;
+            $wsheet->set_column( 0, 255, 50 );
+            $wsheet->set_column( 1, 255, 16 );
+            $wsheet->freeze_panes( 0, 1 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach $me->statisticsColumnsets( $wbook, $wsheet,
-                sub { $_[0] !~ /input|illustrative/i; } );
-        };
-      },
+              foreach Notes( name => 'Other statistics', );
+            push @{ $me->{finishClosures} }, sub {
+                $wbook->{noLinks} = 1;
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach $me->statisticsColumnsets( $wbook, $wsheet,
+                    sub { $_[0] !~ /input|illustrative/i; } );
+            };
+        }
+      ),
 
       'Changes$' => sub {
         my ($wsheet) = @_;
@@ -349,8 +354,8 @@ sub sheetsForFirstModel {
             $wbook->{noLinks} = 1;
             $_->wsWrite( $wbook, $wsheet ) foreach $me->changeColumnsets(
                 sub {
-                    $_[0] =~ /input/i
-                      || $_[0] =~ /illustrative/i && $_[0] !~ m¢£/year¢;
+                    # $_[0] =~ /input/i ||
+                    $_[0] =~ /illustrative/i && $_[0] !~ m¢£/year¢;
                 }
             );
         };
