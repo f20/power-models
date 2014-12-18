@@ -211,18 +211,19 @@ sub timeOfDaySpecial {
             columns => [ $red, $coin, ]
           );
 
+        push @{ $model->{timeOfDayResults} },
+          my $coinG = SumProduct(
+            name          => 'Group contribution to system-peak-time kW',
+            defaultFormat => '0softnz',
+            matrix        => $mapping,
+            vector        => $coin,
+          );
+
         my $redG = SumProduct(
             name          => 'Group contribution to peak band kW',
             defaultFormat => '0softnz',
             matrix        => $mapping,
             vector        => $red,
-        );
-
-        my $coinG = SumProduct(
-            name          => 'Group contribution to system-peak-time kW',
-            defaultFormat => '0softnz',
-            matrix        => $mapping,
-            vector        => $coin,
         );
 
         my $adjust = Stack(
@@ -1328,18 +1329,19 @@ sub timeOfDaySpecialRunner {
                     ]
                   );
 
+                push @{ $model->{timeOfDayResults} },
+                  my $coinG = SumProduct(
+                    name => 'Group contribution to system-peak-time kW',
+                    defaultFormat => '0softnz',
+                    matrix        => $mapping,
+                    vector        => $coin,
+                  );
+
                 my $redG = SumProduct(
                     name          => 'Group contribution to peak band kW',
                     defaultFormat => '0softnz',
                     matrix        => $mapping,
                     vector        => $red,
-                );
-
-                my $coinG = SumProduct(
-                    name => 'Group contribution to system-peak-time kW',
-                    defaultFormat => '0softnz',
-                    matrix        => $mapping,
-                    vector        => $coin,
                 );
 
                 $timebandLoadCoefficientAdjusted = Stack(
@@ -1372,6 +1374,9 @@ sub timeOfDaySpecialRunner {
                   if $timebandLoadCoefficientAdjusted->lastRow ==
                   $timebandLoadCoefficientAdjusted->{sources}[0]
                   ->lastRow;    # hacky
+
+                push @{ $model->{timeOfDayResults} },
+                  $timebandLoadCoefficientAdjusted;
 
             }
 

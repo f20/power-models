@@ -118,7 +118,7 @@ sub wsPrepare {
     my $volatile;
     my $provisionallyBroken;
 
-    my @placeholders = keys %{ $self->{arguments} };
+    my @placeholders = sort keys %{ $self->{arguments} };
 
     my ( %row, %col );
     for my $ph (@placeholders) {

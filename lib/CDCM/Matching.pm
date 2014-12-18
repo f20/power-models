@@ -440,10 +440,11 @@ sub matching {
                 );
             } @$scaledComponents;
 
-            my $slopeSet = Columnset(
+            push @{ $model->{assetScaler} },
+              my $slopeSet = Columnset(
                 name    => 'Marginal revenue effect of scaler',
                 columns => \@slope
-            );
+              );
 
             my %minScaler = map {
                 my $tariffComponent = $_;

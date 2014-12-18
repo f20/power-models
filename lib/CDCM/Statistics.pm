@@ -53,7 +53,7 @@ sub makeStatisticsAssumptions {
       && $model->{dataset}
       && $model->{dataset}{$1};
     $colspec ||= $colspecDefault->{
-        $model->{statistics} =~ /simple/
+        $model->{statistics} && $model->{statistics} =~ /simple/
         ? '4201simple'
         : 4201
     };
