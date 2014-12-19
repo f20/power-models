@@ -1,5 +1,5 @@
 ---
-.: EDCM LRIC after DCP 189 (less transparency)
+.: EDCM after DCP 189 (less transparency) LRIC
 PerlModule: EDCM2
 dcp130: 1
 dcp179: 1

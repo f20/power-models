@@ -1,5 +1,5 @@
 ---
-.: EDCM beta FCP after DCP 189
+.: EDCM beta after DCP 189 FCP
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7

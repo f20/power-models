@@ -1,5 +1,5 @@
 ---
-.: EDCM beta LRIC (no discounted CDCM tariffs)
+.: EDCM beta (no discounted CDCM tariffs) LRIC
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7

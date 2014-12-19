@@ -8,4 +8,17 @@
   - Company charging year data version: Scenario
     _column: Version
   - Company charging year data version: ''
+1037:
+  - _table: 1037. Embedded network (LDNO) discounts
+  - LDNO discount: ''
+    _column: No discount
+  - LDNO discount: 0.346216395730298
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.659867427575267
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.451657387902826
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.373382719424112
+    _column: 'LDNO HV: HV user'
+  - LDNO discount: Franck estimate
 baseDataset: 1
