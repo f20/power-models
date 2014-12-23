@@ -10,7 +10,7 @@ dcp189: proportionsplitShortfall
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC
-newOrder: 1
+tableLayout: 1
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600

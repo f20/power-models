@@ -48,7 +48,7 @@ sub requiredModulesForRuleset {
     $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
       $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
-      $ruleset->{newOrder}                     ? qw(EDCM2::NewOrder) : (),
+      $ruleset->{tableLayout}                     ? qw(EDCM2::ReOrder)  : (),
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
 }
 
@@ -1759,7 +1759,7 @@ EOT
         @tariffColumns[ 5, 7, 8 ],
         { sourceLines => [$importEligible] },
         @tariffColumns[ 6, 2, 1, 3, 4 ]
-    ) if $model->{newOrder};
+    ) if $model->{tableLayout};
 
     push @{ $model->{tariffTables} }, Columnset(
         name    => 'EDCM charge',

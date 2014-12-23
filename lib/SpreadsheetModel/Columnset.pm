@@ -199,10 +199,11 @@ sub wsWrite {
         if ( grep { $_ } @formulas ) {
             @sourceLines =
               _rewriteFormulas( \@formulas,
-                [ map { $_->{arguments} } @{ $self->{columns} } ] );
+                [ map { $_->{arguments} } @{ $self->{columns} } ] )
+              unless $wb->{noLinks} && $wb->{noLinks} == 1;
             unless ( $self->{formulasDone} ) {
                 $self->{formulasDone} = 1;
-                unless ( $wb->{noLinks} ) {
+                unless ( $wb->{noLinks} && $wb->{noLinks} == 1 ) {
                     push @{ $self->{lines} },
                       [
                         $headerCols ? ('Kind:') : (),
@@ -225,7 +226,8 @@ sub wsWrite {
         }
     }
 
-    my $headerLines = $self->{name} ? BLANK_LINE : 0;
+    my $headerLines =
+      $self->{name} || $self->{lines} || @sourceLines ? BLANK_LINE : 0;
 
     $headerLines += $dualHeaded ? 2 : 1 unless $self->{noHeaders};
 
@@ -233,7 +235,7 @@ sub wsWrite {
         ++$headerLines if OLD_STYLE_SCRIBBLES;
         ++$headerLines;
         $headerLines += @{ $self->{lines} } if $self->{lines};
-        $headerLines += 1 + @sourceLines if !$wb->{noLinks} && @sourceLines;
+        $headerLines += 1 + @sourceLines if @sourceLines;
     }
 
     $self->{$wb}{$ws} = 1;
@@ -321,89 +323,88 @@ sub wsWrite {
                 $wb->getFormat('scribbles')
             );
         }
+    }
 
-        if ( $self->{lines} || !$wb->{noLinks} && @sourceLines ) {
-            my $hideFormulas = $wb->{hideFormulas} && @sourceLines;
-            my $textFormat   = $wb->getFormat('text');
-            my $linkFormat   = $wb->getFormat('link');
-            my $xc           = 0;
-            my @arrayLines;
-            foreach (
-                $self->{lines} ? @{ $self->{lines} } : (),
-                !$wb->{noLinks} && @sourceLines
-                ? ( 'Data sources:', @sourceLines )
-                : ()
-              )
-            {
-                if ( ref $_ eq 'ARRAY' ) {
-                    push @arrayLines, $_;
-                }
-                elsif ( ref($_) =~ /^SpreadsheetModel::/ ) {
-                    my $na = 'x' . ( ++$xc ) . " = $_->{name}";
-                    if ( my $url = $_->wsUrl($wb) ) {
-                        $ws->set_row( $row, undef, undef, 1, 1 )
-                          if $hideFormulas;
-                        $ws->write_url( $row++, $col, $url, $na, $linkFormat );
-                        (
-                            $_->{location}
-                              && ref $_->{location} eq
-                              'SpreadsheetModel::Columnset'
-                            ? $_->{location}
-                            : $_
-                          )->addForwardLink($self)
-                          if $wb->{findForwardLinks};
-                    }
-                    else {
-                        $ws->set_row( $row, undef, undef, 1, 1 )
-                          if $hideFormulas;
-                        $ws->write_string( $row++, $col, $na, $textFormat );
-                    }
-                }
-                elsif (/^(https?|mailto:)/) {
+    if ( $self->{lines} || @sourceLines ) {
+        my $hideFormulas = $wb->{noLinks} && @sourceLines;
+        my $textFormat   = $wb->getFormat('text');
+        my $linkFormat   = $wb->getFormat('link');
+        my $xc           = 0;
+        my @arrayLines;
+        foreach (
+            $self->{lines} ? @{ $self->{lines} } : (),
+            @sourceLines
+            ? ( 'Data sources:', @sourceLines )
+            : ()
+          )
+        {
+            if ( ref $_ eq 'ARRAY' ) {
+                push @arrayLines, $_;
+            }
+            elsif ( ref($_) =~ /^SpreadsheetModel::/ ) {
+                my $na = 'x' . ( ++$xc ) . " = $_->{name}";
+                if ( my $url = $_->wsUrl($wb) ) {
                     $ws->set_row( $row, undef, undef, 1, 1 )
                       if $hideFormulas;
-                    $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
+                    $ws->write_url( $row++, $col, $url, $na, $linkFormat );
+                    (
+                        $_->{location}
+                          && ref $_->{location} eq
+                          'SpreadsheetModel::Columnset'
+                        ? $_->{location}
+                        : $_
+                      )->addForwardLink($self)
+                      if $wb->{findForwardLinks};
                 }
                 else {
                     $ws->set_row( $row, undef, undef, 1, 1 )
                       if $hideFormulas;
-                    $ws->write_string( $row++, $col, "$_", $textFormat );
+                    $ws->write_string( $row++, $col, $na, $textFormat );
                 }
             }
-            if (@arrayLines) {
-                foreach (@arrayLines) {
-                    my $c3 = $col;
-                    $ws->write_string( $row, $c3++, "$_->[0]",
-                        $wb->getFormat('textwrap') )
-                      if $headerCols;
-
-                    foreach my $cn ( 0 .. $lastCol ) {
-                        my $wrapFormat = $wb->getFormat(
-                            $self->{columns}[$cn]{cols}
-                              && $#{ $self->{columns}[$cn]{cols}{list} } > 2
-                            ? 'textlrap'
-                            : 'textwrap'
-                        );
-                        $ws->write_string( $row, $c3++,
-                            "$_->[ $cn + $headerCols ]", $wrapFormat );
-                        $ws->write( $row, $c3++, undef, $wrapFormat )
-                          foreach 1 .. $self->{columns}[$cn]{cols}
-                          && $#{ $self->{columns}[$cn]{cols}{list} };
-                    }
-                    $ws->set_row( $row, undef, undef, 1, 1 )
-                      if $hideFormulas;
-                    ++$row;
-                }
+            elsif (/^(https?|mailto:)/) {
+                $ws->set_row( $row, undef, undef, 1, 1 )
+                  if $hideFormulas;
+                $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
             }
-
-            $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
-              if $hideFormulas;
-
+            else {
+                $ws->set_row( $row, undef, undef, 1, 1 )
+                  if $hideFormulas;
+                $ws->write_string( $row++, $col, "$_", $textFormat );
+            }
         }
+        if (@arrayLines) {
+            foreach (@arrayLines) {
+                my $c3 = $col;
+                $ws->write_string( $row, $c3++, "$_->[0]",
+                    $wb->getFormat('textwrap') )
+                  if $headerCols;
+
+                foreach my $cn ( 0 .. $lastCol ) {
+                    my $wrapFormat = $wb->getFormat(
+                        $self->{columns}[$cn]{cols}
+                          && $#{ $self->{columns}[$cn]{cols}{list} } > 2
+                        ? 'textlrap'
+                        : 'textwrap'
+                    );
+                    $ws->write_string( $row, $c3++,
+                        "$_->[ $cn + $headerCols ]", $wrapFormat );
+                    $ws->write( $row, $c3++, undef, $wrapFormat )
+                      foreach 1 .. $self->{columns}[$cn]{cols}
+                      && $#{ $self->{columns}[$cn]{cols}{list} };
+                }
+                $ws->set_row( $row, undef, undef, 1, 1 )
+                  if $hideFormulas;
+                ++$row;
+            }
+        }
+
+        $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
+          if $hideFormulas;
 
     }
 
-    ++$row if BLANK_LINE && $self->{name};
+    $row += BLANK_LINE if $self->{name} || $self->{lines} || @sourceLines;
 
     unless ( $self->{noHeaders} ) {
 

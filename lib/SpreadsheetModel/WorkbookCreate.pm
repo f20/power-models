@@ -123,9 +123,10 @@ sub create {
                 }
             }
             else {
-                foreach my $overrides ( grep { $_ }
-                    map { $optionArray[$i]{$_} }
-                    qw(dataOverride dataOverride2) )
+                foreach my $overrides (
+                    grep { $_ }
+                    map  { $optionArray[$i]{$_} } qw(dataOverride dataOverride2)
+                  )
                 {
                     my $dataset = Storable::dclone( $optionArray[$i]{dataset} );
                     foreach my $override (
@@ -249,7 +250,7 @@ sub create {
 
         $wbook->{$_} = $options->{$_}
           foreach grep { exists $options->{$_} }
-          qw(copy debug forwardLinks hideFormulas logger noLinks rowHeight validation);
+          qw(copy debug forwardLinks logger noLinks rowHeight validation);
 
         foreach ( @{ $options->{wsheetRunOrder} } ) {
             delete $wsheet{$_}{sheetNumber};

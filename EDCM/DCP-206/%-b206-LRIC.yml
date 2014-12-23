@@ -5,7 +5,7 @@ activeSheets: HSummary
 dcp130: 1
 lowerIntermittentCredit: 1
 method: LRIC
-newOrder: 1
+tableLayout: 1
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600

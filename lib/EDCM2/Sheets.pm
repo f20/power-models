@@ -170,7 +170,7 @@ sub worksheetsAndClosures {
 
         $model->{newOrdering}
         ? (
-              $model->{newOrder} == 2
+              $model->{tableLayout} == 2
             ? $model->makeCalcSheets($wbook)
             : (
                 Calc => sub {
@@ -523,7 +523,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   30 );
         $wsheet->set_column( 1, 1,   105 );
         $wsheet->set_column( 2, 250, 30 );
-        $wbook->{logger}{showColumns} = 1 if $model->{newOrder};
+        $wbook->{logger}{showColumns} = 1 if $model->{tableLayout};
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->topNotes, $model->licenceNotes,
           SpreadsheetModel::ColourCodeWriter->new,

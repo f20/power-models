@@ -460,7 +460,7 @@ EOL
 
         my $logger  = delete $wbook->{logger};
         my $noLinks = $wbook->{noLinks};
-        $wbook->{noLinks} = 1 if $model->{matrices} =~ /big|nol/i;
+        $wbook->{noLinks} = 1;
 
         my @pairs =
           $model->{niceTariffMatrices}->( sub { local ($_) = @_; !/LDNO/i } );
@@ -519,7 +519,7 @@ EOL
         my $logger = $wbook->{logger};
         delete $wbook->{logger};
         my $noLinks = $wbook->{noLinks};
-        $wbook->{noLinks} = 1 if $model->{matrices} =~ /big|nol/i;
+        $wbook->{noLinks} = 1;
 
         my @pairs =
           $model->{niceTariffMatrices}->( sub { local ($_) = @_; /LDNO/i } );
@@ -569,9 +569,6 @@ EOL
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
-
-        # Set noLinks for this sheet, since
-        # any links would be to unnumbered tariff matrix tables.
 
         my $noLinks = $wbook->{noLinks};
         $wbook->{noLinks} = 1;

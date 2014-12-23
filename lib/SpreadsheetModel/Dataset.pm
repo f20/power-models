@@ -429,19 +429,20 @@ sub wsWrite {
     }
 
     if ( $self->{lines}
-        or !$wb->{noLinks}
+        or !( $wb->{noLinks} && $wb->{noLinks} == 1 )
         and $self->{formulaLines} || $self->{name} && $self->{sourceLines} )
     {
-        my $hideFormulas = $wb->{hideFormulas} && $self->{sourceLines};
+        my $hideFormulas = $wb->{noLinks} && $self->{sourceLines};
         my $textFormat   = $wb->getFormat('text');
         my $linkFormat   = $wb->getFormat('link');
         my $xc           = 0;
         foreach (
             $self->{lines} ? @{ $self->{lines} } : (),
-            !$wb->{noLinks} && $self->{sourceLines} && @{ $self->{sourceLines} }
+            !( $wb->{noLinks} && $wb->{noLinks} == 1 )
+            && $self->{sourceLines} && @{ $self->{sourceLines} }
             ? ( 'Data sources:', @{ $self->{sourceLines} } )
             : (),
-            !$wb->{noLinks}
+            !( $wb->{noLinks} && $wb->{noLinks} == 1 )
             && $self->{formulaLines} ? @{ $self->{formulaLines} }
             : ()
           )

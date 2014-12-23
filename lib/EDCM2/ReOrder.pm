@@ -115,7 +115,7 @@ sub newOrder {
             my @result;
             foreach ( @_, { newBlock => 2 } ) {
                 if ( $_->{newBlock}
-                    && ( $model->{newOrder} < 2 || $_->{newBlock} == 2 ) )
+                    && ( $model->{tableLayout} < 2 || $_->{newBlock} == 2 ) )
                 {
                     push
                       @result,  # NB: "#" has magical powers in a Columnset name
