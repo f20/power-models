@@ -7,7 +7,7 @@ use POSIX;
 sub score {
 
     my ( $class, $rule, $metadata ) = @_;
-    my $month = $metadata->[0] || strftime( '%Y-%m', localtime );
+    my $month = $metadata->[1] || strftime( '%Y-%m', localtime );
     $month =~ s/^-*//;
     my $score = 0;
 
@@ -32,7 +32,7 @@ sub score {
     # Fun
     $score += 999 if !$rule->{pcd} xor $month lt '2017-10';
 
-    0
+    1
       and warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month,
       $score;
 
