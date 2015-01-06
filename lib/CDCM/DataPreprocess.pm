@@ -267,7 +267,7 @@ EOY
     # Things below are mostly for DCP 179 and similar.
     # They are applied to all cases to help multi-model manufacturing.
 
-    if (  !exists $d->{1025}[1]{'LV Network Non-Domestic CT'}
+    if (  !exists $d->{1025}[1]{'LV Network Non-Domestic Non-CT'}
         && exists $d->{1025}[1]{'LV HH Metered'} )
     {
         foreach ( 1 .. 8 ) {
@@ -300,16 +300,6 @@ EOY
             my $col = $d->{1025}[$_];
             $col->{'LV Network Non-Domestic Non-CT'} =
               $col->{'Small Non Domestic Unrestricted'};
-        }
-    }
-
-    if (  !exists $d->{1028}[1]{'HV Network CT'}
-        && exists $d->{1028}[1]{'HV HH Metered'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1028}[$_];
-            $col->{'HV Network Non-CT'} = $col->{'HV Medium Non-Domestic'};
-            $col->{'HV Network CT'}     = $col->{'HV HH Metered'};
         }
     }
 

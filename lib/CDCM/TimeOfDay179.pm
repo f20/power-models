@@ -241,7 +241,7 @@ sub timeOfDay179Runner {
             defaultFormat => '%soft',
             rows          => $amberPeaking->{rows},
             cols          => Labelset( list => [ $timebandSet->{list}[1] ] ),
-            arithmetic    => '=IF(IV1,IV2+IV3-IV4,IV6*IV7/IV8/24)',
+            arithmetic    => '=IF(IV1,MAX(0,IV2+IV3-IV4),IV6*IV7/IV8/24)',
             arguments     => {
                 IV1 => $model->{blackPeaking},
                 IV2 => $amberPeaking,
