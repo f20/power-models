@@ -8,6 +8,7 @@ sub score {
 
     my ( $class, $rule, $metadata ) = @_;
     my $month = $metadata->[1] || strftime( '%Y-%m', localtime );
+    $month =~ s/^-*//;
     my $score = 0;
 
     # DCP 071
