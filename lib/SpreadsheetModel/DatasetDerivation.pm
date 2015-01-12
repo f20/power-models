@@ -71,7 +71,7 @@ sub setupDerivativeDataset {
                 else {
                     $width = 1 + $d->lastCol;
                 }
-                my @rows = $d->{rows} ? @{ $d->{rows}{list} } : 'z';
+                my @rows = $d->{rows} ? @{ $d->{rows}{list} } : 'XXX';
 
                 for ( my $i = 0 ; $i < @rows ; ++$i ) {
 
@@ -113,7 +113,8 @@ sub setupDerivativeDataset {
                 for ( my $icolumn = 1 ; $icolumn < @$_ ; ++$icolumn ) {
                     foreach my $irow ( keys %{ $_->[$icolumn] } ) {
                         $columns[$icolumn]{$irow} = $_->[$icolumn]{$irow}
-                          unless exists $columns[$icolumn]{$irow};
+                          unless exists $columns[$icolumn]{XXX}
+                          || exists $columns[$icolumn]{$irow};
                     }
                 }
               }
