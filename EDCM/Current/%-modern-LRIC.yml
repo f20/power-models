@@ -2,7 +2,7 @@
 .: EDCM modernised model LRIC
 PerlModule: EDCM2
 dcp130: 1
-ldnoRev: ldnorev5
+ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1

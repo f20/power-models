@@ -7,7 +7,7 @@ dcp130: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
-ldnoRev: ldnorev5
+ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
 method: LRIC
 tableLayout: 1

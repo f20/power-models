@@ -2,7 +2,7 @@
 .: EDCM modernised model FCP
 PerlModule: EDCM2
 dcp130: 1
-ldnoRev: ldnorev5
+ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
 method: FCP
 noNegative: 1

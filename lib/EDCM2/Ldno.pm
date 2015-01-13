@@ -387,11 +387,12 @@ EOF
     my @allTariffs = map {
         Arithmetic(
             name          => $tariffComponents[$_],
-            defaultFormat => $tariffComponents[$_] =~ /day/
-            ? '0.00softnz'
+            defaultFormat => $tariffComponents[$_] =~ /day/ ? '0.00softnz'
             : '0.000softnz',
-            arithmetic => '=IV2*(1-IV1)',
-            arguments  => {
+            arithmetic => $model->{ldnoRev} !~ /round/i ? '=IV2*(1-IV1)'
+            : '=ROUND(IV2*(1-IV1),'
+              . ( $tariffComponents[$_] =~ /day/ ? 2 : 3 ) . ')',
+            arguments => {
                 IV2 => $endUserTariffs[$_],
                 IV1 => $discountsByTariff,
             },
