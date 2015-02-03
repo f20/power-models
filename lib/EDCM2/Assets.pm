@@ -309,7 +309,7 @@ EOL
       ]
       if $model->{dcp183};
 
-    my $capUseRate = Arithmetic(
+      my $capUseRate = Arithmetic(
         name => 'Active power equivalent of capacity'
           . ' adjusted to transmission (kW/kVA)',
         arithmetic => '=IV1*IV9',
@@ -317,7 +317,7 @@ EOL
             IV9 => $powerFactorInModel,
             IV1 => $tariffLossFactor,
         }
-    );
+      );
 
     my $usePropCap = Dataset(
         name     => 'Maximum network use factor',

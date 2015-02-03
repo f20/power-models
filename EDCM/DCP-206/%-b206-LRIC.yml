@@ -3,9 +3,9 @@
 PerlModule: EDCM2
 activeSheets: HSummary
 dcp130: 1
+layout: auto
 lowerIntermittentCredit: 1
 method: LRIC
-tableLayout: 1
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600

@@ -1,11 +1,9 @@
 ---
-.: DCP 183 LRIC (experimental code)
+.: EDCM cleaned-up (no discounted CDCM tariffs) LRIC
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
-dcp183: 1
-dcp185: 2
 layout: auto
 lowerIntermittentCredit: 1
 method: LRIC

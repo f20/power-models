@@ -54,7 +54,9 @@ sub makeFolder {
             open my $h, '>', '~$tmptxt' . $$;
             print {$h} @{ $self->[C_LOG] };
             close $h;
-            rename '~$tmptxt' . $$, "$self->[C_FOLDER].txt";
+            local $_ = "$self->[C_FOLDER].txt";
+            s/^_+([^\.])/$1/s;
+            rename '~$tmptxt' . $$, $_;
             delete $self->[C_LOG];
         }
         chdir '..';
@@ -149,6 +151,7 @@ sub makeModels {
                   perl|
                   rtf|
                   text|
+                  tsv|
                   yaml
                 )/xis
               )

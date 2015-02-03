@@ -234,9 +234,9 @@ sub wsWrite {
     if ( $self->{name} ) {
         ++$headerLines if OLD_STYLE_SCRIBBLES;
         ++$headerLines;
-        $headerLines += @{ $self->{lines} } if $self->{lines};
-        $headerLines += 1 + @sourceLines if @sourceLines;
     }
+    $headerLines += @{ $self->{lines} } if $self->{lines};
+    $headerLines += 1 + @sourceLines if @sourceLines;
 
     $self->{$wb}{$ws} = 1;
 
@@ -448,6 +448,9 @@ sub wsWrite {
                     my $n = $self->{columns}[$_]{name};
                     $self->{columns}[$_]{name} =
                       new SpreadsheetModel::Label( $n, $number . $n );
+                }
+                else {
+                    $self->{columns}[$_]->addTableNumber( $wb, $ws, 1 );
                 }
                 $wb->{logger}->log( $self->{columns}[$_] );
             }

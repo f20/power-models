@@ -168,29 +168,44 @@ sub worksheetsAndClosures {
 
         ,
 
-        $model->{newOrdering}
+        ref $model->{tableList} eq 'ARRAY'
         ? (
-              $model->{tableLayout} == 2
-            ? $model->makeCalcSheets($wbook)
-            : (
-                Calc => sub {
-                    my ($wsheet) = @_;
-                    $wsheet->{sheetNumber} = 40;
-                    $wsheet->{lastTableNumber} =
-                      $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
-                    $wsheet->{tableNumberIncrement} = 2;
-                    $wsheet->freeze_panes( 1, 1 );
-                    $wsheet->set_column( 0, 250, 20 );
-                    $_->wsWrite( $wbook, $wsheet )
-                      foreach Notes( lines => 'Calculations' ),
-                      @{ $model->{newOrdering} };
-                },
-            )
+            Calc => sub {
+                my ($wsheet) = @_;
+                $wsheet->{sheetNumber} = 40;
+                $wsheet->{lastTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{tableNumberIncrement} = 2;
+                $wsheet->freeze_panes( 1, 1 );
+                $wsheet->set_column( 0, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Calculations' ),
+                  @{ $model->{tableList} };
+            },
           )
 
-        :
+        : ref $model->{sheetList} eq 'ARRAY' ? map {
+            my ( $sheetName, $sheetTitle, $formatting, @tables ) = @$_;
+            $sheetTitle ||= $sheetName;
+            $sheetName => sub {
+                my ($wsheet) = @_;
+                if ($formatting) {
+                    $formatting->($wsheet);
+                }
+                else {
+                    $wsheet->freeze_panes( 1, 1 );
+                    $wsheet->set_column( 0, 250, 20 );
+                }
+                $wsheet->{lastTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{tableNumberIncrement} = 2;
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => $sheetTitle ),
+                  @tables;
+            };
+          } @{ $model->{sheetList} }
 
-          (
+        : (
             'Calc1' => sub {
                 my ($wsheet) = @_;
                 $wsheet->{lastTableNumber} =
@@ -523,7 +538,6 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   30 );
         $wsheet->set_column( 1, 1,   105 );
         $wsheet->set_column( 2, 250, 30 );
-        $wbook->{logger}{showColumns} = 1 if $model->{tableLayout};
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->topNotes, $model->licenceNotes,
           SpreadsheetModel::ColourCodeWriter->new,

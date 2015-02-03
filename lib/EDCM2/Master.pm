@@ -48,7 +48,10 @@ sub requiredModulesForRuleset {
     $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
       $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
-      $ruleset->{tableLayout}                     ? qw(EDCM2::ReOrder)  : (),
+      $ruleset->{layout}
+      ? (
+        $ruleset->{layout} =~ /216/ ? qw(EDCM2::Layout216) : qw(EDCM2::Layout) )
+      : (),
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
 }
 
@@ -384,7 +387,8 @@ EOT
 
     }
 
-    my $exportEligible = Arithmetic(
+    push @{ $model->{finalCalcTables}[0] },
+      my $exportEligible = Arithmetic(
         name       => 'Has export charges?',
         arithmetic => '=OR(IV1<>"VOID",IV2<>"VOID",IV3<>"VOID")',
         arguments  => {
@@ -392,15 +396,16 @@ EOT
             IV2 => $exportCapacityChargeable20052010,
             IV3 => $exportCapacityChargeablePost2010,
         }
-    );
+      );
 
-    my $importEligible = Arithmetic(
+    push @{ $model->{finalCalcTables}[4] },
+      my $importEligible = Arithmetic(
         name       => 'Has import charges?',
         arithmetic => '=IV1<>"VOID"',
         arguments  => {
             IV1 => $importCapacity,
         }
-    );
+      );
 
     my $importCapacityUnscaled = $importCapacity;
     my $chargeableCapacity     = Arithmetic(
@@ -1754,12 +1759,34 @@ EOT
         $exportCapacityExceeded,
     );
 
-    $model->newOrder(
-        { sourceLines => [$exportEligible] },
-        @tariffColumns[ 5, 7, 8 ],
-        { sourceLines => [$importEligible] },
-        @tariffColumns[ 6, 2, 1, 3, 4 ]
-    ) if $model->{tableLayout};
+    if ( $model->{layout} ) {
+        if ( $model->{layout} =~ /auto/i ) {
+            push @{ $model->{finalCalcTables}[0] }, $exportCapacityExempt,
+              $exportCapacityChargeable;
+            push @{ $model->{finalCalcTables}[1] },
+              @{ $tariffColumns[5]{sourceLines} };
+            push @{ $model->{finalCalcTables}[2] },
+              @{ $tariffColumns[7]{sourceLines} };
+            push @{ $model->{finalCalcTables}[3] },
+              @{ $tariffColumns[8]{sourceLines} };
+            push @{ $model->{finalCalcTables}[4] },
+              @{ $tariffColumns[6]{sourceLines} };
+            push @{ $model->{finalCalcTables}[5] },
+              @{ $tariffColumns[6]{sourceLines} };
+            push @{ $model->{finalCalcTables}[6] },
+              @{ $tariffColumns[2]{sourceLines} };
+            push @{ $model->{finalCalcTables}[7] },
+              @{ $tariffColumns[1]{sourceLines} };
+            push @{ $model->{finalCalcTables}[8] },
+              @{ $tariffColumns[3]{sourceLines} };
+            push @{ $model->{finalCalcTables}[9] },
+              @{ $tariffColumns[4]{sourceLines} };
+            $model->{tableList} = $model->orderedLayout;
+        }
+        else {
+            $model->{sheetList} = $model->otherLayout;
+        }
+    }
 
     push @{ $model->{tariffTables} }, Columnset(
         name    => 'EDCM charge',

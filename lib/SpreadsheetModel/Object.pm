@@ -173,22 +173,15 @@ sub htmlDescribe {
     [ div => "No information available for $_[0]{name}" ], [ p => ref $_[0] ];
 }
 
-sub addTableNumber {    # prohibitedTableNumbers is a bad arrangement
-    my ( $self, $wb, $ws ) = @_;
+sub addTableNumber {
+    my ( $self, $wb, $ws, $intrusive ) = @_;
     return '' if $self->{name} =~ /^[0-9]+[a-z]*\.\s/;
-    if ( !$ws->{sheetNumber} ) {
-        do { $ws->{sheetNumber} = ++$wb->{lastSheetNumber} }
-          while $wb->{prohibitedSheetNumberRegex}
-          && $ws->{sheetNumber} =~ $wb->{prohibitedSheetNumberRegex};
-    }
+    $ws->{sheetNumber} = ++$wb->{lastSheetNumber} unless $ws->{sheetNumber};
     my $numlet = $self->{number};
     unless ($numlet) {
-        do {
-            $numlet =
-              ( $ws->{lastTableNumber} += ( $ws->{tableNumberIncrement} || 1 ) )
-              + 100 * $ws->{sheetNumber};
-          } while $wb->{prohibitedTableNumbers}
-          && grep { $_ eq $numlet; } @{ $wb->{prohibitedTableNumbers} };
+        $numlet =
+          ( $ws->{lastTableNumber} += ( $ws->{tableNumberIncrement} || 1 ) ) +
+          100 * $ws->{sheetNumber};
         ++$wb->{lastSheetNumber} unless $numlet % 100;
         die 'Non-sequential table numbers: '
           . "trying to assign $numlet to $self->{name} $self->{debug}"
@@ -198,8 +191,13 @@ sub addTableNumber {    # prohibitedTableNumbers is a bad arrangement
         $wb->{highestAutoTableNumber} = $numlet;
     }
     $numlet .= '. ';
-    $self->{name} =
-      new SpreadsheetModel::Label( $numlet . $self->{name}, $self->{name} );
+    if ($intrusive) {
+        $self->{name} = $numlet . _shortName( $self->{name} );
+    }
+    else {
+        $self->{name} =
+          new SpreadsheetModel::Label( $numlet . $self->{name}, $self->{name} );
+    }
     $numlet;
 }
 
@@ -214,7 +212,7 @@ sub splitLines {
 sub _shortName {
     my ($self) = @_;
     return $self->shortName if UNIVERSAL::can( $self, 'shortName' );
-    my @self = split /\n/, $self;
+    my @self = split /\n/, $self or return '';
     pop @self;
 }
 

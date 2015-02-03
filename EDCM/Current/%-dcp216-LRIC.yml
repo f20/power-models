@@ -1,22 +1,19 @@
 ---
-.: EDCM beta after DCP 189 LRIC
+.: Draft DCP 216 LRIC
 PerlModule: EDCM2
-activeSheets: Results
-checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
-ldnoRev: ldnorev5rounding
+layout: 216
+ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC
-tableLayout: 1
+noLinks: 2
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
-transparency: 1
 validation: lenientnomsg
-voltageRulesTransparency: 1
 wantTables: 913

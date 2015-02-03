@@ -6,9 +6,9 @@ checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
 dcp183: 1
 dcp185: 2
+layout: auto
 lowerIntermittentCredit: 1
 method: FCP
-tableLayout: 1
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600

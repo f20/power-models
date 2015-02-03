@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,16 +31,17 @@ use warnings;
 use strict;
 use utf8;
 
-sub newOrder {
+sub orderedLayout {
 
-    my ( $model, @results ) = @_;
+    my ( $model, @finalCalcTableList ) = @_;
+    @finalCalcTableList = @{ $model->{finalCalcTables} }
+      unless @finalCalcTableList;
 
-    my ( %calcTables, %dependencies );
+    my ( %calcTables, %dependencies, $addCalcTable );
     my $serialUplift = 0;
-    my $addCalcTable;
     $addCalcTable = sub {
         my ( $ob, $destination ) = @_;
-        $ob->{serial2} ||= $ob->{serial} + $serialUplift;
+        $ob->{serialForLayout} ||= $ob->{serial} + $serialUplift;
         return
              if !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Dataset' )
           || $ob->{location}
@@ -51,11 +52,12 @@ sub newOrder {
           if $destination;
         $addCalcTable->( $_, $ob ) foreach @{ $ob->{sourceLines} };
     };
-    foreach (@results) {
-        $serialUplift += 10000;
-        $addCalcTable->($_)
-          foreach $_->{sourceLines} ? @{ $_->{sourceLines} } : ();
+
+    foreach ( grep { $_ } @finalCalcTableList ) {
+        $serialUplift += 10_000;
+        $addCalcTable->($_) foreach @$_;
     }
+
     my ( %deepDep, $getDeepDep );
     $getDeepDep = sub {
         my ($dst) = @_;
@@ -90,10 +92,12 @@ sub newOrder {
         my ($hashref) = @_;
         return unless %$hashref;
         my @columns = ();
-        my $ncol    = 0;
         while (
             ( local $_ ) =
-            sort { $hashref->{$a}{serial2} <=> $hashref->{$b}{serial2} }
+            sort {
+                $hashref->{$a}{serialForLayout}
+                  <=> $hashref->{$b}{serialForLayout}
+            }
             grep {
                 !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
                   keys %{ $getDeepDep->($_) };
@@ -110,24 +114,30 @@ sub newOrder {
     my $columnsetMaker = sub {
         my ( $prefix, @extras ) = @_;
         my $counter;
+        $counter = 0 unless $model->{layout} =~ /unnumbered/i;
+        my $lastSerial;
         sub {
             my @cols;
             my @result;
-            foreach ( @_, { newBlock => 2 } ) {
-                if ( $_->{newBlock}
-                    && ( $model->{tableLayout} < 2 || $_->{newBlock} == 2 ) )
+            foreach ( @_, { serialForLayout => 1_000_000 } ) {
+                if (    @cols
+                    and $_->{serialForLayout} - $lastSerial > 1_000
+                    || $_->{newBlock} )
                 {
-                    push
-                      @result,  # NB: "#" has magical powers in a Columnset name
-                      !@cols ? () : @cols == 1 ? @cols : Columnset(
-                        name => "$prefix data #" . ++$counter,
+                    push @result, !@cols ? () : @cols == 1 ? @cols : Columnset(
+                        name => defined $counter ? (
+                            "$prefix data #" # Note that # has magical powers in a Columnset name
+                              . ++$counter
+                          )
+                        : '',
                         columns =>
                           [ sort { $a->{serial} <=> $b->{serial} } @cols ],
                         @extras,
-                      );
+                    );
                     @cols = ();
                 }
                 push @cols, $_;
+                $lastSerial = $_->{serialForLayout};
             }
             @result;
         };
@@ -149,44 +159,8 @@ sub newOrder {
         push @ordered, $singleMaker->( $dataExtractor->( \%singlesRemaining ) );
     }
 
-    $model->{newOrdering} = \@ordered;
+    \@ordered;
 
-}
-
-sub makeCalcSheets {
-    my $model   = shift;
-    my $wbook   = shift;
-    my $counter = 0;
-    my @result;
-    my @accum;
-    foreach ( @{ $model->{newOrdering} }, undef ) {
-        if (  !defined $_
-            || ref $_ eq 'SpreadsheetModel::Columnset'
-            && @{ $_->{columns} } > 8 )
-        {
-            my @a = @accum;
-            @accum = $_;
-            my $c = $counter++;
-            push @a, @{ $model->{generalTables} } unless $c;
-            push @result, $c ? "Calc$c" : 'General' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{sheetNumber} = 40 + $c;
-                $wsheet->{lastTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes(
-                    lines => $c ? "Calculation sheet $c" : 'General' ),
-                  @a;
-            };
-        }
-        else {
-            push @accum, $_;
-        }
-    }
-    @result;
 }
 
 1;

@@ -429,6 +429,7 @@ sub charge1 {
         my $kVA = Arithmetic(
             name          => 'Parent group maximum demand (kVA)',
             defaultFormat => '0soft',
+            newBlock      => 1,
             arithmetic    => '=IF(ISNUMBER(IV1),'
               . 'SQRT((INDEX(IV53_IV54,IV52)+INDEX(IV73_IV74,IV72))^2+'
               . '(INDEX(IV63_IV64,IV62)+INDEX(IV83_IV84,IV82))^2)' . ',0)',

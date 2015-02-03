@@ -363,7 +363,6 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
         $wbook->{lastSheetNumber} = 36 if $wbook->{lastSheetNumber} < 36;
-        push @{ $wbook->{prohibitedTableNumbers} }, 3701 if $model->{pcd};
         push @{ $model->{sheetLinks} }, my $notes = Notes( name => 'Tariffs' );
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,

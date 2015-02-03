@@ -1,5 +1,5 @@
 ---
-.: EDCM beta after DCP 189 FCP
+.: EDCM cleaned-up after DCP 189 FCP
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7
@@ -7,10 +7,10 @@ dcp130: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
+layout: auto
 ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
 method: FCP
-tableLayout: 1
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
