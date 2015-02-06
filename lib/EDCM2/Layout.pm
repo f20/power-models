@@ -147,12 +147,11 @@ sub orderedLayout {
 
     push @{ $model->{generalTables} },
       $columnsetMaker->('Fixed parameter')->(
-        sort   { $a->{serial} <=> $b->{serial} }
-          grep { !$_->{cols} } @constantSingle,
-        @constantOther
+        sort { $a->{serialForLayout} <=> $b->{serialForLayout} }
+        grep { !$_->{cols} } @constantSingle
       ),
-      grep { $_->{cols} } @constantSingle,
-      @constantOther;
+      sort { $a->{serialForLayout} <=> $b->{serialForLayout} }
+      ( @constantOther, grep { $_->{cols} } @constantSingle );
 
     my $singleMaker = $columnsetMaker->('Aggregate');
     my $tariffMaker = $columnsetMaker->('Tariff-specific');
