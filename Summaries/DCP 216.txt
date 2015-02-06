@@ -1,5 +1,0 @@
-makeModels
-	EDCM/Current/%-*
-	EDCM/Toys-2014/TestPower*
-	-tsv
-	-rtf

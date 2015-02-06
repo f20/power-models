@@ -39,7 +39,10 @@ sub orderedLayout {
     my $serialUplift = 0;
     $addCalcTable = sub {
         my ( $ob, $destination ) = @_;
-        $ob->{serialForLayout} ||= $ob->{serial} + $serialUplift;
+        my $serialForLayout = $ob->{serial} + $serialUplift;
+        $ob->{serialForLayout} = $serialForLayout
+          if !$ob->{serialForLayout}
+          || $ob->{serialForLayout} > $serialForLayout;
         return
              if !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Dataset' )
           || $ob->{location}
