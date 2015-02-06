@@ -242,7 +242,7 @@ EOL
       Columnset(
         name    => 'Rules applicable to customer categories',
         columns => [ $lossFactorMap, $classificationMap, ],
-      );
+      ) if $model->{voltageRulesTransparency};
 
     my $tariffLossFactor = Arithmetic(
         name       => 'Loss factor to transmission',
@@ -309,7 +309,7 @@ EOL
       ]
       if $model->{dcp183};
 
-      my $capUseRate = Arithmetic(
+    my $capUseRate = Arithmetic(
         name => 'Active power equivalent of capacity'
           . ' adjusted to transmission (kW/kVA)',
         arithmetic => '=IV1*IV9',
@@ -317,7 +317,7 @@ EOL
             IV9 => $powerFactorInModel,
             IV1 => $tariffLossFactor,
         }
-      );
+    );
 
     my $usePropCap = Dataset(
         name     => 'Maximum network use factor',
@@ -419,7 +419,6 @@ EOL
     my $useProportionsCooked = sub {
         Arithmetic(
             name       => 'Network use factors (second set)',
-            newBlock   => 1,
             arithmetic => '=MAX(IV3+0,MIN(IV1+0,IV2+0))',
             arguments  => {
                 IV1 => $useProportions,
@@ -444,7 +443,7 @@ EOL
                 name   => $name1,
                 matrix => SpreadsheetModel::Custom->new(
                     name => $name2,
-                    $diversity ? ( newBlock => 1 ) : (),
+                    !$diversity ? ( newBlock => 1 ) : (),
                     custom => [
                             '=IF(INDEX(IV5:IV6,IV4)'
                           . ( $diversity ? '=1' : '>1' )
@@ -1491,6 +1490,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
       $model->{transparencyMasterFlag}
       ? Arithmetic(
         name          => 'Total sole use assets for demand (£)',
+        newBlock      => 1,
         defaultFormat => '0softnz',
         arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
         arguments     => {
@@ -1503,6 +1503,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
       : GroupBy(
         source        => $tariffSUimport,
         name          => 'Total sole use assets for demand (£)',
+        newBlock      => 1,
         defaultFormat => '0softnz'
       );
 

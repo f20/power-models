@@ -1,5 +1,5 @@
-folder ~$models
 makeModels
-	EDCM/Current/%-clean189-*
-	EDCM/Current/%-dcp216-*
+	EDCM/Current/%-*
 	EDCM/Toys-2014/TestPower*
+	-tsv
+	-rtf

@@ -33,13 +33,36 @@ use utf8;
 use EDCM2::Layout;
 
 sub otherLayout {
-    my ($model) = @_;
+    my ( $model, @calculationOrder ) = @_;
+    1 and $model->{layout} .= 'unnumbered';
+    my $ordered = $model->orderedLayout( 1, @calculationOrder );
     [
         [
-            'SR Rate' => 'Super-red rate',
-            undef, @{ $model->{calc1Tables} }, @{ $model->{calc2Tables} },
-            @{ $model->{calc3Tables} }, @{ $model->{calc4Tables} }
-        ]
+            'Param' => 'General parameters',
+            undef, @{ $model->{generalTables} }
+        ],
+        [
+            'GenSR' => 'Export super-red credits',
+            undef, $ordered->[0]
+        ],
+        [
+            'GenCap' => 'Export capacity charges',
+            undef, @$ordered[ 1 .. 3 ]
+        ],
+        [
+            'Fixed' => 'Export and import fixed charges',
+            undef, @$ordered[ 4 .. 9 ]
+        ],
+        [
+            'Dem1' => 'Import charges before scaling',
+            undef,
+            $ordered->[10]
+        ],
+        [
+            'Dem2' => 'Import charges after scaling',
+            undef,
+            @$ordered[ 11 .. $#$ordered ]
+        ],
     ];
 }
 

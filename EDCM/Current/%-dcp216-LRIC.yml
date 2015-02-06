@@ -5,6 +5,7 @@ dcp130: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
+gridlines: 1
 layout: 216
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1

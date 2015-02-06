@@ -412,6 +412,18 @@ sub wsWrite {
         $row++ if $dualHeaded;
         foreach ( 0 .. $lastCol ) {
 
+            if ( $wb->{logger} ) {
+                if ($number) {
+                    my $n = $self->{columns}[$_]{name};
+                    $self->{columns}[$_]{name} =
+                      new SpreadsheetModel::Label( $n, $number . $n );
+                }
+                else {
+                    $self->{columns}[$_]->addTableNumber( $wb, $ws, 1 );
+                }
+                $wb->{logger}->log( $self->{columns}[$_] );
+            }
+
             my $colShortName = _shortNameCol $self->{columns}[$_]{name};
 
             if ( ( my $co = $self->{columns}[$_]{cols} )
@@ -441,18 +453,6 @@ sub wsWrite {
             }
             else {
                 $ws->write( $row, $c4++, $colShortName, $wb->getFormat('thc') );
-            }
-
-            if ( $wb->{logger} ) {
-                if ($number) {
-                    my $n = $self->{columns}[$_]{name};
-                    $self->{columns}[$_]{name} =
-                      new SpreadsheetModel::Label( $n, $number . $n );
-                }
-                else {
-                    $self->{columns}[$_]->addTableNumber( $wb, $ws, 1 );
-                }
-                $wb->{logger}->log( $self->{columns}[$_] );
             }
 
         }
@@ -496,7 +496,7 @@ use ->shortName here.
 
 =cut
 
-        $ws->write( $row, $col - 1, $srn, $wb->getFormat('th') );
+        $ws->write( $row, $col - 1, $srn, $wb->getFormat('th') ) if $srn;
     }
 
     elsif ( $self->{singleRowName} ) {

@@ -40,7 +40,7 @@ sub bgCreate {
     $module->create( $fileName, @arguments );
     exit 0 if defined $pid;
 
-    # NB: if you need to avoid exit, then do something like:
+    # NB: if you need to avoid calling exit, then do something like:
     #     $ENV{PATH} = '';
     #     eval { File::Temp::cleanup(); };
     #     exec '/bin/test';
@@ -61,29 +61,31 @@ sub create {
             binmode STDOUT;
             return \*STDOUT;
         }
+        my $finalFile = $fn;
+        if (
+            $fn !~ m#/#
+            and (
+                my ($folder) =
+                grep { -d $_ && -w _; } qw(~$models models.tmp)
+            )
+          )
+        {
+            $finalFile = catfile( $folder, $fn );
+        }
         $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
         mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
-        open my $handle, '>', $tmpDir ? catfile( $tmpDir, $fn ) : $fn;
+        my $tempFile = $tmpDir ? catfile( $tmpDir, $fn ) : $fn;
+        open my $handle, '>', $tempFile;
         binmode $handle;
         $handle, sub {
             if ($tmpDir) {
-                my $finalFile = $fn;
-                if (
-                    $fn !~ m#/#
-                    and (
-                        my ($folder) =
-                        grep { -d $_ && -w _; } qw(~$models models.tmp)
-                    )
-                  )
-                {
-                    $finalFile = catfile( $folder, $fn );
-                }
-                rename catfile( $tmpDir, $fn ), $finalFile;
+                rename $tempFile, $finalFile;
                 rmdir $tmpDir;
             }
-        };
+        }, $finalFile;
     };
-    my ( $handle, $closer ) = $streamMaker->($fileName);
+
+    ( my $handle, my $closer, $fileName ) = $streamMaker->($fileName);
     my $wbook = $module->new($handle);
     $wbook->set_tempdir($tmpDir)
       if $tmpDir && $module !~ /xlsx/i;  # work around taint issue with IO::File

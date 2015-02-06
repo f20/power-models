@@ -54,7 +54,6 @@ sub chargesFcpLric {
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Import demand charge p/kVA/day',
-        newBlock      => 1,
         defaultFormat => '0.00softnz',
         rows          => $demandCapacity->{rows},
         arithmetic    => '=100*(' . join(
@@ -87,10 +86,9 @@ sub chargesFcpLric {
         }
       )
       : Constant(
-        rows     => $demandCapacity->{rows},
-        newBlock => 1,
-        name     => 'Import demand charge before matching p/kVA/day',
-        data     => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
+        rows => $demandCapacity->{rows},
+        name => 'Import demand charge before matching p/kVA/day',
+        data => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
       );
 
     $model->{demandCapacityFcpLric} = my $demandCapacityFcpLric =

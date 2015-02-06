@@ -33,9 +33,7 @@ use utf8;
 
 sub orderedLayout {
 
-    my ( $model, @finalCalcTableList ) = @_;
-    @finalCalcTableList = @{ $model->{finalCalcTables} }
-      unless @finalCalcTableList;
+    my ( $model, $ignoreNewBlock, @finalCalcTableList ) = @_;
 
     my ( %calcTables, %dependencies, $addCalcTable );
     my $serialUplift = 0;
@@ -89,7 +87,7 @@ sub orderedLayout {
     }
 
     my $dataExtractor = sub {
-        my ($hashref) = @_;
+        my ( $hashref, $maxSerial ) = @_;
         return unless %$hashref;
         my @columns = ();
         while (
@@ -99,7 +97,8 @@ sub orderedLayout {
                   <=> $hashref->{$b}{serialForLayout}
             }
             grep {
-                !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
+                $hashref->{$_}{serialForLayout} < $maxSerial
+                  and !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
                   keys %{ $getDeepDep->($_) };
             } keys %$hashref
           )
@@ -115,14 +114,12 @@ sub orderedLayout {
         my ( $prefix, @extras ) = @_;
         my $counter;
         $counter = 0 unless $model->{layout} =~ /unnumbered/i;
-        my $lastSerial;
         sub {
             my @cols;
             my @result;
-            foreach ( @_, { serialForLayout => 1_000_000 } ) {
+            foreach ( @_, { theEnd => 1 } ) {
                 if (    @cols
-                    and $_->{serialForLayout} - $lastSerial > 1_000
-                    || $_->{newBlock} )
+                    and $_->{theEnd} || $_->{newBlock} && !$ignoreNewBlock )
                 {
                     push @result, !@cols ? () : @cols == 1 ? @cols : Columnset(
                         name => defined $counter ? (
@@ -130,14 +127,16 @@ sub orderedLayout {
                               . ++$counter
                           )
                         : '',
-                        columns =>
-                          [ sort { $a->{serial} <=> $b->{serial} } @cols ],
+                        columns => [
+                            sort {
+                                $a->{serialForLayout} <=> $b->{serialForLayout}
+                            } @cols
+                        ],
                         @extras,
                     );
                     @cols = ();
                 }
                 push @cols, $_;
-                $lastSerial = $_->{serialForLayout};
             }
             @result;
         };
@@ -154,9 +153,28 @@ sub orderedLayout {
 
     my $singleMaker = $columnsetMaker->('Aggregate');
     my $tariffMaker = $columnsetMaker->('Tariff-specific');
-    while ( %singlesRemaining || %tariffsRemaining ) {
-        push @ordered, $tariffMaker->( $dataExtractor->( \%tariffsRemaining ) );
-        push @ordered, $singleMaker->( $dataExtractor->( \%singlesRemaining ) );
+    for (
+        my $maxSerial = 5_000 ;
+        $maxSerial - $serialUplift < 10_000 ;
+        $maxSerial += 10_000
+      )
+    {
+        while (
+            (
+                grep { $_->{serialForLayout} < $maxSerial }
+                values %singlesRemaining
+            )
+            || ( grep { $_->{serialForLayout} < $maxSerial }
+                values %tariffsRemaining )
+          )
+        {
+            push @ordered,
+              $tariffMaker->(
+                $dataExtractor->( \%tariffsRemaining, $maxSerial ) );
+            push @ordered,
+              $singleMaker->(
+                $dataExtractor->( \%singlesRemaining, $maxSerial ) );
+        }
     }
 
     \@ordered;

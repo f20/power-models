@@ -228,54 +228,67 @@ Keys used in %$options:
           . '??0.00000);;@',
         align => 'center'
       );
-    my @colourCon =
-      $backgroundColour
-      ? ( bg_color => SILVER )
-      : (
-        $borderColour ? ( border => 1, border_color => GREY ) : (),
-        $textColour ? ( color => GREY ) : (),
-      );
-    my @colourCopy =
-      $backgroundColour
-      ? ( bg_color => BGGREEN )
-      : (
-        $borderColour ? ( border => 1, border_color => GREEN ) : (),
-        $textColour ? ( color => GREEN ) : (),
-      );
-    my @colourHard =
-      $backgroundColour
-      ? ( bg_color => BGBLUE )
-      : (
-        $borderColour ? ( border => 1, border_color => BLUE ) : (),
-        $textColour ? ( color => BLUE ) : (),
-      );
-    my @colourSoft =
-      $backgroundColour
-      ? ( bg_color => BGYELLOW )
-      : (
-        $borderColour ? ( border => 1, border_color => DKYELLOW ) : (),
-        $textColour ? ( color => DKYELLOW ) : (),
-      );
+    my @colourCon = (
+        $options->{gridlines} ? ( border => 4 ) : (),
+        $backgroundColour
+        ? ( bg_color => SILVER )
+        : (
+            $borderColour ? ( border => 1, border_color => GREY ) : (),
+            $textColour ? ( color => GREY ) : (),
+        )
+    );
+    my @colourCopy = (
+        $options->{gridlines} ? ( border => 4 ) : (),
+        $backgroundColour
+        ? ( bg_color => BGGREEN )
+        : (
+            $borderColour ? ( border => 1, border_color => GREEN ) : (),
+            $textColour ? ( color => GREEN ) : (),
+        )
+    );
+    my @colourHard = (
+        $options->{gridlines} ? ( border => 4 ) : (),
+        $backgroundColour
+        ? ( bg_color => BGBLUE )
+        : (
+            $borderColour ? ( border => 1, border_color => BLUE ) : (),
+            $textColour ? ( color => BLUE ) : (),
+        )
+    );
+    my @colourSoft = (
+        $options->{gridlines} ? ( border => 4 ) : (),
+        $backgroundColour
+        ? ( bg_color => BGYELLOW )
+        : (
+            $borderColour ? ( border => 1, border_color => DKYELLOW ) : (),
+            $textColour ? ( color => DKYELLOW ) : (),
+        )
+    );
     my @colourScribbles = (
         color => PURPLE,
         !$backgroundColour ? ()
         : $orangeColours ? ( bottom => 3, top => 3, border_color => PURPLE, )
         :                  ( bg_color => LTPURPLE )
     );
-    my @colourHeader =
-      $goldColours
-      ? ( bg_color => SILVER, fg_color => BGGOLD, pattern => 6 )
-      : $backgroundColour
-      ? ( bg_color => $orangeColours ? BGORANGE : BGPURPLE )
-      : ();
-    my @colourUnavailable =
-      $backgroundColour
-      ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
-      : ( right => 4, border_color => GREY );
-    my @colourUnused =
-      $backgroundColour
-      ? ( fg_color => SILVER, bg_color => WHITE, pattern => 15, )
-      : ( right => 4, border_color => GREY );
+    my @colourHeader = (
+        $goldColours
+        ? ( bg_color => SILVER, fg_color => BGGOLD, pattern => 6 )
+        : $backgroundColour
+        ? ( bg_color => $orangeColours ? BGORANGE : BGPURPLE )
+        : ()
+    );
+    my @colourUnavailable = (
+        $options->{gridlines} ? ( border => 4 ) : (),
+        $backgroundColour
+        ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
+        : ( right => 4, border_color => GREY )
+    );
+    my @colourUnused = (
+        $options->{gridlines} ? ( border => 4 ) : (),
+        $backgroundColour
+        ? ( fg_color => SILVER, bg_color => WHITE, pattern => 15, )
+        : ( right => 4, border_color => GREY )
+    );
     my @colourCaption = $backgroundColour ? () : ( color => BLUE );
     my @colourTitle   = $backgroundColour ? () : ( color => ORANGE );
     my @sizeExtras =
@@ -555,6 +568,7 @@ Keys used in %$options:
             bold       => 1,
             text_wrap  => 1,
             @colourHeader,
+            $options->{gridlines} ? ( bottom => 4 ) : (),
         ],
         thc => [
             locked => 1,
@@ -564,6 +578,7 @@ Keys used in %$options:
             text_wrap  => 1,
             align      => 'center',
             @colourHeader,
+            $options->{gridlines} ? ( right => 4 ) : (),
         ],
         thca => [
             locked => 1,

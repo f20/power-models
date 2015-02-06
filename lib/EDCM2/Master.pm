@@ -387,8 +387,7 @@ EOT
 
     }
 
-    push @{ $model->{finalCalcTables}[0] },
-      my $exportEligible = Arithmetic(
+    my $exportEligible = Arithmetic(
         name       => 'Has export charges?',
         arithmetic => '=OR(IV1<>"VOID",IV2<>"VOID",IV3<>"VOID")',
         arguments  => {
@@ -396,16 +395,15 @@ EOT
             IV2 => $exportCapacityChargeable20052010,
             IV3 => $exportCapacityChargeablePost2010,
         }
-      );
+    );
 
-    push @{ $model->{finalCalcTables}[4] },
-      my $importEligible = Arithmetic(
+    my $importEligible = Arithmetic(
         name       => 'Has import charges?',
         arithmetic => '=IV1<>"VOID"',
         arguments  => {
             IV1 => $importCapacity,
         }
-      );
+    );
 
     my $importCapacityUnscaled = $importCapacity;
     my $chargeableCapacity     = Arithmetic(
@@ -428,7 +426,6 @@ EOT
             IV2  => $tariffDaysInYearNot,
             IV3  => $daysInYear,
         },
-        newBlock => 1,
     );
 
     $chargeableCapacity = Arithmetic(
@@ -687,7 +684,6 @@ EOT
             IV5 => $cdcmHvLvService,
             IV6 => $ehvIntensity,
         },
-        newBlock => 1,
     );
     $model->{transparency}{olFYI}{1245} = $rateDirect if $model->{transparency};
 
@@ -1184,6 +1180,7 @@ EOT
 
         $totalRevenue3 = Arithmetic(
             name          => 'Demand revenue target pot (£/year)',
+            newBlock      => 1,
             defaultFormat => '0softnz',
             arithmetic    => '=IV5*IV6'
               . '+(IV11+IV12+IV13)*(IV21+IV22+IV23)'
@@ -1221,6 +1218,7 @@ EOT
 
     my $capacityChargeT = Arithmetic(
         name          => 'Capacity charge p/kVA/day (exit only)',
+        newBlock      => 1,
         defaultFormat => '0.00softnz',
         arithmetic    => '=100/IV2*IV41*IV1',
         arguments     => {
@@ -1760,31 +1758,27 @@ EOT
     );
 
     if ( $model->{layout} ) {
+        my @calculationOrder = (
+            [ $exportEligible, @{ $tariffColumns[5]{sourceLines} } ],
+            [
+                @{ $tariffColumns[7]{sourceLines} },
+                @{ $tariffColumns[8]{sourceLines} }
+            ],
+            [ $rateExit, $rateDirect, $rateIndirect, $rateRates ],
+            $tariffColumns[6]{sourceLines},
+            $tariffColumns[2]{sourceLines},
+            [
+                @{ $tariffColumns[1]{sourceLines} },
+                @{ $tariffColumns[3]{sourceLines} },
+                @{ $tariffColumns[4]{sourceLines} }
+            ]
+        );
         if ( $model->{layout} =~ /auto/i ) {
-            push @{ $model->{finalCalcTables}[0] }, $exportCapacityExempt,
-              $exportCapacityChargeable;
-            push @{ $model->{finalCalcTables}[1] },
-              @{ $tariffColumns[5]{sourceLines} };
-            push @{ $model->{finalCalcTables}[2] },
-              @{ $tariffColumns[7]{sourceLines} };
-            push @{ $model->{finalCalcTables}[3] },
-              @{ $tariffColumns[8]{sourceLines} };
-            push @{ $model->{finalCalcTables}[4] },
-              @{ $tariffColumns[6]{sourceLines} };
-            push @{ $model->{finalCalcTables}[5] },
-              @{ $tariffColumns[6]{sourceLines} };
-            push @{ $model->{finalCalcTables}[6] },
-              @{ $tariffColumns[2]{sourceLines} };
-            push @{ $model->{finalCalcTables}[7] },
-              @{ $tariffColumns[1]{sourceLines} };
-            push @{ $model->{finalCalcTables}[8] },
-              @{ $tariffColumns[3]{sourceLines} };
-            push @{ $model->{finalCalcTables}[9] },
-              @{ $tariffColumns[4]{sourceLines} };
-            $model->{tableList} = $model->orderedLayout;
+            $model->{tableList} =
+              $model->orderedLayout( undef, @calculationOrder );
         }
         else {
-            $model->{sheetList} = $model->otherLayout;
+            $model->{sheetList} = $model->otherLayout(@calculationOrder);
         }
     }
 

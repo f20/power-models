@@ -1,5 +1,0 @@
-makeModels
-	EDCM/Current/%-clean189-*
-	EDCM/Current/%-dcp216-*
-	EDCM/Toys-2014/TestPower*
-
