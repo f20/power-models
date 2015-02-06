@@ -38,30 +38,53 @@ sub otherLayout {
     my $ordered = $model->orderedLayout( 1, @calculationOrder );
     [
         [
-            'Param' => 'General parameters',
+            'Param' => 'EDCM calculations',    # 'General parameters',
             undef, @{ $model->{generalTables} }
         ],
         [
-            'GenSR' => 'Export super-red credits',
+            'GenSR' => 'EDCM calculations',    # 'Export super-red credits',
             undef, $ordered->[0]
         ],
         [
-            'GenCap' => 'Export capacity charges',
-            undef, @$ordered[ 1 .. 3 ]
+            'GenVol' => 'EDCM calculations',    # 'Export super-red credits',
+            undef, $ordered->[1]
         ],
         [
-            'Fixed' => 'Export and import fixed charges',
-            undef, @$ordered[ 4 .. 9 ]
+            'GenAgg' => 'EDCM calculations',    # 'Export super-red credits',
+            undef, $ordered->[2]
         ],
         [
-            'Dem1' => 'Import charges before scaling',
+            'GenCap' => 'EDCM calculations',    # 'Export capacity charges',
+            undef, $ordered->[3]
+        ],
+        [
+            'Fixed' => 'EDCM calculations', # 'Export and import fixed charges',
+            undef, @$ordered[ 4 .. 8 ]
+        ],
+        [
+            'Dem1' => 'EDCM calculations',    # 'Import charges before scaling',
+            undef,
+            $ordered->[9]
+        ],
+        [
+            'DemAgg1' => 'EDCM calculations',  # 'Import charges after scaling',
             undef,
             $ordered->[10]
         ],
         [
-            'Dem2' => 'Import charges after scaling',
+            'Dem2' => 'EDCM calculations',    # 'Import charges before scaling',
             undef,
-            @$ordered[ 11 .. $#$ordered ]
+            $ordered->[11]
+        ],
+        [
+            'DemAgg2' => 'EDCM calculations',  # 'Import charges after scaling',
+            undef,
+            $ordered->[12]
+        ],
+        [
+            'Dem3' => 'EDCM calculations',     # 'Import charges after scaling',
+            undef,
+            @$ordered[ 13 .. $#$ordered ]
         ],
     ];
 }

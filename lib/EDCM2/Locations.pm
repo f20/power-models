@@ -119,7 +119,7 @@ sub charge1 {
     my $locMatchA = Arithmetic(
         name          => 'Location',
         newBlock      => 1,
-        defaultFormat => 'thloc',
+        defaultFormat => 'locsoft',
         arithmetic    => '=MATCH(IV1,IV5_IV6,0)',
         arguments     => {
             IV1     => $tariffLoc,
@@ -135,7 +135,7 @@ sub charge1 {
 
         $locMatch[$_] = Arithmetic(
             name          => "Linked location $_",
-            defaultFormat => 'thloc',
+            defaultFormat => 'locsoft',
             arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
             arguments     => {
                 IV1     => $locMatch[ $_ - 1 ],
@@ -307,7 +307,7 @@ sub charge1 {
 
     my $locMatchB = Arithmetic(
         name          => 'Parent location',
-        defaultFormat => 'thloc',
+        defaultFormat => 'locsoft',
         arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
         arguments     => {
             IV1     => $locMatchA,
@@ -318,7 +318,7 @@ sub charge1 {
 
     my $locMatchC = Arithmetic(
         name          => 'Grandparent location',
-        defaultFormat => 'thloc',
+        defaultFormat => 'locsoft',
         arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
         arguments     => {
             IV1     => $locMatchB,

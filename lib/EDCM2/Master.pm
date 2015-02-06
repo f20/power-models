@@ -1765,8 +1765,10 @@ EOT
                 @{ $tariffColumns[8]{sourceLines} }
             ],
             [ $rateExit, $rateDirect, $rateIndirect, $rateRates ],
-            $tariffColumns[6]{sourceLines},
-            $tariffColumns[2]{sourceLines},
+            [
+                @{ $tariffColumns[6]{sourceLines} },
+                @{ $tariffColumns[2]{sourceLines} }
+            ],
             [
                 @{ $tariffColumns[1]{sourceLines} },
                 @{ $tariffColumns[3]{sourceLines} },
