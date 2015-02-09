@@ -80,7 +80,7 @@ sub _parse_workbook {
                              ? ('-' . $version->att('lowestEdited'))
                              : (""));
 
-    $workbook->{Flag1904} = $properties->att('date1904') ? 1 : 0;
+    $workbook->{Flg1904} = $properties->att('date1904') ? 1 : 0;
 
     $workbook->{FmtClass} = $formatter || Spreadsheet::ParseExcel::FmtDefault->new;
 
