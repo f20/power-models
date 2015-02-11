@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -327,13 +327,10 @@ sub wsWrite {
     my ( $self, $wb, $ws, $row, $col, $noCopy ) = @_;
 
     if ( $self->{$wb} ) {
-
         return @{ $self->{$wb} }{qw(worksheet row col)}
           if !$wb->{copy} || $noCopy || $self->{$wb}{worksheet} == $ws;
-
         return @{ $self->{$wb}{$ws}{$wb} }{qw(worksheet row col)}
           if $self->{$wb}{$ws};
-
     }
 
     if ( $self->{location}
@@ -410,6 +407,12 @@ sub wsWrite {
     unless ( defined $row && defined $col ) {
         ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 );
     }
+
+    my @dataAreHere = ($ws);
+
+    $ws = bless [], 'SpreadsheetModel::Dataset::NOOP_CLASS'
+      if $self->{deferredWrite}
+      && $self->{deferredWrite}->( $self, $wb, $ws, $row, $col );
 
     $ws->set_row( $row, 21 );
     $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
@@ -495,10 +498,6 @@ sub wsWrite {
       || !exists $self->{singleRowName}
       || $self->{singleRowName};
 
-    my @dataAreHere;
-    @dataAreHere = $wb->{ 0 + $self->{rows} }->($lastCol)
-      if $self->{rows} && $wb->{ 0 + $self->{rows} };
-
     if ( $self->{cols} ) {
         $ws->write(
             $row - 1,
@@ -525,7 +524,7 @@ sub wsWrite {
         );
     }
 
-    unless ( @dataAreHere || $self->{noRowLabels} ) {
+    unless ( $self->{noRowLabels} ) {
         if ( $self->{rows} ) {
             my $thFormat =
               $wb->getFormat( $self->{rows}{defaultFormat} || 'th' );
@@ -554,36 +553,21 @@ sub wsWrite {
         }
     }
 
-    if (@dataAreHere) {
-        $ws->write_url(
-            $row++,
-            $col,
-            'internal:\''
-              . ( $dataAreHere[0] ? $dataAreHere[0]->get_name : 'BROKEN LINK' )
-              . '\'!'
-              . xl_rowcol_to_cell( @dataAreHere[ 1, 2 ] ),
-            'Data',
-            $wb->getFormat('link')
-        );
-        $ws->{nextFree} = $row + 1
-          unless $ws->{nextFree} > $row;
-        ( $ws, $row, $col ) = @dataAreHere;
-    }
-    else {
-        @dataAreHere = ( $ws, $row, $col );
-        my $scribbleFormat = $wb->getFormat('scribbles');
-        foreach ( 1 .. NUM_SCRIBBLE_COLUMNS ) {
-            my $c2 = $col + $_ + $lastCol;
-            my @note;
-            if ( $dataset && $self->{rowKeys} ) {
-                my $nd = $dataset->[ $lastCol + $_ + 1 ];
-                @note = map { $nd->{ $self->{rowKeys}[$_] } } 0 .. $lastRow;
-                @note = ( $dataset->[0]{_note} )
-                  if !$#note && $dataset->[0] && $dataset->[0]{_note};
-            }
-            foreach my $y ( 0 .. $lastRow ) {
-                $ws->write( $row + $y, $c2, $note[$y], $scribbleFormat );
-            }
+    @dataAreHere[ 1, 2 ] = ( $row, $col );
+    @{ $self->{$wb} }{qw(worksheet row col)} = @dataAreHere;
+
+    my $scribbleFormat = $wb->getFormat('scribbles');
+    foreach ( 1 .. NUM_SCRIBBLE_COLUMNS ) {
+        my $c2 = $col + $_ + $lastCol;
+        my @note;
+        if ( $dataset && $self->{rowKeys} ) {
+            my $nd = $dataset->[ $lastCol + $_ + 1 ];
+            @note = map { $nd->{ $self->{rowKeys}[$_] } } 0 .. $lastRow;
+            @note = ( $dataset->[0]{_note} )
+              if !$#note && $dataset->[0] && $dataset->[0]{_note};
+        }
+        foreach my $y ( 0 .. $lastRow ) {
+            $ws->write( $row + $y, $c2, $note[$y], $scribbleFormat );
         }
     }
 
@@ -614,12 +598,10 @@ sub wsWrite {
         $col + $lastCol
     ) if $self->{validation};
 
-    @{ $self->{$wb} }{qw(worksheet row col)} = @dataAreHere;
-
     $row += $lastRow;
     $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
     ++$row;
-    $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
+    $dataAreHere[0]{nextFree} = $row unless $dataAreHere[0]{nextFree} > $row;
 
     if ( $self->{postWriteCalls}{$wb} ) {
         $_->($self) foreach @{ $self->{postWriteCalls}{$wb} };
@@ -706,5 +688,16 @@ sub colIndices {
     @_ = $_[0]{cols};
     goto \&_indices;
 }
+
+package SpreadsheetModel::Dataset::NOOP_CLASS;
+our $AUTOLOAD;
+
+sub AUTOLOAD {
+    no strict 'refs';
+    *{$AUTOLOAD} = sub { };
+    return;
+}
+
+1;
 
 1;
