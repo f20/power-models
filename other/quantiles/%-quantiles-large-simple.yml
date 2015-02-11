@@ -1,5 +1,0 @@
----
-.: Simple quantile calculator (large file without filter)
-PERCENTILE: 1
-PerlModule: Quantiles
-numTariffs: 400

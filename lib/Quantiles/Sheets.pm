@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -178,7 +178,16 @@ sub technicalNotes {
 }
 
 sub topNotes {
-    ();
+    my ($model) = @_;
+    Notes(
+        name  => 'Quantile calculator',
+        lines => [
+            <<EOL,
+
+UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
+EOL
+        ]
+    );
 }
 
 sub licenceNotes {

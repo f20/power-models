@@ -1,5 +1,0 @@
----
-.: Complicated quantile calculator (demonstration with filter)
-PerlModule: Quantiles
-catFilter: 1
-illustrative: 1
