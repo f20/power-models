@@ -2,7 +2,7 @@ package Ancillary::Manufacturing;
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -275,15 +275,8 @@ sub factory {
             }
         }
 
+        $settings{safetyCheck}->(@rulesets) if $settings{safetyCheck};
         foreach (@rulesets) {
-            die "$_->{PerlModule} looks unsafe"
-              unless {
-                CDCM      => 1,
-                EDCM2     => 1,
-                EUoS      => 1,
-                ModelM    => 1,
-                Quantiles => 1,
-              }->{ $_->{PerlModule} };    # hack
             _loadModules( $_, "$_->{PerlModule}::Master" ) || return;
             $_->{PerlModule}->can('requiredModulesForRuleset')
               and _loadModules( $_,
