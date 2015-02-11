@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,7 @@ sub new {
     my $self = {
         @_,
         serial => ++$SERIAL,
-        debug  => join( ' line ', (caller)[ 1, 2 ] ) . " #$SERIAL",
+        debug  => join( ' line ', (caller)[ 1, 2 ] ),
     };
     unless ( defined $self->{name} ) {
         my @c = caller;
@@ -183,9 +183,8 @@ sub addTableNumber {
           ( $ws->{lastTableNumber} += ( $ws->{tableNumberIncrement} || 1 ) ) +
           100 * $ws->{sheetNumber};
         ++$wb->{lastSheetNumber} unless $numlet % 100;
-        die 'Non-sequential table numbers: '
-          . "trying to assign $numlet to $self->{name} $self->{debug}"
-          . " after $wb->{highestAutoTableNumber} had been assigned."
+        warn 'Assignigning table number '
+          . "$numlet after $wb->{highestAutoTableNumber}"
           if $wb->{highestAutoTableNumber}
           && $numlet < $wb->{highestAutoTableNumber};
         $wb->{highestAutoTableNumber} = $numlet;
