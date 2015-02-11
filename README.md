@@ -17,14 +17,13 @@ To create models on your own computer using this code:
 
 Step 1. Ensure that you have Perl 5 installed and working (version 5.8.8 or later).
 
-Step 2. Download https://github.com/f20/power-models/archive/master.zip and extract all the files from it
-(or, if you have Git, clone this repository using git clone https://github.com/f20/power-models.git).
+Step 2. Clone this repository using git clone https://github.com/f20/power-models.git, or download https://github.com/f20/power-models/archive/master.zip and extract all the files from it.
 
 Step 3. Change to the root of the repository and try this sample command:
 
     perl pmod.pl CDCM/Current/%-after163.yml CDCM/Data-2014-02/SPEN-SPM.yml
 
-Step 4. If this fails, examine the error messages.  Usually the problem is a missing module
+Step 4. If Step 3 fails, examine the error messages.  Usually the problem is a missing module
 which can be installed from CPAN.  Once you have solved the problem, re-run the test command in
 Step 3; and repeat until it works.
 
@@ -50,5 +49,5 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 18 November 2014.
+Franck Latrémolière, 10 February 2015.
 
