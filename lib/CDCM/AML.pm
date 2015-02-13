@@ -113,8 +113,12 @@ sub diversity {
                     ? qw(1 1 1 1 0 0 0 0)
                     : qw(0 .2 1 1 0 0 0 0)
                   ]
-                  : /132/  ? [qw(1 1 0 0 0 0 0 0)]
-                  : /GSP/i ? [qw(1 0 0 0 0 0 0 0)]
+                  : /132/ ? [ $model->{ehv} && $model->{ehv} =~ /cap/i
+                    ? qw(1 1 0 0 0 0 0 0)
+                    : qw(0 1 0 0 0 0 0 0) ]
+                  : /GSP/i ? [ $model->{ehv} && $model->{ehv} =~ /cap/i
+                    ? qw(1 0 0 0 0 0 0 0)
+                    : qw(0 0 0 0 0 0 0 0) ]
                   : [ map { 0 } 1 .. 8 ]
             } @{ $demandEndUsers->{list} }
           ]

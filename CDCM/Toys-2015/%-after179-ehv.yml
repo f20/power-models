@@ -1,0 +1,22 @@
+---
+.: CDCM model after DCP 179 with EHV tariffs
+PerlModule: CDCM
+agghhequalisation: 1
+alwaysUseRAG: 1
+checksums: Tariff checksum 5; Model checksum 7
+coincidenceAdj: groupums
+drm: top500gsp
+ehv: 1
+extraLevels: 1
+fixedCap: 1-4
+illustrative: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: hvsub_ehv
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: statistics
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hhedcm
+timeOfDay: timeOfDay179
