@@ -11,6 +11,11 @@ dataOverride:
   1020:
     - ~
     - LV circuits: 200000000
+  1059:
+    - ~
+    - ~
+    - ~
+    - Other expenditure: 0.3
 drm: top500gsp
 extraLevels: 1
 illustrative: 1
