@@ -41,9 +41,8 @@ sub bgCreate {
     exit 0 if defined $pid;
 
     # NB: if you need to avoid calling exit, then do something like:
-    #     $ENV{PATH} = '';
-    #     eval { File::Temp::cleanup(); };
-    #     exec '/bin/test';
+    #   eval { File::Temp::cleanup(); };
+    #   require POSIX and POSIX::_exit(0);
 
 }
 
