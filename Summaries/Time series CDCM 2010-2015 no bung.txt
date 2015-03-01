@@ -1,0 +1,28 @@
+makeModels
+	-sqlite
+	-pickbest
+	-stats
+	CDCM/*/%-clean100.yml
+	CDCM/*/%-clean132.yml
+	CDCM/*/%-after163.yml
+	CDCM/*/%-after179.yml
+	CDCM/Data-2010-02/*
+	CDCM/Data-2011-02/*
+	CDCM/Data-2012-02/*
+	CDCM/Data-2013-02/*
+	CDCM/Data-2014-02/*
+	CDCM/Data-2015-02/*
+
+useDatabase
+	tscs
+	10
+	20
+	22
+	25
+	26
+	27
+	37
+	38
+	39
+	42
+
