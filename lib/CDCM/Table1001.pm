@@ -37,11 +37,6 @@ sub table1001 {
 
     my ($model) = @_;
 
-    my $mustDescribe =
-      1
-      ? 'please provide description if used'
-      : 'blank or if required please provide description';
-
     my @labels = (
         'Base Demand Revenue Before Inflation (A1)',
         'RPI Indexation Factor (A2)',
@@ -76,19 +71,17 @@ sub table1001 {
         'Other 2. Excluded services - '
           . 'Revenue protection services (G2) (see note 1)',
         'Other 3. Excluded services - Miscellaneous (G3) (see note 1)',
-        'Other 4. - ' . $mustDescribe . ' (G4)',
-        'Other 5. - ' . $mustDescribe . ' (G5)',
+        'Other 4. (G4)',
+        'Other 5. (G5)',
         'Total Other Revenue to be Recovered by Use of System Charges (G)'
           . "\r"
           . '[G = G1 + G2 + G3 + G4 + G5]',
         'Total Revenue for Use of System Charges (H)' . "\r" . '[H = F + G]',
         '1. Revenue raised outside CDCM - '
           . 'EDCM and Certain Interconnector Revenue (I1)',
-        1
-        ? '2. Voluntary under-recovery (I2)'
-        : '2. Revenue raised outside CDCM - Voluntary under-recovery (I2)',
-        '3. Revenue raised outside CDCM - ' . $mustDescribe . ' (I3)',
-        '4. Revenue raised outside CDCM - ' . $mustDescribe . ' (I4)',
+        '2. Voluntary under-recovery (I2)',
+        '3. Revenue raised outside CDCM (I3)',
+        '4. Revenue raised outside CDCM (I4)',
         'Total Revenue to be raised outside the CDCM (I)' . "\r"
           . '[I = I1 + I2 + I3 + I4]',
         'Latest Forecast of CDCM Revenue (J)' . "\r" . '[J = H – I]',

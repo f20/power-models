@@ -251,6 +251,22 @@ EOY
         $d->{1001}[4]{'Pass-Through Others'} += $model->{revenueAdj};
     }
 
+    if ( $d->{1001} ) {
+        foreach my $root ( '3', '4', 'Other 4', 'Other 5' ) {
+            if ( my ($k) = grep { /^$root/ } keys %{ $d->{1001}[4] } ) {
+                my $nk = $root;
+                $nk .= ' Revenue raised outside CDCM' if $root =~ /^[34]/;
+                $d->{1001}[$_]{$nk} ||= $d->{1001}[$_]{$k}
+                  foreach grep { $d->{1001}[$_]; } 1 .. 6;
+                $k =~ s/^$root[. -]*//;
+                $k =~ s/^Revenue raised outside CDCM[. -]*//
+                  if $root =~ /^[34]/;
+                $d->{1001}[2]{$nk} =
+                  ( $d->{1001}[2]{$nk} || '' ) . ucfirst($k);
+            }
+        }
+    }
+
     if ( $model->{tariffs} =~ /dcp137/i ) {
         $d->{1028}[0] = sub {
             my ($key) = @_;
@@ -264,8 +280,7 @@ EOY
           if $d->{1053};
     }
 
-    # Things below are mostly for DCP 179 and similar.
-    # They are applied to all cases to help multi-model manufacturing.
+# Below is mostly for DCP 179 but applied to all cases to help multi-model manufacturing.
 
     if (  !exists $d->{1025}[1]{'LV Network Non-Domestic Non-CT'}
         && exists $d->{1025}[1]{'LV HH Metered'} )
