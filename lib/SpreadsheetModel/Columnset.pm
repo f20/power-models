@@ -553,6 +553,33 @@ use ->shortName here.
                 $row + $lastRow +
                   ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ) )
               if $self->{columns}[$c]{validation};
+            if ( my $cf = $self->{columns}[$c]{conditionalFormatting} ) {
+                foreach (
+                    ref $cf eq 'ARRAY'
+                    ? @$cf
+                    : $cf
+                  )
+                {
+                    $_->{format} = $wb->getFormat( $_->{format} )
+                      if $_->{format} && ( ref $_->{format} ) !~ /ormat/;
+                    eval {
+                        $ws->conditional_formatting(
+                            $row, $c2,
+                            $row + $lastRow + (
+                                  $self->{columns}[$c]{rows}
+                                ? $self->{anonRow}
+                                : 0
+                            ),
+                            $c2 + $lastCol,
+                            $_
+                        );
+                    };
+                    if ($@) {
+                        warn "Omitting conditional formatting: $@";
+                        return;
+                    }
+                }
+            }
             $c2 += @{ $co->{list} };
         }
         else {
@@ -583,6 +610,32 @@ use ->shortName here.
                   ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ),
                 $c2
             ) if $self->{columns}[$c]{validation};
+            if ( my $cf = $self->{columns}[$c]{conditionalFormatting} ) {
+                foreach (
+                    ref $cf eq 'ARRAY'
+                    ? @$cf
+                    : $cf
+                  )
+                {
+                    $_->{format} = $wb->getFormat( $_->{format} )
+                      if $_->{format} && ( ref $_->{format} ) !~ /ormat/;
+                    eval {
+                        $ws->conditional_formatting(
+                            $row, $c2,
+                            $row + $lastRow + (
+                                  $self->{columns}[$c]{rows}
+                                ? $self->{anonRow}
+                                : 0
+                            ),
+                            $c2, $_
+                        );
+                    };
+                    if ($@) {
+                        warn "Omitting conditional formatting: $@";
+                        return;
+                    }
+                }
+            }
             ++$c2;
         }
 

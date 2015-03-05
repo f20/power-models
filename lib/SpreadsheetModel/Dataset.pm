@@ -598,6 +598,29 @@ sub wsWrite {
         $col + $lastCol
     ) if $self->{validation};
 
+    if ( $self->{conditionalFormatting} ) {
+        foreach (
+            ref $self->{conditionalFormatting} eq 'ARRAY'
+            ? @{ $self->{conditionalFormatting} }
+            : $self->{conditionalFormatting}
+          )
+        {
+            $_->{format} = $wb->getFormat( $_->{format} )
+              if $_->{format} && ( ref $_->{format} ) !~ /ormat/;
+            eval {
+                $ws->conditional_formatting(
+                    $row, $col,
+                    $row + $lastRow,
+                    $col + $lastCol, $_
+                );
+            };
+            if ($@) {
+                warn "Omitting conditional formatting: $@";
+                return;
+            }
+        }
+    }
+
     $row += $lastRow;
     $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
     ++$row;
