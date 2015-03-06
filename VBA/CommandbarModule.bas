@@ -1,5 +1,5 @@
 '
-' Copyright 2013 Franck Latremoliere, Reckon LLP and others.
+' Copyright 2013-2015 Franck Latremoliere, Reckon LLP and others.
 '
 ' Redistribution and use in source and binary forms, with or without
 ' modification, are permitted provided that the following conditions are met:
@@ -25,19 +25,18 @@
 
 Sub MakeCommandBar()
     On Error Resume Next
-    Application.CommandBars("Franck Spreadsheet Tools").Delete
+    Application.CommandBars("FranckVBATools").Delete
     On Error GoTo 0
     Dim bar As CommandBar
-    Set bar = Application.CommandBars.Add("Franck Spreadsheet Tools")
-    
+    Set bar = Application.CommandBars.Add("FranckVBATools")
+
     Dim btn As CommandBarButton
-    
+
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
      .Style = msoButtonCaption
-     .Caption = "InputDB..."
-     .BeginGroup = True
-     .OnAction = "ShowInputDBUI"
+     .Caption = "List Sheets"
+     .OnAction = "ListWorksheets"
     End With
 
     Set btn = bar.Controls.Add(Type:=msoControlButton)
@@ -47,37 +46,38 @@ Sub MakeCommandBar()
      .BeginGroup = True
      .OnAction = "ShowFormulas"
     End With
-        
+
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
      .Style = msoButtonCaption
-     .Caption = "Sheet list"
-     .OnAction = "ListWorksheets"
-    End With
-    
-    Set btn = bar.Controls.Add(Type:=msoControlButton)
-    With btn
-     .Style = msoButtonCaption
-     .Caption = "VBACode"
+     .Caption = "Use VBACode"
      .BeginGroup = True
      .OnAction = "MakeVBAModules"
     End With
-        
+
+    Set btn = bar.Controls.Add(Type:=msoControlButton)
+    With btn
+     .Style = msoButtonCaption
+     .Caption = "Use InputDB..."
+     .BeginGroup = True
+     .OnAction = "ShowInputDBUI"
+    End With
+
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
      .Style = msoButtonCaption
      .BeginGroup = True
-     .Caption = "Exp"
+     .Caption = "Export"
      .OnAction = "ExportVBA"
     End With
 
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
      .Style = msoButtonCaption
-     .Caption = "Imp"
+     .Caption = "Import"
      .OnAction = "ImportVBA"
     End With
-    
+
     bar.Visible = True
 
 End Sub

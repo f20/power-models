@@ -30,5 +30,5 @@ End Sub
 
 Private Sub Workbook_BeforeClose(Cancel As Boolean)
     On Error Resume Next
-    Application.CommandBars("Franck Spreadsheet Tools").Delete
+    Application.CommandBars("FranckVBATools").Delete
 End Sub
