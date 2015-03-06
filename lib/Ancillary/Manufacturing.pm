@@ -322,14 +322,26 @@ sub factory {
     my ( $xlsModule, $xlsxModule, $workbookModule );
 
     $workbookModule = sub {
-        return $xlsModule ||= eval {
-            require SpreadsheetModel::Workbook;
-            'SpreadsheetModel::Workbook';
-        } || $workbookModule->() if $_[0];
-        $xlsxModule ||= eval {
-            require SpreadsheetModel::WorkbookXLSX;
-            'SpreadsheetModel::WorkbookXLSX';
-        } || $workbookModule->(1);
+        if ( $_[0] ) {
+            unless ($xlsModule) {
+                eval {
+                    require SpreadsheetModel::Workbook;
+                    $xlsModule = 'SpreadsheetModel::Workbook';
+                };
+                warn $@ if $@;
+            }
+            $xlsModule ||= $workbookModule->();
+        }
+        else {
+            unless ($xlsxModule) {
+                eval {
+                    require SpreadsheetModel::WorkbookXLSX;
+                    $xlsxModule = 'SpreadsheetModel::WorkbookXLSX';
+                };
+                warn $@ if $@;
+            }
+            $xlsxModule ||= $workbookModule->(1);
+        }
     };
 
     $self->{fileList} = sub {

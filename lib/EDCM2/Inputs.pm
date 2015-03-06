@@ -429,6 +429,13 @@ sub tariffInputs {
         defaultFormat => 'thtar',
       );
 
+    my @capacityCommon = (
+        defaultFormat => '0hard',
+        data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
+        rows          => $model->{tariffSet},
+        dataset       => $model->{dataset},
+    );
+
     my @columns = (
         Dataset(
             name          => 'Name',
@@ -438,39 +445,24 @@ sub tariffInputs {
             dataset       => $model->{dataset}
         ),
         Dataset(
-            name          => 'Maximum import capacity (kVA)',
-            defaultFormat => '0hard',
-            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
-            rows          => $model->{tariffSet},
-            dataset       => $model->{dataset}
+            name => 'Maximum import capacity (kVA)',
+            @capacityCommon,
         ),
         Dataset(
-            name          => 'Exempt export capacity (kVA)',
-            defaultFormat => '0hardnz',
-            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
-            rows          => $model->{tariffSet},
-            dataset       => $model->{dataset}
+            name => 'Exempt export capacity (kVA)',
+            @capacityCommon,
         ),
         Dataset(
-            name          => 'Non-exempt pre-2005 export capacity (kVA)',
-            defaultFormat => '0hardnz',
-            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
-            rows          => $model->{tariffSet},
-            dataset       => $model->{dataset},
+            name => 'Non-exempt pre-2005 export capacity (kVA)',
+            @capacityCommon,
         ),
         Dataset(
-            name          => 'Non-exempt 2005-2010 export capacity (kVA)',
-            defaultFormat => '0hardnz',
-            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
-            rows          => $model->{tariffSet},
-            dataset       => $model->{dataset},
+            name => 'Non-exempt 2005-2010 export capacity (kVA)',
+            @capacityCommon,
         ),
         Dataset(
-            name          => 'Non-exempt post-2010 export capacity (kVA)',
-            defaultFormat => '0hardnz',
-            data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
-            rows          => $model->{tariffSet},
-            dataset       => $model->{dataset},
+            name => 'Non-exempt post-2010 export capacity (kVA)',
+            @capacityCommon,
         ),
         Dataset(
             name          => 'Sole use asset MEAV (£)',

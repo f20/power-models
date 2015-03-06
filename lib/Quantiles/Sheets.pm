@@ -52,10 +52,12 @@ sub worksheetsAndClosures {
             dataset       => $model->{dataset},
             name          => 'Data version',
             cols          => Labelset( list => [qw(Version)] ),
-            defaultFormat => 'texthard',
+            defaultFormat => 'texthardcentered',
             data          => ['Illustrative']
         );
+        my $noData = delete $wbook->{noData};
         my ( $sh, $ro, $co ) = $te->wsWrite( $wbook, $wsheet );
+        $wbook->{noData} = $noData if $noData;
 
         # require Spreadsheet::WriteExcel::Utility;
         $sh = $sh->get_name;

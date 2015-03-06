@@ -227,7 +227,7 @@ sub wsPrepare {
         my $data = $noData
           ? [
             map {
-                [ map { defined $_ ? '#VALUE!' : undef } @$_ ]
+                [ map { defined $_ ? '=#VALUE!' : undef } @$_ ]
             } @{ $self->{data} }
           ]
           : $self->{data};
@@ -276,7 +276,7 @@ sub wsPrepare {
     else {
         my $data =
           $noData
-          ? [ map { defined $_ ? '#VALUE!' : undef } @{ $self->{data} } ]
+          ? [ map { defined $_ ? '=#VALUE!' : undef } @{ $self->{data} } ]
           : $self->{data};
         $self->lastCol
           ? sub {

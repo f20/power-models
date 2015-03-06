@@ -328,7 +328,7 @@ EOL
                     rows => $allTariffsByEndUser,
                     name => $component,
                     data => [ map { $_ ? ucfirst($_) : undef } @rules ],
-                    defaultFormat => 'textcell'
+                    defaultFormat => 'textcon',
                   )
             } @allComponents
         ]

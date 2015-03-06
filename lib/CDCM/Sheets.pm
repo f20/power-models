@@ -80,17 +80,18 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
         $wsheet->{nextFree} = 2;
+        my $noData = delete $wbook->{noData};
         my ( $sh, $ro, $co ) = (
             $model->{table1000} = Dataset(
                 number        => 1000,
                 dataset       => $model->{dataset},
                 name          => 'Company, charging year, data version',
                 cols          => Labelset( list => [qw(Company Year Version)] ),
-                defaultFormat => 'texthard',
-                data =>
-                  [ 'Illustrative company', 'Year', 'Illustrative dataset' ]
+                defaultFormat => 'texthardcentered',
+                data          => [ 'no company', 'no year', 'no data version' ],
             )
         )->wsWrite( $wbook, $wsheet );
+        $wbook->{noData} = $noData if $noData;
         $sh = $sh->get_name;
         $wbook->{titleAppend} =
             qq%" for "&'$sh'!%

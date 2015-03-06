@@ -58,7 +58,7 @@ use constant {
     EXCELCOL3 => 11, #00FF00 Green or Lime or Bright Green
     BLUE      => 12, #0000FF Blue potentially overridden by #0066cc
     BGGOLD    => 13, #FFFF00 Yellow potentially overridden by #ffd700 or #fecb2f
-    EXCELCOL6 => 14, #FF00FF Magenta
+    MAGENTA   => 14, #FF00FF Magenta
     EXCELCOL7 => 15, #00FFFF Cyan
     EXCELCOL8 => 16, #800000
     GREEN     => 17, #008000
@@ -154,86 +154,97 @@ Keys used in %$options:
 # ?,??0 style formats do not work with OpenOffice.org.  Use the "align: right[0-9]*"
 # option, where the number is the number of extra _) to pad on the right.
     my $q3 = $options->{alignment} ? ',' : '??,???,';
+    my $cyan = $backgroundColour && !$options->{noCyanText} ? '[Cyan]' : '';
+    my $black = $backgroundColour ? '[Black]' : '';
     my $rightpad;
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
 
+    my @numText = $backgroundColour ? '[Black]0;[Red]-0;;[Black]@' : '@';
     my @numPercent =
       $rightpad
       ? (
-        num_format => "0.0%_)$rightpad;[Red](??0.0%)$rightpad;;@",
+        num_format => "${black}0.0%_)$rightpad;[Red](??0.0%)$rightpad;;$cyan@",
         align      => 'right'
       )
-      : ( num_format => ' _(??0.0%_);[Red] (??0.0%);;@', align => 'center' );
+      : (
+        num_format => "${black} _(??0.0%_);[Red] (??0.0%);;$cyan@",
+        align      => 'center'
+      );
     my @num_million =
       $rightpad
       ? (
         num_format =>
-          qq%_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;@%,
+qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
         align => 'right'
       )
       : (
-        num_format => ' _(?,??0.0,, "m"_);[Red] (?,??0.0,, "m");;@',
-        align      => 'center'
+        num_format =>
+          qq'${black} _(?,??0.0,, "m"_);[Red] (?,??0.0,, "m");;$cyan@',
+        align => 'center'
       );
     my @num_ =
       $rightpad
       ? (
-        num_format => "#,##0_)$rightpad;[Red](#,##0)$rightpad;;@",
+        num_format => "${black}#,##0_)$rightpad;[Red](#,##0)$rightpad;;$cyan@",
         align      => 'right'
       )
       : (
-        num_format => ' _(?' . $q3 . '??0_);[Red] (?' . $q3 . '??0);;@',
+        num_format => "${black} _(?$q3??0_);[Red] (?$q3??0);;$cyan@",
         align      => 'center'
       );
     my @num_0 =
       $rightpad
       ? (
-        num_format => "#,##0.0_)$rightpad;[Red](#,##0.0)$rightpad;;@",
-        align      => 'right'
+        num_format =>
+          "${black}#,##0.0_)$rightpad;[Red](#,##0.0)$rightpad;;$cyan@",
+        align => 'right'
       )
       : (
-        num_format => ' _(?' . $q3 . '??0.0_);[Red] (?' . $q3 . '??0.0);;@',
+        num_format => "${black} _(?$q3??0.0_);[Red] (?$q3??0.0);;$cyan@",
         align      => 'center'
       );
     my @num_00 =
       $rightpad
       ? (
-        num_format => "#,##0.00_)$rightpad;[Red](#,##0.00)$rightpad;;@",
-        align      => 'right'
+        num_format =>
+          "${black}#,##0.00_)$rightpad;[Red](#,##0.00)$rightpad;;$cyan@",
+        align => 'right'
       )
       : (
-        num_format => ' _(?' . $q3 . '??0.00_);[Red] (?' . $q3 . '??0.00);;@',
+        num_format => "${black} _(?$q3??0.00_);[Red] (?$q3??0.00);;$cyan@",
         align      => 'center'
       );
     my @num_000 =
       $rightpad
       ? (
-        num_format => "#,##0.000_)$rightpad;[Red](#,##0.000)$rightpad;;@",
-        align      => 'right'
+        num_format =>
+          "${black}#,##0.000_)$rightpad;[Red](#,##0.000)$rightpad;;$cyan@",
+        align => 'right'
       )
       : (
-        num_format => ' _(?' . $q3 . '??0.000_);[Red] (?' . $q3 . '??0.000);;@',
+        num_format => "${black} _(?$q3??0.000_);[Red] (?$q3??0.000);;$cyan@",
         align      => 'center'
       );
     my @num_00000 =
       $rightpad
       ? (
-        num_format => "#,##0.00000_)$rightpad;[Red](#,##0.00000)$rightpad;;@",
-        align      => 'right'
+        num_format =>
+          "${black}#,##0.00000_)$rightpad;[Red](#,##0.00000)$rightpad;;$cyan@",
+        align => 'right'
       )
       : (
-        num_format => ' _(?'
-          . $q3
-          . '??0.00000_);[Red] (?'
-          . $q3
-          . '??0.00000);;@',
+        num_format =>
+          "${black} _(?$q3??0.00000_);[Red] (?$q3??0.00000);;$cyan@",
         align => 'center'
       );
+
+    my @defaultColour =
+      $backgroundColour && !$options->{noCyanText} ? ( color => MAGENTA ) : ();
     my @colourCon = (
         $options->{gridlines} ? ( border => 4 ) : (),
         $backgroundColour
-        ? ( bg_color => SILVER )
+        ? ( bg_color => SILVER, @defaultColour, )
         : (
             $borderColour ? ( border => 1, border_color => GREY ) : (),
             $textColour ? ( color => GREY ) : (),
@@ -242,7 +253,7 @@ Keys used in %$options:
     my @colourCopy = (
         $options->{gridlines} ? ( border => 4 ) : (),
         $backgroundColour
-        ? ( bg_color => BGGREEN )
+        ? ( bg_color => BGGREEN, @defaultColour, )
         : (
             $borderColour ? ( border => 1, border_color => GREEN ) : (),
             $textColour ? ( color => GREEN ) : (),
@@ -251,7 +262,7 @@ Keys used in %$options:
     my @colourHard = (
         $options->{gridlines} ? ( border => 4 ) : (),
         $backgroundColour
-        ? ( bg_color => BGBLUE )
+        ? ( bg_color => BGBLUE, @defaultColour, )
         : (
             $borderColour ? ( border => 1, border_color => BLUE ) : (),
             $textColour ? ( color => BLUE ) : (),
@@ -260,7 +271,7 @@ Keys used in %$options:
     my @colourSoft = (
         $options->{gridlines} ? ( border => 4 ) : (),
         $backgroundColour
-        ? ( bg_color => BGYELLOW )
+        ? ( bg_color => BGYELLOW, @defaultColour, )
         : (
             $borderColour ? ( border => 1, border_color => DKYELLOW ) : (),
             $textColour ? ( color => DKYELLOW ) : (),
@@ -311,21 +322,21 @@ Keys used in %$options:
         '%hardpm' => [
             locked => 0,
             @sizeNumber,
-            num_format => $plus . '????0.0%;' . $minus . '????0.0%;[Green]=;@',
+            num_format => "$plus????0.0%;$minus????0.0%;[Green]=;$cyan@",
             align      => 'center',
             @colourHard,
         ],
         '%softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => $plus . '????0.0%;' . $minus . '????0.0%;[Green]=;@',
+            num_format => "$plus????0.0%;$minus????0.0%;[Green]=;$cyan@",
             align      => 'center',
             @colourSoft,
         ],
         '%copypm' => [
             locked => 1,
             @sizeNumber,
-            num_format => $plus . '????0.0%;' . $minus . '????0.0%;[Green]=;@',
+            num_format => "$plus????0.0%;$minus????0.0%;[Green]=;$cyan@",
             align      => 'center',
             @colourCopy,
         ],
@@ -346,21 +357,21 @@ Keys used in %$options:
         '0.000softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => $plus . '?0.000;' . $minus . '?0.000;[Green]=;@',
+            num_format => "$plus?0.000;$minus?0.000;[Green]=;$cyan@",
             align      => 'center',
             @colourSoft,
         ],
         '0.00softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => $plus . '??0.00;' . $minus . '??0.00;[Green]=;@',
+            num_format => "$plus??0.00;$minus??0.00;[Green]=;$cyan@",
             align      => 'center',
             @colourSoft,
         ],
         '0.0softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => $plus . '??0.0;' . $minus . '??0.0;[Green]=;@',
+            num_format => "$plus??0.0;$minus??0.0;[Green]=;$cyan@",
             align      => 'center',
             @colourSoft,
         ],
@@ -380,16 +391,12 @@ Keys used in %$options:
             $rightpad
             ? (
                 num_format =>
-                  "[Blue]+#,##0$rightpad;[Red]-#,##0$rightpad;[Green]=;@",
+                  "$plus#,##0$rightpad;$minus#,##0$rightpad;[Green]=;$cyan@",
                 align => 'right'
               )
             : (
-                num_format => $plus . '?'
-                  . $q3 . '??0;'
-                  . $minus . '?'
-                  . $q3
-                  . '??0;[Green]=;@',
-                align => 'center'
+                num_format => "$plus?$q3??0;$minus?$q3??0;[Green]=;$cyan@",
+                align      => 'center'
             ),
             @colourSoft,
         ],
@@ -399,16 +406,12 @@ Keys used in %$options:
             $rightpad
             ? (
                 num_format =>
-                  "[Blue]+#,##0$rightpad;[Red]-#,##0$rightpad;[Green]=;@",
+                  "$plus#,##0$rightpad;$minus#,##0$rightpad;[Green]=;$cyan@",
                 align => 'right'
               )
             : (
-                num_format => $plus . '?'
-                  . $q3 . '??0;'
-                  . $minus . '?'
-                  . $q3
-                  . '??0;[Green]=;@',
-                align => 'center'
+                num_format => "$plus?$q3??0;$minus?$q3??0;[Green]=;$cyan@",
+                align      => 'center'
             ),
             @colourCopy,
         ],
@@ -416,21 +419,21 @@ Keys used in %$options:
             locked => 0,
             @sizeNumber,
             align      => 'center',
-            num_format => '0000',
+            num_format => "${black}0000;-0000;0000;$cyan@",
             @colourHard,
         ],
         '0000con' => [
             locked => 0,
             @sizeNumber,
             align      => 'center',
-            num_format => '0000',
+            num_format => "${black}0000;-0000;0000;$cyan@",
             @colourCon,
         ],
         '0000copy' => [
             locked => 0,
             @sizeNumber,
             align      => 'center',
-            num_format => '0000',
+            num_format => "${black}0000;-0000;0000;$cyan@",
             @colourCopy,
         ],
         boolhard => [
@@ -463,15 +466,14 @@ Keys used in %$options:
         link => [
             locked => 1,
             @sizeText,
-            num_format => '@',
-            align      => 'left',
-            underline  => 1,
-            color      => BLUE,
+            align     => 'left',
+            underline => 1,
+            color     => BLUE,
         ],
         locsoft => [
             locked => 1,
             @sizeLabel,
-            num_format => '\L\o\c\a\t\i\o\n\ 0',
+            num_format => $black . '\L\o\c\a\t\i\o\n\ 0',
             align      => 'center',
             @sizeExtras,
             @colourSoft,
@@ -504,17 +506,10 @@ Keys used in %$options:
             num_format => '@',
             align      => 'left',
         ],
-        textcell => [
-            locked => 1,
-            @sizeText,
-            num_format => '@',
-            align      => 'left',
-            text_wrap  => 1,
-        ],
         textcon => [
             locked => 1,
             @sizeText,
-            num_format => '@',
+            num_format => @numText,
             align      => 'left',
             text_wrap  => 1,
             @sizeExtras,
@@ -523,8 +518,17 @@ Keys used in %$options:
         textcopy => [
             locked => 1,
             @sizeText,
-            num_format => '@',
+            num_format => @numText,
             align      => 'left',
+            @sizeExtras,
+            text_wrap => 1,
+            @colourCopy,
+        ],
+        textcopycentered => [
+            locked => 1,
+            @sizeText,
+            num_format => @numText,
+            align      => 'center',
             @sizeExtras,
             text_wrap => 1,
             @colourCopy,
@@ -532,8 +536,17 @@ Keys used in %$options:
         texthard => [
             locked => 0,
             @sizeText,
-            num_format => '@',
+            num_format => @numText,
             align      => 'left',
+            @sizeExtras,
+            text_wrap => 1,
+            @colourHard,
+        ],
+        texthardcentered => [
+            locked => 0,
+            @sizeText,
+            num_format => @numText,
+            align      => 'center',
             @sizeExtras,
             text_wrap => 1,
             @colourHard,
@@ -541,7 +554,7 @@ Keys used in %$options:
         textsoft => [
             locked => 1,
             @sizeText,
-            num_format => '@',
+            num_format => @numText,
             align      => 'left',
             @sizeExtras,
             text_wrap => 1,
@@ -550,25 +563,28 @@ Keys used in %$options:
         textnocolour => [
             locked => 0,
             @sizeText,
-            num_format => '@',
+            num_format => @numText,
             align      => 'left',
             @sizeExtras,
             text_wrap => 1,
+            @defaultColour,
         ],
         textlrap => [
             locked => 1,
             @sizeText,
-            num_format => '@',
+            num_format => @numText,
             align      => 'left',
+            @defaultColour,
         ],
         textwrap => [
             locked => 1,
             @sizeText,
-            num_format => '@',
+            num_format => @numText,
             text_wrap  => 1,
             align      => 'center_across',
             left       => 1,
             right      => 1,
+            @defaultColour,
         ],
         th => [
             locked => 1,
@@ -621,7 +637,7 @@ Keys used in %$options:
         thloc => [
             locked => 1,
             @sizeLabel,
-            num_format => '\L\o\c\a\t\i\o\n\ 0',
+            num_format => $black . '\L\o\c\a\t\i\o\n\ 0',
             align      => 'left',
             bold       => 1,
             @colourHeader,
@@ -630,7 +646,7 @@ Keys used in %$options:
         thtar => [
             locked => 1,
             @sizeLabel,
-            num_format => '\T\a\r\i\f\f\ 0',
+            num_format => $black . '\T\a\r\i\f\f\ 0',
             align      => 'left',
             bold       => 1,
             @colourHeader,
@@ -639,7 +655,7 @@ Keys used in %$options:
         thtarimport => [
             locked => 0,
             @sizeLabel,
-            num_format => '\T\a\r\i\f\f\ 0 \i\m\p\o\r\t',
+            num_format => $black . '\T\a\r\i\f\f\ 0 \i\m\p\o\r\t',
             align      => 'left',
             bold       => 1,
             @colourHeader,
@@ -648,7 +664,7 @@ Keys used in %$options:
         thtarexport => [
             locked => 0,
             @sizeLabel,
-            num_format => '\T\a\r\i\f\f\ 0 \e\x\p\o\r\t',
+            num_format => $black . '\T\a\r\i\f\f\ 0 \e\x\p\o\r\t',
             align      => 'left',
             bold       => 1,
             @colourHeader,
@@ -657,7 +673,7 @@ Keys used in %$options:
         unavailable => [
             locked => 1,
             @sizeNumber,
-            num_format => '0.000;-0.000;;@',
+            num_format => "${black}0.000;-0.000;;$cyan@",
             align      => 'center',
             @colourUnavailable,
         ],
@@ -665,7 +681,7 @@ Keys used in %$options:
             locked => !$options->{validation}
               || $options->{validation} !~ /lenient/i,
             @sizeNumber,
-            num_format => '0.000;-0.000;;@',
+            num_format => "${black}0.000;-0.000;;$cyan@",
             align      => 'center',
             @colourUnused,
         ],

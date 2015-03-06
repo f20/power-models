@@ -54,14 +54,12 @@ sub worksheetsAndClosures {
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),
-            defaultFormat => 'texthard',
-            data          => [
-                'Illustrative company',
-                'Illustrative year',
-                'Illustrative dataset'
-            ]
+            defaultFormat => 'texthardcentered',
+            data          => [ 'no company', 'no year', 'no data version' ]
         );
+        my $noData = delete $wbook->{noData};
         my ( $sh, $ro, $co ) = $te->wsWrite( $wbook, $wsheet );
+        $wbook->{noData} = $noData if $noData;
         $sh = $sh->get_name;
         require Spreadsheet::WriteExcel::Utility;
         $wbook->{titleAppend} =
