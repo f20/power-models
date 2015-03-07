@@ -5,10 +5,11 @@
     _column: Company
   - Company charging year data version: 2015/2016
     _column: Year
+  - Company charging year data version: February 2015
+    _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
       This dataset is intended to reproduce the February 2015 price notice when built against a post-DCP 179 model with election bung.
-    _column: Version
 1001:
   - _table: 1001. CDCM target revenue
   - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: I1

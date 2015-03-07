@@ -377,15 +377,15 @@ sub wsWrite {
             foreach (@arrayLines) {
                 my $c3 = $col;
                 $ws->write_string( $row, $c3++, "$_->[0]",
-                    $wb->getFormat('textwrap') )
+                    $wb->getFormat('colnotecenter') )
                   if $headerCols;
 
                 foreach my $cn ( 0 .. $lastCol ) {
                     my $wrapFormat = $wb->getFormat(
                         $self->{columns}[$cn]{cols}
                           && $#{ $self->{columns}[$cn]{cols}{list} } > 2
-                        ? 'textlrap'
-                        : 'textwrap'
+                        ? 'colnoteleft'
+                        : 'colnotecenter'
                     );
                     $ws->write_string( $row, $c3++,
                         "$_->[ $cn + $headerCols ]", $wrapFormat );
