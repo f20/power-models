@@ -2,7 +2,7 @@ package SpreadsheetModel::WorkbookExport;
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -38,9 +38,9 @@ use constant {
 };
 
 sub new {
-    my ( $class, $dumpLoc ) = @_;
+    my ( $class, $dumpLoc, @extras ) = @_;
     $dumpLoc =~ s/\.xlsx?$//i;
-    bless [ $dumpLoc, '' ], $class;
+    bless [ $dumpLoc, @extras ], $class;
 }
 
 sub setModel {

@@ -46,7 +46,7 @@ explore some of the functionality of this code:
 
     perl pmod.pl -xls CDCM/Current/%-after163.yml CDCM/Data-2014-02/WPD-SWest.yml
     perl pmod.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
-    perl pmod.pl EDCM/Current/%-beta189-*.yml EDCM/Data-2014-02/UKPN-EPN.yml
+    perl pmod.pl EDCM/Current/%-clean189-*.yml EDCM/Data-2014-02/UKPN-EPN.yml
     perl pmod.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-wfl179.yml CDCM/Current/Blank1001.yml
 
 See "How to use.txt" in the "Stata EDCM" folder for information on Stata tools to test EDCM spreadsheets.
