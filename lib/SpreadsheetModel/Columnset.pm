@@ -67,11 +67,17 @@ sub check {
     foreach (@columns) {
         0 and warn "$self->{name} $self->{debug} $_->{name} $self->{debug}";
         if ( defined $rows ) {
-            return <<ERR unless !$_->{rows} && !$rows || $_->{rows} == $rows;
+            unless ( !$_->{rows} && !$rows
+                || $_->{rows} == $rows
+                || $_->{rows}{accepts} && grep { $rows == $_ }
+                @{ $_->{rows}{accepts} } )
+            {
+                return <<ERR ;
 Mismatch in Columnset
 $self->{name} $self->{debug} $rows
 $_->{name} $_->{debug} $_->{rows}
 ERR
+            }
         }
         else {
             if ( $_->{rows} ) {

@@ -87,11 +87,12 @@ sub htmlDescribe {
 
 sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
-    return if $wb->{findForwardLinks};
+    return if $wb->{findForwardLinks} ;
     foreach ( grep { ref $_ eq 'ARRAY' } @{ $self->{list} } ) {
         my ( $sh, $ro, $co ) = $_->[0]->wsWrite( $wb, $ws );
+        return unless $sh;
         $_ = q%='%
-          . ( $sh ? $sh->get_name : 'BROKEN LINK' ) . q%'!%
+          .$sh->get_name   . q%'!%
           . xl_rowcol_to_cell( $ro + $_->[1], $co + $_->[2] );
     }
 }
@@ -118,6 +119,8 @@ sub check {
           : $self->{editable}{rows} ? [ map { [ $self->{editable}, $_, 0 ] }
               0 .. $self->{editable}->lastRow ]
           : [ $self->{editable} ];
+        push @{ $self->{accepts} },
+          $self->{editable}{cols} || $self->{editable}{rows};
         return;
     }
     return 'Broken labelset' unless 'ARRAY' eq ref $self->{groups};
