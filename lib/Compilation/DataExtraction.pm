@@ -177,6 +177,7 @@ sub _extractInputData {
                         && !$cell->{Format}{Lock}
                         && ( $v || $to1->[$col] ) )
                     {
+                        # $v = "=$v" if $v eq '#VALUE!' || $v eq '#N/A';
                         if ( ref $to1->[$col] eq 'ARRAY' ) {
                             $to1->[$col][ $row - $columnHeadingsRow ] =
                               $to2->[$col][ $row - $columnHeadingsRow ] = $v;

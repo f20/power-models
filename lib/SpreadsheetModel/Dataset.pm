@@ -587,6 +587,7 @@ sub wsWrite {
                     1 ? () : 'Not calculated' );
             }
             else {
+                $value = "=$value" if $value eq '#VALUE!' || $value eq '#N/A';
                 $ws->write( $row + $y, $col + $x, $value, $format );
             }
         }

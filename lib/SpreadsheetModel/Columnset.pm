@@ -543,6 +543,8 @@ use ->shortName here.
                         );
                     }
                     else {
+                        $value = "=$value"
+                          if $value eq '#VALUE!' || $value eq '#N/A';
                         $ws->write(
                             $row + $y + (
                                   $self->{columns}[$c]{rows}
@@ -575,6 +577,8 @@ use ->shortName here.
                         $c2, $formula, $format, $value );
                 }
                 else {
+                    $value = "=$value"
+                      if $value eq '#VALUE!' || $value eq '#N/A';
                     $ws->write( $row + $y +
                           ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ),
                         $c2, $value, $format );
