@@ -168,7 +168,7 @@ sub wsPrepare {
     my ( @overrideColumns, @rowKeys );
     if ( my $dataset = $self->dataset( $wb, $ws ) ) {
         my $fc = $self->{colOffset} || 0;
-        my $lc = $fc + $self->lastCol;
+        my $lc = ++$fc + $self->lastCol;
         @overrideColumns = @{$dataset}[ $fc .. $lc ];
         unless ( ref $dataset->[0] eq 'ARRAY' ) {
             @rowKeys = map {
