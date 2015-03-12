@@ -37,12 +37,6 @@ our @ISA = qw(SpreadsheetModel::Object);
 use SpreadsheetModel::Stack;
 use Spreadsheet::WriteExcel::Utility;
 
-use constant {
-    OLD_STYLE_SCRIBBLES  => undef,
-    NUM_SCRIBBLE_COLUMNS => 1,
-    BLANK_LINE           => 1,
-};
-
 sub objectType {
     'Input data';
 }
@@ -61,8 +55,8 @@ sub wsUrl {
     my $wn =
         $wo
       ? $wo->get_name
-      : die
-"No worksheet for $self->{name} $self->{debug} $self->{rows} x $self->{cols}";
+      : die "No worksheet for $self->{name}"
+      . " ($self->{debug} $self->{rows} x $self->{cols})";
     "internal:'$wn'!$ce";
 }
 
@@ -174,7 +168,6 @@ sub wsPrepare {
     my ( @overrideColumns, @rowKeys );
     if ( my $dataset = $self->dataset( $wb, $ws ) ) {
         my $fc = $self->{colOffset} || 0;
-        ++$fc unless $self->{noRowLabels};
         my $lc = $fc + $self->lastCol;
         @overrideColumns = @{$dataset}[ $fc .. $lc ];
         unless ( ref $dataset->[0] eq 'ARRAY' ) {
@@ -421,16 +414,6 @@ sub wsWrite {
     $dataset = $self->{dataset}{ $self->{number} } if $self->{number};
     undef $dataset unless ref $dataset eq 'ARRAY';
 
-    if (OLD_STYLE_SCRIBBLES) {
-        my $note;
-        $note = $dataset->[0]{_note} if $dataset;
-        $ws->write_string(
-            $row++, $col,
-            $note || '',
-            $wb->getFormat('scribbles')
-        );
-    }
-
     if ( $self->{lines}
         or !( $wb->{noLinks} && $wb->{noLinks} == 1 )
         and $self->{formulaLines} || $self->{name} && $self->{sourceLines} )
@@ -483,7 +466,8 @@ sub wsWrite {
           if $hideFormulas;
     }
 
-    ++$row if BLANK_LINE;
+    # Blank line
+    $row += 1;
 
     my $lastCol = $self->lastCol;
     my $lastRow = $self->lastRow;
@@ -493,8 +477,7 @@ sub wsWrite {
       || !exists $self->{singleColName}
       || $self->{singleColName};
     ++$col
-      if !$self->{noRowLabels}
-      and $self->{rows}
+      if $self->{rows}
       || !exists $self->{singleRowName}
       || $self->{singleRowName};
 
@@ -524,40 +507,38 @@ sub wsWrite {
         );
     }
 
-    unless ( $self->{noRowLabels} ) {
-        if ( $self->{rows} ) {
-            my $thFormat =
-              $wb->getFormat( $self->{rows}{defaultFormat} || 'th' );
-            my $thgFormat = $wb->getFormat('thg');
-            $ws->write(
-                $row + $_,
-                $col - 1,
-                _shortNameRow( $self->{rows}{list}[$_] ),
-                !$self->{rows}{groups} || defined $self->{rows}{groupid}[$_]
-                ? $thFormat
-                : $thgFormat
-            ) for 0 .. $lastRow;
-        }
-        elsif ( !exists $self->{singleRowName} ) {
-            my $srn = _shortNameRow $self->{name};
-            $srn =~ s/^[0-9]+[a-z]*\.\s+//i;
-            $srn =~ s/\s*\(copy\)$//i;    # hacky - should use Label shortName?
-            $ws->write( $row, $col - 1, $srn, $wb->getFormat('th') );
-        }
-        elsif ( $self->{singleRowName} ) {
-            $ws->write(
-                $row, $col - 1,
-                _shortNameRow( $self->{singleRowName} ),
-                $wb->getFormat('th')
-            );
-        }
+    if ( $self->{rows} ) {
+        my $thFormat =
+          $wb->getFormat( $self->{rows}{defaultFormat} || 'th' );
+        my $thgFormat = $wb->getFormat('thg');
+        $ws->write(
+            $row + $_,
+            $col - 1,
+            _shortNameRow( $self->{rows}{list}[$_] ),
+            !$self->{rows}{groups} || defined $self->{rows}{groupid}[$_]
+            ? $thFormat
+            : $thgFormat
+        ) for 0 .. $lastRow;
+    }
+    elsif ( !exists $self->{singleRowName} ) {
+        my $srn = _shortNameRow $self->{name};
+        $srn =~ s/^[0-9]+[a-z]*\.\s+//i;
+        $srn =~ s/\s*\(copy\)$//i;    # hacky - should use Label shortName?
+        $ws->write( $row, $col - 1, $srn, $wb->getFormat('th') );
+    }
+    elsif ( $self->{singleRowName} ) {
+        $ws->write(
+            $row, $col - 1,
+            _shortNameRow( $self->{singleRowName} ),
+            $wb->getFormat('th')
+        );
     }
 
     @dataAreHere[ 1, 2 ] = ( $row, $col );
     @{ $self->{$wb} }{qw(worksheet row col)} = @dataAreHere;
 
     my $scribbleFormat = $wb->getFormat('scribbles');
-    foreach ( 1 .. NUM_SCRIBBLE_COLUMNS ) {
+    foreach ( 1 .. 1 ) {    # Scribble columns
         my $c2 = $col + $_ + $lastCol;
         my @note;
         if ( $dataset && $self->{rowKeys} ) {

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,12 +34,6 @@ use utf8;
 use SpreadsheetModel::Object ':_util';
 our @ISA = qw(SpreadsheetModel::Object);
 
-use constant {
-    OLD_STYLE_SCRIBBLES  => undef,
-    NUM_SCRIBBLE_COLUMNS => 1,
-    BLANK_LINE           => 1,
-};
-
 use SpreadsheetModel::Label;
 use SpreadsheetModel::Stack;
 
@@ -62,7 +56,6 @@ sub check {
       if $self->{lines};
     my $rows;
     my $colOffset = 0;
-    $self->{anonRow} = 0;
 
     foreach (@columns) {
         0 and warn "$self->{name} $self->{debug} $_->{name} $self->{debug}";
@@ -80,13 +73,7 @@ ERR
             }
         }
         else {
-            if ( $_->{rows} ) {
-                $rows = $_->{rows};
-            }
-            else {
-                $self->{anonRow} = 1;
-                $rows = 0;
-            }
+            $rows = $_->{rows} || 0;
         }
         $_->{location} = $self;
         $_->{name} =
@@ -232,15 +219,12 @@ sub wsWrite {
         }
     }
 
-    my $headerLines =
-      $self->{name} || $self->{lines} || @sourceLines ? BLANK_LINE : 0;
+    # Blank line
+    my $headerLines = $self->{name} || $self->{lines} || @sourceLines ? 1 : 0;
 
     $headerLines += $dualHeaded ? 2 : 1 unless $self->{noHeaders};
 
-    if ( $self->{name} ) {
-        ++$headerLines if OLD_STYLE_SCRIBBLES;
-        ++$headerLines;
-    }
+    ++$headerLines if $self->{name};
     $headerLines += @{ $self->{lines} } if $self->{lines};
     $headerLines += 1 + @sourceLines if @sourceLines;
 
@@ -281,12 +265,8 @@ sub wsWrite {
         for ( 0 .. $lastCol ) {
             my $thecol = $self->{columns}[$_];
             $cell[$_] = $thecol->wsPrepare( $wb, $ws );
-            @{ $thecol->{$wb} }{qw(worksheet row col)} = (
-                $ws,
-                $row + $headerLines +
-                  ( $thecol->{rows} ? $self->{anonRow} : 0 ),
-                $c2 + $headerCols
-            );
+            @{ $thecol->{$wb} }{qw(worksheet row col)} =
+              ( $ws, $row + $headerLines, $c2 + $headerCols );
             $c2 +=
               $thecol->{cols}
               ? @{ $thecol->{cols}{list} }
@@ -315,20 +295,9 @@ sub wsWrite {
       if ref $dataset eq 'CODE';
 
     if ( $self->{name} ) {
-
         $ws->set_row( $row, 21 );
         $ws->write_string( $row++, $col, "$self->{name}",
             $wb->getFormat('caption') );
-
-        if (OLD_STYLE_SCRIBBLES) {
-            my $note;
-            $note = $dataset->[0]{_note} if $dataset;
-            $ws->write_string(
-                $row++, $col,
-                $note || '',
-                $wb->getFormat('scribbles')
-            );
-        }
     }
 
     if ( $self->{lines} || @sourceLines ) {
@@ -410,7 +379,8 @@ sub wsWrite {
 
     }
 
-    $row += BLANK_LINE if $self->{name} || $self->{lines} || @sourceLines;
+    # Blank line
+    $row += 1 if $self->{name} || $self->{lines} || @sourceLines;
 
     unless ( $self->{noHeaders} ) {
 
@@ -472,17 +442,16 @@ sub wsWrite {
     if ( $self->{rows} ) {
         my $thformat = $wb->getFormat( $self->{rows}{defaultFormat} || 'th' );
         my $thgformat = $wb->getFormat('thg');
-        $ws->write( $row, $col - 1, '', $thgformat ) if $self->{anonRow};
         for ( my $r = 0 ; $r <= $lastRow ; ++$r ) {
             if ( !$self->{rows}{groups}
                 || defined $self->{rows}{groupid}[$r] )
             {
-                $ws->write( $row + $self->{anonRow} + $r,
+                $ws->write( $row + $r,
                     $col - 1, _shortNameRow( $self->{rows}{list}[$r] ),
                     $thformat );
             }
             else {
-                $ws->write( $row + $self->{anonRow} + $r,
+                $ws->write( $row + $r,
                     $col - 1, _shortNameRow( $self->{rows}{list}[$r] ),
                     $thgformat );
             }
@@ -521,45 +490,22 @@ use ->shortName here.
                     my ( $value, $format, $formula, @more ) =
                       $cell[$c]->( $x, $y );
                     if (@more) {
-                        $ws->repeat_formula(
-                            $row + $y + (
-                                  $self->{columns}[$c]{rows}
-                                ? $self->{anonRow}
-                                : 0
-                            ),
-                            $c2 + $x,
-                            $formula, $format, @more
-                        );
+                        $ws->repeat_formula( $row + $y, $c2 + $x,
+                            $formula, $format, @more );
                     }
                     elsif ($formula) {
-                        $ws->write_formula(
-                            $row + $y + (
-                                  $self->{columns}[$c]{rows}
-                                ? $self->{anonRow}
-                                : 0
-                            ),
-                            $c2 + $x,
-                            $formula, $format, $value
-                        );
+                        $ws->write_formula( $row + $y, $c2 + $x,
+                            $formula, $format, $value );
                     }
                     else {
                         $value = "=$value"
                           if $value eq '#VALUE!' || $value eq '#N/A';
-                        $ws->write(
-                            $row + $y + (
-                                  $self->{columns}[$c]{rows}
-                                ? $self->{anonRow}
-                                : 0
-                            ),
-                            $c2 + $x,
-                            $value, $format
-                        );
+                        $ws->write( $row + $y, $c2 + $x, $value, $format );
                     }
                 }
             }
-            $self->{columns}[$c]->dataValidation( $wb, $ws, $row, $c2,
-                $row + $lastRow +
-                  ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ) )
+            $self->{columns}[$c]
+              ->dataValidation( $wb, $ws, $row, $c2, $row + $lastRow )
               if $self->{columns}[$c]{validation};
             $c2 += @{ $co->{list} };
         }
@@ -567,32 +513,22 @@ use ->shortName here.
             foreach my $y ( $self->{columns}[$c]->rowIndices ) {
                 my ( $value, $format, $formula, @more ) = $cell[$c]->( 0, $y );
                 if (@more) {
-                    $ws->repeat_formula( $row + $y +
-                          ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ),
+                    $ws->repeat_formula( $row + $y,
                         $c2, $formula, $format, @more );
                 }
                 elsif ($formula) {
-                    $ws->write_formula( $row + $y +
-                          ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ),
+                    $ws->write_formula( $row + $y,
                         $c2, $formula, $format, $value );
                 }
                 else {
                     $value = "=$value"
                       if $value eq '#VALUE!' || $value eq '#N/A';
-                    $ws->write( $row + $y +
-                          ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ),
-                        $c2, $value, $format );
+                    $ws->write( $row + $y, $c2, $value, $format );
                 }
             }
-            $self->{columns}[$c]->dataValidation(
-                $wb,
-                $ws,
-                $row,
-                $c2,
-                $row + $lastRow +
-                  ( $self->{columns}[$c]{rows} ? $self->{anonRow} : 0 ),
-                $c2
-            ) if $self->{columns}[$c]{validation};
+            $self->{columns}[$c]
+              ->dataValidation( $wb, $ws, $row, $c2, $row + $lastRow, $c2 )
+              if $self->{columns}[$c]{validation};
             ++$c2;
         }
 
@@ -600,7 +536,7 @@ use ->shortName here.
 
     unless ( $self->{noHeaders} ) {
         my $scribbleFormat = $wb->getFormat('scribbles');
-        foreach ( 1 .. NUM_SCRIBBLE_COLUMNS ) {
+        foreach ( 1 .. 1 ) {    # Scribble columns
             my @note;
             if ($dataset) {
                 my $nd = $dataset->[$c2];
@@ -632,7 +568,6 @@ use ->shortName here.
         }
     }
 
-    $row += $lastRow ? ( $lastRow + $self->{anonRow} ) : 0;
     $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
     ++$row;
     $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
