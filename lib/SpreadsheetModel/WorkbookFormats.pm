@@ -51,6 +51,7 @@ sub getFormat {
     );
 }
 
+# These codes (between 8 and 63) are equal to the colour number used in VBA (1-56) plus 7
 use constant {
     EXCELCOL0 => 8,  #000000 Black
     WHITE     => 9,  #FFFFFF White
@@ -108,7 +109,7 @@ use constant {
     EXCELCOL53 => 61,    #993366
     EXCELCOL54 => 62,    #333399
     EXCELCOL55 => 63,    #333333
-}; # these codes (between 8 and 63) are equal to the colour number used in VBA (1-56) plus 7
+};
 
 sub setFormats {
 
@@ -174,8 +175,8 @@ Keys used in %$options:
     my @num_million =
       $rightpad
       ? (
-        num_format =>
-qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
+        num_format => qq'${black}_(#,##0.0,, "m"_)$rightpad;'
+          . qq'[Red](#,##0.0,, "m")$rightpad;;$cyan@',
         align => 'right'
       )
       : (
@@ -242,7 +243,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
     my @defaultColour =
       $backgroundColour && !$options->{noCyanText} ? ( color => MAGENTA ) : ();
     my @colourCon = (
-        $options->{gridlines} ? ( border => 4 ) : (),
+        $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
         ? ( bg_color => SILVER, @defaultColour, )
         : (
@@ -251,7 +252,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
         )
     );
     my @colourCopy = (
-        $options->{gridlines} ? ( border => 4 ) : (),
+        $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
         ? ( bg_color => BGGREEN, @defaultColour, )
         : (
@@ -260,7 +261,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
         )
     );
     my @colourHard = (
-        $options->{gridlines} ? ( border => 4 ) : (),
+        $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
         ? ( bg_color => BGBLUE, @defaultColour, )
         : (
@@ -269,7 +270,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
         )
     );
     my @colourSoft = (
-        $options->{gridlines} ? ( border => 4 ) : (),
+        $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
         ? ( bg_color => BGYELLOW, @defaultColour, )
         : (
@@ -291,13 +292,13 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
         : ()
     );
     my @colourUnavailable = (
-        $options->{gridlines} ? ( border => 4 ) : (),
+        $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
         ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
         : ( right => 4, border_color => GREY )
     );
     my @colourUnused = (
-        $options->{gridlines} ? ( border => 4 ) : (),
+        $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
         ? ( fg_color => SILVER, bg_color => WHITE, pattern => 15, )
         : ( right => 4, border_color => GREY )
@@ -577,7 +578,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
             bold       => 1,
             text_wrap  => 1,
             @colourHeader,
-            $options->{gridlines} ? ( bottom => 4, right => 1 ) : (),
+            $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
         thc => [
             locked => 1,
@@ -587,7 +588,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
             text_wrap  => 1,
             align      => 'center',
             @colourHeader,
-            $options->{gridlines} ? ( right => 4, bottom => 1 ) : (),
+            $options->{gridlines} ? ( right => 7, bottom => 1 ) : (),
         ],
         thca => [
             locked => 1,
@@ -639,7 +640,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
             align      => 'left',
             bold       => 1,
             @colourHeader,
-            $options->{gridlines} ? ( bottom => 4, right => 1 ) : (),
+            $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
         thtar => [
             locked => 1,
@@ -648,7 +649,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
             align      => 'left',
             bold       => 1,
             @colourHeader,
-            $options->{gridlines} ? ( bottom => 4, right => 1 ) : (),
+            $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
         thtarimport => [
             locked => 0,
@@ -657,7 +658,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
             align      => 'left',
             bold       => 1,
             @colourHeader,
-            $options->{gridlines} ? ( bottom => 4, right => 1 ) : (),
+            $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
         thtarexport => [
             locked => 0,
@@ -666,7 +667,7 @@ qq'${black}_(#,##0.0,, "m"_)$rightpad;[Red](#,##0.0,, "m")$rightpad;;$cyan@',
             align      => 'left',
             bold       => 1,
             @colourHeader,
-            $options->{gridlines} ? ( bottom => 4, right => 1 ) : (),
+            $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
         unavailable => [
             locked => 1,

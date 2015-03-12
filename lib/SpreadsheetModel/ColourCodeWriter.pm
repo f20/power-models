@@ -2,7 +2,7 @@ package SpreadsheetModel::ColourCodeWriter;
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -46,21 +46,21 @@ sub wsWrite {
         $wbook->getFormat('thc')
     );
     $wsheet->write_string( ++$row, 2, 'Input data',
-        $wbook->getFormat('0.000hard') );
+        $wbook->getFormat('texthard') );
     $wsheet->write_string(
         ++$row, 2,
         'Constant value',
-        $wbook->getFormat('0.000con')
+        $wbook->getFormat('textcon')
     ) unless $colourCode->[0];
     $wsheet->write_string(
         ++$row, 2,
         'Formula: calculation',
-        $wbook->getFormat('0.000soft')
+        $wbook->getFormat('textsoft')
     );
     $wsheet->write_string(
         ++$row, 2,
         $colourCode->[0] ? 'Data from tariff model' : 'Formula: copy',
-        $wbook->getFormat('0.000copy')
+        $wbook->getFormat('textcopy')
     );
     $wsheet->write_string(
         ++$row, 2,
