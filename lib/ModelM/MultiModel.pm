@@ -53,6 +53,7 @@ sub worksheetsAndClosuresWithController {
     return @pairs unless delete $mms->{virgin};
 
     'Control$' => sub {
+
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 14;
         $wsheet->freeze_panes( 1, 0 );

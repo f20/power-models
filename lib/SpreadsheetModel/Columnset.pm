@@ -617,6 +617,7 @@ use ->shortName here.
         }
     }
 
+    $row += $lastRow;
     $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
     ++$row;
     $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
