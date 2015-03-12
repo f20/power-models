@@ -325,6 +325,7 @@ sub factory {
         if ( $_[0] ) {
             unless ($xlsModule) {
                 eval {
+                    local $SIG{__DIE__} = \&Carp::confess;
                     require SpreadsheetModel::Workbook;
                     $xlsModule = 'SpreadsheetModel::Workbook';
                 };
@@ -335,6 +336,7 @@ sub factory {
         else {
             unless ($xlsxModule) {
                 eval {
+                    local $SIG{__DIE__} = \&Carp::confess;
                     require SpreadsheetModel::WorkbookXLSX;
                     $xlsxModule = 'SpreadsheetModel::WorkbookXLSX';
                 };

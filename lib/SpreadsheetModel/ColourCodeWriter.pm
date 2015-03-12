@@ -40,11 +40,8 @@ sub wsWrite {
     my $row = $wsheet->{nextFree} || 0;
     $row -= $colourCode->[0] ? 5 : 8;
     $row = 1 if $row < 1;
-    $wsheet->write_string(
-        ++$row, 2,
-        'Colour coding',
-        $wbook->getFormat('thc')
-    );
+    $wsheet->write_string( ++$row, 2, 'Colour coding',
+        $wbook->getFormat('th') );
     $wsheet->write_string( ++$row, 2, 'Input data',
         $wbook->getFormat('texthard') );
     $wsheet->write_string(

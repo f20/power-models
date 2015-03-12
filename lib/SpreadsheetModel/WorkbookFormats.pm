@@ -161,7 +161,7 @@ Keys used in %$options:
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
 
-    my @numText = $backgroundColour ? '[Black]0;[Red]-0;;[Black]@' : '@';
+    my $numText = $backgroundColour ? '[Black]0;[Red]-0;;[Black]@' : '@';
     my @numPercent =
       $rightpad
       ? (
@@ -510,7 +510,7 @@ Keys used in %$options:
         textcon => [
             locked => 1,
             @sizeText,
-            num_format => @numText,
+            num_format => $numText,
             align      => 'left',
             text_wrap  => 1,
             @sizeExtras,
@@ -519,7 +519,7 @@ Keys used in %$options:
         textcopy => [
             locked => 1,
             @sizeText,
-            num_format => @numText,
+            num_format => $numText,
             align      => 'left',
             @sizeExtras,
             text_wrap => 1,
@@ -528,7 +528,7 @@ Keys used in %$options:
         textcopycentered => [
             locked => 1,
             @sizeText,
-            num_format => @numText,
+            num_format => $numText,
             align      => 'center',
             @sizeExtras,
             text_wrap => 1,
@@ -537,7 +537,7 @@ Keys used in %$options:
         texthard => [
             locked => 0,
             @sizeText,
-            num_format => @numText,
+            num_format => $numText,
             align      => 'left',
             @sizeExtras,
             text_wrap => 1,
@@ -546,7 +546,7 @@ Keys used in %$options:
         texthardcentered => [
             locked => 0,
             @sizeText,
-            num_format => @numText,
+            num_format => $numText,
             align      => 'center',
             @sizeExtras,
             text_wrap => 1,
@@ -555,7 +555,7 @@ Keys used in %$options:
         textsoft => [
             locked => 1,
             @sizeText,
-            num_format => @numText,
+            num_format => $numText,
             align      => 'left',
             @sizeExtras,
             text_wrap => 1,
@@ -564,7 +564,7 @@ Keys used in %$options:
         textnocolour => [
             locked => 0,
             @sizeText,
-            num_format => @numText,
+            num_format => $numText,
             align      => 'left',
             @sizeExtras,
             text_wrap => 1,
@@ -672,16 +672,14 @@ Keys used in %$options:
         unavailable => [
             locked => 1,
             @sizeNumber,
-            num_format => "${black}0.000;-0.000;;$cyan@",
-            align      => 'center',
+            num_format => $numText,
             @colourUnavailable,
         ],
         unused => [
             locked => !$options->{validation}
               || $options->{validation} !~ /lenient/i,
             @sizeNumber,
-            num_format => "${black}0.000;-0.000;;$cyan@",
-            align      => 'center',
+            num_format => $numText,
             @colourUnused,
         ],
     );

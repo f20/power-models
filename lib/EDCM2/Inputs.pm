@@ -434,6 +434,16 @@ sub tariffInputs {
         data          => [ map { 'VOID' } 1 .. $model->{numTariffs} ],
         rows          => $model->{tariffSet},
         dataset       => $model->{dataset},
+        $model->{conditionalFormatting}
+        ? (
+            conditionalFormatting => {
+                type     => 'cell',
+                criteria => 'equal to',
+                value    => '"VOID"',
+                format   => [ color => 55 ],
+            }
+          )
+        : (),
     );
 
     my @columns = (
