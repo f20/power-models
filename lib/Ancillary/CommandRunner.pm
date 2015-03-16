@@ -452,8 +452,6 @@ sub fillDatabase {
             next;
         }
 
-        die 'Nothing to do' unless $writer;
-
         ( $postProcessor ||=
               _makePostProcessor( $threads, $writer, $settings ) )->($_);
 
@@ -581,12 +579,14 @@ EOS
                 }
             };
             warn "$@ for $calcFile" if $@;
-            if ($workbook) {
-                eval { $writer->( $calcFile, $workbook ); };
-                warn "$@ for $calcFile" if $@;
-            }
-            else {
-                warn "Cannot parse $calcFile";
+            if ($writer) {
+                if ($workbook) {
+                    eval { $writer->( $calcFile, $workbook ); };
+                    warn "$@ for $calcFile" if $@;
+                }
+                else {
+                    warn "Cannot parse $calcFile";
+                }
             }
             exit 0 if defined $pid;
         }
