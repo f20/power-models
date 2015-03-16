@@ -423,10 +423,16 @@ EOL
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $linesAfter->[$j] );
             my ($rowa) = $findRow->fetchrow_array;
-            $q->execute( $bidb, $rowb, 8 );
+            $q->execute( $bidb, $rowb, 3 );
+            my ($rb) = $q->fetchrow_array;
+            $q->execute( $bida, $rowa, 3 );
+            my ($ra) = $q->fetchrow_array;
+            $q->execute( $bidb, $rowb, 1 );
             my ($vb) = $q->fetchrow_array;
-            $q->execute( $bida, $rowa, 8 );
+            $q->execute( $bida, $rowa, 1 );
             my ($va) = $q->fetchrow_array;
+            $va = $va ? 0.1 * $ra / $va : '';
+            $vb = $vb ? 0.1 * $rb / $vb : '';
             $ws->write( 3 + $j, 1, $vb, $format1[0] );
             $ws->write( 3 + $j, 2, $va, $format1[0] );
             my $old = xl_rowcol_to_cell( 3 + $j, 1 );

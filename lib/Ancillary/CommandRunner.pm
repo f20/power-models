@@ -505,6 +505,8 @@ EOS
                     s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
                     rename $inname, $inpath;
                     open my $fh, '| osascript';
+
+          # This does not seem to work with Microsoft Excel 15.8 Preview for Mac
                     print $fh <<EOS;
 tell application "Microsoft Excel"
 	set theWorkbook to open workbook workbook file name POSIX file "$inpath"

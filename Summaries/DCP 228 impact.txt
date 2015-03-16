@@ -1,0 +1,10 @@
+makeModels
+	-sqlite
+	CDCM/Future/%-after161.yml
+	CDCM/DCP-228/%-clean228.yml
+	CDCM/Data-2015-02/*
+
+useDatabase
+	-base=after161
+	-dcp=clean228
+	-name=DCP 228 impact
