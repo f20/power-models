@@ -1,5 +1,5 @@
 ---
-.: Micro-model after DCP 179 (with election bung)
+.: Micro-model after DCP 161 (with election bung)
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
@@ -10,7 +10,7 @@ electionBung: 1
 extraLevels: 1
 fixedCap: 1-4
 illustrative: 1
-nickName: CDCM model (after DCP 179 with bung)
+nickName: CDCM model (after DCP 161 with bung)
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
@@ -22,3 +22,4 @@ summary: statisticsbrief
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hh
 timeOfDay: timeOfDay179
+unauth: dayotex

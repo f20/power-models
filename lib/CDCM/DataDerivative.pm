@@ -116,8 +116,10 @@ sub derivativeDataset {
             );
         }
 
+        my $unauthInSource =
+          $sourceModel->{unauth} && $sourceModel->{unauth} =~ /day/i;
         $addSourceDatasetAdjuster->(
-            1053 => sub {    # This does not support DCP 161 implementation
+            1053 => sub {
                 ( my $cell, local $_, my $col, my $wb, my $ws ) = @_;
                 my $ac = $getAssumptionCell->(
                     $wb, $ws,
@@ -126,12 +128,23 @@ sub derivativeDataset {
                           && !/aggreg/i ? 17 : 15 )
                     : $col == 4 ? ( /gener/i ? 23 : /half[ -]hourly/i
                           && !/aggreg/i ? 18 : 16 )
-                    : $col == 5 ? 19
+                    : $col == 5 || $unauthInSource && $col == 6 ? 19
                     : ( /gener/i ? 24 : 20 ),
                 );
                 "=(1+$ac)*$cell";
             }
         );
+        if (  !$unauthInSource
+            && $model->{unauth}
+            && $model->{unauth} =~ /day/i )
+        {
+            my $original = $model->{dataset}{1053};
+            $model->{dataset}{1053} = sub {
+                my $d = $original->(@_);
+                splice @$d, 6, 0, { map { $_ => ''; } keys %{ $d->[5] } };
+                $d;
+            };
+        }
 
         $addSourceDatasetAdjuster->(
             1055 => sub {
