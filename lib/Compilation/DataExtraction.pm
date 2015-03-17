@@ -165,19 +165,18 @@ sub _extractInputData {
                     if ( !$rowName ) {
                         $columnHeadingsRow = $row;
                         if ( ref $to1->[0] eq 'ARRAY' ) {
-                            $to1->[$col][0] ||= $v;
-                            $to2->[$col][0] ||= $v;
+                            $to1->[$col][0] = $v;
+                            $to2->[$col][0] = $v;
                         }
                         elsif ( !$options->{minimum} ) {
-                            $to1->[$col]{'_column'} ||= $v;
-                            $to2->[$col]{'_column'} ||= $v;
+                            $to1->[$col]{'_column'} = $v;
+                            $to2->[$col]{'_column'} = $v;
                         }
                     }
                     elsif (ref $cell->{Format}
                         && !$cell->{Format}{Lock}
                         && ( $v || $to1->[$col] ) )
                     {
-                        # $v = "=$v" if $v eq '#VALUE!' || $v eq '#N/A';
                         if ( ref $to1->[$col] eq 'ARRAY' ) {
                             $to1->[$col][ $row - $columnHeadingsRow ] =
                               $to2->[$col][ $row - $columnHeadingsRow ] = $v;
