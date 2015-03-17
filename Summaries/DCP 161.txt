@@ -13,6 +13,7 @@ makeModels
 	CDCM/Exceeded/+impact.yml
 	-cdcmTariffImpact
 	-cdcmRevenueMatrixImpact
+	-cdcmPpuImpact
 
 makeModels
 	-base=dcp161adj
@@ -21,9 +22,7 @@ makeModels
 	CDCM/Exceeded/+impact.yml
 	-cdcmTariffImpact
 	-cdcmRevenueMatrixImpact
-
-comment
-	ppu impact not included as it would use the wrong column in a DCP 161 model.
+	-cdcmPpuImpact
 
 useDatabase
 	/base163/

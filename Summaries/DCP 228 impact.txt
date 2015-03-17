@@ -7,4 +7,4 @@ makeModels
 useDatabase
 	-base=after161
 	-dcp=clean228
-	-name=DCP 228 impact
+	-name=DCP 228
