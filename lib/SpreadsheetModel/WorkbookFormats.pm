@@ -440,14 +440,23 @@ Keys used in %$options:
         boolhard => [
             locked => 0,
             @sizeNumber,
-            align => 'center',
+            align      => 'center',
+            num_format => $numText,
             @colourHard,
         ],
         boolsoft => [
             locked => 1,
             @sizeNumber,
-            align => 'center',
+            align      => 'center',
+            num_format => $numText,
             @colourSoft,
+        ],
+        boolcopy => [
+            locked => 1,
+            @sizeNumber,
+            align      => 'center',
+            num_format => $numText,
+            @colourCopy,
         ],
         caption => [
             locked => 1,
