@@ -313,6 +313,7 @@ EOL
         name => 'Active power equivalent of capacity'
           . ' adjusted to transmission (kW/kVA)',
         arithmetic => '=IV1*IV9',
+        newBlock   => 1,
         arguments  => {
             IV9 => $powerFactorInModel,
             IV1 => $tariffLossFactor,
@@ -437,21 +438,21 @@ EOL
         );
 
         my $machine = sub {
-            my ( $name1, $name2, $useProportions, $useRate, $diversity ) = @_;
+            my ( $name1, $name2, $useProportions, $useRate, $diversity,
+                @extras, )
+              = @_;
 
             SumProduct(
                 name   => $name1,
                 matrix => SpreadsheetModel::Custom->new(
                     name => $name2,
-                    !$diversity ? ( newBlock => 1 ) : (),
+                    @extras,
                     custom => [
                             '=IF(INDEX(IV5:IV6,IV4)'
                           . ( $diversity ? '=1' : '>1' )
                           . ',IV1*IV8'
                           . ( $diversity ? '/(1+IV3)' : '' ) . ',0)'
                     ],
-                    arithmetic => '=IF(INDEX(IV5_IV6,IV4)=1,IV1*IV8'
-                      . ( $diversity ? '/(1+IV3)' : '' ) . ',0)',
                     wsPrepare => sub {
                         my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
                             $colh )
@@ -511,12 +512,12 @@ EOL
         $assetsCapacity = $machine->(
             'Capacity assets (£/kVA)',
             'Adjusted network use by capacity',
-            $useProportions, $capUseRate, $diversity
+            $useProportions, $capUseRate, $diversity,
         );
         $assetsConsumption = $machine->(
             'Consumption assets (£/kVA)',
             'Adjusted network use by consumption',
-            $useProportions, $redUseRate
+            $useProportions, $redUseRate, undef, newBlock => 1,
         );
 
         $useProportionsCooked = $useProportionsCooked->();
@@ -525,13 +526,15 @@ EOL
             'Second set of adjusted network use by capacity',
             $useProportionsCooked,
             $capUseRate,
-            $diversity
+            $diversity,
         );
         $assetsConsumptionCooked = $machine->(
             'Second set of consumption assets (£/kVA)',
             'Second set of adjusted network use by consumption',
             $useProportionsCooked,
-            $redUseRate
+            $redUseRate,
+            undef,
+            newBlock => 1,
         );
 
     }
@@ -1586,7 +1589,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
     $model->{transparency}{olFYI}{1229} = $totalAssets
       if $model->{transparency};
 
-    $lossFactors, $diversity, $redUseRate, $capUseRate,
+    $lossFactors, $diversity, $accretion, $redUseRate, $capUseRate,
       $tariffSUimport,    $assetsCapacity,
       $assetsConsumption, $totalAssetsFixed,
       $totalAssetsCapacity,

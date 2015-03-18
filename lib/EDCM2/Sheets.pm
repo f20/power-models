@@ -123,7 +123,7 @@ sub worksheetsAndClosures {
             ) => sub {
                 my ($wsheet) = @_;
                 $wsheet->{sheetNumber} = 9;
-                $wsheet->freeze_panes( 1, 2 );
+                $wsheet->freeze_panes( 5, 2 );
                 $wsheet->set_column( 0, 0,   20 );
                 $wsheet->set_column( 1, 1,   35 );
                 $wsheet->set_column( 2, 2,   20 );
@@ -138,7 +138,7 @@ sub worksheetsAndClosures {
         '935' => sub {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber} = 9;
-            $wsheet->freeze_panes( 1, 2 );
+            $wsheet->freeze_panes( 6, 2 );
             $wsheet->set_landscape;
             my $locationColumn = $model->{dcp189} ? 9 : 8;
             $wsheet->set_column( 0,                   0,                   16 );
@@ -177,6 +177,8 @@ sub worksheetsAndClosures {
                 $wsheet->{tableNumberIncrement} = 2;
                 $wsheet->freeze_panes( 1, 1 );
                 $wsheet->set_column( 0, 250, 20 );
+                $wsheet->set_landscape
+                  if $model->{layout} && $model->{layout} =~ /wide/i;
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'Calculations' ),
                   @{ $model->{tableList} };

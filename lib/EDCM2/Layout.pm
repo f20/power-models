@@ -33,7 +33,10 @@ use utf8;
 
 sub orderedLayout {
 
-    my ( $model, $ignoreNewBlock, @finalCalcTableList ) = @_;
+    my ( $model, @finalCalcTableList ) = @_;
+    my $unnumbered = $model->{layout} =~ /unnumbered/i;
+    my $wideLayout = $model->{layout} =~ /wide/i;
+    @finalCalcTableList = [ map { @$_ } @finalCalcTableList ] if $wideLayout;
 
     my ( %calcTables, %dependencies, $addCalcTable );
     my $serialUplift = 0;
@@ -113,30 +116,46 @@ sub orderedLayout {
 
     my @ordered;
 
-    my $columnsetMaker = sub {
+    my $groupMaker = sub {
         my ( $prefix, @extras ) = @_;
-        my $counter;
-        $counter = 0 unless $model->{layout} =~ /unnumbered/i;
+        my $grouper;
+        if ($unnumbered) {
+            $grouper = sub {
+                return unless @_;
+                return @_ if @_ == 1 && !$_[0]{rows};
+                Columnset(
+                    name    => '',
+                    columns => [@_],
+                    @extras,
+                );
+            };
+        }
+        else {
+            my $counter = 0;
+            $grouper = sub {
+                return unless @_;
+                return @_ if @_ == 1 && !$_[0]{rows};
+
+                # Note that # has magical powers in a Columnset name
+                Columnset(
+                    name    => "$prefix data #" . ++$counter,
+                    columns => [@_],
+                    @extras,
+                );
+            };
+        }
         sub {
             my @cols;
             my @result;
-            foreach ( @_, { theEnd => 1 } ) {
+            foreach (
+                ( sort { $a->{serialForLayout} <=> $b->{serialForLayout} } @_ ),
+                { theEnd => 1 }
+              )
+            {
                 if (    @cols
-                    and $_->{theEnd} || $_->{newBlock} && !$ignoreNewBlock )
+                    and $_->{theEnd} || $_->{newBlock} && !$wideLayout )
                 {
-                    push @result, !@cols ? () : @cols == 1 ? @cols : Columnset(
-                        name => defined $counter ? (
-                            "$prefix data #" # Note that # has magical powers in a Columnset name
-                              . ++$counter
-                          )
-                        : '',
-                        columns => [
-                            sort {
-                                $a->{serialForLayout} <=> $b->{serialForLayout}
-                            } @cols
-                        ],
-                        @extras,
-                    );
+                    push @result, $grouper->(@cols);
                     @cols = ();
                 }
                 push @cols, $_;
@@ -146,15 +165,15 @@ sub orderedLayout {
     };
 
     push @{ $model->{generalTables} },
-      $columnsetMaker->('Fixed parameter')->(
+      $groupMaker->('Fixed parameter')->(
         sort { $a->{serialForLayout} <=> $b->{serialForLayout} }
         grep { !$_->{cols} } @constantSingle
       ),
       sort { $a->{serialForLayout} <=> $b->{serialForLayout} }
       ( @constantOther, grep { $_->{cols} } @constantSingle );
 
-    my $singleMaker = $columnsetMaker->('Aggregate');
-    my $tariffMaker = $columnsetMaker->('Tariff-specific');
+    my $singleMaker = $groupMaker->('Aggregate');
+    my $tariffMaker = $groupMaker->('Tariff-specific');
     for (
         my $maxSerial = 5_000 ;
         $maxSerial - $serialUplift < 10_000 ;

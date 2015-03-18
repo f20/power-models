@@ -48,10 +48,7 @@ sub requiredModulesForRuleset {
     $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
       $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
-      $ruleset->{layout}
-      ? (
-        $ruleset->{layout} =~ /216/ ? qw(EDCM2::Layout216) : qw(EDCM2::Layout) )
-      : (),
+      $ruleset->{layout}                       ? qw(EDCM2::Layout)   : (),
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
 }
 
@@ -191,6 +188,7 @@ EOT
 
     $model->{transparencyMasterFlag} = Dataset(
         name => 'Is this the master model containing all the tariff data?',
+        defaultFormat => 'boolhard',
         singleRowName => 'Enter TRUE or FALSE',
         validation    => {
             validate => 'list',
@@ -281,8 +279,9 @@ EOT
     }
 
     $model->{transparencyMasterFlag} = Arithmetic(
-        name       => 'Is this the master model?',
-        arithmetic => '=IF(ISERROR(IV5),TRUE,'
+        name          => 'Is this the master model?',
+        defaultFormat => 'boolsoft',
+        arithmetic    => '=IF(ISERROR(IV5),TRUE,'
           . 'IF(IV4="FALSE",FALSE,IF(IV3=FALSE,FALSE,TRUE)))',
         arguments => {
             IV3 => $model->{transparencyMasterFlag},
@@ -388,9 +387,10 @@ EOT
     }
 
     my $exportEligible = Arithmetic(
-        name       => 'Has export charges?',
-        arithmetic => '=OR(IV1<>"VOID",IV2<>"VOID",IV3<>"VOID")',
-        arguments  => {
+        name          => 'Has export charges?',
+        defaultFormat => 'boolsoft',
+        arithmetic    => '=OR(IV1<>"VOID",IV2<>"VOID",IV3<>"VOID")',
+        arguments     => {
             IV1 => $exportCapacityChargeablePre2005,
             IV2 => $exportCapacityChargeable20052010,
             IV3 => $exportCapacityChargeablePost2010,
@@ -398,9 +398,10 @@ EOT
     );
 
     my $importEligible = Arithmetic(
-        name       => 'Has import charges?',
-        arithmetic => '=IV1<>"VOID"',
-        arguments  => {
+        name          => 'Has import charges?',
+        defaultFormat => 'boolsoft',
+        arithmetic    => '=IV1<>"VOID"',
+        arguments     => {
             IV1 => $importCapacity,
         }
     );
@@ -612,13 +613,14 @@ EOT
     );
 
     my (
-        $lossFactors,                  $diversity,
-        $redUseRate,                   $capUseRate,
-        $assetsFixed,                  $assetsCapacity,
-        $assetsConsumption,            $totalAssetsFixed,
-        $totalAssetsCapacity,          $totalAssetsConsumption,
-        $totalAssetsGenerationSoleUse, $totalEdcmAssets,
-        $assetsCapacityCooked,         $assetsConsumptionCooked,
+        $lossFactors,            $diversity,
+        $accretion,              $redUseRate,
+        $capUseRate,             $assetsFixed,
+        $assetsCapacity,         $assetsConsumption,
+        $totalAssetsFixed,       $totalAssetsCapacity,
+        $totalAssetsConsumption, $totalAssetsGenerationSoleUse,
+        $totalEdcmAssets,        $assetsCapacityCooked,
+        $assetsConsumptionCooked,
       )
       = $model->notionalAssets(
         $activeCoincidence,      $reactiveCoincidence,
@@ -903,6 +905,14 @@ EOT
         },
     );
 
+    my $gCharge = $model->gCharge(
+        $genPot20p,                        $genPotGP,
+        $genPotGL,                         $genPotCdcmCap20052010,
+        $genPotCdcmCapPost2010,            $exportCapacityChargeable,
+        $exportCapacityChargeable20052010, $exportCapacityChargeablePost2010,
+        $daysInYear,
+    );
+
     my $exportCapacityCharge = Arithmetic(
         name          => 'Export capacity charge (unrounded) p/kVA/day',
         defaultFormat => '0.00softnz',
@@ -910,17 +920,7 @@ EOT
         arguments     => {
             IV1 => $exportCapacityChargeable,
             IV2 => $exportEligible,
-            IV4 => $model->gCharge(
-                $genPot20p,
-                $genPotGP,
-                $genPotGL,
-                $genPotCdcmCap20052010,
-                $genPotCdcmCapPost2010,
-                $exportCapacityChargeable,
-                $exportCapacityChargeable20052010,
-                $exportCapacityChargeablePost2010,
-                $daysInYear,
-            ),
+            IV4 => $gCharge,
         },
     );
 
@@ -1758,29 +1758,39 @@ EOT
     );
 
     if ( $model->{layout} ) {
-        my @calculationOrder = (
+        $model->{tableList} = $model->orderedLayout(
             [ $exportEligible, @{ $tariffColumns[5]{sourceLines} } ],
+            $model->{transparencyMasterFlag}
+            ? [ $model->{transparencyMasterFlag}, ]
+            : (),
+            $model->{layout} =~ /multisheet/i
+            ? ( [ $gCharge, ], [ $rateExit, ], )
+            : [ $gCharge, $rateExit, ],
             [
                 @{ $tariffColumns[7]{sourceLines} },
-                @{ $tariffColumns[8]{sourceLines} }
+                @{ $tariffColumns[8]{sourceLines} },
             ],
-            [ $rateExit, $rateDirect, $rateIndirect, $rateRates ],
+            [ $generationSoleUseAsset, $demandSoleUseAsset, ],
+            [ $accretion, ],
+            [ $assetsCapacity, $assetsConsumption, ],
+            [ $rateDirect, $rateIndirect, $rateRates, ],
             [
                 @{ $tariffColumns[6]{sourceLines} },
-                @{ $tariffColumns[2]{sourceLines} }
+                @{ $tariffColumns[2]{sourceLines} },
+                $fixedGcharge,
             ],
+            [ $rateOther, ],
+            [ $demandScalingShortfall, ],
+            [ $assetsCapacityCooked, ],
             [
                 @{ $tariffColumns[1]{sourceLines} },
                 @{ $tariffColumns[3]{sourceLines} },
-                @{ $tariffColumns[4]{sourceLines} }
+                @{ $tariffColumns[4]{sourceLines} },
             ]
         );
-        if ( $model->{layout} =~ /auto/i ) {
-            $model->{tableList} =
-              $model->orderedLayout( undef, @calculationOrder );
-        }
-        else {
-            $model->{sheetList} = $model->otherLayout(@calculationOrder);
+        if ( $model->{layout} =~ /multisheet/i ) {
+
+            # $model->{sheetList} = $model->otherLayout(@calculationOrder);
         }
     }
 
