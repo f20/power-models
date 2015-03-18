@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -49,7 +49,7 @@ sub worksheetsAndClosures {
         $wsheet->{sheetNumber} = 15;
         $wbook->{lastSheetNumber} = $model->{table1653} ? 48 : 49;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   40 );
+        $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
         $wsheet->{nextFree} = 2;
         $model->{inputTables} ||= [];
@@ -115,7 +115,7 @@ sub worksheetsAndClosures {
       'Volumes' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   42 );
+        $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} };
@@ -128,7 +128,7 @@ sub worksheetsAndClosures {
         'Checks' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   42 );
+            $wsheet->set_column( 0, 0,   36 );
             $wsheet->set_column( 1, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Network usage checks' ),
@@ -142,7 +142,7 @@ sub worksheetsAndClosures {
       'Costs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   42 );
+        $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Relevant costs and charges' ),
@@ -154,7 +154,7 @@ sub worksheetsAndClosures {
       'Buildup' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   42 );
+        $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Tariff build-up' ),
@@ -166,7 +166,7 @@ sub worksheetsAndClosures {
       'Tariffs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   42 );
+        $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
         my $noLinks = $wbook->{noLinks};
         $_->wsWrite( $wbook, $wsheet )
@@ -179,7 +179,7 @@ sub worksheetsAndClosures {
       'Revenues' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   42 );
+        $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
         my $noLinks = $wbook->{noLinks};
         $_->wsWrite( $wbook, $wsheet )
@@ -194,7 +194,7 @@ sub worksheetsAndClosures {
         'Details' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   40 );
+            $wsheet->set_column( 0, 0,   $model->{ulist} ? 50 : 20 );
             $wsheet->set_column( 1, 250, $model->{ulist} ? 20 : 50 );
             $wsheet->set_column( 2, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
