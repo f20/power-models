@@ -51,9 +51,13 @@ sub populateCore {
 
 sub check {
     my ($self) = @_;
-    $self->{arithmetic} = 'Special calculation'
-      unless defined $self->{arithmetic};
     $self->{objectType} ||= 'Special calculation';
+    $self->{arithmetic} = join ' or ', map {
+        local $_ = $_;
+        s/([A-Z]+[0-9]+):([A-Z]+[0-9]+)/${1}_${2}/g;
+        $_;
+      } @{ $self->{custom} }
+      unless defined $self->{arithmetic};
     push @{ $self->{sourceLines} }, values %{ $self->{arguments} };
     $self->{wsPrepare} ||= sub {
         my ( $self, $wb, $ws, $formula, $format, $pha, $rowh, $colh ) = @_;

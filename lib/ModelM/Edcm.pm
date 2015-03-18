@@ -180,7 +180,8 @@ EOT
             name          => 'Splitting factors',
             defaultFormat => '%soft',
             cols => Labelset( list => [ 'LV mains', 'HV', 'EHV', '132kV' ] ),
-            custom => [ '=1-IV2*IV9', '=1-IV3*IV9', '=1-IV9' ],
+            custom     => [ '=1-IV2*IV9', '=1-IV3*IV9', '=1-IV9' ],
+            arithmetic => 'Special calculation',
             arguments =>
               { IV2 => $splits[0], IV3 => $splits[1], IV9 => $direct, },
             wsPrepare => sub {

@@ -215,7 +215,8 @@ sub makeStatisticsTables {
             : '=IV321*IV613+(IV311-IV322)*MIN(IV61,IV72/7*IV51)+'
               . '(IV301-IV323)*MAX(0,IV77/7*IV43-IV631-IV623)'
         ],
-        arguments => {
+        arithmetic => 'Special calculation',
+        arguments  => {
             %override
             ? (
                 IV10 => $override{total},
@@ -269,7 +270,8 @@ sub makeStatisticsTables {
             : '=IV324*IV624+(IV312-IV325)*MIN(IV620,MAX(0,IV73/7*IV52-IV611))+'
               . '(IV302-IV326)*MIN(IV621,MAX(0,IV75/7*IV42-IV632))'
         ],
-        arguments => {
+        arithmetic => 'Special calculation',
+        arguments  => {
             %override
             ? (
                 IV10 => $override{total},
@@ -320,7 +322,8 @@ sub makeStatisticsTables {
             : '=IV327*IV633+(IV313-IV328)*MAX(0,IV74/7*IV53-IV612-IV622)+'
               . '(IV303-IV329)*MIN(IV63,IV76/7*IV41)'
         ],
-        arguments => {
+        arithmetic => 'Special calculation',
+        arguments  => {
             %override
             ? (
                 IV10 => $override{total},
@@ -439,7 +442,8 @@ sub makeStatisticsTables {
             '=0.01*(IV31*IV91+IV32*IV92+IV33*IV93+IV71*(IV94+IV2*IV95))',
             '=IV81-IV82',
         ],
-        arguments => {
+        arithmetic => 'Special calculation',
+        arguments  => {
             IV11  => $totalUnits,
             IV12  => $assumptions->{columns}[3],
             IV13  => $assumptions->{columns}[1],

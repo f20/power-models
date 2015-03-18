@@ -119,10 +119,11 @@ sub check {
     );
 
     my $kk = new SpreadsheetModel::Custom(
-        name      => 'Kink',
-        rows      => $kinkSet,
-        custom    => [ '=IV2', '=0-IV2' ],    # assumes all on the same sheet
-        arguments => {
+        name       => 'Kink',
+        rows       => $kinkSet,
+        custom     => [ '=IV2', '=0-IV2' ],    # assumes all on the same sheet
+        arithmetic => 'Special calculation',
+        arguments  => {
             IV1 => $startingPoint,
             map { ( "IV4$_" => $slopes[$_] ); } 0 .. $#slopes,
         },
@@ -207,8 +208,11 @@ sub check {
         defaultFormat => '0softnz',
         rows          => $kinkSet,
         custom        => ['=RANK(IV1,IV2:IV3,1)'],
-        arguments     => { IV1 => $kx },
-        wsPrepare     => sub {
+        arguments     => {
+            IV1     => $kx,
+            IV2_IV3 => $kx,
+        },
+        wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
 
@@ -239,8 +243,11 @@ sub check {
         defaultFormat => '0softnz',
         rows          => $kinkSet,
         custom        => ['=RANK(IV1,IV2:IV3,1)'],
-        arguments     => { IV1 => $kr2 },
-        wsPrepare     => sub {
+        arguments     => {
+            IV1     => $kr2,
+            IV2_IV3 => $kr2,
+        },
+        wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
             sub {
@@ -261,8 +268,12 @@ sub check {
         defaultFormat => '0softnz',
         rows          => $kinkSet,
         custom        => ['=MATCH(IV1,IV2:IV3,0)'],
-        arguments     => { IV1 => $counter, IV2 => $kr },
-        wsPrepare     => sub {
+        arguments     => {
+            IV1     => $counter,
+            IV2     => $kr,
+            IV2_IV3 => $kr,
+        },
+        wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
             sub {
@@ -282,7 +293,11 @@ sub check {
         name      => 'Location (ordered)',
         rows      => $kinkSet,
         custom    => [ '=INDEX(IV2:IV3,IV1,1)', '=IV2' ],
-        arguments => { IV2 => $kx, IV1 => $ror },
+        arguments => {
+            IV2     => $kx,
+            IV1     => $ror,
+            IV2_IV3 => $kx,
+        },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
@@ -302,10 +317,15 @@ sub check {
     );
 
     my $kks = new SpreadsheetModel::Custom(
-        name      => 'New slope',
-        rows      => $kinkSet,
-        custom    => [ '=IV7+INDEX(IV2:IV3,IV1,1)', '=SUM(IV5:IV6)' ],
-        arguments => { IV2 => $kk, IV1 => $ror, IV5 => $startingSlope },
+        name       => 'New slope',
+        rows       => $kinkSet,
+        custom     => [ '=IV7+INDEX(IV2:IV3,IV1,1)', '=SUM(IV5:IV6)' ],
+        arithmetic => 'Special calculation',
+        arguments  => {
+            IV2 => $kk,
+            IV1 => $ror,
+            IV5 => $startingSlope,
+        },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
@@ -329,14 +349,15 @@ sub check {
     );
 
     my $kvs = new SpreadsheetModel::Custom(
-        name      => 'Value',
-        rows      => $kinkSet,
-        custom    => [ '=IV7+(IV4-IV3)*IV2', '=SUM(IV5:IV6)-IV9' ],
-        arguments => {
+        name       => 'Value',
+        rows       => $kinkSet,
+        custom     => [ '=IV7+(IV4-IV3)*IV2', '=SUM(IV5:IV6)-IV9' ],
+        arithmetic => 'Special calculation',
+        arguments  => {
             IV4 => $kxs,
             IV2 => $kks,
             IV5 => $startingValue,
-            IV9 => $self->{target}
+            IV9 => $self->{target},
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -367,8 +388,13 @@ sub check {
             '=IF((IV2>0)=(IV3>0),"",IV1-IV9/IV4)',
             '=IF(IV2>0,IV1,IF(IV3>0,"",IV5))'
         ],
-        arguments =>
-          { IV9 => $kvs, IV4 => $kks, IV1 => $kxs, IV5 => $unconstrained },
+        arithmetic => 'Special calculation',
+        arguments  => {
+            IV9 => $kvs,
+            IV4 => $kks,
+            IV1 => $kxs,
+            IV5 => $unconstrained,
+        },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {

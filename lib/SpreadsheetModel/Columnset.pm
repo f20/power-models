@@ -499,7 +499,7 @@ use ->shortName here.
                     }
                     else {
                         $value = "=$value"
-                          if $value eq '#VALUE!' || $value eq '#N/A';
+                          if $value and $value eq '#VALUE!' || $value eq '#N/A';
                         $ws->write( $row + $y, $c2 + $x, $value, $format );
                     }
                 }
@@ -549,7 +549,7 @@ use ->shortName here.
                 }
                 else {
                     $value = "=$value"
-                      if $value eq '#VALUE!' || $value eq '#N/A';
+                      if $value and $value eq '#VALUE!' || $value eq '#N/A';
                     $ws->write( $row + $y, $c2, $value, $format );
                 }
             }

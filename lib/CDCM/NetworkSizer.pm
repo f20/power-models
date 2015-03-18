@@ -109,7 +109,6 @@ EOL
         rows          => $coreExitLevels,
         custom        => [ '=1/(1+IV2)', '=IV1/(1+IV2)' ],
         arithmetic    => '=previous/(1+IV2)',
-        objectType    => 'Special calculation',
         arguments     => { IV2 => $diversityInLevel },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -137,7 +136,6 @@ EOL
         rows          => $coreExitLevels,
         custom        => [ '=1/(1+IV2)', '=IV1/(1+IV2)' ],
         arithmetic    => '=previous/(1+IV2)',
-        objectType    => 'Special calculation',
         arguments     => { IV2 => $diversityInLevel },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -165,7 +163,6 @@ EOL
         rows          => $coreExitLevels,
         custom        => ['=1/IV1-1'],
         arithmetic    => '=1/IV1-1',
-        objectType    => 'Special calculation',
         arguments     => { IV1 => $exitCoincidence },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;

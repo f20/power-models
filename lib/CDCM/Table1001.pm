@@ -496,7 +496,6 @@ sub table1001 {
             ],
             arithmetic => '= derived from IV100',
             rows       => $specialRowset,
-            objectType => 'Special calculation',
             arguments  => {
                 map { ( "IV$_" => $inputs ); } 100 .. 102,
                 104 .. 108,
@@ -526,7 +525,6 @@ sub table1001 {
             defaultFormat => '0hard',
             custom        => ['=IV1+IV2-IV3'],
             arithmetic    => '=IV1+IV2-IV3',
-            objectType    => 'Special calculation',
             arguments     => {
                 IV1 => $target,
                 IV2 => $inputs,
