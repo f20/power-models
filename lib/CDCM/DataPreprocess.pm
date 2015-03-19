@@ -247,8 +247,20 @@ EOY
     }
 
     if ( $d->{1001} && $model->{revenueAdj} ) {
+        my $adj = $model->{revenueAdj};
+        if ( $adj < 100 && $d->{1053} ) {
+            my $units = 0;
+            foreach my $cust ( keys %{ $d->{1053}[1] } ) {
+                next if $cust eq '_column';
+                my $u = 0;
+                $u += $_
+                  foreach grep { $_; } map { $d->{1053}[$_]{$cust} } 1 .. 3;
+                $cust =~ /gener/i ? $units -= $u : $units += $u;
+            }
+            $adj *= 10 * $units;
+        }
         $d->{1001}[4]{'Pass-Through Others'} ||= 0;
-        $d->{1001}[4]{'Pass-Through Others'} += $model->{revenueAdj};
+        $d->{1001}[4]{'Pass-Through Others'} += $adj;
     }
 
     if ( $d->{1001} ) {
