@@ -1,0 +1,23 @@
+---
+.: Micro-model after DCP 227
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+compact: 1
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+nickName: CDCM model (after DCP 227)
+noLLFCs: 1
+noLinks: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: statisticsbrief
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179
+unauth: dayotex
