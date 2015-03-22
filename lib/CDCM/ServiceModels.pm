@@ -588,7 +588,7 @@ EOL
               if $model->{sharedData};
 
             $serviceModelCostPerAnnualMwh = Arithmetic(
-                name => '$voltage unmetered service model asset charge (p/kWh)',
+                name => "$voltage unmetered service model asset charge (p/kWh)",
                 arithmetic => '=0.1*IV5*IV1*IV3',
                 arguments  => {
                     IV1 => $serviceModelAssetsPerAnnualMwh,

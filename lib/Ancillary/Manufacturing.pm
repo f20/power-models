@@ -252,13 +252,13 @@ sub factory {
                 ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
                 "'$_'", '|' )
             {
-                warn "Could not open file: $_";
+                warn "No such compressed file: $_\n";
                 return;
             }
         }
         else {
             unless ( open $dh, '<', $_ ) {
-                warn "Could not open file: $_";
+                warn "No such file: $_\n";
                 return;
             }
         }

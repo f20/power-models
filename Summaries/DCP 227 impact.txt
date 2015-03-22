@@ -8,3 +8,11 @@ useDatabase
 	-base=after161
 	-dcp=clean227
 	-name=DCP 227
+
+makeModels
+	-rtf
+	-text
+	-tsv
+	CDCM/Current/Blank1001.yml
+	CDCM/Future/%-after161.yml
+	CDCM/DCP-227/%-clean227.yml

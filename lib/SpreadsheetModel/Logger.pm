@@ -98,10 +98,7 @@ sub wsWrite {
         my $cset = $obj->{location};
         undef $cset
           if ref $cset ne 'SpreadsheetModel::Columnset'
-          || ( $logger->{showColumns}
-            || $cset->{name} =~ /#/
-            || $cset->{name} !~ /\S/ )
-          && grep {
+          || ( $logger->{showColumns} || $cset->{logColumns} ) && grep {
             ref $_ ne 'SpreadsheetModel::Stack' || @{ $_->{sources} } > 1;
           } @{ $cset->{columns} };
         if ($cset) {

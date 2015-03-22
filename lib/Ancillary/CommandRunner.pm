@@ -183,6 +183,9 @@ sub makeModels {
                 srand();
                 $maker->{setRule}->( colour => 'gold', password => rand() );
             }
+            elsif (/^-+illustrative/is) {
+                $maker->{setRule}->( illustrative => 1, );
+            }
             elsif (/^-+pickbest/is) {
                 $maker->{setting}->( pickBestRules => 1 );
             }
@@ -232,7 +235,7 @@ sub makeModels {
                 $maker->{ 'reset' . ucfirst( lc($1) ) }->();
             }
             else {
-                warn "Unrecognised option: $_";
+                warn "Ignored option: $_\n";
             }
         }
         elsif ( -f $_ ) {
@@ -253,7 +256,7 @@ sub makeModels {
                     $maker->{addFile}->( abs2rel($_) ) foreach @list;
                 }
                 else {
-                    warn "Cannot handle this argument: $_";
+                    warn "Ignored argument: $_\n";
                 }
             }
         }

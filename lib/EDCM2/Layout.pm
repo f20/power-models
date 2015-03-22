@@ -122,10 +122,10 @@ sub orderedLayout {
         if ($unnumbered) {
             $grouper = sub {
                 return unless @_;
-                return @_ if @_ == 1 && !$_[0]{rows};
                 Columnset(
-                    name    => '',
-                    columns => [@_],
+                    name       => '',
+                    logColumns => 1,
+                    columns    => [@_],
                     @extras,
                 );
             };
@@ -135,11 +135,10 @@ sub orderedLayout {
             $grouper = sub {
                 return unless @_;
                 return @_ if @_ == 1 && !$_[0]{rows};
-
-                # Note that # has magical powers in a Columnset name
                 Columnset(
-                    name    => "$prefix data #" . ++$counter,
-                    columns => [@_],
+                    name       => "$prefix data #" . ++$counter,
+                    logColumns => 1,
+                    columns    => [@_],
                     @extras,
                 );
             };

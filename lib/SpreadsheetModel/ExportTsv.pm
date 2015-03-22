@@ -34,13 +34,16 @@ use utf8;
 sub writeTsv {
     my ( $options, $path ) = @_;
     open my $fh, ">$path.tsv.$$";
-    print {$fh} "Serial\tTitle\tDebugging information\n";
+    print {$fh} "Number\tTitle\tSerial\tDebugging information\n";
     foreach my $obj ( grep { defined $_ && $_->{serial} }
         @{ $options->{logger}{objects} } )
     {
+        my $name   = "$obj->{name}";
+        my $number = '';
+        $number = $1 if $name =~ s/^([0-9]+)\.\s*//s;
         print {$fh} join( "\t",
-            map { my $x = $obj->{$_}; defined $x ? $x : 'undef'; }
-              qw(serial name debug) )
+            $number, $name,
+            map { my $x = $obj->{$_}; defined $x ? $x : ''; } qw(serial debug) )
           . "\n";
     }
     close $fh;

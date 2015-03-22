@@ -134,14 +134,31 @@ sub derivativeDataset {
                 "=(1+$ac)*$cell";
             }
         );
+
         if (  !$unauthInSource
             && $model->{unauth}
             && $model->{unauth} =~ /day/i )
-        {
+        {    # Adjust if unauthorised capacity is being introduced
             my $original = $model->{dataset}{1053};
             $model->{dataset}{1053} = sub {
                 my $d = $original->(@_);
                 splice @$d, 6, 0, { map { $_ => ''; } keys %{ $d->[5] } };
+                $d;
+            };
+        }
+        elsif ( $unauthInSource
+            and !$model->{unauth} || $model->{unauth} !~ /day/i )
+        {    # Adjust if unauthorised capacity is being removed
+            my $original = $model->{dataset}{1053};
+            $model->{dataset}{1053} = sub {
+                my $d = $original->(@_);
+                splice @$d, 5, 2, {
+                    map {
+                        $_ => '=' . join '+',
+                          map { local $_ = $_ || 0; s/^=//s; $_; } $d->[5]{$_},
+                          $d->[6]{$_};
+                    } keys %{ $d->[5] }
+                };
                 $d;
             };
         }
