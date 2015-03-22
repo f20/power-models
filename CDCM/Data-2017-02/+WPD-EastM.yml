@@ -1,11 +1,11 @@
 ---
 1000:
   - _table: '1000. Company, charging year, data version'
-  - Company charging year data version: SP Manweb
+  - Company charging year data version: WPD East Midlands
     _column: Company
-  - Company charging year data version: 2016/2017
+  - Company charging year data version: 2017/2018
     _column: Year
-  - Company charging year data version: March 2015
+  - Company charging year data version: Scenario
     _column: Version
   - Company charging year data version: ''
 1001:
@@ -50,19 +50,19 @@
     Total Revenue to be raised outside the CDCM: I=I1+I2+I3+I4
     Transmission Connection Point Charges Incentive Adjustment: C3
     _column: Further description
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: ''
-    2 Voluntary under-recovery: ''
-    3 Revenue raised outside CDCM: Recovery of 5 rebate to domestic customers given in 14 15
-    4 Revenue raised outside CDCM: Lead Lag Release
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 0
+    2 Voluntary under-recovery: 0
+    3 Revenue raised outside CDCM: Please provide description if used
+    4 Revenue raised outside CDCM: Please provide description if used
     Allowed Pass-Through Items: PTt
     Base Demand Revenue: BRt
     Base Demand Revenue Before Inflation: PUt
     Connection Guaranteed Standards Systems Processes penalty: 'CGSRAt, CGSSPt & AUMt'
     Correction Factor: -Kt
-    Incentive Revenue and Other Adjustments: ''
+    Incentive Revenue and Other Adjustments: 0
     Incentive Revenue for Distributed Generation: IGt
     Innovation Funding Incentive Adjustment: IFIt
-    Latest Forecast of CDCM Revenue: ''
+    Latest Forecast of CDCM Revenue: 0
     Losses Incentive 1: UILt
     Losses Incentive 2: PCOLt
     Losses Incentive 3: -COLt
@@ -85,24 +85,24 @@
     RPI Indexation Factor: PIADt
     Tax Trigger Mechanism Adjustment: CTRAt
     Total Allowed Revenue: ARt
-    Total Other Revenue to be Recovered by Use of System Charges: ''
-    Total Revenue for Use of System Charges: ''
-    Total Revenue to be raised outside the CDCM: ''
+    Total Other Revenue to be Recovered by Use of System Charges: 0
+    Total Revenue for Use of System Charges: 0
+    Total Revenue to be raised outside the CDCM: 0
     Transmission Connection Point Charges Incentive Adjustment: ITt
     _column: Term
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: ''
-    2 Voluntary under-recovery: ''
-    3 Revenue raised outside CDCM: ''
-    4 Revenue raised outside CDCM: ''
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 0
+    2 Voluntary under-recovery: 0
+    3 Revenue raised outside CDCM: 0
+    4 Revenue raised outside CDCM: 0
     Allowed Pass-Through Items: CRC3
     Base Demand Revenue: CRC3
     Base Demand Revenue Before Inflation: CRC3
     Connection Guaranteed Standards Systems Processes penalty: CRC12
     Correction Factor: CRC3
-    Incentive Revenue and Other Adjustments: ''
+    Incentive Revenue and Other Adjustments: 0
     Incentive Revenue for Distributed Generation: CRC11
     Innovation Funding Incentive Adjustment: CRC10
-    Latest Forecast of CDCM Revenue: ''
+    Latest Forecast of CDCM Revenue: 0
     Losses Incentive 1: CRC7
     Losses Incentive 2: CRC7
     Losses Incentive 3: CRC7
@@ -114,8 +114,8 @@
     Other 1 Excluded services Top-up standby and enhanced system security: CRC15
     Other 2 Excluded services Revenue protection services: CRC15
     Other 3 Excluded services Miscellaneous: CRC15
-    Other 4: ''
-    Other 5: ''
+    Other 4: 0
+    Other 5: 0
     Pass-Through Business Rates: CRC4
     Pass-Through Licence Fees: CRC4
     Pass-Through Others: CRC4
@@ -124,45 +124,45 @@
     Quality of Service Incentive Adjustment: CRC8
     RPI Indexation Factor: CRC3
     Tax Trigger Mechanism Adjustment: CRC3
-    Total Allowed Revenue: ''
-    Total Other Revenue to be Recovered by Use of System Charges: ''
-    Total Revenue for Use of System Charges: ''
-    Total Revenue to be raised outside the CDCM: ''
+    Total Allowed Revenue: 0
+    Total Other Revenue to be Recovered by Use of System Charges: 0
+    Total Revenue for Use of System Charges: 0
+    Total Revenue to be raised outside the CDCM: 0
     Transmission Connection Point Charges Incentive Adjustment: CRC9
     _column: CRC
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 29371074.0627219
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 11066960.26
     2 Voluntary under-recovery: 0
     3 Revenue raised outside CDCM: 0
     4 Revenue raised outside CDCM: 0
     Allowed Pass-Through Items: ''
     Base Demand Revenue: ''
-    Base Demand Revenue Before Inflation: 312300000
-    Connection Guaranteed Standards Systems Processes penalty: 1400000
+    Base Demand Revenue Before Inflation: 393600000
+    Connection Guaranteed Standards Systems Processes penalty: 0
     Correction Factor: 0
     Incentive Revenue and Other Adjustments: ''
     Incentive Revenue for Distributed Generation: 0
-    Innovation Funding Incentive Adjustment: 3600000
+    Innovation Funding Incentive Adjustment: 2269104
     Latest Forecast of CDCM Revenue: ''
     Losses Incentive 1: 0
     Losses Incentive 2: 0
     Losses Incentive 3: 0
-    Losses Incentive 4: 0
+    Losses Incentive 4: -13140521.65
     Low Carbon Network Fund 1: 0
     Low Carbon Network Fund 2: 0
     Low Carbon Network Fund 3: 0
     Merger Adjustment: 0
     Other 1 Excluded services Top-up standby and enhanced system security: 0
-    Other 2 Excluded services Revenue protection services: 500000
+    Other 2 Excluded services Revenue protection services: 0
     Other 3 Excluded services Miscellaneous: 0
     Other 4: 0
     Other 5: 0
-    Pass-Through Business Rates: 0
-    Pass-Through Licence Fees: 0
+    Pass-Through Business Rates: -150485.275
+    Pass-Through Licence Fees: 178102.389
     Pass-Through Others: 0
     Pass-Through Price Control Reopener: 0
-    Pass-Through Transmission Exit: 0
-    Quality of Service Incentive Adjustment: -900000
-    RPI Indexation Factor: 1.1169
+    Pass-Through Transmission Exit: -1156770.728
+    Quality of Service Incentive Adjustment: 0
+    RPI Indexation Factor: 1.153
     Tax Trigger Mechanism Adjustment: 0
     Total Allowed Revenue: ''
     Total Other Revenue to be Recovered by Use of System Charges: ''
@@ -171,33 +171,4 @@
     Transmission Connection Point Charges Incentive Adjustment: 0
     _column: Value
   - _column: Revenue elements and subtotals (£/year)
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: ''
-    2 Voluntary under-recovery: ''
-    3 Revenue raised outside CDCM: ''
-    4 Revenue raised outside CDCM: ''
-    Connection Guaranteed Standards Systems Processes penalty: Mislabelled
-    Correction Factor: ''
-    Incentive Revenue and Other Adjustments: ''
-    Incentive Revenue for Distributed Generation: Mislabelled
-    Innovation Funding Incentive Adjustment: Mislabelled
-    Latest Forecast of CDCM Revenue: ''
-    Losses Incentive 1: Mislabelled
-    Losses Incentive 2: Mislabelled
-    Losses Incentive 3: Mislabelled
-    Losses Incentive 4: Mislabelled
-    Low Carbon Network Fund 1: Mislabelled
-    Low Carbon Network Fund 2: Mislabelled
-    Low Carbon Network Fund 3: Mislabelled
-    Other 1 Excluded services Top-up standby and enhanced system security: ''
-    Other 2 Excluded services Revenue protection services: ''
-    Other 3 Excluded services Miscellaneous: ''
-    Other 4: ''
-    Other 5: ''
-    Quality of Service Incentive Adjustment: Mislabelled
-    Tax Trigger Mechanism Adjustment: ''
-    Total Allowed Revenue: ''
-    Total Other Revenue to be Recovered by Use of System Charges: ''
-    Total Revenue for Use of System Charges: ''
-    Total Revenue to be raised outside the CDCM: ''
-    Transmission Connection Point Charges Incentive Adjustment: Mislabelled
 baseDataset: 1
