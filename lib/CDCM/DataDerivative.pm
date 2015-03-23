@@ -53,25 +53,28 @@ sub derivativeDataset {
         $addSourceDatasetAdjuster->(
             1001 => sub {
                 my ( $cell, $row, $col, $wb, $ws, $irow ) = @_;
-                my $copyCell = "=$cell";
-                $copyCell = $cell = $table1001data->[$col]{$irow}
+                my $hardData;
+                $hardData = $table1001data->[$col]{$irow}
+                  || 0
                   if $table1001data
                   && $table1001data->[$col]
                   && defined $table1001data->[$col]{$irow};
-                return $copyCell unless $col == 4;
+                return defined $hardData ? $hardData : "=$cell"
+                  unless $col == 4;
+                my $preOverride =
+                  defined $hardData                  ? $hardData
+                  : $row =~ /RPI Indexation Factor/i ? ( "(1+"
+                      . $getAssumptionCell->( $wb, $ws, 'RPI' )
+                      . ")*$cell" )
+                  : $cell;
                 if ( my $override =
                     $model->{sharedData}
                     ->table1001Overrides( $model, $wb, $ws, $row ) )
                 {
-                    return qq%=IF(ISERROR(0+$override),$cell,1e6*$override)%
-                      unless $row =~ /RPI Indexation Factor/i;
-                    my $ac = $getAssumptionCell->( $wb, $ws, 'RPI' );
                     return
-                      qq%=IF(ISERROR(0+$override),(1+$ac)*$cell,$override)%;
+                      qq%=IF(ISERROR(0+$override),$preOverride,1e6*$override)%;
                 }
-                return $copyCell unless $row =~ /RPI Indexation Factor/i;
-                my $ac = $getAssumptionCell->( $wb, $ws, 'RPI' );
-                "=(1+$ac)*$cell";
+                "=$preOverride";
             }
         );
 

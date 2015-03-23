@@ -1,5 +1,5 @@
 makeModels
-	-template=%%
+	-template=%%-to2017
 	-pickbest
 	CDCM/Current/*micro*
 	CDCM/Future/*micro*
