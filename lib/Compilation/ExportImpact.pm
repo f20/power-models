@@ -61,72 +61,14 @@ sub cdcmTariffImpact {
 
     my ( $self, $wbmodule, %options ) = @_;
 
-    $options{linesAfter} ||= [ split /\n/, <<EOL ];
-Domestic Unrestricted
-Domestic Two Rate
-Domestic Off Peak (related MPAN)
-Small Non Domestic Unrestricted
-Small Non Domestic Two Rate
-Small Non Domestic Off Peak (related MPAN)
-LV Medium Non-Domestic
-LV Sub Medium Non-Domestic
-HV Medium Non-Domestic
-LV HH Metered
-LV Sub HH Metered
-HV HH Metered
-NHH UMS category A
-NHH UMS category B
-NHH UMS category C
-NHH UMS category D
-LV UMS (Pseudo HH Metered)
-LV Generation NHH
-LV Sub Generation NHH
-LV Generation Intermittent
-LV Generation Non-Intermittent
-LV Sub Generation Intermittent
-LV Sub Generation Non-Intermittent
-HV Generation Intermittent
-HV Generation Non-Intermittent
-LDNO LV: Domestic Unrestricted
-LDNO LV: Domestic Two Rate
-LDNO LV: Domestic Off Peak (related MPAN)
-LDNO LV: Small Non Domestic Unrestricted
-LDNO LV: Small Non Domestic Two Rate
-LDNO LV: Small Non Domestic Off Peak (related MPAN)
-LDNO LV: LV Medium Non-Domestic
-LDNO LV: LV HH Metered
-LDNO LV: NHH UMS category A
-LDNO LV: NHH UMS category B
-LDNO LV: NHH UMS category C
-LDNO LV: NHH UMS category D
-LDNO LV: LV UMS (Pseudo HH Metered)
-LDNO LV: LV Generation NHH
-LDNO LV: LV Generation Intermittent
-LDNO LV: LV Generation Non-Intermittent
-LDNO HV: Domestic Unrestricted
-LDNO HV: Domestic Two Rate
-LDNO HV: Domestic Off Peak (related MPAN)
-LDNO HV: Small Non Domestic Unrestricted
-LDNO HV: Small Non Domestic Two Rate
-LDNO HV: Small Non Domestic Off Peak (related MPAN)
-LDNO HV: LV Medium Non-Domestic
-LDNO HV: LV HH Metered
-LDNO HV: LV Sub HH Metered
-LDNO HV: HV HH Metered
-LDNO HV: NHH UMS category A
-LDNO HV: NHH UMS category B
-LDNO HV: NHH UMS category C
-LDNO HV: NHH UMS category D
-LDNO HV: LV UMS (Pseudo HH Metered)
-LDNO HV: LV Generation NHH
-LDNO HV: LV Sub Generation NHH
-LDNO HV: LV Generation Intermittent
-LDNO HV: LV Generation Non-Intermittent
-LDNO HV: LV Sub Generation Intermittent
-LDNO HV: LV Sub Generation Non-Intermittent
-LDNO HV: HV Generation Intermittent
-LDNO HV: HV Generation Non-Intermittent
-EOL
+    $options{linesAfter} ||= [
+        map { $_->[0] } @{
+            $self->selectall_arrayref(
+                    'select v from data where tab=3701 and'
+                  . ' col=0 and row>0 group by v order by min(row)'
+            )
+        }
+    ];
 
     $options{components} ||= [ split /\n/, <<EOL];
 Unit rate 1 p/kWh
@@ -341,33 +283,15 @@ sub cdcmPpuImpact {
         }
     );
 
-    my $linesAfter = $options{linesAfter} || [ split /\n/, <<EOL ];
-Domestic Unrestricted
-Domestic Two Rate
-Domestic Off Peak (related MPAN)
-Small Non Domestic Unrestricted
-Small Non Domestic Two Rate
-Small Non Domestic Off Peak (related MPAN)
-LV Medium Non-Domestic
-LV Sub Medium Non-Domestic
-HV Medium Non-Domestic
-LV HH Metered
-LV Sub HH Metered
-HV HH Metered
-NHH UMS category A
-NHH UMS category B
-NHH UMS category C
-NHH UMS category D
-LV UMS (Pseudo HH Metered)
-LV Generation NHH
-LV Sub Generation NHH
-LV Generation Intermittent
-LV Generation Non-Intermittent
-LV Sub Generation Intermittent
-LV Sub Generation Non-Intermittent
-HV Generation Intermittent
-HV Generation Non-Intermittent
-EOL
+    my $linesAfter = $options{linesAfter}
+      || [
+        map { $_->[0] } @{
+            $self->selectall_arrayref(
+                    'select v from data where tab=3901 and'
+                  . ' col=0 and row>0 group by v order by min(row)'
+            )
+        }
+      ];
 
     my $linesBefore = $options{linesBefore} || $linesAfter;
 
@@ -433,7 +357,7 @@ EOL
             my ($va) = $q->fetchrow_array;
             eval { $va = defined $va ? 0.1 * $ra / $va : ''; };
             $va = '' if $@;
-            eval { $vb = defined $vb ? 0.1 * $ra / $vb : ''; };
+            eval { $vb = defined $vb ? 0.1 * $rb / $vb : ''; };
             $vb = '' if $@;
             $ws->write( 3 + $j, 1, $vb, $format1[0] );
             $ws->write( 3 + $j, 2, $va, $format1[0] );
@@ -458,33 +382,14 @@ sub cdcmRevenueMatrixImpact {
 
     my ( $self, $wbmodule, %options ) = @_;
 
-    $options{linesAfter} ||= [ split /\n/, <<EOL ];
-Domestic Unrestricted
-Domestic Two Rate
-Domestic Off Peak (related MPAN)
-Small Non Domestic Unrestricted
-Small Non Domestic Two Rate
-Small Non Domestic Off Peak (related MPAN)
-LV Medium Non-Domestic
-LV Sub Medium Non-Domestic
-HV Medium Non-Domestic
-LV HH Metered
-LV Sub HH Metered
-HV HH Metered
-NHH UMS category A
-NHH UMS category B
-NHH UMS category C
-NHH UMS category D
-LV UMS (Pseudo HH Metered)
-LV Generation NHH
-LV Sub Generation NHH
-LV Generation Intermittent
-LV Generation Non-Intermittent
-LV Sub Generation Intermittent
-LV Sub Generation Non-Intermittent
-HV Generation Intermittent
-HV Generation Non-Intermittent
-EOL
+    $options{linesAfter} ||= [
+        map { $_->[0] } @{
+            $self->selectall_arrayref(
+                    'select v from data where tab=3901 and'
+                  . ' col=0 and row>0 group by v order by min(row)'
+            )
+        }
+    ];
 
     $options{tableNumber} = 3901;
     $options{col1}        = 0;
