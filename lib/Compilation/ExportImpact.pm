@@ -431,8 +431,10 @@ EOL
             my ($vb) = $q->fetchrow_array;
             $q->execute( $bida, $rowa, 1 );
             my ($va) = $q->fetchrow_array;
-            $va = $va ? 0.1 * $ra / $va : '';
-            $vb = $vb ? 0.1 * $rb / $vb : '';
+            eval { $va = defined $va ? 0.1 * $ra / $va : ''; };
+            $va = '' if $@;
+            eval { $vb = defined $vb ? 0.1 * $ra / $vb : ''; };
+            $vb = '' if $@;
             $ws->write( 3 + $j, 1, $vb, $format1[0] );
             $ws->write( 3 + $j, 2, $va, $format1[0] );
             my $old = xl_rowcol_to_cell( 3 + $j, 1 );

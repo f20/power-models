@@ -112,8 +112,24 @@ sub create {
             $wbook->{noData} = !$optionArray[$i]{illustrative};
             if ( my $yaml = $dataset->{yaml} ) {
                 require YAML;    # for deferred parsing
-                my $parsed = YAML::Load($yaml);
-                %$dataset = %$parsed;
+                my @parsed = YAML::Load($yaml);
+                if ( @parsed > 1 ) {
+                    foreach my $section (@parsed) {
+                        while ( my ( $tab, $dat ) = each %$section ) {
+                            next unless ref $dat eq 'ARRAY';
+                            for ( my $col = 0 ; $col < @$dat ; ++$col ) {
+                                my $cd = $dat->[$col];
+                                next unless ref $cd eq 'HASH';
+                                while ( my ( $row, $v ) = each %$cd ) {
+                                    $dataset->{$tab}[$col]{$row} = $v;
+                                }
+                            }
+                        }
+                    }
+                }
+                else {
+                    %$dataset = %{ $parsed[0] };
+                }
             }
             if ( my $prev = $optionArray[$i]{dataset}{baseDataset} ) {
                 unless ( $prev > $i ) {

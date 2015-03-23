@@ -65,8 +65,39 @@ sub factory {
         %ruleOverrides = ( %ruleOverrides, @_ );
     };
 
+    my $applyDataOverride = sub {
+        foreach ( grep { ref $_ eq 'HASH' } @_ ) {
+            while ( my ( $tab, $dat ) = each %$_ ) {
+                if ( ref $dat eq 'HASH' ) {
+                    while ( my ( $row, $rd ) = each %$dat ) {
+                        next unless ref $rd eq 'ARRAY';
+                        for ( my $col = 0 ; $col < @$rd ; ++$col ) {
+                            $dataOverrides{$tab}[ $col + 1 ]{$row} =
+                              $rd->[$col];
+                        }
+                    }
+                }
+                elsif ( ref $dat eq 'ARRAY' ) {
+                    for ( my $col = 0 ; $col < @$dat ; ++$col ) {
+                        my $cd = $dat->[$col];
+                        next unless ref $cd eq 'HASH';
+                        while ( my ( $row, $v ) = each %$cd ) {
+                            $dataOverrides{$tab}[$col]{$row} = $v;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
     $self->{xdata} = sub {
         foreach (@_) {
+            if (/^---\r?\n/s) {
+                my @y = eval { Load $_; };
+                warn $@ if $@;
+                $applyDataOverride->(@y);
+                next;
+            }
             local $_ = $_;
             if (s/\{(.*)\}//s) {
                 foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
@@ -78,26 +109,7 @@ sub factory {
                           grep { /^rules?$/is; }
                           keys %$d
                     );
-                    while ( my ( $tab, $dat ) = each %$d ) {
-                        if ( ref $dat eq 'HASH' ) {
-                            while ( my ( $row, $rd ) = each %$dat ) {
-                                next unless ref $rd eq 'ARRAY';
-                                for ( my $col = 0 ; $col < @$rd ; ++$col ) {
-                                    $dataOverrides{$tab}[ $col + 1 ]{$row} =
-                                      $rd->[$col];
-                                }
-                            }
-                        }
-                        elsif ( ref $dat eq 'ARRAY' ) {
-                            for ( my $col = 0 ; $col < @$dat ; ++$col ) {
-                                my $cd = $dat->[$col];
-                                next unless ref $cd eq 'HASH';
-                                while ( my ( $row, $v ) = each %$cd ) {
-                                    $dataOverrides{$tab}[$col]{$row} = $v;
-                                }
-                            }
-                        }
-                    }
+                    $applyDataOverride->($d);
                 }
             }
             while (s/(\S.*\|.*\S)//m) {
@@ -173,7 +185,7 @@ sub factory {
             @objects = $blob;
         }
         elsif ( $blob =~ /^---/s ) {
-            @objects = length($blob) < 32_768
+            @objects = length($blob) < 4_196 && $fileName !~ /^\+/s
               || defined $fileName
               && $fileName =~ /%/ ? Load($blob) : { yaml => $blob };
         }
@@ -433,6 +445,31 @@ sub factory {
                   [ $rule, $data, \%settings ];
             }
         };
+
+        if ( $settings{dataMerge} ) {
+            my @mergedData;
+            my %byCompany;
+            foreach my $data (@datasets) {
+                if (   $data->{dataset}{yaml}
+                    && $data->{'~datasetName'}
+                    && $data->{'~datasetName'} =~ /^([A-Z-]*[A-Z])[ -]*(.*)/i )
+                {
+                    $byCompany{$1}{ $2 || 'undated' } = $data->{dataset}{yaml};
+                }
+                else {
+                    push @mergedData, $data;
+                }
+            }
+            foreach my $co ( keys %byCompany ) {
+                my @k = sort keys %{ $byCompany{$co} };
+                push @mergedData,
+                  {
+                    '~datasetName' => join( '-', $co, @k ),
+                    dataset => { yaml => join '', @{ $byCompany{$co} }{@k} },
+                  };
+            }
+            @datasets = @mergedData;
+        }
 
         if ( $settings{pickBestRules} ) {
             foreach my $data (@datasets) {

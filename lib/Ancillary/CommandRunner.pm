@@ -186,6 +186,9 @@ sub makeModels {
             elsif (/^-+illustrative/is) {
                 $maker->{setRule}->( illustrative => 1, );
             }
+            elsif (/^-+datamerge/is) {
+                $maker->{setting}->( dataMerge => 1 );
+            }
             elsif (/^-+pickbest/is) {
                 $maker->{setting}->( pickBestRules => 1 );
             }
@@ -214,13 +217,21 @@ sub makeModels {
                     $1 ? ( statistics => $1 ) : (),
                 );
             }
-            elsif (/^-+([0-9]+)/is) { $maker->{threads}->($1); }
             elsif (/^-+template(?:=(.+))?/is) {
                 $maker->{setRule}->( template => $1 || ( time . "-$$" ) );
             }
-            elsif (/^-+xdata=?(.*)/is) {
+            elsif (/^-+([0-9]+)/is) { $maker->{threads}->($1);
+             }
+            elsif (/^-+xdata=(.*)/is) {
                 if ($1) {
-                    $maker->{xdata}->($1);
+                    if ( open my $fh, '<', $1 ) {
+                        binmode $fh, ':utf8';
+                        local undef $/;
+                        $maker->{xdata}->(<$fh>);
+                    }
+                    else {
+                        $maker->{xdata}->($1);
+                    }
                 }
                 else {
                     local undef $/;

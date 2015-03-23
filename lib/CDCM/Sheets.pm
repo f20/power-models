@@ -704,18 +704,18 @@ EOL
         $model->technicalNotes->wsWrite( $wbook, $wsheet );
       };
 
-    return @wsheetsAndClosures unless $model->{compact};
-
-    for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
-        my $suffix = {
-            Tariffs => '$',
-            '⇒11'   => '',
-        }->{ $wsheetsAndClosures[$i] };
-        if ( defined $suffix ) {
-            $wsheetsAndClosures[$i] .= $suffix;
-        }
-        else {
-            $wsheetsAndClosures[$i] = "CDCM/$wsheetsAndClosures[$i]";
+    if ( $model->{compact} ) {
+        for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
+            my $suffix = {
+                Tariffs => '$',
+                '⇒11'   => '',
+            }->{ $wsheetsAndClosures[$i] };
+            if ( defined $suffix ) {
+                $wsheetsAndClosures[$i] .= $suffix;
+            }
+            else {
+                $wsheetsAndClosures[$i] = "CDCM/$wsheetsAndClosures[$i]";
+            }
         }
     }
 
