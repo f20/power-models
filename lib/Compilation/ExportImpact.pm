@@ -57,27 +57,38 @@ EOL
     $self->genericTariffImpact( $wbmodule, %options );
 }
 
-sub cdcmTariffImpact {
+sub cdcmTariffImpact {   # The defaults assume that all the models are the same.
 
     my ( $self, $wbmodule, %options ) = @_;
+
+    $options{tableNumber} ||= 3701;
+
+    $options{firstColumn} ||= $self->selectall_arrayref(
+        'select min(col) from data where tab=? and row=0 and'
+          . ' v<>"" and v not like "%LLF%" and v not like "PC%" and v not like "%checksum%"',
+        undef, $options{tableNumber}
+    )->[0][0];
 
     $options{linesAfter} ||= [
         map { $_->[0] } @{
             $self->selectall_arrayref(
-                    'select v from data where tab=3701 and'
-                  . ' col=0 and row>0 group by v order by min(row)'
+                'select v from data where tab=? and'
+                  . ' col=0 and row>0 group by v order by min(row)',
+                undef, $options{tableNumber}
             )
         }
     ];
 
-    $options{components} ||= [ split /\n/, <<EOL];
-Unit rate 1 p/kWh
-Unit rate 2 p/kWh
-Unit rate 3 p/kWh
-Fixed charge p/MPAN/day
-Capacity charge p/kVA/day
-Reactive power charge p/kVArh
-EOL
+    $options{components} ||= [
+        map { $_->[0] } @{
+            $self->selectall_arrayref(
+                'select v from data where tab=? and row=0 and col>=? and'
+                  . ' v<>"" and v not like "%LLF%" and v not like "PC%" and v not like "%checksum%"'
+                  . ' group by v order by min(col)',
+                undef, $options{tableNumber}, $options{firstColumn},
+            )
+        }
+    ];
 
     unless ( $options{format1} ) {
         $options{format1} = [ map { /k(W|VAr)h/ ? '0.000copy' : '0.00copy'; }
@@ -99,9 +110,6 @@ EOL
             right_color => 8
         ];
     }
-
-    $options{tableNumber} ||= 3701;
-    $options{firstColumn} ||= 3;
 
     $self->genericTariffImpact( $wbmodule, %options );
 
