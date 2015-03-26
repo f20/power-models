@@ -339,13 +339,14 @@ sub databaseWriter {
 }
 
 sub checksumWriter {
+    require POSIX;
+    my $id = POSIX::strftime( '%a@%H%M%S', localtime );
     sub {
         my ( $book, $workbook ) = @_;
         $book =~ s#.*/##;
         for my $worksheet ( $workbook->worksheets() ) {
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
-            my $tableNumber = '';
           ROW: for my $row ( $row_min .. $row_max ) {
                 my $rowName;
               COL: for my $col ( $col_min .. $col_max ) {
@@ -353,36 +354,18 @@ sub checksumWriter {
                     my $v;
                     $v = $cell->unformatted if $cell;
                     next unless defined $v;
-                    if ( $col == 0 ) {
-                        if ( !ref $cell->{Format} || $cell->{Format}{Lock} ) {
-                            if ( $v && $v =~ /^([0-9]{2,})\. / ) {
-                                $tableNumber = $1;
-                                next ROW;
-                            }
-                        }
-                        else {
-                            next ROW if $v;
-                            next COL;
-                        }
-                    }
-                    if ( $v =~ /model checksum/i ) {
+                    if ( $v =~ /^Model checksum/i ) {
                         my $check = $worksheet->get_cell( $row + 1, $col );
-                        next unless $check;
-                        $check = $check->unformatted;
-                        next unless $check && $check =~ /^[0-9]+$/;
-                        if ( $v =~ / 7$/ ) {
-                            $check = 5.5e-8 + 1e-7 * $check;
-                            $check =~ s/.*\.(...)(....)5.*/$1 $2/;
+                        $check = $check->unformatted if $check;
+                        if ( $check && $v =~ / 7$/ && $check =~ /^[0-9.-]+$/ ) {
+                            local $_ = 5.5e-8 + 1e-7 * $check;
+                            $check = "$1 $2" if /.*\.(...)(....)5.*/;
                         }
-                        my $fh;
-                        my $csvFileName = 'Model checksums.csv';
-                        my $newFileFlag = !-e $csvFileName;
-                        unless ( open $fh, '>>', $csvFileName ) {
-                            $fh = \*STDOUT;
-                            undef $newFileFlag;
-                        }
-                        print $fh qq%Workbook,Table,Checksum\n% if $newFileFlag;
-                        print $fh qq%"$book",$tableNumber,$check\n%;
+                        $check = $check ? "✔$check" : '✘';
+                        mkdir $check;
+                        $book =~ s#.*/##s;
+                        open my $fh, '>', "$check/$book $check $id";
+                        print $fh $id;
                     }
                 }
             }

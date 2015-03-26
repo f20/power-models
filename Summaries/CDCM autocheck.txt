@@ -1,1 +1,5 @@
--autocheck CDCM/Current/%-*.yml CDCM/Data-2014-02/*.yml
+makeModels
+	-autocheck
+	CDCM/Current/%-*.yml
+	CDCM/Future/%-*.yml
+	CDCM/Data-2015-03/*.yml

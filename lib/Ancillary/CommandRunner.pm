@@ -127,10 +127,8 @@ sub makeModels {
                 $SIG{__DIE__} = \&Carp::confess;
             }
             elsif (/^-+(auto)?check/is) {
-                $maker->{setRule}->(
-                    activeSheets => 'Result|Tariff',
-                    checksums    => 'Tariff checksum 5; Model checksum 7'
-                );
+                $maker->{setRule}
+                  ->( checksums => 'Tariff checksum 5; Model checksum 7' );
                 if (/^-+autocheck/is) {
                     require Compilation::DataExtraction;
                     $maker->{setting}->(
@@ -220,8 +218,9 @@ sub makeModels {
             elsif (/^-+template(?:=(.+))?/is) {
                 $maker->{setRule}->( template => $1 || ( time . "-$$" ) );
             }
-            elsif (/^-+([0-9]+)/is) { $maker->{threads}->($1);
-             }
+            elsif (/^-+([0-9]+)/is) {
+                $maker->{threads}->($1);
+            }
             elsif (/^-+xdata=(.*)/is) {
                 if ($1) {
                     if ( open my $fh, '<', $1 ) {

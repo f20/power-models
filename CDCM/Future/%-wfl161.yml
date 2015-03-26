@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 179 (minimal with forward links)
+.: CDCM model after DCP 161 with forward links
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
@@ -8,6 +8,7 @@ drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
 forwardLinks: 1
+matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
