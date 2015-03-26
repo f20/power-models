@@ -3,6 +3,7 @@ package EDCM2;
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -78,9 +79,12 @@ sub gCharge {
 
     my $exportCapacityCharge = Arithmetic(
         name          => 'Export capacity charge p/kVA/day',
+        groupName     => 'Generic export capacity charge',
         defaultFormat => '0.00softnz',
-        arithmetic =>
-'=(IV1*(1-IV21/IV23)+(IV3*IV22/(IV24+IV52)+IV4*IV25/(IV26+IV51))/IV231)*100/IV9',
+        arithmetic    => '=('
+          . 'IV1*(1-IV21/IV23)'
+          . '+(IV3*IV22/(IV24+IV52)+IV4*IV25/(IV26+IV51))/IV231'
+          . ')*100/IV9',
         arguments => {
             IV1   => $genPot20p,
             IV21  => $exportCapacityChargeable20052010,

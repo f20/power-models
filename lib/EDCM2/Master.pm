@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -679,6 +679,7 @@ EOT
 
     my $rateDirect = Arithmetic(
         name          => 'Direct cost charging rate',
+        groupName     => 'Expenditure charging rates',
         arithmetic    => '=IV1/(IV2+IV3+(IV4+IV5)/IV6)',
         defaultFormat => '%soft',
         arguments     => {
@@ -695,6 +696,7 @@ EOT
 
     my $rateRates = Arithmetic(
         name          => 'Network rates charging rate',
+        groupName     => 'Expenditure charging rates',
         arithmetic    => '=IV1/(IV2+IV3+IV4+IV5)',
         defaultFormat => '%soft',
         arguments     => {
@@ -710,6 +712,7 @@ EOT
 
     my $rateIndirect = Arithmetic(
         name          => 'Indirect cost charging rate',
+        groupName     => 'Expenditure charging rates',
         arithmetic    => '=IV1/(IV20+IV3+(IV4+IV5)/IV6)',
         defaultFormat => '%soft',
         arguments     => {
@@ -745,6 +748,7 @@ EOT
     my $edcmDirect = Arithmetic(
         name => 'Direct costs on EDCM demand except'
           . ' through sole use asset charges (£/year)',
+        groupName     => 'Expenditure allocated to EDCM demand',
         defaultFormat => '0softnz',
         arithmetic    => '=IV1*(IV20+IV23)',
         arguments     => {
@@ -808,6 +812,7 @@ EOT
     my $fixedDchargeTrue =
       !$model->{dcp189} ? Arithmetic(
         name          => 'Demand fixed charge p/day',
+        groupName     => 'Fixed charges',
         defaultFormat => '0.00softnz',
         arithmetic    => '=IF(IV3,(100/IV2*IV1*(IV6+IV88)),0)',
         arguments     => {
@@ -820,6 +825,7 @@ EOT
       )
       : $model->{dcp189} =~ /proportion/i ? Arithmetic(
         name          => 'Demand fixed charge p/day',
+        groupName     => 'Fixed charges',
         defaultFormat => '0.00softnz',
         arithmetic    => '=IF(IV3,(100/IV2*IV1*((1-IV4)*IV6+IV88)),0)',
         arguments     => {
@@ -833,6 +839,7 @@ EOT
       )
       : Arithmetic(
         name          => 'Demand fixed charge p/day',
+        groupName     => 'Fixed charges',
         defaultFormat => '0.00softnz',
         arithmetic    => '=IF(IV3,(100/IV2*IV1*(IF(IV4="Y",0,IV6)+IV88)),0)',
         arguments     => {
@@ -898,7 +905,7 @@ EOT
 
     $genCredit = Arithmetic(
         name       => 'Generation credit (unrounded) p/kWh',
-        groupName  => 'Generation credit',
+        groupName  => 'Generation unit rate credit',
         arithmetic => '=IF(IV41,(IV2*IV3/(IV4+IV5)),0)',
         arguments  => {
             IV1  => $exportCapacityChargeable,
@@ -1115,6 +1122,7 @@ EOT
 
     my $rateOther = Arithmetic(
         name          => 'Other revenue charging rate',
+        groupName     => 'Other revenue charging rate',
         arithmetic    => '=IV1/(IV21+IV22+IV3+IV4)',
         defaultFormat => '%soft',
         arguments     => {
@@ -1227,7 +1235,6 @@ EOT
 
     my $capacityChargeT = Arithmetic(
         name          => 'Capacity charge p/kVA/day (exit only)',
-        newBlock      => 1,
         defaultFormat => '0.00softnz',
         arithmetic    => '=100/IV2*IV41*IV1',
         arguments     => {
@@ -1662,6 +1669,7 @@ EOT
 
     $importCapacityScaled = Arithmetic(
         name       => 'Import capacity charge p/kVA/day',
+        groupName  => 'Demand charges after scaling',
         arithmetic => '=IF(IV3,MAX(0,IV1),0)',
         arguments  => {
             IV1 => $importCapacityScaled,
@@ -2101,11 +2109,11 @@ EOT
         defaultFormat => '0softnz'
     );
 
-    push @{ $model->{revenueTables} },
+    push @{ $model->{ $model->{layout} ? 'TotalsTables' : 'revenueTables' } },
       my $totalAllTariffs = Columnset(
         name    => 'Total for all tariffs (£/year)',
         columns => [
-            Constant(
+            $model->{layout} ? () : Constant(
                 name          => 'This column is not used',
                 defaultFormat => '0con',
                 data          => [ [''] ]

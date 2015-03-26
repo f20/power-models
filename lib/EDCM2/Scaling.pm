@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -108,6 +108,7 @@ sub fudge41 {
       $model->{dcp185} && $model->{dcp185} == 2
       ? Arithmetic(
         name       => 'Data for capacity-based allocation of indirect costs',
+        groupName  => 'Allocation of indirect costs',
         arithmetic => '=IF(IV6<0,1,IV1)*(IV2+IV3)',
         arguments  => {
             IV2 => $ynonFudge,
@@ -118,6 +119,7 @@ sub fudge41 {
       )
       : Arithmetic(
         name       => 'Data for capacity-based allocation of indirect costs',
+        groupName  => 'Allocation of indirect costs',
         arithmetic => '=IV1*(IV2+IV3)',
         arguments  => {
             IV2 => $ynonFudge,
@@ -154,6 +156,7 @@ sub fudge41 {
       $model->{legacy201}
       ? Arithmetic(
         name       => 'Indirect costs application rate',
+        groupName  => 'EDCM demand adders',
         arithmetic => '=IF(IV2,IV3/SUMPRODUCT(IV4_IV5,IV64_IV65),0)',
         arguments  => {
             IV2       => $indirect,
@@ -165,6 +168,7 @@ sub fudge41 {
       )
       : Arithmetic(
         name       => 'Indirect costs application rate',
+        groupName  => 'EDCM demand adders',
         arithmetic => '=IF(IV2,IV3/IV4,0)',
         arguments  => {
             IV2 => $indirect,
@@ -250,6 +254,7 @@ sub fudge41 {
       $model->{legacy201}
       ? Arithmetic(
         name       => 'Fixed adder ex indirects application rate',
+        groupName  => 'EDCM demand adders',
         arithmetic => '=IF(IV9,IV1*IV2/SUM(IV4_IV5),0)',
         arguments  => {
             IV1     => $ynonFudge41,
@@ -261,6 +266,7 @@ sub fudge41 {
       )
       : Arithmetic(
         name       => 'Fixed adder ex indirects application rate',
+        groupName  => 'EDCM demand adders',
         arithmetic => '=IF(IV9,IV1*IV2/IV4,0)',
         arguments  => {
             IV1 => $ynonFudge41,
@@ -356,6 +362,7 @@ sub fudge41 {
 
     $$shortfallRef = Arithmetic(
         name          => 'Residual residual (£/year)',
+        groupName     => 'Residual EDCM demand revenue',
         defaultFormat => '0softnz',
         arithmetic    => '=(1-IV1)*(IV2-IV3-IV71-IV72)+IV81+IV82',
         arguments     => {
@@ -408,6 +415,7 @@ sub demandScaling41 {
 
     my $slopeCapacity = Arithmetic(
         name          => 'Non sole use notional assets subject to matching (£)',
+        groupName     => 'Demand scaling',
         defaultFormat => '0softnz',
         arithmetic    => '=(IV2+IV1)*IV4',
         arguments     => {
@@ -455,6 +463,7 @@ sub demandScaling41 {
       $model->{legacy201}
       ? Arithmetic(
         name          => 'Annual charge on assets',
+        groupName     => 'Demand scaling rate',
         defaultFormat => '%soft',
         arithmetic    => '=IF(IV4,IV1/SUM(IV2_IV3),0)',
         arguments =>
@@ -463,6 +472,7 @@ sub demandScaling41 {
       )
       : Arithmetic(
         name          => 'Annual charge on assets',
+        groupName     => 'Demand scaling rate',
         defaultFormat => '%soft',
         arithmetic    => '=IF(IV4,IV1/IV2,0)',
         arguments =>

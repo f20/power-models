@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,7 @@ sub chargesFcpLric {
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name          => 'Import demand charge p/kVA/day',
+        newBlock      => 1,
         defaultFormat => '0.00softnz',
         rows          => $demandCapacity->{rows},
         arithmetic    => '=100*(' . join(

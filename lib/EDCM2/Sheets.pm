@@ -205,7 +205,7 @@ sub worksheetsAndClosures {
                   foreach Notes( lines => 'Matrix' ),
                   @{ $model->{matrixTables} };
             },
-            'Totals' => sub {
+            'DNO totals' => sub {
                 my ($wsheet) = @_;
                 $wsheet->{firstTableNumber} =
                   $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
@@ -561,15 +561,14 @@ sub worksheetsAndClosures {
 
       $model->{TotalsTables}
       ? (
-        'Total' => sub {
+        'Total revenue' => sub {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber} = 61;
-            $wsheet->freeze_panes( 1, 2 );
-            $wsheet->set_column( 0, 0,   20 );
-            $wsheet->set_column( 1, 1,   50 );
-            $wsheet->set_column( 2, 250, 20 );
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 28 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Total' ), @{ $model->{TotalsTables} };
+              foreach Notes( lines => 'Total revenue' ),
+              @{ $model->{TotalsTables} };
         }
       )
       : ()

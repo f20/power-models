@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -72,6 +72,7 @@ EOT
 
     my $ehvAssets = SumProduct(
         name          => 'EHV assets in CDCM model (£)',
+        groupName     => 'Assets in CDCM model',
         defaultFormat => '0softnz',
         matrix        => Constant(
             name  => 'EHV asset levels',
@@ -436,10 +437,11 @@ EOL
     if ( $model->{voltageRulesTransparency} ) {
 
         $accretion = Stack(
-            name     => 'Notional asset rate adjusted (£/kW)',
-            cols     => $useProportions->{cols},
-            sources  => [ $accretion132hvcombined, $accretion ],
-            location => 'Charging rates',
+            name      => 'Notional asset rate adjusted (£/kW)',
+            groupName => 'Notional asset rate',
+            cols      => $useProportions->{cols},
+            sources   => [ $accretion132hvcombined, $accretion ],
+            location  => 'Charging rates',
         );
 
         my $machine = sub {
@@ -448,9 +450,11 @@ EOL
               = @_;
 
             SumProduct(
-                name   => $name1,
-                matrix => SpreadsheetModel::Custom->new(
-                    name => $name2,
+                name      => $name1,
+                groupName => $name2,
+                matrix    => SpreadsheetModel::Custom->new(
+                    name      => $name2,
+                    groupName => $name2,
                     @extras,
                     custom => [
                             '=IF(INDEX(IV5:IV6,IV4)'
@@ -547,10 +551,11 @@ EOL
     else {
 
         $accretion = Stack(
-            name     => 'Notional asset rate adjusted (£/kW)',
-            cols     => $ehvAssetLevelset,
-            sources  => [ $accretion132hvcombined, $accretion ],
-            location => 'Charging rates',
+            name      => 'Notional asset rate adjusted (£/kW)',
+            groupName => 'Notional asset rate',
+            cols      => $ehvAssetLevelset,
+            sources   => [ $accretion132hvcombined, $accretion ],
+            location  => 'Charging rates',
         );
 
         $useProportionsCooked = $useProportionsCooked->();
@@ -1448,6 +1453,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
 
         $assetsCapacity = Arithmetic(
             name       => 'Total notional capacity assets (£/kVA)',
+            groupName  => 'First set of notional assets',
             cols       => 0,
             arithmetic => '='
               . join( '+', map { "IV$_" } 1 .. @assetsCapacity ),
@@ -1459,6 +1465,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
 
         $assetsCapacityCooked = Arithmetic(
             name       => 'Second set of capacity assets (£/kVA)',
+            groupName  => 'Second set of notional capacity assets',
             cols       => 0,
             arithmetic => '='
               . join( '+', map { "IV$_" } 1 .. @assetsCapacityCooked ),
@@ -1470,6 +1477,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
 
         $assetsConsumption = Arithmetic(
             name       => 'Total notional consumption assets (£/kVA)',
+            groupName  => 'First set of notional assets',
             cols       => 0,
             arithmetic => '='
               . join( '+', map { "IV$_" } 1 .. @assetsConsumption ),
@@ -1481,6 +1489,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
 
         $assetsConsumptionCooked = Arithmetic(
             name       => 'Second set of consumption assets (£/kVA)',
+            groupName  => 'Second set of notional consumption assets',
             cols       => 0,
             arithmetic => '='
               . join( '+', map { "IV$_" } 1 .. @assetsConsumptionCooked ),
@@ -1527,6 +1536,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             $name =~ s/\(£\/kVA\)/(£)/;
             Arithmetic(
                 name          => $name,
+                groupName     => 'Notional assets in EDCM model',
                 defaultFormat => '0softnz',
                 arithmetic =>
                   '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV13_IV14,IV15_IV16)',
@@ -1546,6 +1556,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             $name =~ s/\(£\/kVA\)/(£)/;
             SumProduct(
                 name          => $name,
+                groupName     => 'Notional assets in EDCM model',
                 defaultFormat => '0softnz',
                 matrix        => $_,
                 vector        => $agreedCapacity
