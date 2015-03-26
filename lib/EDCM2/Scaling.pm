@@ -161,6 +161,7 @@ sub fudge41 {
             IV4_IV5   => $fudgeIndirect,
             IV64_IV65 => $agreedCapacity,
         },
+        location => 'Charging rates',
       )
       : Arithmetic(
         name       => 'Indirect costs application rate',
@@ -170,6 +171,7 @@ sub fudge41 {
             IV3 => $indirect,
             IV4 => $totalIndirectFudge,
         },
+        location => 'Charging rates',
       );
     $model->{transparency}{olFYI}{1262} = $indirectAppRate
       if $model->{transparency};
@@ -255,6 +257,7 @@ sub fudge41 {
             IV9     => $adderAmount,
             IV4_IV5 => $slope,
         },
+        location => 'Charging rates',
       )
       : Arithmetic(
         name       => 'Fixed adder ex indirects application rate',
@@ -265,6 +268,7 @@ sub fudge41 {
             IV9 => $adderAmount,
             IV4 => $totalSlope,
         },
+        location => 'Charging rates',
       );
     $model->{transparency}{olFYI}{1261} = $fixedAdderRate
       if $model->{transparency};
@@ -454,14 +458,16 @@ sub demandScaling41 {
         defaultFormat => '%soft',
         arithmetic    => '=IF(IV4,IV1/SUM(IV2_IV3),0)',
         arguments =>
-          { IV1 => $shortfall, IV4 => $shortfall, IV2_IV3 => $slopeCapacity, }
+          { IV1 => $shortfall, IV4 => $shortfall, IV2_IV3 => $slopeCapacity, },
+        location => 'Charging rates',
       )
       : Arithmetic(
         name          => 'Annual charge on assets',
         defaultFormat => '%soft',
         arithmetic    => '=IF(IV4,IV1/IV2,0)',
         arguments =>
-          { IV1 => $shortfall, IV4 => $shortfall, IV2 => $totalSlopeCapacity, }
+          { IV1 => $shortfall, IV4 => $shortfall, IV2 => $totalSlopeCapacity, },
+        location => 'Charging rates',
       );
     $model->{transparency}{olFYI}{1258} = $demandScaling
       if $model->{transparency};

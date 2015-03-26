@@ -1816,8 +1816,12 @@ EOT
             ]
         );
 
-        SpreadsheetModel::MatrixSheet->new( $model->{tariff1Row}
-            ? ( dataRow => $model->{tariff1Row}, )
+        SpreadsheetModel::MatrixSheet->new(
+            $model->{tariff1Row}
+            ? (
+                dataRow            => $model->{tariff1Row},
+                captionDecorations => [qw(blue red)],
+              )
             : (),
           )->addDatasetGroup(
             name    => 'Tariff name',
@@ -2027,8 +2031,12 @@ EOT
 
     if ( $model->{layout} ) {
         my @copyTariffs = map { Stack( sources => [$_] ) } @tariffColumns;
-        SpreadsheetModel::MatrixSheet->new( $model->{tariff1Row}
-            ? ( dataRow => $model->{tariff1Row}, )
+        SpreadsheetModel::MatrixSheet->new(
+            $model->{tariff1Row}
+            ? (
+                dataRow            => $model->{tariff1Row},
+                captionDecorations => [qw(blue red)],
+              )
             : (),
           )->addDatasetGroup(
             name    => 'Tariff name',

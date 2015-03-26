@@ -495,9 +495,9 @@ Keys used in %$options:
         link => [
             locked => 1,
             @sizeText,
-            align     => 'left',
-            underline => 1,
-            color     => BLUE,
+            num_format => '@',
+            underline  => 1,
+            color      => BLUE,
         ],
         locsoft => [
             locked => 1,
@@ -533,7 +533,6 @@ Keys used in %$options:
             locked => 1,
             @sizeText,
             num_format => '@',
-            align      => 'left',
         ],
         textcon => [
             locked => 1,
@@ -738,8 +737,14 @@ Keys used in %$options:
             right       => 5,
             right_color => 8,
         ],
-        wrapca => [ text_wrap => 1, center_across => 1, ],
-        red    => [
+        wrapca => [
+            text_wrap     => 1,
+            center_across => 1,
+            $options->{gridlines}
+            ? ( right => 7, bottom => 1, )
+            : ( left => 1, right => 1, ),
+        ],
+        red => [
             color    => BGPINK,
             bold     => 1,
             bg_color => RED,

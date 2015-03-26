@@ -39,9 +39,7 @@ sub new {
     bless {
         titlesRow => defined $pairs{titlesRow} ? $pairs{titlesRow} : 2,
         dataRow => $pairs{dataRow},
-        captionDecorations => $pairs{captionDecorations}
-          || [qw(blue red)]
-          || [undef],
+        captionDecorations => $pairs{captionDecorations} || [undef],
     }, $class;
 }
 
@@ -225,8 +223,10 @@ sub wsWrite {
             and $column->{formulaLines}
             || $column->{name} && $column->{sourceLines} )
         {
-            my $textFormat = $wb->getFormat( 'text', 'wrapca' );
-            my $linkFormat = $wb->getFormat( 'link', 'wrapca' );
+            my $lcol = $column->{cols} ? $#{ $column->{cols}{list} } : 0;
+            my @decorations = $c4 + $lcol == $col + $ncol - 1 ? 'tlttr' : ();
+            my $textFormat = $wb->getFormat( 'text', 'wrapca', @decorations );
+            my $linkFormat = $wb->getFormat( 'link', 'wrapca', @decorations );
             my $xc         = 0;
             my @allLines   = (
                 $column->{lines} ? @{ $column->{lines} } : (),
@@ -240,10 +240,13 @@ sub wsWrite {
             );
             my $row = $docRow;
             foreach (@allLines) {
+
                 if ( ref($_) =~ /^SpreadsheetModel::/ ) {
                     my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                     if ( my $url = $_->wsUrl($wb) ) {
                         $ws->write_url( ++$row, $c4, $url, $na, $linkFormat );
+                        $ws->write( $row, $c4 + $_, undef, $linkFormat )
+                          foreach 1 .. $lcol;
                         (
                             $_->{location}
                               && ref $_->{location} eq
@@ -255,11 +258,20 @@ sub wsWrite {
                     }
                     else {
                         $ws->write_string( ++$row, $c4, $na, $textFormat );
+                        $ws->write( $row, $c4 + $_, undef, $textFormat )
+                          foreach 1 .. $lcol;
                     }
                 }
                 else {
                     $ws->write_string( ++$row, $c4, "$_", $textFormat );
+                    $ws->write( $row, $c4 + $_, undef, $textFormat )
+                      foreach 1 .. $lcol;
                 }
+            }
+            while ( ++$row < $dataRow - 3 ) {
+                $ws->write_string( $row, $c4, ' ', $textFormat );
+                $ws->write( $row, $c4 + $_, undef, $textFormat )
+                  foreach 1 .. $lcol;
             }
         }
 
@@ -286,14 +298,9 @@ sub wsWrite {
         if ( my $co = $column->{cols} ) {
             foreach ( 0 .. $#{ $co->{list} } ) {
                 my @decorations = $c4 + $_ == $col + $ncol - 1 ? 'tlttr' : ();
-                $ws->write(
-                    $dataRow - 2,
-                    $c4 + $_,
-                    $_ ? undef : "$column->{name}",
-                    $wb->getFormat(
-                        $#{ $co->{list} } > 2 ? 'thla' : 'thca', @decorations
-                    )
-                );
+                my $format = $wb->getFormat( 'thca', @decorations );
+                $ws->write( $dataRow - 2,
+                    $c4 + $_, $_ ? undef : "$column->{name}", $format );
                 $ws->write(
                     $dataRow - 1,
                     $c4 + $_,
@@ -309,9 +316,12 @@ sub wsWrite {
         }
         else {
             my @decorations = $c4 == $col + $ncol - 1 ? 'tlttr' : ();
-            $ws->write( $dataRow - 2,
-                $c4, $column->{number},
-                $wb->getFormat( 'thca', @decorations ) );
+            $ws->write(
+                $dataRow - 2,
+                $c4,
+                $column->{number} || $column->{numbered},
+                $wb->getFormat( 'thca', @decorations )
+            );
             $ws->write(
                 $dataRow - 1,
                 $c4,

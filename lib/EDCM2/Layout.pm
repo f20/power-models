@@ -114,17 +114,18 @@ sub orderedLayout {
         @columns;
     };
 
-    my @ordered;
-
     my $groupMaker = sub {
         my ( $prefix, @extras ) = @_;
         my $grouper;
         if ( $model->{layout} =~ /matrix/i ) {
-            return sub { }
+            return sub { @_; }
               unless $prefix eq 'Tariff-specific';
             my $matrix = new SpreadsheetModel::MatrixSheet(
                 $model->{tariff1Row}
-                ? ( dataRow => $model->{tariff1Row}, )
+                ? (
+                    dataRow            => $model->{tariff1Row},
+                    captionDecorations => [qw(blue red)],
+                  )
                 : (),
             );
             push @{ $model->{matrixTables} },
@@ -200,6 +201,7 @@ sub orderedLayout {
       sort { $a->{serialForLayout} <=> $b->{serialForLayout} }
       ( @constantOther, grep { $_->{cols} } @constantSingle );
 
+    my @ordered;
     my $singleMaker = $groupMaker->('Aggregate');
     my $tariffMaker = $groupMaker->('Tariff-specific');
     for (

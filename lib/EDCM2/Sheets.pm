@@ -43,7 +43,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 11;
         $wbook->{lastSheetNumber} =
-          $model->{layout} && $model->{layout} =~ /matrix/ ? 33 : 40;
+          $model->{layout} && $model->{layout} =~ /matrix/ ? 30 : 40;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
@@ -174,6 +174,23 @@ sub worksheetsAndClosures {
 
         $model->{layout} && $model->{layout} =~ /matrix/i
         ? (
+            'Parameters' => sub {
+                my ($wsheet) = @_;
+                $wsheet->{firstTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+                $wsheet->{tableNumberIncrement} = 2;
+                $wsheet->freeze_panes( 1, 1 );
+                $wsheet->set_column( 0, 250, 28 );
+                $wsheet->set_landscape
+                  if $model->{layout} && $model->{layout} =~ /wide/i;
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'DNO-wide aggregates' ),
+                  Notes(
+                    lines    => 'Charging rates',
+                    location => 'Charging rates',
+                  ),
+                  @{ $model->{generalTables} };
+            },
             'Matrix' => sub {
                 my ($wsheet) = @_;
                 $wsheet->{firstTableNumber} =
@@ -188,17 +205,21 @@ sub worksheetsAndClosures {
                   foreach Notes( lines => 'Matrix' ),
                   @{ $model->{matrixTables} };
             },
-            'Aggregates' => sub {
+            'Totals' => sub {
                 my ($wsheet) = @_;
                 $wsheet->{firstTableNumber} =
                   $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
                 $wsheet->{tableNumberIncrement} = 2;
                 $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
+                $wsheet->set_column( 0, 250, 28 );
                 $wsheet->set_landscape
                   if $model->{layout} && $model->{layout} =~ /wide/i;
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'DNO-wide aggregates' ),
+                  Notes(
+                    lines    => 'Charging rates',
+                    location => 'Charging rates',
+                  ),
                   @{ $model->{tableList} };
             },
             'Charging rates' => sub {
@@ -207,11 +228,9 @@ sub worksheetsAndClosures {
                   $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
                 $wsheet->{tableNumberIncrement} = 2;
                 $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
+                $wsheet->set_column( 0, 250, 28 );
                 $wsheet->set_landscape
                   if $model->{layout} && $model->{layout} =~ /wide/i;
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Charging rates' );
             },
           )
 
@@ -227,7 +246,7 @@ sub worksheetsAndClosures {
                   if $model->{layout} && $model->{layout} =~ /wide/i;
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'Calculations' ),
-                  @{ $model->{tableList} };
+                  @{ $model->{generalTables} }, @{ $model->{tableList} };
             },
           )
 

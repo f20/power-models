@@ -351,7 +351,8 @@ EOL
             IV2 => $cdcmAssets,
             IV3 => $cdcmUse,
             IV4 => $lossFactors
-        }
+        },
+        location => 'Charging rates',
       )
       : Arithmetic(
         name       => 'Notional asset rate (£/kW)',
@@ -361,7 +362,8 @@ EOL
             IV1 => $cdcmUse,
             IV2 => $cdcmAssets,
             IV4 => $lossFactors
-        }
+        },
+        location => 'Charging rates',
       );
 
     my $accretion132hvHard = Dataset(
@@ -410,7 +412,8 @@ EOL
                 IV4 => $accretion,
                 IV5 => $accretion,
             }
-        )
+        ),
+        location => 'Charging rates',
     );
 
     my (
@@ -433,9 +436,10 @@ EOL
     if ( $model->{voltageRulesTransparency} ) {
 
         $accretion = Stack(
-            name    => 'Notional asset rate adjusted (£/kW)',
-            cols    => $useProportions->{cols},
-            sources => [ $accretion132hvcombined, $accretion ]
+            name     => 'Notional asset rate adjusted (£/kW)',
+            cols     => $useProportions->{cols},
+            sources  => [ $accretion132hvcombined, $accretion ],
+            location => 'Charging rates',
         );
 
         my $machine = sub {
@@ -543,9 +547,10 @@ EOL
     else {
 
         $accretion = Stack(
-            name    => 'Notional asset rate adjusted (£/kW)',
-            cols    => $ehvAssetLevelset,
-            sources => [ $accretion132hvcombined, $accretion ]
+            name     => 'Notional asset rate adjusted (£/kW)',
+            cols     => $ehvAssetLevelset,
+            sources  => [ $accretion132hvcombined, $accretion ],
+            location => 'Charging rates',
         );
 
         $useProportionsCooked = $useProportionsCooked->();
