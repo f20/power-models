@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::ExportTsv;
+﻿package SpreadsheetModel::Export::Tsv;
 
 =head Copyright licence and disclaimer
 

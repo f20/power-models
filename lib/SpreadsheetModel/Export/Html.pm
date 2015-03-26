@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::ExportText;
+﻿package SpreadsheetModel::Export::Html;
 
 =head Copyright licence and disclaimer
 
@@ -31,67 +31,75 @@ use warnings;
 use strict;
 use utf8;
 
-sub writeText {
-    my ( $options, $pathPrefix ) = @_;
-    if ( my $yaml = $options->{yaml} ) {
-        my $file  = "${pathPrefix}Rules.txt";
-        my $tfile = $pathPrefix . $$ . '.txt';
-        open my $fh, '>', $tfile;
-        binmode $fh, ':utf8';
-        print $fh $yaml;
-        close $fh;
-        rename $tfile, $file;
-    }
-    my $logger = $options->{logger};
+sub writeHtml {    # $logger->{objects} is a good $objectList
+    my ( $logger, $pathPrefix ) = @_;
     $pathPrefix = '' unless defined $pathPrefix;
-    my %writer;
+    my %htmlWriter;
     my @end;
-    foreach my $pot (qw(Datasets Labelsets Tables)) {
-        my $file  = "$pathPrefix$pot.txt";
-        my $tfile = $pathPrefix . $$ . '.' . $pot . 'txt';
+    foreach my $pot (qw(Inputs Calculations Ancillary)) {
+        my $file  = "$pathPrefix$pot.html";
+        my $tfile = $pathPrefix . '~$' . $$ . '.' . $pot . '.html';
         open my $fh, '>', $tfile;
         binmode $fh, ':utf8';
+        print $fh
+          '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><title>'
+          . $pot
+          . '</title><head><body>';
         my $url = $file;
         $url =~ s/^.*\///s;
-        $writer{$pot} = $pot eq 'Tables'
-          ? sub {
-            print {$fh} join "\n", @_;
-          }
-          : sub {
-            print {$fh} map { _flatten(@$_); } @_;
+        $htmlWriter{$pot} = sub {
+            print {$fh} map { _xmlFlatten(@$_); } @_;
             $url;
-          };
+        };
         push @end, sub {
+            print $fh '</body></html>';
             close $fh;
             rename $tfile, $file;
         };
     }
-    $writer{Inputs} = $writer{Calculations} = $writer{Datasets};
-    $writer{Ancillary} = $writer{Labelsets};
-    my @objects = grep { defined $_ } @{ $logger->{objects} };
-    $writer{Tables}->(
-        $logger->{realRows}
-        ? @{ $logger->{realRows} }
-        : map { "$_->{name}" } @objects
-    );
-    $_->htmlWrite( \%writer, $writer{Calculations} ) foreach @objects;
+    $_->htmlWrite( \%htmlWriter, $htmlWriter{Calculations} )
+      foreach grep { defined $_ } @{ $logger->{objects} };
     $_->() foreach @end;
 }
 
-sub _pmarks {
-    ( local $_ ) = @_;
-    s/\r?\n/¶/gs;
-    $_;
+sub _xmlElement {
+    my ( $e, $c ) = splice @_, 0, 2;
+    my %a = %{ ref( $_[0] ) eq 'HASH' ? $_[0] : +{@_} };
+    my $z = "<$e";
+    while ( my ( $k, $v ) = each %a ) {
+        $z .= qq% $k="$v"%;
+    }
+    defined $c ? "$z>$c</$e>" : "$z />";
 }
 
-sub _flatten {
-    return join '', map { ref $_ eq 'ARRAY' ? _flatten(@$_) : $_ } @_
+sub _xmlEscape {
+    local @_ = @_ if defined wantarray;
+    for (@_) {
+        if ( defined $_ ) {
+            s/&/&amp;/g;
+            s/</&lt;/g;
+            s/>/&gt;/g;
+            s/"/&quot;/g;
+        }
+    }
+    wantarray ? @_ : $_[0];
+}
+
+sub _xmlFlatten {
+    return join '',
+      map { ref $_ eq 'ARRAY' ? _xmlFlatten(@$_) : _xmlEscape($_) } @_
       if ref $_[0] eq 'ARRAY';
-    return _pmarks( $_[1] ) unless $_[0];
+    return _xmlEscape( $_[1] ) unless $_[0];
     my ( $e, $c ) = splice @_, 0, 2;
-    ( $e eq 'fieldset' ? "-\n" : '' )
-      . ( !defined $c ? '' : ref $c ? _flatten($c) : _pmarks($c) )
-      . ( $e eq 'legend' || $e eq 'div' || $e eq 'p' ? "\n" : '' );
+    my %a = %{ ref( $_[0] ) eq 'HASH' ? $_[0] : +{@_} };
+    my $z = "<$e";
+    while ( my ( $k, $v ) = each %a ) {
+        _xmlEscape $v;
+        $z .= qq% $k="$v"%;
+    }
+    defined $c
+      ? "$z>" . ( ref $c ? _xmlFlatten($c) : _xmlEscape($c) ) . "</$e>"
+      : "$z />";
 }
 
 1;

@@ -29,14 +29,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use SpreadsheetModel::DatasetDerivation;
+use SpreadsheetModel::Derivative;
 
 sub derivativeDataset {
 
     my ( $model, $sourceModel ) = @_;
 
     my $addSourceDatasetAdjuster =
-      SpreadsheetModel::DatasetDerivation::setupDerivativeDataset( $model,
+      SpreadsheetModel::Derivative::setupDerivativeDataset( $model,
         $sourceModel );
 
     my $table1001data;

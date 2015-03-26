@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::ExportGraphviz;
+﻿package SpreadsheetModel::Export::Graphviz;
 
 =head Copyright licence and disclaimer
 

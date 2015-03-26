@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::ExportRtf;
+﻿package SpreadsheetModel::Export::Rtf;
 
 =head Copyright licence and disclaimer
 

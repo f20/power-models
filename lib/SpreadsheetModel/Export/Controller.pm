@@ -1,4 +1,4 @@
-package SpreadsheetModel::WorkbookExport;
+package SpreadsheetModel::Export::Controller;
 
 =head Copyright licence and disclaimer
 
@@ -49,35 +49,35 @@ sub setModel {
 }
 
 sub ExportHtml {
-    require SpreadsheetModel::ExportHtml;
+    require SpreadsheetModel::Export::Html;
     mkdir $_[0][WE_LOC];
     chmod 0770, $_[0][WE_LOC];
-    SpreadsheetModel::ExportHtml::writeHtml( $_[0][WE_MODEL]{logger},
+    SpreadsheetModel::Export::Html::writeHtml( $_[0][WE_MODEL]{logger},
         $_[0][WE_LOC] . '/' );
 }
 
 sub ExportText {
-    require SpreadsheetModel::ExportText;
-    SpreadsheetModel::ExportText::writeText( $_[0][WE_MODEL],
+    require SpreadsheetModel::Export::Text;
+    SpreadsheetModel::Export::Text::writeText( $_[0][WE_MODEL],
         $_[0][WE_LOC] . '-' );
 }
 
 sub ExportTsv {
-    require SpreadsheetModel::ExportTsv;
-    SpreadsheetModel::ExportTsv::writeTsv( $_[0][WE_MODEL], $_[0][WE_LOC] );
+    require SpreadsheetModel::Export::Tsv;
+    SpreadsheetModel::Export::Tsv::writeTsv( $_[0][WE_MODEL], $_[0][WE_LOC] );
 }
 
 sub ExportRtf {
-    require SpreadsheetModel::ExportRtf;
-    SpreadsheetModel::ExportRtf::write( $_[0][WE_MODEL], $_[0][WE_LOC] );
+    require SpreadsheetModel::Export::Rtf;
+    SpreadsheetModel::Export::Rtf::write( $_[0][WE_MODEL], $_[0][WE_LOC] );
 }
 
 sub ExportGraphviz {
-    require SpreadsheetModel::ExportGraphviz;
+    require SpreadsheetModel::Export::Graphviz;
     my $dir = $_[0][WE_LOC] . '-graphs';
     mkdir $dir;
     chmod 0770, $dir;
-    SpreadsheetModel::ExportGraphviz::writeGraphs(
+    SpreadsheetModel::Export::Graphviz::writeGraphs(
         $_[0][WE_MODEL]{logger}{objects},
         $_[0][WE_WBOOK], $dir . '/' );
 }

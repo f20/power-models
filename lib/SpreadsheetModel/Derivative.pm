@@ -1,4 +1,4 @@
-package SpreadsheetModel::DatasetDerivation;
+package SpreadsheetModel::Derivative;
 
 =head Copyright licence and disclaimer
 

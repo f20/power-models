@@ -93,9 +93,9 @@ sub create {
     my $exporter;
     if (@exports) {
         eval {
-            require SpreadsheetModel::WorkbookExport;
+            require SpreadsheetModel::Export::Controller;
             $exporter =
-              SpreadsheetModel::WorkbookExport->new( $fileName, $wbook );
+              SpreadsheetModel::Export::Controller->new( $fileName, $wbook );
         };
         warn "@exports: $@" if $@;
     }
