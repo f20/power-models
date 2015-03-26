@@ -49,9 +49,10 @@ sub populateCore {
 
 sub check {
     my ($self) = @_;
-    return 'Broken columnset' unless 'ARRAY' eq ref $self->{columns};
+    return "Broken column list in Columnset $self->{name}"
+      unless 'ARRAY' eq ref $self->{columns};
     my @columns = @{ $self->{columns} };
-    return 'Empty columnset' unless @columns;
+    return "No columns in Columnset $self->{name}" unless @columns;
     $self->{lines} = [ SpreadsheetModel::Object::splitLines( $self->{lines} ) ]
       if $self->{lines};
     my $rows;
@@ -66,9 +67,9 @@ sub check {
                 @{ $_->{rows}{accepts} } )
             {
                 return <<ERR ;
-Mismatch in Columnset
-$self->{name} $self->{debug} $rows
-$_->{name} $_->{debug} $_->{rows}
+Mismatch in Columnset $self->{name} $self->{debug}
+Rows in Columnset: $rows
+Rows in $_->{name} $_->{debug}: $_->{rows}
 ERR
             }
         }
@@ -120,27 +121,24 @@ sub wsWrite {
         )->wsWrite( $wb, $ws, $row, $col );
     }
 
-    if (   $self->{location}
-        && $wb->{ $self->{location} }
-        && $wb->{ $self->{location} } ne $ws )
     {
-        return $self->wsWrite( $wb, $wb->{ $self->{location} }, undef, undef,
-            1 );
+        my $wsWanted;
+        $wsWanted = $wb->{ $self->{location} } if $self->{location};
+        $wsWanted = $wb->{dataSheet}
+          if !$wsWanted && !grep { ref $_ ne 'SpreadsheetModel::Dataset' }
+          @{ $self->{columns} };
+        return $self->wsWrite( $wb, $wsWanted, undef, undef, 1 )
+          if $wsWanted && $wsWanted != $ws;
     }
 
-    if (   !$self->{location}
-        and $wb->{dataSheet}
-        and $wb->{dataSheet} ne $ws
-        and !grep { ref $_ ne 'SpreadsheetModel::Dataset' }
-        @{ $self->{columns} } )
+    if (
+        $wb->{dataSheet}
+        && (
+            my @dataColumns =
+            grep { ref $_ eq 'SpreadsheetModel::Dataset' } @{ $self->{columns} }
+        )
+      )
     {
-        return $self->wsWrite( $wb, $wb->{dataSheet}, undef, undef, 1 );
-    }
-
-    my @dataColumns =
-      grep { ref $_ eq 'SpreadsheetModel::Dataset' } @{ $self->{columns} };
-
-    if ( $wb->{dataSheet} && @dataColumns ) {
         if ( $ws != $wb->{dataSheet} && !$self->{doNotCopyInputColumns} ) {
             my $data = bless {%$self}, __PACKAGE__;
             $data->{columns} = \@dataColumns;
@@ -167,9 +165,7 @@ sub wsWrite {
                     }
                 } @{ $self->{columns} }
             ];
-
             $data->wsWrite( $wb, $wb->{dataSheet} );
-
         }
     }
 
@@ -185,15 +181,19 @@ sub wsWrite {
       || $self->{singleRowName} ? 1 : 0;
 
     my @sourceLines;
+    @sourceLines = @{ $self->{sourceLines} } if $self->{sourceLines};
 
     {
         my @formulas =
           map { $_->{arguments} ? $_->{arithmetic} : '' } @{ $self->{columns} };
         if ( grep { $_ } @formulas ) {
-            @sourceLines =
-              _rewriteFormulas( \@formulas,
-                [ map { $_->{arguments} } @{ $self->{columns} } ] )
-              unless $wb->{noLinks} && $wb->{noLinks} == 1;
+            @sourceLines = (
+                'Data sources:',
+                _rewriteFormulas(
+                    \@formulas,
+                    [ map { $_->{arguments} } @{ $self->{columns} } ]
+                )
+            ) unless $wb->{noLinks} && $wb->{noLinks} == 1;
             unless ( $self->{formulasDone} ) {
                 $self->{formulasDone} = 1;
                 unless ( $wb->{noLinks} && $wb->{noLinks} == 1 ) {
@@ -226,11 +226,9 @@ sub wsWrite {
 
     ++$headerLines if $self->{name};
     $headerLines += @{ $self->{lines} } if $self->{lines};
-    $headerLines += 1 + @sourceLines if @sourceLines;
+    $headerLines += @sourceLines;
 
     $self->{$wb}{$ws} = 1;
-
-    my @hideRange;
 
     while (1) {
         unless ( defined $row && defined $col ) {
@@ -250,7 +248,8 @@ sub wsWrite {
               if $thecol->{$wb};
             $thecol->wsPrepare( $wb, $ws );
 
-# This is a placeholder assignment, only OK for other columns of the same columnset to use.
+            # This is a placeholder assignment.
+            # Only to be used by other columns of the same columnset to use.
             @{ $thecol->{$wb} }{qw(worksheet row col)} = ( 0, -666, -666 );
         }
         last if !$ws->{nextFree} || $ws->{nextFree} < $row;
@@ -272,11 +271,6 @@ sub wsWrite {
               ? @{ $thecol->{cols}{list} }
               : 1;
         }
-    }
-
-    if (@hideRange) {
-        $ws->set_row( $_, undef, undef, 1 )
-          foreach $hideRange[0] .. $hideRange[1] - 1;
     }
 
     my $number = $wb->{logger}
@@ -306,14 +300,13 @@ sub wsWrite {
         my $linkFormat   = $wb->getFormat('link');
         my $xc           = 0;
         my @arrayLines;
-        foreach (
-            $self->{lines} ? @{ $self->{lines} } : (),
-            @sourceLines
-            ? ( 'Data sources:', @sourceLines )
-            : ()
-          )
-        {
-            if ( ref $_ eq 'ARRAY' ) {
+        foreach ( $self->{lines} ? @{ $self->{lines} } : (), @sourceLines, ) {
+            if ( !defined $_ ) {
+                $ws->set_row( $row, undef, undef, 1, 1 )
+                  if $hideFormulas;
+                ++$row;
+            }
+            elsif ( ref $_ eq 'ARRAY' ) {
                 push @arrayLines, $_;
             }
             elsif ( ref($_) =~ /^SpreadsheetModel::/ ) {
@@ -373,9 +366,10 @@ sub wsWrite {
                 ++$row;
             }
         }
-
-        $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
-          if $hideFormulas;
+        if ($hideFormulas) {
+            $ws->set_row( $row, undef, undef, 1, 1 );
+            $ws->set_row( $row + 1, undef, undef, undef, 0, 0, 1 );
+        }
 
     }
 

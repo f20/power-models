@@ -176,19 +176,30 @@ sub htmlDescribe {
 sub addTableNumber {
     my ( $self, $wb, $ws, $intrusive ) = @_;
     return '' if $self->{name} =~ /^[0-9]+[a-z]*\.\s/;
-    $ws->{sheetNumber} = ++$wb->{lastSheetNumber} unless $ws->{sheetNumber};
+    delete $ws->{sheetNumber}
+      if $ws->{sheetNumber}
+      and $wb->{highestAutoTableNumber}
+      && $wb->{highestAutoTableNumber} - 100 * $ws->{sheetNumber} > 99
+      || $ws->{lastTableNumber}
+      && $ws->{lastTableNumber} + ( $ws->{tableNumberIncrement} || 1 ) > 99;
+    unless ( $ws->{sheetNumber} ) {
+        $ws->{sheetNumber} = ++$wb->{lastSheetNumber};
+        $ws->{lastTableNumber} =
+          ( $ws->{firstTableNumber} || 1 ) -
+          ( $ws->{tableNumberIncrement} || 1 );
+    }
     my $numlet = $self->{number};
     unless ($numlet) {
         $numlet =
           ( $ws->{lastTableNumber} += ( $ws->{tableNumberIncrement} || 1 ) ) +
           100 * $ws->{sheetNumber};
-        ++$wb->{lastSheetNumber} unless $numlet % 100;
         warn 'Assignigning table number '
           . "$numlet after $wb->{highestAutoTableNumber}"
           if $wb->{highestAutoTableNumber}
           && $numlet < $wb->{highestAutoTableNumber};
         $wb->{highestAutoTableNumber} = $numlet;
     }
+    $self->{number} = $numlet;
     $numlet .= '. ';
     if ($intrusive) {
         $self->{name} = $numlet . _shortName( $self->{name} );

@@ -326,39 +326,28 @@ sub wsWrite {
           if $self->{$wb}{$ws};
     }
 
-    if ( $self->{location}
-        && ref $self->{location} eq 'SpreadsheetModel::Columnset' )
-    {
+    if ( $self->{location} && UNIVERSAL::can( $self->{location}, 'wsWrite' ) ) {
         $self->{location}->wsWrite( $wb, $ws, $row, $col, $noCopy );
     }
-    elsif ($self->{location}
-        && $wb->{ $self->{location} } )
-    {
-        return $self->wsWrite( $wb, $wb->{ $self->{location} }, undef, undef,
-            1 )
-          if $wb->{ $self->{location} } != $ws;
-    }
-    elsif (ref $self eq __PACKAGE__
-        && $wb->{dataSheet}
-        && $wb->{dataSheet} ne $ws )
-    {
-        return $self->wsWrite( $wb, $wb->{dataSheet}, undef, undef, 1 );
+    else {
+        my $wsWanted;
+        $wsWanted = $wb->{ $self->{location} } if $self->{location};
+        $wsWanted = $wb->{dataSheet} if !$wsWanted && ref $self eq __PACKAGE__;
+        return $self->wsWrite( $wb, $wsWanted, undef, undef, 1 )
+          if $wsWanted && $wsWanted != $ws;
     }
 
     if ( $self->{$wb} ) {
-
         return @{ $self->{$wb} }{qw(worksheet row col)}
           if !$wb->{copy} || $noCopy || $self->{$wb}{worksheet} == $ws;
         return @{ $self->{$wb}{$ws}{$wb} }{qw(worksheet row col)}
           if $self->{$wb}{$ws};
-
         return (
             (
                 $self->{$wb}{$ws} =
                   new SpreadsheetModel::Stack( sources => [$self] )
             )->wsWrite( $wb, $ws, $row, $col )
         );
-
     }
 
     foreach (qw(rows cols)) {
@@ -496,7 +485,7 @@ sub wsWrite {
     elsif ( !exists $self->{singleColName} ) {
         my $srn = _shortNameRow $self->{name};
         $srn =~ s/^[0-9]+[a-z]*\.\s+//i;
-        $srn =~ s/\s*\(copy\)$//i;    # hacky - should use Label shortName?
+        $srn =~ s/\s*\(copy\)$//i;    # hack; should use _shortName?
         $ws->write( $row - 1, $col, $srn, $wb->getFormat('thc') );
     }
     elsif ( $self->{singleColName} ) {
@@ -523,7 +512,7 @@ sub wsWrite {
     elsif ( !exists $self->{singleRowName} ) {
         my $srn = _shortNameRow $self->{name};
         $srn =~ s/^[0-9]+[a-z]*\.\s+//i;
-        $srn =~ s/\s*\(copy\)$//i;    # hacky - should use Label shortName?
+        $srn =~ s/\s*\(copy\)$//i;    # hack; should use _shortName?
         $ws->write( $row, $col - 1, $srn, $wb->getFormat('th') );
     }
     elsif ( $self->{singleRowName} ) {
@@ -703,7 +692,5 @@ sub AUTOLOAD {
     *{$AUTOLOAD} = sub { };
     return;
 }
-
-1;
 
 1;

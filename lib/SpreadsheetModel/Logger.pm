@@ -87,8 +87,9 @@ sub wsWrite {
     $row++;
 
     my @objectList = sort {
-        ( $a->{$wb}{worksheet}{sheetNumber} || 666 )
-          <=> ( $b->{$wb}{worksheet}{sheetNumber} || 666 )
+        ( $a->{number} || 100 * ( $a->{$wb}{worksheet}{sheetNumber} || 666 ) )
+          <=> ( $b->{number}
+              || 100 * ( $b->{$wb}{worksheet}{sheetNumber} || 666 ) );
     } grep { $_->{$wb}{worksheet} && $_->{name} } @{ $logger->{objects} };
 
     my $r = 0;

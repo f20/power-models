@@ -33,8 +33,17 @@ use warnings;
 use strict;
 
 sub getFormat {
-    my ( $workbook, $key ) = @_;
-    $workbook->{formats}{$key} ||= $workbook->add_format(
+    my ( $workbook, $key, @decorations ) = @_;
+    $workbook->{formats}{ join ' ', $key, @decorations } ||=
+      UNIVERSAL::can( $key, 'copy' )
+      ? do {
+        my $f = $workbook->add_format;
+        $f->copy($key);
+        $f->set_format_properties(@$_)
+          foreach grep { $_ } @{ $workbook->{decospec} }{@decorations};
+        $f;
+      }
+      : $workbook->add_format(
         ref $key eq 'ARRAY'
         ? (
             $key->[0] eq 'base'
@@ -47,20 +56,21 @@ sub getFormat {
         : @{
             $workbook->{formatspec}{ $key =~ /(.*)nz$/ ? $1 : $key }
               || die "$key is not a valid format"
-        }
-    );
+        },
+        map { $_ ? @$_ : (); } @{ $workbook->{decospec} }{@decorations},
+      );
 }
 
 # These codes (between 8 and 63) are equal to the colour number used in VBA (1-56) plus 7
 use constant {
     EXCELCOL0 => 8,  #000000 Black
     WHITE     => 9,  #FFFFFF White
-    EXCELCOL2 => 10, #FF0000 Red
+    RED       => 10, #FF0000 Red
     EXCELCOL3 => 11, #00FF00 Green or Lime or Bright Green
     BLUE      => 12, #0000FF Blue potentially overridden by #0066cc
     BGGOLD    => 13, #FFFF00 Yellow potentially overridden by #ffd700 or #fecb2f
     MAGENTA   => 14, #FF00FF Magenta
-    EXCELCOL7 => 15, #00FFFF Cyan
+    CYAN      => 15, #00FFFF Cyan
     EXCELCOL8 => 16, #800000
     GREEN     => 17, #008000
     EXCELCOL10 => 18,    #000080
@@ -466,6 +476,15 @@ Keys used in %$options:
             bold       => 1,
             @colourCaption,
         ],
+        captionca => [
+            locked => 1,
+            @sizeCaption,
+            num_format => '@',
+            text_wrap  => 1,
+            align      => 'center_across',
+            bold       => 1,
+            @colourCaption,
+        ],
         hard => [
             locked => !$options->{validation}
               || $options->{validation} !~ /lenient/i,
@@ -607,8 +626,8 @@ Keys used in %$options:
             text_wrap  => 1,
             align      => 'center_across',
             @colourHeader,
-            left  => 1,
-            right => 1,
+            $options->{gridlines} ? ( right => 7, bottom => 1, )
+            : ( left => 1, right => 1, ),
         ],
         thg => [
             locked => 1,
@@ -631,6 +650,13 @@ Keys used in %$options:
             locked => 1,
             @sizeText,
             num_format => '@',
+            align      => 'left',
+        ],
+        colnoteleftwrap => [
+            locked => 1,
+            @sizeText,
+            num_format => '@',
+            text_wrap  => 1,
             align      => 'left',
         ],
         colnotecenter => [
@@ -706,6 +732,24 @@ Keys used in %$options:
     }
 
     $workbook->{formatspec} = \%specs;
+
+    $workbook->{decospec} = {
+        tlttr => [
+            right       => 5,
+            right_color => 8,
+        ],
+        wrapca => [ text_wrap => 1, center_across => 1, ],
+        red    => [
+            color    => BGPINK,
+            bold     => 1,
+            bg_color => RED,
+        ],
+        blue => [
+            color    => BGPINK,
+            bold     => 1,
+            bg_color => BLUE,
+        ],
+    };
 
 }
 

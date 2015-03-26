@@ -43,32 +43,21 @@ Export fixed charge (p/day)
 Export capacity rate (p/kVA/day)
 Export exceeded capacity rate (p/kVA/day)
 EOL
-    $options{format1} ||= [
-        qw(0.000copy 0.00copy 0.00copy 0.00copy 0.000copy 0.00copy 0.00copy),
-        [ base => '0.00copy', right => 5, right_color => 8 ]
-    ];
-    $options{format2} ||= [
-        qw(0.000softpm 0.00softpm 0.00softpm 0.00softpm 0.000softpm 0.00softpm 0.00softpm),
-        [ base => '0.00softpm', right => 5, right_color => 8 ]
-    ];
     $options{tableNumber}     ||= 4501;
     $options{firstColumn}     ||= 2;
     $options{nameExtraColumn} ||= 1;
     $self->genericTariffImpact( $wbmodule, %options );
 }
 
-sub cdcmTariffImpact {   # The defaults assume that all the models are the same.
-
+sub cdcmTariffImpact
+{    # The defaults assume that all the models in the database are the same.
     my ( $self, $wbmodule, %options ) = @_;
-
     $options{tableNumber} ||= 3701;
-
     $options{firstColumn} ||= $self->selectall_arrayref(
         'select min(col) from data where tab=? and row=0 and'
           . ' v<>"" and v not like "%LLF%" and v not like "PC%" and v not like "%checksum%"',
         undef, $options{tableNumber}
     )->[0][0];
-
     $options{linesAfter} ||= [
         map { $_->[0] } @{
             $self->selectall_arrayref(
@@ -78,7 +67,6 @@ sub cdcmTariffImpact {   # The defaults assume that all the models are the same
             )
         }
     ];
-
     $options{components} ||= [
         map { $_->[0] } @{
             $self->selectall_arrayref(
@@ -89,30 +77,7 @@ sub cdcmTariffImpact {   # The defaults assume that all the models are the same
             )
         }
     ];
-
-    unless ( $options{format1} ) {
-        $options{format1} = [ map { /k(W|VAr)h/ ? '0.000copy' : '0.00copy'; }
-              @{ $options{components} } ];
-        $options{format1}[ $#{ $options{format1} } ] = [
-            base        => $options{format1}[ $#{ $options{format1} } ],
-            right       => 5,
-            right_color => 8
-        ];
-    }
-
-    unless ( $options{format2} ) {
-        $options{format2} =
-          [ map { /k(W|VAr)h/ ? '0.000softpm' : '0.00softpm'; }
-              @{ $options{components} } ];
-        $options{format2}[ $#{ $options{format2} } ] = [
-            base        => $options{format2}[ $#{ $options{format2} } ],
-            right       => 5,
-            right_color => 8
-        ];
-    }
-
     $self->genericTariffImpact( $wbmodule, %options );
-
 }
 
 sub genericTariffImpact {
@@ -133,28 +98,24 @@ sub genericTariffImpact {
     my $linesAfter = $options{linesAfter};
     my $linesBefore = $options{linesBefore} || $linesAfter;
 
-    my $titleFormat = $wb->getFormat('notes');
-    my $thFormat    = $wb->getFormat('th');
-    my $thcFormat   = $wb->getFormat('thc');
-    my $thcFormatB =
-      $wb->getFormat( [ base => 'thc', right => 5, right_color => 8 ] );
-    my $thcaFormat = $wb->getFormat(
-        [
-            base        => 'caption',
-            align       => 'center_across',
-            right       => 5,
-            right_color => 8
-        ]
-    );
-
     my $ncol = @{ $options{components} };
     my @format1 =
-      map { $wb->getFormat($_); } @{ $options{format1} };
+      $options{format1}
+      ? @{ $options{format1} }
+      : map { /k(W|VAr)h/ ? '0.000copy' : '0.00copy'; }
+      @{ $options{components} };
     my @format2 =
-      map { $wb->getFormat($_); } @{ $options{format2} };
-    my @format3 =
-      map { $wb->getFormat($_); } ( map { '%softpm' } 2 .. $ncol ),
-      [ base => '%softpm', right => 5, right_color => 8 ];
+      $options{format2}
+      ? @{ $options{format1} }
+      : map { local $_ = $_; s/copy/softpm/; $_; } @format1;
+    $_ = $wb->getFormat($_)
+      foreach @format1[ 0 .. ( @format1 - 2 ) ],
+      @format2[ 0 .. ( @format2 - 2 ) ];
+    $_ = $wb->getFormat( $_, 'tlttr' )
+      foreach $format1[$#format1], $format2[$#format2];
+    my $pcFormat = $wb->getFormat('%softpm');
+    my @format3 = map { $pcFormat; } 2 .. $ncol;
+    push @format3, $wb->getFormat( '%softpm', 'tlttr' );
 
     my @books = $self->listModels;
     my $findRow =
@@ -193,31 +154,41 @@ sub genericTariffImpact {
         $ws->set_column( 1, 254, 12 );
         $ws->hide_gridlines(2);
         $ws->freeze_panes( 4, 1 );
-        $ws->write_string( 0, 0, $options{sheetTitles}[$i], $titleFormat );
+        $ws->write_string(
+            0, 0,
+            $options{sheetTitles}[$i],
+            $wb->getFormat('notes')
+        );
 
-        $ws->write_string( 2, 1,         'Baseline prices',     $thcaFormat );
+        my $thcaFormat = $wb->getFormat( 'captionca', 'tlttr' );
+        $ws->write_string( 2, 1, 'Baseline prices', $thcaFormat );
+        $ws->write( 2, $_, undef, $thcaFormat ) foreach 2 .. $ncol;
+
+        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'red' );
         $ws->write_string( 2, 1 + $ncol, 'Prices on new basis', $thcaFormat );
-        $ws->write_string( 2, 1 + $ncol * 2, 'Price change',      $thcaFormat );
+        $ws->write( 2, $_ + $ncol, undef, $thcaFormat ) foreach 2 .. $ncol;
+
+        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'blue' );
+        $ws->write_string( 2, 1 + $ncol * 2, 'Price change', $thcaFormat );
+        $ws->write( 2, $_ + $ncol * 2, undef, $thcaFormat ) foreach 2 .. $ncol;
+
+        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'red' );
         $ws->write_string( 2, 1 + $ncol * 3, 'Percentage change', $thcaFormat );
+        $ws->write( 2, $_ + $ncol * 3, undef, $thcaFormat ) foreach 2 .. $ncol;
 
         my $diff = $ws->store_formula('=IV2-IV1');
         my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,"")');
-
-        $ws->write( 2, $_, undef, $thcaFormat )
-          foreach 2 .. $ncol,
-          2 + $ncol .. $ncol * 2,
-          2 + $ncol * 2 .. $ncol * 3,
-          2 + $ncol * 3 .. $ncol * 4;
 
         my @list = @{ $options{components} };
 
         for ( my $j = 1 ; $j < 2 + 3 * $ncol ; $j += $ncol ) {
             for ( my $k = 0 ; $k < @list ; ++$k ) {
                 $ws->write_string( 3, $j + $k, $list[$k],
-                    $k == $#list ? $thcFormatB : $thcFormat );
+                    $wb->getFormat( 'thc', $k == $#list ? 'tlttr' : () ) );
             }
         }
 
+        my $thFormat = $wb->getFormat('th');
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $findRow->execute( $bidb, $options{tableNumber},
                 $linesBefore->[$j] );
@@ -303,10 +274,9 @@ sub cdcmPpuImpact {
 
     my $linesBefore = $options{linesBefore} || $linesAfter;
 
-    my $titleFormat = $wb->getFormat('notes');
-    my $thFormat    = $wb->getFormat('th');
-    my $thcFormat   = $wb->getFormat('thc');
-    my $thcaFormat  = $wb->getFormat('caption');
+    my $thFormat   = $wb->getFormat('th');
+    my $thcFormat  = $wb->getFormat('thc');
+    my $thcaFormat = $wb->getFormat('caption');
     my @format1 =
       map { $wb->getFormat($_); } ( map { '0.000copy' } 1 .. 1 );
     my @format2 =
@@ -338,7 +308,11 @@ sub cdcmPpuImpact {
         $ws->set_column( 1, 254, 16 );
         $ws->hide_gridlines(2);
         $ws->freeze_panes( 1, 1 );
-        $ws->write_string( 0, 0, $options{sheetTitles}[$i], $titleFormat );
+        $ws->write_string(
+            0, 0,
+            $options{sheetTitles}[$i],
+            $wb->getFormat('notes')
+        );
 
         $ws->write_string( 2, 1, 'Baseline average p/kWh',     $thcFormat );
         $ws->write_string( 2, 2, 'Average p/kWh on new basis', $thcFormat );
@@ -433,13 +407,12 @@ sub revenueMatrixImpact {
     my $linesAfter = $options{linesAfter};
     my $linesBefore = $options{linesBefore} || $linesAfter;
 
-    my $titleFormat = $wb->getFormat('notes');
-    my $thFormat    = $wb->getFormat('th');
-    my $thcFormat   = $wb->getFormat('thc');
-    my $thcaFormat  = $wb->getFormat('caption');
-    my $format1     = $wb->getFormat('0copy');
-    my $format2     = $wb->getFormat('0softpm');
-    my $format3     = $wb->getFormat('%softpm');
+    my $thFormat   = $wb->getFormat('th');
+    my $thcFormat  = $wb->getFormat('thc');
+    my $thcaFormat = $wb->getFormat('caption');
+    my $format1    = $wb->getFormat('0copy');
+    my $format2    = $wb->getFormat('0softpm');
+    my $format3    = $wb->getFormat('%softpm');
 
     my @books = $self->listModels;
     my $findRow =
@@ -478,7 +451,11 @@ sub revenueMatrixImpact {
         $ws->set_column( 1, 254, 16 );
         $ws->hide_gridlines(2);
         $ws->freeze_panes( 1, 1 );
-        $ws->write_string( 0, 0, $options{sheetTitles}[$i], $titleFormat );
+        $ws->write_string(
+            0, 0,
+            $options{sheetTitles}[$i],
+            $wb->getFormat('notes')
+        );
 
         $ws->write_string( 2, 1, 'Baseline revenue (£/year)',     $thcFormat );
         $ws->write_string( 2, 2, 'Revenue on new basis (£/year)', $thcFormat );
@@ -681,19 +658,8 @@ sub cdcmUserImpact {
 
     my $linesBefore = $options{linesBefore} || $linesAfter;
 
-    my $titleFormat   = $wb->getFormat('notes');
-    my $thFormat      = $wb->getFormat('th');
-    my $thcFormat     = $wb->getFormat('thc');
-    my $thgFormat     = $wb->getFormat('thg');
-    my $thcaFormat    = $wb->getFormat('caption');
-    my $scalingFactor = $options{MWh} ? 1 : 0.1;
+    my $scalingFactor = $options{MWh} ? 1      : 0.1;
     my $ppuFormatCore = $options{MWh} ? '0.00' : '0.000';
-    my @format1 =
-      map { $wb->getFormat($_); } '0copy', $ppuFormatCore . 'copy';
-    my @format2 =
-      map { $wb->getFormat($_); } '0softpm', $ppuFormatCore . 'softpm';
-    my @format3 =
-      map { $wb->getFormat($_); } '%softpm';
 
     my @books   = $self->listModels;
     my $findRow = $self->prepare(
@@ -717,15 +683,19 @@ sub cdcmUserImpact {
         $ws->set_column( 1, 254, 16 );
         $ws->hide_gridlines(2);
         $ws->freeze_panes( 1, 1 );
-        $ws->write_string( 0, 0, $options{sheetTitles}[$i], $titleFormat );
+        $ws->write_string(
+            0, 0,
+            $options{sheetTitles}[$i],
+            $wb->getFormat('notes')
+        );
 
-        $ws->write_string( 2, 1, 'Baseline £/year',     $thcFormat );
-        $ws->write_string( 2, 2, 'Baseline p/kWh',      $thcFormat );
-        $ws->write_string( 2, 3, '£/year on new basis', $thcFormat );
-        $ws->write_string( 2, 4, 'p/kWh on new basis',  $thcFormat );
-        $ws->write_string( 2, 5, 'Change (£/year)',     $thcFormat );
-        $ws->write_string( 2, 6, 'Change (p/kWh)',      $thcFormat );
-        $ws->write_string( 2, 7, 'Percentage change',   $thcFormat );
+        $ws->write_string( 2, 1, 'Baseline £/year',     $wb->getFormat('thc') );
+        $ws->write_string( 2, 2, 'Baseline p/kWh',      $wb->getFormat('thc') );
+        $ws->write_string( 2, 3, '£/year on new basis', $wb->getFormat('thc') );
+        $ws->write_string( 2, 4, 'p/kWh on new basis',  $wb->getFormat('thc') );
+        $ws->write_string( 2, 5, 'Change (£/year)',     $wb->getFormat('thc') );
+        $ws->write_string( 2, 6, 'Change (p/kWh)',      $wb->getFormat('thc') );
+        $ws->write_string( 2, 7, 'Percentage change',   $wb->getFormat('thc') );
 
         use Spreadsheet::WriteExcel::Utility;
         my $diff = $ws->store_formula('=IV2-IV1');
@@ -733,7 +703,7 @@ sub cdcmUserImpact {
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $ws->write_string( 3 + $j, 0, $linesAfter->[$j],
-                $linesAfter->[$j] =~ /\(/ ? $thFormat : $thgFormat );
+                $wb->getFormat( $linesAfter->[$j] =~ /\(/ ? 'th' : 'thg' ) );
             $findRow->execute( $bidb, $linesBefore->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $linesAfter->[$j] );
@@ -744,17 +714,17 @@ sub cdcmUserImpact {
                 $q->execute( $bida, $rowa, 1 );
                 my ($va) = $q->fetchrow_array;
                 next unless defined $va && defined $vb;
-                $ws->write( 3 + $j, 1, $vb, $format1[0] );
-                $ws->write( 3 + $j, 3, $va, $format1[0] );
+                $ws->write( 3 + $j, 1, $vb, $wb->getFormat('0copy') );
+                $ws->write( 3 + $j, 3, $va, $wb->getFormat('0copy') );
                 my $old = xl_rowcol_to_cell( 3 + $j, 1 );
                 my $new = xl_rowcol_to_cell( 3 + $j, 3 );
                 $ws->repeat_formula(
-                    3 + $j, 5, $diff, $format2[0],
+                    3 + $j, 5, $diff, $wb->getFormat('0softpm'),
                     IV1 => $old,
                     IV2 => $new,
                 );
                 $ws->repeat_formula(
-                    3 + $j, 7, $perc, $format3[0],
+                    3 + $j, 7, $perc, $wb->getFormat('%softpm'),
                     IV1 => $old,
                     IV2 => $old,
                     IV3 => $new,
@@ -766,12 +736,21 @@ sub cdcmUserImpact {
                 $q->execute( $bida, $rowa, 2 );
                 my ($va) = $q->fetchrow_array;
                 next unless defined $va && defined $vb;
-                $ws->write( 3 + $j, 2, $vb * $scalingFactor, $format1[1] );
-                $ws->write( 3 + $j, 4, $va * $scalingFactor, $format1[1] );
+                $ws->write(
+                    3 + $j, 2,
+                    $vb * $scalingFactor,
+                    $wb->getFormat( $ppuFormatCore . 'copy' )
+                );
+                $ws->write(
+                    3 + $j, 4,
+                    $va * $scalingFactor,
+                    $wb->getFormat( $ppuFormatCore . 'copy' )
+                );
                 my $old = xl_rowcol_to_cell( 3 + $j, 2 );
                 my $new = xl_rowcol_to_cell( 3 + $j, 4 );
                 $ws->repeat_formula(
-                    3 + $j, 6, $diff, $format2[1],
+                    3 + $j, 6, $diff,
+                    $wb->getFormat( $ppuFormatCore . 'softpm' ),
                     IV1 => $old,
                     IV2 => $new,
                 );

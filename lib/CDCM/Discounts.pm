@@ -273,7 +273,13 @@ sub pcdApplyDiscounts {
             number   => 1098,
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
-            , data => [ map { '' } @{ $allTariffs->{list} } ]
+            data     => [ map { '' } @{ $allTariffs->{list} } ],
+            validation => {    # validation needed to enable lenient locking
+                validate => 'decimal',
+                criteria => 'between',
+                minimum  => -999_999.999,
+                maximum  => 999_999.999,
+            },
         );
         push @{ $model->{summaryColumns} },
           my $totalImpactOfElectionBung = Arithmetic(
