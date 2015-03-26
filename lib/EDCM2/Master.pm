@@ -438,7 +438,7 @@ EOT
             IV11 => $nonChargeableCapacity,
             IV2  => $tariffDaysInYearNot,
             IV3  => $daysInYear,
-        }
+        },
     );
 
     my $exportCapacityChargeableUnscaled = Arithmetic(
@@ -470,14 +470,15 @@ EOT
       $exportCapacityChargeablePost2010;
 
     my $exportCapacityChargeable = Arithmetic(
-        name => 'Chargeable export capacity adjusted for part-year (kVA)',
+        name      => 'Chargeable export capacity adjusted for part-year (kVA)',
+        groupName => 'Export capacities',
         defaultFormat => '0soft',
         arithmetic    => '=IV1+IV4+IV5',
         arguments     => {
             IV1 => $exportCapacityChargeablePre2005,
             IV4 => $exportCapacityChargeable20052010,
             IV5 => $exportCapacityChargeablePost2010,
-        }
+        },
     );
 
     $activeCoincidence = Arithmetic(
@@ -537,14 +538,15 @@ EOT
     );
 
     my $demandSoleUseAsset = Arithmetic(
-        name => 'Demand sole use asset MEAV adjusted for part-year (£)',
+        name      => 'Demand sole use asset MEAV adjusted for part-year (£)',
+        groupName => 'Sole use assets',
         defaultFormat => '0soft',
         arithmetic    => '=IV1*(1-IV2/IV3)',
         arguments     => {
             IV1 => $demandSoleUseAssetUnscaled,
             IV2 => $tariffDaysInYearNot,
             IV3 => $daysInYear,
-        }
+        },
     );
 
     my $generationSoleUseAsset = Arithmetic(
@@ -892,6 +894,7 @@ EOT
 
     $genCredit = Arithmetic(
         name       => 'Generation credit (unrounded) p/kWh',
+        groupName  => 'Generation credit',
         arithmetic => '=IF(IV41,(IV2*IV3/(IV4+IV5)),0)',
         arguments  => {
             IV1  => $exportCapacityChargeable,
@@ -903,7 +906,6 @@ EOT
             IV41 => $exportCapacityChargeable,
             IV51 => $exportCapacityExempt,
         },
-        groupName => 'Generation credit',
     );
 
     my $gCharge = $model->gCharge(
@@ -963,6 +965,7 @@ EOT
 
     my $netexportCapacityChargeRound = Arithmetic(
         name          => 'Export capacity rate (p/kVA/day)',
+        groupName     => 'Export capacity rate',
         defaultFormat => '0.00softnz',
         arithmetic    => '=ROUND(IV1,2)',
         arguments     => { IV1 => $netexportCapacityChargeUnRound, }
@@ -1383,6 +1386,7 @@ EOT
         push @{ $model->{calc2Tables} },
           my $capacityChargeT1 = Arithmetic(
             name          => 'Import capacity charge from charge 1 (p/kVA/day)',
+            groupName     => 'Charge 1',
             arithmetic    => '=IF(IV6=0,1,IV4/IV5)*IV1',
             defaultFormat => '0.00softnz',
             arguments     => {
@@ -1390,7 +1394,7 @@ EOT
                 IV4 => $chargeableCapacity,
                 IV5 => $importCapacity,
                 IV6 => $importCapacity,
-            }
+            },
           );
 
         $capacityChargeT = Arithmetic(
@@ -1811,13 +1815,13 @@ EOT
             ? ( dataRow => $model->{tariff1Row}, )
             : (),
           )->addDatasetGroup(
-            name    => 'Customers',
+            name    => 'Tariff name',
             columns => [ $allTariffColumns->[0] ],
           )->addDatasetGroup(
-            name    => 'Import tariffs',
+            name    => 'Import tariff',
             columns => [ @{$allTariffColumns}[ 1 .. 4 ] ],
           )->addDatasetGroup(
-            name    => 'Export tariffs',
+            name    => 'Export tariff',
             columns => [ @{$allTariffColumns}[ 5 .. 8 ] ],
           )->addDatasetGroup(
             name    => 'Checksums',
@@ -2022,13 +2026,13 @@ EOT
             ? ( dataRow => $model->{tariff1Row}, )
             : (),
           )->addDatasetGroup(
-            name    => 'Customers',
+            name    => 'Tariff name',
             columns => [ $copyTariffs[0] ],
           )->addDatasetGroup(
-            name    => 'Import tariffs',
+            name    => 'Import tariff',
             columns => [ @copyTariffs[ 1 .. 4 ] ],
           )->addDatasetGroup(
-            name    => 'Export tariffs',
+            name    => 'Export tariff',
             columns => [ @copyTariffs[ 5 .. 8 ] ],
           )->addDatasetGroup(
             name    => 'Import charges',

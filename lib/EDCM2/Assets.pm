@@ -285,6 +285,7 @@ EOL
     my $redUseRate = Arithmetic(
         name => 'Peak-time active power consumption'
           . ' adjusted to transmission (kW/kVA)',
+        groupName  => 'Active power consumption',
         arithmetic => '=IV1*IV9',
         arguments  => {
             IV1 => $activeCoincidence,

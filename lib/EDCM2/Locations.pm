@@ -118,6 +118,7 @@ sub charge1 {
 
     my $locMatchA = Arithmetic(
         name          => 'Location',
+        groupName     => 'Locations',
         newBlock      => 1,
         defaultFormat => 'locsoft',
         arithmetic    => '=MATCH(IV1,IV5_IV6,0)',
@@ -147,7 +148,8 @@ sub charge1 {
         my @c1l = map {
 
             my $ca = Arithmetic(
-                name => 'Local charge 1 £/kVA/year at ' . $_->{name},
+                name      => 'Local charge 1 £/kVA/year at ' . $_->{name},
+                groupName => 'Local charge 1',
                 $_ == $locMatchA ? ( newBlock => 1 ) : (),
                 arithmetic => $model->{noNegative}
                 ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
@@ -164,7 +166,8 @@ sub charge1 {
         my @c1n = map {
 
             my $ca = Arithmetic(
-                name => 'Network charge 1 £/kVA/year at ' . $_->{name},
+                name      => 'Network charge 1 £/kVA/year at ' . $_->{name},
+                groupName => 'Network charge 1',
                 $_ == $locMatchA ? ( newBlock => 1 ) : (),
                 arithmetic => $model->{noNegative}
                 ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
@@ -184,6 +187,7 @@ sub charge1 {
               $model->{legacy201}
               ? Arithmetic(
                 name          => 'Maximum demand run kVA at ' . $_->{name},
+                groupName     => 'Maximum demand',
                 defaultFormat => '0soft',
                 arithmetic    => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
                 arguments     => {
