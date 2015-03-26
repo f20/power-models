@@ -43,7 +43,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 11;
         $wbook->{lastSheetNumber} =
-          $model->{layout} && $model->{layout} =~ /216/ ? 33 : 40;
+          $model->{layout} && $model->{layout} =~ /matrix/ ? 33 : 40;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
@@ -138,7 +138,12 @@ sub worksheetsAndClosures {
         '935' => sub {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber} = 9;
-            $wsheet->freeze_panes( 6, 2 );
+            $wsheet->freeze_panes(
+                $model->{table935}{sourceLines}
+                ? 6 + @{ $model->{table935}{sourceLines} }
+                : 6,
+                2
+            );
             $wsheet->set_landscape;
             my $locationColumn = $model->{dcp189} ? 9 : 8;
             $wsheet->set_column( 0,                   0,                   16 );
@@ -167,13 +172,33 @@ sub worksheetsAndClosures {
 
         ,
 
+        $model->{layout} && $model->{layout} =~ /matrix/i
+        ? (
+            'Matrix' => sub {
+                my ($wsheet) = @_;
+                $wsheet->{firstTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+                $wsheet->{tableNumberIncrement} = 2;
+                $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
+                $wsheet->set_landscape;
+                $wsheet->set_column( 0, 0,   20 );
+                $wsheet->set_column( 1, 1,   50 );
+                $wsheet->set_column( 2, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( lines => 'Matrix' ),
+                  @{ $model->{matrixTables} };
+            }
+          )
+        : ()
+
+        ,
+
         ref $model->{tableList} eq 'ARRAY'
         ? (
             Calc => sub {
                 my ($wsheet) = @_;
-                $wsheet->{sheetNumber} = 40;
-                $wsheet->{lastTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{firstTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
                 $wsheet->{tableNumberIncrement} = 2;
                 $wsheet->freeze_panes( 1, 1 );
                 $wsheet->set_column( 0, 250, 20 );
@@ -268,7 +293,7 @@ sub worksheetsAndClosures {
         'Results' => sub {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber} = 45;
-            $wsheet->freeze_panes( 1, 2 );
+            $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
             $wsheet->set_column( 0, 0,   20 );
             $wsheet->set_column( 1, 1,   50 );
             $wsheet->set_column( 2, 250, 20 );
@@ -358,7 +383,7 @@ sub worksheetsAndClosures {
             'HSummary' => sub {
                 my ($wsheet) = @_;
                 $wsheet->{sheetNumber} = 46;
-                $wsheet->freeze_panes( 1, 2 );
+                $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
                 $wsheet->set_landscape;
                 $wsheet->set_column( 0, 0,   20 );
                 $wsheet->set_column( 1, 1,   50 );

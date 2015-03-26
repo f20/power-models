@@ -4,7 +4,7 @@ dcp130: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
-layout: multisheet
+layout: auto
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC

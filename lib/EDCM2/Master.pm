@@ -48,7 +48,7 @@ sub requiredModulesForRuleset {
     $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
       $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
-      $ruleset->{layout}                       ? qw(EDCM2::Layout)   : (),
+      $ruleset->{layout} ? qw(SpreadsheetModel::MatrixSheet EDCM2::Layout) : (),
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
 }
 
@@ -903,6 +903,7 @@ EOT
             IV41 => $exportCapacityChargeable,
             IV51 => $exportCapacityExempt,
         },
+        groupName => 'Generation credit',
     );
 
     my $gCharge = $model->gCharge(
@@ -1757,7 +1758,24 @@ EOT
         $exportCapacityExceeded,
     );
 
+    my $allTariffColumns = $model->{checksums}
+      ? [
+        @tariffColumns,
+        map {
+            SpreadsheetModel::Checksum->new(
+                name => $_,
+                /recursive|model/i ? ( recursive => 1 ) : (),
+                digits => /([0-9])/ ? $1 : 6,
+                columns => [ @tariffColumns[ 1 .. 8 ] ],
+                factors => [qw(1000 100 100 100 1000 100 100 100)]
+            );
+          } split /;\s*/,
+        $model->{checksums}
+      ]
+      : \@tariffColumns;
+
     if ( $model->{layout} ) {
+
         $model->{tableList} = $model->orderedLayout(
             [ $exportEligible, @{ $tariffColumns[5]{sourceLines} } ],
             $model->{transparencyMasterFlag}
@@ -1788,30 +1806,35 @@ EOT
                 @{ $tariffColumns[4]{sourceLines} },
             ]
         );
-        if ( $model->{layout} =~ /multisheet/i ) {
 
-            # $model->{sheetList} = $model->otherLayout(@calculationOrder);
-        }
+        SpreadsheetModel::MatrixSheet->new( $model->{tariff1Row}
+            ? ( dataRow => $model->{tariff1Row}, )
+            : (),
+          )->addDatasetGroup(
+            name    => 'Customers',
+            columns => [ $allTariffColumns->[0] ],
+          )->addDatasetGroup(
+            name    => 'Import tariffs',
+            columns => [ @{$allTariffColumns}[ 1 .. 4 ] ],
+          )->addDatasetGroup(
+            name    => 'Export tariffs',
+            columns => [ @{$allTariffColumns}[ 5 .. 8 ] ],
+          )->addDatasetGroup(
+            name    => 'Checksums',
+            columns => [ @{$allTariffColumns}[ 9 .. $#$allTariffColumns ] ]
+          );
+
+        push @{ $model->{tariffTables} }, @$allTariffColumns;
+
     }
 
-    push @{ $model->{tariffTables} }, Columnset(
-        name    => 'EDCM charge',
-        columns => $model->{checksums}
-        ? [
-            @tariffColumns,
-            map {
-                SpreadsheetModel::Checksum->new(
-                    name => $_,
-                    /recursive|model/i ? ( recursive => 1 ) : (),
-                    digits => /([0-9])/ ? $1 : 6,
-                    columns => [ @tariffColumns[ 1 .. 8 ] ],
-                    factors => [qw(1000 100 100 100 1000 100 100 100)]
-                );
-              } split /;\s*/,
-            $model->{checksums}
-          ]
-        : \@tariffColumns,
-    );
+    else {
+        push @{ $model->{tariffTables} },
+          Columnset(
+            name    => 'EDCM charge',
+            columns => $allTariffColumns,
+          );
+    }
 
     return $model unless $model->{summaries};
 
@@ -1957,59 +1980,97 @@ EOT
 
     $model->{summaryInformationColumns}[0] = $soleUseAssetChargeUnround;
 
-    push @{ $model->{revenueTables} }, Columnset(
-        name    => 'Horizontal information',
-        columns => [
-            ( map { Stack( sources => [$_] ) } @tariffColumns ),
-            @revenueBitsD,
-            @revenueBitsG,
-            $rev2d, $rev1d,
-            $change1d,
-            $change2d,
-            1 ? ()
-            : (
-                Arithmetic(
-                    name          => 'Super-red units (kWh)',
-                    defaultFormat => '0softnz',
-                    arithmetic    => '=IV1*(IV3-IV7)*IV5',
-                    arguments     => {
-                        IV3 => $hoursInRed,
-                        IV7 => $tariffHoursInRedNot,
-                        IV1 => $activeCoincidence935,
-                        IV5 => $importCapacityUnscaled,
-                    }
-                ),
-                ( map { Stack( sources => [$_] ) } $chargeableCapacity935 ),
-            ),
-            $rev2g, $rev1g,
-            $change1g,
-            $change2g,
-            ( grep { $_ } @{ $model->{summaryInformationColumns} } ),
-            Arithmetic(
-                name          => 'Check (£/year)',
-                defaultFormat => '0softnz',
-                arithmetic    => join(
-                    '', '=IV1',
-                    map {
-                        $model->{summaryInformationColumns}[$_]
-                          ? ( "-IV" . ( 20 + $_ ) )
-                          : ()
-                    } 0 .. $#{ $model->{summaryInformationColumns} }
-                ),
-                arguments => {
-                    IV1 => $rev2d,
-                    map {
-                        $model->{summaryInformationColumns}[$_]
-                          ? (
-                            "IV" . ( 20 + $_ ),
-                            $model->{summaryInformationColumns}[$_]
-                          )
-                          : ()
-                    } 0 .. $#{ $model->{summaryInformationColumns} }
-                }
-            ),
-        ]
+    0 and my $superRedUnits = Arithmetic(
+        name          => 'Super-red units (kWh)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IV1*(IV3-IV7)*IV5',
+        arguments     => {
+            IV3 => $hoursInRed,
+            IV7 => $tariffHoursInRedNot,
+            IV1 => $activeCoincidence935,
+            IV5 => $importCapacityUnscaled,
+        }
     );
+
+    my $check = Arithmetic(
+        name          => 'Check (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => join(
+            '', '=IV1',
+            map {
+                $model->{summaryInformationColumns}[$_]
+                  ? ( "-IV" . ( 20 + $_ ) )
+                  : ()
+            } 0 .. $#{ $model->{summaryInformationColumns} }
+        ),
+        arguments => {
+            IV1 => $rev2d,
+            map {
+                $model->{summaryInformationColumns}[$_]
+                  ? (
+                    "IV" . ( 20 + $_ ),
+                    $model->{summaryInformationColumns}[$_]
+                  )
+                  : ()
+            } 0 .. $#{ $model->{summaryInformationColumns} }
+        }
+    );
+
+    if ( $model->{layout} ) {
+        my @copyTariffs = map { Stack( sources => [$_] ) } @tariffColumns;
+        SpreadsheetModel::MatrixSheet->new( $model->{tariff1Row}
+            ? ( dataRow => $model->{tariff1Row}, )
+            : (),
+          )->addDatasetGroup(
+            name    => 'Customers',
+            columns => [ $copyTariffs[0] ],
+          )->addDatasetGroup(
+            name    => 'Import tariffs',
+            columns => [ @copyTariffs[ 1 .. 4 ] ],
+          )->addDatasetGroup(
+            name    => 'Export tariffs',
+            columns => [ @copyTariffs[ 5 .. 8 ] ],
+          )->addDatasetGroup(
+            name    => 'Import charges',
+            columns => \@revenueBitsD,
+          )->addDatasetGroup(
+            name    => 'Export charges',
+            columns => \@revenueBitsG,
+          )->addDatasetGroup(
+            name    => 'Change in import charges',
+            columns => [ $rev2d, $rev1d, $change1d, $change2d, ],
+          )->addDatasetGroup(
+            name    => 'Change in export charges',
+            columns => [ $rev2g, $rev1g, $change1g, $change2g, ],
+          )->addDatasetGroup(
+            name    => 'Analysis of demand charges',
+            columns => [
+                ( grep { $_ } @{ $model->{summaryInformationColumns} } ),
+                $check,
+            ],
+          );
+        push @{ $model->{revenueTables} }, @copyTariffs, @revenueBitsD,
+          @revenueBitsG, $change2d, $change2g, $check;
+    }
+    else {
+        push @{ $model->{revenueTables} },
+          Columnset(
+            name    => 'Horizontal information',
+            columns => [
+                ( map { Stack( sources => [$_] ) } @tariffColumns ),
+                @revenueBitsD,
+                @revenueBitsG,
+                $rev2d, $rev1d,
+                $change1d,
+                $change2d,
+                $rev2g, $rev1g,
+                $change1g,
+                $change2g,
+                ( grep { $_ } @{ $model->{summaryInformationColumns} } ),
+                $check,
+            ]
+          );
+    }
 
     my $totalForDemandAllTariffs = GroupBy(
         source        => $rev2d,

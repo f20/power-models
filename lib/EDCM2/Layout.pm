@@ -119,7 +119,32 @@ sub orderedLayout {
     my $groupMaker = sub {
         my ( $prefix, @extras ) = @_;
         my $grouper;
-        if ($unnumbered) {
+        if ( $model->{layout} =~ /matrix/i ) {
+            return sub { }
+              unless $prefix eq 'Tariff-specific';
+            my $matrix = new SpreadsheetModel::MatrixSheet(
+                $model->{tariff1Row}
+                ? ( dataRow => $model->{tariff1Row}, )
+                : (),
+            );
+            push @{ $model->{matrixTables} },
+              my $copy = Stack( sources => [ $model->{table935}{columns}[0] ] );
+            $matrix->addDatasetGroup(
+                name    => 'Tariff name',
+                columns => [$copy]
+            );
+            $grouper = sub {
+                return unless @_;
+                $matrix->addDatasetGroup(
+                    name => pop [
+                        ' ', map { $_->{groupName} ? $_->{groupName} : (); } @_
+                    ],
+                    columns => [@_],
+                );
+                @_;
+            };
+        }
+        elsif ($unnumbered) {
             $grouper = sub {
                 return unless @_;
                 Columnset(
@@ -135,8 +160,13 @@ sub orderedLayout {
             $grouper = sub {
                 return unless @_;
                 return @_ if @_ == 1 && !$_[0]{rows};
+                my $name =
+                  pop [ undef,
+                    map { $_->{groupName} ? $_->{groupName} : (); } @_ ];
                 Columnset(
-                    name       => "$prefix data #" . ++$counter,
+                    name => "$prefix data #"
+                      . ++$counter
+                      . ( $name ? ": $name" : '' ),
                     logColumns => 1,
                     columns    => [@_],
                     @extras,

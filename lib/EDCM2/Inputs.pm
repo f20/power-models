@@ -671,7 +671,10 @@ EOL
     );
 
     $model->{table935} = Columnset(
-        name    => 'Tariff data',
+        name => 'Tariff data',
+        $model->{tariff1Row} && $model->{tariff1Row} > 6
+        ? ( sourceLines => [ map { undef; } 7 .. $model->{tariff1Row} ] )
+        : (),
         columns => [
             map {
                 $_ ? $_ : Constant(

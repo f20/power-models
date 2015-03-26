@@ -7,7 +7,7 @@ dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
 gridlines: 1
-layout: 216
+layout: matrix
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
 method: LRIC
@@ -17,5 +17,6 @@ numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
+tariff1Row: 40
 validation: lenientnomsg
 wantTables: 913
