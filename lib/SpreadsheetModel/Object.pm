@@ -199,7 +199,9 @@ sub addTableNumber {
           && $numlet < $wb->{highestAutoTableNumber};
         $wb->{highestAutoTableNumber} = $numlet;
     }
-    $self->{number} = $numlet;
+    $_->{numbered} = $numlet
+      foreach $self,
+      ref $self->{columns} eq 'ARRAY' ? @{ $self->{columns} } : ();
     $numlet .= '. ';
     if ($intrusive) {
         $self->{name} = $numlet . _shortName( $self->{name} );

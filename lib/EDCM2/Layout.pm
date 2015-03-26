@@ -48,7 +48,7 @@ sub orderedLayout {
           || $ob->{serialForLayout} > $serialForLayout;
         return
              if !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Dataset' )
-          || $ob->{location}
+          || ref $ob->{location}
           || !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Constant' )
           && !$ob->{sourceLines};
         $calcTables{ 0 + ( $ob->{rows} || 0 ) }{ 0 + $ob } = $ob;
