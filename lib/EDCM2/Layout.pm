@@ -135,10 +135,10 @@ sub orderedLayout {
             );
             $grouper = sub {
                 return unless @_;
+                my $name = ' ';
+                $name = $_ foreach grep { $_ } map { $_->{groupName} } @_;
                 $matrix->addDatasetGroup(
-                    name => pop [
-                        ' ', map { $_->{groupName} ? $_->{groupName} : (); } @_
-                    ],
+                    name    => $name,
                     columns => [@_],
                 );
                 @_;
@@ -160,9 +160,8 @@ sub orderedLayout {
             $grouper = sub {
                 return unless @_;
                 return @_ if @_ == 1 && !$_[0]{rows};
-                my $name =
-                  pop [ undef,
-                    map { $_->{groupName} ? $_->{groupName} : (); } @_ ];
+                my $name;
+                $name = $_ foreach grep { $_ } map { $_->{groupName} } @_;
                 Columnset(
                     name => "$prefix data #"
                       . ++$counter
