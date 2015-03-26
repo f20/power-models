@@ -672,7 +672,8 @@ EOT
     my $rateExit = Arithmetic(
         name       => 'Transmission exit charging rate (£/kW/year)',
         arithmetic => '=IV1/IV2',
-        arguments  => { IV1 => $chargeExit, IV2 => $overallRedUse }
+        arguments  => { IV1 => $chargeExit, IV2 => $overallRedUse },
+        location   => 'Charging rates',
     );
     $model->{transparency}{olFYI}{1239} = $rateExit if $model->{transparency};
 
@@ -688,6 +689,7 @@ EOT
             IV5 => $cdcmHvLvService,
             IV6 => $ehvIntensity,
         },
+        location => 'Charging rates',
     );
     $model->{transparency}{olFYI}{1245} = $rateDirect if $model->{transparency};
 
@@ -701,7 +703,8 @@ EOT
             IV3 => $cdcmEhvAssets,
             IV4 => $cdcmHvLvShared,
             IV5 => $cdcmHvLvService,
-        }
+        },
+        location => 'Charging rates',
     );
     $model->{transparency}{olFYI}{1246} = $rateRates if $model->{transparency};
 
@@ -718,7 +721,8 @@ EOT
             IV6  => $ehvIntensity,
             IV20 => $totalEdcmAssets,
             IV5  => $cdcmHvLvService,
-        }
+        },
+        location => 'Charging rates',
     );
     $model->{transparency}{olFYI}{1250} = $rateIndirect
       if $model->{transparency};
@@ -1119,7 +1123,8 @@ EOT
             IV22 => $totalAssetsConsumption,
             IV3  => $cdcmEhvAssets,
             IV4  => $cdcmHvLvShared,
-        }
+        },
+        location => 'Charging rates',
     );
     $model->{transparency}{olFYI}{1249} = $rateOther
       if $model->{transparency};

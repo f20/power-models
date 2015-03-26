@@ -55,7 +55,7 @@ sub wsUrl {
     my $wn =
         $wo
       ? $wo->get_name
-      : die "No worksheet for $self->{name}"
+      : warn "No worksheet for $self->{name}"
       . " ($self->{debug} $self->{rows} x $self->{cols})";
     "internal:'$wn'!$ce";
 }
