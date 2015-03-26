@@ -34,4 +34,6 @@ use base
 
 sub fileExtension { '.xls'; }
 
+sub formulaHashValues { return; }
+
 1;

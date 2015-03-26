@@ -220,7 +220,7 @@ sub wsPrepare {
         my $data = $noData
           ? [
             map {
-                [ map { defined $_ ? '=#VALUE!' : undef } @$_ ]
+                [ map { defined $_ ? '#VALUE!' : undef } @$_ ]
             } @{ $self->{data} }
           ]
           : $self->{data};
@@ -269,7 +269,7 @@ sub wsPrepare {
     else {
         my $data =
           $noData
-          ? [ map { defined $_ ? '=#VALUE!' : undef } @{ $self->{data} } ]
+          ? [ map { defined $_ ? '#VALUE!' : undef } @{ $self->{data} } ]
           : $self->{data};
         $self->lastCol
           ? sub {
@@ -558,7 +558,9 @@ sub wsWrite {
             }
             else {
                 $value = "=$value"
-                  if $value and $value eq '#VALUE!' || $value eq '#N/A';
+                  if $value
+                  and $value eq '#VALUE!' || $value eq '#N/A'
+                  and $wb->formulaHashValues;
                 $ws->write( $row + $y, $col + $x, $value, $format );
             }
         }
