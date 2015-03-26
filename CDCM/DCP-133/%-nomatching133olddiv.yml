@@ -1,5 +1,5 @@
 ---
-.: No revenue matching (using DCP 133 asset values but not diversities)
+.: No revenue matching (DCP 133 asset values but not diversities)
 PerlModule: CDCM
 coincidenceAdj: groupums
 dcp133: nodiversity
