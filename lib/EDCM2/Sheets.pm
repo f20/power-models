@@ -184,7 +184,7 @@ sub worksheetsAndClosures {
                 $wsheet->set_landscape
                   if $model->{layout} && $model->{layout} =~ /wide/i;
                 $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'DNO-wide aggregates' ),
+                  foreach Notes( lines => 'Constant parameters' ),
                   @{ $model->{generalTables} };
             },
             'DNO totals' => sub {
