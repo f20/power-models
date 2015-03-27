@@ -74,7 +74,7 @@ use constant {
     EXCELCOL8 => 16, #800000
     GREEN     => 17, #008000
     EXCELCOL10 => 18,    #000080
-    DKYELLOW   => 19,    #808000
+    EXCELCOL11 => 19,    #808000
     PURPLE     => 20,    #800080
     EXCELCOL13 => 21,    #008080
     SILVER     => 22,    #C0C0C0 potentially overridden by #e9e9e9
@@ -284,8 +284,8 @@ Keys used in %$options:
         $backgroundColour
         ? ( bg_color => BGYELLOW, @defaultColour, )
         : (
-            $borderColour ? ( border => 1, border_color => DKYELLOW ) : (),
-            $textColour ? ( color => DKYELLOW ) : (),
+            $borderColour ? ( border => 1, border_color => EXCELCOL11 ) : (),
+            $textColour ? ( color => EXCELCOL11 ) : (),
         )
     );
     my @colourScribbles = (
@@ -744,15 +744,30 @@ Keys used in %$options:
             ? ( right => 7, bottom => 1, )
             : ( left => 1, right => 1, ),
         ],
+        blue => [
+            color => $orangeColours ? BGORANGE : BGPURPLE,
+            size => 13,
+            bg_color => BLUE,
+        ],
         red => [
-            color    => BGPINK,
-            bold     => 1,
+            color => $orangeColours ? BGORANGE : BGPURPLE,
+            size => 13,
             bg_color => RED,
         ],
-        blue => [
-            color    => BGPINK,
-            bold     => 1,
-            bg_color => BLUE,
+        algae => [
+            color => $orangeColours ? BGORANGE : BGPURPLE,
+            size => 13,
+            bg_color => EXCELCOL13,
+        ],
+        purple => [
+            color => $orangeColours ? BGORANGE : BGPURPLE,
+            size => 13,
+            bg_color => PURPLE,
+        ],
+        slime => [
+            color => $orangeColours ? BGORANGE : BGPURPLE,
+            size => 13,
+            bg_color => EXCELCOL11,
         ],
     };
 

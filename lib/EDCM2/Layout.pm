@@ -124,7 +124,7 @@ sub orderedLayout {
                 $model->{tariff1Row}
                 ? (
                     dataRow            => $model->{tariff1Row},
-                    captionDecorations => [qw(blue red)],
+                    captionDecorations => [qw(algae purple slime)],
                   )
                 : (),
             );

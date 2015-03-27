@@ -1824,11 +1824,17 @@ EOT
             ]
         );
 
+    }
+
+    if (    $model->{layout}
+        and $model->{layout} =~ /no4501/i || $model->{tariff1Row} )
+    {
+
         SpreadsheetModel::MatrixSheet->new(
             $model->{tariff1Row}
             ? (
                 dataRow            => $model->{tariff1Row},
-                captionDecorations => [qw(blue red)],
+                captionDecorations => [qw(algae purple slime)],
               )
             : (),
           )->addDatasetGroup(
@@ -2043,7 +2049,7 @@ EOT
             $model->{tariff1Row}
             ? (
                 dataRow            => $model->{tariff1Row},
-                captionDecorations => [qw(blue red)],
+                captionDecorations => [qw(algae purple slime)],
               )
             : (),
           )->addDatasetGroup(
