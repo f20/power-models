@@ -405,7 +405,7 @@ sub fillDatabase {
             $writer = Compilation::DataExtraction::jbzWriter();
             next;
         }
-        if (/^-+modelcheck/i) {
+        if (/^-+(?:auto|model)check/i) {
             require Compilation::DataExtraction;
             $writer = Compilation::DataExtraction::checksumWriter();
             next;

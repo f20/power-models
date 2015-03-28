@@ -339,11 +339,8 @@ sub databaseWriter {
 }
 
 sub checksumWriter {
-    require POSIX;
-    my $id = POSIX::strftime( '%a@%H%M%S', localtime );
     sub {
         my ( $book, $workbook ) = @_;
-        $book =~ s#.*/##;
         for my $worksheet ( $workbook->worksheets() ) {
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
@@ -354,18 +351,31 @@ sub checksumWriter {
                     my $v;
                     $v = $cell->unformatted if $cell;
                     next unless defined $v;
-                    if ( $v =~ /^Model checksum/i ) {
-                        my $check = $worksheet->get_cell( $row + 1, $col );
-                        $check = $check->unformatted if $check;
-                        if ( $check && $v =~ / 7$/ && $check =~ /^[0-9.-]+$/ ) {
-                            local $_ = 5.5e-8 + 1e-7 * $check;
-                            $check = "$1 $2" if /.*\.(...)(....)5.*/;
+                    if ( $v =~ /^Model checksum ([0-9]{1,2})$/si ) {
+                        my $checksumType = $1;
+                        my $checksum = $worksheet->get_cell( $row + 1, $col );
+                        $checksum = $checksum->unformatted if $checksum;
+                        if (   $checksum
+                            && $checksumType == 7
+                            && $checksum =~ /^[0-9.-]+$/ )
+                        {
+                            local $_ = 5.5e-8 + 1e-7 * $checksum;
+                            $checksum = "$1 $2" if /.*\.(...)(....)5.*/;
                         }
-                        $check = $check ? "✔$check" : '✘';
-                        mkdir $check;
-                        $book =~ s#.*/##s;
-                        open my $fh, '>', "$check/$book $check $id";
-                        print $fh $id;
+                        $checksum =
+                           !$checksum          ? '✘none'
+                          : $checksum =~ /^#/s ? "✘$checksum"
+                          :                   "✔$checksum";
+                        my ( $base, $ext ) =
+                          $book =~ m#([^/]*)(\.[a-zA-Z0-9]+)$#s;
+                        $base ||= '';
+                        $ext  ||= '';
+                        $book = "../$book" unless $book =~ m#^[./]#s;
+                        foreach ( $checksum, '✔✘' ) {
+                            mkdir $_;
+                            symlink $book, "$_/~\$$$";
+                            rename "$_/~\$$$", "$_/$base $checksum$ext";
+                        }
                     }
                 }
             }
