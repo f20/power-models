@@ -71,9 +71,11 @@ Sub sfWorkerSheet(ws)
                     f1 = f
                     g = Cells(r, c).Formula
                     On Error Resume Next
-                    Cells(r, c) = "." & g
-                    If Cells(r, c + 1).Formula <> "" Then Cells(r, c).WrapText = True
+                    Cells(r, c).NumberFormat = "General"
                     Cells(r, c).HorizontalAlignment = xlLeft
+                    Cells(r, c).WrapText = True
+                    ' If Cells(r, c + 1).Formula <> "" Then Cells(r, c).WrapText = True
+                    Cells(r, c) = "." & g
                     If f = Cells(rowb, c).Value Then Cells(r + 1, c) = ChrW$(&H2191)
                     On Error GoTo 0
                 End If
