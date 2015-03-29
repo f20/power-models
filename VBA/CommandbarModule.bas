@@ -26,7 +26,7 @@
 Sub MakeCommandBar()
     On Error Resume Next
     Application.CommandBars("FranckVBATools").Delete
-    On Error GoTo 0
+    On Error GoTo FAIL
     Dim bar As CommandBar
     Set bar = Application.CommandBars.Add("FranckVBATools")
 
@@ -79,5 +79,5 @@ Sub MakeCommandBar()
     End With
 
     bar.Visible = True
-
+FAIL:
 End Sub
