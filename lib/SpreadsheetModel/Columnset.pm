@@ -381,7 +381,6 @@ sub wsWrite {
         my $c4 = $col + $headerCols;
         $row++ if $dualHeaded;
         foreach ( 0 .. $lastCol ) {
-
             if ( $wb->{logger} ) {
                 if ($number) {
                     my $n = $self->{columns}[$_]{name};
@@ -395,30 +394,29 @@ sub wsWrite {
             }
 
             my $colShortName = _shortNameCol $self->{columns}[$_]{name};
-
-            if ( ( my $co = $self->{columns}[$_]{cols} )
-                && $#{ $self->{columns}[$_]{cols}{list} } )
-            {
-
-                foreach ( 0 .. $#{ $co->{list} } ) {
-                    $ws->write(
-                        $row - 1,
-                        $c4 + $_,
-                        $_ ? undef : $colShortName,
-                        $wb->getFormat(
-                            $#{ $co->{list} } > 2 ? 'thla' : 'thca'
-                        )
-                    );
-                    $ws->write(
-                        $row,
-                        $c4 + $_,
-                        _shortNameCol( $co->{list}[$_] ),
-                        $wb->getFormat(
-                            !$co->{groups}
-                              || defined $co->{groupid}[$_] ? 'thc' : 'thg'
-                        )
-                    );
+            my $co           = $self->{columns}[$_]{cols};
+            if ( $co && $#{ $co->{list} } ) {
+                if ( $wb->{mergedRanges} ) {
+                    $ws->merge_range( $row - 1, $c4, $row - 1,
+                        $c4 + $#{ $co->{list} },
+                        $colShortName, $wb->getFormat('thca') );
                 }
+                else {
+                    my $caFormat =
+                      $wb->getFormat( $#{ $co->{list} } > 2 ? 'thla' : 'thca' );
+                    $ws->write( $row - 1, $c4 + $_, $_ ? undef : $colShortName,
+                        $caFormat )
+                      foreach 0 .. $#{ $co->{list} };
+                }
+                $ws->write(
+                    $row,
+                    $c4 + $_,
+                    _shortNameCol( $co->{list}[$_] ),
+                    $wb->getFormat(
+                        !$co->{groups}
+                          || defined $co->{groupid}[$_] ? 'thc' : 'thg'
+                    )
+                ) foreach 0 .. $#{ $co->{list} };
                 $c4 += @{ $co->{list} };
             }
             else {

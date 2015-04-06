@@ -10,6 +10,7 @@ gridlines: 1
 layout: matrix
 ldnoRev: ldnorev5
 lowerIntermittentCredit: 1
+mergedRanges: 1
 method: FCP
 noLinks: 2
 noNegative: 1

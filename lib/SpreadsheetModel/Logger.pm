@@ -99,53 +99,60 @@ sub wsWrite {
     my %columnsetDone;
     foreach my $obj (@objectList) {
 
-        my $cset = $obj->{location};
-        undef $cset
-          if ref $cset ne 'SpreadsheetModel::Columnset'
-          || ( $logger->{showColumns} || $cset->{logColumns} ) && grep {
-            ref $_ ne 'SpreadsheetModel::Stack' || @{ $_->{sources} } > 1;
-          } @{ $cset->{columns} };
-        if ($cset) {
-            next if exists $columnsetDone{$cset};
-            undef $columnsetDone{$cset};
-        }
-
         my ( $wo, $ro, $co ) = @{ $obj->{$wb} }{qw(worksheet row col)};
-        my $ty = $cset ? $cset->objectType : $obj->objectType;
-        $ty .= ' (not used further)'
-          if $logger->{finalTablesBold}
-          && !( $cset ? $cset->{forwardLinks} : $obj->{forwardLinks} );
-        my $ce = xl_rowcol_to_cell( $ro - 1, $co );
-        my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
-        $wn =~ s/\000//g;    # squash strange rare bug
-        my $na = $cset ? "$cset->{name}" : "$obj->{name}";
-        0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
-        $logger->{realRows}[$r] = $na;
-        $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
-            $linkFormat );
-        $ws->write_string( $row + $r, $col + 2, $ty, $textFormat );
-        $ws->write_string( $row + $r, $col,     $wn, $textFormat );
 
-        if ( $logger->{showDetails} && $obj->isa('SpreadsheetModel::Dataset') )
-        {
-            my ( $wss, $rows, $cols ) = $obj->wsWrite( $wb, $ws );
-            my $wsn = $wss ? $wss->get_name : 'BROKEN LINK';
-            my $c1 =
-              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $rows,
-                $cols, 0, 0 );
-            my $c2 = Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                $rows + $obj->lastRow,
-                $cols + $obj->lastCol,
-                0, 0
-            );
-            my $range = "'$wsn'!$c1:$c2";
-            $ws->write( $row + $r, $col + 3,
-                ( 1 + $obj->lastRow ) . ' × ' . ( 1 + $obj->lastCol ),
-                $textFormat );
-            $ws->write( $row + $r, $col + 4, "=COUNT($range)",   $numFormat0 );
-            $ws->write( $row + $r, $col + 5, "=AVERAGE($range)", $numFormat1 );
+        my @displayList = $obj;
+        if ( my $cset = $obj->{location} ) {
+            if ( UNIVERSAL::isa( $cset, 'SpreadsheetModel::Columnset' ) ) {
+                @displayList = ()
+                  unless $logger->{showColumns} || $cset->{logColumns}
+                  and grep {
+                    ref $_ ne 'SpreadsheetModel::Stack'
+                      || @{ $_->{sources} } > 1;
+                  } @{ $cset->{columns} };
+                unless ( exists $columnsetDone{$cset} ) {
+                    unshift @displayList, $cset;
+                    undef $columnsetDone{$cset};
+                }
+            }
         }
-        ++$r;
+
+        foreach (@displayList) {
+
+            my $ty = $_->objectType;
+            $ty .= ' (not used further)'
+              if $logger->{finalTablesBold} && !$_->{forwardLinks};
+            my $ce = xl_rowcol_to_cell( $ro - 1, $co );
+            my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
+            $wn =~ s/\000//g;    # squash strange rare bug
+            my $na = "$_->{name}";
+            0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
+            $logger->{realRows}[$r] = $na;
+            $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
+                $linkFormat );
+            $ws->write_string( $row + $r, $col + 2, $ty, $textFormat );
+            $ws->write_string( $row + $r, $col,     $wn, $textFormat );
+
+            if (   $logger->{showDetails}
+                && $_->isa('SpreadsheetModel::Dataset') )
+            {
+                my $c1 = xl_rowcol_to_cell( $ro, $co );
+                my $c2 =
+                  xl_rowcol_to_cell( $ro + $_->lastRow, $co + $_->lastCol );
+                my $range = "'$wn'!$c1:$c2";
+                $ws->write( $row + $r, $col + 3,
+                    ( 1 + $_->lastRow ) . ' × ' . ( 1 + $_->lastCol ),
+                    $textFormat );
+                $ws->write( $row + $r, $col + 4, "=COUNT($range)",
+                    $numFormat0 );
+                $ws->write( $row + $r, $col + 5, "=AVERAGE($range)",
+                    $numFormat1 );
+            }
+
+            ++$r;
+
+        }
+
     }
 
     $ws->autofilter( $row - 1, $col, $row + $r - 1, $col + 2 );

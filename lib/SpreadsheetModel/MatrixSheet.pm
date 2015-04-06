@@ -204,18 +204,18 @@ sub wsWrite {
         $ws->write_string( $titlesRow, $col, "$self->{name}",
             $wb->getFormat( 'captionca', $deco || (), 'tlttr' ) );
     }
-    elsif (undef) {    # center across; buggy in Excel?
+    elsif ( $wb->{mergedRanges} ) {    # merged cell range
+        $ws->merge_range( $titlesRow, $col, $titlesRow, $col + $ncol - 1,
+            "$self->{name}",
+            $wb->getFormat( 'captionca', $deco || (), 'tlttr' ) );
+    }
+    else {    # center-across formatting; buggy in Excel 2013?
         my $captionFormat = $wb->getFormat( 'captionca', $deco || () );
         $ws->write( $titlesRow, $col,      "$self->{name}", $captionFormat );
         $ws->write( $titlesRow, $col + $_, undef,           $captionFormat )
           foreach 1 .. $ncol - 2;
         $ws->write( $titlesRow, $col + $ncol - 1,
             undef, $wb->getFormat( 'captionca', $deco || (), 'tlttr' ) );
-    }
-    else {             # merge range
-        $ws->merge_range( $titlesRow, $col, $titlesRow, $col + $ncol - 1,
-            "$self->{name}",
-            $wb->getFormat( 'captionca', $deco || (), 'tlttr' ) );
     }
 
     my $c4 = $col;
