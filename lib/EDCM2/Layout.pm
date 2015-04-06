@@ -164,7 +164,7 @@ sub orderedLayout {
                 my $name;
                 $name = $_ foreach grep { $_ } map { $_->{groupName} } @_;
                 Columnset(
-                    name => "$prefix data #"
+                    name => "$prefix #"
                       . ++$counter
                       . ( $name ? ": $name" : '' ),
                     logColumns => 1,
@@ -194,7 +194,7 @@ sub orderedLayout {
     };
 
     push @{ $model->{generalTables} },
-      $groupMaker->('Fixed parameter')->(
+      $groupMaker->('Fixed parameters')->(
         sort { $a->{serialForLayout} <=> $b->{serialForLayout} }
         grep { !$_->{cols} } @constantSingle
       ),
@@ -202,8 +202,8 @@ sub orderedLayout {
       ( @constantOther, grep { $_->{cols} } @constantSingle );
 
     my @ordered;
-    my $singleMaker = $groupMaker->('Aggregate');
-    my $tariffMaker = $groupMaker->('Tariff-specific');
+    my $singleMaker = $groupMaker->('Aggregate data');
+    my $tariffMaker = $groupMaker->('Tariff-specific data');
     for (
         my $maxSerial = 5_000 ;
         $maxSerial - $serialUplift < 10_000 ;

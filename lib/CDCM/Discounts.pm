@@ -268,18 +268,20 @@ sub pcdApplyDiscounts {
     my $electionBung;
     if ( $model->{electionBung} ) {
         $electionBung = Dataset(
-            name     => 'Election bung (p/MPAN/day)',
-            rows     => $allTariffs,
-            number   => 1098,
-            appendTo => $model->{inputTables},
-            dataset  => $model->{dataset},
-            data     => [ map { '' } @{ $allTariffs->{list} } ],
-            validation => {    # validation needed to enable lenient locking
+            name               => 'Election bung (p/MPAN/day)',
+            rows               => $allTariffs,
+            number             => 1098,
+            appendTo           => $model->{inputTables},
+            dataset            => $model->{dataset},
+            data               => [ map { '' } @{ $allTariffs->{list} } ],
+            usePlaceholderData => 1,
+            validation =>
+              {    # some validation is needed to enable lenient locking
                 validate => 'decimal',
                 criteria => 'between',
                 minimum  => -999_999.999,
                 maximum  => 999_999.999,
-            },
+              },
         );
         push @{ $model->{summaryColumns} },
           my $totalImpactOfElectionBung = Arithmetic(

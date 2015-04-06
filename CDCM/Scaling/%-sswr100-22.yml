@@ -9,7 +9,6 @@ dataOverride:
     - Financial and general assumptions: 0.22
 drm: top500gsp
 extraLevels: 1
-illustrative: 1
 matrices: big
 noReplacement: 0.22
 pcd: 1

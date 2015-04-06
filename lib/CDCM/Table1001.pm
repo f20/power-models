@@ -290,8 +290,8 @@ sub table1001 {
                     defaultFormat => 'textnocolour',
                     rowFormats =>
                       [ map { /=/ ? $textnocolourb : undef; } @labels ],
-                    data            => \@descriptions,
-                    useIllustrative => 1,
+                    data               => \@descriptions,
+                    usePlaceholderData => 1,
                 ),
                 Dataset(
                     name          => 'Term',
@@ -454,8 +454,8 @@ sub table1001 {
                     defaultFormat => 'textnocolour',
                     rowFormats =>
                       [ map { /=/ ? $textnocolourb : undef; } @descriptions ],
-                    data            => \@descriptions,
-                    useIllustrative => 1,
+                    data               => \@descriptions,
+                    usePlaceholderData => 1,
                 ),
                 Dataset(
                     name          => 'Term',

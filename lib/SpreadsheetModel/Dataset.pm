@@ -163,8 +163,10 @@ sub dataset {
 
 sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
-    my $noData =
-      $wb->{noData} && ref $self eq __PACKAGE__ && !$self->{useIllustrative};
+    my $noPlaceholderData =
+         ref $self eq __PACKAGE__
+      && !$self->{usePlaceholderData}
+      && !( $self->{dataset} && $self->{dataset}{usePlaceholderData} );
     my ( @overrideColumns, @rowKeys );
     if ( my $dataset = $self->dataset( $wb, $ws ) ) {
         my $fc = $self->{colOffset} || 0;
@@ -217,7 +219,7 @@ sub wsPrepare {
     my $missingFormat =
       $wb->getFormat( $self->{defaultMissingFormat} || 'unused' );
     if ( ref $self->{data}[0] ) {
-        my $data = $noData
+        my $data = $noPlaceholderData
           ? [
             map {
                 [ map { defined $_ ? '#VALUE!' : undef } @$_ ]
@@ -268,7 +270,7 @@ sub wsPrepare {
     }
     else {
         my $data =
-          $noData
+          $noPlaceholderData
           ? [ map { defined $_ ? '#VALUE!' : undef } @{ $self->{data} } ]
           : $self->{data};
         $self->lastCol

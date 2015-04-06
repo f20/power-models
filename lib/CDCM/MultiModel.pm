@@ -434,6 +434,7 @@ sub assumptionsClosure {
                                 map { defined $_ ? '#N/A' : undef; }
                                   @{ $_->[1]{data} }
                             ],
+                            usePlaceholderData => 1,
                         )
                     );
                 } @table1001Overridable
@@ -510,7 +511,7 @@ sub worksheetsAndClosuresMulti {
       unless $me->{assumptionColumns};
     push @{ $me->{scenario} }, $model;
     push @{ $me->{assumptionColumns} },
-      $me->{assumptionsByModel}{ 0 + $model } = Constant(
+      $me->{assumptionsByModel}{ 0 + $model } = Dataset(
         name          => 'Assumptions',
         model         => $model,
         rows          => $me->{assumptionRowset},
@@ -532,6 +533,7 @@ sub worksheetsAndClosuresMulti {
                 )
             ]
         ],
+        usePlaceholderData => 1,
       );
     @pairs;
 }

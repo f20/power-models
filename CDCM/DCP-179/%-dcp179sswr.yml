@@ -12,7 +12,6 @@ dataOverride:
 drm: top500gsp
 extraLevels: 1
 fixedCap: group
-illustrative: 1
 impliedLoadFactors: 1
 matrices: big
 noReplacement: 0.453

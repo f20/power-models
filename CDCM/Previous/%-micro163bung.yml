@@ -6,7 +6,6 @@ compact: permpan
 drm: top500gsp
 electionBung: 1
 extraLevels: 1
-illustrative: 1
 nickName: CDCM model (after DCP 163 with bung)
 noLLFCs: 1
 noLinks: 1

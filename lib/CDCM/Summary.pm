@@ -729,9 +729,7 @@ Change something below to put something like table 1095 in full-year models inst
         ]
     );
 
-    push @{ $model->{consultationTables} },
-
-      Columnset(
+    push @{ $model->{consultationTables} }, Columnset(
         name    => 'New tariffs',
         columns => [
             map {
@@ -745,7 +743,6 @@ Change something below to put something like table 1095 in full-year models inst
             } @$nonExcludedComponents
         ]
       ),
-
       Columnset(
         name    => 'Illustrative proposed reactive power charges',
         columns => [
@@ -764,9 +761,7 @@ Change something below to put something like table 1095 in full-year models inst
                 sources => [ $tariffTable->{'Reactive power charge p/kVArh'} ]
             )
         ]
-      )
-
-      if $model->{summary} =~ /big/i;
+      ) if $model->{summary} =~ /big/i;
 
     my %adjustedVolume = $atwVolumes{'Capacity charge p/kVA/day'}
       ? (

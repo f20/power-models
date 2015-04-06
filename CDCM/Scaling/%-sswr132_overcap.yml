@@ -14,7 +14,6 @@ dataOverride:
       LV circuits: 200000000
 drm: top500gsp
 extraLevels: 1
-illustrative: 1
 matrices: big
 noReplacement: 0.453
 pcd: 1

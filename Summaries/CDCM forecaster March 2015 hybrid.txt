@@ -2,7 +2,6 @@ makeModels
 	-template=%%-M2015h
 	-pickbest
 	-edcm
-	-illustrative
 	CDCM/Previous/*micro*
 	CDCM/Current/*micro*
 	CDCM/Future/*micro*

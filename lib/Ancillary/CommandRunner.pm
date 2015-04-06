@@ -211,7 +211,6 @@ sub makeModels {
             elsif (/^-+stats=?(.*)/is) {
                 $maker->{setRule}->(
                     summary      => 'statistics',
-                    illustrative => 1,
                     $1 ? ( statistics => $1 ) : (),
                 );
             }

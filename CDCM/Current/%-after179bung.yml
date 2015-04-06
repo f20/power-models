@@ -9,7 +9,6 @@ drm: top500gsp
 electionBung: 1
 extraLevels: 1
 fixedCap: 1-4
-illustrative: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

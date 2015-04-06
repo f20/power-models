@@ -18,7 +18,6 @@ dataOverride:
     - Other expenditure: 0.3
 drm: top500gsp
 extraLevels: 1
-illustrative: 1
 ldnoSplits: 1
 matrices: big
 noLossAdj: 1

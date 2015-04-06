@@ -47,17 +47,15 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 250, 20 );
         $wsheet->{nextFree} = 1;
         $model->{inputTables} ||= [];
-        my $te = Dataset(
-            number        => 1200,
-            dataset       => $model->{dataset},
-            name          => 'Data version',
-            cols          => Labelset( list => [qw(Version)] ),
-            defaultFormat => 'texthardcentered',
-            data          => ['Illustrative']
-        );
-        my $noData = delete $wbook->{noData};
-        my ( $sh, $ro, $co ) = $te->wsWrite( $wbook, $wsheet );
-        $wbook->{noData} = $noData if $noData;
+        my ( $sh, $ro, $co ) = Dataset(
+            number             => 1200,
+            dataset            => $model->{dataset},
+            name               => 'Data version',
+            cols               => Labelset( list => [qw(Version)] ),
+            defaultFormat      => 'texthardcentered',
+            data               => ['Illustrative'],
+            usePlaceholderData => 1,
+        )->wsWrite( $wbook, $wsheet );
 
         # require Spreadsheet::WriteExcel::Utility;
         $sh = $sh->get_name;

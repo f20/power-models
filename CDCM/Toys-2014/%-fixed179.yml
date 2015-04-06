@@ -21,7 +21,6 @@ dataOverride:
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-illustrative: 1
 impliedLoadFactors: 1
 ldnoSplits: 1
 matrices: big

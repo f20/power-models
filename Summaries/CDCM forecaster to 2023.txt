@@ -2,7 +2,6 @@ makeModels
 	-template=%%-to2023
 	-pickbest
 	-edcm
-	-illustrative
 	CDCM/Previous/*micro*
 	CDCM/Current/*micro*
 	CDCM/Future/*micro*

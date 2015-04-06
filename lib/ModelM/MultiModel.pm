@@ -61,7 +61,7 @@ sub worksheetsAndClosuresWithController {
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
             name  => 'Controller',
-            lines => $model->illustrativeNotice,
+            lines => $model->dataNotes,
           ),
           $model->licenceNotes,
           @{ $mms->{optionsColumns} };

@@ -56,17 +56,15 @@ sub worksheetsAndClosures {
         $model->{dataset}{1500}[3]{'Company charging year data version'} =
           $model->{version}
           if $model->{version} && $model->{dataset};
-        my $te = Dataset(
+        my ( $sh, $ro, $co ) = Dataset(
             number        => 1500,
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),
             defaultFormat => 'texthardcentered',
-            data          => [ 'no company', 'no year', 'no data version' ]
-        );
-        my $noData = delete $wbook->{noData};
-        my ( $sh, $ro, $co ) = $te->wsWrite( $wbook, $wsheet );
-        $wbook->{noData} = $noData if $noData;
+            data          => [ 'no company', 'no year', 'no data version' ],
+            usePlaceholderData => 1,
+        )->wsWrite( $wbook, $wsheet );
 
         # require Spreadsheet::WriteExcel::Utility;
         $sh = $sh->get_name;

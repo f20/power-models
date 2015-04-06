@@ -55,18 +55,15 @@ sub worksheetsAndClosures {
         $model->{dataset}{1300}[3]{'Company charging year data version'} =
           $model->{version}
           if $model->{version} && $model->{dataset};
-        my $modelInformationTable = Dataset(
+        my ( $sh, $ro, $co ) = Dataset(
             number        => 1300,
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),
             defaultFormat => 'texthardcentered',
-            data          => [ 'no company', 'no year', 'no data version' ]
-        );
-        my $noData = delete $wbook->{noData};
-        my ( $sh, $ro, $co ) =
-          $modelInformationTable->wsWrite( $wbook, $wsheet );
-        $wbook->{noData} = $noData if $noData;
+            data          => [ 'no company', 'no year', 'no data version' ],
+            usePlaceholderData => 1,
+        )->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
         $wbook->{titleAppend} =
             qq%" for "&'$sh'!%
@@ -163,7 +160,7 @@ groups.  Only the DCUSA Panel and its working groups have authority to approve t
 Reckon LLP makes no representation about the suitability of this material for the purposes of complying with any licence
 conditions or furthering any relevant objective.
 EOL
-            $model->illustrativeNotice,
+            $model->dataNotes,
             $model->{noLinks} ? () : <<EOL,
 
 This workbook is structured as a series of named and numbered tables. There is a list of tables below, with hyperlinks. Above
@@ -176,7 +173,7 @@ EOL
     );
 }
 
-sub illustrativeNotice {
+sub dataNotes {
     my ($model) = @_;
     $model->{colour} && $model->{colour} =~ /gold/ ? <<EOL :
 

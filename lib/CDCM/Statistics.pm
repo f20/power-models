@@ -55,7 +55,7 @@ sub makeStatisticsAssumptions {
     $colspec ||= $colspecDefault->{
         $model->{statistics} && $model->{statistics} =~ /simple/
         ? '4201simple'
-        : 4201
+        : '4201'
     };
 
     my @rows =
@@ -66,16 +66,17 @@ sub makeStatisticsAssumptions {
 
     my $rowset = Labelset( list => \@rows );
 
-  # Editable constant columns so that they auto-populate irrespective of dataset
     my @columns = map {
         my $col = $_;
-        Constant(
+        Dataset(
             name          => $col->{_column},
             defaultFormat => $col->{_column} =~ /hours\/week/ ? '0.0hard'
             : $col->{_column} =~ /kVA/ ? '0hard'
             : '0.000hard',
-            rows => $rowset,
-            data => [ @$_{@rows} ],
+            rows               => $rowset,
+            data               => [ @$_{@rows} ],
+            usePlaceholderData => 1,
+            dataset            => $model->{dataset},
           )
     } @$colspec[ 3 .. 8 ];
 
@@ -150,11 +151,13 @@ sub makeStatisticsTables {
 
         my $blank = [ map { '' } @{ $assumptions->{rows}{list} } ];
         push @columns2,
-          $override{$_} = Constant(
-            name          => "Override\t$_ kWh/year",
-            defaultFormat => '0hard',
-            rows          => $assumptions->{rows},
-            data          => $blank,
+          $override{$_} = Dataset(
+            name               => "Override\t$_ kWh/year",
+            defaultFormat      => '0hard',
+            rows               => $assumptions->{rows},
+            data               => $blank,
+            usePlaceholderData => 1,
+            dataset            => $model->{dataset},
           ) foreach qw(red amber green);
 
         push @columns2,

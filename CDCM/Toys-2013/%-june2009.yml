@@ -9,7 +9,6 @@ dataOverride:
     - Financial and general assumptions: 0.453
 drm: top500gsp
 extraLevels: 1
-illustrative: 1
 matrices: big
 noLossAdj: 1
 noReplacement: 0.453

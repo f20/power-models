@@ -14,7 +14,6 @@ dataOverride:
 drm: top500gsp
 ehv: 1
 extraLevels: 1
-illustrative: 1
 matrices: big
 noLossAdj: 1
 noReplacement: 0.453
