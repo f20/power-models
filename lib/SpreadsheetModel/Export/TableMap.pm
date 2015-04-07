@@ -79,23 +79,27 @@ sub updateTableMap {
       foreach @keys;
     my $wbmodule = 'SpreadsheetModel::Workbook';
     if ( eval "require $wbmodule" ) {
-        my $wb = $wbmodule->new( '_Table map' . $wbmodule->fileExtension );
+        my $wb = $wbmodule->new( 'Table map' . $wbmodule->fileExtension );
         $wb->setFormats();
         my $ws = $wb->add_worksheet('Table mapping');
-        $ws->set_column( 0, 0,   72 );
-        $ws->set_column( 1, 1,   48 );
-        $ws->set_column( 2, 254, 12 );
+        $ws->set_column( 0, 0,   92 );
+        $ws->set_column( 1, 1,   38 );
+        $ws->set_column( 2, 254, 11 );
         $ws->hide_gridlines(2);
         $ws->freeze_panes( 1, 2 );
-        $ws->write_string( 0, 0,      'Name',           $wb->getFormat('thc') );
-        $ws->write_string( 0, 1,      'Code reference', $wb->getFormat('thc') );
-        $ws->write_string( 0, 2 + $_, $columns[$_],     $wb->getFormat('thc') )
-          foreach 0 .. $#columns;
+        $ws->write_string( 0, 0, 'Name',           $wb->getFormat('thc') );
+        $ws->write_string( 0, 1, 'Code reference', $wb->getFormat('thc') );
+        my $col = 1;
+        $ws->write_string( 0, ++$col, $_, $wb->getFormat('thc') )
+          foreach map { local $_ = $_; s#-#\n#gs; $_; } @columns;
 
         my $row = 1;
         foreach (@keys) {
-            my $col = -1;
-            $ws->write( $row, ++$col, $_ ) foreach split(/\t/), @{ $list{$_} };
+            $col = -1;
+            $ws->write( $row, ++$col, $_, $wb->getFormat('th') )
+              foreach split /\t/;
+            $ws->write( $row, ++$col, $_ || '-', $wb->getFormat('0000copy') )
+              foreach @{ $list{$_} };
             ++$row;
         }
         $ws->autofilter( 0, 0, $row - 1, 2 + $#columns );

@@ -12,6 +12,6 @@ useDatabase
 makeModels
 	-rtf
 	-tablemap
-	CDCM/Current/Blank1001.yml
+	other/Blank.yml
 	CDCM/Future/%-after161.yml
 	CDCM/DCP-228/%-clean228.yml

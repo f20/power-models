@@ -1,23 +1,23 @@
 ---
-.: DCP 216 LRIC
+.: EDCM cleaned-up after DCP 161 LRIC
 PerlModule: EDCM2
-conditionalFormatting: 0
+activeSheets: Results
+checksums: Tariff checksum 5; Model checksum 7
 dcp130: 1
+dcp161: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
-gridlines: 1
-layout: matrix
-ldnoRev: ldnorev5
+layout: auto
+ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
-mergedRanges: 1
 method: LRIC
-noLinks: 2
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
-tariff1Row: 100
+transparency: 1
 validation: lenientnomsg
+voltageRulesTransparency: 1
 wantTables: 913

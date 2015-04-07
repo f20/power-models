@@ -32,7 +32,7 @@ Step 3.  Install any missing modules.
 
 Change to the root of the repository and try this sample command:
 
-    perl pmod.pl CDCM/Current/%-after163.yml CDCM/Data-2014-02/SPEN-SPM.yml
+    perl pmod.pl CDCM/Current/%-after179.yml CDCM/Data-2015-02/SPEN-SPM.yml
 
 If this fails, examine the error messages.  Usually the problem is a missing module
 which can be installed from CPAN.  Once you have solved the problem, re-run the test command.
@@ -44,10 +44,10 @@ Step 4.  Start using the code.
 Once everything seems to be working, you can try any of the following sample commands to
 explore some of the functionality of this code:
 
-    perl pmod.pl -xls CDCM/Current/%-after163.yml CDCM/Data-2014-02/WPD-SWest.yml
+    perl pmod.pl -xls CDCM/Current/%-after179.yml CDCM/Data-2015-02/WPD-SWest.yml
     perl pmod.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
     perl pmod.pl EDCM/Current/%-clean189-*.yml EDCM/Data-2014-02/UKPN-EPN.yml
-    perl pmod.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-wfl179.yml CDCM/Current/Blank1001.yml
+    perl pmod.pl -rtf -text -html -perl -yaml -graphviz CDCM/Future/%-wfl161.yml other/Blank.yml
 
 See "How to use.txt" in the "Stata EDCM" folder for information on Stata tools to test EDCM spreadsheets.
 
@@ -65,4 +65,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 6 March 2015.
+Franck Latrémolière, 7 April 2015.
