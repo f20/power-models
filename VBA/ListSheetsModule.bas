@@ -24,6 +24,7 @@
 '
 
 Sub ListWorksheets()
+    On Error GoTo FAIL
     Dim ls As Worksheet
     Worksheets.Add
     Set ls = ActiveSheet
@@ -42,4 +43,7 @@ Sub ListWorksheets()
         ls.Cells(j + 1, 3) = ws.UsedRange.Columns.Count
         End If
     Next j
+    Exit Sub
+FAIL:
+    MsgBox ("Cannot list the worksheets.")
 End Sub

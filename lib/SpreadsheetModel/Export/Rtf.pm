@@ -52,7 +52,9 @@ sub write {
 {\colortbl;\red255\green255\blue255;\red51\green51\blue51;}
 \paperw11900\paperh16840\margl1440\margr1440\margt1800\vieww10800\viewh8400\viewkind0
 EORTFH
-    print $fh '\pard\ri0\sa240\f0\b\fs28\cf2\outlinelevel0\keepn ' . "$name\\\n";
+    local $_ = $name;
+    s#.*/##s;
+    print $fh '\pard\ri0\sa240\f0\b\fs28\cf2\outlinelevel0\keepn ' . "$_\\\n";
     print $fh _rtfCode( '' => $options->{yaml} );
     print $fh _rtfCode(
         Tables => join "\n",

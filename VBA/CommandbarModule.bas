@@ -35,7 +35,7 @@ Sub MakeCommandBar()
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
      .Style = msoButtonCaption
-     .Caption = "List Sheets"
+     .Caption = "Sheet List"
      .OnAction = "ListWorksheets"
     End With
 
