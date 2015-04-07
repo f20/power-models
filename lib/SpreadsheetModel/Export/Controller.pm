@@ -62,9 +62,10 @@ sub ExportText {
         $_[0][WE_LOC] . '-' );
 }
 
-sub ExportTsv {
-    require SpreadsheetModel::Export::Tsv;
-    SpreadsheetModel::Export::Tsv::writeTsv( $_[0][WE_MODEL], $_[0][WE_LOC] );
+sub ExportTablemap {
+    require SpreadsheetModel::Export::TableMap;
+    SpreadsheetModel::Export::TableMap::updateTableMap( $_[0][WE_MODEL],
+        $_[0][WE_LOC] );
 }
 
 sub ExportRtf {

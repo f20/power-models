@@ -39,13 +39,9 @@ sub orderedLayout {
     @finalCalcTableList = [ map { @$_ } @finalCalcTableList ] if $wideLayout;
 
     my ( %calcTables, %dependencies, $addCalcTable );
-    my $serialUplift = 0;
+    my $serial = 0;
     $addCalcTable = sub {
         my ( $ob, $destination ) = @_;
-        my $serialForLayout = $ob->{serial} + $serialUplift;
-        $ob->{serialForLayout} = $serialForLayout
-          if !$ob->{serialForLayout}
-          || $ob->{serialForLayout} > $serialForLayout;
         return
              if !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Dataset' )
           || ref $ob->{location}
@@ -55,10 +51,11 @@ sub orderedLayout {
         undef $dependencies{ 0 + $destination }{ 0 + $ob }
           if $destination;
         $addCalcTable->( $_, $ob ) foreach @{ $ob->{sourceLines} };
+        $ob->{serial} ||= ++$serial;
     };
 
     foreach ( grep { $_ } @finalCalcTableList ) {
-        $serialUplift += 10_000;
+        $serial += 10_000;
         $addCalcTable->($_) foreach @$_;
     }
 
@@ -98,12 +95,9 @@ sub orderedLayout {
         my @columns = ();
         while (
             ( local $_ ) =
-            sort {
-                $hashref->{$a}{serialForLayout}
-                  <=> $hashref->{$b}{serialForLayout}
-            }
+            sort { $hashref->{$a}{serial} <=> $hashref->{$b}{serial} }
             grep {
-                $hashref->{$_}{serialForLayout} < $maxSerial
+                $hashref->{$_}{serial} < $maxSerial
                   and !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
                   keys %{ $getDeepDep->($_) };
             } keys %$hashref
@@ -176,10 +170,8 @@ sub orderedLayout {
         sub {
             my @cols;
             my @result;
-            foreach (
-                ( sort { $a->{serialForLayout} <=> $b->{serialForLayout} } @_ ),
-                { theEnd => 1 }
-              )
+            foreach ( ( sort { $a->{serial} <=> $b->{serial} } @_ ),
+                { theEnd => 1 } )
             {
                 if (    @cols
                     and $_->{theEnd} || $_->{newBlock} && !$wideLayout )
@@ -195,10 +187,10 @@ sub orderedLayout {
 
     push @{ $model->{generalTables} },
       $groupMaker->('Fixed parameters')->(
-        sort { $a->{serialForLayout} <=> $b->{serialForLayout} }
+        sort { $a->{serial} <=> $b->{serial} }
         grep { !$_->{cols} } @constantSingle
       ),
-      sort { $a->{serialForLayout} <=> $b->{serialForLayout} }
+      sort { $a->{serial} <=> $b->{serial} }
       ( @constantOther, grep { $_->{cols} } @constantSingle );
 
     my @ordered;
@@ -206,18 +198,12 @@ sub orderedLayout {
     my $tariffMaker = $groupMaker->('Tariff-specific data');
     for (
         my $maxSerial = 5_000 ;
-        $maxSerial - $serialUplift < 10_000 ;
+        $maxSerial - $serial < 15_000 ;
         $maxSerial += 10_000
       )
     {
-        while (
-            (
-                grep { $_->{serialForLayout} < $maxSerial }
-                values %singlesRemaining
-            )
-            || ( grep { $_->{serialForLayout} < $maxSerial }
-                values %tariffsRemaining )
-          )
+        while (( grep { $_->{serial} < $maxSerial } values %singlesRemaining )
+            || ( grep { $_->{serial} < $maxSerial } values %tariffsRemaining ) )
         {
             push @ordered,
               $tariffMaker->(

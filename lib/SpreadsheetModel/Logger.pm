@@ -64,6 +64,31 @@ sub lastRow {
     $_[0]->{realRows} ? $#{ $_[0]->{realRows} } : $#{ $_[0]->{objects} };
 }
 
+sub loggableObjects {
+    my ($logger) = @_;
+    my %columnsetDone;
+    my @list;
+    foreach my $obj ( grep { defined $_ } @{ $logger->{objects} } ) {
+        my @displayList = $obj;
+        if ( my $cset = $obj->{location} ) {
+            if ( UNIVERSAL::isa( $cset, 'SpreadsheetModel::Columnset' ) ) {
+                @displayList = ()
+                  unless $logger->{showColumns} || $cset->{logColumns}
+                  and grep {
+                    ref $_ ne 'SpreadsheetModel::Stack'
+                      || @{ $_->{sources} } > 1;
+                  } @{ $cset->{columns} };
+                unless ( exists $columnsetDone{$cset} ) {
+                    unshift @displayList, $cset;
+                    undef $columnsetDone{$cset};
+                }
+            }
+        }
+        push @list, @displayList;
+    }
+    @list;
+}
+
 sub wsWrite {
     my ( $logger, $wb, $ws, $row, $col ) = @_;
     ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )

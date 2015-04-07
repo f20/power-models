@@ -149,7 +149,7 @@ sub makeModels {
                   perl|
                   rtf|
                   text|
-                  tsv|
+                  tablemap|
                   yaml
                 )/xis
               )
