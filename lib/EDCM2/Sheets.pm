@@ -226,7 +226,7 @@ sub worksheetsAndClosures {
                   @{ $model->{matrixTables} };
 
                 if ( my $ws = $wbook->{'DNO totals'} ) {
-                    $_->wsWrite( $wbook, $ws ) foreach @{ $model->{tableList} };
+                        $_->wsWrite( $wbook, $ws )  foreach @{ $model->{tableList} };
                 }
 
             },

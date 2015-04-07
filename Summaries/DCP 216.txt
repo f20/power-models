@@ -3,6 +3,5 @@ makeModels
 	-tablemap
 	-autochecksum
 	EDCM/DCP-216/*
-	EDCM/Data-2014-11/Fogo.yml
-	EDCM/Data-2014-11/Lamprey.yml
 	EDCM/Current/%-nov2014lt-*
+	EDCM/Data-2014-11/*.yml

@@ -55,7 +55,7 @@ sub orderedLayout {
     };
 
     foreach ( grep { $_ } @finalCalcTableList ) {
-        $serial += 10_000;
+        $serial += 95_000;
         $addCalcTable->($_) foreach @$_;
     }
 
@@ -113,7 +113,7 @@ sub orderedLayout {
         my $grouper;
         if ( $model->{layout} =~ /matrix/i ) {
             return sub { @_; }
-              unless $prefix eq 'Tariff-specific';
+              unless $prefix =~ /Tariff-specific/i;
             my $matrix = new SpreadsheetModel::MatrixSheet(
                 $model->{tariff1Row}
                 ? (
@@ -196,11 +196,8 @@ sub orderedLayout {
     my @ordered;
     my $singleMaker = $groupMaker->('Aggregate data');
     my $tariffMaker = $groupMaker->('Tariff-specific data');
-    for (
-        my $maxSerial = 5_000 ;
-        $maxSerial - $serial < 15_000 ;
-        $maxSerial += 10_000
-      )
+    $serial += 95_000;
+    for ( my $maxSerial = 50_000 ; $maxSerial < $serial ; $maxSerial += 95_000 )
     {
         while (( grep { $_->{serial} < $maxSerial } values %singlesRemaining )
             || ( grep { $_->{serial} < $maxSerial } values %tariffsRemaining ) )

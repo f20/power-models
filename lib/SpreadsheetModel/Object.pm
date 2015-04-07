@@ -187,7 +187,7 @@ sub addTableNumber {
         $numlet =
           ( $ws->{lastTableNumber} += ( $ws->{tableNumberIncrement} || 1 ) ) +
           100 * $ws->{sheetNumber};
-        warn 'Assignigning table number '
+        warn 'Assigning table number '
           . "$numlet after $wb->{highestAutoTableNumber}"
           if $wb->{highestAutoTableNumber}
           && $numlet < $wb->{highestAutoTableNumber};
