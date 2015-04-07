@@ -1,18 +1,17 @@
 makeModels
 	-sqlite
 	CDCM/Future/%-after161.yml
-	CDCM/DCP-227/%-clean227.yml
+	CDCM/DCP-228/%-clean228.yml
 	CDCM/Data-2015-03/*
 
 useDatabase
 	-base=after161
-	-dcp=clean227
-	-name=DCP 227
+	-dcp=clean228
+	-name=DCP 228
 
 makeModels
 	-rtf
-	-text
-	-tsv
+	-tablemap
 	CDCM/Current/Blank1001.yml
 	CDCM/Future/%-after161.yml
-	CDCM/DCP-227/%-clean227.yml
+	CDCM/DCP-228/%-clean228.yml

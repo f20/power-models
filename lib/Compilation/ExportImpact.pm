@@ -49,8 +49,8 @@ EOL
     $self->genericTariffImpact( $wbmodule, %options );
 }
 
-sub cdcmTariffImpact
-{    # The defaults assume that all the models in the database are the same.
+# The defaults assume that all the models in the current SQLite database share the same structure.
+sub cdcmTariffImpact {
     my ( $self, $wbmodule, %options ) = @_;
     $options{tableNumber} ||= 3701;
     $options{firstColumn} ||= $self->selectall_arrayref(
