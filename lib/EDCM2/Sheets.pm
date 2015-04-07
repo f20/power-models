@@ -149,7 +149,13 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 2,                   $locationColumn - 1, 20 );
             $wsheet->set_column( $locationColumn,     $locationColumn,     50 );
             $wsheet->set_column( $locationColumn + 1, 250,                 20 );
+
             $_->wsWrite( $wbook, $wsheet ) foreach $model->{table935};
+
+            if ( $model->{tariff1Row} ) {
+                $wsheet->set_row( $model->{tariff1Row} - 2, 22 );
+            }
+
         }
 
         ,
@@ -218,17 +224,17 @@ sub worksheetsAndClosures {
                   @{$wbook}{ 'DNO totals', 'Charging rates' };
                 $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
                 $wsheet->set_landscape;
-                $wsheet->set_column( 0, 0,   20 );
+                $wsheet->set_column( 0, 0,   16 );
                 $wsheet->set_column( 1, 1,   50 );
                 $wsheet->set_column( 2, 250, 20 );
+
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'Matrix' ),
                   @{ $model->{matrixTables} };
 
                 if ( my $ws = $wbook->{'DNO totals'} ) {
-                        $_->wsWrite( $wbook, $ws )  foreach @{ $model->{tableList} };
+                    $_->wsWrite( $wbook, $ws ) foreach @{ $model->{tableList} };
                 }
-
             },
           )
 
@@ -311,11 +317,17 @@ sub worksheetsAndClosures {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber} = 45;
             $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
-            $wsheet->set_column( 0, 0,   20 );
+            $wsheet->set_column( 0, 0,   16 );
             $wsheet->set_column( 1, 1,   50 );
             $wsheet->set_column( 2, 250, 20 );
+
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( lines => 'Results' ), @{ $model->{tariffTables} };
+
+            if ( $model->{tariff1Row} ) {
+                $wsheet->set_row( $model->{tariff1Row} - 2, 42 );
+            }
+
         }
 
         ,
