@@ -1,0 +1,15 @@
+makeModels
+	-sqlite
+	-checksums
+	-pickbest
+	-stats
+	ModelM/*/%-*.yml
+	ModelM/Data-2011-01/*
+	ModelM/Data-2011-10/*
+	ModelM/Data-2012-02/*
+	ModelM/Data-2013-02/*
+	ModelM/Data-2014-02/*
+
+useDatabase
+	tscs
+

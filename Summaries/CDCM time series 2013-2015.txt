@@ -7,7 +7,6 @@ makeModels
 	CDCM/*/%-clean132.yml
 	CDCM/*/%-after163*.yml
 	CDCM/*/%-after179*.yml
-	CDCM/Data-2012-02/*
 	CDCM/Data-2013-02/*
 	CDCM/Data-2014-02/*
 	CDCM/Data-2015-02/*
