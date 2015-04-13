@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -37,25 +37,23 @@ require SpreadsheetModel::ColourCodeWriter;
 
 sub sheetPriority {
     my ( $model, $sheet ) = @_;
-    return (
-        (
-            grep { $sheet eq $_ }
-              $model->{frontSheets}
-            ? @{ $model->{frontSheets} }
-            : qw(Index Overview)
-        ) ? ( $sheet =~ /^(?:Overview|Index)$/is ? 2 : 1 ) : 0
-    ) unless $_[0]{compact};
     my $score = {
-        'Index$'        => 80,
-        'Assumptions$'  => 70,
-        'Schedule 15$'  => 60,
-        'Inputs$'       => 55,
-        'Tariffs$'      => 50,
-        'Illustrative$' => 40,
-        'Changes$'      => 30,
-        'Other$'        => 25,
+        'Index$'        => 9,
+        'Assumptions$'  => 7,
+        'Schedule 15$'  => 6,
+        'Tariffs$'      => 5,
+        'Illustrative$' => 4,
+        'Other$'        => 3,
+        'Changes$'      => 2,
     }->{$sheet};
-    $score = 10 if !$score && $sheet =~ /\$$/;
+    $score = 8 if !$score && $sheet =~ /\$$/;
+    $score ||=
+      $sheet =~ /^(?:Overview|Index)$/is ? 2
+      : 1
+      if grep { $sheet eq $_ }
+      $model->{frontSheets}
+      ? @{ $model->{frontSheets} }
+      : qw(Index Overview);
     $score;
 }
 
@@ -79,7 +77,7 @@ sub worksheetsAndClosures {
           && $model->{targetRevenue} !~ /DCP132longlabels/i;
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
-        $wsheet->{nextFree} = 2;
+        $wsheet->{nextFree} ||= 2;
         my ( $sh, $ro, $co ) = (
             $model->{table1000} = Dataset(
                 number        => 1000,
@@ -590,7 +588,7 @@ EOL
 
       'Stats' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 41 if $wbook->{lastSheetNumber} < 41;
+        $wsheet->{sheetNumber} = 42 unless $wbook->{lastSheetNumber} > 41;
         $wsheet->set_landscape;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 1 );
@@ -788,7 +786,7 @@ EOL
 
             <<'EOL',
 
-Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others. 
+Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others. 
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
 Use and distribution of the source code is subject to the conditions stated therein. 
 Any redistribution of this software must retain the following disclaimer:
@@ -827,7 +825,7 @@ sub inputDataNotes {
         lines => <<'EOL'
 Input data
 
-This sheet contains all the input data (except LLFCs which can be entered directly into the Tariff sheet).
+This sheet contains all the input data (except LLFCs which might be entered directly into the Tariff sheet).
 EOL
     );
 }

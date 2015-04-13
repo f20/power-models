@@ -334,7 +334,10 @@ sub wsWrite {
     else {
         my $wsWanted;
         $wsWanted = $wb->{ $self->{location} } if $self->{location};
-        $wsWanted = $wb->{dataSheet} if !$wsWanted && ref $self eq __PACKAGE__;
+        $wsWanted = $wb->{dataSheet}
+          if !$wsWanted
+          && !$self->{ignoreDatasheet}
+          && ref $self eq __PACKAGE__;
         return $self->wsWrite( $wb, $wsWanted, undef, undef, 1 )
           if $wsWanted && $wsWanted != $ws;
     }

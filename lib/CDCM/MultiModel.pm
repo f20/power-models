@@ -110,7 +110,7 @@ UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES 
 EOL
                 <<'EOL',
 
-Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others. 
+Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others. 
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
 Use and distribution of the source code is subject to the conditions stated therein. 
 Any redistribution of this software must retain the following disclaimer:
@@ -128,8 +128,13 @@ EOL
           ? Notes(
             name        => 'Historical models',
             sourceLines => [
-                map { [ $_->{nickName}, undef, @{ $_->{sheetLinks} }, ]; }
-                  @{ $me->{historical} }
+                map {
+                    [
+                        $_->{nickName} || 'Historical model',
+                        undef,
+                        @{ $_->{sheetLinks} },
+                    ];
+                } @{ $me->{historical} }
             ],
           )
           : (), @{ $me->{scenario} } ? Notes(
@@ -137,7 +142,7 @@ EOL
             sourceLines => [
                 map {
                     [
-                        $me->{scenario}[$_]{nickName},
+                        $me->{scenario}[$_]{nickName} || 'Scenario model',
                         $me->{assumptionColumns}[$_],
                         @{ $me->{scenario}[$_]{sheetLinks} },
                     ];
@@ -288,25 +293,6 @@ sub sheetsForFirstModel {
         };
       },
 
-      1 ? () : (
-        'Inputs$' => sub {
-            my ($wsheet) = @_;
-            $wsheet->{sheetNumber}     = 12;
-            $wsheet->{lastTableNumber} = 1;
-            $wsheet->set_column( 0, 255, 50 );
-            $wsheet->set_column( 1, 255, 16 );
-            $wsheet->freeze_panes( 0, 1 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Input data', );
-            push @{ $me->{finishClosures} }, sub {
-                $wbook->{noLinks} = 1;
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach $me->statisticsColumnsets( $wbook, $wsheet,
-                    sub { $_[0] =~ /input/i; } );
-            };
-        }
-      ),
-
       'Illustrative$' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber}     = 12;
@@ -325,24 +311,22 @@ sub sheetsForFirstModel {
         };
       },
 
-      1 ? () : (
-        'Other$' => sub {
-            my ($wsheet) = @_;
-            $wsheet->{sheetNumber}     = 12;
-            $wsheet->{lastTableNumber} = 1;
-            $wsheet->set_column( 0, 255, 50 );
-            $wsheet->set_column( 1, 255, 16 );
-            $wsheet->freeze_panes( 0, 1 );
+      'Other$' => sub {
+        my ($wsheet) = @_;
+        $wsheet->{sheetNumber}     = 12;
+        $wsheet->{lastTableNumber} = 1;
+        $wsheet->set_column( 0, 255, 50 );
+        $wsheet->set_column( 1, 255, 16 );
+        $wsheet->freeze_panes( 0, 1 );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => 'Other statistics', );
+        push @{ $me->{finishClosures} }, sub {
+            $wbook->{noLinks} = 1;
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Other statistics', );
-            push @{ $me->{finishClosures} }, sub {
-                $wbook->{noLinks} = 1;
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach $me->statisticsColumnsets( $wbook, $wsheet,
-                    sub { $_[0] !~ /input|illustrative/i; } );
-            };
-        }
-      ),
+              foreach $me->statisticsColumnsets( $wbook, $wsheet,
+                sub { $_[0] !~ /input|illustrative/i; } );
+        };
+      },
 
       'Changes$' => sub {
         my ($wsheet) = @_;
@@ -443,9 +427,10 @@ sub assumptionsClosure {
               ->wsWrite( $wbook, $wsheet );
             $table1001headerRowForLater = ++$wsheet->{nextFree};
             Columnset(
-                name      => '',
-                noHeaders => 1,
-                columns   => [
+                name            => '',
+                noHeaders       => 1,
+                ignoreDatasheet => 1,
+                columns         => [
                     map { $me->{table1001Overrides}{ 0 + $_->[0] } }
                       @table1001Overridable
                 ],
@@ -457,9 +442,10 @@ sub assumptionsClosure {
         my $headerRowForLater = ++$wsheet->{nextFree};
         ++$wsheet->{nextFree};
         $_->wsWrite( $wbook, $wsheet ) foreach Columnset(
-            name      => '',
-            noHeaders => 1,
-            columns   => $me->{assumptionColumns},
+            name            => '',
+            noHeaders       => 1,
+            ignoreDatasheet => 1,
+            columns         => $me->{assumptionColumns},
         );
         push @{ $me->{finishClosures} }, sub {
             my $thc = $wbook->getFormat('thc');

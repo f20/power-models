@@ -1,2 +1,2 @@
--sqlite -pickbest -stats ModelM/*/%-*.yml ModelM/Data-*/*
+-sqlite -checksums -pickbest -stats ModelM/*/%-*.yml ModelM/Data-*/*
 tscs

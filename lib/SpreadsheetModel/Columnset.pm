@@ -125,14 +125,17 @@ sub wsWrite {
         my $wsWanted;
         $wsWanted = $wb->{ $self->{location} } if $self->{location};
         $wsWanted = $wb->{dataSheet}
-          if !$wsWanted && !grep { ref $_ ne 'SpreadsheetModel::Dataset' }
+          if !$wsWanted
+          && !$self->{ignoreDatasheet}
+          && !grep { ref $_ ne 'SpreadsheetModel::Dataset' }
           @{ $self->{columns} };
         return $self->wsWrite( $wb, $wsWanted, undef, undef, 1 )
           if $wsWanted && $wsWanted != $ws;
     }
 
     if (
-        $wb->{dataSheet}
+           $wb->{dataSheet}
+        && !$self->{ignoreDatasheet}
         && (
             my @dataColumns =
             grep { ref $_ eq 'SpreadsheetModel::Dataset' } @{ $self->{columns} }

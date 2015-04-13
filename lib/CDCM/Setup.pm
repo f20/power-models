@@ -120,8 +120,8 @@ EOL
         elsif ( $model->{inYear} =~ /twice/i ) {
             $daysInBefore = [
                 Dataset(
-                    name =>
-'Number of days in period covered by tables 1097/1098 (if any)',
+                    name => 'Number of days in period covered'
+                      . ' by tables 1097/1098 (if any)',
                     validation => {
                         validate => 'decimal',
                         criteria => 'between',
@@ -132,8 +132,8 @@ EOL
                     defaultFormat => '0hard',
                 ),
                 Dataset(
-                    name =>
-'Number of days in period covered by tables 1095/1096 (if any)',
+                    name => 'Number of days in period covered'
+                      . ' by tables 1095/1096 (if any)',
                     validation => {
                         validate => 'decimal',
                         criteria => 'between',
@@ -158,8 +158,8 @@ EOL
         }
         else {
             $daysInBefore = Dataset(
-                name =>
-'Number of days in the charging year before the tariff change (if any)',
+                name => 'Number of days in the charging year'
+                  . ' before the tariff change (if any)',
                 validation => {
                     validate => 'decimal',
                     criteria => 'between',
