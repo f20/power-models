@@ -425,6 +425,7 @@ EOL
     my $useProportionsCooked = sub {
         Arithmetic(
             name       => 'Network use factors (second set)',
+            groupName  => 'Second set of network use factors',
             arithmetic => '=MAX(IV3+0,MIN(IV1+0,IV2+0))',
             arguments  => {
                 IV1 => $useProportions,
@@ -589,6 +590,7 @@ EOL
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
                 arithmetic => qq@=IF(IV1=1000,IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+                newBlock   => 1,
                 arguments  => {
                     IV1 => $tariffCategory,
                     IV4 => $accretion,
