@@ -46,12 +46,11 @@ sub makeStatisticsAssumptions {
       && $model->{summary} =~ /([0-9]{3,4})/
       && $model->{dataset}
       && $model->{dataset}{$1};
-    $colspec = $model->table1202->{
+    $colspec = $model->table1202(
         $model->{statistics} && $model->{statistics} =~ /simple/
         ? '1202simple'
         : '1202'
-      }
-      if !$colspec && require CDCM::StatisticsDefaults;
+    ) if !$colspec && require CDCM::StatisticsDefaults;
 
     my @rows =
       sort { $colspec->[1]{$a} <=> $colspec->[1]{$b} }

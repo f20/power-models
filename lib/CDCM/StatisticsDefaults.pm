@@ -37,7 +37,7 @@ binmode DATA, ':utf8';
 my @table1202 = Load <DATA>;
 
 sub table1202 {
-    $table1202[0];
+    $table1202[0]{ $_[1] };
 }
 
 1;
@@ -282,25 +282,33 @@ __DATA__
   - _table: 1202. Consumption assumptions for illustrative customers
   - Domestic low use: 1700
     Domestic standard: 1720
+    Domestic high use: 1740
     _column: Order
-  - Domestic low use: '(?:^|: )Domestic U'
-    Domestic standard: '(?:^|: )Domestic U'
+  - Domestic low use: '^(?:LV Network Domestic|Domestic [UT])'
+    Domestic standard: '^(?:LV Network Domestic|Domestic [UT])'
+    Domestic high use: '^(?:LV Network Domestic|Domestic [UT])'
     _column: Tariff selection
   - Domestic low use: 35
     Domestic standard: 35
+    Domestic high use: 35
     _column: Peak-time hours/week
   - Domestic low use: 49
     Domestic standard: 49
+    Domestic high use: 49
     _column: Off-peak hours/week
   - Domestic low use: 0.4
     Domestic standard: 0.8
+    Domestic high use: 1.313
     _column: Peak-time load (kW)
   - Domestic low use: 0.125
     Domestic standard: 0.25
+    Domestic high use: 0.75
     _column: Off-peak load (kW)
-  - Domestic low use: 0.194206621004566
-    Domestic standard: 0.388413242009132
+  - Domestic low use: 0.194206621
+    Domestic standard: 0.388413242
+    Domestic high use: 0.75
     _column: Load at other times (kW)
   - Domestic low use: 6
     Domestic standard: 9
+    Domestic high use: 12
     _column: Capacity (kVA)
