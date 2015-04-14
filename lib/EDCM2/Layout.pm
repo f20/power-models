@@ -55,7 +55,7 @@ sub orderedLayout {
     };
 
     foreach ( grep { $_ } @finalCalcTableList ) {
-        warn $serialUplift += 95_000;
+        $serialUplift += 95_000;
         $addCalcTable->($_) foreach @$_;
     }
 

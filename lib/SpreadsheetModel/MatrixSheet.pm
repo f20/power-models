@@ -300,12 +300,30 @@ sub wsWrite {
             }
         }
 
-        if ( my $co = $column->{cols} ) {
+        my $co = $column->{cols};
+        if ( $co and $#{ $co->{list} } || -1 == index lc $column->{name},
+            lc _shortNameCol( $co->{list}[0] ) )
+        {
+            if ( $#{ $co->{list} } && $wb->{mergedRanges} ) {
+                my @decorations =
+                  $c4 + $#{ $co->{list} } == $col + $ncol - 1 ? 'tlttr' : ();
+                $ws->merge_range(
+                    $dataRow - 2,
+                    $c4,
+                    $dataRow - 2,
+                    $c4 + $#{ $co->{list} },
+                    "$column->{name}",
+                    $wb->getFormat( 'thca', @decorations )
+                );
+            }
             foreach ( 0 .. $#{ $co->{list} } ) {
                 my @decorations = $c4 + $_ == $col + $ncol - 1 ? 'tlttr' : ();
-                my $format = $wb->getFormat( 'thca', @decorations );
-                $ws->write( $dataRow - 2,
-                    $c4 + $_, $_ ? undef : "$column->{name}", $format );
+                $ws->write(
+                    $dataRow - 2,
+                    $c4 + $_,
+                    $_ ? undef : "$column->{name}",
+                    $wb->getFormat( 'thca', @decorations )
+                ) unless $#{ $co->{list} } && $wb->{mergedRanges};
                 $ws->write(
                     $dataRow - 1,
                     $c4 + $_,

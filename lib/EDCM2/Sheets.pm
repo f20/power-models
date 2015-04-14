@@ -43,7 +43,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 11;
         $wbook->{lastSheetNumber} =
-          $model->{layout} && $model->{layout} =~ /matrix/ ? 19 : 40;
+          $model->{layout} && $model->{layout} =~ /matrix/ ? 18 : 40;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
