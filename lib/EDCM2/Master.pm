@@ -1817,6 +1817,7 @@ EOT
             [ $rateOther, ],
             [ $demandScalingShortfall, ],
             [ $assetsCapacityCooked, ],
+            [ $assetsConsumptionCooked, ],
             [
                 @{ $tariffColumns[1]{sourceLines} },
                 @{ $tariffColumns[3]{sourceLines} },
