@@ -3,11 +3,11 @@ github.com/f20/power-models
 Help for Stata EDCM code
 ========================
 
-This file contains information on how to use the Stata do files included in the
-"Stata EDCM" folder of the github.com/f20/power-models code repository.
+This file contains information on how to use the Stata do files included in the "Stata EDCM"
+folder of the github.com/f20/power-models code repository.
 
-Using these files requires Stata (www.stata.com), a commercial software package for statistical
-analysis.
+These files are designed to be used with Stata, a commercial software package for statistical
+analysis (www.stata.com).
 
 This software is licensed under open source licences. Check the source code for details.
 
@@ -22,7 +22,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -- 
 
-Part A.  Creating random data to test EDCM models
+Part A.  Creating random data in .dta format to test EDCM models
 ------- 
 
 To create a set of random data for EDCM testing purposes using Stata:
@@ -43,23 +43,25 @@ This will create a new folder containing a set of .dta files with the random dat
 
 -- 
 
-Part B.  Using random data to create EDCM models
+Part B.  Using .dta data to create EDCM models
 ------- 
 
-To create EDCM models populated by the random data from Part A, using Perl:
+To create EDCM models populated by the random data from Part A, using a shell interpreter such
+as sh, bash, or cmd.exe, and Perl 5:
 
-Step B1.  Using a shell interpreter such as sh, bash, or cmd.exe, set the current directory to
-the folder containing the .dta files generated in Part A.
+Step B1.  Set the current directory to the folder containing the .dta files generated in Step A4.
 
 Step B2.  Determine the path to the pmod.pl file on your system.  The pmod.pl file is in the
-root folder of the repository.  The code below assumes that pmod.pl is at
+root folder of the power-models repository.  The code below assumes that pmod.pl is at
 /Users/example/Documents/power-models/pmod.pl, amend the commands as necessary.
 
 Step B3.  Give the following command to the shell interpreter:
 
-    perl /Users/example/Documents/power-models/pmod.pl *.dta EDCM/Current/%-beta-*.yml
+    perl /Users/example/Documents/power-models/pmod.pl *.dta EDCM/Current/%-clean*.yml
 
-This will generate a set of Microsoft Excel EDCM models (usually in a new subfolder called ~$models).
+This will generate for each company, a YML file containing the input data extracted from the
+.dta files, and a Microsoft Excel workbook.  The Microsoft Excel workbooks are saved in a new
+subfolder called "~$models".
 
 -- 
 

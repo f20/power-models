@@ -293,6 +293,7 @@ erase Rand`Vers'/t911root.dta
 erase Rand`Vers'/t913root.dta
 erase Rand`Vers'/Shell935FCP.dta
 erase Rand`Vers'/Shell935LRIC.dta
+clear
 
 }    
 

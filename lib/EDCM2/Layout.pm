@@ -39,7 +39,7 @@ sub orderedLayout {
     @finalCalcTableList = [ map { @$_ } @finalCalcTableList ] if $wideLayout;
 
     my ( %calcTables, %dependencies, $addCalcTable );
-    my $serial = 0;
+    my $serialUplift = 0;
     $addCalcTable = sub {
         my ( $ob, $destination ) = @_;
         return
@@ -51,11 +51,11 @@ sub orderedLayout {
         undef $dependencies{ 0 + $destination }{ 0 + $ob }
           if $destination;
         $addCalcTable->( $_, $ob ) foreach @{ $ob->{sourceLines} };
-        $ob->{serial} ||= ++$serial;
+        $ob->{serialUplifted} ||= $serialUplift + $ob->{serial};
     };
 
     foreach ( grep { $_ } @finalCalcTableList ) {
-        $serial += 95_000;
+        warn $serialUplift += 95_000;
         $addCalcTable->($_) foreach @$_;
     }
 
@@ -95,9 +95,12 @@ sub orderedLayout {
         my @columns = ();
         while (
             ( local $_ ) =
-            sort { $hashref->{$a}{serial} <=> $hashref->{$b}{serial} }
+            sort {
+                $hashref->{$a}{serialUplifted}
+                  <=> $hashref->{$b}{serialUplifted}
+            }
             grep {
-                $hashref->{$_}{serial} < $maxSerial
+                $hashref->{$_}{serialUplifted} < $maxSerial
                   and !grep { $singlesRemaining{$_} || $tariffsRemaining{$_} }
                   keys %{ $getDeepDep->($_) };
             } keys %$hashref
@@ -170,7 +173,8 @@ sub orderedLayout {
         sub {
             my @cols;
             my @result;
-            foreach ( ( sort { $a->{serial} <=> $b->{serial} } @_ ),
+            foreach (
+                ( sort { $a->{serialUplifted} <=> $b->{serialUplifted} } @_ ),
                 { theEnd => 1 } )
             {
                 if (    @cols
@@ -187,20 +191,30 @@ sub orderedLayout {
 
     push @{ $model->{generalTables} },
       $groupMaker->('Fixed parameters')->(
-        sort { $a->{serial} <=> $b->{serial} }
+        sort { $a->{serialUplifted} <=> $b->{serialUplifted} }
         grep { !$_->{cols} } @constantSingle
       ),
-      sort { $a->{serial} <=> $b->{serial} }
+      sort { $a->{serialUplifted} <=> $b->{serialUplifted} }
       ( @constantOther, grep { $_->{cols} } @constantSingle );
 
     my @ordered;
     my $singleMaker = $groupMaker->('Aggregate data');
     my $tariffMaker = $groupMaker->('Tariff-specific data');
-    $serial += 95_000;
-    for ( my $maxSerial = 50_000 ; $maxSerial < $serial ; $maxSerial += 95_000 )
+    $serialUplift += 95_000;
+    for (
+        my $maxSerial = 50_000 ;
+        $maxSerial < $serialUplift ;
+        $maxSerial += 95_000
+      )
     {
-        while (( grep { $_->{serial} < $maxSerial } values %singlesRemaining )
-            || ( grep { $_->{serial} < $maxSerial } values %tariffsRemaining ) )
+        while (
+            (
+                grep { $_->{serialUplifted} < $maxSerial }
+                values %singlesRemaining
+            )
+            || ( grep { $_->{serialUplifted} < $maxSerial }
+                values %tariffsRemaining )
+          )
         {
             push @ordered,
               $tariffMaker->(
