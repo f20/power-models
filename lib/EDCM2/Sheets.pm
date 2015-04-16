@@ -257,8 +257,8 @@ sub worksheetsAndClosures {
         : (
             'Calc1' => sub {
                 my ($wsheet) = @_;
-                $wsheet->{lastTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{firstTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
                 $wsheet->{tableNumberIncrement} = 2;
                 $wsheet->freeze_panes( 1, 1 );
                 $wsheet->set_column( 0, 250, 20 );
@@ -271,8 +271,8 @@ sub worksheetsAndClosures {
 
             'Calc2' => sub {
                 my ($wsheet) = @_;
-                $wsheet->{lastTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{firstTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
                 $wsheet->{tableNumberIncrement} = 2;
                 $wsheet->freeze_panes( 1, 1 );
                 $wsheet->set_column( 0, 250, 20 );
@@ -285,8 +285,8 @@ sub worksheetsAndClosures {
 
             'Calc3' => sub {
                 my ($wsheet) = @_;
-                $wsheet->{lastTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{firstTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
                 $wsheet->{tableNumberIncrement} = 2;
                 $wsheet->freeze_panes( 1, 1 );
                 $wsheet->set_column( 0, 250, 20 );
@@ -299,8 +299,8 @@ sub worksheetsAndClosures {
 
             'Calc4' => sub {
                 my ($wsheet) = @_;
-                $wsheet->{lastTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 0 : -1;
+                $wsheet->{firstTableNumber} =
+                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
                 $wsheet->{tableNumberIncrement} = 2;
                 $wsheet->freeze_panes( 1, 1 );
                 $wsheet->set_column( 0, 250, 20 );
