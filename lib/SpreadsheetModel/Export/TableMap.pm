@@ -61,7 +61,14 @@ sub updateTableMap {
         $name =~ tr/\t/ /;
         my $ref = $obj->{debug};
         $ref =~ s#.*/lib/##s;
-        $list{ join "\t", $name, $ref }[$#columns] = $number;
+        foreach ( "$name\t", "$name\t$ref" ) {
+            if ( exists $list{$_}[$#columns] ) {
+                $list{$_}[$#columns] .= ' & ' . $number;
+            }
+            else {
+                $list{$_}[$#columns] = $number;
+            }
+        }
     }
     my %sort;
     while ( my ( $k, $v ) = each %list ) {
@@ -81,28 +88,39 @@ sub updateTableMap {
     if ( eval "require $wbmodule" ) {
         my $wb = $wbmodule->new( 'Table map' . $wbmodule->fileExtension );
         $wb->setFormats();
-        my $ws = $wb->add_worksheet('Table mapping');
-        $ws->set_column( 0, 0,   92 );
-        $ws->set_column( 1, 1,   38 );
-        $ws->set_column( 2, 254, 11 );
-        $ws->hide_gridlines(2);
-        $ws->freeze_panes( 1, 2 );
-        $ws->write_string( 0, 0, 'Name',           $wb->getFormat('thc') );
-        $ws->write_string( 0, 1, 'Code reference', $wb->getFormat('thc') );
-        my $col = 1;
-        $ws->write_string( 0, ++$col, $_, $wb->getFormat('thc') )
-          foreach map { local $_ = $_; s#-#\n#gs; $_; } @columns;
+        foreach my $sheet ( 0, 1 ) {
+            my $ws =
+              $wb->add_worksheet(
+                $sheet ? 'By name and code reference' : 'By name' );
+            $ws->set_column( 0, 0, 92 );
+            $ws->set_column( 1, 1, 38 ) if $sheet;
+            $ws->set_column( $sheet ? 2 : 1, 254, 11 );
+            $ws->hide_gridlines(2);
+            $ws->freeze_panes( 1, $sheet ? 2 : 1 );
+            $ws->write_string( 0, 0, 'Name',           $wb->getFormat('thc') );
+            $ws->write_string( 0, 1, 'Code reference', $wb->getFormat('thc') )
+              if $sheet;
+            my $col = $sheet ? 1 : 0;
+            $ws->write_string( 0, ++$col, $_, $wb->getFormat('thc') )
+              foreach map { local $_ = $_; s#-#\n#gs; $_; } @columns;
 
-        my $row = 1;
-        foreach (@keys) {
-            $col = -1;
-            $ws->write( $row, ++$col, $_, $wb->getFormat('th') )
-              foreach split /\t/;
-            $ws->write( $row, ++$col, $_ || '-', $wb->getFormat('0000copy') )
-              foreach @{ $list{$_} };
-            ++$row;
+            my $row = 1;
+            foreach (
+                $sheet
+                ? ( grep { !/\t$/s } @keys )
+                : ( grep { /\t$/s } @keys )
+              )
+            {
+                $col = -1;
+                $ws->write( $row, ++$col, $_, $wb->getFormat('th') )
+                  foreach split /\t/;
+                $ws->write( $row, ++$col, $_ || '-',
+                    $wb->getFormat('0000copy') )
+                  foreach @{ $list{$_} };
+                ++$row;
+            }
+            $ws->autofilter( 0, 0, $row - 1, 2 + $#columns );
         }
-        $ws->autofilter( 0, 0, $row - 1, 2 + $#columns );
     }
     flock $fh, LOCK_UN;
 }
