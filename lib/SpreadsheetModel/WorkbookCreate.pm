@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use SpreadsheetModel::Logger;
+use SpreadsheetModel::WorkbookFormats;    # loaded here for validation
 use File::Spec::Functions qw(catfile);
 
 sub bgCreate {

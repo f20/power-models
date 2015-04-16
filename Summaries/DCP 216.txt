@@ -1,6 +1,11 @@
 makeModels
 	-rtf
 	-tablemap
+	EDCM/DCP-216/*
+	EDCM/Current/%-nov2014lt-*
+	EDCM/Toys-2014/TestPower*
+
+makeModels
 	-autochecksum
 	EDCM/DCP-216/*
 	EDCM/Current/%-nov2014lt-*
