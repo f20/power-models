@@ -8,5 +8,4 @@ makeModels
 makeModels
 	-autochecksum
 	EDCM/DCP-216/*
-	EDCM/Current/%-nov2014lt-*
-	EDCM/Data-2014-11/*.yml
+	EDCM/Data-2015-04/*.yml
