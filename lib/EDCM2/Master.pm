@@ -604,7 +604,6 @@ EOT
 
     $reactiveCoincidence935 = Arithmetic(
         name       => 'Unadjusted but capped red kVAr/agreed kVA',
-        groupName  => 'Sundries',
         arithmetic => '=MAX(MIN(SQRT(1-MIN(1,IV2)^2),'
           . ( $model->{legacy201} ? '' : '0+' )
           . 'IV1),0-SQRT(1-MIN(1,IV3)^2))',

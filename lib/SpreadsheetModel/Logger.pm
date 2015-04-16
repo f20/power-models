@@ -99,7 +99,6 @@ sub wsWrite {
     my $numFormat1 = $wb->getFormat('0.000soft');
     my $textFormat = $wb->getFormat('text');
     my $linkFormat = $wb->getFormat('link');
-    my $boldFormat;
 
     if ( $logger->{lines} ) {
         $ws->write( $row++, $col, "$_", $textFormat )
@@ -144,30 +143,41 @@ sub wsWrite {
         }
 
         foreach (@displayList) {
-
-            my $ty = $_->objectType;
-            $ty .= ' (not used further)'
-              if $logger->{showFinalTables}
-              && !$_->{forwardLinks}
-              && !UNIVERSAL::isa( $_->{location},
-                'SpreadsheetModel::Columnset' );
             my $ce = xl_rowcol_to_cell( $ro - 1, $co );
             my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
             $wn =~ s/\000//g;    # squash strange rare bug
             my $na = "$_->{name}";
             0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
             $logger->{realRows}[$r] = $na;
-            $ws->write_url(
-                $row + $r,
-                $col + 1,
-                "internal:'$wn'!$ce",
-                $na,
-                $_->{logColumns}
-                ? ( $boldFormat ||= $wb->getFormat( 'link', 'bold' ) )
-                : $linkFormat
-            );
-            $ws->write_string( $row + $r, $col + 2, $ty, $textFormat );
-            $ws->write_string( $row + $r, $col,     $wn, $textFormat );
+
+            if ( $_->{logColumns} ) {
+                $ws->write_string( $row + $r, $col + 1, $na, $textFormat );
+                $ws->write_string( $row + $r, $col + 2, '(not used further)',
+                    $textFormat )
+                  if $logger->{showFinalTables}
+                  && !$_->{forwardLinks}
+                  && !UNIVERSAL::isa( $_->{location},
+                    'SpreadsheetModel::Columnset' );
+            }
+            else {
+                $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
+                    $linkFormat );
+                $ws->write_string(
+                    $row + $r,
+                    $col + 2,
+                    $_->objectType
+                      . (
+                        $logger->{showFinalTables}
+                          && !$_->{forwardLinks}
+                          && !UNIVERSAL::isa( $_->{location},
+                            'SpreadsheetModel::Columnset' )
+                        ? ' (not used further)'
+                        : ''
+                      ),
+                    $textFormat
+                );
+            }
+            $ws->write_string( $row + $r, $col, $wn, $textFormat );
 
             if (   $logger->{showDetails}
                 && $_->isa('SpreadsheetModel::Dataset') )

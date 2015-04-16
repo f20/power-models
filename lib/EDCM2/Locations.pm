@@ -198,9 +198,8 @@ sub charge1 {
                 }
               )
               : Arithmetic(
-                name      => 'Maximum demand run kVA at ' . $_->{name},
-                groupName => 'Maximum demand',
-                $_ == $locMatchA ? ( newBlock => 1 ) : (),
+                name          => 'Maximum demand run kVA at ' . $_->{name},
+                groupName     => 'Maximum demand',
                 defaultFormat => '0soft',
                 arithmetic    => '=IF(ISNUMBER(IV1),SQRT('
                   . 'INDEX(IV53_IV54,IV52)^2+INDEX(IV63_IV64,IV62)^2),0)',
@@ -435,7 +434,6 @@ sub charge1 {
         my $kVA = Arithmetic(
             name          => 'Parent group maximum demand (kVA)',
             defaultFormat => '0soft',
-            newBlock      => 1,
             arithmetic    => '=IF(ISNUMBER(IV1),'
               . 'SQRT((INDEX(IV53_IV54,IV52)+INDEX(IV73_IV74,IV72))^2+'
               . '(INDEX(IV63_IV64,IV62)+INDEX(IV83_IV84,IV82))^2)' . ',0)',
@@ -527,6 +525,7 @@ sub charge1 {
 
     my $pfc1 = Arithmetic(
         name       => 'Grandparent group power factor, maximum demand (kW/kVA)',
+        groupName  => 'Network flows',
         arithmetic => '=SQRT(1-IV1^2)',
         arguments  => { IV1 => $rfc1 }
     );

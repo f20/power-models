@@ -1454,7 +1454,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
 
         $assetsCapacity = Arithmetic(
             name       => 'Total notional capacity assets (£/kVA)',
-            groupName  => 'First set of notional assets',
+            groupName  => 'First set of notional capacity assets',
             cols       => 0,
             arithmetic => '='
               . join( '+', map { "IV$_" } 1 .. @assetsCapacity ),
@@ -1478,7 +1478,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
 
         $assetsConsumption = Arithmetic(
             name       => 'Total notional consumption assets (£/kVA)',
-            groupName  => 'First set of notional assets',
+            groupName  => 'First set of notional consumption assets',
             cols       => 0,
             arithmetic => '='
               . join( '+', map { "IV$_" } 1 .. @assetsConsumption ),
