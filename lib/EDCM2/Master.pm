@@ -1808,7 +1808,8 @@ EOT
             ],
             [ $generationSoleUseAsset, $demandSoleUseAsset, ],
             [ $accretion, ],
-            [ $assetsCapacity, $assetsConsumption, ],
+            [ $assetsCapacity, ],
+            [ $assetsConsumption, ],
             [ $rateDirect, $rateIndirect, $rateRates, ],
             [
                 @{ $tariffColumns[6]{sourceLines} },

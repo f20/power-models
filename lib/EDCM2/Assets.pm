@@ -522,12 +522,12 @@ EOL
         $assetsCapacity = $machine->(
             'Capacity assets (£/kVA)',
             'Adjusted network use by capacity',
-            $useProportions, $capUseRate, $diversity,
+            $useProportions, $capUseRate, $diversity, newBlock => 1,
         );
         $assetsConsumption = $machine->(
             'Consumption assets (£/kVA)',
             'Adjusted network use by consumption',
-            $useProportions, $redUseRate, undef, newBlock => 1,
+            $useProportions, $redUseRate,    # undef, newBlock => 1,
         );
 
         $useProportionsCooked = $useProportionsCooked->();
@@ -537,14 +537,13 @@ EOL
             $useProportionsCooked,
             $capUseRate,
             $diversity,
+            newBlock => 1,
         );
         $assetsConsumptionCooked = $machine->(
             'Second set of consumption assets (£/kVA)',
             'Second set of adjusted network use by consumption',
             $useProportionsCooked,
-            $redUseRate,
-            undef,
-            newBlock => 1,
+            $redUseRate,    # undef, newBlock => 1,
         );
 
     }

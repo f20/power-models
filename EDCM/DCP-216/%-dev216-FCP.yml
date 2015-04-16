@@ -6,6 +6,7 @@ dcp130: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
+forwardLinks: 1
 layout: auto
 lowerIntermittentCredit: 1
 method: FCP

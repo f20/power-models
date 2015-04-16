@@ -733,16 +733,17 @@ Keys used in %$options:
     $workbook->{formatspec} = \%specs;
 
     $workbook->{decospec} = {
-        tlttr => [
-            right       => 5,
-            right_color => 8,
-        ],
+        bold   => [ bold => 1, ],
         wrapca => [
             text_wrap     => 1,
             center_across => 1,
             $options->{gridlines}
             ? ( right => 7, bottom => 1, )
             : ( left => 1, right => 1, ),
+        ],
+        tlttr => [
+            right       => 5,
+            right_color => 8,
         ],
         blue => [
             color => $orangeColours ? BGORANGE : BGPURPLE,

@@ -195,7 +195,7 @@ sub create {
           if $options->{showDimensions};
         $options->{logger} = new SpreadsheetModel::Logger(
             name            => 'List of data tables',
-            finalTablesBold => $model->{forwardLinks},
+            showFinalTables => $model->{forwardLinks},
             showDetails     => $model->{debug},
         );
 

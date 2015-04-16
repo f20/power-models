@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -43,7 +43,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 11;
         $wbook->{lastSheetNumber} =
-          $model->{layout} && $model->{layout} =~ /matrix/ ? 18 : 40;
+          $model->{layout} && $model->{layout} =~ /matrix/ ? 19 : 40;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
@@ -654,7 +654,7 @@ sub licenceNotes {
     Notes(
         name  => '',
         lines => <<'EOL',
-Copyright 2009-2012 Energy Networks Association Limited and others.  Copyright 2013-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2009-2012 Energy Networks Association Limited and others.  Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
 Use and distribution of the source code is subject to the conditions stated therein. 
 Any redistribution of this software must retain the following disclaimer:
