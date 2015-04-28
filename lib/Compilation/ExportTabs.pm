@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2012 Reckon LLP and others.
+Copyright 2009-2015 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -69,7 +69,7 @@ sub tableCompilations {
     }
 
     warn "$numCo datasets for $optionName ($fileSearch $tabSearch)";
-    $spacing = $numCo + 3;
+    $spacing = $numCo + 4;
     my ($leadBid) = $self->selectrow_array('select bid from models limit 1');
     my $tabList =
       $self->prepare('select tab from data where bid=? group by tab');
@@ -148,17 +148,17 @@ sub tableCompilations {
                 $co =~ tr/-/ /;
                 1
                   and
-                  _preventOverwriting( $wsc, 3 + $spacing * ( $_ - 1 ) + $cid,
+                  _preventOverwriting( $wsc, 4 + $spacing * ( $_ - 1 ) + $cid,
                     0 )
                   foreach @valueCols, @textCols;
-                $wsc->write_string( 3 + $spacing * ( $_ - 1 ) + $cid,
+                $wsc->write_string( 4 + $spacing * ( $_ - 1 ) + $cid,
                     0, $co, $thFormat )
                   foreach @valueCols, @textCols;
                 1
                   and _preventOverwriting $wsr,
-                  3 + $spacing * ( $_ - 1 ) + $cid, 0
+                  4 + $spacing * ( $_ - 1 ) + $cid, 0
                   foreach @valueRows, @textRows;
-                $wsr->write_string( 3 + $spacing * ( $_ - 1 ) + $cid,
+                $wsr->write_string( 4 + $spacing * ( $_ - 1 ) + $cid,
                     0, $co, $thFormat )
                   foreach @valueRows, @textRows;
             }
@@ -179,9 +179,9 @@ sub tableCompilations {
                   0;
                 $wsc->write_string( 2 + $col * $spacing - $spacing,
                     0, $b, $captionFormat );
-                1 and _preventOverwriting $wsr, 3 + $spacing * ( $_ - 1 ), $col
+                1 and _preventOverwriting $wsr, 4 + $spacing * ( $_ - 1 ), $col
                   foreach @valueRows, @textRows;
-                $wsr->write_string( 3 + $spacing * ( $_ - 1 ),
+                $wsr->write_string( 4 + $spacing * ( $_ - 1 ),
                     $col, $b, $thcFormat )
                   foreach @valueRows, @textRows;
             }
@@ -198,11 +198,11 @@ sub tableCompilations {
             $q->execute;
             while ( my ( $row, $b ) = $q->fetchrow_array ) {
                 1
-                  and _preventOverwriting $wsc, 3 + $spacing * ( $_ - 1 ),
+                  and _preventOverwriting $wsc, 4 + $spacing * ( $_ - 1 ),
                   $row - $topRow
                   foreach @valueCols, @textCols;
                 $wsc->write_string(
-                    3 + $spacing * ( $_ - 1 ),
+                    4 + $spacing * ( $_ - 1 ),
                     $row - $topRow,
                     $b, $thcFormat
                 ) foreach @valueCols, @textCols;
@@ -237,9 +237,9 @@ sub tableCompilations {
             while ( my ( $cid, $row, $v ) = $q->fetchrow_array ) {
                 1
                   and _preventOverwriting $wsc,
-                  3 + $spacing * $col - $spacing + $cid, $row - $topRow;
+                  4 + $spacing * $col - $spacing + $cid, $row - $topRow;
                 $wsc->write(
-                    3 + $spacing * $col - $spacing + $cid,
+                    4 + $spacing * $col - $spacing + $cid,
                     $row - $topRow,
                     $v, $format[$col]
                 );
@@ -257,8 +257,8 @@ sub tableCompilations {
             while ( my ( $cid, $col, $v ) = $q->fetchrow_array ) {
                 1
                   and _preventOverwriting $wsr,
-                  3 + $spacing * ( $row - 1 ) + $cid, $col;
-                $wsr->write( 3 + $spacing * ( $row - 1 ) + $cid,
+                  4 + $spacing * ( $row - 1 ) + $cid, $col;
+                $wsr->write( 4 + $spacing * ( $row - 1 ) + $cid,
                     $col, $v, $format[$col] );
             }
         }
@@ -276,9 +276,9 @@ sub tableCompilations {
             while ( my ( $cid, $row, $v ) = $q->fetchrow_array ) {
                 1
                   and _preventOverwriting $wsc,
-                  3 + $spacing * ( $col - 1 ) + $cid, $row - $topRow;
+                  4 + $spacing * ( $col - 1 ) + $cid, $row - $topRow;
                 $wsc->write_string(
-                    3 + $spacing * ( $col - 1 ) + $cid,
+                    4 + $spacing * ( $col - 1 ) + $cid,
                     $row - $topRow,
                     $v, $bigNumberFormat
                 );
@@ -296,8 +296,8 @@ sub tableCompilations {
             while ( my ( $cid, $col, $v ) = $q->fetchrow_array ) {
                 1
                   and _preventOverwriting $wsr,
-                  3 + $spacing * ( $row - 1 ) + $cid, $col;
-                $wsr->write_string( 3 + $spacing * ( $row - 1 ) + $cid,
+                  4 + $spacing * ( $row - 1 ) + $cid, $col;
+                $wsr->write_string( 4 + $spacing * ( $row - 1 ) + $cid,
                     $col, $v, $bigNumberFormat );
             }
         }
