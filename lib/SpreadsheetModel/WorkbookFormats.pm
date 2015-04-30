@@ -170,10 +170,14 @@ Keys used in %$options:
     my $rightpad;
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
-    my @alignText = $options->{alignText}
-      && $options->{alignText} =~ /general/i ? () : ( align => 'left' );
 
-    my $numText = $backgroundColour ? '[Black]0;[Red]-0;;[Black]@' : '@';
+    my @alignText = ( align => 'left' );
+    my $numText = $backgroundColour ? '[Blue]0;[Red]-0;;[Black]@' : '@';
+    if ( $options->{alignText} && $options->{alignText} =~ /general/i ) {
+        @alignText = ();
+        $numText = $backgroundColour ? '[Black]0;[Red]-0;;[Black]@' : '@';
+    }
+
     my @numPercent =
       $rightpad
       ? (
