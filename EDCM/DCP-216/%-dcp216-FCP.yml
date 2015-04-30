@@ -7,8 +7,9 @@ dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
 gridlines: 1
+alignText: general
 layout: matrix
-ldnoRev: ldnorev5
+ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
 mergedRanges: 1
 method: FCP

@@ -162,14 +162,16 @@ Keys used in %$options:
         $workbook->set_custom_color( SILVER,   '#e9e9e9' );
     }
 
-# ?,??0 style formats do not work with OpenOffice.org.  Use the "align: right[0-9]*"
-# option, where the number is the number of extra _) to pad on the right.
+# ?,??0 style formats do not work with OpenOffice.org.
+# Use "alignment: right[0-9]*" where the number is the amount of padding on the right.
     my $q3 = $options->{alignment} ? ',' : '??,???,';
     my $cyan = $backgroundColour && !$options->{noCyanText} ? '[Cyan]' : '';
     my $black = $backgroundColour ? '[Black]' : '';
     my $rightpad;
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
+    my @alignText = $options->{alignText}
+      && $options->{alignText} =~ /general/i ? () : ( align => 'left' );
 
     my $numText = $backgroundColour ? '[Black]0;[Red]-0;;[Black]@' : '@';
     my @numPercent =
@@ -538,8 +540,8 @@ Keys used in %$options:
             locked => 1,
             @sizeText,
             num_format => $numText,
-            align      => 'left',
-            text_wrap  => 1,
+            @alignText,
+            text_wrap => 1,
             @sizeExtras,
             @colourCon,
         ],
@@ -547,8 +549,7 @@ Keys used in %$options:
             locked => 1,
             @sizeText,
             num_format => $numText,
-            align      => 'left',
-            @sizeExtras,
+            @alignText, @sizeExtras,
             text_wrap => 1,
             @colourCopy,
         ],
@@ -565,8 +566,7 @@ Keys used in %$options:
             locked => 0,
             @sizeText,
             num_format => $numText,
-            align      => 'left',
-            @sizeExtras,
+            @alignText, @sizeExtras,
             text_wrap => 1,
             @colourHard,
         ],
@@ -583,8 +583,7 @@ Keys used in %$options:
             locked => 1,
             @sizeText,
             num_format => $numText,
-            align      => 'left',
-            @sizeExtras,
+            @alignText, @sizeExtras,
             text_wrap => 1,
             @colourSoft,
         ],
@@ -592,8 +591,7 @@ Keys used in %$options:
             locked => 0,
             @sizeText,
             num_format => $numText,
-            align      => 'left',
-            @sizeExtras,
+            @alignText, @sizeExtras,
             text_wrap => 1,
             @defaultColour,
         ],
