@@ -14,7 +14,7 @@ use of system charges.
 To see this code in action, go to http://dcmf.co.uk/models/ and experiment with
 the online spreadsheet building tools.
 
-To create spreadsheet models on your own computer using this code, follow the instructions below.
+To build spreadsheet models on your own computer using this code, follow the instructions below.
 
 Step 1.  Set-up Perl 5.
 -----------------------
@@ -65,4 +65,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 7 April 2015.
+Franck Latrémolière, 1 May 2015.

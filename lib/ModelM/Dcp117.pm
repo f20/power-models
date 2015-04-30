@@ -38,7 +38,7 @@ sub adjust117 {
 
     my ( $model, $meavPercentages, $preAllocated, ) = @_;
 
-    if ( $model->{dcp117} =~ /2014/ ) {
+    if ( $model->{dcp117} =~ /2013/ ) {
 
         $preAllocated = Stack(
             name => 'Table 1330 allocated costs, after DCP 117 adjustments',

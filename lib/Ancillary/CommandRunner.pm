@@ -46,6 +46,18 @@ sub factory {
     bless [ $perl5dir, $homedir ], $class;
 }
 
+sub finish {
+    my ($self) = @_;
+    $self->makeFolder;
+}
+
+sub log {
+    my ( $self, $verb, @objects ) = @_;
+    return if $verb eq 'makeFolder';
+    push @{ $self->[C_LOG] },
+      join( "\n", $verb, map { "\t$_"; } @objects ) . "\n\n";
+}
+
 sub makeFolder {
     my ( $self, $folder ) = @_;
     if ( $self->[C_FOLDER] ) {
@@ -72,32 +84,6 @@ sub makeFolder {
         mkdir $tmp;
         chdir $tmp;
     }
-}
-
-sub finish {
-    my ($self) = @_;
-    $self->makeFolder;
-}
-
-sub log {
-    my ( $self, $verb, @objects ) = @_;
-    return if $verb eq 'makeFolder';
-    push @{ $self->[C_LOG] },
-      join( "\n", $verb, map { "\t$_"; } @objects ) . "\n\n";
-}
-
-sub R {
-    my $self = shift;
-    open my $r, '| R --vanilla --slave';
-    binmode $r, ':utf8';
-    print {$r} (
-          /^\s*#\s*include\s*<\s*(.*\S)\s*>/
-        ? qq%source("$self->[C_HOMEDIR]/other/R/$1");%
-        : $_
-      )
-      . "\n"
-      foreach @_;
-    close $r;
 }
 
 sub makeModels {
@@ -210,7 +196,7 @@ sub makeModels {
             }
             elsif (/^-+stats=?(.*)/is) {
                 $maker->{setRule}->(
-                    summary      => 'statistics',
+                    summary => 'statistics',
                     $1 ? ( statistics => $1 ) : (),
                 );
             }
@@ -605,6 +591,115 @@ EOS
             exit 0 if defined $pid;
         }
     };
+}
+
+sub R {
+    my $self = shift;
+    open my $r, '| R --vanilla --slave';
+    binmode $r, ':utf8';
+    print {$r} (
+          /^\s*#\s*include\s*<\s*(.*\S)\s*>/
+        ? qq%source("$self->[C_HOMEDIR]/other/R/$1");%
+        : $_
+      )
+      . "\n"
+      foreach @_;
+    close $r;
+}
+
+sub _ymlDump {
+    my ( $file, $tag, $data ) = @_;
+    my $path = '';
+    my $ext  = '';
+    $path = $1 if $file =~ s#(.*/)##s;
+    $ext  = $1 if $file =~ s/(\.[a-zA-Z][a-zA-Z0-9_+-]+)$//s;
+    my $tmp = $path . '~$' . $file . $tag . $$ . '.tmp';
+    YAML::DumpFile( $tmp, $data );
+    my $final = $path . $file . $tag . $ext;
+    rename $tmp, $final;
+    warn "$final\n";
+}
+
+sub ymlDiff {
+
+    require YAML;
+
+    my ( @names, @src, %stream );
+    foreach my $fileName ( map { decode_utf8 $_} @_ ) {
+        if ( $fileName =~ /^-+singlestream/i ) {
+            $stream{'/'} = [];
+            next;
+        }
+        next unless -f $fileName;
+        my @obj = grep { ref $_ eq 'HASH'; } YAML::LoadFile($fileName);
+        if ( @obj == 1 ) {
+            push @names, $fileName;
+        }
+        else {
+            push @names, map { "$fileName ($_)"; } 1 .. @obj;
+        }
+        $fileName =~ s#.*/##s;
+        push @{ $stream{$fileName} }, @src .. $#names;
+        push @src, @obj;
+    }
+    %stream = ( 'Single stream.yml' => [ 0 .. $#src ] )
+      if grep { @{ $stream{$_} } == 1; } keys %stream;
+
+    while ( my ( $stream, $idar ) = each %stream ) {
+
+        my ( %map, %combined );
+        foreach my $datasetid (@$idar) {
+            next unless ref $src[$datasetid] eq 'HASH';
+            while ( my ( $tab, $dat ) = each %{ $src[$datasetid] } ) {
+                next unless ref $dat eq 'ARRAY';
+                for ( my $col = 0 ; $col < @$dat ; ++$col ) {
+                    my $cd = $dat->[$col];
+                    next unless ref $cd eq 'HASH';
+                    while ( my ( $row, $v ) = each %$cd ) {
+                        next unless defined $v;
+                        push @{ $map{$tab}[$col]{$row}{$v} }, $datasetid;
+                        $combined{$tab}[$col]{$row} = $v;
+                    }
+                }
+            }
+        }
+
+        my ( @diff, @addd, %common, %unconflicted );
+        while ( my ( $tab, $dat ) = each %map ) {
+            for ( my $col = 0 ; $col < @$dat ; ++$col ) {
+                while ( my ( $row, $set ) = each %{ $dat->[$col] } ) {
+                    my @k = keys %$set;
+                    if ( @k == 1 ) {
+                        my $v    = $k[0];
+                        my $idar = $set->{$v};
+                        $unconflicted{$tab}[$col]{$row} = $v;
+                        if ( @$idar == @src ) {
+                            $common{$tab}[$col]{$row} = $v;
+                        }
+                        else {
+                            $addd[$_]{$tab}[$col]{$row} = $v foreach @$idar;
+                        }
+                    }
+                    else {
+                        foreach my $v (@k) {
+                            $diff[$_]{$tab}[$col]{$row} = $v
+                              foreach @{ $set->{$v} };
+                        }
+                    }
+                }
+            }
+        }
+
+        foreach (@$idar) {
+            _ymlDump( $names[$_], ' changed', $diff[$_] );
+            _ymlDump( $names[$_], ' added',   $addd[$_] );
+        }
+        _ymlDump( $stream, ' common',       \%common );
+        _ymlDump( $stream, ' accumulated',  \%combined );
+        _ymlDump( $stream, ' unconflicted', \%unconflicted );
+
+    }
+
 }
 
 our $AUTOLOAD;

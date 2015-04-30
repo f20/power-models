@@ -41,7 +41,7 @@ sub normaliseDnoName {
         s/^CE-YEDL/NPG-Yorkshire/;
         s/^CN-East/WPD-EastM/;
         s/^CN-West/WPD-WestM/;
-        s/^EDFEN/UKPN/;
+        s/^EDFEN-/UKPN-/;
         s/^NP-/NPG-/;
         s/^SP-/SPEN-/;
         s/^SSE-/SSEPD-/;
