@@ -49,7 +49,7 @@ explore some of the functionality of this code:
     perl pmod.pl EDCM/Current/%-clean189-*.yml EDCM/Data-2014-02/UKPN-EPN.yml
     perl pmod.pl -rtf -text -html -perl -yaml -graphviz CDCM/Future/%-wfl161.yml other/Blank.yml
 
-See "How to use.txt" in the "Stata EDCM" folder for information on Stata tools to test EDCM spreadsheets.
+See "How to use.txt" in the "Stata" folder undef "EDCM" for information on Stata tools to test EDCM spreadsheets.
 
 Licensing
 ---------
@@ -65,4 +65,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 1 May 2015.
+Franck Latrémolière, 4 May 2015.

@@ -3,8 +3,8 @@ github.com/f20/power-models
 Help for Stata EDCM code
 ========================
 
-This file contains information on how to use the Stata do files included in the "Stata EDCM"
-folder of the github.com/f20/power-models code repository.
+This file contains information on how to use the Stata do files included under EDCM/Stata
+in the github.com/f20/power-models code repository.
 
 These files are designed to be used with Stata, a commercial software package for statistical
 analysis (www.stata.com).
@@ -27,7 +27,7 @@ Part A.  Creating random data in .dta format to test EDCM models
 
 To create a set of random data for EDCM testing purposes using Stata:
 
-Step A1.  In Stata, change directory to the "Random generator" subfolder within the "Stata EDCM" folder.
+Step A1.  In Stata, change directory to the "Random generator" subfolder within the "Stata" folder.
 
 Step A2.  Run the Prog_SimulateData.do file from the do file editor or give the following command to Stata:
 
@@ -93,7 +93,7 @@ Part D.  Checking the results of a set of EDCM models
 To check that the results are consistent with the input data in a collation from Microsoft Excel
 EDCM models, using Stata:
 
-Step D1.  In Stata, change directory to the "Stata EDCM".
+Step D1.  In Stata, change directory to the "Stata" folder.
 
 Step D2.  Run the Model.do file from the do file editor or give the following command to Stata:
 
@@ -117,4 +117,4 @@ Step D5.  To view the results, give either of the following commands to Stata:
 
 -- 
 
-Reckon LLP, 20 October 2014.
+Last edited 4 May 2015.

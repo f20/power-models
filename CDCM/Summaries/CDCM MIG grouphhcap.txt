@@ -1,11 +1,11 @@
 makeModels
     -sqlite
-    CDCM/Current/%-after163.yml
+    CDCM/*/%-after163.yml
     CDCM/Toys-2014/%-grouphhcap.yml
     CDCM/Data-2014-02/*
 
 R
-    #include <power-models-maps.R>
+    #include <maps.R>
     library(DBI);
     library(RSQLite);
     db <- dbConnect('SQLite', dbname = '~$database.sqlite');
