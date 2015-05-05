@@ -5,30 +5,31 @@ makeModels
     CDCM/Data-2014-02/*
 
 R
-    #include <maps.R>
-    library(DBI);
-    library(RSQLite);
-    db <- dbConnect('SQLite', dbname = '~$database.sqlite');
-    t4003 <- dbGetQuery(db, 'select company, period, option, a.v as tariff, b.v as peryear, c.v as permwh from data as a inner join data as b using (bid, tab, row) inner join data as c using (bid, tab, row) left join books using (bid) where a.tab=4003 and a.row>0 and a.col=0 and b.col=1 and c.col=2');
-    period <- factor(t4003$period);
-    option <- factor(t4003$option);
-    company.names<-c('ENWL', 'NPG Northeast', 'NPG Yorkshire', 'SPEN SPD', 'SPEN SPM', 'SSEPD SEPD', 'SSEPD SHEPD', 'UKPN EPN', 'UKPN LPN', 'UKPN SPN', 'WPD EastM', 'WPD SWales', 'WPD SWest', 'WPD WestM');
-    getSet<-function(bitmap) {
-        set <- rep(NA, length(company.names));
-        for (a in 1:length(set)) {
-            t <- (1:length(t4003$company))[bitmap&t4003$company==company.names[a]];
-            if (length(t)>0) set[a] <- t[1];
-        }
-        set;
-    };
-    for ( t in c('Average home (Domestic Unrestricted)', '5MVA continuous (HV HH Metered)')) {
-        v <- data.frame(
-            t4003$permwh[getSet(period==levels(period)[1]&option==levels(option)[1]&t4003$tariff==t)],
-            t4003$permwh[getSet(period==levels(period)[1]&option==levels(option)[2]&t4003$tariff==t)]
-        );
-        names(v) <- c('Base case £/MWh', 'Scenario £/MWh');
-        plotit(v
-            , file.name=t, file.type='pdf'
-            , title=paste('Impact of HH coincidence grouping on DUoS charges for', t)
-        );
-    }
+	#include <maps.R>
+	library(DBI);
+	library(RSQLite);
+	drv <- dbDriver('SQLite');
+	db <- dbConnect(drv, dbname = '~$database.sqlite');
+	t4202 <- dbGetQuery(db, 'select company, period, option, a.v as tariff, b.v as peryear, c.v as permwh from data as a inner join data as b using (bid, tab, row) inner join data as c using (bid, tab, row) left join books using (bid) where a.tab=4202 and a.row>0 and a.col=0 and b.col=1 and c.col=2');
+	period <- factor(t4202$period);
+	option <- factor(t4202$option);
+	company.names<-c('ENWL', 'NPG Northeast', 'NPG Yorkshire', 'SPEN SPD', 'SPEN SPM', 'SSEPD SEPD', 'SSEPD SHEPD', 'UKPN EPN', 'UKPN LPN', 'UKPN SPN', 'WPD EastM', 'WPD SWales', 'WPD SWest', 'WPD WestM');
+	getSet<-function(bitmap) {
+	    set <- rep(NA, length(company.names));
+	    for (a in 1:length(set)) {
+	        t <- (1:length(t4202$company))[bitmap&t4202$company==company.names[a]];
+	        if (length(t)>0) set[a] <- t[1];
+	    }
+	    set;
+	};
+	for ( t in c('Domestic standard (Domestic Unrestricted)', 'XL continuous (HV HH Metered)')) {
+	    v <- data.frame(
+	        t4202$permwh[getSet(period==levels(period)[1]&option==levels(option)[1]&t4202$tariff==t)],
+	        t4202$permwh[getSet(period==levels(period)[1]&option==levels(option)[2]&t4202$tariff==t)]
+	    );
+	    names(v) <- c('Base case £/MWh', 'Scenario £/MWh');
+	    plotit(v
+	        , file.name=t, file.type='pdf'
+	        , title=paste('Impact of HH coincidence grouping on DUoS charges for', t)
+	    );
+	}
