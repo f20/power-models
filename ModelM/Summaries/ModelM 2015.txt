@@ -1,0 +1,10 @@
+makeModels
+	-sqlite
+	-checksums
+	-pickbest
+	ModelM/*/%-*.yml
+	ModelM/Data-2015-02/*
+
+useDatabase
+	all
+

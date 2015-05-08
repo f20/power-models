@@ -642,8 +642,10 @@ sub ymlDiff {
         push @{ $stream{$fileName} }, @src .. $#names;
         push @src, @obj;
     }
-    %stream = ( 'Single stream.yml' => [ 0 .. $#src ] )
-      if grep { @{ $stream{$_} } == 1; } keys %stream;
+    if ( my ($single) = grep { @{ $stream{$_} } == 1; } keys %stream ) {
+        warn "Single stream (because of $single)";
+        %stream = ( 'Single stream.yml' => [ 0 .. $#src ] );
+    }
 
     while ( my ( $stream, $idar ) = each %stream ) {
 
@@ -670,14 +672,14 @@ sub ymlDiff {
                 while ( my ( $row, $set ) = each %{ $dat->[$col] } ) {
                     my @k = keys %$set;
                     if ( @k == 1 ) {
-                        my $v    = $k[0];
-                        my $idar = $set->{$v};
+                        my $v     = $k[0];
+                        my $vidar = $set->{$v};
                         $unconflicted{$tab}[$col]{$row} = $v;
-                        if ( @$idar == @src ) {
+                        if ( @$vidar == @$idar ) {
                             $common{$tab}[$col]{$row} = $v;
                         }
                         else {
-                            $addd[$_]{$tab}[$col]{$row} = $v foreach @$idar;
+                            $addd[$_]{$tab}[$col]{$row} = $v foreach @$vidar;
                         }
                     }
                     else {
