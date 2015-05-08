@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2009-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -754,6 +754,104 @@ sub cdcmUserImpact {
                     IV1 => $old,
                     IV2 => $new,
                 );
+            }
+        }
+    }
+}
+
+sub modelmEdcmImpact {
+
+    my ( $self, $wbmodule, %options ) = @_;
+
+    _defaultOptions( \%options );
+
+    my $wb = $wbmodule->new(
+        "Impact EDCM discounts $options{dcpName}" . $wbmodule->fileExtension );
+    $wb->setFormats(
+        { $options{colour} ? ( colour => $options{colour} ) : (), } );
+
+    my @books = $self->listModels;
+    my $q     = $self->prepare(
+        'select v from data where bid=? and tab=1504 and row=? and col=1');
+
+    foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
+        my $qr = $options{sheetNames}[$i];
+        $qr =~ tr/ /-/;
+        my ($bidb) =
+          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+        next unless $bidb;
+        $bidb = $bidb->[0];
+        my ($bida) =
+          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+        next unless $bida;
+        $bida = $bida->[0];
+        my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
+        $ws->set_column( 0, 0,   48 );
+        $ws->set_column( 1, 254, 16 );
+        $ws->hide_gridlines(2);
+        $ws->freeze_panes( 1, 1 );
+        $ws->write_string(
+            0, 0,
+            $options{sheetTitles}[$i],
+            $wb->getFormat('notes')
+        );
+
+        my $ncol = 4;
+        my $thcaFormat = $wb->getFormat( 'captionca', 'tlttr' );
+        $ws->write_string( 2, 1, 'Baseline discounts', $thcaFormat );
+        $ws->write( 2, $_, undef, $thcaFormat ) foreach 2 .. $ncol;
+        $ws->write_string( 2, 1 + $ncol, 'Discounts on new basis',
+            $thcaFormat );
+        $ws->write( 2, $_ + $ncol, undef, $thcaFormat ) foreach 2 .. $ncol;
+        $ws->write_string( 2, 1 + $ncol * 2, 'Change in discount',
+            $thcaFormat );
+        $ws->write( 2, $_ + $ncol * 2, undef, $thcaFormat ) foreach 2 .. $ncol;
+
+        my $thcFormat = $wb->getFormat('thc');
+        $ws->write_string( 3, $_, 'LV demand', $thcFormat ) foreach 1, 5, 9;
+        $ws->write_string( 3, $_, 'LV Sub demand or LV generation', $thcFormat )
+          foreach 2, 6, 10;
+        $ws->write_string( 3, $_, 'HV demand or LV Sub generation', $thcFormat )
+          foreach 3, 7, 11;
+        $thcFormat = $wb->getFormat( 'thc', 'tlttr' );
+        $ws->write_string( 3, $_, 'HV generation', $thcFormat )
+          foreach 4, 8, 12;
+
+        use Spreadsheet::WriteExcel::Utility;
+        my $diff = $ws->store_formula('=IV2-IV1');
+
+        my @rows = (
+            'Boundary 0000',
+            'Boundary 132kV',
+            'Boundary 132kV/EHV',
+            'Boundary EHV',
+            'Boundary HVplus'
+        );
+        for ( my $j = 0 ; $j < 5 ; ++$j ) {
+            $ws->write_string( 4 + $j, 0, $rows[$j], $wb->getFormat('th') );
+            for ( my $k = 1 ; $k < 5 ; ++$k ) {
+                my $row = $k + ( 5 - $j ) * 4;
+                my @deco;
+                push @deco, 'tlttr' if $k == 4;
+                {
+                    $q->execute( $bidb, $row );
+                    my ($vb) = $q->fetchrow_array;
+                    $q->execute( $bida, $row );
+                    my ($va) = $q->fetchrow_array;
+                    next unless defined $va && defined $vb;
+                    $ws->write( 4 + $j, $k, $vb,
+                        $wb->getFormat( '%copy', @deco ) );
+                    $ws->write( 4 + $j, 4 + $k, $va,
+                        $wb->getFormat( '%copy', @deco ) );
+                    my $old = xl_rowcol_to_cell( 4 + $j, $k );
+                    my $new = xl_rowcol_to_cell( 4 + $j, 4 + $k );
+                    $ws->repeat_formula(
+                        4 + $j, 8 + $k, $diff,
+                        $wb->getFormat( '%softpm', @deco ),
+                        IV1 => $old,
+                        IV2 => $new,
+                    );
+                }
             }
         }
     }

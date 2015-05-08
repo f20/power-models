@@ -1,0 +1,532 @@
+---
+1300:
+  - _table: '1300. Company, charging year, data version'
+  - Company charging year data version: Electricity North West
+    _column: Company
+  - Company charging year data version: 2015/2016
+    _column: Year
+  - Company charging year data version: February 2015
+    _column: Version
+  - Company charging year data version: Input data compiled by Franck from public sources. E&OE. This dataset is intended to match the February 2015 price notice.
+1301:
+  - _table: 1301. DNO LV mains usage
+  - DNO LV mains usage: 0.16
+    _column: DNO LV mains usage
+1302:
+  - _table: 1302. DNO HV mains usage
+  - DNO HV mains usage: 0.55
+    _column: DNO HV mains usage
+1310:
+  - _table: 1310. DPCR4 aggregate allowances
+  - DPCR4 aggregate allowances: 370956256.472755
+    _column: Aggregate return
+  - DPCR4 aggregate allowances: 398500000
+    _column: Aggregate depreciation
+  - DPCR4 aggregate allowances: 352040000
+    _column: Aggregate operating
+1315:
+  - _table: 1315. Analysis of allowed revenue for 2007/2008
+  - Analysis of allowed revenue for 2007 2008: 260870929
+    _column: Total revenue
+  - Analysis of allowed revenue for 2007 2008: 11735622
+    _column: Net incentive revenue
+1320:
+  - _table: 1320. Units flowing
+  - Units flowing: 16988700000
+    _column: LV
+  - Units flowing: 16988700000
+    _column: HV/LV
+  - Units flowing: 23972722577
+    _column: HV
+  - Units flowing: 25333548951
+    _column: EHV&132
+1328:
+  - ~
+  - Income for connections indirects: 9123919.0156
+1329:
+  - ~
+  - Load related new connections reinforcement net of contributions: -12392665.2648234
+  - Load related new connections reinforcement net of contributions: ''
+  - Load related new connections reinforcement net of contributions: 3654798.86187813
+  - Load related new connections reinforcement net of contributions: 26253757.3344828
+1330:
+  - _table: 1330. Allocated costs
+  - Atypical cash costs: ''
+    CEO etc: ''
+    Control Centre: ''
+    Customer Call Centre: ''
+    Disallowed Related Party Margins: ''
+    Engineering Mgt Clerical Support: ''
+    Excluded services de minimis: ''
+    Faults: 9877892.13174862
+    Finance Regulation: ''
+    HR Non-operational Training: ''
+    Health Safety Operational Training: ''
+    IFI: ''
+    IT Telecoms: ''
+    Inspections Maintenance: 956531.806484506
+    Load related new connections reinforcement net of contributions: 5592992.279
+    Metering: ''
+    Network Design Engineering: ''
+    Network Policy: ''
+    Network Rates: ''
+    Non activity costs and reconciling amounts note 3: ''
+    Non-load new replacement assets net of contributions: 15938388.5900663
+    Non-operational capex: 0
+    Pension deficit payments: ''
+    Pension deficit repair payments by related parties note 2: ''
+    Project Management: ''
+    Property Mgt: ''
+    Relevant distributed generation less contributions: ''
+    Statutory Depreciation: ''
+    Stores: ''
+    System Mapping Cartographical: ''
+    Transmission Exit Charges: ''
+    Tree Cutting: 658870.438820259
+    Vehicles Transport: ''
+    _column: LV
+  - Atypical cash costs: ''
+    CEO etc: ''
+    Control Centre: ''
+    Customer Call Centre: ''
+    Disallowed Related Party Margins: ''
+    Engineering Mgt Clerical Support: ''
+    Excluded services de minimis: ''
+    Faults: 221494.229875366
+    Finance Regulation: ''
+    HR Non-operational Training: ''
+    Health Safety Operational Training: ''
+    IFI: ''
+    IT Telecoms: ''
+    Inspections Maintenance: 2918012.8049357
+    Load related new connections reinforcement net of contributions: 0
+    Metering: ''
+    Network Design Engineering: ''
+    Network Policy: ''
+    Network Rates: ''
+    Non activity costs and reconciling amounts note 3: ''
+    Non-load new replacement assets net of contributions: 9685121.60695426
+    Non-operational capex: 0
+    Pension deficit payments: ''
+    Pension deficit repair payments by related parties note 2: ''
+    Project Management: ''
+    Property Mgt: ''
+    Relevant distributed generation less contributions: ''
+    Statutory Depreciation: ''
+    Stores: ''
+    System Mapping Cartographical: ''
+    Transmission Exit Charges: ''
+    Tree Cutting: 0
+    Vehicles Transport: ''
+    _column: HV/LV
+  - Atypical cash costs: ''
+    CEO etc: ''
+    Control Centre: ''
+    Customer Call Centre: ''
+    Disallowed Related Party Margins: ''
+    Engineering Mgt Clerical Support: ''
+    Excluded services de minimis: ''
+    Faults: 5059104.40111642
+    Finance Regulation: ''
+    HR Non-operational Training: ''
+    Health Safety Operational Training: ''
+    IFI: ''
+    IT Telecoms: ''
+    Inspections Maintenance: 212621.010970954
+    Load related new connections reinforcement net of contributions: 5200104.015
+    Metering: ''
+    Network Design Engineering: ''
+    Network Policy: ''
+    Network Rates: ''
+    Non activity costs and reconciling amounts note 3: ''
+    Non-load new replacement assets net of contributions: 11157007.7463633
+    Non-operational capex: 0
+    Pension deficit payments: ''
+    Pension deficit repair payments by related parties note 2: ''
+    Project Management: ''
+    Property Mgt: ''
+    Relevant distributed generation less contributions: ''
+    Statutory Depreciation: ''
+    Stores: ''
+    System Mapping Cartographical: ''
+    Transmission Exit Charges: ''
+    Tree Cutting: 637969.258163725
+    Vehicles Transport: ''
+    _column: HV
+  - Atypical cash costs: ''
+    CEO etc: ''
+    Control Centre: ''
+    Customer Call Centre: ''
+    Disallowed Related Party Margins: ''
+    Engineering Mgt Clerical Support: ''
+    Excluded services de minimis: ''
+    Faults: 2257709.60001574
+    Finance Regulation: ''
+    HR Non-operational Training: ''
+    Health Safety Operational Training: ''
+    IFI: ''
+    IT Telecoms: ''
+    Inspections Maintenance: 2019581.68650398
+    Load related new connections reinforcement net of contributions: 23665150.7056
+    Metering: ''
+    Network Design Engineering: ''
+    Network Policy: ''
+    Network Rates: ''
+    Non activity costs and reconciling amounts note 3: ''
+    Non-load new replacement assets net of contributions: 28810162.4060985
+    Non-operational capex: 0
+    Pension deficit payments: ''
+    Pension deficit repair payments by related parties note 2: ''
+    Project Management: ''
+    Property Mgt: ''
+    Relevant distributed generation less contributions: ''
+    Statutory Depreciation: ''
+    Stores: ''
+    System Mapping Cartographical: ''
+    Transmission Exit Charges: ''
+    Tree Cutting: 432144.566456904
+    Vehicles Transport: ''
+    _column: EHV&132
+1331:
+  - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
+  - Assets in CDCM model from CDCM table 2705 or 2706: ''
+    _column: GSP
+  - Assets in CDCM model from CDCM table 2705 or 2706: 623249883.444325
+    _column: 132kV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 327046854.390075
+    _column: 132kV/EHV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 740271158.918943
+    _column: EHV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 680326387.069678
+    _column: EHV/HV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 0
+    _column: 132kV/HV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 1227537069.10873
+    _column: HV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 807760082.626502
+    _column: HV/LV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 437526948.970801
+    _column: LV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 1448359168.46508
+    _column: LV customer
+  - Assets in CDCM model from CDCM table 2705 or 2706: 38392255.472298
+    _column: HV customer
+1332:
+  - _table: '1332. All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
+  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: 246500000
+    _column: 'All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
+  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: Reverse engineered
+1335:
+  - _table: 1335. Total costs
+  - Atypical cash costs: 15445248
+    CEO etc: 2311540.35025632
+    Control Centre: 2623191.34126237
+    Customer Call Centre: 1373028.04562789
+    Disallowed Related Party Margins: 11957154.8552611
+    Engineering Mgt Clerical Support: 15017576.021328
+    Excluded services de minimis: 15206595.2220765
+    Faults: 16034394.6498855
+    Finance Regulation: 8643531.17207596
+    HR Non-operational Training: 2752174.27340319
+    Health Safety Operational Training: 814694.059298014
+    IFI: 932220
+    IT Telecoms: 12846120.1699896
+    Inspections Maintenance: 4742987.94530852
+    Load related new connections reinforcement net of contributions: 9663452.07896903
+    Metering: 617969.589465544
+    Network Design Engineering: 8508926.20520073
+    Network Policy: 798778.235271354
+    Network Rates: 17027400
+    Non activity costs and reconciling amounts note 3: -26259723.587606
+    Non-load new replacement assets net of contributions: 63506587.8128396
+    Non-operational capex: 4080425.6415581
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 3864575.48782022
+    Property Mgt: 6905002.63148118
+    Relevant distributed generation less contributions: -434302.396456769
+    Statutory Depreciation: 59102484.3522011
+    Stores: 1137985.59523139
+    System Mapping Cartographical: 1197192.27269566
+    Transmission Exit Charges: 9083000
+    Tree Cutting: 1636888.10115949
+    Vehicles Transport: 2007382.87439631
+    _column: Total costs
+1350:
+  - _table: 1350. MEAV percentages
+  - MEAV percentages: 0.439785414815449
+    _column: LV
+  - MEAV percentages: 0.0556191282090021
+    _column: HV/LV
+  - MEAV percentages: 0.196097159025961
+    _column: HV
+  - MEAV percentages: 0.308498297949588
+    _column: EHV&132
+1355:
+  - _table: 1355. MEAV data
+  - 132kV: ''
+    132kV EHV remote terminal unit ground-mounted: 449
+    132kV EHV remote terminal unit pole-mounted: 0
+    132kV auxiliary transformer: 142
+    132kV breaker: 175
+    132kV other switchgear: 1010
+    132kV overhead: ''
+    132kV overhead pole conductor km: 32
+    132kV overhead tower conductor km: 1546.8
+    132kV pole: 52
+    132kV submarine: ''
+    132kV submarine km: 0
+    132kV switchgear: ''
+    132kV tower: 3125
+    132kV tower fittings: 6226
+    132kV transformer: 153
+    132kV transformers: ''
+    132kV underground: ''
+    132kV underground gas km: 5
+    132kV underground non-pressurised km: 212.88
+    132kV underground oil km: 166.32
+    20kV breaker distribution: ''
+    20kV breaker ground-mounted: 0
+    20kV breaker pole-mounted: 0
+    20kV breaker primary: ''
+    20kV other switchgear ground-mounted: 0
+    20kV other switchgear pole-mounted: 0
+    20kV overhead covered km: 0
+    20kV overhead open pm: 0
+    20kV overhead support: 0
+    20kV ring main unit: 0
+    20kV switch ground-mounted: 0
+    20kV switch pole-mounted: 0
+    20kV transformer ground-mounted: 0
+    20kV transformer pole-mounted: 0
+    20kV underground km: 0
+    33kV auxiliary transformer: 637
+    33kV breaker indoors: 1441
+    33kV breaker outdoors: 158
+    33kV other switchgear: 75
+    33kV overhead pole line km: 1050.4
+    33kV overhead tower line km: 309
+    33kV pole: 12500
+    33kV ring main unit: 6
+    33kV switch ground-mounted: 63
+    33kV switch pole-mounted: 106
+    33kV tower: 711
+    33kV transformer ground-mounted: 696
+    33kV transformer pole-mounted: 0
+    33kV underground gas km: 261
+    33kV underground non-pressurised km: 1616.383
+    33kV underground oil km: 364.134
+    6 6 11kV breaker distribution: ''
+    6 6 11kV breaker ground-mounted: 10480
+    6 6 11kV breaker pole-mounted: 818
+    6 6 11kV breaker primary: ''
+    6 6 11kV other switchgear ground-mounted: 6
+    6 6 11kV other switchgear pole-mounted: 9691
+    6 6 11kV overhead covered km: 27
+    6 6 11kV overhead open km: 7768.91553839332
+    6 6 11kV overhead support: 99519.4269202305
+    6 6 11kV ring main unit: 10373
+    6 6 11kV switch ground-mounted: 14136
+    6 6 11kV switch pole-mounted: 98
+    6 6 11kV transformer ground-mounted: 16262
+    6 6 11kV transformer pole-mounted: 16930
+    6 6 11kV underground km: 12867.9512915566
+    66kV auxiliary transformer: 0
+    66kV breaker: 0
+    66kV other switchgear: 0
+    66kV overhead pole line km: 0
+    66kV overhead tower line km: 0
+    66kV pole: 0
+    66kV tower: 0
+    66kV transformer: 0
+    66kV underground gas km: 0
+    66kV underground non-pressurised km: 0
+    66kV underground oil km: 0
+    EHV: ''
+    EHV overhead: ''
+    EHV submarine: ''
+    EHV submarine km: 0
+    EHV switchgear: ''
+    EHV transformers: ''
+    EHV underground: ''
+    HV network: ''
+    HV network switchgear: ''
+    HV overhead: ''
+    HV remote terminal unit ground-mounted: 1077
+    HV remote terminal unit pole-mounted: 650
+    HV submarine: ''
+    HV submarine km: 22
+    HV switchgear: ''
+    HV transformers: ''
+    HV underground: ''
+    LV board underground: 18880.6945982728
+    LV board wall-mounted: 6237
+    LV fuse pole-mounted: 19878
+    LV fuse tower-mounted: 0
+    LV main overhead line km: 2269.91258792317
+    LV main underground consac km: 4612.82690142034
+    LV main underground paper km: 19315.005
+    LV main underground plastic km: 4483.25699740589
+    LV network: 0
+    LV overhead: 0
+    LV overhead support: 60466.380003209
+    LV pillar indoors: 3191
+    LV pillar outdoors: 6908
+    LV service overhead: 98345.9122160885
+    LV service underground: 2352058.62902906
+    LV switchgear: ''
+    LV underground: ''
+    SCADA: ''
+    _column: Asset quantity
+  - 132kV: 0
+    132kV EHV remote terminal unit ground-mounted: 33200
+    132kV EHV remote terminal unit pole-mounted: 0
+    132kV auxiliary transformer: 0
+    132kV breaker: 1138443.08241461
+    132kV other switchgear: 1138443.08241461
+    132kV overhead: 0
+    132kV overhead pole conductor km: 38141.0525193165
+    132kV overhead tower conductor km: 114423.15755795
+    132kV pole: 17444.7398830965
+    132kV submarine: 0
+    132kV submarine km: 0
+    132kV switchgear: 0
+    132kV tower: 52334.2196492895
+    132kV tower fittings: 7062.40334367574
+    132kV transformer: 1298754.9844387
+    132kV transformers: 0
+    132kV underground: 0
+    132kV underground gas km: 1004103.39646546
+    132kV underground non-pressurised km: 1004103.39646546
+    132kV underground oil km: 1004103.39646546
+    20kV breaker distribution: 0
+    20kV breaker ground-mounted: 0
+    20kV breaker pole-mounted: 0
+    20kV breaker primary: 0
+    20kV other switchgear ground-mounted: 0
+    20kV other switchgear pole-mounted: 0
+    20kV overhead covered km: 0
+    20kV overhead open pm: 0
+    20kV overhead support: 0
+    20kV ring main unit: 0
+    20kV switch ground-mounted: 0
+    20kV switch pole-mounted: 0
+    20kV transformer ground-mounted: 0
+    20kV transformer pole-mounted: 0
+    20kV underground km: 0
+    33kV auxiliary transformer: 0
+    33kV breaker indoors: 110751.15463923
+    33kV breaker outdoors: 110751.15463923
+    33kV other switchgear: 110751.15463923
+    33kV overhead pole line km: 23370.7033297311
+    33kV overhead tower line km: 72934.2137339074
+    33kV pole: 5970.28091428725
+    33kV ring main unit: 110751.15463923
+    33kV switch ground-mounted: 110751.15463923
+    33kV switch pole-mounted: 36917.05154641
+    33kV tower: 38899.9012605177
+    33kV transformer ground-mounted: 609771.074990137
+    33kV transformer pole-mounted: 0
+    33kV underground gas km: 317530.30926606
+    33kV underground non-pressurised km: 317530.30926606
+    33kV underground oil km: 317530.30926606
+    6 6 11kV breaker distribution: 40.9156048006829
+    6 6 11kV breaker ground-mounted: 41499.6567177848
+    6 6 11kV breaker pole-mounted: 15888.8643417525
+    6 6 11kV breaker primary: 21.0024328137216
+    6 6 11kV other switchgear ground-mounted: 11282.9996132161
+    6 6 11kV other switchgear pole-mounted: 5075.07408823012
+    6 6 11kV overhead covered km: 22212.5950970486
+    6 6 11kV overhead open km: 11909.2573415362
+    6 6 11kV overhead support: 3005.91015053033
+    6 6 11kV ring main unit: 19568.7844982452
+    6 6 11kV switch ground-mounted: 11282.9996132161
+    6 6 11kV switch pole-mounted: 5075.07408823012
+    6 6 11kV transformer ground-mounted: 15399.7771197763
+    6 6 11kV transformer pole-mounted: 4450.79035059569
+    6 6 11kV underground km: 116046.944137041
+    66kV auxiliary transformer: 0
+    66kV breaker: 0
+    66kV other switchgear: 0
+    66kV overhead pole line km: 0
+    66kV overhead tower line km: 0
+    66kV pole: 0
+    66kV tower: 0
+    66kV transformer: 0
+    66kV underground gas km: 0
+    66kV underground non-pressurised km: 0
+    66kV underground oil km: 0
+    EHV: 0
+    EHV overhead: 0
+    EHV submarine: 0
+    EHV submarine km: 0
+    EHV switchgear: 0
+    EHV transformers: 0
+    EHV underground: 0
+    HV network: 0
+    HV network switchgear: 0
+    HV overhead: 0
+    HV remote terminal unit ground-mounted: 33200
+    HV remote terminal unit pole-mounted: 33200
+    HV submarine: 0
+    HV submarine km: 348140.832411123
+    HV switchgear: 0
+    HV transformers: 0
+    HV underground: 0
+    LV board underground: 5120.6392645215
+    LV board wall-mounted: 7870.03524282727
+    LV fuse pole-mounted: 0
+    LV fuse tower-mounted: 0
+    LV main overhead line km: 27528.4945056811
+    LV main underground consac km: 88045.2539018952
+    LV main underground paper km: 88045.2539018952
+    LV main underground plastic km: 88045.2539018952
+    LV network: 0
+    LV overhead: 0
+    LV overhead support: 1527.77945363625
+    LV pillar indoors: 7870.03524282727
+    LV pillar outdoors: 7824.70948981224
+    LV service overhead: 681.746607994813
+    LV service underground: 1060.29538243404
+    LV switchgear: 0
+    LV underground: 0
+    SCADA: 0
+    _column: Unit MEAV (£)
+1360:
+  - _table: '1360. MEAV: ratio of LV services to LV total'
+  - LV services: 0.470569061864565
+    _column: LV
+1370:
+  - _table: 1370. Net capex percentages
+  - Net capex percentages: 0.229404738266671
+    _column: LV
+  - Net capex percentages: 0.0795119233406159
+    _column: HV/LV
+  - Net capex percentages: 0.234429991381297
+    _column: HV
+  - Net capex percentages: 0.456653347011416
+    _column: EHV&132
+1375:
+  - _table: 1375. Network length percentages
+  - Network length percentages: 0.54
+    _column: LV
+  - Network length percentages: 0
+    _column: HV/LV
+  - Network length percentages: 0.3633
+    _column: HV
+  - Network length percentages: 0.0966
+    _column: EHV&132
+1380:
+  - _table: '1380. Net capex: ratio of LV services to LV total'
+  - LV services: 0.244176410230793
+    _column: LV
+1399:
+  - _table: 1037. Embedded network (LDNO) discounts
+  - LDNO discount: 0.334129061919029
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.584411668665391
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.356653320782691
+    _column: 'LDNO HV: LV sub user'
+  - LDNO discount: 0.242909521152352
+    _column: 'LDNO HV: HV user'

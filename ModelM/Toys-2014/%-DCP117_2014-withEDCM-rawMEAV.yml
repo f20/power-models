@@ -1,5 +1,5 @@
 ---
-.: Method M with 2014 solution for DCP 117 without DCP 118
+.: EDCM Method M with 2014 DCP 117, without DCP 118
 PerlModule: ModelM
 dcp071: 1
 dcp095: 1

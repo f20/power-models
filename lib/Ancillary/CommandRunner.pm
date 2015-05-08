@@ -350,7 +350,7 @@ sub useDatabase {
             dcpmatch  => sub { $_[0] =~ /[-+]$dcp/i; },
             %$options,
         );
-        my @outputs = map { /^-+(cdcm\S*|edcm\S*)/ ? $1 : (); } @_;
+        my @outputs = map { /^-+(cdcm\S*|edcm\S*|modelm\S*)/ ? $1 : (); } @_;
         @outputs = qw(cdcm) unless @outputs;
         $db->$_(@arguments) foreach map {
             $_ eq 'cdcm'

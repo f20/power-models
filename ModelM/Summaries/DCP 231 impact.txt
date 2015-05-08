@@ -1,0 +1,15 @@
+makeModels
+	-sqlite
+	ModelM/*/%-withEDCM-postDCP096.yml
+	ModelM/Data-2015-02/*
+	-newdata
+	-newrules
+	ModelM/*/%-DCP117_2014-withEDCM-rawMEAV.yml
+	ModelM/Data-2015-05/*
+	
+
+useDatabase
+	-dcp=DCP117_2014
+	-base=postDCP096
+	-name=DCP 231
+	-modelmEdcmImpact
