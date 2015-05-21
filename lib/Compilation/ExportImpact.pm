@@ -786,10 +786,9 @@ sub modelmEdcmImpact {
         next unless $bida;
         $bida = $bida->[0];
         my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
-        $ws->set_column( 0, 0,   48 );
-        $ws->set_column( 1, 254, 16 );
+        $ws->set_column( 0, 254, 16 );
         $ws->hide_gridlines(2);
-        $ws->freeze_panes( 1, 1 );
+        0 and $ws->freeze_panes( 1, 1 );
         $ws->write_string(
             0, 0,
             $options{sheetTitles}[$i],
