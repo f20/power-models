@@ -61,9 +61,10 @@ sub derivativeDataset {
                   && defined $table1001data->[$col]{$irow};
                 return defined $hardData ? $hardData : "=$cell"
                   unless $col == 4;
+                my $isIndexRow = $row =~ /RPI Indexation Factor/i;
                 my $preOverride =
-                  defined $hardData                  ? $hardData
-                  : $row =~ /RPI Indexation Factor/i ? ( "(1+"
+                  defined $hardData ? $hardData
+                  : $isIndexRow     ? ( "(1+"
                       . $getAssumptionCell->( $wb, $ws, 'RPI' )
                       . ")*$cell" )
                   : $cell;
@@ -72,7 +73,9 @@ sub derivativeDataset {
                     ->table1001Overrides( $model, $wb, $ws, $row ) )
                 {
                     return
-                      qq%=IF(ISERROR(0+$override),$preOverride,1e6*$override)%;
+                        qq%=IF(ISERROR(0+$override),$preOverride,%
+                      . ( $isIndexRow ? '' : '1e6*' )
+                      . qq%$override)%;
                 }
                 "=$preOverride";
             }
