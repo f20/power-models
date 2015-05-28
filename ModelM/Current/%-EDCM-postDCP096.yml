@@ -4,5 +4,5 @@ PerlModule: ModelM
 dcp071: 1
 dcp095: 1
 dcp096: 1
-edcm: 1
+edcm: only
 meav: 1

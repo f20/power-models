@@ -116,11 +116,13 @@ END_OF_LIST
     push @{ $model->{calcTables} }, $alloc,
       $model->{fixedIndirectPercentage} ? () : $direct;
 
-    my $dcp071 = $model->{dcp071} || $model->{dcp071A};
-    my ( $lvSplit, $hvSplit ) = $model->splits;
-    my $discountCall = $model->{dcp095} ? 'discounts95' : 'discounts';
-    $model->$discountCall( $alloc, $allocLevelset, $dcp071, $direct, $hvSplit,
-        $lvSplit, );
+    unless ( $model->{edcm} && $model->{edcm} =~ /only/ ) {
+        my $dcp071 = $model->{dcp071} || $model->{dcp071A};
+        my ( $lvSplit, $hvSplit ) = $model->splits;
+        my $discountCall = $model->{dcp095} ? 'discounts95' : 'discounts';
+        $model->$discountCall( $alloc, $allocLevelset, $dcp071, $direct,
+            $hvSplit, $lvSplit, );
+    }
 
     $model->discountEdcm( $alloc, $direct ) if $model->{edcm};
 
