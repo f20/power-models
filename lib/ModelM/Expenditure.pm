@@ -60,8 +60,7 @@ sub expenditureAlloc {
         if ( $model->{dcp117} ) {
             if ( $model->{dcp117} =~ /half[ -]?baked/i ) {
                 $preAllocated = Stack(
-                    name =>
-                      'Table 1330 allocated costs, after DCP 117 adjustments',
+                    name    => 'Allocated costs after DCP 117 adjustments',
                     rows    => $preAllocated->{rows},
                     cols    => $preAllocated->{cols},
                     sources => [
@@ -83,8 +82,7 @@ sub expenditureAlloc {
             }
             elsif ( $model->{dcp117} =~ /201[34]/ ) {
                 $preAllocated = Stack(
-                    name =>
-                      'Table 1330 allocated costs, after DCP 117 adjustments',
+                    name => 'Allocated costs after DCP 117 adjustments',
                     defaultFormat => '0copy',
                     rows          => $preAllocated->{rows},
                     cols          => $preAllocated->{cols},

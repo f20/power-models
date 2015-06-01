@@ -59,21 +59,26 @@ sub netCapexPercentages {
     my ( $model, $allocLevelset ) = @_;
     my $netCapex = $model->netCapexRawData;
     return $model->{objects}{netCapexPercentages}{ 0 + $allocLevelset } ||=
-      Dataset(
-        name  => 'Net capex percentages',
-        lines => 'In a pre-DCP 118 legacy Method M workbook, these data are on'
-          . ' sheet Calc-Net capex, possibly cells H6 to H10.',
-        data          => [ map { 0 } @{ $allocLevelset->{list} } ],
-        defaultFormat => '%hard',
-        number        => 1370,
-        cols          => $allocLevelset,
-        dataset       => $model->{dataset},
-        appendTo   => $model->{objects}{inputTables},
-        validation => {
-            validate => 'decimal',
-            criteria => '>=',
-            value    => 0,
-        },
+      Stack(    # for Numbers for iPad which cannot do SUMPRODUCT across sheets
+        sources => [
+            Dataset(
+                name => 'Net capex percentages',
+                lines =>
+                  'In a pre-DCP 118 legacy Method M workbook, these data are on'
+                  . ' sheet Calc-Net capex, possibly cells H6 to H10.',
+                data          => [ map { 0 } @{ $allocLevelset->{list} } ],
+                defaultFormat => '%hard',
+                number        => 1370,
+                cols       => $allocLevelset,
+                dataset    => $model->{dataset},
+                appendTo   => $model->{objects}{inputTables},
+                validation => {
+                    validate => 'decimal',
+                    criteria => '>=',
+                    value    => 0,
+                },
+            )
+        ]
       ) unless $netCapex;
     $model->{objects}{netCapexPercentages}{ 0 + $netCapex }
       { 0 + $allocLevelset } ||= SpreadsheetModel::Custom->new(

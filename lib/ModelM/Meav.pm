@@ -173,22 +173,28 @@ sub meavPercentages {
     my ( $model, $allocLevelset ) = @_;
 
     my $meav = $model->meavRawData;
-    return $model->{objects}{meavPercentages}{ 0 + $allocLevelset } ||= Dataset(
-        name  => 'MEAV percentages',
-        lines => 'In a pre-DCP 118 legacy Method M workbook, these data are on'
-          . ' sheet Calc-MEAV, possibly starting at cell H6.',
-        data          => [ map { 0 } @{ $allocLevelset->{list} } ],
-        defaultFormat => '%hard',
-        number        => 1350,
-        cols          => $allocLevelset,
-        dataset       => $model->{dataset},
-        appendTo   => $model->{objects}{inputTables},
-        validation => {
-            validate => 'decimal',
-            criteria => '>=',
-            value    => 0,
-        },
-    ) unless $meav;
+    return $model->{objects}{meavPercentages}{ 0 + $allocLevelset } ||=
+      Stack(    # for Numbers for iPad which cannot do SUMPRODUCT across sheets
+        sources => [
+            Dataset(
+                name => 'MEAV percentages',
+                lines =>
+                  'In a pre-DCP 118 legacy Method M workbook, these data are on'
+                  . ' sheet Calc-MEAV, possibly starting at cell H6.',
+                data          => [ map { 0 } @{ $allocLevelset->{list} } ],
+                defaultFormat => '%hard',
+                number        => 1350,
+                cols       => $allocLevelset,
+                dataset    => $model->{dataset},
+                appendTo   => $model->{objects}{inputTables},
+                validation => {
+                    validate => 'decimal',
+                    criteria => '>=',
+                    value    => 0,
+                },
+            )
+        ]
+      ) unless $meav;
 
     return $model->{objects}{meavPercentages}{ 0 + $allocLevelset }{ 0 + $meav }
       if $model->{objects}{meavPercentages}{ 0 + $allocLevelset }{ 0 + $meav };

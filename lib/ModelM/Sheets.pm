@@ -107,10 +107,11 @@ sub worksheetsAndClosures {
                 $wsheet->freeze_panes( 1, 0 );
                 $wsheet->set_column( 0, 0,   36 );
                 $wsheet->set_column( 1, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( name => $sheetName eq 'Calculations'
+                $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                    name => $sheetName eq 'Calculations'
                     ? 'Calculations'
-                    : "Calculations ($sheetName)" ),
+                    : "Calculations ($sheetName)"
+                  ),
                   @{ $tablesBySheet{$sheetName} };
             };
         }

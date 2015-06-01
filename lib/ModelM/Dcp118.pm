@@ -55,8 +55,11 @@ HV customer
 EOT
 
     my $cdcmAssets = $model->{objects}{cdcmAssets} ||= Dataset(
-        name          => 'Assets in CDCM model (£)',
-        lines         => 'From CDCM model.',
+        name  => 'Assets in CDCM model (£)',
+        lines => [
+            'These data are taken from the CDCM tariff model (Otex sheet).',
+            'They are also used as input data in the EDCM tariff model.',
+        ],
         defaultFormat => '0hard',
         cols          => $assetLevelset,
         data          => [ map { 5e8 } @{ $assetLevelset->{list} } ],
@@ -72,7 +75,7 @@ EOT
 
     my $edcmAssets = $model->{objects}{edcmAssets} ||= Dataset(
         name          => 'All notional assets in EDCM (£)',
-        lines         => 'From EDCM tariff model.',
+        lines         => 'These data are taken from the EDCM tariff model.',
         defaultFormat => '0hard',
         data          => [5e7],
         number        => 1332,
@@ -122,15 +125,13 @@ EOT
     );
 
     map {
-        # for Numbers for iPad which cannot do SUMPRODUCT across sheets
-        my $dup = Stack( sources => [$_] );
         Arithmetic(
-            name       => "$_->{name} after exclusions",
+            name       => "$_->{name} after DCP 118 exclusions",
             arithmetic => '=IV1*IV2/SUMPRODUCT(IV3_IV4,IV5_IV6)',
             arguments  => {
-                IV1     => $dup,
+                IV1     => $_,
                 IV2     => $propKept,
-                IV3_IV4 => $dup,
+                IV3_IV4 => $_,
                 IV5_IV6 => $propKept,
             },
             defaultFormat => '%soft'

@@ -158,7 +158,11 @@ sub discounts {    # Not used if DCP 095
     );
 
     push @{ $model->{objects}{calcSheets} },
-      [ $model->{suffix}, map { values %{ $_->{arguments} }; } @columns ];
+      [
+        $model->{suffix},
+        map { @{ $_->{arguments} }{ sort keys %{ $_->{arguments} } }; }
+          @columns
+      ];
 
     push @columns, map {
         SpreadsheetModel::Checksum->new(

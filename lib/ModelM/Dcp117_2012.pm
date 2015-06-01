@@ -157,7 +157,7 @@ sub adjust117 {
     );
 
     Stack(
-        name    => 'Table 1330 allocated costs, after DCP 117 adjustments',
+        name    => 'Allocated costs after DCP 117 adjustments',
         rows    => $preAllocated->{rows},
         cols    => $preAllocated->{cols},
         sources => [

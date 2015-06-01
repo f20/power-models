@@ -171,7 +171,7 @@ sub totalDpcr {
     $model->{objects}{totalDcpr} = Columnset(
         name  => 'DPCR4 aggregate allowances (£)',
         lines => 'In a legacy Method M workbook, these data are on'
-          . ' sheet Calc-Allocation, possibly cells C47, C48, C49.',
+          . ' sheet Calc-Allocation, possibly cells C47, C48 and C49.',
         columns  => \@columns,
         number   => 1310,
         dataset  => $model->{dataset},
@@ -230,10 +230,13 @@ sub allocated {
     my ( $model, $allocLevelset, $expenditureSet, ) = @_;
     $model->{objects}{allocated}{ 0 + $allocLevelset }{ 0 + $expenditureSet }
       ||= Dataset(
-        name => 'Allocated costs',
-        lines =>
-          'In a legacy Method M workbook, these data are on sheet Calc-Opex, '
-          . 'possibly starting at cell H7, reversing column order.',
+        name  => 'Allocated costs',
+        lines => [
+            'These data are taken from the'
+              . ' 2007/2008 regulatory reporting pack (tables 2.3 and 2.4).',
+            'In a legacy Method M workbook, these data are on sheet Calc-Opex, '
+              . 'possibly starting at cell H7, reversing column order.',
+        ],
         data => [
             map {
                 [ map { 0 } @{ $expenditureSet->{list} } ]
@@ -252,8 +255,12 @@ sub expenditure {
     my ( $model, $expenditureSet ) = @_;
     $model->{objects}{expenditure}{ 0 + $expenditureSet } ||= Dataset(
         name  => 'Total costs',
-        lines => 'In a legacy Method M workbook, these data are on'
-          . ' sheet Calc-Opex, starting at cell D7.',
+        lines => [
+            'These data are taken from the'
+              . ' 2007/2008 regulatory reporting pack (table 1.3).',
+            'In a legacy Method M workbook, these data are on'
+              . ' sheet Calc-Opex, starting at cell D7.',
+        ],
         data          => [ map { 0 } @{ $expenditureSet->{list} } ],
         defaultFormat => '0hard',
         number        => 1335,
