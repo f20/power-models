@@ -37,8 +37,10 @@ use SpreadsheetModel::Shortcuts ':all';
 sub lvSplit {
     my ($model) = @_;
     $model->{objects}{lvSplit} ||= Dataset(
-        name          => 'DNO LV mains usage',
-        data          => [ [0.1] ],
+        name  => 'DNO LV mains usage',
+        lines => 'DNO-specific LV mains split'
+          . ' calculated in accordance with paragraph 114 of Schedule 16',
+        data => [ [0.1] ],
         defaultFormat => '%hard',
         number        => 1301,
         dataset       => $model->{dataset},
@@ -54,8 +56,10 @@ sub lvSplit {
 sub hvSplit {
     my ($model) = @_;
     $model->{objects}{hvSplit} ||= Dataset(
-        name          => 'DNO HV mains usage',
-        data          => [ [0.4] ],
+        name  => 'DNO HV mains usage',
+        lines => 'HV mains usage value provided each year'
+          . ' by the Nominated Calculation Agent',
+        data => [ [0.4] ],
         defaultFormat => '%hard',
         number        => 1302,
         dataset       => $model->{dataset},
@@ -165,8 +169,11 @@ sub totalDpcr {
         ),
     );
     $model->{objects}{totalDcpr} = Columnset(
-        name     => 'DPCR4 aggregate allowances',
-        lines    => 'From sheet Calc-Allocation, cells C47, C48, C49.',
+        name  => 'DPCR4 aggregate allowances (£)',
+        lines => [
+                'In a legacy Method M workbook, these data are on'
+              . ' sheet Calc-Allocation, possibly cells C47, C48, C49.',
+        ],
         columns  => \@columns,
         number   => 1310,
         dataset  => $model->{dataset},
@@ -210,8 +217,9 @@ sub oneYearDpcr {
         ),
     );
     $model->{objects}{oneYearDpcr} = Columnset(
-        name     => 'Analysis of allowed revenue for 2007/2008',
-        lines    => 'From sheet Calc-Allocation, cells F66 and F63.',
+        name  => 'Analysis of allowed revenue for 2007/2008',
+        lines => 'In a legacy Method M workbook, these data are on'
+          . ' sheet Calc-Allocation, possibly cells F66 and F63.',
         columns  => \@columns,
         number   => 1315,
         dataset  => $model->{dataset},
@@ -224,10 +232,10 @@ sub allocated {
     my ( $model, $allocLevelset, $expenditureSet, ) = @_;
     $model->{objects}{allocated}{ 0 + $allocLevelset }{ 0 + $expenditureSet }
       ||= Dataset(
-        name  => 'Allocated costs',
-        lines => 'From sheet Calc-Opex, '
-          . 'starting at cell H7, '
-          . 'reversing column order.',
+        name => 'Allocated costs',
+        lines =>
+          'In a legacy Method M workbook, these data are on sheet Calc-Opex, '
+          . 'possibly starting at cell H7, reversing column order.',
         data => [
             map {
                 [ map { 0 } @{ $expenditureSet->{list} } ]
@@ -245,14 +253,15 @@ sub allocated {
 sub expenditure {
     my ( $model, $expenditureSet ) = @_;
     $model->{objects}{expenditure}{ 0 + $expenditureSet } ||= Dataset(
-        name          => 'Total costs',
-        lines         => 'From sheet Calc-Opex, starting at cell D7.',
+        name  => 'Total costs',
+        lines => 'In a legacy Method M workbook, these data are on'
+          . ' sheet Calc-Opex, starting at cell D7.',
         data          => [ map { 0 } @{ $expenditureSet->{list} } ],
         defaultFormat => '0hard',
         number        => 1335,
         rows          => $expenditureSet,
         dataset       => $model->{dataset},
-        appendTo      => $model->{objects}{inputTables},
+        appendTo => $model->{objects}{inputTables},
     );
 }
 

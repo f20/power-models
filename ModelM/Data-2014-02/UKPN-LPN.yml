@@ -198,7 +198,7 @@
     _column: EHV&132
 1331:
   - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: ''
     _column: GSP
   - Assets in CDCM model from CDCM table 2705 or 2706: 2529786620.35406
     _column: 132kV circuits
@@ -505,12 +505,12 @@
   - LV services: 0.335482770893497
     _column: LV
 1369:
-  - _table: 1369. Net capex analysis pre-DCP 118 (£ million)
-  - 132kV: 325.081049004594
-    EHV: 198.118950995406
-    HV: 146.354447215295
-    LV: 77.2
-    LV HV: 46.8455527847049
+  - _table: 1369. Net capex analysis pre-DCP 118 (£)
+  - 132kV: 325.081049004594e6
+    EHV: 198.118950995406e6
+    HV: 146.354447215295e6
+    LV: 77.2e6
+    LV HV: 46.8455527847049e6
 1370:
   - _table: 1370. Net capex percentages
   - Net capex percentages: 0.0972782258064516

@@ -9,6 +9,7 @@ AdditionalRules:
     meav: 1
     netCapex: 1
     suffix: EDCM
+DisabledRules:
   - calcUnits: 1
     dcp071: 1
     dcp095: 1

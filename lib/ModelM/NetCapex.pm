@@ -38,8 +38,10 @@ sub netCapexRawData {
     my ($model) = @_;
     return unless $model->{netCapex};
     $model->{objects}{netCapexRawData} ||= Dataset(
-        name       => 'Net capex analysis pre-DCP 118 (£ million)',
-        lines      => 'From pre-DCP 118 sheet Calc-Net capex.',
+        name          => 'Net capex analysis pre-DCP 118 (£)',
+        defaultFormat => '0hard',
+        lines => 'In a pre-DCP 118 legacy Method M workbook, these data are on'
+          . ' sheet Calc-Net capex, possibly cells G6 to G10.',
         data       => [qw(100 100 100 100 100)],
         number     => 1369,
         rows       => Dataset( list => [qw(LV LV/HV HV EHV 132kV)] ),
@@ -59,14 +61,15 @@ sub netCapexPercentages {
     return $model->{objects}{netCapexPercentages}{ 0 + $allocLevelset } ||=
       Dataset(
         name  => 'Net capex percentages',
-        lines => 'From pre-DCP 118 sheet Calc-Net capex starting at cell H6.',
-        data  => [ map { 0 } @{ $allocLevelset->{list} } ],
+        lines => 'In a pre-DCP 118 legacy Method M workbook, these data are on'
+          . ' sheet Calc-Net capex, possibly cells H6 to H10.',
+        data          => [ map { 0 } @{ $allocLevelset->{list} } ],
         defaultFormat => '%hard',
         number        => 1370,
         cols          => $allocLevelset,
         dataset       => $model->{dataset},
-        appendTo      => $model->{objects}{inputTables},
-        validation    => {
+        appendTo   => $model->{objects}{inputTables},
+        validation => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
@@ -114,6 +117,7 @@ sub netCapexPercentageServiceLV {
     $model->{objects}{netCapexPercentageServiceLV}{ 0 + $lvOnly }
       { 0 + $lvServiceOnly } ||= Dataset(
         name          => 'Net capex: ratio of LV services to LV total',
+        lines         => q%SUM('FBPQ NL1'!D10:M13)/SUM('FBPQ NL1'!D10:M16)%,
         data          => [.5],
         defaultFormat => '%hard',
         number        => 1380,

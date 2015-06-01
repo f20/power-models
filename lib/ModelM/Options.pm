@@ -105,8 +105,9 @@ END_OF_LIST
 
     my @c = (
         Constant(
-            name          => 'Allocation key',
-            lines         => 'From sheet Calc-Opex, starting at cell K7.',
+            name  => 'Allocation key',
+            lines => 'In a legacy Method M workbook, these data are on'
+              . ' sheet Calc-Opex, possibly starting at cell K7.',
             data          => \@rules,
             defaultFormat => $model->{multiModelSharing}
             ? 'texthard'
@@ -115,8 +116,9 @@ END_OF_LIST
         ),
         Constant(
             name  => 'Percentage capitalised',
-            lines => 'From sheet Calc-Opex, starting at cell AL7.',
-            data  => [
+            lines => 'In a legacy Method M workbook, these data are on'
+              . ' sheet Calc-Opex, possibly starting at cell AL7.',
+            data => [
                 qw(1 1
                   .235 .235 .235 .235
                   .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257 .5257

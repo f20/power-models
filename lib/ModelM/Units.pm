@@ -43,15 +43,16 @@ sub units {
     return $model->{objects}{$key} if $model->{objects}{$key};
 
     return $model->{objects}{$key} = Dataset(
-        name          => 'Units flowing',
-        lines         => 'From sheet Calc-Units, cells C23, C23, D23, E23.',
+        name  => 'Units flowing',
+        lines => 'In a legacy Method M workbook, these data are on'
+          . ' sheet Calc-Units, cells C23, C23, D23, E23.',
         data          => [ map { 100 } @{ $allocLevelset->{list} } ],
         defaultFormat => '0hard',
         number        => 1320,
         cols          => $allocLevelset,
-        dataset       => $model->{dataset},
-        appendTo      => $model->{objects}{inputTables},
-        validation    => {
+        dataset    => $model->{dataset},
+        appendTo   => $model->{objects}{inputTables},
+        validation => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,

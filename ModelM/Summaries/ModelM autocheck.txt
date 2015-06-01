@@ -1,1 +1,6 @@
--autocheck ModelM/Current/%-*.yml ModelM/Data-2014-02/*.yml
+makeModels
+	-autocheck
+	ModelM/Current/%-*.yml
+	ModelM/Toys-2015/%+testing.yml
+	ModelM/Data-2014-02/*.yml
+

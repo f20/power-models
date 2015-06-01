@@ -506,12 +506,12 @@
   - LV services: 0.701546630567417
     _column: LV
 1369:
-  - _table: 1369. Net capex analysis pre-DCP 118 (£ million)
-  - 132kV: 94.2638181390156
-    EHV: 165.103515042499
-    HV: 141.503564517216
-    LV: 131.123358144936
-    LV HV: 61.9095504849725
+  - _table: 1369. Net capex analysis pre-DCP 118 (£)
+  - 132kV: 94.2638181390156e6
+    EHV: 165.103515042499e6
+    HV: 141.503564517216e6
+    LV: 131.123358144936e6
+    LV HV: 61.9095504849725e6
 1370:
   - _table: 1370. Net capex percentages
   - Net capex percentages: 0.2208

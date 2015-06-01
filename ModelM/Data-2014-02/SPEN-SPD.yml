@@ -509,12 +509,12 @@
     _column: LV
   - LV services: Calculated from Calc-MEAV in 2009 PDF.
 1369:
-  - _table: 1369. Net capex analysis pre-DCP 118 (£ million)
-  - 132kV: 0
-    EHV: 219.672007214924
-    HV: 254.078909271689
-    LV: 171.101592141288
-    LV HV: 35.9278245514731
+  - _table: 1369. Net capex analysis pre-DCP 118 (£)
+  - 132kV: 0e6
+    EHV: 219.672007214924e6
+    HV: 254.078909271689e6
+    LV: 171.101592141288e6
+    LV HV: 35.9278245514731e6
 1370:
   - _table: 1370. Net capex percentages
   - Net capex percentages: 0.2513
