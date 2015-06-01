@@ -44,7 +44,7 @@ sub netCapexRawData {
           . ' sheet Calc-Net capex, possibly cells G6 to G10.',
         data       => [qw(100 100 100 100 100)],
         number     => 1369,
-        rows       => Dataset( list => [qw(LV LV/HV HV EHV 132kV)] ),
+        rows       => Labelset( list => [qw(LV LV/HV HV EHV 132kV)] ),
         dataset    => $model->{dataset},
         appendTo   => $model->{objects}{inputTables},
         validation => {
