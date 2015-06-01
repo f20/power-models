@@ -61,7 +61,7 @@ sub units {
 
     my $distributed = Dataset(
         name     => 'Units distributed (GWh)',
-        lines    => 'From RRP 2007/2008 table 5.1, cells G34 to G36',
+        lines    => 'From RRP 2007/2008 table 5.1, cells G34 to G36.',
         rows     => Labelset( list => [ 'EHV (Includes 132kV)', 'HV', 'LV' ] ),
         data     => [qw(2000 5000 25000)],
         number   => 1321,
@@ -76,7 +76,7 @@ sub units {
 
     my $losses = Dataset(
         name       => 'Losses (GWh)',
-        lines      => 'From RRP 2007/2008 table 5.1, cell G40',
+        lines      => 'From RRP 2007/2008 table 5.1, cell G40.',
         data       => [2500],
         number     => 1322,
         dataset    => $model->{dataset},

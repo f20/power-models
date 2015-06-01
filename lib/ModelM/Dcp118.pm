@@ -56,7 +56,7 @@ EOT
 
     my $cdcmAssets = $model->{objects}{cdcmAssets} ||= Dataset(
         name          => 'Assets in CDCM model (£)',
-        lines         => 'From CDCM model',
+        lines         => 'From CDCM model.',
         defaultFormat => '0hard',
         cols          => $assetLevelset,
         data          => [ map { 5e8 } @{ $assetLevelset->{list} } ],
@@ -72,7 +72,7 @@ EOT
 
     my $edcmAssets = $model->{objects}{edcmAssets} ||= Dataset(
         name          => 'All notional assets in EDCM (£)',
-        lines         => 'From EDCM tariff model',
+        lines         => 'From EDCM tariff model.',
         defaultFormat => '0hard',
         data          => [5e7],
         number        => 1332,

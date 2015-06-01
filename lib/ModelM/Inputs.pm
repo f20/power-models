@@ -39,7 +39,7 @@ sub lvSplit {
     $model->{objects}{lvSplit} ||= Dataset(
         name  => 'DNO LV mains usage',
         lines => 'DNO-specific LV mains split'
-          . ' calculated in accordance with paragraph 114 of Schedule 16',
+          . ' calculated in accordance with paragraph 114 of Schedule 16.',
         data => [ [0.1] ],
         defaultFormat => '%hard',
         number        => 1301,
@@ -58,7 +58,7 @@ sub hvSplit {
     $model->{objects}{hvSplit} ||= Dataset(
         name  => 'DNO HV mains usage',
         lines => 'HV mains usage value provided each year'
-          . ' by the Nominated Calculation Agent',
+          . ' by the Nominated Calculation Agent.',
         data => [ [0.4] ],
         defaultFormat => '%hard',
         number        => 1302,
@@ -170,10 +170,8 @@ sub totalDpcr {
     );
     $model->{objects}{totalDcpr} = Columnset(
         name  => 'DPCR4 aggregate allowances (£)',
-        lines => [
-                'In a legacy Method M workbook, these data are on'
-              . ' sheet Calc-Allocation, possibly cells C47, C48, C49.',
-        ],
+        lines => 'In a legacy Method M workbook, these data are on'
+          . ' sheet Calc-Allocation, possibly cells C47, C48, C49.',
         columns  => \@columns,
         number   => 1310,
         dataset  => $model->{dataset},
