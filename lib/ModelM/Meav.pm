@@ -397,7 +397,10 @@ sub meavPercentagesEdcm {
 
     my ( $model, $edcmLevelset ) = @_;
 
-    my $meav = $model->meavRawData or die 'EDCM method M needs raw MEAV data';
+    my $meav = $model->meavRawData
+      or die 'EDCM method M needs raw MEAV data';
+
+    $meav = Stack( sources => [$meav] ) if $meav->{location};
 
     my $mapping = Constant(
         name          => 'MEAV EDCM mapping',

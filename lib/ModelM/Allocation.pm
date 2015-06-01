@@ -44,12 +44,14 @@ sub allocation {
         $units,
     ) = @_;
 
-    my $toDeduct = Arithmetic(
+    my $toDeduct =
+      $model->{objects}{toDeduct}{ 0 + $allocationRules }{ 0 + $expenditure }
+      ||= Arithmetic(
         name => 'To be deducted from revenue and treated as "upstream" cost',
         defaultFormat => '0soft',
         arithmetic    => '=SUMIF(IV1_IV2,"Deduct from revenue",IV3_IV4)',
         arguments => { IV1_IV2 => $allocationRules, IV3_IV4 => $expenditure }
-    );
+      );
 
     my $expensed = Arithmetic(
         name => 'Complete allocation, adjusted for regulatory capitalisation',
@@ -92,7 +94,9 @@ sub allocation {
         }
     );
 
-    my $propOp = Arithmetic(
+    my $propOp =
+      $model->{objects}{propOp}{ 0 + $totalReturn }{ 0 + $totalDepreciation }
+      { 0 + $totalOperating } ||= Arithmetic(
         name       => 'Proportion of price control revenue attributed to opex',
         arithmetic => '=IV1/(IV32+IV42+IV52)',
         arguments  => {
@@ -102,9 +106,11 @@ sub allocation {
             IV52 => $totalOperating,
         },
         defaultFormat => '%soft',
-    );
+      );
 
-    my $revenueToBeAllocated = Arithmetic(
+    my $revenueToBeAllocated =
+      $model->{objects}{revenueToBeAllocated}{ 0 + $incentive }
+      { 0 + $toDeduct }{ 0 + $revenue } ||= Arithmetic(
         name => 'Revenue to be allocated between network levels (£/year)',
         defaultFormat => '0softnz',
         arithmetic    => '=IV1-IV81-IV82',
@@ -113,7 +119,7 @@ sub allocation {
             IV82 => $toDeduct,
             IV1  => $revenue,
         },
-    );
+      );
 
     my $ppu = Arithmetic(
         name       => 'p/kWh split',
@@ -153,7 +159,9 @@ sub allocation {
         );
     }
 
-    my $ppuNotSplit = Arithmetic(
+    my $ppuNotSplit =
+      $model->{objects}{ppuNotSplit}{ 0 + $units }{ 0 + $incentive }
+      { 0 + $toDeduct }{ 0 + $revenue } ||= Arithmetic(
         name => 'p/kWh not split',
         cols => Labelset(
             list => [ $allocLevelset->{list}[ $#{ $allocLevelset->{list} } ] ]
@@ -165,7 +173,7 @@ sub allocation {
             IV82 => $toDeduct,
             IV9  => $revenue,
         }
-    );
+      );
 
     my $alloc = Arithmetic(
         name          => 'Allocated proportion',
