@@ -250,7 +250,10 @@ EOT
             },
         );
         my @sources = $dnoBypassMatrix;
-        foreach my $level ( $nameOfLvLevel, 'HV', 'EHV', '132kV' ) {
+        foreach
+          my $level ( $model->{edcm} =~ /only/i ? () : ( $nameOfLvLevel, 'HV' ),
+            'EHV', '132kV' )
+        {
             my ($col) = grep { $allLevelset->{list}[$_] eq $level }
               0 .. $#{ $allLevelset->{list} };
             die "$level not found in @{$allLevelset->{list}}"
