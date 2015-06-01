@@ -38,7 +38,7 @@ sub meavRawData {
 
     my ($model) = @_;
     return unless $model->{meav};
-    return $model->{meav} if ref $model->{meav};
+    return $model->{objects}{meav} if ref $model->{objects}{meav};
     my $rows = Labelset( name => 'MEAV rows', list => [ split /\n/, <<EOL] );
 LV main overhead line km
 LV service overhead
@@ -156,16 +156,15 @@ EOL
         defaultFormat => '%hard',
         number        => 1355,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         columns       => \@d,
     );
-    $model->{meav} = Arithmetic(
+    $model->{objects}{meav} = Arithmetic(
         name          => 'MEAV (£)',
         defaultFormat => 'millionsoft',
         arithmetic    => '=IV1*IV2',
         arguments     => { IV1 => $d[0], IV2 => $d[1], },
     );
-
 }
 
 sub meavPercentages {
@@ -173,7 +172,7 @@ sub meavPercentages {
     my ( $model, $allocLevelset ) = @_;
 
     my $meav = $model->meavRawData;
-    return Dataset(
+    return $model->{objects}{meavPercentages}{ 0 + $allocLevelset } ||= Dataset(
         name  => 'MEAV percentages',
         lines => 'From pre-DCP 118 sheet Calc-MEAV starting at cell H6.',
         data  => [ map { 0 } @{ $allocLevelset->{list} } ],
@@ -181,13 +180,16 @@ sub meavPercentages {
         number        => 1350,
         cols          => $allocLevelset,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
         },
     ) unless $meav;
+
+    return $model->{objects}{meavPercentages}{ 0 + $allocLevelset }{ 0 + $meav }
+      if $model->{objects}{meavPercentages}{ 0 + $allocLevelset }{ 0 + $meav };
 
     my $mapping = Constant(
         name          => 'MEAV mapping',
@@ -306,7 +308,8 @@ sub meavPercentages {
         vector        => $meav,
     );
 
-    Arithmetic(
+    $model->{objects}{meavPercentages}{ 0 + $allocLevelset }{ 0 + $meav } =
+      Arithmetic(
         name          => 'MEAV percentages',
         defaultFormat => '%soft',
         cols          => $allocLevelset,
@@ -315,7 +318,7 @@ sub meavPercentages {
             IV6     => $totalMeav,
             IV8_IV9 => $totalMeav,
         },
-    );
+      );
 
 }
 
@@ -332,7 +335,7 @@ sub meavPercentageServiceLV {
         cols          => $lvOnly,
         rows          => $lvServiceOnly,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',

@@ -44,13 +44,12 @@ sub allocation {
         $units,
     ) = @_;
 
-    push @{ $model->{calcTables} },
-      my $toDeduct = Arithmetic(
+    my $toDeduct = Arithmetic(
         name => 'To be deducted from revenue and treated as "upstream" cost',
         defaultFormat => '0soft',
         arithmetic    => '=SUMIF(IV1_IV2,"Deduct from revenue",IV3_IV4)',
         arguments => { IV1_IV2 => $allocationRules, IV3_IV4 => $expenditure }
-      );
+    );
 
     my $expensed = Arithmetic(
         name => 'Complete allocation, adjusted for regulatory capitalisation',
@@ -148,13 +147,11 @@ sub allocation {
                     data          => [''],
                     number        => 1328,
                     dataset       => $model->{dataset},
-                    appendTo      => $model->{inputTables},
+                    appendTo      => $model->{objects}{inputTables},
                 ),
             }
         );
     }
-
-    push @{ $model->{calcTables} }, $ppu;
 
     my $ppuNotSplit = Arithmetic(
         name => 'p/kWh not split',

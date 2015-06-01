@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -28,54 +28,48 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# This provides all the inputs except those related
-# to MEAVs, net capex, DCP 118 and EDCM method M.
-
 use warnings;
 use strict;
 use utf8;
 
 use SpreadsheetModel::Shortcuts ':all';
 
-sub splits {
-
+sub lvSplit {
     my ($model) = @_;
-
-    (
-        $model->{lvSplit} ||= Dataset(
-            name          => 'DNO LV mains usage',
-            data          => [ [0.1] ],
-            defaultFormat => '%hard',
-            number        => 1301,
-            dataset       => $model->{dataset},
-            appendTo      => $model->{inputTables},
-            validation    => {
-                validate => 'decimal',
-                criteria => '>=',
-                value    => 0,
-            },
-        ),
-        $model->{hvSplit} ||= Dataset(
-            name          => 'DNO HV mains usage',
-            data          => [ [0.4] ],
-            defaultFormat => '%hard',
-            number        => 1302,
-            dataset       => $model->{dataset},
-            appendTo      => $model->{inputTables},
-            validation    => {
-                validate => 'decimal',
-                criteria => '>=',
-                value    => 0,
-            },
-        ),
+    $model->{objects}{lvSplit} ||= Dataset(
+        name          => 'DNO LV mains usage',
+        data          => [ [0.1] ],
+        defaultFormat => '%hard',
+        number        => 1301,
+        dataset       => $model->{dataset},
+        appendTo      => $model->{objects}{inputTables},
+        validation    => {
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        },
     );
+}
 
+sub hvSplit {
+    my ($model) = @_;
+    $model->{objects}{hvSplit} ||= Dataset(
+        name          => 'DNO HV mains usage',
+        data          => [ [0.4] ],
+        defaultFormat => '%hard',
+        number        => 1302,
+        dataset       => $model->{dataset},
+        appendTo      => $model->{objects}{inputTables},
+        validation    => {
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        },
+    );
 }
 
 sub checks {
-
     my ( $model, $allocLevelset ) = @_;
-
     my $discounts = Columnset(
         name    => 'Current LDNO discounts',
         columns => [
@@ -126,17 +120,15 @@ sub checks {
         ],
         number   => 1399,
         dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
+        appendTo => $model->{objects}{inputTables},
     );
-
     $discounts;
-
 }
 
 sub totalDpcr {
-
     my ($model) = @_;
-
+    return @{ $model->{objects}{totalDcpr}{columns} }
+      if $model->{objects}{totalDcpr};
     my @columns = (
         Dataset(
             name          => 'Aggregate return',
@@ -172,24 +164,21 @@ sub totalDpcr {
             },
         ),
     );
-
-    Columnset(
+    $model->{objects}{totalDcpr} = Columnset(
         name     => 'DPCR4 aggregate allowances',
         lines    => 'From sheet Calc-Allocation, cells C47, C48, C49.',
         columns  => \@columns,
         number   => 1310,
         dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
+        appendTo => $model->{objects}{inputTables},
     );
-
     @columns;
-
 }
 
 sub oneYearDpcr {
-
     my ($model) = @_;
-
+    return @{ $model->{objects}{oneYearDpcr}{columns} }
+      if $model->{objects}{oneYearDpcr};
     my @columns = (
         Dataset(
             name          => 'Total revenue',
@@ -220,46 +209,21 @@ sub oneYearDpcr {
             },
         ),
     );
-
-    Columnset(
+    $model->{objects}{oneYearDpcr} = Columnset(
         name     => 'Analysis of allowed revenue for 2007/2008',
         lines    => 'From sheet Calc-Allocation, cells F66 and F63.',
         columns  => \@columns,
         number   => 1315,
         dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
+        appendTo => $model->{objects}{inputTables},
     );
-
     @columns;
 }
 
-sub units {
-
-    my ( $model, $allocLevelset ) = @_;
-
-    Dataset(
-        name          => 'Units flowing',
-        lines         => 'From sheet Calc-Units, cells C23, C23, D23, E23.',
-        data          => [ map { 100 } @{ $allocLevelset->{list} } ],
-        defaultFormat => '0hard',
-        number        => 1320,
-        cols          => $allocLevelset,
-        dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
-        validation    => {
-            validate => 'decimal',
-            criteria => '>=',
-            value    => 0,
-        },
-    );
-
-}
-
 sub allocated {
-
     my ( $model, $allocLevelset, $expenditureSet, ) = @_;
-
-    Dataset(
+    $model->{objects}{allocated}{ 0 + $allocLevelset }{ 0 + $expenditureSet }
+      ||= Dataset(
         name  => 'Allocated costs',
         lines => 'From sheet Calc-Opex, '
           . 'starting at cell H7, '
@@ -274,16 +238,13 @@ sub allocated {
         cols          => $allocLevelset,
         rows          => $expenditureSet,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
-    );
-
+        appendTo      => $model->{objects}{inputTables},
+      );
 }
 
 sub expenditure {
-
     my ( $model, $expenditureSet ) = @_;
-
-    Dataset(
+    $model->{objects}{expenditure}{ 0 + $expenditureSet } ||= Dataset(
         name          => 'Total costs',
         lines         => 'From sheet Calc-Opex, starting at cell D7.',
         data          => [ map { 0 } @{ $expenditureSet->{list} } ],
@@ -291,58 +252,52 @@ sub expenditure {
         number        => 1335,
         rows          => $expenditureSet,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
     );
-
 }
 
 sub networkLengthPercentages {
-
     my ( $model, $allocLevelset ) = @_;
-
-    Dataset(
+    $model->{objects}{networkLengthPercentages}{ 0 + $allocLevelset } ||=
+      Dataset(
         name          => 'Network length percentages',
         data          => [ map { 0 } @{ $allocLevelset->{list} } ],
         defaultFormat => '%hard',
         number        => 1375,
         cols          => $allocLevelset,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
         },
-    );
-
+      );
 }
 
 sub customerNumbersPercentages {
-
     my ( $model, $allocLevelset ) = @_;
-
-    Dataset(
+    $model->{objects}{customerNumbersPercentages}{ 0 + $allocLevelset } ||=
+      Dataset(
         name          => 'Customer numbers percentages',
         data          => [ map { 0 } @{ $allocLevelset->{list} } ],
         defaultFormat => '%hard',
         number        => 1377,
         cols          => $allocLevelset,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
         },
-    );
-
+      );
 }
 
 sub networkLengthPercentageServiceLV {
-
     my ( $model, $lvOnly, $lvServiceOnly ) = @_;
-
-    Dataset(
+    $model->{objects}{networkLengthPercentageServiceLV}{ 0 + $lvOnly }
+      { 0 + $lvServiceOnly } ||= Dataset(
         name          => 'Network length: ratio of LV services to LV total',
         data          => [.5],
         defaultFormat => '%hard',
@@ -350,21 +305,19 @@ sub networkLengthPercentageServiceLV {
         cols          => $lvOnly,
         rows          => $lvServiceOnly,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
         },
-    );
-
+      );
 }
 
 sub customerNumbersPercentageServiceLV {
-
     my ( $model, $lvOnly, $lvServiceOnly ) = @_;
-
-    Dataset(
+    $model->{objects}{customerNumbersPercentageServiceLV}{ 0 + $lvOnly }
+      { 0 + $lvServiceOnly } ||= Dataset(
         name          => 'Customer numbers: ratio of LV services to LV total',
         data          => [.5],
         defaultFormat => '%hard',
@@ -372,14 +325,13 @@ sub customerNumbersPercentageServiceLV {
         cols          => $lvOnly,
         rows          => $lvServiceOnly,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
         },
-    );
-
+      );
 }
 
 1;

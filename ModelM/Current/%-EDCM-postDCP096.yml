@@ -1,8 +1,7 @@
 ---
-.: EDCM Method M after DCP 095 and DCP 096
+.: EDCM Method M after DCP 096
 PerlModule: ModelM
 dcp071: 1
-dcp095: 1
 dcp096: 1
 edcm: only
 meav: 1

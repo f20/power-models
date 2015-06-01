@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,22 +32,72 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use ModelM::Options;
-use ModelM::Sheets;
-use ModelM::Inputs;
-use ModelM::Meav;
-use ModelM::NetCapex;
-use ModelM::Expenditure;
-use ModelM::Allocation;
-use ModelM::Discounts;
 
 sub requiredModulesForRuleset {
+
     my ( $class, $ruleset ) = @_;
-    $ruleset->{dcp095} ? qw(ModelM::Dcp095) : (), $ruleset->{dcp117}
-      && $ruleset->{dcp117} !~ /2014/ ? qw(ModelM::Dcp117)             : (),
-      $ruleset->{dcp118}              ? qw(ModelM::Dcp118)             : (),
-      $ruleset->{edcm}                ? qw(ModelM::Edcm)               : (),
-      $ruleset->{checksums}           ? qw(SpreadsheetModel::Checksum) : ();
+
+    my @modules = (
+
+        'ModelM::Allocation',
+        'ModelM::Expenditure',
+        'ModelM::Inputs',
+        'ModelM::Meav',
+        'ModelM::NetCapex',
+        'ModelM::Options',
+        'ModelM::Sheets',
+        'ModelM::Units',
+
+          $ruleset->{edcm} && $ruleset->{edcm} =~ /only/ ? ()
+        : $ruleset->{dcp095} ? 'ModelM::Dcp095'
+        : 'ModelM::Discounts',
+
+        $ruleset->{dcp118} ? 'ModelM::Dcp118' : (),
+
+        $ruleset->{edcm} ? 'ModelM::Edcm' : (),
+
+        $ruleset->{dcp117}
+          && $ruleset->{dcp117} !~ /201[34]/ ? 'ModelM::Dcp117_2012' : (),
+
+        $ruleset->{checksums} ? 'SpreadsheetModel::Checksum' : ()
+
+    );
+
+    push @modules, $class->requiredModulesForRuleset($_)
+      foreach ref $ruleset->{AdditionalRules} eq 'ARRAY'
+      ? @{ $ruleset->{AdditionalRules} }
+      : ref $ruleset->{AdditionalRules} eq 'HASH' ? $ruleset->{AdditionalRules}
+      :                                             ();
+
+    @modules;
+
+}
+
+sub new {
+    my $class = shift;
+    my $model = bless {
+        objects => { inputTables => [] },
+        dataset => {},
+        @_,
+    }, $class;
+    my $extras = delete $model->{AdditionalRules};
+    $model->run;
+    foreach (
+          ref $extras eq 'ARRAY' ? @$extras
+        : ref $extras eq 'HASH'  ? $extras
+        :                          ()
+      )
+    {
+        (
+            bless {
+                objects => $model->{objects},
+                dataset => $model->{dataset},
+                %$_,
+            },
+            $class
+        )->run;
+    }
+    $model;
 }
 
 sub setUpMultiModelSharing {
@@ -56,18 +106,12 @@ sub setUpMultiModelSharing {
     $options->{multiModelSharing} = $$mmsRef ||= ModelM::MultiModel->new;
 }
 
-sub new {
-    my $class = shift;
-    my $model = bless { inputTables => [], @_ }, $class;
-
-    my $allocLevelset = Labelset(
+sub run {
+    my ($model) = @_;
+    my $allocLevelset = $model->{objects}{allocLevelset} ||= Labelset(
         name => 'Allocation levels',
-        list => [ split /\n/, <<END_OF_LIST ] );
-LV
-HV/LV
-HV
-EHV&132
-END_OF_LIST
+        list => [qw(LV HV/LV HV EHV&132)]
+    );
     my ( $totalReturn, $totalDepreciation, $totalOperating, ) =
       $model->totalDpcr;
     my ( $revenue, $incentive, $pension, ) = $model->oneYearDpcr;
@@ -86,20 +130,10 @@ END_OF_LIST
       $model->adjust118( $netCapexPercentages, $meavPercentages, )
       if $model->{dcp118};
 
-    # because Numbers for iPad does not accept a SUMIF across sheets.
-    $expenditure = Stack( sources => [$expenditure] );
-
-    my ( $afterAllocation, $direct, $tableForColumnset ) =
-      $model->expenditureAlloc(
+    my ( $afterAllocation, $direct, ) = $model->expenditureAlloc(
         $allocLevelset,   $allocationRules, $capitalised,
         $directIndicator, $expenditure,     $meavPercentages,
-      );
-
-    push @{ $model->{calcTables} }, $allocationRules,
-      Columnset(
-        columns => [ $expenditure, $tableForColumnset ],
-        name    => 'Expenditure data'
-      );
+    );
 
     ( $afterAllocation, $allocLevelset, $netCapexPercentages, $units ) =
       $model->realloc95( $afterAllocation, $allocationRules,
@@ -113,20 +147,15 @@ END_OF_LIST
         $totalOperating,      $totalReturn,   $units,
     );
 
-    push @{ $model->{calcTables} }, $alloc,
-      $model->{fixedIndirectPercentage} ? () : $direct;
-
     unless ( $model->{edcm} && $model->{edcm} =~ /only/ ) {
         my $dcp071 = $model->{dcp071} || $model->{dcp071A};
-        my ( $lvSplit, $hvSplit ) = $model->splits;
         my $discountCall = $model->{dcp095} ? 'discounts95' : 'discounts';
         $model->$discountCall( $alloc, $allocLevelset, $dcp071, $direct,
-            $hvSplit, $lvSplit, );
+            $model->hvSplit, $model->lvSplit, );
     }
 
     $model->discountEdcm( $alloc, $direct ) if $model->{edcm};
 
-    $model;
 }
 
 1;

@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
+Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -37,7 +38,14 @@ sub allocationRules {
 
     my ($model) = @_;
 
-    my $expenditureSet = Labelset( list => [ split /\n/, <<END_OF_LIST] );
+    my $key = 'allocationRules?' . join '&',
+      map { defined $model->{$_} ? "$_=$model->{$_}" : (); }
+      qw(dcp094 dcp096 dcp097 dcp097A dcp117 fixedIndirectPercentage);
+
+    return $model->{objects}{$key}{columns} if $model->{objects}{$key};
+
+    my $expenditureSet = $model->{objects}{expenditureSet} ||=
+      Labelset( list => [ split /\n/, <<END_OF_LIST] );
 Load related new connections & reinforcement (net of contributions)
 Non-load new & replacement assets (net of contributions)
 Non-operational capex
@@ -138,7 +146,7 @@ END_OF_LIST
         )
     );
 
-    Columnset(
+    $model->{objects}{$key} = Columnset(
         name     => 'Allocation rules',
         columns  => \@c,
         location => 'Options'

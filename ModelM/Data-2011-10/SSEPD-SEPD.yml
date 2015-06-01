@@ -48,6 +48,16 @@
   - Units flowing: 33833210652
     _column: EHV&132
   - Units flowing: ''
+1321:
+  - _table: 1321. Units distributed (GWh)
+  - EHV Includes 132kV: 3263
+    HV: 6511
+    LV: 24475
+    _column: Units distributed (GWh)
+1322:
+  - _table: 1322. Losses (GWh)
+  - Losses GWh: 2245
+    _column: Losses (GWh)
 1330:
   - _table: 330. Allocated costs
   - Atypical cash costs: ''

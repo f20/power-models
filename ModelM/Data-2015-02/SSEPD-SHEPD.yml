@@ -41,12 +41,24 @@
     _column: HV
   - Units flowing: 8563485156
     _column: EHV&132
+1321:
+  - _table: 1321. Units distributed (GWh)
+  - EHV Includes 132kV: 282
+    HV: 1405
+    LV: 6958
+1322:
+  - _table: 1322. Losses (GWh)
+  - Losses GWh: 757
+1328:
+  - _table: 1328. Income for connections indirects (£)
+  - Income for connections indirects: 5160000
+    _column: Income for connections indirects (£)
 1329:
   - ~
-  - Load related new connections reinforcement net of contributions: -2700000
+  - Load related new connections reinforcement net of contributions: 3360000
   - Load related new connections reinforcement net of contributions: ''
-  - Load related new connections reinforcement net of contributions: 214285.714285714
-  - Load related new connections reinforcement net of contributions: 5285714.28571429
+  - Load related new connections reinforcement net of contributions: 890000
+  - Load related new connections reinforcement net of contributions: 5650000
 1330:
   - _table: 1330. Allocated costs
   - Atypical cash costs: ''
@@ -494,6 +506,13 @@
   - _table: '1360. MEAV: ratio of LV services to LV total'
   - LV services: 0.388888888888889
     _column: LV
+1369:
+  - _table: 1369. Net capex analysis pre-DCP 118 (£ million)
+  - 132kV: 0
+    EHV: 116.3
+    HV: 144.771775417299
+    LV: 70.9
+    LV HV: 12.6282245827011
 1370:
   - _table: 1370. Net capex percentages
   - Net capex percentages: 0.2057

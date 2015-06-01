@@ -35,14 +35,29 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub netCapexRawData {
+    my ($model) = @_;
+    return unless $model->{netCapex};
+    $model->{objects}{netCapexRawData} ||= Dataset(
+        name       => 'Net capex analysis pre-DCP 118 (£ million)',
+        lines      => 'From pre-DCP 118 sheet Calc-Net capex.',
+        data       => [qw(100 100 100 100 100)],
+        number     => 1369,
+        rows       => Dataset( list => [qw(LV LV/HV HV EHV 132kV)] ),
+        dataset    => $model->{dataset},
+        appendTo   => $model->{objects}{inputTables},
+        validation => {
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        },
+    );
 }
 
 sub netCapexPercentages {
-
     my ( $model, $allocLevelset ) = @_;
-
     my $netCapex = $model->netCapexRawData;
-    return Dataset(
+    return $model->{objects}{netCapexPercentages}{ 0 + $allocLevelset } ||=
+      Dataset(
         name  => 'Net capex percentages',
         lines => 'From pre-DCP 118 sheet Calc-Net capex starting at cell H6.',
         data  => [ map { 0 } @{ $allocLevelset->{list} } ],
@@ -50,21 +65,54 @@ sub netCapexPercentages {
         number        => 1370,
         cols          => $allocLevelset,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
         },
-    ) unless $netCapex;
-
+      ) unless $netCapex;
+    $model->{objects}{netCapexPercentages}{ 0 + $netCapex }
+      { 0 + $allocLevelset } ||= SpreadsheetModel::Custom->new(
+        name          => 'Net capex percentages',
+        defaultFormat => '%soft',
+        cols          => $allocLevelset,
+        arithmetic    => '=(IV5 or IV6+IV7)/SUM(IV1:IV2)',
+        custom =>
+          [ '=IV6/(IV1+IV2+IV3+IV4+IV5)', '=(IV6+IV7)/(IV1+IV2+IV3+IV4+IV5)', ],
+        arguments => {
+            IV1 => $netCapex,
+            IV2 => $netCapex,
+            IV3 => $netCapex,
+            IV4 => $netCapex,
+            IV5 => $netCapex,
+            IV6 => $netCapex,
+            IV7 => $netCapex,
+        },
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                '', $format, $formula->[ $x == 3 ? 1 : 0 ], map {
+                    $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{$_} + (
+                              /IV([12345])/ ? $1 - 1
+                            : /IV([67])/    ? $x + $1 - 6
+                            : 0
+                        ),
+                        $colh->{$_},
+                        1, 1,
+                      )
+                } @$pha;
+            };
+        },
+      );
 }
 
 sub netCapexPercentageServiceLV {
-
     my ( $model, $lvOnly, $lvServiceOnly ) = @_;
-
-    Dataset(
+    $model->{objects}{netCapexPercentageServiceLV}{ 0 + $lvOnly }
+      { 0 + $lvServiceOnly } ||= Dataset(
         name          => 'Net capex: ratio of LV services to LV total',
         data          => [.5],
         defaultFormat => '%hard',
@@ -72,14 +120,13 @@ sub netCapexPercentageServiceLV {
         cols          => $lvOnly,
         rows          => $lvServiceOnly,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
         },
-    );
-
+      );
 }
 
 1;

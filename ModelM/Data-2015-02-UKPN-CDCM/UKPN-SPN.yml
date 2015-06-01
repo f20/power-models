@@ -7,7 +7,7 @@
     _column: Year
   - Company charging year data version: February 2015
     _column: Version
-  - Company charging year data version: Input data compiled by Franck from public sources. E&OE. This dataset is intended to match the CDCM February 2015 price notice.
+  - Company charging year data version: Input data compiled by Franck from public sources. E&OE. This dataset is intended to match the February 2015 CDCM price notice.
 1301:
   - _table: 1301. DNO LV mains usage
   - DNO LV mains usage: 0.241

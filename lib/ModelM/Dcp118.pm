@@ -54,14 +54,14 @@ LV customer
 HV customer
 EOT
 
-    my $cdcmAssets = Dataset(
+    my $cdcmAssets = $model->{objects}{cdcmAssets} ||= Dataset(
         name => 'Assets in CDCM model (£) (from CDCM table 2705 or 2706)',
         defaultFormat => '0hard',
         cols          => $assetLevelset,
         data          => [ map { 5e8 } @{ $assetLevelset->{list} } ],
         number        => 1331,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',
@@ -69,14 +69,14 @@ EOT
         }
     );
 
-    my $edcmAssets = Dataset(
+    my $edcmAssets = $model->{objects}{edcmAssets} ||= Dataset(
         name => 'All notional assets in EDCM (£) '
           . '(from EDCM table 4167, 4168, 4169 or 4170)',
         defaultFormat => '0hard',
         data          => [5e7],
         number        => 1332,
         dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
+        appendTo      => $model->{objects}{inputTables},
         validation    => {
             validate => 'decimal',
             criteria => '>=',

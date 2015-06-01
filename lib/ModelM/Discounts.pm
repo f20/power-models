@@ -34,7 +34,7 @@ use utf8;
 
 use SpreadsheetModel::Shortcuts ':all';
 
-sub discounts { # Not used if DCP 095
+sub discounts {    # Not used if DCP 095
 
     my ( $model, $alloc, $allocLevelset, $dcp071, $direct, $hvSplit, $lvSplit, )
       = @_;
@@ -54,11 +54,11 @@ sub discounts { # Not used if DCP 095
         cols    => Labelset( list => ['HV'] ),
         sources => [$alloc]
     );
-    push @{ $model->{impactTables} },
-      Columnset(
+
+    Columnset(
         name    => 'Allocations to network levels',
         columns => [ $lvAllocation, $hvLvAllocation, $hvAllocation ]
-      );
+    );
 
     my $lvDirect = Stack(
         name    => 'LV direct proportion',
@@ -70,11 +70,11 @@ sub discounts { # Not used if DCP 095
         cols    => Labelset( list => ['HV'] ),
         sources => [$direct]
     ) unless $model->{fixedIndirectPercentage};
-    push @{ $model->{calcTables} },
-      Columnset(
+
+    Columnset(
         name    => 'Direct cost proportions',
         columns => [ $lvDirect, $hvDirect ]
-      ) unless $model->{fixedIndirectPercentage};
+    ) unless $model->{fixedIndirectPercentage};
 
     my @columns = (
         Arithmetic(
@@ -157,6 +157,9 @@ sub discounts { # Not used if DCP 095
         ),
     );
 
+    push @{ $model->{objects}{calcSheets} },
+      [ $model->{suffix}, map { values %{ $_->{arguments} }; } @columns ];
+
     push @columns, map {
         SpreadsheetModel::Checksum->new(
             name => $_,
@@ -169,30 +172,31 @@ sub discounts { # Not used if DCP 095
       if $model->{checksums};
 
     my $discount = Columnset(
-        name    => 'LDNO discounts',
+        name    => 'LDNO discounts (CDCM)',
         columns => \@columns,
     );
 
-    push @{ $model->{impactTables} }, $discount;
+    push @{ $model->{objects}{resultsTables} }, $discount;
 
-    my ($discountCurrent) = $model->checks($allocLevelset);
-
-    push @{ $model->{impactTables} }, Columnset(
-        name    => 'Change from current discounts',
-        columns => [
-            map {
-                Arithmetic(
-                    arithmetic => '=IV1-IV2',
-                    name       => $discountCurrent->{columns}[$_]{name},
-                    arguments  => {
-                        IV1 => $discount->{columns}[$_],
-                        IV2 => $discountCurrent->{columns}[$_]
-                    },
-                    defaultFormat => '%softpm'
-                  )
-            } 0 .. $#{ $discountCurrent->{columns} }
-        ]
-    );
+    if ( $model->{table1399} ) {
+        my ($discountCurrent) = $model->checks($allocLevelset);
+        push @{ $model->{objects}{resultsTables} }, Columnset(
+            name    => 'Change from current discounts',
+            columns => [
+                map {
+                    Arithmetic(
+                        arithmetic => '=IV1-IV2',
+                        name       => $discountCurrent->{columns}[$_]{name},
+                        arguments  => {
+                            IV1 => $discount->{columns}[$_],
+                            IV2 => $discountCurrent->{columns}[$_]
+                        },
+                        defaultFormat => '%softpm'
+                      )
+                } 0 .. $#{ $discountCurrent->{columns} }
+            ]
+        );
+    }
 
 }
 

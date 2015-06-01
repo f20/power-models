@@ -32,8 +32,8 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-require Spreadsheet::WriteExcel::Utility;
-require SpreadsheetModel::ColourCodeWriter;
+use Spreadsheet::WriteExcel::Utility;
+use SpreadsheetModel::ColourCodeWriter;
 
 sub worksheetsAndClosures {
 
@@ -51,7 +51,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 20 );
         $wsheet->{nextFree} = 2;    # One comment line under "Input data" title
-        $model->{inputTables} ||= [];
+        $model->{objects}{inputTables} ||= [];
         $model->{dataset}{1300}[3]{'Company charging year data version'} =
           $model->{version}
           if $model->{version} && $model->{dataset};
@@ -67,23 +67,19 @@ sub worksheetsAndClosures {
         $sh = $sh->get_name;
         $wbook->{titleAppend} =
             qq%" for "&'$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
+          . xl_rowcol_to_cell( $ro, $co )
           . qq%&" in "&'$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 1 )
+          . xl_rowcol_to_cell( $ro, $co + 1 )
           . qq%&" ("&'$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
-          . '&")"';
-        $model->{multiModelSharing}->addModelName(
-                qq%='$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
+          . xl_rowcol_to_cell( $ro, $co + 2 ) . '&")"';
+        $model->{multiModelSharing}->addModelName( qq%='$sh'!%
+              . xl_rowcol_to_cell( $ro, $co )
               . qq%&" "&'$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                $ro, $co + 2
-              )
-        ) if $model->{multiModelSharing};
+              . xl_rowcol_to_cell( $ro, $co + 2 ) )
+          if $model->{multiModelSharing};
         $_->wsWrite( $wbook, $wsheet )
           foreach sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
-          @{ $model->{inputTables} };
+          @{ $model->{objects}{inputTables} };
         my $nextFree = delete $wsheet->{nextFree};
         Notes( lines =>
               [ 'Input data', '', 'This sheet contains the input data.' ] )
@@ -91,14 +87,34 @@ sub worksheetsAndClosures {
         $wsheet->{nextFree} = $nextFree;
     };
 
-    push @pairs, 'Calculations' => sub {
-        my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
-        $wsheet->set_column( 1, 250, 20 );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Calculations' ), @{ $model->{calcTables} };
-    };
+    my %tablesBySheet;
+
+    foreach (
+        $model->{objects}{calcSheets}
+        ? @{ $model->{objects}{calcSheets} }
+        : ()
+      )
+    {
+        my ( $sheetName, @tables ) = @$_;
+        $sheetName ||= 'Calculations';
+        if ( $tablesBySheet{$sheetName} ) {
+            push @{ $tablesBySheet{$sheetName} }, @tables;
+        }
+        else {
+            $tablesBySheet{$sheetName} = \@tables;
+            push @pairs, ( $sheetName || 'Calculations' ) => sub {
+                my ($wsheet) = @_;
+                $wsheet->freeze_panes( 1, 0 );
+                $wsheet->set_column( 0, 0,   36 );
+                $wsheet->set_column( 1, 250, 20 );
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( name => $sheetName eq 'Calculations'
+                    ? 'Calculations'
+                    : "Calculations ($sheetName)" ),
+                  @{ $tablesBySheet{$sheetName} };
+            };
+        }
+    }
 
     push @pairs, 'Results' => sub {
         my ($wsheet) = @_;
@@ -106,8 +122,10 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Results' ), @{ $model->{impactTables} };
-        $model->{multiModelSharing}->addImpactTableSet( $model->{impactTables} )
+          foreach Notes( name => 'Results' ),
+          @{ $model->{objects}{resultsTables} };
+        $model->{multiModelSharing}
+          ->addImpactTableSet( $model->{objects}{resultsTables} )
           if $model->{multiModelSharing};
     };
 
@@ -189,7 +207,7 @@ sub licenceNotes {
     Notes(
         name  => '',
         lines => <<'EOL',
-Copyright 2009-2012 The Competitive Networks Association and others.  Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2009-2012 The Competitive Networks Association and others.  Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
 Use and distribution of the source code is subject to the conditions stated therein. 
 Any redistribution of this software must retain the following disclaimer:

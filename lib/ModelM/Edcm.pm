@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -73,7 +73,30 @@ sub discountEdcm {
             $alloc,
         ],
     );
-    my $discountLevelset = Labelset( list => [ split /\n/, <<EOL] );
+    my $discountLevelset = $model->{edcm} =~ /only/i
+      ? Labelset( list => [ split /\n/, <<EOL] )
+LDNO HVplus: LV demand
+LDNO HVplus: LV Sub dem | LV gen
+LDNO HVplus: HV dem | LV Sub gen
+LDNO HVplus: HV generation
+LDNO EHV: LV demand
+LDNO EHV: LV Sub dem | LV gen
+LDNO EHV: HV dem | LV Sub gen
+LDNO EHV: HV generation
+LDNO 132kV/EHV: LV demand
+LDNO 132kV/EHV: LV Sub dem | LV gen
+LDNO 132kV/EHV: HV dem | LV Sub gen
+LDNO 132kV/EHV: HV generation
+LDNO 132kV: LV demand
+LDNO 132kV: LV Sub dem | LV gen
+LDNO 132kV: HV dem | LV Sub gen
+LDNO 132kV: HV generation
+LDNO 0000: LV demand
+LDNO 0000: LV Sub dem | LV gen
+LDNO 0000: HV dem | LV Sub gen
+LDNO 0000: HV generation
+EOL
+      : Labelset( list => [ split /\n/, <<EOL] );
 LDNO LV: LV demand
 LDNO HV: LV demand
 LDNO HV: LV Sub demand
@@ -99,17 +122,7 @@ LDNO 0000: LV Sub dem | LV gen
 LDNO 0000: HV dem | LV Sub gen
 LDNO 0000: HV generation
 EOL
-    my $atwBypassed = SumProduct(
-        name => 'Proportion of costs not covered by all-the-way tariff',
-        defaultFormat => '%soft',
-        vector        => $allocAll,
-        matrix        => Constant(
-            name          => 'Network levels not covered by all-the-way tariff',
-            defaultFormat => '0con',
-            rows          => $discountLevelset,
-            cols          => $allLevelset,
-            byrow         => 1,
-            data          => [ map { [ split /\s+/ ] } split /\n/, <<EOT], ) );
+    my $dataAtwBypass = [ map { [ split /\s+/ ] } split /\n/, <<EOT];
 
 
 1 1
@@ -135,13 +148,7 @@ EOL
 1 1 1
 1 1 1 1
 EOT
-    my $dnoBypassMatrix = Constant(
-        name          => 'Network levels not covered by DNO network',
-        defaultFormat => '0con',
-        rows          => $discountLevelset,
-        cols          => $allLevelset,
-        byrow         => 1,
-        data          => [ map { [ split /\s+/ ] } split /\n/, <<EOT], );
+    my $dataDnoBypass = [ map { [ split /\s+/ ] } split /\n/, <<EOT];
 1 split
 1 1 1 split
 1 1 1 split
@@ -168,6 +175,36 @@ EOT
 1 1 1 1 1 1 1 1
 EOT
 
+    unless ( $model->{dcp095} ) {
+        shift @$_ foreach @$dataAtwBypass, @$dataDnoBypass;
+    }
+    if ( $model->{edcm} =~ /only/i ) {
+        splice @$_, 0, 4 foreach $dataAtwBypass, $dataDnoBypass;
+    }
+    my $atwBypassed = SumProduct(
+        name => 'Proportion of costs not covered by all-the-way tariff',
+        defaultFormat => '%soft',
+        vector        => $allocAll,
+        matrix        => Constant(
+            name          => 'Network levels not covered by all-the-way tariff',
+            defaultFormat => '0con',
+            rows          => $discountLevelset,
+            cols          => $allLevelset,
+            byrow         => 1,
+            data          => $dataAtwBypass,
+        ),
+    );
+    my $dnoBypassMatrix = Constant(
+        name          => 'Network levels not covered by DNO network',
+        defaultFormat => '0con',
+        rows          => $discountLevelset,
+        cols          => $allLevelset,
+        byrow         => 1,
+        data          => $dataDnoBypass,
+    );
+
+    my $nameOfLvLevel = $model->{dcp095} ? 'LV mains' : 'LV';
+
     if (
         grep {
             grep { /split/ }
@@ -175,15 +212,18 @@ EOT
         } @{ $dnoBypassMatrix->{data} }
       )
     {
-        my @splits      = $model->splits;
         my $splitDirect = SpreadsheetModel::Custom->new(
             name          => 'Splitting factors',
             defaultFormat => '%soft',
-            cols => Labelset( list => [ 'LV mains', 'HV', 'EHV', '132kV' ] ),
+            cols =>
+              Labelset( list => [ $nameOfLvLevel, 'HV', 'EHV', '132kV' ] ),
             custom     => [ '=1-IV2*IV9', '=1-IV3*IV9', '=1-IV9' ],
             arithmetic => 'Special calculation',
-            arguments =>
-              { IV2 => $splits[0], IV3 => $splits[1], IV9 => $direct, },
+            arguments  => {
+                IV2 => $model->lvSplit,
+                IV3 => $model->hvSplit,
+                IV9 => $direct,
+            },
             wsPrepare => sub {
                 my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
                   @_;
@@ -210,9 +250,11 @@ EOT
             },
         );
         my @sources = $dnoBypassMatrix;
-        foreach my $level ( 'LV mains', 'HV', 'EHV', '132kV' ) {
+        foreach my $level ( $nameOfLvLevel, 'HV', 'EHV', '132kV' ) {
             my ($col) = grep { $allLevelset->{list}[$_] eq $level }
               0 .. $#{ $allLevelset->{list} };
+            die "$level not found in @{$allLevelset->{list}}"
+              unless defined $col;
             my $set = Labelset(
                 list => [
                     @{ $dnoBypassMatrix->{rows}{list} }[
@@ -247,9 +289,9 @@ EOT
         vector        => $allocAll,
         matrix        => $dnoBypassMatrix,
     );
-    push @{ $model->{calcTables} }, $allocAll, $atwBypassed, $dnoBypassed;
+
     my $discounts = Arithmetic(
-        name          => 'Discount factors',
+        name          => 'LDNO discounts (EDCM)',
         defaultFormat => '%soft',
         arithmetic    => '=1-MAX(0,(1-IV1)/(1-IV2))',
         arguments     => {
@@ -258,24 +300,86 @@ EOT
         },
     );
 
-    $discounts = Columnset(
-        name    => 'Discount factors',
-        columns => [
-            $discounts,
-            map {
-                SpreadsheetModel::Checksum->new(
-                    name => $_,
-                    /recursive|model/i ? ( recursive => 1 ) : (),
-                    digits => /([0-9])/ ? $1 : 6,
-                    columns => [$discounts],
-                    factors => [1000]
-                );
-              } split /;\s*/,
-            $model->{checksums}
-        ],
-    ) if $model->{checksums};
-
-    push @{ $model->{impactTables} }, $discounts;
+    if ( $model->{not1181layout} ) {
+        push @{ $model->{objects}{calcSheets} },
+          [ $model->{suffix}, $atwBypassed, $dnoBypassed ];
+        $discounts = Columnset(
+            name    => 'LDNO discounts (EDCM)',
+            columns => [
+                $discounts,
+                map {
+                    SpreadsheetModel::Checksum->new(
+                        name => $_,
+                        /recursive|model/i ? ( recursive => 1 ) : (),
+                        digits => /([0-9])/ ? $1 : 6,
+                        columns => [$discounts],
+                        factors => [1000]
+                    );
+                  } split /;\s*/,
+                $model->{checksums}
+            ],
+        ) if $model->{checksums};
+    }
+    else {
+        push @{ $model->{objects}{calcSheets} },
+          [ $model->{suffix}, $discounts ];
+        my $ldnoLevels = Labelset( list => [ split /\n/, <<EOL] );
+Boundary 0000
+Boundary 132kV
+Boundary 132kV/EHV
+Boundary EHV
+Boundary HVplus
+EOL
+        my @cdcmLevels = split /\n/, <<EOL;
+LV demand
+LV Sub demand or LV generation
+HV demand or LV Sub generation
+HV generation
+EOL
+        my @columns;
+        my $offset = $model->{edcm} =~ /only/i ? 0 : 4;
+        foreach ( my $i = 0 ; $i < 4 ; ++$i ) {
+            my $iForClosure = $i;
+            $columns[$i] = SpreadsheetModel::Custom->new(
+                name          => $cdcmLevels[$i],
+                rows          => $ldnoLevels,
+                defaultFormat => '%copy',
+                arithmetic    => '=IV1',
+                custom        => ['=IV1'],
+                arguments     => { IV1 => $discounts, },
+                wsPrepare     => sub {
+                    my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
+                        $colh ) = @_;
+                    sub {
+                        my ( $x, $y ) = @_;
+                        '', $format, $formula->[0], map {
+                            $_ =>
+                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                $rowh->{$_} +
+                                  $offset + $iForClosure +
+                                  4 * ( 4 - $y ),
+                                $colh->{$_},
+                              )
+                        } @$pha;
+                    };
+                },
+            );
+        }
+        push @columns, map {
+            SpreadsheetModel::Checksum->new(
+                name => $_,
+                /recursive|model/i ? ( recursive => 1 ) : (),
+                digits => /([0-9])/ ? $1 : 6,
+                columns => [@columns],
+                factors => [ map { 1000 } 1 .. 4 ]
+            );
+        } split /;\s*/, $model->{checksums} if $model->{checksums};
+        $discounts = Columnset(
+            name    => 'LDNO discounts (EDCM)',
+            columns => \@columns,
+        );
+    }
+    push @{ $model->{objects}{resultsTables} }, $discounts;
 }
 
 1;

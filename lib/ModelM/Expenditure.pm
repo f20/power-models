@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -41,29 +41,138 @@ sub expenditureAlloc {
         $directIndicator, $expenditure,   $meavPercentages,
     ) = @_;
 
-    my ( $networkLengthPercentages, ) =
-      $model->networkLengthPercentages($allocLevelset);
+    my $networkLengthPercentages;
+    ( $networkLengthPercentages, ) =
+      $model->networkLengthPercentages($allocLevelset)
+      if $model->{allowNetworkLength};
 
-    my ( $preAllocated, ) =
-      $model->allocated( $allocLevelset, $allocationRules->{rows} );
+    my $key = join '&', 'preAllocated?allocLevelset=' . ( 0 + $allocLevelset ),
+      'allocationRows=' . ( 0 + $allocationRules->{rows} ),
+      map { defined $model->{$_} ? "$_=$model->{$_}" : (); } qw(dcp117);
 
-    ($preAllocated) = $model->adjust117( $meavPercentages, $preAllocated, )
-      if $model->{dcp117} && $model->{dcp117} !~ /2014/;
+    my $preAllocated = $model->{objects}{$key};
 
-    my $allocatedTotal = GroupBy(
-        name          => 'Amounts already allocated',
-        source        => $preAllocated,
-        rows          => $preAllocated->{rows},
-        defaultFormat => '0softnz'
-    );
+    unless ($preAllocated) {
 
-    my $lvOnly = Constant(
+        ( $preAllocated, ) =
+          $model->allocated( $allocLevelset, $allocationRules->{rows} );
+
+        if ( $model->{dcp117} ) {
+            if ( $model->{dcp117} =~ /half[ -]?baked/i ) {
+                $preAllocated = Stack(
+                    name =>
+                      'Table 1330 allocated costs, after DCP 117 adjustments',
+                    rows    => $preAllocated->{rows},
+                    cols    => $preAllocated->{cols},
+                    sources => [
+                        Constant(
+                            name => 'DCP 117: remove negative number',
+                            rows => Labelset(
+                                list => [
+                                        'Load related new connections & '
+                                      . 'reinforcement (net of contributions)'
+                                ]
+                            ),
+                            cols => Labelset( list => ['LV'] ),
+                            data => [ [0] ],
+                            defaultFormat => '0connz',
+                        ),
+                        $preAllocated
+                    ],
+                );
+            }
+            elsif ( $model->{dcp117} =~ /201[34]/ ) {
+                $preAllocated = Stack(
+                    name =>
+                      'Table 1330 allocated costs, after DCP 117 adjustments',
+                    defaultFormat => '0copy',
+                    rows          => $preAllocated->{rows},
+                    cols          => $preAllocated->{cols},
+                    sources       => [
+                        Dataset(
+                            name =>
+                              'Net new connections and reinforcement costs (£)',
+                            rows => Labelset(
+                                list => [ $preAllocated->{rows}{list}[0] ]
+                            ),
+                            cols          => $preAllocated->{cols},
+                            defaultFormat => '0hard',
+                            data =>
+                              [ map { '' } @{ $preAllocated->{cols}{list} } ],
+                            number   => 1329,
+                            dataset  => $model->{dataset},
+                            appendTo => $model->{objects}{inputTables},
+                        ),
+                        $preAllocated
+                    ],
+                );
+            }
+            else {
+                $preAllocated =
+                  $model->adjust117( $meavPercentages, $preAllocated );
+            }
+        }
+
+        $model->{objects}{$key} = $preAllocated;
+    }
+
+    $key =
+      join '&', 'expenditureAlloc?preAllocated=' . ( 0 + $preAllocated ),
+      'allocationRules=' . ( 0 + $allocationRules ),
+      'meavPercentages=' . ( 0 + $meavPercentages ),
+      'allocLevelset=' .   ( 0 + $allocLevelset ),
+      $networkLengthPercentages
+      ? ( 'networkLengthPercentages=' . ( 0 + $networkLengthPercentages ) )
+      : (),
+      map { defined $model->{$_} ? "$_=$model->{$_}" : (); } qw(dcp097);
+
+    return @{ $model->{objects}{$key} } if $model->{objects}{$key};
+
+    my $keyAllocatedTotal =
+      'allocatedTotal?preAllocated=' . ( 0 + $preAllocated );
+    my $allocatedTotal = $model->{objects}{$keyAllocatedTotal};
+
+    unless ($allocatedTotal) {
+
+        # Avoid SUMIF across sheets: ugly and not compatible with Numbers.app.
+        $expenditure = Stack( sources => [$expenditure] );
+
+        $allocatedTotal = GroupBy(
+            name          => 'Amounts already allocated',
+            source        => $preAllocated,
+            rows          => $preAllocated->{rows},
+            defaultFormat => '0softnz'
+        );
+
+        Columnset(
+            columns => [ $expenditure, $allocatedTotal ],
+            name    => 'Expenditure data',
+        );
+
+        $model->{objects}{$keyAllocatedTotal} = $allocatedTotal;
+
+    }
+
+    my $lvOnly =
+      $model->{objects}{ 'lvOnly?cols=' . ( 0 + $preAllocated->{cols} ) } ||=
+      Constant(
         name          => 'LV only',
         cols          => $preAllocated->{cols},
         data          => [qw(1 0 0 0)],
         defaultFormat => '0connz'
-    );
+      );
 
+    my $ehvOnly =
+      $model->{objects}{ 'ehvOnly?cols=' . ( 0 + $preAllocated->{cols} ) } ||=
+      Constant(
+        name          => 'EHV only',
+        cols          => $preAllocated->{cols},
+        data          => [qw(0 0 0 1)],
+        defaultFormat => '0connz'
+      );
+
+    my $ar = $model->{dcp097} ? 'IF(IV49="Customer numbers",IV9,0)' : '0';
+    $ar = qq%IF(IV48="Network length",IV8,$ar)% if $networkLengthPercentages;
     my $allAllocationPercentages = Arithmetic(
         name          => 'All allocation percentages',
         defaultFormat => '%softnz',
@@ -73,9 +182,7 @@ sub expenditureAlloc {
           . 'IF(IV45="MEAV",IV52,'
           . 'IF(IV46="EHV only",IV6,'
           . 'IF(IV47="LV only",IV72,'
-          . 'IF(IV48="Network length",IV8,'
-          . ( $model->{dcp097} ? 'IF(IV49="Customer numbers",IV9,0)' : '0' )
-          . ')))))',
+          . $ar . '))))',
         arguments => {
             IV44 => $allocationRules,
             IV45 => $allocationRules,
@@ -84,15 +191,11 @@ sub expenditureAlloc {
             IV48 => $allocationRules,
             IV51 => $meavPercentages,
             IV52 => $meavPercentages,
-            IV6  => Constant(
-                name          => 'EHV only',
-                cols          => $preAllocated->{cols},
-                data          => [qw(0 0 0 1)],
-                defaultFormat => '0connz'
-            ),
+            IV6  => $ehvOnly,
             IV71 => $lvOnly,
             IV72 => $lvOnly,
-            IV8  => $networkLengthPercentages,
+            $networkLengthPercentages ? ( IV8 => $networkLengthPercentages )
+            : (),
             $model->{dcp097}
             ? (
                 IV49 => $allocationRules,
@@ -143,7 +246,7 @@ sub expenditureAlloc {
         arguments     => { IV1 => $totalDirect, IV2 => $total }
     );
 
-    $afterAllocation, $direct, $allocatedTotal;
+    @{ $model->{objects}{$key} } = ( $afterAllocation, $direct );
 
 }
 
