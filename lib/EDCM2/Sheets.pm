@@ -54,7 +54,7 @@ sub worksheetsAndClosures {
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),
-            defaultFormat => 'texthardcentered',
+            defaultFormat => 'puretextcentered',
             data          => [ 'no company', 'no year', 'no data version' ],
             usePlaceholderData => 1,
         )->wsWrite( $wbook, $wsheet );

@@ -52,7 +52,7 @@ sub worksheetsAndClosures {
             dataset            => $model->{dataset},
             name               => 'Data version',
             cols               => Labelset( list => [qw(Version)] ),
-            defaultFormat      => 'texthardcentered',
+            defaultFormat      => 'puretextcentered',
             data               => ['Illustrative'],
             usePlaceholderData => 1,
         )->wsWrite( $wbook, $wsheet );

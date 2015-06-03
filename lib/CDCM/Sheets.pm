@@ -51,8 +51,7 @@ sub sheetPriority {
       $sheet =~ /^(?:Overview|Index)$/is ? 2
       : 1
       if grep { $sheet eq $_ }
-      $model->{frontSheets}
-      ? @{ $model->{frontSheets} }
+      $model->{frontSheets} ? @{ $model->{frontSheets} }
       : qw(Index Overview);
     $score;
 }
@@ -84,7 +83,7 @@ sub worksheetsAndClosures {
                 dataset       => $model->{dataset},
                 name          => 'Company, charging year, data version',
                 cols          => Labelset( list => [qw(Company Year Version)] ),
-                defaultFormat => 'texthardcentered',
+                defaultFormat => 'puretextcentered',
                 data          => [ 'no company', 'no year', 'no data version' ],
                 usePlaceholderData => 1,
             )
