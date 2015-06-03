@@ -1,0 +1,24 @@
+---
+.: CDCM model with DCP 227, 228 and 230
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+checksums: Tariff checksum 5; Model checksum 7
+coincidenceAdj: groupums
+dataOverride:
+  1010:
+    - ~
+    - Financial and general assumptions: 0.0428
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: adderppugeneralminzeronogen
+standing: sub132
+summary: statistics
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179
