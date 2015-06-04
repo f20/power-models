@@ -1,7 +1,7 @@
 ---
 1000:
   - _table: '1000. Company, charging year, data version'
-  - ~
+  - Company charging year data version: SP Distribution
   - Company charging year data version: 2019/2020
     _column: Year
   - Company charging year data version: Scenario

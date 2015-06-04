@@ -346,9 +346,9 @@
   - Loss adjustment factor: ''
 1036:
   - ~
-  - DNO LV main usage: 0.307
+  - HV and LV DNO main usage for LDNO tariffs: 0.307
     _column: DNO LV main usage
-  - DNO HV main usage: 0.4545
+  - HV and LV DNO main usage for LDNO tariffs: 0.4545
     _column: DNO HV main usage
 1037:
   - _note: From Model 1884b (NEDL).xls

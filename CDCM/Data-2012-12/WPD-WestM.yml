@@ -281,9 +281,9 @@
     _column: LV circuits
 1036:
   - ~
-  - DNO LV main usage: 0.182
+  - HV and LV DNO main usage for LDNO tariffs: 0.182
     _column: DNO LV main usage
-  - DNO HV main usage: 0.54
+  - HV and LV DNO main usage for LDNO tariffs: 0.54
     _column: DNO HV main usage
 1037:
   - _table: 1037. Embedded network (LDNO) discounts

@@ -650,7 +650,7 @@ sub cdcmUserImpact {
       || [
         grep { !/housing/i && !/^Other/ } map { $_->[0] } @{
             $self->selectall_arrayref(
-                    'select v from data where tab=4203 and'
+                    'select v from data where tab=4202 and'
                   . ' col=0 and row>0 group by v order by min(row)'
             )
         }
@@ -663,9 +663,9 @@ sub cdcmUserImpact {
 
     my @books   = $self->listModels;
     my $findRow = $self->prepare(
-        'select row from data where bid=? and tab=4203 and col=0 and v=?');
+        'select row from data where bid=? and tab=4202 and col=0 and v=?');
     my $q = $self->prepare(
-        'select v from data where bid=? and tab=4203 and row=? and col=?');
+        'select v from data where bid=? and tab=4202 and row=? and col=?');
 
     foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
         my $qr = $options{sheetNames}[$i];

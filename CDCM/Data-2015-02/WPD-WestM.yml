@@ -443,6 +443,12 @@
     _column: HV/LV
   - Loss adjustment factor: 1.087
     _column: LV circuits
+1036:
+  - ~
+  - HV and LV DNO main usage for LDNO tariffs: 0.182
+    _column: DNO LV main usage
+  - HV and LV DNO main usage for LDNO tariffs: 0.55
+    _column: DNO HV main usage
 1037:
   - _table: 1037. Embedded network (LDNO) discounts
   - LDNO discount: ''
