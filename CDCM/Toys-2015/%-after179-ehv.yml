@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 179 with EHV tariffs
+.: CDCM model after DCP 179 with some EHV tariffs
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
@@ -13,7 +13,7 @@ illustrative: 1
 matrices: big
 noReplacement: blanket
 pcd: 1
-portfolio: hvsub_ehv
+portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: statistics
