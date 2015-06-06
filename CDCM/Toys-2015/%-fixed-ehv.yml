@@ -1,5 +1,5 @@
 ---
-.: 'Simple scaling, replacement, override 500 MW LV, no method M, DCP 179, some EHV'
+.: 'Simple scaling, replacement, override LV, no method M, DCP 179, EHV'
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
@@ -28,7 +28,7 @@ ldnoSplits: 1
 matrices: big
 noLossAdj: 1
 noReplacement: 0.453
-portfolio: 1
+portfolio: hvsub_ehv
 scaler: pickallnogen
 standing: sub132
 summary: statistics
