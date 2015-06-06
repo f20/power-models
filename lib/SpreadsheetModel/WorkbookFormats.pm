@@ -173,6 +173,7 @@ Keys used in %$options:
 
     my @alignText = ( align => 'left' );
     my $numText = $backgroundColour ? '[Blue]0;[Red]-0;;[Black]@' : '@';
+    my $numTextOnly = $backgroundColour ? '[Black]@' : '@';
     if ( $options->{alignText} && $options->{alignText} =~ /general/i ) {
         @alignText = ();
         $numText = $backgroundColour ? '[Black]0;[Red]-0;;[Black]@' : '@';
@@ -538,7 +539,7 @@ Keys used in %$options:
         puretextcentered => [
             locked => 0,
             @sizeText,
-            num_format => '@',
+            num_format => $numTextOnly,
             align      => 'center',
             @sizeExtras,
             text_wrap => 1,

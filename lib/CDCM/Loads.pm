@@ -282,17 +282,11 @@ sub loadProfiles {
             map {
                 $componentMap->{$_}{'Unit rate 0 p/kWh'}
                   && /(?:related|additional)/i ? undef
-                  : /lv/i && /domestic/i && !/non.*domestic/i && /unr/i ? 0.88
+                  : /lv/i && /domestic/i && !/non.*domestic/i && /unr/i ? 0.9
                   : /lv/i
-                  && /domestic/i
-                  && !/non.*domestic/i
-                  && /rates/i ? 0.3    # 0.92
+                  && /domestic/i && !/non.*domestic/i && /rates/i ? 0.3
                   : /lv/i && /off/i ? 0
-                  : /lv/i && /small/i && /unr/i   ? 0.75
-                  : /lv/i && /small/i && /rates/i ? 0.75
-                  : /hv/i                  ? .79
-                  : /half| hh|5-8|medium/i ? 0.82
-                  : 0.75
+                  : 0.5
             } @{ $demandEndUsers->{list} }
         ],
         name => Label(
@@ -323,17 +317,12 @@ sub loadProfiles {
             },
             data => [
                 map {
-                    /domestic/i && !/non.*domestic/i && /unr/i
-                      ? 0.40
-                      : /domestic/i
-                      && !/non.*domestic/i
-                      && /rates/i ? 0.23    # 0.45
-                      : /off/i    ? 0.25
-                      : /small/i && /unr/i   ? 0.35
-                      : /small/i && /rates/i ? 0.3
-                      : /hv/i                  ? .66
-                      : /half| hh|5-8|medium/i ? 0.6
-                      : 0.6
+                        /domestic/i && !/non.*domestic/i && /unr/i   ? 0.4
+                      : /domestic/i && !/non.*domestic/i && /rates/i ? 0.4
+                      : /off/i ? 0.2
+                      : /small/i && /unr/i   ? 0.5
+                      : /small/i && /rates/i ? 0.5
+                      : 0.5
                 } @{ $demandEndUsers->{list} }
             ],
             name => Label(

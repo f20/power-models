@@ -110,7 +110,6 @@ sub create {
 
     foreach my $i ( 0 .. $#optionArray ) {
         if ( my $dataset = $optionArray[$i]{dataset} ) {
-            $dataset->{usePlaceholderData} ||= $optionArray[$i]{illustrative};
             if ( my $yaml = $dataset->{yaml} ) {
                 require YAML;    # for deferred parsing
                 my @parsed = YAML::Load($yaml);
@@ -169,6 +168,8 @@ sub create {
                     $optionArray[$i]{dataset} = $dataset;
                 }
             }
+            $dataset->{usePlaceholderData} ||= $optionArray[$i]{illustrative}
+              if $optionArray[$i]{illustrative};
         }
     }
 

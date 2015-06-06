@@ -28,7 +28,7 @@ ldnoSplits: 1
 matrices: big
 noLossAdj: 1
 noReplacement: 0.453
-portfolio: 1
+portfolio: hvsub_ehv
 scaler: pickallnogen
 standing: sub132
 summary: statistics
