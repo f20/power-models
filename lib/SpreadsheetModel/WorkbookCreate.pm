@@ -145,7 +145,7 @@ sub create {
                     map  { $optionArray[$i]{$_} } qw(dataOverride dataOverride2)
                   )
                 {
-                    my $dataset = Storable::dclone( $optionArray[$i]{dataset} );
+                    $dataset = Storable::dclone($dataset);
                     foreach my $override (
                         ref $overrides eq 'ARRAY' ? @$overrides : $overrides )
                     {
