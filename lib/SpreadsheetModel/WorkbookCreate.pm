@@ -165,11 +165,11 @@ sub create {
                             }
                         }
                     }
-                    $optionArray[$i]{dataset} = $dataset;
                 }
             }
             $dataset->{usePlaceholderData} ||= $optionArray[$i]{illustrative}
               if $optionArray[$i]{illustrative};
+            $optionArray[$i]{dataset} = $dataset;
         }
     }
 
