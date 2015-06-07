@@ -496,7 +496,7 @@ sub tariffInputs {
             },
           ) : Dataset(
             name => 'Customer entitled to reduction for capitalised O&M',
-            defaultFormat => '0hard',
+            defaultFormat => 'puretexthard',
             data          => [ map { 'N' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset},

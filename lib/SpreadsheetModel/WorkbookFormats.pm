@@ -171,12 +171,15 @@ Keys used in %$options:
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
 
-    my @alignText = ( align => 'left' );
     my $numText = $backgroundColour ? '[Blue]0;[Red]-0;;[Black]@' : '@';
     my $numTextOnly = $backgroundColour ? '[Black]@' : '@';
+    my $numTextOnlyCopy =
+      $backgroundColour ? '[Black]0;[Black]-0;;[Black]@' : '0;-0;;@';
+    my @alignText = ( align => 'left' );
     if ( $options->{alignText} && $options->{alignText} =~ /general/i ) {
         @alignText = ();
-        $numText = $backgroundColour ? '[Black]0;[Red]-0;;[Black]@' : '@';
+        $numText =
+          $backgroundColour ? '[Black]0;[Black]-0;;[Black]@' : '0;-0;;@';
     }
 
     my @numPercent =
@@ -536,7 +539,7 @@ Keys used in %$options:
             font       => 'Courier New',
             @colourSoft,
         ],
-        puretextcentered => [
+        puretexthard => [
             locked => 0,
             @sizeText,
             num_format => $numTextOnly,
@@ -544,6 +547,15 @@ Keys used in %$options:
             @sizeExtras,
             text_wrap => 1,
             @colourHard,
+        ],
+        puretextcopy => [
+            locked => 0,
+            @sizeText,
+            num_format => $numTextOnlyCopy,
+            align      => 'center',
+            @sizeExtras,
+            text_wrap => 1,
+            @colourCopy,
         ],
         text => [
             locked => 1,
