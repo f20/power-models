@@ -1,5 +1,5 @@
 ---
-.: Alternative CDCM model with EHV tariffs
+.: Alternative CDCM model
 PerlModule: CDCM
 aggCapFactor: 1
 agghhequalisation: 1

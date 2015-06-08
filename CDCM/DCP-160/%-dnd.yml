@@ -1,17 +1,17 @@
 ---
-.: 'Spare capacity adjustments, no coincidence'
+.: 'NHH capacity adjustments, dom/non-dom, voltage-level coincidence'
 PerlModule: CDCM
+aggCapFactor: 1
 alwaysUseRAG: 1
-coincidenceAdj: none
+coincidenceAdj: groupvoltage
 drm: top500gsp
 extraLevels: 1
-lvCosts: group
+lvCosts: groupdnd
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
-spareCap: 1
 standing: low
 summary: 0
 tariffs: commongensubsparecap

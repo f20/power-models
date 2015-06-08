@@ -113,12 +113,16 @@ sub diversity {
                     ? qw(1 1 1 1 0 0 0 0)
                     : qw(0 .2 1 1 0 0 0 0)
                   ]
-                  : /132/ ? [ $model->{ehv} && $model->{ehv} =~ /cap/i
+                  : /132/ ? [
+                    $model->{ehv} && $model->{ehv} =~ /cap/i
                     ? qw(1 1 0 0 0 0 0 0)
-                    : qw(0 1 0 0 0 0 0 0) ]
-                  : /GSP/i ? [ $model->{ehv} && $model->{ehv} =~ /cap/i
+                    : qw(0 1 0 0 0 0 0 0)
+                  ]
+                  : /GSP/i ? [
+                    $model->{ehv} && $model->{ehv} =~ /cap/i
                     ? qw(1 0 0 0 0 0 0 0)
-                    : qw(0 0 0 0 0 0 0 0) ]
+                    : qw(0 0 0 0 0 0 0 0)
+                  ]
                   : [ map { 0 } 1 .. 8 ]
             } @{ $demandEndUsers->{list} }
           ]
@@ -551,10 +555,11 @@ EOL
             defaultFormat => '0softnz',
           ) if $volumeData->{'Capacity charge p/kVA/day'};
 
-        if ( $model->{spareCap} ) {
-            if ( $model->{spareCap} =~ /first/i ) {
-                $model->{spareCap} = Arithmetic(
-                    name => 'Deemed spare capacity scaling factor (kVA/kW)',
+        if ( $model->{aggCapFactor} ) {
+            if ( $model->{aggCapFactor} =~ /first/i ) {
+                $model->{aggCapFactor} = Arithmetic(
+                    name =>
+                      'Deemed supercustomer capacity scaling factor (kVA/kW)',
                     rows =>
                       Labelset( list => [ $demandTariffsCapacity->{list}[0] ] ),
                     arithmetic => '=IV1/IV2*IV3*24*IV4/1000',
@@ -568,7 +573,7 @@ EOL
             }
             else {
                 my $demandTariffsSpareCap =
-                    $model->{spareCap} =~ /all/i
+                    $model->{aggCapFactor} =~ /all/i
                   ? $demandTariffsCapacity
                   : Labelset(
                     list => [
@@ -586,7 +591,14 @@ EOL
                     arithmetic => '=IV2*1000/IV3/24/IV4',
                     arguments  => {
                         IV2 => $unitsInYear,
-                        IV3 => $loadFactors,
+                        IV3 => $demandTariffsByEndUser->{groups}
+                        ? Arithmetic(
+                            name       => 'Load factor (reshaped)',
+                            arithmetic => '=IV1',
+                            rows       => $demandTariffsByEndUser,
+                            arguments  => { IV1 => $loadFactors },
+                          )
+                        : $loadFactors,
                         IV4 => $daysInYear,
                     },
                 );
@@ -594,8 +606,9 @@ EOL
                     name    => 'Apparent spare capacity in HH tariffs',
                     columns => [ $cap, $md ]
                 );
-                $model->{spareCap} = Arithmetic(
-                    name => 'Deemed spare capacity scaling factor (kVA/kW)',
+                $model->{aggCapFactor} = Arithmetic(
+                    name =>
+                      'Deemed supercustomer capacity scaling factor (kVA/kW)',
                     arithmetic => '=SUM(IV1_IV2)/SUM(IV3_IV4)',
                     arguments  => {
                         IV1_IV2 => $cap,
@@ -614,7 +627,7 @@ EOL
               . 'maximum load (kW)'
         ),
         arithmetic => '=IV2/IV1'
-          . ( $model->{spareCap} ? '*IV81*IV82' : '' )
+          . ( $model->{aggCapFactor} ? '*IV81*IV82' : '' )
           . '*IV4*IV5/(24*IV9)*1000',
         rows      => $standingForFixedTariffsByEndUser,
         cols      => $diversityLevels,
@@ -624,9 +637,9 @@ EOL
             IV4 => $standingFactors,
             IV9 => $daysInYear,
             IV5 => $lineLossFactors,
-            $model->{spareCap}
+            $model->{aggCapFactor}
             ? (
-                IV81 => $model->{spareCap},
+                IV81 => $model->{aggCapFactor},
                 IV82 => $powerFactorInModel,
               )
             : (),

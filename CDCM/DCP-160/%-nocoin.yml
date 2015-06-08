@@ -1,8 +1,9 @@
 ---
-.: 'Spare capacity adjustments, voltage-level coincidence'
+.: 'NHH capacity adjustments, no coincidence'
 PerlModule: CDCM
+aggCapFactor: 1
 alwaysUseRAG: 1
-coincidenceAdj: groupvoltage
+coincidenceAdj: none
 drm: top500gsp
 extraLevels: 1
 lvCosts: group
@@ -11,7 +12,6 @@ noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
-spareCap: 1
 standing: low
 summary: 0
 tariffs: commongensubsparecap

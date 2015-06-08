@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 179 with some EHV tariffs
+.: CDCM model after DCP 179 with EHV tariffs
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

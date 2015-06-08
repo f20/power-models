@@ -92,8 +92,11 @@ EOM
             and !$self->{cols}
             || !defined $self->{cols}->supersetIndex( $_->{cols} ) )
           and (
-            $_->{rows} && $_->{rows} != $self->{cols} && !(
-                   $self->{cols}{accepts}
+               $_->{rows}
+            && ( !$self->{cols} || $_->{rows} != $self->{cols} )
+            && !(
+                   $self->{cols}
+                && $self->{cols}{accepts}
                 && $self->{cols}{accepts}[0] == $_->{rows}
                 && $#{ $self->{cols}{list} } == $#{ $_->{rows}{list} }
             )

@@ -259,12 +259,12 @@ sub standingCharges {
         my $maxKvaAverageLv = Arithmetic(
             name       => 'Average maximum kVA by exit point',
             arithmetic => '=IF(IV5,IV1/IV2'
-              . ( $model->{spareCap} ? '*IV4' : '/IV4' ) . ',0)',
+              . ( $model->{aggCapFactor} ? '*IV4' : '/IV4' ) . ',0)',
             arguments => {
                 IV1 => $numerator,
                 IV2 => $denominator,
                 IV5 => $denominator,
-                IV4 => $model->{spareCap} || $powerFactorInModel,
+                IV4 => $model->{aggCapFactor} || $powerFactorInModel,
             }
         );
 
@@ -285,7 +285,7 @@ sub standingCharges {
 
     else {    # tariff by tariff
         $maxKvaByEndUser =
-          $model->{spareCap}
+          $model->{aggCapFactor}
           ? Arithmetic(
             name => Label(
                 'Average maximum kVA/MPAN',
@@ -300,7 +300,7 @@ sub standingCharges {
                 IV2 => $unitsByEndUser,
                 IV6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
                 IV3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-                IV4 => $model->{spareCap},
+                IV4 => $model->{aggCapFactor},
                 IV5 => $daysInYear
             }
           )
@@ -415,7 +415,8 @@ sub standingCharges {
         my $maxKvaAverageLv = Arithmetic(
             name => 'Average maximum kVA of tariffs '
               . 'charged on an exit point basis for LV circuits',
-            arithmetic => '=IV1/IV2' . ( $model->{spareCap} ? '*IV4' : '/IV4' ),
+            arithmetic => '=IV1/IV2'
+              . ( $model->{aggCapFactor} ? '*IV4' : '/IV4' ),
             arguments => {
                 IV1 => SumProduct(
                     matrix => $mapping,
@@ -447,7 +448,7 @@ sub standingCharges {
                         sources => [ $volumeData->{'Fixed charge p/MPAN/day'} ]
                     ),
                 ),
-                IV4 => $model->{spareCap} || $powerFactorInModel,
+                IV4 => $model->{aggCapFactor} || $powerFactorInModel,
             }
         );
 
@@ -551,10 +552,11 @@ sub standingCharges {
         my $maxKvaAverageLv = Arithmetic(
             name => 'Average maximum kVA of tariffs '
               . 'charged on an exit point basis for LV circuits',
-            arithmetic => '=IV1/IV2' . ( $model->{spareCap} ? '*IV4' : '/IV4' ),
-            rows       => 0,
-            cols       => 0,
-            arguments  => {
+            arithmetic => '=IV1/IV2'
+              . ( $model->{aggCapFactor} ? '*IV4' : '/IV4' ),
+            rows      => 0,
+            cols      => 0,
+            arguments => {
                 IV1 => SumProduct(
                     matrix => $lvRouteingFactors,
                     name   => 'Aggregate capacity of tariffs charged '
@@ -599,7 +601,7 @@ sub standingCharges {
                         ]
                     )
                 ),
-                IV4 => $model->{spareCap} || $powerFactorInModel,
+                IV4 => $model->{aggCapFactor} || $powerFactorInModel,
             }
         );
 
