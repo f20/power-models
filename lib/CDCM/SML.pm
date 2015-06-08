@@ -188,7 +188,8 @@ sub networkUse {
 
     push @{ $model->{edcmTables} },
       Stack(
-        name          => 'Assets in CDCM model (£)',
+        name => 'Forecast system simultaneous maximum load (kW)'
+          . ' from CDCM users',
         defaultFormat => '0hard',
         number        => 1122,
         cols =>
