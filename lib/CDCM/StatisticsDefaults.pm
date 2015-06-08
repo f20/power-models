@@ -37,7 +37,8 @@ binmode DATA, ':utf8';
 my @table1202 = Load <DATA>;
 
 sub table1202 {
-    $table1202[0]{ $_[1] };
+    my ($model) = @_;
+    $table1202[0]{1202};
 }
 
 1;
@@ -46,10 +47,7 @@ __DATA__
 ---
 1202:
   - _table: 1202. Consumption assumptions for illustrative customers
-  - Other demand 1: 815
-    Other demand 2: 825
-    Other generation: 835
-    Domestic electric heat: 740
+  - Domestic electric heat: 740
     Domestic low use: 700
     Domestic standard: 720
     Large business: 310
@@ -64,6 +62,9 @@ __DATA__
     Medium housing standard: 265
     Medium intermittent: 245
     Medium off-peak: 230
+    Other demand 1: 815
+    Other demand 2: 825
+    Other generation: 835
     Small business: 110
     Small continuous: 120
     Small intermittent: 145
@@ -74,13 +75,10 @@ __DATA__
     XL housing standard: 465
     XL intermittent: 445
     XL off-peak: 430
-    _column: Order
-  - Other demand 1: All-the-way demand
-    Other demand 2: All-the-way demand
-    Other generation: All-the-way generation
-    Domestic electric heat: '(?:^|: )(?:LV Network Domestic|Domestic [UTN])'
-    Domestic low use: '(?:^|: )(?:LV Network Domestic|Domestic [UTN])'
-    Domestic standard: '(?:^|: )(?:LV Network Domestic|Domestic [UTN])'
+    _column: Gen
+  - Domestic electric heat: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
+    Domestic low use: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
+    Domestic standard: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
     Large business: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
     Large continuous: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
     Large housing electric: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
@@ -93,6 +91,9 @@ __DATA__
     Medium housing standard: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
     Medium intermittent: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
     Medium off-peak: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
+    Other demand 1: All-the-way demand
+    Other demand 2: All-the-way demand
+    Other generation: All-the-way generation
     Small business: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
     Small continuous: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
     Small intermittent: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
@@ -103,156 +104,153 @@ __DATA__
     XL housing standard: '^(?:|LDNO .*: )HV HH Metered$'
     XL intermittent: '^(?:|LDNO .*: )HV HH Metered$'
     XL off-peak: '^(?:|LDNO .*: )HV HH Metered$'
-    _column: Tariff selection
-  - Other demand 1: 0
-    Other demand 2: 0
-    Other generation: 0
-    Domestic electric heat: 35
+    _column: Gener
+  - Domestic electric heat: 35
     Domestic low use: 35
     Domestic standard: 35
-    Large business: 66
+    Large business: 62
     Large continuous: 0
     Large housing electric: 35
     Large housing standard: 35
     Large intermittent: 0
-    Large off-peak: 0
-    Medium business: 66
+    Large off-peak: 93.4
+    Medium business: 62
     Medium continuous: 0
     Medium housing electric: 35
     Medium housing standard: 35
     Medium intermittent: 0
-    Medium off-peak: 0
-    Small business: 66
+    Medium off-peak: 93.4
+    Other demand 1: 0
+    Other demand 2: 0
+    Other generation: 0
+    Small business: 62
     Small continuous: 0
     Small intermittent: 0
-    Small off-peak: 0
-    XL business: 66
+    Small off-peak: 93.4
+    XL business: 62
     XL continuous: 0
     XL housing electric: 35
     XL housing standard: 35
     XL intermittent: 0
-    XL off-peak: 0
-    _column: Peak-time hours/week
-  - Other demand 1: 0
-    Other demand 2: 0
-    Other generation: 0
-    Domestic electric heat: 49
+    XL off-peak: 93.4
+    _column: ''
+  - Domestic electric heat: 49
     Domestic low use: 49
     Domestic standard: 49
-    Large business: 0
-    Large continuous: 0
+    Large business: 49
+    Large continuous: 49
     Large housing electric: 49
     Large housing standard: 49
-    Large intermittent: 0
-    Large off-peak: 74.6666666666667
-    Medium business: 0
-    Medium continuous: 0
+    Large intermittent: 49
+    Large off-peak: 49
+    Medium business: 49
+    Medium continuous: 49
     Medium housing electric: 49
     Medium housing standard: 49
-    Medium intermittent: 0
-    Medium off-peak: 74.6666666666667
-    Small business: 0
-    Small continuous: 0
-    Small intermittent: 0
-    Small off-peak: 74.6666666666667
-    XL business: 0
-    XL continuous: 0
+    Medium intermittent: 49
+    Medium off-peak: 49
+    Other demand 1: 49
+    Other demand 2: 49
+    Other generation: 49
+    Small business: 49
+    Small continuous: 49
+    Small intermittent: 49
+    Small off-peak: 49
+    XL business: 49
+    XL continuous: 49
     XL housing electric: 49
     XL housing standard: 49
-    XL intermittent: 0
-    XL off-peak: 74.6666666666667
-    _column: Off-peak hours/week
-  - Other demand 1: 0
-    Other demand 2: 0
-    Other generation: 0
-    Domestic electric heat: 1.1
-    Domestic low use: 0.4
-    Domestic standard: 0.8
+    XL intermittent: 49
+    XL off-peak: 49
+    _column: ''
+  - Domestic electric heat: 1
+    Domestic low use: 0.35
+    Domestic standard: 0.7
     Large business: 350
-    Large continuous: 0
-    Large housing electric: 110
-    Large housing standard: 200
-    Large intermittent: 0
-    Large off-peak: 0
-    Medium business: 48.3
-    Medium continuous: 0
-    Medium housing electric: 11
-    Medium housing standard: 20
-    Medium intermittent: 0
-    Medium off-peak: 0
-    Small business: 16.1
-    Small continuous: 0
-    Small intermittent: 0
-    Small off-peak: 0
-    XL business: 3500
-    XL continuous: 0
-    XL housing electric: 1100
-    XL housing standard: 2000
-    XL intermittent: 0
-    XL off-peak: 0
-    _column: Peak-time load (kW)
-  - Other demand 1: 0
-    Other demand 2: 0
-    Other generation: 0
-    Domestic electric heat: 1.6
-    Domestic low use: 0.125
-    Domestic standard: 0.25
-    Large business: 0
-    Large continuous: 0
-    Large housing electric: 160
-    Large housing standard: 62.5
-    Large intermittent: 0
-    Large off-peak: 450
-    Medium business: 0
-    Medium continuous: 0
-    Medium housing electric: 16
-    Medium housing standard: 6.25
-    Medium intermittent: 0
-    Medium off-peak: 62.1
-    Small business: 0
-    Small continuous: 0
-    Small intermittent: 0
-    Small off-peak: 20.7
-    XL business: 0
-    XL continuous: 0
-    XL housing electric: 1600
-    XL housing standard: 625
-    XL intermittent: 0
-    XL off-peak: 4500
-    _column: Off-peak load (kW)
-  - Other demand 1: 0.5
-    Other demand 2: 0.5
-    Other generation: 0.5
-    Domestic electric heat: 0.434817351598174
-    Domestic low use: 0.194206621004566
-    Domestic standard: 0.388413242009132
-    Large business: 102.941176470588
     Large continuous: 450
-    Large housing electric: 43.4817351598174
-    Large housing standard: 97.1033105022831
+    Large housing electric: 100
+    Large housing standard: 175
     Large intermittent: 200
     Large off-peak: 0
-    Medium business: 14.2058823529412
+    Medium business: 48.3
     Medium continuous: 62.1
-    Medium housing electric: 4.34817351598174
-    Medium housing standard: 9.71033105022831
+    Medium housing electric: 10
+    Medium housing standard: 17.5
     Medium intermittent: 27.6
     Medium off-peak: 0
-    Small business: 4.73529411764706
+    Other demand 1: 0
+    Other demand 2: 0
+    Other generation: 0
+    Small business: 16.1
     Small continuous: 20.7
     Small intermittent: 9.2
     Small off-peak: 0
-    XL business: 1029.41176470588
+    XL business: 3500
     XL continuous: 4500
-    XL housing electric: 434.817351598174
-    XL housing standard: 971.033105022831
+    XL housing electric: 1000
+    XL housing standard: 1750
     XL intermittent: 2000
     XL off-peak: 0
-    _column: Load at other times (kW)
-  - Other demand 1: 0
+    _column: ''
+  - Domestic electric heat: 1.2
+    Domestic low use: 0.1
+    Domestic standard: 0.2
+    Large business: 112.5
+    Large continuous: 450
+    Large housing electric: 120
+    Large housing standard: 50
+    Large intermittent: 200
+    Large off-peak: 450
+    Medium business: 15.525
+    Medium continuous: 62.1
+    Medium housing electric: 12
+    Medium housing standard: 5
+    Medium intermittent: 27.6
+    Medium off-peak: 62.1
+    Other demand 1: 0
     Other demand 2: 0
     Other generation: 0
-    Domestic electric heat: 18
+    Small business: 5.175
+    Small continuous: 20.7
+    Small intermittent: 9.2
+    Small off-peak: 20.7
+    XL business: 1125
+    XL continuous: 4500
+    XL housing electric: 1200
+    XL housing standard: 500
+    XL intermittent: 2000
+    XL off-peak: 4500
+    _column: ''
+  - Domestic electric heat: 0.5
+    Domestic low use: 0.175
+    Domestic standard: 0.35
+    Large business: 112.5
+    Large continuous: 450
+    Large housing electric: 50
+    Large housing standard: 87.5
+    Large intermittent: 200
+    Large off-peak: 450
+    Medium business: 15.525
+    Medium continuous: 62.1
+    Medium housing electric: 5
+    Medium housing standard: 8.75
+    Medium intermittent: 27.6
+    Medium off-peak: 62.1
+    Other demand 1: 0.5
+    Other demand 2: 0.5
+    Other generation: 0.5
+    Small business: 5.175
+    Small continuous: 20.7
+    Small intermittent: 9.2
+    Small off-peak: 20.7
+    XL business: 1125
+    XL continuous: 4500
+    XL housing electric: 500
+    XL housing standard: 875
+    XL intermittent: 2000
+    XL off-peak: 4500
+    _column: ''
+  - Domestic electric heat: 18
     Domestic low use: 6
     Domestic standard: 9
     Large business: 500
@@ -267,6 +265,9 @@ __DATA__
     Medium housing standard: 69
     Medium intermittent: 69
     Medium off-peak: 69
+    Other demand 1: 0
+    Other demand 2: 0
+    Other generation: 0
     Small business: 23
     Small continuous: 23
     Small intermittent: 23
@@ -277,38 +278,8 @@ __DATA__
     XL housing standard: 5000
     XL intermittent: 5000
     XL off-peak: 5000
-    _column: Capacity (kVA)
-1202simple:
-  - _table: 1202. Consumption assumptions for illustrative customers
-  - Domestic low use: 1700
-    Domestic standard: 1720
-    Domestic high use: 1740
-    _column: Order
-  - Domestic low use: '^(?:LV Network Domestic|Domestic [UT])'
-    Domestic standard: '^(?:LV Network Domestic|Domestic [UT])'
-    Domestic high use: '^(?:LV Network Domestic|Domestic [UT])'
-    _column: Tariff selection
-  - Domestic low use: 35
-    Domestic standard: 35
-    Domestic high use: 35
-    _column: Peak-time hours/week
-  - Domestic low use: 49
-    Domestic standard: 49
-    Domestic high use: 49
-    _column: Off-peak hours/week
-  - Domestic low use: 0.4
-    Domestic standard: 0.8
-    Domestic high use: 1.313
-    _column: Peak-time load (kW)
-  - Domestic low use: 0.125
-    Domestic standard: 0.25
-    Domestic high use: 0.75
-    _column: Off-peak load (kW)
-  - Domestic low use: 0.194206621
-    Domestic standard: 0.388413242
-    Domestic high use: 0.75
-    _column: Load at other times (kW)
-  - Domestic low use: 6
-    Domestic standard: 9
-    Domestic high use: 12
-    _column: Capacity (kVA)
+    _column: ''
+  - _column: Average kWh/year
+  - _column: Average rate 2 kWh/year
+  - _column: Load factor (kW/kVA)
+  - _column: Peak to average load ratio
