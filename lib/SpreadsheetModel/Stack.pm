@@ -117,7 +117,8 @@ sub check {
     $self->{sources} = [ grep { $_ } @{ $self->{sources} } ];
     for my $source ( @{ $self->{sources} } ) {
         my $xabs = $source->{cols} != $self->{cols}
-          && ( !$self->{cols}{accepts}
+          && ( !$self->{cols}
+            || !$self->{cols}{accepts}
             || !grep { $_ == $source->{cols} } @{ $self->{cols}{accepts} } );
         my $yabs = $source->{rows} != $self->{rows};
         for my $sx ( $source->colIndices ) {

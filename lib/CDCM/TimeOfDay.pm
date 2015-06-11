@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -592,9 +592,6 @@ EOT
           rows => $relevantEndUsersByRate[0],
           $model->{timebandCoef} && $model->{timebandCoef} =~ /detail/i
           ? ( cols => $networkLevelsTimeband )
-          : (    $model->{coincidenceAdj}
-              && $model->{coincidenceAdj} =~ /redonly/i )
-          ? ( cols => $peakBand )
           : (),
           arguments => {
             $timebandLoadCoefficient
@@ -782,63 +779,42 @@ EOT
             }
         }
 
-        if (   $model->{coincidenceAdj}
-            && $model->{coincidenceAdj} =~ /redonly/i )
-        {
-            $timebandLoadCoefficientAdjusted = Stack(
-                name    => 'Rescaled time band load coefficient to be applied',
-                rows    => $relevantEndUsersByRate[0],
-                cols    => $timebandSet,
-                sources => [
-                    $timebandLoadCoefficientAdjusted,
-                    Constant(
-                        name => '1 for non-red',
-                        rows => $relevantEndUsersByRate[0],
-                        cols => $timebandSet,
-                        data => [
-                            map {
-                                [ map { 1 }
-                                      @{ $relevantEndUsersByRate[0]{list} } ]
-                            } @{ $timebandSet->{list} }
-                        ]
-                    )
-                ]
-            );
-            push @{ $model->{timeOfDayResults} },
-              Columnset(
-                name => 'Calculation of adjusted time band load coefficients',
-                columns => [
-                    $timebandLoadCoefficientAccording,
-                    $timebandLoadCoefficientAdjusted->{sources}[0],
-                    $timebandLoadCoefficientAdjusted,
-                ]
-              )
-              unless $model->{coincidenceAdj}
-              && $model->{coincidenceAdj} =~ /group/i;
-        }
-        else {
-            push @{ $model->{timeOfDayResults} },
-              Columnset(
-                name => 'Calculation of adjusted time band load coefficients',
-                columns => [
-                    $timebandLoadCoefficientAccording,
-                    $timebandLoadCoefficientAdjusted
-                ]
-              ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
-        }
+        push @{ $model->{timeOfDayResults} },
+          Columnset(
+            name    => 'Calculation of adjusted time band load coefficients',
+            columns => [
+                $timebandLoadCoefficientAccording,
+                $timebandLoadCoefficientAdjusted
+            ]
+          ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
 
         $pseudoLoadCoefficientBreakdown = Arithmetic(
             name => 'Pseudo load coefficient by time band and network level',
             rows => $relevantEndUsersByRate[0],
             cols => $networkLevelsTimeband,
-            arithmetic => '=IF(IV6>0,IV2*IV7*24*IV9/IV5,0)',
-            arguments  => {
+            arithmetic => $model->{coincidenceAdj}
+              && $model->{coincidenceAdj} =~ /redonly/i
+            ? '=IF(IV6>0,(1+IV8*(IV2-1))*IV7*24*IV9/IV5,0)'
+            : '=IF(IV6>0,IV2*IV7*24*IV9/IV5,0)',
+            arguments => {
                 IV2 => $timebandLoadCoefficientAdjusted,
                 IV5 => $annualHoursByTimeband,
                 IV6 => $annualHoursByTimeband,
                 IV7 => $peakingProbability,
                 IV9 => $daysInYear,
-            }
+                $model->{coincidenceAdj}
+                  && $model->{coincidenceAdj} =~ /redonly/i
+                ? (
+                    IV8 => Constant(
+                        name =>
+                          'Time bands to apply the time band load coefficient',
+                        defaultFormat => '0con',
+                        cols          => $timebandSet,
+                        data => [ 1, map { 0 } 2 .. @{ $timebandSet->{list} } ],
+                    )
+                  )
+                : (),
+            },
         );
 
     }

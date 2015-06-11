@@ -1,5 +1,6 @@
 ---
-PerlModule: Simple illustrative CDCM toy
+.: Simple illustrative CDCM toy
+PerlModule: CDCM
 drm: top500gsp
 extraLevels: 1
 matrices: big

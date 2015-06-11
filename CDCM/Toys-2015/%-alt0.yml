@@ -1,8 +1,7 @@
 ---
-.: Alternative CDCM model with EHV tariffs
+.: Alternative CDCM model
 PerlModule: CDCM
 aggCapFactor: 1
-agghhequalisation: 1
 alwaysUseRAG: 1
 coincidenceAdj: groupumsdomnondom
 dataOverride:
@@ -29,10 +28,10 @@ ldnoSplits: 1
 matrices: big
 noLossAdj: 1
 noReplacement: 0.453
-portfolio: hvsub_ehv
+portfolio: 1
 scaler: pickallnogen
 standing: sub132
 summary: statistics
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163pc12hhpc34hhedcm
-timeOfDay: timeOfDay179
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDaySpecial

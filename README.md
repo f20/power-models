@@ -1,4 +1,3 @@
-===========================
 github.com/f20/power-models
 ===========================
 
@@ -24,8 +23,8 @@ You need version 5.8.8 or later of Perl 5 to be working correctly before you sta
 Step 2.  Download the code.
 ---------------------------
 
-Either clone this repository using git clone https://github.com/f20/power-models.git,
-or download https://github.com/f20/power-models/archive/master.zip and extract all the files from it.
+Either clone this repository using git clone https://github.com/f20/power-models.git, or
+download https://github.com/f20/power-models/archive/master.zip and extract all the files from it.
 
 Step 3.  Install any missing modules.
 -------------------------------------
@@ -49,7 +48,8 @@ explore some of the functionality of this code:
     perl pmod.pl EDCM/Current/%-clean189-*.yml EDCM/Data-2014-02/UKPN-EPN.yml
     perl pmod.pl -rtf -text -html -perl -yaml -graphviz CDCM/Future/%-wfl161.yml other/Blank.yml
 
-See "How to use.txt" in the "Stata" folder undef "EDCM" for information on Stata tools to test EDCM spreadsheets.
+See "How to use.txt" in the "Stata" folder under "EDCM" for information on Stata tools
+to test EDCM spreadsheets.
 
 Licensing
 ---------
@@ -65,4 +65,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 4 May 2015.
+Franck Latrémolière, 11 June 2015.
