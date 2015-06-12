@@ -1,10 +1,6 @@
 makeModels
 	-sqlite
-	CDCM/Toys-2015/%-after179.yml
-	CDCM/Toys-2015/%-test228.yml
-	CDCM/Toys-2015/%-test230.yml
-	CDCM/Toys-2015/%-test458.yml
-	CDCM/Toys-2015/%-test666.yml
+	CDCM/Toys-2015/%-*.yml
 	CDCM/Data-2015-06/*
 
 useDatabase
@@ -24,11 +20,23 @@ useDatabase
 
 useDatabase
 	-base=after179
-	-dcp=test666
-	-name=DCP 666
+	-dcp=alt0
+
+useDatabase
+	-base=after179
+	-dcp=alt1
+
+useDatabase
+	-base=ehv179
+	-dcp=alt2
+
+useDatabase
+	-base=ehv179
+	-dcp=alt3
 
 useDatabase
 	tscs
+	10
 	37
 	38
 	39
