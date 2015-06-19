@@ -1362,7 +1362,7 @@ EOT
         ];
         my $tariffHoursInRed = Arithmetic(
             name          => 'Number of super-red hours connected in year',
-            defaultFormat => '0softnz',
+            defaultFormat => '0.0softnz',
             arithmetic    => '=IV2-IV1',
             arguments     => {
                 IV2 => $hoursInRed,
@@ -1443,7 +1443,7 @@ EOT
         ];
         my $tariffHoursInRed = Arithmetic(
             name          => 'Number of super-red hours connected in year',
-            defaultFormat => '0softnz',
+            defaultFormat => '0.0softnz',
             arithmetic    => '=IV2-IV1',
             arguments     => {
                 IV2 => $hoursInRed,
