@@ -48,8 +48,8 @@ sub requiredModulesForRuleset {
         'ModelM::Sheets',
         'ModelM::Units',
 
-          $ruleset->{edcm} && $ruleset->{edcm} =~ /only/ ? ()
-        : $ruleset->{dcp095} ? 'ModelM::Dcp095'
+          $ruleset->{dcp095} ? 'ModelM::Dcp095'
+        : $ruleset->{edcm} && $ruleset->{edcm} =~ /only/ ? ()
         : 'ModelM::Discounts',
 
         $ruleset->{dcp118} ? 'ModelM::Dcp118' : (),

@@ -1,0 +1,9 @@
+---
+.: EDCM Method M with DCP 231
+PerlModule: ModelM
+dcp071: 1
+dcp096: 1
+dcp117: 2014
+edcm: only
+forwardLinks: 1
+meav: 1
