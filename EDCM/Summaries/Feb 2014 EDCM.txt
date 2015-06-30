@@ -1,2 +1,0 @@
--sqlite EDCM/Current/%-beta-*.yml EDCM/DCP-206/%-b206-*.yml EDCM/Data-2014-02/*
-tscs 11 45 46 47 48

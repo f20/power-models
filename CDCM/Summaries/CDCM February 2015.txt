@@ -1,0 +1,11 @@
+makeModels
+	-sqlite
+	-edcm
+	CDCM/Current/%-after179.yml
+	CDCM/Data-2015-02/*
+
+useDatabase
+    /-2015-02/
+	10
+	37
+	11
