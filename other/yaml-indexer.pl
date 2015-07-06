@@ -63,5 +63,13 @@ while ( my ( $f, $o ) = each %obj ) {
 
 while ( my ( $k, $v ) = each %map ) {
     DumpFile( $$, $v );
-    rename $$, "map-$k.yml";
+    rename $$, "map-full-$k.yml";
+    DumpFile(
+        $$,
+        {
+            map { ( $_ => [ keys %{ $v->{$_} } ] ) }
+            grep { $_ ne '.' } keys %$v
+        }
+    );
+    rename $$, "map-short-$k.yml";
 }
