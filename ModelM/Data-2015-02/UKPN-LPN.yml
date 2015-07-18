@@ -198,7 +198,7 @@
     _column: EHV&132
 1331:
   - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
-  - Assets in CDCM model from CDCM table 2705 or 2706: '#VALUE!'
+  - Assets in CDCM model from CDCM table 2705 or 2706: ''
     _column: GSP
   - Assets in CDCM model from CDCM table 2705 or 2706: 2529786620.35406
     _column: 132kV circuits
