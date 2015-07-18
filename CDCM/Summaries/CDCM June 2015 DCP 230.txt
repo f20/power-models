@@ -1,0 +1,18 @@
+makeModels
+	-sqlite
+	CDCM/Current/%-after179.yml
+	-xdata=1010|1|Financial and general assumptions|0.042825
+	CDCM/Data-2015-06/E*
+	CDCM/Data-2015-06/N*
+	CDCM/Data-2015-06/S*
+	CDCM/Data-2015-06/U*
+	-newrules
+	-newdata
+	-xdata=1010|1|Financial and general assumptions|0.044575
+	CDCM/Current/%-after179.yml
+	CDCM/Data-2015-06/W*
+
+useDatabase
+    /-2015-06/
+	10
+	37
