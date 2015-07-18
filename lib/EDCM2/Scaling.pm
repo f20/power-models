@@ -448,7 +448,7 @@ sub demandScaling41 {
       if $model->{transparency};
 
     my $minCapacity = Arithmetic(
-        name       => 'Threshold for asset percentage adder - capacity',
+        name       => 'Threshold for asset percentage adder on capacity',
         arithmetic => '=IF(IV3,-0.01*IV1*IV4*IV5/IV2,0)',
         arguments  => {
             IV1 => $capacityCharge,

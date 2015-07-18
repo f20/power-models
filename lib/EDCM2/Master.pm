@@ -55,9 +55,14 @@ sub requiredModulesForRuleset {
 sub new {
 
     my $class = shift;
-    my $model = {@_};
+    my $model = bless {@_}, $class;
+
     $model->{inputTables} = [];
-    bless $model, $class;
+    $model->{method} ||= 'none';
+
+    # The EDCM timeband is called purple in variable names,
+    # but its display name defaults to super-red.
+    $model->{TimebandName} = ucfirst( $model->{timebandName} ||= 'super-red' );
 
     $model->preprocessDataset
       if $model->{dataset} && keys %{ $model->{dataset} };
@@ -94,7 +99,7 @@ sub new {
         $allowedRevenue,        $powerFactorInModel,
         $genPot20p,             $genPotGP,
         $genPotGL,              $genPotCdcmCap20052010,
-        $genPotCdcmCapPost2010, $hoursInRed,
+        $genPotCdcmCapPost2010, $hoursInPurple,
     ) = $model->generalInputs;
 
     my $ehvAssetLevelset = Labelset(
@@ -120,7 +125,7 @@ EOT
         $reactiveCoincidence,              $indirectExposure,
         $nonChargeableCapacity,            $activeUnits,
         $creditableCapacity,               $tariffNetworkSupportFactor,
-        $tariffDaysInYearNot,              $tariffHoursInRedNot,
+        $tariffDaysInYearNot,              $tariffHoursInPurpleNot,
         $previousChargeImport,             $previousChargeExport,
         $llfcImport,                       $llfcExport,
         $actualRedDemandRate,
@@ -146,7 +151,7 @@ EOT
             $creditableCapacity,
             $tariffNetworkSupportFactor,
             $tariffDaysInYearNot,
-            $tariffHoursInRedNot,
+            $tariffHoursInPurpleNot,
             $previousChargeImport,
             $previousChargeExport,
             $llfcImport,
@@ -174,7 +179,7 @@ EOT
             $creditableCapacity,
             $tariffNetworkSupportFactor,
             $tariffDaysInYearNot,
-            $tariffHoursInRedNot,
+            $tariffHoursInPurpleNot,
             $previousChargeImport,
             $previousChargeExport,
             $llfcImport,
@@ -232,7 +237,7 @@ EOT
                 $creditableCapacity,
                 $tariffNetworkSupportFactor,
                 $tariffDaysInYearNot,
-                $tariffHoursInRedNot,
+                $tariffHoursInPurpleNot,
                 $previousChargeImport,
                 $previousChargeExport,
                 $llfcImport,
@@ -259,7 +264,7 @@ EOT
                 $creditableCapacity,
                 $tariffNetworkSupportFactor,
                 $tariffDaysInYearNot,
-                $tariffHoursInRedNot,
+                $tariffHoursInPurpleNot,
                 $previousChargeImport,
                 $previousChargeExport,
                 $llfcImport,
@@ -482,24 +487,26 @@ EOT
     );
 
     $activeCoincidence = Arithmetic(
-        name       => 'Super-red kW divided by kVA adjusted for part-year',
+        name =>
+          "$model->{TimebandName} kW divided by kVA adjusted for part-year",
         arithmetic => '=IV1*(1-IV2/IV3)/(1-IV4/IV5)',
         arguments  => {
             IV1 => $activeCoincidence,
-            IV2 => $tariffHoursInRedNot,
-            IV3 => $hoursInRed,
+            IV2 => $tariffHoursInPurpleNot,
+            IV3 => $hoursInPurple,
             IV4 => $tariffDaysInYearNot,
             IV5 => $daysInYear,
         }
     );
 
     $reactiveCoincidence = Arithmetic(
-        name       => 'Super-red kVAr divided by kVA adjusted for part-year',
+        name =>
+          "$model->{TimebandName} kVAr divided by kVA adjusted for part-year",
         arithmetic => '=IV1*(1-IV2/IV3)/(1-IV4/IV5)',
         arguments  => {
             IV1 => $reactiveCoincidence,
-            IV2 => $tariffHoursInRedNot,
-            IV3 => $hoursInRed,
+            IV2 => $tariffHoursInPurpleNot,
+            IV3 => $hoursInPurple,
             IV4 => $tariffDaysInYearNot,
             IV5 => $daysInYear,
         }
@@ -591,7 +598,7 @@ EOT
       if $model->{legacy201};
 
     $reactiveCoincidence = Arithmetic(
-        name       => 'Super-red kVAr/agreed kVA (capped)',
+        name       => "$model->{TimebandName} kVAr/agreed kVA (capped)",
         arithmetic => '=MAX(MIN(SQRT(1-MIN(1,IV2)^2),'
           . ( $model->{legacy201} ? '' : '0+' )
           . 'IV1),0-SQRT(1-MIN(1,IV3)^2))',
@@ -616,7 +623,7 @@ EOT
 
     my (
         $lossFactors,            $diversity,
-        $accretion,              $redUseRate,
+        $accretion,              $purpleUseRate,
         $capUseRate,             $assetsFixed,
         $assetsCapacity,         $assetsConsumption,
         $totalAssetsFixed,       $totalAssetsCapacity,
@@ -644,16 +651,18 @@ EOT
             IV123     => $model->{transparencyMasterFlag},
             IV1       => $model->{transparency}{ol119101},
             IV21_IV22 => $model->{transparency},
-            IV51_IV52 => ref $redUseRate eq 'ARRAY'
-            ? $redUseRate->[0]
-            : $redUseRate,
+            IV51_IV52 => ref $purpleUseRate eq 'ARRAY'
+            ? $purpleUseRate->[0]
+            : $purpleUseRate,
             IV53_IV54 => $importCapacity,
         }
       )
       : SumProduct(
         name   => 'Total EDCM peak time consumption (kW)',
-        vector => ref $redUseRate eq 'ARRAY' ? $redUseRate->[0] : $redUseRate,
-        matrix => $importCapacity,
+        vector => ref $purpleUseRate eq 'ARRAY'
+        ? $purpleUseRate->[0]
+        : $purpleUseRate,
+        matrix        => $importCapacity,
         defaultFormat => '0softnz'
       );
 
@@ -896,8 +905,8 @@ EOT
         $acCoef,                     $activeCoincidence,
         $charges1,                   $daysInYear,
         $reactiveCoincidence,        $reCoef,
-        $tariffNetworkSupportFactor, $hoursInRed,
-        $hoursInRed,                 $importCapacity,
+        $tariffNetworkSupportFactor, $hoursInPurple,
+        $hoursInPurple,              $importCapacity,
         $exportCapacityChargeable,   $creditableCapacity,
         $rateExit,                   $activeCoincidence935,
         $reactiveCoincidence935,
@@ -939,7 +948,7 @@ EOT
     );
 
     my $genCreditRound = Arithmetic(
-        name          => 'Export super-red unit rate (p/kWh)',
+        name          => "Export $model->{timebandName} unit rate (p/kWh)",
         defaultFormat => '0.000softnz',
         arithmetic    => '=ROUND(IV1,3)',
         arguments     => { IV1 => $genCredit }
@@ -1163,9 +1172,9 @@ EOT
                 IV1  => $assetsCapacity,
                 IV53 => $assetsConsumption,
                 IV41 => $rateExit,
-                IV42 => ref $redUseRate eq 'ARRAY'
-                ? $redUseRate->[0]
-                : $redUseRate,
+                IV42 => ref $purpleUseRate eq 'ARRAY'
+                ? $purpleUseRate->[0]
+                : $purpleUseRate,
                 IV6 => $rateDirect,
                 IV7 => $rateIndirect,
                 IV8 => $rateRates,
@@ -1231,7 +1240,7 @@ EOT
 
     push @{ $model->{calc3Tables} }, $totalRevenue3;
 
-    my ( $scalingChargeFixed, $scalingChargeCapacity );
+    my ( $scalingChargeCapacity, $scalingChargeUnits );
 
     my $capacityChargeT = Arithmetic(
         name          => 'Capacity charge p/kVA/day (exit only)',
@@ -1240,25 +1249,27 @@ EOT
         arguments     => {
             IV2  => $daysInYear,
             IV41 => $rateExit,
-            IV1  => ref $redUseRate eq 'ARRAY' ? $redUseRate->[0] : $redUseRate,
+            IV1  => ref $purpleUseRate eq 'ARRAY'
+            ? $purpleUseRate->[0]
+            : $purpleUseRate,
         }
     );
 
     if ( $model->{matricesData} ) {
         push @{ $model->{matricesData}[0] },
           Arithmetic(
-            name =>
-              'Notional super-red unit rate for transmission exit (p/kWh)',
+            name => "Notional $model->{timebandName} unit rate"
+              . ' for transmission exit (p/kWh)',
             rows       => $tariffs->{rows},
             arithmetic => '=100/IV2*IV41',
             arguments  => {
-                IV2  => $hoursInRed,
+                IV2  => $hoursInPurple,
                 IV41 => $rateExit,
             },
           );
         $model->{matricesData}[2] =
-          ref $redUseRate eq 'ARRAY' ? $redUseRate->[0] : $redUseRate;
-        $model->{matricesData}[3] = $hoursInRed;
+          ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[0] : $purpleUseRate;
+        $model->{matricesData}[3] = $hoursInPurple;
         $model->{matricesData}[4] = $daysInYear;
     }
 
@@ -1278,10 +1289,9 @@ EOT
         name =>
           'Adjustment to exceeded import capacity charge for DSM (p/kVA/day)',
         defaultFormat => '0.00softnz',
-        arithmetic =>
-'=IF(IV1=0,0,(1-IV4/IV5)*(IV3+IF(IV23=0,0,(IV2*IV21*(IV22-IV24)/(IV9-IV91)))))',
-        defaultFormat => '0.00softnz',
-        arguments     => {
+        arithmetic    => '=IF(IV1=0,0,(1-IV4/IV5)*(IV3+'
+          . 'IF(IV23=0,0,(IV2*IV21*(IV22-IV24)/(IV9-IV91)))))',
+        arguments => {
             IV3  => $fcpLricDemandCapacityChargeBig,
             IV4  => $chargeableCapacity,
             IV5  => $importCapacity,
@@ -1289,8 +1299,8 @@ EOT
             IV2  => $unitRateFcpLricNonDSM,
             IV21 => $activeCoincidence935,
             IV23 => $activeCoincidence935,
-            IV22 => $hoursInRed,
-            IV24 => $tariffHoursInRedNot,
+            IV22 => $hoursInPurple,
+            IV24 => $tariffHoursInPurpleNot,
             IV9  => $daysInYear,
             IV91 => $tariffDaysInYearNot,
         },
@@ -1299,10 +1309,9 @@ EOT
 
     push @{ $model->{calc2Tables} },
       my $unitRateFcpLricDSM = Arithmetic(
-        name          => 'Super-red unit rate adjusted for DSM (p/kWh)',
-        arithmetic    => '=IF(IV6=0,1,IV4/IV5)*IV1',
-        defaultFormat => '0.000softnz',
-        arguments     => {
+        name => "$model->{TimebandName} unit rate adjusted for DSM (p/kWh)",
+        arithmetic => '=IF(IV6=0,1,IV4/IV5)*IV1',
+        arguments  => {
             IV1 => $unitRateFcpLricNonDSM,
             IV4 => $chargeableCapacity,
             IV5 => $importCapacity,
@@ -1315,10 +1324,10 @@ EOT
       if $model->{matricesData};
 
     my (
-        $importCapacityScaledRound, $SuperRedRateFcpLricRound,
+        $importCapacityScaledRound, $purpleRateFcpLricRound,
         $fixedDchargeTrueRound,     $importCapacityScaledSaved,
         $importCapacityExceeded,    $exportCapacityExceeded,
-        $importCapacityScaled,      $SuperRedRateFcpLric,
+        $importCapacityScaled,      $purpleRateFcpLric,
     );
 
     my $demandScalingShortfall;
@@ -1360,13 +1369,13 @@ EOT
                 }
             ),
         ];
-        my $tariffHoursInRed = Arithmetic(
-            name          => 'Number of super-red hours connected in year',
+        my $tariffHoursInPurple = Arithmetic(
+            name => "Number of $model->{timebandName} hours connected in year",
             defaultFormat => '0.0softnz',
             arithmetic    => '=IV2-IV1',
             arguments     => {
-                IV2 => $hoursInRed,
-                IV1 => $tariffHoursInRedNot,
+                IV2 => $hoursInPurple,
+                IV1 => $tariffHoursInPurpleNot,
 
             }
         );
@@ -1387,7 +1396,7 @@ EOT
                 IV41_IV42 => $unitRateFcpLricDSM,
                 IV43_IV44 => $activeCoincidence935,
                 IV35_IV36 => $importCapacityUnscaled,
-                IV51_IV52 => $tariffHoursInRed,
+                IV51_IV52 => $tariffHoursInPurple,
                 IV54      => $daysInYear,
             }
         );
@@ -1441,13 +1450,13 @@ EOT
                 }
             ),
         ];
-        my $tariffHoursInRed = Arithmetic(
-            name          => 'Number of super-red hours connected in year',
+        my $tariffHoursInPurple = Arithmetic(
+            name => "Number of $model->{timebandName} hours connected in year",
             defaultFormat => '0.0softnz',
             arithmetic    => '=IV2-IV1',
             arguments     => {
-                IV2 => $hoursInRed,
-                IV1 => $tariffHoursInRedNot,
+                IV2 => $hoursInPurple,
+                IV1 => $tariffHoursInPurpleNot,
 
             }
         );
@@ -1491,7 +1500,7 @@ EOT
                             IV41_IV42 => $unitRateFcpLricDSM,
                             IV43_IV44 => $activeCoincidence935,
                             IV35_IV36 => $importCapacityUnscaled,
-                            IV51_IV52 => $tariffHoursInRed,
+                            IV51_IV52 => $tariffHoursInPurple,
                             IV54      => $daysInYear,
                             IV64_IV65 => $model->{transparency},
                             IV66_IV67 => $model->{transparency},
@@ -1511,7 +1520,7 @@ EOT
                             IV41_IV42 => $unitRateFcpLricDSM,
                             IV43_IV44 => $activeCoincidence935,
                             IV35_IV36 => $importCapacityUnscaled,
-                            IV51_IV52 => $tariffHoursInRed,
+                            IV51_IV52 => $tariffHoursInPurple,
                             IV54      => $daysInYear,
                         },
                     ),
@@ -1539,7 +1548,7 @@ EOT
 
     push @{ $model->{calc4Tables} }, $demandScalingShortfall;
 
-    ($scalingChargeCapacity) = $model->demandScaling41(
+    ( $scalingChargeCapacity, $scalingChargeUnits ) = $model->demandScaling41(
         $importCapacity,       $demandScalingShortfall,
         $daysInYear,           $assetsFixed,
         $assetsCapacityCooked, $assetsConsumptionCooked,
@@ -1565,8 +1574,8 @@ EOT
             IV7  => $edcmDirect,
             IV8  => $edcmRates,
             IV9  => $demandScalingShortfall,
-            IV54 => $hoursInRed,
-            IV55 => $tariffHoursInRedNot,
+            IV54 => $hoursInPurple,
+            IV55 => $tariffHoursInPurpleNot,
             IV56 => $tariffDaysInYearNot,
             IV31 => $daysInYear,
             IV32 => $daysInYear,
@@ -1592,8 +1601,8 @@ EOT
             IV7  => $edcmDirect,
             IV8  => $edcmRates,
             IV9  => $demandScalingShortfall,
-            IV54 => $hoursInRed,
-            IV55 => $tariffHoursInRedNot,
+            IV54 => $hoursInPurple,
+            IV55 => $tariffHoursInPurpleNot,
             IV56 => $tariffDaysInYearNot,
             IV31 => $daysInYear,
             IV32 => $daysInYear,
@@ -1619,8 +1628,8 @@ EOT
             IV7  => $edcmDirect,
             IV8  => $edcmRates,
             IV9  => $demandScalingShortfall,
-            IV54 => $hoursInRed,
-            IV55 => $tariffHoursInRedNot,
+            IV54 => $hoursInPurple,
+            IV55 => $tariffHoursInPurpleNot,
             IV56 => $tariffDaysInYearNot,
             IV31 => $daysInYear,
             IV32 => $daysInYear,
@@ -1638,14 +1647,14 @@ EOT
             IV3  => $unitRateFcpLricNonDSM,
             IV31 => $activeCoincidence,
             IV32 => $daysInYear,
-            IV33 => $hoursInRed,
+            IV33 => $hoursInPurple,
             IV2  => $scalingChargeCapacity,
         }
       )
       : Stack( sources => [$capacityChargeT] );
 
-    $SuperRedRateFcpLric = Arithmetic(
-        name       => 'Super-red rate p/kWh',
+    $purpleRateFcpLric = Arithmetic(
+        name       => "$model->{TimebandName} rate p/kWh",
         arithmetic => '=IF(IV3,IF(IV1=0,IV9,'
           . 'MAX(0,MIN(IV4,IV41+(IV5/IV11*(IV7-IV71)/(IV8-IV81))))' . '),0)',
         arguments => {
@@ -1659,8 +1668,8 @@ EOT
             IV51 => $demandConsumptionFcpLric,
             IV7  => $daysInYear,
             IV71 => $tariffDaysInYearNot,
-            IV8  => $hoursInRed,
-            IV81 => $tariffHoursInRedNot,
+            IV8  => $hoursInPurple,
+            IV81 => $tariffHoursInPurpleNot,
         }
     ) if $unitRateFcpLricDSM;
 
@@ -1706,8 +1715,8 @@ EOT
             IV9  => $daysInYear,
             IV4  => $unitRateFcpLricDSM,
             IV41 => $activeCoincidence,
-            IV6  => $hoursInRed,
-            IV61 => $tariffHoursInRedNot,
+            IV6  => $hoursInPurple,
+            IV61 => $tariffHoursInPurpleNot,
             IV8  => $activeCoincidence935,
             IV91 => $daysInYear,
             IV92 => $daysInYear,
@@ -1729,11 +1738,11 @@ EOT
         arguments     => { IV1 => $fixedDchargeTrue, },
     );
 
-    $SuperRedRateFcpLricRound = Arithmetic(
-        name          => 'Import super-red unit rate (p/kWh)',
+    $purpleRateFcpLricRound = Arithmetic(
+        name          => "Import $model->{timebandName} unit rate (p/kWh)",
         defaultFormat => '0.000softnz',
         arithmetic    => '=ROUND(IV1,3)',
-        arguments     => { IV1 => $SuperRedRateFcpLric, },
+        arguments     => { IV1 => $purpleRateFcpLric, },
     );
 
     $importCapacityScaledRound = Arithmetic(
@@ -1757,7 +1766,7 @@ EOT
         arguments     => { IV1 => $importCapacityExceeded, },
     );
 
-    push @{ $model->{calc4Tables} }, $SuperRedRateFcpLric,
+    push @{ $model->{calc4Tables} }, $purpleRateFcpLric,
       $importCapacityScaled,
       $fixedDchargeTrue, $importCapacityExceeded,
       $exportCapacityChargeRound,
@@ -1765,7 +1774,7 @@ EOT
 
     my @tariffColumns = (
         Stack( sources => [$tariffs] ),
-        $SuperRedRateFcpLricRound,
+        $purpleRateFcpLricRound,
         $fixedDchargeTrueRound,
         $importCapacityScaledRound,
         $importCapacityExceededRound,
@@ -1884,13 +1893,13 @@ EOT
         ),
 
         Arithmetic(
-            name          => 'Super-red charge for demand (£/year)',
+            name => "$model->{TimebandName} charge for demand (£/year)",
             defaultFormat => '0softnz',
             arithmetic    => '=0.01*(IV9-IV7)*IV1*IV6*(IV91/(IV92-IV71))*IV8',
             arguments     => {
-                IV1  => $SuperRedRateFcpLricRound,
-                IV9  => $hoursInRed,
-                IV7  => $tariffHoursInRedNot,
+                IV1  => $purpleRateFcpLricRound,
+                IV9  => $hoursInPurple,
+                IV7  => $tariffHoursInPurpleNot,
                 IV6  => $importCapacity,
                 IV8  => $activeCoincidence935,
                 IV91 => $daysInYear,
@@ -1937,7 +1946,7 @@ EOT
         ),
 
         Arithmetic(
-            name          => 'Super-red credit (£/year)',
+            name          => "$model->{TimebandName} credit (£/year)",
             defaultFormat => '0softnz',
             arithmetic    => '=0.01*IV1*IV6',
             arguments     => {
@@ -2009,13 +2018,13 @@ EOT
 
     $model->{summaryInformationColumns}[0] = $soleUseAssetChargeUnround;
 
-    0 and my $superRedUnits = Arithmetic(
-        name          => 'Super-red units (kWh)',
+    0 and my $purpleUnits = Arithmetic(
+        name          => "$model->{TimebandName} units (kWh)",
         defaultFormat => '0softnz',
         arithmetic    => '=IV1*(IV3-IV7)*IV5',
         arguments     => {
-            IV3 => $hoursInRed,
-            IV7 => $tariffHoursInRedNot,
+            IV3 => $hoursInPurple,
+            IV7 => $tariffHoursInPurpleNot,
             IV1 => $activeCoincidence935,
             IV5 => $importCapacityUnscaled,
         }
@@ -2165,8 +2174,8 @@ EOT
         $exportCapacityCharge,   $importCapacityExceeded,
         $exportCapacityExceeded, $genCredit,
         $genCreditCapacity,      $importCapacityScaled,
-        $SuperRedRateFcpLric,    $activeCoincidence,
-        $hoursInRed,
+        $purpleRateFcpLric,      $activeCoincidence,
+        $hoursInPurple,
     );
 
     $model->summary( $tariffs, $revenue, $previousChargeImport,
@@ -2187,10 +2196,10 @@ EOT
         $indirectExposure,                 $nonChargeableCapacity,
         $activeUnits,                      $creditableCapacity,
         $tariffNetworkSupportFactor,       $tariffDaysInYearNot,
-        $tariffHoursInRedNot,              $previousChargeImport,
+        $tariffHoursInPurpleNot,           $previousChargeImport,
         $previousChargeExport,             $llfcImport,
         $llfcExport,                       \@tariffColumns,
-        $daysInYear,                       $hoursInRed,
+        $daysInYear,                       $hoursInPurple,
     ) if $model->{customerTemplates};
 
     $model;

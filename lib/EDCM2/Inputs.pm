@@ -162,8 +162,8 @@ sub generalInputs {
         data          => [0],
     );
 
-    my $hoursInRed = Dataset(
-        name          => 'Annual hours in super-red',
+    my $hoursInPurple = Dataset(
+        name          => "Annual hours in $model->{timebandName}",
         defaultFormat => '0.0hardnz',
         data          => [300],
     );
@@ -172,7 +172,7 @@ sub generalInputs {
         name    => 'General inputs',
         columns => [
             $days,                  $genPot20p,
-            $hoursInRed,            $allowedRev,
+            $hoursInPurple,         $allowedRev,
             $tExit,                 $direct,
             $indirect,              $rates,
             $genPotGP,              $genPotGL,
@@ -186,7 +186,7 @@ sub generalInputs {
     $days, $direct, $indirect, $rates, $tExit, $ehvIntensity, $allowedRev,
       $powerFactorInModel, $genPot20p, $genPotGP, $genPotGL,
       $genPotCdcmCap20052010, $genPotCdcmCapPost2010,
-      $hoursInRed;
+      $hoursInPurple;
 
 }
 
@@ -570,13 +570,14 @@ EOL
         ),
 
         Dataset(
-            name    => 'Super-red kW import divided by kVA capacity',
-            data    => [ map { '' } 1 .. $model->{numTariffs} ],
-            rows    => $model->{tariffSet},
+            name => "$model->{TimebandName} kW import divided by kVA capacity",
+            data => [ map { '' } 1 .. $model->{numTariffs} ],
+            rows => $model->{tariffSet},
             dataset => $model->{dataset}
         ),
         Dataset(
-            name    => 'Super-red kVAr import divided by kVA capacity',
+            name =>
+              "$model->{TimebandName} kVAr import divided by kVA capacity",
             data    => [ map { '' } 1 .. $model->{numTariffs} ],
             rows    => $model->{tariffSet},
             dataset => $model->{dataset}
@@ -603,7 +604,7 @@ EOL
         ),
 
         Dataset(
-            name          => 'Super-red units exported (kWh)',
+            name          => "$model->{TimebandName} units exported (kWh)",
             defaultFormat => '0hard',
             data          => [ map { '' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
@@ -631,7 +632,7 @@ EOL
             dataset       => $model->{dataset}
         ),
         Dataset(
-            name          => 'Hours in super-red for which not a customer',
+            name => "Hours in $model->{timebandName} for which not a customer",
             defaultFormat => '0.0hard',
             data          => [ map { '' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},

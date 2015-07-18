@@ -45,7 +45,7 @@ sub revenue {
         $importCapacityExceeded, $exportCapacityExceeded,
         $exportCredit,           $genCreditCapacity,
         $importCapacityScaled,   $unitRateFcpLric,
-        $activeCoincidence,      $redHours,
+        $activeCoincidence,      $purpleHours,
     ) = @_;
 
     my @revenueBits = (
@@ -92,7 +92,7 @@ sub revenue {
                 IV9  => $unitRateFcpLric,
                 IV42 => $agreedCapacity,
                 IV1  => $activeCoincidence,
-                IV7  => $redHours,
+                IV7  => $purpleHours,
             }
         ),
 

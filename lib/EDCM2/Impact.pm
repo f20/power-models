@@ -141,7 +141,7 @@ sub mangleTariffInputs {
 15	creditableCapacity
 16	tariffNetworkSupportFactor
 17	tariffDaysInYearNot
-18	tariffHoursInRedNot
+18	tariffHoursInPurpleNot
 19	previousChargeImport
 20	previousChargeExport
 21	llfcImport
@@ -263,7 +263,7 @@ sub mangleTariffInputs {
     }
 
     my $newTariffsActualRedDemand = $defaultingInputMaker->(
-        name          => 'Actual super-red consumption (kW/kVA)',
+        name          => "Actual $model->{timebandName} consumption (kW/kVA)",
         arguments     => { IV1 => $columns[10]{sources}[0] },
         defaultFormat => $model->{lockedInputs}
         ? '0.000input'
@@ -305,7 +305,7 @@ sub mangleTariffInputs {
 
     push @columns,
       Stack(
-        name    => 'Actual super-red demand (kW per kVA)',
+        name    => "Actual $model->{timebandName} demand (kW per kVA)",
         rows    => $model->{tariffSet},
         sources => [ $columns[10]{sources}[0], $newTariffsActualRedDemand ]
       );
@@ -340,7 +340,7 @@ sub impactFinancialSummary {
             defaultFormat => '0copy',
         ),
         Arithmetic(
-            name          => 'Super-red charge for demand (£/year)',
+            name => "$model->{TimebandName} charge for demand (£/year)",
             defaultFormat => '0softnz',
             arithmetic    => '=0.01*(IV9-IV7)*IV1*IV6*IV8',
             arguments     => {
@@ -369,7 +369,7 @@ sub impactFinancialSummary {
           )
     } grep { $_ } @{ $model->{summaryInformationColumns} };
     push @suminfocols, Arithmetic(
-        name => 'Difference due to super-red consumption'
+        name => "Difference due to $model->{timebandName} consumption"
           . ' and rounding errors (£/year)',
         defaultFormat => '0softnz',
         arithmetic    => join( '',

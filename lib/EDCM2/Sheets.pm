@@ -347,7 +347,7 @@ sub worksheetsAndClosures {
                     my $name =
                       $col
                       ? 'capacity charge p/kVA/day'
-                      : 'super-red rate p/kWh';
+                      : "$model->{timebandName} rate p/kWh";
                     push @{ $model->{matricesData}[$col] },
                       $total[$col] = Arithmetic(
                         name          => 'Total notional ' . $name,

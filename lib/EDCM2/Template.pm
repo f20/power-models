@@ -43,18 +43,20 @@ sub templates {
         $reactiveCoincidence,              $indirectExposure,
         $nonChargeableCapacity,            $activeUnits,
         $creditableCapacity,               $tariffNetworkSupportFactor,
-        $tariffDaysInYearNot,              $tariffHoursInRedNot,
+        $tariffDaysInYearNot,              $tariffHoursInPurpleNot,
         $previousChargeImport,             $previousChargeExport,
         $llfcImport,                       $llfcExport,
         $tariffColumns,                    $daysInYear,
-        $hoursInRed,
+        $hoursInPurple,
     ) = @_;
 
     push @{ $model->{tablesTemplateImport} },
       $model->templateImport(
-        $tariffs,        $llfcImport,          $tariffColumns,
-        $importCapacity, $activeCoincidence,   $daysInYear,
-        $hoursInRed,     $tariffDaysInYearNot, $tariffHoursInRedNot,
+        $tariffs,           $llfcImport,
+        $tariffColumns,     $importCapacity,
+        $activeCoincidence, $daysInYear,
+        $hoursInPurple,     $tariffDaysInYearNot,
+        $tariffHoursInPurpleNot,
       );
 
     push @{ $model->{tablesTemplateExport} },
@@ -64,10 +66,11 @@ sub templates {
 sub templateImport {
 
     my (
-        $model,         $tariffs,        $llfcImport,
-        $tariffColumns, $importCapacity, $activeCoincidence,
-        $daysInYear,    $hoursInRed,     $tariffDaysInYearNot,
-        $tariffHoursInRedNot,
+        $model,               $tariffs,
+        $llfcImport,          $tariffColumns,
+        $importCapacity,      $activeCoincidence,
+        $daysInYear,          $hoursInPurple,
+        $tariffDaysInYearNot, $tariffHoursInPurpleNot,
     ) = @_;
 
     $model->{importTariffIndex} = my $index = Dataset(
@@ -100,7 +103,8 @@ sub templateImport {
         defaultFormat => '0hard',
     );
 
-    foreach ( $activeCoincidence, $tariffDaysInYearNot, $tariffHoursInRedNot, )
+    foreach ( $activeCoincidence, $tariffDaysInYearNot,
+        $tariffHoursInPurpleNot, )
     {
         my $df = $_->{defaultFormat} || '0.000soft';
         $df =~ s/copy|soft/hard/;
@@ -112,22 +116,22 @@ sub templateImport {
         );
     }
 
-    $_ = Stack( sources => [$_] ) foreach $daysInYear, $hoursInRed;
+    $_ = Stack( sources => [$_] ) foreach $daysInYear, $hoursInPurple;
 
     my $units = Arithmetic(
-        name          => 'Units consumed in super-red time band (kWh)',
+        name => "Units consumed in $model->{timebandName} time band (kWh)",
         defaultFormat => '0soft',
         arithmetic    => '=IV1*IV2*(IV3-IV4)',
         arguments     => {
             IV1 => $agreedCapacity,
             IV2 => $activeCoincidence,
-            IV3 => $hoursInRed,
-            IV4 => $tariffHoursInRedNot,
+            IV3 => $hoursInPurple,
+            IV4 => $tariffHoursInPurpleNot,
         },
     );
 
     my $redPounds = Arithmetic(
-        name          => 'Annual super-red charge (£)',
+        name          => "Annual $model->{timebandName} charge (£)",
         defaultFormat => '0soft',
         arithmetic    => '=IV1*IV2/100',
         arguments     => { IV1 => $units, IV2 => $tariffComponents[0], },
@@ -254,7 +258,7 @@ EOX
 
       [ 'Calendar and time band information', $daysInYear, ],
       $tariffDaysInYearNot,
-      $hoursInRed, $tariffHoursInRedNot,
+      $hoursInPurple, $tariffHoursInPurpleNot,
 
       [ 'Capacity and consumption', $agreedCapacity ],
       $exceededCapacity, $activeCoincidence, $units,

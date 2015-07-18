@@ -55,11 +55,11 @@ sub preprocessDataset {
         $model->{dataset}{1113}[4]{$key} += $model->{revenueAdj};
     }
 
-    my ( $daysInYearKey, $hoursInRedKey );
+    my ( $daysInYearKey, $hoursInPurpleKey );
     if ( $model->{dataset}{1113} && ref $model->{dataset}{1113}[1] eq 'HASH' ) {
         ($daysInYearKey) =
           grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
-        ($hoursInRedKey) =
+        ($hoursInPurpleKey) =
           grep { !/^_/ } keys %{ $model->{dataset}{1113}[3] };
     }
 
@@ -198,9 +198,10 @@ sub preprocessDataset {
                           foreach $ds->[22]{$k};
                         $_
                           && /^[0-9.]+$/s
-                          && $hoursInRedKey
-                          && $_ > $model->{dataset}{1113}[3]{$hoursInRedKey}
-                          && ( $model->{dataset}{1113}[3]{$hoursInRedKey} = $_ )
+                          && $hoursInPurpleKey
+                          && $_ > $model->{dataset}{1113}[3]{$hoursInPurpleKey}
+                          && ( $model->{dataset}{1113}[3]{$hoursInPurpleKey} =
+                            $_ )
                           foreach $ds->[23]{$k};
                     }
                     else {
@@ -299,9 +300,10 @@ sub preprocessDataset {
                           foreach $ds->[22][$k];
                         $_
                           && /^[0-9.]+$/s
-                          && $hoursInRedKey
-                          && $_ > $model->{dataset}{1113}[3]{$hoursInRedKey}
-                          && ( $model->{dataset}{1113}[3]{$hoursInRedKey} = $_ )
+                          && $hoursInPurpleKey
+                          && $_ > $model->{dataset}{1113}[3]{$hoursInPurpleKey}
+                          && ( $model->{dataset}{1113}[3]{$hoursInPurpleKey} =
+                            $_ )
                           foreach $ds->[23][$k];
                     }
                     else {
