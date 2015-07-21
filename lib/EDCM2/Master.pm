@@ -67,6 +67,9 @@ sub new {
     $model->preprocessDataset
       if $model->{dataset} && keys %{ $model->{dataset} };
 
+    my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
+      $model->cdcmAssets;
+
     $model->{numLocations} ||= $model->{numLocationsDefault};
     $model->{numTariffs}   ||= $model->{numTariffsDefault};
 
@@ -567,12 +570,18 @@ EOT
         }
     );
 
-    my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
-      $model->cdcmAssets;
-
-    my $cdcmUse = Dataset(
+    my $cdcmUse = $model->{cdcmComboTable} ? Stack(
         name => 'Forecast system simultaneous maximum load (kW)'
-          . ' from CDCM users (from CDCM table 2506)',
+          . ' from CDCM users',
+        defaultFormat => '0copy',
+        cols          => $ehvAssetLevelset,
+        rows          => 0,
+        rowName       => 'System simultaneous maximum load (kW)',
+        sources       => [ $model->{cdcmComboTable} ],
+      ) : Dataset(
+        name => 'Forecast system simultaneous maximum load (kW)'
+          . ' from CDCM users'
+          . ( $model->{transparency} ? '' : ' (from CDCM table 2506)' ),
         defaultFormat => '0hardnz',
         cols          => $ehvAssetLevelset,
         data          => [qw(5e6 5e6 5e6 5e6 5e6 5e6)],
@@ -584,14 +593,15 @@ EOT
             criteria => '>=',
             value    => 0,
         }
-    );
+      );
 
-    my $cdcmRedUse = Stack(
+    my $cdcmPurpleUse = Stack(
         cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
         name    => 'Total CDCM peak time consumption (kW)',
         sources => [$cdcmUse]
     );
-    $model->{transparency}{olFYI}{1237} = $cdcmRedUse if $model->{transparency};
+    $model->{transparency}{olFYI}{1237} = $cdcmPurpleUse
+      if $model->{transparency};
 
     push @{ $model->{calc3Tables} }, $cdcmHvLvService, $cdcmEhvAssets,
       $cdcmHvLvShared
@@ -640,7 +650,7 @@ EOT
         $cdcmUse,
       );
 
-    my $edcmRedUse =
+    my $edcmPurpleUse =
       $model->{transparencyMasterFlag}
       ? Arithmetic(
         name          => 'Total EDCM peak time consumption (kW)',
@@ -666,22 +676,22 @@ EOT
         defaultFormat => '0softnz'
       );
 
-    $model->{transparency}{olTabCol}{119101} = $edcmRedUse
+    $model->{transparency}{olTabCol}{119101} = $edcmPurpleUse
       if $model->{transparency};
 
-    my $overallRedUse = Arithmetic(
+    my $overallPurpleUse = Arithmetic(
         name          => 'Estimated total peak-time consumption (kW)',
         defaultFormat => '0softnz',
         arithmetic    => '=IV1+IV2',
-        arguments     => { IV1 => $cdcmRedUse, IV2 => $edcmRedUse }
+        arguments     => { IV1 => $cdcmPurpleUse, IV2 => $edcmPurpleUse }
     );
-    $model->{transparency}{olFYI}{1238} = $overallRedUse
+    $model->{transparency}{olFYI}{1238} = $overallPurpleUse
       if $model->{transparency};
 
     my $rateExit = Arithmetic(
         name       => 'Transmission exit charging rate (£/kW/year)',
         arithmetic => '=IV1/IV2',
-        arguments  => { IV1 => $chargeExit, IV2 => $overallRedUse },
+        arguments  => { IV1 => $chargeExit, IV2 => $overallPurpleUse },
         location   => 'Charging rates',
     );
     $model->{transparency}{olFYI}{1239} = $rateExit if $model->{transparency};
@@ -1107,6 +1117,7 @@ EOT
           . ' (£/year)',
         defaultFormat => '0softnz',
         arithmetic    => '=IV1-IV2-IV3-IV4-IV5'
+          . ( $model->{tableGrouping} ? '-IV9' : '' )
           . (
             !$totalDcp189DiscountedAssets
               || $model->{dcp189} =~ /preservePot/i ? ''
@@ -1114,6 +1125,7 @@ EOT
           ),
         arguments => {
             IV1 => $allowedRevenue,
+            $model->{tableGrouping} ? ( IV9 => $chargeExit ) : (),
             IV2 => $chargeDirect,
             IV3 => $chargeIndirect,
             IV4 => $chargeRates,
@@ -1214,7 +1226,7 @@ EOT
               . ( $totalDcp189DiscountedAssets ? '-IV31*IV32' : '' ),
             arguments => {
                 IV5  => $rateExit,
-                IV6  => $edcmRedUse,
+                IV6  => $edcmPurpleUse,
                 IV11 => $totalAssetsFixed,
                 IV12 => $totalAssetsCapacity,
                 IV13 => $totalAssetsConsumption,
@@ -1481,7 +1493,7 @@ EOT
                 ? ( IV44 => $totalDcp189DiscountedAssets )
                 : (),
                 IV5 => $rateExit,
-                IV6 => $edcmRedUse,
+                IV6 => $edcmPurpleUse,
                 $model->{removeDemandCharge1} ? ()
                 : (
                     IV9 => $model->{transparencyMasterFlag} ? Arithmetic(

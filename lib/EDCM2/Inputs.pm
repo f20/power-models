@@ -67,7 +67,9 @@ sub generalInputs {
 
     my $allowedRev = Dataset(
         name => 'The amount of money that the DNO wants to raise'
-          . ' from use of system charges, less transmission exit (£/year)',
+          . ' from use of system charges'
+          . ( $model->{table1101} ? '' : ', less transmission exit' )
+          . ' (£/year)',
         defaultFormat => '0hard',
         data          => [300e6],
         dataset       => $model->{dataset},
@@ -168,20 +170,49 @@ sub generalInputs {
         data          => [300],
     );
 
-    Columnset(
-        name    => 'General inputs',
-        columns => [
-            $days,                  $genPot20p,
-            $hoursInPurple,         $allowedRev,
-            $tExit,                 $direct,
-            $indirect,              $rates,
-            $genPotGP,              $genPotGL,
-            $genPotCdcmCap20052010, $genPotCdcmCapPost2010,
-        ],
-        number   => 1113,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables}
-    );
+    if ( $model->{table1101} ) {
+        Columnset(
+            name => 'Financial information',
+            columns =>
+              [ $genPot20p, $direct, $indirect, $rates, $allowedRev, $tExit, ],
+            number   => 1101,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables}
+        );
+        Columnset(
+            name     => 'Calendar and timeband information',
+            columns  => [ $days, $hoursInPurple, ],
+            number   => 1110,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables}
+        );
+        Columnset(
+            name    => 'Generation data',
+            columns => [
+                $genPotGP,              $genPotGL,
+                $genPotCdcmCap20052010, $genPotCdcmCapPost2010,
+            ],
+            number   => 1118,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables}
+        );
+    }
+    else {
+        Columnset(
+            name    => 'General inputs',
+            columns => [
+                $days,                  $genPot20p,
+                $hoursInPurple,         $allowedRev,
+                $tExit,                 $direct,
+                $indirect,              $rates,
+                $genPotGP,              $genPotGL,
+                $genPotCdcmCap20052010, $genPotCdcmCapPost2010,
+            ],
+            number   => 1113,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables}
+        );
+    }
 
     $days, $direct, $indirect, $rates, $tExit, $ehvIntensity, $allowedRev,
       $powerFactorInModel, $genPot20p, $genPotGP, $genPotGL,
@@ -418,7 +449,7 @@ sub tariffInputs {
             name          => 'Tariff nicknames',
             defaultFormat => 'texthard',
             appendTo      => $model->{inputTables},
-            number        => 1101,
+            number        => 1109,
             data          => [ 1 .. $model->{numTariffs} ],
             lines         => 'These nicknames do not affect any calculations.',
         )

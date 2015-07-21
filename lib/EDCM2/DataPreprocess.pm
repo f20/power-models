@@ -320,6 +320,163 @@ sub preprocessDataset {
         }
     }
 
+    if ( my @tables = grep { $_ } @{ $model->{dataset} }{qw(1133 1134 1136)} ) {
+        if ( $model->{tableGrouping} || $model->{transparency} ) {
+            foreach ( grep { $_->[1]{_column} && $_->[1]{_column} =~ /GSP/ }
+                @tables )
+            {
+                splice @$_, 1, 1;
+            }
+        }
+        else {
+            foreach ( grep { $_->[1]{_column} && $_->[1]{_column} !~ /GSP/ }
+                @tables )
+            {
+                splice @$_, 1, 0, $_->[1];
+                foreach my $k ( keys %{ $_->[1] } ) {
+                    $_->[1]{$k} = $k eq '_column' ? 'GSP' : '';
+                }
+            }
+        }
+        if ( $model->{dataset}{1136} ) {
+            $model->{dataset}{1133} ||= [
+                map {
+                    my %a;
+                    while ( my ( $k, $v ) = each %$_ ) {
+                        $a{$k} = $v if $k eq '_column' || $k =~ /maximum/i;
+                    }
+                    \%a;
+                } @{ $model->{dataset}{1136} }
+            ];
+            $model->{dataset}{1134} ||= [
+                map {
+                    my %a;
+                    while ( my ( $k, $v ) = each %$_ ) {
+                        $a{$k} = $v if $k eq '_column' || $k =~ /minimum/i;
+                    }
+                    \%a;
+                } @{ $model->{dataset}{1136} }
+            ];
+        }
+        else {
+            my $a = $model->{dataset}{1136} =
+              $model->{dataset}{1133} || $model->{dataset}{1134};
+            foreach my $t ( @{ $model->{dataset} }{qw(1133 1134)} ) {
+                next unless $t;
+                for ( my $c = 1 ; $c < @$t ; ++$c ) {
+                    while ( my ( $k, $v ) = each %{ $t->[$c] } ) {
+                        $a->[$c]{$k} = $v;
+                    }
+                }
+            }
+        }
+    }
+
+    if ( $model->{dataset}{1113} ) {
+        my ($k1113) = grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
+        $model->{dataset}{1101} ||= [
+            undef,
+            @{ $model->{dataset}{1113} }[ 2, 6, 7, 8 ],
+            {
+                $k1113 => $model->{dataset}{1113}[4]{$k1113} +
+                  $model->{dataset}{1113}[5]{$k1113}
+            },
+            $model->{dataset}{1113}[5]
+        ];
+        $model->{dataset}{1110} ||=
+          [ undef, @{ $model->{dataset}{1113} }[ 1, 3 ] ];
+        $model->{dataset}{1118} ||=
+          [ undef, @{ $model->{dataset}{1113} }[ 9 .. 12 ] ];
+    }
+    else {
+        my ($k1101) = grep { !/^_/ } keys %{ $model->{dataset}{1001}[1] };
+        $model->{dataset}{1113} ||= [
+            undef,
+            $model->{dataset}{1110}[1],
+            $model->{dataset}{1101}[1],
+            $model->{dataset}{1110}[2],
+            {
+                $k1101 => $model->{dataset}{1101}[5]{$k1101} -
+                  $model->{dataset}{1101}[6]{$k1101}
+            },
+            @{ $model->{dataset}{1101} }[ 6, 2, 3, 4 ],
+            @{ $model->{dataset}{1118} }[ 1 .. 4 ],
+        ];
+    }
+
+    if ( $model->{dataset}{1140} ) {
+        $model->{dataset}{1105} ||= [
+            map {
+                my %a;
+                while ( my ( $k, $v ) = each %$_ ) {
+                    $a{$k} = $v if $k eq '_column' || $k =~ /diversity/i;
+                }
+                \%a;
+            } @{ $model->{dataset}{1140} }
+        ];
+        $model->{dataset}{1122} ||= [
+            map {
+                my %a;
+                while ( my ( $k, $v ) = each %$_ ) {
+                    $a{$k} = $v if $k eq '_column' || $k =~ /simultaneous/i;
+                }
+                \%a;
+            } @{ $model->{dataset}{1140} }
+        ];
+        $model->{dataset}{1131} ||= [
+            map {
+                my %a;
+                while ( my ( $k, $v ) = each %$_ ) {
+                    $a{$k} = $v if $k eq '_column' || $k =~ /asset/i;
+                }
+                \%a;
+            } @{ $model->{dataset}{1140} }
+        ];
+        $model->{dataset}{1135} ||= [
+            map {
+                my %a;
+                while ( my ( $k, $v ) = each %$_ ) {
+                    $a{$k} = $v if $k eq '_column' || $k =~ /loss/i;
+                }
+                \%a;
+            } @{ $model->{dataset}{1140} }
+        ];
+    }
+    else {
+        my $a = $model->{dataset}{1140} ||= [ {} ];
+        foreach my $t ( @{ $model->{dataset} }{qw(1105 1122 1131 1135)} ) {
+            my ( $kk, $match );
+            local $_ = $t->[0]{_table} or next;
+            if (/diversity/i) {
+                $match = qr/diversity/i;
+                $kk    = 'Diversity allowance between level exit and GSP Group';
+            }
+            elsif (/simultaneous/i) {
+                $match = qr/simultaneous/i;
+                $kk    = 'System simultaneous maximum load kW';
+            }
+            elsif (/Assets/i) {
+                $match = qr/Assets/i;
+                $kk    = 'Assets in CDCM model';
+            }
+            elsif (/Loss/i) {
+                $match = qr/Loss/i;
+                $kk    = 'Loss adjustment factor to transmission';
+            }
+            else {
+                next;
+            }
+            for ( my $c = 1 ; $c < @$t ; ++$c ) {
+                while ( my ( $k, $v ) = each %{ $t->[$c] } ) {
+                    if ( $k eq '_column' ) { $a->[$c]{$k} ||= $v; }
+                    elsif ( $k =~ /$match/ ) {
+                        $a->[$c]{$kk} ||= $v;
+                    }
+                }
+            }
+        }
+    }
+
     if ( $model->{dataset}{1194} ) {
         my ( $key1191, $key1192, $key1194 ) = map {
             ( grep { !/^_/ } keys %{ $model->{dataset}{$_}[1] } )[0]

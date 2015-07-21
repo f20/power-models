@@ -80,7 +80,8 @@ sub orderedLayout {
                 }
             }
         }
-        elsif ( !%tariffsRemaining && values %$tset > 5 ) {
+        elsif ( !%tariffsRemaining && values %$tset > 5 )
+        {    # What is going on here?
             %tariffsRemaining = %$tset;
         }
         else {

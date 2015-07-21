@@ -16,5 +16,7 @@ numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
+table1101: 1
+tableGrouping: 1
 validation: lenientnomsg
 wantTables: 913

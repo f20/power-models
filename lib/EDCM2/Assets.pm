@@ -54,21 +54,62 @@ LV customer
 HV customer
 EOT
 
-    my $allAssets = Dataset(
-        name => 'Assets in CDCM model (£)'
-          . ( $model->{transparency} ? '' : ' (from CDCM table 2706)' ),
-        defaultFormat => '0hard',
-        cols          => $assetLevelset,
-        data          => [ '', map { 5e8 } 2 .. @{ $assetLevelset->{list} } ],
-        number        => 1131,
-        dataset       => $model->{dataset},
-        appendTo      => $model->{inputTables},
-        validation    => {
-            validate => 'decimal',
-            criteria => '>=',
-            value    => 0,
-        }
-    );
+    my $allAssets;
+    if ( $model->{tableGrouping} ) {
+        $allAssets = Stack(
+            name          => 'Assets in CDCM model (£)',
+            defaultFormat => '0copy',
+            cols          => $assetLevelset,
+            rows          => 0,
+            rowName       => 'Assets in CDCM model (£)',
+            sources       => [
+                $model->{cdcmComboTable} = Dataset(
+                    name       => 'Data from CDCM model',
+                    rowFormats => [ '%hard', '0hard', '0hard', '0.000hard', ],
+                    cols       => $assetLevelset,
+                    rows       => Labelset(
+                        list => [
+                            'Diversity allowance between'
+                              . ' level exit and GSP Group',
+                            'System simultaneous maximum load (kW)',
+                            'Assets in CDCM model (£)',
+                            'Loss adjustment factor to transmission',
+                        ]
+                    ),
+                    data => [
+                        [ 0.1, 5e3, undef, 0.1 ],
+                        ( map { [ 0.1,   5e3,   5e8, 0.1 ] } 1 .. 5 ),
+                        ( map { [ undef, undef, 5e8, undef ] } 1 .. 5 ),
+                    ],
+                    number     => 1140,
+                    dataset    => $model->{dataset},
+                    appendTo   => $model->{inputTables},
+                    validation => {
+                        validate => 'decimal',
+                        criteria => '>=',
+                        value    => 0,
+                    }
+                )
+            ],
+        );
+    }
+    else {
+        $allAssets = Dataset(
+            name => 'Assets in CDCM model (£)'
+              . ( $model->{transparency} ? '' : ' (from CDCM table 2706)' ),
+            defaultFormat => '0hard',
+            cols          => $assetLevelset,
+            data     => [ undef, map { 5e8 } 2 .. @{ $assetLevelset->{list} } ],
+            number   => 1131,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+            validation => {
+                validate => 'decimal',
+                criteria => '>=',
+                value    => 0,
+            }
+        );
+    }
 
     my $ehvAssets = SumProduct(
         name          => 'EHV assets in CDCM model (£)',
@@ -125,7 +166,14 @@ sub notionalAssets {
         $useProportions, $ehvAssetLevelset,   $cdcmUse,
     ) = @_;
 
-    my $lossFactors = Dataset(
+    my $lossFactors = $model->{cdcmComboTable} ? Stack(
+        name => 'Loss adjustment factor to transmission'
+          . ' for each network level',
+        cols    => $ehvAssetLevelset,
+        rows    => 0,
+        rowName => 'Loss adjustment factor to transmission',
+        sources => [ $model->{cdcmComboTable} ],
+      ) : Dataset(
         name => 'Loss adjustment factor to transmission'
           . ' for each network level'
           . ( $model->{transparency} ? '' : ' (from CDCM table 2004)' ),
@@ -139,9 +187,16 @@ sub notionalAssets {
             criteria => '>=',
             value    => 0,
         }
-    );
+      );
 
-    my $diversity = Dataset(
+    my $diversity = $model->{cdcmComboTable} ? Stack(
+        name          => 'Diversity allowance between level exit and GSP Group',
+        defaultFormat => '%copy',
+        cols          => $ehvAssetLevelset,
+        rows          => 0,
+        rowName       => 'Diversity allowance between level exit and GSP Group',
+        sources       => [ $model->{cdcmComboTable} ],
+      ) : Dataset(
         name => 'Diversity allowance between level exit '
           . 'and GSP Group'
           . ( $model->{transparency} ? '' : ' (from CDCM table 2611)' ),
@@ -151,7 +206,7 @@ sub notionalAssets {
         number        => 1105,
         dataset       => $model->{dataset},
         appendTo      => $model->{inputTables}
-    );
+      );
 
     my $useTextMatching =
       $model->{legacy201} || $model->{textCustomerCategories};
@@ -350,23 +405,57 @@ EOL
         }
     );
 
+    my $gspGapInCapCollar = !$model->{tableGrouping} && !$model->{transparency};
+
     my $usePropCap = Dataset(
-        name     => 'Maximum network use factor',
-        data     => [ map { 2 } @{ $ehvAssetLevelset->{list} } ],
-        cols     => $ehvAssetLevelset,
-        number   => 1133,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables}
+        name => 'Maximum network use factor',
+        data => [
+            $gspGapInCapCollar ? undef : (),
+            map { 2 } 2 .. @{ $ehvAssetLevelset->{list} }
+        ],
+        cols => $gspGapInCapCollar
+        ? $ehvAssetLevelset
+        : $useProportions->{cols},
+        number  => 1133,
+        dataset => $model->{dataset},
     );
 
     my $usePropCollar = Dataset(
-        name     => 'Minimum network use factor',
-        data     => [ map { 0.25 } @{ $ehvAssetLevelset->{list} } ],
-        cols     => $ehvAssetLevelset,
-        number   => 1134,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables}
+        name => 'Minimum network use factor',
+        data => [
+            $gspGapInCapCollar ? undef : (),
+            map { 0.25 } 2 .. @{ $ehvAssetLevelset->{list} }
+        ],
+        cols => $gspGapInCapCollar
+        ? $ehvAssetLevelset
+        : $useProportions->{cols},
+        number  => 1134,
+        dataset => $model->{dataset},
     );
+
+    if ( $model->{tableGrouping} ) {
+        my $group = Dataset(
+            name => 'Maximum and minimum network use factors',
+            rows => Labelset(
+                list => [ map { $_->{name} } $usePropCap, $usePropCollar, ]
+            ),
+            cols     => $useProportions->{cols},
+            number   => 1136,
+            byrow    => 1,
+            data     => [ map { $_->{data} } $usePropCap, $usePropCollar, ],
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+        );
+        $_ = Stack(
+            name    => $_->{name},
+            rows    => Labelset( list => [ $_->{name} ] ),
+            cols    => $useProportions->{cols},
+            sources => [$group],
+        ) foreach $usePropCap, $usePropCollar;
+    }
+    else {
+        push @{ $model->{inputTables} }, $usePropCap, $usePropCollar;
+    }
 
     push @{ $model->{calc1Tables} },
       my $accretion =

@@ -1,5 +1,5 @@
 ---
-.: DCP 216 FCP
+.: DCP 216 old sheet 11 FCP
 PerlModule: EDCM2
 alignText: general
 conditionalFormatting: 0
@@ -19,8 +19,6 @@ numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
-table1101: 1
-tableGrouping: 1
 tariff1Row: 100
 validation: lenientnomsg
 wantTables: 911

@@ -354,6 +354,10 @@ sub wsWrite {
             ++$c4;
         }
 
+        if ( $column->{postWriteCalls}{$wb} ) {
+            $_->($column) foreach @{ $column->{postWriteCalls}{$wb} };
+        }
+
     }
 
 }

@@ -73,7 +73,8 @@ sub findxy {
       ? (
         $self->{rows}
         ? grep { $z eq $self->{rows}{list}[$_] } $self->rowIndices
-        : ()
+        : $self->{rowName} && $self->{rowName} eq $z ? 0
+        :                                              ()
       )
       : $self->{rows} ? ()
       :                 (0);
@@ -220,7 +221,11 @@ sub wsPrepare {
     };
 }
 
-# # # # # # # # # # # # # # # #
+# # #
+# #
+#
+# #
+# # #
 
 package SpreadsheetModel::View;
 our @ISA = qw/SpreadsheetModel::Stack/;
@@ -254,7 +259,11 @@ sub addForwardLink {
       foreach @{ $self->{sources} };
 }
 
-# # # # # # # # # # # # # # # #
+# # #
+# #
+#
+# #
+# # #
 
 package SpreadsheetModel::Constant;
 our @ISA = qw/SpreadsheetModel::Dataset/;
