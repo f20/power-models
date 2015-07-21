@@ -67,44 +67,6 @@ sub new {
     $model->preprocessDataset
       if $model->{dataset} && keys %{ $model->{dataset} };
 
-    my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
-      $model->cdcmAssets;
-
-    $model->{numLocations} ||= $model->{numLocationsDefault};
-    $model->{numTariffs}   ||= $model->{numTariffsDefault};
-
-    if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /only/i ) {
-        $model->{daysInYear} = Dataset(
-            name          => 'Days in year',
-            defaultFormat => '0hard',
-            data          => [365],
-            dataset       => $model->{dataset},
-            appendTo      => $model->{inputTables},
-            number        => 1111,
-            validation    => {
-                validate => 'decimal',
-                criteria => 'between',
-                minimum  => 365,
-                maximum  => 366,
-            },
-        );
-        $model->{ldnoRevTables} = [ $model->ldnoRev ];
-        return $model;
-    }
-
-    $model->{matricesData} = [ [], [] ]
-      if $model->{summaries} && $model->{summaries} =~ /matri/i;
-
-    my (
-        $daysInYear,            $chargeDirect,
-        $chargeIndirect,        $chargeRates,
-        $chargeExit,            $ehvIntensity,
-        $allowedRevenue,        $powerFactorInModel,
-        $genPot20p,             $genPotGP,
-        $genPotGL,              $genPotCdcmCap20052010,
-        $genPotCdcmCapPost2010, $hoursInPurple,
-    ) = $model->generalInputs;
-
     my $ehvAssetLevelset = Labelset(
         name => 'EHV asset levels',
         list => [ split /\n/, <<EOT ] );
@@ -115,8 +77,6 @@ EHV circuits
 EHV/HV
 132kV/HV
 EOT
-
-    $model->{ldnoRevTables} = [ $model->ldnoRev() ] if $model->{ldnoRev};
 
     my (
         $tariffs,                          $importCapacity,
@@ -393,6 +353,46 @@ EOT
         }
 
     }
+
+    my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
+      $model->cdcmAssets;
+
+    $model->{numLocations} ||= $model->{numLocationsDefault};
+    $model->{numTariffs}   ||= $model->{numTariffsDefault};
+
+    if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /only/i ) {
+        $model->{daysInYear} = Dataset(
+            name          => 'Days in year',
+            defaultFormat => '0hard',
+            data          => [365],
+            dataset       => $model->{dataset},
+            appendTo      => $model->{inputTables},
+            number        => 1111,
+            validation    => {
+                validate => 'decimal',
+                criteria => 'between',
+                minimum  => 365,
+                maximum  => 366,
+            },
+        );
+        $model->{ldnoRevTables} = [ $model->ldnoRev ];
+        return $model;
+    }
+
+    $model->{matricesData} = [ [], [] ]
+      if $model->{summaries} && $model->{summaries} =~ /matri/i;
+
+    my (
+        $daysInYear,            $chargeDirect,
+        $chargeIndirect,        $chargeRates,
+        $chargeExit,            $ehvIntensity,
+        $allowedRevenue,        $powerFactorInModel,
+        $genPot20p,             $genPotGP,
+        $genPotGL,              $genPotCdcmCap20052010,
+        $genPotCdcmCapPost2010, $hoursInPurple,
+    ) = $model->generalInputs;
+
+    $model->{ldnoRevTables} = [ $model->ldnoRev() ] if $model->{ldnoRev};
 
     my $exportEligible = Arithmetic(
         name          => 'Has export charges?',
