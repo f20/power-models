@@ -322,7 +322,7 @@ sub preprocessDataset {
 
     if ( my @tables = grep { $_ } @{ $model->{dataset} }{qw(1133 1134 1136)} ) {
         if ( $model->{tableGrouping} || $model->{transparency} ) {
-            foreach ( grep { $_->[1]{_column} && $_->[1]{_column} =~ /GSP/ }
+            foreach ( grep { !$_->[1]{_column} || $_->[1]{_column} =~ /GSP/ }
                 @tables )
             {
                 splice @$_, 1, 1;
@@ -361,12 +361,13 @@ sub preprocessDataset {
         else {
             my $a = $model->{dataset}{1136} =
               $model->{dataset}{1133} || $model->{dataset}{1134};
-            foreach my $t ( @{ $model->{dataset} }{qw(1133 1134)} ) {
-                next unless $t;
+            foreach (qw(1133 1134)) {
+                my $t = $model->{dataset}{$_} or next;
+                my ($k1) = grep { !/^_/ } keys %{ $t->[1] } or next;
+                my $k2 = ( $_ == 1133 ? 'Maximum' : 'Minimum' )
+                  . ' network use factor';
                 for ( my $c = 1 ; $c < @$t ; ++$c ) {
-                    while ( my ( $k, $v ) = each %{ $t->[$c] } ) {
-                        $a->[$c]{$k} = $v;
-                    }
+                    $a->[$c]{$k2} = $t->[$c]{$k1};
                 }
             }
         }
@@ -444,22 +445,22 @@ sub preprocessDataset {
     }
     else {
         my $a = $model->{dataset}{1140} ||= [ {} ];
-        foreach my $t ( @{ $model->{dataset} }{qw(1105 1122 1131 1135)} ) {
+        foreach (qw(1105 1122 1131 1135)) {
+            my $t = $model->{dataset}{$_} or next;
             my ( $kk, $match );
-            local $_ = $t->[0]{_table} or next;
-            if (/diversity/i) {
+            if ( $_ == 1105 ) {
                 $match = qr/diversity/i;
                 $kk    = 'Diversity allowance between level exit and GSP Group';
             }
-            elsif (/simultaneous/i) {
+            elsif ( $_ == 1122 ) {
                 $match = qr/simultaneous/i;
                 $kk    = 'System simultaneous maximum load kW';
             }
-            elsif (/Assets/i) {
+            elsif ( $_ == 1131 ) {
                 $match = qr/Assets/i;
                 $kk    = 'Assets in CDCM model';
             }
-            elsif (/Loss/i) {
+            elsif ( $_ == 1135 ) {
                 $match = qr/Loss/i;
                 $kk    = 'Loss adjustment factor to transmission';
             }
@@ -469,7 +470,7 @@ sub preprocessDataset {
             for ( my $c = 1 ; $c < @$t ; ++$c ) {
                 while ( my ( $k, $v ) = each %{ $t->[$c] } ) {
                     if ( $k eq '_column' ) { $a->[$c]{$k} ||= $v; }
-                    elsif ( $k =~ /$match/ ) {
+                    else {
                         $a->[$c]{$kk} ||= $v;
                     }
                 }

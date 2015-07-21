@@ -60,6 +60,9 @@ sub new {
     $model->{inputTables} = [];
     $model->{method} ||= 'none';
 
+    $model->{numLocations} ||= $model->{numLocationsDefault};
+    $model->{numTariffs}   ||= $model->{numTariffsDefault};
+
     # The EDCM timeband is called purple in variable names,
     # but its display name defaults to super-red.
     $model->{TimebandName} = ucfirst( $model->{timebandName} ||= 'super-red' );
@@ -356,9 +359,6 @@ EOT
 
     my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
       $model->cdcmAssets;
-
-    $model->{numLocations} ||= $model->{numLocationsDefault};
-    $model->{numTariffs}   ||= $model->{numTariffsDefault};
 
     if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /only/i ) {
         $model->{daysInYear} = Dataset(
