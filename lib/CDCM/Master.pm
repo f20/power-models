@@ -897,7 +897,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                 ),
                 Constant(
                     rows          => $allTariffsReordered,
-                    defaultFormat => 'textcon',
+                    defaultFormat => 'puretextcon',
                     data          => [
                         map {
                             my ($pc) = map { /^PC(.*)/ ? $1 : () }

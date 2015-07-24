@@ -548,6 +548,15 @@ Keys used in %$options:
             text_wrap => 1,
             @colourHard,
         ],
+        puretextcon => [
+            locked => 0,
+            @sizeText,
+            num_format => $numTextOnlyCopy,
+            align      => 'center',
+            @sizeExtras,
+            text_wrap => 1,
+            @colourCon,
+        ],
         puretextcopy => [
             locked => 0,
             @sizeText,
