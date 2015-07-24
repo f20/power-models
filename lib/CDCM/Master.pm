@@ -891,7 +891,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             $model->{noLLFCs} ? () : (
                 Dataset(
                     rows          => $allTariffsReordered,
-                    defaultFormat => 'texthard',
+                    defaultFormat => 'puretexthard',
                     data          => [ map { '' } @{ $allTariffs->{list} } ],
                     name          => 'Open LLFCs',
                 ),
@@ -911,7 +911,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             @allTariffColumns,
             $model->{noLLFCs} ? () : Dataset(
                 rows          => $allTariffsReordered,
-                defaultFormat => 'texthard',
+                defaultFormat => 'puretexthard',
                 data          => [ map { '' } @{ $allTariffs->{list} } ],
                 name          => 'Closed LLFCs',
             ),

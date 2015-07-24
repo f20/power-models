@@ -54,7 +54,7 @@ sub timeOfDay {
                 number        => 1050,
                 appendTo      => $model->{inputTables},
                 dataset       => $model->{dataset},
-                defaultFormat => 'texthard',
+                defaultFormat => 'puretexthard',
                 data          => [ map { "Band $_" } 1 .. $model->{timebands} ],
                 lines =>
                   'Source: user preference (does not affect calculations).'

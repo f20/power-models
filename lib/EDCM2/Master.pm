@@ -63,9 +63,10 @@ sub new {
     $model->{numLocations} ||= $model->{numLocationsDefault};
     $model->{numTariffs}   ||= $model->{numTariffsDefault};
 
-    # The EDCM timeband is called purple in variable names,
+    # The EDCM timeband is called purple in this code,
     # but its display name defaults to super-red.
-    $model->{TimebandName} = ucfirst( $model->{timebandName} ||= 'super-red' );
+    $model->{TimebandName} ||=
+      ucfirst( $model->{timebandName} ||= 'super-red' );
 
     $model->preprocessDataset
       if $model->{dataset} && keys %{ $model->{dataset} };
