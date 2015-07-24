@@ -1,5 +1,5 @@
 ---
-.: EDCM cleaned-up after DCP 189 no charge 1
+.: EDCM test showing the sneaky unit rates
 PerlModule: EDCM2
 activeSheets: Results
 checksums: Tariff checksum 5; Model checksum 7
@@ -12,7 +12,7 @@ lowerIntermittentCredit: 1
 noNegative: 1
 numTariffsDefault: 600
 protect: 1
-summaries: 1
+summaries: matrices
 timebandName: beige
 transparency: 1
 validation: lenientnomsg

@@ -338,6 +338,7 @@ sub worksheetsAndClosures {
           (
             'Mat' => sub {
                 my ($wsheet) = @_;
+                $wsheet->{sheetNumber} = 46;
                 $wsheet->freeze_panes( 1, 2 );
                 $wsheet->set_column( 0, 0,   20 );
                 $wsheet->set_column( 1, 1,   50 );
@@ -363,8 +364,9 @@ sub worksheetsAndClosures {
                             } 1 .. @{ $model->{matricesData}[$col] }
                         },
                       );
-                    push @{ $model->{matricesData}[$col] },
-                      $diff[$col] = Arithmetic(
+
+                    # push @{ $model->{matricesData}[$col] },
+                    $diff[$col] = Arithmetic(
                         name          => "Difference $name",
                         arithmetic    => '=IV1-IV2',
                         defaultFormat => $total[$col]{defaultFormat},
@@ -373,23 +375,7 @@ sub worksheetsAndClosures {
                             IV2 => $model->{tariffTables}[0]{columns}
                               [ 1 + 2 * $col ],
                         }
-                      );
-                    push @{ $model->{matricesData}[$col] },
-                      Stack( sources => [ $model->{matricesData}[2] ] )
-                      unless $col;
-                    push @{ $model->{matricesData}[$col] },
-                      Arithmetic(
-                        name          => 'Consistency check (p/kVA/day)',
-                        defaultFormat => '0.00soft',
-                        arithmetic    => '=IV1*IV3*IV4/IV5+IV6',
-                        arguments     => {
-                            IV1 => $diff[0],
-                            IV3 => $model->{matricesData}[2],
-                            IV4 => $model->{matricesData}[3],
-                            IV5 => $model->{matricesData}[4],
-                            IV6 => $diff[1],
-                        }
-                      ) if $col;
+                    );
                     unshift @{ $model->{matricesData}[$col] },
                       Stack(
                         sources => [ $model->{tariffTables}[0]{columns}[0] ] );
@@ -400,9 +386,36 @@ sub worksheetsAndClosures {
                       );
                 }
 
+                my $purpleUse =
+                  Stack( sources => [ $model->{matricesData}[2] ] );
+
                 $_->wsWrite( $wbook, $wsheet )
                   foreach Notes( lines => 'Matrices and revenue summary' ),
-                  @matrices, @{ $model->{revenueTables} };
+                  @matrices,
+                  Columnset(
+                    name    => 'Consistency check',
+                    columns => [
+                        Stack(
+                            sources => [ $model->{tariffTables}[0]{columns}[0] ]
+                        ),
+                        $diff[0],
+                        $purpleUse,
+                        $diff[1],
+                        Arithmetic(
+                            name          => 'This should be zero (p/kVA/day)',
+                            defaultFormat => '0.00soft',
+                            arithmetic    => '=IV1*IV3*IV4/IV5+IV6',
+                            arguments     => {
+                                IV1 => $diff[0],
+                                IV3 => $purpleUse,
+                                IV4 => $model->{matricesData}[3],
+                                IV5 => $model->{matricesData}[4],
+                                IV6 => $diff[1],
+                            }
+                        ),
+                    ]
+                  ),
+                  @{ $model->{revenueTables} };
             },
           )
 

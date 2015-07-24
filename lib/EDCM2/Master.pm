@@ -1274,14 +1274,18 @@ EOT
             name => "Notional $model->{timebandName} unit rate"
               . ' for transmission exit (p/kWh)',
             rows       => $tariffs->{rows},
-            arithmetic => '=100/IV2*IV41',
+            arithmetic => '=100/IV2*IV41*IV9',
             arguments  => {
                 IV2  => $hoursInPurple,
                 IV41 => $rateExit,
+                IV9  => (
+                    ref $purpleUseRate eq 'ARRAY'
+                    ? $purpleUseRate->[0]
+                    : $purpleUseRate
+                )->{arguments}{IV9},
             },
           );
-        $model->{matricesData}[2] =
-          ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[0] : $purpleUseRate;
+        $model->{matricesData}[2] = $activeCoincidence;
         $model->{matricesData}[3] = $hoursInPurple;
         $model->{matricesData}[4] = $daysInYear;
     }
@@ -2067,7 +2071,9 @@ EOT
         }
     );
 
-    if ( $model->{layout} ) {
+    if ( $model->{layout}
+        and !$model->{summaries} || $model->{summaries} !~ /matri/i )
+    {
         my @copyTariffs = map { Stack( sources => [$_] ) } @tariffColumns;
         SpreadsheetModel::MatrixSheet->new(
             $model->{tariff1Row}
