@@ -171,8 +171,8 @@ Keys used in %$options:
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
 
-    my $numText = $backgroundColour ? '[Blue]0;[Red]-0;;[Black]@' : '@';
-    my $numTextOnly = $backgroundColour ? '[Black]@' : '@';
+    my $numText     = $backgroundColour ? '[Blue]0;[Red]-0;;[Black]@'    : '@';
+    my $numTextOnly = $backgroundColour ? '[Black]0;[Black]-0;;[Black]@' : '@';
     my $numTextOnlyCopy =
       $backgroundColour ? '[Black]0;[Black]-0;;[Black]@' : '0;-0;;@';
     my @alignText = ( align => 'left' );
