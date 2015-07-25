@@ -53,7 +53,7 @@ sub makeStatisticsAssumptions {
       sort { $colspec->[1]{$a} <=> $colspec->[1]{$b} }
       grep { !/^_/; } keys %{ $colspec->[1] };
     @rows = grep { !( $colspec->[1]{$_} % 10 ) } @rows
-      if $model->{summary} =~ /brief/;
+      unless $model->{summary} =~ /long/;
 
     my $rowset = Labelset( list => \@rows );
 
