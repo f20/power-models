@@ -59,7 +59,7 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
     push @dots,
       join "\n",
       'digraph g {',
-      'graph [rankdir=LR, size="16,10.5", concentrate=true, nodesep="0.2", '
+      'graph [rankdir=LR, size="8,8", concentrate=true, nodesep="0.2", '
       . 'ranksep="0.4",fontname="Verdanab", fontsize="24", fontcolor="#666666"];',
       'node [label="\\N",shape=ellipse, style=filled, fontname=Verdana, '
       . 'color="#0066cc", fillcolor=white, fontcolor=black, fontsize="20"];',
@@ -96,9 +96,8 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
             $ob->{sourceLines}
               ? map {
                 $_->{usedIn}[ $ob->{dotSheet} ] = 1;
-                $_->{dotName}  ||= 'z' . ( 0 + $_ );
-                $ob->{dotName} ||= 'z' . ( 0 + $ob );
-                "$_->{dotName} -> $ob->{dotName};"
+                $_->{dotName}
+                  && $ob->{dotName} ? "$_->{dotName} -> $ob->{dotName};" : ();
               } map {
                 !$_->{sources}
                   || $#{ $_->{sources} }
@@ -118,12 +117,14 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
       '}';
 
     foreach my $shno ( grep { !$_ || $sheets[$_] } 0 .. $#sheets ) {
-        my $graphTitle =
-          $sheets[$shno] ? "$shno. $sheetName[$shno]" : 'Overview';
+        my %dedup;
         push @dots,
           join "\n", "digraph g$shno {",
-          'graph [rankdir=TD, size="10.5,8", concentrate=true, nodesep="0.2", '
-          . qq%ranksep="0.4", fontname="Verdanab", fontsize="32", fontcolor="#666666", label="$graphTitle"];%,
+          'graph [rankdir="TD", size="8,8", concentrate="'
+          . ( $sheets[$shno] ? 'true' : 'false' )
+          . '", nodesep="0.2", '
+          . 'ranksep="0.4", fontname="Verdanab", fontsize="32", fontcolor="#666666", label="'
+          . ( $sheets[$shno] ? "$sheetName[$shno]" : 'Sheets' ) . '"];',
           'node [label="\\N",shape=ellipse, style=filled, fontname=Verdana,'
           . ' color="#0066cc", fillcolor=white, fontcolor=black, fontsize="32"];',
           'edge [arrowtail=none, fontname=Verdana, color="#ff6633", '
@@ -153,7 +154,7 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
             } 0 .. $#sheets
           ),
           (
-            map {
+            grep { my $ok = !exists $dedup{$_}; undef $dedup{$_}; $ok; } map {
                 my $obdn =
                   (      $_->{dotSheet} == $shno
                       || $sheetSubgraph[ $_->{dotSheet} ] !~ /^cluster/ )
@@ -196,21 +197,40 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
     my $prefix = $pathPrefix;
     $prefix =~ s#^.*/##s;
     foreach ( 0 .. $#dots ) {
-        open my $dh, '>', "$pathPrefix$_.dot";
+        my $name;
+        $name = $1 if $dots[$_] =~ /graph\s*\[.*label="(.+?)"/m;
+        undef $name if $name && $name =~ /[^ ,.0-9=@-~-]/s;
+        $name ||= $_;
+        $name ||= 'Everything';
+        while ( -e "$pathPrefix$name.dot" ) { $name .= '_'; }
+        open my $dh, '>', "$pathPrefix$name.dot";
         binmode $dh, ':utf8';
         print $dh $dots[$_];
         close $dh;
-        `$dotCommandLine -Tpdf -o '$pathPrefix$_.pdf' '$pathPrefix$_.dot'`;
-        $dots[$_] =~ s/size="[0-9\.]*, *[0-9\.]*"/size="6,4"/;
-        open $dh, "| $dotCommandLine -Tpng -o '$pathPrefix$_.png'";
+`$dotCommandLine -Tpdf -o '$pathPrefix$name.pdf' '$pathPrefix$name.dot'`;
+        $dots[$_] =~ s/size="[0-9\.]*, *[0-9\.]*"/size="24,24"/;
+        open $dh, "| $dotCommandLine -Tpng -o '$pathPrefix$name.png'";
         binmode $dh, ':utf8';
         print $dh $dots[$_];
         close $dh;
-        my ($title) = ( $dots[$_] =~ /label="(.*?)"/ );
-        $title ||= 'Graph';
-        print $hh "<p><strong>$title</strong></p>",
-          qq%<p><a href="$prefix$_.pdf">%,
-          qq%<img src="$prefix$_.png" alt="graph $_" />%,
+        my $att = '';
+        {
+            use bytes;
+            open $dh, '<', "$pathPrefix$name.png";
+            read $dh, local $_, 32;
+            close $dh;
+            my ( $width, $height ) = unpack( "NN", $1 ) if /IHDR(........)/;
+            if ( $width && $height ) {
+                my $max = $width > $height ? $width : $height;
+                $max    = 800 if $max < 800;
+                $width  = int( $width * 800 / $max );
+                $height = int( $height * 800 / $max );
+                $att    = qq% style="width:${width}px;heigth:${height}px"%;
+            }
+        }
+        print $hh "<p><strong>$name</strong></p>",
+          qq%<p><a href="$prefix$name.pdf">%,
+          qq%<img src="$prefix$name.png" alt="$name"$att />%,
           '<br />PDF version of the above graph</a></p><hr />';
     }
     close $hh;
