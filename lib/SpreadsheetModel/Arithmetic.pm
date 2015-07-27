@@ -53,7 +53,7 @@ sub populateCore {
 sub check {
     my ($self) = @_;
 
-    my $lead = $self->{arguments}{IV1};
+    my $lead = $self->{arguments}{A1};
     $self->{rows} = $lead->{rows} unless defined $self->{rows};
     $self->{cols} = $lead->{cols} unless defined $self->{cols};
 

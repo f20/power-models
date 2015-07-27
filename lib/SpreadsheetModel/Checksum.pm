@@ -99,8 +99,8 @@ sub wsPrepare {
     my ( $modulus, $generator, $numFormat ) = @{ $self->{parameters} };
     my $arithmetic = '';
     if ( $self->{recursive} ) {
-        $arithmetic = '+IV1';
-        push @placeholder, 'IV1';
+        $arithmetic = '+A1';
+        push @placeholder, 'A1';
         push @row,         undef;
         push @col,         undef;
     }
@@ -108,7 +108,7 @@ sub wsPrepare {
     foreach ( @{ $self->{columns} } ) {
         my $factor = shift @factors;
         die 'Not implemented' if $_->lastCol;
-        push @placeholder, my $ph = 'IV' . ( 1 + @placeholder );
+        push @placeholder, my $ph = 'A' . ( 1 + @placeholder );
         ( my $ws2, $row[$#placeholder], $col[$#placeholder] ) =
           $_->wsWrite( $wb, $ws );
         $someArgumentsAreMissingAtThisStage =

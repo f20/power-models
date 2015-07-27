@@ -50,8 +50,9 @@ sub check {
 
     my ( $matrix, $vector ) = @{$self}{qw(matrix vector)};
 
-    $self->{arithmetic} = '=SUMPRODUCT(IV1, IV2)';
-    $self->{arguments} = { IV1 => $self->{matrix}, IV2 => $self->{vector} };
+    $self->{arithmetic} = '=SUMPRODUCT(A1, A2)';
+    $self->{arguments} =
+      { A1 => $self->{matrix}, A2 => $self->{vector} };
     push @{ $self->{sourceLines} }, $matrix, $vector;
 
     if (   $self->{rows}
@@ -179,7 +180,7 @@ sub wsPrepare {
     $vecsheet = !$vecsheet
       || $vecsheet == $ws ? '' : "'" . $vecsheet->get_name . "'!";
     my $formula =
-      $ws->store_formula("=SUMPRODUCT(${matsheet}IV1:IV2,${vecsheet}IV3:IV4)");
+      $ws->store_formula("=SUMPRODUCT(${matsheet}A1:A2,${vecsheet}A3:A4)");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );
 
     if ( $self->{summingByRowGroup} ) {
@@ -196,10 +197,14 @@ sub wsPrepare {
         return sub {
             my ( $x, $y ) = @_;
             '', $format, $formula,
-              IV1 => xl_rowcol_to_cell( $matr + $start[$y], $matc + $x, 1, 0 ),
-              IV2 => xl_rowcol_to_cell( $matr + $end[$y],   $matc + $x, 1, 0 ),
-              IV3 => xl_rowcol_to_cell( $vecr + $start[$y], $vecc + $x, 1, 0 ),
-              IV4 => xl_rowcol_to_cell( $vecr + $end[$y],   $vecc + $x, 1, 0 );
+              qr/\bA1\b/ =>
+              xl_rowcol_to_cell( $matr + $start[$y], $matc + $x, 1, 0 ),
+              qr/\bA2\b/ =>
+              xl_rowcol_to_cell( $matr + $end[$y], $matc + $x, 1, 0 ),
+              qr/\bA3\b/ =>
+              xl_rowcol_to_cell( $vecr + $start[$y], $vecc + $x, 1, 0 ),
+              qr/\bA4\b/ =>
+              xl_rowcol_to_cell( $vecr + $end[$y], $vecc + $x, 1, 0 );
         };
     }
 
@@ -214,7 +219,7 @@ sub wsPrepare {
         } @{$self}{qw(matrix vector)};
         my $n     = $self->{vector}->lastCol;
         my $veccl = $vecc + $n;
-        $formula = $ws->store_formula("=${matsheet}IV1*${vecsheet}IV3")
+        $formula = $ws->store_formula("=${matsheet}A1*${vecsheet}A3")
           unless $n;
         my $mat0 = $matc + ( $n ? 1 : 0 );
         my $n1 = $n ? $n + 2 : 1;
@@ -232,10 +237,11 @@ sub wsPrepare {
                   :               $_ > 0;
             } @mody;
             '', $format, $formula,
-              IV1 => xl_rowcol_to_cell( $matr + $my, $matcoff,      $myl, 1 ),
-              IV2 => xl_rowcol_to_cell( $matr + $my, $matcoff + $n, $myl, 1 ),
-              IV3 => xl_rowcol_to_cell( $vecr + $vy, $vecc,         $vyl, 1 ),
-              IV4 => xl_rowcol_to_cell( $vecr + $vy, $veccl,        $vyl, 1 );
+              qr/\bA1\b/ => xl_rowcol_to_cell( $matr + $my, $matcoff, $myl, 1 ),
+              qr/\bA2\b/ =>
+              xl_rowcol_to_cell( $matr + $my, $matcoff + $n, $myl, 1 ),
+              qr/\bA3\b/ => xl_rowcol_to_cell( $vecr + $vy, $vecc,  $vyl, 1 ),
+              qr/\bA4\b/ => xl_rowcol_to_cell( $vecr + $vy, $veccl, $vyl, 1 );
         };
     }
 
@@ -247,7 +253,7 @@ sub wsPrepare {
         && ( !$self->{cols} || !$#{ $self->{cols}{list} } ) )
     {
         my $n = $self->{vector}->lastCol;
-        $formula = $ws->store_formula("=${matsheet}IV1*${vecsheet}IV3")
+        $formula = $ws->store_formula("=${matsheet}A1*${vecsheet}A3")
           unless $n;
         my $matcl = $matc + $n;
         my $veccl = $vecc + $n;
@@ -255,10 +261,10 @@ sub wsPrepare {
             my ( $x, $y ) = @_;
             $y = $self->{rowIndex}[$y];
             '', $format, $formula,
-              IV1 => xl_rowcol_to_cell( $matr + $y, $matc,  0, 1 ),
-              IV2 => xl_rowcol_to_cell( $matr + $y, $matcl, 0, 1 ),
-              IV3 => xl_rowcol_to_cell( $vecr + $y, $vecc,  0, 1 ),
-              IV4 => xl_rowcol_to_cell( $vecr + $y, $veccl, 0, 1 );
+              qr/\bA1\b/ => xl_rowcol_to_cell( $matr + $y, $matc,  0, 1 ),
+              qr/\bA2\b/ => xl_rowcol_to_cell( $matr + $y, $matcl, 0, 1 ),
+              qr/\bA3\b/ => xl_rowcol_to_cell( $vecr + $y, $vecc,  0, 1 ),
+              qr/\bA4\b/ => xl_rowcol_to_cell( $vecr + $y, $veccl, 0, 1 );
         };
     }
 
@@ -266,17 +272,17 @@ sub wsPrepare {
         && $self->{vector}->{rows} == $self->{matrix}->{rows} )
     {
         my $n = $self->{vector}->lastRow;
-        $formula = $ws->store_formula("=${matsheet}IV1*${vecsheet}IV3")
+        $formula = $ws->store_formula("=${matsheet}A1*${vecsheet}A3")
           unless $n;
         my $matrl = $matr + $n;
         my $vecrl = $vecr + $n;
         return sub {
             my ( $x, $y ) = @_;
             '', $format, $formula,
-              IV1 => xl_rowcol_to_cell( $matr,  $matc + $x, 1, 0 ),
-              IV2 => xl_rowcol_to_cell( $matrl, $matc + $x, 1, 0 ),
-              IV3 => xl_rowcol_to_cell( $vecr,  $vecc + $y, 1, 1 ),
-              IV4 => xl_rowcol_to_cell( $vecrl, $vecc + $y, 1, 1 );
+              qr/\bA1\b/ => xl_rowcol_to_cell( $matr,  $matc + $x, 1, 0 ),
+              qr/\bA2\b/ => xl_rowcol_to_cell( $matrl, $matc + $x, 1, 0 ),
+              qr/\bA3\b/ => xl_rowcol_to_cell( $vecr,  $vecc + $y, 1, 1 ),
+              qr/\bA4\b/ => xl_rowcol_to_cell( $vecrl, $vecc + $y, 1, 1 );
         };
     }
 
@@ -284,17 +290,17 @@ sub wsPrepare {
         && $self->{vector}{cols} == $self->{matrix}{cols} )
     {
         my $n = $self->{vector}->lastCol;
-        $formula = $ws->store_formula("=${matsheet}IV1*${vecsheet}IV3")
+        $formula = $ws->store_formula("=${matsheet}A1*${vecsheet}A3")
           unless $n;
         my $matcl = $matc + $n;
         my $veccl = $vecc + $n;
         return sub {
             my ( $x, $y ) = @_;
             '', $format, $formula,
-              IV1 => xl_rowcol_to_cell( $matr + $y, $matc,  0, 1 ),
-              IV2 => xl_rowcol_to_cell( $matr + $y, $matcl, 0, 1 ),
-              IV3 => xl_rowcol_to_cell( $vecr + $x, $vecc,  1, 1 ),
-              IV4 => xl_rowcol_to_cell( $vecr + $x, $veccl, 1, 1 );
+              qr/\bA1\b/ => xl_rowcol_to_cell( $matr + $y, $matc,  0, 1 ),
+              qr/\bA2\b/ => xl_rowcol_to_cell( $matr + $y, $matcl, 0, 1 ),
+              qr/\bA3\b/ => xl_rowcol_to_cell( $vecr + $x, $vecc,  1, 1 ),
+              qr/\bA4\b/ => xl_rowcol_to_cell( $vecr + $x, $veccl, 1, 1 );
         };
     }
 

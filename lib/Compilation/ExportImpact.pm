@@ -176,8 +176,8 @@ sub genericTariffImpact {
         $ws->write_string( 2, 1 + $ncol * 3, 'Percentage change', $thcaFormat );
         $ws->write( 2, $_ + $ncol * 3, undef, $thcaFormat ) foreach 2 .. $ncol;
 
-        my $diff = $ws->store_formula('=IV2-IV1');
-        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,"")');
+        my $diff = $ws->store_formula('=A2-A1');
+        my $perc = $ws->store_formula('=IF(A1,A3/A2-1,"")');
 
         my @list = @{ $options{components} };
 
@@ -232,14 +232,14 @@ sub genericTariffImpact {
                 my $new = xl_rowcol_to_cell( 4 + $j, $k + 1 + $ncol );
                 $ws->repeat_formula(
                     4 + $j, $k + 1 + 2 * $ncol, $diff, $format2[$k],
-                    IV1 => $old,
-                    IV2 => $new,
+                    A1 => $old,
+                    A2 => $new,
                 );
                 $ws->repeat_formula(
                     4 + $j, $k + 1 + 3 * $ncol, $perc, $format3[$k],
-                    IV1 => $old,
-                    IV2 => $old,
-                    IV3 => $new,
+                    A1 => $old,
+                    A2 => $old,
+                    A3 => $new,
                 );
             }
         }
@@ -320,8 +320,8 @@ sub cdcmPpuImpact {
         $ws->write_string( 2, 4, 'Percentage change',          $thcFormat );
 
         use Spreadsheet::WriteExcel::Utility;
-        my $diff = $ws->store_formula('=IV2-IV1');
-        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,0)');
+        my $diff = $ws->store_formula('=A2-A1');
+        my $perc = $ws->store_formula('=IF(A1,A3/A2-1,0)');
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $ws->write_string( 3 + $j, 0, $linesAfter->[$j], $thFormat );
@@ -347,14 +347,14 @@ sub cdcmPpuImpact {
             my $new = xl_rowcol_to_cell( 3 + $j, 2 );
             $ws->repeat_formula(
                 3 + $j, 3, $diff, $format2[0],
-                IV1 => $old,
-                IV2 => $new,
+                A1 => $old,
+                A2 => $new,
             );
             $ws->repeat_formula(
                 3 + $j, 4, $perc, $format3[0],
-                IV1 => $old,
-                IV2 => $old,
-                IV3 => $new,
+                A1 => $old,
+                A2 => $old,
+                A3 => $new,
             );
         }
     }
@@ -497,8 +497,8 @@ sub revenueMatrixImpact {
         }
 
         use Spreadsheet::WriteExcel::Utility;
-        my $diff = $ws->store_formula('=IV2-IV1');
-        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,0)');
+        my $diff = $ws->store_formula('=A2-A1');
+        my $perc = $ws->store_formula('=IF(A1,A3/A2-1,0)');
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $findRow->execute( $bidb, $options{tableNumber},
@@ -547,14 +547,14 @@ sub revenueMatrixImpact {
                 my $new = xl_rowcol_to_cell( 9 + 2 * @$linesAfter + $j, $k );
                 $ws->repeat_formula(
                     12 + 3 * @$linesAfter + $j, $k, $diff, $format2,
-                    IV1 => $old,
-                    IV2 => $new,
+                    A1 => $old,
+                    A2 => $new,
                 );
                 $ws->repeat_formula(
                     15 + 4 * @$linesAfter + $j, $k, $perc, $format3,
-                    IV1 => $old,
-                    IV2 => $old,
-                    IV3 => $new,
+                    A1 => $old,
+                    A2 => $old,
+                    A3 => $new,
                 );
 
                 if ( grep { $k + $options{col1} == $_ } @{ $options{columns} } )
@@ -570,14 +570,14 @@ sub revenueMatrixImpact {
             my $new = xl_rowcol_to_cell( 3 + $j, 2 );
             $ws->repeat_formula(
                 3 + $j, 3, $diff, $format2,
-                IV1 => $old,
-                IV2 => $new,
+                A1 => $old,
+                A2 => $new,
             );
             $ws->repeat_formula(
                 3 + $j, 4, $perc, $format3,
-                IV1 => $old,
-                IV2 => $old,
-                IV3 => $new,
+                A1 => $old,
+                A2 => $old,
+                A3 => $new,
             );
         }
 
@@ -698,8 +698,8 @@ sub cdcmUserImpact {
         $ws->write_string( 2, 7, 'Percentage change',   $wb->getFormat('thc') );
 
         use Spreadsheet::WriteExcel::Utility;
-        my $diff = $ws->store_formula('=IV2-IV1');
-        my $perc = $ws->store_formula('=IF(IV1,IV3/IV2-1,0)');
+        my $diff = $ws->store_formula('=A2-A1');
+        my $perc = $ws->store_formula('=IF(A1,A3/A2-1,0)');
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $ws->write_string( 3 + $j, 0, $linesAfter->[$j],
@@ -720,14 +720,14 @@ sub cdcmUserImpact {
                 my $new = xl_rowcol_to_cell( 3 + $j, 3 );
                 $ws->repeat_formula(
                     3 + $j, 5, $diff, $wb->getFormat('0softpm'),
-                    IV1 => $old,
-                    IV2 => $new,
+                    A1 => $old,
+                    A2 => $new,
                 );
                 $ws->repeat_formula(
                     3 + $j, 7, $perc, $wb->getFormat('%softpm'),
-                    IV1 => $old,
-                    IV2 => $old,
-                    IV3 => $new,
+                    A1 => $old,
+                    A2 => $old,
+                    A3 => $new,
                 );
             }
             {
@@ -751,8 +751,8 @@ sub cdcmUserImpact {
                 $ws->repeat_formula(
                     3 + $j, 6, $diff,
                     $wb->getFormat( $ppuFormatCore . 'softpm' ),
-                    IV1 => $old,
-                    IV2 => $new,
+                    A1 => $old,
+                    A2 => $new,
                 );
             }
         }
@@ -817,7 +817,7 @@ sub modelmEdcmImpact {
           foreach 4, 8, 12;
 
         use Spreadsheet::WriteExcel::Utility;
-        my $diff = $ws->store_formula('=IV2-IV1');
+        my $diff = $ws->store_formula('=A2-A1');
 
         my @rows = (
             'Boundary 0000',
@@ -847,8 +847,8 @@ sub modelmEdcmImpact {
                     $ws->repeat_formula(
                         4 + $j, 8 + $k, $diff,
                         $wb->getFormat( '%softpm', @deco ),
-                        IV1 => $old,
-                        IV2 => $new,
+                        A1 => $old,
+                        A2 => $new,
                     );
                 }
             }

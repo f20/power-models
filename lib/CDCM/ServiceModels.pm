@@ -371,11 +371,11 @@ EOL
 
         my $replacement = Arithmetic(
             name          => 'Asset cost (£)',
-            arithmetic    => '=IV1*IV2',
+            arithmetic    => '=A1*A2',
             defaultFormat => '0softnz',
             arguments     => {
-                IV1 => $itemCounts,
-                IV2 => $unitCosts,
+                A1 => $itemCounts,
+                A2 => $unitCosts,
             }
         );
 
@@ -589,11 +589,11 @@ EOL
 
             $serviceModelCostPerAnnualMwh = Arithmetic(
                 name => "$voltage unmetered service model asset charge (p/kWh)",
-                arithmetic => '=0.1*IV5*IV1*IV3',
+                arithmetic => '=0.1*A5*A1*A3',
                 arguments  => {
-                    IV1 => $serviceModelAssetsPerAnnualMwh,
-                    IV3 => $annuityRate,
-                    IV5 => $proportionChargeable
+                    A1 => $serviceModelAssetsPerAnnualMwh,
+                    A3 => $annuityRate,
+                    A5 => $proportionChargeable
                 }
             );
 
@@ -623,12 +623,12 @@ EOL
 
     my $serviceModelCostPerCustomerDetail = Arithmetic(
         name       => 'Service model p/MPAN/day charge',
-        arithmetic => '=100/IV2*IV1*IV3*IV5',
+        arithmetic => '=100/A2*A1*A3*A5',
         arguments  => {
-            IV1 => $serviceModelAssetsPerCustomer,
-            IV2 => $daysInYear,
-            IV3 => $annuityRate,
-            IV5 => $proportionChargeable
+            A1 => $serviceModelAssetsPerCustomer,
+            A2 => $daysInYear,
+            A3 => $annuityRate,
+            A5 => $proportionChargeable
         }
     );
 
@@ -682,11 +682,11 @@ sub siteSpecificSoleUse {
       my $ssr = Arithmetic(
         name => 'Income for site specific sole use asset replacement (£/year)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IV1*IV3*IV5',
+        arithmetic    => '=A1*A3*A5',
         arguments     => {
-            IV1 => $sssua,
-            IV3 => $annuityRate,
-            IV5 => $proportionChargeable
+            A1 => $sssua,
+            A3 => $annuityRate,
+            A5 => $proportionChargeable
         }
       );
 

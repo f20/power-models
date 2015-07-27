@@ -131,9 +131,9 @@ sub table1001 {
             : '0hard',
             rows   => $labelset,
             custom => [
-                '=IV1*IV2-IV3',  '=IV1-IV2',
-                '=SUM(IV1:IV2)', '=IV1+IV2+IV3+IV4+IV5',
-                '=IV1+IV2',
+                '=A1*A2-A3',  '=A1-A2',
+                '=SUM(A1:A2)', '=A1+A2+A3+A4+A5',
+                '=A1+A2',
             ],
             arithmetic => '',
             objectType => 'Mixed inputs and calculations',
@@ -197,47 +197,47 @@ sub table1001 {
                 my $dataEntry = $dataEntryMaker->($format);
                 my $calcA     = sub {
                     '', $softFormat, $formula->[0],
-                      IV1 => xl_rowcol_to_cell( $ro,     $co ),
-                      IV2 => xl_rowcol_to_cell( $ro + 1, $co ),
-                      IV3 => xl_rowcol_to_cell( $ro + 2, $co );
+                      A1 => xl_rowcol_to_cell( $ro,     $co ),
+                      A2 => xl_rowcol_to_cell( $ro + 1, $co ),
+                      A3 => xl_rowcol_to_cell( $ro + 2, $co );
                 };
                 my $calcB = sub {
                     '', $softFormat, $formula->[2],
-                      IV1 => xl_rowcol_to_cell( $ro + 4, $co ),
-                      IV2 => xl_rowcol_to_cell( $ro + 8, $co );
+                      A1 => xl_rowcol_to_cell( $ro + 4, $co ),
+                      A2 => xl_rowcol_to_cell( $ro + 8, $co );
                 };
                 my $calcC = sub {
                     '', $softFormat, $formula->[2],
-                      IV1 => xl_rowcol_to_cell( $ro + 10, $co ),
-                      IV2 => xl_rowcol_to_cell( $ro + 21, $co );
+                      A1 => xl_rowcol_to_cell( $ro + 10, $co ),
+                      A2 => xl_rowcol_to_cell( $ro + 21, $co );
                 };
                 my $calcF = sub {
                     '', $softFormat, $formula->[3],
-                      IV1 => xl_rowcol_to_cell( $ro + 3,  $co ),
-                      IV2 => xl_rowcol_to_cell( $ro + 9,  $co ),
-                      IV3 => xl_rowcol_to_cell( $ro + 22, $co ),
-                      IV4 => xl_rowcol_to_cell( $ro + 23, $co ),
-                      IV5 => xl_rowcol_to_cell( $ro + 24, $co );
+                      A1 => xl_rowcol_to_cell( $ro + 3,  $co ),
+                      A2 => xl_rowcol_to_cell( $ro + 9,  $co ),
+                      A3 => xl_rowcol_to_cell( $ro + 22, $co ),
+                      A4 => xl_rowcol_to_cell( $ro + 23, $co ),
+                      A5 => xl_rowcol_to_cell( $ro + 24, $co );
                 };
                 my $calcG = sub {
                     '', $softFormat, $formula->[2],
-                      IV1 => xl_rowcol_to_cell( $ro + 26, $co ),
-                      IV2 => xl_rowcol_to_cell( $ro + 30, $co );
+                      A1 => xl_rowcol_to_cell( $ro + 26, $co ),
+                      A2 => xl_rowcol_to_cell( $ro + 30, $co );
                 };
                 my $calcH = sub {
                     '', $softFormat, $formula->[4],
-                      IV1 => xl_rowcol_to_cell( $ro + 25, $co ),
-                      IV2 => xl_rowcol_to_cell( $ro + 31, $co );
+                      A1 => xl_rowcol_to_cell( $ro + 25, $co ),
+                      A2 => xl_rowcol_to_cell( $ro + 31, $co );
                 };
                 my $calcI = sub {
                     '', $softFormat, $formula->[2],
-                      IV1 => xl_rowcol_to_cell( $ro + 33, $co ),
-                      IV2 => xl_rowcol_to_cell( $ro + 36, $co );
+                      A1 => xl_rowcol_to_cell( $ro + 33, $co ),
+                      A2 => xl_rowcol_to_cell( $ro + 36, $co );
                 };
                 my $calcJ = sub {
                     '', $softFormat, $formula->[1],
-                      IV1 => xl_rowcol_to_cell( $ro + 32, $co ),
-                      IV2 => xl_rowcol_to_cell( $ro + 37, $co );
+                      A1 => xl_rowcol_to_cell( $ro + 32, $co ),
+                      A2 => xl_rowcol_to_cell( $ro + 37, $co );
                 };
                 my @responseArray = (
                     $dataEntry,
@@ -350,8 +350,8 @@ sub table1001 {
             : '0soft',
             rows   => $labelset,
             custom => [
-                '=IV1',         '=0-IV1',
-                '=IV1*(IV2-1)', $handSubtotal ? () : '=SUBTOTAL(9,IV3:IV4)'
+                '=A1',         '=0-A1',
+                '=A1*(A2-1)', $handSubtotal ? () : '=SUBTOTAL(9,A3:A4)'
             ],
             arithmetic => '',
             objectType => 'Mixed calculations',
@@ -415,9 +415,9 @@ sub table1001 {
                             '',
                             $boldFormat,
                             $formula->[3],
-                            IV3 =>
+                            A3 =>
                               xl_rowcol_to_cell( $ro + $startRowOffset, $co ),
-                            IV4 => xl_rowcol_to_cell( $ro + $y - 1, $co ),
+                            A4 => xl_rowcol_to_cell( $ro + $y - 1, $co ),
                           );    # NB: SUM(A,B,C,...) does not scale well
                     }
                     else {
@@ -425,16 +425,16 @@ sub table1001 {
                         $descriptions[$y] =~ /^A2/
                           ? (
                             '', $format, $formula->[2],
-                            IV1 => xl_rowcol_to_cell( $roi,     $coi ),
-                            IV2 => xl_rowcol_to_cell( $roi + 1, $coi ),
+                            A1 => xl_rowcol_to_cell( $roi,     $coi ),
+                            A2 => xl_rowcol_to_cell( $roi + 1, $coi ),
                           )
                           : $descriptions[$y] =~ /^(A3|I)/ ? (
                             '', $format, $formula->[1],
-                            IV1 => xl_rowcol_to_cell( $roi + $y, $coi ),
+                            A1 => xl_rowcol_to_cell( $roi + $y, $coi ),
                           )
                           : (
                             '', $format, $formula->[0],
-                            IV1 => xl_rowcol_to_cell( $roi + $y, $coi ),
+                            A1 => xl_rowcol_to_cell( $roi + $y, $coi ),
                           );
                     }
                 };
@@ -489,19 +489,19 @@ sub table1001 {
             custom        => [
                 join(
                     '+',
-                    '=IV100*IV101-IV102',
+                    '=A100*A101-A102',
                     (
-                        map { "IV$_" } 104 .. 108,
+                        map { "A$_" } 104 .. 108,
                         110 .. 121,
                         123, 124, 126 .. 130
                     )
                   )
-                  . '-IV133-IV134-IV135-IV136'
+                  . '-A133-A134-A135-A136'
             ],
-            arithmetic => '= derived from IV100',
+            arithmetic => '= derived from A100',
             rows       => $specialRowset,
             arguments  => {
-                map { ( "IV$_" => $inputs ); } 100 .. 102,
+                map { ( "A$_" => $inputs ); } 100 .. 102,
                 104 .. 108,
                 110 .. 121,
                 123, 124,
@@ -514,10 +514,10 @@ sub table1001 {
                 sub {
                     my ( $x, $y ) = @_;
                     '', $format, $formula->[0], map {
-                        'IV'
+                        'A'
                           . ( 100 + $_ ) =>
-                          xl_rowcol_to_cell( $rowh->{IV100} + $_,
-                            $colh->{IV100} );
+                          xl_rowcol_to_cell( $rowh->{A100} + $_,
+                            $colh->{A100} );
                     } 0 .. 36;
                 };
             },
@@ -527,12 +527,12 @@ sub table1001 {
             name => 'The amount of money that the DNO wants to raise from use'
               . ' of system charges, less transmission exit (£/year)',
             defaultFormat => '0hard',
-            custom        => ['=IV1+IV2-IV3'],
-            arithmetic    => '=IV1+IV2-IV3',
+            custom        => ['=A1+A2-A3'],
+            arithmetic    => '=A1+A2-A3',
             arguments     => {
-                IV1 => $target,
-                IV2 => $inputs,
-                IV3 => $model->{edcmTables}[0][5]{sources}[0],
+                A1 => $target,
+                A2 => $inputs,
+                A3 => $model->{edcmTables}[0][5]{sources}[0],
             },
             wsPrepare => sub {
                 my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
@@ -540,10 +540,10 @@ sub table1001 {
                 sub {
                     my ( $x, $y ) = @_;
                     '', $format, $formula->[0],
-                      IV1 => xl_rowcol_to_cell( $rowh->{IV1}, $colh->{IV1} ),
-                      IV2 =>
-                      xl_rowcol_to_cell( $rowh->{IV2} + 33, $colh->{IV2} ),
-                      IV3 => xl_rowcol_to_cell( $rowh->{IV3}, $colh->{IV3} );
+                      A1 => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
+                      A2 =>
+                      xl_rowcol_to_cell( $rowh->{A2} + 33, $colh->{A2} ),
+                      A3 => xl_rowcol_to_cell( $rowh->{A3}, $colh->{A3} );
                 };
             },
         ) if $model->{edcmTables};
@@ -555,8 +555,8 @@ sub table1001 {
                 Arithmetic(
                     name          => 'Check (should be zero)',
                     defaultFormat => '0soft',
-                    arguments     => { IV1 => $target, IV2 => $subtotals, },
-                    arithmetic    => '=IV1-IV2'
+                    arguments     => { A1 => $target, A2 => $subtotals, },
+                    arithmetic    => '=A1-A2'
                 )
             ]
         );

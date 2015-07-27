@@ -40,8 +40,8 @@ sub transmissionExit {
 
     Arithmetic(
         name       => 'Average transmission exit cost £/kVA/year',
-        arithmetic => '=IV1/IV2',
-        arguments => { IV1 => $transmissionExitCharges, IV2 => $systemPeakLoad }
+        arithmetic => '=A1/A2',
+        arguments => { A1 => $transmissionExitCharges, A2 => $systemPeakLoad }
     );
 
 }
@@ -60,15 +60,15 @@ sub preprocessLocationData {
       my $maxkVA = Arithmetic(
         name          => 'Maximum demand scenario kVA',
         defaultFormat => '0soft',
-        arithmetic    => $model->{method} =~ /LRIC/i ? '=SQRT(IV2^2+IV1^2)'
-        : '=SQRT((IV2+IV5)^2+(IV1+IV6)^2)',
+        arithmetic    => $model->{method} =~ /LRIC/i ? '=SQRT(A2^2+A1^2)'
+        : '=SQRT((A2+A5)^2+(A1+A6)^2)',
         arguments => {
-            IV1 => $r1d,
-            IV2 => $a1d,
+            A1 => $r1d,
+            A2 => $a1d,
             $model->{method} =~ /LRIC/i ? ()
             : (
-                IV5 => $a1g,
-                IV6 => $r1g,
+                A5 => $a1g,
+                A6 => $r1g,
             )
         }
       );
@@ -76,12 +76,12 @@ sub preprocessLocationData {
     push @columns,
       my $rf1 = Arithmetic(
         name       => 'Reactive factor in maximum demand scenario',
-        arithmetic => '=IF(IV92=0,0,0-(IV1+IV4)/IV2)',
+        arithmetic => '=IF(A92=0,0,0-(A1+A4)/A2)',
         arguments  => {
-            IV1  => $r1d,
-            IV2  => $maxkVA,
-            IV92 => $maxkVA,
-            IV4  => $r1g,
+            A1  => $r1d,
+            A2  => $maxkVA,
+            A92 => $maxkVA,
+            A4  => $r1g,
         }
       ) unless $model->{method} =~ /LRIC/i;
 
@@ -122,10 +122,10 @@ sub charge1 {
         groupName     => 'Locations',
         newBlock      => 1,
         defaultFormat => 'locsoft',
-        arithmetic    => '=MATCH(IV1,IV5_IV6,0)',
+        arithmetic    => '=MATCH(A1,A5_A6,0)',
         arguments     => {
-            IV1     => $tariffLoc,
-            IV5_IV6 => $locations,
+            A1     => $tariffLoc,
+            A5_A6 => $locations,
         }
     ) if $tariffLoc;
 
@@ -138,11 +138,11 @@ sub charge1 {
         $locMatch[$_] = Arithmetic(
             name          => "Linked location $_",
             defaultFormat => 'locsoft',
-            arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
+            arithmetic    => '=MATCH(INDEX(A7_A8,A1),A5_A6,0)',
             arguments     => {
-                IV1     => $locMatch[ $_ - 1 ],
-                IV5_IV6 => $locations,
-                IV7_IV8 => $locParent,
+                A1     => $locMatch[ $_ - 1 ],
+                A5_A6 => $locations,
+                A7_A8 => $locParent,
             }
         ) foreach 1 .. $last;
 
@@ -153,12 +153,12 @@ sub charge1 {
                 groupName => 'Local charge 1',
                 $_ == $locMatchA ? ( newBlock => 1 ) : (),
                 arithmetic => $model->{noNegative}
-                ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
-                : '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+                ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
+                : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
                 arguments => {
-                    IV1       => $_,
-                    IV52      => $_,
-                    IV53_IV54 => $c1->[0],
+                    A1       => $_,
+                    A52      => $_,
+                    A53_A54 => $c1->[0],
                 }
             );
             $ca;
@@ -171,12 +171,12 @@ sub charge1 {
                 groupName => 'Network charge 1',
                 $_ == $locMatchA ? ( newBlock => 1 ) : (),
                 arithmetic => $model->{noNegative}
-                ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
-                : '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+                ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
+                : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
                 arguments => {
-                    IV1       => $_,
-                    IV52      => $_,
-                    IV53_IV54 => $c1->[1],
+                    A1       => $_,
+                    A52      => $_,
+                    A53_A54 => $c1->[1],
                 }
             );
             $ca;
@@ -190,25 +190,25 @@ sub charge1 {
                 name          => 'Maximum demand run kVA at ' . $_->{name},
                 groupName     => 'Maximum demand',
                 defaultFormat => '0soft',
-                arithmetic    => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+                arithmetic    => '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
                 arguments     => {
-                    IV1       => $_,
-                    IV52      => $_,
-                    IV53_IV54 => $maxkVA,
+                    A1       => $_,
+                    A52      => $_,
+                    A53_A54 => $maxkVA,
                 }
               )
               : Arithmetic(
                 name          => 'Maximum demand run kVA at ' . $_->{name},
                 groupName     => 'Maximum demand',
                 defaultFormat => '0soft',
-                arithmetic    => '=IF(ISNUMBER(IV1),SQRT('
-                  . 'INDEX(IV53_IV54,IV52)^2+INDEX(IV63_IV64,IV62)^2),0)',
+                arithmetic    => '=IF(ISNUMBER(A1),SQRT('
+                  . 'INDEX(A53_A54,A52)^2+INDEX(A63_A64,A62)^2),0)',
                 arguments => {
-                    IV1       => $_,
-                    IV52      => $_,
-                    IV53_IV54 => $maxkVA->[0],
-                    IV62      => $_,
-                    IV63_IV64 => $maxkVA->[1],
+                    A1       => $_,
+                    A52      => $_,
+                    A53_A54 => $maxkVA->[0],
+                    A62      => $_,
+                    A63_A64 => $maxkVA->[1],
                 }
               );
             $ca;
@@ -218,24 +218,24 @@ sub charge1 {
             name       => 'Average local charge 1 (£/kVA/year)',
             newBlock   => 1,
             arithmetic => '=IF('
-              . join( '+', map { 'IV' . ( 1 + $_ ) } 0 .. $last )
+              . join( '+', map { 'A' . ( $_ ? "5$_" : 1 ) } 0 .. $last )
               . '=0,IF(COUNT('
-              . join( ',', map { "IU8$_" } 0 .. $last ) . '),('
-              . join( '+', map { "IU4$_" } 0 .. $last )
+              . join( ',', map { "A8$_" } 0 .. $last ) . '),('
+              . join( '+', map { "A4$_" } 0 .. $last )
               . ')/COUNT('
-              . join( ',', map { "IU9$_" } 0 .. $last )
+              . join( ',', map { "A9$_" } 0 .. $last )
               . '),0),('
-              . join( '+', map { "IU2$_*IU3$_" } 0 .. $last ) . ')/('
-              . join( '+', map { "IU1$_" } 0 .. $last ) . '))',
+              . join( '+', map { "A2$_*A3$_" } 0 .. $last ) . ')/('
+              . join( '+', map { "A6$_" } 0 .. $last ) . '))',
             arguments => {
                 map {
-                    'IV' . ( $_ + 1 ) => $kVA1[$_],
-                      "IU1$_" => $kVA1[$_],
-                      "IU2$_" => $kVA1[$_],
-                      "IU3$_" => $c1l[$_],
-                      "IU4$_" => $c1l[$_],
-                      "IU8$_" => $locMatch[$_],
-                      "IU9$_" => $locMatch[$_],
+                    'A' . ( $_ ? "5$_" : 1 ) => $kVA1[$_],
+                      "A6$_" => $kVA1[$_],
+                      "A2$_" => $kVA1[$_],
+                      "A3$_" => $c1l[$_],
+                      "A4$_" => $c1l[$_],
+                      "A8$_" => $locMatch[$_],
+                      "A9$_" => $locMatch[$_],
                 } 0 .. $last
             }
         );
@@ -243,24 +243,24 @@ sub charge1 {
         my $c1n = Arithmetic(
             name       => 'Average network charge 1 (£/kVA/year)',
             arithmetic => '=IF('
-              . join( '+', map { 'IV' . ( 1 + $_ ) } 0 .. $last )
+              . join( '+', map { 'A' . ( $_ ? "5$_" : 1 ) } 0 .. $last )
               . '=0,IF(COUNT('
-              . join( ',', map { "IU8$_" } 0 .. $last ) . '),('
-              . join( '+', map { "IU4$_" } 0 .. $last )
+              . join( ',', map { "A8$_" } 0 .. $last ) . '),('
+              . join( '+', map { "A4$_" } 0 .. $last )
               . ')/COUNT('
-              . join( ',', map { "IU9$_" } 0 .. $last )
+              . join( ',', map { "A9$_" } 0 .. $last )
               . '),0),('
-              . join( '+', map { "IU2$_*IU3$_" } 0 .. $last ) . ')/('
-              . join( '+', map { "IU1$_" } 0 .. $last ) . '))',
+              . join( '+', map { "A2$_*A3$_" } 0 .. $last ) . ')/('
+              . join( '+', map { "A6$_" } 0 .. $last ) . '))',
             arguments => {
                 map {
-                    'IV' . ( $_ + 1 ) => $kVA1[$_],
-                      "IU1$_" => $kVA1[$_],
-                      "IU2$_" => $kVA1[$_],
-                      "IU3$_" => $c1n[$_],
-                      "IU4$_" => $c1n[$_],
-                      "IU8$_" => $locMatch[$_],
-                      "IU9$_" => $locMatch[$_],
+                    'A' . ( $_ ? "5$_" : 1 ) => $kVA1[$_],
+                      "A6$_" => $kVA1[$_],
+                      "A2$_" => $kVA1[$_],
+                      "A3$_" => $c1n[$_],
+                      "A4$_" => $c1n[$_],
+                      "A8$_" => $locMatch[$_],
+                      "A9$_" => $locMatch[$_],
                 } 0 .. $last
             }
         );
@@ -271,36 +271,36 @@ sub charge1 {
             arithmetic    => '=0-' . join(
                 '-',
                 map {
-                        'IF(ISNUMBER(IV'
-                      . ( $_ + 1 )
-                      . "),INDEX(IU1${_}_IU2$_,IU3$_),0)"
+                        'IF(ISNUMBER(A'
+                      . ( $_ ? "5$_" : 1 )
+                      . "),INDEX(A6${_}_A2$_,A3$_),0)"
                 } 0 .. $last
             ),
             arguments => {
                 map {
-                    'IV' . ( $_ + 1 ) => $locMatch[$_],
-                      "IU1${_}_IU2$_" => $a1d,
-                      "IU3$_"         => $locMatch[$_],
+                    'A' . ( $_ ? "5$_" : 1 ) => $locMatch[$_],
+                      "A6${_}_A2$_" => $a1d,
+                      "A3$_"         => $locMatch[$_],
                 } 0 .. $last
             }
         );
 
         my $invpf1 = Arithmetic(
             name       => 'Inverse power factor, maximum demand (kVA/kW)',
-            arithmetic => '=IF(IV6=0,1,MAX(1,SQRT(IV9^2+('
+            arithmetic => '=IF(A6=0,1,MAX(1,SQRT(A9^2+('
               . join( '+',
-                map { "IF(ISNUMBER(IU2$_),INDEX(IU4${_}_IU5$_,IU3$_),0)" }
+                map { "IF(ISNUMBER(A2$_),INDEX(A4${_}_A5$_,A3$_),0)" }
                   0 .. $last )
-              . ')^2)/IV1))',
+              . ')^2)/A1))',
             arguments => {
-                IV1 => $active1,
-                IV6 => $active1,
-                IV9 => $active1,
+                A1 => $active1,
+                A6 => $active1,
+                A9 => $active1,
                 map {
                     (
-                        "IU2$_"         => $locMatch[$_],
-                        "IU3$_"         => $locMatch[$_],
-                        "IU4${_}_IU5$_" => $r1d,
+                        "A2$_"         => $locMatch[$_],
+                        "A3$_"         => $locMatch[$_],
+                        "A4${_}_A5$_" => $r1d,
                       )
                 } 0 .. $last
             }
@@ -313,34 +313,34 @@ sub charge1 {
     my $locMatchB = Arithmetic(
         name          => 'Parent location',
         defaultFormat => 'locsoft',
-        arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
+        arithmetic    => '=MATCH(INDEX(A7_A8,A1),A5_A6,0)',
         arguments     => {
-            IV1     => $locMatchA,
-            IV5_IV6 => $locations,
-            IV7_IV8 => $locParent,
+            A1     => $locMatchA,
+            A5_A6 => $locations,
+            A7_A8 => $locParent,
         }
     ) if $tariffLoc;
 
     my $locMatchC = Arithmetic(
         name          => 'Grandparent location',
         defaultFormat => 'locsoft',
-        arithmetic    => '=MATCH(INDEX(IV7_IV8,IV1),IV5_IV6,0)',
+        arithmetic    => '=MATCH(INDEX(A7_A8,A1),A5_A6,0)',
         arguments     => {
-            IV1     => $locMatchB,
-            IV5_IV6 => $locations,
-            IV7_IV8 => $locParent,
+            A1     => $locMatchB,
+            A5_A6 => $locations,
+            A7_A8 => $locParent,
         }
     ) if $tariffLoc;
 
     my $ca1 = Arithmetic(
         name       => 'Location charge 1 £/kVA/year',
         arithmetic => $model->{noNegative}
-        ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
-        : '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+        ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
+        : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
         arguments => {
-            IV1       => $locMatchA,
-            IV52      => $locMatchA,
-            IV53_IV54 => $c1,
+            A1       => $locMatchA,
+            A52      => $locMatchA,
+            A53_A54 => $c1,
         }
     ) if $tariffLoc;
 
@@ -351,24 +351,24 @@ sub charge1 {
           )
           . ' charge 1 £/kVA/year',
         arithmetic => $model->{noNegative}
-        ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
-        : '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+        ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
+        : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
         arguments => {
-            IV1       => $locMatchB,
-            IV52      => $locMatchB,
-            IV53_IV54 => $c1,
+            A1       => $locMatchB,
+            A52      => $locMatchB,
+            A53_A54 => $c1,
         }
     ) if $tariffLoc;
 
     my $cc1 = Arithmetic(
         name       => 'Grandparent location charge 1 £/kVA/year',
         arithmetic => $model->{noNegative}
-        ? '=IF(ISNUMBER(IV1),MAX(0,INDEX(IV53_IV54,IV52)),0)'
-        : '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+        ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
+        : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
         arguments => {
-            IV1       => $locMatchC,
-            IV52      => $locMatchC,
-            IV53_IV54 => $c1,
+            A1       => $locMatchC,
+            A52      => $locMatchC,
+            A53_A54 => $c1,
         }
     );
 
@@ -377,11 +377,11 @@ sub charge1 {
     if ( $model->{legacy201} ) {
         $rfa1 = Arithmetic(
             name => 'Network group reactive factor, maximum demand (kVAr/kVA)',
-            arithmetic => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+            arithmetic => '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
             arguments  => {
-                IV1       => $locMatchA,
-                IV52      => $locMatchA,
-                IV53_IV54 => $rf1,
+                A1       => $locMatchA,
+                A52      => $locMatchA,
+                A53_A54 => $rf1,
             }
         );
     }
@@ -389,32 +389,32 @@ sub charge1 {
         my $kVA = Arithmetic(
             name          => 'Network group maximum demand (kVA)',
             defaultFormat => '0soft',
-            arithmetic    => '=IF(ISNUMBER(IV1),'
-              . 'SQRT((INDEX(IV53_IV54,IV52)+INDEX(IV73_IV74,IV72))^2+'
-              . '(INDEX(IV63_IV64,IV62)+INDEX(IV83_IV84,IV82))^2)' . ',0)',
+            arithmetic    => '=IF(ISNUMBER(A1),'
+              . 'SQRT((INDEX(A53_A54,A52)+INDEX(A73_A74,A72))^2+'
+              . '(INDEX(A63_A64,A62)+INDEX(A83_A84,A82))^2)' . ',0)',
             arguments => {
-                IV1       => $locMatchA,
-                IV52      => $locMatchA,
-                IV53_IV54 => $rf1->[0],
-                IV62      => $locMatchA,
-                IV63_IV64 => $rf1->[1],
-                IV72      => $locMatchA,
-                IV73_IV74 => $rf1->[2],
-                IV82      => $locMatchA,
-                IV83_IV84 => $rf1->[3],
+                A1       => $locMatchA,
+                A52      => $locMatchA,
+                A53_A54 => $rf1->[0],
+                A62      => $locMatchA,
+                A63_A64 => $rf1->[1],
+                A72      => $locMatchA,
+                A73_A74 => $rf1->[2],
+                A82      => $locMatchA,
+                A83_A84 => $rf1->[3],
             },
         );
         $rfa1 = Arithmetic(
             name => 'Network group reactive factor, maximum demand (kVAr/kVA)',
             arithmetic =>
-              '=IF(IV1,0-(INDEX(IV23_IV24,IV22)+INDEX(IV33_IV34,IV32))/IV4,0)',
+              '=IF(A1,0-(INDEX(A23_A24,A22)+INDEX(A33_A34,A32))/A4,0)',
             arguments => {
-                IV1       => $kVA,
-                IV4       => $kVA,
-                IV22      => $locMatchA,
-                IV23_IV24 => $rf1->[1],
-                IV32      => $locMatchA,
-                IV33_IV34 => $rf1->[3],
+                A1       => $kVA,
+                A4       => $kVA,
+                A22      => $locMatchA,
+                A23_A24 => $rf1->[1],
+                A32      => $locMatchA,
+                A33_A34 => $rf1->[3],
             }
         );
     }
@@ -422,11 +422,11 @@ sub charge1 {
     if ( $model->{legacy201} ) {
         $rfb1 = Arithmetic(
             name => 'Parent group reactive factor, maximum demand (kVAr/kVA)',
-            arithmetic => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+            arithmetic => '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
             arguments  => {
-                IV1       => $locMatchB,
-                IV52      => $locMatchB,
-                IV53_IV54 => $rf1,
+                A1       => $locMatchB,
+                A52      => $locMatchB,
+                A53_A54 => $rf1,
             }
         );
     }
@@ -434,32 +434,32 @@ sub charge1 {
         my $kVA = Arithmetic(
             name          => 'Parent group maximum demand (kVA)',
             defaultFormat => '0soft',
-            arithmetic    => '=IF(ISNUMBER(IV1),'
-              . 'SQRT((INDEX(IV53_IV54,IV52)+INDEX(IV73_IV74,IV72))^2+'
-              . '(INDEX(IV63_IV64,IV62)+INDEX(IV83_IV84,IV82))^2)' . ',0)',
+            arithmetic    => '=IF(ISNUMBER(A1),'
+              . 'SQRT((INDEX(A53_A54,A52)+INDEX(A73_A74,A72))^2+'
+              . '(INDEX(A63_A64,A62)+INDEX(A83_A84,A82))^2)' . ',0)',
             arguments => {
-                IV1       => $locMatchB,
-                IV52      => $locMatchB,
-                IV53_IV54 => $rf1->[0],
-                IV62      => $locMatchB,
-                IV63_IV64 => $rf1->[1],
-                IV72      => $locMatchB,
-                IV73_IV74 => $rf1->[2],
-                IV82      => $locMatchB,
-                IV83_IV84 => $rf1->[3],
+                A1       => $locMatchB,
+                A52      => $locMatchB,
+                A53_A54 => $rf1->[0],
+                A62      => $locMatchB,
+                A63_A64 => $rf1->[1],
+                A72      => $locMatchB,
+                A73_A74 => $rf1->[2],
+                A82      => $locMatchB,
+                A83_A84 => $rf1->[3],
             },
         );
         $rfb1 = Arithmetic(
             name => 'Parent group reactive factor, maximum demand (kVAr/kVA)',
             arithmetic =>
-              '=IF(IV1,0-(INDEX(IV23_IV24,IV22)+INDEX(IV33_IV34,IV32))/IV4,0)',
+              '=IF(A1,0-(INDEX(A23_A24,A22)+INDEX(A33_A34,A32))/A4,0)',
             arguments => {
-                IV1       => $kVA,
-                IV4       => $kVA,
-                IV22      => $locMatchB,
-                IV23_IV24 => $rf1->[1],
-                IV32      => $locMatchB,
-                IV33_IV34 => $rf1->[3],
+                A1       => $kVA,
+                A4       => $kVA,
+                A22      => $locMatchB,
+                A23_A24 => $rf1->[1],
+                A32      => $locMatchB,
+                A33_A34 => $rf1->[3],
             }
         );
     }
@@ -468,11 +468,11 @@ sub charge1 {
         $rfc1 = Arithmetic(
             name =>
               'Grandparent group reactive factor, maximum demand (kVAr/kVA)',
-            arithmetic => '=IF(ISNUMBER(IV1),INDEX(IV53_IV54,IV52),0)',
+            arithmetic => '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
             arguments  => {
-                IV1       => $locMatchC,
-                IV52      => $locMatchC,
-                IV53_IV54 => $rf1,
+                A1       => $locMatchC,
+                A52      => $locMatchC,
+                A53_A54 => $rf1,
             }
         );
     }
@@ -480,73 +480,73 @@ sub charge1 {
         my $kVA = Arithmetic(
             name          => 'Grandparent group maximum demand (kVA)',
             defaultFormat => '0soft',
-            arithmetic    => '=IF(ISNUMBER(IV1),'
-              . 'SQRT((INDEX(IV53_IV54,IV52)+INDEX(IV73_IV74,IV72))^2+'
-              . '(INDEX(IV63_IV64,IV62)+INDEX(IV83_IV84,IV82))^2)' . ',0)',
+            arithmetic    => '=IF(ISNUMBER(A1),'
+              . 'SQRT((INDEX(A53_A54,A52)+INDEX(A73_A74,A72))^2+'
+              . '(INDEX(A63_A64,A62)+INDEX(A83_A84,A82))^2)' . ',0)',
             arguments => {
-                IV1       => $locMatchC,
-                IV52      => $locMatchC,
-                IV53_IV54 => $rf1->[0],
-                IV62      => $locMatchC,
-                IV63_IV64 => $rf1->[1],
-                IV72      => $locMatchC,
-                IV73_IV74 => $rf1->[2],
-                IV82      => $locMatchC,
-                IV83_IV84 => $rf1->[3],
+                A1       => $locMatchC,
+                A52      => $locMatchC,
+                A53_A54 => $rf1->[0],
+                A62      => $locMatchC,
+                A63_A64 => $rf1->[1],
+                A72      => $locMatchC,
+                A73_A74 => $rf1->[2],
+                A82      => $locMatchC,
+                A83_A84 => $rf1->[3],
             },
         );
         $rfc1 = Arithmetic(
             name =>
               'Grandparent group reactive factor, maximum demand (kVAr/kVA)',
             arithmetic =>
-              '=IF(IV1,0-(INDEX(IV23_IV24,IV22)+INDEX(IV33_IV34,IV32))/IV4,0)',
+              '=IF(A1,0-(INDEX(A23_A24,A22)+INDEX(A33_A34,A32))/A4,0)',
             arguments => {
-                IV1       => $kVA,
-                IV4       => $kVA,
-                IV22      => $locMatchC,
-                IV23_IV24 => $rf1->[1],
-                IV32      => $locMatchC,
-                IV33_IV34 => $rf1->[3],
+                A1       => $kVA,
+                A4       => $kVA,
+                A22      => $locMatchC,
+                A23_A24 => $rf1->[1],
+                A32      => $locMatchC,
+                A33_A34 => $rf1->[3],
             }
         );
     }
 
     my $pfa1 = Arithmetic(
         name       => 'Network group power factor, maximum demand (kW/kVA)',
-        arithmetic => '=SQRT(1-IV1^2)',
-        arguments  => { IV1 => $rfa1 }
+        arithmetic => '=SQRT(1-A1^2)',
+        arguments  => { A1 => $rfa1 }
     );
 
     my $pfb1 = Arithmetic(
         name       => 'Parent group power factor, maximum demand (kW/kVA)',
-        arithmetic => '=SQRT(1-IV1^2)',
-        arguments  => { IV1 => $rfb1 }
+        arithmetic => '=SQRT(1-A1^2)',
+        arguments  => { A1 => $rfb1 }
     );
 
     my $pfc1 = Arithmetic(
         name       => 'Grandparent group power factor, maximum demand (kW/kVA)',
         groupName  => 'Network flows',
-        arithmetic => '=SQRT(1-IV1^2)',
-        arguments  => { IV1 => $rfc1 }
+        arithmetic => '=SQRT(1-A1^2)',
+        arguments  => { A1 => $rfc1 }
     );
 
     my $rft1 = Arithmetic(
         name       => 'Top level reactive factor, maximum demand (kVAr/kVA)',
-        arithmetic => '=IF(ISNUMBER(IV3),IV6,IF(ISNUMBER(IV2),IV5,IV4))',
+        arithmetic => '=IF(ISNUMBER(A3),A6,IF(ISNUMBER(A2),A5,A4))',
         arguments  => {
-            IV1 => $locMatchA,
-            IV2 => $locMatchB,
-            IV3 => $locMatchC,
-            IV4 => $rfa1,
-            IV5 => $rfb1,
-            IV6 => $rfc1,
+            A1 => $locMatchA,
+            A2 => $locMatchB,
+            A3 => $locMatchC,
+            A4 => $rfa1,
+            A5 => $rfb1,
+            A6 => $rfc1,
         }
     );
 
     my $pft1 = Arithmetic(
         name       => 'Top level power factor, maximum demand (kW/kVA)',
-        arithmetic => '=SQRT(1-IV1^2)',
-        arguments  => { IV1 => $rft1 }
+        arithmetic => '=SQRT(1-A1^2)',
+        arguments  => { A1 => $rft1 }
     );
 
     [ $ca1, $cb1, $cc1 ], [ $pfa1, $pfb1, $pfc1 ], [ $rfa1, $rfb1, $rfc1 ];

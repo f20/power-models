@@ -79,8 +79,8 @@ sub individualDemand {
         map {
             Arithmetic(
                 name          => $_->{name},
-                arguments     => { IV1 => $_->{matrix}, IV2 => $_->{vector}, },
-                arithmetic    => '=IV1*IV2',
+                arguments     => { A1 => $_->{matrix}, A2 => $_->{vector}, },
+                arithmetic    => '=A1*A2',
                 defaultFormat => '0soft',
                 names         => $self->{names},
             );

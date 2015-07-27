@@ -102,29 +102,29 @@ sub new {
             my @c2 = (
                 Arithmetic(
                     name       => $levels[0],
-                    arithmetic => '=IF(IV1>999,IV2,"n/a")',
-                    arguments  => { IV1 => $cat, IV2 => $cols[0], }
+                    arithmetic => '=IF(A1>999,A2,"n/a")',
+                    arguments  => { A1 => $cat, A2 => $cols[0], }
                 ),
                 Arithmetic(
                     name       => $levels[1],
-                    arithmetic => '=IF(MOD(IV1,1000)>99,IV2,"n/a")',
-                    arguments  => { IV1 => $cat, IV2 => $cols[1], }
+                    arithmetic => '=IF(MOD(A1,1000)>99,A2,"n/a")',
+                    arguments  => { A1 => $cat, A2 => $cols[1], }
                 ),
                 Arithmetic(
                     name       => $levels[2],
-                    arithmetic => '=IF(MOD(IV1,100)>9,IV2,"n/a")',
-                    arguments  => { IV1 => $cat, IV2 => $cols[2], }
+                    arithmetic => '=IF(MOD(A1,100)>9,A2,"n/a")',
+                    arguments  => { A1 => $cat, A2 => $cols[2], }
                 ),
                 Arithmetic(
                     name => $levels[3],
                     arithmetic =>
-                      '=IF(AND(MOD(IV1,10)>0,MOD(IV3,1000)>1),IV2,"n/a")',
-                    arguments => { IV1 => $cat, IV3 => $cat, IV2 => $cols[3], }
+                      '=IF(AND(MOD(A1,10)>0,MOD(A3,1000)>1),A2,"n/a")',
+                    arguments => { A1 => $cat, A3 => $cat, A2 => $cols[3], }
                 ),
                 Arithmetic(
                     name       => $levels[4],
-                    arithmetic => '=IF(MOD(IV1,1000)=1,IV2,"n/a")',
-                    arguments  => { IV1 => $cat, IV2 => $cols[4], }
+                    arithmetic => '=IF(MOD(A1,1000)=1,A2,"n/a")',
+                    arguments  => { A1 => $cat, A2 => $cols[4], }
                 ),
             );
             unshift @cols, $cat;
@@ -191,8 +191,8 @@ sub new {
                 my ($v) = @_;
                 Arithmetic(
                     name       => 'Condition',
-                    arithmetic => '=IF(ISNUMBER(IV1),AND(IV2>0,IV3<1))',
-                    arguments  => { IV1 => $v, IV2 => $v, IV3 => $v }
+                    arithmetic => '=IF(ISNUMBER(A1),AND(A2>0,A3<1))',
+                    arguments  => { A1 => $v, A2 => $v, A3 => $v }
                 );
             },
             PERCENTILE => $model->{PERCENTILE},
@@ -205,8 +205,8 @@ sub new {
                 my ($v) = @_;
                 Arithmetic(
                     name       => 'Condition',
-                    arithmetic => '=IF(ISNUMBER(IV1),IV2>1)',
-                    arguments  => { IV1 => $v, IV2 => $v }
+                    arithmetic => '=IF(ISNUMBER(A1),A2>1)',
+                    arguments  => { A1 => $v, A2 => $v }
                 );
             },
             PERCENTILE => $model->{PERCENTILE},

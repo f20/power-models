@@ -209,9 +209,9 @@ EOL
             'Loss adjustment factor',
             'Loss adjustment factor to transmission'
         ),
-        arithmetic => '=IF(IV1,IV2,1)',
+        arithmetic => '=IF(A1,A2,1)',
         arguments =>
-          { IV1 => $lineLossFactorsToGsp, IV2 => $lineLossFactorsToGsp }
+          { A1 => $lineLossFactorsToGsp, A2 => $lineLossFactorsToGsp }
     ) if $model->{ehv};
 
     Columnset(
@@ -219,7 +219,7 @@ EOL
         columns => [
             $customerTypeMatrixForLosses,
             $model->{ehv}
-            ? $lineLossFactorsToGsp->{arguments}{IV1}
+            ? $lineLossFactorsToGsp->{arguments}{A1}
             : (),
             $lineLossFactorsToGsp
         ]
@@ -270,10 +270,10 @@ EOL
             name => 'Adjustment to be applied to unit rates for losses'
               . ' (embedded network tariffs)',
             defaultFormat => '%softnz',
-            arithmetic    => '=IV1/IV2-1',
+            arithmetic    => '=A1/A2-1',
             arguments     => {
-                IV1 => $lineLossFactorsToGspUnits,
-                IV2 => $lineLossFactorsToGsp
+                A1 => $lineLossFactorsToGspUnits,
+                A2 => $lineLossFactorsToGsp
             }
         );
 
@@ -385,9 +385,9 @@ EOL
     my $lineLossFactorsPure = Arithmetic(
         cols       => $coreExitLevels,
         rows       => $allTariffsByEndUser,
-        arithmetic => '=IV1/IV2',
+        arithmetic => '=A1/A2',
         arguments =>
-          { IV1 => $lineLossFactorsToGsp, IV2 => $lineLossFactorsNetwork },
+          { A1 => $lineLossFactorsToGsp, A2 => $lineLossFactorsNetwork },
         name =>
           'Loss adjustment factors between end user meter reading and each'
           . ' network level (by tariff)',
@@ -493,8 +493,8 @@ EOT
                         ]
                     ),
                     cols       => Labelset( list => ['LV circuits'] ),
-                    arithmetic => '=IV1',
-                    arguments  => { IV1          => $splits }
+                    arithmetic => '=A1',
+                    arguments  => { A1          => $splits }
                 ),
                 Arithmetic(
                     name => 'LDNO HV split',
@@ -505,8 +505,8 @@ EOT
                         ]
                     ),
                     cols       => Labelset( list => ['HV'] ),
-                    arithmetic => '=IV1',
-                    arguments  => { IV1          => $splits }
+                    arithmetic => '=A1',
+                    arguments  => { A1          => $splits }
                 ),
                 $routeingFactors
             ],
@@ -634,13 +634,13 @@ EOT
       name => 'Loss adjustment factors between end user meter reading and each'
       . ' network level, scaled by network use',
       defaultFormat => '0.000softnz',
-      arithmetic    => '=IF(IV4="",IV5,IV1*IV2/IV3)',
+      arithmetic    => '=IF(A4="",A5,A1*A2/A3)',
       arguments     => {
-        IV1 => $routeingFactors,
-        IV2 => $lineLossFactorsToGsp,
-        IV3 => $lineLossFactorsNetwork,
-        IV4 => $lineLossFactorsNetwork,
-        IV5 => $routeingFactors,
+        A1 => $routeingFactors,
+        A2 => $lineLossFactorsToGsp,
+        A3 => $lineLossFactorsNetwork,
+        A4 => $lineLossFactorsNetwork,
+        A5 => $routeingFactors,
       };
 
     push @{ $model->{routeing} }, $lineLossFactorsToGsp,

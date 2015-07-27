@@ -127,10 +127,10 @@ EOL
             if (/Unit rate/i) {
                 my $adj = Arithmetic(
                     name       => "$componentVolumeName{$_} loss adjusted",
-                    arithmetic => '=IV1*(1+IV2)',
+                    arithmetic => '=A1*(1+A2)',
                     arguments  => {
-                        IV1 => $volumeData{$_},
-                        IV2 => $unitsAdjustmentFactor,
+                        A1 => $volumeData{$_},
+                        A2 => $unitsAdjustmentFactor,
                     }
                 );
                 push @adjustedColumns, $adj;
@@ -158,9 +158,9 @@ EOL
         name =>
           Label( 'All units (MWh)', 'All units aggregated by tariff (MWh)' ),
         arithmetic => '='
-          . join( '+', map { "IV$_" } 1 .. $model->{maxUnitRates} ),
+          . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
         arguments => {
-            map { ( "IV$_" => $volumesAdjusted{"Unit rate $_ p/kWh"} ) }
+            map { ( "A$_" => $volumesAdjusted{"Unit rate $_ p/kWh"} ) }
               1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz',
@@ -190,9 +190,9 @@ EOL
         name =>
           Label( 'All units (MWh)', 'All units aggregated by end user (MWh)' ),
         arithmetic => '='
-          . join( '+', map { "IV$_" } 1 .. $model->{maxUnitRates} ),
+          . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
         arguments => {
-            map { ( "IV$_" => $volumesByEndUser{"Unit rate $_ p/kWh"} ) }
+            map { ( "A$_" => $volumesByEndUser{"Unit rate $_ p/kWh"} ) }
               1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz',
@@ -379,14 +379,14 @@ sub loadProfiles {
                 'Demand coefficient (load at time of '
                   . 'system maximum load divided by average load)'
             ),
-            arithmetic => '=IV1/IV2',
-            arguments  => { IV1 => $coincidenceFactors, IV2 => $loadFactors }
+            arithmetic => '=A1/A2',
+            arguments  => { A1 => $coincidenceFactors, A2 => $loadFactors }
           );
 
         my $negGC = Arithmetic(
             name       => 'Negative of generation coefficient',
-            arithmetic => '=-1*IV1',
-            arguments  => { IV1 => $generationCoefficient }
+            arithmetic => '=-1*A1',
+            arguments  => { A1 => $generationCoefficient }
         );
 
         $negGC = Constant(

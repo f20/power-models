@@ -82,8 +82,8 @@ sub templateImport {
     my @tariffComponents = map {
         Arithmetic(
             name          => $_->{name}->shortName,
-            arguments     => { IV1 => $index, IV2_IV3 => $_ },
-            arithmetic    => '=INDEX(IV2_IV3,IV1)',
+            arguments     => { A1 => $index, A2_A3 => $_ },
+            arithmetic    => '=INDEX(A2_A3,A1)',
             defaultFormat => $_->{name} =~ /k(?:VAr|W)h/
             ? '0.000copy'
             : '0.00copy',
@@ -92,8 +92,8 @@ sub templateImport {
 
     my $agreedCapacity = Arithmetic(
         name          => 'Maximum import capacity (kVA)',
-        arguments     => { IV1 => $index, IV2_IV3 => $importCapacity },
-        arithmetic    => '=INDEX(IV2_IV3,IV1)',
+        arguments     => { A1 => $index, A2_A3 => $importCapacity },
+        arithmetic    => '=INDEX(A2_A3,A1)',
         defaultFormat => '0hard',
     );
 
@@ -110,8 +110,8 @@ sub templateImport {
         $df =~ s/copy|soft/hard/;
         $_ = Arithmetic(
             name          => $_->{name}->shortName,
-            arguments     => { IV1 => $index, IV2_IV3 => $_ },
-            arithmetic    => '=INDEX(IV2_IV3,IV1)',
+            arguments     => { A1 => $index, A2_A3 => $_ },
+            arithmetic    => '=INDEX(A2_A3,A1)',
             defaultFormat => $df,
         );
     }
@@ -121,53 +121,53 @@ sub templateImport {
     my $units = Arithmetic(
         name => "Units consumed in $model->{timebandName} time band (kWh)",
         defaultFormat => '0soft',
-        arithmetic    => '=IV1*IV2*(IV3-IV4)',
+        arithmetic    => '=A1*A2*(A3-A4)',
         arguments     => {
-            IV1 => $agreedCapacity,
-            IV2 => $activeCoincidence,
-            IV3 => $hoursInPurple,
-            IV4 => $tariffHoursInPurpleNot,
+            A1 => $agreedCapacity,
+            A2 => $activeCoincidence,
+            A3 => $hoursInPurple,
+            A4 => $tariffHoursInPurpleNot,
         },
     );
 
     my $redPounds = Arithmetic(
         name          => "Annual $model->{timebandName} charge (£)",
         defaultFormat => '0soft',
-        arithmetic    => '=IV1*IV2/100',
-        arguments     => { IV1 => $units, IV2 => $tariffComponents[0], },
+        arithmetic    => '=A1*A2/100',
+        arguments     => { A1 => $units, A2 => $tariffComponents[0], },
     );
 
     my $fixedPounds = Arithmetic(
         name          => 'Annual fixed charge (£)',
         defaultFormat => '0soft',
-        arithmetic    => '=(IV1-IV3)*IV2/100',
+        arithmetic    => '=(A1-A3)*A2/100',
         arguments     => {
-            IV1 => $daysInYear,
-            IV2 => $tariffComponents[1],
-            IV3 => $tariffDaysInYearNot,
+            A1 => $daysInYear,
+            A2 => $tariffComponents[1],
+            A3 => $tariffDaysInYearNot,
         },
     );
 
     my $capacityPounds = Arithmetic(
         name          => 'Annual capacity charge (£)',
         defaultFormat => '0soft',
-        arithmetic    => '=(IV1-IV3)*(IV5*IV6+IV7*IV8)/100',
+        arithmetic    => '=(A1-A3)*(A5*A6+A7*A8)/100',
         arguments     => {
-            IV1 => $daysInYear,
-            IV3 => $tariffDaysInYearNot,
-            IV5 => $tariffComponents[2],
-            IV7 => $tariffComponents[3],
-            IV6 => $agreedCapacity,
-            IV8 => $exceededCapacity,
+            A1 => $daysInYear,
+            A3 => $tariffDaysInYearNot,
+            A5 => $tariffComponents[2],
+            A7 => $tariffComponents[3],
+            A6 => $agreedCapacity,
+            A8 => $exceededCapacity,
         },
     );
 
     my $totalPounds = Arithmetic(
         name          => 'Total annual DUoS charge (£)',
         defaultFormat => '0soft',
-        arithmetic    => '=IV1+IV2+IV3',
+        arithmetic    => '=A1+A2+A3',
         arguments =>
-          { IV1 => $redPounds, IV2 => $fixedPounds, IV3 => $capacityPounds, },
+          { A1 => $redPounds, A2 => $fixedPounds, A3 => $capacityPounds, },
     );
 
     my @psv;
@@ -180,12 +180,12 @@ sub templateImport {
                     name          => '',
                     arithmetic    => '="935|'
                       . ( $col + $_ )
-                      . '|"&IV1&"|"&INDEX(IV3_IV4,IV2,'
+                      . '|"&A1&"|"&INDEX(A3_A4,A2,'
                       . ( 1 + $_ ) . ')',
                     arguments => {
-                        IV1     => $index,
-                        IV2     => $index,
-                        IV3_IV4 => $d
+                        A1     => $index,
+                        A2     => $index,
+                        A3_A4 => $d
                     },
                   )
             } 0 .. $nc;
@@ -196,11 +196,11 @@ sub templateImport {
               Arithmetic(
                 defaultFormat => 'codecopy',
                 name          => '',
-                arithmetic => '="935|' . $col . '|"&IV1&"|"&INDEX(IV3_IV4,IV2)',
+                arithmetic => '="935|' . $col . '|"&A1&"|"&INDEX(A3_A4,A2)',
                 arguments  => {
-                    IV1     => $index,
-                    IV2     => $index,
-                    IV3_IV4 => $d
+                    A1     => $index,
+                    A2     => $index,
+                    A3_A4 => $d
                 },
               ) unless $d->{name} =~ /export/i;
             ++$col;
@@ -209,8 +209,8 @@ sub templateImport {
 
     $_ = Arithmetic(
         name          => $_->{name}->shortName,
-        arguments     => { IV1 => $index, IV2_IV3 => $_ },
-        arithmetic    => '=INDEX(IV2_IV3,IV1)',
+        arguments     => { A1 => $index, A2_A3 => $_ },
+        arithmetic    => '=INDEX(A2_A3,A1)',
         defaultFormat => 'textcopy',
     ) foreach $tariffs, $llfcImport;
 
@@ -322,8 +322,8 @@ sub templateExport {
     my @tariffComponents = map {
         Arithmetic(
             name          => $_->{name}->shortName,
-            arguments     => { IV1 => $index, IV2_IV3 => $_ },
-            arithmetic    => '=INDEX(IV2_IV3,IV1)',
+            arguments     => { A1 => $index, A2_A3 => $_ },
+            arithmetic    => '=INDEX(A2_A3,A1)',
             defaultFormat => $_->{name} =~ /k(?:VAr|W)h/
             ? '0.000copy'
             : '0.00copy',
@@ -341,11 +341,11 @@ sub templateExport {
               Arithmetic(
                 defaultFormat => 'codecopy',
                 name          => '',
-                arithmetic => '="935|' . $col . '|"&IV1&"|"&INDEX(IV3_IV4,IV2)',
+                arithmetic => '="935|' . $col . '|"&A1&"|"&INDEX(A3_A4,A2)',
                 arguments  => {
-                    IV1     => $index,
-                    IV2     => $index,
-                    IV3_IV4 => $d
+                    A1     => $index,
+                    A2     => $index,
+                    A3_A4 => $d
                 },
               ) if $d->{name} =~ /export/i;
             ++$col;
@@ -354,8 +354,8 @@ sub templateExport {
 
     $_ = Arithmetic(
         name          => $_->{name}->shortName,
-        arguments     => { IV1 => $index, IV2_IV3 => $_ },
-        arithmetic    => '=INDEX(IV2_IV3,IV1)',
+        arguments     => { A1 => $index, A2_A3 => $_ },
+        arithmetic    => '=INDEX(A2_A3,A1)',
         defaultFormat => 'textcopy',
     ) foreach $tariffs, $llfcImport;
 

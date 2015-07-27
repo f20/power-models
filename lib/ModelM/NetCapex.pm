@@ -85,17 +85,17 @@ sub netCapexPercentages {
         name          => 'Net capex percentages',
         defaultFormat => '%soft',
         cols          => $allocLevelset,
-        arithmetic    => '=(IV5 or IV6+IV7)/SUM(IV1:IV2)',
+        arithmetic    => '=(A5 or A6+A7)/SUM(A1:A2)',
         custom =>
-          [ '=IV6/(IV1+IV2+IV3+IV4+IV5)', '=(IV6+IV7)/(IV1+IV2+IV3+IV4+IV5)', ],
+          [ '=A6/(A1+A2+A3+A4+A5)', '=(A6+A7)/(A1+A2+A3+A4+A5)', ],
         arguments => {
-            IV1 => $netCapex,
-            IV2 => $netCapex,
-            IV3 => $netCapex,
-            IV4 => $netCapex,
-            IV5 => $netCapex,
-            IV6 => $netCapex,
-            IV7 => $netCapex,
+            A1 => $netCapex,
+            A2 => $netCapex,
+            A3 => $netCapex,
+            A4 => $netCapex,
+            A5 => $netCapex,
+            A6 => $netCapex,
+            A7 => $netCapex,
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -104,8 +104,8 @@ sub netCapexPercentages {
                 '', $format, $formula->[ $x == 3 ? 1 : 0 ], map {
                     $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + (
-                              /IV([12345])/ ? $1 - 1
-                            : /IV([67])/    ? $x + $1 - 6
+                              /A([12345])/ ? $1 - 1
+                            : /A([67])/    ? $x + $1 - 6
                             : 0
                         ),
                         $colh->{$_},

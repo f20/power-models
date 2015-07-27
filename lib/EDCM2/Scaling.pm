@@ -46,12 +46,12 @@ sub fudge41 {
     my $adderAmount = Arithmetic(
         name          => 'Amount to be recovered from adders ex costs (£/year)',
         defaultFormat => '0soft',
-        arithmetic    => '=IV1-IV7-IV91-IV92',
+        arithmetic    => '=A1-A7-A91-A92',
         arguments     => {
-            IV1  => $$shortfallRef,
-            IV7  => $indirect,
-            IV91 => $direct,
-            IV92 => $rates,
+            A1  => $$shortfallRef,
+            A7  => $indirect,
+            A91 => $direct,
+            A92 => $rates,
         },
     );
     $model->{transparency}{olFYI}{1259} = $adderAmount
@@ -69,12 +69,12 @@ sub fudge41 {
 
     $activeCoincidence = Arithmetic(
         name       => 'Peak-time capacity use per kVA of agreed capacity',
-        arithmetic => '=SQRT(IV1*IV2+IV3*IV4)',
+        arithmetic => '=SQRT(A1*A2+A3*A4)',
         arguments  => {
-            IV1 => $activeCoincidence,
-            IV2 => $activeCoincidence,
-            IV3 => $reactiveCoincidence,
-            IV4 => $reactiveCoincidence,
+            A1 => $activeCoincidence,
+            A2 => $activeCoincidence,
+            A3 => $reactiveCoincidence,
+            A4 => $reactiveCoincidence,
         }
     ) if $model->{dcp183};
 
@@ -84,23 +84,23 @@ sub fudge41 {
         name => 'Marginal revenue effect of demand'
           . ( $model->{dcp185} == 2 ? ' and indirect cost adders' : ' adder' ),
         defaultFormat => '0soft',
-        arithmetic    => '=IV1*(IV4+IV5)*IF(IV6<0,1,IV7)',
+        arithmetic    => '=A1*(A4+A5)*IF(A6<0,1,A7)',
         arguments     => {
-            IV1 => $agreedCapacity,
-            IV4 => $ynonFudge,
-            IV5 => $activeCoincidence,
-            IV6 => $adderAmount,
-            IV7 => $indirectExposure,
+            A1 => $agreedCapacity,
+            A4 => $ynonFudge,
+            A5 => $activeCoincidence,
+            A6 => $adderAmount,
+            A7 => $indirectExposure,
         }
       )
       : Arithmetic(
         name          => 'Marginal revenue effect of demand adder',
         defaultFormat => '0soft',
-        arithmetic    => '=IV1*(IV4+IV5)',
+        arithmetic    => '=A1*(A4+A5)',
         arguments     => {
-            IV1 => $agreedCapacity,
-            IV4 => $ynonFudge,
-            IV5 => $activeCoincidence,
+            A1 => $agreedCapacity,
+            A4 => $ynonFudge,
+            A5 => $activeCoincidence,
         }
       );
 
@@ -109,22 +109,22 @@ sub fudge41 {
       ? Arithmetic(
         name       => 'Data for capacity-based allocation of indirect costs',
         groupName  => 'Allocation of indirect costs',
-        arithmetic => '=IF(IV6<0,1,IV1)*(IV2+IV3)',
+        arithmetic => '=IF(A6<0,1,A1)*(A2+A3)',
         arguments  => {
-            IV2 => $ynonFudge,
-            IV3 => $activeCoincidence,
-            IV1 => $indirectExposure,
-            IV6 => $adderAmount,
+            A2 => $ynonFudge,
+            A3 => $activeCoincidence,
+            A1 => $indirectExposure,
+            A6 => $adderAmount,
         }
       )
       : Arithmetic(
         name       => 'Data for capacity-based allocation of indirect costs',
         groupName  => 'Allocation of indirect costs',
-        arithmetic => '=IV1*(IV2+IV3)',
+        arithmetic => '=A1*(A2+A3)',
         arguments  => {
-            IV2 => $ynonFudge,
-            IV3 => $activeCoincidence,
-            IV1 => $indirectExposure,
+            A2 => $ynonFudge,
+            A3 => $activeCoincidence,
+            A1 => $indirectExposure,
         }
       );
 
@@ -133,13 +133,13 @@ sub fudge41 {
       ? Arithmetic(
         name          => 'Total marginal effect of indirect cost adder',
         defaultFormat => '0soft',
-        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5,IV6_IV7)',
+        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5,A6_A7)',
         arguments     => {
-            IV123   => $model->{transparencyMasterFlag},
-            IV1     => $model->{transparency}{ol119102},
-            IV2_IV3 => $model->{transparency},
-            IV4_IV5 => $fudgeIndirect,
-            IV6_IV7 => $agreedCapacity,
+            A123   => $model->{transparencyMasterFlag},
+            A1     => $model->{transparency}{ol119102},
+            A2_A3 => $model->{transparency},
+            A4_A5 => $fudgeIndirect,
+            A6_A7 => $agreedCapacity,
         },
       )
       : SumProduct(
@@ -157,23 +157,23 @@ sub fudge41 {
       ? Arithmetic(
         name       => 'Indirect costs application rate',
         groupName  => 'EDCM demand adders',
-        arithmetic => '=IF(IV2,IV3/SUMPRODUCT(IV4_IV5,IV64_IV65),0)',
+        arithmetic => '=IF(A2,A3/SUMPRODUCT(A4_A5,A64_A65),0)',
         arguments  => {
-            IV2       => $indirect,
-            IV3       => $indirect,
-            IV4_IV5   => $fudgeIndirect,
-            IV64_IV65 => $agreedCapacity,
+            A2       => $indirect,
+            A3       => $indirect,
+            A4_A5   => $fudgeIndirect,
+            A64_A65 => $agreedCapacity,
         },
         location => 'Charging rates',
       )
       : Arithmetic(
         name       => 'Indirect costs application rate',
         groupName  => 'EDCM demand adders',
-        arithmetic => '=IF(IV2,IV3/IV4,0)',
+        arithmetic => '=IF(A2,A3/A4,0)',
         arguments  => {
-            IV2 => $indirect,
-            IV3 => $indirect,
-            IV4 => $totalIndirectFudge,
+            A2 => $indirect,
+            A3 => $indirect,
+            A4 => $totalIndirectFudge,
         },
         location => 'Charging rates',
       );
@@ -181,38 +181,38 @@ sub fudge41 {
       if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
-        arithmetic => '=IV1+IV3*IV4*100/IV9',
+        arithmetic => '=A1+A3*A4*100/A9',
         name => 'Capacity charge after applying indirect cost charge p/kVA/day',
         arguments => {
-            IV1 => $$capacityChargeRef,
-            IV3 => $indirectAppRate,
-            IV4 => $fudgeIndirect,
-            IV9 => $daysInYear,
+            A1 => $$capacityChargeRef,
+            A3 => $indirectAppRate,
+            A4 => $fudgeIndirect,
+            A9 => $daysInYear,
         }
     );
 
     if ( $model->{matricesData} ) {
         push @{ $model->{matricesData}[0] },
           Arithmetic(
-            arithmetic => '=IV1*IV3*100/IV9',
+            arithmetic => '=A1*A3*100/A9',
             rows       => $$capacityChargeRef->{rows},
             name       => 'Notional indirect cost contribution p/kWh',
             arguments  => {
-                IV3 => $indirectAppRate,
-                IV1 => $indirectExposure,
-                IV9 => $model->{matricesData}[3],
+                A3 => $indirectAppRate,
+                A1 => $indirectExposure,
+                A9 => $model->{matricesData}[3],
             }
           );
         push @{ $model->{matricesData}[1] },
           Arithmetic(
-            arithmetic => '=IV1*IV3*IV4*100/IV9',
+            arithmetic => '=A1*A3*A4*100/A9',
             rows       => $$capacityChargeRef->{rows},
             name       => 'Notional indirect cost contribution p/kVA/day',
             arguments  => {
-                IV3 => $indirectAppRate,
-                IV4 => $ynonFudge,
-                IV1 => $indirectExposure,
-                IV9 => $daysInYear,
+                A3 => $indirectAppRate,
+                A4 => $ynonFudge,
+                A1 => $indirectExposure,
+                A9 => $daysInYear,
             }
           );
     }
@@ -220,11 +220,11 @@ sub fudge41 {
     $model->{summaryInformationColumns}[3] = Arithmetic(
         name          => 'Indirect cost allocation (£/year)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IV1*IV3*IV7',
+        arithmetic    => '=A1*A3*A7',
         arguments     => {
-            IV1 => $agreedCapacity,
-            IV3 => $indirectAppRate,
-            IV7 => $fudgeIndirect,
+            A1 => $agreedCapacity,
+            A3 => $indirectAppRate,
+            A7 => $fudgeIndirect,
         },
     );
 
@@ -233,12 +233,12 @@ sub fudge41 {
       ? Arithmetic(
         name          => 'Total marginal revenue effect of demand adder',
         defaultFormat => '0soft',
-        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5)',
+        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5)',
         arguments     => {
-            IV123   => $model->{transparencyMasterFlag},
-            IV1     => $model->{transparency}{ol119103},
-            IV2_IV3 => $model->{transparency},
-            IV4_IV5 => $slope,
+            A123   => $model->{transparencyMasterFlag},
+            A1     => $model->{transparency}{ol119103},
+            A2_A3 => $model->{transparency},
+            A4_A5 => $slope,
         },
       )
       : GroupBy(
@@ -255,24 +255,24 @@ sub fudge41 {
       ? Arithmetic(
         name       => 'Fixed adder ex indirects application rate',
         groupName  => 'EDCM demand adders',
-        arithmetic => '=IF(IV9,IV1*IV2/SUM(IV4_IV5),0)',
+        arithmetic => '=IF(A9,A1*A2/SUM(A4_A5),0)',
         arguments  => {
-            IV1     => $ynonFudge41,
-            IV2     => $adderAmount,
-            IV9     => $adderAmount,
-            IV4_IV5 => $slope,
+            A1     => $ynonFudge41,
+            A2     => $adderAmount,
+            A9     => $adderAmount,
+            A4_A5 => $slope,
         },
         location => 'Charging rates',
       )
       : Arithmetic(
         name       => 'Fixed adder ex indirects application rate',
         groupName  => 'EDCM demand adders',
-        arithmetic => '=IF(IV9,IV1*IV2/IV4,0)',
+        arithmetic => '=IF(A9,A1*A2/A4,0)',
         arguments  => {
-            IV1 => $ynonFudge41,
-            IV2 => $adderAmount,
-            IV9 => $adderAmount,
-            IV4 => $totalSlope,
+            A1 => $ynonFudge41,
+            A2 => $adderAmount,
+            A9 => $adderAmount,
+            A4 => $totalSlope,
         },
         location => 'Charging rates',
       );
@@ -280,20 +280,20 @@ sub fudge41 {
       if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
-        arithmetic => '=IV1+IV3*(IV7+IV4)*100/IV9'
-          . ( $model->{dcp185} ? '*IF(IV6<0,1,IV8)' : '' ),
+        arithmetic => '=A1+A3*(A7+A4)*100/A9'
+          . ( $model->{dcp185} ? '*IF(A6<0,1,A8)' : '' ),
         name =>
           'Capacity charge after applying fixed adder ex indirects p/kVA/day',
         arguments => {
-            IV1 => $$capacityChargeRef,
-            IV3 => $fixedAdderRate,
-            IV4 => $activeCoincidence,
-            IV7 => $ynonFudge,
-            IV9 => $daysInYear,
+            A1 => $$capacityChargeRef,
+            A3 => $fixedAdderRate,
+            A4 => $activeCoincidence,
+            A7 => $ynonFudge,
+            A9 => $daysInYear,
             $model->{dcp185}
             ? (
-                IV6 => $adderAmount,
-                IV8 => $indirectExposure,
+                A6 => $adderAmount,
+                A8 => $indirectExposure,
               )
             : (),
         }
@@ -302,26 +302,26 @@ sub fudge41 {
     if ( $model->{matricesData} ) {
         push @{ $model->{matricesData}[0] },
           Arithmetic(
-            arithmetic => '=IV3*100/IV9' . ( $model->{dcp185} ? '*IV8' : '' ),
+            arithmetic => '=A3*100/A9' . ( $model->{dcp185} ? '*A8' : '' ),
             rows      => $$capacityChargeRef->{rows},
             name      => 'Notional fixed adder p/kWh',
             arguments => {
-                IV3 => $fixedAdderRate,
-                IV9 => $model->{matricesData}[3],
-                $model->{dcp185} ? ( IV8 => $indirectExposure ) : (),
+                A3 => $fixedAdderRate,
+                A9 => $model->{matricesData}[3],
+                $model->{dcp185} ? ( A8 => $indirectExposure ) : (),
             }
           );
         push @{ $model->{matricesData}[1] },
           Arithmetic(
-            arithmetic => '=IV3*IV4*100/IV9'
-              . ( $model->{dcp185} ? '*IV8' : '' ),
+            arithmetic => '=A3*A4*100/A9'
+              . ( $model->{dcp185} ? '*A8' : '' ),
             rows      => $$capacityChargeRef->{rows},
             name      => 'Notional fixed adder p/kVA/day',
             arguments => {
-                IV3 => $fixedAdderRate,
-                IV4 => $ynonFudge,
-                IV9 => $daysInYear,
-                $model->{dcp185} ? ( IV8 => $indirectExposure ) : (),
+                A3 => $fixedAdderRate,
+                A4 => $ynonFudge,
+                A9 => $daysInYear,
+                $model->{dcp185} ? ( A8 => $indirectExposure ) : (),
             }
           );
     }
@@ -329,17 +329,17 @@ sub fudge41 {
     $model->{summaryInformationColumns}[6] = Arithmetic(
         name          => 'Demand scaling fixed adder (£/year)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IV1*IV3*(IV71+IV72)'
-          . ( $model->{dcp185} ? '*IF(IV6<0,1,IV8)' : '' ),
+        arithmetic    => '=A1*A3*(A71+A72)'
+          . ( $model->{dcp185} ? '*IF(A6<0,1,A8)' : '' ),
         arguments => {
-            IV1  => $agreedCapacity,
-            IV3  => $fixedAdderRate,
-            IV71 => $ynonFudge,
-            IV72 => $activeCoincidence,
+            A1  => $agreedCapacity,
+            A3  => $fixedAdderRate,
+            A71 => $ynonFudge,
+            A72 => $activeCoincidence,
             $model->{dcp185}
             ? (
-                IV6 => $adderAmount,
-                IV8 => $indirectExposure,
+                A6 => $adderAmount,
+                A8 => $indirectExposure,
               )
             : (),
         },
@@ -348,15 +348,15 @@ sub fudge41 {
     $model->{indirectShareOfCapacityBasedAllocation} = Arithmetic(
         name          => 'Indirect cost share of capacity-based allocation',
         defaultFormat => '%soft',
-        arithmetic    => '=IV4/(IV1*(IV2-IV7-IV91-IV92)+IV3)',
+        arithmetic    => '=A4/(A1*(A2-A7-A91-A92)+A3)',
         arguments     => {
-            IV4  => $indirect,
-            IV1  => $ynonFudge41,
-            IV2  => $$shortfallRef,
-            IV3  => $indirect,
-            IV7  => $indirect,
-            IV91 => $direct,
-            IV92 => $rates,
+            A4  => $indirect,
+            A1  => $ynonFudge41,
+            A2  => $$shortfallRef,
+            A3  => $indirect,
+            A7  => $indirect,
+            A91 => $direct,
+            A92 => $rates,
         }
     );
 
@@ -364,15 +364,15 @@ sub fudge41 {
         name          => 'Residual residual (£/year)',
         groupName     => 'Residual EDCM demand revenue',
         defaultFormat => '0softnz',
-        arithmetic    => '=(1-IV1)*(IV2-IV3-IV71-IV72)+IV81+IV82',
+        arithmetic    => '=(1-A1)*(A2-A3-A71-A72)+A81+A82',
         arguments     => {
-            IV1  => $ynonFudge41,
-            IV2  => $$shortfallRef,
-            IV3  => $indirect,
-            IV71 => $direct,
-            IV81 => $direct,
-            IV72 => $rates,
-            IV82 => $rates,
+            A1  => $ynonFudge41,
+            A2  => $$shortfallRef,
+            A3  => $indirect,
+            A71 => $direct,
+            A81 => $direct,
+            A72 => $rates,
+            A82 => $rates,
         },
     );
     $model->{transparency}{olFYI}{1257} = $$shortfallRef
@@ -386,20 +386,20 @@ sub fudge41 {
     $model->{directShareOfAssetBasedAllocation} = Arithmetic(
         name          => 'Direct cost share of asset-based allocation',
         defaultFormat => '%soft',
-        arithmetic    => '=IV1/IV2',
+        arithmetic    => '=A1/A2',
         arguments     => {
-            IV1 => $direct,
-            IV2 => $$shortfallRef,
+            A1 => $direct,
+            A2 => $$shortfallRef,
         }
     );
 
     $model->{ratesShareOfAssetBasedAllocation} = Arithmetic(
         name          => 'Network rates share of asset-based allocation',
         defaultFormat => '%soft',
-        arithmetic    => '=IV1/IV2',
+        arithmetic    => '=A1/A2',
         arguments     => {
-            IV1 => $rates,
-            IV2 => $$shortfallRef,
+            A1 => $rates,
+            A2 => $$shortfallRef,
         }
     );
 
@@ -417,11 +417,11 @@ sub demandScaling41 {
         name          => 'Non sole use notional assets subject to matching (£)',
         groupName     => 'Demand scaling',
         defaultFormat => '0softnz',
-        arithmetic    => '=(IV2+IV1)*IV4',
+        arithmetic    => '=(A2+A1)*A4',
         arguments     => {
-            IV2 => $assetsCapacity,
-            IV1 => $assetsConsumption,
-            IV4 => $agreedCapacity,
+            A2 => $assetsCapacity,
+            A1 => $assetsConsumption,
+            A4 => $agreedCapacity,
         }
     );
 
@@ -430,12 +430,12 @@ sub demandScaling41 {
       ? Arithmetic(
         name => 'Total non sole use notional assets subject to matching (£)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV21_IV22,IV51_IV52)',
+        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52)',
         arguments     => {
-            IV123     => $model->{transparencyMasterFlag},
-            IV1       => $model->{transparency}{ol119305},
-            IV21_IV22 => $model->{transparency},
-            IV51_IV52 => $slopeCapacity,
+            A123     => $model->{transparencyMasterFlag},
+            A1       => $model->{transparency}{ol119305},
+            A21_A22 => $model->{transparency},
+            A51_A52 => $slopeCapacity,
         }
       )
       : GroupBy(
@@ -449,13 +449,13 @@ sub demandScaling41 {
 
     my $minCapacity = Arithmetic(
         name       => 'Threshold for asset percentage adder on capacity',
-        arithmetic => '=IF(IV3,-0.01*IV1*IV4*IV5/IV2,0)',
+        arithmetic => '=IF(A3,-0.01*A1*A4*A5/A2,0)',
         arguments  => {
-            IV1 => $capacityCharge,
-            IV2 => $slopeCapacity,
-            IV3 => $slopeCapacity,
-            IV4 => $daysInYear,
-            IV5 => $agreedCapacity,
+            A1 => $capacityCharge,
+            A2 => $slopeCapacity,
+            A3 => $slopeCapacity,
+            A4 => $daysInYear,
+            A5 => $agreedCapacity,
         }
     );
 
@@ -465,56 +465,56 @@ sub demandScaling41 {
         name          => 'Annual charge on assets',
         groupName     => 'Demand scaling rate',
         defaultFormat => '%soft',
-        arithmetic    => '=IF(IV4,IV1/SUM(IV2_IV3),0)',
+        arithmetic    => '=IF(A4,A1/SUM(A2_A3),0)',
         arguments =>
-          { IV1 => $shortfall, IV4 => $shortfall, IV2_IV3 => $slopeCapacity, },
+          { A1 => $shortfall, A4 => $shortfall, A2_A3 => $slopeCapacity, },
         location => 'Charging rates',
       )
       : Arithmetic(
         name          => 'Annual charge on assets',
         groupName     => 'Demand scaling rate',
         defaultFormat => '%soft',
-        arithmetic    => '=IF(IV4,IV1/IV2,0)',
+        arithmetic    => '=IF(A4,A1/A2,0)',
         arguments =>
-          { IV1 => $shortfall, IV4 => $shortfall, IV2 => $totalSlopeCapacity, },
+          { A1 => $shortfall, A4 => $shortfall, A2 => $totalSlopeCapacity, },
         location => 'Charging rates',
       );
     $model->{transparency}{olFYI}{1258} = $demandScaling
       if $model->{transparency};
 
     my $scalingChargeCapacity = Arithmetic(
-        arithmetic => '=IV3*(IV62+IV63)*100/IV9',
+        arithmetic => '=A3*(A62+A63)*100/A9',
         name       => 'Demand scaling p/kVA/day',
         arguments  => {
-            IV3  => $demandScaling,
-            IV62 => $assetsCapacity,
-            IV63 => $assetsConsumption,
-            IV9  => $daysInYear,
-            IV1  => $capacityCharge,
+            A3  => $demandScaling,
+            A62 => $assetsCapacity,
+            A63 => $assetsConsumption,
+            A9  => $daysInYear,
+            A1  => $capacityCharge,
         }
     );
 
     if ( $model->{matricesData} ) {
         push @{ $model->{matricesData}[0] },
           Arithmetic(
-            arithmetic => '=IF(IV5,IV1*IV3*100/IV9/IV6,0)',
+            arithmetic => '=IF(A5,A1*A3*100/A9/A6,0)',
             name       => 'Asset-based contribution p/kWh',
             arguments  => {
-                IV3 => $demandScaling,
-                IV1 => $assetsConsumption,
-                IV9 => $model->{matricesData}[3],
-                IV5 => $model->{matricesData}[2],
-                IV6 => $model->{matricesData}[2],
+                A3 => $demandScaling,
+                A1 => $assetsConsumption,
+                A9 => $model->{matricesData}[3],
+                A5 => $model->{matricesData}[2],
+                A6 => $model->{matricesData}[2],
             }
           );
         push @{ $model->{matricesData}[1] },
           Arithmetic(
-            arithmetic => '=IV1*IV3*100/IV9',
+            arithmetic => '=A1*A3*100/A9',
             name       => 'Asset-based contribution p/kVA/day',
             arguments  => {
-                IV3 => $demandScaling,
-                IV1 => $assetsCapacity,
-                IV9 => $daysInYear,
+                A3 => $demandScaling,
+                A1 => $assetsCapacity,
+                A9 => $daysInYear,
             }
           );
     }

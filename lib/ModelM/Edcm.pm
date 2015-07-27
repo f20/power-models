@@ -60,10 +60,10 @@ sub discountEdcm {
             Arithmetic(
                 name          => 'Allocation between EHV network levels',
                 defaultFormat => '%soft',
-                arithmetic    => '=IV1*IV2',
+                arithmetic    => '=A1*A2',
                 arguments     => {
-                    IV1 => $meavPercentagesEdcm,
-                    IV2 => Stack(
+                    A1 => $meavPercentagesEdcm,
+                    A2 => Stack(
                         name    => 'Allocation to EHV network levels',
                         cols    => $ehv132,
                         sources => [$alloc],
@@ -217,12 +217,12 @@ EOT
             defaultFormat => '%soft',
             cols =>
               Labelset( list => [ $nameOfLvLevel, 'HV', 'EHV', '132kV' ] ),
-            custom     => [ '=1-IV2*IV9', '=1-IV3*IV9', '=1-IV9' ],
+            custom     => [ '=1-A2*A9', '=1-A3*A9', '=1-A9' ],
             arithmetic => 'Special calculation',
             arguments  => {
-                IV2 => $model->lvSplit,
-                IV3 => $model->hvSplit,
-                IV9 => $direct,
+                A2 => $model->lvSplit,
+                A3 => $model->hvSplit,
+                A9 => $direct,
             },
             wsPrepare => sub {
                 my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
@@ -237,13 +237,13 @@ EOT
                     return '', $format, $formula->[1], map {
                         $_ =>
                           Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                            $rowh->{$_}, $colh->{$_} + ( /IV9/ ? 2 : 0 ),
+                            $rowh->{$_}, $colh->{$_} + ( /A9/ ? 2 : 0 ),
                           )
                     } @$pha if $x == 1;
                     '', $format, $formula->[2], map {
                         $_ =>
                           Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                            $rowh->{$_}, $colh->{$_} + ( /IV9/ ? 3 : 0 ),
+                            $rowh->{$_}, $colh->{$_} + ( /A9/ ? 3 : 0 ),
                           )
                     } @$pha;
                 };
@@ -274,8 +274,8 @@ EOT
                 rows          => $set,
                 cols          => Labelset( list => [$level] ),
                 defaultFormat => '%copy',
-                arithmetic    => '=IV1',
-                arguments     => { IV1 => $splitDirect },
+                arithmetic    => '=A1',
+                arguments     => { A1 => $splitDirect },
               );
         }
         $dnoBypassMatrix = Stack(
@@ -296,10 +296,10 @@ EOT
     my $discounts = Arithmetic(
         name          => 'LDNO discounts (EDCM)',
         defaultFormat => '%soft',
-        arithmetic    => '=1-MAX(0,(1-IV1)/(1-IV2))',
+        arithmetic    => '=1-MAX(0,(1-A1)/(1-A2))',
         arguments     => {
-            IV2 => $atwBypassed,
-            IV1 => $dnoBypassed,
+            A2 => $atwBypassed,
+            A1 => $dnoBypassed,
         },
     );
 
@@ -347,9 +347,9 @@ EOL
                 name          => $cdcmLevels[$i],
                 rows          => $ldnoLevels,
                 defaultFormat => '%copy',
-                arithmetic    => '=IV1',
-                custom        => ['=IV1'],
-                arguments     => { IV1 => $discounts, },
+                arithmetic    => '=A1',
+                custom        => ['=A1'],
+                arguments     => { A1 => $discounts, },
                 wsPrepare     => sub {
                     my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
                         $colh ) = @_;

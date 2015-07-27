@@ -147,11 +147,11 @@ EOL
             $daysInAfter = Arithmetic(
                 name =>
                   'Number of days in period for which new tariffs are to apply',
-                arithmetic => '=IV1-IV2-IV3',
+                arithmetic => '=A1-A2-A3',
                 arguments  => {
-                    IV1 => $daysInYear,
-                    IV2 => $daysInBefore->[0],
-                    IV3 => $daysInBefore->[1],
+                    A1 => $daysInYear,
+                    A2 => $daysInBefore->[0],
+                    A3 => $daysInBefore->[1],
                 },
                 defaultFormat => '0softnz',
             );
@@ -172,8 +172,8 @@ EOL
             $daysInAfter = Arithmetic(
                 name =>
                   'Number of days in period for which new tariffs are to apply',
-                arithmetic    => '=IV1-IV2',
-                arguments     => { IV1 => $daysInYear, IV2 => $daysInBefore, },
+                arithmetic    => '=A1-A2',
+                arguments     => { A1 => $daysInYear, A2 => $daysInBefore, },
                 defaultFormat => '0softnz',
             );
         }
@@ -182,13 +182,13 @@ EOL
     my $annuityRate = Arithmetic(
         name          => 'Annuity rate',
         defaultFormat => '%softnz',
-        arithmetic => '=PMT(IV1,IV2,-1)*IF(OR(IV3>366,IV4<365),IV5/365.25,1)',
+        arithmetic => '=PMT(A1,A2,-1)*IF(OR(A3>366,A4<365),A5/365.25,1)',
         arguments  => {
-            IV1 => $rateOfReturn,
-            IV2 => $modelLife,
-            IV3 => $daysInYear,
-            IV4 => $daysInYear,
-            IV5 => $daysInYear,
+            A1 => $rateOfReturn,
+            A2 => $modelLife,
+            A3 => $daysInYear,
+            A4 => $daysInYear,
+            A5 => $daysInYear,
         }
     );
 
@@ -209,13 +209,13 @@ EOL
         $annuityRate = Arithmetic(
             name          => 'Annuity rate',
             defaultFormat => '%softnz',
-            arithmetic    => '=(PMT(IV1,IV2,-1)-IV4/IV3)/(1-IV5)',
+            arithmetic    => '=(PMT(A1,A2,-1)-A4/A3)/(1-A5)',
             arguments     => {
-                IV1 => $rateOfReturn,
-                IV2 => $modelLife,
-                IV3 => $modelLife,
-                IV4 => $ratesMultiplier,
-                IV5 => $ratesMultiplier
+                A1 => $rateOfReturn,
+                A2 => $modelLife,
+                A3 => $modelLife,
+                A4 => $ratesMultiplier,
+                A5 => $ratesMultiplier
             }
         );
         push @{ $model->{optionLines} }, 'Network rates explicitly included';

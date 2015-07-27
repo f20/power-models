@@ -183,7 +183,7 @@ sub mangleTariffInputs {
         new SpreadsheetModel::Custom(
             @_,
             rows      => $newTariffs,
-            custom    => ['=IV1'],
+            custom    => ['=A1'],
             wsPrepare => sub {
                 my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
                   @_;
@@ -212,8 +212,8 @@ sub mangleTariffInputs {
             Arithmetic(
                 name          => 'Names of original tariffs',
                 defaultFormat => 'textsoft',
-                arithmetic    => '=IV1&" (original)"',
-                arguments     => { IV1 => $columns[0] },
+                arithmetic    => '=A1&" (original)"',
+                arguments     => { A1 => $columns[0] },
                 number        => 939,
             ),
             $model->{amendedTariffset} = $defaultingInputMaker->(
@@ -222,7 +222,7 @@ sub mangleTariffInputs {
                 defaultFormat => $model->{lockedInputs}
                 ? 'textinput'
                 : 'texthard',
-                arguments => { IV1 => $columns[0] },
+                arguments => { A1 => $columns[0] },
             ),
         ]
     );
@@ -246,7 +246,7 @@ sub mangleTariffInputs {
                     $df1 =~ /^text/             ? ( defaultValue => ' ' )
                     : $n =~ /capacity \(kVA\)$/ ? ( defaultValue => 'VOID' )
                     : (),
-                    arguments     => { IV1 => $_ },
+                    arguments     => { A1 => $_ },
                     defaultFormat => $df1,
                 ),
             ]
@@ -264,7 +264,7 @@ sub mangleTariffInputs {
 
     my $newTariffsActualRedDemand = $defaultingInputMaker->(
         name          => "Actual $model->{timebandName} consumption (kW/kVA)",
-        arguments     => { IV1 => $columns[10]{sources}[0] },
+        arguments     => { A1 => $columns[10]{sources}[0] },
         defaultFormat => $model->{lockedInputs}
         ? '0.000input'
         : '0.000hard',
@@ -342,11 +342,11 @@ sub impactFinancialSummary {
         Arithmetic(
             name => "$model->{TimebandName} charge for demand (£/year)",
             defaultFormat => '0softnz',
-            arithmetic    => '=0.01*(IV9-IV7)*IV1*IV6*IV8',
+            arithmetic    => '=0.01*(A9-A7)*A1*A6*A8',
             arguments     => {
-                IV8 => $actualRedDemandRate,
+                A8 => $actualRedDemandRate,
                 map { $_ => $revenueBitsDref->[1]{arguments}{$_} }
-                  qw(IV1 IV6 IV7 IV9),
+                  qw(A1 A6 A7 A9),
             }
         ),
         Stack(
@@ -357,9 +357,9 @@ sub impactFinancialSummary {
     my $rev2d = Arithmetic(
         name          => 'Total for demand (£/year)',
         defaultFormat => '0soft',
-        arithmetic    => '=' . join( '+', map { "IV$_" } 1 .. @revenueBitsD ),
+        arithmetic    => '=' . join( '+', map { "A$_" } 1 .. @revenueBitsD ),
         arguments =>
-          { map { ( "IV$_" => $revenueBitsD[ $_ - 1 ] ) } 1 .. @revenueBitsD },
+          { map { ( "A$_" => $revenueBitsD[ $_ - 1 ] ) } 1 .. @revenueBitsD },
     );
 
     my @suminfocols = map {
@@ -373,14 +373,14 @@ sub impactFinancialSummary {
           . ' and rounding errors (£/year)',
         defaultFormat => '0softnz',
         arithmetic    => join( '',
-            '=IV1',
-            map { $suminfocols[$_] ? ( "-IV" . ( 30 + $_ ) ) : () }
+            '=A1',
+            map { $suminfocols[$_] ? ( "-A" . ( 30 + $_ ) ) : () }
               0 .. $#suminfocols ),
         arguments => {
-            IV1 => $rev2d,
+            A1 => $rev2d,
             map {
                 $suminfocols[$_]
-                  ? ( "IV" . ( 30 + $_ ), $suminfocols[$_] )
+                  ? ( "A" . ( 30 + $_ ), $suminfocols[$_] )
                   : ()
             } 0 .. $#suminfocols
         }

@@ -47,8 +47,8 @@ sub drmSizer {
           . ' for network level exit',
         rows       => $coreExitLevels,
         cols       => 0,
-        arithmetic => '=IV1',
-        arguments  => { IV1 => $lineLossFactorsNetwork }
+        arithmetic => '=A1',
+        arguments  => { A1 => $lineLossFactorsNetwork }
     );
 
     my $entryLaf = new SpreadsheetModel::Custom(
@@ -56,10 +56,10 @@ sub drmSizer {
           . ' to transmission'
           . ' for network level entry',
         rows       => $coreExitLevels,
-        custom     => ['=IV1'],
-        arithmetic => '= IV1',
+        custom     => ['=A1'],
+        arithmetic => '= A1',
         objectType => 'Special copy',
-        arguments  => { IV1 => $exitLaf },
+        arguments  => { A1 => $exitLaf },
         wsPrepare  => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             my $unavailable = $wb->getFormat('unavailable');
@@ -107,18 +107,18 @@ EOL
         name          => 'Coincidence to GSP peak at level exit',
         defaultFormat => '%softnz',
         rows          => $coreExitLevels,
-        custom        => [ '=1/(1+IV2)', '=IV1/(1+IV2)' ],
-        arithmetic    => '=previous/(1+IV2)',
-        arguments     => { IV2 => $diversityInLevel },
+        custom        => [ '=1/(1+A2)', '=A1/(1+A2)' ],
+        arithmetic    => '=previous/(1+A2)',
+        arguments     => { A2 => $diversityInLevel },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             my $unavailable = $wb->getFormat('unavailable');
-            push @$pha, 'IV1';
+            push @$pha, 'A1';
             sub {
                 my ( $x, $y ) = @_;
                 return '', $unavailable unless $y;
-                $rowh->{IV1} ||= $self->{$wb}{row} - 1;
-                $colh->{IV1} ||= $self->{$wb}{col};
+                $rowh->{A1} ||= $self->{$wb}{row} - 1;
+                $colh->{A1} ||= $self->{$wb}{col};
                 '', $format, $formula->[ $y > 1 ? 1 : 0 ], map {
                     $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + $y,
@@ -134,18 +134,18 @@ EOL
         name          => 'Coincidence to system peak at level exit',
         defaultFormat => '%softnz',
         rows          => $coreExitLevels,
-        custom        => [ '=1/(1+IV2)', '=IV1/(1+IV2)' ],
-        arithmetic    => '=previous/(1+IV2)',
-        arguments     => { IV2 => $diversityInLevel },
+        custom        => [ '=1/(1+A2)', '=A1/(1+A2)' ],
+        arithmetic    => '=previous/(1+A2)',
+        arguments     => { A2 => $diversityInLevel },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
 
-            # $self->{arguments}{IV1} = $self;
-            push @$pha, 'IV1';
+            # $self->{arguments}{A1} = $self;
+            push @$pha, 'A1';
             sub {
                 my ( $x, $y ) = @_;
-                $rowh->{IV1} ||= $self->{$wb}{row} - 1;
-                $colh->{IV1} ||= $self->{$wb}{col};
+                $rowh->{A1} ||= $self->{$wb}{row} - 1;
+                $colh->{A1} ||= $self->{$wb}{col};
                 '', $format, $formula->[ $y ? 1 : 0 ], map {
                     $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + $y,
@@ -161,9 +161,9 @@ EOL
         name => 'Diversity allowance between ' . 'level exit and GSP Group',
         defaultFormat => '%softnz',
         rows          => $coreExitLevels,
-        custom        => ['=1/IV1-1'],
-        arithmetic    => '=1/IV1-1',
-        arguments     => { IV1 => $exitCoincidence },
+        custom        => ['=1/A1-1'],
+        arithmetic    => '=1/A1-1',
+        arguments     => { A1 => $exitCoincidence },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             my $unavailable = $wb->getFormat('unavailable');
@@ -200,10 +200,10 @@ but it might be more sensible to size HV networks by primaries.
           . ' for relevant substation primary',
         defaultFormat => '0.000copy',
         rows          => $coreExitLevels,
-        custom        => [ '=IV1', '=IV2' ],
-        arithmetic    => '= IV1 or IV2',
+        custom        => [ '=A1', '=A2' ],
+        arithmetic    => '= A1 or A2',
         objectType    => 'Special copy',
-        arguments     => { IV1 => $exitLaf, IV2 => $entryLaf },
+        arguments     => { A1 => $exitLaf, A2 => $entryLaf },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             my $unavailable = $wb->getFormat('unavailable');
@@ -405,22 +405,22 @@ but it might be more sensible to size HV networks by primaries.
 
         my $elementMw = Arithmetic(
             name       => 'Maximum demand by element (MW)',
-            arithmetic => '=IV1*IV2*IV3',
+            arithmetic => '=A1*A2*A3',
             arguments  => {
-                IV3 => $powerFactorInModel,
-                IV1 => $elementNameplate,
-                IV2 => $elementUtilisation
+                A3 => $powerFactorInModel,
+                A1 => $elementNameplate,
+                A2 => $elementUtilisation
             }
         );
 
         my $elementUnscaledMw = Arithmetic(
             name       => 'Maximum load before rescaling (MW)',
-            arithmetic => '=IV1*IV2*IV3*IV4',
+            arithmetic => '=A1*A2*A3*A4',
             arguments  => {
-                IV3 => $powerFactorInModel,
-                IV1 => $elementNameplate,
-                IV2 => $elementUtilisation,
-                IV4 => $elementUnscaledCount
+                A3 => $powerFactorInModel,
+                A1 => $elementNameplate,
+                A2 => $elementUtilisation,
+                A4 => $elementUnscaledCount
             }
         );
 
@@ -471,10 +471,10 @@ but it might be more sensible to size HV networks by primaries.
       )
       : $drmOptions =~ /gsp/i ? Arithmetic(
         name => 'Network model total maximum demand' . ' at substation (MW)',
-        arithmetic => '=IV2/IV1',
+        arithmetic => '=A2/A1',
         rows       => $coreLevels,
         arguments  => {
-            IV2 => Dataset(
+            A2 => Dataset(
                 name => $drmOptions =~ /top/i
                 ? 'Network model GSP peak demand (MW)'
                 : 'Network model substation demand'
@@ -491,15 +491,15 @@ but it might be more sensible to size HV networks by primaries.
                 dataset       => $model->{dataset},
                 data          => [$drmSize]
             ),
-            IV1 => $exitGspCoincidence
+            A1 => $exitGspCoincidence
         }
       )
       : Arithmetic(
         name => 'Network model total maximum demand' . ' at substation (MW)',
-        arithmetic => '=IV2/IV1',
+        arithmetic => '=A2/A1',
         rows       => $coreLevels,
         arguments  => {
-            IV2 => Dataset(
+            A2 => Dataset(
                 name => 'Network model substation demand'
                   . ' at time of system peak (MW)',
                 defaultFormat => '0hardnz',
@@ -514,7 +514,7 @@ but it might be more sensible to size HV networks by primaries.
                 dataset  => $model->{dataset},
                 data     => [$drmSize]
             ),
-            IV1 => $exitCoincidence
+            A1 => $exitCoincidence
         }
       );
 
@@ -522,11 +522,11 @@ but it might be more sensible to size HV networks by primaries.
       $unscaledMw
       ? Arithmetic(
         name       => 'Network model aggregate capacity (MW)',
-        arithmetic => '=IF(IV3,IV2,IV1)',
+        arithmetic => '=IF(A3,A2,A1)',
         arguments  => {
-            IV1 => $unscaledMw,
-            IV3 => $wantedMw,
-            IV2 => $wantedMw,
+            A1 => $unscaledMw,
+            A3 => $wantedMw,
+            A2 => $wantedMw,
         }
       )
       : $wantedMw;
@@ -536,13 +536,13 @@ but it might be more sensible to size HV networks by primaries.
           . ' measured at network level exit (MW)',
         rows       => $coreLevels,
         arithmetic => $drmOptions =~ /top/i
-        ? '=IV1*IV2/IV3'
-        : '=IV1*IV2/IV3*IV4',
+        ? '=A1*A2/A3'
+        : '=A1*A2/A3*A4',
         arguments => {
-            IV1 => $sizingMw,
-            IV2 => $exitCoincidence,
-            IV3 => $exitLaf,
-            $drmOptions =~ /top/i ? () : ( IV4 => $primaryLaf )
+            A1 => $sizingMw,
+            A2 => $exitCoincidence,
+            A3 => $exitLaf,
+            $drmOptions =~ /top/i ? () : ( A4 => $primaryLaf )
         }
     );
 
@@ -588,34 +588,34 @@ but it might be more sensible to size HV networks by primaries.
         my $elementScaledCount = Arithmetic(
             name          => 'Rescaled element count',
             defaultFormat => '0softnz',
-            arithmetic    => '=IF(IV5,CEILING(IV6*IV2/IV3,1),IV1)',
+            arithmetic    => '=IF(A5,CEILING(A6*A2/A3,1),A1)',
             arguments     => {
-                IV5 => $wantedMw,
-                IV6 => $sizingMw,
-                IV1 => $elementUnscaledCount,
-                IV2 => $elementUnscaledCount,
-                IV3 => $unscaledMw
+                A5 => $wantedMw,
+                A6 => $sizingMw,
+                A1 => $elementUnscaledCount,
+                A2 => $elementUnscaledCount,
+                A3 => $unscaledMw
             }
         );
 
         my $elementScaledMw = Arithmetic(
             name       => 'Rescaled maximum demand (MW)',
-            arithmetic => '=IV1*IV2*IV3*IV4',
+            arithmetic => '=A1*A2*A3*A4',
             arguments  => {
-                IV3 => $powerFactorInModel,
-                IV1 => $elementNameplate,
-                IV2 => $elementUtilisation,
-                IV4 => $elementScaledCount
+                A3 => $powerFactorInModel,
+                A1 => $elementNameplate,
+                A2 => $elementUtilisation,
+                A4 => $elementScaledCount
             }
         );
 
         my $elementScaledCost = Arithmetic(
             name          => 'Asset cost (£)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1*IV2',
+            arithmetic    => '=A1*A2',
             arguments     => {
-                IV1 => $elementScaledCount,
-                IV2 => $elementUnitCost,
+                A1 => $elementScaledCount,
+                A2 => $elementUnitCost,
             }
         );
 
@@ -641,13 +641,13 @@ but it might be more sensible to size HV networks by primaries.
     }
 
     my $modelCostToSml = Arithmetic(
-        arithmetic => '=IF(IV5,0.001*IV1*IV4/IV2,0)',
+        arithmetic => '=IF(A5,0.001*A1*A4/A2,0)',
         rows       => $assetDrmLevels,
         arguments  => {
-            IV1 => $modelGrossAssetsByLevel,
-            IV2 => $modelSml,
-            IV4 => $annuityRate,
-            IV5 => $modelSml,
+            A1 => $modelGrossAssetsByLevel,
+            A2 => $modelSml,
+            A4 => $annuityRate,
+            A5 => $modelSml,
         },
         name => Label(
             'Model £/kW SML',

@@ -219,11 +219,11 @@ sub sheetsForFirstModel {
                               ? SpreadsheetModel::Custom->new(
                                 name          => "Model $_",
                                 rows          => $rowset,
-                                custom        => [ '=IV1', '=IV2' ],
+                                custom        => [ '=A1', '=A2' ],
                                 defaultFormat => 'millioncopy',
                                 arguments     => {
-                                    IV1 => $t1001->{columns}[3],
-                                    IV2 => $t1001->{columns}[4],
+                                    A1 => $t1001->{columns}[3],
+                                    A2 => $t1001->{columns}[4],
                                 },
                                 model     => $me->{models}[ $_ - 1 ],
                                 wsPrepare => sub {
@@ -266,9 +266,9 @@ sub sheetsForFirstModel {
                                             ? $wb->getFormat( $1 . 'copy' )
                                             : $format,
                                             $formula->[0],
-                                            qr/\bIV1\b/ => xl_rowcol_to_cell(
-                                                $rowh->{IV1} + $y,
-                                                $colh->{IV1},
+                                            qr/\bA1\b/ => xl_rowcol_to_cell(
+                                                $rowh->{A1} + $y,
+                                                $colh->{A1},
                                                 1
                                             )
                                           )
@@ -276,9 +276,9 @@ sub sheetsForFirstModel {
                                             '',
                                             $boldFormat,
                                             $formula->[1],
-                                            qr/\bIV2\b/ => xl_rowcol_to_cell(
-                                                $rowh->{IV2} + $y,
-                                                $colh->{IV2},
+                                            qr/\bA2\b/ => xl_rowcol_to_cell(
+                                                $rowh->{A2} + $y,
+                                                $colh->{A2},
                                                 1
                                             )
                                           );
@@ -574,13 +574,13 @@ sub statisticsColumnsets {
                 SpreadsheetModel::Custom->new(
                     name => $me->modelIdentifier( $_, $wbook, $wsheet ),
                     rows => $rows,
-                    custom    => [ map { "=IV1$_"; } 0 .. $#$relevantMap ],
+                    custom    => [ map { "=A1$_"; } 0 .. $#$relevantMap ],
                     arguments => {
                         map {
                             my $t;
                             $t = $relevantMap->[$_][0]
                               if $relevantMap->[$_];
-                            $t ? ( "IV1$_" => $t ) : ();
+                            $t ? ( "A1$_" => $t ) : ();
                         } 0 .. $#$relevantMap
                     },
                     defaultFormat => '0.000copy',
@@ -609,7 +609,7 @@ sub statisticsColumnsets {
                               unless $relevantMap->[$y];
                             my ( $table, $offx, $offy ) =
                               @{ $relevantMap->[$y] };
-                            my $ph = "IV1$y";
+                            my $ph = "A1$y";
                             '', $cellFormat, $formula->[$y], $ph,
                               xl_rowcol_to_cell(
                                 $rowh->{$ph} + $offy,
@@ -680,8 +680,8 @@ sub changeColumnsets {
                           };
                     } 0 .. $#{ $after->{rows}{list} }
                 ],
-                arithmetic => '=IV1-IV2',
-                arguments  => { IV1 => $after, IV2 => $before, },
+                arithmetic => '=A1-A2',
+                arguments  => { A1 => $after, A2 => $before, },
             );
             push @colb, Arithmetic(
                 name          => $after->{name},
@@ -696,8 +696,8 @@ sub changeColumnsets {
                           : undef;
                     } 0 .. $#{ $after->{rows}{list} }
                 ],
-                arithmetic => '=IF(IV2,IV1/IV3-1,"")',
-                arguments => { IV1 => $after, IV2 => $before, IV3 => $before, },
+                arithmetic => '=IF(A2,A1/A3-1,"")',
+                arguments => { A1 => $after, A2 => $before, A3 => $before, },
             );
         }
         (

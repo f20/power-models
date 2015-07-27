@@ -61,13 +61,13 @@ sub yardsticks {
         defaultFormat => '0.000softnz',
         rows          => $unitTariffsByEndUser,
         cols          => $chargingDrmExitLevels,
-        arithmetic    => '=IV1*IV2*IV3*(1-IV4)/(24*IV5)*100',
+        arithmetic    => '=A1*A2*A3*(1-A4)/(24*A5)*100',
         arguments     => {
-            IV1 => $costToSml,
-            IV2 => $loadCoefficients,
-            IV3 => $lineLossFactors,
-            IV4 => $proportionCoveredByContributions,
-            IV5 => $daysInYear
+            A1 => $costToSml,
+            A2 => $loadCoefficients,
+            A3 => $lineLossFactors,
+            A4 => $proportionCoveredByContributions,
+            A5 => $daysInYear
         }
     );
 
@@ -100,13 +100,13 @@ sub yardsticks {
             defaultFormat => '0.000softnz',
             rows          => $generationCapacityTariffsByEndUsers,
             cols          => $chargingDrmExitLevels,
-            arithmetic    => '=-100*IV1*IV2*IV3*(1-IV4)/IV5',
+            arithmetic    => '=-100*A1*A2*A3*(1-A4)/A5',
             arguments     => {
-                IV1 => $costToSml,
-                IV2 => $fFactors,
-                IV3 => $lineLossFactors,
-                IV4 => $proportionCoveredByContributions,
-                IV5 => $daysInYear,
+                A1 => $costToSml,
+                A2 => $fFactors,
+                A3 => $lineLossFactors,
+                A4 => $proportionCoveredByContributions,
+                A5 => $daysInYear,
             }
         );
 
@@ -147,15 +147,15 @@ sub yardsticks {
                 name => 'Contributions to pay-as-you-go unit rate '
                   . ( 1 + $_ )
                   . ' (p/kWh)',
-                arithmetic => '=IV1*IV2*IV3*(1-IV4)*100/(24*IV6)',
+                arithmetic => '=A1*A2*A3*(1-A4)*100/(24*A6)',
                 cols       => $chargingDrmExitLevelsTimebandAware,
                 rows       => $pseudoLoadCoefficients->[$_]{tariffs},
                 arguments  => {
-                    IV1 => $pseudoLoadCoefficients->[$_],
-                    IV2 => $costToSml,
-                    IV4 => $proportionCoveredByContributions,
-                    IV3 => $lineLossFactors,
-                    IV6 => $daysInYear,
+                    A1 => $pseudoLoadCoefficients->[$_],
+                    A2 => $costToSml,
+                    A4 => $proportionCoveredByContributions,
+                    A3 => $lineLossFactors,
+                    A6 => $daysInYear,
                 }
             )
         );

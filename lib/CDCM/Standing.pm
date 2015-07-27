@@ -66,10 +66,10 @@ sub standingCharges {
                   . ' on aggregate maximum load (£/kW/year)',
                 rows       => 0,
                 cols       => $drmLevels,
-                arithmetic => '=IV1/(1+IV2)',
+                arithmetic => '=A1/(1+A2)',
                 arguments  => {
-                    IV1 => $modelCostToSml,
-                    IV2 => $diversityAllowances
+                    A1 => $modelCostToSml,
+                    A2 => $diversityAllowances
                 }
             ),
             Arithmetic(
@@ -77,10 +77,10 @@ sub standingCharges {
                   . ' on aggregate maximum load (£/kW/year)',
                 rows       => 0,
                 cols       => $operatingDrmExitLevels,
-                arithmetic => '=IV1/(1+IV2)',
+                arithmetic => '=A1/(1+A2)',
                 arguments  => {
-                    IV1 => $operatingCostToSml,
-                    IV2 => $diversityAllowances
+                    A1 => $operatingCostToSml,
+                    A2 => $diversityAllowances
                 }
             ),
             $costToSml
@@ -90,10 +90,10 @@ sub standingCharges {
         name       => 'Costs based on aggregate maximum load (£/kW/year)',
         rows       => 0,
         cols       => $chargingDrmExitLevels,
-        arithmetic => '=IV1/(1+IV2)',
+        arithmetic => '=A1/(1+A2)',
         arguments  => {
-            IV1 => $costToSml,
-            IV2 => $diversityAllowances
+            A1 => $costToSml,
+            A2 => $diversityAllowances
         }
       );
 
@@ -107,14 +107,14 @@ sub standingCharges {
         cols  => $chargingDrmExitLevels,
         lines => 'This calculation uses aggregate '
           . 'maximum load and no coincidence factor.',
-        arithmetic => '=100*IV5*IV1*IV2*IV3/IV4*(1-IV6)',
+        arithmetic => '=100*A5*A1*A2*A3/A4*(1-A6)',
         arguments  => {
-            IV1 => $lineLossFactors,
-            IV6 => $proportionCoveredByContributions,
-            IV2 => $costToAml,
-            IV3 => $powerFactorInModel,
-            IV4 => $daysInYear,
-            IV5 => $standingFactors,
+            A1 => $lineLossFactors,
+            A6 => $proportionCoveredByContributions,
+            A2 => $costToAml,
+            A3 => $powerFactorInModel,
+            A4 => $daysInYear,
+            A5 => $standingFactors,
         },
         defaultFormat => '0.000softnz'
       );
@@ -130,15 +130,15 @@ sub standingCharges {
         rows       => $demandTariffsByEndUser,
         cols       => $chargingDrmExitLevels,
         arithmetic => $model->{unauth} =~ /same/i
-        ? '=100*IV5*IV1*IV2*IV3/IV4*(1-IV6)'
-        : '=100*IV5*IV1*IV2*IV3/IV4',
+        ? '=100*A5*A1*A2*A3/A4*(1-A6)'
+        : '=100*A5*A1*A2*A3/A4',
         arguments => {
-            IV1 => $lineLossFactors,
-            IV6 => $proportionCoveredByContributions,
-            IV2 => $costToAml,
-            IV3 => $powerFactorInModel,
-            IV4 => $daysInYear,
-            IV5 => $standingFactors,
+            A1 => $lineLossFactors,
+            A6 => $proportionCoveredByContributions,
+            A2 => $costToAml,
+            A3 => $powerFactorInModel,
+            A4 => $daysInYear,
+            A5 => $standingFactors,
         },
         defaultFormat => '0.000softnz'
       )
@@ -150,13 +150,13 @@ sub standingCharges {
         name       => 'Unauthorised demand charge elements p/kVAh',
         rows       => $demandTariffsByEndUser,
         cols       => $chargingDrmExitLevels,
-        arithmetic => '=100*IV5*IV1*IV2*IV3/IV4',
+        arithmetic => '=100*A5*A1*A2*A3/A4',
         arguments  => {
-            IV1 => $lineLossFactors,
-            IV6 => $proportionCoveredByContributions,
-            IV2 => $costToAml,
-            IV3 => $powerFactorInModel,
-            IV4 => Dataset(
+            A1 => $lineLossFactors,
+            A6 => $proportionCoveredByContributions,
+            A2 => $costToAml,
+            A3 => $powerFactorInModel,
+            A4 => Dataset(
                 name       => 'Unauthorised demand maximum annual hours',
                 validation => {
                     validate => 'decimal',
@@ -168,7 +168,7 @@ sub standingCharges {
                 number   => 1089,
                 data     => [40]
             ),
-            IV5 => $standingFactors,
+            A5 => $standingFactors,
         },
         defaultFormat => '0.000softnz'
       ) if $model->{unauth};
@@ -234,12 +234,12 @@ sub standingCharges {
                         'Unit-based contributions to aggregate '
                       . 'maximum load (kW)'
                 ),
-                arithmetic => '=IV1/IV2/(24*IV9)*1000',
+                arithmetic => '=A1/A2/(24*A9)*1000',
                 rows       => $standingForFixedEndUsers,
                 arguments  => {
-                    IV1 => $unitsByEndUser,
-                    IV2 => $loadFactors,
-                    IV9 => $daysInYear,
+                    A1 => $unitsByEndUser,
+                    A2 => $loadFactors,
+                    A9 => $daysInYear,
                 },
                 defaultFormat => '0softnz',
             )
@@ -258,13 +258,13 @@ sub standingCharges {
 
         my $maxKvaAverageLv = Arithmetic(
             name       => 'Average maximum kVA by exit point',
-            arithmetic => '=IF(IV5,IV1/IV2'
-              . ( $model->{aggCapFactor} ? '*IV4' : '/IV4' ) . ',0)',
+            arithmetic => '=IF(A5,A1/A2'
+              . ( $model->{aggCapFactor} ? '*A4' : '/A4' ) . ',0)',
             arguments => {
-                IV1 => $numerator,
-                IV2 => $denominator,
-                IV5 => $denominator,
-                IV4 => $model->{aggCapFactor} || $powerFactorInModel,
+                A1 => $numerator,
+                A2 => $denominator,
+                A5 => $denominator,
+                A4 => $model->{aggCapFactor} || $powerFactorInModel,
             }
         );
 
@@ -272,7 +272,7 @@ sub standingCharges {
             name => 'Capacity use for tariffs charged '
               . 'for capacity on an exit point basis',
             columns =>
-              [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(IV1 IV2) ]
+              [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(A1 A2) ]
         );
 
         $maxKvaByEndUser = SumProduct(
@@ -293,15 +293,15 @@ sub standingCharges {
                   . ' for user classes without an agreed import capacity'
             ),
             rows          => $standingForFixedEndUsers,
-            arithmetic    => '=IF(IV6>0,IV2/IV3*IV4/IV1/(24*IV5)*1000,0)',
+            arithmetic    => '=IF(A6>0,A2/A3*A4/A1/(24*A5)*1000,0)',
             defaultFormat => '0.000softnz',
             arguments     => {
-                IV1 => $loadFactors,
-                IV2 => $unitsByEndUser,
-                IV6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-                IV3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-                IV4 => $model->{aggCapFactor},
-                IV5 => $daysInYear
+                A1 => $loadFactors,
+                A2 => $unitsByEndUser,
+                A6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
+                A3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
+                A4 => $model->{aggCapFactor},
+                A5 => $daysInYear
             }
           )
           : Arithmetic(
@@ -311,15 +311,15 @@ sub standingCharges {
                   . ' for user classes without an agreed import capacity'
             ),
             rows          => $standingForFixedEndUsers,
-            arithmetic    => '=IF(IV6>0,IV2/IV3/IV4/IV1/(24*IV5)*1000,0)',
+            arithmetic    => '=IF(A6>0,A2/A3/A4/A1/(24*A5)*1000,0)',
             defaultFormat => '0.000softnz',
             arguments     => {
-                IV1 => $loadFactors,
-                IV2 => $unitsByEndUser,
-                IV6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-                IV3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
-                IV4 => $powerFactorInModel,
-                IV5 => $daysInYear
+                A1 => $loadFactors,
+                A2 => $unitsByEndUser,
+                A6 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
+                A3 => $volumesByEndUser->{'Fixed charge p/MPAN/day'},
+                A4 => $powerFactorInModel,
+                A5 => $daysInYear
             }
           );
     }
@@ -328,11 +328,11 @@ sub standingCharges {
       my $capacityUserElements = Arithmetic(
         name => 'Capacity-driven fixed charge elements'
           . ' from standing charges factors p/MPAN/day',
-        arithmetic => '=IV1*IV3',
+        arithmetic => '=A1*A3',
         rows       => $standingForFixedTariffsByEndUser,
         arguments  => {
-            IV3 => $maxKvaByEndUser,
-            IV1 => $capacityCharges->{source},
+            A3 => $maxKvaByEndUser,
+            A1 => $capacityCharges->{source},
         },
         defaultFormat => '0.000softnz'
       );
@@ -415,10 +415,10 @@ sub standingCharges {
         my $maxKvaAverageLv = Arithmetic(
             name => 'Average maximum kVA of tariffs '
               . 'charged on an exit point basis for LV circuits',
-            arithmetic => '=IV1/IV2'
-              . ( $model->{aggCapFactor} ? '*IV4' : '/IV4' ),
+            arithmetic => '=A1/A2'
+              . ( $model->{aggCapFactor} ? '*A4' : '/A4' ),
             arguments => {
-                IV1 => SumProduct(
+                A1 => SumProduct(
                     matrix => $mapping,
                     name   => 'Aggregate capacity of tariffs charged '
                       . 'charged for LV circuits on an exit point basis (kW)',
@@ -428,17 +428,17 @@ sub standingCharges {
                                 'Unit-based contributions to aggregate '
                               . 'maximum load by network level (kW)'
                         ),
-                        arithmetic => '=IV1/IV2/(24*IV9)*1000',
+                        arithmetic => '=A1/A2/(24*A9)*1000',
                         rows       => $lvStandingForFixedTariffsByEndUser,
                         arguments  => {
-                            IV1 => $unitsInYear,
-                            IV2 => $loadFactors,
-                            IV9 => $daysInYear,
+                            A1 => $unitsInYear,
+                            A2 => $loadFactors,
+                            A9 => $daysInYear,
                         },
                         defaultFormat => '0softnz',
                     )
                 ),
-                IV2 => SumProduct(
+                A2 => SumProduct(
                     matrix => $mapping,
                     name   => 'Aggregate number of users charged '
                       . 'for LV circuits on an exit point basis',
@@ -448,7 +448,7 @@ sub standingCharges {
                         sources => [ $volumeData->{'Fixed charge p/MPAN/day'} ]
                     ),
                 ),
-                IV4 => $model->{aggCapFactor} || $powerFactorInModel,
+                A4 => $model->{aggCapFactor} || $powerFactorInModel,
             }
         );
 
@@ -457,7 +457,7 @@ sub standingCharges {
             name => 'Capacity use for tariffs charged '
               . 'for LV circuits on an exit point basis',
             columns =>
-              [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(IV1 IV2) ]
+              [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(A1 A2) ]
           );
 
         push @{ $model->{standingNhh} },
@@ -477,15 +477,15 @@ sub standingCharges {
                               @{ $chargingDrmExitLevels->{list} }
                         ]
                     ),
-                    arithmetic => '=IV1*IV3',
+                    arithmetic => '=A1*A3',
                     arguments  => {
-                        IV3 => SumProduct(
+                        A3 => SumProduct(
                             name =>
                               'Deemed average maximum kVA for each tariff',
                             matrix => $mapping,
                             vector => $maxKvaAverageLv
                         ),
-                        IV1 => $capacityCharges->{source},
+                        A1 => $capacityCharges->{source},
                     },
                     defaultFormat => '0.000softnz'
                 ),
@@ -552,12 +552,12 @@ sub standingCharges {
         my $maxKvaAverageLv = Arithmetic(
             name => 'Average maximum kVA of tariffs '
               . 'charged on an exit point basis for LV circuits',
-            arithmetic => '=IV1/IV2'
-              . ( $model->{aggCapFactor} ? '*IV4' : '/IV4' ),
+            arithmetic => '=A1/A2'
+              . ( $model->{aggCapFactor} ? '*A4' : '/A4' ),
             rows      => 0,
             cols      => 0,
             arguments => {
-                IV1 => SumProduct(
+                A1 => SumProduct(
                     matrix => $lvRouteingFactors,
                     name   => 'Aggregate capacity of tariffs charged '
                       . 'charged for LV circuits on an exit point basis (kW)',
@@ -567,17 +567,17 @@ sub standingCharges {
                                 'Unit-based contributions to aggregate '
                               . 'maximum load by network level (kW)'
                         ),
-                        arithmetic => '=IV1/IV2/(24*IV9)*1000',
+                        arithmetic => '=A1/A2/(24*A9)*1000',
                         rows       => $lvStandingForFixedTariffs,
                         arguments  => {
-                            IV1 => $unitsInYear,
-                            IV2 => $loadFactors,
-                            IV9 => $daysInYear,
+                            A1 => $unitsInYear,
+                            A2 => $loadFactors,
+                            A9 => $daysInYear,
                         },
                         defaultFormat => '0softnz',
                     )
                 ),
-                IV2 => SumProduct(
+                A2 => SumProduct(
                     matrix => $lvRouteingFactors,
                     name   => 'Aggregate number of users charged '
                       . 'for LV circuits on an exit point basis',
@@ -601,7 +601,7 @@ sub standingCharges {
                         ]
                     )
                 ),
-                IV4 => $model->{aggCapFactor} || $powerFactorInModel,
+                A4 => $model->{aggCapFactor} || $powerFactorInModel,
             }
         );
 
@@ -611,14 +611,14 @@ sub standingCharges {
               . 'for LV circuits on an exit point basis',
             columns => [
                 $lvRouteingFactors,
-                map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(IV1 IV2)
+                map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(A1 A2)
             ]
           ),
           Columnset(
             name => 'Aggregate data for tariffs charged '
               . 'for LV circuits on an exit point basis',
             columns => [
-                @{ $maxKvaAverageLv->{arguments} }{qw(IV1 IV2)},
+                @{ $maxKvaAverageLv->{arguments} }{qw(A1 A2)},
                 $maxKvaAverageLv
             ]
           );
@@ -646,13 +646,13 @@ sub standingCharges {
                 Arithmetic(
                     name => 'LV fixed charge elements from '
                       . 'standing charges factors p/MPAN/day',
-                    arithmetic => '=IV1*IV3' . ( $model->{pcd} ? '' : '*IV5' ),
+                    arithmetic => '=A1*A3' . ( $model->{pcd} ? '' : '*A5' ),
                     rows      => $lvStandingForFixedTariffs,
                     cols      => $lvCircuitLevels,
                     arguments => {
-                        IV3 => $maxKvaAverageLv,
-                        IV1 => $capacityCharges->{source},
-                        $model->{pcd} ? () : ( IV5 => $lvRouteingFactors ),
+                        A3 => $maxKvaAverageLv,
+                        A1 => $capacityCharges->{source},
+                        $model->{pcd} ? () : ( A5 => $lvRouteingFactors ),
                     },
                     defaultFormat => '0.000softnz'
                 ),
@@ -706,10 +706,10 @@ sub standingCharges {
             rows => $demandTariffsByEndUser,
             name =>
               'Yardstick components p/kWh (taking account of standing charges)',
-            arithmetic => '=(1-IV2)*IV1',
+            arithmetic => '=(1-A2)*A1',
             arguments  => {
-                IV1 => $paygUnitYardstick->{source},
-                IV2 => $standingFactors,
+                A1 => $paygUnitYardstick->{source},
+                A2 => $standingFactors,
             },
             defaultFormat => '0.000softnz'
         )
@@ -739,11 +739,11 @@ sub standingCharges {
               . ( 1 + $_ )
               . ' p/kWh by network level (taking account of standing charges)',
             defaultFormat => '0.000softnz',
-            arithmetic    => '=(1-IV2)*IV1',
+            arithmetic    => '=(1-A2)*A1',
             rows          => $relevantTariffs,
             arguments     => {
-                IV1 => $paygUnitRates[$_]{source},
-                IV2 => $standingFactors,
+                A1 => $paygUnitRates[$_]{source},
+                A2 => $standingFactors,
             }
         );
         my $a = GroupBy

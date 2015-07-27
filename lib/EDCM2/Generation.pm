@@ -48,12 +48,12 @@ sub gCharge {
         ${ $_->[0] } = Arithmetic(
             name          => ${ $_->[0] }->objectShortName . ' (total)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV2_IV3,IV4_IV5)',
+            arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5)',
             arguments     => {
-                IV123   => $model->{transparencyMasterFlag},
-                IV1     => $model->{transparency}{"ol$_->[1]"},
-                IV2_IV3 => ${ $_->[0] },
-                IV4_IV5 => $model->{transparency},
+                A123   => $model->{transparencyMasterFlag},
+                A1     => $model->{transparency}{"ol$_->[1]"},
+                A2_A3 => ${ $_->[0] },
+                A4_A5 => $model->{transparency},
             }
           )
           foreach [ \$exportCapacityChargeable, 119201 ],
@@ -82,23 +82,23 @@ sub gCharge {
         groupName     => 'Generic export capacity charge',
         defaultFormat => '0.00softnz',
         arithmetic    => '=('
-          . 'IV1*(1-IV21/IV23)'
-          . '+(IV3*IV22/(IV24+IV52)+IV4*IV25/(IV26+IV51))/IV231'
-          . ')*100/IV9',
+          . 'A1*(1-A21/A23)'
+          . '+(A3*A22/(A24+A52)+A4*A25/(A26+A51))/A231'
+          . ')*100/A9',
         arguments => {
-            IV1   => $genPot20p,
-            IV21  => $exportCapacityChargeable20052010,
-            IV22  => $exportCapacityChargeablePost2010,
-            IV23  => $exportCapacityChargeable,
-            IV231 => $exportCapacityChargeable,
-            IV24  => $exportCapacityChargeablePost2010,
-            IV25  => $exportCapacityChargeable20052010,
-            IV26  => $exportCapacityChargeable20052010,
-            IV3   => $genPotGP,
-            IV4   => $genPotGL,
-            IV51  => $genPotCdcmCap20052010,
-            IV52  => $genPotCdcmCapPost2010,
-            IV9   => $daysInYear,
+            A1   => $genPot20p,
+            A21  => $exportCapacityChargeable20052010,
+            A22  => $exportCapacityChargeablePost2010,
+            A23  => $exportCapacityChargeable,
+            A231 => $exportCapacityChargeable,
+            A24  => $exportCapacityChargeablePost2010,
+            A25  => $exportCapacityChargeable20052010,
+            A26  => $exportCapacityChargeable20052010,
+            A3   => $genPotGP,
+            A4   => $genPotGL,
+            A51  => $genPotCdcmCap20052010,
+            A52  => $genPotCdcmCapPost2010,
+            A9   => $daysInYear,
         }
     );
     $model->{transparency}{olFYI}{1243} = $exportCapacityCharge

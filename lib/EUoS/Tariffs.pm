@@ -49,13 +49,13 @@ sub new {
                     my $contrib = Arithmetic(
                         name => "Contributions from $charge->{name}"
                           . " to $tariffComponents->[$_]",
-                        arithmetic => '=IV1*IV2*100/IV666'
+                        arithmetic => '=A1*A2*100/A666'
                           . ( $_ ? '' : '/24' ),
                         rows      => $usageRates->[$_]{rows},
                         arguments => {
-                            IV1   => $charge,
-                            IV2   => $usageRates->[$_],
-                            IV666 => $days,
+                            A1   => $charge,
+                            A2   => $usageRates->[$_],
+                            A666 => $days,
                         }
                     );
                     $contrib->lastCol
@@ -76,14 +76,14 @@ sub new {
             my $compno = $_;
             my @ingredients =
               grep { $_ } map { $_->{columns}[$compno] } @tariffContributions;
-            my $formula = join '+', map { "IV$_" } 1 .. @ingredients;
+            my $formula = join '+', map { "A$_" } 1 .. @ingredients;
             Arithmetic(
                 name       => $tariffComponents->[$_],
                 arithmetic => defined $digitsRounding->[$_]
                 ? "=ROUND($formula, $digitsRounding->[$_])"
                 : "=$formula",
                 arguments => {
-                    map { ( "IV$_" => $ingredients[ $_ - 1 ] ) }
+                    map { ( "A$_" => $ingredients[ $_ - 1 ] ) }
                       1 .. @ingredients
                 },
                 !defined $digitsRounding->[$_] ? ()
@@ -102,13 +102,13 @@ sub revenueCalculation {
     Arithmetic(
         name => $name
           || ( ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
-        arithmetic => '=(IV1*IV11+IV666*(IV2*IV12+IV3*IV13))/100',  # hard coded
+        arithmetic => '=(A1*A11+A666*(A2*A12+A3*A13))/100',  # hard coded
         arguments  => {
-            IV666 => $self->{setup}->daysInYear,
+            A666 => $self->{setup}->daysInYear,
             map {
                 (
-                    "IV$_"  => $volumes->[ $_ - 1 ],
-                    "IV1$_" => $self->{tariffs}[ $_ - 1 ]
+                    "A$_"  => $volumes->[ $_ - 1 ],
+                    "A1$_" => $self->{tariffs}[ $_ - 1 ]
                   )
             } 1 .. 3,
         },
@@ -125,11 +125,11 @@ sub revenues {
     if ($compareppu) {
         my $ppu = Arithmetic(
             name       => 'Average p/kWh',
-            arithmetic => '=IF(IV3,IV1/IV2*100,"")',
+            arithmetic => '=IF(A3,A1/A2*100,"")',
             arguments  => {
-                IV1 => $revenues,
-                IV2 => $volumes->[0],
-                IV3 => $volumes->[0],
+                A1 => $revenues,
+                A2 => $volumes->[0],
+                A3 => $volumes->[0],
             },
         );
         my $compare;
@@ -137,18 +137,18 @@ sub revenues {
             defaultFormat => '0soft',
             name          => 'Comparison £/year',
             arguments =>
-              { IV1 => $compareppu, IV2 => $compareppu, IV3 => $volumes->[0] },
-            arithmetic => '=IF(ISNUMBER(IV1),IV2*IV3*0.01,0)'
+              { A1 => $compareppu, A2 => $compareppu, A3 => $volumes->[0] },
+            arithmetic => '=IF(ISNUMBER(A1),A2*A3*0.01,0)'
         ) if ref $compareppu;
         my $difference;
         $difference = Arithmetic(
             name          => 'Difference £/year',
             defaultFormat => '0softpm',
-            arithmetic    => '=IF(IV1,IV2-IV3,"")',
+            arithmetic    => '=IF(A1,A2-A3,"")',
             arguments     => {
-                IV1 => $compare,
-                IV2 => $revenues,
-                IV3 => $compare,
+                A1 => $compare,
+                A2 => $revenues,
+                A3 => $compare,
             },
         ) if ref $compareppu;
         push @{ $self->{detailedTables} },
@@ -167,11 +167,11 @@ sub revenues {
                     Arithmetic(
                         name          => 'Difference %',
                         defaultFormat => '%softpm',
-                        arithmetic    => '=IF(IV1,IV2/IV3-1,"")',
+                        arithmetic    => '=IF(A1,A2/A3-1,"")',
                         arguments     => {
-                            IV1 => $compare,
-                            IV2 => $revenues,
-                            IV3 => $compare,
+                            A1 => $compare,
+                            A2 => $revenues,
+                            A3 => $compare,
                         },
                     ),
                     $ppu,
@@ -200,11 +200,11 @@ sub revenues {
               Arithmetic(
                 name          => 'Total difference %',
                 defaultFormat => '%softpm',
-                arithmetic    => '=IF(IV1,IV2/IV3,"")',
+                arithmetic    => '=IF(A1,A2/A3,"")',
                 arguments     => {
-                    IV1 => $cols[0],
-                    IV2 => $cols[ $#cols - 1 ],
-                    IV3 => $cols[0],
+                    A1 => $cols[0],
+                    A2 => $cols[ $#cols - 1 ],
+                    A3 => $cols[0],
                 },
               );
             push @{ $self->{detailedTables} },

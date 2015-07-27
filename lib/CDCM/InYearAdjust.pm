@@ -134,15 +134,15 @@ sub inYearAdjustUsingBefore {
                     name => SpreadsheetModel::Object::_shortName(
                         $volumeData->{$_}{name}
                     ),
-                    arithmetic => '=(IV7*IV1-IV83*IV21-IV84*IV22)/IV9',
+                    arithmetic => '=(A7*A1-A83*A21-A84*A22)/A9',
                     arguments  => {
-                        IV1  => $volumeData->{$_},
-                        IV21 => $volumeDataBefore1->{$_},
-                        IV22 => $volumeDataBefore2->{$_},
-                        IV7  => $daysInYear,
-                        IV83 => $daysBefore->[0],
-                        IV84 => $daysBefore->[1],
-                        IV9  => $daysAfter,
+                        A1  => $volumeData->{$_},
+                        A21 => $volumeDataBefore1->{$_},
+                        A22 => $volumeDataBefore2->{$_},
+                        A7  => $daysInYear,
+                        A83 => $daysBefore->[0],
+                        A84 => $daysBefore->[1],
+                        A9  => $daysAfter,
                     },
                     defaultFormat => '0soft',
                   )
@@ -150,11 +150,11 @@ sub inYearAdjustUsingBefore {
                     name => SpreadsheetModel::Object::_shortName(
                         $volumeData->{$_}{name}
                     ),
-                    arithmetic => '=IV1-IV21-IV22',
+                    arithmetic => '=A1-A21-A22',
                     arguments  => {
-                        IV1  => $volumeData->{$_},
-                        IV21 => $volumeDataBefore1->{$_},
-                        IV22 => $volumeDataBefore2->{$_},
+                        A1  => $volumeData->{$_},
+                        A21 => $volumeDataBefore1->{$_},
+                        A22 => $volumeDataBefore2->{$_},
                     },
                   );
             } @$nonExcludedComponents
@@ -256,7 +256,7 @@ sub inYearAdjustUsingBefore {
             my @termsNoDays2;
             my @termsWithDays1;
             my @termsWithDays2;
-            my %args = ( IV400 => $daysBefore->[0], IV700 => $daysBefore->[1] );
+            my %args = ( A400 => $daysBefore->[0], A700 => $daysBefore->[1] );
             my $i = 1;
             my $rows;
             foreach (@$nonExcludedComponents) {
@@ -264,17 +264,17 @@ sub inYearAdjustUsingBefore {
                 my $pad = "$i";
                 $pad = "0$pad" while length $pad < 3;
                 if (m#/day#) {
-                    push @termsWithDays1, "IV2$pad*IV3$pad";
-                    push @termsWithDays2, "IV5$pad*IV6$pad";
+                    push @termsWithDays1, "A2$pad*A3$pad";
+                    push @termsWithDays2, "A5$pad*A6$pad";
                 }
                 else {
-                    push @termsNoDays1, "IV2$pad*IV3$pad";
-                    push @termsNoDays2, "IV5$pad*IV6$pad";
+                    push @termsNoDays1, "A2$pad*A3$pad";
+                    push @termsNoDays2, "A5$pad*A6$pad";
                 }
-                $args{"IV2$pad"} = $tariffsBefore1->{$_};
-                $args{"IV3$pad"} = $volumeDataBefore1->{$_};
-                $args{"IV5$pad"} = $tariffsBefore2->{$_};
-                $args{"IV6$pad"} = $volumeDataBefore2->{$_};
+                $args{"A2$pad"} = $tariffsBefore1->{$_};
+                $args{"A3$pad"} = $volumeDataBefore1->{$_};
+                $args{"A5$pad"} = $tariffsBefore2->{$_};
+                $args{"A6$pad"} = $volumeDataBefore2->{$_};
                 $rows ||= $volumeDataBefore1->{$_}{rows}
                   || $volumeDataBefore2->{$_}{rows};
             }
@@ -288,7 +288,7 @@ sub inYearAdjustUsingBefore {
                       . join(
                         '+',
                         @termsWithDays1
-                        ? ( '0.01*IV400*('
+                        ? ( '0.01*A400*('
                               . join( '+', @termsWithDays1 )
                               . ')' )
                         : ('0'),
@@ -307,7 +307,7 @@ sub inYearAdjustUsingBefore {
                       . join(
                         '+',
                         @termsWithDays2
-                        ? ( '0.01*IV700*('
+                        ? ( '0.01*A700*('
                               . join( '+', @termsWithDays2 )
                               . ')' )
                         : ('0'),
@@ -350,12 +350,12 @@ sub inYearAdjustUsingBefore {
                 name =>
 'Total net revenue in the charging year before the tariff change (£)',
                 defaultFormat => '0soft',
-                arithmetic    => '=IV1+IV3+IV4+IV6',
+                arithmetic    => '=A1+A3+A4+A6',
                 arguments     => {
-                    IV1 => $model->{adjustRevenuesBefore}[0],
-                    IV3 => $revBef[0],
-                    IV4 => $model->{adjustRevenuesBefore}[1],
-                    IV6 => $revBef[1],
+                    A1 => $model->{adjustRevenuesBefore}[0],
+                    A3 => $revBef[0],
+                    A4 => $model->{adjustRevenuesBefore}[1],
+                    A6 => $revBef[1],
                 },
             );
 
@@ -367,7 +367,7 @@ sub inYearAdjustUsingBefore {
             my @termsNoDays;
             my @termsWithDays1;
             my @termsWithDays2;
-            my %args = ( IV400 => $daysBefore->[0], IV700 => $daysBefore->[1] );
+            my %args = ( A400 => $daysBefore->[0], A700 => $daysBefore->[1] );
             my $i = 1;
             my $rows;
             foreach (@$nonExcludedComponents) {
@@ -375,17 +375,17 @@ sub inYearAdjustUsingBefore {
                 my $pad = "$i";
                 $pad = "0$pad" while length $pad < 3;
                 if (m#/day#) {
-                    push @termsWithDays1, "IV2$pad*IV3$pad";
-                    push @termsWithDays2, "IV5$pad*IV6$pad";
+                    push @termsWithDays1, "A2$pad*A3$pad";
+                    push @termsWithDays2, "A5$pad*A6$pad";
                 }
                 else {
-                    push @termsNoDays, "IV2$pad*IV3$pad";
-                    push @termsNoDays, "IV5$pad*IV6$pad";
+                    push @termsNoDays, "A2$pad*A3$pad";
+                    push @termsNoDays, "A5$pad*A6$pad";
                 }
-                $args{"IV2$pad"} = $tariffsBefore1->{$_};
-                $args{"IV3$pad"} = $volumeDataBefore1->{$_};
-                $args{"IV5$pad"} = $tariffsBefore2->{$_};
-                $args{"IV6$pad"} = $volumeDataBefore2->{$_};
+                $args{"A2$pad"} = $tariffsBefore1->{$_};
+                $args{"A3$pad"} = $volumeDataBefore1->{$_};
+                $args{"A5$pad"} = $tariffsBefore2->{$_};
+                $args{"A6$pad"} = $volumeDataBefore2->{$_};
                 $rows ||= $volumeDataBefore1->{$_}{rows}
                   || $volumeDataBefore2->{$_}{rows};
             }
@@ -397,10 +397,10 @@ sub inYearAdjustUsingBefore {
                 arithmetic    => '='
                   . join( '+',
                     @termsWithDays1
-                    ? ( '0.01*IV400*(' . join( '+', @termsWithDays1 ) . ')' )
+                    ? ( '0.01*A400*(' . join( '+', @termsWithDays1 ) . ')' )
                     : ('0'),
                     @termsWithDays2
-                    ? ( '0.01*IV700*(' . join( '+', @termsWithDays2 ) . ')' )
+                    ? ( '0.01*A700*(' . join( '+', @termsWithDays2 ) . ')' )
                     : ('0'),
                     @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                     : ('0'),
@@ -516,7 +516,7 @@ sub inYearAdjustUsingBefore {
 
             my @termsNoDays;
             my @termsWithDays;
-            my %args = ( IV400 => $daysBefore );
+            my %args = ( A400 => $daysBefore );
             my $i = 1;
             my $rows;
             foreach (@$nonExcludedComponents) {
@@ -524,13 +524,13 @@ sub inYearAdjustUsingBefore {
                 my $pad = "$i";
                 $pad = "0$pad" while length $pad < 3;
                 if (m#/day#) {
-                    push @termsWithDays, "IV2$pad*IV3$pad";
+                    push @termsWithDays, "A2$pad*A3$pad";
                 }
                 else {
-                    push @termsNoDays, "IV2$pad*IV3$pad";
+                    push @termsNoDays, "A2$pad*A3$pad";
                 }
-                $args{"IV2$pad"} = $$tariffsBefore->{$_};
-                $args{"IV3$pad"} = $volumeDataBefore->{$_};
+                $args{"A2$pad"} = $$tariffsBefore->{$_};
+                $args{"A3$pad"} = $volumeDataBefore->{$_};
                 $rows ||= $volumeDataBefore->{$_}{rows};
             }
             $$revenuesBefore = Arithmetic(
@@ -541,7 +541,7 @@ sub inYearAdjustUsingBefore {
                 arithmetic    => '='
                   . join( '+',
                     @termsWithDays
-                    ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                    ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                     : ('0'),
                     @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                     : ('0'),
@@ -567,13 +567,13 @@ sub inYearAdjustUsingBefore {
                     name => SpreadsheetModel::Object::_shortName(
                         $volumeData->{$_}{name}
                     ),
-                    arithmetic => '=(IV7*IV1-IV8*IV2)/IV9',
+                    arithmetic => '=(A7*A1-A8*A2)/A9',
                     arguments  => {
-                        IV1 => $volumeData->{$_},
-                        IV2 => $volumeDataBefore->{$_},
-                        IV7 => $daysInYear,
-                        IV8 => $daysBefore,
-                        IV9 => $daysAfter,
+                        A1 => $volumeData->{$_},
+                        A2 => $volumeDataBefore->{$_},
+                        A7 => $daysInYear,
+                        A8 => $daysBefore,
+                        A9 => $daysAfter,
                     },
                     defaultFormat => '0soft',
                   )
@@ -581,10 +581,10 @@ sub inYearAdjustUsingBefore {
                     name => SpreadsheetModel::Object::_shortName(
                         $volumeData->{$_}{name}
                     ),
-                    arithmetic => '=IV1-IV2',
+                    arithmetic => '=A1-A2',
                     arguments  => {
-                        IV1 => $volumeData->{$_},
-                        IV2 => $volumeDataBefore->{$_},
+                        A1 => $volumeData->{$_},
+                        A2 => $volumeDataBefore->{$_},
                     },
                   );
             } @$nonExcludedComponents
@@ -597,9 +597,9 @@ sub inYearAdjustUsingBefore {
         defaultFormat => '0softnz',
         name          => 'All units after tariff change (MWh)',
         arithmetic    => '='
-          . join( '+', map { "IV$_" } 1 .. $model->{maxUnitRates} ),
+          . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
         arguments => {
-            map { ( "IV$_" => $$volumeDataAfter->{"Unit rate $_ p/kWh"} ) }
+            map { ( "A$_" => $$volumeDataAfter->{"Unit rate $_ p/kWh"} ) }
               1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz'
@@ -618,10 +618,10 @@ sub inYearAdjustUsingBefore {
                 name => SpreadsheetModel::Object::_shortName(
                     $$volumeDataAfter->{$_}{name}
                 ),
-                arithmetic => '=IV1*(1-IV2)',
+                arithmetic => '=A1*(1-A2)',
                 arguments  => {
-                    IV1 => $$volumeDataAfter->{$_},
-                    IV2 => /fix/i
+                    A1 => $$volumeDataAfter->{$_},
+                    A2 => /fix/i
                     ? $model->{pcd}{discountFixed}
                     : $model->{pcd}{discount}
                 }
@@ -709,9 +709,9 @@ sub inYearAdjustUsingAfter {
         defaultFormat => '0softnz',
         name          => 'All units after tariff change (MWh)',
         arithmetic    => '='
-          . join( '+', map { "IV$_" } 1 .. $model->{maxUnitRates} ),
+          . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
         arguments => {
-            map { ( "IV$_" => $$volumeDataAfter->{"Unit rate $_ p/kWh"} ) }
+            map { ( "A$_" => $$volumeDataAfter->{"Unit rate $_ p/kWh"} ) }
               1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz'
@@ -723,10 +723,10 @@ sub inYearAdjustUsingAfter {
                 name => SpreadsheetModel::Object::_shortName(
                     $$volumeDataAfter->{$_}{name}
                 ),
-                arithmetic => '=IV1*(1-IV2)',
+                arithmetic => '=A1*(1-A2)',
                 arguments  => {
-                    IV1 => $$volumeDataAfter->{$_},
-                    IV2 => /fix/i
+                    A1 => $$volumeDataAfter->{$_},
+                    A2 => /fix/i
                     ? $model->{pcd}{discountFixed}
                     : $model->{pcd}{discount}
                 }
@@ -772,7 +772,7 @@ sub displayWholeYearTarget {
 
     my @termsNoDays;
     my @termsWithDays;
-    my %args = ( IV400 => $daysInYear );
+    my %args = ( A400 => $daysInYear );
     my $i = 1;
     my $rows;
     foreach (@$nonExcludedComponents) {
@@ -780,13 +780,13 @@ sub displayWholeYearTarget {
         my $pad = "$i";
         $pad = "0$pad" while length $pad < 3;
         if (m#/day#) {
-            push @termsWithDays, "IV2$pad*IV3$pad";
+            push @termsWithDays, "A2$pad*A3$pad";
         }
         else {
-            push @termsNoDays, "IV2$pad*IV3$pad";
+            push @termsNoDays, "A2$pad*A3$pad";
         }
-        $args{"IV2$pad"} = $tariffsBeforeRounding->{$_};
-        $args{"IV3$pad"} = $volumeData->{$_};
+        $args{"A2$pad"} = $tariffsBeforeRounding->{$_};
+        $args{"A3$pad"} = $volumeData->{$_};
         $rows ||= $volumeData->{$_}{rows};
     }
     push @{ $model->{revenueSummary} },
@@ -800,7 +800,7 @@ sub displayWholeYearTarget {
             arithmetic    => '='
               . join( '+',
                 @termsWithDays
-                ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                 : ('0'),
                 @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                 : ('0'),
@@ -812,11 +812,11 @@ sub displayWholeYearTarget {
       Arithmetic(
         name => 'Suggested adjustment to model 100 target revenue (£/year)',
         defaultFormat => '0soft',
-        arithmetic    => '=IV1-IV2' . ( $revenueFromElsewhere ? '+IV3' : '' ),
+        arithmetic    => '=A1-A2' . ( $revenueFromElsewhere ? '+A3' : '' ),
         arguments     => {
-            IV1 => $annualisedRevenue,
-            IV2 => $allowedRevenue,
-            $revenueFromElsewhere ? ( IV3 => $revenueFromElsewhere ) : (),
+            A1 => $annualisedRevenue,
+            A2 => $allowedRevenue,
+            $revenueFromElsewhere ? ( A3 => $revenueFromElsewhere ) : (),
         }
       ) unless $siteSpecificCharges;
 

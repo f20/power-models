@@ -56,13 +56,13 @@ sub adjust117 {
         cols          => $preAllocated->{cols},
         defaultFormat => '%softnz',
         custom        => [
-            '=IV11/SUM(IV21:IV22)', $model->{dcp117} =~ /A/i
+            '=A11/SUM(A21:A22)', $model->{dcp117} =~ /A/i
             ? ()
-            : '=SUM(IV11:IV12)/SUM(IV21:IV22)',
+            : '=SUM(A11:A12)/SUM(A21:A22)',
         ],
         arguments => {
-            IV11 => $meavPercentages,
-            IV21 => $meavPercentages,
+            A11 => $meavPercentages,
+            A21 => $meavPercentages,
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -72,45 +72,45 @@ sub adjust117 {
                 my ( $x, $y ) = @_;
                 return -1, $format if $x == 0;
                 return '', $format, $formula->[0],
-                  IV11 =>
+                  A11 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 1,
+                    $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  IV21 =>
+                  A21 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 1,
+                    $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  IV22 =>
+                  A22 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 3,
+                    $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
                   if $x == 1;
                 return '', $format, $formula->[0],
-                  IV11 =>
+                  A11 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 2,
+                    $rowh->{A11}, $colh->{A11} + 2,
                     0, 1 ),
-                  IV21 =>
+                  A21 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 1,
+                    $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  IV22 =>
+                  A22 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 3,
+                    $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
                   if $x == 2;
                 return '', $format, $formula->[0],
-                  IV11 =>
+                  A11 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 3,
+                    $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
-                  IV21 =>
+                  A21 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 1,
+                    $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  IV22 =>
+                  A22 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 3,
+                    $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
                   if $x == 3;
                 return '', $unavailable;
@@ -120,35 +120,35 @@ sub adjust117 {
                 return -1, $format if $x == 0;
                 return 0,  $format if $x == 1;
                 return '', $format, $formula->[1],
-                  IV11 =>
+                  A11 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 1,
+                    $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  IV12 =>
+                  A12 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 2,
+                    $rowh->{A11}, $colh->{A11} + 2,
                     0, 1 ),
-                  IV21 =>
+                  A21 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 1,
+                    $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  IV22 =>
+                  A22 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 3,
+                    $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
                   if $x == 2;
                 return '', $format, $formula->[0],
-                  IV11 =>
+                  A11 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 3,
+                    $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
-                  IV21 =>
+                  A21 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 1,
+                    $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  IV22 =>
+                  A22 =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV11}, $colh->{IV11} + 3,
+                    $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
                   if $x == 3;
                 return '', $unavailable;
@@ -168,11 +168,11 @@ sub adjust117 {
                 rows          => $dcp117negative->{rows},
                 cols          => $preAllocated->{cols},
                 defaultFormat => '0softnz',
-                arithmetic    => '=IV1+IV2*IV3',
+                arithmetic    => '=A1+A2*A3',
                 arguments     => {
-                    IV1 => $preAllocated,
-                    IV2 => $dcp117,
-                    IV3 => $dcp117negative,
+                    A1 => $preAllocated,
+                    A2 => $dcp117,
+                    A3 => $dcp117negative,
                 },
             ),
             $preAllocated

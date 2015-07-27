@@ -253,9 +253,9 @@ EOT
             name =>
               'Contribution proportion of asset annuities, by customer type'
               . ' and network level of assets',
-            arithmetic => '=IV1*(1-IV2)',
+            arithmetic => '=A1*(1-A2)',
             arguments =>
-              { IV1 => $customerContributions, IV2 => $proportionChargeable },
+              { A1 => $customerContributions, A2 => $proportionChargeable },
             defaultFormat => '%softnz'
         ),
         defaultFormat => '%softnz'
@@ -305,12 +305,12 @@ EOT
         name => 'Share of network model annuity that relates'
           . ' to replacement of customer contributed assets',
         defaultFormat => '%softnz',
-        arithmetic    => '=IV1*IV2/(1-IV3)/(1-IV4)',
+        arithmetic    => '=A1*A2/(1-A3)/(1-A4)',
         arguments     => {
-            IV1 => $proportionCoveredByContributions,
-            IV2 => $proportionChargeable,
-            IV3 => $proportionCoveredByContributions,
-            IV4 => $proportionChargeable,
+            A1 => $proportionCoveredByContributions,
+            A2 => $proportionChargeable,
+            A3 => $proportionCoveredByContributions,
+            A4 => $proportionChargeable,
         }
     ) if $model->{noReplacement} && $model->{noReplacement} =~ /hybrid/i;
 

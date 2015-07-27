@@ -75,8 +75,8 @@ sub check {
     }
     push @{ $self->{sourceLines} }, $self->{source};
 
-    $self->{arithmetic} = '=SUM(IV1)';
-    $self->{arguments} = { IV1 => $self->{source} };
+    $self->{arithmetic} = '=SUM(A1)';
+    $self->{arguments} = { A1 => $self->{source} };
     $self->SUPER::check;
 
 }
@@ -94,7 +94,7 @@ sub wsPrepare {
     $srcsheet = !$srcsheet
       || $srcsheet == $ws ? '' : "'" . $srcsheet->get_name . "'!";
 
-    my $formula = $ws->store_formula("=SUM(${srcsheet}IV1:IV2)");
+    my $formula = $ws->store_formula("=SUM(${srcsheet}A1:A2)");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );
 
     my ( $xabs, $yabs ) = ( 1, 1 );
@@ -162,8 +162,8 @@ sub wsPrepare {
         my ( $x1, $x2 ) = $xabs ? ( $x1[$x], $x2[$x] ) : ( $x, $x );
         my ( $y1, $y2 ) = $yabs ? ( $y1[$y], $y2[$y] ) : ( $y, $y );
         '', $format, $formula,
-          IV1 => xl_rowcol_to_cell( $srcr + $y1, $srcc + $x1, 1, 1 ),
-          IV2 => xl_rowcol_to_cell( $srcr + $y2, $srcc + $x2, 1, 1 );
+          qr/\bA1\b/ => xl_rowcol_to_cell( $srcr + $y1, $srcc + $x1, 1, 1 ),
+          qr/\bA2\b/ => xl_rowcol_to_cell( $srcr + $y2, $srcc + $x2, 1, 1 );
       }
 
       :
@@ -173,8 +173,10 @@ sub wsPrepare {
         my ( $x1, $x2 ) = $xabs ? ( $x1[$x], $x2[$x] ) : ( $x, $x );
         my ( $y1, $y2 ) = $yabs ? ( $y1[$y], $y2[$y] ) : ( $y, $y );
         '', $format, $formula,
-          IV1 => xl_rowcol_to_cell( $srcr + $y1, $srcc + $x1, $yabs, $xabs ),
-          IV2 => xl_rowcol_to_cell( $srcr + $y2, $srcc + $x2, $yabs, $xabs );
+          qr/\bA1\b/ =>
+          xl_rowcol_to_cell( $srcr + $y1, $srcc + $x1, $yabs, $xabs ),
+          qr/\bA2\b/ =>
+          xl_rowcol_to_cell( $srcr + $y2, $srcc + $x2, $yabs, $xabs );
       };
 
 }

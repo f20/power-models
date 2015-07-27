@@ -134,11 +134,11 @@ sub makeStatisticsTables {
       $overrideTotal = Arithmetic(
         name          => "Total override kWh/year",
         defaultFormat => '0soft',
-        arithmetic    => '=IV1+IV2+IV3',
+        arithmetic    => '=A1+A2+A3',
         arguments     => {
-            IV1 => $overrideRed,
-            IV2 => $overrideAmber,
-            IV3 => $overrideGreen,
+            A1 => $overrideRed,
+            A2 => $overrideAmber,
+            A3 => $overrideGreen,
         },
       ) if $overrideRed;
 
@@ -147,23 +147,23 @@ sub makeStatisticsTables {
         name          => 'Total kWh/year',
         defaultFormat => '0soft',
         arithmetic    => $overrideTotal
-        ? '=IF(IV8,IV9,(IV1*IV3+IV2*IV4+(168-IV11-IV21)*IV5)*IV7/7)'
-        : '=(IV1*IV3+IV2*IV4+(168-IV11-IV21)*IV5)*IV7/7',
+        ? '=IF(A8,A9,(A1*A3+A2*A4+(168-A11-A21)*A5)*A7/7)'
+        : '=(A1*A3+A2*A4+(168-A11-A21)*A5)*A7/7',
         arguments => {
-            IV7 => $daysInYear,
+            A7 => $daysInYear,
             $overrideTotal
             ? (
-                IV8 => $overrideTotal,
-                IV9 => $overrideTotal,
+                A8 => $overrideTotal,
+                A9 => $overrideTotal,
               )
             : (),
-            IV1  => $peakHours,
-            IV11 => $peakHours,
-            IV2  => $offPeakHours,
-            IV21 => $offPeakHours,
-            IV3  => $peakLoad,
-            IV4  => $offPeakLoad,
-            IV5  => $otherLoad,
+            A1  => $peakHours,
+            A11 => $peakHours,
+            A2  => $offPeakHours,
+            A21 => $offPeakHours,
+            A3  => $peakLoad,
+            A4  => $offPeakLoad,
+            A5  => $otherLoad,
         },
       );
 
@@ -171,11 +171,11 @@ sub makeStatisticsTables {
       my $rate2 = Arithmetic(
         name          => 'Rate 2 kWh/year',
         defaultFormat => '0soft',
-        arithmetic    => '=IV1*IV3*IV2/7',
+        arithmetic    => '=A1*A3*A2/7',
         arguments     => {
-            IV1 => $offPeakHours,
-            IV3 => $offPeakLoad,
-            IV2 => $daysInYear,
+            A1 => $offPeakHours,
+            A3 => $offPeakLoad,
+            A2 => $daysInYear,
         },
       );
 
@@ -185,32 +185,32 @@ sub makeStatisticsTables {
         rows          => $assumptions->{rows},
         custom        => [
             $overrideTotal
-            ? '=IF(IV10,IV11,IV321*IV613+(IV311-IV322)*MIN(IV61,IV72/7*IV51)+'
-              . '(IV301-IV323)*MAX(0,IV77/7*IV43-IV631-IV623))'
-            : '=IV321*IV613+(IV311-IV322)*MIN(IV61,IV72/7*IV51)+'
-              . '(IV301-IV323)*MAX(0,IV77/7*IV43-IV631-IV623)'
+            ? '=IF(A10,A11,A321*A613+(A311-A322)*MIN(A61,A72/7*A51)+'
+              . '(A301-A323)*MAX(0,A77/7*A43-A631-A623))'
+            : '=A321*A613+(A311-A322)*MIN(A61,A72/7*A51)+'
+              . '(A301-A323)*MAX(0,A77/7*A43-A631-A623)'
         ],
         arithmetic => 'Special calculation',
         arguments  => {
             $overrideTotal
             ? (
-                IV10 => $overrideTotal,
-                IV11 => $overrideRed
+                A10 => $overrideTotal,
+                A11 => $overrideRed
               )
             : (),
-            IV301 => $offPeakLoad,
-            IV311 => $peakLoad,
-            IV321 => $otherLoad,
-            IV322 => $otherLoad,
-            IV323 => $otherLoad,
-            IV61  => $model->{hoursByRedAmberGreen},
-            IV613 => $model->{hoursByRedAmberGreen},
-            IV623 => $model->{hoursByRedAmberGreen},
-            IV631 => $model->{hoursByRedAmberGreen},
-            IV43  => $offPeakHours,
-            IV51  => $peakHours,
-            IV72  => $daysInYear,
-            IV77  => $daysInYear,
+            A301 => $offPeakLoad,
+            A311 => $peakLoad,
+            A321 => $otherLoad,
+            A322 => $otherLoad,
+            A323 => $otherLoad,
+            A61  => $model->{hoursByRedAmberGreen},
+            A613 => $model->{hoursByRedAmberGreen},
+            A623 => $model->{hoursByRedAmberGreen},
+            A631 => $model->{hoursByRedAmberGreen},
+            A43  => $offPeakHours,
+            A51  => $peakHours,
+            A72  => $daysInYear,
+            A77  => $daysInYear,
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -220,12 +220,12 @@ sub makeStatisticsTables {
                     qr/\b$_\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + (
-                            /^IV[1-5]/
+                            /^A[1-5]/
                             ? $y
                             : 0
                         ),
-                        $colh->{$_} + ( /^IV62/ ? 1 : /^IV63/ ? 2 : 0 ),
-                        /^IV[1-5]/ ? 0 : 1,
+                        $colh->{$_} + ( /^A62/ ? 1 : /^A63/ ? 2 : 0 ),
+                        /^A[1-5]/ ? 0 : 1,
                         1,
                       )
                 } @$pha;
@@ -239,34 +239,34 @@ sub makeStatisticsTables {
         rows          => $assumptions->{rows},
         custom        => [
             $overrideTotal
-            ? '=IF(IV10,IV12,'
-              . 'IV324*IV624+(IV312-IV325)*MIN(IV620,MAX(0,IV73/7*IV52-IV611))+'
-              . '(IV302-IV326)*MIN(IV621,MAX(0,IV75/7*IV42-IV632)))'
-            : '=IV324*IV624+(IV312-IV325)*MIN(IV620,MAX(0,IV73/7*IV52-IV611))+'
-              . '(IV302-IV326)*MIN(IV621,MAX(0,IV75/7*IV42-IV632))'
+            ? '=IF(A10,A12,'
+              . 'A324*A624+(A312-A325)*MIN(A620,MAX(0,A73/7*A52-A611))+'
+              . '(A302-A326)*MIN(A621,MAX(0,A75/7*A42-A632)))'
+            : '=A324*A624+(A312-A325)*MIN(A620,MAX(0,A73/7*A52-A611))+'
+              . '(A302-A326)*MIN(A621,MAX(0,A75/7*A42-A632))'
         ],
         arithmetic => 'Special calculation',
         arguments  => {
             $overrideTotal
             ? (
-                IV10 => $overrideTotal,
-                IV12 => $overrideAmber
+                A10 => $overrideTotal,
+                A12 => $overrideAmber
               )
             : (),
-            IV302 => $offPeakLoad,
-            IV312 => $peakLoad,
-            IV324 => $otherLoad,
-            IV325 => $otherLoad,
-            IV326 => $otherLoad,
-            IV42  => $offPeakHours,
-            IV52  => $peakHours,
-            IV611 => $model->{hoursByRedAmberGreen},
-            IV620 => $model->{hoursByRedAmberGreen},
-            IV621 => $model->{hoursByRedAmberGreen},
-            IV624 => $model->{hoursByRedAmberGreen},
-            IV632 => $model->{hoursByRedAmberGreen},
-            IV73  => $daysInYear,
-            IV75  => $daysInYear,
+            A302 => $offPeakLoad,
+            A312 => $peakLoad,
+            A324 => $otherLoad,
+            A325 => $otherLoad,
+            A326 => $otherLoad,
+            A42  => $offPeakHours,
+            A52  => $peakHours,
+            A611 => $model->{hoursByRedAmberGreen},
+            A620 => $model->{hoursByRedAmberGreen},
+            A621 => $model->{hoursByRedAmberGreen},
+            A624 => $model->{hoursByRedAmberGreen},
+            A632 => $model->{hoursByRedAmberGreen},
+            A73  => $daysInYear,
+            A75  => $daysInYear,
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -275,9 +275,9 @@ sub makeStatisticsTables {
                 '', $format, $formula->[0], map {
                     qr/\b$_\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{$_} + ( /^IV[1-5]/ ? $y : 0 ),
-                        $colh->{$_} + ( /^IV62/ ? 1 : /^IV63/ ? 2 : 0 ),
-                        /^IV[1-5]/ ? 0 : 1,
+                        $rowh->{$_} + ( /^A[1-5]/ ? $y : 0 ),
+                        $colh->{$_} + ( /^A62/ ? 1 : /^A63/ ? 2 : 0 ),
+                        /^A[1-5]/ ? 0 : 1,
                         1,
                       )
                 } @$pha;
@@ -291,33 +291,33 @@ sub makeStatisticsTables {
         rows          => $assumptions->{rows},
         custom        => [
             $overrideTotal
-            ? '=IF(IV10,IV13,'
-              . 'IV327*IV633+(IV313-IV328)*MAX(0,IV74/7*IV53-IV612-IV622)+'
-              . '(IV303-IV329)*MIN(IV63,IV76/7*IV41))'
-            : '=IV327*IV633+(IV313-IV328)*MAX(0,IV74/7*IV53-IV612-IV622)+'
-              . '(IV303-IV329)*MIN(IV63,IV76/7*IV41)'
+            ? '=IF(A10,A13,'
+              . 'A327*A633+(A313-A328)*MAX(0,A74/7*A53-A612-A622)+'
+              . '(A303-A329)*MIN(A63,A76/7*A41))'
+            : '=A327*A633+(A313-A328)*MAX(0,A74/7*A53-A612-A622)+'
+              . '(A303-A329)*MIN(A63,A76/7*A41)'
         ],
         arithmetic => 'Special calculation',
         arguments  => {
             $overrideTotal
             ? (
-                IV10 => $overrideTotal,
-                IV13 => $overrideGreen
+                A10 => $overrideTotal,
+                A13 => $overrideGreen
               )
             : (),
-            IV303 => $offPeakLoad,
-            IV313 => $peakLoad,
-            IV327 => $otherLoad,
-            IV328 => $otherLoad,
-            IV329 => $otherLoad,
-            IV41  => $offPeakHours,
-            IV53  => $peakHours,
-            IV612 => $model->{hoursByRedAmberGreen},
-            IV622 => $model->{hoursByRedAmberGreen},
-            IV63  => $model->{hoursByRedAmberGreen},
-            IV633 => $model->{hoursByRedAmberGreen},
-            IV74  => $daysInYear,
-            IV76  => $daysInYear,
+            A303 => $offPeakLoad,
+            A313 => $peakLoad,
+            A327 => $otherLoad,
+            A328 => $otherLoad,
+            A329 => $otherLoad,
+            A41  => $offPeakHours,
+            A53  => $peakHours,
+            A612 => $model->{hoursByRedAmberGreen},
+            A622 => $model->{hoursByRedAmberGreen},
+            A63  => $model->{hoursByRedAmberGreen},
+            A633 => $model->{hoursByRedAmberGreen},
+            A74  => $daysInYear,
+            A76  => $daysInYear,
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -327,12 +327,12 @@ sub makeStatisticsTables {
                     qr/\b$_\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + (
-                            /^IV[1-5]/
+                            /^A[1-5]/
                             ? $y
                             : 0
                         ),
-                        $colh->{$_} + ( /^IV62/ ? 1 : /^IV63/ ? 2 : 0 ),
-                        /^IV[1-5]/ ? 0 : 1,
+                        $colh->{$_} + ( /^A62/ ? 1 : /^A63/ ? 2 : 0 ),
+                        /^A[1-5]/ ? 0 : 1,
                         1,
                       )
                 } @$pha;
@@ -407,28 +407,28 @@ sub makeStatisticsTables {
         defaultFormat => '0softnz',
         rows          => $fullRowset,
         custom        => [
-            '=0.01*(IV11*IV91+IV71*IV94)',
-            '=0.01*(IV11*IV91+IV12*IV13/7*IV78*(IV92-IV911)+IV71*IV94)',
-            '=0.01*(IV31*IV91+IV32*IV92+IV33*IV93+IV71*(IV94+IV2*IV95))',
-            '=IV81-IV82',
+            '=0.01*(A11*A91+A71*A94)',
+            '=0.01*(A11*A91+A12*A13/7*A78*(A92-A911)+A71*A94)',
+            '=0.01*(A31*A91+A32*A92+A33*A93+A71*(A94+A2*A95))',
+            '=A81-A82',
         ],
         arithmetic => 'Special calculation',
         arguments  => {
-            IV11  => $totalUnits,
-            IV12  => $offPeakLoad,
-            IV13  => $offPeakHours,
-            IV2   => $capacity,
-            IV31  => $red,
-            IV32  => $amber,
-            IV33  => $green,
-            IV71  => $daysInYear,
-            IV78  => $daysInYear,
-            IV91  => $tariffTable->{'Unit rate 1 p/kWh'},
-            IV911 => $tariffTable->{'Unit rate 1 p/kWh'},
-            IV92  => $tariffTable->{'Unit rate 2 p/kWh'},
-            IV93  => $tariffTable->{'Unit rate 3 p/kWh'},
-            IV94  => $tariffTable->{'Fixed charge p/MPAN/day'},
-            IV95  => $tariffTable->{'Capacity charge p/kVA/day'},
+            A11  => $totalUnits,
+            A12  => $offPeakLoad,
+            A13  => $offPeakHours,
+            A2   => $capacity,
+            A31  => $red,
+            A32  => $amber,
+            A33  => $green,
+            A71  => $daysInYear,
+            A78  => $daysInYear,
+            A91  => $tariffTable->{'Unit rate 1 p/kWh'},
+            A911 => $tariffTable->{'Unit rate 1 p/kWh'},
+            A92  => $tariffTable->{'Unit rate 2 p/kWh'},
+            A93  => $tariffTable->{'Unit rate 3 p/kWh'},
+            A94  => $tariffTable->{'Fixed charge p/MPAN/day'},
+            A95  => $tariffTable->{'Capacity charge p/kVA/day'},
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -442,12 +442,12 @@ sub makeStatisticsTables {
                 my ( $uid, $tid, $eid ) = @{ $map[$y] };
                 unless ( defined $uid ) {
                     return '', $cellFormat, $formula->[3],
-                      qr/\bIV81\b/ =>
+                      qr/\bA81\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $self->{$wb}{row} + $y + $tid,
                         $self->{$wb}{col}
                       ),
-                      qr/\bIV82\b/ =>
+                      qr/\bA82\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $self->{$wb}{row} + $y + $eid,
                         $self->{$wb}{col} );
@@ -463,12 +463,12 @@ sub makeStatisticsTables {
                     qr/\b$_\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + (
-                              /^IV9/         ? $tid
-                            : /^IV(?:[2-5])/ ? $uid
-                            : /^IV1/         ? $fullRowset->{groupid}[$y]
+                              /^A9/         ? $tid
+                            : /^A(?:[2-5])/ ? $uid
+                            : /^A1/         ? $fullRowset->{groupid}[$y]
                             : 0
                         ),
-                        $colh->{$_} + ( /^IV62/ ? 1 : /^IV63/ ? 2 : 0 ),
+                        $colh->{$_} + ( /^A62/ ? 1 : /^A63/ ? 2 : 0 ),
                         1, 1,
                       )
                   } @$pha;
@@ -481,10 +481,10 @@ sub makeStatisticsTables {
             '£/MWh', 'Average charges for illustrative customers (£/MWh)'
         ),
         defaultFormat => '0.0soft',
-        arithmetic    => '=IV1/IV2*1000',
+        arithmetic    => '=A1/A2*1000',
         arguments     => {
-            IV1 => $ppy,
-            IV2 => $totalUnits,
+            A1 => $ppy,
+            A2 => $totalUnits,
         }
     );
 

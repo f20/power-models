@@ -187,10 +187,10 @@ sub pcdPreprocessVolumes {
             name => SpreadsheetModel::Object::_shortName(
                 $model->{pcd}{volumeData}{$_}{name}
             ),
-            arithmetic => '=IV1*(1-IV2)',
+            arithmetic => '=A1*(1-A2)',
             arguments  => {
-                IV1 => $model->{pcd}{volumeData}{$_},
-                IV2 => /fix/i
+                A1 => $model->{pcd}{volumeData}{$_},
+                A2 => /fix/i
                 ? $model->{pcd}{discountFixed}
                 : $model->{pcd}{discount}
             }
@@ -229,10 +229,10 @@ sub pcdPreprocessVolumes {
         noCopy     => 1,
         name       => 'All units (MWh)',
         arithmetic => '='
-          . join( '+', map { "IV$_" } 1 .. $model->{maxUnitRates} ),
+          . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
         arguments => {
             map {
-                ( "IV$_" => ${$volumesByEndUserRef}->{"Unit rate $_ p/kWh"} )
+                ( "A$_" => ${$volumesByEndUserRef}->{"Unit rate $_ p/kWh"} )
             } 1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz'
@@ -257,9 +257,9 @@ sub pcdApplyDiscounts {
         noCopy     => 1,
         name       => 'All units (MWh)',
         arithmetic => '='
-          . join( '+', map { "IV$_" } 1 .. $model->{maxUnitRates} ),
+          . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
         arguments => {
-            map { ( "IV$_" => $volumeData->{"Unit rate $_ p/kWh"} ) }
+            map { ( "A$_" => $volumeData->{"Unit rate $_ p/kWh"} ) }
               1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz'
@@ -287,11 +287,11 @@ sub pcdApplyDiscounts {
           my $totalImpactOfElectionBung = Arithmetic(
             name => 'Revenue impact of election bung (£, not accounted for)',
             defaultFormat => '0soft',
-            arithmetic    => '=0.01*IV1*SUMPRODUCT(IV2_IV3,IV4_IV5)',
+            arithmetic    => '=0.01*A1*SUMPRODUCT(A2_A3,A4_A5)',
             arguments     => {
-                IV1     => $daysAfter,
-                IV2_IV3 => $electionBung,
-                IV4_IV5 => ( $volumeDataAfter || $volumeData )
+                A1     => $daysAfter,
+                A2_A3 => $electionBung,
+                A4_A5 => ( $volumeDataAfter || $volumeData )
                   ->{'Fixed charge p/MPAN/day'}
             }
           );
@@ -310,19 +310,19 @@ sub pcdApplyDiscounts {
                     map { local $_ = $_; s/soft/copy/ if $_; $_; }
                       $tariffTable->{$_}{defaultFormat}
                 ),
-                arithmetic => $model->{model100} ? '=IV2*(1-IV1)'
-                : (   ( $electionBung && /MPAN/ ? '=IV3+' : '=' )
+                arithmetic => $model->{model100} ? '=A2*(1-A1)'
+                : (   ( $electionBung && /MPAN/ ? '=A3+' : '=' )
                     . 'ROUND('
-                      . 'IV2*(1-IV1),'
+                      . 'A2*(1-A1),'
                       . ( /kWh|kVArh/ ? 3 : 2 )
                       . ')' ),
                 rows      => $allTariffs,
                 cols      => $tariffTable->{$_}{cols},
                 arguments => {
-                    IV2 => $tariffTable->{$_},
-                    IV1 => /fix/i ? $model->{pcd}{discountFixed}
+                    A2 => $tariffTable->{$_},
+                    A1 => /fix/i ? $model->{pcd}{discountFixed}
                     : $model->{pcd}{discount},
-                    $electionBung && /MPAN/ ? ( IV3 => $electionBung ) : (),
+                    $electionBung && /MPAN/ ? ( A3 => $electionBung ) : (),
                 },
             );
         } @$allComponents

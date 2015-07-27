@@ -70,16 +70,16 @@ sub check {
     my $kx = new SpreadsheetModel::Custom(
         name      => 'Value',
         rows      => $valueSet,
-        custom    => [ map { "=IV2$_"; } 0 .. $#data, ],
-        arguments => { map { ( "IV2$_" => $data[$_] ); } 0 .. $#data, },
+        custom    => [ map { "=A2$_"; } 0 .. $#data, ],
+        arguments => { map { ( "A2$_" => $data[$_] ); } 0 .. $#data, },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;
                 my ( $n, $r, $c ) = @{ $values[$y] };
                 return '', $format, $formula->[$n],
-                  "IV2$n" => xl_rowcol_to_cell( $rowh->{"IV2$n"} + $r,
-                    $colh->{"IV2$n"} + $c );
+                  "A2$n" => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
+                    $colh->{"A2$n"} + $c );
             };
         }
     );
@@ -88,16 +88,16 @@ sub check {
     $cd = new SpreadsheetModel::Custom(
         name      => 'Value',
         rows      => $valueSet,
-        custom    => [ map { "=IV2$_"; } 0 .. $#cond, ],
-        arguments => { map { ( "IV2$_" => $cond[$_] ); } 0 .. $#cond, },
+        custom    => [ map { "=A2$_"; } 0 .. $#cond, ],
+        arguments => { map { ( "A2$_" => $cond[$_] ); } 0 .. $#cond, },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;
                 my ( $n, $r, $c ) = @{ $values[$y] };
                 return '', $format, $formula->[$n],
-                  "IV2$n" => xl_rowcol_to_cell( $rowh->{"IV2$n"} + $r,
-                    $colh->{"IV2$n"} + $c );
+                  "A2$n" => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
+                    $colh->{"A2$n"} + $c );
             };
         }
     ) if @cond;
@@ -108,18 +108,18 @@ sub check {
         if ($cd) {
             $kx = Arithmetic(
                 name       => 'Use this',
-                arithmetic => '=IF(IV2,IV1,"no")',
-                arguments  => { IV1 => $kx, IV2 => $cd }
+                arithmetic => '=IF(A2,A1,"no")',
+                arguments  => { A1 => $kx, A2 => $cd }
             );
             Columnset(
                 name    => "Steps to calculate $self->{name}",
-                columns => [ $kx->{arguments}{IV1}, $cd, $kx, ]
+                columns => [ $kx->{arguments}{A1}, $cd, $kx, ]
             );
         }
-        $self->{arithmetic} = '=PERCENTILE(IV1_IV2,IV3)';
+        $self->{arithmetic} = '=PERCENTILE(A1_A2,A3)';
         $self->{arguments}  = {
-            IV1_IV2 => $kx,
-            IV3     => $self->{quantile},
+            A1_A2 => $kx,
+            A3     => $self->{quantile},
         };
         return $self->SUPER::check;
     }
@@ -137,10 +137,10 @@ sub check {
         rows          => $valueSet,
         custom        => [
             $cd
-            ? ( '=IF(IV7,RANK(IV1,IV2:IV3,1),' . ( 1 + @values ) . ')' )
-            : '=RANK(IV1,IV2:IV3,1)'
+            ? ( '=IF(A7,RANK(A1,A2:A3,1),' . ( 1 + @values ) . ')' )
+            : '=RANK(A1,A2:A3,1)'
         ],
-        arguments => { IV1 => $kx, $cd ? ( IV7 => $cd ) : () },
+        arguments => { A1 => $kx, $cd ? ( A7 => $cd ) : () },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
@@ -150,23 +150,24 @@ sub check {
             sub {
                 my ( $x, $y ) = @_;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
                   $cd
-                  ? (
-                    IV7 => xl_rowcol_to_cell( $rowh->{IV7} + $y, $colh->{IV7} )
-                  )
+                  ? ( qr/\bA7\b/ =>
+                      xl_rowcol_to_cell( $rowh->{A7} + $y, $colh->{A7} ) )
                   : (),
-                  IV2 => xl_rowcol_to_cell( $rowh->{IV1}, $colh->{IV1}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV1} + $#values,
-                    $colh->{IV1}, 1, 0 );
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1}, 1, 0 ),
+                  qr/\bA3\b/ => xl_rowcol_to_cell( $rowh->{A1} + $#values,
+                    $colh->{A1}, 1, 0 );
             };
         }
     );
 
     my $kr2 = new SpreadsheetModel::Arithmetic(
         name          => 'Tie breaker',
-        arguments     => { IV1 => $kr1, IV4 => $counter },
-        arithmetic    => '=IV1*' . @values . '+IV4',
+        arguments     => { A1 => $kr1, A4 => $counter },
+        arithmetic    => '=A1*' . @values . '+A4',
         defaultFormat => '0softnz'
     );
 
@@ -174,18 +175,20 @@ sub check {
         name          => 'Ranking',
         defaultFormat => '0softnz',
         rows          => $valueSet,
-        custom        => ['=RANK(IV1,IV2:IV3,1)'],
-        arguments     => { IV1 => $kr2 },
+        custom        => ['=RANK(A1,A2:A3,1)'],
+        arguments     => { A1 => $kr2 },
         wsPrepare     => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
             sub {
                 my ( $x, $y ) = @_;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 => xl_rowcol_to_cell( $rowh->{IV1}, $colh->{IV1}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV1} + $#values,
-                    $colh->{IV1}, 1, 0 );
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1}, 1, 0 ),
+                  qr/\bA3\b/ => xl_rowcol_to_cell( $rowh->{A1} + $#values,
+                    $colh->{A1}, 1, 0 );
             };
         }
     );
@@ -194,18 +197,20 @@ sub check {
         name          => 'Reordering',
         defaultFormat => '0softnz',
         rows          => $valueSet,
-        custom        => ['=MATCH(IV1,IV2:IV3,0)'],
-        arguments     => { IV1 => $counter, IV2 => $kr },
+        custom        => ['=MATCH(A1,A2:A3,0)'],
+        arguments     => { A1 => $counter, A2 => $kr },
         wsPrepare     => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
             sub {
                 my ( $x, $y ) = @_;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 => xl_rowcol_to_cell( $rowh->{IV2}, $colh->{IV2}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + $#values,
-                    $colh->{IV2}, 1, 0 );
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2}, $colh->{A2}, 1, 0 ),
+                  qr/\bA3\b/ => xl_rowcol_to_cell( $rowh->{A2} + $#values,
+                    $colh->{A2}, 1, 0 );
             };
         }
     );
@@ -213,18 +218,20 @@ sub check {
     my $kxs = new SpreadsheetModel::Custom(
         name      => 'Ordered values',
         rows      => $valueSet,
-        custom    => [ '=INDEX(IV2:IV3,IV1,1)', '=IV2' ],
-        arguments => { IV2 => $kx, IV1 => $ror },
+        custom    => [ '=INDEX(A2:A3,A1,1)', '=A2' ],
+        arguments => { A2 => $kx, A1 => $ror },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
             sub {
                 my ( $x, $y ) = @_;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 => xl_rowcol_to_cell( $rowh->{IV2}, $colh->{IV2}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + $#values,
-                    $colh->{IV2}, 1, 0 );
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2}, $colh->{A2}, 1, 0 ),
+                  qr/\bA3\b/ => xl_rowcol_to_cell( $rowh->{A2} + $#values,
+                    $colh->{A2}, 1, 0 );
             };
         }
     );
@@ -238,38 +245,38 @@ sub check {
       $cd
       ? Arithmetic(
         name       => 'Target rank',
-        arithmetic => '=1+IV1*(COUNTIF(IV2_IV3,"TRUE")-1)',
-        arguments  => { IV1 => $self->{quantile}, IV2_IV3 => $cd }
+        arithmetic => '=1+A1*(COUNTIF(A2_A3,"TRUE")-1)',
+        arguments  => { A1 => $self->{quantile}, A2_A3 => $cd }
       )
       : Arithmetic(
         name       => 'Target rank',
-        arithmetic => '=1+IV1*(COUNT(IV2_IV3)-1)',
-        arguments  => { IV1 => $self->{quantile}, IV2_IV3 => $kx }
+        arithmetic => '=1+A1*(COUNT(A2_A3)-1)',
+        arguments  => { A1 => $self->{quantile}, A2_A3 => $kx }
       );
 
     my $hiti = Arithmetic(
         name       => 'Rank immediately below',
-        arithmetic => '=FLOOR(IV1,1)',
-        arguments  => { IV1 => $hit }
+        arithmetic => '=FLOOR(A1,1)',
+        arguments  => { A1 => $hit }
     );
 
     my $v1 = Arithmetic(
         name       => 'Value below',
-        arithmetic => '=INDEX(IV1_IV2,IV3)',
-        arguments  => { IV1_IV2 => $kxs, IV3 => $hiti }
+        arithmetic => '=INDEX(A1_A2,A3)',
+        arguments  => { A1_A2 => $kxs, A3 => $hiti }
     );
 
     my $v2 = Arithmetic(
         name       => 'Value above',
-        arithmetic => '=INDEX(IV1_IV2,IV3+1)',
-        arguments  => { IV1_IV2 => $kxs, IV3 => $hiti }
+        arithmetic => '=INDEX(A1_A2,A3+1)',
+        arguments  => { A1_A2 => $kxs, A3 => $hiti }
     );
 
     my $p1 = Arithmetic(
         defaultFormat => '%soft',
         name          => 'Weight below',
-        arithmetic    => '=1-IV1+IV2',
-        arguments     => { IV1 => $hit, IV2 => $hiti }
+        arithmetic    => '=1-A1+A2',
+        arguments     => { A1 => $hit, A2 => $hiti }
     );
 
     Columnset(
@@ -277,13 +284,13 @@ sub check {
         columns => [ $hit, $hiti, $v1, $v2, $p1 ]
     );
 
-    $self->{arithmetic} = '=IV1*IV2+IF(IV5=1,0,(1-IV3)*IV4)';
+    $self->{arithmetic} = '=A1*A2+IF(A5=1,0,(1-A3)*A4)';
     $self->{arguments}  = {
-        IV1 => $p1,
-        IV3 => $p1,
-        IV5 => $p1,
-        IV2 => $v1,
-        IV4 => $v2,
+        A1 => $p1,
+        A3 => $p1,
+        A5 => $p1,
+        A2 => $v1,
+        A4 => $v2,
     };
 
     $self->SUPER::check;

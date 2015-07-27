@@ -169,35 +169,35 @@ sub expenditureAlloc {
         defaultFormat => '0connz'
       );
 
-    my $ar = $model->{dcp097} ? 'IF(IV49="Customer numbers",IV9,0)' : '0';
-    $ar = qq%IF(IV48="Network length",IV8,$ar)% if $networkLengthPercentages;
+    my $ar = $model->{dcp097} ? 'IF(A49="Customer numbers",A9,0)' : '0';
+    $ar = qq%IF(A48="Network length",A8,$ar)% if $networkLengthPercentages;
     my $allAllocationPercentages = Arithmetic(
         name          => 'All allocation percentages',
         defaultFormat => '%softnz',
         rows          => $preAllocated->{rows},
         cols          => $preAllocated->{cols},
-        arithmetic    => '=IF(IV44="60%MEAV",0.4*IV71+IV51,'
-          . 'IF(IV45="MEAV",IV52,'
-          . 'IF(IV46="EHV only",IV6,'
-          . 'IF(IV47="LV only",IV72,'
+        arithmetic    => '=IF(A44="60%MEAV",0.4*A71+A51,'
+          . 'IF(A45="MEAV",A52,'
+          . 'IF(A46="EHV only",A6,'
+          . 'IF(A47="LV only",A72,'
           . $ar . '))))',
         arguments => {
-            IV44 => $allocationRules,
-            IV45 => $allocationRules,
-            IV46 => $allocationRules,
-            IV47 => $allocationRules,
-            IV48 => $allocationRules,
-            IV51 => $meavPercentages,
-            IV52 => $meavPercentages,
-            IV6  => $ehvOnly,
-            IV71 => $lvOnly,
-            IV72 => $lvOnly,
-            $networkLengthPercentages ? ( IV8 => $networkLengthPercentages )
+            A44 => $allocationRules,
+            A45 => $allocationRules,
+            A46 => $allocationRules,
+            A47 => $allocationRules,
+            A48 => $allocationRules,
+            A51 => $meavPercentages,
+            A52 => $meavPercentages,
+            A6  => $ehvOnly,
+            A71 => $lvOnly,
+            A72 => $lvOnly,
+            $networkLengthPercentages ? ( A8 => $networkLengthPercentages )
             : (),
             $model->{dcp097}
             ? (
-                IV49 => $allocationRules,
-                IV9  => $model->customerNumbersPercentages($allocLevelset)
+                A49 => $allocationRules,
+                A9  => $model->customerNumbersPercentages($allocLevelset)
               )
             : (),
         }
@@ -206,21 +206,21 @@ sub expenditureAlloc {
     my $afterAllocation = Arithmetic(
         name          => 'Complete allocation',
         defaultFormat => '0softnz',
-        arithmetic    => '=IF(IV44="Kill",0,IV1+(IV2-IV3)*IV5)',
+        arithmetic    => '=IF(A44="Kill",0,A1+(A2-A3)*A5)',
         arguments     => {
-            IV1  => $preAllocated,
-            IV2  => $expenditure,
-            IV3  => $allocatedTotal,
-            IV44 => $allocationRules,
-            IV5  => $allAllocationPercentages,
+            A1  => $preAllocated,
+            A2  => $expenditure,
+            A3  => $allocatedTotal,
+            A44 => $allocationRules,
+            A5  => $allAllocationPercentages,
         }
     );
 
     my $omittingNegatives = $model->{allowNeg} ? $afterAllocation : Arithmetic(
         name          => 'Complete allocation, zeroing out negative numbers',
         defaultFormat => '0softnz',
-        arithmetic    => '=MAX(0,IV1)',
-        arguments     => { IV1 => $afterAllocation }
+        arithmetic    => '=MAX(0,A1)',
+        arguments     => { A1 => $afterAllocation }
     );
 
     my $totalDirect = SumProduct(
@@ -240,8 +240,8 @@ sub expenditureAlloc {
     my $direct = Arithmetic(
         name          => 'Direct cost proportion',
         defaultFormat => '%soft',
-        arithmetic    => '=IV1/IV2',
-        arguments     => { IV1 => $totalDirect, IV2 => $total }
+        arithmetic    => '=A1/A2',
+        arguments     => { A1 => $totalDirect, A2 => $total }
     );
 
     @{ $model->{objects}{$key} } = ( $afterAllocation, $direct );

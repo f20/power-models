@@ -97,21 +97,21 @@ sub units {
         rows          => $distributed->{rows},
         defaultFormat => '0soft',
         arithmetic =>
-'=1000000*(1+IV6/(IV22+IV21/2+IV20/4)/[1, 2 or 4])/(1+IV7/(IV32+IV31/2+IV30/4))',
+'=1000000*(1+A6/(A22+A21/2+A20/4)/[1, 2 or 4])/(1+A7/(A32+A31/2+A30/4))',
         custom => [
-'=1000000*(1+IV6/(IV22+IV21/2+IV20/4)/4)/(1+IV7/(IV32+IV31/2+IV30/4))',
-'=1000000*(1+IV6/(IV22+IV21/2+IV20/4)/2)/(1+IV7/(IV32+IV31/2+IV30/4))',
+'=1000000*(1+A6/(A22+A21/2+A20/4)/4)/(1+A7/(A32+A31/2+A30/4))',
+'=1000000*(1+A6/(A22+A21/2+A20/4)/2)/(1+A7/(A32+A31/2+A30/4))',
             '=1000000',
         ],
         arguments => {
-            IV20 => $distributed,
-            IV21 => $distributed,
-            IV22 => $distributed,
-            IV30 => $distributed,
-            IV31 => $distributed,
-            IV32 => $distributed,
-            IV6  => $losses,
-            IV7  => $losses,
+            A20 => $distributed,
+            A21 => $distributed,
+            A22 => $distributed,
+            A30 => $distributed,
+            A31 => $distributed,
+            A32 => $distributed,
+            A6  => $losses,
+            A7  => $losses,
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -122,7 +122,7 @@ sub units {
                 '', $format, $formula->[$y], map {
                     $_ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{$_} + ( /IV[23]([012])/ ? $1 : 0 ),
+                        $rowh->{$_} + ( /A[23]([012])/ ? $1 : 0 ),
                         $colh->{$_}, 1, 0, )
                 } @$pha;
             };

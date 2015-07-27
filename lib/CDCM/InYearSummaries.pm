@@ -72,10 +72,10 @@ sub summaryOfRevenuesHybrid {
                     ),
                     noCopy     => 1,
                     arithmetic => '='
-                      . join( '+', map { "IV$_" } 1 .. $model->{maxUnitRates} ),
+                      . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
                     arguments => {
                         map {
-                            ( "IV$_" =>
+                            ( "A$_" =>
                                   ${ $volumes[$part] }{"Unit rate $_ p/kWh"} )
                         } 1 .. $model->{maxUnitRates}
                     },
@@ -114,21 +114,21 @@ sub summaryOfRevenuesHybrid {
                 my @termsNoDays;
                 my @termsUnits;
                 my @termsWithDays;
-                my %args = ( IV400 => $daysInYear );
+                my %args = ( A400 => $daysInYear );
                 my $i = 1;
                 foreach (@$nonExcludedComponents) {
                     ++$i;
                     my $pad = "$i";
                     $pad = "0$pad" while length $pad < 3;
                     if (m#/day#) {
-                        push @termsWithDays, "IV2$pad*IV3$pad";
+                        push @termsWithDays, "A2$pad*A3$pad";
                     }
                     else {
-                        push @termsNoDays, "IV2$pad*IV3$pad";
-                        push @termsUnits, "IV2$pad*IV3$pad" if /kWh/;
+                        push @termsNoDays, "A2$pad*A3$pad";
+                        push @termsUnits, "A2$pad*A3$pad" if /kWh/;
                     }
-                    $args{"IV2$pad"} = $tariffTable->{$_};
-                    $args{"IV3$pad"} = $volumeData->{$_};
+                    $args{"A2$pad"} = $tariffTable->{$_};
+                    $args{"A3$pad"} = $volumeData->{$_};
                 }
                 $revenuesFromTariffs = $revenues[$part]
                   || Arithmetic(
@@ -138,7 +138,7 @@ sub summaryOfRevenuesHybrid {
                       . join(
                         '+',
                         @termsWithDays
-                        ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                        ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                         : ('0'),
                         @termsNoDays
                         ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
@@ -161,10 +161,10 @@ sub summaryOfRevenuesHybrid {
                 Arithmetic(
                     name          => "Net revenues from unit rate $_ (£)",
                     defaultFormat => '0softnz',
-                    arithmetic    => '=IV1*IV2*10',
+                    arithmetic    => '=A1*A2*10',
                     arguments     => {
-                        IV2 => $volumeData->{"Unit rate $_ p/kWh"},
-                        IV1 => $tariffTable->{"Unit rate $_ p/kWh"},
+                        A2 => $volumeData->{"Unit rate $_ p/kWh"},
+                        A1 => $tariffTable->{"Unit rate $_ p/kWh"},
                     }
                 );
             } 1 .. $model->{maxUnitRates};
@@ -172,22 +172,22 @@ sub summaryOfRevenuesHybrid {
             $revenuesFromFixedCharges = Arithmetic(
                 name          => 'Revenues from fixed charges (£)',
                 defaultFormat => '0softnz',
-                arithmetic    => '=IV1*IV4*IV2/100',
+                arithmetic    => '=A1*A4*A2/100',
                 arguments     => {
-                    IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
-                    IV4 => $daysInYear,
-                    IV1 => $tariffTable->{'Fixed charge p/MPAN/day'},
+                    A2 => $volumeData->{'Fixed charge p/MPAN/day'},
+                    A4 => $daysInYear,
+                    A1 => $tariffTable->{'Fixed charge p/MPAN/day'},
                 }
             );
 
             $revenuesFromCapacityCharges = Arithmetic(
                 name          => 'Revenues from capacity charges (£)',
                 defaultFormat => '0softnz',
-                arithmetic    => '=IV1*IV4*IV2/100',
+                arithmetic    => '=A1*A4*A2/100',
                 arguments     => {
-                    IV2 => $volumeData->{'Capacity charge p/kVA/day'},
-                    IV4 => $daysInYear,
-                    IV1 => $tariffTable->{'Capacity charge p/kVA/day'},
+                    A2 => $volumeData->{'Capacity charge p/kVA/day'},
+                    A4 => $daysInYear,
+                    A1 => $tariffTable->{'Capacity charge p/kVA/day'},
                 }
             ) if $volumeData->{'Capacity charge p/kVA/day'};
 
@@ -196,30 +196,30 @@ sub summaryOfRevenuesHybrid {
               ? Arithmetic(
                 name          => 'Revenues from exceeded capacity charges (£)',
                 defaultFormat => '0softnz',
-                arithmetic    => '=IV1*IV4*IV2/100',
+                arithmetic    => '=A1*A4*A2/100',
                 arguments     => {
-                    IV2 => $volumeData->{'Exceeded capacity charge p/kVA/day'},
-                    IV4 => $daysInYear,
-                    IV1 => $tariffTable->{'Exceeded capacity charge p/kVA/day'},
+                    A2 => $volumeData->{'Exceeded capacity charge p/kVA/day'},
+                    A4 => $daysInYear,
+                    A1 => $tariffTable->{'Exceeded capacity charge p/kVA/day'},
                 }
               )
               : Arithmetic(
                 name => 'Revenues from unauthorised demand charges (£)',
                 defaultFormat => '0softnz',
-                arithmetic    => '=IV1*IV2*10',
+                arithmetic    => '=A1*A2*10',
                 arguments     => {
-                    IV2 => $volumeData->{'Unauthorised demand charge p/kVAh'},
-                    IV1 => $tariffTable->{'Unauthorised demand charge p/kVAh'},
+                    A2 => $volumeData->{'Unauthorised demand charge p/kVAh'},
+                    A1 => $tariffTable->{'Unauthorised demand charge p/kVAh'},
                 }
               ) if $model->{unauth};
 
             $revenuesFromReactiveCharges = Arithmetic(
                 name          => 'Revenues from reactive power charges (£)',
                 defaultFormat => '0softnz',
-                arithmetic    => '=IV1*IV2*10',
+                arithmetic    => '=A1*A2*10',
                 arguments     => {
-                    IV2 => $volumeData->{'Reactive power charge p/kVArh'},
-                    IV1 => $tariffTable->{'Reactive power charge p/kVArh'},
+                    A2 => $volumeData->{'Reactive power charge p/kVArh'},
+                    A1 => $tariffTable->{'Reactive power charge p/kVArh'},
                 }
               )
               if !$model->{reactiveExcluded}
@@ -229,14 +229,14 @@ sub summaryOfRevenuesHybrid {
 
         else {    # aggregation of previous parts into tariff bits
 
-            my $sum = '=' . join( '+', map { "IV$_" } 1 .. $numParts );
+            my $sum = '=' . join( '+', map { "A$_" } 1 .. $numParts );
 
             $revenuesFromTariffs = Arithmetic(
                 name          => 'Aggregate revenues (£/year)',
                 defaultFormat => '0softnz',
                 arithmetic    => $sum,
                 arguments     => {
-                    map { ( "IV$_" => $revenuesFromTariffs[ $_ - 1 ] ); }
+                    map { ( "A$_" => $revenuesFromTariffs[ $_ - 1 ] ); }
                       1 .. $numParts
                 },
             );
@@ -246,7 +246,7 @@ sub summaryOfRevenuesHybrid {
                 defaultFormat => '0softnz',
                 arithmetic    => $sum,
                 arguments     => {
-                    map { ( "IV$_" => $revenuesFromUnitRates[ $_ - 1 ] ) }
+                    map { ( "A$_" => $revenuesFromUnitRates[ $_ - 1 ] ) }
                       1 .. $numParts
                 },
             );
@@ -261,7 +261,7 @@ sub summaryOfRevenuesHybrid {
                     arithmetic    => $sum,
                     arguments     => {
                         map {
-                            ( "IV$_" =>
+                            ( "A$_" =>
                                   $revenuesFromUnits2d[ $_ - 1 ][ $rate - 1 ] )
                         } 1 .. $numParts
                     },
@@ -273,7 +273,7 @@ sub summaryOfRevenuesHybrid {
                 defaultFormat => '0softnz',
                 arithmetic    => $sum,
                 arguments     => {
-                    map { ( "IV$_" => $revenuesFromFixedCharges[ $_ - 1 ] ) }
+                    map { ( "A$_" => $revenuesFromFixedCharges[ $_ - 1 ] ) }
                       1 .. $numParts
                 },
             );
@@ -283,7 +283,7 @@ sub summaryOfRevenuesHybrid {
                 defaultFormat => '0softnz',
                 arithmetic    => $sum,
                 arguments     => {
-                    map { ( "IV$_" => $revenuesFromCapacityCharges[ $_ - 1 ] ) }
+                    map { ( "A$_" => $revenuesFromCapacityCharges[ $_ - 1 ] ) }
                       1 .. $numParts
                 },
             ) if $revenuesFromCapacityCharges[0];
@@ -295,7 +295,7 @@ sub summaryOfRevenuesHybrid {
                 arithmetic    => $sum,
                 arguments     => {
                     map {
-                        ( "IV$_" => $revenuesFromUnauthDemandCharges[ $_ - 1 ] )
+                        ( "A$_" => $revenuesFromUnauthDemandCharges[ $_ - 1 ] )
                     } 1 .. $numParts
                 },
             ) if $revenuesFromUnauthDemandCharges[0];
@@ -306,7 +306,7 @@ sub summaryOfRevenuesHybrid {
                 defaultFormat => '0softnz',
                 arithmetic    => $sum,
                 arguments     => {
-                    map { ( "IV$_" => $revenuesFromReactiveCharges[ $_ - 1 ] ) }
+                    map { ( "A$_" => $revenuesFromReactiveCharges[ $_ - 1 ] ) }
                       1 .. $numParts
                 },
             ) if $revenuesFromReactiveCharges[0];
@@ -333,11 +333,11 @@ sub summaryOfRevenuesHybrid {
         my $averageUnitRate = Arithmetic(
             name       => Label('Average unit rate p/kWh'),
             rows       => $allTariffs,
-            arithmetic => '=IF(IV403<>0,0.1*IV1/IV402,0)',
+            arithmetic => '=IF(A403<>0,0.1*A1/A402,0)',
             arguments  => {
-                IV1   => $revenuesFromUnitRates,
-                IV402 => $myUnits,
-                IV403 => $myUnits,
+                A1   => $revenuesFromUnitRates,
+                A402 => $myUnits,
+                A403 => $myUnits,
             },
         );
 
@@ -346,11 +346,11 @@ sub summaryOfRevenuesHybrid {
             Arithmetic(
                 name          => "Rate $_ revenue proportion",
                 defaultFormat => '%softnz',
-                arithmetic    => '=IF(IV3<>0,IV5/IV1,"")',
+                arithmetic    => '=IF(A3<>0,A5/A1,"")',
                 arguments     => {
-                    IV1 => $revenuesFromUnitRates,
-                    IV3 => $revenuesFromUnitRates,
-                    IV5 => $revenuesFromUnits[ $_ - 1 ],
+                    A1 => $revenuesFromUnitRates,
+                    A3 => $revenuesFromUnitRates,
+                    A5 => $revenuesFromUnits[ $_ - 1 ],
                 }
             );
           } 1 .. $model->{maxUnitRates}
@@ -359,22 +359,22 @@ sub summaryOfRevenuesHybrid {
         my $fixedProportion = Arithmetic(
             name          => 'Fixed charge proportion',
             defaultFormat => '%softnz',
-            arithmetic    => '=IF(IV3<>0,IV5/IV1,"")',
+            arithmetic    => '=IF(A3<>0,A5/A1,"")',
             arguments     => {
-                IV1 => $revenuesFromTariffs,
-                IV3 => $revenuesFromTariffs,
-                IV5 => $revenuesFromFixedCharges,
+                A1 => $revenuesFromTariffs,
+                A3 => $revenuesFromTariffs,
+                A5 => $revenuesFromFixedCharges,
             }
         );
 
         my $capacityProportion = Arithmetic(
             name          => 'Capacity charge proportion',
             defaultFormat => '%softnz',
-            arithmetic    => '=IF(IV3<>0,IV5/IV1,"")',
+            arithmetic    => '=IF(A3<>0,A5/A1,"")',
             arguments     => {
-                IV1 => $revenuesFromTariffs,
-                IV3 => $revenuesFromTariffs,
-                IV5 => $revenuesFromCapacityCharges,
+                A1 => $revenuesFromTariffs,
+                A3 => $revenuesFromTariffs,
+                A5 => $revenuesFromCapacityCharges,
             }
         ) if $revenuesFromCapacityCharges;
 
@@ -384,11 +384,11 @@ sub summaryOfRevenuesHybrid {
             ? 'Exceeded capacity charge proportion'
             : 'Unauthorised demand charge proportion',
             defaultFormat => '%softnz',
-            arithmetic    => '=IF(IV3<>0,IV5/IV1,"")',
+            arithmetic    => '=IF(A3<>0,A5/A1,"")',
             arguments     => {
-                IV1 => $revenuesFromTariffs,
-                IV3 => $revenuesFromTariffs,
-                IV5 => $revenuesFromUnauthDemandCharges,
+                A1 => $revenuesFromTariffs,
+                A3 => $revenuesFromTariffs,
+                A5 => $revenuesFromUnauthDemandCharges,
             }
         ) if $model->{unauth};
 
@@ -396,21 +396,21 @@ sub summaryOfRevenuesHybrid {
         $reactiveProportion = Arithmetic(
             name          => 'Reactive power charge proportion',
             defaultFormat => '%softnz',
-            arithmetic    => '=IF(IV3<>0,IV5/IV1,"")',
+            arithmetic    => '=IF(A3<>0,A5/A1,"")',
             arguments     => {
-                IV1 => $revenuesFromTariffs,
-                IV3 => $revenuesFromTariffs,
-                IV5 => $revenuesFromReactiveCharges,
+                A1 => $revenuesFromTariffs,
+                A3 => $revenuesFromTariffs,
+                A5 => $revenuesFromReactiveCharges,
             }
         ) if !$model->{reactiveExcluded} && $revenuesFromReactiveCharges;
 
         my $averageByUnit = Arithmetic(
             name       => 'Average p/kWh',
-            arithmetic => '=IF(IV3<>0,0.1*IV1/IV2,"")',
+            arithmetic => '=IF(A3<>0,0.1*A1/A2,"")',
             arguments  => {
-                IV1 => $revenuesFromTariffs,
-                IV2 => $myUnits,
-                IV3 => $myUnits,
+                A1 => $revenuesFromTariffs,
+                A2 => $myUnits,
+                A3 => $myUnits,
             }
         );
 
@@ -422,11 +422,11 @@ sub summaryOfRevenuesHybrid {
         my $averageByMpan = Arithmetic(
             name          => 'Average £/MPAN',
             defaultFormat => '0.00softnz',
-            arithmetic    => '=IF(IV3<>0,IV1/IV2,"")',
+            arithmetic    => '=IF(A3<>0,A1/A2,"")',
             arguments     => {
-                IV1 => $revenuesFromTariffs,
-                IV2 => $myMpans,
-                IV3 => $myMpans,
+                A1 => $revenuesFromTariffs,
+                A2 => $myMpans,
+                A3 => $myMpans,
             }
         );
 
@@ -468,24 +468,24 @@ sub summaryOfRevenuesHybrid {
                 1 ? () : Arithmetic(
                     name          => 'Average p/MPAN/day',
                     defaultFormat => '0.00softnz',
-                    arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
+                    arithmetic    => '=IF(A3<>0,A1/A2*100/A4,"")',
                     arguments     => {
-                        IV1 => $revenuesFromTariffs,
-                        IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV4 => $daysInYear,
+                        A1 => $revenuesFromTariffs,
+                        A2 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        A3 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        A4 => $daysInYear,
                     }
                 ),
 
                 1 ? () : Arithmetic(
                     name          => 'Average p/kVA/day',
                     defaultFormat => '0.00softnz',
-                    arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
+                    arithmetic    => '=IF(A3<>0,A1/A2*100/A4,"")',
                     arguments     => {
-                        IV1 => $revenuesFromTariffs,
-                        IV2 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV3 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV4 => $daysInYear,
+                        A1 => $revenuesFromTariffs,
+                        A2 => $volumeData->{'Capacity charge p/kVA/day'},
+                        A3 => $volumeData->{'Capacity charge p/kVA/day'},
+                        A4 => $daysInYear,
                     }
                 ),
 
@@ -516,26 +516,26 @@ sub summaryOfRevenuesHybrid {
                 1 ? () : Arithmetic(
                     name          => 'Fixed charge proportion',
                     defaultFormat => '%softnz',
-                    arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
+                    arithmetic    => '=IF(A3<>0,A5/(A1/A2*100/A4),"")',
                     arguments     => {
-                        IV1 => $revenuesFromTariffs,
-                        IV2 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV4 => $daysInYear,
-                        IV5 => $tariffTable->{'Fixed charge p/MPAN/day'},
+                        A1 => $revenuesFromTariffs,
+                        A2 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        A3 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        A4 => $daysInYear,
+                        A5 => $tariffTable->{'Fixed charge p/MPAN/day'},
                     }
                 ),
 
                 1 ? () : Arithmetic(
                     name          => 'Capacity charge proportion',
                     defaultFormat => '%softnz',
-                    arithmetic    => '=IF(IV3<>0,IV5/(IV1/IV2*100/IV4),"")',
+                    arithmetic    => '=IF(A3<>0,A5/(A1/A2*100/A4),"")',
                     arguments     => {
-                        IV1 => $revenuesFromTariffs,
-                        IV2 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV3 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV4 => $daysInYear,
-                        IV5 => $tariffTable->{'Capacity charge p/kVA/day'},
+                        A1 => $revenuesFromTariffs,
+                        A2 => $volumeData->{'Capacity charge p/kVA/day'},
+                        A3 => $volumeData->{'Capacity charge p/kVA/day'},
+                        A4 => $daysInYear,
+                        A5 => $tariffTable->{'Capacity charge p/kVA/day'},
                     }
                 ),
 
@@ -584,11 +584,11 @@ sub summaryOfRevenuesHybrid {
         my $totalFixedProportionSilly = Arithmetic(
             name          => 'Fixed charge proportion',
             defaultFormat => '%softnz',
-            arithmetic    => '=IF(IV3<>0,IV5/IV1,"")',
+            arithmetic    => '=IF(A3<>0,A5/A1,"")',
             arguments     => {
-                IV1 => $totalRevenuesFromTariffs,
-                IV3 => $totalRevenuesFromTariffs,
-                IV5 => $totalRevenuesFromFixed,
+                A1 => $totalRevenuesFromTariffs,
+                A3 => $totalRevenuesFromTariffs,
+                A5 => $totalRevenuesFromFixed,
             }
         );
 

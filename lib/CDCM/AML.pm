@@ -393,11 +393,11 @@ EOL
                 name       => 'Adjusted standing charges factors for 132kV',
                 cols       => Labelset( list => [ $drmExitLevels->{list}[1] ] ),
                 rows       => $demandEndUsers,
-                arithmetic => '=IV4+0.2*IV1*IV2',
+                arithmetic => '=A4+0.2*A1*A2',
                 arguments  => {
-                    IV1 => $rerouteing13211,
-                    IV2 => $scf13211,
-                    IV4 => $standingFactors
+                    A1 => $rerouteing13211,
+                    A2 => $scf13211,
+                    A4 => $standingFactors
                 }
             );
 
@@ -526,15 +526,15 @@ EOL
                     'Capacity-based contributions to chargeable aggregate '
                   . 'maximum load by network level (kW)'
             ),
-            arithmetic => '=(IV1+IV6)*IV2*IV4*IV5',
+            arithmetic => '=(A1+A6)*A2*A4*A5',
             cols       => $diversityLevels,
             rows       => $demandTariffsCapacity,
             arguments  => {
-                IV1 => $volumeData->{'Capacity charge p/kVA/day'},
-                IV6 => $volumeData->{'Exceeded capacity charge p/kVA/day'},
-                IV2 => $powerFactorInModel,
-                IV4 => $standingFactors,
-                IV5 => $lineLossFactors,
+                A1 => $volumeData->{'Capacity charge p/kVA/day'},
+                A6 => $volumeData->{'Exceeded capacity charge p/kVA/day'},
+                A2 => $powerFactorInModel,
+                A4 => $standingFactors,
+                A5 => $lineLossFactors,
             },
             defaultFormat => '0softnz',
           )
@@ -543,14 +543,14 @@ EOL
                     'Capacity-based contributions to chargeable aggregate '
                   . 'maximum load by network level (kW)'
             ),
-            arithmetic => '=IV1*IV2*IV4*IV5',
+            arithmetic => '=A1*A2*A4*A5',
             cols       => $diversityLevels,
             rows       => $demandTariffsCapacity,
             arguments  => {
-                IV1 => $volumeData->{'Capacity charge p/kVA/day'},
-                IV2 => $powerFactorInModel,
-                IV4 => $standingFactors,
-                IV5 => $lineLossFactors,
+                A1 => $volumeData->{'Capacity charge p/kVA/day'},
+                A2 => $powerFactorInModel,
+                A4 => $standingFactors,
+                A5 => $lineLossFactors,
             },
             defaultFormat => '0softnz',
           ) if $volumeData->{'Capacity charge p/kVA/day'};
@@ -562,12 +562,12 @@ EOL
                       'Deemed supercustomer capacity scaling factor (kVA/kW)',
                     rows =>
                       Labelset( list => [ $demandTariffsCapacity->{list}[0] ] ),
-                    arithmetic => '=IV1/IV2*IV3*24*IV4/1000',
+                    arithmetic => '=A1/A2*A3*24*A4/1000',
                     arguments  => {
-                        IV1 => $volumeData->{'Capacity charge p/kVA/day'},
-                        IV2 => $unitsInYear,
-                        IV3 => $loadFactors,
-                        IV4 => $daysInYear,
+                        A1 => $volumeData->{'Capacity charge p/kVA/day'},
+                        A2 => $unitsInYear,
+                        A3 => $loadFactors,
+                        A4 => $daysInYear,
                     },
                 );
             }
@@ -588,18 +588,18 @@ EOL
                 my $md = Arithmetic(
                     name       => 'Deemed maximum demand (kW)',
                     rows       => $demandTariffsSpareCap,
-                    arithmetic => '=IV2*1000/IV3/24/IV4',
+                    arithmetic => '=A2*1000/A3/24/A4',
                     arguments  => {
-                        IV2 => $unitsInYear,
-                        IV3 => $demandTariffsByEndUser->{groups}
+                        A2 => $unitsInYear,
+                        A3 => $demandTariffsByEndUser->{groups}
                         ? Arithmetic(
                             name       => 'Load factor (reshaped)',
-                            arithmetic => '=IV1',
+                            arithmetic => '=A1',
                             rows       => $demandTariffsByEndUser,
-                            arguments  => { IV1 => $loadFactors },
+                            arguments  => { A1 => $loadFactors },
                           )
                         : $loadFactors,
-                        IV4 => $daysInYear,
+                        A4 => $daysInYear,
                     },
                 );
                 Columnset(
@@ -609,10 +609,10 @@ EOL
                 $model->{aggCapFactor} = Arithmetic(
                     name =>
                       'Deemed supercustomer capacity scaling factor (kVA/kW)',
-                    arithmetic => '=SUM(IV1_IV2)/SUM(IV3_IV4)',
+                    arithmetic => '=SUM(A1_A2)/SUM(A3_A4)',
                     arguments  => {
-                        IV1_IV2 => $cap,
-                        IV3_IV4 => $md,
+                        A1_A2 => $cap,
+                        A3_A4 => $md,
                     },
                 );
             }
@@ -626,21 +626,21 @@ EOL
               . 'chargeable aggregate '
               . 'maximum load (kW)'
         ),
-        arithmetic => '=IV2/IV1'
-          . ( $model->{aggCapFactor} ? '*IV81*IV82' : '' )
-          . '*IV4*IV5/(24*IV9)*1000',
+        arithmetic => '=A2/A1'
+          . ( $model->{aggCapFactor} ? '*A81*A82' : '' )
+          . '*A4*A5/(24*A9)*1000',
         rows      => $standingForFixedTariffsByEndUser,
         cols      => $diversityLevels,
         arguments => {
-            IV2 => $unitsInYear,
-            IV1 => $loadFactors,
-            IV4 => $standingFactors,
-            IV9 => $daysInYear,
-            IV5 => $lineLossFactors,
+            A2 => $unitsInYear,
+            A1 => $loadFactors,
+            A4 => $standingFactors,
+            A9 => $daysInYear,
+            A5 => $lineLossFactors,
             $model->{aggCapFactor}
             ? (
-                IV81 => $model->{aggCapFactor},
-                IV82 => $powerFactorInModel,
+                A81 => $model->{aggCapFactor},
+                A82 => $powerFactorInModel,
               )
             : (),
         },
@@ -676,10 +676,10 @@ EOL
                   . 'to standing charge factors (kW)',
                 rows       => $demandTariffsByEndUser,
                 cols       => $diversityLevels,
-                arithmetic => '=IV1*IV2',
+                arithmetic => '=A1*A2',
                 arguments  => {
-                    IV2 => $standingFactors,
-                    IV1 => $forecastSml->{source},
+                    A2 => $standingFactors,
+                    A1 => $forecastSml->{source},
                 }
             ),
             cols          => $diversityLevels,
@@ -691,13 +691,13 @@ EOL
 
             $diversityAllowances = Arithmetic(
                 name          => 'Calculated diversity allowances',
-                arithmetic    => '=IF(IV3>0,IV1/IV2-1,IV4)',
+                arithmetic    => '=IF(A3>0,A1/A2-1,A4)',
                 defaultFormat => '%softnz',
                 arguments     => {
-                    IV1 => $chargeableAml,
-                    IV2 => $chargeableSml,
-                    IV3 => $chargeableSml,
-                    IV4 => $diversityAllowances
+                    A1 => $chargeableAml,
+                    A2 => $chargeableSml,
+                    A3 => $chargeableSml,
+                    A4 => $diversityAllowances
                 }
             );
 
@@ -737,11 +737,11 @@ EOL
             sources       => [
                 Arithmetic(
                     name          => 'Calculated LV diversity allowance',
-                    arithmetic    => '=IV1/IV2-1',
+                    arithmetic    => '=A1/A2-1',
                     cols          => $lvCircuitLevel,
                     defaultFormat => '%softnz',
                     arguments =>
-                      { IV1 => $chargeableAml, IV2 => $chargeableSml }
+                      { A1 => $chargeableAml, A2 => $chargeableSml }
                 ),
                 $diversityAllowances
             ]
@@ -770,13 +770,13 @@ EOL
           $forecastSml = Arithmetic(
             name => 'Forecast simultaneous maximum load (kW)'
               . ' adjusted for standing charges',
-            arithmetic    => '=IV3-IV2+IV1/(1+IV4)',
+            arithmetic    => '=A3-A2+A1/(1+A4)',
             defaultFormat => '0softnz',
             arguments     => {
-                IV1 => $chargeableAml,
-                IV2 => $chargeableSml,
-                IV3 => $forecastSml,
-                IV4 => $diversityAllowances
+                A1 => $chargeableAml,
+                A2 => $chargeableSml,
+                A3 => $forecastSml,
+                A4 => $diversityAllowances
             }
           ) unless $model->{opAllocSml};
 
@@ -837,22 +837,22 @@ sub impliedLoadFactors {
     my $impliedLoadFactors = Arithmetic(
         name => 'Implied average site-specific load'
           . ' factor for each tariff group',
-        arithmetic => '=IV1/24/IV2/IV3/IV4*1000',
+        arithmetic => '=A1/24/A2/A3/A4*1000',
         arguments  => {
-            IV1 => SumProduct(
+            A1 => SumProduct(
                 defaultFormat => '0softnz',
                 name   => 'Relevant consumption in each tariff group (MWh)',
                 matrix => $mapping1,
                 vector => $unitsByEndUser
             ),
-            IV2 => $daysInYear,
-            IV3 => SumProduct(
+            A2 => $daysInYear,
+            A3 => SumProduct(
                 defaultFormat => '0softnz',
                 name          => 'Relevant capacity in each tariff group (kVA)',
                 matrix        => $mapping1,
                 vector => $volumesByEndUser->{'Capacity charge p/kVA/day'}
             ),
-            IV4 => $powerFactorInModel,
+            A4 => $powerFactorInModel,
         }
     );
 
@@ -907,17 +907,17 @@ sub impliedLoadFactors {
     Arithmetic(
         name => 'Deemed site-specific load factor for fixed charge calculation',
         arguments => {
-            IV1 => $inputLoadFactors,
-            IV4 => $inputSpareCapacityFactors,
+            A1 => $inputLoadFactors,
+            A4 => $inputSpareCapacityFactors,
             $inputOnly ? ()
             : (
-                IV3 => $inputLoadFactors,
-                IV2 => $inputSpareCapacityFactors,
-                IV9 => $impliedLoadFactors,
+                A3 => $inputLoadFactors,
+                A2 => $inputSpareCapacityFactors,
+                A9 => $impliedLoadFactors,
             ),
         },
-        arithmetic => $inputOnly ? '=IV1/IV4'
-        : '=IF(ISERROR(IV3/IV2),IV9,IV1/IV4)',
+        arithmetic => $inputOnly ? '=A1/A4'
+        : '=IF(ISERROR(A3/A2),A9,A1/A4)',
     );
 
 }

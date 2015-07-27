@@ -140,17 +140,17 @@ sub totalUsage {
             map {
                 my $m = $_ + 1;
                 my $v = $_ + 100;
-                "IV$m*IV$v" . ( $_ ? '' : '/24/IV666' );
+                "A$m*A$v" . ( $_ ? '' : '/24/A666' );
               } 0 .. 2    # undue hardcoding (only zero is a unit rate)
         ),
         arguments => {
-            IV666 => $self->{setup}->daysInYear,
+            A666 => $self->{setup}->daysInYear,
             map {
                 my $m = $_ + 1;
                 my $v = $_ + 100;
                 (
-                    "IV$m" => $usageRates->[$_],
-                    "IV$v" => $volumes->[$_]
+                    "A$m" => $usageRates->[$_],
+                    "A$v" => $volumes->[$_]
                 );
               } 0 .. 2    # undue hardcoding
         },

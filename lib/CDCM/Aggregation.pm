@@ -157,11 +157,11 @@ sub roundingAndFinishing {
                   Label( $tariffComponent, "$tariffComponent loss adjustment" ),
                 rows       => $allTariffsByEndUser,
                 cols       => $cols,
-                arithmetic => '=IV9*('
-                  . join( '+', map { "IV$_" } 1 .. @tables ) . ')',
+                arithmetic => '=A9*('
+                  . join( '+', map { "A$_" } 1 .. @tables ) . ')',
                 arguments => {
-                    IV9 => $unitsLossAdjustment,
-                    map { 'IV' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables
+                    A9 => $unitsLossAdjustment,
+                    map { 'A' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables
                 },
                 defaultFormat => '0.000softnz',
             );
@@ -201,9 +201,9 @@ sub roundingAndFinishing {
               Label( $tariffComponent, "$tariffComponent before rounding" ),
             rows       => $allTariffsByEndUser,
             cols       => $cols,
-            arithmetic => '=' . join( '+', map { "IV$_" } 1 .. @tables ),
+            arithmetic => '=' . join( '+', map { "A$_" } 1 .. @tables ),
             arguments =>
-              { map { 'IV' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables },
+              { map { 'A' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables },
             defaultFormat => '0.00000soft',
             rowFormats    => [
                 map {
@@ -245,21 +245,21 @@ sub roundingAndFinishing {
             rows => $allTariffsByEndUser,
             cols       => $roundingRule{$tariffComponent}{cols},
             arithmetic => $model->{monthly} && $tariffComponent =~ /day/i
-            ? '=IF(IV99="",ROUND(IV1,IV2)-IV3,ROUND(IV91*IV98/12,0)*12/IV97-IV93)'
-            : $model->{capping} ? '=IF(IV81<0,0,ROUND(IV1,IV2))-IV3'
-            : '=ROUND(IV1,IV2)-IV3',
+            ? '=IF(A99="",ROUND(A1,A2)-A3,ROUND(A91*A98/12,0)*12/A97-A93)'
+            : $model->{capping} ? '=IF(A81<0,0,ROUND(A1,A2))-A3'
+            : '=ROUND(A1,A2)-A3',
             arguments => {
-                IV1  => $tariffsBeforeRounding{$tariffComponent},
-                IV81 => $tariffsBeforeRounding{$tariffComponent},
-                IV2  => $roundingRule{$tariffComponent},
-                IV3  => $tariffsBeforeRounding{$tariffComponent},
+                A1  => $tariffsBeforeRounding{$tariffComponent},
+                A81 => $tariffsBeforeRounding{$tariffComponent},
+                A2  => $roundingRule{$tariffComponent},
+                A3  => $tariffsBeforeRounding{$tariffComponent},
                 $model->{monthly}
                 ? (
-                    IV91 => $tariffsBeforeRounding{$tariffComponent},
-                    IV93 => $tariffsBeforeRounding{$tariffComponent},
-                    IV97 => $daysInYear,
-                    IV98 => $daysInYear,
-                    IV99 => $tariffsBeforeRounding{
+                    A91 => $tariffsBeforeRounding{$tariffComponent},
+                    A93 => $tariffsBeforeRounding{$tariffComponent},
+                    A97 => $daysInYear,
+                    A98 => $daysInYear,
+                    A99 => $tariffsBeforeRounding{
                         $componentLabelset->{'Reactive power charge p/kVArh'}
                         ? 'Capacity charge p/kVA/day'
                         : 'Reactive power charge p/kVArh'
@@ -289,20 +289,20 @@ sub roundingAndFinishing {
     {
         my @termsNoDays;
         my @termsWithDays;
-        my %args = ( IV400 => $daysInYear );
+        my %args = ( A400 => $daysInYear );
         my $i = 1;
         foreach ( grep { $roundingTable{$_} } @$nonExcludedComponents ) {
             ++$i;
             my $pad = "$i";
             $pad = "0$pad" while length $pad < 3;
             if (m#/day#) {
-                push @termsWithDays, "IV2$pad*IV3$pad";
+                push @termsWithDays, "A2$pad*A3$pad";
             }
             else {
-                push @termsNoDays, "IV2$pad*IV3$pad";
+                push @termsNoDays, "A2$pad*A3$pad";
             }
-            $args{"IV2$pad"} = $roundingTable{$_};
-            $args{"IV3$pad"} = $volumeData->{$_};
+            $args{"A2$pad"} = $roundingTable{$_};
+            $args{"A3$pad"} = $volumeData->{$_};
         }
         $revenuesFromRounding = Arithmetic(
             name       => 'Net revenues by tariff from rounding',
@@ -310,7 +310,7 @@ sub roundingAndFinishing {
             arithmetic => '='
               . join( '+',
                 @termsWithDays
-                ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                 : (),
                 @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                 : (),
@@ -348,9 +348,9 @@ sub roundingAndFinishing {
               && !$_->{mustCopy}
               && !$model->{copy} ? $_ : Arithmetic(
                 defaultFormat => '0soft',
-                arithmetic    => '=IV1',
+                arithmetic    => '=A1',
                 name => ref $_->{name} ? $_->{name}->shortName : $_->{name},
-                arguments => { IV1 => $_ }
+                arguments => { A1 => $_ }
               )
           } (
             $totalRevenuesSoFar,
@@ -368,17 +368,17 @@ sub roundingAndFinishing {
         my $totalNet = Arithmetic(
             name          => 'Total net revenues (£)',
             defaultFormat => '0soft',
-            arithmetic    => '=' . join( '+', map { "IV1$_" } 0 .. $#columns ),
-            arguments => { map { ; "IV1$_" => $columns[$_]; } 0 .. $#columns }
+            arithmetic    => '=' . join( '+', map { "A1$_" } 0 .. $#columns ),
+            arguments => { map { ; "A1$_" => $columns[$_]; } 0 .. $#columns }
         );
         my $revenueError = Arithmetic(
             name          => 'Deviation from target revenue (£)',
             defaultFormat => '0soft',
-            arithmetic    => '=IV1-IV2' . ( $revenueBefore ? '+IV3' : '' ),
+            arithmetic    => '=A1-A2' . ( $revenueBefore ? '+A3' : '' ),
             arguments     => {
-                IV1 => $totalNet,
-                IV2 => $allowedRevenue,
-                $revenueBefore ? ( IV3 => $revenueBefore ) : (),
+                A1 => $totalNet,
+                A2 => $allowedRevenue,
+                $revenueBefore ? ( A3 => $revenueBefore ) : (),
             }
         );
         push @{ $model->{revenueSummaryTables} },
@@ -397,8 +397,8 @@ sub roundingAndFinishing {
           Arithmetic(
             name          => 'Over/under recovery',
             defaultFormat => '%soft',
-            arithmetic    => '=IV1/IV2',
-            arguments     => { IV1 => $revenueError, IV2 => $allowedRevenue }
+            arithmetic    => '=A1/A2',
+            arguments     => { A1 => $revenueError, A2 => $allowedRevenue }
           );
     }
 
@@ -422,9 +422,9 @@ sub roundingAndFinishing {
             name       => $tariffComponent,
             rows       => $allTariffs,
             cols       => $componentLabelset->{$_},
-            arithmetic => '=' . join( '+', map { "IV$_" } 1 .. @tables ),
+            arithmetic => '=' . join( '+', map { "A$_" } 1 .. @tables ),
             arguments =>
-              { map { 'IV' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables },
+              { map { 'A' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables },
             $tariffComponent =~ m%p/k(W|VAr)h% ? ()
             : ( defaultFormat => '0.00soft' ),
             rowFormats => [
@@ -536,13 +536,13 @@ sub makeMatrixClosure {
                             "$tariffShort $volumeData->{$_}{name}"
                         ),
                         rows          => $theCol,
-                        arithmetic    => '=IF(IV1<>0,IV2/IV3,IV4)',
+                        arithmetic    => '=IF(A1<>0,A2/A3,A4)',
                         defaultFormat => '0softnz',
                         arguments     => {
-                            IV1 => $volumeData->{'Fixed charge p/MPAN/day'},
-                            IV2 => $volumeData->{$_},
-                            IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
-                            IV4 => $volumeData->{$_},
+                            A1 => $volumeData->{'Fixed charge p/MPAN/day'},
+                            A2 => $volumeData->{$_},
+                            A3 => $volumeData->{'Fixed charge p/MPAN/day'},
+                            A4 => $volumeData->{$_},
                         }
                       )
                       : Stack(
@@ -565,12 +565,12 @@ sub makeMatrixClosure {
                     ? Label( 'MWh',      "$tariffShort MWh" )
                     : Label( 'MWh/year', "$tariffShort MWh/year" ),
                     rows       => $theCol,
-                    arithmetic => '=IF(IV1<>0,IV2/IV3,IV4)',
+                    arithmetic => '=IF(A1<>0,A2/A3,A4)',
                     arguments  => {
-                        IV1 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV2 => $unitsInYear,
-                        IV3 => $volumeData->{'Fixed charge p/MPAN/day'},
-                        IV4 => $unitsInYear,
+                        A1 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        A2 => $unitsInYear,
+                        A3 => $volumeData->{'Fixed charge p/MPAN/day'},
+                        A4 => $unitsInYear,
                     }
                   )
                   : Stack(
@@ -588,11 +588,11 @@ sub makeMatrixClosure {
                     name => $model->{matrices} =~ /partyear/
                     ? Label( 'MWh/MPAN',      "$tariffShort MWh/MPAN" )
                     : Label( 'MWh/MPAN/year', "$tariffShort MWh/MPAN/year" ),
-                    arithmetic => '=IF(IV3,IV1/IV2,"")',
+                    arithmetic => '=IF(A3,A1/A2,"")',
                     arguments  => {
-                        IV1 => $units,
-                        IV2 => $volumes{'Fixed charge p/MPAN/day'},
-                        IV3 => $volumes{'Fixed charge p/MPAN/day'}
+                        A1 => $units,
+                        A2 => $volumes{'Fixed charge p/MPAN/day'},
+                        A3 => $volumes{'Fixed charge p/MPAN/day'}
                     }
                   ) if $units && $volumes{'Fixed charge p/MPAN/day'};
 
@@ -604,20 +604,20 @@ sub makeMatrixClosure {
                 {
                     my @termsNoDays;
                     my @termsWithDays;
-                    my %args = ( IV400 => $daysInYear );
+                    my %args = ( A400 => $daysInYear );
                     my $i = 1;
                     foreach (@components) {
                         ++$i;
                         my $pad = "$i";
                         $pad = "0$pad" while length $pad < 3;
                         if (m#/day#) {
-                            push @termsWithDays, "IV2$pad*IV3$pad";
+                            push @termsWithDays, "A2$pad*A3$pad";
                         }
                         else {
-                            push @termsNoDays, "IV2$pad*IV3$pad";
+                            push @termsNoDays, "A2$pad*A3$pad";
                         }
-                        $args{"IV2$pad"} = $columns{$_};
-                        $args{"IV3$pad"} = $volumes{$_};
+                        $args{"A2$pad"} = $columns{$_};
+                        $args{"A3$pad"} = $volumes{$_};
                     }
 
                     push @{ $model->{revenueTables} },
@@ -631,7 +631,7 @@ sub makeMatrixClosure {
                           . join(
                             '+',
                             @termsWithDays
-                            ? ( '0.01*IV400*('
+                            ? ( '0.01*A400*('
                                   . join( '+', @termsWithDays )
                                   . ')' )
                             : ('0'),
@@ -648,13 +648,13 @@ sub makeMatrixClosure {
                     $averageUnitRate = Arithmetic(
                         name       => Label('Average unit rate (p/kWh)'),
                         rows       => $revenuePots,
-                        arithmetic => '=IF(IV903<>0,('
+                        arithmetic => '=IF(A903<>0,('
                           . ( '(' . join( '+', @termsNoDays ) . ')' )
-                          . ')/IV902,0)',
+                          . ')/A902,0)',
                         arguments => {
                             %args,
-                            IV902 => $units,
-                            IV903 => $units,
+                            A902 => $units,
+                            A903 => $units,
                         },
                     );
                 };
@@ -664,11 +664,11 @@ sub makeMatrixClosure {
                   $revenues,
                   Arithmetic(
                     name       => 'Average p/kWh',
-                    arithmetic => '=IF(IV3<>0,0.1*IV1/IV2,"")',
+                    arithmetic => '=IF(A3<>0,0.1*A1/A2,"")',
                     arguments  => {
-                        IV1 => $revenues,
-                        IV2 => $units,
-                        IV3 => $units,
+                        A1 => $revenues,
+                        A2 => $units,
+                        A3 => $units,
                     }
                   ),
                   $volumes{'Fixed charge p/MPAN/day'}
@@ -677,11 +677,11 @@ sub makeMatrixClosure {
                     ? 'Average £/MPAN'
                     : 'Average £/MPAN/year',
                     defaultFormat => '0.00softnz',
-                    arithmetic    => '=IF(IV3<>0,IV1/IV2,"")',
+                    arithmetic    => '=IF(A3<>0,A1/A2,"")',
                     arguments     => {
-                        IV1 => $revenues,
-                        IV2 => $volumes{'Fixed charge p/MPAN/day'},
-                        IV3 => $volumes{'Fixed charge p/MPAN/day'},
+                        A1 => $revenues,
+                        A2 => $volumes{'Fixed charge p/MPAN/day'},
+                        A3 => $volumes{'Fixed charge p/MPAN/day'},
                     }
                   )
                   : (),
@@ -689,12 +689,12 @@ sub makeMatrixClosure {
                   ? Arithmetic(
                     name          => 'Average p/kVA/day',
                     defaultFormat => '0.00softnz',
-                    arithmetic    => '=IF(IV3<>0,IV1/IV2*100/IV4,"")',
+                    arithmetic    => '=IF(A3<>0,A1/A2*100/A4,"")',
                     arguments     => {
-                        IV1 => $revenues,
-                        IV2 => $volumes{'Capacity charge p/kVA/day'},
-                        IV3 => $volumes{'Capacity charge p/kVA/day'},
-                        IV4 => $daysInYear,
+                        A1 => $revenues,
+                        A2 => $volumes{'Capacity charge p/kVA/day'},
+                        A3 => $volumes{'Capacity charge p/kVA/day'},
+                        A4 => $daysInYear,
                     }
                   )
                   : (),;

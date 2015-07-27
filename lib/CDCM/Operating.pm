@@ -228,8 +228,8 @@ sub operating {
               . ' according to asset values (£/year)',
             singleRowName => 'Other expenditure',
             defaultFormat => '0soft',
-            arithmetic    => '=IV1+IV4+IV2*IV3',
-            arguments     => { map { ( "IV$_" => $otex[ $_ - 1 ] ) } 1 .. 4 }
+            arithmetic    => '=A1+A4+A2*A3',
+            arguments     => { map { ( "A$_" => $otex[ $_ - 1 ] ) } 1 .. 4 }
         );
 
     }
@@ -271,10 +271,10 @@ sub operating {
           : Arithmetic(
             name          => 'Service model assets (£) scaled by annual MWh',
             defaultFormat => '0soft',
-            arithmetic    => '=IV1*IV2',
+            arithmetic    => '=A1*A2',
             arguments     => {
-                IV1 => $serviceModelAssetsPerAnnualMwh,
-                IV2 => GroupBy(
+                A1 => $serviceModelAssetsPerAnnualMwh,
+                A2 => GroupBy(
                     name          => 'Total unmetered units',
                     defaultFormat => '0softnz',
                     source        => $unmeteredUnits
@@ -295,10 +295,10 @@ sub operating {
             push @serviceModelColumns,
               $serviceModelAssets = Arithmetic(
                 name       => 'Service model assets (£)',
-                arithmetic => '=IV1+IV2',
+                arithmetic => '=A1+A2',
                 arguments  => {
-                    IV1 => $serviceModelAssets,
-                    IV2 => $reshapedServiceModelAssetsFromAnnualMwh
+                    A1 => $serviceModelAssets,
+                    A2 => $reshapedServiceModelAssetsFromAnnualMwh
                 },
                 defaultFormat => '0soft'
               );
@@ -323,28 +323,28 @@ sub operating {
         $siteSpecificSoleUseAssets ? Arithmetic(
             name => 'Network model assets scaled by load forecast'
               . ', plus site specific sole use assets (£)',
-            arithmetic    => '=IF(IV5,IV1*IV2/IV3/1000,0)+IV4',
+            arithmetic    => '=IF(A5,A1*A2/A3/1000,0)+A4',
             defaultFormat => '0soft',
             cols          => $drmLevels,
             rows          => 0,
             arguments     => {
-                IV1 => $forecastSml,
-                IV2 => $modelGrossAssetsByLevel,
-                IV3 => $modelSml,
-                IV4 => $siteSpecificSoleUseAssets,
-                IV5 => $modelSml,
+                A1 => $forecastSml,
+                A2 => $modelGrossAssetsByLevel,
+                A3 => $modelSml,
+                A4 => $siteSpecificSoleUseAssets,
+                A5 => $modelSml,
             }
           ) : Arithmetic(
             name          => 'Network model assets (£) scaled by load forecast',
-            arithmetic    => '=IF(IV5,IV1*IV2/IV3/1000,0)',
+            arithmetic    => '=IF(A5,A1*A2/A3/1000,0)',
             defaultFormat => '0soft',
             cols          => $drmLevels,
             rows          => 0,
             arguments     => {
-                IV1 => $forecastSml,
-                IV2 => $modelGrossAssetsByLevel,
-                IV3 => $modelSml,
-                IV5 => $modelSml,
+                A1 => $forecastSml,
+                A2 => $modelGrossAssetsByLevel,
+                A3 => $modelSml,
+                A5 => $modelSml,
             }
           ),
         $serviceModelAssets ? $serviceModelAssets : ()
@@ -390,11 +390,11 @@ sub operating {
 
         $modelAssetsByLevelPossiblyScaled = Arithmetic(
             name          => 'Scaling factor after applying multipliers',
-            arithmetic    => '=IV1*IV2',
+            arithmetic    => '=A1*A2',
             defaultFormat => '0soft',
             arguments     => {
-                IV1 => $modelAssetsByLevel,
-                IV2 => $multipliers,
+                A1 => $modelAssetsByLevel,
+                A2 => $multipliers,
             }
         );
 
@@ -411,10 +411,10 @@ sub operating {
             name       => 'Denominator for allocation of operating expenditure',
             rows       => 0,
             cols       => Labelset( list => [ $modelSml->{rows}{list}[0] ] ),
-            arithmetic => '=IV1*IV2',
+            arithmetic => '=A1*A2',
             arguments  => {
-                IV1 => $forecastSml,
-                IV2 => GroupBy(
+                A1 => $forecastSml,
+                A2 => GroupBy(
                     name   => 'Total network model £/kW SML/year',
                     source => $modelCostToSml
                 )
@@ -480,18 +480,18 @@ sub operating {
 
         $abaters = Arithmetic(
             name       => "$abaters->{name} (transposed)",
-            arithmetic => '=IV1',
+            arithmetic => '=A1',
             cols       => $operatingLevels,
             rows       => 0,
-            arguments  => { IV1 => $abaters }
+            arguments  => { A1 => $abaters }
         ) if $abaters;
 
         $multipliers = Arithmetic(
             name       => "$multipliers->{name} (transposed)",
-            arithmetic => '=IV1',
+            arithmetic => '=A1',
             cols       => $operatingLevels,
             rows       => 0,
-            arguments  => { IV1 => $multipliers }
+            arguments  => { A1 => $multipliers }
         ) if $multipliers;
 
     }
@@ -504,13 +504,13 @@ sub operating {
       cols          => $operatingLevels,
       rows          => 0,
       defaultFormat => '0softnz',
-      arithmetic    => '=IV1+IV2/IV3*IV4' . ( $abaters ? '*(1-IV6)' : '' ),
+      arithmetic    => '=A1+A2/A3*A4' . ( $abaters ? '*(1-A6)' : '' ),
       arguments     => {
-        IV1 => $operatingExpenditureCodedByLevel,
-        IV2 => $operatingExpenditureToSplit,
-        IV3 => $modelAssetsPossiblyScaledTotal,
-        IV4 => $modelAssetsByLevelPossiblyScaled,
-        $abaters ? ( IV6 => $abaters ) : (),
+        A1 => $operatingExpenditureCodedByLevel,
+        A2 => $operatingExpenditureToSplit,
+        A3 => $modelAssetsPossiblyScaledTotal,
+        A4 => $modelAssetsByLevelPossiblyScaled,
+        $abaters ? ( A6 => $abaters ) : (),
       };
 
     push @{ $model->{operatingExpenditure} },
@@ -518,12 +518,12 @@ sub operating {
         name          => 'Operating expenditure percentage by network level',
         defaultFormat => '%softnz',
         cols          => $operatingLevels,
-        arithmetic    => '=IF(IV2="","",IF(IV3>0,IV1/IV4,0))',
+        arithmetic    => '=IF(A2="","",IF(A3>0,A1/A4,0))',
         arguments     => {
-            IV1 => $operatingExpenditureTotalByLevel,
-            IV2 => $modelAssetsByLevel,
-            IV3 => $modelAssetsByLevel,
-            IV4 => $modelAssetsByLevel,
+            A1 => $operatingExpenditureTotalByLevel,
+            A2 => $modelAssetsByLevel,
+            A3 => $modelAssetsByLevel,
+            A4 => $modelAssetsByLevel,
         }
       );
 
@@ -534,12 +534,12 @@ sub operating {
           $siteSpecificOperatingCost = Arithmetic(
             name => 'Operating expenditure for site-specific'
               . ' sole use assets (£/year)',
-            arithmetic    => '=IV1*IV5',
+            arithmetic    => '=A1*A5',
             defaultFormat => '0softnz',
             cols          => $operatingDrmLevels,
             arguments     => {
-                IV1 => $operatingExpenditurePercentages,
-                IV5 => $siteSpecificSoleUseAssets,
+                A1 => $operatingExpenditurePercentages,
+                A5 => $siteSpecificSoleUseAssets,
             }
           );
         $operatingExpenditureTotalByLevel = Stack(
@@ -551,13 +551,13 @@ sub operating {
                 Arithmetic(
                     name => 'Operating expenditure excluding site-specific'
                       . ' sole use assets (£/year)',
-                    arithmetic    => '=IV7-IV1*IV5',
+                    arithmetic    => '=A7-A1*A5',
                     defaultFormat => '0softnz',
                     cols          => $operatingDrmLevels,
                     arguments     => {
-                        IV1 => $operatingExpenditurePercentages,
-                        IV5 => $siteSpecificSoleUseAssets,
-                        IV7 => $operatingExpenditureTotalByLevel,
+                        A1 => $operatingExpenditurePercentages,
+                        A5 => $siteSpecificSoleUseAssets,
+                        A7 => $operatingExpenditureTotalByLevel,
                     }
                 ),
                 $operatingExpenditureTotalByLevel
@@ -568,13 +568,13 @@ sub operating {
     my $operatingCostToSml = Arithmetic(
         name => 'Unit operating expenditure based'
           . ' on simultaneous maximum load (£/kW/year)',
-        arithmetic => '=IF(IV3>0,IV1/IV2,0)',
+        arithmetic => '=IF(A3>0,A1/A2,0)',
         rows       => 0,
         cols       => $operatingDrmExitLevels,
         arguments  => {
-            IV2 => $forecastSml,
-            IV3 => $forecastSml,
-            IV1 => $operatingExpenditureTotalByLevel,
+            A2 => $forecastSml,
+            A3 => $forecastSml,
+            A1 => $operatingExpenditureTotalByLevel,
         }
     );
 
@@ -593,11 +593,11 @@ sub operating {
                 name       => 'Operating expenditure p/MPAN/day by level',
                 rows       => $allTariffsByEndUser,
                 cols       => $operatingCustomerLevels,
-                arithmetic => '=100/IV2*IV1*IV3',
+                arithmetic => '=100/A2*A1*A3',
                 arguments  => {
-                    IV1 => $operatingExpenditurePercentages,
-                    IV2 => $daysInYear,
-                    IV3 => $serviceModelAssetsPerCustomer,
+                    A1 => $operatingExpenditurePercentages,
+                    A2 => $daysInYear,
+                    A3 => $serviceModelAssetsPerCustomer,
                 }
             )
         );
@@ -616,15 +616,15 @@ sub operating {
         name => 'Operating expenditure for unmetered customer assets (p/kWh)',
         rows => $unmeteredUnits->{rows},
         cols => $operatingLvCustomer,
-        arithmetic => $umsOperatingExpenditure ? '=0.1*(IV3*IV1+IV4/IV5)'
-        : '=0.1*IV1*IV3',
+        arithmetic => $umsOperatingExpenditure ? '=0.1*(A3*A1+A4/A5)'
+        : '=0.1*A1*A3',
         arguments => {
-            IV1 => $operatingExpenditurePercentages,
-            IV3 => $serviceModelAssetsPerAnnualMwh,
+            A1 => $operatingExpenditurePercentages,
+            A3 => $serviceModelAssetsPerAnnualMwh,
             $umsOperatingExpenditure
             ? (
-                IV4 => $umsOperatingExpenditure,
-                IV5 => GroupBy(
+                A4 => $umsOperatingExpenditure,
+                A5 => GroupBy(
                     defaultFormat => '0softnz',
                     name   => 'Total unmetered MWh/year for customer assets',
                     source => $unmeteredUnits

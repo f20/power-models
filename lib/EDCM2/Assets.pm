@@ -215,19 +215,19 @@ sub notionalAssets {
       $useTextMatching
       ? Arithmetic(
         name       => 'Tariff type and category',
-        arithmetic => '="D"&TEXT(IV1,"0000")',
-        arguments  => { IV1 => $tariffCategory }
+        arithmetic => '="D"&TEXT(A1,"0000")',
+        arguments  => { A1 => $tariffCategory }
       )
       : Arithmetic(
         name          => 'Index of customer category',
         defaultFormat => '0soft',
         arithmetic =>
-'=1+(38*MOD(IV10,10)+(19*MOD(IV100,100)+(19*MOD(IV1000,1000)+IV1)/20)/10)/5',
+'=1+(38*MOD(A10,10)+(19*MOD(A100,100)+(19*MOD(A1000,1000)+A1)/20)/10)/5',
         arguments => {
-            IV1    => $tariffCategory,
-            IV10   => $tariffCategory,
-            IV100  => $tariffCategory,
-            IV1000 => $tariffCategory,
+            A1    => $tariffCategory,
+            A10   => $tariffCategory,
+            A100  => $tariffCategory,
+            A1000 => $tariffCategory,
         }
       );
 
@@ -330,39 +330,39 @@ EOL
 
     my $tariffLossFactor = Arithmetic(
         name       => 'Loss factor to transmission',
-        arithmetic => '=INDEX(IV8_IV9,'
+        arithmetic => '=INDEX(A8_A9,'
           . (
             $useTextMatching
-            ? 'IF(ISNUMBER(SEARCH("?0000",IV1)),1,'
-              . 'IF(ISNUMBER(SEARCH("?1000",IV20)),2,'
-              . 'IF(ISNUMBER(SEARCH("??100",IV21)),3,'
-              . 'IF(ISNUMBER(SEARCH("???10",IV22)),4,'
-              . 'IF(ISNUMBER(SEARCH("??001",IV23)),6,5)))))'
-            : $model->{voltageRulesTransparency} ? 'INDEX(IV5_IV6,IV1)'
-            :   'IF(IV1,IF(MOD(IV12,1000),IF(MOD(IV13,100),IF(MOD(IV14,10),IF(MOD(IV15,1000)=1,6,5),4),3),2),1)'
+            ? 'IF(ISNUMBER(SEARCH("?0000",A1)),1,'
+              . 'IF(ISNUMBER(SEARCH("?1000",A20)),2,'
+              . 'IF(ISNUMBER(SEARCH("??100",A21)),3,'
+              . 'IF(ISNUMBER(SEARCH("???10",A22)),4,'
+              . 'IF(ISNUMBER(SEARCH("??001",A23)),6,5)))))'
+            : $model->{voltageRulesTransparency} ? 'INDEX(A5_A6,A1)'
+            :   'IF(A1,IF(MOD(A12,1000),IF(MOD(A13,100),IF(MOD(A14,10),IF(MOD(A15,1000)=1,6,5),4),3),2),1)'
           )
           . ')',
         arguments => {
             $useTextMatching
             ? (
-                IV1  => $customerCategory,
-                IV20 => $customerCategory,
-                IV21 => $customerCategory,
-                IV22 => $customerCategory,
-                IV23 => $customerCategory,
+                A1  => $customerCategory,
+                A20 => $customerCategory,
+                A21 => $customerCategory,
+                A22 => $customerCategory,
+                A23 => $customerCategory,
               )
             : $model->{voltageRulesTransparency} ? (
-                IV1     => $customerCategory,
-                IV5_IV6 => $lossFactorMap,
+                A1     => $customerCategory,
+                A5_A6 => $lossFactorMap,
               )
             : (
-                IV1  => $tariffCategory,
-                IV12 => $tariffCategory,
-                IV13 => $tariffCategory,
-                IV14 => $tariffCategory,
-                IV15 => $tariffCategory,
+                A1  => $tariffCategory,
+                A12 => $tariffCategory,
+                A13 => $tariffCategory,
+                A14 => $tariffCategory,
+                A15 => $tariffCategory,
             ),
-            IV8_IV9 => $lossFactors,
+            A8_A9 => $lossFactors,
         },
     );
 
@@ -370,10 +370,10 @@ EOL
         name => 'Peak-time active power consumption'
           . ' adjusted to transmission (kW/kVA)',
         groupName  => 'Active power consumption',
-        arithmetic => '=IV1*IV9',
+        arithmetic => '=A1*A9',
         arguments  => {
-            IV1 => $activeCoincidence,
-            IV9 => $tariffLossFactor,
+            A1 => $activeCoincidence,
+            A9 => $tariffLossFactor,
         }
     );
 
@@ -381,14 +381,14 @@ EOL
         $purpleUseRate,
         Arithmetic(
             name => 'Peak-time capacity use adjusted to transmission (kW/kVA)',
-            arithmetic => '=SQRT(IV1*IV2+IV3*IV4)*IV8*IV9',
+            arithmetic => '=SQRT(A1*A2+A3*A4)*A8*A9',
             arguments  => {
-                IV1 => $activeCoincidence,
-                IV2 => $activeCoincidence,
-                IV3 => $reactiveCoincidence,
-                IV4 => $reactiveCoincidence,
-                IV8 => $powerFactorInModel,
-                IV9 => $tariffLossFactor,
+                A1 => $activeCoincidence,
+                A2 => $activeCoincidence,
+                A3 => $reactiveCoincidence,
+                A4 => $reactiveCoincidence,
+                A8 => $powerFactorInModel,
+                A9 => $tariffLossFactor,
             }
         )
       ]
@@ -397,11 +397,11 @@ EOL
     my $capUseRate = Arithmetic(
         name => 'Active power equivalent of capacity'
           . ' adjusted to transmission (kW/kVA)',
-        arithmetic => '=IV1*IV9',
+        arithmetic => '=A1*A9',
         newBlock   => 1,
         arguments  => {
-            IV9 => $powerFactorInModel,
-            IV1 => $tariffLossFactor,
+            A9 => $powerFactorInModel,
+            A1 => $tariffLossFactor,
         }
     );
 
@@ -463,23 +463,23 @@ EOL
       ? Arithmetic(
         name       => 'Notional asset rate (£/kW)',
         newBlock   => 1,
-        arithmetic => '=IF(IV1,IV2/IV3/IV4,0)',
+        arithmetic => '=IF(A1,A2/A3/A4,0)',
         arguments  => {
-            IV1 => $cdcmUse,
-            IV2 => $cdcmAssets,
-            IV3 => $cdcmUse,
-            IV4 => $lossFactors
+            A1 => $cdcmUse,
+            A2 => $cdcmAssets,
+            A3 => $cdcmUse,
+            A4 => $lossFactors
         },
         location => 'Charging rates',
       )
       : Arithmetic(
         name       => 'Notional asset rate (£/kW)',
         newBlock   => 1,
-        arithmetic => '=IV2/IV1/IV4',
+        arithmetic => '=A2/A1/A4',
         arguments  => {
-            IV1 => $cdcmUse,
-            IV2 => $cdcmAssets,
-            IV4 => $lossFactors
+            A1 => $cdcmUse,
+            A2 => $cdcmAssets,
+            A4 => $lossFactors
         },
         location => 'Charging rates',
       );
@@ -514,21 +514,21 @@ EOL
         name => 'Notional asset rate for 132kV/HV (£/kW)',
         $useTextMatching
         ? (
-            arithmetic => '=IF(ISNUMBER(IV1),IV2,IV3)',
+            arithmetic => '=IF(ISNUMBER(A1),A2,A3)',
             arguments  => {
-                IV1 => $accretion132hvHard,
-                IV2 => $accretion132hvHard,
-                IV3 => $accretion,
+                A1 => $accretion132hvHard,
+                A2 => $accretion132hvHard,
+                A3 => $accretion,
             }
           )
         : (
-            arithmetic => '=IF(ISNUMBER(IV1),IF(IV2,IV3,IV4),IV5)',
+            arithmetic => '=IF(ISNUMBER(A1),IF(A2,A3,A4),A5)',
             arguments  => {
-                IV1 => $accretion132hvHard,
-                IV2 => $accretion132hvHard,
-                IV3 => $accretion132hvHard,
-                IV4 => $accretion,
-                IV5 => $accretion,
+                A1 => $accretion132hvHard,
+                A2 => $accretion132hvHard,
+                A3 => $accretion132hvHard,
+                A4 => $accretion,
+                A5 => $accretion,
             }
         ),
         location => 'Charging rates',
@@ -543,11 +543,11 @@ EOL
         Arithmetic(
             name       => 'Network use factors (second set)',
             groupName  => 'Second set of network use factors',
-            arithmetic => '=MAX(IV3+0,MIN(IV1+0,IV2+0))',
+            arithmetic => '=MAX(A3+0,MIN(A1+0,A2+0))',
             arguments  => {
-                IV1 => $useProportions,
-                IV2 => $usePropCap,
-                IV3 => $usePropCollar,
+                A1 => $useProportions,
+                A2 => $usePropCap,
+                A3 => $usePropCollar,
             }
         );
     };
@@ -576,12 +576,12 @@ EOL
                     @extras,
                     custom => [
                         $model->{voltageRulesTransparency} =~ /old/
-                        ? '=IF(INDEX(IV5:IV6,IV4)'
+                        ? '=IF(INDEX(A5:A6,A4)'
                           . ( $diversity ? '=1' : '>1' )
-                          . ',IV1*IV8'
-                          . ( $diversity ? '/(1+IV3)' : '' ) . ',0)'
-                        : '=INDEX(IV5:IV6,IV4)*IV1*IV8'
-                          . ( $diversity ? '/(1+IV3)' : '' )
+                          . ',A1*A8'
+                          . ( $diversity ? '/(1+A3)' : '' ) . ',0)'
+                        : '=INDEX(A5:A6,A4)*A1*A8'
+                          . ( $diversity ? '/(1+A3)' : '' )
                     ],
                     wsPrepare => sub {
                         my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
@@ -590,34 +590,34 @@ EOL
                         sub {
                             my ( $x, $y ) = @_;
                             '', $format, $formula->[0],
-                              qr/\bIV1\b/ =>
+                              qr/\bA1\b/ =>
                               Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{IV1} + $y,
-                                $colh->{IV1} + $x
+                                $rowh->{A1} + $y,
+                                $colh->{A1} + $x
                               ),
-                              qr/\bIV4\b/ =>
+                              qr/\bA4\b/ =>
                               Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{IV4} + $y,
-                                $colh->{IV4}, 0, 1 ),
+                                $rowh->{A4} + $y,
+                                $colh->{A4}, 0, 1 ),
                               $diversity
                               ? ( # NB: shifted by one to the right because of the GSP entry
-                                qr/\bIV3\b/ =>
+                                qr/\bA3\b/ =>
                                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                    $rowh->{IV3}, $colh->{IV3} + 1 + $x, 1
+                                    $rowh->{A3}, $colh->{A3} + 1 + $x, 1
                                   )
                               )
                               : (),
-                              qr/\bIV8\b/ =>
+                              qr/\bA8\b/ =>
                               Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{IV8} + $y,
-                                $colh->{IV8}, 0, 1 ),
-                              qr/\bIV5\b/ =>
+                                $rowh->{A8} + $y,
+                                $colh->{A8}, 0, 1 ),
+                              qr/\bA5\b/ =>
                               Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{IV5_IV6}, $colh->{IV5_IV6} + $x, 1 ),
-                              qr/\bIV6\b/ =>
+                                $rowh->{A5_A6}, $colh->{A5_A6} + $x, 1 ),
+                              qr/\bA6\b/ =>
                               Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{IV5_IV6} + $classificationMap->lastRow,
-                                $colh->{IV5_IV6} + $x,
+                                $rowh->{A5_A6} + $classificationMap->lastRow,
+                                $colh->{A5_A6} + $x,
                                 1
                               );
                         };
@@ -625,18 +625,18 @@ EOL
                     rows      => $useProportions->{rows},
                     cols      => $useProportions->{cols},
                     arguments => {
-                        IV1 => $useProportions,
-                        IV5 => $model->{voltageRulesTransparency} =~ /old/
+                        A1 => $useProportions,
+                        A5 => $model->{voltageRulesTransparency} =~ /old/
                         ? $classificationMap
                         : $diversity ? $capacityAssetMap
                         : $consumptionAssetMap,
-                        IV5_IV6 => $model->{voltageRulesTransparency} =~ /old/
+                        A5_A6 => $model->{voltageRulesTransparency} =~ /old/
                         ? $classificationMap
                         : $diversity ? $capacityAssetMap
                         : $consumptionAssetMap,
-                        IV4 => $customerCategory,
-                        $diversity ? ( IV3 => $diversity ) : (),
-                        IV8 => ref $useRate eq 'ARRAY' ? $useRate->[1]
+                        A4 => $customerCategory,
+                        $diversity ? ( A3 => $diversity ) : (),
+                        A8 => ref $useRate eq 'ARRAY' ? $useRate->[1]
                         : $useRate,
                     },
                 ),
@@ -690,8 +690,8 @@ EOL
             @assetsCapacityCooked, @assetsConsumptionCooked,
         );
 
-        my $starIV5       = $useProportions       ? '*IV5' : '';
-        my $starIV5Cooked = $useProportionsCooked ? '*IV5' : '';
+        my $starIV5       = $useProportions       ? '*A5' : '';
+        my $starIV5Cooked = $useProportionsCooked ? '*A5' : '';
 
         if ( !$useTextMatching ) {    # does not support allowInvalid
 
@@ -699,13 +699,13 @@ EOL
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(IV1=1000,IV4*IV8/(1+IV3)$starIV5,0)@,
+                arithmetic => qq@=IF(A1=1000,A4*A8/(1+A3)$starIV5,0)@,
                 arguments  => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -713,15 +713,15 @@ EOL
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(IV1=1000,IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+                arithmetic => qq@=IF(A1=1000,A4*A8/(1+A3)$starIV5Cooked,0)@,
                 newBlock   => 1,
                 arguments  => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -731,13 +731,13 @@ EOL
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-                  qq@=IF(MOD(IV1,1000)=100,IV4*IV8/(1+IV3)$starIV5,0)@,
+                  qq@=IF(MOD(A1,1000)=100,A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -746,14 +746,14 @@ EOL
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-                  qq@=IF(MOD(IV1,1000)=100,IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+                  qq@=IF(MOD(A1,1000)=100,A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -763,13 +763,13 @@ EOL
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-                  qq@=IF(MOD(IV1,100)=10,IV4*IV8/(1+IV3)$starIV5,0)@,
+                  qq@=IF(MOD(A1,100)=10,A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -778,14 +778,14 @@ EOL
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-                  qq@=IF(MOD(IV1,100)=10,IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+                  qq@=IF(MOD(A1,100)=10,A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -795,14 +795,14 @@ EOL
                 name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
                 arithmetic =>
-qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(AND(MOD(A1,10)>0,MOD(A2,1000)>1),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV2 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $tariffCategory,
+                    A2 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -811,15 +811,15 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5,0)@,
                 name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
                 arithmetic =>
-qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(AND(MOD(A1,10)>0,MOD(A2,1000)>1),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV2 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $tariffCategory,
+                    A2 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -829,13 +829,13 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-                  qq@=IF(MOD(IV1,1000)=1,IV4*IV8/(1+IV3)$starIV5,0)@,
+                  qq@=IF(MOD(A1,1000)=1,A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -844,14 +844,14 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-                  qq@=IF(MOD(IV1,1000)=1,IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+                  qq@=IF(MOD(A1,1000)=1,A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -860,14 +860,14 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(IV1>1000,IV4*IV9$starIV5,0)@,
+                arithmetic => qq@=IF(A1>1000,A4*A9$starIV5,0)@,
                 arguments  => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY'
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -875,13 +875,13 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(IV1>1000,IV4*IV9$starIV5Cooked,0)@,
+                arithmetic => qq@=IF(A1>1000,A4*A9$starIV5Cooked,0)@,
                 arguments  => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportionsCooked ? ( IV5 => $useProportionsCooked )
+                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -890,14 +890,14 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic => qq@=IF(MOD(IV1,1000)>100,IV4*IV9$starIV5,0)@,
+                arithmetic => qq@=IF(MOD(A1,1000)>100,A4*A9$starIV5,0)@,
                 arguments  => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY'
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -906,13 +906,13 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-                  qq@=IF(MOD(IV1,1000)>100,IV4*IV9$starIV5Cooked,0)@,
+                  qq@=IF(MOD(A1,1000)>100,A4*A9$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportionsCooked ? ( IV5 => $useProportionsCooked )
+                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -921,14 +921,14 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic => qq@=IF(MOD(IV1,100)>10,IV4*IV9$starIV5,0)@,
+                arithmetic => qq@=IF(MOD(A1,100)>10,A4*A9$starIV5,0)@,
                 arguments  => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY'
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -936,13 +936,13 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic => qq@=IF(MOD(IV1,100)>10,IV4*IV9$starIV5Cooked,0)@,
+                arithmetic => qq@=IF(MOD(A1,100)>10,A4*A9$starIV5Cooked,0)@,
                 arguments  => {
-                    IV1 => $tariffCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
+                    A1 => $tariffCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportionsCooked ? ( IV5 => $useProportionsCooked )
+                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -955,13 +955,13 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(IV1="D1000",IV4*IV8/(1+IV3)$starIV5,0)@,
+                arithmetic => qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5,0)@,
                 arguments  => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -970,14 +970,14 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
                 arithmetic =>
-                  qq@=IF(IV1="D1000",IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+                  qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -987,13 +987,13 @@ qq@=IF(AND(MOD(IV1,10)>0,MOD(IV2,1000)>1),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1002,14 +1002,14 @@ qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -1019,13 +1019,13 @@ qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1034,14 +1034,14 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -1051,15 +1051,15 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
                 arithmetic =>
-qq@=IF(OR(IV6="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7))),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV6 => $customerCategory,
-                    IV7 => $customerCategory,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A6 => $customerCategory,
+                    A7 => $customerCategory,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1068,16 +1068,16 @@ qq@=IF(OR(IV6="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7)
                 name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
                 arithmetic =>
-qq@=IF(OR(IV6="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7))),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV7 => $customerCategory,
-                    IV4 => $accretion,
-                    IV6 => $customerCategory,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $customerCategory,
+                    A7 => $customerCategory,
+                    A4 => $accretion,
+                    A6 => $customerCategory,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -1087,13 +1087,13 @@ qq@=IF(OR(IV6="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7)
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?001",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1102,14 +1102,14 @@ qq@=IF(ISNUMBER(SEARCH("D?001",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?001",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
                     $useProportionsCooked
-                    ? ( IV5 => $useProportionsCooked )
+                    ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -1119,15 +1119,15 @@ qq@=IF(ISNUMBER(SEARCH("D?001",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
                 arithmetic =>
-qq@=IF(IV1="D1000",0,IF(ISNUMBER(SEARCH("D1???",IV2)),IV4*IV9$starIV5,0))@,
+qq@=IF(A1="D1000",0,IF(ISNUMBER(SEARCH("D1???",A2)),A4*A9$starIV5,0))@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV2 => $customerCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY'
+                    A1 => $customerCategory,
+                    A2 => $customerCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1136,14 +1136,14 @@ qq@=IF(IV1="D1000",0,IF(ISNUMBER(SEARCH("D1???",IV2)),IV4*IV9$starIV5,0))@,
                 name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
                 arithmetic =>
-qq@=IF(IV1="D1000",0,IF(ISNUMBER(SEARCH("D1???",IV2)),IV4*IV9$starIV5Cooked,0))@,
+qq@=IF(A1="D1000",0,IF(ISNUMBER(SEARCH("D1???",A2)),A4*A9$starIV5Cooked,0))@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV2 => $customerCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
+                    A1 => $customerCategory,
+                    A2 => $customerCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportionsCooked ? ( IV5 => $useProportionsCooked )
+                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -1153,15 +1153,15 @@ qq@=IF(IV1="D1000",0,IF(ISNUMBER(SEARCH("D1???",IV2)),IV4*IV9$starIV5Cooked,0))@
                 name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),0,IF(ISNUMBER(SEARCH("D?1??",IV2)),IV4*IV9$starIV5,0))@,
+qq@=IF(ISNUMBER(SEARCH("D?100",A1)),0,IF(ISNUMBER(SEARCH("D?1??",A2)),A4*A9$starIV5,0))@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV2 => $customerCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY'
+                    A1 => $customerCategory,
+                    A2 => $customerCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1170,14 +1170,14 @@ qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),0,IF(ISNUMBER(SEARCH("D?1??",IV2)),IV4*IV9$
                 name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),0,IF(ISNUMBER(SEARCH("D?1??",IV2)),IV4*IV9$starIV5Cooked,0))@,
+qq@=IF(ISNUMBER(SEARCH("D?100",A1)),0,IF(ISNUMBER(SEARCH("D?1??",A2)),A4*A9$starIV5Cooked,0))@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV2 => $customerCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
+                    A1 => $customerCategory,
+                    A2 => $customerCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportionsCooked ? ( IV5 => $useProportionsCooked )
+                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -1187,15 +1187,15 @@ qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),0,IF(ISNUMBER(SEARCH("D?1??",IV2)),IV4*IV9$
                 name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),0,IF(ISNUMBER(SEARCH("D??1?",IV2)),IV4*IV9$starIV5,0))@,
+qq@=IF(ISNUMBER(SEARCH("D??10",A1)),0,IF(ISNUMBER(SEARCH("D??1?",A2)),A4*A9$starIV5,0))@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV2 => $customerCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY'
+                    A1 => $customerCategory,
+                    A2 => $customerCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1204,14 +1204,14 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),0,IF(ISNUMBER(SEARCH("D??1?",IV2)),IV4*IV9$
                 name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),0,IF(ISNUMBER(SEARCH("D??1?",IV2)),IV4*IV9$starIV5Cooked,0))@,
+qq@=IF(ISNUMBER(SEARCH("D??10",A1)),0,IF(ISNUMBER(SEARCH("D??1?",A2)),A4*A9$starIV5Cooked,0))@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV2 => $customerCategory,
-                    IV4 => $accretion,
-                    IV9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
+                    A1 => $customerCategory,
+                    A2 => $customerCategory,
+                    A4 => $accretion,
+                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportionsCooked ? ( IV5 => $useProportionsCooked )
+                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
                     : (),
                 },
               );
@@ -1224,13 +1224,13 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),0,IF(ISNUMBER(SEARCH("D??1?",IV2)),IV4*IV9$
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(IV1="D1000",IV4*IV8/(1+IV3)$starIV5,0)@,
+                arithmetic => qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5,0)@,
                 arguments  => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1239,13 +1239,13 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),0,IF(ISNUMBER(SEARCH("D??1?",IV2)),IV4*IV9$
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
                 arithmetic =>
-                  qq@=IF(IV1="D1000",IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+                  qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    IV5 => $useProportionsCooked,
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    A5 => $useProportionsCooked,
                 },
               );
 
@@ -1254,25 +1254,25 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),0,IF(ISNUMBER(SEARCH("D??1?",IV2)),IV4*IV9$
                 name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
                 arithmetic =>
-qq@=IF(OR(IV1="D1000",ISNUMBER(SEARCH("G????",IV20))),0,IV4*IV9$starIV5)@,
+qq@=IF(OR(A1="D1000",ISNUMBER(SEARCH("G????",A20))),0,A4*A9$starIV5)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
             my $useProportionsCapped = Arithmetic(
                 name       => 'Network use factors (capped only)',
-                arithmetic => '=MIN(IV1+0,IV2+0)',
+                arithmetic => '=MIN(A1+0,A2+0)',
                 arguments  => {
-                    IV1 => $useProportions,
-                    IV2 => $usePropCap,
+                    A1 => $useProportions,
+                    A2 => $usePropCap,
                 }
             );
 
@@ -1281,17 +1281,17 @@ qq@=IF(OR(IV1="D1000",ISNUMBER(SEARCH("G????",IV20))),0,IV4*IV9$starIV5)@,
                 name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
                 arithmetic =>
-qq@=IF(OR(IV1="D1000",ISNUMBER(SEARCH("G????",IV20))),0,IF(ISNUMBER(SEARCH("D1???",IV21)),IV5,IV6)*IV4*IV9)@,
+qq@=IF(OR(A1="D1000",ISNUMBER(SEARCH("G????",A20))),0,IF(ISNUMBER(SEARCH("D1???",A21)),A5,A6)*A4*A9)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    IV5 => $useProportionsCooked,
-                    IV6 => $useProportionsCapped,
+                    A5 => $useProportionsCooked,
+                    A6 => $useProportionsCapped,
                 },
               );
 
@@ -1300,13 +1300,13 @@ qq@=IF(OR(IV1="D1000",ISNUMBER(SEARCH("G????",IV20))),0,IF(ISNUMBER(SEARCH("D1??
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1315,13 +1315,13 @@ qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    IV5 => $useProportionsCooked,
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    A5 => $useProportionsCooked,
                 },
               );
 
@@ -1330,16 +1330,16 @@ qq@=IF(ISNUMBER(SEARCH("D?100",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?100",IV1))),0,IV4*IV9$starIV5)@,
+qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?100",A1))),0,A4*A9$starIV5)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1348,17 +1348,17 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?100",IV1))),0,IV4*IV
                 name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?100",IV1))),0,IF(ISNUMBER(SEARCH("D?1??",IV21)),IV5,IV6)*IV4*IV9)@,
+qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?100",A1))),0,IF(ISNUMBER(SEARCH("D?1??",A21)),A5,A6)*A4*A9)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    IV5 => $useProportionsCooked,
-                    IV6 => $useProportionsCapped,
+                    A5 => $useProportionsCooked,
+                    A6 => $useProportionsCapped,
                 },
               );
 
@@ -1367,15 +1367,15 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?100",IV1))),0,IF(ISN
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV3  => $diversity,
-                    IV8  => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A3  => $diversity,
+                    A8  => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1384,15 +1384,15 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV3  => $diversity,
-                    IV8  => $capUseRate,
-                    IV5  => $useProportionsCooked,
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A3  => $diversity,
+                    A8  => $capUseRate,
+                    A5  => $useProportionsCooked,
                 },
               );
 
@@ -1401,16 +1401,16 @@ qq@=IF(ISNUMBER(SEARCH("D??10",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D??10",IV1))),0,IV4*IV9$starIV5)@,
+qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D??10",A1))),0,A4*A9$starIV5)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1419,17 +1419,17 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D??10",IV1))),0,IV4*IV
                 name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D??10",IV1))),0,IF(ISNUMBER(SEARCH("D??1?",IV21)),IV5,IV6)*IV4*IV9)@,
+qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D??10",A1))),0,IF(ISNUMBER(SEARCH("D??1?",A21)),A5,A6)*A4*A9)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    IV5 => $useProportionsCooked,
-                    IV6 => $useProportionsCapped,
+                    A5 => $useProportionsCooked,
+                    A6 => $useProportionsCapped,
                 },
               );
 
@@ -1438,15 +1438,15 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D??10",IV1))),0,IF(ISN
                 name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
                 arithmetic =>
-qq@=IF(OR(IV6="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7))),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV6 => $customerCategory,
-                    IV7 => $customerCategory,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A6 => $customerCategory,
+                    A7 => $customerCategory,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1455,15 +1455,15 @@ qq@=IF(OR(IV6="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7)
                 name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
                 arithmetic =>
-qq@=IF(OR(IV6="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7))),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV7 => $customerCategory,
-                    IV4 => $accretion,
-                    IV6 => $customerCategory,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    IV5 => $useProportionsCooked,
+                    A1 => $customerCategory,
+                    A7 => $customerCategory,
+                    A4 => $accretion,
+                    A6 => $customerCategory,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    A5 => $useProportionsCooked,
                 },
               );
 
@@ -1472,18 +1472,18 @@ qq@=IF(OR(IV6="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7)
                 name => "Consumption $accretion->{cols}{list}[4] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
                 arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),IV22="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7))),0,IV4*IV9$starIV5)@,
+qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),A22="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),0,A4*A9$starIV5)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV22 => $customerCategory,
-                    IV7  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A22 => $customerCategory,
+                    A7  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1492,19 +1492,19 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),IV22="D0002",ISNUMBER(SEARCH("D?1?1",IV
                 name => "Consumption $accretion->{cols}{list}[4] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
                 arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),IV22="D0002",ISNUMBER(SEARCH("D?1?1",IV1)),ISNUMBER(SEARCH("D??11",IV7))),0,IV6*IV4*IV9)@,
+qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),A22="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),0,A6*A4*A9)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV22 => $customerCategory,
-                    IV7  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A22 => $customerCategory,
+                    A7  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    IV5 => $useProportionsCooked,
-                    IV6 => $useProportionsCapped,
+                    A5 => $useProportionsCooked,
+                    A6 => $useProportionsCapped,
                 },
               );
 
@@ -1513,13 +1513,13 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),IV22="D0002",ISNUMBER(SEARCH("D?1?1",IV
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?001",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
+qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1528,13 +1528,13 @@ qq@=IF(ISNUMBER(SEARCH("D?001",IV1)),IV4*IV8/(1+IV3)$starIV5,0)@,
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?001",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
+qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 arguments => {
-                    IV1 => $customerCategory,
-                    IV4 => $accretion,
-                    IV3 => $diversity,
-                    IV8 => $capUseRate,
-                    IV5 => $useProportionsCooked,
+                    A1 => $customerCategory,
+                    A4 => $accretion,
+                    A3 => $diversity,
+                    A8 => $capUseRate,
+                    A5 => $useProportionsCooked,
                 },
               );
 
@@ -1543,16 +1543,16 @@ qq@=IF(ISNUMBER(SEARCH("D?001",IV1)),IV4*IV8/(1+IV3)$starIV5Cooked,0)@,
                 name => "Consumption $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV4*IV9$starIV5)@,
+qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A4*A9$starIV5)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    $useProportions ? ( IV5 => $useProportions ) : (),
+                    $useProportions ? ( A5 => $useProportions ) : (),
                 },
               );
 
@@ -1561,17 +1561,17 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV4*IV
                 name => "Consumption $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV4*IV9)@,
+qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A6*A4*A9)@,
                 arguments => {
-                    IV1  => $customerCategory,
-                    IV20 => $customerCategory,
-                    IV21 => $customerCategory,
-                    IV4  => $accretion,
-                    IV9  => ref $purpleUseRate eq 'ARRAY'
+                    A1  => $customerCategory,
+                    A20 => $customerCategory,
+                    A21 => $customerCategory,
+                    A4  => $accretion,
+                    A9  => ref $purpleUseRate eq 'ARRAY'
                     ? $purpleUseRate->[1]
                     : $purpleUseRate,
-                    IV5 => $useProportionsCooked,
-                    IV6 => $useProportionsCapped,
+                    A5 => $useProportionsCooked,
+                    A6 => $useProportionsCapped,
                 },
               );
 
@@ -1582,9 +1582,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             groupName  => 'First set of notional capacity assets',
             cols       => 0,
             arithmetic => '='
-              . join( '+', map { "IV$_" } 1 .. @assetsCapacity ),
+              . join( '+', map { "A$_" } 1 .. @assetsCapacity ),
             arguments => {
-                map { ( "IV$_" => $assetsCapacity[ $_ - 1 ] ) }
+                map { ( "A$_" => $assetsCapacity[ $_ - 1 ] ) }
                   1 .. @assetsCapacity
             },
         );
@@ -1594,9 +1594,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             groupName  => 'Second set of notional capacity assets',
             cols       => 0,
             arithmetic => '='
-              . join( '+', map { "IV$_" } 1 .. @assetsCapacityCooked ),
+              . join( '+', map { "A$_" } 1 .. @assetsCapacityCooked ),
             arguments => {
-                map { ( "IV$_" => $assetsCapacityCooked[ $_ - 1 ] ) }
+                map { ( "A$_" => $assetsCapacityCooked[ $_ - 1 ] ) }
                   1 .. @assetsCapacityCooked
             },
         );
@@ -1606,9 +1606,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             groupName  => 'First set of notional consumption assets',
             cols       => 0,
             arithmetic => '='
-              . join( '+', map { "IV$_" } 1 .. @assetsConsumption ),
+              . join( '+', map { "A$_" } 1 .. @assetsConsumption ),
             arguments => {
-                map { ( "IV$_" => $assetsConsumption[ $_ - 1 ] ) }
+                map { ( "A$_" => $assetsConsumption[ $_ - 1 ] ) }
                   1 .. @assetsConsumption
             },
         );
@@ -1618,9 +1618,9 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
             groupName  => 'Second set of notional consumption assets',
             cols       => 0,
             arithmetic => '='
-              . join( '+', map { "IV$_" } 1 .. @assetsConsumptionCooked ),
+              . join( '+', map { "A$_" } 1 .. @assetsConsumptionCooked ),
             arguments => {
-                map { ( "IV$_" => $assetsConsumptionCooked[ $_ - 1 ] ) }
+                map { ( "A$_" => $assetsConsumptionCooked[ $_ - 1 ] ) }
                   1 .. @assetsConsumptionCooked
             },
         );
@@ -1636,12 +1636,12 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
         name          => 'Total sole use assets for demand (£)',
         newBlock      => 1,
         defaultFormat => '0softnz',
-        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
+        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
         arguments     => {
-            IV123     => $model->{transparencyMasterFlag},
-            IV1       => $model->{transparency}{ol119301},
-            IV11_IV12 => $tariffSUimport,
-            IV15_IV16 => $model->{transparency},
+            A123     => $model->{transparencyMasterFlag},
+            A1       => $model->{transparency}{ol119301},
+            A11_A12 => $tariffSUimport,
+            A15_A16 => $model->{transparency},
         },
       )
       : GroupBy(
@@ -1665,13 +1665,13 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
                 groupName     => 'Notional assets in EDCM model',
                 defaultFormat => '0softnz',
                 arithmetic =>
-                  '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV13_IV14,IV15_IV16)',
+                  '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A13_A14,A15_A16)',
                 arguments => {
-                    IV123     => $model->{transparencyMasterFlag},
-                    IV1       => $model->{transparency}{"ol$_->[1]"},
-                    IV11_IV12 => $_->[0],
-                    IV13_IV14 => $agreedCapacity,
-                    IV15_IV16 => $model->{transparency},
+                    A123     => $model->{transparencyMasterFlag},
+                    A1       => $model->{transparency}{"ol$_->[1]"},
+                    A11_A12 => $_->[0],
+                    A13_A14 => $agreedCapacity,
+                    A15_A16 => $model->{transparency},
                 },
             );
         } ( [ $assetsCapacity, 119303 ], [ $assetsConsumption, 119304 ], )
@@ -1700,12 +1700,12 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
       ? Arithmetic(
         name          => 'Total sole use assets for generation (£)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IF(IV123,0,IV1)+SUMPRODUCT(IV11_IV12,IV15_IV16)',
+        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
         arguments     => {
-            IV123     => $model->{transparencyMasterFlag},
-            IV1       => $model->{transparency}{ol119302},
-            IV11_IV12 => $tariffSUexport,
-            IV15_IV16 => $model->{transparency},
+            A123     => $model->{transparencyMasterFlag},
+            A1       => $model->{transparency}{ol119302},
+            A11_A12 => $tariffSUexport,
+            A15_A16 => $model->{transparency},
         },
       )
       : GroupBy(
@@ -1720,13 +1720,13 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",IV20)),ISNUMBER(SEARCH("D?001",IV1))),0,IV6*IV
     push @{ $model->{calc1Tables} },
       my $totalAssets = Arithmetic(
         name          => 'All notional assets in EDCM (£)',
-        arithmetic    => '=IV5+IV6+IV7+IV8',
+        arithmetic    => '=A5+A6+A7+A8',
         defaultFormat => '0softnz',
         arguments     => {
-            IV5 => $totalAssetsFixed,
-            IV6 => $totalAssetsCapacity,
-            IV7 => $totalAssetsConsumption,
-            IV8 => $totalAssetsGenerationSoleUse,
+            A5 => $totalAssetsFixed,
+            A6 => $totalAssetsCapacity,
+            A7 => $totalAssetsConsumption,
+            A8 => $totalAssetsGenerationSoleUse,
         }
       );
     $model->{transparency}{olFYI}{1229} = $totalAssets

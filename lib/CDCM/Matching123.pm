@@ -62,24 +62,24 @@ sub matchingdcp123 {
                   . 'unit rates before matching (£/year)'
             ),
             rows       => $allTariffsByEndUser,
-            arithmetic => '=IF(IV5<0,0,10*('
+            arithmetic => '=IF(A5<0,0,10*('
               . join( '+',
-                $model->{dcp123doublecounting} ? 'IV701*IV702' : (),
-                map { "IV$_*IV90$_" } 1 .. $model->{maxUnitRates} )
+                $model->{dcp123doublecounting} ? 'A701*A702' : (),
+                map { "A$_*A90$_" } 1 .. $model->{maxUnitRates} )
               . '))',
             arguments => {
-                IV5 => $loadCoefficients,
+                A5 => $loadCoefficients,
                 $model->{dcp123doublecounting}
                 ? (
-                    IV701 =>
+                    A701 =>
                       $tariffsExMatching->{'Reactive power charge p/kVArh'},
-                    IV702 => $volumeFullYear->{'Reactive power charge p/kVArh'}
+                    A702 => $volumeFullYear->{'Reactive power charge p/kVArh'}
                   )
                 : (),
                 map {
                     my $name = "Unit rate $_ p/kWh";
-                    "IV$_"     => $tariffsExMatching->{$name},
-                      "IV90$_" => $volumeFullYear->{$name};
+                    "A$_"     => $tariffsExMatching->{$name},
+                      "A90$_" => $volumeFullYear->{$name};
                 } 1 .. $model->{maxUnitRates}
             },
             defaultFormat => '0soft'
@@ -102,22 +102,22 @@ sub matchingdcp123 {
             rows       => $allTariffsByEndUser,
             arithmetic => '=10*('
               . join( '+',
-                $model->{dcp123doublecounting} ? 'IV701*IV702' : (),
-                map { "IV$_*IV90$_" } 1 .. $model->{maxUnitRates} )
+                $model->{dcp123doublecounting} ? 'A701*A702' : (),
+                map { "A$_*A90$_" } 1 .. $model->{maxUnitRates} )
               . ')',
             arguments => {
-                IV5 => $loadCoefficients,
+                A5 => $loadCoefficients,
                 $model->{dcp123doublecounting}
                 ? (
-                    IV701 =>
+                    A701 =>
                       $tariffsExMatching->{'Reactive power charge p/kVArh'},
-                    IV702 => $volumeFullYear->{'Reactive power charge p/kVArh'}
+                    A702 => $volumeFullYear->{'Reactive power charge p/kVArh'}
                   )
                 : (),
                 map {
                     my $name = "Unit rate $_ p/kWh";
-                    "IV$_"     => $tariffsExMatching->{$name},
-                      "IV90$_" => $volumeFullYear->{$name};
+                    "A$_"     => $tariffsExMatching->{$name},
+                      "A90$_" => $volumeFullYear->{$name};
                 } 1 .. $model->{maxUnitRates}
             },
             defaultFormat => '0soft'
@@ -133,12 +133,12 @@ sub matchingdcp123 {
                 'Revenues from demand fixed charges before matching (£/year)'
             ),
             rows       => $allTariffsByEndUser,
-            arithmetic => '=0.01*IV6*IV1*IV2', # '=IF(IV5<0,0,0.01*IV6*IV1*IV2)'
+            arithmetic => '=0.01*A6*A1*A2', # '=IF(A5<0,0,0.01*A6*A1*A2)'
             arguments  => {
-                IV5 => $loadCoefficients,
-                IV6 => $daysFullYear,
-                IV1 => $tariffsExMatching->{'Fixed charge p/MPAN/day'},
-                IV2 => $volumeFullYear->{'Fixed charge p/MPAN/day'},
+                A5 => $loadCoefficients,
+                A6 => $daysFullYear,
+                A1 => $tariffsExMatching->{'Fixed charge p/MPAN/day'},
+                A2 => $volumeFullYear->{'Fixed charge p/MPAN/day'},
             },
             defaultFormat => '0soft'
         ),
@@ -153,12 +153,12 @@ sub matchingdcp123 {
                 'Revenues from demand capacity charges before matching (£/year)'
             ),
             rows       => $allTariffsByEndUser,
-            arithmetic => '=IF(IV5<0,0,0.01*IV6*IV1*IV2)',
+            arithmetic => '=IF(A5<0,0,0.01*A6*A1*A2)',
             arguments  => {
-                IV5 => $loadCoefficients,
-                IV6 => $daysFullYear,
-                IV1 => $tariffsExMatching->{'Capacity charge p/kVA/day'},
-                IV2 => $volumeFullYear->{'Capacity charge p/kVA/day'},
+                A5 => $loadCoefficients,
+                A6 => $daysFullYear,
+                A1 => $tariffsExMatching->{'Capacity charge p/kVA/day'},
+                A2 => $volumeFullYear->{'Capacity charge p/kVA/day'},
             },
             defaultFormat => '0soft'
         ),
@@ -173,11 +173,11 @@ sub matchingdcp123 {
                 'Revenues from reactive power charges before matching (£/year)'
             ),
             rows       => $allTariffsByEndUser,
-            arithmetic => '=10*IV1*IV2',
+            arithmetic => '=10*A1*A2',
             arguments  => {
-                IV5 => $loadCoefficients,
-                IV1 => $tariffsExMatching->{'Reactive power charge p/kVArh'},
-                IV2 => $volumeFullYear->{'Reactive power charge p/kVArh'},
+                A5 => $loadCoefficients,
+                A1 => $tariffsExMatching->{'Reactive power charge p/kVArh'},
+                A2 => $volumeFullYear->{'Reactive power charge p/kVArh'},
             },
             defaultFormat => '0soft'
         ),
@@ -209,55 +209,55 @@ sub matchingdcp123 {
             Arithmetic(
                 name => 'Revenue matching target from unit rates (£/year)',
                 defaultFormat => '0soft',
-                arithmetic    => '=IV1*IV2/(IV3+IV4+IV5+IV6)',
+                arithmetic    => '=A1*A2/(A3+A4+A5+A6)',
                 arguments     => {
-                    IV1 => $adderAmount,
-                    IV2 => $totalRevenueFromUnits,
-                    IV3 => $totalRevenueFromUnits,
-                    IV4 => $totalRevenueFromFixed,
-                    IV5 => $totalRevenueFromCapacity,
-                    IV6 => $totalRevenueFromReactive,
+                    A1 => $adderAmount,
+                    A2 => $totalRevenueFromUnits,
+                    A3 => $totalRevenueFromUnits,
+                    A4 => $totalRevenueFromFixed,
+                    A5 => $totalRevenueFromCapacity,
+                    A6 => $totalRevenueFromReactive,
                 }
             ),
             Arithmetic(
                 name => 'Revenue matching target from fixed charges (£/year)',
                 defaultFormat => '0soft',
-                arithmetic    => '=IV1*IV2/(IV3+IV4+IV5+IV6)',
+                arithmetic    => '=A1*A2/(A3+A4+A5+A6)',
                 arguments     => {
-                    IV1 => $adderAmount,
-                    IV2 => $totalRevenueFromFixed,
-                    IV3 => $totalRevenueFromUnits,
-                    IV4 => $totalRevenueFromFixed,
-                    IV5 => $totalRevenueFromCapacity,
-                    IV6 => $totalRevenueFromReactive,
+                    A1 => $adderAmount,
+                    A2 => $totalRevenueFromFixed,
+                    A3 => $totalRevenueFromUnits,
+                    A4 => $totalRevenueFromFixed,
+                    A5 => $totalRevenueFromCapacity,
+                    A6 => $totalRevenueFromReactive,
                 }
             ),
             Arithmetic(
                 name =>
                   'Revenue matching target from capacity charges (£/year)',
                 defaultFormat => '0soft',
-                arithmetic    => '=IV1*IV2/(IV3+IV4+IV5+IV6)',
+                arithmetic    => '=A1*A2/(A3+A4+A5+A6)',
                 arguments     => {
-                    IV1 => $adderAmount,
-                    IV2 => $totalRevenueFromCapacity,
-                    IV3 => $totalRevenueFromUnits,
-                    IV4 => $totalRevenueFromFixed,
-                    IV5 => $totalRevenueFromCapacity,
-                    IV6 => $totalRevenueFromReactive,
+                    A1 => $adderAmount,
+                    A2 => $totalRevenueFromCapacity,
+                    A3 => $totalRevenueFromUnits,
+                    A4 => $totalRevenueFromFixed,
+                    A5 => $totalRevenueFromCapacity,
+                    A6 => $totalRevenueFromReactive,
                 }
             ),
             Arithmetic(
                 name =>
 'Revenue matching target from reactive power charges (£/year)',
                 defaultFormat => '0soft',
-                arithmetic    => '=IV1*IV2/(IV3+IV4+IV5+IV6)',
+                arithmetic    => '=A1*A2/(A3+A4+A5+A6)',
                 arguments     => {
-                    IV1 => $adderAmount,
-                    IV2 => $totalRevenueFromReactive,
-                    IV3 => $totalRevenueFromUnits,
-                    IV4 => $totalRevenueFromFixed,
-                    IV5 => $totalRevenueFromCapacity,
-                    IV6 => $totalRevenueFromReactive,
+                    A1 => $adderAmount,
+                    A2 => $totalRevenueFromReactive,
+                    A3 => $totalRevenueFromUnits,
+                    A4 => $totalRevenueFromFixed,
+                    A5 => $totalRevenueFromCapacity,
+                    A6 => $totalRevenueFromReactive,
                 }
             ),
         );
@@ -279,11 +279,11 @@ sub matchingdcp123 {
         my @slope = map {
             Arithmetic(
                 name       => "Effect through $_",
-                arithmetic => '=IF(IV3<0,0,IV1*10)',
+                arithmetic => '=IF(A3<0,0,A1*10)',
                 arguments  => {
-                    IV3 => $loadCoefficients,
-                    IV2 => $daysAfter,
-                    IV1 => $volumeAfter->{$_},
+                    A3 => $loadCoefficients,
+                    A2 => $daysAfter,
+                    A1 => $volumeAfter->{$_},
                 }
             );
         } @columns;
@@ -306,12 +306,12 @@ sub matchingdcp123 {
             my $tariffComponent = $_;
             $_ => Arithmetic(
                 name       => "Adder threshold for $_",
-                arithmetic => $minValue ? '=IF(IV4<0,0,IV9-IV1)'
-                : '=IF(IV4<0,0,0-IV1)',
+                arithmetic => $minValue ? '=IF(A4<0,0,A9-A1)'
+                : '=IF(A4<0,0,0-A1)',
                 arguments => {
-                    IV4 => $loadCoefficients,
-                    IV1 => $tariffsExMatching->{$_},
-                    $minValue ? ( IV9 => $minValue ) : (),
+                    A4 => $loadCoefficients,
+                    A1 => $tariffsExMatching->{$_},
+                    $minValue ? ( A9 => $minValue ) : (),
                 },
                 rowFormats => [
                     map {
@@ -340,11 +340,11 @@ sub matchingdcp123 {
                 name       => "Adder on $_",
                 rows       => $allTariffsByEndUser,
                 cols       => Labelset( list => ['Adder'] ),
-                arithmetic => '=IF(IV3<0,0,MAX(IV6,IV1))',
+                arithmetic => '=IF(A3<0,0,MAX(A6,A1))',
                 arguments  => {
-                    IV1 => $adderRate,
-                    IV3 => $loadCoefficients,
-                    IV6 => $minAdder{$_},
+                    A1 => $adderRate,
+                    A3 => $loadCoefficients,
+                    A6 => $minAdder{$_},
                 },
                 rowFormats => [
                     map {
@@ -367,13 +367,13 @@ sub matchingdcp123 {
             my @slope = map {
                 Arithmetic(
                     name       => "Effect through $_",
-                    arithmetic => '=IF(IV9>0,IV1*IV2*0.01,0)'
-                    ,    # '=IF(IV3>0,IV1*IV2*0.01,0)',
+                    arithmetic => '=IF(A9>0,A1*A2*0.01,0)'
+                    ,    # '=IF(A3>0,A1*A2*0.01,0)',
                     arguments => {
-                        IV3 => $loadCoefficients,
-                        IV2 => $daysAfter,
-                        IV1 => $volumeAfter->{$_},
-                        IV9 => $tariffsExMatching->{$_},
+                        A3 => $loadCoefficients,
+                        A2 => $daysAfter,
+                        A1 => $volumeAfter->{$_},
+                        A9 => $tariffsExMatching->{$_},
                     }
                 );
             } @columns;
@@ -387,10 +387,10 @@ sub matchingdcp123 {
                 my $tariffComponent = $_;
                 $_ => Arithmetic(
                     name => "Adder threshold for $_",
-                    arithmetic => '=0-IV1',    # '=IF(IV4<0,0,0-IV1)',
+                    arithmetic => '=0-A1',    # '=IF(A4<0,0,0-A1)',
                     arguments  => {
-                        IV4 => $loadCoefficients,
-                        IV1 => $tariffsExMatching->{$_},
+                        A4 => $loadCoefficients,
+                        A1 => $tariffsExMatching->{$_},
                     },
                     rowFormats => [
                         map {
@@ -420,13 +420,13 @@ sub matchingdcp123 {
                     name       => "Adder on $_",
                     rows       => $allTariffsByEndUser,
                     cols       => Labelset( list => ['Adder'] ),
-                    arithmetic => '=IF(IV9>0,MAX(IV6,IV1),0)'
-                    ,    # '=IF(IV3<0,0,MAX(IV6,IV1))',
+                    arithmetic => '=IF(A9>0,MAX(A6,A1),0)'
+                    ,    # '=IF(A3<0,0,MAX(A6,A1))',
                     arguments => {
-                        IV1 => $adderRate,
-                        IV3 => $loadCoefficients,
-                        IV6 => $minAdder{$_},
-                        IV9 => $tariffsExMatching->{$_},
+                        A1 => $adderRate,
+                        A3 => $loadCoefficients,
+                        A6 => $minAdder{$_},
+                        A9 => $tariffsExMatching->{$_},
                     },
                     rowFormats => [
                         map {
@@ -447,11 +447,11 @@ sub matchingdcp123 {
             my @slope = map {
                 Arithmetic(
                     name       => "Effect through $_",
-                    arithmetic => '=IF(IV3<0,0,IV1*IV2*0.01)',
+                    arithmetic => '=IF(A3<0,0,A1*A2*0.01)',
                     arguments  => {
-                        IV3 => $loadCoefficients,
-                        IV2 => $daysAfter,
-                        IV1 => $volumeAfter->{$_},
+                        A3 => $loadCoefficients,
+                        A2 => $daysAfter,
+                        A1 => $volumeAfter->{$_},
                     }
                 );
             } @columns;
@@ -465,10 +465,10 @@ sub matchingdcp123 {
                 my $tariffComponent = $_;
                 $_ => Arithmetic(
                     name       => "Adder threshold for $_",
-                    arithmetic => '=IF(IV4<0,0,0-IV1)',
+                    arithmetic => '=IF(A4<0,0,0-A1)',
                     arguments  => {
-                        IV4 => $loadCoefficients,
-                        IV1 => $tariffsExMatching->{$_},
+                        A4 => $loadCoefficients,
+                        A1 => $tariffsExMatching->{$_},
                     },
                     rowFormats => [
                         map {
@@ -498,11 +498,11 @@ sub matchingdcp123 {
                     name       => "Adder on $_",
                     rows       => $allTariffsByEndUser,
                     cols       => Labelset( list => ['Adder'] ),
-                    arithmetic => '=IF(IV3<0,0,MAX(IV6,IV1))',
+                    arithmetic => '=IF(A3<0,0,MAX(A6,A1))',
                     arguments  => {
-                        IV1 => $adderRate,
-                        IV3 => $loadCoefficients,
-                        IV6 => $minAdder{$_},
+                        A1 => $adderRate,
+                        A3 => $loadCoefficients,
+                        A6 => $minAdder{$_},
                     },
                     rowFormats => [
                         map {
@@ -525,10 +525,10 @@ sub matchingdcp123 {
         my @slope = map {
             Arithmetic(
                 name       => "Effect through $_",
-                arithmetic => '=IV1*10',             # '=IF(IV3<0,0,IV1*10)',
+                arithmetic => '=A1*10',             # '=IF(A3<0,0,A1*10)',
                 arguments  => {
-                    IV3 => $loadCoefficients,
-                    IV1 => $volumeAfter->{$_},
+                    A3 => $loadCoefficients,
+                    A1 => $volumeAfter->{$_},
                 }
             );
         } @columns;
@@ -542,10 +542,10 @@ sub matchingdcp123 {
             my $tariffComponent = $_;
             $_ => Arithmetic(
                 name       => "Adder threshold for $_",
-                arithmetic => '=0-IV1',                  # '=IF(IV4<0,0,0-IV1)',
+                arithmetic => '=0-A1',                  # '=IF(A4<0,0,0-A1)',
                 arguments  => {
-                    IV4 => $loadCoefficients,
-                    IV1 => $tariffsExMatching->{$_},
+                    A4 => $loadCoefficients,
+                    A1 => $tariffsExMatching->{$_},
                 },
                 rowFormats => [
                     map {
@@ -575,11 +575,11 @@ sub matchingdcp123 {
                 name => "Adder on $_",
                 rows => $allTariffsByEndUser,
                 cols => Labelset( list => ['Adder'] ),
-                arithmetic => '=MAX(IV6,IV1)',    # '=IF(IV3<0,0,MAX(IV6,IV1))',
+                arithmetic => '=MAX(A6,A1)',    # '=IF(A3<0,0,MAX(A6,A1))',
                 arguments  => {
-                    IV1 => $adderRate,
-                    IV3 => $loadCoefficients,
-                    IV6 => $minAdder{$_},
+                    A1 => $adderRate,
+                    A3 => $loadCoefficients,
+                    A6 => $minAdder{$_},
                 },
                 rowFormats => [
                     map {
@@ -600,7 +600,7 @@ sub matchingdcp123 {
     {
         my @termsNoDays;
         my @termsWithDays;
-        my %args = ( IV400 => $daysAfter );
+        my %args = ( A400 => $daysAfter );
         my $i = 1;
 
         foreach ( grep { $adderTable->{$_} } @$nonExcludedComponents ) {
@@ -608,13 +608,13 @@ sub matchingdcp123 {
             my $pad = "$i";
             $pad = "0$pad" while length $pad < 3;
             if (m#/day#) {
-                push @termsWithDays, "IV2$pad*IV3$pad";
+                push @termsWithDays, "A2$pad*A3$pad";
             }
             else {
-                push @termsNoDays, "IV2$pad*IV3$pad";
+                push @termsNoDays, "A2$pad*A3$pad";
             }
-            $args{"IV2$pad"} = $adderTable->{$_};
-            $args{"IV3$pad"} = $volumeAfter->{$_};
+            $args{"A2$pad"} = $adderTable->{$_};
+            $args{"A3$pad"} = $volumeAfter->{$_};
         }
 
         $revenuesFromAdder = Arithmetic(
@@ -623,7 +623,7 @@ sub matchingdcp123 {
             arithmetic => '='
               . join( '+',
                 @termsWithDays
-                ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                 : ('0'),
                 @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                 : ('0'),

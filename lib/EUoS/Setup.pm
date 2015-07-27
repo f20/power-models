@@ -87,10 +87,10 @@ sub annuityRate {
     $self->{annuityRate} = Arithmetic(
         name          => 'Annuity rate',
         defaultFormat => '%softnz',
-        arithmetic    => '=PMT(IV1,IV2,-1)',
+        arithmetic    => '=PMT(A1,A2,-1)',
         arguments     => {
-            IV1 => $rateOfReturn,
-            IV2 => $annuitisationPeriod,
+            A1 => $rateOfReturn,
+            A2 => $annuitisationPeriod,
         }
     );
 
@@ -119,7 +119,7 @@ sub finish {
       unless my @columns = (
         $self->{daysInYear} || (),
         $self->{annuityRate}
-        ? @{ $self->{annuityRate}{arguments} }{qw(IV1 IV2)}
+        ? @{ $self->{annuityRate}{arguments} }{qw(A1 A2)}
         : ()
       );
     $self->{generalInputDataTable} |= Columnset(

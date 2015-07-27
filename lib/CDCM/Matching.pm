@@ -87,10 +87,10 @@ sub matching {
                         $siteSpecificOperatingCost->{cols}
                     ]
                 ),
-                arithmetic => '=IV2+IV1',
+                arithmetic => '=A2+A1',
                 arguments  => {
-                    IV1 => $siteSpecificOperatingCost,
-                    IV2 => $siteSpecificReplacement,
+                    A1 => $siteSpecificOperatingCost,
+                    A2 => $siteSpecificReplacement,
                 }
             );
         }
@@ -217,7 +217,7 @@ sub matching {
                                 ? 'at transmission exit level'
                                 : 'at each level'
                               ),
-                            arithmetic => '=IF(IV1,1/IV2,0)',
+                            arithmetic => '=IF(A1,1/A2,0)',
                             rows       => 0,
                             cols       => $model->{scaler} =~ /exit/i
                             ? Labelset(
@@ -236,21 +236,21 @@ sub matching {
                               )
                             : $costToSml->{cols},
                             arguments => {
-                                IV1 => $costToSml,
-                                IV2 => $costToSml,
+                                A1 => $costToSml,
+                                A2 => $costToSml,
                             }
                           )
 
                         : Arithmetic(
                             name => 'Factor to scale to £1/kW '
                               . ' at each level',
-                            arithmetic => '=IF(IV1,IV3/IV2,0)',
+                            arithmetic => '=IF(A1,A3/A2,0)',
                             rows       => 0,
                             cols       => $costToSml->{cols},
                             arguments  => {
-                                IV1 => $costToSml,
-                                IV2 => $costToSml,
-                                IV3 => Dataset(
+                                A1 => $costToSml,
+                                A2 => $costToSml,
+                                A3 => Dataset(
                                     name =>
                                       'Which levels are subject to the scaler',
                                     rows       => $costToSml->{cols},
@@ -284,7 +284,7 @@ sub matching {
                       Arithmetic(
                         name => 'Factor to scale to £1/kW '
                           . '(operating) at each level',
-                        arithmetic => '=IF(IV1,1/IV2,0)',
+                        arithmetic => '=IF(A1,1/A2,0)',
                         rows       => 0,
                         $model->{scaler} =~ /ehv/i
                         ? (
@@ -298,8 +298,8 @@ sub matching {
                           )
                         : (),
                         arguments => {
-                            IV1 => $operatingCostToSml,
-                            IV2 => $operatingCostToSml,
+                            A1 => $operatingCostToSml,
+                            A2 => $operatingCostToSml,
                         }
                       );
                 }
@@ -309,13 +309,13 @@ sub matching {
                       ? Arithmetic(
                         name =>
                           'Factor to scale to £1/kW (assets) at each level',
-                        arithmetic => '=IF(IV1,IV3/IV2,0)',
+                        arithmetic => '=IF(A1,A3/A2,0)',
                         cols       => $modelCostToSml->{rows},
                         rows       => 0,
                         arguments  => {
-                            IV1 => $modelCostToSml,
-                            IV2 => $modelCostToSml,
-                            IV3 => Constant(
+                            A1 => $modelCostToSml,
+                            A2 => $modelCostToSml,
+                            A3 => Constant(
                                 name => 'Which network levels get the scaler',
                                 cols => $modelCostToSml->{rows},
                                 defaultFormat => '0connz',
@@ -329,11 +329,11 @@ sub matching {
                       : Arithmetic(
                         name =>
                           'Factor to scale to £1/kW (assets) at each level',
-                        arithmetic => '=IF(IV1,1/IV2,0)',
+                        arithmetic => '=IF(A1,1/A2,0)',
                         cols       => $modelCostToSml->{rows},
                         rows       => 0,
                         arguments =>
-                          { IV1 => $modelCostToSml, IV2 => $modelCostToSml, }
+                          { A1 => $modelCostToSml, A2 => $modelCostToSml, }
                       );
                 }
                 $assetFlag = Stack(
@@ -382,9 +382,9 @@ sub matching {
                 my $max = Arithmetic(
                     name => 'Maximum revenue that can be recovered by scaler',
                     defaultFormat => '0softnz',
-                    arithmetic    => '=IV1*IV4',
+                    arithmetic    => '=A1*A4',
                     arguments     => {
-                        IV1 => Dataset(
+                        A1 => Dataset(
                             name => 'Maximum scaling'
                               . ' (set to zero to prohibit scaling up)',
                             defaultFormat => '%hard',
@@ -402,17 +402,17 @@ sub matching {
                                 [ $model->{scaler} =~ /([0-9.]+)/ ? $1 : 0.0 ]
                             ],
                         ),
-                        IV4 => $totalRevenuesSoFar,
+                        A4 => $totalRevenuesSoFar,
                     }
                 );
 
                 $revenueShortfall = Arithmetic(
                     name          => 'Revenue to be recovered by scaler',
                     defaultFormat => '0softnz',
-                    arithmetic    => '=MIN(IV1,IV2)',
+                    arithmetic    => '=MIN(A1,A2)',
                     arguments     => {
-                        IV1 => $revenueShortfall,
-                        IV2 => $max,
+                        A1 => $revenueShortfall,
+                        A2 => $max,
                     }
                 );
 
@@ -429,13 +429,13 @@ sub matching {
                 Arithmetic(
                     name       => "Effect through $_",
                     arithmetic => /day/
-                    ? '=IV4*IV2*IV1/100'
-                    : '=IF(IV3<0,0,IV4*IV1*10)',    # IV4*
+                    ? '=A4*A2*A1/100'
+                    : '=IF(A3<0,0,A4*A1*10)',    # A4*
                     arguments => {
-                        IV3 => $loadCoefficients,
-                        IV2 => $daysInYear,
-                        IV1 => $volumeData->{$_},
-                        IV4 => $assetElements->{$_},
+                        A3 => $loadCoefficients,
+                        A2 => $daysInYear,
+                        A1 => $volumeData->{$_},
+                        A4 => $assetElements->{$_},
                     }
                 );
             } @$scaledComponents;
@@ -450,11 +450,11 @@ sub matching {
                 my $tariffComponent = $_;
                 $_ => Arithmetic(
                     name       => "Scaler threshold for $_",
-                    arithmetic => '=IF(IV3,0-IV1/IV2,0)',
+                    arithmetic => '=IF(A3,0-A1/A2,0)',
                     arguments  => {
-                        IV1 => $tariffsExMatching->{$_},
-                        IV2 => $assetElements->{$_},
-                        IV3 => $assetElements->{$_}
+                        A1 => $tariffsExMatching->{$_},
+                        A2 => $assetElements->{$_},
+                        A3 => $assetElements->{$_}
                     },
                     rowFormats => [
                         map {
@@ -487,16 +487,16 @@ sub matching {
                         name       => "$_ scaler",
                         cols       => $assetScalerPot,
                         arithmetic => $dontScaleGeneration
-                        ? '=IF(IV4<0,0,IF(IV1*IV3+IV9>0,IV81*IV83,0-IV89))'
-                        : '=IF(IV1*IV3+IV9>0,IV81*IV83,0-IV89)',
+                        ? '=IF(A4<0,0,IF(A1*A3+A9>0,A81*A83,0-A89))'
+                        : '=IF(A1*A3+A9>0,A81*A83,0-A89)',
                         arguments => {
-                            IV1  => $assetElements->{$_},
-                            IV3  => $scalerRate,
-                            IV4  => $loadCoefficients,
-                            IV9  => $tariffsExMatching->{$_},
-                            IV81 => $assetElements->{$_},
-                            IV83 => $scalerRate,
-                            IV89 => $tariffsExMatching->{$_},
+                            A1  => $assetElements->{$_},
+                            A3  => $scalerRate,
+                            A4  => $loadCoefficients,
+                            A9  => $tariffsExMatching->{$_},
+                            A81 => $assetElements->{$_},
+                            A83 => $scalerRate,
+                            A89 => $tariffsExMatching->{$_},
                         }
                     );
                 } @$scaledComponents
@@ -520,11 +520,11 @@ sub matching {
                         ]
                       )
                     : 0,
-                    arithmetic => '=IV2*(1+IV3)+IV1',
+                    arithmetic => '=A2*(1+A3)+A1',
                     arguments  => {
-                        IV1 => $siteSpecificOperatingCost,
-                        IV2 => $siteSpecificReplacement,
-                        IV3 => $scalerRate,
+                        A1 => $siteSpecificOperatingCost,
+                        A2 => $siteSpecificReplacement,
+                        A3 => $scalerRate,
                     }
                 );
             }
@@ -538,20 +538,20 @@ sub matching {
             {
                 my @termsNoDays;
                 my @termsWithDays;
-                my %args = ( IV400 => $daysInYear );
+                my %args = ( A400 => $daysInYear );
                 my $i = 1;
                 foreach (@$nonExcludedComponents) {
                     ++$i;
                     my $pad = "$i";
                     $pad = "0$pad" while length $pad < 3;
                     if (m#/day#) {
-                        push @termsWithDays, "IV2$pad*IV3$pad";
+                        push @termsWithDays, "A2$pad*A3$pad";
                     }
                     else {
-                        push @termsNoDays, "IV2$pad*IV3$pad";
+                        push @termsNoDays, "A2$pad*A3$pad";
                     }
-                    $args{"IV2$pad"} = $assetElements->{$_};
-                    $args{"IV3$pad"} = $volumeData->{$_};
+                    $args{"A2$pad"} = $assetElements->{$_};
+                    $args{"A3$pad"} = $volumeData->{$_};
                 }
                 $revenuesFromAsset = Arithmetic(
                     name       => 'Net revenues to which the scaler applies',
@@ -560,7 +560,7 @@ sub matching {
                       . join(
                         '+',
                         @termsWithDays
-                        ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                        ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                         : ('0'),
                         @termsNoDays
                         ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
@@ -582,10 +582,10 @@ sub matching {
             $totalRevenuesFromScalable = Arithmetic(
                 name => 'Total net revenues from scalable elements'
                   . ' including site specific sole use assets' . ' (£)',
-                arithmetic => '=IV1+IV2',
+                arithmetic => '=A1+A2',
                 arguments  => {
-                    IV1 => $totalRevenuesFromScalable,
-                    IV2 => $totalSiteSpecificReplacement
+                    A1 => $totalRevenuesFromScalable,
+                    A2 => $totalSiteSpecificReplacement
                 },
                 defaultFormat => '0soft'
             ) if $totalSiteSpecificReplacement;
@@ -597,9 +597,9 @@ sub matching {
                 my $max = Arithmetic(
                     name => 'Maximum revenue that can be recovered by scaler',
                     defaultFormat => '0softnz',
-                    arithmetic    => '=IV1*IV4',
+                    arithmetic    => '=A1*A4',
                     arguments     => {
-                        IV1 => Dataset(
+                        A1 => Dataset(
                             name => 'Maximum scaling'
                               . ' (set to zero to prohibit scaling up)',
                             defaultFormat => '%hard',
@@ -617,17 +617,17 @@ sub matching {
                                 [ $model->{scaler} =~ /([0-9.]+)/ ? $1 : 0.0 ]
                             ],
                         ),
-                        IV4 => $totalRevenuesFromScalable,
+                        A4 => $totalRevenuesFromScalable,
                     }
                 );
 
                 $capped = Arithmetic(
                     name          => 'Revenue to be recovered by scaler',
                     defaultFormat => '0softnz',
-                    arithmetic    => '=MIN(IV1,IV2)',
+                    arithmetic    => '=MIN(A1,A2)',
                     arguments     => {
-                        IV1 => $revenueShortfall,
-                        IV2 => $max,
+                        A1 => $revenueShortfall,
+                        A2 => $max,
                     }
                 );
 
@@ -644,13 +644,13 @@ sub matching {
                         name       => "$_ scaler",
                         cols       => $assetScalerPot,
                         arithmetic => $dontScaleGeneration
-                        ? '=IF(IV4<0,0,IV1/IV2*IV3)'
-                        : '=IV1/IV2*IV3',
+                        ? '=IF(A4<0,0,A1/A2*A3)'
+                        : '=A1/A2*A3',
                         arguments => {
-                            IV1 => $assetElements->{$_},
-                            IV2 => $totalRevenuesFromScalable,
-                            IV3 => $capped || $revenueShortfall,
-                            IV4 => $loadCoefficients
+                            A1 => $assetElements->{$_},
+                            A2 => $totalRevenuesFromScalable,
+                            A3 => $capped || $revenueShortfall,
+                            A4 => $loadCoefficients
                         }
                     );
                 } @$scaledComponents
@@ -671,12 +671,12 @@ sub matching {
                             $siteSpecificOperatingCost->{cols}
                         ]
                     ),
-                    arithmetic => '=IV2*(1+IV3/IV4)+IV1',
+                    arithmetic => '=A2*(1+A3/A4)+A1',
                     arguments  => {
-                        IV1 => $siteSpecificOperatingCost,
-                        IV2 => $siteSpecificReplacement,
-                        IV3 => $revenueShortfall,
-                        IV4 => $totalRevenuesFromScalable
+                        A1 => $siteSpecificOperatingCost,
+                        A2 => $siteSpecificReplacement,
+                        A3 => $revenueShortfall,
+                        A4 => $totalRevenuesFromScalable
                     }
                 );
             }
@@ -688,7 +688,7 @@ sub matching {
         {
             my @termsNoDays;
             my @termsWithDays;
-            my %args = ( IV400 => $daysInYear );
+            my %args = ( A400 => $daysInYear );
             my $i = 1;
 
             foreach ( grep { $scalerTable->{$_} } @$nonExcludedComponents ) {
@@ -696,13 +696,13 @@ sub matching {
                 my $pad = "$i";
                 $pad = "0$pad" while length $pad < 3;
                 if (m#/day#) {
-                    push @termsWithDays, "IV2$pad*IV3$pad";
+                    push @termsWithDays, "A2$pad*A3$pad";
                 }
                 else {
-                    push @termsNoDays, "IV2$pad*IV3$pad";
+                    push @termsNoDays, "A2$pad*A3$pad";
                 }
-                $args{"IV2$pad"} = $scalerTable->{$_};
-                $args{"IV3$pad"} = $volumeData->{$_};
+                $args{"A2$pad"} = $scalerTable->{$_};
+                $args{"A3$pad"} = $volumeData->{$_};
             }
 
             $revenuesFromScaler = Arithmetic(
@@ -712,7 +712,7 @@ sub matching {
                 arithmetic => '='
                   . join( '+',
                     @termsWithDays
-                    ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                    ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                     : ('0'),
                     @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                     : ('0'),
@@ -743,28 +743,28 @@ sub matching {
             my $assetRate =
               $levelled ? Arithmetic(
                 name       => 'Scaler £/kW/year (by level)',
-                arithmetic => '=IV2/IV3',
+                arithmetic => '=A2/A3',
                 arguments  => {
-                    IV2 => $totalRevenuesFromScaler,
-                    IV3 => $totalRevenuesFromScalable
+                    A2 => $totalRevenuesFromScaler,
+                    A3 => $totalRevenuesFromScalable
                 }
               )
               : $model->{scaler} && $model->{scaler} =~ /pick/i ? Arithmetic(
                 name       => 'Scaling factor',
-                arithmetic => '=IV2/IV3',
+                arithmetic => '=A2/A3',
                 arguments  => {
-                    IV2 => $totalRevenuesFromScaler,
-                    IV3 => $totalRevenuesFromScalable
+                    A2 => $totalRevenuesFromScaler,
+                    A3 => $totalRevenuesFromScalable
                 }
               )
               : Arithmetic(
                 name          => 'Effective asset annuity rate',
                 defaultFormat => '%softnz',
-                arithmetic    => '=IV8*(1+IV2/IV3)',
+                arithmetic    => '=A8*(1+A2/A3)',
                 arguments     => {
-                    IV8 => $annuityRate,
-                    IV2 => $totalRevenuesFromScaler,
-                    IV3 => $totalRevenuesFromScalable
+                    A8 => $annuityRate,
+                    A2 => $totalRevenuesFromScaler,
+                    A3 => $totalRevenuesFromScalable
                 }
               );
 
@@ -813,13 +813,13 @@ sub matching {
                         name       => "$_ remove ATW scaler",
                         cols       => $excludeScalerPot,
                         rows       => $tariffsByAtw,
-                        arithmetic => '=0-IV1',
+                        arithmetic => '=0-A1',
                         arguments  => {
-                            IV1 => Arithmetic(
+                            A1 => Arithmetic(
                                 name       => "$_ ATW scaler",
                                 rows       => $atwTariffs,
-                                arithmetic => '=IV1',
-                                arguments  => { IV1 => $scalerTable->{$_} }
+                                arithmetic => '=A1',
+                                arguments  => { A1 => $scalerTable->{$_} }
                             ),
                         }
                       )
@@ -844,9 +844,9 @@ sub matching {
                         name       => "$_ remove ATW replacement",
                         cols       => $excludeReplacementPot,
                         rows       => $tariffsByAtw,
-                        arithmetic => '=0-IV1',
+                        arithmetic => '=0-A1',
                         arguments  => {
-                            IV1 => SumProduct(
+                            A1 => SumProduct(
                                 name   => "$_ ATW replacement",
                                 cols   => 0,
                                 rows   => $atwTariffs,
@@ -871,7 +871,7 @@ sub matching {
                   . 'all-the-way tariff elements'
                   . ' to be removed',
                 columns => [
-                    map { ${ $_->{arguments} }{IV1} }
+                    map { ${ $_->{arguments} }{A1} }
                       $excludeScaler
                     ? @{$excludeScaler}{ grep { $excludeScaler->{$_} }
                           @$allComponents }
@@ -888,7 +888,7 @@ sub matching {
             {
                 my @termsNoDays;
                 my @termsWithDays;
-                my %args = ( IV400 => $daysInYear );
+                my %args = ( A400 => $daysInYear );
                 my $i = 1;
 
                 if ($excludeScaler) {
@@ -899,13 +899,13 @@ sub matching {
                         my $pad = "$i";
                         $pad = "0$pad" while length $pad < 3;
                         if (m#/day#) {
-                            push @termsWithDays, "IV2$pad*IV3$pad";
+                            push @termsWithDays, "A2$pad*A3$pad";
                         }
                         else {
-                            push @termsNoDays, "IV2$pad*IV3$pad";
+                            push @termsNoDays, "A2$pad*A3$pad";
                         }
-                        $args{"IV2$pad"} = $excludeScaler->{$_};
-                        $args{"IV3$pad"} = $volumeData->{$_};
+                        $args{"A2$pad"} = $excludeScaler->{$_};
+                        $args{"A3$pad"} = $volumeData->{$_};
                     }
                 }
 
@@ -917,13 +917,13 @@ sub matching {
                         my $pad = "$i";
                         $pad = "0$pad" while length $pad < 3;
                         if (m#/day#) {
-                            push @termsWithDays, "IV2$pad*IV3$pad";
+                            push @termsWithDays, "A2$pad*A3$pad";
                         }
                         else {
-                            push @termsNoDays, "IV2$pad*IV3$pad";
+                            push @termsNoDays, "A2$pad*A3$pad";
                         }
-                        $args{"IV2$pad"} = $excludeReplacement->{$_};
-                        $args{"IV3$pad"} = $volumeData->{$_};
+                        $args{"A2$pad"} = $excludeReplacement->{$_};
+                        $args{"A3$pad"} = $volumeData->{$_};
                     }
                 }
 
@@ -934,7 +934,7 @@ sub matching {
                       . join(
                         '-',
                         @termsWithDays
-                        ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                        ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                         : ('0'),
                         @termsNoDays
                         ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
@@ -980,9 +980,9 @@ sub matching {
             $adderAmount = Arithmetic(
                 name          => 'Amount to be recovered from adder (£)',
                 defaultFormat => '0softnz',
-                arithmetic    => '=IV1-IV2',
+                arithmetic    => '=A1-A2',
                 arguments =>
-                  { IV1 => $revenueShortfall, IV2 => $totalRevenuesFromScaler }
+                  { A1 => $revenueShortfall, A2 => $totalRevenuesFromScaler }
             );
         }
         elsif ( $model->{scaler} && $model->{scaler} =~ /adder/i ) {
@@ -1002,9 +1002,9 @@ sub matching {
                 $adderAmount = Arithmetic(
                     name          => 'Total net revenue needed from adder (£)',
                     defaultFormat => '0softnz',
-                    arithmetic    => '=IV1+IV2',
+                    arithmetic    => '=A1+A2',
                     arguments =>
-                      { IV1 => $revenueShortfall, IV2 => $totalRevenueRemoved }
+                      { A1 => $revenueShortfall, A2 => $totalRevenueRemoved }
                 );
             }
             else { $adderAmount = $totalRevenueRemoved; }
@@ -1016,11 +1016,11 @@ sub matching {
             my @slope = map {
                 Arithmetic(
                     name       => "Effect through $_",
-                    arithmetic => '=IF(IV3<0,0,IV1*10)',
+                    arithmetic => '=IF(A3<0,0,A1*10)',
                     arguments  => {
-                        IV3 => $loadCoefficients,
-                        IV2 => $daysInYear,
-                        IV1 => $volumeData->{$_},
+                        A3 => $loadCoefficients,
+                        A2 => $daysInYear,
+                        A1 => $volumeData->{$_},
                     }
                 );
             } @columns;
@@ -1076,11 +1076,11 @@ sub matching {
        # cannot think of an better test than ISNUMBER when applied to input data
                     $_ => Arithmetic(
                         name       => "Adder threshold for $_",
-                        arithmetic => '=IF(ISNUMBER(IV3),IV2-IV1,0)',
+                        arithmetic => '=IF(ISNUMBER(A3),A2-A1,0)',
                         arguments  => {
-                            IV1 => $tariffsExMatching->{$_},
-                            IV2 => $min{$_},
-                            IV3 => $min{$_}
+                            A1 => $tariffsExMatching->{$_},
+                            A2 => $min{$_},
+                            A3 => $min{$_}
                         },
                         rowFormats => [
                             map {
@@ -1132,11 +1132,11 @@ sub matching {
        # cannot think of an better test than ISNUMBER when applied to input data
                     $_ => Arithmetic(
                         name       => "Adder threshold for $_",
-                        arithmetic => '=IF(ISNUMBER(IV3),IV2-IV1,0)',
+                        arithmetic => '=IF(ISNUMBER(A3),A2-A1,0)',
                         arguments  => {
-                            IV1 => $tariffsExMatching->{$_},
-                            IV2 => $max{$_},
-                            IV3 => $max{$_}
+                            A1 => $tariffsExMatching->{$_},
+                            A2 => $max{$_},
+                            A3 => $max{$_}
                         },
                         rowFormats => [
                             map {
@@ -1168,19 +1168,19 @@ sub matching {
             $adderTable = {
                 map {
                     my $tariffComponent = $_;
-                    my $iv              = 'IV1';
-                    $iv = "MAX($iv,IV5)" if $minAdder{$_};
-                    $iv = "MIN($iv,IV6)" if $maxAdder{$_};
+                    my $iv              = 'A1';
+                    $iv = "MAX($iv,A5)" if $minAdder{$_};
+                    $iv = "MIN($iv,A6)" if $maxAdder{$_};
                     $_ => Arithmetic(
                         name       => "Adder on $_",
                         rows       => $allTariffsByEndUser,
                         cols       => Labelset( list => ['Adder'] ),
-                        arithmetic => "=IF(IV3<0,0,$iv)",
+                        arithmetic => "=IF(A3<0,0,$iv)",
                         arguments  => {
-                            IV1 => $adderRate,
-                            IV3 => $loadCoefficients,
-                            $minAdder{$_} ? ( IV5 => $minAdder{$_} ) : (),
-                            $maxAdder{$_} ? ( IV6 => $maxAdder{$_} ) : ()
+                            A1 => $adderRate,
+                            A3 => $loadCoefficients,
+                            $minAdder{$_} ? ( A5 => $minAdder{$_} ) : (),
+                            $maxAdder{$_} ? ( A6 => $maxAdder{$_} ) : ()
                         },
                         rowFormats => [
                             map {
@@ -1201,12 +1201,12 @@ sub matching {
               Arithmetic
               name       => 'Are generator tariffs subject to adder?',
               arithmetic => !$model->{genAdder} ? 'FALSE'
-              : $model->{genAdder} =~ /charge/ ? '=IV1>0'
-              : $model->{genAdder} =~ /pay/    ? '=IV1<0'
+              : $model->{genAdder} =~ /charge/ ? '=A1>0'
+              : $model->{genAdder} =~ /pay/    ? '=A1<0'
               : $model->{genAdder} =~ /always/ ? 'TRUE'
               : $model->{genAdder} =~ /never/  ? 'FALSE'
               : 'FALSE',
-              arguments => { IV1 => $adderAmount };
+              arguments => { A1 => $adderAmount };
 
             push @{ $model->{optionLines} },
               'Adder for generators: '
@@ -1239,12 +1239,12 @@ sub matching {
                     source => Arithmetic(
                         name       => 'MWh eligible for adder, by tariff',
                         cols       => $gspPot,
-                        arithmetic => '=IV4*IF(OR(IV2,IV3>=0),ABS(IV1),0)',
+                        arithmetic => '=A4*IF(OR(A2,A3>=0),ABS(A1),0)',
                         arguments  => {
-                            IV1 => $unitsInYear,
-                            IV2 => $includeGenerators,
-                            IV3 => $loadCoefficients,
-                            IV4 => $numberOfLevels
+                            A1 => $unitsInYear,
+                            A2 => $includeGenerators,
+                            A3 => $loadCoefficients,
+                            A4 => $numberOfLevels
                         }
                     )
                 );
@@ -1256,11 +1256,11 @@ sub matching {
                     source => Arithmetic(
                         name       => 'MWh eligible for adder, by tariff',
                         cols       => $gspPot,
-                        arithmetic => '=IF(OR(IV2,IV3>=0),ABS(IV1),0)',
+                        arithmetic => '=IF(OR(A2,A3>=0),ABS(A1),0)',
                         arguments  => {
-                            IV1 => $unitsInYear,
-                            IV2 => $includeGenerators,
-                            IV3 => $loadCoefficients
+                            A1 => $unitsInYear,
+                            A2 => $includeGenerators,
+                            A3 => $loadCoefficients
                         }
                     )
                 );
@@ -1288,11 +1288,11 @@ sub matching {
                                   }
                             ]
                         ),
-                        arithmetic => '=IF(OR(IV2,IV3>=0),ABS(IV1),0)',
+                        arithmetic => '=IF(OR(A2,A3>=0),ABS(A1),0)',
                         arguments  => {
-                            IV1 => $simultaneousMaximumLoadUnits,
-                            IV2 => $includeGenerators,
-                            IV3 => $loadCoefficients
+                            A1 => $simultaneousMaximumLoadUnits,
+                            A2 => $includeGenerators,
+                            A3 => $loadCoefficients
                         }
                     )
                 );
@@ -1316,15 +1316,15 @@ sub matching {
                             rows =>
                               $unitRateSystemLoadCoefficients[$r]{tariffs},
                             cols       => $gspPot,
-                            arithmetic => '=IF(OR(IV2,IV3>=0),'
-                              . 'ABS(IV1),0)*IV4*1000/(24*IV6)*IV5',
+                            arithmetic => '=IF(OR(A2,A3>=0),'
+                              . 'ABS(A1),0)*A4*1000/(24*A6)*A5',
                             arguments => {
-                                IV1 => $unitRateSystemLoadCoefficients[$r],
-                                IV2 => $includeGenerators,
-                                IV3 => $unitRateSystemLoadCoefficients[$r],
-                                IV4 => $volumeData->{"Unit rate $r1 p/kWh"},
-                                IV5 => $lineLossFactorsToGsp,
-                                IV6 => $daysInYear,
+                                A1 => $unitRateSystemLoadCoefficients[$r],
+                                A2 => $includeGenerators,
+                                A3 => $unitRateSystemLoadCoefficients[$r],
+                                A4 => $volumeData->{"Unit rate $r1 p/kWh"},
+                                A5 => $lineLossFactorsToGsp,
+                                A6 => $daysInYear,
                             }
                         )
                     );
@@ -1341,11 +1341,11 @@ sub matching {
                       name       => 'Volume eligible for adder',
                       cols       => $gspPot,
                       rows       => $generationCapacityTariffsByEndUser,
-                      arithmetic => '=IF(OR(IV2,IV3>=0),ABS(IV1),0)',
+                      arithmetic => '=IF(OR(A2,A3>=0),ABS(A1),0)',
                       arguments  => {
-                        IV1 => $simultaneousMaximumLoadCapacity,
-                        IV2 => $includeGenerators,
-                        IV3 => $simultaneousMaximumLoadCapacity
+                        A1 => $simultaneousMaximumLoadCapacity,
+                        A2 => $includeGenerators,
+                        A3 => $simultaneousMaximumLoadCapacity
                       };
 
                     push @{ $model->{adderResults} },
@@ -1362,8 +1362,8 @@ sub matching {
 
             my $volumeForAdder = @sml == 1 ? $sml[0] : Arithmetic(
                 name       => 'Total volume eligible for adder',
-                arithmetic => '=' . join( '+', map { "IV$_" } 1 .. @sml ),
-                arguments  => { map { ; "IV$_" => $sml[ $_ - 1 ]; } 1 .. @sml }
+                arithmetic => '=' . join( '+', map { "A$_" } 1 .. @sml ),
+                arguments  => { map { ; "A$_" => $sml[ $_ - 1 ]; } 1 .. @sml }
             );
 
             push @{ $model->{adderResults} }, Columnset
@@ -1378,29 +1378,29 @@ sub matching {
                 rows => $allTariffsByEndUser,
                 cols => $fixedAdderPot,
                 arithmetic =>
-                  '=IF(OR(IV5,IV2>=0),ABS(IV1)*IV7*IV4/IV3/(24*IV6)*100,0)',
+                  '=IF(OR(A5,A2>=0),ABS(A1)*A7*A4/A3/(24*A6)*100,0)',
                 arguments => {
-                    IV1 => $loadCoefficients,
-                    IV2 => $loadCoefficients,
-                    IV3 => $volumeForAdder,
-                    IV4 => $adderAmount,
-                    IV5 => $includeGenerators,
-                    IV6 => $daysInYear,
-                    IV7 => $lineLossFactorsToGsp
+                    A1 => $loadCoefficients,
+                    A2 => $loadCoefficients,
+                    A3 => $volumeForAdder,
+                    A4 => $adderAmount,
+                    A5 => $includeGenerators,
+                    A6 => $daysInYear,
+                    A7 => $lineLossFactorsToGsp
                 }
               )
               : Arithmetic(
                 name       => 'Adder yardstick p/kWh',
                 rows       => $allTariffsByEndUser,
                 cols       => $fixedAdderPot,
-                arithmetic => '=IF(OR(IV5,IV2>=0),IV4/IV3/10,0)'
-                  . ( $numberOfLevels ? '*IV6' : '' ),
+                arithmetic => '=IF(OR(A5,A2>=0),A4/A3/10,0)'
+                  . ( $numberOfLevels ? '*A6' : '' ),
                 arguments => {
-                    IV2 => $loadCoefficients,
-                    IV3 => $volumeForAdder,
-                    IV4 => $adderAmount,
-                    IV5 => $includeGenerators,
-                    $numberOfLevels ? ( IV6 => $numberOfLevels ) : ()
+                    A2 => $loadCoefficients,
+                    A3 => $volumeForAdder,
+                    A4 => $adderAmount,
+                    A5 => $includeGenerators,
+                    $numberOfLevels ? ( A6 => $numberOfLevels ) : ()
                 }
               );
 
@@ -1413,16 +1413,16 @@ sub matching {
                         $_ => Arithmetic(
                             name       => "$_ adder",
                             cols       => $fixedAdderPot,
-                            arithmetic => '=IF(IV94,IV1/IV2*IV3/IV4*IV6,'
-                              . ( /kWh/ ? 'IV5)' : '0)' ),
+                            arithmetic => '=IF(A94,A1/A2*A3/A4*A6,'
+                              . ( /kWh/ ? 'A5)' : '0)' ),
                             arguments => {
-                                IV1  => $sml[0]->{source},
-                                IV2  => $volumeForAdder,
-                                IV3  => $revenueShortfall,
-                                IV4  => $revenuesSoFar,
-                                IV94 => $revenuesSoFar,
-                                IV5  => $adderUnitYardstick,
-                                IV6  => $tariffsExMatching->{$_}
+                                A1  => $sml[0]->{source},
+                                A2  => $volumeForAdder,
+                                A3  => $revenueShortfall,
+                                A4  => $revenuesSoFar,
+                                A94 => $revenuesSoFar,
+                                A5  => $adderUnitYardstick,
+                                A6  => $tariffsExMatching->{$_}
                             }
                         );
                     } @$scaledComponents
@@ -1449,19 +1449,19 @@ sub matching {
                                     rows => $unitRateSystemLoadCoefficients[$r]
                                       {tariffs},
                                     cols       => $fixedAdderPot,
-                                    arithmetic => '=IF(OR(IV5,IV2>=0),'
-                                      . 'ABS(IV1)*IV7*IV4/IV3/(24*IV6)*100'
+                                    arithmetic => '=IF(OR(A5,A2>=0),'
+                                      . 'ABS(A1)*A7*A4/A3/(24*A6)*100'
                                       . ',0)',
                                     arguments => {
-                                        IV1 =>
+                                        A1 =>
                                           $unitRateSystemLoadCoefficients[$r],
-                                        IV2 =>
+                                        A2 =>
                                           $unitRateSystemLoadCoefficients[$r],
-                                        IV3 => $volumeForAdder,
-                                        IV4 => $adderAmount,
-                                        IV5 => $includeGenerators,
-                                        IV6 => $daysInYear,
-                                        IV7 => $lineLossFactorsToGsp
+                                        A3 => $volumeForAdder,
+                                        A4 => $adderAmount,
+                                        A5 => $includeGenerators,
+                                        A6 => $daysInYear,
+                                        A7 => $lineLossFactorsToGsp
                                     }
                                 ),
                                 $r ? () : ($adderUnitYardstick)
@@ -1482,15 +1482,15 @@ sub matching {
                         name       => 'Generation capacity rate p/kW/day adder',
                         rows       => $generationCapacityTariffsByEndUser,
                         cols       => $fixedAdderPot,
-                        arithmetic => '=IF(IV5,ABS(IV1)*IV7*IV4/IV3/IV6*100,0)',
+                        arithmetic => '=IF(A5,ABS(A1)*A7*A4/A3/A6*100,0)',
                         arguments  => {
-                            IV1 => $fFactors,
-                            IV2 => $fFactors,
-                            IV3 => $volumeForAdder,
-                            IV4 => $adderAmount,
-                            IV5 => $includeGenerators,
-                            IV6 => $daysInYear,
-                            IV7 => $lineLossFactorsToGsp
+                            A1 => $fFactors,
+                            A2 => $fFactors,
+                            A3 => $volumeForAdder,
+                            A4 => $adderAmount,
+                            A5 => $includeGenerators,
+                            A6 => $daysInYear,
+                            A7 => $lineLossFactorsToGsp
                         }
                       );
 
@@ -1508,14 +1508,14 @@ sub matching {
               $model->{scaler} =~ /ppu/i
               ? Arithmetic(
                 name       => 'Adder rate p/kWh',
-                arithmetic => '=IV1/IV2/10',
-                arguments  => { IV1 => $adderAmount, IV2 => $volumeForAdder }
+                arithmetic => '=A1/A2/10',
+                arguments  => { A1 => $adderAmount, A2 => $volumeForAdder }
               )
               : Arithmetic(
                 name          => 'Adder rate £/kW/year',
                 defaultFormat => '0.00soft',
-                arithmetic    => '=IV1/IV2',
-                arguments     => { IV1 => $adderAmount, IV2 => $volumeForAdder }
+                arithmetic    => '=A1/A2',
+                arguments     => { A1 => $adderAmount, A2 => $volumeForAdder }
               );
 
         }    # end of if ppuminmax
@@ -1525,7 +1525,7 @@ sub matching {
         {
             my @termsNoDays;
             my @termsWithDays;
-            my %args = ( IV400 => $daysInYear );
+            my %args = ( A400 => $daysInYear );
             my $i = 1;
 
             foreach ( grep { $adderTable->{$_} } @$nonExcludedComponents ) {
@@ -1533,13 +1533,13 @@ sub matching {
                 my $pad = "$i";
                 $pad = "0$pad" while length $pad < 3;
                 if (m#/day#) {
-                    push @termsWithDays, "IV2$pad*IV3$pad";
+                    push @termsWithDays, "A2$pad*A3$pad";
                 }
                 else {
-                    push @termsNoDays, "IV2$pad*IV3$pad";
+                    push @termsNoDays, "A2$pad*A3$pad";
                 }
-                $args{"IV2$pad"} = $adderTable->{$_};
-                $args{"IV3$pad"} = $volumeData->{$_};
+                $args{"A2$pad"} = $adderTable->{$_};
+                $args{"A3$pad"} = $volumeData->{$_};
             }
 
             $revenuesFromAdder = Arithmetic(
@@ -1548,7 +1548,7 @@ sub matching {
                 arithmetic => '='
                   . join( '+',
                     @termsWithDays
-                    ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                    ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                     : ('0'),
                     @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                     : ('0'),
@@ -1584,9 +1584,9 @@ sub matching {
         ? Arithmetic(
             name          => 'Revenue from adder, net of revenue removed (£)',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1-IV2',
+            arithmetic    => '=A1-A2',
             arguments =>
-              { IV1 => $totalRevenuesFromAdder, IV2 => $totalRevenueRemoved }
+              { A1 => $totalRevenuesFromAdder, A2 => $totalRevenueRemoved }
         )
         : $totalRevenuesFromAdder
       ),

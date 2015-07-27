@@ -92,9 +92,9 @@ sub check {
       unless defined $self->{cols};
     push @{ $self->{sourceLines} }, @{ $self->{sources} };
     $self->{arithmetic} =
-      '= ' . join( ' or ', map { "IV1$_" } 0 .. $#{ $self->{sources} } );
+      '= ' . join( ' or ', map { "A1$_" } 0 .. $#{ $self->{sources} } );
     $self->{arguments} =
-      { map { ( "IV1$_" => $self->{sources}[$_] ); }
+      { map { ( "A1$_" => $self->{sources}[$_] ); }
           0 .. $#{ $self->{sources} } };
     if ( !$#{ $self->{sources} } ) {
 
@@ -181,8 +181,8 @@ sub wsPrepare {
               unless $srcsheet;
             $formula{ 0 + $_ } = $ws->store_formula(
                 !$srcsheet || $ws == $srcsheet
-                ? '=IV1'
-                : '=' . q"'" . $srcsheet->get_name . q"'!IV1"
+                ? '=A1'
+                : '=' . q"'" . $srcsheet->get_name . q"'!A1"
             );
             $rowcol{ 0 + $_ } = [ $srcr, $srcc ];
         }
@@ -216,7 +216,8 @@ sub wsPrepare {
           unless $formula{ 0 + $source };
 
         '', $format, $formula{ 0 + $source },
-          IV1 => xl_rowcol_to_cell( $row + $sy, $col + $sx, $yabs, $xabs );
+          qr/\bA1\b/ =>
+          xl_rowcol_to_cell( $row + $sy, $col + $sx, $yabs, $xabs );
 
     };
 }

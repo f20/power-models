@@ -54,13 +54,13 @@ sub networkUse {
                 'Estimated contributions of users on each tariff to '
               . 'system simultaneous maximum load by network level (kW)'
         ),
-        arithmetic => '=IV1*IV3*IV5/(24*IV9)*1000',
+        arithmetic => '=A1*A3*A5/(24*A9)*1000',
         cols       => $drmExitLevels,
         arguments  => {
-            IV1 => $unitsInYear,
-            IV3 => $loadCoefficients,
-            IV9 => $daysInYear,
-            IV5 => $lineLossFactors
+            A1 => $unitsInYear,
+            A3 => $loadCoefficients,
+            A9 => $daysInYear,
+            A5 => $lineLossFactors
         },
         defaultFormat => '0softnz',
     );
@@ -110,19 +110,19 @@ sub networkUse {
                                   . '-rate multi tariffs to '
                                   . 'system simultaneous maximum load by network level (kW)',
                                 arithmetic => '=('
-                                  . join( '+', map { "IV1$_*IV3$_" } 0 .. $_ )
-                                  . ')*IV5/(24*IV9)*1000',
+                                  . join( '+', map { "A1$_*A3$_" } 0 .. $_ )
+                                  . ')*A5/(24*A9)*1000',
                                 rows      => $relevantTariffs,
                                 cols      => $drmExitLevels,
                                 arguments => {
-                                    IV9 => $daysInYear,
-                                    IV5 => $lineLossFactors,
+                                    A9 => $daysInYear,
+                                    A5 => $lineLossFactors,
                                     map {
                                         ;
-                                        "IV1$_" => $volumeData->{ 'Unit rate '
+                                        "A1$_" => $volumeData->{ 'Unit rate '
                                               . ( $_ + 1 )
                                               . ' p/kWh' },
-                                          "IV3$_" =>
+                                          "A3$_" =>
                                           $pseudoLoadCoefficients->[$_];
                                     } 0 .. $_
                                 },
@@ -159,22 +159,22 @@ sub networkUse {
                     'Contributions of users on generation capacity rates '
                   . 'to simultaneous maximum load by network level (kW)'
             ),
-            arithmetic => '=-1*IV1*IV3*IV5',
+            arithmetic => '=-1*A1*A3*A5',
             cols       => $drmExitLevels,
             rows       => $generationCapacityTariffsByEndUser,
             arguments  => {
-                IV1 => $volumeData->{'Generation capacity rate p/kW/day'},
-                IV3 => $fFactors,
-                IV5 => $lineLossFactors
+                A1 => $volumeData->{'Generation capacity rate p/kW/day'},
+                A3 => $fFactors,
+                A5 => $lineLossFactors
             }
         );
 
         $forecastSml = Arithmetic
           name       => 'Forecast system simultaneous maximum load (kW)',
-          arithmetic => '=IV1+IV2',
+          arithmetic => '=A1+A2',
           arguments  => {
-            IV1 => $forecastSml,
-            IV2 => GroupBy(
+            A1 => $forecastSml,
+            A2 => GroupBy(
                 name => 'Adjustment to simultaneous maximum load'
                   . ' from users on generation capacity rates (kW)',
                 cols   => $drmExitLevels,

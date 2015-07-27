@@ -45,9 +45,9 @@ sub new {
     $self->{tariffs} = [
         Arithmetic(
             name       => 'Supply p/kWh',
-            arithmetic => '=IV1+IV2',
+            arithmetic => '=A1+A2',
             arguments  => {
-                IV1 => Dataset(
+                A1 => Dataset(
                     name     => 'Competitive energy charging rate p/kWh',
                     rows     => $uosTariffs->[0]{rows},
                     number   => 1588,
@@ -55,7 +55,7 @@ sub new {
                     dataset  => $self->{model}{dataset},
                     data => [ map { 10 } @{ $uosTariffs->[0]{rows}{list} } ],
                 ),
-                IV2 => $uosTariffs->[0],
+                A2 => $uosTariffs->[0],
             },
         ),
         map {
@@ -77,12 +77,12 @@ sub marginCalculation {
     my $uos     = $self->{uos};
     Arithmetic(
         name       => 'Energy supply margin £/year' . $labelTail,
-        arithmetic => '=IV1*(IV11-IV12-IV13)/100',
+        arithmetic => '=A1*(A11-A12-A13)/100',
         arguments  => {
-            IV1  => $volumes->[0],
-            IV11 => $tariffs->[0],
-            IV12 => $uos->{tariffs}[0],
-            IV13 => $self->{basicEnergyCharge},
+            A1  => $volumes->[0],
+            A11 => $tariffs->[0],
+            A12 => $uos->{tariffs}[0],
+            A13 => $self->{basicEnergyCharge},
         },
         defaultFormat => '0softnz',
     );

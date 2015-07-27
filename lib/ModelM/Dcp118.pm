@@ -96,16 +96,16 @@ EOT
         defaultFormat => '%soft',
         cols =>
           Labelset( list => [ $theCols->{list}[ $#{ $theCols->{list} } ] ] ),
-        arithmetic => '=1/(1+IV1/SUMPRODUCT(IV2_IV3,IV4_IV5))',
+        arithmetic => '=1/(1+A1/SUMPRODUCT(A2_A3,A4_A5))',
         arguments  => {
-            IV1     => $edcmAssets,
-            IV2_IV3 => Constant(
+            A1     => $edcmAssets,
+            A2_A3 => Constant(
                 name  => 'EHV asset levels',
                 cols  => $assetLevelset,
                 byrow => 1,
                 data  => [ [qw(0 1 1 1 1 1 0 0 0 0 0)] ]
             ),
-            IV4_IV5 => $cdcmAssets,
+            A4_A5 => $cdcmAssets,
         },
     );
 
@@ -127,12 +127,12 @@ EOT
     map {
         Arithmetic(
             name       => "$_->{name} after DCP 118 exclusions",
-            arithmetic => '=IV1*IV2/SUMPRODUCT(IV3_IV4,IV5_IV6)',
+            arithmetic => '=A1*A2/SUMPRODUCT(A3_A4,A5_A6)',
             arguments  => {
-                IV1     => $_,
-                IV2     => $propKept,
-                IV3_IV4 => $_,
-                IV5_IV6 => $propKept,
+                A1     => $_,
+                A2     => $propKept,
+                A3_A4 => $_,
+                A5_A6 => $propKept,
             },
             defaultFormat => '%soft'
         );

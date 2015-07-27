@@ -49,15 +49,15 @@ sub allocation {
       ||= Arithmetic(
         name => 'To be deducted from revenue and treated as "upstream" cost',
         defaultFormat => '0soft',
-        arithmetic    => '=SUMIF(IV1_IV2,"Deduct from revenue",IV3_IV4)',
-        arguments => { IV1_IV2 => $allocationRules, IV3_IV4 => $expenditure }
+        arithmetic    => '=SUMIF(A1_A2,"Deduct from revenue",A3_A4)',
+        arguments => { A1_A2 => $allocationRules, A3_A4 => $expenditure }
       );
 
     my $expensed = Arithmetic(
         name => 'Complete allocation, adjusted for regulatory capitalisation',
         defaultFormat => '0softnz',
-        arithmetic    => '=IV1*(1-IV2)',
-        arguments     => { IV1 => $afterAllocation, IV2 => $capitalised, }
+        arithmetic    => '=A1*(1-A2)',
+        arguments     => { A1 => $afterAllocation, A2 => $capitalised, }
     );
 
     my $expensedTotals = GroupBy(
@@ -70,27 +70,27 @@ sub allocation {
     my $expensedPercentages = Arithmetic(
         name          => 'Expensed proportions',
         defaultFormat => '%soft',
-        arithmetic    => '=IV1/SUM(IV2_IV3)',
-        arguments     => { IV1 => $expensedTotals, IV2_IV3 => $expensedTotals }
+        arithmetic    => '=A1/SUM(A2_A3)',
+        arguments     => { A1 => $expensedTotals, A2_A3 => $expensedTotals }
     );
 
     my $ppuSingleNotUsed = Arithmetic(
         name => 'p/kWh split (single-step calculation)',
         arithmetic =>
-'=100*((IV31+IV41)*IV2+IV51*IV1)/(IV32+IV42+IV52)*(IV9-IV81-IV82)/IV7',
+'=100*((A31+A41)*A2+A51*A1)/(A32+A42+A52)*(A9-A81-A82)/A7',
         arguments => {
-            IV1  => $expensedPercentages,
-            IV2  => $netCapexPercentages,
-            IV31 => $totalReturn,
-            IV32 => $totalReturn,
-            IV41 => $totalDepreciation,
-            IV42 => $totalDepreciation,
-            IV51 => $totalOperating,
-            IV52 => $totalOperating,
-            IV7  => $units,
-            IV81 => $incentive,
-            IV82 => $toDeduct,
-            IV9  => $revenue,
+            A1  => $expensedPercentages,
+            A2  => $netCapexPercentages,
+            A31 => $totalReturn,
+            A32 => $totalReturn,
+            A41 => $totalDepreciation,
+            A42 => $totalDepreciation,
+            A51 => $totalOperating,
+            A52 => $totalOperating,
+            A7  => $units,
+            A81 => $incentive,
+            A82 => $toDeduct,
+            A9  => $revenue,
         }
     );
 
@@ -98,12 +98,12 @@ sub allocation {
       $model->{objects}{propOp}{ 0 + $totalReturn }{ 0 + $totalDepreciation }
       { 0 + $totalOperating } ||= Arithmetic(
         name       => 'Proportion of price control revenue attributed to opex',
-        arithmetic => '=IV1/(IV32+IV42+IV52)',
+        arithmetic => '=A1/(A32+A42+A52)',
         arguments  => {
-            IV32 => $totalReturn,
-            IV42 => $totalDepreciation,
-            IV1  => $totalOperating,
-            IV52 => $totalOperating,
+            A32 => $totalReturn,
+            A42 => $totalDepreciation,
+            A1  => $totalOperating,
+            A52 => $totalOperating,
         },
         defaultFormat => '%soft',
       );
@@ -113,41 +113,41 @@ sub allocation {
       { 0 + $toDeduct }{ 0 + $revenue } ||= Arithmetic(
         name => 'Revenue to be allocated between network levels (£/year)',
         defaultFormat => '0softnz',
-        arithmetic    => '=IV1-IV81-IV82',
+        arithmetic    => '=A1-A81-A82',
         arguments     => {
-            IV81 => $incentive,
-            IV82 => $toDeduct,
-            IV1  => $revenue,
+            A81 => $incentive,
+            A82 => $toDeduct,
+            A1  => $revenue,
         },
       );
 
     my $ppu = Arithmetic(
         name       => 'p/kWh split',
-        arithmetic => '=((1-IV52)*IV2+IV51*IV1)*IV6/IV7*100',
+        arithmetic => '=((1-A52)*A2+A51*A1)*A6/A7*100',
         arguments  => {
-            IV1  => $expensedPercentages,
-            IV2  => $netCapexPercentages,
-            IV7  => $units,
-            IV51 => $propOp,
-            IV52 => $propOp,
-            IV6  => $revenueToBeAllocated,
+            A1  => $expensedPercentages,
+            A2  => $netCapexPercentages,
+            A7  => $units,
+            A51 => $propOp,
+            A52 => $propOp,
+            A6  => $revenueToBeAllocated,
         }
     );
 
     if ( $model->{dcp117} && $model->{dcp117} =~ /2014/ ) {
         $ppu = Arithmetic(
             name       => 'p/kWh split (DCP 117 modified)',
-            arithmetic => '=(((1-IV52)*IV2+IV51*IV1)*IV6+IV8*IV18)/IV7*100',
+            arithmetic => '=(((1-A52)*A2+A51*A1)*A6+A8*A18)/A7*100',
             arguments  => {
-                IV1  => $expensedPercentages,
-                IV2  => $netCapexPercentages,
-                IV7  => $units,
-                IV51 => $propOp,
-                IV52 => $propOp,
-                IV6  => $revenueToBeAllocated,
-                IV1  => $expensedPercentages,
-                IV18 => $expensedPercentages,
-                IV8  => Dataset(
+                A1  => $expensedPercentages,
+                A2  => $netCapexPercentages,
+                A7  => $units,
+                A51 => $propOp,
+                A52 => $propOp,
+                A6  => $revenueToBeAllocated,
+                A1  => $expensedPercentages,
+                A18 => $expensedPercentages,
+                A8  => Dataset(
                     name          => 'Income for connections indirects (£)',
                     defaultFormat => '0hard',
                     data          => [''],
@@ -166,20 +166,20 @@ sub allocation {
         cols => Labelset(
             list => [ $allocLevelset->{list}[ $#{ $allocLevelset->{list} } ] ]
         ),
-        arithmetic => '=100*(IV81+IV82)/IV7',
+        arithmetic => '=100*(A81+A82)/A7',
         arguments  => {
-            IV7  => $units,
-            IV81 => $incentive,
-            IV82 => $toDeduct,
-            IV9  => $revenue,
+            A7  => $units,
+            A81 => $incentive,
+            A82 => $toDeduct,
+            A9  => $revenue,
         }
       );
 
     my $alloc = Arithmetic(
         name          => 'Allocated proportion',
         defaultFormat => '%soft',
-        arithmetic    => '=IV1/(SUM(IV2_IV3)+IV4)',
-        arguments     => { IV1 => $ppu, IV2_IV3 => $ppu, IV4 => $ppuNotSplit, }
+        arithmetic    => '=A1/(SUM(A2_A3)+A4)',
+        arguments     => { A1 => $ppu, A2_A3 => $ppu, A4 => $ppuNotSplit, }
     );
 
     $alloc;

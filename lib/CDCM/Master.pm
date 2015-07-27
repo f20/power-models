@@ -213,24 +213,24 @@ sub new {
                 cols          => Labelset( list => [ $drmLevels->{list}[1] ] ),
                 rows          => Labelset( list => [ $coreLevels->{list}[1] ] ),
                 defaultFormat => '%softnz',
-                arithmetic    => '=1-IV1',
-                arguments     => { IV1 => $rerouteing13211 }
+                arithmetic    => '=1-A1',
+                arguments     => { A1 => $rerouteing13211 }
             ),
             Arithmetic(
                 name          => 'Proportion going through EHV',
                 cols          => Labelset( list => [ $drmLevels->{list}[2] ] ),
                 rows          => Labelset( list => [ $coreLevels->{list}[2] ] ),
                 defaultFormat => '%softnz',
-                arithmetic    => '=1-IV1',
-                arguments     => { IV1 => $rerouteing13211 }
+                arithmetic    => '=1-A1',
+                arguments     => { A1 => $rerouteing13211 }
             ),
             Arithmetic(
                 name          => 'Proportion going through EHV/HV',
                 cols          => Labelset( list => [ $drmLevels->{list}[3] ] ),
                 rows          => Labelset( list => [ $coreLevels->{list}[3] ] ),
                 defaultFormat => '%softnz',
-                arithmetic    => '=1-IV1',
-                arguments     => { IV1 => $rerouteing13211 }
+                arithmetic    => '=1-A1',
+                arguments     => { A1 => $rerouteing13211 }
             ),
             $rerouteingMap
         );
@@ -353,7 +353,7 @@ Sources: financial assumptions; calendar; network model.
 These financial assumptions determine the annuity rate applied to convert the asset values of the network model into an annual charge.
 EOT
         columns => [
-            @{ $annuityRate->{arguments} }{qw(IV1 IV2)},
+            @{ $annuityRate->{arguments} }{qw(A1 A2)},
             $proportionChargeable,
             $powerFactorInModel,
             $daysInYear,
@@ -760,11 +760,11 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
       Arithmetic(
         name          => 'Charging rate for site-specific sole use assets',
         defaultFormat => '%softnz',
-        arithmetic    => '=IF(IV2,IV1/IV3,"")',
+        arithmetic    => '=IF(A2,A1/A3,"")',
         arguments     => {
-            IV2 => $siteSpecificSoleUseAssets,
-            IV1 => $siteSpecificCharges,
-            IV3 => $siteSpecificSoleUseAssets
+            A2 => $siteSpecificSoleUseAssets,
+            A1 => $siteSpecificCharges,
+            A3 => $siteSpecificSoleUseAssets
         }
       ) if $siteSpecificCharges;
 

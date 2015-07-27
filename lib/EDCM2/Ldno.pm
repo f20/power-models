@@ -297,10 +297,10 @@ EOF
         name          => 'Applicable discount for each tariff',
         rows          => $allTariffsByEndUser,
         defaultFormat => '%copy',
-        arithmetic    => '= IV1',
-        custom        => ['=IV1'],
+        arithmetic    => '= A1',
+        custom        => ['=A1'],
         objectType    => 'Special copy',
-        arguments     => { IV1 => $discounts },
+        arguments     => { A1 => $discounts },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
@@ -322,9 +322,9 @@ EOF
                   :                  0;
                 return '#VALUE!', $format if $x > 3;
                 '', $format, $formula->[0],
-                  IV1 => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV1} + $y,
-                    $colh->{IV1} + $x,
+                  A1 => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $rowh->{A1} + $y,
+                    $colh->{A1} + $x,
                     1, 1
                   );
             };
@@ -334,10 +334,10 @@ EOF
         name          => 'Applicable discount for each tariff',
         rows          => $allTariffsByEndUser,
         defaultFormat => '%copy',
-        arithmetic    => '= IV1',
-        custom        => ['=IV1'],
+        arithmetic    => '= A1',
+        custom        => ['=A1'],
         objectType    => 'Special copy',
-        arguments     => { IV1 => $discounts },
+        arguments     => { A1 => $discounts },
         wsPrepare     => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
@@ -369,9 +369,9 @@ EOF
                   :                  0;
                 return '#VALUE!', $format if $y > 3;
                 '', $format, $formula->[0],
-                  IV1 => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{IV1} + $y,
-                    $colh->{IV1} + $x,
+                  A1 => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $rowh->{A1} + $y,
+                    $colh->{A1} + $x,
                     1, 1
                   );
             };
@@ -389,12 +389,12 @@ EOF
             name          => $tariffComponents[$_],
             defaultFormat => $tariffComponents[$_] =~ /day/ ? '0.00softnz'
             : '0.000softnz',
-            arithmetic => $model->{ldnoRev} !~ /round/i ? '=IV2*(1-IV1)'
-            : '=ROUND(IV2*(1-IV1),'
+            arithmetic => $model->{ldnoRev} !~ /round/i ? '=A2*(1-A1)'
+            : '=ROUND(A2*(1-A1),'
               . ( $tariffComponents[$_] =~ /day/ ? 2 : 3 ) . ')',
             arguments => {
-                IV2 => $endUserTariffs[$_],
-                IV1 => $discountsByTariff,
+                A2 => $endUserTariffs[$_],
+                A1 => $discountsByTariff,
             },
             rowFormats => [
                 map { defined $_ ? undef : 'unavailable' }
@@ -442,18 +442,18 @@ EOF
     {
         my @termsNoDays;
         my @termsWithDays;
-        my %args = ( IV400 => $model->{daysInYear} );
+        my %args = ( A400 => $model->{daysInYear} );
         foreach ( 0 .. $#tariffComponents ) {
             my $pad = $_ + 1;
             $pad = "0$pad" while length $pad < 3;
             if ( $tariffComponents[$_] =~ m#/day# ) {
-                push @termsWithDays, "IV2$pad*IV3$pad";
+                push @termsWithDays, "A2$pad*A3$pad";
             }
             else {
-                push @termsNoDays, "IV2$pad*IV3$pad";
+                push @termsNoDays, "A2$pad*A3$pad";
             }
-            $args{"IV2$pad"} = $allTariffs[$_];
-            $args{"IV3$pad"} = $volumeData[$_];
+            $args{"A2$pad"} = $allTariffs[$_];
+            $args{"A3$pad"} = $volumeData[$_];
         }
         $revenueByTariff = Arithmetic(
             name       => 'Net revenue from discounted LDNO tariffs (£/year)',
@@ -461,7 +461,7 @@ EOF
             arithmetic => '='
               . join( '+',
                 @termsWithDays
-                ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                 : (),
                 @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                 : ('0'),
@@ -516,8 +516,8 @@ EOF
                         defaultFormat => $_->{defaultFormat},
                         name          => $_->{name},
                         rows          => $allTariffsReordered,
-                        arguments     => { IV1 => $_ },
-                        arithmetic    => '=IV1',
+                        arguments     => { A1 => $_ },
+                        arithmetic    => '=A1',
                         rowFormats    => [
                             @rowFormatMap{ @{ $allTariffsReordered->{list} } }
                         ]

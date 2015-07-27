@@ -163,8 +163,8 @@ EOL
     $model->{objects}{meav} = Arithmetic(
         name          => 'MEAV (£)',
         defaultFormat => 'millionsoft',
-        arithmetic    => '=IV1*IV2',
-        arguments     => { IV1 => $d[0], IV2 => $d[1], },
+        arithmetic    => '=A1*A2',
+        arguments     => { A1 => $d[0], A2 => $d[1], },
     );
 }
 
@@ -321,10 +321,10 @@ sub meavPercentages {
         name          => 'MEAV percentages',
         defaultFormat => '%soft',
         cols          => $allocLevelset,
-        arithmetic    => '=IV6/SUM(IV8_IV9)',
+        arithmetic    => '=A6/SUM(A8_A9)',
         arguments     => {
-            IV6     => $totalMeav,
-            IV8_IV9 => $totalMeav,
+            A6     => $totalMeav,
+            A8_A9 => $totalMeav,
         },
       );
 
@@ -382,12 +382,12 @@ sub meavPercentageServiceLV {
         cols          => $lvOnly,
         rows          => $lvServiceOnly,
         arithmetic =>
-          '=SUMPRODUCT(IV2_IV3,IV4_IV5)/SUMPRODUCT(IV6_IV7,IV8_IV9)',
+          '=SUMPRODUCT(A2_A3,A4_A5)/SUMPRODUCT(A6_A7,A8_A9)',
         arguments => {
-            IV2_IV3 => $lvService,
-            IV4_IV5 => $meav,
-            IV6_IV7 => $lvTotal,
-            IV8_IV9 => $meav,
+            A2_A3 => $lvService,
+            A4_A5 => $meav,
+            A6_A7 => $lvTotal,
+            A8_A9 => $meav,
         },
     );
 
@@ -523,10 +523,10 @@ sub meavPercentagesEdcm {
         name          => 'MEAV percentages',
         defaultFormat => '%soft',
         cols          => $edcmLevelset,
-        arithmetic    => '=IV6/SUM(IV8_IV9)',
+        arithmetic    => '=A6/SUM(A8_A9)',
         arguments     => {
-            IV6     => $totalMeav,
-            IV8_IV9 => $totalMeav,
+            A6     => $totalMeav,
+            A8_A9 => $totalMeav,
         },
     );
 

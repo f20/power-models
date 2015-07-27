@@ -60,26 +60,26 @@ sub chargesFcpLric {
         arithmetic    => '=100*(' . join(
             '+',
             map {
-                "IU9$_*"
+                "A9$_*"
                   . (
                     $reCoef->[$_]
-                    ? "MAX(0,IU5$_*IU7$_+IU6$_*IU8$_)"
-                    : "IU5$_*IU7$_"
+                    ? "MAX(0,A5$_*A7$_+A6$_*A8$_)"
+                    : "A5$_*A7$_"
                   )
             } grep { $charges1->[$_] } 1 .. $#$charges1
           )
-          . ')/IV2',
+          . ')/A2',
         arguments => {
-            IV2 => $daysInYear,
+            A2 => $daysInYear,
             map {
                 (
-                    "IU5$_" => $activeCoincidenceUndoctored,
-                    "IU9$_" => $charges1->[$_],
-                    "IU7$_" => $acCoef->[$_],
+                    "A5$_" => $activeCoincidenceUndoctored,
+                    "A9$_" => $charges1->[$_],
+                    "A7$_" => $acCoef->[$_],
                     $reCoef->[$_]
                     ? (
-                        "IU6$_" => $reactiveCoincidenceUndoctored,
-                        "IU8$_" => $reCoef->[$_]
+                        "A6$_" => $reactiveCoincidenceUndoctored,
+                        "A8$_" => $reCoef->[$_]
                       )
                     : ()
                   )
@@ -98,18 +98,18 @@ sub chargesFcpLric {
       && !$model->{removeDemandCharge1} ? Arithmetic(
         name          => 'Import capacity charge p/kVA/day',
         defaultFormat => '0.00softnz',
-        arithmetic    => '=100*IV1/IV2',
+        arithmetic    => '=100*A1/A2',
         arguments     => {
-            IV1 => $charges1->[0],
-            IV2 => $daysInYear,
+            A1 => $charges1->[0],
+            A2 => $daysInYear,
         }
       )
       : $charges1->[0]
       && $model->{removeDemandCharge1}
       && $model->{removeDemandCharge1} =~ /keepunitrate/i ? Arithmetic(
         name       => 'Deduct unit rate charge 1 from capacity p/kVA/day',
-        arithmetic => '=0-IV1',
-        arguments  => { IV1 => $demandConsumptionFcpLric, },
+        arithmetic => '=0-A1',
+        arguments  => { A1 => $demandConsumptionFcpLric, },
       )
       : Constant(
         isZero => 1,
@@ -134,28 +134,28 @@ sub chargesFcpLric {
         arithmetic => '=100*(' . join(
             '+',
             map {
-                "IV9$_*"
+                "A9$_*"
                   . (
                     $reCoef->[$_]
-                    ? "IF(IV2$_=0,IV7$_,MAX(0,IV4$_+IV6$_*IV8$_/IV5$_))"
-                    : "IV7$_"
+                    ? "IF(A2$_=0,A7$_,MAX(0,A4$_+A6$_*A8$_/A5$_))"
+                    : "A7$_"
                   )
             } grep { $charges1->[$_] } 1 .. $#$charges1
           )
-          . ')/IV2',
+          . ')/A2',
         arguments => {
-            IV2 => $purpleHours,
+            A2 => $purpleHours,
             map {
                 (
-                    "IV9$_" => $charges1->[$_],
-                    "IV7$_" => $acCoef->[$_],
+                    "A9$_" => $charges1->[$_],
+                    "A7$_" => $acCoef->[$_],
                     $reCoef->[$_]
                     ? (
-                        "IV4$_" => $acCoef->[$_],
-                        "IV5$_" => $activeCoincidenceUndoctored,
-                        "IV2$_" => $activeCoincidenceUndoctored,
-                        "IV6$_" => $reactiveCoincidenceUndoctored,
-                        "IV8$_" => $reCoef->[$_]
+                        "A4$_" => $acCoef->[$_],
+                        "A5$_" => $activeCoincidenceUndoctored,
+                        "A2$_" => $activeCoincidenceUndoctored,
+                        "A6$_" => $reactiveCoincidenceUndoctored,
+                        "A8$_" => $reCoef->[$_]
                       )
                     : ()
                   )
@@ -172,12 +172,12 @@ sub chargesFcpLric {
     $demandCapacityFcpLric = Arithmetic(
         name          => 'FCP capacity charge p/kVA/day',
         defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(IV3=0,IV1+IV2,IV11)',
+        arithmetic    => '=IF(A3=0,A1+A2,A11)',
         arguments     => {
-            IV1  => $demandCapacityFcpLric,
-            IV11 => $demandCapacityFcpLric,
-            IV3  => $activeCoincidenceUndoctored,
-            IV2  => $demandConsumptionFcpLric,
+            A1  => $demandCapacityFcpLric,
+            A11 => $demandCapacityFcpLric,
+            A3  => $activeCoincidenceUndoctored,
+            A2  => $demandConsumptionFcpLric,
         }
     ) if $model->{method} =~ /FCP/i;
 
@@ -187,13 +187,13 @@ sub chargesFcpLric {
         name       => 'Generation credit (before exempt adjustment) p/kWh',
         arithmetic => '=-100*('
           . join( '+',
-            $charges1->[0] ? "IU90*IV1" : (),
-            map { $charges1->[$_] ? "IU9$_" : () } 1 .. $#$charges1 )
-          . ')/IV2',
+            $charges1->[0] ? "A90*A1" : (),
+            map { $charges1->[$_] ? "A9$_" : () } 1 .. $#$charges1 )
+          . ')/A2',
         arguments => {
-            IV2 => $purpleHoursGen,
-            IV1 => $sFactor,
-            map { $charges1->[$_] ? ( "IU9$_" => $charges1->[$_] ) : () }
+            A2 => $purpleHoursGen,
+            A1 => $sFactor,
+            map { $charges1->[$_] ? ( "A9$_" => $charges1->[$_] ) : () }
               0 .. $#$charges1
         }
       )
@@ -208,15 +208,15 @@ sub chargesFcpLric {
         $genCredit = Arithmetic(
             name => 'Generation credit (before exempt adjustment) p/kWh',
             defaultFormat => '0.00softnz',
-            arithmetic    => '=-100*IV1*('
+            arithmetic    => '=-100*A1*('
               . join( '+',
-                $charges1->[0] ? "IU90" : (),
-                map { $charges1->[$_] ? "IU9$_" : () } 1 .. $#$charges1 )
-              . ')/IV2',
+                $charges1->[0] ? "A90" : (),
+                map { $charges1->[$_] ? "A9$_" : () } 1 .. $#$charges1 )
+              . ')/A2',
             arguments => {
-                IV2 => $purpleHoursGen,
-                IV1 => $sFactor,
-                map { $charges1->[$_] ? ( "IU9$_" => $charges1->[$_] ) : () }
+                A2 => $purpleHoursGen,
+                A1 => $sFactor,
+                map { $charges1->[$_] ? ( "A9$_" => $charges1->[$_] ) : () }
                   0 .. $#$charges1
             }
         );
@@ -225,13 +225,13 @@ sub chargesFcpLric {
     my $genCreditCapacity = Arithmetic(
         name          => 'Generation credit (unrounded) p/kVA/day',
         defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(IV1,-100*IU91/IV2*IV6/IV52,0)',
+        arithmetic    => '=IF(A1,-100*A91/A2*A6/A52,0)',
         arguments     => {
-            IV2  => $daysInYear,
-            IV1  => $chargeableGenerationCapacity,
-            IV52 => $chargeableGenerationCapacity,
-            IV6  => $creditableCapacity,
-            IU91 => $rateExit,
+            A2  => $daysInYear,
+            A1  => $chargeableGenerationCapacity,
+            A52 => $chargeableGenerationCapacity,
+            A6  => $creditableCapacity,
+            A91 => $rateExit,
         }
     );
 

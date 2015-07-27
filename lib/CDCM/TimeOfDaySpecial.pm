@@ -196,12 +196,12 @@ sub timeOfDaySpecial {
         my $coin = Arithmetic(
             name          => 'Contribution to system-peak-time kW',
             defaultFormat => '0softnz',
-            arithmetic    => '=IV1*IV2/24/IV3*1000',
+            arithmetic    => '=A1*A2/24/A3*1000',
             rows          => $relevantUsers,
             arguments     => {
-                IV1 => $loadCoefficients,
-                IV2 => $unitsByEndUser,
-                IV3 => $daysInYear,
+                A1 => $loadCoefficients,
+                A2 => $unitsByEndUser,
+                A3 => $daysInYear,
             },
         );
 
@@ -238,12 +238,12 @@ sub timeOfDaySpecial {
                     vector => Arithmetic(
                         name => 'Load coefficient correction factor'
                           . ' for each group',
-                        arithmetic => '=IF(IV1,IV2/IV3,0)',
+                        arithmetic => '=IF(A1,A2/A3,0)',
                         rows       => 0,
                         arguments  => {
-                            IV1 => $redG,
-                            IV2 => $coinG,
-                            IV3 => $redG,
+                            A1 => $redG,
+                            A2 => $coinG,
+                            A3 => $redG,
                         }
                     ),
                 ),
@@ -260,8 +260,8 @@ sub timeOfDaySpecial {
 
         $_ = Arithmetic(
             name       => "$_->{name} adjusted",
-            arithmetic => '=IV1*IV2',
-            arguments  => { IV1 => $_, IV2 => $adjust },
+            arithmetic => '=A1*A2',
+            arguments  => { A1 => $_, A2 => $adjust },
             tariffs    => $_->{tariffs},
         ) foreach @pseudos;
 
@@ -335,11 +335,11 @@ sub timeOfDaySpecialRunner {
           . 'distribution time band (reconciled to days in year)',
         singleRowName => 'Annual hours',
         defaultFormat => '0.0softnz',
-        arithmetic    => '=IV1*24*IV3/IV2',
+        arithmetic    => '=A1*24*A3/A2',
         arguments     => {
-            IV2 => $annualHoursByTimebandTotal,
-            IV3 => $daysInYear,
-            IV1 => $annualHoursByTimebandRaw,
+            A2 => $annualHoursByTimebandTotal,
+            A3 => $daysInYear,
+            A1 => $annualHoursByTimebandRaw,
         }
     );
 
@@ -382,30 +382,30 @@ sub timeOfDaySpecialRunner {
             name          => 'Red peaking probabilities',
             defaultFormat => '%copy',
             cols          => $model->{redAmberGreenRed},
-            arithmetic    => '=IV1',
-            arguments     => { IV1 => $model->{redAmberGreenPeaking}, }
+            arithmetic    => '=A1',
+            arguments     => { A1 => $model->{redAmberGreenPeaking}, }
         );
         my $amberPeaking = Arithmetic(
             name          => 'Amber peaking probabilities',
             defaultFormat => '%copy',
             cols          => $model->{redAmberGreenAmber},
-            arithmetic    => '=IV1',
-            arguments     => { IV1 => $model->{redAmberGreenPeaking}, }
+            arithmetic    => '=A1',
+            arguments     => { A1 => $model->{redAmberGreenPeaking}, }
         );
         my $greenPeaking = Arithmetic(
             name          => 'Green peaking probabilities',
             defaultFormat => '%copy',
             cols          => $model->{redAmberGreenGreen},
-            arithmetic    => '=IV1',
-            arguments     => { IV1 => $model->{redAmberGreenPeaking}, }
+            arithmetic    => '=A1',
+            arguments     => { A1 => $model->{redAmberGreenPeaking}, }
         );
         my $amberPeakingRate = Arithmetic(
             name       => 'Amber peaking rates',
-            arithmetic => '=IV1*24*IV3/IV2',
+            arithmetic => '=A1*24*A3/A2',
             arguments  => {
-                IV1 => $amberPeaking,
-                IV2 => $model->{redAmberGreenHours},
-                IV3 => $daysInYear,
+                A1 => $amberPeaking,
+                A2 => $model->{redAmberGreenHours},
+                A3 => $daysInYear,
             }
         );
         my $yellowPeaking = Arithmetic(
@@ -413,15 +413,15 @@ sub timeOfDaySpecialRunner {
             defaultFormat => '%soft',
             rows          => $amberPeaking->{rows},
             cols          => Labelset( list => [ $timebandSet->{list}[1] ] ),
-            arithmetic    => '=IF(IV1,MAX(0,IV2+IV3-IV4),IV6*IV7/IV8/24)',
+            arithmetic    => '=IF(A1,MAX(0,A2+A3-A4),A6*A7/A8/24)',
             arguments     => {
-                IV1 => $model->{blackPeaking},
-                IV2 => $amberPeaking,
-                IV3 => $redPeaking,
-                IV4 => $model->{blackPeaking},
-                IV6 => $amberPeakingRate,
-                IV7 => $annualHoursByTimeband,
-                IV8 => $daysInYear,
+                A1 => $model->{blackPeaking},
+                A2 => $amberPeaking,
+                A3 => $redPeaking,
+                A4 => $model->{blackPeaking},
+                A6 => $amberPeakingRate,
+                A7 => $annualHoursByTimeband,
+                A8 => $daysInYear,
             }
         );
         my $blackPeaking = Arithmetic(
@@ -429,10 +429,10 @@ sub timeOfDaySpecialRunner {
             defaultFormat => '%soft',
             rows          => $greenPeaking->{rows},
             cols          => Labelset( list => [ $timebandSet->{list}[0] ] ),
-            arithmetic    => '=1-IV1-IV2',
+            arithmetic    => '=1-A1-A2',
             arguments     => {
-                IV1 => $yellowPeaking,
-                IV2 => $greenPeaking,
+                A1 => $yellowPeaking,
+                A2 => $greenPeaking,
             }
         );
         $peakingProbabilitiesTable = Stack(
@@ -535,13 +535,13 @@ sub timeOfDaySpecialRunner {
               . ( $blackYellowGreen ? ' special ' : ' ' )
               . 'peaking probabilities',
             defaultFormat => '%soft',
-            arithmetic    => "=IF(IV3,IV1/IV2,IV8/IV9)",
+            arithmetic    => "=IF(A3,A1/A2,A8/A9)",
             arguments     => {
-                IV8 => $annualHoursByTimebandRaw,
-                IV9 => $annualHoursByTimebandTotal,
-                IV1 => $peakingProbabilitiesTable,
-                IV2 => $totalProbability,
-                IV3 => $totalProbability,
+                A8 => $annualHoursByTimebandRaw,
+                A9 => $annualHoursByTimebandTotal,
+                A1 => $peakingProbabilitiesTable,
+                A2 => $totalProbability,
+                A3 => $totalProbability,
             }
         );
 
@@ -704,13 +704,13 @@ sub timeOfDaySpecialRunner {
                   . ( $blackYellowGreen ? ' special ' : ' ' )
                   . 'distribution time band',
                 defaultFormat => '%soft',
-                arithmetic    => "=IF(IV3,IV1/IV2,IV8/IV9/24)",
+                arithmetic    => "=IF(A3,A1/A2,A8/A9/24)",
                 arguments     => {
-                    IV8 => $annualHoursByTimeband,
-                    IV9 => $daysInYear,
-                    IV1 => $inData,
-                    IV2 => $totals,
-                    IV3 => $totals,
+                    A8 => $annualHoursByTimeband,
+                    A9 => $daysInYear,
+                    A1 => $inData,
+                    A2 => $totals,
+                    A3 => $totals,
                 }
             );
 
@@ -769,13 +769,13 @@ sub timeOfDaySpecialRunner {
           . 'time band and network level',
         rows       => $relevantEndUsersByRate[0],
         cols       => $networkLevelsTimeband,
-        arithmetic => '=IF(IV6>0,IV7*24*IV9/IV5,0)*IF(IV2<0,-1,1)',
+        arithmetic => '=IF(A6>0,A7*24*A9/A5,0)*IF(A2<0,-1,1)',
         arguments  => {
-            IV5 => $annualHoursByTimeband,
-            IV6 => $annualHoursByTimeband,
-            IV7 => $peakingProbability,
-            IV9 => $daysInYear,
-            IV2 => $loadCoefficients,
+            A5 => $annualHoursByTimeband,
+            A6 => $annualHoursByTimeband,
+            A7 => $peakingProbability,
+            A9 => $daysInYear,
+            A2 => $loadCoefficients,
         }
     );
 
@@ -836,25 +836,25 @@ sub timeOfDaySpecialRunner {
                               . ( $blackYellowGreen ? ' special ' : ' ' )
                               . 'distribution time bands by units'
                               . " in demand forecast for $rt-rate tariffs",
-                            arithmetic => '=IF(IV501>0,(' . join(
+                            arithmetic => '=IF(A501>0,(' . join(
                                 '+',
                                 map {
                                     my $pad = "$_";
                                     $pad = "0$pad" while length $pad < 3;
-                                    "IV1$pad*IV2$pad"
+                                    "A1$pad*A2$pad"
                                 } 1 .. $r
                               )
-                              . ')/IV502,0)',
+                              . ')/A502,0)',
                             arguments => {
-                                IV501 => $unitsByEndUser,
-                                IV502 => $unitsByEndUser,
+                                A501 => $unitsByEndUser,
+                                A502 => $unitsByEndUser,
                                 map {
                                     my $pad = $_;
                                     $pad = "0$pad" while length $pad < 3;
                                     (
-                                        "IV1$pad" => $volumeByEndUser->{
+                                        "A1$pad" => $volumeByEndUser->{
                                             "Unit rate $_ p/kWh"},
-                                        "IV2$pad" =>
+                                        "A2$pad" =>
                                           $timebandUseByRate[ $_ - 1 ]
                                       )
                                 } 1 .. $r
@@ -878,18 +878,18 @@ sub timeOfDaySpecialRunner {
                                   . $rt
                                   . '-rate tariffs',
                                 arithmetic => $timebandLoadCoefficient
-                                ? '=IF(IV6>0,IV1*IV2*IV4*24/IV5,0)'
-                                : '=IF(IV6>0,IV1*IV4*24/IV5,0)',
+                                ? '=IF(A6>0,A1*A2*A4*24/A5,0)'
+                                : '=IF(A6>0,A1*A4*24/A5,0)',
                                 cols      => $timebandSet,
                                 rows      => $relevantUsers,
                                 arguments => {
                                     $timebandLoadCoefficient
-                                    ? ( IV2 => $timebandLoadCoefficient )
+                                    ? ( A2 => $timebandLoadCoefficient )
                                     : (),
-                                    IV1 => $timebandUseByRateTotal,
-                                    IV4 => $daysInYear,
-                                    IV5 => $annualHoursByTimeband,
-                                    IV6 => $annualHoursByTimeband
+                                    A1 => $timebandUseByRateTotal,
+                                    A4 => $daysInYear,
+                                    A5 => $annualHoursByTimeband,
+                                    A6 => $annualHoursByTimeband
                                 }
                             )
                           )
@@ -900,18 +900,18 @@ sub timeOfDaySpecialRunner {
                               . $rt
                               . '-rate tariffs',
                             arithmetic => $timebandLoadCoefficient
-                            ? '=IF(IV6>0,IV1*IV2*IV4*24/IV5,0)'
-                            : '=IF(IV6>0,IV1*IV4*24/IV5,0)',
+                            ? '=IF(A6>0,A1*A2*A4*24/A5,0)'
+                            : '=IF(A6>0,A1*A4*24/A5,0)',
                             cols      => $peakBand,
                             rows      => $relevantUsers,
                             arguments => {
                                 $timebandLoadCoefficient
-                                ? ( IV2 => $timebandLoadCoefficient )
+                                ? ( A2 => $timebandLoadCoefficient )
                                 : (),
-                                IV1 => $timebandUseByRateTotal,
-                                IV4 => $daysInYear,
-                                IV5 => $annualHoursByTimeband,
-                                IV6 => $annualHoursByTimeband
+                                A1 => $timebandUseByRateTotal,
+                                A4 => $daysInYear,
+                                A5 => $annualHoursByTimeband,
+                                A6 => $annualHoursByTimeband
                             }
                           );
 
@@ -938,14 +938,14 @@ sub timeOfDaySpecialRunner {
                 name          => 'Contribution to peak band kW',
                 defaultFormat => '0softnz',
                 arithmetic    => $timebandLoadCoefficient
-                ? '=IV1*IV9*IV2/24/IV3*1000'
-                : '=IV1*IV2/24/IV3*1000',
+                ? '=A1*A9*A2/24/A3*1000'
+                : '=A1*A2/24/A3*1000',
                 arguments => {
-                    IV1 => $timebandLoadCoefficientAccording,
-                    IV2 => $unitsByEndUser,
-                    IV3 => $daysInYear,
+                    A1 => $timebandLoadCoefficientAccording,
+                    A2 => $unitsByEndUser,
+                    A3 => $daysInYear,
                     $timebandLoadCoefficient
-                    ? ( IV9 => $timebandLoadCoefficient )
+                    ? ( A9 => $timebandLoadCoefficient )
                     : (),
                 },
             );
@@ -953,9 +953,9 @@ sub timeOfDaySpecialRunner {
             push @{ $model->{timeOfDayGroupRedSources} },
               Arithmetic(
                 name       => "$red->{name} (copy)",
-                arguments  => { IV1 => $red },
+                arguments  => { A1 => $red },
                 cols       => 0,
-                arithmetic => '=IV1',
+                arithmetic => '=A1',
               );
 
         }
@@ -972,17 +972,17 @@ sub timeOfDaySpecialRunner {
                       . ( $blackYellowGreen ? ' special ' : ' ' )
                       . 'pseudo load coefficient at system level',
                     arithmetic =>
-'=IF(IV6>0,IV1*IF(IV7<>0,IV3/IV2,IF(IV9<0,-1,1))*24*IV4/IV5,0)',
+'=IF(A6>0,A1*IF(A7<>0,A3/A2,IF(A9<0,-1,1))*24*A4/A5,0)',
                     cols      => $peakBand,
                     arguments => {
-                        IV1 => $timebandUseByRate[$_],
-                        IV2 => $timebandLoadCoefficientAccording,
-                        IV3 => $loadCoefficients,
-                        IV9 => $loadCoefficients,
-                        IV4 => $daysInYear,
-                        IV5 => $annualHoursByTimeband,
-                        IV6 => $annualHoursByTimeband,
-                        IV7 => $timebandLoadCoefficientAccording
+                        A1 => $timebandUseByRate[$_],
+                        A2 => $timebandLoadCoefficientAccording,
+                        A3 => $loadCoefficients,
+                        A9 => $loadCoefficients,
+                        A4 => $daysInYear,
+                        A5 => $annualHoursByTimeband,
+                        A6 => $annualHoursByTimeband,
+                        A7 => $timebandLoadCoefficientAccording
                     },
                     rows    => $relevantEndUsersByRate[$_],
                     tariffs => $relevantTariffsByRate[$_],
@@ -994,8 +994,8 @@ sub timeOfDaySpecialRunner {
                 name => 'Load coefficient correction factor'
                   . ' (kW at peak in band / band average kW)',
                 arithmetic => $timebandLoadCoefficient
-                ? '=IF(IV5<>0,IV4/IV2/IV1,IV6)'
-                : '=IF(IV5<>0,IV4/IV2,IF(IV8<0,-1,1))',
+                ? '=IF(A5<>0,A4/A2/A1,A6)'
+                : '=IF(A5<>0,A4/A2,IF(A8<0,-1,1))',
                 rows => $relevantEndUsersByRate[0],
                 $model->{timebandCoef} && $model->{timebandCoef} =~ /detail/i
                 ? ( cols => $networkLevelsTimeband )
@@ -1003,14 +1003,14 @@ sub timeOfDaySpecialRunner {
                 arguments => {
                     $timebandLoadCoefficient
                     ? (
-                        IV1 => $timebandLoadCoefficient,
-                        IV6 => $timebandLoadCoefficient
+                        A1 => $timebandLoadCoefficient,
+                        A6 => $timebandLoadCoefficient
                       )
                     : (),
-                    IV2 => $timebandLoadCoefficientAccording,
-                    IV5 => $timebandLoadCoefficientAccording,
-                    IV4 => $loadCoefficients,
-                    IV8 => $loadCoefficients,
+                    A2 => $timebandLoadCoefficientAccording,
+                    A5 => $timebandLoadCoefficientAccording,
+                    A4 => $loadCoefficients,
+                    A8 => $loadCoefficients,
                 }
             );
             my $relevantUsers =
@@ -1286,15 +1286,15 @@ sub timeOfDaySpecialRunner {
                     name          => 'Contribution to peak band kW',
                     defaultFormat => '0softnz',
                     arithmetic    => $timebandLoadCoefficient
-                    ? '=IV1*IV9*IV2/24/IV3*1000'
-                    : '=IV1*IV2/24/IV3*1000',
+                    ? '=A1*A9*A2/24/A3*1000'
+                    : '=A1*A2/24/A3*1000',
                     rows      => $relevantUsers,
                     arguments => {
-                        IV1 => $timebandLoadCoefficientAccording,
-                        IV2 => $unitsByEndUser,
-                        IV3 => $daysInYear,
+                        A1 => $timebandLoadCoefficientAccording,
+                        A2 => $unitsByEndUser,
+                        A3 => $daysInYear,
                         $timebandLoadCoefficient
-                        ? ( IV9 => $timebandLoadCoefficient )
+                        ? ( A9 => $timebandLoadCoefficient )
                         : (),
                     },
                 );
@@ -1302,12 +1302,12 @@ sub timeOfDaySpecialRunner {
                 my $coin = Arithmetic(
                     name          => 'Contribution to system-peak-time kW',
                     defaultFormat => '0softnz',
-                    arithmetic    => '=IV1*IV2/24/IV3*1000',
+                    arithmetic    => '=A1*A2/24/A3*1000',
                     rows          => $relevantUsers,
                     arguments     => {
-                        IV1 => $loadCoefficients,
-                        IV2 => $unitsByEndUser,
-                        IV3 => $daysInYear,
+                        A1 => $loadCoefficients,
+                        A2 => $unitsByEndUser,
+                        A3 => $daysInYear,
                     },
                 );
 
@@ -1353,12 +1353,12 @@ sub timeOfDaySpecialRunner {
                             vector => Arithmetic(
                                 name => 'Load coefficient correction factor'
                                   . ' for each group',
-                                arithmetic => '=IF(IV1,IV2/IV3,0)',
+                                arithmetic => '=IF(A1,A2/A3,0)',
                                 rows       => 0,
                                 arguments  => {
-                                    IV1 => $redG,
-                                    IV2 => $coinG,
-                                    IV3 => $redG,
+                                    A1 => $redG,
+                                    A2 => $coinG,
+                                    A3 => $redG,
                                 }
                             ),
                         ),
@@ -1387,18 +1387,18 @@ sub timeOfDaySpecialRunner {
                 cols       => $networkLevelsTimeband,
                 arithmetic => $model->{coincidenceAdj}
                   && $model->{coincidenceAdj} =~ /redonly/i
-                ? '=IF(IV6>0,(1+IV8*(IV2-1))*IV7*24*IV9/IV5,0)'
-                : '=IF(IV6>0,IV2*IV7*24*IV9/IV5,0)',
+                ? '=IF(A6>0,(1+A8*(A2-1))*A7*24*A9/A5,0)'
+                : '=IF(A6>0,A2*A7*24*A9/A5,0)',
                 arguments => {
-                    IV2 => $timebandLoadCoefficientAdjusted,
-                    IV5 => $annualHoursByTimeband,
-                    IV6 => $annualHoursByTimeband,
-                    IV7 => $peakingProbability,
-                    IV9 => $daysInYear,
+                    A2 => $timebandLoadCoefficientAdjusted,
+                    A5 => $annualHoursByTimeband,
+                    A6 => $annualHoursByTimeband,
+                    A7 => $peakingProbability,
+                    A9 => $daysInYear,
                     $model->{coincidenceAdj}
                       && $model->{coincidenceAdj} =~ /redonly/i
                     ? (
-                        IV8 => Constant(
+                        A8 => Constant(
                             name =>
 'Time bands to apply the time band load coefficient',
                             defaultFormat => '0con',

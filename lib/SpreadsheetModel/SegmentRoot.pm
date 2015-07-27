@@ -61,11 +61,11 @@ sub check {
 
     my $unconstrained = Arithmetic(
         name       => 'Constraint-free solution',
-        arithmetic => '=IV3/SUM('
-          . join( ',', map { "IV1${_}_IV2$_" } 0 .. $#slopes ) . ')',
+        arithmetic => '=A3/SUM('
+          . join( ',', map { "A1${_}_A2$_" } 0 .. $#slopes ) . ')',
         arguments => {
-            IV3 => $self->{target},
-            map { ( "IV1${_}_IV2$_" => $slopes[$_] ); } 0 .. $#slopes,
+            A3 => $self->{target},
+            map { ( "A1${_}_A2$_" => $slopes[$_] ); } 0 .. $#slopes,
         },
     );
 
@@ -75,10 +75,10 @@ sub check {
     my $startingPoint = Arithmetic(
         name       => 'Starting point',
         arithmetic => '=MIN('
-          . join( ',', IV3 => map { "IV1${_}_IV2$_" } 0 .. $#minmax ) . ')',
+          . join( ',', A3 => map { "A1${_}_A2$_" } 0 .. $#minmax ) . ')',
         arguments => {
-            IV3 => $unconstrained,
-            map { ( "IV1${_}_IV2$_" => $minmax[$_] ); } 0 .. $#minmax,
+            A3 => $unconstrained,
+            map { ( "A1${_}_A2$_" => $minmax[$_] ); } 0 .. $#minmax,
         },
     );
 
@@ -98,22 +98,22 @@ sub check {
     my $kx = new SpreadsheetModel::Custom(
         name      => 'Location',
         rows      => $kinkSet,
-        custom    => ['=IV1'],     # assumes all on the same sheet
+        custom    => ['=A1'],      # assumes all on the same sheet
         arguments => {
-            IV1 => $startingPoint,
-            map { ( "IV2$_" => $minmax[$_] ); } 0 .. $#minmax,
+            A1 => $startingPoint,
+            map { ( "A2$_" => $minmax[$_] ); } 0 .. $#minmax,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;
                 return '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1}, $colh->{IV1} )
+                  qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} )
                   if !$y;
                 my ( $n, $r, $c ) = @{ $kinks[ $y - 1 ] };
                 return '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{"IV2$n"} + $r,
-                    $colh->{"IV2$n"} + $c );
+                  qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
+                    $colh->{"A2$n"} + $c );
             };
         }
     );
@@ -121,11 +121,11 @@ sub check {
     my $kk = new SpreadsheetModel::Custom(
         name       => 'Kink',
         rows       => $kinkSet,
-        custom     => [ '=IV2', '=0-IV2' ],    # assumes all on the same sheet
+        custom     => [ '=A2', '=0-A2' ],      # assumes all on the same sheet
         arithmetic => 'Special calculation',
         arguments  => {
-            IV1 => $startingPoint,
-            map { ( "IV4$_" => $slopes[$_] ); } 0 .. $#slopes,
+            A1 => $startingPoint,
+            map { ( "A4$_" => $slopes[$_] ); } 0 .. $#slopes,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -136,8 +136,8 @@ sub check {
                 my ( $n, $r, $c ) = @{ $kinks[ $y - 1 ] };
                 my $m = $n % @slopes;
                 '', $format, $formula->[ $n < @min ? 0 : 1 ],
-                  IV2 => xl_rowcol_to_cell( $rowh->{"IV4$m"} + $r,
-                    $colh->{"IV4$m"} + $c );
+                  qr/\bA2\b/ => xl_rowcol_to_cell( $rowh->{"A4$m"} + $r,
+                    $colh->{"A4$m"} + $c );
             };
         }
     );
@@ -145,11 +145,11 @@ sub check {
     my $startingSlope = new SpreadsheetModel::Custom(
         name   => 'Starting slope contributions',
         rows   => $kinkSet,
-        custom => ['=IF(ISERROR(IV1),IV2,0)']
+        custom => ['=IF(ISERROR(A1),A2,0)']
         ,    # ISERROR is true for #N/A and errors
         arguments => {
-            IV2 => $kk,
-            IV1 => $kx
+            A2 => $kk,
+            A1 => $kx
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -161,7 +161,7 @@ sub check {
                 return '', $wb->getFormat('unavailable')
                   unless $n < @min;
                 '', $format, $formula->[0], map {
-                    $_ =>
+                    qr/\b$_\b/ =>
                       xl_rowcol_to_cell( $rowh->{$_} + $y, $colh->{$_} + $x )
                 } @$pha;
             };
@@ -171,11 +171,11 @@ sub check {
     my $startingValue = new SpreadsheetModel::Custom(
         name      => 'Starting values',
         rows      => $kinkSet,
-        custom    => ['=MAX(IV3,IV1)*IV2'],
+        custom    => ['=MAX(A3,A1)*A2'],
         arguments => {
-            IV2 => $kk,
-            IV1 => $kx,
-            IV3 => $startingPoint
+            A2 => $kk,
+            A1 => $kx,
+            A3 => $startingPoint
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -187,11 +187,12 @@ sub check {
                 return '', $wb->getFormat('unavailable')
                   unless $n < @min;
                 '', $format, $formula->[0],
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV3}, $colh->{IV3}, 1, 1 ),
+                  qr/\bA3\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A3}, $colh->{A3}, 1, 1 ),
                   map {
-                    $_ =>
+                    qr/\b$_\b/ =>
                       xl_rowcol_to_cell( $rowh->{$_} + $y, $colh->{$_} + $x )
-                  } qw(IV1 IV2);
+                  } qw(A1 A2);
             };
         }
     );
@@ -207,10 +208,10 @@ sub check {
         name          => 'Ranking before tie break',
         defaultFormat => '0softnz',
         rows          => $kinkSet,
-        custom        => ['=RANK(IV1,IV2:IV3,1)'],
+        custom        => ['=RANK(A1,A2:A3,1)'],
         arguments     => {
-            IV1     => $kx,
-            IV2_IV3 => $kx,
+            A1     => $kx,
+            A2_A3 => $kx,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -222,19 +223,20 @@ sub check {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable') unless $y;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 =>
-                  xl_rowcol_to_cell( $rowh->{IV1} + 1, $colh->{IV1}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV1} + @kinks,
-                    $colh->{IV1}, 1, 0 );
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + 1, $colh->{A1}, 1, 0 ),
+                  qr/\bA3\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + @kinks, $colh->{A1}, 1, 0 );
             };
         }
     );
 
     my $kr2 = new SpreadsheetModel::Arithmetic(
         name          => 'Tie breaker',
-        arguments     => { IV1 => $kr1, IV4 => $counter },
-        arithmetic    => '=IV1*' . @kinks . '+IV4',
+        arguments     => { A1 => $kr1, A4 => $counter },
+        arithmetic    => '=A1*' . @kinks . '+A4',
         defaultFormat => '0softnz'
     );
 
@@ -242,10 +244,10 @@ sub check {
         name          => 'Ranking',
         defaultFormat => '0softnz',
         rows          => $kinkSet,
-        custom        => ['=RANK(IV1,IV2:IV3,1)'],
+        custom        => ['=RANK(A1,A2:A3,1)'],
         arguments     => {
-            IV1     => $kr2,
-            IV2_IV3 => $kr2,
+            A1     => $kr2,
+            A2_A3 => $kr2,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -254,11 +256,12 @@ sub check {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable') unless $y;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 =>
-                  xl_rowcol_to_cell( $rowh->{IV1} + 1, $colh->{IV1}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV1} + @kinks,
-                    $colh->{IV1}, 1, 0 );
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + 1, $colh->{A1}, 1, 0 ),
+                  qr/\bA3\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + @kinks, $colh->{A1}, 1, 0 );
             };
         }
     );
@@ -267,11 +270,11 @@ sub check {
         name          => 'Kink reordering',
         defaultFormat => '0softnz',
         rows          => $kinkSet,
-        custom        => ['=MATCH(IV1,IV2:IV3,0)'],
+        custom        => ['=MATCH(A1,A2:A3,0)'],
         arguments     => {
-            IV1     => $counter,
-            IV2     => $kr,
-            IV2_IV3 => $kr,
+            A1     => $counter,
+            A2     => $kr,
+            A2_A3 => $kr,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -280,11 +283,12 @@ sub check {
                 my ( $x, $y ) = @_;
                 return '', $wb->getFormat('unavailable') unless $y;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 =>
-                  xl_rowcol_to_cell( $rowh->{IV2} + 1, $colh->{IV2}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + @kinks,
-                    $colh->{IV2}, 1, 0 );
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2} + 1, $colh->{A2}, 1, 0 ),
+                  qr/\bA3\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2} + @kinks, $colh->{A2}, 1, 0 );
             };
         }
     );
@@ -292,11 +296,11 @@ sub check {
     my $kxs = new SpreadsheetModel::Custom(
         name      => 'Location (ordered)',
         rows      => $kinkSet,
-        custom    => [ '=INDEX(IV2:IV3,IV1,1)', '=IV2' ],
+        custom    => [ '=INDEX(A2:A3,A1,1)', '=A2' ],
         arguments => {
-            IV2     => $kx,
-            IV1     => $ror,
-            IV2_IV3 => $kx,
+            A2     => $kx,
+            A1     => $ror,
+            A2_A3 => $kx,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -304,14 +308,15 @@ sub check {
             sub {
                 my ( $x, $y ) = @_;
                 return '', $format, $formula->[1],
-                  IV2 => xl_rowcol_to_cell( $rowh->{IV2}, $colh->{IV2} )
+                  qr/\bA2\b/ => xl_rowcol_to_cell( $rowh->{A2}, $colh->{A2} )
                   unless $y;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 =>
-                  xl_rowcol_to_cell( $rowh->{IV2} + 1, $colh->{IV2}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + @kinks,
-                    $colh->{IV2}, 1, 0 );
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2} + 1, $colh->{A2}, 1, 0 ),
+                  qr/\bA3\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2} + @kinks, $colh->{A2}, 1, 0 );
             };
         }
     );
@@ -319,12 +324,12 @@ sub check {
     my $kks = new SpreadsheetModel::Custom(
         name       => 'New slope',
         rows       => $kinkSet,
-        custom     => [ '=IV7+INDEX(IV2:IV3,IV1,1)', '=SUM(IV5:IV6)' ],
+        custom     => [ '=A7+INDEX(A2:A3,A1,1)', '=SUM(A5:A6)' ],
         arithmetic => 'Special calculation',
         arguments  => {
-            IV2 => $kk,
-            IV1 => $ror,
-            IV5 => $startingSlope,
+            A2 => $kk,
+            A1 => $ror,
+            A5 => $startingSlope,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -332,17 +337,19 @@ sub check {
             sub {
                 my ( $x, $y ) = @_;
                 return '', $format, $formula->[1],
-                  IV5 => xl_rowcol_to_cell( $rowh->{IV5}, $colh->{IV5}, 1, 0 ),
-                  IV6 => xl_rowcol_to_cell( $rowh->{IV5} + @kinks - 1,
-                    $colh->{IV5}, 1, 0 )
+                  qr/\bA5\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A5}, $colh->{A5}, 1, 0 ),
+                  qr/\bA6\b/ => xl_rowcol_to_cell( $rowh->{A5} + @kinks - 1,
+                    $colh->{A5}, 1, 0 )
                   unless $y;
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 =>
-                  xl_rowcol_to_cell( $rowh->{IV2} + 1, $colh->{IV2}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV2} + @kinks,
-                    $colh->{IV2}, 1, 0 ),
-                  IV7 => xl_rowcol_to_cell( $me->{$wb}{row} + $y - 1,
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2} + 1, $colh->{A2}, 1, 0 ),
+                  qr/\bA3\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2} + @kinks, $colh->{A2}, 1, 0 ),
+                  qr/\bA7\b/ => xl_rowcol_to_cell( $me->{$wb}{row} + $y - 1,
                     $me->{$wb}{col} );
             };
         }
@@ -351,49 +358,50 @@ sub check {
     my $kvs = new SpreadsheetModel::Custom(
         name       => 'Value',
         rows       => $kinkSet,
-        custom     => [ '=IV7+(IV4-IV3)*IV2', '=SUM(IV5:IV6)-IV9' ],
+        custom     => [ '=A7+(A4-A3)*A2', '=SUM(A5:A6)-A9' ],
         arithmetic => 'Special calculation',
         arguments  => {
-            IV4 => $kxs,
-            IV2 => $kks,
-            IV5 => $startingValue,
-            IV9 => $self->{target},
+            A4 => $kxs,
+            A2 => $kks,
+            A5 => $startingValue,
+            A9 => $self->{target},
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;
                 return '', $format, $formula->[1],
-                  IV9 => xl_rowcol_to_cell( $rowh->{IV9}, $colh->{IV9}, 1, 1 ),
-                  IV5 => xl_rowcol_to_cell( $rowh->{IV5}, $colh->{IV5}, 1, 1 ),
-                  IV6 => xl_rowcol_to_cell( $rowh->{IV5} + @kinks - 1,
-                    $colh->{IV5}, 1, 1 )
+                  qr/\bA9\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A9}, $colh->{A9}, 1, 1 ),
+                  qr/\bA5\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A5}, $colh->{A5}, 1, 1 ),
+                  qr/\bA6\b/ => xl_rowcol_to_cell( $rowh->{A5} + @kinks - 1,
+                    $colh->{A5}, 1, 1 )
                   unless $y;
                 '', $format, $formula->[0],
-                  IV2 =>
-                  xl_rowcol_to_cell( $rowh->{IV2} + $y - 1, $colh->{IV2} ),
-                  IV3 =>
-                  xl_rowcol_to_cell( $rowh->{IV4} + $y - 1, $colh->{IV4} ),
-                  IV4 => xl_rowcol_to_cell( $rowh->{IV4} + $y, $colh->{IV4} ),
-                  IV7 => xl_rowcol_to_cell( $me->{$wb}{row} + $y - 1,
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A2} + $y - 1, $colh->{A2} ),
+                  qr/\bA3\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A4} + $y - 1, $colh->{A4} ),
+                  qr/\bA4\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A4} + $y, $colh->{A4} ),
+                  qr/\bA7\b/ => xl_rowcol_to_cell( $me->{$wb}{row} + $y - 1,
                     $me->{$wb}{col} );
             };
         }
     );
 
     my $root = new SpreadsheetModel::Custom(
-        name   => 'Root',
-        rows   => $kinkSet,
-        custom => [
-            '=IF((IV2>0)=(IV3>0),"",IV1-IV9/IV4)',
-            '=IF(IV2>0,IV1,IF(IV3>0,"",IV5))'
-        ],
+        name => 'Root',
+        rows => $kinkSet,
+        custom =>
+          [ '=IF((A2>0)=(A3>0),"",A1-A9/A4)', '=IF(A2>0,A1,IF(A3>0,"",A5))' ],
         arithmetic => 'Special calculation',
         arguments  => {
-            IV9 => $kvs,
-            IV4 => $kks,
-            IV1 => $kxs,
-            IV5 => $unconstrained,
+            A9 => $kvs,
+            A4 => $kks,
+            A1 => $kxs,
+            A5 => $unconstrained,
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -401,21 +409,26 @@ sub check {
                 my ( $x, $y ) = @_;
 
                 return '', $format, $formula->[1],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1}, $colh->{IV1} ),
-                  IV5 => xl_rowcol_to_cell( $rowh->{IV5}, $colh->{IV5}, 1, 1 ),
-                  IV2 => xl_rowcol_to_cell( $rowh->{IV9}, $colh->{IV9}, 1, 0 ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV9} + $kxs->lastRow,
-                    $colh->{IV9}, 1, 0 )
+                  qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
+                  qr/\bA5\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A5}, $colh->{A5}, 1, 1 ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A9}, $colh->{A9}, 1, 0 ),
+                  qr/\bA3\b/ => xl_rowcol_to_cell( $rowh->{A9} + $kxs->lastRow,
+                    $colh->{A9}, 1, 0 )
                   unless $y;
 
                 '', $format, $formula->[0],
-                  IV1 => xl_rowcol_to_cell( $rowh->{IV1} + $y, $colh->{IV1} ),
-                  IV2 =>
-                  xl_rowcol_to_cell( $rowh->{IV9} + $y - 1, $colh->{IV9} ),
-                  IV3 => xl_rowcol_to_cell( $rowh->{IV9} + $y, $colh->{IV9} ),
-                  IV9 => xl_rowcol_to_cell( $rowh->{IV9} + $y, $colh->{IV9} ),
-                  IV4 =>
-                  xl_rowcol_to_cell( $rowh->{IV4} + $y - 1, $colh->{IV4} );
+                  qr/\bA1\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
+                  qr/\bA2\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A9} + $y - 1, $colh->{A9} ),
+                  qr/\bA3\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A9} + $y, $colh->{A9} ),
+                  qr/\bA9\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A9} + $y, $colh->{A9} ),
+                  qr/\bA4\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A4} + $y - 1, $colh->{A4} );
 
             };
         }
@@ -429,8 +442,8 @@ sub check {
         ]
     );
 
-    $self->{arithmetic} = '=MIN(IV1_IV2)';
-    $self->{arguments} = { IV1_IV2 => $root };
+    $self->{arithmetic} = '=MIN(A1_A2)';
+    $self->{arguments} = { A1_A2 => $root };
 
     $self->SUPER::check;
 

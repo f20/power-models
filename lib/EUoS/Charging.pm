@@ -44,8 +44,8 @@ sub energyCharge {
     $self->{energyCharge} = Arithmetic(
         name      => 'Energy charging rate £/kW/year',
         arguments => {
-            IV2 => $self->{setup}->daysInYear,
-            IV1 => Dataset(
+            A2 => $self->{setup}->daysInYear,
+            A1 => Dataset(
                 name     => 'Energy charging rate p/kWh',
                 cols     => $energyUsageSet,
                 number   => 1585,
@@ -54,7 +54,7 @@ sub energyCharge {
                 data     => [10],
             ),
         },
-        arithmetic => '=IV1*0.01*IV2*24',
+        arithmetic => '=A1*0.01*A2*24',
     );
 }
 
@@ -110,11 +110,11 @@ sub assetCharge {
     return $self->{assetCharge} if $self->{assetCharge};
     $self->{assetCharge} = Arithmetic(
         name       => 'Asset-related charging rate (£/kVA or point/year)',
-        arithmetic => '=IV1*(IV2+IV3)',
+        arithmetic => '=A1*(A2+A3)',
         arguments  => {
-            IV1 => $self->assetRate,
-            IV2 => $self->annuityRate,
-            IV3 => $self->runningRate,
+            A1 => $self->assetRate,
+            A2 => $self->annuityRate,
+            A3 => $self->runningRate,
         }
     );
 }
@@ -133,8 +133,8 @@ sub usetBoundaryCosts {
     $self->{boundaryCharge} = Arithmetic(
         name       => 'Boundary charging rate (£/kVA/year)',
         cols       => $boundaryUsageSet,
-        arithmetic => '=IV1/IV2',
-        arguments  => { IV1 => $charges, IV2 => $totalUsage, }
+        arithmetic => '=A1/A2',
+        arguments  => { A1 => $charges, A2 => $totalUsage, }
     );
 }
 
@@ -185,8 +185,8 @@ sub usetMatchAssets {
                 Stack( sources => [$target] ),
                 Arithmetic(
                     name       => 'Ratio',
-                    arithmetic => '=IV1/IV2',
-                    arguments  => { IV1 => $totalBefore, IV2 => $target },
+                    arithmetic => '=A1/A2',
+                    arguments  => { A1 => $totalBefore, A2 => $target },
                 )
             ]
           );
@@ -195,9 +195,9 @@ sub usetMatchAssets {
         $self->{assetRate} = Arithmetic(
             name => 'Adjusted notional assets for each type of usage'
               . ' (£/kVA or £/point)',
-            arithmetic => '=IV1*MIN(1,IV2/IV3)',
+            arithmetic => '=A1*MIN(1,A2/A3)',
             arguments =>
-              { IV1 => $beforeMatching, IV2 => $target, IV3 => $totalBefore, },
+              { A1 => $beforeMatching, A2 => $target, A3 => $totalBefore, },
         );
     }
 }
@@ -221,9 +221,9 @@ sub usetRunningCosts {
     );
     $self->{runningRate} = Arithmetic(
         name          => 'Annual running costs (relative to notional assets)',
-        arithmetic    => '=IV1/IV3',
+        arithmetic    => '=A1/A3',
         defaultFormat => '%softnz',
-        arguments     => { IV1 => $target, IV3 => $totalAssets, },
+        arguments     => { A1 => $target, A3 => $totalAssets, },
     );
 }
 

@@ -70,23 +70,23 @@ END_OF_LIST
     my $rrpLvServProp = Arithmetic(
         name          => 'Allocation of LV to LV services',
         defaultFormat => '%soft',
-        arithmetic    => '=IF(IV1="60%MEAV",0.4+0.6*IV51,'
-          . 'IF(IV45="MEAV",IV52,'
-          . 'IF(IV46="EHV only",0,'
-          . 'IF(IV47="LV only",1,'
+        arithmetic    => '=IF(A1="60%MEAV",0.4+0.6*A51,'
+          . 'IF(A45="MEAV",A52,'
+          . 'IF(A46="EHV only",0,'
+          . 'IF(A47="LV only",1,'
           . (
-            $networkLengthLvServProp ? 'IF(IV48="Network length",IV8,0)' : '0'
+            $networkLengthLvServProp ? 'IF(A48="Network length",A8,0)' : '0'
           )
           . '))))',
         arguments => {
-            IV1  => $allocationRules,
-            IV45 => $allocationRules,
-            IV46 => $allocationRules,
-            IV47 => $allocationRules,
-            IV48 => $allocationRules,
-            IV51 => $meavLvServProp,
-            IV52 => $meavLvServProp,
-            $networkLengthLvServProp ? ( IV8 => $networkLengthLvServProp ) : (),
+            A1  => $allocationRules,
+            A45 => $allocationRules,
+            A46 => $allocationRules,
+            A47 => $allocationRules,
+            A48 => $allocationRules,
+            A51 => $meavLvServProp,
+            A52 => $meavLvServProp,
+            $networkLengthLvServProp ? ( A8 => $networkLengthLvServProp ) : (),
         },
     );
 
@@ -105,17 +105,17 @@ END_OF_LIST
             Arithmetic(
                 name       => 'Allocation to LV services',
                 cols       => $lvServiceOnly,
-                arithmetic => '=IV1*IV2',
+                arithmetic => '=A1*A2',
                 arguments =>
-                  { IV1 => $afterAllocationLv, IV2 => $rrpLvServProp, },
+                  { A1 => $afterAllocationLv, A2 => $rrpLvServProp, },
                 defaultFormat => '0soft',
             ),
             Arithmetic(
                 name       => 'Allocation to LV mains',
                 cols       => $lvMainOnly,
-                arithmetic => '=IV1*(1-IV2)',
+                arithmetic => '=A1*(1-A2)',
                 arguments =>
-                  { IV1 => $afterAllocationLv, IV2 => $rrpLvServProp, },
+                  { A1 => $afterAllocationLv, A2 => $rrpLvServProp, },
                 defaultFormat => '0soft',
             ),
             $afterAllocation,
@@ -136,17 +136,17 @@ END_OF_LIST
             Arithmetic(
                 name       => 'Allocation to LV services',
                 cols       => $lvServiceOnly,
-                arithmetic => '=IV1*IV2',
+                arithmetic => '=A1*A2',
                 arguments =>
-                  { IV1 => $netCapexLv, IV2 => $netCapexLvServProp, },
+                  { A1 => $netCapexLv, A2 => $netCapexLvServProp, },
                 defaultFormat => '%soft',
             ),
             Arithmetic(
                 name       => 'Allocation to LV mains',
                 cols       => $lvMainOnly,
-                arithmetic => '=IV1*(1-IV2)',
+                arithmetic => '=A1*(1-A2)',
                 arguments =>
-                  { IV1 => $netCapexLv, IV2 => $netCapexLvServProp, },
+                  { A1 => $netCapexLv, A2 => $netCapexLvServProp, },
                 defaultFormat => '%soft',
             ),
             $netCapexPercentages,
@@ -168,15 +168,15 @@ END_OF_LIST
             Arithmetic(
                 name          => 'Allocation to LV services',
                 cols          => $lvServiceOnly,
-                arithmetic    => '=IV1',
-                arguments     => { IV1 => $unitsLv, },
+                arithmetic    => '=A1',
+                arguments     => { A1 => $unitsLv, },
                 defaultFormat => '0copy',
             ),
             Arithmetic(
                 name          => 'Allocation to LV mains',
                 cols          => $lvMainOnly,
-                arithmetic    => '=IV1',
-                arguments     => { IV1 => $unitsLv, },
+                arithmetic    => '=A1',
+                arguments     => { A1 => $unitsLv, },
                 defaultFormat => '0copy',
             ),
             $units,
@@ -241,15 +241,15 @@ sub discounts95 {
         Arithmetic(
             name       => 'LDNO LV: LV user',
             arithmetic => $model->{fixedIndirectPercentage}
-            ? '=IV4+IV1*(1-IV2)'
-            : '=IV4+IV1*(1-IV2*IV3)',
+            ? '=A4+A1*(1-A2)'
+            : '=A4+A1*(1-A2*A3)',
             arguments => {
-                IV4 => $lvServiceAllocation,
-                IV1 => $lvMainAllocation,
-                IV2 => $lvSplit,
+                A4 => $lvServiceAllocation,
+                A1 => $lvMainAllocation,
+                A2 => $lvSplit,
                 $model->{fixedIndirectPercentage}
                 ? ()
-                : ( IV3 => $lvDirect ),
+                : ( A3 => $lvDirect ),
             },
             defaultFormat => '%soft',
         ),
@@ -258,21 +258,21 @@ sub discounts95 {
             arithmetic => $dcp071
             ? (
                 $model->{fixedIndirectPercentage}
-                ? '=IV9+IV1+IV2+IV3*(1-IV4)'
-                : '=IV9+IV1+IV2+IV3*(1-IV4*IV5)'
+                ? '=A9+A1+A2+A3*(1-A4)'
+                : '=A9+A1+A2+A3*(1-A4*A5)'
               )
-            : '=IV9+IV1+IV2',
+            : '=A9+A1+A2',
             arguments => {
-                IV9 => $lvServiceAllocation,
-                IV1 => $lvMainAllocation,
-                IV2 => $hvLvAllocation,
+                A9 => $lvServiceAllocation,
+                A1 => $lvMainAllocation,
+                A2 => $hvLvAllocation,
                 $dcp071
                 ? (
-                    IV3 => $hvAllocation,
-                    IV4 => $hvSplit,
+                    A3 => $hvAllocation,
+                    A4 => $hvSplit,
                     $model->{fixedIndirectPercentage}
                     ? ()
-                    : ( IV5 => $hvDirect ),
+                    : ( A5 => $hvDirect ),
                   )
                 : (),
             },
@@ -283,21 +283,21 @@ sub discounts95 {
             arithmetic => $dcp071
             ? (
                 $model->{fixedIndirectPercentage}
-                ? '=(IV2+IV3*(1-IV4))/(1-IV1-IV9)'
-                : '=(IV2+IV3*(1-IV4*IV5))/(1-IV1-IV9)'
+                ? '=(A2+A3*(1-A4))/(1-A1-A9)'
+                : '=(A2+A3*(1-A4*A5))/(1-A1-A9)'
               )
-            : '=IV2/(1-IV1-IV9)',
+            : '=A2/(1-A1-A9)',
             arguments => {
-                IV1 => $lvMainAllocation,
-                IV9 => $lvServiceAllocation,
-                IV2 => $hvLvAllocation,
+                A1 => $lvMainAllocation,
+                A9 => $lvServiceAllocation,
+                A2 => $hvLvAllocation,
                 $dcp071
                 ? (
-                    IV3 => $hvAllocation,
-                    IV4 => $hvSplit,
+                    A3 => $hvAllocation,
+                    A4 => $hvSplit,
                     $model->{fixedIndirectPercentage}
                     ? ()
-                    : ( IV5 => $hvDirect ),
+                    : ( A5 => $hvDirect ),
                   )
                 : (),
             },
@@ -306,17 +306,17 @@ sub discounts95 {
         Arithmetic(
             name       => 'LDNO HV: HV user',
             arithmetic => $model->{fixedIndirectPercentage}
-            ? '=IV1*(1-IV2)/(1-IV9-IV4-IV5)'
-            : '=IV1*(1-IV2*IV3)/(1-IV9-IV4-IV5)',
+            ? '=A1*(1-A2)/(1-A9-A4-A5)'
+            : '=A1*(1-A2*A3)/(1-A9-A4-A5)',
             arguments => {
-                IV1 => $hvAllocation,
-                IV2 => $hvSplit,
+                A1 => $hvAllocation,
+                A2 => $hvSplit,
                 $model->{fixedIndirectPercentage}
                 ? ()
-                : ( IV3 => $hvDirect ),
-                IV4 => $lvMainAllocation,
-                IV9 => $lvServiceAllocation,
-                IV5 => $hvLvAllocation,
+                : ( A3 => $hvDirect ),
+                A4 => $lvMainAllocation,
+                A9 => $lvServiceAllocation,
+                A5 => $hvLvAllocation,
             },
             defaultFormat => '%soft',
         ),
@@ -354,11 +354,11 @@ sub discounts95 {
             columns => [
                 map {
                     Arithmetic(
-                        arithmetic => '=IV1-IV2',
+                        arithmetic => '=A1-A2',
                         name       => $discountCurrent->{columns}[$_]{name},
                         arguments  => {
-                            IV1 => $discount->{columns}[$_],
-                            IV2 => $discountCurrent->{columns}[$_]
+                            A1 => $discount->{columns}[$_],
+                            A2 => $discountCurrent->{columns}[$_]
                         },
                         defaultFormat => [
                             base => '%softpm',

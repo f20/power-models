@@ -47,20 +47,20 @@ sub revenueShortfall {
     {
         my @termsNoDays;
         my @termsWithDays;
-        my %args = ( IV400 => $daysInYear );
+        my %args = ( A400 => $daysInYear );
         my $i = 1;
         foreach (@$nonExcludedComponents) {
             ++$i;
             my $pad = "$i";
             $pad = "0$pad" while length $pad < 3;
             if (m#/day#) {
-                push @termsWithDays, "IV2$pad*IV3$pad";
+                push @termsWithDays, "A2$pad*A3$pad";
             }
             else {
-                push @termsNoDays, "IV2$pad*IV3$pad";
+                push @termsNoDays, "A2$pad*A3$pad";
             }
-            $args{"IV2$pad"} = $tariffsExMatching->{$_};
-            $args{"IV3$pad"} = $volumeData->{$_};
+            $args{"A2$pad"} = $tariffsExMatching->{$_};
+            $args{"A3$pad"} = $volumeData->{$_};
         }
         $revenuesSoFar = Arithmetic(
             name => Label(
@@ -70,7 +70,7 @@ sub revenueShortfall {
             arithmetic => '='
               . join( '+',
                 @termsWithDays
-                ? ( '0.01*IV400*(' . join( '+', @termsWithDays ) . ')' )
+                ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                 : (),
                 @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
                 : ('0'),
@@ -146,10 +146,10 @@ sub revenueShortfall {
     else {
         $allowedRevenue = Arithmetic(
             name => 'Target net income from all use of system charges (£/year)',
-            arithmetic    => '=IV1+IV2+IV3',
+            arithmetic    => '=A1+A2+A3',
             defaultFormat => '0soft',
             arguments =>
-              { map { ( "IV$_" => $allowedRevenueItems[ $_ - 1 ] ) } 1 .. 3 }
+              { map { ( "A$_" => $allowedRevenueItems[ $_ - 1 ] ) } 1 .. 3 }
         );
 
         $revenueFromElsewhere = Dataset(
@@ -201,17 +201,17 @@ sub revenueShortfall {
         $revenueShortfall = Arithmetic(
             name       => 'Revenue shortfall (surplus) £',
             rows       => 0,
-            arithmetic => '=IV1'
-              . ( $revenueFromElsewhere ? '-IV3' : '' )
-              . '-IV4-IV5-IV2'
-              . ( $revenueBefore ? '-IV9' : '' ),
+            arithmetic => '=A1'
+              . ( $revenueFromElsewhere ? '-A3' : '' )
+              . '-A4-A5-A2'
+              . ( $revenueBefore ? '-A9' : '' ),
             arguments => {
-                IV1 => $allowedRevenue,
-                $revenueFromElsewhere ? ( IV3 => $revenueFromElsewhere ) : (),
-                IV4 => $totalSiteSpecificReplacement,
-                IV5 => $totalSiteSpecificOperating,
-                IV2 => $totalRevenuesSoFar,
-                $revenueBefore ? ( IV9 => $revenueBefore ) : (),
+                A1 => $allowedRevenue,
+                $revenueFromElsewhere ? ( A3 => $revenueFromElsewhere ) : (),
+                A4 => $totalSiteSpecificReplacement,
+                A5 => $totalSiteSpecificOperating,
+                A2 => $totalRevenuesSoFar,
+                $revenueBefore ? ( A9 => $revenueBefore ) : (),
             },
             defaultFormat => '0soft'
         );
@@ -220,14 +220,14 @@ sub revenueShortfall {
         $revenueShortfall = Arithmetic(
             name       => 'Revenue shortfall (surplus) £',
             rows       => 0,
-            arithmetic => '=IV1'
-              . ( $revenueFromElsewhere ? '-IV3' : '' ) . '-IV2'
-              . ( $revenueBefore        ? '-IV9' : '' ),
+            arithmetic => '=A1'
+              . ( $revenueFromElsewhere ? '-A3' : '' ) . '-A2'
+              . ( $revenueBefore        ? '-A9' : '' ),
             arguments => {
-                IV1 => $allowedRevenue,
-                $revenueFromElsewhere ? ( IV3 => $revenueFromElsewhere ) : (),
-                IV2 => $totalRevenuesSoFar,
-                $revenueBefore ? ( IV9 => $revenueBefore ) : (),
+                A1 => $allowedRevenue,
+                $revenueFromElsewhere ? ( A3 => $revenueFromElsewhere ) : (),
+                A2 => $totalRevenuesSoFar,
+                $revenueBefore ? ( A9 => $revenueBefore ) : (),
             },
             defaultFormat => '0soft'
         );

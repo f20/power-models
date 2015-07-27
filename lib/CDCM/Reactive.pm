@@ -160,10 +160,10 @@ EOT
         defaultFormat => '0.000softnz',
         rows          => $tariffsetForReactiveByEndUserPayg,
         cols          => $chargingDrmExitLevels,
-        arithmetic    => '=IV1*IV2*IV90/IV91*(1-IV92)*IV93/(24*IV5)*100',
+        arithmetic    => '=A1*A2*A90/A91*(1-A92)*A93/(24*A5)*100',
         arguments     => {
-            IV1 => $costToSml,
-            IV2 => Arithmetic(
+            A1 => $costToSml,
+            A2 => Arithmetic(
                 name => Label(
                     'Absolute load coefficient',
                     'Absolute value of load coefficient (kW peak / average kW)'
@@ -174,14 +174,14 @@ EOT
                     list => $tariffsetForReactiveByEndUserPayg->{groups}
                       || $tariffsetForReactiveByEndUserPayg->{list}
                 ),
-                arithmetic => '=ABS(IV1)',
-                arguments  => { IV1 => $loadCoefficients }
+                arithmetic => '=ABS(A1)',
+                arguments  => { A1 => $loadCoefficients }
             ),
-            IV90 => $lineLossFactorsToGsp,
-            IV91 => $lineLossFactorsNetwork,
-            IV92 => $proportionCoveredByContributions,
-            IV93 => $routeingFactorsReactiveUnits,
-            IV5  => $daysInYear
+            A90 => $lineLossFactorsToGsp,
+            A91 => $lineLossFactorsNetwork,
+            A92 => $proportionCoveredByContributions,
+            A93 => $routeingFactorsReactiveUnits,
+            A5  => $daysInYear
         }
     );
 
@@ -190,8 +190,8 @@ EOT
           . 'p/kWh for reactive power (absolute value)',
         rows       => $tariffsetForReactiveByEndUserStandard,
         cols       => $chargingDrmExitLevels,
-        arithmetic => '=ABS(IV1)',
-        arguments  => { IV1 => $unitYardstick->{source} }
+        arithmetic => '=ABS(A1)',
+        arguments  => { A1 => $unitYardstick->{source} }
     );
 
     my ( $paygReactive, $standardReactive );
@@ -226,22 +226,22 @@ EOT
         $paygReactive = Arithmetic(
             name       => 'Pay-as-you-go reactive p/kVArh',
             cols       => $chargingDrmExitLevels,
-            arithmetic => '=IV1*IV2*IV3',
+            arithmetic => '=A1*A2*A3',
             arguments  => {
-                IV1 => $paygUnitForReactive,
-                IV2 => $averageKvarByKva,
-                IV3 => $powerFactorInModel
+                A1 => $paygUnitForReactive,
+                A2 => $averageKvarByKva,
+                A3 => $powerFactorInModel
             }
         );
 
         $standardReactive = Arithmetic(
             name       => 'Standard reactive p/kVArh',
             cols       => $chargingDrmExitLevels,
-            arithmetic => '=IV1*IV2*IV3',
+            arithmetic => '=A1*A2*A3',
             arguments  => {
-                IV1 => $standardUnitForReactive,
-                IV2 => $averageKvarByKva,
-                IV3 => $powerFactorInModel
+                A1 => $standardUnitForReactive,
+                A2 => $averageKvarByKva,
+                A3 => $powerFactorInModel
             }
         );
 
@@ -309,30 +309,30 @@ EOT
         $paygReactive = Arithmetic(
             name       => 'Pay-as-you-go reactive yardstick',
             cols       => $reactiveBandset,
-            arithmetic => '=IV1*SQRT(1-IV2^2)*IV3',
+            arithmetic => '=A1*SQRT(1-A2^2)*A3',
             arguments  => {
-                IV1 => GroupBy(
+                A1 => GroupBy(
                     name   => 'p/kVAh',
                     rows   => $tariffsetForReactiveByEndUserPayg,
                     source => $paygUnitForReactive
                 ),
-                IV2 => $powerFactorMidBand,
-                IV3 => $powerFactorInModel
+                A2 => $powerFactorMidBand,
+                A3 => $powerFactorInModel
             }
         );
 
         $standardReactive = Arithmetic(
             name       => 'Standard reactive yardstick',
             cols       => $reactiveBandset,
-            arithmetic => '=IV1*SQRT(1-IV2^2)*IV3',
+            arithmetic => '=A1*SQRT(1-A2^2)*A3',
             arguments  => {
-                IV1 => GroupBy(
+                A1 => GroupBy(
                     name   => 'p/kVAh',
                     rows   => $tariffsetForReactiveByEndUserStandard,
                     source => $standardUnitForReactive
                 ),
-                IV2 => $powerFactorMidBand,
-                IV3 => $powerFactorInModel
+                A2 => $powerFactorMidBand,
+                A3 => $powerFactorInModel
             }
         );
 
@@ -359,8 +359,8 @@ EOT
                 source => Arithmetic(
                     name =>
 'Contributions to standard reactive unit charges under step 7',
-                    arithmetic => '=IV1*IV2',
-                    arguments  => { IV1 => $standardReactive, IV2 => $weights }
+                    arithmetic => '=A1*A2',
+                    arguments  => { A1 => $standardReactive, A2 => $weights }
                 )
             );
 
@@ -371,8 +371,8 @@ EOT
                 source => Arithmetic(
                     name => 'Contributions to pay-as-you-go'
                       . ' reactive unit charges under step 7',
-                    arithmetic => '=IV1*IV2',
-                    arguments  => { IV1 => $paygReactive, IV2 => $weights }
+                    arithmetic => '=A1*A2',
+                    arguments  => { A1 => $paygReactive, A2 => $weights }
                 )
             );
 

@@ -55,8 +55,8 @@ sub check {
     return 'Reshape cannot do rows'
       if $self->{rows};
     push @{ $self->{sourceLines} }, $self->{source};
-    $self->{arithmetic} = '= IV1';
-    $self->{arguments} = { IV1 => $self->{source} };
+    $self->{arithmetic} = '= A1';
+    $self->{arguments} = { A1 => $self->{source} };
     $self->SUPER::check;
 }
 
@@ -69,7 +69,7 @@ sub wsPrepare {
       ? ''
       : "'" . ( $srcsheet ? $srcsheet->get_name : 'BROKEN LINK' ) . "'!";
 
-    my $formula = $ws->store_formula("=${srcsheet}IV1");
+    my $formula = $ws->store_formula("=${srcsheet}A1");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000copy' );
 
     my ( @x, @y );
@@ -84,7 +84,7 @@ sub wsPrepare {
     }
 
     sub {
-        '', $format, $formula, IV1 =>
+        '', $format, $formula, qr/\bA1\b/ =>
           xl_rowcol_to_cell( $srcr + $y[ $_[0] ], $srcc + $x[ $_[0] ], 1, 0 );
     };
 }

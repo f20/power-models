@@ -355,11 +355,11 @@ sub worksheetsAndClosures {
                         defaultFormat => $col ? '0.00soft' : '0.000soft',
                         arithmetic    => '='
                           . join( '+',
-                            map { "IV$_" }
+                            map { "A$_" }
                               1 .. @{ $model->{matricesData}[$col] } ),
                         arguments => {
                             map {
-                                ( "IV$_" =>
+                                ( "A$_" =>
                                       $model->{matricesData}[$col][ $_ - 1 ] );
                             } 1 .. @{ $model->{matricesData}[$col] }
                         },
@@ -368,11 +368,11 @@ sub worksheetsAndClosures {
                     # push @{ $model->{matricesData}[$col] },
                     $diff[$col] = Arithmetic(
                         name          => "Difference $name",
-                        arithmetic    => '=IV1-IV2',
+                        arithmetic    => '=A1-A2',
                         defaultFormat => $total[$col]{defaultFormat},
                         arguments     => {
-                            IV1 => $total[$col],
-                            IV2 => $model->{tariffTables}[0]{columns}
+                            A1 => $total[$col],
+                            A2 => $model->{tariffTables}[0]{columns}
                               [ 1 + 2 * $col ],
                         }
                     );
@@ -404,13 +404,13 @@ sub worksheetsAndClosures {
                         Arithmetic(
                             name          => 'This should be zero (p/kVA/day)',
                             defaultFormat => '0.00soft',
-                            arithmetic    => '=IV1*IV3*IV4/IV5+IV6',
+                            arithmetic    => '=A1*A3*A4/A5+A6',
                             arguments     => {
-                                IV1 => $diff[0],
-                                IV3 => $purpleUse,
-                                IV4 => $model->{matricesData}[3],
-                                IV5 => $model->{matricesData}[4],
-                                IV6 => $diff[1],
+                                A1 => $diff[0],
+                                A3 => $purpleUse,
+                                A4 => $model->{matricesData}[3],
+                                A5 => $model->{matricesData}[4],
+                                A6 => $diff[1],
                             }
                         ),
                     ]

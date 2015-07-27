@@ -80,14 +80,14 @@ sub discounts {    # Not used if DCP 095
         Arithmetic(
             name       => 'LDNO LV: LV user',
             arithmetic => $model->{fixedIndirectPercentage}
-            ? '=IV1*(1-IV2)'
-            : '=IV1*(1-IV2*IV3)',
+            ? '=A1*(1-A2)'
+            : '=A1*(1-A2*A3)',
             arguments => {
-                IV1 => $lvAllocation,
-                IV2 => $lvSplit,
+                A1 => $lvAllocation,
+                A2 => $lvSplit,
                 $model->{fixedIndirectPercentage}
                 ? ()
-                : ( IV3 => $lvDirect ),
+                : ( A3 => $lvDirect ),
             },
             defaultFormat => '%soft',
         ),
@@ -96,20 +96,20 @@ sub discounts {    # Not used if DCP 095
             arithmetic => $dcp071
             ? (
                 $model->{fixedIndirectPercentage}
-                ? '=IV1+IV2+IV3*(1-IV4)'
-                : '=IV1+IV2+IV3*(1-IV4*IV5)'
+                ? '=A1+A2+A3*(1-A4)'
+                : '=A1+A2+A3*(1-A4*A5)'
               )
-            : '=IV1+IV2',
+            : '=A1+A2',
             arguments => {
-                IV1 => $lvAllocation,
-                IV2 => $hvLvAllocation,
+                A1 => $lvAllocation,
+                A2 => $hvLvAllocation,
                 $dcp071
                 ? (
-                    IV3 => $hvAllocation,
-                    IV4 => $hvSplit,
+                    A3 => $hvAllocation,
+                    A4 => $hvSplit,
                     $model->{fixedIndirectPercentage}
                     ? ()
-                    : ( IV5 => $hvDirect ),
+                    : ( A5 => $hvDirect ),
                   )
                 : (),
             },
@@ -120,20 +120,20 @@ sub discounts {    # Not used if DCP 095
             arithmetic => $dcp071
             ? (
                 $model->{fixedIndirectPercentage}
-                ? '=(IV2+IV3*(1-IV4))/(1-IV1)'
-                : '=(IV2+IV3*(1-IV4*IV5))/(1-IV1)'
+                ? '=(A2+A3*(1-A4))/(1-A1)'
+                : '=(A2+A3*(1-A4*A5))/(1-A1)'
               )
-            : '=IV2/(1-IV1)',
+            : '=A2/(1-A1)',
             arguments => {
-                IV1 => $lvAllocation,
-                IV2 => $hvLvAllocation,
+                A1 => $lvAllocation,
+                A2 => $hvLvAllocation,
                 $dcp071
                 ? (
-                    IV3 => $hvAllocation,
-                    IV4 => $hvSplit,
+                    A3 => $hvAllocation,
+                    A4 => $hvSplit,
                     $model->{fixedIndirectPercentage}
                     ? ()
-                    : ( IV5 => $hvDirect ),
+                    : ( A5 => $hvDirect ),
                   )
                 : (),
             },
@@ -142,16 +142,16 @@ sub discounts {    # Not used if DCP 095
         Arithmetic(
             name       => 'LDNO HV: HV user',
             arithmetic => $model->{fixedIndirectPercentage}
-            ? '=IV1*(1-IV2)/(1-IV4-IV5)'
-            : '=IV1*(1-IV2*IV3)/(1-IV4-IV5)',
+            ? '=A1*(1-A2)/(1-A4-A5)'
+            : '=A1*(1-A2*A3)/(1-A4-A5)',
             arguments => {
-                IV1 => $hvAllocation,
-                IV2 => $hvSplit,
+                A1 => $hvAllocation,
+                A2 => $hvSplit,
                 $model->{fixedIndirectPercentage}
                 ? ()
-                : ( IV3 => $hvDirect ),
-                IV4 => $lvAllocation,
-                IV5 => $hvLvAllocation,
+                : ( A3 => $hvDirect ),
+                A4 => $lvAllocation,
+                A5 => $hvLvAllocation,
             },
             defaultFormat => '%soft',
         ),
@@ -189,11 +189,11 @@ sub discounts {    # Not used if DCP 095
             columns => [
                 map {
                     Arithmetic(
-                        arithmetic => '=IV1-IV2',
+                        arithmetic => '=A1-A2',
                         name       => $discountCurrent->{columns}[$_]{name},
                         arguments  => {
-                            IV1 => $discount->{columns}[$_],
-                            IV2 => $discountCurrent->{columns}[$_]
+                            A1 => $discount->{columns}[$_],
+                            A2 => $discountCurrent->{columns}[$_]
                         },
                         defaultFormat => '%softpm'
                       )

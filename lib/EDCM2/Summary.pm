@@ -53,20 +53,20 @@ sub revenue {
         Arithmetic(
             name          => 'Fixed charges for demand (£/year)',
             defaultFormat => '0softnz',
-            arithmetic    => '=0.01*IV9*IV1',
+            arithmetic    => '=0.01*A9*A1',
             arguments     => {
-                IV1 => $fixedChargeDemand,
-                IV9 => $daysInYear,
+                A1 => $fixedChargeDemand,
+                A9 => $daysInYear,
             }
         ),
 
         Arithmetic(
             name          => 'Fixed charges for generation (£/year)',
             defaultFormat => '0softnz',
-            arithmetic    => '=0.01*IV9*IV1',
+            arithmetic    => '=0.01*A9*A1',
             arguments     => {
-                IV1 => $fixedChargeGeneration,
-                IV9 => $daysInYear,
+                A1 => $fixedChargeGeneration,
+                A9 => $daysInYear,
             }
         ),
 
@@ -75,37 +75,37 @@ sub revenue {
         Arithmetic(
             name          => 'Other import capacity charges (£/year)',
             defaultFormat => '0softnz',
-            arithmetic    => '=0.01*IV9*IV1*IV23',
+            arithmetic    => '=0.01*A9*A1*A23',
             arguments     => {
-                IV1  => $importCapacityScaled,
-                IV7  => $importCapacityExceeded,
-                IV23 => $agreedCapacity,
-                IV9  => $daysInYear,
+                A1  => $importCapacityScaled,
+                A7  => $importCapacityExceeded,
+                A23 => $agreedCapacity,
+                A9  => $daysInYear,
             }
         ),
 
         Arithmetic(
             name          => 'Import unit charges (£/year)',
             defaultFormat => '0softnz',
-            arithmetic    => '=0.01*IV9*IV42*IV1*IV7',
+            arithmetic    => '=0.01*A9*A42*A1*A7',
             arguments     => {
-                IV9  => $unitRateFcpLric,
-                IV42 => $agreedCapacity,
-                IV1  => $activeCoincidence,
-                IV7  => $purpleHours,
+                A9  => $unitRateFcpLric,
+                A42 => $agreedCapacity,
+                A1  => $activeCoincidence,
+                A7  => $purpleHours,
             }
         ),
 
         Arithmetic(
             name          => 'Generation credits (£/year)',
             defaultFormat => '0softnz',
-            arithmetic    => '=0.01*(IV9*IV42+IV1*IV6*IV7)',
+            arithmetic    => '=0.01*(A9*A42+A1*A6*A7)',
             arguments     => {
-                IV9  => $exportCredit,
-                IV42 => $activeUnits,
-                IV1  => $generationCapacity,
-                IV6  => $genCreditCapacity,
-                IV7  => $daysInYear,
+                A9  => $exportCredit,
+                A42 => $activeUnits,
+                A1  => $generationCapacity,
+                A6  => $genCreditCapacity,
+                A7  => $daysInYear,
             }
         ),
 
@@ -114,9 +114,9 @@ sub revenue {
     my $revenue = Arithmetic(
         name          => 'Total (£/year)',
         defaultFormat => '0softnz',
-        arithmetic    => '=' . join( '+', map { "IV$_" } 1 .. @revenueBits ),
+        arithmetic    => '=' . join( '+', map { "A$_" } 1 .. @revenueBits ),
         arguments =>
-          { map { ( "IV$_" => $revenueBits[ $_ - 1 ] ) } 1 .. @revenueBits },
+          { map { ( "A$_" => $revenueBits[ $_ - 1 ] ) } 1 .. @revenueBits },
     );
 
     if (undef) {
@@ -141,8 +141,8 @@ sub summary {
 
     my $r1 = Arithmetic(
         name          => $previousIncome->{name},
-        arithmetic    => '=IV1',
-        arguments     => { IV1 => $previousIncome },
+        arithmetic    => '=A1',
+        arguments     => { A1 => $previousIncome },
         defaultFormat => '0copynz',
     );
 
@@ -150,16 +150,16 @@ sub summary {
 
     my $change1 = Arithmetic(
         name          => 'Change (£/year)',
-        arithmetic    => '=IV1-IV4',
+        arithmetic    => '=A1-A4',
         defaultFormat => '0softpm',
-        arguments     => { IV1 => $r2, IV4 => $r1 }
+        arguments     => { A1 => $r2, A4 => $r1 }
     );
 
     my $change2 = Arithmetic(
         name          => 'Change (%)',
-        arithmetic    => '=IF(IV1<>0,IV3/IV4-1,"")',
+        arithmetic    => '=IF(A1<>0,A3/A4-1,"")',
         defaultFormat => '%softpm',
-        arguments     => { IV1 => $r1, IV3 => $r2, IV4 => $r1 }
+        arguments     => { A1 => $r1, A3 => $r2, A4 => $r1 }
     );
 
     my $tc1 =
@@ -171,11 +171,11 @@ sub summary {
         arithmetic => '='
           . (
             join '+',
-            map { "IV2$_" }
+            map { "A2$_" }
               grep { $charges1->[$_] } 0 .. ( @$charges1 ? @$charges1 - 2 : 0 )
           ),
         arguments => {
-            map { ( "IV2$_" => $charges1->[$_] ) }
+            map { ( "A2$_" => $charges1->[$_] ) }
             grep { $charges1->[$_] } 0 .. ( @$charges1 ? @$charges1 - 2 : 0 )
         }
       )

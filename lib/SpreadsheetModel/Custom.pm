@@ -64,7 +64,8 @@ sub check {
         sub {
             my ( $x, $y ) = @_;
             '', $format, $formula, map {
-                $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                qr/\b$_\b/ =>
+                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{$_} + $y,
                     $colh->{$_} + $x,
                     0, 0

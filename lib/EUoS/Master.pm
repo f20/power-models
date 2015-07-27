@@ -72,7 +72,7 @@ sub new {
     my $supplyTariffs;
     if ( my $usetName = $model->{usetEnergy} ) {
         $supplyTariffs = EUoS::Supply->new( $model, $setup, $tariffs,
-            $charging->energyCharge->{arguments}{IV1} );
+            $charging->energyCharge->{arguments}{A1} );
         $supplyTariffs->revenues( $customers->totalDemand($usetName) );
         $supplyTariffs->margin( $customers->totalDemand($usetName) )
           if $model->{energyMargin};
