@@ -131,7 +131,7 @@ sub wsWrite {
             if ( UNIVERSAL::isa( $cset, 'SpreadsheetModel::Columnset' ) ) {
                 @displayList = ()
                   unless $logger->{showColumns} || $cset->{logColumns}
-                  and grep {
+                  and 1 || grep {
                     ref $_ ne 'SpreadsheetModel::Stack'
                       || @{ $_->{sources} } > 1;
                   } @{ $cset->{columns} };

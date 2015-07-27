@@ -419,7 +419,7 @@ EOT
     my $chargeableCapacity     = Arithmetic(
         name          => 'Import capacity not subject to DSM (kVA)',
         defaultFormat => '0soft',
-        arguments => { A1 => $importCapacity, A2 => $nonChargeableCapacity, },
+        arguments  => { A1 => $importCapacity, A2 => $nonChargeableCapacity, },
         arithmetic => '=A1-A2',
     );
     my $chargeableCapacity935  = $chargeableCapacity;
@@ -656,11 +656,10 @@ EOT
       ? Arithmetic(
         name          => 'Total EDCM peak time consumption (kW)',
         defaultFormat => '0softnz',
-        arithmetic =>
-          '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52,A53_A54)',
-        arguments => {
-            A123     => $model->{transparencyMasterFlag},
-            A1       => $model->{transparency}{ol119101},
+        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52,A53_A54)',
+        arguments     => {
+            A123    => $model->{transparencyMasterFlag},
+            A1      => $model->{transparency}{ol119101},
             A21_A22 => $model->{transparency},
             A51_A52 => ref $purpleUseRate eq 'ARRAY'
             ? $purpleUseRate->[0]
@@ -1011,8 +1010,8 @@ EOT
           . '+SUMPRODUCT(A21_A22,A51_A52,A53_A54)/100'
           . '+SUMPRODUCT(A31_A32,A71_A72,A73_A74)*A75/100+SUMPRODUCT(A41_A42,A83_A84)*A85/100',
         arguments => {
-            A123     => $model->{transparencyMasterFlag},
-            A1       => $model->{transparency}{ol119204},
+            A123    => $model->{transparencyMasterFlag},
+            A1      => $model->{transparency}{ol119204},
             A21_A22 => $model->{transparency},
             A31_A32 => $model->{transparency},
             A41_A42 => $model->{transparency},
@@ -1020,9 +1019,9 @@ EOT
             A53_A54 => $activeUnits,
             A71_A72 => $netexportCapacityChargeRound,
             A73_A74 => $exportCapacityChargeable,
-            A75      => $daysInYear,
+            A75     => $daysInYear,
             A83_A84 => $fixedGcharge,
-            A85      => $daysInYear,
+            A85     => $daysInYear,
         }
       )
       : Arithmetic(
@@ -1035,9 +1034,9 @@ EOT
             A53_A54 => $activeUnits,
             A71_A72 => $netexportCapacityChargeRound,
             A73_A74 => $exportCapacityChargeable,
-            A75      => $daysInYear,
+            A75     => $daysInYear,
             A83_A84 => $fixedGcharge,
-            A85      => $daysInYear,
+            A85     => $daysInYear,
         }
       );
 
@@ -1054,11 +1053,10 @@ EOT
             name => 'Total demand sole use assets '
               . 'qualifying for DCP 189 discount (£)',
             defaultFormat => '0softnz',
-            arithmetic =>
-              '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A13_A14,A15_A16)',
-            arguments => {
-                A123     => $model->{transparencyMasterFlag},
-                A1       => $model->{transparency}{ol119306},
+            arithmetic => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A13_A14,A15_A16)',
+            arguments  => {
+                A123    => $model->{transparencyMasterFlag},
+                A1      => $model->{transparency}{ol119306},
                 A11_A12 => $demandSoleUseAsset,
                 A13_A14 => $dcp189Input,
                 A15_A16 => $model->{transparency},
@@ -1070,8 +1068,8 @@ EOT
             defaultFormat => '0softnz',
             arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
             arguments     => {
-                A123     => $model->{transparencyMasterFlag},
-                A1       => $model->{transparency}{ol119306},
+                A123    => $model->{transparencyMasterFlag},
+                A1      => $model->{transparency}{ol119306},
                 A11_A12 => Arithmetic(
                     name => 'Demand sole use assets '
                       . 'qualifying for DCP 189 discount (£)',
@@ -1179,8 +1177,8 @@ EOT
         my $capacity3 = Arithmetic(
             name          => 'Capacity pot contribution p/kVA/day',
             defaultFormat => '0.00softnz',
-            arithmetic => '=100/A3*((A1+A53)*(A6+A7+A8+A9)+A41*A42)',
-            arguments  => {
+            arithmetic    => '=100/A3*((A1+A53)*(A6+A7+A8+A9)+A41*A42)',
+            arguments     => {
                 A3  => $daysInYear,
                 A1  => $assetsCapacity,
                 A53 => $assetsConsumption,
@@ -1405,16 +1403,16 @@ EOT
               . '+SUMPRODUCT(A41_A42,A43_A44,A35_A36,A51_A52)/A54'
               . ')*A9/100',
             arguments => {
-                A1       => $totalRevenue3,
+                A1      => $totalRevenue3,
                 A31_A32 => $capacityChargeT,
                 A33_A34 => $importCapacity,
-                A9       => $daysInYear,
+                A9      => $daysInYear,
                 A21_A22 => $fixedDcharge,
                 A41_A42 => $unitRateFcpLricDSM,
                 A43_A44 => $activeCoincidence935,
                 A35_A36 => $importCapacityUnscaled,
                 A51_A52 => $tariffHoursInPurple,
-                A54      => $daysInYear,
+                A54     => $daysInYear,
             }
         );
 
@@ -1509,16 +1507,16 @@ EOT
                           . 'SUMPRODUCT(A66_A67,A41_A42,A43_A44,A35_A36,A51_A52)/A54'
                           . ')*A9/100',
                         arguments => {
-                            A123     => $model->{transparencyMasterFlag},
-                            A1       => $model->{transparency}{ol119104},
+                            A123    => $model->{transparencyMasterFlag},
+                            A1      => $model->{transparency}{ol119104},
                             A31_A32 => $capacityChargeT1,
                             A33_A34 => $importCapacity,
-                            A9       => $daysInYear,
+                            A9      => $daysInYear,
                             A41_A42 => $unitRateFcpLricDSM,
                             A43_A44 => $activeCoincidence935,
                             A35_A36 => $importCapacityUnscaled,
                             A51_A52 => $tariffHoursInPurple,
-                            A54      => $daysInYear,
+                            A54     => $daysInYear,
                             A64_A65 => $model->{transparency},
                             A66_A67 => $model->{transparency},
                         },
@@ -1533,12 +1531,12 @@ EOT
                         arguments => {
                             A31_A32 => $capacityChargeT1,
                             A33_A34 => $importCapacity,
-                            A9       => $daysInYear,
+                            A9      => $daysInYear,
                             A41_A42 => $unitRateFcpLricDSM,
                             A43_A44 => $activeCoincidence935,
                             A35_A36 => $importCapacityUnscaled,
                             A51_A52 => $tariffHoursInPurple,
-                            A54      => $daysInYear,
+                            A54     => $daysInYear,
                         },
                     ),
                 ),
@@ -1723,9 +1721,8 @@ EOT
     $model->{summaryInformationColumns}[5] = Arithmetic(
         name          => 'FCP/LRIC charge (£/year)',
         defaultFormat => '0softnz',
-        arithmetic =>
-          '=0.01*(A11*A9*A2+A1*A4*A8*(A6-A61)*(A91/(A92-A71)))',
-        arguments => {
+        arithmetic    => '=0.01*(A11*A9*A2+A1*A4*A8*(A6-A61)*(A91/(A92-A71)))',
+        arguments     => {
             A1  => $importCapacity,
             A2  => $fcpLricDemandCapacityChargeBig,
             A3  => $capacityChargeT->{arguments}{A1},
@@ -2062,10 +2059,8 @@ EOT
             A1 => $rev2d,
             map {
                 $model->{summaryInformationColumns}[$_]
-                  ? (
-                    "A" . ( 20 + $_ ),
-                    $model->{summaryInformationColumns}[$_]
-                  )
+                  ? ( "A" . ( 20 + $_ ),
+                    $model->{summaryInformationColumns}[$_] )
                   : ()
             } 0 .. $#{ $model->{summaryInformationColumns} }
         }

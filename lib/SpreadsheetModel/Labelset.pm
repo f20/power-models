@@ -87,12 +87,12 @@ sub htmlDescribe {
 
 sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
-    return if $wb->{findForwardLinks} ;
+    return if $wb->{findForwardLinks};
     foreach ( grep { ref $_ eq 'ARRAY' } @{ $self->{list} } ) {
         my ( $sh, $ro, $co ) = $_->[0]->wsWrite( $wb, $ws );
         return unless $sh;
         $_ = q%='%
-          .$sh->get_name   . q%'!%
+          . $sh->get_name . q%'!%
           . xl_rowcol_to_cell( $ro + $_->[1], $co + $_->[2] );
     }
 }
@@ -209,10 +209,11 @@ sub supersetIndex {
                   grep { $name eq $superset->{list}[$_] } @sind;
             }
         }
-        return $self->{$key} = undef unless defined $id[$_];
+        unless ( defined $id[$_] ){    # undef return value means that the matching has failed
+            warn;
+            return $self->{$key} = undef;
+        }
     }
-
-    # undef return value means that the matching has failed
 
     $self->{$key} = \@id;
 }

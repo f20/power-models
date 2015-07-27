@@ -113,6 +113,7 @@ sub orderedLayout {
     };
 
     my $groupMaker = sub {
+
         my ( $prefix, @extras ) = @_;
         my $grouper;
         if ( $model->{layout} =~ /matrix/i ) {
@@ -171,6 +172,7 @@ sub orderedLayout {
                 );
             };
         }
+
         sub {
             my @cols;
             my @result;
@@ -188,6 +190,7 @@ sub orderedLayout {
             }
             @result;
         };
+
     };
 
     push @{ $model->{generalTables} },
