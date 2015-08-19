@@ -3,22 +3,22 @@ github.com/f20/power-models
 
 This repository contains:
 
-* Perl code to build Microsoft Excel spreadsheet models that implement parts of the methods used
-by the regional electricity distribution companies in England, Scotland and Wales to set their
-use of system charges.
+* Perl code to build various Microsoft Excel spreadsheet models, including models that
+implement the methods used by the regional electricity distribution companies in England,
+Scotland and Wales to set their use of system charges.
 
 * Data published by these companies to populate these models, in a structured plain text format
 (YAML) designed for use with the Perl code above.
 
-To see this code in action, go to http://dcmf.co.uk/models/ and experiment with
-the online spreadsheet building tools.
+To see this code in action, go to http://dcmf.co.uk/models/ and experiment with the online
+spreadsheet building tools.
 
 To build spreadsheet models on your own computer using this code, follow the instructions below.
 
 Step 1.  Set-up Perl 5.
 -----------------------
 
-You need version 5.8.8 or later of Perl 5 to be working correctly before you start.
+You need Perl 5 (version 5.8.8 or later) to be working correctly.
 
 Step 2.  Download the code.
 ---------------------------
@@ -65,4 +65,4 @@ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT
 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 11 June 2015.
+Franck Latrémolière, 2 August 2015.

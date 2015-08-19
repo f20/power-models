@@ -1,5 +1,5 @@
 '
-' Copyright 2013 Franck Latremoliere, Reckon LLP and others.
+' Copyright 2013-2015 Franck Latremoliere, Reckon LLP and others.
 '
 ' Redistribution and use in source and binary forms, with or without
 ' modification, are permitted provided that the following conditions are met:
@@ -58,11 +58,11 @@ Sub ActivateVBACode(wbook As Workbook)
     End If
 End Sub
 
-Sub ImportVBA()
-    ChDir ThisWorkbook.Path
+Sub ImportVBAOne(wbook As Workbook)
+    ChDir wbook.path
     Dim component As VBComponent
     Dim componentSet As VBComponents
-    Set componentSet = ThisWorkbook.VBProject.VBComponents
+    Set componentSet = wbook.VBProject.VBComponents
     For Each component In componentSet
         fileName = component.Name & ".bas"
         Dim vbaCode As String
@@ -79,13 +79,13 @@ Sub ImportVBA()
             End With
         End If
     Next component
-    ThisWorkbook.Save
+    wbook.Save
 End Sub
 
-Sub ExportVBA()
-    ChDir ThisWorkbook.Path
+Sub ExportVBAOne(wbook As Workbook)
+    ChDir wbook.path
     Dim component As VBComponent
-    For Each component In ThisWorkbook.VBProject.VBComponents
+    For Each component In wbook.VBProject.VBComponents
         Dim fileName As String
         fileName = component.Name & ".bas"
         If component.CodeModule.CountOfLines > 0 Then
@@ -95,11 +95,29 @@ Sub ExportVBA()
             On Error GoTo 0
             Open fileName For Output As fnum
             Dim vbaCode As String
+            On Error Resume Next
             vbaCode = component.CodeModule.Lines(1, component.CodeModule.CountOfLines - 1)
             Print #fnum, vbaCode
+            On Error GoTo 0
             vbaCode = component.CodeModule.Lines(component.CodeModule.CountOfLines, 1)
             If vbaCode <> "" Then Print #fnum, vbaCode
             Close #fnum
         End If
     Next component
+End Sub
+
+Sub ImportVBA()
+    Call ImportVBAOne(ThisWorkbook)
+    Dim wb As Workbook
+    For Each wb In Application.Workbooks
+        If wb.path <> "" Then Call ImportVBAOne(wb)
+    Next wb
+End Sub
+
+Sub ExportVBA()
+    Call ExportVBAOne(ThisWorkbook)
+    Dim wb As Workbook
+    For Each wb In Application.Workbooks
+        If wb.path <> "" Then Call ExportVBAOne(wb)
+    Next wb
 End Sub

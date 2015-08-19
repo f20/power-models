@@ -1,5 +1,7 @@
 makeModels
 	-autocheck
-	CDCM/Current/%-*.yml
-	CDCM/Future/%-*.yml
-	CDCM/Data-2015-03/*.yml
+	CDCM/Current/%-after179*.yml
+	CDCM/Previous/%-after163*.yml
+	CDCM/Previous/%-after179*.yml
+	CDCM/Data-2014-02/*.yml
+	CDCM/Data-2015-02/*.yml
