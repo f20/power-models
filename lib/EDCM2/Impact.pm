@@ -192,7 +192,7 @@ sub mangleTariffInputs {
                     return $self->{defaultValue} || '', $format
                       if $y > $#{ $existingTariffs->{list} };
                     '', $format, $formula->[0], map {
-                        $_ =>
+                        qr/\b$_\b/ =>
                           Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                             $rowh->{$_} + $y,
                             $colh->{$_} + $x,

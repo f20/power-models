@@ -74,9 +74,7 @@ END_OF_LIST
           . 'IF(A45="MEAV",A52,'
           . 'IF(A46="EHV only",0,'
           . 'IF(A47="LV only",1,'
-          . (
-            $networkLengthLvServProp ? 'IF(A48="Network length",A8,0)' : '0'
-          )
+          . ( $networkLengthLvServProp ? 'IF(A48="Network length",A8,0)' : '0' )
           . '))))',
         arguments => {
             A1  => $allocationRules,
@@ -137,16 +135,14 @@ END_OF_LIST
                 name       => 'Allocation to LV services',
                 cols       => $lvServiceOnly,
                 arithmetic => '=A1*A2',
-                arguments =>
-                  { A1 => $netCapexLv, A2 => $netCapexLvServProp, },
+                arguments  => { A1 => $netCapexLv, A2 => $netCapexLvServProp, },
                 defaultFormat => '%soft',
             ),
             Arithmetic(
                 name       => 'Allocation to LV mains',
                 cols       => $lvMainOnly,
                 arithmetic => '=A1*(1-A2)',
-                arguments =>
-                  { A1 => $netCapexLv, A2 => $netCapexLvServProp, },
+                arguments  => { A1 => $netCapexLv, A2 => $netCapexLvServProp, },
                 defaultFormat => '%soft',
             ),
             $netCapexPercentages,
@@ -330,10 +326,11 @@ sub discounts95 {
       ];
 
     push @columns, map {
+        my $digits = /([0-9])/ ? $1 : 6;
         SpreadsheetModel::Checksum->new(
             name => $_,
             /recursive|model/i ? ( recursive => 1 ) : (),
-            digits => /([0-9])/ ? $1 : 6,
+            digits  => $digits,
             columns => [@columns],
             factors => [ map { 1000 } @columns ]
         );

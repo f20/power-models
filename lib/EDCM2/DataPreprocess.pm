@@ -35,45 +35,49 @@ use utf8;
 sub preprocessDataset {
 
     my ($model) = @_;
+    my $d = $model->{dataset} or return;
 
-    if ( my $d = $model->{dataset} ) {
-        foreach (
-            qw(numTariffs numLocations numExtraTariffs numSampleTariffs numExtraLocations)
-          )
-        {
-            $model->{$_} = $d->{$_} if exists $d->{$_};
-        }
+    if (
+            $model->{version}
+        and $d->{1100}
+        and ref $d->{1100}[3] eq 'HASH'
+        and my ($key) =
+        grep { !/^_/ } keys %{ $d->{1100}[3] }
+      )
+    {
+        $d->{1100}[3]{$key} = $model->{version};
     }
 
-    $model->{dataset}{1100}[3]{'Company charging year data version'} =
-      $model->{version}
-      if $model->{version};
+    foreach (
+        qw(numTariffs numLocations numExtraTariffs numSampleTariffs numExtraLocations)
+      )
+    {
+        $model->{$_} = $d->{$_} if exists $d->{$_};
+    }
 
-    if ( $model->{dataset}{1113} && $model->{revenueAdj} ) {
+    if ( $d->{1113} && $model->{revenueAdj} ) {
         my ($key) =
-          grep { !/^_/ } keys %{ $model->{dataset}{1113}[4] };
-        $model->{dataset}{1113}[4]{$key} += $model->{revenueAdj};
+          grep { !/^_/ } keys %{ $d->{1113}[4] };
+        $d->{1113}[4]{$key} += $model->{revenueAdj};
     }
 
     my ( $daysInYearKey, $hoursInPurpleKey );
-    if ( $model->{dataset}{1113} && ref $model->{dataset}{1113}[1] eq 'HASH' ) {
+    if ( $d->{1113} && ref $d->{1113}[1] eq 'HASH' ) {
         ($daysInYearKey) =
-          grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
+          grep { !/^_/ } keys %{ $d->{1113}[1] };
         ($hoursInPurpleKey) =
-          grep { !/^_/ } keys %{ $model->{dataset}{1113}[3] };
+          grep { !/^_/ } keys %{ $d->{1113}[3] };
     }
 
-    if ( $model->{dataset}
-        && ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) )
-    {
-        delete $model->{dataset}{$_} foreach qw(1181 1182 1183);
+    if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) {
+        delete $d->{$_} foreach qw(1181 1182 1183);
     }
 
     if (   $model->{method}
         && $model->{method} !~ /none/i )
     {
         if (
-            my $h = $model->{dataset}{
+            my $h = $d->{
                 $model->{method} =~ /FCP/i
                 ? 911
                 : 913
@@ -99,7 +103,7 @@ sub preprocessDataset {
                       || $model->{small}
                       || defined $model->{numLocations} ? 0 : 16 ) +
                   $max;
-                my $ds = $model->{dataset}{
+                my $ds = $d->{
                     $model->{method} =~ /FCP/i
                     ? 911
                     : 913
@@ -112,13 +116,13 @@ sub preprocessDataset {
         }
     }
 
-    if ( my $ds = $model->{dataset}{935} ) {
+    if ( my $ds = $d->{935} ) {
         if ( ref $ds->[1] eq 'HASH' ) {
             my %tariffs;
 
             splice @$ds, 8, 0,
-              $model->{dataset}{t935dcp189}
-              ? $model->{dataset}{t935dcp189}[0]
+              $d->{t935dcp189}
+              ? $d->{t935dcp189}[0]
               : {
                 map { ( $_ => $model->{dcp189default} || '' ); }
                   keys %{ $ds->[1] }
@@ -193,15 +197,14 @@ sub preprocessDataset {
                         $_
                           && /^[0-9.]+$/s
                           && $daysInYearKey
-                          && $_ > $model->{dataset}{1113}[1]{$daysInYearKey}
-                          && ( $model->{dataset}{1113}[1]{$daysInYearKey} = $_ )
+                          && $_ > $d->{1113}[1]{$daysInYearKey}
+                          && ( $d->{1113}[1]{$daysInYearKey} = $_ )
                           foreach $ds->[22]{$k};
                         $_
                           && /^[0-9.]+$/s
                           && $hoursInPurpleKey
-                          && $_ > $model->{dataset}{1113}[3]{$hoursInPurpleKey}
-                          && ( $model->{dataset}{1113}[3]{$hoursInPurpleKey} =
-                            $_ )
+                          && $_ > $d->{1113}[3]{$hoursInPurpleKey}
+                          && ( $d->{1113}[3]{$hoursInPurpleKey} = $_ )
                           foreach $ds->[23]{$k};
                     }
                     else {
@@ -295,15 +298,14 @@ sub preprocessDataset {
                         $_
                           && /^[0-9.]+$/s
                           && $daysInYearKey
-                          && $_ > $model->{dataset}{1113}[1]{$daysInYearKey}
-                          && ( $model->{dataset}{1113}[1]{$daysInYearKey} = $_ )
+                          && $_ > $d->{1113}[1]{$daysInYearKey}
+                          && ( $d->{1113}[1]{$daysInYearKey} = $_ )
                           foreach $ds->[22][$k];
                         $_
                           && /^[0-9.]+$/s
                           && $hoursInPurpleKey
-                          && $_ > $model->{dataset}{1113}[3]{$hoursInPurpleKey}
-                          && ( $model->{dataset}{1113}[3]{$hoursInPurpleKey} =
-                            $_ )
+                          && $_ > $d->{1113}[3]{$hoursInPurpleKey}
+                          && ( $d->{1113}[3]{$hoursInPurpleKey} = $_ )
                           foreach $ds->[23][$k];
                     }
                     else {
@@ -320,7 +322,7 @@ sub preprocessDataset {
         }
     }
 
-    if ( my @tables = grep { $_ } @{ $model->{dataset} }{qw(1133 1134 1136)} ) {
+    if ( my @tables = grep { $_ } @{$d}{qw(1133 1134 1136)} ) {
         if ( $model->{tableGrouping} || $model->{transparency} ) {
             foreach ( grep { !$_->[1]{_column} || $_->[1]{_column} =~ /GSP/ }
                 @tables )
@@ -338,31 +340,31 @@ sub preprocessDataset {
                 }
             }
         }
-        if ( $model->{dataset}{1136} ) {
-            $model->{dataset}{1133} ||= [
+        if ( $d->{1136} ) {
+            $d->{1133} ||= [
                 map {
                     my %a;
                     while ( my ( $k, $v ) = each %$_ ) {
                         $a{$k} = $v if $k eq '_column' || $k =~ /maximum/i;
                     }
                     \%a;
-                } @{ $model->{dataset}{1136} }
+                } @{ $d->{1136} }
             ];
-            $model->{dataset}{1134} ||= [
+            $d->{1134} ||= [
                 map {
                     my %a;
                     while ( my ( $k, $v ) = each %$_ ) {
                         $a{$k} = $v if $k eq '_column' || $k =~ /minimum/i;
                     }
                     \%a;
-                } @{ $model->{dataset}{1136} }
+                } @{ $d->{1136} }
             ];
         }
         else {
-            my $a = $model->{dataset}{1136} =
-              $model->{dataset}{1133} || $model->{dataset}{1134};
+            my $a = $d->{1136} =
+              $d->{1133} || $d->{1134};
             foreach (qw(1133 1134)) {
-                my $t = $model->{dataset}{$_} or next;
+                my $t = $d->{$_} or next;
                 my ($k1) = grep { !/^_/ } keys %{ $t->[1] } or next;
                 my $k2 = ( $_ == 1133 ? 'Maximum' : 'Minimum' )
                   . ' network use factor';
@@ -373,80 +375,78 @@ sub preprocessDataset {
         }
     }
 
-    if ( $model->{dataset}{1113} ) {
-        my ($k1113) = grep { !/^_/ } keys %{ $model->{dataset}{1113}[1] };
-        $model->{dataset}{1101} ||= [
+    if ( $d->{1113} ) {
+        my ($k1113) = grep { !/^_/ } keys %{ $d->{1113}[1] };
+        $d->{1101} ||= [
             undef,
-            @{ $model->{dataset}{1113} }[ 2, 6, 7, 8 ],
+            @{ $d->{1113} }[ 2, 6, 7, 8 ],
             {
-                $k1113 => $model->{dataset}{1113}[4]{$k1113} +
-                  $model->{dataset}{1113}[5]{$k1113}
+                $k1113 => $d->{1113}[4]{$k1113} + $d->{1113}[5]{$k1113}
             },
-            $model->{dataset}{1113}[5]
+            $d->{1113}[5]
         ];
-        $model->{dataset}{1110} ||=
-          [ undef, @{ $model->{dataset}{1113} }[ 1, 3 ] ];
-        $model->{dataset}{1118} ||=
-          [ undef, @{ $model->{dataset}{1113} }[ 9 .. 12 ] ];
+        $d->{1110} ||=
+          [ undef, @{ $d->{1113} }[ 1, 3 ] ];
+        $d->{1118} ||=
+          [ undef, @{ $d->{1113} }[ 9 .. 12 ] ];
     }
     else {
-        my ($k1101) = grep { !/^_/ } keys %{ $model->{dataset}{1001}[1] };
-        $model->{dataset}{1113} ||= [
+        my ($k1101) = grep { !/^_/ } keys %{ $d->{1001}[1] };
+        $d->{1113} ||= [
             undef,
-            $model->{dataset}{1110}[1],
-            $model->{dataset}{1101}[1],
-            $model->{dataset}{1110}[2],
+            $d->{1110}[1],
+            $d->{1101}[1],
+            $d->{1110}[2],
             {
-                $k1101 => $model->{dataset}{1101}[5]{$k1101} -
-                  $model->{dataset}{1101}[6]{$k1101}
+                $k1101 => $d->{1101}[5]{$k1101} - $d->{1101}[6]{$k1101}
             },
-            @{ $model->{dataset}{1101} }[ 6, 2, 3, 4 ],
-            @{ $model->{dataset}{1118} }[ 1 .. 4 ],
+            @{ $d->{1101} }[ 6, 2, 3, 4 ],
+            @{ $d->{1118} }[ 1 .. 4 ],
         ];
     }
 
-    if ( $model->{dataset}{1140} ) {
-        $model->{dataset}{1105} ||= [
+    if ( $d->{1140} ) {
+        $d->{1105} ||= [
             map {
                 my %a;
                 while ( my ( $k, $v ) = each %$_ ) {
                     $a{$k} = $v if $k eq '_column' || $k =~ /diversity/i;
                 }
                 \%a;
-            } @{ $model->{dataset}{1140} }
+            } @{ $d->{1140} }
         ];
-        $model->{dataset}{1122} ||= [
+        $d->{1122} ||= [
             map {
                 my %a;
                 while ( my ( $k, $v ) = each %$_ ) {
                     $a{$k} = $v if $k eq '_column' || $k =~ /simultaneous/i;
                 }
                 \%a;
-            } @{ $model->{dataset}{1140} }
+            } @{ $d->{1140} }
         ];
-        $model->{dataset}{1131} ||= [
+        $d->{1131} ||= [
             map {
                 my %a;
                 while ( my ( $k, $v ) = each %$_ ) {
                     $a{$k} = $v if $k eq '_column' || $k =~ /asset/i;
                 }
                 \%a;
-            } @{ $model->{dataset}{1140} }
+            } @{ $d->{1140} }
         ];
-        $model->{dataset}{1135} ||= [
+        $d->{1135} ||= [
             map {
                 my %a;
                 while ( my ( $k, $v ) = each %$_ ) {
                     $a{$k} = $v if $k eq '_column' || $k =~ /loss/i;
                 }
                 \%a;
-            } @{ $model->{dataset}{1140} }
+            } @{ $d->{1140} }
         ];
     }
     else {
-        my $a = $model->{dataset}{1140} ||= [ {} ];
+        my $a = $d->{1140} ||= [ {} ];
         foreach (qw(1105 1122 1131 1135)) {
-            my $t = $model->{dataset}{$_} or next;
+            my $t = $d->{$_} or next;
             my ( $kk, $match );
             if ( $_ == 1105 ) {
                 $match = qr/diversity/i;
@@ -478,14 +478,14 @@ sub preprocessDataset {
         }
     }
 
-    if ( $model->{dataset}{1194} ) {
+    if ( $d->{1194} ) {
         my ( $key1191, $key1192, $key1194 ) = map {
-            ( grep { !/^_/ } keys %{ $model->{dataset}{$_}[1] } )[0]
+            ( grep { !/^_/ } keys %{ $d->{$_}[1] } )[0]
         } qw(1191 1192 1194);
-        $model->{dataset}{1191}[4]{$key1191} =
-          $model->{dataset}{1194}[3]{$key1194};
-        $model->{dataset}{1192}[4]{$key1192} =
-          $model->{dataset}{1194}[1]{$key1194};
+        $d->{1191}[4]{$key1191} =
+          $d->{1194}[3]{$key1194};
+        $d->{1192}[4]{$key1192} =
+          $d->{1194}[1]{$key1194};
     }
 
 }

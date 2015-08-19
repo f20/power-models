@@ -267,8 +267,7 @@ sub sheetsForFirstModel {
                                             : $format,
                                             $formula->[0],
                                             qr/\bA1\b/ => xl_rowcol_to_cell(
-                                                $rowh->{A1} + $y,
-                                                $colh->{A1},
+                                                $rowh->{A1} + $y, $colh->{A1},
                                                 1
                                             )
                                           )
@@ -277,8 +276,7 @@ sub sheetsForFirstModel {
                                             $boldFormat,
                                             $formula->[1],
                                             qr/\bA2\b/ => xl_rowcol_to_cell(
-                                                $rowh->{A2} + $y,
-                                                $colh->{A2},
+                                                $rowh->{A2} + $y, $colh->{A2},
                                                 1
                                             )
                                           );
@@ -295,7 +293,7 @@ sub sheetsForFirstModel {
 
       'Illustrative$' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber}     = 12;
+        $wsheet->{sheetNumber} = 12;
         $wsheet->set_column( 0, 255, 64 );
         $wsheet->set_column( 1, 255, 16 );
         $wsheet->freeze_panes( 0, 1 );
@@ -610,8 +608,8 @@ sub statisticsColumnsets {
                             my ( $table, $offx, $offy ) =
                               @{ $relevantMap->[$y] };
                             my $ph = "A1$y";
-                            '', $cellFormat, $formula->[$y], $ph,
-                              xl_rowcol_to_cell(
+                            '', $cellFormat, $formula->[$y],
+                              qr/\b$ph\b/ => xl_rowcol_to_cell(
                                 $rowh->{$ph} + $offy,
                                 $colh->{$ph} + $offx,
                                 1, 1,
@@ -697,7 +695,7 @@ sub changeColumnsets {
                     } 0 .. $#{ $after->{rows}{list} }
                 ],
                 arithmetic => '=IF(A2,A1/A3-1,"")',
-                arguments => { A1 => $after, A2 => $before, A3 => $before, },
+                arguments  => { A1 => $after, A2 => $before, A3 => $before, },
             );
         }
         (

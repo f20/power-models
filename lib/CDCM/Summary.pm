@@ -76,6 +76,7 @@ sub summaryOfRevenues {
         $myUnits, $myMpans );
 
     $myMpans = Stack(
+        name    => $volumeData->{'Fixed charge p/MPAN/day'}->objectShortName,
         rows    => $allTariffs,
         sources => [ $volumeData->{'Fixed charge p/MPAN/day'} ],
     );

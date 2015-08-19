@@ -67,7 +67,8 @@ sub drmSizer {
                 my ( $x, $y ) = @_;
                 return '', $unavailable unless $y;
                 '', $format, $formula->[0], map {
-                    $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + $y - 1,
                         $colh->{$_} + $x,
                         0, 0
@@ -120,7 +121,8 @@ EOL
                 $rowh->{A1} ||= $self->{$wb}{row} - 1;
                 $colh->{A1} ||= $self->{$wb}{col};
                 '', $format, $formula->[ $y > 1 ? 1 : 0 ], map {
-                    $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + $y,
                         $colh->{$_} + $x,
                         0, 0
@@ -147,7 +149,8 @@ EOL
                 $rowh->{A1} ||= $self->{$wb}{row} - 1;
                 $colh->{A1} ||= $self->{$wb}{col};
                 '', $format, $formula->[ $y ? 1 : 0 ], map {
-                    $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + $y,
                         $colh->{$_} + $x,
                         0, 0
@@ -158,7 +161,7 @@ EOL
     );
 
     my $diversityAllowances = new SpreadsheetModel::Custom(
-        name => 'Diversity allowance between ' . 'level exit and GSP Group',
+        name          => 'Diversity allowance between level exit and GSP Group',
         defaultFormat => '%softnz',
         rows          => $coreExitLevels,
         custom        => ['=1/A1-1'],
@@ -172,7 +175,8 @@ EOL
                 my ( $x, $y ) = @_;
                 return '', $unavailable if $y == $last;
                 '', $format, $formula->[0], map {
-                    $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + $y,
                         $colh->{$_} + $x,
                         0, 0
@@ -212,7 +216,8 @@ but it might be more sensible to size HV networks by primaries.
                 return '', $unavailable unless $y;
                 my $lev = $coreExitLevels->{list}[$y];
                 '', $format, $formula->[ $lev =~ m#^LV|/#i ? 1 : 0 ], map {
-                    $_ => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + $y - ( $lev =~ m#^LV#i ? 1 : 0 ),
                         $colh->{$_} + $x,
                         0, 0

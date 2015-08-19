@@ -918,10 +918,11 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             $model->{checksums}
             ? (
                 map {
+                    my $digits = /([0-9])/ ? $1 : 6;
                     SpreadsheetModel::Checksum->new(
                         name => $_,
                         /recursive|model/i ? ( recursive => 1 ) : (),
-                        digits => /([0-9])/ ? $1 : 6,
+                        digits  => $digits,
                         columns => \@allTariffColumns,
                         factors => [
                             map {

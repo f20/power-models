@@ -47,11 +47,18 @@ sub _override {
 sub preprocessDataset {
 
     my ($model) = @_;
+    my $d = $model->{dataset} or return;
 
-    my $d = $model->{dataset};
-
-    $d->{1000}[3]{'Company charging year data version'} = $model->{version}
-      if $model->{version};
+    if (
+            $model->{version}
+        and $d->{1000}
+        and ref $d->{1000}[3] eq 'HASH'
+        and my ($key) =
+        grep { !/^_/ } keys %{ $d->{1000}[3] }
+      )
+    {
+        $d->{1000}[3]{$key} = $model->{version};
+    }
 
     if ( $model->{dcp133} ) {
         $d->{1000}[3]{'Company charging year data version'} .= ' (DCP 133)';

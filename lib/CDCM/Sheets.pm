@@ -98,11 +98,9 @@ sub worksheetsAndClosures {
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
 
-        if ( $model->{nickName} ) {
-            use bytes;
-            $model->{nickName} =
-              qq%="$model->{nickName}"&$wbook->{titleAppend}%;
-        }
+        $model->{nickName} = qq%="$model->{nickName}"&$wbook->{titleAppend}%
+          if $model->{nickName};
+
         $_->wsWrite( $wbook, $wsheet )
           foreach sort { ( $a->{number} || 9999 ) <=> ( $b->{number} || 9999 ) }
           @{ $model->{inputTables} };
@@ -689,9 +687,9 @@ EOL
         my ($wsheet) = @_;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->fit_to_pages( 1, 2 );
+            $wsheet->set_print_scale(50);
             $wsheet->set_column( 0, 0,   30 );
-            $wsheet->set_column( 1, 1,   105 );
+            $wsheet->set_column( 1, 1,   98 );
             $wsheet->set_column( 2, 250, 30 );
             $_->wsWrite( $wbook, $wsheet )
               foreach $model->topNotes, SpreadsheetModel::ColourCodeWriter->new,
@@ -701,11 +699,17 @@ EOL
       };
 
     if ( $model->{compact} ) {
+        my %suffixes = (
+            '⇒11' => '',
+            $model->{summary} && $model->{summary} =~ /arp/i
+            ? (
+                Tariffs => ' (2)$',
+                Summary => '$',
+              )
+            : ( Tariffs => '$', ),
+        );
         for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
-            my $suffix = {
-                Tariffs => '$',
-                '⇒11'   => '',
-            }->{ $wsheetsAndClosures[$i] };
+            my $suffix = $suffixes{ $wsheetsAndClosures[$i] };
             if ( defined $suffix ) {
                 $wsheetsAndClosures[$i] .= $suffix;
             }

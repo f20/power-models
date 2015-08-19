@@ -601,9 +601,9 @@ sub worksheetsAndClosures {
       $model->{legacy201} ? 'Overview' : 'Index' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->fit_to_pages( 1, 2 );
+        $wsheet->set_print_scale(50);
         $wsheet->set_column( 0, 0,   30 );
-        $wsheet->set_column( 1, 1,   105 );
+        $wsheet->set_column( 1, 1,   98 );
         $wsheet->set_column( 2, 250, 30 );
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->topNotes, $model->licenceNotes,

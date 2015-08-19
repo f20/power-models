@@ -230,18 +230,18 @@ EOT
                 sub {
                     my ( $x, $y ) = @_;
                     return '', $format, $formula->[0], map {
-                        $_ =>
+                        qr/\b$_\b/ =>
                           Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                             $rowh->{$_}, $colh->{$_}, )
                     } @$pha if !$x;
                     return '', $format, $formula->[1], map {
-                        $_ =>
+                        qr/\b$_\b/ =>
                           Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                             $rowh->{$_}, $colh->{$_} + ( /A9/ ? 2 : 0 ),
                           )
                     } @$pha if $x == 1;
                     '', $format, $formula->[2], map {
-                        $_ =>
+                        qr/\b$_\b/ =>
                           Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                             $rowh->{$_}, $colh->{$_} + ( /A9/ ? 3 : 0 ),
                           )
@@ -311,10 +311,11 @@ EOT
             columns => [
                 $discounts,
                 map {
+                    my $digits = /([0-9])/ ? $1 : 6;
                     SpreadsheetModel::Checksum->new(
                         name => $_,
                         /recursive|model/i ? ( recursive => 1 ) : (),
-                        digits => /([0-9])/ ? $1 : 6,
+                        digits  => $digits,
                         columns => [$discounts],
                         factors => [1000]
                     );
@@ -356,7 +357,7 @@ EOL
                     sub {
                         my ( $x, $y ) = @_;
                         '', $format, $formula->[0], map {
-                            $_ =>
+                            qr/\b$_\b/ =>
                               Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                                 $rowh->{$_} +
                                   $offset + $iForClosure +
@@ -369,10 +370,11 @@ EOL
             );
         }
         push @columns, map {
+            my $digits = /([0-9])/ ? $1 : 6;
             SpreadsheetModel::Checksum->new(
                 name => $_,
                 /recursive|model/i ? ( recursive => 1 ) : (),
-                digits => /([0-9])/ ? $1 : 6,
+                digits  => $digits,
                 columns => [@columns],
                 factors => [ map { 1000 } 1 .. 4 ]
             );

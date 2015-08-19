@@ -322,7 +322,8 @@ EOF
                   :                  0;
                 return '#VALUE!', $format if $x > 3;
                 '', $format, $formula->[0],
-                  A1 => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                  qr/\bA1\b/ =>
+                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A1} + $y,
                     $colh->{A1} + $x,
                     1, 1
@@ -369,7 +370,8 @@ EOF
                   :                  0;
                 return '#VALUE!', $format if $y > 3;
                 '', $format, $formula->[0],
-                  A1 => Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                  qr/\bA1\b/ =>
+                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A1} + $y,
                     $colh->{A1} + $x,
                     1, 1

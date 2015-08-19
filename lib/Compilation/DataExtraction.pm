@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Reckon LLP and others.
+Copyright 2008-2015 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -362,20 +362,29 @@ sub checksumWriter {
                             local $_ = 5.5e-8 + 1e-7 * $checksum;
                             $checksum = "$1 $2" if /.*\.(...)(....)5.*/;
                         }
-                        $checksum =
-                           !$checksum          ? '✘none'
-                          : $checksum =~ /^#/s ? "✘$checksum"
-                          :                   "✔$checksum";
                         my ( $base, $ext ) =
                           $book =~ m#([^/]*)(\.[a-zA-Z0-9]+)$#s;
                         $base ||= '';
                         $ext  ||= '';
-                        $book = "../$book" unless $book =~ m#^[./]#s;
-                        foreach ( $checksum, '✔✘' ) {
-                            mkdir $_;
-                            symlink $book, "$_/~\$$$";
-                            rename "$_/~\$$$", "$_/$base $checksum$ext";
-                        }
+                        my $symlinkpath = $book;
+                        $symlinkpath = "../$symlinkpath"
+                          unless $book =~ m#^[./]#s;
+                        symlink $symlinkpath, "~\$a$$";
+                        mkdir 'Copy this list of file names as a record';
+                        rename "~\$a$$",
+                          'Copy this list of file names as a record/'
+                          . "$checksum\t$base$ext";
+                        $symlinkpath = "../$symlinkpath"
+                          unless $book =~ m#^[./]#s;
+                        my $folder =
+                           !$checksum          ? '✘none'
+                          : $checksum =~ /^#/s ? "✘$checksum"
+                          :                      "✔$checksum";
+                        mkdir 'By checksum';
+                        mkdir "By checksum/$folder";
+                        symlink $symlinkpath, "~\$b$$";
+                        rename "~\$b$$",
+                          "By checksum/$folder/$base $checksum$ext";
                     }
                 }
             }
@@ -383,32 +392,38 @@ sub checksumWriter {
     };
 }
 
-sub _setSha1 {
-    my ( $scalar, $key, $value ) = @_;
-    if ( $key =~ s#^([^/]*)/## ) {
-        $scalar->{$1} = _setSha1( $scalar->{$1}, $key, $value );
-    }
-    else { $scalar->{$key} = $value; }
-    $scalar;
-}
-
 sub jbzWriter {
+
+    my $set;
+    $set = sub {
+        my ( $scalar, $key, $sha1hex ) = @_;
+        if ( $key =~ s#^([^/]*)/## ) {
+            $set->( $scalar->{$1} ||= {}, $key, $sha1hex );
+        }
+        else {
+            $scalar->{$key} = $sha1hex;
+        }
+    };
+
     sub {
         my ( $book, $workbook ) = @_;
         my %scalars;
         for my $worksheet ( $workbook->worksheets() ) {
-            my $scalar;
+            my $scalar = {};
             my ( $row_min, $row_max ) = $worksheet->row_range();
             for my $row ( $row_min .. $row_max ) {
-                my $cell = $worksheet->get_cell( $row, 0 );
-                my $v;
-                $v = $cell->unformatted if $cell;
-                $scalar =
-                  _setSha1( $scalar, $1 eq 'validation' ? 'dataset.yml' : $1,
-                    $2 )
-                  if $v && $v =~ /(\S+): ([0-9a-fA-F]{40})/;
+                if ( my $cell = $worksheet->get_cell( $row, 0 ) ) {
+                    if ( my $v = $cell->unformatted ) {
+                        if ( $v =~ /(\S+): ([0-9a-fA-F]{40})/ ) {
+                            $set->(
+                                $scalar,
+                                $1 eq 'validation' ? 'dataset.yml' : $1, $2
+                            );
+                        }
+                    }
+                }
             }
-            $scalars{ $worksheet->{Name} } = $scalar if $scalar;
+            $scalars{ $worksheet->{Name} } = $scalar if %$scalar;
         }
         return unless %scalars;
         use JSON;
@@ -426,6 +441,7 @@ sub jbzWriter {
       FAIL: warn $!;
         return;
     };
+
 }
 
 1;

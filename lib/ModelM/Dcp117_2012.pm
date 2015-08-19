@@ -72,43 +72,43 @@ sub adjust117 {
                 my ( $x, $y ) = @_;
                 return -1, $format if $x == 0;
                 return '', $format, $formula->[0],
-                  A11 =>
+                  qr/\bA11\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  A21 =>
+                  qr/\bA21\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  A22 =>
+                  qr/\bA22\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
                   if $x == 1;
                 return '', $format, $formula->[0],
-                  A11 =>
+                  qr/\bA11\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 2,
                     0, 1 ),
-                  A21 =>
+                  qr/\bA21\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  A22 =>
+                  qr/\bA22\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
                   if $x == 2;
                 return '', $format, $formula->[0],
-                  A11 =>
+                  qr/\bA11\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
-                  A21 =>
+                  qr/\bA21\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  A22 =>
+                  qr/\bA22\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
@@ -120,33 +120,33 @@ sub adjust117 {
                 return -1, $format if $x == 0;
                 return 0,  $format if $x == 1;
                 return '', $format, $formula->[1],
-                  A11 =>
+                  qr/\bA11\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  A12 =>
+                  qr/\bA12\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 2,
                     0, 1 ),
-                  A21 =>
+                  qr/\bA21\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  A22 =>
+                  qr/\bA22\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
                   if $x == 2;
                 return '', $format, $formula->[0],
-                  A11 =>
+                  qr/\bA11\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),
-                  A21 =>
+                  qr/\bA21\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 1,
                     0, 1 ),
-                  A22 =>
+                  qr/\bA22\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A11}, $colh->{A11} + 3,
                     0, 1 ),

@@ -131,7 +131,7 @@ sub table1001 {
             : '0hard',
             rows   => $labelset,
             custom => [
-                '=A1*A2-A3',  '=A1-A2',
+                '=A1*A2-A3',   '=A1-A2',
                 '=SUM(A1:A2)', '=A1+A2+A3+A4+A5',
                 '=A1+A2',
             ],
@@ -197,47 +197,47 @@ sub table1001 {
                 my $dataEntry = $dataEntryMaker->($format);
                 my $calcA     = sub {
                     '', $softFormat, $formula->[0],
-                      A1 => xl_rowcol_to_cell( $ro,     $co ),
-                      A2 => xl_rowcol_to_cell( $ro + 1, $co ),
-                      A3 => xl_rowcol_to_cell( $ro + 2, $co );
+                      qr/\bA1\b/ => xl_rowcol_to_cell( $ro,     $co ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell( $ro + 1, $co ),
+                      qr/\bA3\b/ => xl_rowcol_to_cell( $ro + 2, $co );
                 };
                 my $calcB = sub {
                     '', $softFormat, $formula->[2],
-                      A1 => xl_rowcol_to_cell( $ro + 4, $co ),
-                      A2 => xl_rowcol_to_cell( $ro + 8, $co );
+                      qr/\bA1\b/ => xl_rowcol_to_cell( $ro + 4, $co ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell( $ro + 8, $co );
                 };
                 my $calcC = sub {
                     '', $softFormat, $formula->[2],
-                      A1 => xl_rowcol_to_cell( $ro + 10, $co ),
-                      A2 => xl_rowcol_to_cell( $ro + 21, $co );
+                      qr/\bA1\b/ => xl_rowcol_to_cell( $ro + 10, $co ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell( $ro + 21, $co );
                 };
                 my $calcF = sub {
                     '', $softFormat, $formula->[3],
-                      A1 => xl_rowcol_to_cell( $ro + 3,  $co ),
-                      A2 => xl_rowcol_to_cell( $ro + 9,  $co ),
-                      A3 => xl_rowcol_to_cell( $ro + 22, $co ),
-                      A4 => xl_rowcol_to_cell( $ro + 23, $co ),
-                      A5 => xl_rowcol_to_cell( $ro + 24, $co );
+                      qr/\bA1\b/ => xl_rowcol_to_cell( $ro + 3,  $co ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell( $ro + 9,  $co ),
+                      qr/\bA3\b/ => xl_rowcol_to_cell( $ro + 22, $co ),
+                      qr/\bA4\b/ => xl_rowcol_to_cell( $ro + 23, $co ),
+                      qr/\bA5\b/ => xl_rowcol_to_cell( $ro + 24, $co );
                 };
                 my $calcG = sub {
                     '', $softFormat, $formula->[2],
-                      A1 => xl_rowcol_to_cell( $ro + 26, $co ),
-                      A2 => xl_rowcol_to_cell( $ro + 30, $co );
+                      qr/\bA1\b/ => xl_rowcol_to_cell( $ro + 26, $co ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell( $ro + 30, $co );
                 };
                 my $calcH = sub {
                     '', $softFormat, $formula->[4],
-                      A1 => xl_rowcol_to_cell( $ro + 25, $co ),
-                      A2 => xl_rowcol_to_cell( $ro + 31, $co );
+                      qr/\bA1\b/ => xl_rowcol_to_cell( $ro + 25, $co ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell( $ro + 31, $co );
                 };
                 my $calcI = sub {
                     '', $softFormat, $formula->[2],
-                      A1 => xl_rowcol_to_cell( $ro + 33, $co ),
-                      A2 => xl_rowcol_to_cell( $ro + 36, $co );
+                      qr/\bA1\b/ => xl_rowcol_to_cell( $ro + 33, $co ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell( $ro + 36, $co );
                 };
                 my $calcJ = sub {
                     '', $softFormat, $formula->[1],
-                      A1 => xl_rowcol_to_cell( $ro + 32, $co ),
-                      A2 => xl_rowcol_to_cell( $ro + 37, $co );
+                      qr/\bA1\b/ => xl_rowcol_to_cell( $ro + 32, $co ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell( $ro + 37, $co );
                 };
                 my @responseArray = (
                     $dataEntry,
@@ -350,7 +350,7 @@ sub table1001 {
             : '0soft',
             rows   => $labelset,
             custom => [
-                '=A1',         '=0-A1',
+                '=A1',        '=0-A1',
                 '=A1*(A2-1)', $handSubtotal ? () : '=SUBTOTAL(9,A3:A4)'
             ],
             arithmetic => '',
@@ -415,9 +415,10 @@ sub table1001 {
                             '',
                             $boldFormat,
                             $formula->[3],
-                            A3 =>
+                            qr/\bA3\b/ =>
                               xl_rowcol_to_cell( $ro + $startRowOffset, $co ),
-                            A4 => xl_rowcol_to_cell( $ro + $y - 1, $co ),
+                            qr/\bA4\b/ =>
+                              xl_rowcol_to_cell( $ro + $y - 1, $co ),
                           );    # NB: SUM(A,B,C,...) does not scale well
                     }
                     else {
@@ -425,16 +426,20 @@ sub table1001 {
                         $descriptions[$y] =~ /^A2/
                           ? (
                             '', $format, $formula->[2],
-                            A1 => xl_rowcol_to_cell( $roi,     $coi ),
-                            A2 => xl_rowcol_to_cell( $roi + 1, $coi ),
+                            qr/\bA1\b/ => xl_rowcol_to_cell( $roi,     $coi ),
+                            qr/\bA2\b/ => xl_rowcol_to_cell( $roi + 1, $coi ),
                           )
                           : $descriptions[$y] =~ /^(A3|I)/ ? (
-                            '', $format, $formula->[1],
-                            A1 => xl_rowcol_to_cell( $roi + $y, $coi ),
+                            '',
+                            $format,
+                            $formula->[1],
+                            qr/\bA1\b/ => xl_rowcol_to_cell( $roi + $y, $coi ),
                           )
                           : (
-                            '', $format, $formula->[0],
-                            A1 => xl_rowcol_to_cell( $roi + $y, $coi ),
+                            '',
+                            $format,
+                            $formula->[0],
+                            qr/\bA1\b/ => xl_rowcol_to_cell( $roi + $y, $coi ),
                           );
                     }
                 };
@@ -514,9 +519,8 @@ sub table1001 {
                 sub {
                     my ( $x, $y ) = @_;
                     '', $format, $formula->[0], map {
-                        'A'
-                          . ( 100 + $_ ) =>
-                          xl_rowcol_to_cell( $rowh->{A100} + $_,
+                        my $c = 'A' . ( 100 + $_ );
+                        qr/\b$c\b/ => xl_rowcol_to_cell( $rowh->{A100} + $_,
                             $colh->{A100} );
                     } 0 .. 36;
                 };
@@ -540,10 +544,12 @@ sub table1001 {
                 sub {
                     my ( $x, $y ) = @_;
                     '', $format, $formula->[0],
-                      A1 => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
-                      A2 =>
+                      qr/\bA1\b/ =>
+                      xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
+                      qr/\bA2\b/ =>
                       xl_rowcol_to_cell( $rowh->{A2} + 33, $colh->{A2} ),
-                      A3 => xl_rowcol_to_cell( $rowh->{A3}, $colh->{A3} );
+                      qr/\bA3\b/ =>
+                      xl_rowcol_to_cell( $rowh->{A3}, $colh->{A3} );
                 };
             },
         ) if $model->{edcmTables};
