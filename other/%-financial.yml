@@ -1,0 +1,14 @@
+---
+PerlModule: Financial
+forwardLinks: 1
+illustrative: 1
+numAssets: 8
+numDebt: 8
+numExpenses: 8
+numSales: 8
+numYears: 5
+reverseTime: 0
+startMonth: 7
+startYear: 2015
+tax: 1
+template: '%'
