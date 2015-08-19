@@ -50,12 +50,17 @@ sub populateCore {
 sub wsUrl {
     my ( $self, $wb ) = @_;
     return unless $self->{$wb} && $self->lastRow > -1;
+    return $self->{$wb}{seeOther}->wsUrl($wb) if $self->{$wb}{seeOther};
     my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
-    my $ce = xl_rowcol_to_cell( ( $ro || 1 ) - 1, $co );
+    my $ce = xl_rowcol_to_cell(
+        UNIVERSAL::isa( $self->{location}, 'SpreadsheetModel::CalcBlock' )
+        ? ( $ro, ( $co || 1 ) - 1 )
+        : ( ( $ro || 1 ) - 1, $co )
+    );
     my $wn =
         $wo
       ? $wo->get_name
-      : warn "No worksheet for $self->{name}"
+      : die "No worksheet for $self->{name}"
       . " ($self->{debug} $self->{rows} x $self->{cols})";
     "internal:'$wn'!$ce";
 }
@@ -184,7 +189,8 @@ sub wsPrepare {
                 $_;
               } $self->{rows} ? @{ $self->{rows}{list} }
               : $self->{location}
-              && ref $self->{location} eq 'SpreadsheetModel::Columnset'
+              && UNIVERSAL::isa( $self->{location},
+                'SpreadsheetModel::Columnset' )
               ? ( $self->{location}{singleRowName}
                   || _shortNameRow( $self->{location}{name} ) )
               : ( $self->{singleRowName}
@@ -322,6 +328,8 @@ sub wsWrite {
     my ( $self, $wb, $ws, $row, $col, $noCopy ) = @_;
 
     if ( $self->{$wb} ) {
+        return $self->{$wb}{seeOther}->wsWrite( $wb, $ws, $row, $col, $noCopy )
+          if $self->{$wb}{seeOther};
         return @{ $self->{$wb} }{qw(worksheet row col)}
           if !$wb->{copy} || $noCopy || $self->{$wb}{worksheet} == $ws;
         return @{ $self->{$wb}{$ws}{$wb} }{qw(worksheet row col)}
@@ -397,10 +405,6 @@ sub wsWrite {
 
     my @dataAreHere = ($ws);
 
-    $ws = bless [], 'SpreadsheetModel::Dataset::NOOP_CLASS'
-      if $self->{deferredWrite}
-      && $self->{deferredWrite}->( $self, $wb, $ws, $row, $col );
-
     $ws->set_row( $row, 21 );
     $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
 
@@ -435,7 +439,8 @@ sub wsWrite {
                     $ws->write_url( $row++, $col, $url, $na, $linkFormat );
                     (
                         $_->{location}
-                          && ref $_->{location} eq 'SpreadsheetModel::Columnset'
+                          && UNIVERSAL::isa( $_->{location},
+                            'SpreadsheetModel::Columnset' )
                         ? $_->{location}
                         : $_
                       )->addForwardLink($self)
@@ -460,8 +465,7 @@ sub wsWrite {
           if $hideFormulas;
     }
 
-    # Blank line
-    $row += 1;
+    ++$row;    # Blank line
 
     my $lastCol = $self->lastCol;
     my $lastRow = $self->lastRow;
@@ -488,10 +492,11 @@ sub wsWrite {
         ) for 0 .. $lastCol;
     }
     elsif ( !exists $self->{singleColName} ) {
-        my $srn = _shortNameRow $self->{name};
-        $srn =~ s/^[0-9]+[a-z]*\.\s+//i;
-        $srn =~ s/\s*\(copy\)$//i;    # hack; should use _shortName?
-        $ws->write( $row - 1, $col, $srn, $wb->getFormat('thc') );
+        $ws->write(
+            $row - 1, $col,
+            _shortNameRow( $self->{name} ),
+            $wb->getFormat('thc')
+        );
     }
     elsif ( $self->{singleColName} ) {
         $ws->write(
@@ -515,10 +520,11 @@ sub wsWrite {
         ) for 0 .. $lastRow;
     }
     elsif ( !exists $self->{singleRowName} ) {
-        my $srn = _shortNameRow $self->{name};
-        $srn =~ s/^[0-9]+[a-z]*\.\s+//i;
-        $srn =~ s/\s*\(copy\)$//i;    # hack; should use _shortName?
-        $ws->write( $row, $col - 1, $srn, $wb->getFormat('th') );
+        $ws->write(
+            $row, $col - 1,
+            _shortNameRow( $self->{name} ),
+            $wb->getFormat('th')
+        );
     }
     elsif ( $self->{singleRowName} ) {
         $ws->write(
@@ -689,15 +695,6 @@ sub rowIndices {
 sub colIndices {
     @_ = $_[0]{cols};
     goto \&_indices;
-}
-
-package SpreadsheetModel::Dataset::NOOP_CLASS;
-our $AUTOLOAD;
-
-sub AUTOLOAD {
-    no strict 'refs';
-    *{$AUTOLOAD} = sub { };
-    return;
 }
 
 1;

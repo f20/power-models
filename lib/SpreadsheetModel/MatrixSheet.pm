@@ -27,6 +27,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
+# Avoid using this container for complex calculations
+# as it breaks the golden rule of sensible model ordering.
+
 use warnings;
 use strict;
 use utf8;
@@ -182,9 +185,7 @@ sub wsWrite {
               . "$self->{name} $self->{debug}"
               if $_->{$wb};
             $_->wsPrepare( $wb, $wsheet );
-
-            # Placeholder
-            @{ $_->{$wb} }{qw(worksheet row col)} = ( 0, -666, -666 );
+            $_->{$wb} ||= {}; # Placeholder
         }
         last if $col == $self->{location}->nextColumn($wb);
         delete $_->{$wb} foreach @{ $self->{columns} };

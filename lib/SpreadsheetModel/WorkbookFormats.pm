@@ -204,6 +204,17 @@ Keys used in %$options:
           qq'${black} _(?,??0.0,, "m"_);[Red] (?,??0.0,, "m");;$cyan@',
         align => 'center'
       );
+    my @num_date =
+      $rightpad
+      ? (
+        num_format => qq'${black}* _(d mmm yyyy_)$rightpad;'
+          . qq'[Red]* (d mmm yyyy)$rightpad;;$cyan@',
+        align => 'right'
+      )
+      : (
+        num_format => qq'${black}* _(d mmm yyyy_);[Red]* (d mmm yyyy);;$cyan@',
+        align      => 'center'
+      );
     my @num_ =
       $rightpad
       ? (
@@ -329,10 +340,10 @@ Keys used in %$options:
       $goldColours ? ( top => 1, bottom => 1, border_color => BGGOLD ) : ();
     my @sizeCaption    = ( size   => 15, );
     my @sizeHeading    = ( valign => 'vbottom', size => 15, );
-    my @sizeLabel      = ( valign => 'vcenter', @sizeExtras );
-    my @sizeLabelGroup = ( valign => 'vcenter', );
-    my @sizeNumber     = ( valign => 'vcenter', @sizeExtras );
-    my @sizeText       = ( valign => 'vcenter', );
+    my @sizeLabel      = ( valign => 1 ? 'vbottom' : 'vcenter', @sizeExtras );
+    my @sizeLabelGroup = ( valign => 1 ? 'vbottom' : 'vcenter', );
+    my @sizeNumber     = ( valign => 1 ? 'vbottom' : 'vcenter', @sizeExtras );
+    my @sizeText       = ( valign => 1 ? 'vbottom' : 'vcenter', );
     my $plus  = '[Blue]_-+';
     my $minus = '[Red]_+-';
     my %specs = (
@@ -396,16 +407,25 @@ Keys used in %$options:
             align      => 'center',
             @colourSoft,
         ],
+        'datecon'  => [ locked => 1, @sizeNumber, @num_date, @colourCon, ],
+        'datecopy' => [ locked => 1, @sizeNumber, @num_date, @colourCopy, ],
+        'datehard' => [ locked => 0, @sizeNumber, @num_date, @colourHard, ],
+        'datesoft' => [ locked => 1, @sizeNumber, @num_date, @colourSoft, ],
+        'millioncon' => [ locked => 1, @sizeNumber, @num_million, @colourCon, ],
         'millioncopy' =>
           [ locked => 1, @sizeNumber, @num_million, @colourCopy, ],
         'millionhard' =>
           [ locked => 0, @sizeNumber, @num_million, @colourHard, ],
         'millionsoft' =>
           [ locked => 1, @sizeNumber, @num_million, @colourSoft, ],
-        '0con'    => [ locked => 1, @sizeNumber, @num_, @colourCon, ],
-        '0copy'   => [ locked => 1, @sizeNumber, @num_, @colourCopy, ],
-        '0hard'   => [ locked => 0, @sizeNumber, @num_, @colourHard, ],
-        '0soft'   => [ locked => 1, @sizeNumber, @num_, @colourSoft, ],
+        '0con'  => [ locked => 1, @sizeNumber, @num_, @colourCon, ],
+        '0copy' => [ locked => 1, @sizeNumber, @num_, @colourCopy, ],
+        '0boldcopy' =>
+          [ locked => 1, @sizeNumber, @num_, @colourCopy, bold => 1, ],
+        '0hard' => [ locked => 0, @sizeNumber, @num_, @colourHard, ],
+        '0soft' => [ locked => 1, @sizeNumber, @num_, @colourSoft, ],
+        '0boldsoft' =>
+          [ locked => 1, @sizeNumber, @num_, @colourSoft, bold => 1, ],
         '0softpm' => [
             locked => 1,
             @sizeNumber,
@@ -624,7 +644,7 @@ Keys used in %$options:
         th => [
             locked => 1,
             @sizeLabel,
-            num_format => '@',
+            num_format => $numText,
             align      => 'left',
             bold       => 1,
             text_wrap  => 1,
@@ -634,7 +654,7 @@ Keys used in %$options:
         thc => [
             locked => 1,
             @sizeLabel,
-            num_format => '@',
+            num_format => $numText,
             bold       => 1,
             text_wrap  => 1,
             align      => 'center',
@@ -644,7 +664,7 @@ Keys used in %$options:
         thca => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => '@',
+            num_format => $numText,
             italic     => 1,
             text_wrap  => 1,
             align      => 'center_across',
@@ -655,7 +675,7 @@ Keys used in %$options:
         thg => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => '@',
+            num_format => $numText,
             align      => 'left',
             italic     => 1,
             text_wrap  => 1,
@@ -664,7 +684,7 @@ Keys used in %$options:
         thla => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => '@',
+            num_format => $numText,
             align      => 'left',
             italic     => 1,
             @colourHeader,

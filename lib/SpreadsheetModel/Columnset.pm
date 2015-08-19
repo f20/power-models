@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latremoliere, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ use strict;
 use utf8;
 
 use SpreadsheetModel::Object ':_util';
-our @ISA = qw(SpreadsheetModel::Object);
+our @ISA = qw(SpreadsheetModel::Objectset);
 
 use SpreadsheetModel::Label;
 use SpreadsheetModel::Stack;
@@ -156,7 +156,9 @@ sub wsWrite {
             } @dataColumns;
             $self->{columns} = [
                 map {
-                    if ( $mapping{$_} ) { $mapping{$_}; }
+                    if ( $mapping{$_} ) {
+                        $mapping{$_};
+                    }
                     else {
                         if ( $_->{arguments} ) {
                             foreach my $k ( keys %{ $_->{arguments} } ) {
@@ -167,7 +169,7 @@ sub wsWrite {
                         $_;
                     }
                 } @{ $self->{columns} }
-            ];
+            ];    # This assumes Arithmetic objects
             $data->wsWrite( $wb, $wb->{dataSheet} );
         }
     }
@@ -250,10 +252,7 @@ sub wsWrite {
               . "$self->{name} $self->{debug}"
               if $thecol->{$wb};
             $thecol->wsPrepare( $wb, $ws );
-
-            # This is a placeholder assignment.
-            # Only to be used by other columns of the same columnset to use.
-            @{ $thecol->{$wb} }{qw(worksheet row col)} = ( 0, -666, -666 );
+            $thecol->{$wb} ||= {};    # Placeholder for other columns
         }
         last if !$ws->{nextFree} || $ws->{nextFree} < $row;
         delete $_->{$wb} for @{ $self->{columns} };
@@ -390,7 +389,7 @@ sub wsWrite {
                     $self->{columns}[$_]{name} =
                       new SpreadsheetModel::Label( $n, $number . $n );
                 }
-                else {
+                elsif ( $self->{name} ) {
                     $self->{columns}[$_]->addTableNumber( $wb, $ws, 1 );
                 }
                 $wb->{logger}->log( $self->{columns}[$_] );
@@ -584,7 +583,7 @@ use ->shortName here.
 
     unless ( $self->{noHeaders} ) {
         my $scribbleFormat = $wb->getFormat('scribbles');
-        foreach ( 1 .. 1 ) {    # Scribble columns
+        foreach ( 1 .. 1 ) {    # Scribble columns
             my @note;
             if ($dataset) {
                 my $nd = $dataset->[$c2];

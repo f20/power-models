@@ -209,8 +209,8 @@ sub supersetIndex {
                   grep { $name eq $superset->{list}[$_] } @sind;
             }
         }
-        unless ( defined $id[$_] ){    # undef return value means that the matching has failed
-            warn;
+        unless ( defined $id[$_] )
+        {    # undef return value means that the matching has failed
             return $self->{$key} = undef;
         }
     }

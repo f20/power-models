@@ -31,10 +31,10 @@ use warnings;
 use strict;
 use utf8;
 
-# 'DYLD_INSERT_LIBRARIES=/usr/X11/lib/libpixman-1.0.dylib dot'
-# '/Applications/Graphviz.app/Contents/MacOS/dot'
-# '/usr/local/bin/dot'
-my $dotCommandLine = 'dot';
+my $dotCL = 'dot';
+0 and $dotCL = '/usr/local/bin/dot';
+0 and $dotCL = '/Applications/Graphviz.app/Contents/MacOS/dot';
+0 and $dotCL = 'DYLD_INSERT_LIBRARIES=/usr/X11/lib/libpixman-1.0.dylib dot';
 
 sub writeGraphs {    # $logger->{objects} is a good $objectList
     my ( $objectList, $wbook, $pathPrefix ) = @_;
@@ -106,7 +106,9 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
                   ? $_
                   : $_->{sources}[0]
               } map {
-                ref $_ eq 'SpreadsheetModel::View' ? $_->{sources}[0] : $_;
+                UNIVERSAL::isa( $_, 'SpreadsheetModel::View' )
+                  ? $_->{sources}[0]
+                  : $_;
               } @{ $ob->{sourceLines} }
               : ();
           } grep {
@@ -121,10 +123,10 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
         push @dots,
           join "\n", "digraph g$shno {",
           'graph [rankdir="TD", size="8,8", concentrate="'
-          . ( $sheets[$shno] ? 'true' : 'false' )
+          . ( $sheets[$shno] ? 'false' : 'false' )
           . '", nodesep="0.2", '
           . 'ranksep="0.4", fontname="Verdanab", fontsize="32", fontcolor="#666666", label="'
-          . ( $sheets[$shno] ? "$sheetName[$shno]" : 'Sheets' ) . '"];',
+          . ( $sheets[$shno] ? "$sheetName[$shno]" : '' ) . '"];',
           'node [label="\\N",shape=ellipse, style=filled, fontname=Verdana,'
           . ' color="#0066cc", fillcolor=white, fontcolor=black, fontsize="32"];',
           'edge [arrowtail=none, fontname=Verdana, color="#ff6633", '
@@ -175,6 +177,8 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
                       : "s$_->{dotSheet} -> $obdn;"
                   } map {
                     !$_->{sources}
+                      || UNIVERSAL::isa( $_->{location},
+                        'SpreadsheetModel::CalcBlock' )
                       || $#{ $_->{sources} }
                       || $_->{cols} != $_->{sources}[0]{cols}
                       || $_->{rows} != $_->{sources}[0]{rows}
@@ -202,20 +206,19 @@ sub writeGraphs {    # $logger->{objects} is a good $objectList
         undef $name if $name && $name =~ /[^ ,.0-9=@-~-]/s;
         $name ||= $_;
         $name ||= 'Everything';
-        while ( -e "$pathPrefix$name.dot" ) { $name .= '_'; }
-        open my $dh, '>', "$pathPrefix$name.dot";
+        while ( -e "$pathPrefix$name.txt" ) { $name .= '_'; }
+        open my $dh, '>', "$pathPrefix$name.txt";
         binmode $dh, ':utf8';
         print $dh $dots[$_];
         close $dh;
-`$dotCommandLine -Tpdf -o '$pathPrefix$name.pdf' '$pathPrefix$name.dot'`;
+        `$dotCL -Tpdf -o '$pathPrefix$name.pdf' '$pathPrefix$name.txt'`;
         $dots[$_] =~ s/size="[0-9\.]*, *[0-9\.]*"/size="24,24"/;
-        open $dh, "| $dotCommandLine -Tpng -o '$pathPrefix$name.png'";
+        open $dh, "| $dotCL -Tpng -o '$pathPrefix$name.png'";
         binmode $dh, ':utf8';
         print $dh $dots[$_];
         close $dh;
         my $att = '';
         {
-            use bytes;
             open $dh, '<', "$pathPrefix$name.png";
             read $dh, local $_, 32;
             close $dh;

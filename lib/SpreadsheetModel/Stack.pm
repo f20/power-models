@@ -1,13 +1,8 @@
-﻿
-=head Development note
-
-This file contains SpreadsheetModel::Stack, SpreadsheetModel::View and SpreadsheetModel::Constant.
-
-=cut
+﻿# File contains SpreadsheetModel::Stack, …::View and …::Constant.
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -35,8 +30,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-
 require SpreadsheetModel::Dataset;
+
+# # #
+# #
+# SpreadsheetModel::Stack
+# #
+# # #
 
 package SpreadsheetModel::Stack;
 our @ISA = qw(SpreadsheetModel::Dataset);
@@ -153,31 +153,32 @@ sub check {
 }
 
 sub wsPrepare {
-    my ( $self, $wb, $ws ) = @_;
 
+    my ( $self, $wb, $ws ) = @_;
+    my $wsWorkings = $ws->{workingsSheet} || $ws;
     my %formula;
     my %rowcol;
     my $provisionallyBroken;
 
     for ( @{ $self->{sources} } ) {
-        if ( ref $_ eq 'SpreadsheetModel::Constant'
+        if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Constant' )
             && !$_->{$wb} )
         {
             $rowcol{ 0 + $_ } = [ $_, $wb->getFormat( $_->{defaultFormat} ) ];
         }
-        elsif ( ref $_ eq 'SpreadsheetModel::View'
+        elsif ( UNIVERSAL::isa( $_, 'SpreadsheetModel::View' )
             && !$_->{$wb} )
         {
-            $formula{ 0 + $_ } = $_->wsPrepare( $wb, $ws );
+            $formula{ 0 + $_ } = $_->wsPrepare( $wb, $wsWorkings );
             $_->{name} = $1 . $_->{name}
               if $_->{name} !~ /^[0-9]+[0-9a-z]*\./i
               && $_->{sources}[0]{name} =~ /^([0-9]+[0-9a-z]*\.\s*)/i;
         }
         else {
             my ( $srcsheet, $srcr, $srcc ) =
-              $_->wsWrite( $wb, $ws, undef, undef, 1 );
+              $_->wsWrite( $wb, $wsWorkings, undef, undef, 1 );
             $provisionallyBroken =
-              "UNFEASIBLE LINK to source for $self->{name} $self->{debug}"
+              "Unfeasible link to source for $self->{name} $self->{debug}"
               unless $srcsheet;
             $formula{ 0 + $_ } = $ws->store_formula(
                 !$srcsheet || $ws == $srcsheet
@@ -224,7 +225,8 @@ sub wsPrepare {
 
 # # #
 # #
-#
+# SpreadsheetModel::View is just a way of filtering data
+# before they are taken into account in a SpreadsheetModel::Stack.
 # #
 # # #
 
@@ -233,7 +235,7 @@ our @ISA = qw/SpreadsheetModel::Stack/;
 
 sub check {
     $_[0]->SUPER::check;
-    return 'Broken view' if $#{ $_[0]->{sources} };
+    return 'No sources in view' if $#{ $_[0]->{sources} };
     $_[0]->{name} = "$_[0]->{sources}[0]{name} (extracts)"
       if !$_[0]->{name} || $_[0]->{name} eq $_[0]->{debug};
     return;
@@ -262,7 +264,7 @@ sub addForwardLink {
 
 # # #
 # #
-#
+# SpreadsheetModel::Constant
 # #
 # # #
 

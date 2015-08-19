@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -78,6 +78,7 @@ sub check {
 
 sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
+    my $wsWorkings   = $ws->{workingsSheet} || $ws;
     my @custom       = @{ $self->{custom} };
     my @placeholders = keys %{ $self->{arguments} };
     my ( %row, %col );
@@ -85,13 +86,12 @@ sub wsPrepare {
     for my $ph (@placeholders) {
         0 and warn "$self->{name} $ph";
         ( my $ws2, $row{$ph}, $col{$ph} ) =
-          $self->{arguments}{$ph}->wsWrite( $wb, $ws );
+          $self->{arguments}{$ph}->wsWrite( $wb, $wsWorkings );
         $provisionallyBroken =
-          "UNFEASIBLE LINK $ph for $self->{name} $self->{debug}"
+          "Unfeasible link $ph for $self->{name} $self->{debug}"
           unless $ws2;
         unless ( !$ws2 || $ws2 == $ws ) {
             my $sheet = $ws2->get_name;
-            use bytes;
             s/\b$ph\b/'$sheet'!$ph/ foreach @custom;
         }
     }
@@ -103,9 +103,10 @@ sub wsPrepare {
         [
             map {
                 my $formula = $ws->store_formula($_);
-                if (/\b(?:MIN|MAX|AVERAGE|INDEX|MATCH)\b/) {
-                    s/_ref2d/_ref2dV/ foreach @$formula;
-                    s/_ref3d/_ref3dV/ foreach @$formula;
+                if (/\b(?:MIN|MAX|AVERAGE|INDEX|MATCH)\b/)
+                {    # unshift @$formula, '_vol' unless $formula->[0] eq '_vol';
+                    s/\b_ref2d\b/_ref2dV/ foreach @$formula;
+                    s/\b_ref3d\b/_ref3dV/ foreach @$formula;
                 }
                 $formula;
             } @custom

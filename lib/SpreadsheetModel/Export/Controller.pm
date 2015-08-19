@@ -76,7 +76,14 @@ sub ExportRtf {
 sub ExportGraphviz {
     require SpreadsheetModel::Export::Graphviz;
     my $dir = $_[0][WE_LOC] . '-graphs';
-    mkdir $dir;
+    if ( -e $dir ) {
+        rename $dir, '~$old' . $$;
+        mkdir $dir;
+        rename '~$old' . $$, $dir . '/~$old' . $$;
+    }
+    else {
+        mkdir $dir;
+    }
     chmod 0770, $dir;
     SpreadsheetModel::Export::Graphviz::writeGraphs(
         $_[0][WE_MODEL]{logger}{objects},

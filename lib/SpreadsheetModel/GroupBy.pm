@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -84,10 +84,12 @@ sub check {
 sub wsPrepare {
 
     my ( $self, $wb, $ws ) = @_;
+    my $wsWorkings = $ws->{workingsSheet} || $ws;
     my $provisionallyBroken;
-    my ( $srcsheet, $srcr, $srcc ) = $self->{source}->wsWrite( $wb, $ws );
+    my ( $srcsheet, $srcr, $srcc ) =
+      $self->{source}->wsWrite( $wb, $wsWorkings );
     $provisionallyBroken =
-      "UNFEASIBLE LINK to source for $self->{name} $self->{debug}"
+      "Unfeasible link to source for $self->{name} $self->{debug}"
       unless $srcsheet;
     return sub { die $provisionallyBroken; }
       if $provisionallyBroken;

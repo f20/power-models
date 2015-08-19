@@ -44,10 +44,12 @@ our $SERIAL;
 sub new {
     my $className = shift;
     die join ' ', 'Not an even number:', @_ if @_ % 2;
+    my ( $file, $line ) = (caller)[ 1, 2 ];
+    $file = $1 if $file =~ m^\blib[/\\](.+)^s;
     my $self = {
-        @_,
+        debug  => "$file line $line",
         serial => ++$SERIAL,
-        debug  => join( ' line ', (caller)[ 1, 2 ] ),
+        @_,
     };
     unless ( defined $self->{name} ) {
         my @c = caller;
@@ -201,7 +203,8 @@ sub addTableNumber {
     }
     $_->{numbered} = $numlet
       foreach $self,
-      ref $self->{columns} eq 'ARRAY' ? @{ $self->{columns} } : ();
+      ref $self->{columns} eq 'ARRAY' ? @{ $self->{columns} } : (),
+      ref $self->{items} eq 'ARRAY'   ? @{ $self->{items} }   : ();
     $numlet .= '. ';
     if ($intrusive) {
         $self->{name} = $numlet . _shortName( $self->{name} );
@@ -281,5 +284,8 @@ sub _rewriteFormulas {
     map { die $_ if /\bA[0-9]/i } @$formulaListRef;
     @args;
 }
+
+package SpreadsheetModel::Objectset;
+our @ISA = qw(SpreadsheetModel::Object);
 
 1;

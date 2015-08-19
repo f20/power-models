@@ -94,7 +94,6 @@ sub wsWrite {
         my $n = $self->{name};
         $n = "$wb->{titlePrefix}: $n" if $wb->{titlePrefix};
         if ( local $_ = $wb->{titleAppend} ) {
-            use bytes;
             s/^"/="$n/s or s/^/="$n"&/s;
             $n = $_;
         }

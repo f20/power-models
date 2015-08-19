@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2011 Reckon LLP and others.
+Copyright 2008-2015 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,39 +30,56 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 
-use SpreadsheetModel::Label;
-
-use SpreadsheetModel::Labelset;
-
-use SpreadsheetModel::Notes;
-
-use SpreadsheetModel::Dataset;
-use SpreadsheetModel::Columnset;
-
 use SpreadsheetModel::Arithmetic;
+use SpreadsheetModel::CalcBlock;
+use SpreadsheetModel::Columnset;
+use SpreadsheetModel::Custom;
+use SpreadsheetModel::Dataset;
 use SpreadsheetModel::GroupBy;
+use SpreadsheetModel::Label;
+use SpreadsheetModel::Labelset;
+use SpreadsheetModel::Notes;
+use SpreadsheetModel::Reshape;
 use SpreadsheetModel::Stack;
 use SpreadsheetModel::SumProduct;
 
-use SpreadsheetModel::Custom;
-use SpreadsheetModel::Reshape;
-
 require Exporter;
-our @ISA = qw(Exporter);
-our @EXPORT_OK =
-  qw(Arithmetic Columnset Constant Dataset GroupBy Label Labelset Notes Stack SumProduct View);
+our @ISA       = qw(Exporter);
+our @EXPORT_OK = qw(
+  Arithmetic
+  CalcBlock
+  Columnset
+  Constant
+  Dataset
+  GroupBy
+  Label
+  Labelset
+  Notes
+  Stack
+  SumProduct
+  View
+);
 our %EXPORT_TAGS = ( 'all' => \@EXPORT_OK );
 
-# use goto in these subroutines in order to preserve caller
+sub Label {
+    SpreadsheetModel::Label->new(@_);
+}
+
+# use goto in the following subroutines in order to preserve caller (for {debug}).
 
 sub Arithmetic {
     unshift @_, 'SpreadsheetModel::Arithmetic';
-    goto \&SpreadsheetModel::Object::new;
+    goto &SpreadsheetModel::Object::new;
+}
+
+sub CalcBlock {
+    unshift @_, 'SpreadsheetModel::CalcBlock';
+    goto &SpreadsheetModel::Object::new;
 }
 
 sub Columnset {
     unshift @_, 'SpreadsheetModel::Columnset';
-    goto \&SpreadsheetModel::Object::new;
+    goto &SpreadsheetModel::Object::new;
 }
 
 sub Constant {
@@ -78,10 +95,6 @@ sub Dataset {
 sub GroupBy {
     unshift @_, 'SpreadsheetModel::GroupBy';
     goto &SpreadsheetModel::Object::new;
-}
-
-sub Label {
-    new SpreadsheetModel::Label(@_);
 }
 
 sub Labelset {

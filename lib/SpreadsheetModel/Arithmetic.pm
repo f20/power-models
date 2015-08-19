@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
+use utf8;
 
 require SpreadsheetModel::Dataset;
 our @ISA = qw(SpreadsheetModel::Dataset);
@@ -94,7 +95,7 @@ EOM
           and (
                $_->{rows}
             && ( !$self->{cols} || $_->{rows} != $self->{cols} )
-            && !(
+            && !(    # horrible hack when accepts and transposition interact
                    $self->{cols}
                 && $self->{cols}{accepts}
                 && $self->{cols}{accepts}[0] == $_->{rows}
@@ -104,23 +105,16 @@ EOM
           );
     }
 
-=head Development note
-
-There is a horrible hack when accepts and transposition interact.  That broke something once.
-
-=cut
-
     $self->SUPER::check;
 }
 
 sub wsPrepare {
 
     my ( $self, $wb, $ws ) = @_;
-
+    my $wsWorkings = $ws->{workingsSheet} || $ws;
     my $arithmetic = $self->{arithmetic};
     my $volatile;
     my $provisionallyBroken;
-
     my @placeholders = sort keys %{ $self->{arguments} };
 
     my ( %row, %col );
@@ -129,14 +123,13 @@ sub wsPrepare {
         die "$self->{name} $self->{debug} $ph is undefined"
           unless defined $self->{arguments}{$ph};
         ( my $ws2, $row{$ph}, $col{$ph} ) =
-          $self->{arguments}{$ph}->wsWrite( $wb, $ws );
+          $self->{arguments}{$ph}->wsWrite( $wb, $wsWorkings );
         if ( !$ws2 ) {
             $provisionallyBroken =
-              "UNFEASIBLE LINK: $ph in $self->{name} $self->{debug}";
+              "Unfeasible link: $ph in $self->{name} $self->{debug}";
         }
         if ( $ws2 && $ws2 != $ws ) {
             my $sheet = $ws2->get_name;
-            use bytes;
             $arithmetic =~ s/\b$ph\b/'$sheet'!$ph/;
         }
         if ( my ( $a, $b ) = ( $ph =~ /^([A-Z0-9]+)_([A-Z0-9]+)$/ ) ) {
@@ -151,9 +144,9 @@ sub wsPrepare {
     $volatile = 1 if $arithmetic =~ /\bM(IN|AX)\b/;
 
     my $formula = $ws->store_formula($arithmetic);
-    if ($volatile) {
-        s/_ref2d/_ref2dV/ foreach @$formula;
-        s/_ref3d/_ref3dV/ foreach @$formula;
+    if ($volatile) { # unshift @$formula, '_vol' unless $formula->[0] eq '_vol';
+        s/\b_ref2d\b/_ref2dV/ foreach @$formula;
+        s/\b_ref3d\b/_ref3dV/ foreach @$formula;
     }
 
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );

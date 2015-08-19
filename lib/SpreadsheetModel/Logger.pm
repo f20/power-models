@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,7 @@ sub log {
     my $logger = shift;
     push @{ $logger->{objects} }, grep {
              $_->{location}
+          || UNIVERSAL::isa( $_->{location}, 'SpreadsheetModel::CalcBlock' )
           || !$_->{sources}
           || $#{ $_->{sources} }
           || $_->{cols} != $_->{sources}[0]{cols}
@@ -143,8 +144,16 @@ sub wsWrite {
         }
 
         foreach (@displayList) {
-            my $ce = xl_rowcol_to_cell( $ro - 1, $co );
-            my $wn = $wo ? $wo->get_name : 'BROKEN LINK';
+            my $ce = xl_rowcol_to_cell(
+                UNIVERSAL::isa( $obj->{location},
+                    'SpreadsheetModel::CalcBlock' )
+                ? ( $ro, $co - 1 )
+                : ( $ro - 1, $co )
+            );
+            my $wn =
+                $wo
+              ? $wo->get_name
+              : die "Broken link to $obj->{name} $obj->{debug}";
             $wn =~ s/\000//g;    # squash strange rare bug
             my $na = "$_->{name}";
             0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
@@ -157,7 +166,7 @@ sub wsWrite {
                   if $logger->{showFinalTables}
                   && !$_->{forwardLinks}
                   && !UNIVERSAL::isa( $_->{location},
-                    'SpreadsheetModel::Columnset' );
+                    'SpreadsheetModel::Objectset' );
             }
             else {
                 $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
@@ -170,7 +179,7 @@ sub wsWrite {
                         $logger->{showFinalTables}
                           && !$_->{forwardLinks}
                           && !UNIVERSAL::isa( $_->{location},
-                            'SpreadsheetModel::Columnset' )
+                            'SpreadsheetModel::Objectset' )
                         ? ' (not used further)'
                         : ''
                       ),

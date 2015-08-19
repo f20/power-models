@@ -78,7 +78,7 @@ sub check {
                 my ( $x, $y ) = @_;
                 my ( $n, $r, $c ) = @{ $values[$y] };
                 return '', $format, $formula->[$n],
-                  "A2$n" => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
+                  qr/\bA2$n\b/ => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
                     $colh->{"A2$n"} + $c );
             };
         }
@@ -96,7 +96,7 @@ sub check {
                 my ( $x, $y ) = @_;
                 my ( $n, $r, $c ) = @{ $values[$y] };
                 return '', $format, $formula->[$n],
-                  "A2$n" => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
+                  qr/\bA2$n\b/ => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
                     $colh->{"A2$n"} + $c );
             };
         }
@@ -119,7 +119,7 @@ sub check {
         $self->{arithmetic} = '=PERCENTILE(A1_A2,A3)';
         $self->{arguments}  = {
             A1_A2 => $kx,
-            A3     => $self->{quantile},
+            A3    => $self->{quantile},
         };
         return $self->SUPER::check;
     }

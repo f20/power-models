@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -94,6 +94,7 @@ sub populateCore {
 
 sub wsPrepare {
     my ( $self, $wb, $ws ) = @_;
+    my $wsWorkings = $ws->{workingsSheet} || $ws;
     my ( @placeholder, @row, @col );
     my $someArgumentsAreMissingAtThisStage;
     my ( $modulus, $generator, $numFormat ) = @{ $self->{parameters} };
@@ -110,13 +111,12 @@ sub wsPrepare {
         die 'Not implemented' if $_->lastCol;
         push @placeholder, my $ph = 'A' . ( 1 + @placeholder );
         ( my $ws2, $row[$#placeholder], $col[$#placeholder] ) =
-          $_->wsWrite( $wb, $ws );
+          $_->wsWrite( $wb, $wsWorkings );
         $someArgumentsAreMissingAtThisStage =
-          "UNFEASIBLE LINK $ph for $self->{name} $self->{debug}"
+          "Unfeasible link $ph for $self->{name} $self->{debug}"
           unless $ws2;
         if ( $ws2 && $ws2 != $ws ) {
             my $sheet = $ws2->get_name;
-            use bytes;
             $ph = "'$sheet'!$ph";
         }
         $arithmetic =

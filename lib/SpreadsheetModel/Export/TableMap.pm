@@ -92,7 +92,7 @@ sub updateTableMap {
             my $ws =
               $wb->add_worksheet(
                 $sheet ? 'By name and code reference' : 'By name' );
-            $ws->set_column( 0, 0, 92 );
+            $ws->set_column( 0, 0, 98 );
             $ws->set_column( 1, 1, 38 ) if $sheet;
             $ws->set_column( $sheet ? 2 : 1, 254, 11 );
             $ws->hide_gridlines(2);
