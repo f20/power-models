@@ -61,7 +61,7 @@ sub labelset {
         name => 'Equity tranches',
         list => [
             map { 'Equity tranche #' . $_ } 1 .. $reserve->{model}{numEquity}
-              || 7
+              || 3
         ]
     );
 }

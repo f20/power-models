@@ -35,7 +35,7 @@ use SpreadsheetModel::Shortcuts ':all';
 sub new {
     my ( $class, %hash ) = @_;
     $hash{$_} || die __PACKAGE__ . " needs a $_ attribute"
-      foreach qw(model assets sales expenses debt cashCalc);
+      foreach qw(model assets sales costSales adminExp debt cashCalc);
     bless \%hash, $class;
 }
 
@@ -56,7 +56,8 @@ sub statement {
                     ],
                     A1 => $periods->decorate('Total assets (£)'),
                 ],
-                $balance->{expenses}->balance($periods),
+                $balance->{costSales}->balance($periods),
+                $balance->{adminExp}->balance($periods),
                 $periods->decorate('Total assets less current liabilities (£)'),
             ],
             $balance->{debt}->due($periods),
@@ -83,7 +84,8 @@ sub workingCapital {
         name  => $periods->decorate('Working capital analysis'),
         items => [
             $balance->{sales}->balance($periods),
-            $balance->{expenses}->balance($periods),
+            $balance->{costSales}->balance($periods),
+            $balance->{adminExp}->balance($periods),
             $balance->{cashCalc}->total( $periods, $balance->{reserve} ),
             A1 => $periods->decorate('Working capital (£)'),
         ],

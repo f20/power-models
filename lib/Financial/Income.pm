@@ -35,7 +35,7 @@ use SpreadsheetModel::Shortcuts ':all';
 sub new {
     my ( $class, %hash ) = @_;
     $hash{$_} || die __PACKAGE__ . " needs a $_ attribute"
-      foreach qw(model assets sales expenses debt);
+      foreach qw(model assets sales costSales adminExp debt);
     bless \%hash, $class;
 }
 
@@ -71,13 +71,14 @@ sub tax {
         $tax = Arithmetic(
             name          => $periods->decorate('Tax (£)'),
             defaultFormat => '0soft',
-            arithmetic    => '=-1*A9*(A1+A2+A3+A8)',
+            arithmetic    => '=-1*A9*(A1+A21+A22+A3+A8)',
             arguments     => {
-                A1 => $income->{sales}->stream($periods),
-                A2 => $income->{expenses}->stream($periods),
-                A3 => $income->{assets}->capitalAllowance($periods),
-                A8 => $income->{debt}->interest($periods),
-                A9 => $income->taxRate($periods),
+                A1  => $income->{sales}->stream($periods),
+                A21 => $income->{costSales}->stream($periods),
+                A2  => $income->{adminExp}->stream($periods),
+                A3  => $income->{assets}->capitalAllowance($periods),
+                A8  => $income->{debt}->interest($periods),
+                A9  => $income->taxRate($periods),
             },
         );
     }
@@ -85,14 +86,15 @@ sub tax {
         $tax = Arithmetic(
             name          => $periods->decorate('Tax (£)'),
             defaultFormat => '0soft',
-            arithmetic    => '=-1*A9*(A1+A2+A3+A4+A8)',
+            arithmetic    => '=-1*A9*(A1+A21+A22+A3+A4+A8)',
             arguments     => {
-                A1 => $income->{sales}->stream($periods),
-                A2 => $income->{expenses}->stream($periods),
-                A3 => $income->{assets}->depreciationCharge($periods),
-                A4 => $income->{assets}->disposalGainLoss($periods),
-                A8 => $income->{debt}->interest($periods),
-                A9 => $income->taxRate($periods),
+                A1  => $income->{sales}->stream($periods),
+                A21 => $income->{costSales}->stream($periods),
+                A22 => $income->{adminExp}->stream($periods),
+                A3  => $income->{assets}->depreciationCharge($periods),
+                A4  => $income->{assets}->disposalGainLoss($periods),
+                A8  => $income->{debt}->interest($periods),
+                A9  => $income->taxRate($periods),
             },
         );
     }
@@ -108,8 +110,12 @@ sub statement {
             [
                 [
                     [
-                        $income->{sales}->stream($periods),
-                        $income->{expenses}->stream($periods),
+                        [
+                            $income->{sales}->stream($periods),
+                            $income->{costSales}->stream($periods),
+                            $periods->decorate('Gross profits (£)'),
+                        ],
+                        $income->{adminExp}->stream($periods),
                         A1 => $periods->decorate(
                                 'EBITDA: earnings before'
                               . ' interest, tax and depreciation (£)'

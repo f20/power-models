@@ -64,15 +64,26 @@ sub new {
         numLines         => $model->{numSales},
     );
 
-    my $expenses = Financial::Stream->new(
+    my $costSales = Financial::Stream->new(
         $model,
         signAdjustment   => '-1*',
-        databaseName     => 'expense items',
-        flowName         => 'expenses (£)',
-        balanceName      => 'creditors (£)',
-        bufferName       => 'creditor cash buffer (£)',
+        databaseName     => 'cost of sales items',
+        flowName         => 'cost of sales (£)',
+        balanceName      => 'cost of sales creditors (£)',
+        bufferName       => 'cost of sales creditor cash buffer (£)',
         inputTableNumber => 1440,
-        numLines         => $model->{numExpenses},
+        numLines         => $model->{numCostSales},
+    );
+
+    my $adminExp = Financial::Stream->new(
+        $model,
+        signAdjustment   => '-1*',
+        databaseName     => 'administrative expense items',
+        flowName         => 'administrative expenses (£)',
+        balanceName      => 'administrative expense creditors (£)',
+        bufferName       => 'administrative expense creditor cash buffer (£)',
+        inputTableNumber => 1442,
+        numLines         => $model->{numAdminExp},
     );
 
     my $assets = Financial::FixedAssetsUK->new($model);
@@ -80,29 +91,32 @@ sub new {
     my $debt = Financial::Debt->new($model);
 
     my $cashCalc = Financial::CashCalc->new(
-        model    => $model,
-        sales    => $sales,
-        expenses => $expenses,
-        assets   => $assets,
-        debt     => $debt,
+        model     => $model,
+        sales     => $sales,
+        costSales => $costSales,
+        adminExp  => $adminExp,
+        assets    => $assets,
+        debt      => $debt,
     );
 
     my $income = Financial::Income->new(
-        model    => $model,
-        sales    => $sales,
-        expenses => $expenses,
-        assets   => $assets,
-        debt     => $debt,
+        model     => $model,
+        sales     => $sales,
+        costSales => $costSales,
+        adminExp  => $adminExp,
+        assets    => $assets,
+        debt      => $debt,
     );
 
     my $balanceFrictionless = Financial::Balance->new(
-        model    => $model,
-        sales    => $sales,
-        expenses => $expenses,
-        assets   => $assets,
-        cashCalc => $cashCalc,
-        debt     => $debt,
-        suffix   => ' assuming frictionless equity',
+        model     => $model,
+        sales     => $sales,
+        costSales => $costSales,
+        adminExp  => $adminExp,
+        assets    => $assets,
+        cashCalc  => $cashCalc,
+        debt      => $debt,
+        suffix    => ' assuming frictionless equity',
     );
 
     my $cashflowFrictionless = Financial::Cashflow->new(
@@ -144,13 +158,14 @@ sub new {
     );
 
     my $balance = Financial::Balance->new(
-        model    => $model,
-        sales    => $sales,
-        expenses => $expenses,
-        assets   => $assets,
-        cashCalc => $cashCalc,
-        reserve  => $reserve,
-        debt     => $debt,
+        model     => $model,
+        sales     => $sales,
+        costSales => $costSales,
+        adminExp  => $adminExp,
+        assets    => $assets,
+        cashCalc  => $cashCalc,
+        reserve   => $reserve,
+        debt      => $debt,
     );
 
     my $cashflow = Financial::Cashflow->new(
@@ -182,9 +197,9 @@ sub new {
 
     $_->finish
       foreach grep { $_->can('finish'); } $months, $years, $assets, $sales,
-      $expenses, $debt, $income,
+      $costSales,           $adminExp,             $debt,    $income,
       $balanceFrictionless, $cashflowFrictionless, $reserve, $balance,
-      $cashflow, $ratios;
+      $cashflow,            $ratios;
 
     $model;
 

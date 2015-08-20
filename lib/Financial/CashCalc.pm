@@ -35,7 +35,7 @@ use SpreadsheetModel::Shortcuts ':all';
 sub new {
     my ( $class, %hash ) = @_;
     $hash{$_} || die __PACKAGE__ . " needs a $_ attribute"
-      foreach qw(model sales expenses);
+      foreach qw(model sales costSales adminExp);
     bless \%hash, $class;
 }
 
@@ -56,10 +56,11 @@ sub required {
     $cashCalc->{required}{ 0 + $periods } ||= Arithmetic(
         name => $periods->decorate('Cash reserve required for operations (£)'),
         defaultFormat => '0soft',
-        arithmetic    => '=(A1+A3)/(1+A2)',
+        arithmetic    => '=(A1+A3+A4)/(1+A2)',
         arguments     => {
             A1 => $cashCalc->{sales}->buffer($periods),
-            A3 => $cashCalc->{expenses}->buffer($periods),
+            A3 => $cashCalc->{costSales}->buffer($periods),
+            A4 => $cashCalc->{adminExp}->buffer($periods),
             A2 => $cashCalc->diversity,
         },
     );

@@ -58,8 +58,8 @@ sub worksheetsAndClosures {
         my ( $sh, $ro, $co ) = Dataset(
             number             => 1400,
             dataset            => $model->{dataset},
-            name               => 'Company and data version',
-            cols               => Labelset( list => [qw(Company Version)] ),
+            name               => 'Company and assumptions',
+            cols               => Labelset( list => [qw(Company Assumptions)] ),
             defaultFormat      => 'puretexthard',
             data               => [ 'no company', 'no dataset' ],
             usePlaceholderData => 1,
