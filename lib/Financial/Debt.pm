@@ -76,9 +76,9 @@ sub labelset {
 sub labelsetNoNames {
     my ($debt) = @_;
     $debt->{labelsetNoNames} ||= Labelset(
-        name => 'Debt tranches without names',
-        list =>
-          [ map { 'Debt issue #' . $_ } 1 .. $debt->{model}{numDebt} || 4 ]
+        name          => 'Debt tranches without names',
+        defaultFormat => 'thitem',
+        list          => [ 1 .. $debt->{model}{numDebt} || 4 ]
     );
 }
 

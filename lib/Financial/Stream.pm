@@ -87,8 +87,9 @@ sub labelset {
 sub labelsetNoNames {
     my ($stream) = @_;
     $stream->{labelsetNoNames} ||= Labelset(
-        name => 'Items without names',
-        list => [ map { $stream->{itemName} . $_ } 1 .. $stream->{numLines} ]
+        name          => 'Items without names',
+        defaultFormat => 'thitem',
+        list          => [ 1 .. $stream->{numLines} ]
     );
 }
 

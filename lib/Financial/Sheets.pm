@@ -52,7 +52,9 @@ sub worksheetsAndClosures {
         $wsheet->{sheetNumber}    = 14;
         $wbook->{lastSheetNumber} = 14;
         $wsheet->freeze_panes( 1, 2 );
-        $wsheet->set_column( 0, 250, 24 );
+        $wsheet->set_column( 0, 0,   12 );
+        $wsheet->set_column( 1, 1,   32 );
+        $wsheet->set_column( 2, 250, 16 );
         $wsheet->{nextFree} = 2;
         $model->{inputTables} ||= [];
         my ( $sh, $ro, $co ) = Dataset(

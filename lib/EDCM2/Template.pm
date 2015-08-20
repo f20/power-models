@@ -76,7 +76,7 @@ sub templateImport {
     $model->{importTariffIndex} = my $index = Dataset(
         name          => 'Number',
         data          => [ [1] ],
-        defaultFormat => 'thtarimport',
+        defaultFormat => 'thtar',
     );
 
     my @tariffComponents = map {
@@ -183,8 +183,8 @@ sub templateImport {
                       . '|"&A1&"|"&INDEX(A3_A4,A2,'
                       . ( 1 + $_ ) . ')',
                     arguments => {
-                        A1     => $index,
-                        A2     => $index,
+                        A1    => $index,
+                        A2    => $index,
                         A3_A4 => $d
                     },
                   )
@@ -196,10 +196,10 @@ sub templateImport {
               Arithmetic(
                 defaultFormat => 'codecopy',
                 name          => '',
-                arithmetic => '="935|' . $col . '|"&A1&"|"&INDEX(A3_A4,A2)',
-                arguments  => {
-                    A1     => $index,
-                    A2     => $index,
+                arithmetic    => '="935|' . $col . '|"&A1&"|"&INDEX(A3_A4,A2)',
+                arguments     => {
+                    A1    => $index,
+                    A2    => $index,
                     A3_A4 => $d
                 },
               ) unless $d->{name} =~ /export/i;
@@ -316,7 +316,7 @@ sub templateExport {
     $model->{exportTariffIndex} = my $index = Dataset(
         name          => 'Number',
         data          => [ [1] ],
-        defaultFormat => 'thtarexport',
+        defaultFormat => 'thtar',
     );
 
     my @tariffComponents = map {
@@ -341,10 +341,10 @@ sub templateExport {
               Arithmetic(
                 defaultFormat => 'codecopy',
                 name          => '',
-                arithmetic => '="935|' . $col . '|"&A1&"|"&INDEX(A3_A4,A2)',
-                arguments  => {
-                    A1     => $index,
-                    A2     => $index,
+                arithmetic    => '="935|' . $col . '|"&A1&"|"&INDEX(A3_A4,A2)',
+                arguments     => {
+                    A1    => $index,
+                    A2    => $index,
                     A3_A4 => $d
                 },
               ) if $d->{name} =~ /export/i;

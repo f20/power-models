@@ -58,11 +58,9 @@ sub raisingDates {
 sub labelset {
     my ($reserve) = @_;
     $reserve->{labelset} ||= Labelset(
-        name => 'Equity tranches',
-        list => [
-            map { 'Equity tranche #' . $_ } 1 .. $reserve->{model}{numEquity}
-              || 3
-        ]
+        name          => 'Equity tranches',
+        defaultFormat => 'thitem',
+        list          => [ 1 .. $reserve->{model}{numEquity} || 3 ]
     );
 }
 

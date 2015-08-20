@@ -83,8 +83,9 @@ sub labelset {
 sub labelsetNoNames {
     my ($assets) = @_;
     $assets->{labelsetNoNames} ||= Labelset(
-        name => 'Fixed assets without names',
-        list => [ map { "Asset $_" } 1 .. $assets->{model}{numAssets} || 8 ]
+        name          => 'Fixed assets without names',
+        defaultFormat => 'thitem',
+        list          => [ 1 .. $assets->{model}{numAssets} || 8 ]
     );
 }
 
