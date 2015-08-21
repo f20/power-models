@@ -131,8 +131,10 @@ sub new {
     $model->{startYear}  ||= 2015;
 
     my $years = Financial::Periods->new(
-        model               => $model,
-        numYears            => $model->{numYears},
+        model => $model,
+        1   ? ( numYears    => $model->{numYears} )
+        : 0 ? ( numQuarters => 4 * $model->{numYears} )
+        : ( numMonths => 12 * $model->{numYears} ),
         periodsAreFixed     => 1,
         periodsAreInputData => 0,
         priorPeriod         => 1,

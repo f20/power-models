@@ -167,7 +167,7 @@ sub firstDay {
     my ($periods) = @_;
     $periods->{database}{firstDay} ||= $periods->makeInputDataset(
         1452, 'date',
-        name => 'First day of accounting period',
+        name => $periods->decorate('First day of accounting period'),
         cols => $periods->labelset,
         data => $periods->{data}{firstDay},
     );
@@ -207,6 +207,20 @@ sub indexNext {
             A2    => $periods->lastDay,
             A3    => $periods->firstDay,
             A5_A6 => $periods->firstDay,
+        }
+    );
+}
+
+sub openingDay {
+    my ($periods) = @_;
+    $periods->{openingDay} ||= Arithmetic(
+        name          => $periods->decorate('Opening day'),
+        defaultFormat => 'datesoft',
+        arithmetic    => '=IF(A2-A3=-1,"Not applicable",A1)',
+        arguments     => {
+            A1 => $periods->firstDay,
+            A2 => $periods->lastDay,
+            A3 => $periods->firstDay,
         }
     );
 }

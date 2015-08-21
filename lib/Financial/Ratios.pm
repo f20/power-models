@@ -47,6 +47,42 @@ sub statement {
 
     push @ratios,
       Arithmetic(
+        name          => 'Gross profit margin',
+        defaultFormat => '%soft',
+        arithmetic    => '=IF(A3>0,A2/A1,"")',
+        arguments     => {
+            A1 => $ratios->{income}{sales}->stream($periods),
+            A2 => $ratios->{income}->gross($periods),
+            A3 => $ratios->{income}{sales}->stream($periods),
+        },
+      );
+
+    push @ratios,
+      Arithmetic(
+        name          => 'EBITDA profit margin',
+        defaultFormat => '%soft',
+        arithmetic    => '=IF(A3>0,A2/A1,"")',
+        arguments     => {
+            A1 => $ratios->{income}{sales}->stream($periods),
+            A2 => $ratios->{income}->ebitda($periods),
+            A3 => $ratios->{income}{sales}->stream($periods),
+        },
+      );
+
+    push @ratios,
+      Arithmetic(
+        name          => 'Earnings profit margin',
+        defaultFormat => '%soft',
+        arithmetic    => '=IF(A3>0,A2/A1,"")',
+        arguments     => {
+            A1 => $ratios->{income}{sales}->stream($periods),
+            A2 => $ratios->{income}->earnings($periods),
+            A3 => $ratios->{income}{sales}->stream($periods),
+        },
+      );
+
+    push @ratios,
+      Arithmetic(
         name          => 'Interest cover by cashflow from operations',
         defaultFormat => '0.00soft',
         arithmetic    => '=IF(A3<0,-1*A2/A1,"")',

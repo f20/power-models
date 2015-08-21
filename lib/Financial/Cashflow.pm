@@ -113,7 +113,10 @@ sub statement {
                     A2    => $periods->indexPrevious,
                 },
             ),
-            A1 => $periods->decorate('Cashflow to/from investors (£)'),
+            A1 => {
+                name => $periods->decorate('Cashflow to/from investors (£)'),
+                rounding => 2,
+            },
         ]
     );
 }

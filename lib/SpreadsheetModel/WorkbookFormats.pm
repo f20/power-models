@@ -207,13 +207,13 @@ Keys used in %$options:
     my @num_date =
       $rightpad
       ? (
-        num_format => qq'${black}* _(d mmm yyyy_)$rightpad;'
-          . qq'[Red]* (d mmm yyyy)$rightpad;;$cyan@',
+        num_format => qq'${black}_(d mmm yyyy_)$rightpad;'
+          . qq'[Red](d mmm yyyy)$rightpad;;$cyan@',
         align => 'right'
       )
       : (
-        num_format => qq'${black}* _(d mmm yyyy_);[Red]* (d mmm yyyy);;$cyan@',
-        align      => 'center'
+        num_format => qq'${black}_(d mmm yyyy_);[Red](d mmm yyyy);;$cyan@',
+        align      => 'right'
       );
     my @num_ =
       $rightpad

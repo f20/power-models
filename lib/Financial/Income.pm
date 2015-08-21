@@ -113,7 +113,7 @@ sub statement {
                         [
                             $income->{sales}->stream($periods),
                             $income->{costSales}->stream($periods),
-                            $periods->decorate('Gross profits (£)'),
+                            A4 => $periods->decorate('Gross profits (£)'),
                         ],
                         $income->{adminExp}->stream($periods),
                         A1 => $periods->decorate(
@@ -134,6 +134,11 @@ sub statement {
             A3 => $periods->decorate('Earnings (£)'),
         ],
     );
+}
+
+sub gross {
+    my ( $income, $periods ) = @_;
+    $income->statement($periods)->{A4};
 }
 
 sub ebitda {

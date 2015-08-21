@@ -44,10 +44,11 @@ sub check {
     my @items;
     my $add;
     $add = sub {
+        local @_ = @_;    # to avoid side effects
         $_[$#_] = { name => $_[$#_] }
           if !ref $_[$#_]
           || UNIVERSAL::isa( $_[$#_], 'SpreadsheetModel::Label' );
-        my ( $key, @args, %args );
+        my ( $key, @args, %args, %redirected );
         foreach (@_) {
             if ( !ref $_ ) {
                 $key = $_;
@@ -119,11 +120,12 @@ sub check {
                         {
                             while ( my ( $k, $v ) = each %uniques ) {
                                 next if exists $inBlock{$k};
-                                my ($w) = $add->($v);
+                                $redirected{$k} ||= $add->($v);
                                 while ( my ( $k2, $v2 ) =
                                     each %{ $_->{arguments} } )
                                 {
-                                    $_->{arguments}{$k2} = $w if $v2 == $v;
+                                    $_->{arguments}{$k2} = $redirected{$k}
+                                      if $v2 == $v;
                                 }
                             }
                         }

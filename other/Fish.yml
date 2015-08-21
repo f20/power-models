@@ -1,0 +1,220 @@
+---
+1400:
+  - _table: 1400. Company and assumptions
+  - Company and assumptions: Green Fish
+    _column: Company
+  - Company and assumptions: Testing
+    _column: Assumptions
+1430:
+  - _table: 1430. Sales items
+  - 1: Fish
+    2: ''
+    3: ''
+    4: ''
+    _column: Names for sales items
+  - 1: 42370
+    2: ''
+    3: ''
+    4: ''
+    _column: Start date
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    _column: End date
+  - 1: 400000
+    2: 0
+    3: 0
+    4: 0
+    _column: Annual sales (£)
+  - 1: 0.1
+    2: 0
+    3: 0
+    4: 0
+    _column: Annual growth rate
+  - 1: 28
+    2: 0
+    3: 0
+    4: 0
+    _column: Average credit and inventory days
+  - 1: 50
+    2: 0
+    3: 0
+    4: 0
+    _column: Worst-case credit and inventory days
+1440:
+  - _table: 1440. Cost of sales items
+  - 1: Fisherman's labour
+    2: ''
+    3: ''
+    4: ''
+    _column: Names for cost of sales items
+  - 1: 42370
+    2: ''
+    3: ''
+    4: ''
+    _column: Start date
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    _column: End date
+  - 1: 200000
+    2: 0
+    3: 0
+    4: 0
+    _column: Annual cost of sales (£)
+  - 1: 0.05
+    2: 0
+    3: 0
+    4: 0
+    _column: Annual growth rate
+  - 1: 14
+    2: 0
+    3: 0
+    4: 0
+    _column: Average credit and inventory days
+  - 1: -10
+    2: 0
+    3: 0
+    4: 0
+    _column: Worst-case credit and inventory days
+1442:
+  - _table: 1442. Administrative expense items
+  - 1: Marketing
+    2: ''
+    3: ''
+    4: ''
+    _column: Names for administrative expense items
+  - 1: 42292
+    2: ''
+    3: ''
+    4: ''
+    _column: Start date
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    _column: End date
+  - 1: 50000
+    2: 0
+    3: 0
+    4: 0
+    _column: Annual administrative expenses (£)
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    _column: Annual growth rate
+  - 1: 28
+    2: 0
+    3: 0
+    4: 0
+    _column: Average credit and inventory days
+  - 1: 21
+    2: 0
+    3: 0
+    4: 0
+    _column: Worst-case credit and inventory days
+1448:
+  - _table: 1448. Cash buffer diversity allowance
+  - Cash buffer diversity allowance: 0.25
+    _column: Cash buffer diversity allowance
+1450:
+  - _table: 1450. Fixed assets
+  - 1: Boat
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    _column: Asset names
+  - 1: 42353
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    _column: Commissioning date
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    _column: Decommissioning date
+  - 1: 2000000
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    _column: Cost (£)
+  - 1: 20
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    _column: Straight-line depreciation period (years)
+  - 1: 20000
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    _column: Estimated scrap value at time of commissioning (£)
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    _column: Proceeds of scrapping (£)
+1460:
+  - _table: 1460. Borrowings
+  - 1: Boat finance
+    2: Refinancing
+    3: ''
+    4: ''
+    _column: Name of debt tranche
+  - 1: 42348
+    2: 43070
+    3: ''
+    4: ''
+    _column: Start date
+  - 1: 43078
+    2: 44895
+    3: ''
+    4: ''
+    _column: End date
+  - 1: 1750000
+    2: 1250000
+    3: 0
+    4: 0
+    _column: Amount (£)
+  - 1: 0.05
+    2: 0.03
+    3: 0
+    4: 0
+    _column: Interest rate
+1470:
+  - _table: 1470. Equity raising dates in chronological order
+  - 1: 42348
+    2: 43023
+    3: ''
+    _column: Equity raising dates in chronological order

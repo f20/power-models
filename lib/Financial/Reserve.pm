@@ -71,9 +71,9 @@ sub trancheId {
     my $match = Arithmetic(
         name          => 'Index of relevant equity tranche',
         defaultFormat => '0soft',
-        arithmetic    => '=MATCH(A1-1,A2_A3)',
+        arithmetic    => '=MATCH(A1,A2_A3)',
         arguments     => {
-            A1    => $reserve->{periods}->firstDay,
+            A1    => $reserve->{periods}->lastDay,
             A2_A3 => $reserve->raisingDates,
         },
     );
@@ -81,7 +81,7 @@ sub trancheId {
         name          => 'Relevant equity tranche',
         defaultFormat => 'datesoft',
         arithmetic    => '=IF(A1-A201>-1,IF(ISNUMBER(A702),'
-          . 'INDEX(A4_A5,A701),"Initial equity"),"Not applicable")',
+          . 'INDEX(A4_A5,A701),"Initial equity"),"Initial equity")',
         arguments => {
             A1    => $reserve->{periods}->lastDay,
             A201  => $reserve->{periods}->firstDay,
@@ -92,11 +92,12 @@ sub trancheId {
     );
 }
 
-sub openingCashNeeded {
+sub openingOrRaisedCashNeeded {
     my ($reserve) = @_;
-    $reserve->{openingCashNeeded} ||= SpreadsheetModel::Custom->new(
+    $reserve->{openingOrRaisedCashNeeded} ||= SpreadsheetModel::Custom->new(
         name => $reserve->{periods}->decorate(
-            'Opening spare cash needed to reach next equity raising tranche (£)'
+                'Spare cash (opening or raised) needed to reach'
+              . ' next equity raising tranche (£)'
         ),
         defaultFormat => '0soft',
         cols          => $reserve->{periods}->labelset,
@@ -158,18 +159,7 @@ sub amountsRaised {
         arguments     => {
             A1      => $reserve->raisingDates,
             A102    => $reserve->raisingDates,
-            A31_A32 => Arithmetic(
-                name => 'Opening cash needed,'
-                  . ' adjusted for previous period cashflow (£)',
-                defaultFormat => '0soft',
-                arithmetic    => '=MAX(0,A1-MAX(0,INDEX(A2_A3,A4)))',
-                arguments     => {
-                    A1 => $reserve->openingCashNeeded,
-                    A2_A3 =>
-                      $reserve->{cashflow}->investors( $reserve->{periods} ),
-                    A4 => $reserve->{periods}->indexPrevious,
-                },
-            ),
+            A31_A32 => $reserve->openingOrRaisedCashNeeded,
             A41_A42 => $reserve->trancheId,
         },
     );
@@ -192,13 +182,29 @@ sub raisingSchedule {
 sub spareCash {
     my ( $reserve, $periods ) = @_;
     $reserve->{spareCash}{ 0 + $periods } ||= Arithmetic(
-        name          => $periods->decorate('Additional spare cash (£)'),
-        defaultFormat => '0copy',
-        arithmetic    => '=IFERROR(INDEX(A2_A3,MATCH(A1+1,A4_A5)),0)',
-        arguments     => {
-            A1    => $periods->lastDay,
-            A4_A5 => $reserve->{periods}->firstDay,
-            A2_A3 => $reserve->openingCashNeeded,
+        name          => $periods->decorate('Closing spare cash (£)'),
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(ISNUMBER(MATCH(A1+1,A5_A6,0)),'
+          . 'INDEX(A2_A3,MATCH(A11+1,A51_A61,0)),0)',
+        arguments => {
+            A1      => $periods->lastDay,
+            A11     => $periods->lastDay,
+            A5_A6   => $reserve->{periods}->openingDay,
+            A51_A61 => $reserve->{periods}->openingDay,
+            A2_A3   => Arithmetic(
+                name          => 'Opening spare cash (£)',
+                defaultFormat => '0soft',
+                arithmetic =>
+                  '=IF(ISNUMBER(A1),IF(A81=INDEX(A82_A83,A11),A2,0),A3)',
+                arguments => {
+                    A1      => $reserve->{periods}->indexPrevious,
+                    A11     => $reserve->{periods}->indexPrevious,
+                    A2      => $reserve->openingOrRaisedCashNeeded,
+                    A3      => $reserve->openingOrRaisedCashNeeded,
+                    A81     => $reserve->trancheId,
+                    A82_A83 => $reserve->trancheId,
+                }
+            ),
         },
     );
 }
