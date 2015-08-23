@@ -586,10 +586,9 @@ EOL
       'Stats' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 42 unless $wbook->{lastSheetNumber} > 41;
-        $wsheet->set_landscape;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 1 );
-            $wsheet->fit_to_pages( 1, 1 );
+            $wsheet->fit_to_pages( 1, 0 );
             $wsheet->set_column( 0, 0,   56 );
             $wsheet->set_column( 1, 250, 16 );
         }

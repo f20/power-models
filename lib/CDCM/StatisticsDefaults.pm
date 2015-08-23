@@ -105,9 +105,9 @@ __DATA__
     XL intermittent: '^(?:|LDNO .*: )HV HH Metered$'
     XL off-peak: '^(?:|LDNO .*: )HV HH Metered$'
     _column: Tariff selection
-  - Custom demand: ''
-    Custom demand 2: ''
-    Custom generation: ''
+  - Custom demand: 0
+    Custom demand 2: 0
+    Custom generation: 0
     Domestic: 35
     Domestic electric heat: 35
     Domestic low use: 35
@@ -134,9 +134,9 @@ __DATA__
     XL intermittent: 0
     XL off-peak: 93.4
     _column: Peak-time hours/week
-  - Custom demand: ''
-    Custom demand 2: ''
-    Custom generation: ''
+  - Custom demand: 49
+    Custom demand 2: 49
+    Custom generation: 49
     Domestic: 49
     Domestic electric heat: 49
     Domestic low use: 49
@@ -163,9 +163,9 @@ __DATA__
     XL intermittent: 49
     XL off-peak: 49
     _column: Off-peak hours/week
-  - Custom demand: ''
-    Custom demand 2: ''
-    Custom generation: ''
+  - Custom demand: 450
+    Custom demand 2: 450
+    Custom generation: 450
     Domestic: 0.7
     Domestic electric heat: 1
     Domestic low use: 0.35
@@ -192,9 +192,9 @@ __DATA__
     XL intermittent: 2000
     XL off-peak: 0
     _column: Peak-time load (kW)
-  - Custom demand: ''
-    Custom demand 2: ''
-    Custom generation: ''
+  - Custom demand: 450
+    Custom demand 2: 450
+    Custom generation: 450
     Domestic: 0.2
     Domestic electric heat: 1.2
     Domestic low use: 0.1
@@ -221,9 +221,9 @@ __DATA__
     XL intermittent: 2000
     XL off-peak: 4500
     _column: Off-peak load (kW)
-  - Custom demand: ''
-    Custom demand 2: ''
-    Custom generation: ''
+  - Custom demand: 450
+    Custom demand 2: 450
+    Custom generation: 450
     Domestic: 0.35
     Domestic electric heat: 0.5
     Domestic low use: 0.175
@@ -250,9 +250,9 @@ __DATA__
     XL intermittent: 2000
     XL off-peak: 4500
     _column: Load at other times (kW)
-  - Custom demand: ''
-    Custom demand 2: ''
-    Custom generation: ''
+  - Custom demand: 500
+    Custom demand 2: 500
+    Custom generation: 500
     Domestic: 9
     Domestic electric heat: 18
     Domestic low use: 6
