@@ -51,7 +51,9 @@ sub dispatch {
           if /useDatabase$/i;
         return push @$self, [ R => @_[ 1 .. $#_ ] ] if /^R$/i;
     }
-    return push @$self, [ ymlDiff => @_ ] if grep { /-+ymldiff/si } @_;
+    return push @$self, [ ymlDiff  => @_ ] if grep { /-+ymldiff/si } @_;
+    return push @$self, [ ymlMerge => @_ ] if grep { /-+ymlmerge/si } @_;
+    return push @$self, [ ymlSplit => @_ ] if grep { /-+ymlsplit/si } @_;
     return push @$self, [ makeModels => @_ ]
       if grep { /\.(?:ya?ml|json|dta)$/si } @_;
     return push @$self, [ fillDatabase => @_ ]

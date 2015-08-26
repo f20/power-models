@@ -214,7 +214,11 @@
     _column: Interest rate
 1470:
   - _table: 1470. Equity raising dates in chronological order
+  - 1: 2015 round
+    2: 2017 round
+    3: ''
+    _column: Name
   - 1: 42348
     2: 43023
     3: ''
-    _column: Equity raising dates in chronological order
+    _column: Date

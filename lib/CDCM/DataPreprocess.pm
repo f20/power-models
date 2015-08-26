@@ -67,9 +67,19 @@ sub preprocessDataset {
           qw(1018 1020);
     }
 
-    if ( $model->{unauth} && $model->{unauth} =~ /day/ ) {
+    if ( !$model->{unauth} ) {
+        splice @{ $d->{1053} }, 6, 1
+          if $d->{1053}
+          && $d->{1053}[6]
+          && $d->{1053}[6]{_column}
+          && $d->{1053}[6]{_column} =~ /exceed/i;
+    }
+    elsif ( $model->{unauth} =~ /day/ ) {
         my $vd = $d->{1053};
-        if ( $vd and !$vd->[6]{_column} || $vd->[6]{_column} !~ /exceed/i ) {
+        if (    $vd
+            and $vd->[6]
+            and !$vd->[6]{_column} || $vd->[6]{_column} !~ /exceed/i )
+        {
             splice @$vd, 6, 0, { map { ( $_ => '' ); } keys %{ $vd->[5] } };
             my $add = $model->{unauth} =~ /add/i;
             while ( my ( $t, $p ) = each %{ $vd->[5] } ) {

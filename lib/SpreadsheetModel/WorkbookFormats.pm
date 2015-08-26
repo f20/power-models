@@ -207,12 +207,23 @@ Keys used in %$options:
     my @num_date =
       $rightpad
       ? (
-        num_format => qq'${black}_(d mmm yyyy_)$rightpad;'
-          . qq'[Red](d mmm yyyy)$rightpad;;$cyan@',
+        num_format => qq'${black}d mmm yyyy$rightpad;'
+          . qq'[Red]d mmm yyyy$rightpad;;$cyan@',
         align => 'right'
       )
       : (
-        num_format => qq'${black}_(d mmm yyyy_);[Red](d mmm yyyy);;$cyan@',
+        num_format => qq'${black}d mmm yyyy  ;[Red]d mmm yyyy;;$cyan@',
+        align      => 'right'
+      );
+    my @num_time =
+      $rightpad
+      ? (
+        num_format => qq'${black}h:mm am/pm$rightpad;'
+          . qq'[Red]h:mm am/pm$rightpad;;$cyan@',
+        align => 'right'
+      )
+      : (
+        num_format => qq'${black}h:mm am/pm  ;[Red]h:mm am/pm;;$cyan@',
         align      => 'right'
       );
     my @num_ =
@@ -411,6 +422,10 @@ Keys used in %$options:
         'datecopy' => [ locked => 1, @sizeNumber, @num_date, @colourCopy, ],
         'datehard' => [ locked => 0, @sizeNumber, @num_date, @colourHard, ],
         'datesoft' => [ locked => 1, @sizeNumber, @num_date, @colourSoft, ],
+        'timecon'  => [ locked => 1, @sizeNumber, @num_time, @colourCon, ],
+        'timecopy' => [ locked => 1, @sizeNumber, @num_time, @colourCopy, ],
+        'timehard' => [ locked => 0, @sizeNumber, @num_time, @colourHard, ],
+        'timesoft' => [ locked => 1, @sizeNumber, @num_time, @colourSoft, ],
         'millioncon' => [ locked => 1, @sizeNumber, @num_million, @colourCon, ],
         'millioncopy' =>
           [ locked => 1, @sizeNumber, @num_million, @colourCopy, ],

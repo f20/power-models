@@ -44,15 +44,28 @@ sub finish {
 
 sub raisingDates {
     my ($reserve) = @_;
-    $reserve->{raisingDates} ||= Dataset(
-        name          => 'Equity raising dates in chronological order',
-        defaultFormat => 'datehard',
-        rows          => $reserve->labelset,
-        data          => [ map { '' } @{ $reserve->labelset->{list} } ],
-        appendTo      => $reserve->{model}{inputTables},
-        dataset       => $reserve->{model}{dataset},
-        number        => 1470,
+    return $reserve->{raisingDates} if $reserve->{raisingDates};
+    Columnset(
+        name     => 'Equity raising rounds in chronological order',
+        appendTo => $reserve->{model}{inputTables},
+        dataset  => $reserve->{model}{dataset},
+        number   => 1470,
+        columns  => [
+            Dataset(
+                name          => 'Name of round (in chronological order)',
+                defaultFormat => 'texthard',
+                rows          => $reserve->labelset,
+                data          => [ map { '' } @{ $reserve->labelset->{list} } ],
+            ),
+            $reserve->{raisingDates} = Dataset(
+                name          => 'Date',
+                defaultFormat => 'datehard',
+                rows          => $reserve->labelset,
+                data          => [ map { '' } @{ $reserve->labelset->{list} } ],
+            ),
+        ],
     );
+    $reserve->{raisingDates};
 }
 
 sub labelset {

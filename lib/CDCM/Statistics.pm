@@ -277,15 +277,16 @@ sub makeStatisticsTables {
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{$_} + ( /^A[1-5]/ ? $y : 0 ),
                         $colh->{$_} + ( /^A62/ ? 1 : /^A63/ ? 2 : 0 ),
-                        /^A[1-5]/ ? 0 : 1,
-                        1,
+                        /^A[1-5]/ ? 0 : 1, 1,
                       )
                 } @$pha;
             };
         },
     );
 
-    push @columns, my $green = SpreadsheetModel::Custom->new(
+    push @columns,
+      my $green = SpreadsheetModel::Custom
+      ->new(    # Hack to avoid splitting $model->{hoursByRedAmberGreen}
         name          => 'Green kWh/year',
         defaultFormat => '0soft',
         rows          => $assumptions->{rows},
@@ -338,7 +339,7 @@ sub makeStatisticsTables {
                 } @$pha;
             };
         },
-    );
+      );
 
     Columnset(
         name    => 'Consumption calculations for illustrative customers',

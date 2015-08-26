@@ -702,6 +702,44 @@ sub ymlDiff {
 
 }
 
+sub ymlMerge {
+    require YAML;
+    my (%results);
+    foreach my $fileName ( sort map { decode_utf8 $_} @_ ) {
+        $fileName = './' . $fileName unless $fileName =~ m#/#;
+        next unless -f $fileName;
+        my ( $path, $core, $ext ) = $fileName =~ m#(.*/)([^/]+)(\.ya?ml)$#is
+          or next;
+        $core =~ s/[0-9+~]//g;
+        $results{ $path . $core . $ext } ||= {};
+        my $counter = '';
+        foreach ( grep { ref $_ eq 'HASH'; } YAML::LoadFile($fileName) ) {
+            $results{ $path . $core . $ext } =
+              { %{ $results{ $path . $core . $ext } ||= {} }, %$_ };
+        }
+    }
+    while ( my ( $k, $v ) = each %results ) {
+        _ymlDump( $k, '', $v );
+    }
+}
+
+sub ymlSplit {
+    require YAML;
+    foreach my $fileName ( map { decode_utf8 $_} @_ ) {
+        $fileName = './' . $fileName unless $fileName =~ m#/#;
+        next unless -f $fileName;
+        my ( $path, $core, $ext ) = $fileName =~ m#(.*/)([^/]+)(\.ya?ml)$#is
+          or next;
+        my $counter = '';
+        foreach ( grep { ref $_ eq 'HASH'; } YAML::LoadFile($fileName) ) {
+            while ( my ( $k, $v ) = each %$_ ) {
+                _ymlDump( "$path+$k+$core$counter$ext", '', { $k => $v } );
+            }
+            --$counter;
+        }
+    }
+}
+
 our $AUTOLOAD;
 
 sub comment { }

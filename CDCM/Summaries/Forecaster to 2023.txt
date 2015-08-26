@@ -5,7 +5,6 @@ makeModels
 	CDCM/Previous/*micro*
 	CDCM/Current/*micro*
 	CDCM/Future/*micro*
-	CDCM/Data-2012-02/**
 	CDCM/Data-2013-02/**
 	CDCM/Data-2014-02/**
 	CDCM/Data-2015-02/**
