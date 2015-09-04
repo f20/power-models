@@ -178,12 +178,20 @@ sub htmlDescribe {
 sub addTableNumber {
     my ( $self, $wb, $ws, $intrusive ) = @_;
     return '' if $self->{name} =~ /^[0-9]+[a-z]*\.\s/;
-    delete $ws->{sheetNumber}
-      if $ws->{sheetNumber}
-      and $wb->{highestAutoTableNumber}
-      && $wb->{highestAutoTableNumber} - 100 * $ws->{sheetNumber} > 99
-      || $ws->{lastTableNumber}
-      && $ws->{lastTableNumber} + ( $ws->{tableNumberIncrement} || 1 ) > 99;
+    if (    $ws->{sheetNumber}
+        and $wb->{highestAutoTableNumber}
+        && $wb->{highestAutoTableNumber} - 100 * $ws->{sheetNumber} > 99
+        || $ws->{lastTableNumber}
+        && $ws->{lastTableNumber} + ( $ws->{tableNumberIncrement} || 1 ) > 99 )
+    {
+        die "$self->{name} cannot be written to sheet "
+          . $ws->get_name
+          . " (tables $ws->{sheetNumber}xx) because "
+          . $wb->{highestAutoTableNumber}
+          . ' has already been written in the workbook'
+          unless $wb->{tolerateMisordering};
+        delete $ws->{sheetNumber};
+    }
     unless ( $ws->{sheetNumber} ) {
         $ws->{sheetNumber} = ++$wb->{lastSheetNumber};
         $ws->{lastTableNumber} =

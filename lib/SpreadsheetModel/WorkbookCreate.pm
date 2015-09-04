@@ -196,7 +196,7 @@ sub create {
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
         $options->{logger} = new SpreadsheetModel::Logger(
-            name            => 'List of data tables',
+            name            => '',
             showFinalTables => $model->{forwardLinks},
             showDetails     => $model->{debug},
         );
@@ -267,9 +267,17 @@ sub create {
             $wb2->close;
         }
 
-        $wbook->{$_} = $options->{$_}
-          foreach grep { exists $options->{$_} }
-          qw(copy debug forwardLinks logger mergedRanges noLinks rowHeight validation);
+        $wbook->{$_} = $options->{$_} foreach grep { exists $options->{$_} } qw(
+          copy
+          debug
+          forwardLinks
+          logger
+          mergedRanges
+          noLinks
+          rowHeight
+          tolerateMisordering
+          validation
+        );
 
         foreach ( @{ $options->{wsheetRunOrder} } ) {
             delete $wsheet{$_}{sheetNumber};
