@@ -38,7 +38,7 @@ sub new {
 sub wsWrite {
     my ( $colourCode, $wbook, $wsheet ) = @_;
     my $row = $wsheet->{nextFree} || 0;
-    $row -= $colourCode->[0] ? 5 : 8;
+    $row -= $colourCode->[0] ? 6 : 9;
     $row = 1 if $row < 1;
     $wsheet->write_string( ++$row, 2, 'Colour coding',
         $wbook->getFormat('th') );
@@ -74,6 +74,7 @@ sub wsWrite {
         'Unlocked cell for notes',
         $wbook->getFormat('scribbles')
     ) unless $colourCode->[0];
+    ++$row;
     $wsheet->{nextFree} = $row
       unless $wsheet->{nextFree} && $wsheet->{nextFree} > $row;
 }

@@ -160,7 +160,7 @@ sub worksheetsAndClosures {
 
       'Cashflow' => sub {
         my ($wsheet) = @_;
-        $wsheet->{workingsSheet} = $workingsSheet;
+        0 and $wsheet->{workingsSheet} = $workingsSheet;
         $workingsSheet = $wsheet;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
@@ -192,8 +192,8 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_print_scale(50);
-        $wsheet->set_column( 0, 0,   32 );
-        $wsheet->set_column( 1, 1,   98 );
+        $wsheet->set_column( 0, 0,   16 );
+        $wsheet->set_column( 1, 1,   112 );
         $wsheet->set_column( 2, 250, 32 );
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->topNotes, $model->licenceNotes,

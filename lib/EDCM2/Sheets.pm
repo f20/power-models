@@ -455,6 +455,7 @@ sub worksheetsAndClosures {
                 my $number = int( $num / 100 );
                 $olTabCol{$number}[ $num - $number * 100 - 1 ] = $obj;
             }
+            $wsheet->{sheetNumber} = 47;
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Aggregates' ), (
                 map {
@@ -602,9 +603,9 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_print_scale(50);
-        $wsheet->set_column( 0, 0,   30 );
-        $wsheet->set_column( 1, 1,   98 );
-        $wsheet->set_column( 2, 250, 30 );
+        $wsheet->set_column( 0, 0,   16 );
+        $wsheet->set_column( 1, 1,   112 );
+        $wsheet->set_column( 2, 250, 32 );
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->topNotes, $model->licenceNotes,
           SpreadsheetModel::ColourCodeWriter->new,

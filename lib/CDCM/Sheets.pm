@@ -687,9 +687,9 @@ EOL
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_print_scale(50);
-            $wsheet->set_column( 0, 0,   30 );
-            $wsheet->set_column( 1, 1,   98 );
-            $wsheet->set_column( 2, 250, 30 );
+            $wsheet->set_column( 0, 0,   16 );
+            $wsheet->set_column( 1, 1,   112 );
+            $wsheet->set_column( 2, 250, 32 );
             $_->wsWrite( $wbook, $wsheet )
               foreach $model->topNotes, SpreadsheetModel::ColourCodeWriter->new,
               $wbook->{logger};

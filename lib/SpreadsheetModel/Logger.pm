@@ -94,8 +94,11 @@ sub wsWrite {
     my ( $logger, $wb, $ws, $row, $col ) = @_;
     ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )
       unless defined $row && defined $col;
-    $ws->set_row( $row, 21 );
-    $ws->write( $row++, $col, "$logger->{name}", $wb->getFormat('caption') );
+    if ( my $title = "$logger->{name}" ) {
+        $ws->set_row( $row, 21 );
+        $ws->write( $row++, $col, $title, $wb->getFormat('caption') );
+        ++$row;
+    }
     my $numFormat0 = $wb->getFormat('0softnz');
     my $numFormat1 = $wb->getFormat('0.000soft');
     my $textFormat = $wb->getFormat('text');
@@ -106,7 +109,7 @@ sub wsWrite {
           foreach @{ $logger->{lines} };
     }
 
-    my @h = ( 'Worksheet', 'Data table', 'Type of table' );
+    my @h = ( 'Worksheet', 'Table', 'Type of table' );
     push @h, 'Dimensions', 'Count', 'Average' if $logger->{showDetails};
 
     $ws->write( $row, $col + $_, "$h[$_]", $wb->getFormat('th') ) for 0 .. $#h;
