@@ -97,6 +97,8 @@ sub tscsCompilation {
 
     my ( $self, $workbookModule, $options ) = @_;
 
+    require Spreadsheet::WriteExcel::Utility;
+
     my $tabList =
       $self->prepare('select tab from mytables group by tab order by tab');
     $tabList->execute;
@@ -120,49 +122,89 @@ sub tscsCompilation {
     my (
         $wb,          $smallNumberFormat, $bigNumberFormat,
         $thFormat,    $thcFormat,         $captionFormat,
-        $titleFormat, $ws,                $row
+        $titleFormat, $ws,                $row,
+        $col,
     );
+    my $newWorkbook = sub {
+        my $wb = $workbookModule->new( $_[0] );
+        $wb->setFormats($options);
+        $smallNumberFormat = $wb->getFormat('0.000copynz');
+        $bigNumberFormat   = $wb->getFormat('0copynz');
+        $thFormat          = $wb->getFormat('th');
+        $thcFormat         = $wb->getFormat('thc');
+        $captionFormat     = $wb->getFormat('caption');
+        $titleFormat       = $wb->getFormat('notes');
+        $wb;
+    };
+
     my $file = '';
     my @topLine =
       map { $_->[0]; }
       @{ $self->selectall_arrayref('select p from periods order by per') };
-    @topLine = ( qw(DNO Column Row), @topLine );
+    push @topLine, 'Changes';
+
+    if ( $options->{singleSheet} ) {
+        $wb = $newWorkbook->( 'TSCS' . $workbookModule->fileExtension );
+        $ws = $wb->add_worksheet('TSCS');
+        $ws->set_column( 0, 0,   18 );
+        $ws->set_column( 1, 1,   9 );
+        $ws->set_column( 2, 3,   36 );
+        $ws->set_column( 4, 250, 18 );
+        $ws->hide_gridlines(2);
+        $ws->freeze_panes( 1, 0 );
+        $ws->write_string( 0, 0, 'Data compilation', $titleFormat );
+        @topLine = ( qw(DNO Table Column Row), @topLine );
+        $row = 2;
+        $ws->write_string( $row, $_, $topLine[$_], $thcFormat )
+          for 0 .. $#topLine;
+    }
+    else {
+        @topLine = ( qw(DNO Column Row), @topLine );
+    }
 
     while ( my ($tab) = $tabList->fetchrow_array ) {
         next
           if $options->{tablesMatching} && !grep { $tab =~ /$_/ }
           @{ $options->{tablesMatching} };
 
-        if ( substr( $tab, 0, 2 ) ne $file ) {
+        if ( !$options->{singleSheet} && substr( $tab, 0, 2 ) ne $file ) {
             $wb =
-              $workbookModule->new( 'TSCS-'
+              $newWorkbook->( 'TSCS-'
                   . ( $file = substr( $tab, 0, 2 ) )
                   . $workbookModule->fileExtension );
-            $wb->setFormats($options);
-            $smallNumberFormat = $wb->getFormat('0.000copynz');
-            $bigNumberFormat   = $wb->getFormat('0copynz');
-            $thFormat          = $wb->getFormat('th');
-            $thcFormat         = $wb->getFormat('thc');
-            $captionFormat     = $wb->getFormat('caption');
-            $titleFormat       = $wb->getFormat('notes');
         }
-        $ws = $wb->add_worksheet($tab);
-        $ws->set_column( 0, 2,   36 );
-        $ws->set_column( 3, 250, 18 );
-        $ws->hide_gridlines(2);
-        $ws->freeze_panes( 1, 0 );
-        $ws->write_string( 0, 0, "Table $tab", $titleFormat );
+        if ( $options->{singleSheet} ) {
+            $col = 4;
+            ++$row;
+        }
+        else {
+            $ws = $wb->add_worksheet($tab);
+            $ws->set_column( 0, 0,   18 );
+            $ws->set_column( 1, 2,   36 );
+            $ws->set_column( 3, 250, 18 );
+            $ws->hide_gridlines(2);
+            $ws->freeze_panes( 1, 0 );
+            $ws->write_string( 0, 0, "Table $tab", $titleFormat );
+            $row = 2;
+            $ws->write_string( $row, $_, $topLine[$_], $thcFormat )
+              for 0 .. $#topLine;
+            $col = 3;
+        }
         $qTableTitles->execute($tab);
-        my $col = 3;
+        my @columns;
 
         while ( my ($tableName) = $qTableTitles->fetchrow_array ) {
-            $ws->write_string( 0, $col, $tableName, $titleFormat )
-              if $tableName;
+            push @columns, $col;
+            if ($tableName) {
+                if ( $options->{singleSheet} ) {
+                    $ws->write_string( $row, $col, $tableName, $thFormat );
+                }
+                else {
+                    $ws->write_string( 0, $col, $tableName, $titleFormat );
+                }
+            }
             ++$col;
         }
-        $row = 2;
-        $ws->write_string( $row, $_, $topLine[$_], $thcFormat )
-          for 0 .. $#topLine;
 
         $fetch->execute($tab);
         my $prev = '';
@@ -175,13 +217,41 @@ sub tscsCompilation {
             unless ( $prev eq $cur ) {
                 $prev = $cur;
                 ++$row;
-                $ws->write_string( $row, 0, $company, $thFormat );
-                $ws->write_string( $row, 1, $column,  $thFormat );
-                $ws->write_string( $row, 2, $myrow,   $thFormat );
+                if ( $options->{singleSheet} ) {
+                    $ws->write_string( $row, 0, $company, $thFormat );
+                    $ws->write_string( $row, 1, $tab,     $thFormat );
+                    $ws->write_string( $row, 2, $column,  $thFormat );
+                    $ws->write_string( $row, 3, $myrow,   $thFormat );
+                }
+                else {
+                    $ws->write_string( $row, 0, $company, $thFormat );
+                    $ws->write_string( $row, 1, $column,  $thFormat );
+                    $ws->write_string( $row, 2, $myrow,   $thFormat );
+                }
+                $ws->write(
+                    $row,
+                    $#topLine,
+                    '=' . join(
+                        '+', 0,
+                        map {
+                            '('
+                              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                $row, $columns[ $_ - 1 ] )
+                              . '<>'
+                              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                $row, $columns[$_] )
+                              . ')';
+                        } 1 .. $#columns
+                    ),
+                    $bigNumberFormat
+                );
             }
-            $ws->write( $row, 2 + $per, $value, $small
+            $ws->write(
+                $row, 2 + $per + ( $options->{singleSheet} ? 1 : 0 ),
+                $value, $small
                 ? $smallNumberFormat
-                : $bigNumberFormat );
+                : $bigNumberFormat
+            );
         }
         $ws->autofilter( 2, 0, $row, $#topLine );
     }
