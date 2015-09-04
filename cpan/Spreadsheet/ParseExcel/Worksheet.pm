@@ -6,8 +6,7 @@ package Spreadsheet::ParseExcel::Worksheet;
 #
 # Used in conjunction with Spreadsheet::ParseExcel.
 #
-# Copyright (c) 2014      Douglas Wilson
-# Copyright (c) 2009-2013 John McNamara
+# Copyright (c) 2009      John McNamara
 # Copyright (c) 2006-2008 Gabor Szabo
 # Copyright (c) 2000-2006 Kawai Takanori
 #
@@ -20,7 +19,7 @@ use strict;
 use warnings;
 use Scalar::Util qw(weaken);
 
-our $VERSION = '0.65';
+our $VERSION = '0.59';
 
 ###############################################################################
 #
@@ -180,34 +179,26 @@ sub get_merged_areas {
 #
 # get_row_heights()
 #
-# Returns an array of row heights.
+# Returns an array_ref of row heights.
 #
 sub get_row_heights {
 
     my $self = shift;
 
-    if ( wantarray() ) {
-      return unless $self->{RowHeight};
-      return @{ $self->{RowHeight} };
-    }
-    return $self->{RowHeight};
+    return @{ $self->{RowHeight} };
 }
 
 ###############################################################################
 #
 # get_col_widths()
 #
-# Returns an array of column widths.
+# Returns an array_ref of column widths.
 #
 sub get_col_widths {
 
     my $self = shift;
 
-    if ( wantarray() ) {
-      return unless $self->{ColWidth};
-      return @{ $self->{ColWidth} };
-    }
-    return $self->{ColWidth};
+    return @{ $self->{ColWidth} };
 }
 
 ###############################################################################
@@ -549,74 +540,6 @@ sub is_print_comments {
     return $self->{Notes};
 }
 
-=head2 get_tab_color()
-
-Return color index of tab, or undef if not set.
-
-=cut
-
-sub get_tab_color {
-    my $worksheet = shift;
-
-    return $worksheet->{TabColor};
-}
-
-=head2 is_sheet_hidden()
-
-Return true if sheet is hidden
-
-=cut
-
-sub is_sheet_hidden {
-    my $worksheet = shift;
-
-    return $worksheet->{SheetHidden};
-}
-
-=head2 is_row_hidden($row)
-
-In scalar context, return true if $row is hidden
-In array context, return an array whose elements are true
-if the corresponding row is hidden.
-
-=cut
-
-sub is_row_hidden {
-    my $worksheet = shift;
-
-    my ($row) = @_;
-
-    unless ( $worksheet->{RowHidden} ) {
-        return () if (wantarray);
-        return 0;
-    }
-
-    return @{ $worksheet->{RowHidden} } if (wantarray);
-    return $worksheet->{RowHidden}[$row];
-}
-
-=head2 is_col_hidden($col)
-
-In scalar context, return true if $col is hidden
-In array context, return an array whose elements are true
-if the corresponding column is hidden.
-
-=cut
-
-sub is_col_hidden {
-    my $worksheet = shift;
-
-    my ($col) = @_;
-
-    unless ( $worksheet->{ColHidden} ) {
-        return () if (wantarray);
-        return 0;
-    }
-
-    return @{ $worksheet->{ColHidden} } if (wantarray);
-    return $worksheet->{ColHidden}[$col];
-}
-
 ###############################################################################
 #
 # Mapping between legacy method names and new names.
@@ -744,8 +667,7 @@ Returns C<undef> if there are no merged areas.
 
 =head2 get_row_heights()
 
-The C<get_row_heights()> method returns an array_ref of row heights in scalar context,
-and an array in list context.
+The C<get_row_heights()> method returns an array_ref of row heights.
 
     my $row_heights = $worksheet->get_row_heights();
 
@@ -754,8 +676,7 @@ Returns C<undef> if the property isn't set.
 
 =head2 get_col_widths()
 
-The C<get_col_widths()> method returns an array_ref of column widths in scalar context,
-and an array in list context.
+The C<get_col_widths()> method returns an array_ref of column widths.
 
     my $col_widths = $worksheet->get_col_widths();
 
@@ -1013,9 +934,7 @@ Returns 0 if the property isn't set.
 
 =head1 AUTHOR
 
-Current maintainer 0.60+: Douglas Wilson dougw@cpan.org
-
-Maintainer 0.40-0.59: John McNamara jmcnamara@cpan.org
+Maintainer 0.40+: John McNamara jmcnamara@cpan.org
 
 Maintainer 0.27-0.33: Gabor Szabo szabgab@cpan.org
 
@@ -1023,9 +942,7 @@ Original author: Kawai Takanori kwitknr@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2014 Douglas Wilson
-
-Copyright (c) 2009-2013 John McNamara
+Copyright (c) 2009-2010 John McNamara
 
 Copyright (c) 2006-2008 Gabor Szabo
 

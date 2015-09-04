@@ -6,8 +6,7 @@ package Spreadsheet::ParseExcel::FmtDefault;
 #
 # Used in conjunction with Spreadsheet::ParseExcel.
 #
-# Copyright (c) 2014      Douglas Wilson
-# Copyright (c) 2009-2013 John McNamara
+# Copyright (c) 2009      John McNamara
 # Copyright (c) 2006-2008 Gabor Szabo
 # Copyright (c) 2000-2006 Kawai Takanori
 #
@@ -20,18 +19,18 @@ use strict;
 use warnings;
 
 use Spreadsheet::ParseExcel::Utility qw(ExcelFmt);
-our $VERSION = '0.65';
+our $VERSION = '0.59';
 
 my %hFmtDefault = (
-    0x00 => 'General',
+    0x00 => '@',
     0x01 => '0',
     0x02 => '0.00',
     0x03 => '#,##0',
     0x04 => '#,##0.00',
     0x05 => '($#,##0_);($#,##0)',
-    0x06 => '($#,##0_);[Red]($#,##0)',
+    0x06 => '($#,##0_);[RED]($#,##0)',
     0x07 => '($#,##0.00_);($#,##0.00_)',
-    0x08 => '($#,##0.00_);[Red]($#,##0.00_)',
+    0x08 => '($#,##0.00_);[RED]($#,##0.00_)',
     0x09 => '0%',
     0x0A => '0.00%',
     0x0B => '0.00E+00',
@@ -49,9 +48,9 @@ my %hFmtDefault = (
 
     #0x17-0x24 -- Differs in Natinal
     0x25 => '(#,##0_);(#,##0)',
-    0x26 => '(#,##0_);[Red](#,##0)',
+    0x26 => '(#,##0_);[RED](#,##0)',
     0x27 => '(#,##0.00);(#,##0.00)',
-    0x28 => '(#,##0.00);[Red](#,##0.00)',
+    0x28 => '(#,##0.00);[RED](#,##0.00)',
     0x29 => '_(*#,##0_);_(*(#,##0);_(*"-"_);_(@_)',
     0x2A => '_($*#,##0_);_($*(#,##0);_(*"-"_);_(@_)',
     0x2B => '_(*#,##0.00_);_(*(#,##0.00);_(*"-"??_);_(@_)',
@@ -201,9 +200,7 @@ This module is used in conjunction with Spreadsheet::ParseExcel. See the documen
 
 =head1 AUTHOR
 
-Current maintainer 0.60+: Douglas Wilson dougw@cpan.org
-
-Maintainer 0.40-0.59: John McNamara jmcnamara@cpan.org
+Maintainer 0.40+: John McNamara jmcnamara@cpan.org
 
 Maintainer 0.27-0.33: Gabor Szabo szabgab@cpan.org
 
@@ -211,9 +208,7 @@ Original author: Kawai Takanori kwitknr@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2014 Douglas Wilson
-
-Copyright (c) 2009-2013 John McNamara
+Copyright (c) 2009-2010 John McNamara
 
 Copyright (c) 2006-2008 Gabor Szabo
 

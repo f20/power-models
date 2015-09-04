@@ -6,8 +6,7 @@ package Spreadsheet::ParseExcel::Workbook;
 #
 # Used in conjunction with Spreadsheet::ParseExcel.
 #
-# Copyright (c) 2014      Douglas Wilson
-# Copyright (c) 2009-2013 John McNamara
+# Copyright (c) 2009      John McNamara
 # Copyright (c) 2006-2008 Gabor Szabo
 # Copyright (c) 2000-2006 Kawai Takanori
 #
@@ -19,7 +18,7 @@ package Spreadsheet::ParseExcel::Workbook;
 use strict;
 use warnings;
 
-our $VERSION = '0.65';
+our $VERSION = '0.59';
 
 ###############################################################################
 #
@@ -31,14 +30,6 @@ sub new {
     my ($class) = @_;
     my $self = {};
     bless $self, $class;
-}
-
-###############################################################################
-sub color_idx_to_rgb {
-    my( $workbook, $iidx ) = @_;
-
-    my $palette = $workbook->{aColor};
-    return ( ( defined $palette->[$iidx] ) ? $palette->[$iidx] : $palette->[0] );
 }
 
 ###############################################################################
@@ -149,19 +140,6 @@ sub using_1904_date {
 sub ParseAbort {
     my ( $self, $val ) = @_;
     $self->{_ParseAbort} = $val;
-}
-
-=head2 get_active_sheet()
-
-Return the number of the active (open) worksheet (at the time the workbook
-was saved.  May return undef.
-
-=cut
-
-sub get_active_sheet {
-    my $workbook = shift;
-
-    return $workbook->{ActiveSheet};
 }
 
 ###############################################################################
@@ -298,9 +276,7 @@ Returns 0 if the 1900 epoch is in use.
 
 =head1 AUTHOR
 
-Current maintainer 0.60+: Douglas Wilson dougw@cpan.org
-
-Maintainer 0.40-0.59: John McNamara jmcnamara@cpan.org
+Maintainer 0.40+: John McNamara jmcnamara@cpan.org
 
 Maintainer 0.27-0.33: Gabor Szabo szabgab@cpan.org
 
@@ -308,9 +284,7 @@ Original author: Kawai Takanori kwitknr@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2014 Douglas Wilson
-
-Copyright (c) 2009-2013 John McNamara
+Copyright (c) 2009-2010 John McNamara
 
 Copyright (c) 2006-2008 Gabor Szabo
 
