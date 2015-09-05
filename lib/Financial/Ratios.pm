@@ -152,7 +152,21 @@ sub statement {
 
 }
 
-sub charts {
+sub reference {
+    my ( $ratios, $periods ) = @_;
+    $ratios->{reference}{ 0 + $periods } ||= CalcBlock(
+        name  => 'Reference values for financial ratios',
+        items => [
+            A12 => Constant(
+                name => 'Reference EBITDA interest cover',
+                cols => $periods->labelset,
+                data => [ map { 3 } @{ $periods->labelset->{list} } ],
+            ),
+        ],
+    );
+}
+
+sub chart_ebitda_cover {
     my ( $ratios, $periods ) = @_;
     require SpreadsheetModel::Chart;
     SpreadsheetModel::Chart->new(
@@ -162,33 +176,35 @@ sub charts {
         width        => 110 * @{ $periods->labelset->{list} },
         instructions => [
             add_series => $ratios->statement($periods)->{A12},
-            set_x_axis => [ name => 'Year' ],
+            set_x_axis => [ name => 'Year', ],
             set_y_axis => [ name => 'Cover ratio' ],
             set_legend => [ position => 'none' ],
             combine    => [
                 type         => 'line',
                 instructions => [
-                    add_series => Constant(
-                        name => 'Reference EBITDA interest cover',
-                        cols => $periods->labelset,
-                        data => [ map { 3 } @{ $periods->labelset->{list} } ],
-                    ),
+                    add_series => $ratios->reference($periods)->{A12},
                 ],
             ],
         ],
-      ),
-      SpreadsheetModel::Chart->new(
-        name         => 'Gearing',
+    );
+}
+
+sub chart_gearing {
+    my ( $ratios, $periods ) = @_;
+    require SpreadsheetModel::Chart;
+    SpreadsheetModel::Chart->new(
+        name         => '',
         type         => 'column',
-        height       => 360,
-        width        => 110 * @{ $periods->labelset->{list} },
+        height       => 280,
+        width        => 640,
         instructions => [
             add_series => $ratios->statement($periods)->{A10},
-            set_x_axis => [ name => 'Year' ],
-            set_y_axis => [ name => 'Gearing' ],
+            set_x_axis => [ name => 'Year', ],
+            set_y_axis =>
+              [ name => 'Gearing', min => 0, max => 1, num_format => '0%', ],
             set_legend => [ position => 'none' ],
         ],
-      );
+    );
 }
 
 1;

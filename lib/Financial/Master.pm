@@ -194,10 +194,13 @@ sub new {
     push @{ $model->{cashflowTables} },
       $cashflow->statement($years),
       $cashflow->profitAndLossReserveMovements($years),
-      $cashflow->workingCapitalMovements($years);
+      $cashflow->workingCapitalMovements($years),
+      $cashflow->equityInitialAndRaised($years);
 
     push @{ $model->{ratioTables} }, $ratios->statement($years),
-      $ratios->charts($years);
+      $ratios->reference($years), $ratios->chart_ebitda_cover($years);
+    push @{ $model->{inputCharts} }, $cashflow->chart($years),
+      $ratios->chart_gearing($years);
 
     $_->finish
       foreach grep { $_->can('finish'); } $months, $years, $assets, $sales,

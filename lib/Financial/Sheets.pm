@@ -45,13 +45,13 @@ sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
 
-    my ($workingsSheet);
+    my ( $workingsSheet, $inputSheet );
 
     'Input' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber}    = 14;
         $wbook->{lastSheetNumber} = 14;
-        $wsheet->freeze_panes( 1, 2 );
+        $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   12 );
         $wsheet->set_column( 1, 1,   32 );
         $wsheet->set_column( 2, 250, 16 );
@@ -84,6 +84,7 @@ sub worksheetsAndClosures {
               [ 'Input data', '', 'This sheet contains the input data.' ] )
           ->wsWrite( $wbook, $wsheet );
         $wsheet->{nextFree} = $nextFree;
+        $inputSheet = $wsheet;
       }
 
       ,
@@ -186,6 +187,7 @@ sub worksheetsAndClosures {
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Financial ratios' ),
           @{ $model->{ratioTables} };
+        $_->wsWrite( $wbook, $inputSheet ) foreach @{ $model->{inputCharts} };
       }
 
       ,

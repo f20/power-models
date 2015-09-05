@@ -200,4 +200,35 @@ sub profitAndLossReserveMovements {
     );
 }
 
+sub equityInitialAndRaised {
+    my ( $cashflow, $periods ) = @_;
+    $cashflow->{equityInitialAndRaised}{ 0 + $periods } ||= Arithmetic(
+        name          => 'Equity raised, including initial equity (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1+IF(A2>A3,A4,0)',
+        arguments     => {
+            A1 => $cashflow->{balance}{reserve}->raised($periods),
+            A2 => $periods->firstDay,
+            A3 => $periods->lastDay,
+            A4 => $cashflow->{balance}->initialEquity($periods),
+        },
+    );
+}
+
+sub chart {
+    my ( $cashflow, $periods ) = @_;
+    require SpreadsheetModel::Chart;
+    SpreadsheetModel::Chart->new(
+        name         => 'Equity raised and dividends',
+        type         => 'column',
+        height       => 280,
+        width        => 640,
+        instructions => [
+            add_series => $cashflow->investors($periods),
+            add_series => $cashflow->equityInitialAndRaised($periods),
+            set_legend => [ position => 'top' ],
+        ],
+    );
+}
+
 1;
