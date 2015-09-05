@@ -87,14 +87,16 @@ sub statement {
                 [
                     $cashflow->{balance}{assets}->capitalExpenditure($periods),
                     $cashflow->{balance}{assets}->capitalReceipts($periods),
-                    $periods->decorate(
+                    A6 => $periods->decorate(
                         'Cashflow from investing activities (£)'),
                 ],
                 [
                     $cashflow->{income}{debt}->interest($periods),
                     $cashflow->{balance}{debt}->raised($periods),
                     $cashflow->{balance}{debt}->repaid($periods),
-                    $cashflow->{balance}{reserve} ? () : (),
+                    $cashflow->{balance}{reserve}
+                    ? $cashflow->{balance}{reserve}->raised($periods)
+                    : (),
                     $periods->decorate(
                         'Cashflow from financing activities (£)'),
                 ],
@@ -114,7 +116,10 @@ sub statement {
                 },
             ),
             A1 => {
-                name => $periods->decorate('Cashflow to/from investors (£)'),
+                name => $periods->decorate(
+                    $cashflow->{balance}{reserve} ? 'Distributions (£)'
+                    : 'Cashflow to/from investors (£)'
+                ),
                 rounding => 2,
             },
         ]
@@ -131,20 +136,20 @@ sub fromOperations {
     $cashflow->statement($periods)->{A5};
 }
 
-sub workingCapital {
+sub workingCapitalMovements {
     my ( $cashflow, $periods ) = @_;
-    $cashflow->{workingCapital}{ 0 + $periods } ||= CalcBlock(
-        name  => 'Movements in working capital and cash needed for trading',
+    $cashflow->{workingCapitalMovements}{ 0 + $periods } ||= CalcBlock(
+        name  => 'Movements in working capital',
         items => [
-            Arithmetic(
-                name => $periods->decorate('Opening working capital (£)'),
-                defaultFormat => '0soft',
-                arithmetic    => '=INDEX(A5_A6,A1)',
-                arguments     => {
-                    A1    => $periods->indexPrevious,
-                    A5_A6 => $cashflow->{balance}->workingCapital($periods),
-                },
-            ),
+            [
+                A1    => $periods->indexPrevious,
+                A5_A6 => $cashflow->{balance}->workingCapital($periods),
+                {
+                    name => $periods->decorate('Opening working capital (£)'),
+                    defaultFormat => '0boldsoft',
+                    arithmetic    => '=INDEX(A5_A6,A1)',
+                }
+            ],
             [
                 (
                     map {
@@ -165,6 +170,32 @@ s#^Cash released/absorbed in#Increase/decrease through#;
                 $periods->decorate('Increase/decrease in working capital (£)'),
             ],
             $periods->decorate('Closing working capital (£)'),
+        ],
+    );
+}
+
+sub profitAndLossReserveMovements {
+    my ( $cashflow, $periods ) = @_;
+    $cashflow->{profitAndLossReserveMovements}{ 0 + $periods } ||= CalcBlock(
+        name  => 'Movements in the profit and loss reserve',
+        items => [
+            [
+                A1    => $periods->indexPrevious,
+                A5_A6 => $cashflow->{balance}->profitAndLossReserve($periods),
+                {
+                    name => $periods->decorate('Opening P&L reserve (£)'),
+                    defaultFormat => '0boldsoft',
+                    arithmetic    => '=INDEX(A5_A6,A1)',
+                }
+            ],
+            $cashflow->{income}->earnings($periods),
+            Arithmetic(
+                name          => $periods->decorate('Dividends paid (£)'),
+                defaultFormat => '0soft',
+                arithmetic    => '=-1*A1',
+                arguments => { A1 => $cashflow->statement($periods)->{A1}, },
+            ),
+            $periods->decorate('Closing P&L reserve (£)'),
         ],
     );
 }

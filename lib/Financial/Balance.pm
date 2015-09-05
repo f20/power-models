@@ -45,25 +45,39 @@ sub statement {
         name =>
           $periods->decorate( 'Balance sheet' . ( $balance->{suffix} || '' ) ),
         items => [
-            [
+            A2 => [
                 [
-                    $balance->{assets}->netValue($periods),
                     [
-                        $balance->{sales}->balance($periods),
-                        A5 => $balance->{cashCalc}
-                          ->total( $periods, $balance->{reserve} ),
-                        $periods->decorate('Current assets (£)'),
+                        $balance->{assets}->netValue($periods),
+                        [
+                            $balance->{sales}->balance($periods),
+                            A5 => $balance->{cashCalc}
+                              ->total( $periods, $balance->{reserve} ),
+                            $periods->decorate('Current assets (£)'),
+                        ],
+                        A1 => $periods->decorate('Total assets (£)'),
                     ],
-                    A1 => $periods->decorate('Total assets (£)'),
+                    $balance->{costSales}->balance($periods),
+                    $balance->{adminExp}->balance($periods),
+                    $periods->decorate(
+                        'Total assets less current liabilities (£)'),
                 ],
-                $balance->{costSales}->balance($periods),
-                $balance->{adminExp}->balance($periods),
-                $periods->decorate('Total assets less current liabilities (£)'),
+                $balance->{debt}->due($periods),
+                $periods->decorate(
+                    'Equity' . ( $balance->{suffix} || '' ) . ' (£)'
+                ),
             ],
-            $balance->{debt}->due($periods),
-            A2 => $periods->decorate(
-                'Equity' . ( $balance->{suffix} || '' ) . ' (£)'
-            ),
+            $balance->{reserve}
+            ? (
+                A8 => $balance->{reserve}->shareCapital($periods),
+                A9 => {
+                    name => $periods->decorate('Profit and loss reserve (£)'),
+                    cols => $periods->labelset,
+                    arithmetic    => '=A2-A8',
+                    defaultFormat => '0soft',
+                }
+              )
+            : (),
         ],
     );
 }
@@ -71,6 +85,11 @@ sub statement {
 sub equity {
     my ( $balance, $periods ) = @_;
     $balance->statement($periods)->{A2};
+}
+
+sub profitAndLossReserve {
+    my ( $balance, $periods ) = @_;
+    $balance->statement($periods)->{A9};
 }
 
 sub cash {
@@ -119,23 +138,6 @@ sub initialEquity {
           . ( $periods->{reverseTime} ? @{ $periods->{list} } : 1 ) . ')',
         arguments => {
             A31_A32 => $balance->equity($periods),
-        },
-    );
-}
-
-sub shareCapital {
-    my ( $balance, $periods ) = @_;
-    return $balance->equity($periods) unless $balance->{reserve};
-    $balance->{shareCapital}{ 0 + $periods } ||= Arithmetic(
-        name =>
-          $periods->decorate('Share capital and pre-existing reserves (£)'),
-        defaultFormat => '0soft',
-        arithmetic    => '=A6+SUMIF(A2_A3,"<="&A1,A4_A5)',
-        arguments     => {
-            A1    => $periods->lastDay,
-            A2_A3 => $balance->{reserve}->raisingDates,
-            A4_A5 => $balance->{reserve}->amountsRaised,
-            A6    => $balance->initial,
         },
     );
 }

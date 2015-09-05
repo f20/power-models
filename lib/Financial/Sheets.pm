@@ -160,16 +160,18 @@ sub worksheetsAndClosures {
 
       'Cashflow' => sub {
         my ($wsheet) = @_;
-        0 and $wsheet->{workingsSheet} = $workingsSheet;
+        $wsheet->{workingsSheet} = $workingsSheet;
         $workingsSheet = $wsheet;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   32 );
         $wsheet->set_column( 1, 250, 15 );
+        my @tables = @{ $model->{cashflowTables} };
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Cashflow statement' ),
-          @{ $model->{cashflowTables} };
+          shift @tables;
         delete $wsheet->{workingsSheet};
+        $_->wsWrite( $wbook, $wsheet ) foreach @tables;
       }
 
       ,

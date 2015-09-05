@@ -193,9 +193,11 @@ sub new {
 
     push @{ $model->{cashflowTables} },
       $cashflow->statement($years),
-      $cashflow->workingCapital($years), $cashflow->investors($years);
+      $cashflow->profitAndLossReserveMovements($years),
+      $cashflow->workingCapitalMovements($years);
 
-    push @{ $model->{ratioTables} }, $ratios->statement($years);
+    push @{ $model->{ratioTables} }, $ratios->statement($years),
+      $ratios->charts($years);
 
     $_->finish
       foreach grep { $_->can('finish'); } $months, $years, $assets, $sales,

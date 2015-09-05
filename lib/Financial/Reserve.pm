@@ -105,9 +105,9 @@ sub trancheId {
     );
 }
 
-sub openingOrRaisedCashNeeded {
+sub cashNeededToNextTranche {
     my ($reserve) = @_;
-    $reserve->{openingOrRaisedCashNeeded} ||= SpreadsheetModel::Custom->new(
+    $reserve->{cashNeededToNextTranche} ||= SpreadsheetModel::Custom->new(
         name => $reserve->{periods}->decorate(
                 'Spare cash (opening or raised) needed to reach'
               . ' next equity raising tranche (£)'
@@ -172,7 +172,7 @@ sub amountsRaised {
         arguments     => {
             A1      => $reserve->raisingDates,
             A102    => $reserve->raisingDates,
-            A31_A32 => $reserve->openingOrRaisedCashNeeded,
+            A31_A32 => $reserve->cashNeededToNextTranche,
             A41_A42 => $reserve->trancheId,
         },
     );
@@ -212,12 +212,42 @@ sub spareCash {
                 arguments => {
                     A1      => $reserve->{periods}->indexPrevious,
                     A11     => $reserve->{periods}->indexPrevious,
-                    A2      => $reserve->openingOrRaisedCashNeeded,
-                    A3      => $reserve->openingOrRaisedCashNeeded,
+                    A2      => $reserve->cashNeededToNextTranche,
+                    A3      => $reserve->cashNeededToNextTranche,
                     A81     => $reserve->trancheId,
                     A82_A83 => $reserve->trancheId,
                 }
             ),
+        },
+    );
+}
+
+sub raised {
+    my ( $reserve, $periods ) = @_;
+    $reserve->{raised}{ 0 + $periods } ||= Arithmetic(
+        name          => $periods->decorate('Equity raised (£)'),
+        defaultFormat => '0soft',
+        arithmetic    => '=SUMPRODUCT((A2_A3<=A1)*(A21_A31>=A11)*A4_A5)',
+        arguments     => {
+            A1      => $periods->lastDay,
+            A11     => $periods->firstDay,
+            A2_A3   => $reserve->raisingDates,
+            A21_A31 => $reserve->raisingDates,
+            A4_A5   => $reserve->amountsRaised,
+        },
+    );
+}
+
+sub shareCapital {
+    my ( $reserve, $periods ) = @_;
+    $reserve->{shareCapital}{ 0 + $periods } ||= Arithmetic(
+        name          => $periods->decorate('Share capital (£)'),
+        defaultFormat => '0soft',
+        arithmetic    => '=SUMIF(A2_A3,"<="&A1,A4_A5)',
+        arguments     => {
+            A1    => $periods->lastDay,
+            A2_A3 => $reserve->raisingDates,
+            A4_A5 => $reserve->amountsRaised,
         },
     );
 }

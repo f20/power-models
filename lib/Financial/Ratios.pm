@@ -43,6 +43,9 @@ sub statement {
 
     my ( $ratios, $periods ) = @_;
 
+    return $ratios->{statement}{ 0 + $periods }
+      if $ratios->{statement}{ 0 + $periods };
+
     my @ratios;
 
     push @ratios,
@@ -94,7 +97,7 @@ sub statement {
       );
 
     push @ratios,
-      Arithmetic(
+      A12 => Arithmetic(
         name          => 'Interest cover by EBITDA',
         defaultFormat => '0.00soft',
         arithmetic    => '=IF(A3<0,-1*A2/A1,"")',
@@ -130,7 +133,7 @@ sub statement {
       );
 
     push @ratios,
-      Arithmetic(
+      A10 => Arithmetic(
         name          => 'Gearing',
         defaultFormat => '%soft',
         arithmetic    => '=A1/(A11-A2)',
@@ -141,12 +144,51 @@ sub statement {
         },
       );
 
-    CalcBlock(
+    $ratios->{statement}{ 0 + $periods } = CalcBlock(
         name        => $periods->decorate('Ratios'),
         consolidate => 1,
         items       => \@ratios,
     );
 
+}
+
+sub charts {
+    my ( $ratios, $periods ) = @_;
+    require SpreadsheetModel::Chart;
+    SpreadsheetModel::Chart->new(
+        name         => 'EBITDA interest cover',
+        type         => 'column',
+        height       => 360,
+        width        => 110 * @{ $periods->labelset->{list} },
+        instructions => [
+            add_series => $ratios->statement($periods)->{A12},
+            set_x_axis => [ name => 'Year' ],
+            set_y_axis => [ name => 'Cover ratio' ],
+            set_legend => [ position => 'none' ],
+            combine    => [
+                type         => 'line',
+                instructions => [
+                    add_series => Constant(
+                        name => 'Reference EBITDA interest cover',
+                        cols => $periods->labelset,
+                        data => [ map { 3 } @{ $periods->labelset->{list} } ],
+                    ),
+                ],
+            ],
+        ],
+      ),
+      SpreadsheetModel::Chart->new(
+        name         => 'Gearing',
+        type         => 'column',
+        height       => 360,
+        width        => 110 * @{ $periods->labelset->{list} },
+        instructions => [
+            add_series => $ratios->statement($periods)->{A10},
+            set_x_axis => [ name => 'Year' ],
+            set_y_axis => [ name => 'Gearing' ],
+            set_legend => [ position => 'none' ],
+        ],
+      );
 }
 
 1;
