@@ -185,7 +185,7 @@ sub wsWrite {
               . "$self->{name} $self->{debug}"
               if $_->{$wb};
             $_->wsPrepare( $wb, $wsheet );
-            $_->{$wb} ||= {}; # Placeholder
+            $_->{$wb} ||= {};    # Placeholder
         }
         last if $col == $self->{location}->nextColumn($wb);
         delete $_->{$wb} foreach @{ $self->{columns} };
@@ -247,7 +247,7 @@ sub wsWrite {
             my $row = $docRow;
             foreach (@allLines) {
 
-                if ( ref($_) =~ /^SpreadsheetModel::/ ) {
+                if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Object' ) ) {
                     my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                     if ( my $url = $_->wsUrl($wb) ) {
                         $ws->write_url( ++$row, $c4, $url, $na, $linkFormat );

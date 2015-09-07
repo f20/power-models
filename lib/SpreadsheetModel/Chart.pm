@@ -81,6 +81,9 @@ sub applyInstructions {
             && !$args->{rows}
             && $args->{cols} )
         {
+            push @{ $self->{sourceLines} }, $args
+              unless $self->{sourceLines} && grep { $_ == $args }
+              @{ $self->{sourceLines} };
             my ( $w2, $r2, $c2 ) = $args->wsWrite( $wb, $ws, undef, undef, 1 );
             $w2 = "'" . $w2->get_name . "'!";
             my $r3 = $r2 - 1;
@@ -125,9 +128,60 @@ sub wsWrite {
         if ( $self->{name} ) {
             $ws->write( $row, $col, "$self->{name}", $wb->getFormat('notes') );
             $ws->set_row( $row, 21 );
-            $row += 2;
+            ++$row;
         }
 
+        if ( $self->{lines}
+            or !( $wb->{noLinks} && $wb->{noLinks} == 1 )
+            and $self->{name} && $self->{sourceLines} )
+        {
+            my $hideFormulas = $wb->{noLinks} && $self->{sourceLines};
+            my $textFormat   = $wb->getFormat('text');
+            my $linkFormat   = $wb->getFormat('link');
+            my $xc           = 0;
+            foreach (
+                $self->{lines} ? @{ $self->{lines} } : (),
+                !( $wb->{noLinks} && $wb->{noLinks} == 1 )
+                && $self->{sourceLines} && @{ $self->{sourceLines} }
+                ? ( 'Data sources:', @{ $self->{sourceLines} } )
+                : ()
+              )
+            {
+                if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Object' ) ) {
+                    my $na = 'x' . ( ++$xc ) . " = $_->{name}";
+                    if ( my $url = $_->wsUrl($wb) ) {
+                        $ws->set_row( $row, undef, undef, 1, 1 )
+                          if $hideFormulas;
+                        $ws->write_url( $row++, $col, $url, $na, $linkFormat );
+                        (
+                            $_->{location}
+                              && UNIVERSAL::isa( $_->{location},
+                                'SpreadsheetModel::Columnset' )
+                            ? $_->{location}
+                            : $_
+                          )->addForwardLink($self)
+                          if $wb->{findForwardLinks};
+                    }
+                    else {
+                        $ws->set_row( $row, undef, undef, 1, 1 )
+                          if $hideFormulas;
+                        $ws->write_string( $row++, $col, $na, $textFormat );
+                    }
+                }
+                elsif (/^(https?|mailto:)/) {
+                    $ws->set_row( $row, undef, undef, 1, 1 ) if $hideFormulas;
+                    $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
+                }
+                else {
+                    $ws->set_row( $row, undef, undef, 1, 1 ) if $hideFormulas;
+                    $ws->write_string( $row++, $col, "$_", $textFormat );
+                }
+            }
+            $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
+              if $hideFormulas;
+        }
+
+        ++$row;
         $ws->set_row( $row, $self->{height} * 0.75 );
         $ws->insert_chart(
             $row, $col + 1, $chart, 0, 0,

@@ -231,7 +231,7 @@ sub wsPrepare {
 # # #
 
 package SpreadsheetModel::View;
-our @ISA = qw/SpreadsheetModel::Stack/;
+our @ISA = qw(SpreadsheetModel::Stack);
 
 sub check {
     $_[0]->SUPER::check;
@@ -269,7 +269,7 @@ sub addForwardLink {
 # # #
 
 package SpreadsheetModel::Constant;
-our @ISA = qw/SpreadsheetModel::Dataset/;
+our @ISA = qw(SpreadsheetModel::Dataset);
 
 sub populateCore {
     my ($self) = @_;

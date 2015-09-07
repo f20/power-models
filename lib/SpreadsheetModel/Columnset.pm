@@ -311,7 +311,7 @@ sub wsWrite {
             elsif ( ref $_ eq 'ARRAY' ) {
                 push @arrayLines, $_;
             }
-            elsif ( ref($_) =~ /^SpreadsheetModel::/ ) {
+            elsif ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Object' ) ) {
                 my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                 if ( my $url = $_->wsUrl($wb) ) {
                     $ws->set_row( $row, undef, undef, 1, 1 )

@@ -382,6 +382,7 @@ sub wsWrite {
     }
 
     elsif ( $self->{sourceLines} ) {
+        warn 'Deprecated';
         my %z;
         my @z;
         foreach ( @{ $self->{sourceLines} } ) {
@@ -431,7 +432,7 @@ sub wsWrite {
             : ()
           )
         {
-            if ( ref($_) =~ /^SpreadsheetModel::/ ) {
+            if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Object' ) ) {
                 my $na = 'x' . ( ++$xc ) . " = $_->{name}";
                 if ( my $url = $_->wsUrl($wb) ) {
                     $ws->set_row( $row, undef, undef, 1, 1 )

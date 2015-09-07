@@ -125,7 +125,7 @@ sub wsWrite {
             my @cells = ref $_ eq 'ARRAY' ? @$_ : $_;
             for ( my $c = 0 ; $c < @cells ; ++$c ) {
                 next unless defined( local $_ = $cells[$c] );
-                if ( ref($_) =~ /^SpreadsheetModel::/ ) {
+                if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Object' ) ) {
                     if ( my $url = $_->wsUrl($wb) ) {
                         $ws->write_url( $row, $col + $c, $url,
                             "$_->{name}" || $_->{lines}[0], $linkFormat );

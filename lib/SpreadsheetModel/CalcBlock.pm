@@ -118,15 +118,11 @@ sub check {
                             } values %uniques
                           )
                         {
-                            while ( my ( $k, $v ) = each %uniques ) {
-                                next if exists $inBlock{$k};
-                                $redirected{$k} ||= $add->($v);
-                                while ( my ( $k2, $v2 ) =
-                                    each %{ $_->{arguments} } )
-                                {
-                                    $_->{arguments}{$k2} = $redirected{$k}
-                                      if $v2 == $v;
-                                }
+                            foreach my $k ( sort keys %{ $_->{arguments} } ) {
+                                my $v = $_->{arguments}{$k};
+                                next if exists $inBlock{ 0 + $v };
+                                $_->{arguments}{$k} = $redirected{ 0 + $v } ||=
+                                  $add->($v);
                             }
                         }
                         elsif ( !grep { exists $inBlock{$_}; } keys %uniques ) {

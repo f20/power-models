@@ -142,8 +142,8 @@ sub workingCapitalMovements {
         name  => 'Movements in working capital',
         items => [
             [
-                A1    => $periods->indexPrevious,
                 A5_A6 => $cashflow->{balance}->workingCapital($periods),
+                A1    => $periods->indexPrevious,
                 {
                     name => $periods->decorate('Opening working capital (£)'),
                     defaultFormat => '0boldsoft',
@@ -180,8 +180,8 @@ sub profitAndLossReserveMovements {
         name  => 'Movements in the profit and loss reserve',
         items => [
             [
-                A1    => $periods->indexPrevious,
                 A5_A6 => $cashflow->{balance}->profitAndLossReserve($periods),
+                A1    => $periods->indexPrevious,
                 {
                     name => $periods->decorate('Opening P&L reserve (£)'),
                     defaultFormat => '0boldsoft',

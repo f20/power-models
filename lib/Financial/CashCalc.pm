@@ -43,6 +43,7 @@ sub diversity {
     my ( $cashCalc, $periods ) = @_;
     $cashCalc->{diversity} ||= Dataset(
         name          => 'Cash buffer diversity allowance',
+        singleRowName => 'Allowance',
         defaultFormat => '%hard',
         number        => 1448,
         dataset       => $cashCalc->{model}->{dataset},
