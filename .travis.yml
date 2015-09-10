@@ -6,7 +6,7 @@ perl:
   - '5.14'
   - '5.8'
 script:
-  - perl other/run-all-tests.pl
+  - prove
   - grep '^ ' README.md | while read x; do echo $x; if ! $x; then exit 1; fi; done
   - for x in */Summaries/*.txt; do echo $x; if ! perl pmod.pl "$x"; then exit 1; fi; done
 sudo: false
