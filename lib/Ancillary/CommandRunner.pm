@@ -247,11 +247,11 @@ sub makeModels {
                 if ( -f $file ) {
                     $maker->{addFile}->( abs2rel($file) );
                 }
-                elsif ( my @list = <"$file"> ) {
+                elsif ( my @list = eval "<$file>" ) {
                     $maker->{addFile}->( abs2rel($_) ) foreach @list;
                 }
                 else {
-                    warn "Ignored argument: $_\nNothing matches $file";
+                    warn "Ignored argument: $_";
                 }
             }
         }
