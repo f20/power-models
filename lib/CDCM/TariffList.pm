@@ -758,42 +758,42 @@ HV substation (33kV EDCM) generation half hourly single rate:
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: edcm
+  - Included: edcmgen
 ---
 HV substation (132kV EDCM) generation half hourly single rate:
   - Name: Generation Category 1001
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: edcm
+  - Included: edcmgen
 ---
 33kV generation half hourly single rate:
   - Name: Generation Category 1110
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|Opt1|Opt2|Opt3|Opt4|Opt6|edcm
+  - Included: CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|Opt1|Opt2|Opt3|Opt4|Opt6|edcmgen
 ---
 33kV substation generation half hourly single rate:
   - Name: Generation Category 1100
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|Opt1|Opt2|Opt3|Opt4|Opt6|edcm
+  - Included: CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|Opt1|Opt2|Opt3|Opt4|Opt6|edcmgen
 ---
 132kV generation half hourly single rate:
   - Name: Generation Category 1000
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt6|edcm
+  - Included: CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt6|edcmgen
 ---
 GSP generation half hourly single rate:
   - Name: Generation Category 0000
   - Fixed charge p/MPAN/day
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
-  - Included: edcm
+  - Included: edcmgen
 ---
 33kV generation (GDT) half hourly single rate:
   - Fixed charge p/MPAN/day
