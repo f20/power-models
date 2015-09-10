@@ -426,14 +426,17 @@ sub jbzWriter {
             $scalars{ $worksheet->{Name} } = $scalar if %$scalar;
         }
         return unless %scalars;
-        use JSON;
+        my $jsonModule;
+        if    ( eval 'require JSON' )     { $jsonModule = 'JSON'; }
+        elsif ( eval 'require JSON::PP' ) { $jsonModule = 'JSON::PP'; }
+        else { warn 'No JSON module found'; goto FAIL; }
         $book =~ s/\.xl\S+//i;
         $book .= '.jbz';
         $book =~ s/'/'"'"'/g;
         open my $fh, qq%|bzip2>'$book'% or goto FAIL;
         binmode $fh or goto FAIL;
         print {$fh}
-          JSON->new->canonical(1)
+          $jsonModule->new->canonical(1)
           ->utf8->pretty->encode(
             keys %scalars > 1 ? \%scalars : values %scalars )
           or goto FAIL;
