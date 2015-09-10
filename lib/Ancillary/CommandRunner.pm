@@ -251,7 +251,7 @@ sub makeModels {
                     $maker->{addFile}->( abs2rel($_) ) foreach @list;
                 }
                 else {
-                    warn "Ignored argument: $_\nWorking directory: " . `pwd`;
+                    warn "Ignored argument: $_\nNothing matches $file";
                 }
             }
         }
