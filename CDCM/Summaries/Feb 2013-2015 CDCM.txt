@@ -1,0 +1,13 @@
+makeModels
+	-sqlite
+	CDCM/Current/%-after179.yml
+	CDCM/Data-2015-02/E*
+
+makeModels
+	-sqlite
+	CDCM/Previous/%-after163.yml
+	CDCM/Data-2013-02/N*
+	CDCM/Data-2014-02/S*
+
+R
+    maps4202ts

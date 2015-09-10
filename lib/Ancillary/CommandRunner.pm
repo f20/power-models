@@ -596,17 +596,15 @@ EOS
 }
 
 sub R {
-    my $self = shift;
+    my ( $self, @commands ) = @_;
     open my $r, '| R --vanilla --slave';
     binmode $r, ':utf8';
-    print {$r} (
-          /^\s*#\s*include\s*<\s*(.*\S)\s*>/
-        ? 'source("' . catfile( $self->[C_HOMEDIR], $1 ) . '");'
-        : $_
-      )
-      . "\n"
-      foreach @_;
-    close $r;
+    Compilation::RCodeGenerator->convert(@commands)
+      if eval 'require Compilation::RCodeGenerator';
+    print {$r} "$_\n"
+      foreach eval 'require Compilation::AreaMaps'
+      ? Compilation::AreaMaps->rCode()
+      : (), @commands;
 }
 
 sub _ymlDump {
@@ -702,6 +700,70 @@ sub ymlDiff {
         _ymlDump( $stream, ' accumulated',  \%combined );
         _ymlDump( $stream, ' unconflicted', \%unconflicted );
 
+    }
+
+}
+
+sub ymlIndex {
+
+    my $self = shift;
+    chdir $self->[C_HOMEDIR];
+
+    require YAML;
+    require Digest::SHA;
+    require Encode;
+
+    open LIST, q^find . -name '*.y*ml' |^;
+    my %obj;
+    while (<LIST>) {
+        chomp;
+        next if m#/\~\$#;
+        next if 1 && m#/Data-[0-9]{4}-[0-9]{2}#;
+        my @a = YAML::LoadFile($_);
+        if ( @a == 0 ) {
+            warn "$_ contains no objects\n";
+        }
+        elsif ( @a == 1 ) {
+            $obj{$_} = $a[0];
+        }
+        else {
+            for ( my $no = 0 ; $no < @a ; ++$no ) { $obj{"$_/$no"} = $a[$no]; }
+        }
+    }
+
+    my %map;
+    while ( my ( $f, $o ) = each %obj ) {
+        unless ( ref $o eq 'HASH' ) {
+            warn "$f is not a HASH";
+            next;
+        }
+        my $cat = $o->{PerlModule} || '';
+        next if 1 && !$cat;
+        while ( my ( $k, $v ) = each %$o ) {
+            if ( ref $v ) {
+                my $hv = join '#', ref $v,
+                  Digest::SHA::sha1_hex(
+                    Encode::encode_utf8( YAML::Dump($v) ) );
+                $map{$cat}{$k}{$hv}[0] = $v;
+                $v = $hv;
+            }
+            push @{ $map{$cat}{$k}{$v} }, $f;
+        }
+    }
+
+    mkdir '~$ YAML maps';
+    chdir '~$ YAML maps';
+    while ( my ( $k, $v ) = each %map ) {
+        YAML::DumpFile( $$, $v );
+        rename $$, "map-full-$k.yml";
+        YAML::DumpFile(
+            $$,
+            {
+                map { ( $_ => [ keys %{ $v->{$_} } ] ) }
+                grep { $_ ne '.' } keys %$v
+            }
+        );
+        rename $$, "map-short-$k.yml";
     }
 
 }

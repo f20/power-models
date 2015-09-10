@@ -1,3 +1,38 @@
+﻿package Compilation::AreaMaps;
+
+=head Copyright licence and disclaimer
+
+Copyright 2014-2015 Reckon LLP. All rights reserved.
+Please do not use or distribute without permission.
+
+THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=cut
+
+use warnings;
+use strict;
+use utf8;
+
+local undef $/;
+binmode DATA, ':utf8';
+my $rCode = <DATA>;
+
+sub rCode {
+    $rCode;
+}
+
+1;
+
+__DATA__
 dno.areas<-c('ENWL', 'NPG Northeast', 'NPG Yorkshire', 'SPEN SPD', 'SPEN SPM', 'SSEPD SEPD', 'SSEPD SHEPD', 'UKPN EPN', 'UKPN LPN', 'UKPN SPN', 'WPD EastM', 'WPD SWales', 'WPD SWest', 'WPD WestM');
 
 map.England.Wales.Scotland <- function () {
@@ -64,7 +99,7 @@ plot.dno.map <- function (
             l<-list(l);
         } else numMaps<-length(l);
         v<-data.frame();
-        for (i in (1:numMaps)) {   
+        for (i in (1:numMaps)) {
             rn <- names(l[[i]]);
             if (length(rn) > 0) {
                 set <- rep(NA, length(dno.areas));
@@ -74,8 +109,11 @@ plot.dno.map <- function (
                 }
                 l[[i]] <- l[[i]][set];
             }
-        }    
-        v <- data.frame(l);       
+            else {
+                l[[i]] <- rep(NA, length(dno.areas));
+            }
+        }
+        v <- data.frame(l);
         rownames(v) <- dno.areas;
     }
     if (length(option.names)>0) colnames(v) <- option.names;
@@ -145,6 +183,10 @@ plot.dno.map <- function (
     shift<-(maxx-minx)*(1:numMaps - 1);
     if (is.na(mincol)) mincol<-min(v, na.rm=T);
     if (is.na(maxcol)) maxcol<-max(v, na.rm=T);
+    if (maxcol-mincol<0.02) {
+        mincol <- mincol-0.01;
+        maxcol <- maxcol+0.01;
+    }
     getcol<-function(v) {
         i<-floor(101*(maxcol-v)/(maxcol-mincol));
         if (is.na(i)) {
@@ -201,7 +243,11 @@ plot.dno.map <- function (
         else if (maxcol-mincol>19) { quantum <- 10; }
         else if (maxcol-mincol>7) { quantum <- 5; }
         else if (maxcol-mincol>1) { quantum <- 1; }
-        else { quantum <- 0.2; }
+        else if (maxcol-mincol>0.2) { quantum <- 0.2; }
+        else { quantum <- 0.1; }
+        if (quantum < 0.5) {
+            legend.digit <- 2;
+        }
         minmax <- c(floor(mincol/quantum), ceiling(maxcol/quantum))*quantum;
         colorlegend(
             col=sapply(0.01*(minmax[1]*(100:0)+minmax[2]*(0:100)), getcol),
@@ -210,8 +256,7 @@ plot.dno.map <- function (
             digit=legend.digit
         );
     }
-    
-    if (!is.na(file.name)) graphics.off();
-    
-};
 
+    if (!is.na(file.name)) graphics.off();
+
+};

@@ -51,14 +51,16 @@ sub dispatch {
           if /useDatabase$/i;
         return push @$self, [ R => @_[ 1 .. $#_ ] ] if /^R$/i;
     }
-    return push @$self, [ ymlDiff  => @_ ] if grep { /-+ymldiff/si } @_;
-    return push @$self, [ ymlMerge => @_ ] if grep { /-+ymlmerge/si } @_;
-    return push @$self, [ ymlSplit => @_ ] if grep { /-+ymlsplit/si } @_;
+    return push @$self, [ ymlDiff  => @_ ] if grep { /-+ya?mldiff/si } @_;
+    return push @$self, [ ymlIndex => @_ ] if grep { /-*ya?mlindex/si } @_;
+    return push @$self, [ ymlMerge => @_ ] if grep { /-+ya?mlmerge/si } @_;
+    return push @$self, [ ymlSplit => @_ ] if grep { /-+ya?mlsplit/si } @_;
     return push @$self, [ makeModels => @_ ]
       if grep { /\.(?:ya?ml|json|dta)$/si } @_;
     return push @$self, [ fillDatabase => @_ ]
       if grep { /\.xl\S+$/si || /^-+prune=/si; } @_;
     return push @$self, [ makeModels => @_ ] if grep { /[*?]/; } @_;
+
     if ( grep { /\.txt$/i } @_ ) {
         $self->interpret($_) foreach grep { -s $_; } @_;
     }
