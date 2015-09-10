@@ -527,7 +527,8 @@ sub factory {
                     $instructionsSettings{$_}[1]{PostProcessing}
                 );
             }
-            Ancillary::ParallelRunning::waitanypid(0);
+            my $errorCount=Ancillary::ParallelRunning::waitanypid(0);
+            die "Some ($errorCount) things have gone wrong" if $errorCount;
         }
         else {
             foreach (@fileNames) {

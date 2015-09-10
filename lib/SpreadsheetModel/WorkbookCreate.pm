@@ -38,12 +38,12 @@ sub bgCreate {
     my $pid = fork;
     return $pid, $fileName if $pid;
     $0 = "perl: $fileName";
-    $module->create( $fileName, @arguments );
-    exit 0 if defined $pid;
+    my $status = $module->create( $fileName, @arguments );
+    exit $status if defined $pid;
 
     # NB: if you need to avoid calling exit, then do something like:
     #   eval { File::Temp::cleanup(); };
-    #   require POSIX and POSIX::_exit(0);
+    #   require POSIX and POSIX::_exit($status);
 
 }
 
@@ -297,6 +297,7 @@ sub create {
 
     $wbook->close;
     $closer->() if $closer;
+    0;
 
 }
 

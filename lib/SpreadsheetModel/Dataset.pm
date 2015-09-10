@@ -381,8 +381,10 @@ sub wsWrite {
         $self->{formulaLines} = [ $self->objectType . " @formula" ];
     }
 
-    elsif ( $self->{sourceLines} ) {
-        warn 'Deprecated';
+    elsif ( $self->{sourceLines} && @{ $self->{sourceLines} } ) {
+        warn
+          "$self $self->{name} $self->{debug} is using a deprecated feature; "
+          . "sourceLines = @{$self->{sourceLines}}";
         my %z;
         my @z;
         foreach ( @{ $self->{sourceLines} } ) {

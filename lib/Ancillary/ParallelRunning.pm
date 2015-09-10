@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2011 Reckon LLP and others.
+Copyright 2009-2015 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -35,6 +35,7 @@ our @EXPORT_OK = qw(registerpid waitanypid);
 
 my %names;
 my %conts;
+my %status;
 
 sub registerpid {
     my ( $pid, $name, $continuation ) = @_;
@@ -54,7 +55,8 @@ sub registerpid {
 sub waitanypid {
     my ($limit) = @_;
     while ( keys %names > $limit ) {
-        my $pid = waitpid -1, 0;          # WNOHANG
+        my $pid = waitpid -1, 0;    # WNOHANG
+        $status{$pid} = $?;
         my $name = delete $names{$pid};
         if ( my $continuation = delete $conts{$pid} ) {
             $continuation->($name);
@@ -63,6 +65,7 @@ sub waitanypid {
             warn "$name complete ($pid)\n";
         }
     }
+    grep { $_ } values %status;
 }
 
 1;

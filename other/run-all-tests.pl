@@ -29,21 +29,6 @@ ok( test_sumif( newTestArea('test-sumif_1.xlsx'), 42 ) );
 ok( test_sumif( newTestArea('test-sumif_2.xls'),  '"forty two"' ) );
 ok( test_sumif( newTestArea('test-sumif_2.xlsx'), '"forty two"' ) );
 
-warn "Further output in test-out-$$.txt and test-err-$$.txt";
-open STDOUT, '>', "test-out-$$.txt";
-open STDERR, '>', "test-err-$$.txt";
-binmode STDOUT, ':utf8';
-binmode STDERR, ':utf8';
-
-if ( -f 'README.md' ) {
-    system 'grep ^\  README.md | while read x; do echo $x; time $x; done';
-}
-
-foreach (<Summaries/*.txt>) {
-    warn qq%time perl pmod.pl "$_"\n%;
-    system qw(time perl pmod.pl), $_;
-}
-
 sub newTestArea {
     my ( $wbook, $wsheet, @formats ) = @_;
     unless ( UNIVERSAL::can( $wbook, 'add_worksheet' ) ) {
@@ -115,5 +100,3 @@ sub test_sumif {
     )->wsWrite( $wbook, $wsheet );
     1;
 }
-
-__END__
