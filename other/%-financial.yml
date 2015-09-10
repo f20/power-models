@@ -1,6 +1,6 @@
 ---
 PerlModule: Financial
-forwardLinks: 0
+forwardLinks: 1
 illustrative: 1
 numYears: 5
 startMonth: 7

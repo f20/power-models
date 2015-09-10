@@ -96,7 +96,7 @@ sub applyInstructions {
                 $r3 = $args->{location}{items}[0]{$wb}{row} - 1;
             }
             $args = [
-                name       => "$args->{name}",
+                name       => $args->objectShortName,
                 categories => '='
                   . $w2
                   . xl_rowcol_to_cell( $r3, $c2, 1, 1 ) . ':'

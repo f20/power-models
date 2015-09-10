@@ -215,7 +215,7 @@ sub equityInitialAndRaised {
     );
 }
 
-sub chart {
+sub chart_equity_dividends {
     my ( $cashflow, $periods ) = @_;
     require SpreadsheetModel::Chart;
     SpreadsheetModel::Chart->new(

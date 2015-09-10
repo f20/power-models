@@ -199,8 +199,9 @@ sub new {
 
     push @{ $model->{ratioTables} }, $ratios->statement($years),
       $ratios->reference($years), $ratios->chart_ebitda_cover($years);
-    push @{ $model->{inputCharts} }, $cashflow->chart($years),
+    push @{ $model->{inputCharts} }, $cashflow->chart_equity_dividends($years),
       $ratios->chart_gearing($years);
+    push @{ $model->{standaloneCharts} }, $income->chart($years);
 
     $_->finish
       foreach grep { $_->can('finish'); } $months, $years, $assets, $sales,

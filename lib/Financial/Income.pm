@@ -156,4 +156,23 @@ sub earnings {
     $income->statement($periods)->{A3};
 }
 
+sub chart {
+    my ( $income, $periods ) = @_;
+    require SpreadsheetModel::Chart;
+    SpreadsheetModel::Chart->new(
+        name         => 'GrossNet',
+        type         => 'column',
+        height       => 280,
+        width        => 640,
+        instructions => [
+            add_series => $income->{sales}->stream($periods),
+            add_series => $income->gross($periods),
+            add_series => $income->ebitda($periods),
+            add_series => $income->ebit($periods),
+            add_series => $income->earnings($periods),
+            set_legend => [ position => 'top' ],
+        ],
+    );
+}
+
 1;

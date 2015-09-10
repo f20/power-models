@@ -188,6 +188,7 @@ sub worksheetsAndClosures {
           foreach Notes( name => 'Financial ratios' ),
           @{ $model->{ratioTables} };
         $_->wsWrite( $wbook, $inputSheet ) foreach @{ $model->{inputCharts} };
+        $_->wsWrite($wbook) foreach @{ $model->{standaloneCharts} };
       }
 
       ,
