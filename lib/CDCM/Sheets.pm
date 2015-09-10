@@ -650,6 +650,7 @@ EOL
 
       '⇒11' => sub {
         my ($wsheet) = @_;
+        $wsheet->{sheetNumber} = 43 unless $wbook->{lastSheetNumber} > 42;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->fit_to_pages( 1, 1 );
