@@ -259,8 +259,9 @@ sub worksheetsAndClosures {
           : ();
       },
 
-      ( $model->{tariffs} =~ /dcp179|pc12hh|pc34hh/i ? 'AggCap' : 'NHH' ) =>
-      sub {
+      ( $model->{tariffs} && $model->{tariffs} =~ /dcp179|pc12hh|pc34hh/i
+        ? 'AggCap'
+        : 'NHH' ) => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_landscape;
@@ -268,7 +269,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 250, 16 );
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->standingNhhNotes, @{ $model->{standingNhh} };
-      },
+        },
 
       'Reactive' => sub {
         my ($wsheet) = @_;

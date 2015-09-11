@@ -706,20 +706,22 @@ sub ymlDiff {
 
 sub ymlIndex {
 
-    my $self = shift;
-    chdir $self->[C_HOMEDIR];
-
+    my ( $self, @args ) = @_;
+    my $getData = grep { /data/i } @args;
     require YAML;
     require Digest::SHA;
     require Encode;
 
-    open LIST, q^find . -name '*.y*ml' |^;
+    local $_ = $self->[C_HOMEDIR];
+    s/'/'"'"'/g;
+    open LIST, qq^cd '$_'; find . -name '*.y*ml' |^;
     my %obj;
     while (<LIST>) {
         chomp;
         next if m#/\~\$#;
-        next if 1 && m#/Data-[0-9]{4}-[0-9]{2}#;
-        my @a = YAML::LoadFile($_);
+        next unless s/^\.//s;
+        next if !$getData && m#/Data-[0-9]{4}-[0-9]{2}#;
+        my @a = YAML::LoadFile("$self->[C_HOMEDIR]/$_");
         if ( @a == 0 ) {
             warn "$_ contains no objects\n";
         }
@@ -732,38 +734,72 @@ sub ymlIndex {
     }
 
     my %map;
-    while ( my ( $f, $o ) = each %obj ) {
+    my @objList = sort keys %obj;
+    foreach my $f (@objList) {
+        my $o = $obj{$f};
         unless ( ref $o eq 'HASH' ) {
             warn "$f is not a HASH";
             next;
         }
-        my $cat = $o->{PerlModule} || '';
-        next if 1 && !$cat;
-        while ( my ( $k, $v ) = each %$o ) {
-            if ( ref $v ) {
-                my $hv = join '#', ref $v,
-                  Digest::SHA::sha1_hex(
-                    Encode::encode_utf8( YAML::Dump($v) ) );
-                $map{$cat}{$k}{$hv}[0] = $v;
-                $v = $hv;
+        foreach my $cat (
+            $o->{PerlModule}
+            ? (
+                $o->{PerlModule}, 'any',
+                map { local $_ = $_; s#/[^/]*$##s; tr#/#-#; $_; } $f
+            )
+            : 'none'
+          )
+        {
+            push @{ $map{$cat}{''} }, $f;
+            while ( my ( $k, $v ) = each %$o ) {
+                my $hv;
+                if ( !defined $v ) {
+                    $hv = '†NotDefined';
+                }
+                elsif ( ref $v ) {
+                    $hv = join '#', ref $v,
+                      Digest::SHA::sha1_hex(
+                        Encode::encode_utf8( YAML::Dump($v) ) );
+                }
+                if ($hv) {
+                    $map{$cat}{$k}{$hv}[0] ||= $v;
+                    push @{ $map{$cat}{$k}{$hv} }, $f;
+                }
+                else {
+                    push @{ $map{$cat}{$k}{$v} }, $f;
+                }
             }
-            push @{ $map{$cat}{$k}{$v} }, $f;
+        }
+    }
+
+    foreach my $cat ( keys %map ) {
+        my @list = @{ delete $map{$cat}{''} };
+        foreach my $k ( keys %{ $map{$cat} } ) {
+            if ( my @miss = grep { !exists $obj{$_}{$k} } @list ) {
+                $map{$cat}{$k}{'†NotSet'} = \@miss;
+            }
         }
     }
 
     mkdir '~$ YAML maps';
     chdir '~$ YAML maps';
     while ( my ( $k, $v ) = each %map ) {
-        YAML::DumpFile( $$, $v );
-        rename $$, "map-full-$k.yml";
-        YAML::DumpFile(
-            $$,
-            {
-                map { ( $_ => [ keys %{ $v->{$_} } ] ) }
-                grep { $_ ne '.' } keys %$v
+        my ( %w, %d );
+        while ( my ( $k1, $v1 ) = each %$v ) {
+            foreach my $k2 ( keys %$v1 ) {
+                $w{$k1}{$k2} = grep {
+                    if ( ref $_ ) {
+                        $d{$k2} = $_;
+                        undef;
+                    }
+                    else {
+                        1;
+                    }
+                } @{ $v1->{$k2} };
             }
-        );
-        rename $$, "map-short-$k.yml";
+        }
+        YAML::DumpFile( $$, \%w, \%d, $v );
+        rename $$, "map-$k.yml";
     }
 
 }

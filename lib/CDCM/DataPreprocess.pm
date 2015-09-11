@@ -296,7 +296,7 @@ EOY
         }
     }
 
-    if ( $model->{tariffs} =~ /dcp137/i ) {
+    if ( $model->{tariffs} && $model->{tariffs} =~ /dcp137/i ) {
         $d->{1028}[0] = sub {
             my ($key) = @_;
             $key =~ /(.*) \S+ GDA$/i;

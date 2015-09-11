@@ -159,9 +159,8 @@ sub revenueShortfall {
                 validate      => 'decimal',
                 criteria      => '>',
                 value         => -1e9,
-                input_title   => 'Revenue raised outside this model',
                 input_message => 'Enter the total net amount of revenue'
-                  . ' expected from charges outside this model.',
+                  . ' expected from relevant charges outside this model.',
                 error_message => 'Please enter a number in this cell.'
             },
             data => [5_000_000],
