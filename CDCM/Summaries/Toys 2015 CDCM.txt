@@ -7,3 +7,5 @@ makeModels
 R
     treemap
     treemapByCategory
+    treemapWithComponents
+    treemapByComponent

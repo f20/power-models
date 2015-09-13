@@ -599,12 +599,8 @@ sub R {
     my ( $self, @commands ) = @_;
     open my $r, '| R --vanilla --slave';
     binmode $r, ':utf8';
-    Compilation::RCodeGenerator->convert(@commands)
-      if eval 'require Compilation::RCodeGenerator';
-    print {$r} "$_\n"
-      foreach eval 'require Compilation::AreaMaps'
-      ? Compilation::AreaMaps->rCode()
-      : (), @commands;
+    require Compilation::RCode;
+    print {$r} Compilation::RCode->rCode(@commands);
 }
 
 sub _ymlDump {

@@ -1,4 +1,4 @@
-﻿package Compilation::AreaMaps;
+﻿package Compilation::RCode::AreaMaps;
 
 =head Copyright licence and disclaimer
 
@@ -36,6 +36,9 @@ binmode DATA, ':utf8';
 my $rCode = <DATA>;
 
 sub rCode {
+    my ( $self, $script ) = @_;
+    return '' if $script->{$self};
+    $script->{$self} = 1;
     $rCode;
 }
 

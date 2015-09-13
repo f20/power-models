@@ -1,4 +1,4 @@
-﻿package Compilation::RCodeGenerator;
+﻿package Compilation::RCode::PriceMaps;
 
 =head Copyright licence and disclaimer
 
@@ -31,72 +31,11 @@ use warnings;
 use strict;
 use utf8;
 
-sub convert {
-    my $self = shift;
-    foreach (@_) {
-        $_ = $self->$_() if $self->can($_);
-    }
-}
-
-sub treemapByCategory {
-    my ($self) = @_;
-    $self->treemap(1);
-}
-
-sub treemap {
-    my ( $self, $byCategory ) = @_;
-    (
-        $byCategory
-        ? <<'EOR'
-columnIndex <- c('category', 'tariff');
-fileName <- 'Treemaps by category';
-EOR
-        : <<'EOR'
-columnIndex <- c('tariff', 'category');
-fileName <- 'Treemaps by tariff';
-EOR
-    ) . <<'EOR';
-library(DBI);
-library(RSQLite);
-drv <- dbDriver('SQLite');
-db <- dbConnect(drv, dbname = '~$database.sqlite');
-t3901 <- dbGetQuery(db, paste(
-    'select company, period, option,',
-    'a.v as tariff, b.v as category, c.v as amount,',
-    'a.row as tariffid, b.col as categoryid',
-    'from data as a',
-    'inner join data as b using (bid, tab)',
-    'inner join data as c using (bid, tab)',
-    'left join books using (bid)',
-    'where a.tab=3901',
-    'and a.row=c.row and a.col=0',
-    'and b.row=0 and b.col=c.col',
-    'and c.col>0 and c.row>0 and c.v+0>0'
-));
-company <- factor(t3901$company);
-period <- factor(t3901$period);
-option <- factor(t3901$option);
-t3901$category<-factor(sub(" \\(.+\\)", "", t3901$category, perl=TRUE));
-t3901$tariff<-factor(t3901$tariff);
-library(treemap);
-pdf(paste(fileName, 'pdf', sep='.'), width=11.69, height=8.27);
-for (c in levels(company)) {
-    for (p in levels(period)) {
-        for (o in levels(option)) {
-            name <- paste(c, p, o);
-            filter <- company==c&period==p&option==o&t3901$category!='Total net revenue by tariff';
-            if (length(filter)) {
-                treemap(t3901[filter, ], index=columnIndex, vSize='amount', vColor='tariffid', type='manual', palette=rep(rainbow(25),max(t3901$tariffid)/25), range=c(1,max(t3901$tariffid)), title=name, position.legend='none');
-            }
-        }
-    }
-}
-graphics.off();
-EOR
-}
+require Compilation::RCode::AreaMaps;
 
 sub maps4202ts {
-    <<'EOR';
+    my ( $self, $script ) = @_;
+    Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -142,7 +81,8 @@ EOR
 }
 
 sub maps4202cs {
-    <<'EOR';
+    my ( $self, $script ) = @_;
+    Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -184,6 +124,36 @@ for (t in tariffList[order(sapply(tariffList, function (t) { 1/max(ppu[tariff==t
     ));
 }
 graphics.off();
+EOR
+}
+
+sub mapCdcmEdcm {
+    my ( $self, $script ) = @_;
+    Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
+v <- read.csv(textConnection('
+CDCM,EDCM Zero,EDCM Avg,DNO
+9.230136098,4.697991667,5.961880556,ENWL
+10.18231688,3.526735185,4.017475926,NPG Northeast
+8.182795992,3.45787963,3.888435185,NPG Yorkshire
+9.469356279,4.014021296,4.412169444,SPEN SPD
+13.49652633,6.942557407,7.78515,SPEN SPM
+8.62859187,3.878862037,4.332565741,SSEPD SEPD
+17.19461702,5.597428704,5.949280556,SSEPD SHEPD
+6.466388597,3.012714815,3.836788889,UKPN EPN
+6.819068962,3.312843519,4.067473148,UKPN LPN
+8.706796271,3.974465741,4.895762037,UKPN SPN
+6.692516502,4.549932407,4.786043519,WPD EastM
+15.6681223,5.692940741,6.239237037,WPD SWales
+12.97384748,4.284894444,5.044153704,WPD SWest
+8.052028412,3.748900926,4.628530556,WPD WestM
+'));
+names(v)[1:3] <- c('CDCM', 'EDCM, zero charge 1', 'EDCM, average charge 1');
+plot.dno.map(
+    v[,1:3],
+    file.name='CDCM HV v EDCM 1111, February 2013 data',
+    file.type='Word',
+    title='DUoS charge for HV continuous load (\U{a3}/MWh)'
+);
 EOR
 }
 
