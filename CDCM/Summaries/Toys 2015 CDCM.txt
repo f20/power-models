@@ -1,0 +1,9 @@
+makeModels
+	-sqlite
+	CDCM/Data-2015-06/SSEPD-SEPD.yml
+	CDCM/Current/%-after179.yml
+	CDCM/Toys-2015/%-extehv-*
+
+R
+    treemap
+    treemapByCategory

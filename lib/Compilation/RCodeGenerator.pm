@@ -38,6 +38,63 @@ sub convert {
     }
 }
 
+sub treemapByCategory {
+    my ($self) = @_;
+    $self->treemap(1);
+}
+
+sub treemap {
+    my ( $self, $byCategory ) = @_;
+    (
+        $byCategory
+        ? <<'EOR'
+columnIndex <- c('category', 'tariff');
+fileName <- 'Treemaps by category';
+EOR
+        : <<'EOR'
+columnIndex <- c('tariff', 'category');
+fileName <- 'Treemaps by tariff';
+EOR
+    ) . <<'EOR';
+library(DBI);
+library(RSQLite);
+drv <- dbDriver('SQLite');
+db <- dbConnect(drv, dbname = '~$database.sqlite');
+t3901 <- dbGetQuery(db, paste(
+    'select company, period, option,',
+    'a.v as tariff, b.v as category, c.v as amount,',
+    'a.row as tariffid, b.col as categoryid',
+    'from data as a',
+    'inner join data as b using (bid, tab)',
+    'inner join data as c using (bid, tab)',
+    'left join books using (bid)',
+    'where a.tab=3901',
+    'and a.row=c.row and a.col=0',
+    'and b.row=0 and b.col=c.col',
+    'and c.col>0 and c.row>0 and c.v+0>0'
+));
+company <- factor(t3901$company);
+period <- factor(t3901$period);
+option <- factor(t3901$option);
+t3901$category<-factor(sub(" \\(.+\\)", "", t3901$category, perl=TRUE));
+t3901$tariff<-factor(t3901$tariff);
+library(treemap);
+pdf(paste(fileName, 'pdf', sep='.'), width=11.69, height=8.27);
+for (c in levels(company)) {
+    for (p in levels(period)) {
+        for (o in levels(option)) {
+            name <- paste(c, p, o);
+            filter <- company==c&period==p&option==o&t3901$category!='Total net revenue by tariff';
+            if (length(filter)) {
+                treemap(t3901[filter, ], index=columnIndex, vSize='amount', vColor='tariffid', type='manual', palette=rep(rainbow(25),max(t3901$tariffid)/25), range=c(1,max(t3901$tariffid)), title=name, position.legend='none');
+            }
+        }
+    }
+}
+graphics.off();
+EOR
+}
+
 sub maps4202ts {
     <<'EOR';
 library(DBI);
