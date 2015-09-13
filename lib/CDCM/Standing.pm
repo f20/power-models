@@ -175,7 +175,8 @@ sub standingCharges {
 
     my $maxKvaByEndUser;
 
-# The lvCosts and fixedCap options interact and do not behave in a particularly natural way.
+    # The lvCosts and fixedCap options interact with each other
+    # and do not behave in a particularly natural way.
 
     if ( $model->{fixedCap} && $model->{fixedCap} =~ /group|1-4/i ) {
 
@@ -252,7 +253,7 @@ sub standingCharges {
             defaultFormat => '0softnz',
             vector        => Stack(
                 rows    => $standingForFixedEndUsers,
-                sources => [ $volumeData->{'Fixed charge p/MPAN/day'} ]
+                sources => [ $volumesByEndUser->{'Fixed charge p/MPAN/day'} ]
             ),
         );
 
@@ -271,6 +272,14 @@ sub standingCharges {
         Columnset(
             name => 'Capacity use for tariffs charged '
               . 'for capacity on an exit point basis',
+            $volumeData != $volumesByEndUser && $model->{ldnoSplits}
+            ? (
+                lines => [
+                        'This uses statistics aggregated by end user without'
+                      . ' taking account of the LV split — arguably an approximation'
+                ]
+              )
+            : (),
             columns =>
               [ map { $maxKvaAverageLv->{arguments}{$_}{vector} } qw(A1 A2) ]
         );
@@ -415,8 +424,7 @@ sub standingCharges {
         my $maxKvaAverageLv = Arithmetic(
             name => 'Average maximum kVA of tariffs '
               . 'charged on an exit point basis for LV circuits',
-            arithmetic => '=A1/A2'
-              . ( $model->{aggCapFactor} ? '*A4' : '/A4' ),
+            arithmetic => '=A1/A2' . ( $model->{aggCapFactor} ? '*A4' : '/A4' ),
             arguments => {
                 A1 => SumProduct(
                     matrix => $mapping,
@@ -552,11 +560,10 @@ sub standingCharges {
         my $maxKvaAverageLv = Arithmetic(
             name => 'Average maximum kVA of tariffs '
               . 'charged on an exit point basis for LV circuits',
-            arithmetic => '=A1/A2'
-              . ( $model->{aggCapFactor} ? '*A4' : '/A4' ),
-            rows      => 0,
-            cols      => 0,
-            arguments => {
+            arithmetic => '=A1/A2' . ( $model->{aggCapFactor} ? '*A4' : '/A4' ),
+            rows       => 0,
+            cols       => 0,
+            arguments  => {
                 A1 => SumProduct(
                     matrix => $lvRouteingFactors,
                     name   => 'Aggregate capacity of tariffs charged '
