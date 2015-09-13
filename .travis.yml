@@ -2,11 +2,12 @@
 install: []
 language: perl
 perl:
-  - '5.20'
-  - '5.14'
-  - '5.8'
+  - default
+  - '5.8 '
+  - '5.20 '
+  - '5.21 '
 script:
-  - prove
+  - prove -r
   - grep '^ ' README.md | while read x; do echo $x; if ! $x; then exit 1; fi; done
   - for x in CDCM/Summaries/'Forecaster to 2023.txt'; do echo $x; if ! perl pmod.pl "$x"; then exit 1; fi; done
 sudo: false
