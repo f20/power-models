@@ -39,16 +39,16 @@ sub lvSplit {
     $model->{objects}{lvSplit} ||= Dataset(
         name  => 'DNO LV mains usage',
         lines => 'DNO-specific LV mains split'
-          . ' calculated in accordance with paragraph 114 of Schedule 16.',
+          . ' calculated in accordance with Schedule 16 (paragraph 114).',
         data => [ [0.1] ],
         defaultFormat => '%hard',
         number        => 1301,
         dataset       => $model->{dataset},
         appendTo      => $model->{objects}{inputTables},
         validation    => {
-            validate => 'decimal',
-            criteria => '>=',
-            value    => 0,
+            validate      => 'decimal',
+            criteria      => '>=',
+            value         => 0,
         },
     );
 }
@@ -215,7 +215,7 @@ sub oneYearDpcr {
         ),
     );
     $model->{objects}{oneYearDpcr} = Columnset(
-        name  => 'Analysis of allowed revenue for 2007/2008',
+        name  => 'Analysis of allowed revenue for 2007/2008 (£/year)',
         lines => 'In a legacy Method M workbook, these data are on'
           . ' sheet Calc-Allocation, possibly cells F66 and F63.',
         columns  => \@columns,
@@ -230,7 +230,7 @@ sub allocated {
     my ( $model, $allocLevelset, $expenditureSet, ) = @_;
     $model->{objects}{allocated}{ 0 + $allocLevelset }{ 0 + $expenditureSet }
       ||= Dataset(
-        name  => 'Allocated costs',
+        name  => 'Allocated costs (£/year)',
         lines => [
             'These data are taken from the'
               . ' 2007/2008 regulatory reporting pack (tables 2.3 and 2.4).',
@@ -254,7 +254,7 @@ sub allocated {
 sub expenditure {
     my ( $model, $expenditureSet ) = @_;
     $model->{objects}{expenditure}{ 0 + $expenditureSet } ||= Dataset(
-        name  => 'Total costs',
+        name  => 'Total costs (£/year)',
         lines => [
             'These data are taken from the'
               . ' 2007/2008 regulatory reporting pack (table 1.3).',

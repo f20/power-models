@@ -154,11 +154,10 @@ EOL
         name => 'MEAV data',
         lines =>
           'In a legacy Method M workbook, these data are on sheet Data-MEAV.',
-        defaultFormat => '%hard',
-        number        => 1355,
-        dataset       => $model->{dataset},
-        appendTo      => $model->{objects}{inputTables},
-        columns       => \@d,
+        number   => 1355,
+        dataset  => $model->{dataset},
+        appendTo => $model->{objects}{inputTables},
+        columns  => \@d,
     );
     $model->{objects}{meav} = Arithmetic(
         name          => 'MEAV (£)',
@@ -323,7 +322,7 @@ sub meavPercentages {
         cols          => $allocLevelset,
         arithmetic    => '=A6/SUM(A8_A9)',
         arguments     => {
-            A6     => $totalMeav,
+            A6    => $totalMeav,
             A8_A9 => $totalMeav,
         },
       );
@@ -381,9 +380,8 @@ sub meavPercentageServiceLV {
         defaultFormat => '%soft',
         cols          => $lvOnly,
         rows          => $lvServiceOnly,
-        arithmetic =>
-          '=SUMPRODUCT(A2_A3,A4_A5)/SUMPRODUCT(A6_A7,A8_A9)',
-        arguments => {
+        arithmetic    => '=SUMPRODUCT(A2_A3,A4_A5)/SUMPRODUCT(A6_A7,A8_A9)',
+        arguments     => {
             A2_A3 => $lvService,
             A4_A5 => $meav,
             A6_A7 => $lvTotal,
@@ -525,7 +523,7 @@ sub meavPercentagesEdcm {
         cols          => $edcmLevelset,
         arithmetic    => '=A6/SUM(A8_A9)',
         arguments     => {
-            A6     => $totalMeav,
+            A6    => $totalMeav,
             A8_A9 => $totalMeav,
         },
     );

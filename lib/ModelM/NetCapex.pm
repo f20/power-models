@@ -123,7 +123,7 @@ sub netCapexPercentageServiceLV {
       { 0 + $lvServiceOnly } ||= Dataset(
         name => 'Net capex: ratio of LV services to LV total',
         lines =>
-          q%Calculated as SUM('FBPQ NL1'!D10:M13)/SUM('FBPQ NL1'!D10:M16).%,
+          q%This figure can be calculated from FBPQ NL1 data, possibly as SUM('FBPQ NL1'!D10:M13)/SUM('FBPQ NL1'!D10:M16).%,
         data          => [.5],
         defaultFormat => '%hard',
         number        => 1380,

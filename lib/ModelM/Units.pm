@@ -43,7 +43,7 @@ sub units {
     return $model->{objects}{$key} if $model->{objects}{$key};
 
     return $model->{objects}{$key} = Dataset(
-        name  => 'Units flowing',
+        name  => 'Units flowing (kWh)',
         lines => 'In a legacy Method M workbook, these data are on'
           . ' sheet Calc-Units, cells C23, C23, D23, E23.',
         data          => [ map { 100 } @{ $allocLevelset->{list} } ],
