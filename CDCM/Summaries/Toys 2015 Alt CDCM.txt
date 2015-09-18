@@ -9,3 +9,9 @@ R
     treemapByCategory
     treemapWithComponents
     treemapByComponent
+
+useDatabase
+    tscs
+
+useDatabase
+    all 37 38 39

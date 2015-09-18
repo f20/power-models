@@ -1,5 +1,5 @@
 ---
-.: Alternative CDCM model with EHV tariffs
+.: CDCM 2015 toy step 8
 PerlModule: CDCM
 aggCapFactor: 1
 alwaysUseRAG: 1
@@ -24,11 +24,10 @@ extraLevels: 1
 fixedCap: 1-4
 illustrative: 1
 impliedLoadFactors: 1
-ldnoSplits: 1
 matrices: big
-noLossAdj: 1
 noReplacement: 0.453
-portfolio: hvsub_ehv
+pcd: 1
+portfolio: 1
 scaler: pickallnogen
 standing: sub132
 summary: statistics

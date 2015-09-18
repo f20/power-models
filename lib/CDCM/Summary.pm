@@ -528,9 +528,10 @@ sub summaryOfRevenues {
         $totalRevenuesFromTariffs,
         $totalRevenuesFromUnitRates,
         $totalRevenuesFromFixed,
-        $totalRevenuesFromCapacity ? $totalRevenuesFromCapacity : (),
-        $totalRevenuesFromUnauth   ? $totalRevenuesFromUnauth   : (),
-        $totalRevenuesFromReactive ? $totalRevenuesFromReactive : (),
+        $totalRevenuesFromCapacity   ? $totalRevenuesFromCapacity        : (),
+        $totalRevenuesFromUnauth     ? $totalRevenuesFromUnauth          : (),
+        $totalRevenuesFromReactive   ? $totalRevenuesFromReactive        : (),
+        $model->{otherTotalRevenues} ? @{ $model->{otherTotalRevenues} } : (),
     );
 
     if ( $model->{sharedData} ) {

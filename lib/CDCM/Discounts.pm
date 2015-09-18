@@ -231,9 +231,8 @@ sub pcdPreprocessVolumes {
         arithmetic => '='
           . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
         arguments => {
-            map {
-                ( "A$_" => ${$volumesByEndUserRef}->{"Unit rate $_ p/kWh"} )
-            } 1 .. $model->{maxUnitRates}
+            map { ( "A$_" => ${$volumesByEndUserRef}->{"Unit rate $_ p/kWh"} ) }
+              1 .. $model->{maxUnitRates}
         },
         defaultFormat => '0softnz'
     );
@@ -283,13 +282,13 @@ sub pcdApplyDiscounts {
                 maximum  => 999_999.999,
               },
         );
-        push @{ $model->{summaryColumns} },
+        push @{ $model->{otherTotalRevenues} },
           my $totalImpactOfElectionBung = Arithmetic(
             name => 'Revenue impact of election bung (£, not accounted for)',
             defaultFormat => '0soft',
             arithmetic    => '=0.01*A1*SUMPRODUCT(A2_A3,A4_A5)',
             arguments     => {
-                A1     => $daysAfter,
+                A1    => $daysAfter,
                 A2_A3 => $electionBung,
                 A4_A5 => ( $volumeDataAfter || $volumeData )
                   ->{'Fixed charge p/MPAN/day'}

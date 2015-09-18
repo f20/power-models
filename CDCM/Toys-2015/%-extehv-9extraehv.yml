@@ -1,10 +1,9 @@
 ---
-.: CDCM 2015 toy step 6
+.: CDCM 2015 toy step 9 with more EHV tariffs
 PerlModule: CDCM
 aggCapFactor: 1
-agghhequalisation: rag
 alwaysUseRAG: 1
-coincidenceAdj: groupums
+coincidenceAdj: groupumsdomnondomredonly
 dataOverride:
   1010:
     - ~
@@ -25,13 +24,14 @@ extraLevels: 1
 fixedCap: 1-4
 illustrative: 1
 impliedLoadFactors: 1
+ldnoSplits: 1
 matrices: big
+noLossAdj: 1
 noReplacement: 0.453
-pcd: 1
-portfolio: 1
+portfolio: hvsub_ehv
 scaler: pickallnogen
 standing: sub132
 summary: statistics
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hhedcm
-timeOfDay: timeOfDay179
+timeOfDay: timeOfDaySpecial
