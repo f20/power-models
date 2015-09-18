@@ -477,7 +477,22 @@ use ->shortName here.
     }
 
     my $c2 = $col;
+
+    my $comment = $self->{comment};
+    $comment = $self->{lines}
+      if !defined $comment
+      && $wb->{linesAsComment}
+      && $self->{lines};
+
     foreach my $c ( 0 .. $lastCol ) {
+
+        $comment = $self->{columns}[$c]{comment}
+          if $self->{columns}[$c]{comment};
+        $comment = $self->{columns}[$c]{lines}
+          if !defined $comment
+          && $wb->{linesAsComment}
+          && $self->{columns}[$c]{lines};
+
         if ( my $co = $self->{columns}[$c]{cols} ) {
             foreach my $y ( $self->{columns}[$c]->rowIndices ) {
                 foreach my $x ( $self->{columns}[$c]->colIndices ) {
@@ -497,6 +512,25 @@ use ->shortName here.
                           and $value eq '#VALUE!' || $value eq '#N/A'
                           and $wb->formulaHashValues;
                         $ws->write( $row + $y, $c2 + $x, $value, $format );
+                        if ($comment) {
+                            $ws->write_comment(
+                                $row + $y,
+                                $c2 + $x,
+                                (
+                                    map {
+                                        ref $_ eq 'ARRAY'
+                                          ? join "\n", @$_
+                                          : $_;
+                                      } ref $comment eq 'HASH'
+                                    ? $comment->{text}
+                                    : $comment
+                                ),
+                                x_scale => ref $comment eq 'HASH'
+                                  && $comment->{x_scale} ? $comment->{x_scale}
+                                : 3,
+                            );
+                            undef $comment;
+                        }
                     }
                 }
             }
@@ -549,7 +583,32 @@ use ->shortName here.
                       and $value eq '#VALUE!' || $value eq '#N/A'
                       and $wb->formulaHashValues;
                     $ws->write( $row + $y, $c2, $value, $format );
+                    if ($comment) {
+                        $ws->write_comment(
+                            $row + $y,
+                            $c2,
+                            (
+                                map { ref $_ eq 'ARRAY' ? join "\n", @$_ : $_; }
+                                  ref $comment eq 'HASH' ? $comment->{text}
+                                : $comment
+                            ),
+                            x_scale => ref $comment eq 'HASH'
+                              && $comment->{x_scale} ? $comment->{x_scale}
+                            : 3,
+                        );
+                        undef $comment;
+                    }
                 }
+            }
+
+            if (    $self->{columns}[$c]{validation}
+                and ( my $l = $self->{lines} || $self->{columns}[$c]{lines} )
+                and $wb->{linesAsComment}
+                and $wb->{validation}
+                and $wb->{validation} =~ /withlinesmsg/i )
+            {
+                $self->{columns}[$c]{validation}{input_message} ||=
+                  ref $l eq 'ARRAY' ? join "\n", @$l : $l;
             }
 
             $self->{columns}[$c]

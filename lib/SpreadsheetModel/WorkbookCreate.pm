@@ -30,7 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use SpreadsheetModel::Logger;
-use SpreadsheetModel::WorkbookFormats;    # loaded here for validation
+use SpreadsheetModel::WorkbookFormats;    # loaded here for code validation
 use File::Spec::Functions qw(catfile);
 
 sub bgCreate {
@@ -271,6 +271,7 @@ sub create {
           copy
           debug
           forwardLinks
+          linesAsComment
           logger
           mergedRanges
           noLinks

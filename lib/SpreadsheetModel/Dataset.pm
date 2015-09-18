@@ -555,6 +555,11 @@ sub wsWrite {
         }
     }
 
+    my $comment = $self->{comment};
+    $comment = $self->{lines}
+      if !defined $comment
+      && $wb->{linesAsComment}
+      && $self->{lines};
     foreach my $x ( $self->colIndices ) {
         foreach my $y ( $self->rowIndices ) {
             my ( $value, $format, $formula, @more ) = $cell->( $x, $y );
@@ -576,6 +581,21 @@ sub wsWrite {
                   and $value eq '#VALUE!' || $value eq '#N/A'
                   and $wb->formulaHashValues;
                 $ws->write( $row + $y, $col + $x, $value, $format );
+                if ($comment) {
+                    $ws->write_comment(
+                        $row + $y,
+                        $col + $x,
+                        (
+                            map { ref $_ eq 'ARRAY' ? join "\n", @$_ : $_; }
+                              ref $comment eq 'HASH'
+                            ? $comment->{text}
+                            : $comment
+                        ),
+                        x_scale => ref $comment eq 'HASH'
+                          && $comment->{x_scale} ? $comment->{x_scale} : 3,
+                    );
+                    undef $comment;
+                }
             }
         }
     }
@@ -646,6 +666,16 @@ Rules:
 
     $rowEnd ||= $row + $self->lastRow;
     $colEnd ||= $col + $self->lastCol;
+
+    $self->{validation}{input_message} ||=
+      ref $self->{lines} eq 'ARRAY'
+      ? join "\n", @{ $self->{lines} }
+      : $self->{lines}
+      if $self->{validation}
+      && $self->{lines}
+      && $wb->{linesAsComment}
+      && $wb->{validation}
+      && $wb->{validation} =~ /withlinesmsg/i;
 
     if (   $self->{rows}
         && $self->{rows}{noCollapse}
