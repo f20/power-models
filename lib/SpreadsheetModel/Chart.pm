@@ -191,6 +191,9 @@ sub wsWrite {
         $row += 2;
         $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
     }
+    else {    # Chartsheet
+        $chart->protect();
+    }
 
 }
 

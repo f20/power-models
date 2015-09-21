@@ -46,9 +46,9 @@ sub lvSplit {
         dataset       => $model->{dataset},
         appendTo      => $model->{objects}{inputTables},
         validation    => {
-            validate      => 'decimal',
-            criteria      => '>=',
-            value         => 0,
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
         },
     );
 }
@@ -201,17 +201,14 @@ sub oneYearDpcr {
             data          => [ [100] ],
             defaultFormat => '0hard',
             dataset       => $model->{dataset},
+            validation    => { validate => 'any' },
         ),
         1 ? () : Dataset(
             name          => 'Pension deficit payment',
             data          => [ [100] ],
             defaultFormat => '0hard',
             dataset       => $model->{dataset},
-            validation    => {
-                validate => 'decimal',
-                criteria => '>=',
-                value    => 0,
-            },
+            validation    => { validate => 'any', },
         ),
     );
     $model->{objects}{oneYearDpcr} = Columnset(
@@ -235,7 +232,7 @@ sub allocated {
             'These data are taken from the'
               . ' 2007/2008 regulatory reporting pack (tables 2.3 and 2.4).',
             'In a legacy Method M workbook, these data are on sheet Calc-Opex, '
-              . 'possibly starting at cell H7, reversing column order.',
+              . 'reading from right to left, possibly starting at cell H7.',
         ],
         data => [
             map {
@@ -248,6 +245,7 @@ sub allocated {
         rows          => $expenditureSet,
         dataset       => $model->{dataset},
         appendTo      => $model->{objects}{inputTables},
+        validation    => { validate => 'any' },
       );
 }
 
@@ -266,7 +264,8 @@ sub expenditure {
         number        => 1335,
         rows          => $expenditureSet,
         dataset       => $model->{dataset},
-        appendTo => $model->{objects}{inputTables},
+        appendTo   => $model->{objects}{inputTables},
+        validation => { validate => 'any' },
     );
 }
 

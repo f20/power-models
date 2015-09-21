@@ -700,6 +700,9 @@ Rules:
                     error_message => 'This cell should remain blank.'
                 }
             );
+
+            # The duplication of %{ $self->{validation} } is necessary as
+            # this function will modify the content of its validation argument.
             $ws->data_validation( $r + 1, $col, $rowArray[ $_ + 1 ] - 1,
                 $colEnd, { %{ $self->{validation} } } );
         }

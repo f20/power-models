@@ -131,7 +131,7 @@ sub protect {
 ###############################################################################
 
 sub add_series         { return shift->{_chart}->add_series( @_ ) }
-sub combine            { return shift->{_chart}->combine(@_) }
+sub combine            { return shift->{_chart}->combine( @_ ) }
 sub set_x_axis         { return shift->{_chart}->set_x_axis( @_ ) }
 sub set_y_axis         { return shift->{_chart}->set_y_axis( @_ ) }
 sub set_x2_axis        { return shift->{_chart}->set_x2_axis( @_ ) }
@@ -148,7 +148,6 @@ sub set_table          { return shift->{_chart}->set_table( @_ ) }
 sub set_up_down_bars   { return shift->{_chart}->set_up_down_bars( @_ ) }
 sub set_drop_lines     { return shift->{_chart}->set_drop_lines( @_ ) }
 sub set_high_low_lines { return shift->{_chart}->high_low_lines( @_ ) }
-
 
 
 ###############################################################################
@@ -171,7 +170,7 @@ sub _prepare_chart {
     my $chart_id   = shift;
     my $drawing_id = shift;
 
-    $self->{_chart}->{_id} = $chart_id -1;
+    $self->{_chart}->{_id} = $chart_id - 1;
 
     my $drawing = Excel::Writer::XLSX::Drawing->new();
     $self->{_drawing} = $drawing;

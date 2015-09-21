@@ -4250,7 +4250,7 @@ The C<validate> parameter is used to set the type of data that you wish to valid
 
 =over
 
-=item * B<any> is used to specify that the type of data is unrestricted. This is the same as not applying a data validation. It is only provided for completeness and isn't used very often in the context of Excel::Writer::XLSX.
+=item * B<any> is used to specify that the type of data is unrestricted. This is useful to display an input message without restricting the data that can be entered.
 
 =item * B<integer> restricts the cell to integer values. Excel refers to this as 'whole number'.
 
@@ -4619,6 +4619,7 @@ Other, less commonly used parameters are:
     mid_color
     max_color
     bar_color
+    stop_if_true
 
 Additional parameters which are used for specific conditional format types are shown in the relevant sections below.
 
@@ -5085,6 +5086,11 @@ The C<min_color> and C<max_color> properties are available when the conditional 
     );
 
 The color can be specifies as an Excel::Writer::XLSX color index or, more usefully, as a HTML style RGB hex number, as shown above.
+
+
+=head2 stop_if_true
+
+The C<stop_if_true> parameter, if set to a true value, will enable the "stop if true" feature on the conditional formatting rule, so that subsequent rules are not examined for any cell on which the conditions for this rule are met.
 
 
 =head2 Conditional Formatting Examples

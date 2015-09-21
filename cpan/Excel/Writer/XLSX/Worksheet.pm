@@ -3333,15 +3333,20 @@ sub data_validation {
         $param->{validate} = $valid_type{ lc( $param->{validate} ) };
     }
 
+    # No action is required for validation type 'any'
+    # unless there are input messages.
+    return 0
+      if $param->{validate} eq 'none'
+      && !exists $param->{input_message}
+      && !exists $param->{input_title};
 
-    # No action is required for validation type 'any'.
-    # TODO: we should perhaps store 'any' for message only validations.
-    return 0 if $param->{validate} eq 'none';
 
-
-    # The list and custom validations don't have a criteria so we use a default
-    # of 'between'.
-    if ( $param->{validate} eq 'list' || $param->{validate} eq 'custom' ) {
+    # The any, list and custom validations don't have a criteria
+    # so we use a default of 'between'.
+    if (   $param->{validate} eq 'none'
+        || $param->{validate} eq 'list'
+        || $param->{validate} eq 'custom' )
+    {
         $param->{criteria} = 'between';
         $param->{maximum}  = undef;
     }
@@ -3575,23 +3580,23 @@ sub conditional_formatting {
 
     # List of valid input parameters.
     my %valid_parameter = (
-        type      => 1,
-        format    => 1,
-        criteria  => 1,
-        value     => 1,
-        minimum   => 1,
-        maximum   => 1,
-		stopIfTrue => 1,
-        min_type  => 1,
-        mid_type  => 1,
-        max_type  => 1,
-        min_value => 1,
-        mid_value => 1,
-        max_value => 1,
-        min_color => 1,
-        mid_color => 1,
-        max_color => 1,
-        bar_color => 1,
+        type         => 1,
+        format       => 1,
+        criteria     => 1,
+        value        => 1,
+        minimum      => 1,
+        maximum      => 1,
+        stop_if_true => 1,
+        min_type     => 1,
+        mid_type     => 1,
+        max_type     => 1,
+        min_value    => 1,
+        mid_value    => 1,
+        max_value    => 1,
+        min_color    => 1,
+        mid_color    => 1,
+        max_color    => 1,
+        bar_color    => 1,
     );
 
     # Check for valid input parameters.
@@ -8424,10 +8429,14 @@ sub _write_data_validation {
     }
 
 
-    push @attributes, ( 'type' => $param->{validate} );
+    if ( $param->{validate} ne 'none' ) {
 
-    if ( $param->{criteria} ne 'between' ) {
-        push @attributes, ( 'operator' => $param->{criteria} );
+        push @attributes, ( 'type' => $param->{validate} );
+
+        if ( $param->{criteria} ne 'between' ) {
+            push @attributes, ( 'operator' => $param->{criteria} );
+        }
+
     }
 
     if ( $param->{error_type} ) {
@@ -8456,15 +8465,21 @@ sub _write_data_validation {
 
     push @attributes, ( 'sqref' => $sqref );
 
-    $self->xml_start_tag( 'dataValidation', @attributes );
+    if ( $param->{validate} eq 'none' ) {
+        $self->xml_empty_tag( 'dataValidation', @attributes );
+    }
+    else {
+        $self->xml_start_tag( 'dataValidation', @attributes );
 
-    # Write the formula1 element.
-    $self->_write_formula_1( $param->{value} );
+        # Write the formula1 element.
+        $self->_write_formula_1( $param->{value} );
 
-    # Write the formula2 element.
-    $self->_write_formula_2( $param->{maximum} ) if defined $param->{maximum};
+        # Write the formula2 element.
+        $self->_write_formula_2( $param->{maximum} )
+          if defined $param->{maximum};
 
-    $self->xml_end_tag( 'dataValidation' );
+        $self->xml_end_tag( 'dataValidation' );
+    }
 }
 
 
@@ -8564,12 +8579,15 @@ sub _write_cf_rule {
     my $self  = shift;
     my $param = shift;
 
-    my @attributes = ( 'type' => $param->{type}, $param->{stopIfTrue} ? ( stopIfTrue => 1 ) : () );
+    my @attributes = ( 'type' => $param->{type} );
 
     push @attributes, ( 'dxfId' => $param->{format} )
       if defined $param->{format};
 
     push @attributes, ( 'priority' => $param->{priority} );
+
+    push @attributes, ( 'stopIfTrue' => 1 )
+      if defined $param->{stop_if_true};
 
     if ( $param->{type} eq 'cellIs' ) {
         push @attributes, ( 'operator' => $param->{criteria} );
