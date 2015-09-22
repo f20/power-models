@@ -1,16 +1,14 @@
 ---
-.: CDCM 2015 toy step 2
+.: CDCM 2015 toy step 3
 PerlModule: CDCM
-aggCapFactor: 1
-agghhequalisation: 1
+agghhequalisation: rag
 alwaysUseRAG: 1
-coincidenceAdj: groupums
+coincidenceAdj: groupumsredonly
 drm: top500gsp
 ehv: 1
 extraLevels: 1
 fixedCap: 1-4
 illustrative: 1
-impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

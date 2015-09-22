@@ -419,6 +419,8 @@ sub factory {
         my $addToList = sub {
             my ( $data, $rule ) = @_;
             my $spreadsheetFile = $rule->{template};
+            $spreadsheetFile =~ s/-/-$rule->{PerlModule}-/
+              unless $spreadsheetFile =~ /$rule->{PerlModule}/;
             if ( $rule->{revisionText} ) {
                 $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
                 $spreadsheetFile .= $rule->{revisionText};
@@ -527,7 +529,7 @@ sub factory {
                     $instructionsSettings{$_}[1]{PostProcessing}
                 );
             }
-            my $errorCount=Ancillary::ParallelRunning::waitanypid(0);
+            my $errorCount = Ancillary::ParallelRunning::waitanypid(0);
             die "Some ($errorCount) things have gone wrong" if $errorCount;
         }
         else {

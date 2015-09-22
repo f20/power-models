@@ -1,24 +1,10 @@
 ---
-.: CDCM 2015 toy step 6
+.: CDCM 2015 toy step 4
 PerlModule: CDCM
 aggCapFactor: 1
 agghhequalisation: rag
 alwaysUseRAG: 1
-coincidenceAdj: groupums
-dataOverride:
-  1010:
-    - ~
-    - ~
-    - ~
-    - Financial and general assumptions: 0.453
-  1020:
-    - ~
-    - LV circuits: 200000000
-  1059:
-    - ~
-    - ~
-    - ~
-    - Other expenditure: 0.4
+coincidenceAdj: groupumsredonly
 drm: top500gsp
 ehv: 1
 extraLevels: 1
@@ -26,10 +12,10 @@ fixedCap: 1-4
 illustrative: 1
 impliedLoadFactors: 1
 matrices: big
-noReplacement: 0.453
+noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: pickallnogen
+scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: statistics
 targetRevenue: dcp132

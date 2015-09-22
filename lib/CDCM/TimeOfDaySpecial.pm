@@ -854,8 +854,7 @@ sub timeOfDaySpecialRunner {
                                     (
                                         "A1$pad" => $volumeByEndUser->{
                                             "Unit rate $_ p/kWh"},
-                                        "A2$pad" =>
-                                          $timebandUseByRate[ $_ - 1 ]
+                                        "A2$pad" => $timebandUseByRate[ $_ - 1 ]
                                       )
                                 } 1 .. $r
                             },
@@ -937,8 +936,7 @@ sub timeOfDaySpecialRunner {
             my $red = Arithmetic(
                 name          => 'Contribution to peak band kW',
                 defaultFormat => '0softnz',
-                arithmetic    => $timebandLoadCoefficient
-                ? '=A1*A9*A2/24/A3*1000'
+                arithmetic => $timebandLoadCoefficient ? '=A1*A9*A2/24/A3*1000'
                 : '=A1*A2/24/A3*1000',
                 arguments => {
                     A1 => $timebandLoadCoefficientAccording,
@@ -972,7 +970,7 @@ sub timeOfDaySpecialRunner {
                       . ( $blackYellowGreen ? ' special ' : ' ' )
                       . 'pseudo load coefficient at system level',
                     arithmetic =>
-'=IF(A6>0,A1*IF(A7<>0,A3/A2,IF(A9<0,-1,1))*24*A4/A5,0)',
+                      '=IF(A6>0,A1*IF(A7<>0,A3/A2,IF(A9<0,-1,1))*24*A4/A5,0)',
                     cols      => $peakBand,
                     arguments => {
                         A1 => $timebandUseByRate[$_],
@@ -1399,8 +1397,8 @@ sub timeOfDaySpecialRunner {
                       && $model->{coincidenceAdj} =~ /redonly/i
                     ? (
                         A8 => Constant(
-                            name =>
-'Time bands to apply the time band load coefficient',
+                            name => 'Time bands to apply the '
+                              . 'time band load coefficient',
                             defaultFormat => '0con',
                             cols          => $timebandSet,
                             data =>

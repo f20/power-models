@@ -1,8 +1,8 @@
 makeModels
 	-sqlite
-	CDCM/Data-2015-06/SSEPD-SEPD.yml
+	CDCM/Data-2015-06/*.yml
 	CDCM/Current/%-after179.yml
-	CDCM/Toys-2015/%-extehv-*
+	CDCM/ExtEHV-2015/%-extehv-*
 
 R
     treemap

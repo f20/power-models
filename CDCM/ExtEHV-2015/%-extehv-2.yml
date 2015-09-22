@@ -1,8 +1,7 @@
 ---
-.: CDCM 2015 toy step 4
+.: CDCM 2015 toy step 2
 PerlModule: CDCM
-aggCapFactor: 1
-agghhequalisation: 1
+agghhequalisation: rag
 alwaysUseRAG: 1
 coincidenceAdj: groupums
 drm: top500gsp
@@ -10,12 +9,11 @@ ehv: 1
 extraLevels: 1
 fixedCap: 1-4
 illustrative: 1
-impliedLoadFactors: 1
 matrices: big
-noReplacement: 0.453
+noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: pickallnogen
+scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: statistics
 targetRevenue: dcp132

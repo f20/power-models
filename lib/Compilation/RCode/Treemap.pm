@@ -74,7 +74,7 @@ for (c in levels(company)) {
             name <- paste(c, p, o);
             filter <- company==c&period==p&option==o&t3901$category!='Total net revenue by tariff';
             if (length(filter)) {
-                treemap(
+                tryCatch(treemap(
                     t3901[filter, ],
                     index=columnIndex,
                     vSize='amount',
@@ -91,7 +91,7 @@ EOR
       ) . <<'EOR';
                     title=name,
                     position.legend='none'
-                );
+                ), error=function(e) e);
             }
         }
     }
