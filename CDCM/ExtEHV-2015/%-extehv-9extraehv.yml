@@ -1,7 +1,6 @@
 ---
 .: CDCM 2015 toy step 9 with more EHV tariffs
 PerlModule: CDCM
-aggCapFactor: 1
 alwaysUseRAG: 1
 coincidenceAdj: groupumsdomnondomredonly
 dataOverride:

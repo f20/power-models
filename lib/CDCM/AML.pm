@@ -555,6 +555,7 @@ EOL
             defaultFormat => '0softnz',
           ) if $volumeData->{'Capacity charge p/kVA/day'};
 
+        # Historical feature, largely superseded by impliedLoadFactors
         if ( $model->{aggCapFactor} ) {
             if ( $model->{aggCapFactor} =~ /first/i ) {
                 $model->{aggCapFactor} = Arithmetic(
@@ -689,22 +690,6 @@ EOL
             defaultFormat => '0softnz',
         );
 
-=head Do not do this
-
-            $diversityAllowances = Arithmetic(
-                name          => 'Calculated diversity allowances',
-                arithmetic    => '=IF(A3>0,A1/A2-1,A4)',
-                defaultFormat => '%softnz',
-                arguments     => {
-                    A1 => $chargeableAml,
-                    A2 => $chargeableSml,
-                    A3 => $chargeableSml,
-                    A4 => $diversityAllowances
-                }
-            );
-
-=cut
-
         if ($rerouteing13211) {
 
             my $rerouteingMap = Constant(
@@ -788,6 +773,7 @@ EOL
 }
 
 sub impliedLoadFactors {
+
     my (
         $model,          $allEndUsers,
         $demandEndUsers, $standingForFixedEndUsers,
@@ -881,7 +867,7 @@ sub impliedLoadFactors {
         data => [ map { 0.5; } @{ $demandEndUsers->{list} } ],
     );
 
-    my $inputCapFactoracityFactors = Dataset(
+    my $inputCapacityFactors = Dataset(
         name       => 'Spare capacity multiplier',
         rows       => $standingForFixedEndUsers,
         validation => {
@@ -897,7 +883,7 @@ sub impliedLoadFactors {
 
     Columnset(
         name     => 'Capacity assumptions for tariffs without capacity charges',
-        columns  => [ $inputLoadFactors, $inputCapFactoracityFactors ],
+        columns  => [ $inputLoadFactors, $inputCapacityFactors ],
         number   => 1042,
         appendTo => $model->{inputTables},
         dataset  => $model->{dataset},
@@ -909,11 +895,11 @@ sub impliedLoadFactors {
         name => 'Deemed site-specific load factor for fixed charge calculation',
         arguments => {
             A1 => $inputLoadFactors,
-            A4 => $inputCapFactoracityFactors,
+            A4 => $inputCapacityFactors,
             $inputOnly ? ()
             : (
                 A3 => $inputLoadFactors,
-                A2 => $inputCapFactoracityFactors,
+                A2 => $inputCapacityFactors,
                 A9 => $impliedLoadFactors,
             ),
         },

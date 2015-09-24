@@ -1,7 +1,6 @@
 ---
 .: CDCM 2015 toy step 8
 PerlModule: CDCM
-aggCapFactor: 1
 alwaysUseRAG: 1
 coincidenceAdj: groupumsdomnondomredonly
 dataOverride:

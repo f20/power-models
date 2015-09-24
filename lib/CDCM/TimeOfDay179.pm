@@ -675,8 +675,7 @@ sub timeOfDay179Runner {
                                     (
                                         "A1$pad" => $volumeByEndUser->{
                                             "Unit rate $_ p/kWh"},
-                                        "A2$pad" =>
-                                          $timebandUseByRate[ $_ - 1 ]
+                                        "A2$pad" => $timebandUseByRate[ $_ - 1 ]
                                       )
                                 } 1 .. $r
                             },
@@ -812,7 +811,9 @@ sub timeOfDay179Runner {
           $timebandLoadCoefficientAccording->{dontcolumnset}
           ? $timebandLoadCoefficientAdjusted
           : Columnset(
-            name    => 'Calculation of adjusted time band load coefficients',
+            name => 'Calculation of adjusted'
+              . ( $blackYellowGreen ? ' special ' : ' ' )
+              . 'time band load coefficients',
             columns => [
                 $timebandLoadCoefficientAccording,
                 $timebandLoadCoefficientAdjusted
@@ -820,8 +821,11 @@ sub timeOfDay179Runner {
           );
 
         $pseudoLoadCoefficientBreakdown = Arithmetic(
-            name => 'Pseudo load coefficient by time band and network level',
-            $correctionRules =~ /groupAll/i ? ()
+            name => 'Pseudo load coefficient by'
+              . ( $blackYellowGreen ? ' special ' : ' ' )
+              . 'time band and network level',
+            $correctionRules =~ /groupAll/i
+            ? ()
             : ( rows => $relevantEndUsersByRate[0] ),
             cols       => $networkLevelsTimeband,
             arithmetic => $model->{coincidenceAdj}
@@ -838,8 +842,9 @@ sub timeOfDay179Runner {
                   && $model->{coincidenceAdj} =~ /redonly/i
                 ? (
                     A8 => Constant(
-                        name =>
-                          'Time bands to apply the time band load coefficient',
+                        name => 'Time bands to apply the'
+                          . ( $blackYellowGreen ? ' special ' : ' ' )
+                          . 'time band load coefficient',
                         defaultFormat => '0con',
                         cols          => $timebandSet,
                         data => [ 1, map { 0 } 2 .. @{ $timebandSet->{list} } ],
@@ -1033,8 +1038,7 @@ sub timeOfDay179Runner {
             rows       => $groupset,
             cols       => $networkLevelsTimebandAware,
             arithmetic => $model->{agghhequalisation} =~ /nooffpeak/i
-            ? '=(A11*A21+A31*A41+A71*A81)'
-              . '/(A12*A22+A32*A42+A72*A82*A9)'
+            ? '=(A11*A21+A31*A41+A71*A81)' . '/(A12*A22+A32*A42+A72*A82*A9)'
             : '=(A11*A21+A31*A41+A51*A61+A71*A81)'
               . '/(A12*A22+A32*A42+A52*A62+A72*A82*A9)',
             arguments => {

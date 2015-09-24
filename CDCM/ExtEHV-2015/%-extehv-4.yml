@@ -1,7 +1,6 @@
 ---
 .: CDCM 2015 toy step 4
 PerlModule: CDCM
-aggCapFactor: 1
 agghhequalisation: rag
 alwaysUseRAG: 1
 coincidenceAdj: groupumsredonly

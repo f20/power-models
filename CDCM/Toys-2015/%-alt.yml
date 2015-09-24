@@ -1,7 +1,6 @@
 ---
 .: Alternative CDCM model
 PerlModule: CDCM
-aggCapFactor: 1
 alwaysUseRAG: 1
 coincidenceAdj: groupumsdomnondomredonly
 dataOverride:

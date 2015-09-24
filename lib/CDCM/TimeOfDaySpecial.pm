@@ -1371,7 +1371,9 @@ sub timeOfDaySpecialRunner {
 
             push @{ $model->{timeOfDayResults} },
               Columnset(
-                name => 'Calculation of adjusted time band load coefficients',
+                name => 'Calculation of adjusted'
+                  . ( $blackYellowGreen ? ' special ' : ' ' )
+                  . 'time band load coefficients',
                 columns => [
                     $timebandLoadCoefficientAccording,
                     $timebandLoadCoefficientAdjusted
@@ -1379,8 +1381,9 @@ sub timeOfDaySpecialRunner {
               ) unless $timebandLoadCoefficientAccording->{dontcolumnset};
 
             $pseudoLoadCoefficientBreakdown = Arithmetic(
-                name =>
-                  'Pseudo load coefficient by time band and network level',
+                name => 'Pseudo load coefficient by'
+                  . ( $blackYellowGreen ? ' special ' : ' ' )
+                  . 'time band and network level',
                 rows       => $relevantEndUsersByRate[0],
                 cols       => $networkLevelsTimeband,
                 arithmetic => $model->{coincidenceAdj}
@@ -1397,7 +1400,8 @@ sub timeOfDaySpecialRunner {
                       && $model->{coincidenceAdj} =~ /redonly/i
                     ? (
                         A8 => Constant(
-                            name => 'Time bands to apply the '
+                            name => 'Time bands to apply the'
+                              . ( $blackYellowGreen ? ' special ' : ' ' )
                               . 'time band load coefficient',
                             defaultFormat => '0con',
                             cols          => $timebandSet,

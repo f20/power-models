@@ -1,7 +1,6 @@
 ---
 .: DCP 160/2015 on top of clean after DCP 161
 PerlModule: CDCM
-aggCapFactor: voltage
 agghhequalisation: 1
 alwaysUseRAG: 1
 checksums: Tariff checksum 5; Model checksum 7
@@ -9,6 +8,7 @@ coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
+impliedLoadFactors: 1
 matrices: big
 noReplacement: blanket
 pcd: 1
