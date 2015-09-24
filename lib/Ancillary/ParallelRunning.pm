@@ -39,16 +39,28 @@ my %status;
 
 sub registerpid {
     my ( $pid, $name, $continuation ) = @_;
+    $names{$pid} = $name;
+    $conts{$pid} = $continuation if $continuation;
+    warn "$name started ($pid)\n";
+}
+
+sub backgroundrun {
+    my ( $module, $method, $firstArg, $otherArgsRef, $continuation ) = @_;
+    my $pid = fork;
+    return registerpid( $pid, $firstArg, $continuation ) if $pid;
+    $0 = "perl: $firstArg" if defined $pid;
+    my $status = $module->$method( $firstArg, @$otherArgsRef );
     if ( defined $pid ) {
-        $names{$pid} = $name;
-        $conts{$pid} = $continuation if $continuation;
-        warn "$name started ($pid)\n";
+        exit $status;
+
+        # If you need to clean up spreadsheet generation
+        # without calling exit, use something like:
+        #   eval { File::Temp::cleanup(); };
+        #   require POSIX and POSIX::_exit($status);
+
     }
     elsif ($continuation) {
-        $continuation->($name);
-    }
-    else {
-        warn "$name done (could not fork)";
+        $continuation->();
     }
 }
 

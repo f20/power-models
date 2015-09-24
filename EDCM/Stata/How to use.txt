@@ -61,7 +61,7 @@ Step B3.  Give the following command to the shell interpreter:
 
 This will generate for each company, a YML file containing the input data extracted from the
 .dta files, and a Microsoft Excel workbook.  The Microsoft Excel workbooks are saved in a new
-subfolder called "~$models".
+subfolder called "models.tmp".
 
 -- 
 

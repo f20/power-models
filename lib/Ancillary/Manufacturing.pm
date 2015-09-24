@@ -33,6 +33,7 @@ use utf8;
 use YAML;
 require Storable;
 require Ancillary::Validation;
+use File::Spec::Functions qw(catfile);
 
 sub factory {
     my ( $class, %factorySettings ) = @_;
@@ -298,7 +299,7 @@ sub factory {
             $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
         }
 
-        require SpreadsheetModel::WorkbookCreate;
+        require SpreadsheetModel::WorkbookFormats;
 
         my $sourceCodeDigest =
           Ancillary::Validation::sourceCodeDigest($perl5dir);
@@ -520,12 +521,17 @@ sub factory {
                 $rulesDataSettings{$_}[2]
             ];
           } @fileNames;
+        my ($folder) =
+          grep { -d $_ && -w _; } qw(models.tmp ~$models);
+
         if ( $threads1 && eval 'require Ancillary::ParallelRunning' ) {
             foreach (@fileNames) {
                 Ancillary::ParallelRunning::waitanypid($threads1);
-                Ancillary::ParallelRunning::registerpid(
-                    $workbookModule->( $instructionsSettings{$_}[1]{xls} )
-                      ->bgCreate( $_, @{ $instructionsSettings{$_} } ),
+                Ancillary::ParallelRunning::backgroundrun(
+                    $workbookModule->( $instructionsSettings{$_}[1]{xls} ),
+                    'create',
+                    defined $folder ? catfile( $folder, $_ ) : $_,
+                    $instructionsSettings{$_},
                     $instructionsSettings{$_}[1]{PostProcessing}
                 );
             }
@@ -535,7 +541,8 @@ sub factory {
         else {
             foreach (@fileNames) {
                 $workbookModule->( $instructionsSettings{$_}[1]{xls} )
-                  ->create( $_, @{ $instructionsSettings{$_} } );
+                  ->create( defined $folder ? catfile( $folder, $_ ) : $_,
+                    , @{ $instructionsSettings{$_} } );
                 $instructionsSettings{$_}[1]{PostProcessing}->($_)
                   if $instructionsSettings{$_}[1]{PostProcessing};
             }

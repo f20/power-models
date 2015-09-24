@@ -46,8 +46,8 @@ sub newTestArea {
         require SpreadsheetModel::Workbook;
         $workbookModule = 'SpreadsheetModel::Workbook';
     }
-    mkdir '~$models';
-    my $wbook = $workbookModule->new( catfile( '~$models', $filename ) );
+    mkdir 'models.tmp';
+    my $wbook = $workbookModule->new( catfile( 'models.tmp', $filename ) );
     $wbook->setFormats(@formats);
     my $wsheet = $wbook->add_worksheet();
     $wbook, $wsheet;

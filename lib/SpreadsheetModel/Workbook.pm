@@ -29,8 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use base
-  qw(Spreadsheet::WriteExcel SpreadsheetModel::WorkbookCreate SpreadsheetModel::WorkbookFormats);
+use base qw(Spreadsheet::WriteExcel SpreadsheetModel::WorkbookFormats);
 
 sub fileExtension { '.xls'; }
 

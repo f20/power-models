@@ -30,31 +30,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use SpreadsheetModel::Logger;
-use SpreadsheetModel::WorkbookFormats;    # loaded here for code validation
 use File::Spec::Functions qw(catfile);
-
-sub bgCreate {
-    my ( $module, $fileName, @arguments ) = @_;
-    my $pid = fork;
-    return $pid, $fileName if $pid;
-    $0 = "perl: $fileName";
-    my $status = $module->create( $fileName, @arguments );
-    exit $status if defined $pid;
-
-    # NB: if you need to avoid calling exit, then do something like:
-    #   eval { File::Temp::cleanup(); };
-    #   require POSIX and POSIX::_exit($status);
-
-}
 
 sub create {
 
     my ( $module, $fileName, $instructions, $settings ) = @_;
     my @optionArray =
       ref $instructions eq 'ARRAY' ? @$instructions : $instructions;
-    my @localTime = localtime;
-    my $tmpDir;
+    my @localTime   = localtime;
     my $streamMaker = $settings->{streamMaker};
+    my $tmpDir;
     $streamMaker ||= sub {
         my ($fn) = @_;
         unless ($fn) {
@@ -62,33 +47,36 @@ sub create {
             return \*STDOUT;
         }
         my $finalFile = $fn;
-        if (
-            $fn !~ m#/#
-            and (
-                my ($folder) =
-                grep { -d $_ && -w _; } qw(models.tmp ~$models)
-            )
-          )
-        {
-            $finalFile = catfile( $folder, $fn );
-        }
+        my $tempFile  = $fn;
+        my $closer;
         $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
-        mkdir $tmpDir and chmod 0770, $tmpDir if $tmpDir;
-        my $tempFile = $tmpDir ? catfile( $tmpDir, $fn ) : $fn;
-        open my $handle, '>', $tempFile;
-        binmode $handle;
-        $handle, sub {
-            if ($tmpDir) {
+        if ($tmpDir) {
+            mkdir $tmpDir;
+            chmod 0770, $tmpDir;
+
+            $fn =~ s#.*/##s;
+            $tempFile = catfile( $tmpDir, $fn );
+            $closer = sub {
                 rename $tempFile, $finalFile;
                 rmdir $tmpDir;
-            }
-        }, $finalFile;
+            };
+
+        }
+        open my $handle, '>', $tempFile;
+        binmode $handle;
+        $handle, $closer, $finalFile;
     };
 
     ( my $handle, my $closer, $fileName ) = $streamMaker->($fileName);
     my $wbook = $module->new($handle);
-    $wbook->set_tempdir($tmpDir)
-      if $tmpDir && $module !~ /xlsx/i;  # work around taint issue with IO::File
+
+    # Work around taint issue with IO::File
+    $wbook->set_tempdir($tmpDir) if $tmpDir && $module !~ /xlsx/i;
+
+    # Ugly hack see https://github.com/jmcnamara/excel-writer-xlsx/issues/59
+    $wbook->{_tab_ratio}     = 0.88 * 1000;
+    $wbook->{_window_width}  = 1280 * 20;
+    $wbook->{_window_height} = 800 * 20;
 
     my @exports = grep { $settings->{$_} && /^Export/ } keys %$settings;
     my $exporter;

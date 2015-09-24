@@ -218,8 +218,8 @@ EOS
     sub {
         my ($inFile) = @_;
         unless ( -f $inFile ) {
-            $inFile = '~$models/' . $inFile;
-            return unless -f $inFile;
+            warn "$inFile not found";
+            return;
         }
         my $calcFile = $inFile;
         $calcFile = $calculator_prefork->($inFile) if $calculator_prefork;

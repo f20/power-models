@@ -27,10 +27,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# SpreadsheetModel::Workbook inherits from this class.
-
 use warnings;
 use strict;
+use base qw(SpreadsheetModel::WorkbookCreate);
 
 sub getFormat {
     my ( $workbook, $key, @decorations ) = @_;
@@ -165,6 +164,7 @@ Keys used in %$options:
 # ?,??0 style formats do not work with OpenOffice.org.
 # Use "alignment: right[0-9]*" where the number is the amount of padding on the right.
     my $q3 = $options->{alignment} ? ',' : '??,???,';
+    my $q4 = $options->{alignment} ? ',' : '??,';
     my $cyan = $backgroundColour && !$options->{noCyanText} ? '[Cyan]' : '';
     my $black = $backgroundColour ? '[Black]' : '';
     my $rightpad;
@@ -255,7 +255,7 @@ Keys used in %$options:
         align => 'right'
       )
       : (
-        num_format => "${black} _(?$q3??0.00_);[Red] (?$q3??0.00);;$cyan@",
+        num_format => "${black} _(?$q4??0.00_);[Red] (?$q4??0.00);;$cyan@",
         align      => 'center'
       );
     my @num_000 =
@@ -266,7 +266,7 @@ Keys used in %$options:
         align => 'right'
       )
       : (
-        num_format => "${black} _(?$q3??0.000_);[Red] (?$q3??0.000);;$cyan@",
+        num_format => "${black} _(?$q4??0.000_);[Red] (?$q4??0.000);;$cyan@",
         align      => 'center'
       );
     my @num_00000 =
@@ -278,7 +278,7 @@ Keys used in %$options:
       )
       : (
         num_format =>
-          "${black} _(?$q3??0.00000_);[Red] (?$q3??0.00000);;$cyan@",
+          "${black} _(?$q4??0.00000_);[Red] (?$q4??0.00000);;$cyan@",
         align => 'center'
       );
 
