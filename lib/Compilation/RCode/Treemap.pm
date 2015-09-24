@@ -41,7 +41,7 @@ fileName <- 'Treemaps by category';
 EOR
         : <<'EOR'
 columnIndex <- c('tariff', 'category');
-fileName <- 'Treemaps by tariff';
+fileName <- 'Treemaps with categories';
 EOR
       ) . <<'EOR'
 library(DBI);
@@ -59,11 +59,17 @@ t3901 <- dbGetQuery(db, paste(
     'where a.tab=3901',
     'and a.row=c.row and a.col=0',
     'and b.row=0 and b.col=c.col',
-    'and c.col>0 and c.row>0 and c.v+0>0'
+    'and c.col>0 and c.row>0 and c.v+0<>0'
 ));
 company <- factor(t3901$company);
 period <- factor(t3901$period);
 option <- factor(t3901$option);
+for (i in 1:length(t3901$amount)) {
+    if (t3901$amount[i] < 0) {
+        t3901$amount[i] <- -t3901$amount[i];
+        t3901$category[i] <- paste('[negative]', t3901$category[i]);
+    }
+}
 t3901$category<-factor(sub(" \\(.+\\)", "", t3901$category, perl=TRUE));
 t3901$tariff<-factor(t3901$tariff);
 library(treemap);
@@ -128,11 +134,17 @@ t3801 <- dbGetQuery(db, paste(
     'where a.tab=3801',
     'and a.row=c.row and a.col=0',
     'and b.row=0 and b.col=c.col',
-    'and c.col>3 and c.col<8 and c.row>0 and c.v+0>0'
+    'and c.col>3 and c.col<8 and c.row>0 and c.v+0<>0'
 ));
 company <- factor(t3801$company);
 period <- factor(t3801$period);
 option <- factor(t3801$option);
+for (i in 1:length(t3801$amount)) {
+    if (t3801$amount[i] < 0) {
+        t3801$amount[i] <- -t3801$amount[i];
+        t3801$category[i] <- paste('[negative]', t3801$category[i]);
+    }
+}
 t3801$category<-factor(sub(" \\(.+\\)", "", sub("Revenues from ", "", t3801$category), perl=TRUE));
 t3801$tariff<-factor(t3801$tariff);
 library(treemap);

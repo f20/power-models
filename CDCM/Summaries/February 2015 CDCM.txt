@@ -9,3 +9,5 @@ useDatabase
 	10
 	37
 	11
+
+R treemapByCategory

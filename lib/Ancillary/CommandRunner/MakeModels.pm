@@ -205,7 +205,7 @@ sub makeModels {
     }
 
     my @files = $maker->{fileList}->();
-    mkdir '~$models' if @files > 3 and !-e '~$models';
+    mkdir 'models.tmp' if @files > 1 and !-e 'models.tmp';
     $maker->{run}->();
 
 }

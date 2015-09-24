@@ -66,7 +66,7 @@ sub create {
             $fn !~ m#/#
             and (
                 my ($folder) =
-                grep { -d $_ && -w _; } qw(~$models models.tmp)
+                grep { -d $_ && -w _; } qw(models.tmp ~$models)
             )
           )
         {
