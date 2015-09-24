@@ -175,9 +175,6 @@ sub standingCharges {
 
     my $maxKvaByEndUser;
 
-    # The lvCosts and fixedCap options interact with each other
-    # and do not behave in a particularly natural way.
-
     if ( $model->{fixedCap} && $model->{fixedCap} =~ /group|1-4/i ) {
 
     # get $maxKvaByEndUser from tariff grouping - to apply to all network levels
@@ -346,15 +343,13 @@ sub standingCharges {
         defaultFormat => '0.000softnz'
       );
 
-    if (   $model->{fixedCap}
-        || $model->{lvCosts} && $model->{lvCosts} =~ /cap/i )
-    {
+    if ( $model->{fixedCap} && $model->{fixedCap} !~ /lvonly/i ) {
 
         # no special grouping for LV circuits
 
     }
 
-    elsif ( $model->{lvCosts} && $model->{lvCosts} =~ /group/i ) {
+    elsif ( $model->{fixedCap} && $model->{fixedCap} =~ /group/i ) {
 
         # several tariff groups for LV circuit costs
 
@@ -397,7 +392,7 @@ sub standingCharges {
             byrow => 1,
         );
 
-        if ( $model->{lvCosts} =~ /dnd/ ) {
+        if ( $model->{fixedCap} =~ /dnd/ ) {
 
             $tariffGroupset =
               Labelset( list => [ 'LV domestic', 'LV non domestic', ] );
@@ -506,9 +501,10 @@ sub standingCharges {
 
     else {
 
-# model 100 approach: one group for profile classes 1-4 (or optionally for all NHH)
+        # One group for charging LV circuits to profile classes 1-4
+        # or optionally for all LV NHH
 
-        my $allNhh = $model->{lvCosts} && $model->{lvCosts} =~ /nhh/i;
+        my $allNhh = $model->{fixedCap} && $model->{fixedCap} =~ /nhh/i;
 
         push @{ $model->{optionLines} },
           'LV circuit costs by exit point for '

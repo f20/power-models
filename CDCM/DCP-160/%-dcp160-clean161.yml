@@ -1,0 +1,22 @@
+---
+.: DCP 160/2015 on top of clean after DCP 161
+PerlModule: CDCM
+aggCapFactor: voltage
+agghhequalisation: 1
+alwaysUseRAG: 1
+checksums: Tariff checksum 5; Model checksum 7
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: statistics
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179
+unauth: dayotex

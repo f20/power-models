@@ -1,0 +1,24 @@
+makeModels
+	-sqlite
+	CDCM/Future/%-after161.yml
+	CDCM/DCP-160/%-dcp160-clean161.yml
+	CDCM/Data-2015-03/*
+
+useDatabase
+	-base=after161
+	-dcp=dcp160
+	-name=DCP 160
+
+makeModels
+	-rtf
+	-tablemap
+	other/Blank.yml
+	CDCM/Future/%-after161.yml
+	CDCM/Future/%-model161.yml
+	CDCM/DCP-227/%-dcp160-clean161.yml
+
+R
+	treemapByCategory
+	treemapWithCategories
+	treemapByComponent
+	treemapWithComponents

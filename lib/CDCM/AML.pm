@@ -572,7 +572,7 @@ EOL
                 );
             }
             else {
-                my $demandTariffsSpareCap =
+                my $demandTariffsCapFactorSource =
                     $model->{aggCapFactor} =~ /all/i
                   ? $demandTariffsCapacity
                   : Labelset(
@@ -582,14 +582,15 @@ EOL
                     ]
                   );
                 my $cap = Stack(
-                    rows    => $demandTariffsSpareCap,
+                    rows    => $demandTariffsCapFactorSource,
                     sources => [ $volumeData->{'Capacity charge p/kVA/day'} ],
                 );
                 my $md = Arithmetic(
-                    name       => 'Deemed maximum demand (kW)',
-                    rows       => $demandTariffsSpareCap,
-                    arithmetic => '=A2*1000/A3/24/A4',
-                    arguments  => {
+                    name          => 'Deemed maximum demand (kW)',
+                    rows          => $demandTariffsCapFactorSource,
+                    defaultFormat => '0soft',
+                    arithmetic    => '=A2*1000/A3/24/A4',
+                    arguments     => {
                         A2 => $unitsInYear,
                         A3 => $demandTariffsByEndUser->{groups}
                         ? Arithmetic(
@@ -603,7 +604,8 @@ EOL
                     },
                 );
                 Columnset(
-                    name    => 'Apparent spare capacity in HH tariffs',
+                    name => 'Diversified maximum demand'
+                      . ' and aggregate site-specific capacity',
                     columns => [ $cap, $md ]
                 );
                 $model->{aggCapFactor} = Arithmetic(
@@ -740,8 +742,7 @@ EOL
                     arithmetic    => '=A1/A2-1',
                     cols          => $lvCircuitLevel,
                     defaultFormat => '%softnz',
-                    arguments =>
-                      { A1 => $chargeableAml, A2 => $chargeableSml }
+                    arguments => { A1 => $chargeableAml, A2 => $chargeableSml }
                 ),
                 $diversityAllowances
             ]
@@ -880,7 +881,7 @@ sub impliedLoadFactors {
         data => [ map { 0.5; } @{ $demandEndUsers->{list} } ],
     );
 
-    my $inputSpareCapacityFactors = Dataset(
+    my $inputCapFactoracityFactors = Dataset(
         name       => 'Spare capacity multiplier',
         rows       => $standingForFixedEndUsers,
         validation => {
@@ -896,7 +897,7 @@ sub impliedLoadFactors {
 
     Columnset(
         name     => 'Capacity assumptions for tariffs without capacity charges',
-        columns  => [ $inputLoadFactors, $inputSpareCapacityFactors ],
+        columns  => [ $inputLoadFactors, $inputCapFactoracityFactors ],
         number   => 1042,
         appendTo => $model->{inputTables},
         dataset  => $model->{dataset},
@@ -908,11 +909,11 @@ sub impliedLoadFactors {
         name => 'Deemed site-specific load factor for fixed charge calculation',
         arguments => {
             A1 => $inputLoadFactors,
-            A4 => $inputSpareCapacityFactors,
+            A4 => $inputCapFactoracityFactors,
             $inputOnly ? ()
             : (
                 A3 => $inputLoadFactors,
-                A2 => $inputSpareCapacityFactors,
+                A2 => $inputCapFactoracityFactors,
                 A9 => $impliedLoadFactors,
             ),
         },

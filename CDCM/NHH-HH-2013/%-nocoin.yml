@@ -1,12 +1,12 @@
 ---
-.: 'NHH capacity adjustments, dom/non-dom, voltage-level coincidence'
+.: 'NHH capacity adjustments, no coincidence'
 PerlModule: CDCM
 aggCapFactor: 1
 alwaysUseRAG: 1
-coincidenceAdj: groupvoltage
+coincidenceAdj: none
 drm: top500gsp
 extraLevels: 1
-lvCosts: groupdnd
+fixedCap: grouplvonly
 matrices: big
 noReplacement: blanket
 pcd: 1
