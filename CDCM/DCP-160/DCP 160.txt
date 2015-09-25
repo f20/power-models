@@ -24,5 +24,5 @@ makeModels
 	other/Blank.yml
 	CDCM/Future/%-after161.yml
 	CDCM/Future/%-model161.yml
-	CDCM/DCP-227/%-dcp160-clean161.yml
-
+	CDCM/DCP-160/%-dcp160-clean161.yml
+	CDCM/DCP-160/%-dcp160-model161.yml
