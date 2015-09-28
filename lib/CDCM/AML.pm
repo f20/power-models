@@ -477,23 +477,25 @@ EOL
       Labelset(
         list => [ grep { /lv circuit/i } @{ $drmExitLevels->{list} } ] );
 
-    my ( $diversityDemandTariffs, $diversityLevels ) =
-      !$model->{opAllocSml}
+    my ( $diversityDemandTariffs, $diversityLevels ) = !$model->{opAllocSml}
       ? (
         Labelset(
-            name => 'Demand tariffs, except related MPAN',
+            name => 'Demand tariffs with capacity or fixed charges',
             $demandTariffsByEndUser->{groups} ? 'groups' : 'list' => [
-                grep { !/(additional|related) mpan/i } @{
-                         $demandTariffsByEndUser->{groups}
+                grep {
+                    $componentMap->{$_}{'Fixed charge p/MPAN/day'}
+                      || $componentMap->{$_}{'Capacity charge p/kVA/day'}
+                  } @{
+                    $demandTariffsByEndUser->{groups}
                       || $demandTariffsByEndUser->{list}
-                }
+                  }
             ]
         ),
         $drmExitLevels
       )
       : (
         Labelset(
-            name => 'LV network demand tariffs, except related MPAN',
+            name => 'LV network demand tariffs',
             $demandTariffsByEndUser->{groups} ? 'groups' : 'list' => [
                 grep { /LV/i && !/LV sub/i; } @{
                          $demandTariffsByEndUser->{groups}
