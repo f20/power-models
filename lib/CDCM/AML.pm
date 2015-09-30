@@ -807,7 +807,7 @@ sub impliedLoadFactors {
     );
 
     my $mapping2 = Constant(
-        name          => 'Users without capacity charges in each tariff group',
+        name          => 'Users in each tariff group',
         defaultFormat => '0connz',
         rows          => $demandEndUsers,
         cols          => $tariffGroupset,
