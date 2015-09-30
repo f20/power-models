@@ -149,7 +149,8 @@ END_OF_LIST
     );
 
     $model->{objects}{$key} = Columnset(
-        name     => 'Allocation rules',
+        name => 'Allocation rules',
+        $model->{multiModelSharing} ? ( number => 1399 ) : (),
         columns  => \@c,
         location => 'Options'
     );
