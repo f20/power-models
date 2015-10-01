@@ -197,33 +197,33 @@
     Vehicles Transport: ''
     _column: EHV&132
 1331:
-  - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
-  - Assets in CDCM model from CDCM table 2705 or 2706: ''
+  - _table: 1331. Assets in CDCM model (£)
+  - Assets in CDCM model: 0
     _column: GSP
-  - Assets in CDCM model from CDCM table 2705 or 2706: 711941268.833296
+  - Assets in CDCM model: 701955990.784026
     _column: 132kV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 106420603.452293
+  - Assets in CDCM model: 104633934.52405
     _column: 132kV/EHV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 129246770.831005
+  - Assets in CDCM model: 127728432.978661
     _column: EHV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 271381420.892222
+  - Assets in CDCM model: 271187842.300777
     _column: EHV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 254115466.499632
+  - Assets in CDCM model: 253878933.928135
     _column: 132kV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 1265341765.81729
+  - Assets in CDCM model: 1266660400.07066
     _column: HV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 554751300.079245
+  - Assets in CDCM model: 551257338.170273
     _column: HV/LV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 703090759.5654
+  - Assets in CDCM model: 688490699.052023
     _column: LV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 721350114.027932
+  - Assets in CDCM model: 742843404.108522
     _column: LV customer
-  - Assets in CDCM model from CDCM table 2705 or 2706: 35364292.8283219
+  - Assets in CDCM model: 36258716.050545
     _column: HV customer
 1332:
-  - _table: '1332. All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
-  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: 57796093.5158571
-    _column: 'All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
+  - _table: 1332. All notional assets in EDCM (£)
+  - All notional assets in EDCM: 75255186.2313276
+    _column: All notional assets in EDCM (£)
 1335:
   - _table: 1335. Total costs
   - Atypical cash costs: 2241851.08
@@ -506,11 +506,12 @@
     _column: LV
 1369:
   - _table: 1369. Net capex analysis pre-DCP 118 (£)
-  - 132kV: 349.083944997249e6
-    EHV: 187.024482492348e6
-    HV: 195.577295743515e6
-    LV: 166.879895262779e6
-    LV HV: 50.467924447355e6
+  - 132kV: 349083944.997249
+    EHV: 187024482.492348
+    HV: 195577295.743515
+    LV: 166879895.262779
+    LV HV: 50467924.447355
+    _column: Net capex analysis pre-DCP 118 (£)
 1370:
   - _table: 1370. Net capex percentages
   - Net capex percentages: 0.175841935728882
