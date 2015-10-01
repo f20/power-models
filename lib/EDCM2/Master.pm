@@ -60,9 +60,6 @@ sub new {
     $model->{inputTables} = [];
     $model->{method} ||= 'none';
 
-    $model->{numLocations} ||= $model->{numLocationsDefault};
-    $model->{numTariffs}   ||= $model->{numTariffsDefault};
-
     # The EDCM timeband is called purple in this code,
     # but its display name defaults to super-red.
     $model->{TimebandName} ||=
@@ -70,6 +67,9 @@ sub new {
 
     $model->preprocessDataset
       if $model->{dataset} && keys %{ $model->{dataset} };
+
+    $model->{numLocations} ||= $model->{numLocationsDefault};
+    $model->{numTariffs}   ||= $model->{numTariffsDefault};
 
     my $ehvAssetLevelset = Labelset(
         name => 'EHV asset levels',
