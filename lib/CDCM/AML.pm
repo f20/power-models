@@ -777,21 +777,32 @@ EOL
 sub impliedLoadFactors {
 
     my (
-        $model,          $allEndUsers,
-        $demandEndUsers, $standingForFixedEndUsers,
-        $componentMap,   $volumesByEndUser,
-        $unitsByEndUser, $daysInYear,
-        $powerFactorInModel,
+        $model,              $allEndUsers,
+        $demandEndUsers,     $standingForFixedEndUsers,
+        $componentMap,       $volumesByEndUser,
+        $unitsByEndUser,     $daysInYear,
+        $powerFactorInModel, $loadFactors,
     ) = @_;
 
     my $tariffGroupset = Labelset( list =>
           [ 'LV Network tariffs', 'LV Sub tariffs', 'HV Network tariffs', ] );
 
+    my $endUsersToUse =
+      $model->{impliedLoadFactors} =~ /cf|corr/i
+      ? Labelset(
+        name => 'End users with maximum import capacity charges',
+        list => [
+            grep { $componentMap->{$_}{'Capacity charge p/kVA/day'} }
+              @{ $demandEndUsers->{list} }
+        ],
+      )
+      : $allEndUsers;
+
     my $mapping1 = Constant(
         name => 'Mapping of users with capacity charges to tariff groups'
           . ' for deemed load factors',
         defaultFormat => '0connz',
-        rows          => $allEndUsers,
+        rows          => $endUsersToUse,
         cols          => $tariffGroupset,
         data          => [
             map {
@@ -802,7 +813,7 @@ sub impliedLoadFactors {
                   : /^(> )?LV Sub/i ? [ 0, 1, 0 ]
                   : /^(> )?LV/i     ? [ 1, 0, 0 ]
                   :                   [ 0, 0, 0 ];
-            } @{ $allEndUsers->{list} }
+            } @{ $endUsersToUse->{list} }
         ],
         byrow => 1,
     );
@@ -826,35 +837,96 @@ sub impliedLoadFactors {
         byrow => 1,
     );
 
-    my $impliedLoadFactors = Arithmetic(
-        name => 'Implied average site-specific load'
-          . ' factor for each tariff group',
-        arithmetic => '=A1/24/A2/A3/A4*1000',
+    $model->{impliedLoadFactors} =~ /cf|corr/i
+      ?
+
+      Arithmetic(
+        name       => 'Implied average load factor',
+        arithmetic => '=A1*A2',
         arguments  => {
             A1 => SumProduct(
-                defaultFormat => '0softnz',
-                name   => 'Relevant consumption in each tariff group (MWh)',
-                matrix => $mapping1,
-                vector => $unitsByEndUser
+                name   => 'Supercustomer load factor correction factor',
+                matrix => $mapping2,
+                vector => Arithmetic(
+                    name => 'Average load factor correction factor'
+                      . ' for tariff group',
+                    arithmetic => '=A1/A3/A4',
+                    arguments  => {
+                        A1 => SumProduct(
+                            defaultFormat => '0softnz',
+                            name => 'Relevant diversified maximum demand'
+                              . ' in tariff group (kW)',
+                            matrix => $mapping1,
+                            vector => Arithmetic(
+                                name => 'Diversified maximum demand (kW)',
+                                defaultFormat => '0softnz',
+                                rows          => $endUsersToUse,
+                                arithmetic    => '=A1/24/A2/A3*1000',
+                                arguments     => {
+                                    A1 => $unitsByEndUser,
+                                    A2 => $daysInYear,
+                                    A3 => $loadFactors,
+                                },
+                            ),
+                        ),
+                        A3 => SumProduct(
+                            defaultFormat => '0softnz',
+                            name          => 'Aggregate maximum import capacity'
+                              . ' in tariff group (kVA)',
+                            matrix => $mapping1,
+                            vector => Stack(
+                                rows    => $endUsersToUse,
+                                sources => [
+                                    $volumesByEndUser->{
+                                        'Capacity charge p/kVA/day'}
+                                ],
+                            )
+                        ),
+                        A4 => $powerFactorInModel,
+                    }
+                ),
             ),
-            A2 => $daysInYear,
-            A3 => SumProduct(
-                defaultFormat => '0softnz',
-                name          => 'Relevant capacity in each tariff group (kVA)',
-                matrix        => $mapping1,
-                vector => $volumesByEndUser->{'Capacity charge p/kVA/day'}
-            ),
-            A4 => $powerFactorInModel,
-        }
-    );
+            A2 => $loadFactors,
+        },
+      )
 
-    $impliedLoadFactors = SumProduct(
-        name   => 'Implied average site-specific load factor',
+      : SumProduct(
+        name   => 'Implied average load factor',
         matrix => $mapping2,
-        vector => $impliedLoadFactors,
-    );
+        vector => Arithmetic(
+            name       => 'Implied average load factor for each tariff group',
+            arithmetic => '=A1/24/A2/A3/A4*1000',
+            arguments  => {
+                A1 => SumProduct(
+                    defaultFormat => '0softnz',
+                    name   => 'Relevant consumption in tariff group (MWh)',
+                    matrix => $mapping1,
+                    vector => $unitsByEndUser
+                ),
+                A2 => $daysInYear,
+                A3 => SumProduct(
+                    defaultFormat => '0softnz',
+                    name =>
+                      'Aggregate maximum import capacity in tariff group (kVA)',
+                    matrix => $mapping1,
+                    vector => $volumesByEndUser->{'Capacity charge p/kVA/day'}
+                ),
+                A4 => $powerFactorInModel,
+            }
+        ),
+      );
 
-    return $impliedLoadFactors unless $model->{impliedLoadFactors} =~ /input/i;
+}
+
+sub impliedLoadFactorsInputBased {
+
+    my (
+        $model,              $allEndUsers,
+        $demandEndUsers,     $standingForFixedEndUsers,
+        $componentMap,       $volumesByEndUser,
+        $unitsByEndUser,     $daysInYear,
+        $powerFactorInModel, $loadFactors,
+    ) = @_;
 
     my $inputLoadFactors = Dataset(
         name       => 'Load factor',
@@ -905,7 +977,13 @@ sub impliedLoadFactors {
             : (
                 A3 => $inputLoadFactors,
                 A2 => $inputCapacityFactors,
-                A9 => $impliedLoadFactors,
+                A9 => $model->impliedLoadFactors(
+                    $allEndUsers,              $demandEndUsers,
+                    $standingForFixedEndUsers, $componentMap,
+                    $volumesByEndUser,         $unitsByEndUser,
+                    $daysInYear,               $powerFactorInModel,
+                    $loadFactors,
+                ),
             ),
         },
         arithmetic => $inputOnly ? '=A1/A4'

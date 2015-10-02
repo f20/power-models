@@ -8,7 +8,7 @@ coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-impliedLoadFactors: 1
+impliedLoadFactors: cf
 matrices: big
 noReplacement: blanket
 pcd: 1

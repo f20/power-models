@@ -2,6 +2,7 @@ makeModels
 	-sqlite
 	CDCM/Future/%-after161.yml
 	CDCM/DCP-160/%-dcp160-clean161.yml
+	CDCM/DCP-160/%-ilf-clean161.yml
 	CDCM/Data-2015-03/*
 
 useDatabase

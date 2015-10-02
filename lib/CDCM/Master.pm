@@ -511,6 +511,7 @@ EOT
         $standingForFixedEndUsers, $componentMap,
         $volumesByEndUser,         $unitsByEndUser,
         $daysInYear,               $powerFactorInModel,
+        $loadFactors,
     ) if $model->{impliedLoadFactors};
 
     my (
