@@ -483,7 +483,7 @@ EOL
             name => 'Demand tariffs with capacity or fixed charges',
             $demandTariffsByEndUser->{groups} ? 'groups' : 'list' => [
                 grep {
-                    $componentMap->{$_}{'Fixed charge p/MPAN/day'}
+                         $componentMap->{$_}{'Fixed charge p/MPAN/day'}
                       || $componentMap->{$_}{'Capacity charge p/kVA/day'}
                   } @{
                     $demandTariffsByEndUser->{groups}
@@ -788,7 +788,8 @@ sub impliedLoadFactors {
           [ 'LV Network tariffs', 'LV Sub tariffs', 'HV Network tariffs', ] );
 
     my $mapping1 = Constant(
-        name          => 'Users with capacity charges in each tariff group',
+        name => 'Mapping of users with capacity charges to tariff groups'
+          . ' for deemed load factors',
         defaultFormat => '0connz',
         rows          => $allEndUsers,
         cols          => $tariffGroupset,
@@ -807,9 +808,11 @@ sub impliedLoadFactors {
     );
 
     my $mapping2 = Constant(
-        name          => 'Users in each tariff group',
+        name => 'Mapping of users with fixed charges based'
+          . ' on standing charges factors to tariff groups'
+          . ' for deemed load factors',
         defaultFormat => '0connz',
-        rows          => $demandEndUsers,
+        rows          => $standingForFixedEndUsers,
         cols          => $tariffGroupset,
         data          => [
             map {
@@ -818,7 +821,7 @@ sub impliedLoadFactors {
                   : /^(> )?LV Sub/i ? [ 0, 1, 0 ]
                   : /^(> )?LV/i     ? [ 1, 0, 0 ]
                   : [ 0, 0, 0 ]
-            } @{ $demandEndUsers->{list} }
+            } @{ $standingForFixedEndUsers->{list} }
         ],
         byrow => 1,
     );
