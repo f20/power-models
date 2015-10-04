@@ -2,10 +2,12 @@
 1000:
   - _table: '1000. Company, charging year, data version'
   - Company charging year data version: London Power Networks
+    _column: Company
   - Company charging year data version: 2019/2020
     _column: Year
   - Company charging year data version: Scenario
     _column: Version
+  - Company charging year data version: ''
 1001:
   - _table: 1001. CDCM target revenue
   - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: I1
@@ -139,7 +141,7 @@
     Correction Factor: 655.405238738217
     Incentive Revenue and Other Adjustments: ''
     Incentive Revenue for Distributed Generation: 0
-    Innovation Funding Incentive Adjustment: 2436307.03474998
+    Innovation Funding Incentive Adjustment: 2300000
     Latest Forecast of CDCM Revenue: ''
     Losses Incentive 1: 0
     Losses Incentive 2: 0
@@ -147,7 +149,7 @@
     Losses Incentive 4: 0
     Low Carbon Network Fund 1: 0
     Low Carbon Network Fund 2: 0
-    Low Carbon Network Fund 3: 0
+    Low Carbon Network Fund 3: -11400000
     Merger Adjustment: 0
     Other 1 Excluded services Top-up standby and enhanced system security: 0
     Other 2 Excluded services Revenue protection services: 0
@@ -160,7 +162,7 @@
     Pass-Through Price Control Reopener: 0
     Pass-Through Transmission Exit: 0
     Quality of Service Incentive Adjustment: 0
-    RPI Indexation Factor: 1.198
+    RPI Indexation Factor: 1.19457046527976
     Tax Trigger Mechanism Adjustment: 0
     Total Allowed Revenue: ''
     Total Other Revenue to be Recovered by Use of System Charges: ''

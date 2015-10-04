@@ -2,10 +2,12 @@
 1000:
   - _table: '1000. Company, charging year, data version'
   - Company charging year data version: SHEPD
+    _column: Company
   - Company charging year data version: 2019/2020
     _column: Year
   - Company charging year data version: Scenario
     _column: Version
+  - Company charging year data version: ''
 1001:
   - _table: 1001. CDCM target revenue
   - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: I1
@@ -128,7 +130,7 @@
     Total Revenue to be raised outside the CDCM: 0
     Transmission Connection Point Charges Incentive Adjustment: CRC9
     _column: CRC
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 5695182.57219117
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 5651095.91437431
     2 Voluntary under-recovery: 0
     3 Revenue raised outside CDCM: 0
     4 Revenue raised outside CDCM: 0
@@ -139,7 +141,7 @@
     Correction Factor: 0
     Incentive Revenue and Other Adjustments: ''
     Incentive Revenue for Distributed Generation: 0
-    Innovation Funding Incentive Adjustment: 1571571.58708801
+    Innovation Funding Incentive Adjustment: 1559400.71239545
     Latest Forecast of CDCM Revenue: ''
     Losses Incentive 1: 0
     Losses Incentive 2: 0
@@ -156,11 +158,11 @@
     Other 5: 0
     Pass-Through Business Rates: 0
     Pass-Through Licence Fees: 0
-    Pass-Through Others: -64705501.4869
+    Pass-Through Others: -64204396.3784934
     Pass-Through Price Control Reopener: 0
     Pass-Through Transmission Exit: 0
-    Quality of Service Incentive Adjustment: 437090.8
-    RPI Indexation Factor: 1.21780053242
+    Quality of Service Incentive Adjustment: 434549.5808
+    RPI Indexation Factor: 1.20836940131379
     Tax Trigger Mechanism Adjustment: 0
     Total Allowed Revenue: ''
     Total Other Revenue to be Recovered by Use of System Charges: ''

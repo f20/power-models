@@ -1,10 +1,10 @@
 makeModels
 	-sqlite
-	CDCM/Future/%-after161.yml
+	CDCM/Current/%-after161.yml
 	CDCM/Data-2015-03/*.yml
 	-newrules
 	-newdata
-	CDCM/Future/%-after161.yml
+	CDCM/Current/%-after161.yml
 	CDCM/Data-2015-03/*.yml
 	CDCM/Data-2016-02/+*.yml
 	-template=%-dcp066

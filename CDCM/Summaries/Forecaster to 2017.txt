@@ -2,7 +2,6 @@ makeModels
 	-template=%%-to2017
 	-pickbest
 	CDCM/Current/*micro*
-	CDCM/Future/*micro*
 	CDCM/Data-2014-02/**
 	CDCM/Data-2015-02/**
 	CDCM/Data-2016-02/**

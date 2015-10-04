@@ -1,5 +1,5 @@
 makeModels
 	-template=%%
-	CDCM/Future/%-micro161.yml
+	CDCM/Current/%-micro161.yml
 	CDCM/Data-2015-03/**
 	CDCM/Data-2016-02/**

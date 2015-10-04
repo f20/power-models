@@ -1,8 +1,9 @@
 ---
-.: CDCM 2015 toy step 1
+.: CDCM 2015 EHV extension 2015
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
+checksums: Tariff checksum 5; Model checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
 ehv: 1

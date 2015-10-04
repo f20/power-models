@@ -69,12 +69,12 @@ __DATA__
     Small continuous: 125
     Small intermittent: 145
     Small off-peak: 135
-    XL business: 410
-    XL continuous: 425
+    XL business: 415
+    XL continuous: 420
     XL housing electric: 455
     XL housing standard: 465
-    XL intermittent: 445
-    XL off-peak: 435
+    XL intermittent: 440
+    XL off-peak: 430
     _column: Order
   - Custom demand: All-the-way demand
     Custom demand 2: All-the-way demand
@@ -98,12 +98,12 @@ __DATA__
     Small continuous: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
     Small intermittent: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
     Small off-peak: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
-    XL business: '^(?:|LDNO .*: )HV HH Metered$'
-    XL continuous: '^(?:|LDNO .*: )HV HH Metered$'
-    XL housing electric: '^(?:|LDNO .*: )HV HH Metered$'
-    XL housing standard: '^(?:|LDNO .*: )HV HH Metered$'
-    XL intermittent: '^(?:|LDNO .*: )HV HH Metered$'
-    XL off-peak: '^(?:|LDNO .*: )HV HH Metered$'
+    XL business: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
+    XL continuous: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
+    XL housing electric: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
+    XL housing standard: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
+    XL intermittent: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
+    XL off-peak: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
     _column: Tariff selection
   - Custom demand: 0
     Custom demand 2: 0
@@ -279,7 +279,3 @@ __DATA__
     XL intermittent: 5000
     XL off-peak: 5000
     _column: Capacity (kVA)
-  - _column: Average kWh/year
-  - _column: Average rate 2 kWh/year
-  - _column: Load factor (kW/kVA)
-  - _column: Peak to average load ratio

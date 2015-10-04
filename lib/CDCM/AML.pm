@@ -875,6 +875,7 @@ sub impliedLoadFactors {
                               . ' in tariff group (kVA)',
                             matrix => $mapping1,
                             vector => Stack(
+                                name    => 'Maximum import capacity (kVA)',
                                 rows    => $endUsersToUse,
                                 sources => [
                                     $volumesByEndUser->{
