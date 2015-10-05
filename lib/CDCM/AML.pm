@@ -848,7 +848,7 @@ sub impliedLoadFactors {
                 name   => 'Supercustomer load factor correction factor',
                 matrix => $mapping2,
                 vector => Arithmetic(
-                    name => 'Average load factor correction factor'
+                    name => 'Load factor correction factor'
                       . ' for tariff group',
                     arithmetic => '=A1/A3/A4',
                     arguments  => {

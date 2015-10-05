@@ -1,11 +1,11 @@
 makeModels
 	-sqlite
-	CDCM/Current/%-after161.yml
-	CDCM/DCP-160/%-dcp160-clean161.yml
+	CDCM/Current/%-model161.yml
+	CDCM/DCP-160/%-dcp160-m161.yml
 	CDCM/Data-2015-03/*
 
 useDatabase
-	-base=after161
+	-base=model161
 	-dcp=dcp160
 	-name=DCP 160
 
@@ -16,7 +16,9 @@ R
 	treemapWithComponents
 
 useDatabase
-	tscs
+	/dcp160-m161/
+	10
+	26
 
 makeModels
 	-rtf
@@ -24,5 +26,5 @@ makeModels
 	other/Blank.yml
 	CDCM/Current/%-after161.yml
 	CDCM/Current/%-model161.yml
-	CDCM/DCP-160/%-dcp160-clean161.yml
-	CDCM/DCP-160/%-dcp160-model161.yml
+	CDCM/DCP-160/%-dcp160-c161.yml
+	CDCM/DCP-160/%-dcp160-m161.yml
