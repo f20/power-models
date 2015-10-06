@@ -55,6 +55,7 @@ sub worksheetsAndClosures {
             defaultFormat      => 'puretexthard',
             data               => ['Illustrative'],
             usePlaceholderData => 1,
+            forwardLinks       => {},
         )->wsWrite( $wbook, $wsheet );
 
         # require Spreadsheet::WriteExcel::Utility;

@@ -86,6 +86,7 @@ sub worksheetsAndClosures {
                 defaultFormat => 'puretexthard',
                 data          => [ 'no company', 'no year', 'no data version' ],
                 usePlaceholderData => 1,
+                forwardLinks       => {},
             )
         )->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
