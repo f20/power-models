@@ -76,35 +76,58 @@ sub applyInstructions {
             $chart->combine($c);
             next;
         }
-        if (   $verb eq 'add_series'
-            && UNIVERSAL::isa( $args, 'SpreadsheetModel::Dataset' )
-            && !$args->{rows}
-            && $args->{cols} )
+        if (    $verb eq 'add_series'
+            and UNIVERSAL::isa( $args, 'SpreadsheetModel::Dataset' )
+            and !$args->{rows} && $args->{cols}
+            || $args->{rows}   && !$args->{cols} )
         {
             push @{ $self->{sourceLines} }, $args
               unless $self->{sourceLines} && grep { $_ == $args }
               @{ $self->{sourceLines} };
             my ( $w2, $r2, $c2 ) = $args->wsWrite( $wb, $ws, undef, undef, 1 );
             $w2 = "'" . $w2->get_name . "'!";
-            my $r3 = $r2 - 1;
-            if (
-                UNIVERSAL::isa(
-                    $args->{location}, 'SpreadsheetModel::CalcBlock'
-                )
-              )
-            {
-                $r3 = $args->{location}{items}[0]{$wb}{row} - 1;
+            my $r3 = $r2;
+            my $c3 = $c2;
+            if ( $args->{cols} ) {
+                if (
+                    UNIVERSAL::isa(
+                        $args->{location}, 'SpreadsheetModel::CalcBlock'
+                    )
+                  )
+                {
+                    $r3 = $args->{location}{items}[0]{$wb}{row};
+                }
+                --$r3;
+            }
+            else {
+                if (
+                    UNIVERSAL::isa(
+                        $args->{location}, 'SpreadsheetModel::Columnset'
+                    )
+                  )
+                {
+                    $c3 = $args->{location}{columns}[0]{$wb}{col};
+                }
+                --$c3;
             }
             $args = [
                 name       => $args->objectShortName,
                 categories => '='
                   . $w2
-                  . xl_rowcol_to_cell( $r3, $c2, 1, 1 ) . ':'
-                  . xl_rowcol_to_cell( $r3, $c2 + $args->lastCol, 1, 1 ),
+                  . xl_rowcol_to_cell( $r3, $c3, 1, 1 ) . ':'
+                  . xl_rowcol_to_cell(
+                    $r3 + $args->lastRow,
+                    $c3 + $args->lastCol,
+                    1, 1
+                  ),
                 values => '='
                   . $w2
                   . xl_rowcol_to_cell( $r2, $c2, 1, 1 ) . ':'
-                  . xl_rowcol_to_cell( $r2, $c2 + $args->lastCol, 1, 1 ),
+                  . xl_rowcol_to_cell(
+                    $r2 + $args->lastRow,
+                    $c2 + $args->lastCol,
+                    1, 1
+                  ),
             ];
         }
         $chart->$verb(@$args);

@@ -160,7 +160,7 @@ sub chart {
     my ( $income, $periods ) = @_;
     require SpreadsheetModel::Chart;
     SpreadsheetModel::Chart->new(
-        name         => 'GrossNet',
+        name         => 'Performance',
         type         => 'column',
         height       => 280,
         width        => 640,
