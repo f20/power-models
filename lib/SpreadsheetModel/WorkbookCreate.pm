@@ -69,15 +69,6 @@ sub create {
 
     ( my $handle, my $closer, $fileName ) = $streamMaker->($fileName);
     my $wbook = $module->new($handle);
-
-    # Work around taint issue with IO::File
-    $wbook->set_tempdir($tmpDir) if $tmpDir && $module !~ /xlsx/i;
-
-    # Ugly hack see https://github.com/jmcnamara/excel-writer-xlsx/issues/59
-    $wbook->{_tab_ratio}     = 0.88 * 1000;
-    $wbook->{_window_width}  = 1280 * 20;
-    $wbook->{_window_height} = 800 * 20;
-
     my @exports = grep { $settings->{$_} && /^Export/ } keys %$settings;
     my $exporter;
     if (@exports) {
@@ -88,6 +79,9 @@ sub create {
         };
         warn "@exports: $@" if $@;
     }
+
+    # Work around taint issue with IO::File
+    $wbook->set_tempdir($tmpDir) if $tmpDir && $module !~ /xlsx/i;
 
     $wbook->setFormats( $optionArray[0] );
     my @models;

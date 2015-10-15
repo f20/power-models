@@ -124,6 +124,11 @@ sub setFormats {
 
     my ( $workbook, $options ) = @_;
 
+    # Ugly hack see https://github.com/jmcnamara/excel-writer-xlsx/issues/59
+    $workbook->{_window_width}  = 1280 * 20;
+    $workbook->{_window_height} = 800 * 20;
+    $workbook->{_tab_ratio}     = 0.88 * 1000;
+
 =head setFormats
 
 Keys used in %$options:
