@@ -62,13 +62,11 @@ sub sourceCodeDigest {
         my $digestMachine = digestMachine();
         %hash =
           map {
-            substr( $INC{$_}, 0, $l ) eq $perl5dir
-              ? do {
-                open my $fh, '<', $INC{$_};
-                ( $_ => $digestMachine->addfile($fh)->hexdigest );
-              }
-              : ();
-          } keys %INC;
+            open my $fh, '<', $INC{$_};
+            ( $_ => $digestMachine->addfile($fh)->hexdigest );
+          } grep { substr( $INC{$_}, 0, $l ) eq $perl5dir; }
+          grep { !m#^Ancillary/# || $_ eq 'Ancillary/Validation.pm'; }
+          keys %INC;
     };
     \%hash;
 }
