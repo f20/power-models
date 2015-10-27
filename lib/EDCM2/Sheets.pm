@@ -449,47 +449,10 @@ sub worksheetsAndClosures {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 250, 30 );
-            my %olTabCol;
-            while ( my ( $num, $obj ) =
-                each %{ $model->{transparency}{olTabCol} } )
-            {
-                my $number = int( $num / 100 );
-                $olTabCol{$number}[ $num - $number * 100 - 1 ] = $obj;
-            }
             $wsheet->{sheetNumber} = 47;
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Aggregates' ), (
-                map {
-                    Columnset(
-                        name => 'Summary aggregate data part ' . ( $_ - 1190 ),
-                        number  => 3600 + $_,
-                        columns => [
-                            map { Stack( sources => [$_] ) } @{ $olTabCol{$_} }
-                        ]
-                      )
-                } sort keys %olTabCol
-              ),
-              (
-                map {
-                    my $obj  = $model->{transparency}{olFYI}{$_};
-                    my $name = 'Copy of ' . $obj->{name};
-                    $obj->isa('SpreadsheetModel::Columnset')
-                      ? Columnset(
-                        name    => $name,
-                        number  => 3600 + $_,
-                        columns => [
-                            map { Stack( sources => [$_] ) }
-                              @{ $obj->{columns} }
-                        ]
-                      )
-                      : Stack(
-                        name    => $name,
-                        number  => 3600 + $_,
-                        sources => [$obj]
-                      );
-                  } sort { $a <=> $b }
-                  keys %{ $model->{transparency}{olFYI} }
-              );
+              foreach Notes( name => 'Aggregates' ),
+              @{ $model->{aggregateTables} };
             $wsheet->{sheetNumber} = 48;
         }
       )

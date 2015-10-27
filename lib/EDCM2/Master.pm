@@ -2201,6 +2201,49 @@ EOT
         $actualRedDemandRate, \@revenueBitsD, @revenueBitsG, $rev2g )
       if $model->{transparencyImpact};
 
+    if ( $model->{transparency} ) {
+        my %olTabCol;
+        while ( my ( $num, $obj ) = each %{ $model->{transparency}{olTabCol} } )
+        {
+            my $number = int( $num / 100 );
+            $olTabCol{$number}[ $num - $number * 100 - 1 ] = $obj;
+        }
+        $model->{aggregateTables} = [
+            (
+                map {
+                    Columnset(
+                        name => 'Summary aggregate data part ' . ( $_ - 1190 ),
+                        number  => 3600 + $_,
+                        columns => [
+                            map { Stack( sources => [$_] ) } @{ $olTabCol{$_} }
+                        ]
+                      )
+                } sort keys %olTabCol
+            ),
+            (
+                map {
+                    my $obj  = $model->{transparency}{olFYI}{$_};
+                    my $name = 'Copy of ' . $obj->{name};
+                    $obj->isa('SpreadsheetModel::Columnset')
+                      ? Columnset(
+                        name    => $name,
+                        number  => 3600 + $_,
+                        columns => [
+                            map { Stack( sources => [$_] ) }
+                              @{ $obj->{columns} }
+                        ]
+                      )
+                      : Stack(
+                        name    => $name,
+                        number  => 3600 + $_,
+                        sources => [$obj]
+                      );
+                  } sort { $a <=> $b }
+                  keys %{ $model->{transparency}{olFYI} }
+            )
+        ];
+    }
+
     $model->templates(
         $tariffs,                          $importCapacityUnscaled,
         $exportCapacityExempt,             $exportCapacityChargeablePre2005,
