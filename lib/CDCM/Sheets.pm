@@ -33,7 +33,7 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 require Spreadsheet::WriteExcel::Utility;
-require SpreadsheetModel::ColourCodeWriter;
+require SpreadsheetModel::FormatLegend;
 
 sub sheetPriority {
     my ( $model, $sheet ) = @_;
@@ -697,7 +697,7 @@ EOL
             $wsheet->set_column( 1, 1,   112 );
             $wsheet->set_column( 2, 250, 32 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach $model->topNotes, SpreadsheetModel::ColourCodeWriter->new,
+              foreach $model->topNotes, SpreadsheetModel::FormatLegend->new,
               $wbook->{logger};
         }
         $model->technicalNotes->wsWrite( $wbook, $wsheet );

@@ -299,6 +299,7 @@ sub factory {
             $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
         }
 
+        require SpreadsheetModel::WorkbookCreate;
         require SpreadsheetModel::WorkbookFormats;
 
         my $sourceCodeDigest =

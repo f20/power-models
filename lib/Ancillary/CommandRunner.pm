@@ -34,6 +34,7 @@ use utf8;
 require Ancillary::CommandRunner::DataTools;
 require Ancillary::CommandRunner::MakeModels;
 require Ancillary::CommandRunner::ParseSpreadsheet;
+require Ancillary::CommandRunner::Sampler;
 require Ancillary::CommandRunner::UseDatabase;
 require Ancillary::CommandRunner::YamlTools;
 

@@ -1,8 +1,8 @@
-﻿package SpreadsheetModel::Workbook;
+﻿package Ancillary::CommandRunner;
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2015 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,14 +29,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use base qw(
-  Spreadsheet::WriteExcel
-  SpreadsheetModel::WorkbookFormats
-  SpreadsheetModel::WorkbookCreate
-);
+use utf8;
 
-sub fileExtension { '.xls'; }
-
-sub formulaHashValues { return; }
+sub sampler {
+    use SpreadsheetModel::WorkbookXLSX;
+    my $options = {};
+    my $wbook   = SpreadsheetModel::WorkbookXLSX->new($$);
+    $wbook->setFormats($options);
+    my $wsheet = $wbook->add_worksheet('Sampler');
+    $wsheet->set_paper(9);
+    $wsheet->fit_to_pages( 1, 0 );
+    $wsheet->hide_gridlines(2);
+    $wsheet->set_column( 0, 5, 12 );
+    $wsheet->set_column( 6, 6, 120 );
+    use SpreadsheetModel::FormatSampler;
+    SpreadsheetModel::FormatSampler->new->wsWrite( $wbook, $wsheet );
+    undef $wbook;
+    rename $$, 'Format sampler.xlsx';
+}
 
 1;
