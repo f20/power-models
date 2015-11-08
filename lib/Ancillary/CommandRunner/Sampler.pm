@@ -42,7 +42,7 @@ sub sampler {
     $wsheet->hide_gridlines(2);
     $wsheet->set_column( 0, 5, 12 );
     $wsheet->set_column( 6, 6, 120 );
-    use SpreadsheetModel::FormatSampler;
+    require SpreadsheetModel::FormatSampler;
     SpreadsheetModel::FormatSampler->new->wsWrite( $wbook, $wsheet );
     undef $wbook;
     rename $$, 'Format sampler.xlsx';

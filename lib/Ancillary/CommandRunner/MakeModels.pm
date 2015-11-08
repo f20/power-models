@@ -31,6 +31,13 @@ use warnings;
 use strict;
 use utf8;
 
+use constant {
+    C_PERL5DIR => 0,
+    C_HOMEDIR  => 1,
+    C_FOLDER   => 2,
+    C_LOG      => 3,
+};
+
 sub makeModels {
 
     my $self = shift;
