@@ -50,7 +50,7 @@ sub allocation {
         name => 'To be deducted from revenue and treated as "upstream" cost',
         defaultFormat => '0soft',
         arithmetic    => '=SUMIF(A1_A2,"Deduct from revenue",A3_A4)',
-        arguments => { A1_A2 => $allocationRules, A3_A4 => $expenditure }
+        arguments     => { A1_A2 => $allocationRules, A3_A4 => $expenditure }
       );
 
     my $expensed = Arithmetic(
@@ -77,7 +77,7 @@ sub allocation {
     my $ppuSingleNotUsed = Arithmetic(
         name => 'p/kWh split (single-step calculation)',
         arithmetic =>
-'=100*((A31+A41)*A2+A51*A1)/(A32+A42+A52)*(A9-A81-A82)/A7',
+          '=100*((A31+A41)*A2+A51*A1)/(A32+A42+A52)*(A9-A81-A82)/A7',
         arguments => {
             A1  => $expensedPercentages,
             A2  => $netCapexPercentages,
@@ -147,14 +147,15 @@ sub allocation {
                 A6  => $revenueToBeAllocated,
                 A1  => $expensedPercentages,
                 A18 => $expensedPercentages,
-                A8  => Dataset(
+                A8  => $model->{objects}{incomeForConnectionsIndirect} ||=
+                  Dataset(
                     name          => 'Income for connections indirects (£)',
                     defaultFormat => '0hard',
                     data          => [''],
                     number        => 1328,
                     dataset       => $model->{dataset},
                     appendTo      => $model->{objects}{inputTables},
-                ),
+                  ),
             }
         );
     }
