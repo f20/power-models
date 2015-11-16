@@ -38,7 +38,10 @@ sub lvSplit {
     my ($model) = @_;
     $model->{objects}{lvSplit} ||= Dataset(
         name  => 'DNO LV mains usage',
-        lines => 'DNO-specific LV mains split'
+        lines => 1
+        ? 'LV mains usage value provided each year'
+          . ' by the Nominated Calculation Agent.'
+        : 'DNO-specific LV mains split'
           . ' calculated in accordance with Schedule 16 (paragraph 114).',
         data => [ [0.1] ],
         defaultFormat => '%hard',

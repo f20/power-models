@@ -31,11 +31,12 @@ use warnings;
 use strict;
 use utf8;
 
-require Ancillary::CommandRunner::DataTools;
-require Ancillary::CommandRunner::MakeModels;
-require Ancillary::CommandRunner::ParseSpreadsheet;
-require Ancillary::CommandRunner::UseDatabase;
-require Ancillary::CommandRunner::YamlTools;
+use Ancillary::CommandRunner::DataTools;
+use Ancillary::CommandRunner::MakeModels;
+use Ancillary::CommandRunner::ParseSpreadsheet;
+use Ancillary::CommandRunner::Sampler;
+use Ancillary::CommandRunner::UseDatabase;
+use Ancillary::CommandRunner::YamlTools;
 
 use Encode qw(decode_utf8);
 use File::Spec::Functions qw(abs2rel catdir catfile rel2abs);

@@ -1,8 +1,8 @@
-﻿package Ancillary::Validation;
+﻿package Ancillary::CommandRunner;
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2015 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,44 +31,21 @@ use warnings;
 use strict;
 use utf8;
 
-my $_digestMachine;
-
-sub digestMachine {
-    return $_digestMachine if $_digestMachine;
-    foreach (qw(Digest::SHA Digest::SHA1 Digest::SHA::PurePerl)) {
-        eval "require $_";
-        eval { $_digestMachine = $_->new; };
-        return $_digestMachine if $_digestMachine;
-    }
-}
-
-sub digestFile {
-    my ($file) = @_;
-    return 'no file' unless -f $file;
-    my $digest = eval {
-        my $digestMachine = digestMachine();
-        open my $fh, '<', $file;
-        $digestMachine->addfile($fh)->hexdigest;
-    };
-    warn $@ if $@;
-    $digest;
-}
-
-sub sourceCodeDigest {
-    my ($perl5dir) = @_;
-    my $l = length $perl5dir;
-    my %hash;
-    eval {
-        my $digestMachine = digestMachine();
-        %hash =
-          map {
-            open my $fh, '<', $INC{$_};
-            ( $_ => $digestMachine->addfile($fh)->hexdigest );
-          } grep { substr( $INC{$_}, 0, $l ) eq $perl5dir; }
-          grep { !m#^Ancillary/# || $_ eq 'Ancillary/Validation.pm'; }
-          keys %INC;
-    };
-    \%hash;
+sub sampler {
+    use SpreadsheetModel::WorkbookXLSX;
+    my $options = {};
+    my $wbook   = SpreadsheetModel::WorkbookXLSX->new($$);
+    $wbook->setFormats($options);
+    my $wsheet = $wbook->add_worksheet('Sampler');
+    $wsheet->set_paper(9);
+    $wsheet->fit_to_pages( 1, 0 );
+    $wsheet->hide_gridlines(2);
+    $wsheet->set_column( 0, 5, 12 );
+    $wsheet->set_column( 6, 6, 120 );
+    require SpreadsheetModel::FormatSampler;
+    SpreadsheetModel::FormatSampler->new->wsWrite( $wbook, $wsheet );
+    undef $wbook;
+    rename $$, 'Format sampler.xlsx';
 }
 
 1;

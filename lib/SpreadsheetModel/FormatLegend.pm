@@ -1,4 +1,4 @@
-package SpreadsheetModel::ColourCodeWriter;
+package SpreadsheetModel::FormatLegend;
 
 =head Copyright licence and disclaimer
 

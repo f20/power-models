@@ -603,7 +603,6 @@ use ->shortName here.
 
             if (    $self->{columns}[$c]{validation}
                 and ( my $l = $self->{lines} || $self->{columns}[$c]{lines} )
-                and $wb->{linesAsComment}
                 and $wb->{validation}
                 and $wb->{validation} =~ /withlinesmsg/i )
             {

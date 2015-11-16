@@ -8,6 +8,9 @@ useDatabase
     /-2015-02/
 	10
 	37
+	38
+	39
+	42
 	11
 
 R treemapByCategory

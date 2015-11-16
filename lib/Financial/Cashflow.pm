@@ -120,7 +120,7 @@ sub statement {
                     $cashflow->{balance}{reserve} ? 'Distributions (£)'
                     : 'Cashflow to/from investors (£)'
                 ),
-                rounding => 2,
+                rounding => 1,
             },
         ]
     );

@@ -32,7 +32,7 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 require Spreadsheet::WriteExcel::Utility;
-require SpreadsheetModel::ColourCodeWriter;
+require SpreadsheetModel::FormatLegend;
 
 sub worksheetsAndClosures {
 
@@ -152,7 +152,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 2, 250, 32 );
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->topNotes, $model->licenceNotes,
-          SpreadsheetModel::ColourCodeWriter->new,
+          SpreadsheetModel::FormatLegend->new,
           $wbook->{logger}, $model->technicalNotes;
       }
 

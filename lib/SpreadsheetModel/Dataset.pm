@@ -673,7 +673,6 @@ Rules:
       : $self->{lines}
       if $self->{validation}
       && $self->{lines}
-      && $wb->{linesAsComment}
       && $wb->{validation}
       && $wb->{validation} =~ /withlinesmsg/i;
 

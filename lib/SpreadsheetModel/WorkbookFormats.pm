@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use base qw(SpreadsheetModel::WorkbookCreate);
 
 sub getFormat {
     my ( $workbook, $key, @decorations ) = @_;
@@ -249,7 +248,7 @@ Keys used in %$options:
         align => 'right'
       )
       : (
-        num_format => "${black} _(?$q3??0.0_);[Red] (?$q3??0.0);;$cyan@",
+        num_format => "${black} _(?$q4??0.0_);[Red] (?$q4??0.0);;$cyan@",
         align      => 'center'
       );
     my @num_00 =
@@ -537,7 +536,7 @@ Keys used in %$options:
         ],
         hard => [
             locked => !$options->{validation}
-              || $options->{validation} !~ /lenient/i,
+              || $options->{validation} !~ /lenient/i ? 1 : 0,
             @sizeText,
             text_wrap => 0,
             @sizeExtras,
@@ -766,7 +765,7 @@ Keys used in %$options:
         ],
         unused => [
             locked => !$options->{validation}
-              || $options->{validation} !~ /lenient/i,
+              || $options->{validation} !~ /lenient/i ? 1 : 0,
             @sizeNumber,
             num_format => $numText,
             @colourUnused,

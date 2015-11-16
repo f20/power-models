@@ -299,15 +299,11 @@ sub factory {
             $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
         }
 
+        require SpreadsheetModel::WorkbookCreate;
         require SpreadsheetModel::WorkbookFormats;
 
         my $sourceCodeDigest =
           Ancillary::Validation::sourceCodeDigest($perl5dir);
-
-# Omitted from validation: these files, and anything that is required after now.
-        delete $sourceCodeDigest->{'Ancillary/Manufacturing.pm'};
-        delete $sourceCodeDigest->{'Ancillary/CommandParser.pm'};
-        delete $sourceCodeDigest->{'Ancillary/CommandRunner.pm'};
 
         my ($db);
         if ( $dbString && require Ancillary::RevisionNumbering ) {

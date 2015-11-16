@@ -391,7 +391,7 @@ sub preprocessDataset {
           [ undef, @{ $d->{1113} }[ 9 .. 12 ] ];
     }
     else {
-        my ($k1101) = grep { !/^_/ } keys %{ $d->{1001}[1] };
+        my ($k1101) = grep { !/^_/ } keys %{ $d->{1101}[1] };
         $d->{1113} ||= [
             undef,
             $d->{1110}[1],

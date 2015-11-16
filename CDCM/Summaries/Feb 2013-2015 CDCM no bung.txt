@@ -1,13 +1,13 @@
 makeModels
 	-sqlite
 	CDCM/Current/%-after179.yml
-	CDCM/Data-2015-02/E*
+	CDCM/Data-2015-02/*
 
 makeModels
 	-sqlite
 	CDCM/Previous/%-after163.yml
-	CDCM/Data-2013-02/N*
-	CDCM/Data-2014-02/S*
+	CDCM/Data-2013-02/*
+	CDCM/Data-2014-02/*
 
 R
     maps4202ts

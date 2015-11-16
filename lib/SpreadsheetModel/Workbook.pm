@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Reckon LLP and others.
+Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use base qw(Spreadsheet::WriteExcel SpreadsheetModel::WorkbookFormats);
+use base qw(
+  Spreadsheet::WriteExcel
+  SpreadsheetModel::WorkbookFormats
+  SpreadsheetModel::WorkbookCreate
+);
 
 sub fileExtension { '.xls'; }
 
