@@ -30,8 +30,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use base 'Exporter';
-our @EXPORT_OK = qw(registerpid waitanypid);
 
 my %names;
 my %conts;
