@@ -648,7 +648,7 @@ Change something below to put something like table 1095 in full-year models inst
                 name => "Current $_",
                 m%p/k(W|VAr)h%
                 ? ()
-                : ( defaultFormat => '0.00soft' ),
+                : ( defaultFormat => '0.00hard' ),
                 rows => $selectedTariffsForComparison,
                 data => [
                     map { $componentMap->{$_}{$component} ? 0 : undef }
