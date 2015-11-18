@@ -645,10 +645,12 @@ Change something below to put something like table 1095 in full-year models inst
         my %currentTariffs = map {
             my $component = $_;
             $_ => Dataset(
-                name          => "Current $_",
-                defaultFormat => '0.000hardnz',
-                rows          => $selectedTariffsForComparison,
-                data          => [
+                name => "Current $_",
+                m%p/k(W|VAr)h%
+                ? ()
+                : ( defaultFormat => '0.00soft' ),
+                rows => $selectedTariffsForComparison,
+                data => [
                     map { $componentMap->{$_}{$component} ? 0 : undef }
                       @{ $selectedTariffsForComparison->{list} }
                 ]
