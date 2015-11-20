@@ -79,7 +79,7 @@ EOL
             error_message => 'The rate of return must be'
               . ' a non-negative percentage value.'
         },
-        defaultFormat => '%hard',
+        defaultFormat => '0.00%hard',
         data          => [0.069]
     );
 
@@ -182,8 +182,8 @@ EOL
     my $annuityRate = Arithmetic(
         name          => 'Annuity rate',
         defaultFormat => '%softnz',
-        arithmetic => '=PMT(A1,A2,-1)*IF(OR(A3>366,A4<365),A5/365.25,1)',
-        arguments  => {
+        arithmetic    => '=PMT(A1,A2,-1)*IF(OR(A3>366,A4<365),A5/365.25,1)',
+        arguments     => {
             A1 => $rateOfReturn,
             A2 => $modelLife,
             A3 => $daysInYear,
