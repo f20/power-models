@@ -189,16 +189,6 @@ Keys used in %$options:
     my @numPercent =
       $rightpad
       ? (
-        num_format => "${black}0.0%_)$rightpad;[Red](??0.0%)$rightpad;;$cyan@",
-        align      => 'right'
-      )
-      : (
-        num_format => "${black} _(??0.0%_);[Red] (??0.0%);;$cyan@",
-        align      => 'center'
-      );
-    my @numPercent_00 =
-      $rightpad
-      ? (
         num_format =>
           "${black}0.00%_)$rightpad;[Red](??0.00%)$rightpad;;$cyan@",
         align => 'right'
@@ -373,11 +363,9 @@ Keys used in %$options:
     my $plus  = '[Blue]_-+';
     my $minus = '[Red]_+-';
     my %specs = (
-        '%con'  => [ locked => 1, @sizeNumber, @numPercent, @colourCon, ],
-        '%copy' => [ locked => 1, @sizeNumber, @numPercent, @colourCopy, ],
-        '%hard' => [ locked => 0, @sizeNumber, @numPercent, @colourHard, ],
-        '0.00%hard' =>
-          [ locked => 0, @sizeNumber, @numPercent_00, @colourHard, ],
+        '%con'    => [ locked => 1, @sizeNumber, @numPercent, @colourCon, ],
+        '%copy'   => [ locked => 1, @sizeNumber, @numPercent, @colourCopy, ],
+        '%hard'   => [ locked => 0, @sizeNumber, @numPercent, @colourHard, ],
         '%soft'   => [ locked => 1, @sizeNumber, @numPercent, @colourSoft, ],
         '%hardpm' => [
             locked => 0,

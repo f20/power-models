@@ -79,7 +79,7 @@ EOL
             error_message => 'The rate of return must be'
               . ' a non-negative percentage value.'
         },
-        defaultFormat => '0.00%hard',
+        defaultFormat => '%hard',
         data          => [0.069]
     );
 
