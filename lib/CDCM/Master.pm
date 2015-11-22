@@ -943,7 +943,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
 
     if ( $model->{summary} ) {
 
-        if ( $model->{summary} =~ /1/ ) {
+        if ( $model->{summary} =~ /consultation|headline/i ) {
             push @{ $model->{optionLines} },
               'The list of options above is not comprehensive',
               'This is just padding', 'This is just padding', ' ';
