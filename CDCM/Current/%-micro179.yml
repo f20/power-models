@@ -1,5 +1,5 @@
 ---
-.: Micro-model after DCP 179
+.: Micro-CDCM after DCP 179
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

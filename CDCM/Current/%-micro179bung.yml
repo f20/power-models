@@ -1,5 +1,5 @@
 ---
-.: Micro-model after DCP 179 (with election bung)
+.: Micro-CDCM after DCP 179 with election bung
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

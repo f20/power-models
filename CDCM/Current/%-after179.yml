@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 179 (clean with stats)
+.: CDCM model after DCP 179 with statistics
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
@@ -8,6 +8,7 @@ coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
+forwardLinks: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

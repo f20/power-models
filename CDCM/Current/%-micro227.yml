@@ -1,22 +1,22 @@
 ---
-.: CDCM model after DCP 179 with election bung and statistics
+.: Micro-CDCM after DCP 227
 PerlModule: CDCM
-agghhequalisation: 1
+agghhequalisation: rag
 alwaysUseRAG: 1
-checksums: Tariff checksum 5; Model checksum 7
 coincidenceAdj: groupums
+compact: 1
 drm: top500gsp
-electionBung: 1
 extraLevels: 1
 fixedCap: 1-4
-forwardLinks: 1
-matrices: big
+nickName: CDCM model (after DCP 179)
+noLLFCs: 1
+noLinks: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: statistics
+summary: statisticsbrief
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hh
 timeOfDay: timeOfDay179
