@@ -231,7 +231,7 @@ sub usetMatchRevenue { }
 
 sub charges {
     my ($self) = @_;
-    ( $self->boundaryCharge, $self->assetCharge, $self->energyCharge );
+    ( $self->boundaryCharge, $self->assetCharge, $self->energyCharge, );
 }
 
 sub finish { }

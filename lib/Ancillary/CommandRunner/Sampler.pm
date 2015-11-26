@@ -40,7 +40,7 @@ sub sampler {
     $wsheet->set_paper(9);
     $wsheet->fit_to_pages( 1, 0 );
     $wsheet->hide_gridlines(2);
-    $wsheet->set_column( 0, 5, 12 );
+    $wsheet->set_column( 0, 5, 16 );
     $wsheet->set_column( 6, 6, 120 );
     require SpreadsheetModel::FormatSampler;
     SpreadsheetModel::FormatSampler->new->wsWrite( $wbook, $wsheet );

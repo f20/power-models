@@ -190,11 +190,11 @@ Keys used in %$options:
       $rightpad
       ? (
         num_format =>
-          "${black}0.00%_)$rightpad;[Red](??0.00%)$rightpad;;$cyan@",
+          "${black}?,??0.00%_)$rightpad;[Red](?,??0.00%)$rightpad;;$cyan@",
         align => 'right'
       )
       : (
-        num_format => "${black} _(??0.00%_);[Red] (??0.00%);;$cyan@",
+        num_format => "${black} _(?,??0.00%_);[Red] (?,??0.00%);;$cyan@",
         align      => 'center'
       );
     my @num_million =
@@ -370,21 +370,21 @@ Keys used in %$options:
         '%hardpm' => [
             locked => 0,
             @sizeNumber,
-            num_format => "$plus????0.0%;$minus????0.0%;[Green]=;$cyan@",
+            num_format => "$plus??,??0.0%;$minus??,??0.0%;[Green]=;$cyan@",
             align      => 'center',
             @colourHard,
         ],
         '%softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => "$plus????0.0%;$minus????0.0%;[Green]=;$cyan@",
+            num_format => "$plus??,??0.0%;$minus??,??0.0%;[Green]=;$cyan@",
             align      => 'center',
             @colourSoft,
         ],
         '%copypm' => [
             locked => 1,
             @sizeNumber,
-            num_format => "$plus????0.0%;$minus????0.0%;[Green]=;$cyan@",
+            num_format => "$plus??,??0.0%;$minus??,??0.0%;[Green]=;$cyan@",
             align      => 'center',
             @colourCopy,
         ],

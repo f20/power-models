@@ -49,18 +49,14 @@ sub wsWrite {
     $wsheet->write_string( $row,   4, 'Text',     $thcFormat );
     $wsheet->write_string( $row,   5, 'Error',    $thcFormat );
     $wsheet->write_string( $row++, 6, 'JSON',     $thcFormat );
-    foreach (
-        sort { length $a <=> length $b || $a cmp $b; }
-        keys %{ $wbook->{formatspec} }
-      )
-    {
+    foreach ( sort keys %{ $wbook->{formatspec} } ) {
         my $format = $wbook->getFormat($_);
         $wsheet->write_string( $row, 0, $_, $thFormat );
         $wsheet->write( $row, 1, 42,  $format );
         $wsheet->write( $row, 2, -42, $format );
         $wsheet->write( $row, 3, 0,   $format );
         $wsheet->write_string( $row, 4, $_, $format );
-        $wsheet->write( $row, 5, '#VALUE!', $format );
+        $wsheet->write( $row, 5, '=1/0', $format );
         $wsheet->write_string( $row++, 6, to_json( $wbook->{formatspec}{$_} ) );
     }
     $wsheet->autofilter( $row0, 0, $row - 1, 6 );

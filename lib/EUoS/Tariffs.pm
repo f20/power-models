@@ -34,7 +34,10 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup, $usage, $charging, $competitiveEnergy ) = @_;
-    my $self = bless { model => $model, setup => $setup }, $class;
+    my $self = bless {
+        model => $model,
+        setup => $setup,
+    }, $class;
     my @tariffContributions;
     my $usageRates       = $usage->usageRates;
     my $days             = $setup->daysInYear;
@@ -49,8 +52,7 @@ sub new {
                     my $contrib = Arithmetic(
                         name => "Contributions from $charge->{name}"
                           . " to $tariffComponents->[$_]",
-                        arithmetic => '=A1*A2*100/A666'
-                          . ( $_ ? '' : '/24' ),
+                        arithmetic => '=A1*A2*100/A666' . ( $_ ? '' : '/24' ),
                         rows      => $usageRates->[$_]{rows},
                         arguments => {
                             A1   => $charge,
@@ -102,7 +104,7 @@ sub revenueCalculation {
     Arithmetic(
         name => $name
           || ( ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
-        arithmetic => '=(A1*A11+A666*(A2*A12+A3*A13))/100',  # hard coded
+        arithmetic => '=(A1*A11+A666*(A2*A12+A3*A13))/100',    # hard coded
         arguments  => {
             A666 => $self->{setup}->daysInYear,
             map {
@@ -233,7 +235,9 @@ sub tariffs {
     $self->{tariffs};
 }
 
-sub tariffName { 'use of system tariffs'; }
+sub tariffName {
+    'distribution use of system tariffs';
+}
 
 sub finish {
     my ($self) = @_;

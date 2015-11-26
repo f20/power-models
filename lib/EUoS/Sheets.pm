@@ -78,7 +78,7 @@ sub worksheetsAndClosures {
         }
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->{table1653}
-          ? Notes( lines => 'Individual user data', location => 1653, )
+          ? Notes( lines => 'Individual user data', location => 'Customers', )
           : (),
           sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
           @{ $model->{inputTables} };
@@ -93,7 +93,7 @@ sub worksheetsAndClosures {
 
       $model->{table1653}
       ? (
-        1653 => sub {
+        'Customers' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 2 );
             $wsheet->set_column( 0, 0, $model->{ulist} ? 50 : 20 );
