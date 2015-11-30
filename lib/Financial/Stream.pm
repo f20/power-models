@@ -243,22 +243,24 @@ sub balance {
             cols          => $periods->labelset,
             arithmetic    => '='
               . $stream->{signAdjustment}
-              . 'IF(IF(A301,OR(A302+A602<=A901,A201>A902),A202>A903),0,'
-              . '(1+A701)^((A904-A203)/365.25)*A501*A601/365.25)',
+              . '(1+A701)^((A903-A202)/365.25)*A501*'
+              . 'MIN(A601,'
+              . 'IF(A302>0,MAX(0,A301+A602-A901+1),A603),'
+              . 'MAX(0,A902-A201+1))'
+              . '/365.25',
             arguments => {
                 A201 => $stream->startDate,
                 A202 => $stream->startDate,
-                A203 => $stream->startDate,
                 A301 => $stream->endDate,
                 A302 => $stream->endDate,
                 A501 => $stream->annual,
                 A601 => $stream->averageDays,
                 A602 => $stream->averageDays,
+                A603 => $stream->averageDays,
                 A701 => $stream->growth,
                 A901 => $periods->lastDay,
                 A902 => $periods->lastDay,
                 A903 => $periods->lastDay,
-                A904 => $periods->lastDay,
             }
         ),
     );
@@ -275,23 +277,25 @@ sub buffer {
             defaultFormat => $stream->{defaultFormatBase} . 'soft',
             arithmetic    => '=MAX(0,'
               . $stream->{signAdjustment}
-              . 'IF(IF(A301,OR(A302+A652<=A901,A201>A902),A202>A903),0,'
-              . '(1+A701)^((A904-A203)/365.25)*A501*A651/365.25)-A1)',
+              . '(1+A701)^((A903-A202)/365.25)*A501*'
+              . 'MIN(A601,'
+              . 'IF(A302>0,MAX(0,A301+A602-A901+1),A603),'
+              . 'MAX(0,A902-A201+1))'
+              . '/365.25)-A1',
             arguments => {
                 A1   => $stream->balance($periods)->{source},
                 A201 => $stream->startDate,
                 A202 => $stream->startDate,
-                A203 => $stream->startDate,
                 A301 => $stream->endDate,
                 A302 => $stream->endDate,
                 A501 => $stream->annual,
-                A651 => $stream->worstDays,
-                A652 => $stream->worstDays,
+                A601 => $stream->worstDays,
+                A602 => $stream->worstDays,
+                A603 => $stream->worstDays,
                 A701 => $stream->growth,
                 A901 => $periods->lastDay,
                 A902 => $periods->lastDay,
                 A903 => $periods->lastDay,
-                A904 => $periods->lastDay,
             }
         ),
     );

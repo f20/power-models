@@ -52,16 +52,17 @@ sub worksheetsAndClosures {
         $wsheet->{sheetNumber}    = 14;
         $wbook->{lastSheetNumber} = 14;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   12 );
-        $wsheet->set_column( 1, 1,   32 );
-        $wsheet->set_column( 2, 250, 16 );
+        $wsheet->set_column( 0, 0,   13 );
+        $wsheet->set_column( 1, 1,   42 );
+        $wsheet->set_column( 2, 250, 13 );
         $wsheet->{nextFree} = 2;
         $model->{inputTables} ||= [];
         my ( $sh, $ro, $co ) = Dataset(
             number             => 1400,
             dataset            => $model->{dataset},
-            name               => 'Company and assumptions',
-            cols               => Labelset( list => [qw(Company Assumptions)] ),
+            name               => 'Company and dataset',
+            singleRowName      => 'Company',
+            cols               => Labelset( list => [qw(Company Dataset)] ),
             defaultFormat      => 'puretexthard',
             data               => [ 'no company', 'no dataset' ],
             usePlaceholderData => 1,
@@ -94,7 +95,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $workingsSheet = $wsheet;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->set_column( 0, 0,   32 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Workings (annual)' );
@@ -107,7 +108,7 @@ sub worksheetsAndClosures {
         $wsheet->{workingsSheet} = $workingsSheet;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->set_column( 0, 0,   32 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Income statement' ),
@@ -120,7 +121,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $workingsSheet = $wsheet;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->set_column( 0, 0,   32 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Workings (monthly)' );
@@ -134,7 +135,7 @@ sub worksheetsAndClosures {
         $workingsSheet = $wsheet;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->set_column( 0, 0,   32 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Equity raising' ),
@@ -150,7 +151,7 @@ sub worksheetsAndClosures {
         $workingsSheet = $wsheet;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->set_column( 0, 0,   32 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Balance sheet' ),
@@ -166,7 +167,7 @@ sub worksheetsAndClosures {
         $workingsSheet = $wsheet;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->set_column( 0, 0,   32 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         my @tables = @{ $model->{cashflowTables} };
         $_->wsWrite( $wbook, $wsheet )

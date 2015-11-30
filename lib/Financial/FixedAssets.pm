@@ -71,7 +71,7 @@ sub labelset {
         name     => 'Fixed assets with names',
         editable => (
             $assets->{database}{names} ||= Dataset(
-                name          => 'Asset names',
+                name          => 'Asset name',
                 defaultFormat => 'texthard',
                 rows          => $assets->labelsetNoNames,
                 data => [ map { '' } $assets->labelsetNoNames->indices ],

@@ -187,7 +187,7 @@ sub indexPrevious {
     my ($periods) = @_;
     $periods->{indexPrevious} ||= Arithmetic(
         name          => $periods->decorate('Index of preceding period'),
-        defaultFormat => '0soft',
+        defaultFormat => 'indices',
         arithmetic    => '=MATCH(A1-1,A5_A6,0)',
         arguments     => {
             A1    => $periods->firstDay,
@@ -200,7 +200,7 @@ sub indexNext {
     my ($periods) = @_;
     $periods->{indexNext} ||= Arithmetic(
         name          => $periods->decorate('Index of following period'),
-        defaultFormat => '0soft',
+        defaultFormat => 'indices',
         arithmetic    => '=IF(A2-A3=-1,"Not applicable",MATCH(A1+1,A5_A6,0))',
         arguments     => {
             A1    => $periods->lastDay,

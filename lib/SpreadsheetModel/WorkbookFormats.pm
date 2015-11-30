@@ -557,6 +557,20 @@ Keys used in %$options:
             @sizeExtras,
             @colourSoft,
         ],
+        indices => [
+            locked => 1,
+            @sizeLabel,
+            num_format => $black . '\I\n\d\e\x\ 0',
+            align      => 'center',
+            @sizeExtras,
+            $options->{gridlines} ? ( border => 7 ) : (),
+            $backgroundColour ? ( bg_color => SILVER, @defaultColour, )
+            : (
+                $borderColour ? ( border => 1, border_color => SILVER )
+                : (),
+                $textColour ? ( color => SILVER ) : (),
+            ),
+        ],
         notes => [
             locked => 1,
             @sizeHeading,
