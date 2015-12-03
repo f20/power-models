@@ -5,7 +5,7 @@
     _column: Company
   - Company charging year data version: 2014/2015
     _column: Year
-  - Company charging year data version: Model checksum 383 0513
+  - Company charging year data version: Table checksum 383 0513
     _column: Version
   - Company charging year data version: ''
 1105:

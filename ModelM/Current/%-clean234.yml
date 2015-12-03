@@ -2,7 +2,7 @@
 .: Method M with DCP 234 (clean)
 AdditionalRules:
   - calcUnits: 1
-    checksums: Tariff checksum 5; Model checksum 7
+    checksums: Line checksum 5; Table checksum 7
     dcp071: 1
     dcp096: 1
     edcm: only
@@ -11,7 +11,7 @@ AdditionalRules:
     suffix: EDCM
 PerlModule: ModelM
 calcUnits: 1
-checksums: Tariff checksum 5; Model checksum 7
+checksums: Line checksum 5; Table checksum 7
 dcp071: 1
 dcp095: 1
 dcp096: 1

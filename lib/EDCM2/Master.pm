@@ -1805,7 +1805,7 @@ EOT
             my $digits = /([0-9])/ ? $1 : 6;
             SpreadsheetModel::Checksum->new(
                 name => $_,
-                /recursive|model/i ? ( recursive => 1 ) : (),
+                /table|recursive|model/i ? ( recursive => 1 ) : (),
                 digits  => $digits,
                 columns => [ @tariffColumns[ 1 .. 8 ] ],
                 factors => [qw(1000 100 100 100 1000 100 100 100)]

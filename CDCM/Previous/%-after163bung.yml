@@ -1,7 +1,7 @@
 ---
 .: CDCM model after DCP 163 (with election bung)
 PerlModule: CDCM
-checksums: Tariff checksum 5; Model checksum 7
+checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
 electionBung: 1

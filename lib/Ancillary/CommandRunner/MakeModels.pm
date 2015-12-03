@@ -68,7 +68,7 @@ sub makeModels {
             }
             elsif (/^-+(auto)?check/is) {
                 $maker->{setRule}
-                  ->( checksums => 'Tariff checksum 5; Model checksum 7' );
+                  ->( checksums => 'Line checksum 5; Table checksum 7' );
                 if (/^-+autocheck/is) {
                     require Compilation::DataExtraction;
                     $maker->{setting}->(

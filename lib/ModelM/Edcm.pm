@@ -314,7 +314,7 @@ EOT
                     my $digits = /([0-9])/ ? $1 : 6;
                     SpreadsheetModel::Checksum->new(
                         name => $_,
-                        /recursive|model/i ? ( recursive => 1 ) : (),
+                        /table|recursive|model/i ? ( recursive => 1 ) : (),
                         digits  => $digits,
                         columns => [$discounts],
                         factors => [1000]
@@ -373,7 +373,7 @@ EOL
             my $digits = /([0-9])/ ? $1 : 6;
             SpreadsheetModel::Checksum->new(
                 name => $_,
-                /recursive|model/i ? ( recursive => 1 ) : (),
+                /table|recursive|model/i ? ( recursive => 1 ) : (),
                 digits  => $digits,
                 columns => [@columns],
                 factors => [ map { 1000 } 1 .. 4 ]

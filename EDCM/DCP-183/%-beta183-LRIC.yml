@@ -2,7 +2,7 @@
 .: DCP 183 LRIC (experimental code)
 PerlModule: EDCM2
 activeSheets: Results
-checksums: Tariff checksum 5; Model checksum 7
+checksums: Line checksum 5; Table checksum 7
 dcp130: 1
 dcp183: 1
 dcp185: 2

@@ -351,7 +351,7 @@ sub checksumWriter {
                     my $v;
                     $v = $cell->unformatted if $cell;
                     next unless defined $v;
-                    if ( $v =~ /^Model checksum ([0-9]{1,2})$/si ) {
+                    if ( $v =~ /^Table checksum ([0-9]{1,2})$/si ) {
                         my $checksumType = $1;
                         my $checksum = $worksheet->get_cell( $row + 1, $col );
                         $checksum = $checksum->unformatted if $checksum;
