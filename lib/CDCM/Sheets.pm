@@ -661,17 +661,19 @@ EOL
         $wsheet->fit_to_pages( 1, 1 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 16 );
-        my $col = shift @{ $model->{edcmTables} };
-        push @{ $model->{edcmTables} }, Columnset(
-            name    => 'General inputs',
-            number  => 1113,
-            columns => [
-                map {
-                    $col->[$_]
-                      || Constant( name => 'Placeholder', data => [], );
-                } 1 .. 12
-            ],
-        );
+        if ( ref $model->{edcmTables}[0] eq 'ARRAY' ) {
+            my $col = shift @{ $model->{edcmTables} };
+            push @{ $model->{edcmTables} }, Columnset(
+                name    => 'General inputs',
+                number  => 1113,
+                columns => [
+                    map {
+                        $col->[$_]
+                          || Constant( name => 'Placeholder', data => [], );
+                    } 1 .. 12
+                ],
+            );
+        }
 
         my $notes = Notes(
             name  => 'Data for EDCM sheet 11',
