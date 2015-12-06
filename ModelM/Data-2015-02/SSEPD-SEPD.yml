@@ -17,7 +17,7 @@
   - DNO HV mains usage: 0.55
     _column: DNO HV mains usage
 1310:
-  - _table: 1310. DPCR4 aggregate allowances
+  - _table: 1310. DPCR4 aggregate allowances (£)
   - DPCR4 aggregate allowances: 621900000
     _column: Aggregate return
   - DPCR4 aggregate allowances: 575800000
@@ -26,21 +26,11 @@
     _column: Aggregate operating
   - DPCR4 aggregate allowances: Aggregated from annual data
 1315:
-  - _table: 1315. Analysis of allowed revenue for 2007/2008
-  - Analysis of allowed revenue for 2007 2008: 423806600
+  - _table: 1315. Analysis of allowed revenue for 2007/2008 (£/year)
+  - Analysis of allowed revenue for 2007 2008 year: 423806600
     _column: Total revenue
-  - Analysis of allowed revenue for 2007 2008: 9975061
+  - Analysis of allowed revenue for 2007 2008 year: 9975061
     _column: Net incentive revenue
-1320:
-  - _table: 1320. Units flowing
-  - Units flowing: 24475000000
-    _column: LV
-  - Units flowing: 24475000000
-    _column: HV/LV
-  - Units flowing: 30748640442
-    _column: HV
-  - Units flowing: 33833210652
-    _column: EHV&132
 1321:
   - _table: 1321. Units distributed (GWh)
   - EHV Includes 132kV: 3263
@@ -62,7 +52,7 @@
   - Load related new connections reinforcement net of contributions: 17380000
   - Load related new connections reinforcement net of contributions: 37080000
 1330:
-  - _table: 1330. Allocated costs
+  - _table: 1330. Allocated costs (£/year)
   - Atypical cash costs: ''
     CEO etc: ''
     Control Centre: ''
@@ -200,36 +190,35 @@
     Vehicles Transport: ''
     _column: EHV&132
 1331:
-  - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
-  - Assets in CDCM model from CDCM table 2705 or 2706: ''
+  - _table: 1331. Assets in CDCM model (£)
+  - Assets in CDCM model: ''
     _column: GSP
-  - Assets in CDCM model from CDCM table 2705 or 2706: 769629189.231194
+  - Assets in CDCM model: 1106612283.60686
     _column: 132kV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 207088729.845451
+  - Assets in CDCM model: 172331900.687391
     _column: 132kV/EHV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 509916372.921705
+  - Assets in CDCM model: 721581848.696796
     _column: EHV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 539125278.874607
+  - Assets in CDCM model: 532734365.85241
     _column: EHV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 0
+  - Assets in CDCM model: 0
     _column: 132kV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 1987695431.07836
+  - Assets in CDCM model: 1871541169.47983
     _column: HV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 651291193.950992
+  - Assets in CDCM model: 631261378.922961
     _column: HV/LV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 696817931.169896
+  - Assets in CDCM model: 787225954.38388
     _column: LV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 1692365610.65268
+  - Assets in CDCM model: 1049305919.40023
     _column: LV customer
-  - Assets in CDCM model from CDCM table 2705 or 2706: 29444844.2201079
+  - Assets in CDCM model: 29908861.1929181
     _column: HV customer
 1332:
-  - _table: '1332. All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
-  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: 240000000
-    _column: 'All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
-  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: Reverse engineered
+  - _table: 1332. All notional assets in EDCM (£)
+  - All notional assets in EDCM: 332243092.532302
+    _column: All notional assets in EDCM (£)
 1335:
-  - _table: 1335. Total costs
+  - _table: 1335. Total costs (£/year)
   - Atypical cash costs: 3000000
     CEO etc: 2300000
     Control Centre: 2600000
@@ -263,44 +252,26 @@
     Transmission Exit Charges: 9800000
     Tree Cutting: 6900000
     Vehicles Transport: 11900000
-    _column: Total costs
-1350:
-  - _table: 1350. MEAV percentages
-  - MEAV percentages: 0.49
-    _column: LV
-  - MEAV percentages: 0.08
-    _column: HV/LV
-  - MEAV percentages: 0.23
-    _column: HV
-  - MEAV percentages: 0.2
-    _column: EHV&132
+    _column: Total costs (£/year)
 1355:
   - _table: 1355. MEAV data
-  - 132kV: 0
-    132kV EHV remote terminal unit ground-mounted: 545
+  - 132kV EHV remote terminal unit ground-mounted: 545
     132kV EHV remote terminal unit pole-mounted: 0
     132kV auxiliary transformer: 0
     132kV breaker: 299
     132kV other switchgear: 2423
-    132kV overhead: 0
     132kV overhead pole conductor km: 191
     132kV overhead tower conductor km: 1726
     132kV pole: 1337
-    132kV submarine: 0
     132kV submarine km: 12
-    132kV switchgear: 0
     132kV tower: 4203
     132kV tower fittings: 8360
     132kV transformer: 204
-    132kV transformers: 0
-    132kV underground: 0
     132kV underground gas km: 4
     132kV underground non-pressurised km: 187
     132kV underground oil km: 287
-    20kV breaker distribution: 0
     20kV breaker ground-mounted: 0
     20kV breaker pole-mounted: 0
-    20kV breaker primary: 0
     20kV other switchgear ground-mounted: 0
     20kV other switchgear pole-mounted: 0
     20kV overhead covered km: 0
@@ -328,10 +299,8 @@
     33kV underground gas km: 0
     33kV underground non-pressurised km: 1630
     33kV underground oil km: 646
-    6 6 11kV breaker distribution: 0
     6 6 11kV breaker ground-mounted: 6614
     6 6 11kV breaker pole-mounted: 3531
-    6 6 11kV breaker primary: 0
     6 6 11kV other switchgear ground-mounted: 0
     6 6 11kV other switchgear pole-mounted: 10521
     6 6 11kV overhead covered km: 3395
@@ -354,23 +323,10 @@
     66kV underground gas km: 51
     66kV underground non-pressurised km: 76
     66kV underground oil km: 62
-    EHV: 0
-    EHV overhead: 0
-    EHV submarine: 0
     EHV submarine km: 14
-    EHV switchgear: 0
-    EHV transformers: 0
-    EHV underground: 0
-    HV network: 0
-    HV network switchgear: 0
-    HV overhead: 0
     HV remote terminal unit ground-mounted: 1914
     HV remote terminal unit pole-mounted: 2520
-    HV submarine: 0
     HV submarine km: 1
-    HV switchgear: 0
-    HV transformers: 0
-    HV underground: 0
     LV board underground: 32013
     LV board wall-mounted: 0
     LV fuse pole-mounted: 29588
@@ -379,42 +335,29 @@
     LV main underground consac km: 5049
     LV main underground paper km: 18486
     LV main underground plastic km: 5499
-    LV network: 0
-    LV overhead: 0
     LV overhead support: 216917
     LV pillar indoors: 0
     LV pillar outdoors: 30843
     LV service overhead: 287818
     LV service underground: 2637830
-    LV switchgear: 0
-    LV underground: 0
-    SCADA: 0
-    _column: Quantity
-  - 132kV: 0
-    132kV EHV remote terminal unit ground-mounted: 10000
+    _column: Asset quantity
+  - 132kV EHV remote terminal unit ground-mounted: 10000
     132kV EHV remote terminal unit pole-mounted: 0
     132kV auxiliary transformer: 0
     132kV breaker: 594000
     132kV other switchgear: 20000
-    132kV overhead: 0
     132kV overhead pole conductor km: 86000
     132kV overhead tower conductor km: 86000
     132kV pole: 6000
-    132kV submarine: 0
     132kV submarine km: 2687000
-    132kV switchgear: 0
     132kV tower: 6000
     132kV tower fittings: 13000
     132kV transformer: 908000
-    132kV transformers: 0
-    132kV underground: 0
     132kV underground gas km: 1159000
     132kV underground non-pressurised km: 1159000
     132kV underground oil km: 1159000
-    20kV breaker distribution: 0
     20kV breaker ground-mounted: 0
     20kV breaker pole-mounted: 0
-    20kV breaker primary: 0
     20kV other switchgear ground-mounted: 0
     20kV other switchgear pole-mounted: 0
     20kV overhead covered km: 0
@@ -442,10 +385,8 @@
     33kV underground gas km: 0
     33kV underground non-pressurised km: 263300
     33kV underground oil km: 263000
-    6 6 11kV breaker distribution: 0
     6 6 11kV breaker ground-mounted: 78800
     6 6 11kV breaker pole-mounted: 8800
-    6 6 11kV breaker primary: 78800
     6 6 11kV other switchgear ground-mounted: 0
     6 6 11kV other switchgear pole-mounted: 5000
     6 6 11kV overhead covered km: 74000
@@ -468,23 +409,10 @@
     66kV underground gas km: 1159000
     66kV underground non-pressurised km: 1159000
     66kV underground oil km: 1159000
-    EHV: 0
-    EHV overhead: 0
-    EHV submarine: 0
     EHV submarine km: 400000
-    EHV switchgear: 0
-    EHV transformers: 0
-    EHV underground: 0
-    HV network: 0
-    HV network switchgear: 0
-    HV overhead: 0
     HV remote terminal unit ground-mounted: 10000
     HV remote terminal unit pole-mounted: 10000
-    HV submarine: 0
     HV submarine km: 0
-    HV switchgear: 0
-    HV transformers: 0
-    HV underground: 0
     LV board underground: 1000
     LV board wall-mounted: 0
     LV fuse pole-mounted: 1000
@@ -493,59 +421,21 @@
     LV main underground consac km: 118000
     LV main underground paper km: 118000
     LV main underground plastic km: 118000
-    LV network: 0
-    LV overhead: 0
     LV overhead support: 200
     LV pillar indoors: 0
     LV pillar outdoors: 8800
     LV service overhead: 600
     LV service underground: 1200
-    LV switchgear: 0
-    LV underground: 0
-    SCADA: 0
-    _column: Unit MEAV
-1360:
-  - _table: '1360. MEAV: ratio of LV services to LV total'
-  - LV services: 0.448979591836735
-    _column: LV
+    _column: Unit MEAV (£)
 1369:
   - _table: 1369. Net capex analysis pre-DCP 118 (£)
-  - 132kV: 199.272195121951e6
-    EHV: 277.6e6
-    HV: 287.988571428571e6
-    LV: 230.6e6
-    LV HV: 64.8114285714286e6
-1370:
-  - _table: 1370. Net capex percentages
-  - Net capex percentages: 0.2175
-    _column: LV
-  - Net capex percentages: 0.0611
-    _column: HV/LV
-  - Net capex percentages: 0.2716
-    _column: HV
-  - Net capex percentages: 0.4498
-    _column: EHV&132
-1375:
-  - _table: 1375. Network length percentages
-  - Network length percentages: 0.5013
-    _column: LV
-  - Network length percentages: 0
-    _column: HV/LV
-  - Network length percentages: 0.3893
-    _column: HV
-  - Network length percentages: 0.1094
-    _column: EHV&132
+  - 132kV: 199272195.121951
+    EHV: 277600000
+    HV: 287988571.428571
+    LV: 230600000
+    LV HV: 64811428.5714286
+    _column: Net capex analysis pre-DCP 118 (£)
 1380:
   - _table: '1380. Net capex: ratio of LV services to LV total'
   - LV services: 0.101655933762649
     _column: LV
-1399:
-  - _table: 1037. Embedded network (LDNO) discounts
-  - LDNO discount: 0.338794448260433
-    _column: 'LDNO LV: LV user'
-  - LDNO discount: 0.601273457979975
-    _column: 'LDNO HV: LV user'
-  - LDNO discount: 0.388657679159432
-    _column: 'LDNO HV: LV sub user'
-  - LDNO discount: 0.302056007830297
-    _column: 'LDNO HV: HV user'
