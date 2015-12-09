@@ -1,4 +1,4 @@
-﻿package EUoS::Setup;
+﻿package Elec::Setup;
 
 =head Copyright licence and disclaimer
 

@@ -1,4 +1,4 @@
-﻿package EUoS::Charging;
+﻿package Elec::Charging;
 
 =head Copyright licence and disclaimer
 

@@ -1,4 +1,4 @@
-﻿package EUoS;
+﻿package Elec;
 
 =head Copyright licence and disclaimer
 
@@ -31,21 +31,21 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use EUoS::Sheets;
-use EUoS::Setup;
-use EUoS::Customers;
-use EUoS::Usage;
-use EUoS::Charging;
-use EUoS::Tariffs;
-use EUoS::Supply;
+use Elec::Sheets;
+use Elec::Setup;
+use Elec::Customers;
+use Elec::Usage;
+use Elec::Charging;
+use Elec::Tariffs;
+use Elec::Supply;
 
 sub new {
     my $class     = shift;
     my $model     = bless { inputTables => [], @_ }, $class;
-    my $setup     = EUoS::Setup->new($model);
-    my $customers = EUoS::Customers->new( $model, $setup );
-    my $usage     = EUoS::Usage->new( $model, $setup, $customers );
-    my $charging  = EUoS::Charging->new( $model, $setup, $usage );
+    my $setup     = Elec::Setup->new($model);
+    my $customers = Elec::Customers->new( $model, $setup );
+    my $usage     = Elec::Usage->new( $model, $setup, $customers );
+    my $charging  = Elec::Charging->new( $model, $setup, $usage );
 
     foreach (    # the order affects the column order in input data
         qw(
@@ -63,7 +63,7 @@ sub new {
             $doNotApply );
     }
 
-    my $tariffs = EUoS::Tariffs->new( $model, $setup, $usage, $charging );
+    my $tariffs = Elec::Tariffs->new( $model, $setup, $usage, $charging );
 
     if ( my $usetName = $model->{usetRevenues} ) {
         $tariffs->revenues( $customers->totalDemand($usetName) );
@@ -71,7 +71,7 @@ sub new {
 
     my $supplyTariffs;
     if ( my $usetName = $model->{usetEnergy} ) {
-        $supplyTariffs = EUoS::Supply->new( $model, $setup, $tariffs,
+        $supplyTariffs = Elec::Supply->new( $model, $setup, $tariffs,
             $charging->energyCharge->{arguments}{A1} );
         $supplyTariffs->revenues( $customers->totalDemand($usetName) );
         $supplyTariffs->margin( $customers->totalDemand($usetName) )

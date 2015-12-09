@@ -197,7 +197,7 @@ sub makeModels {
                 $maker->{addFile}->( abs2rel($_) );
             }
             else {
-                my $file = catfile( $self->[C_HOMEDIR], $_ );
+                my $file = catfile( $self->[C_HOMEDIR], 'models', $_ );
                 if ( -f $file ) {
                     $maker->{addFile}->( abs2rel($file) );
                 }

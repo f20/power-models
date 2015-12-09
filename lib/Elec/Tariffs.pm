@@ -1,4 +1,4 @@
-﻿package EUoS::Tariffs;
+﻿package Elec::Tariffs;
 
 =head Copyright licence and disclaimer
 

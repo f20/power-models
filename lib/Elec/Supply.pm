@@ -1,4 +1,4 @@
-﻿package EUoS::Supply;
+﻿package Elec::Supply;
 
 =head Copyright licence and disclaimer
 
@@ -30,7 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use base 'EUoS::Tariffs';
+use base 'Elec::Tariffs';
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {

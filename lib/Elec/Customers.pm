@@ -1,4 +1,4 @@
-﻿package EUoS::Customers;
+﻿package Elec::Customers;
 
 =head Copyright licence and disclaimer
 

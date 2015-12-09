@@ -1,4 +1,4 @@
-﻿package EUoS;
+﻿package Elec;
 
 =head Copyright licence and disclaimer
 
