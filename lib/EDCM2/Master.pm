@@ -2067,9 +2067,7 @@ EOT
         }
     );
 
-    if ( $model->{layout}
-        and !$model->{summaries} || $model->{summaries} !~ /matri/i )
-    {
+    if ( $model->{layout} && $model->{summaries} =~ /1/i ) {
         my @copyTariffs = map { Stack( sources => [$_] ) } @tariffColumns;
         SpreadsheetModel::MatrixSheet->new(
             $model->{tariff1Row}

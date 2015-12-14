@@ -88,7 +88,7 @@ sub preprocessDataset {
                 my $max = $model->{numLocations} || 0;
                 foreach ( keys %$h ) {
                     if (   $h->{$_}
-                        && $h->{$_} ne 'Not used'
+                        && lc $h->{$_} ne 'not used'
                         && $h->{$_} ne '#VALUE!'
                         && $h->{$_} !~ /^\s*$/s )
                     {
@@ -145,7 +145,7 @@ sub preprocessDataset {
                 next
                   unless $k =~ /^[0-9]+$/
                   && $v
-                  && $v ne 'Not used'
+                  && lc $v ne 'not used'
                   && $v ne '#VALUE!'
                   && $v !~ /^\s*$/s;
                 undef $tariffs{$k};
@@ -184,7 +184,7 @@ sub preprocessDataset {
                 foreach my $k (@tariffs) {
                     my $v = $ds->[1]{$k};
                     if (    $v
-                        and $v ne 'Not used'
+                        and lc $v ne 'not used'
                         and $v ne '#VALUE!'
                         and $v ne '#N/A'
                         and $v ne 'VOID'
@@ -246,7 +246,7 @@ sub preprocessDataset {
                 next
                   unless $k =~ /^[0-9]+$/
                   && $v
-                  && $v ne 'Not used'
+                  && lc $v ne 'not used'
                   && $v ne '#VALUE!'
                   && $v !~ /^\s*$/s;
                 undef $tariffs{$k};
@@ -284,8 +284,7 @@ sub preprocessDataset {
                 );
                 foreach my $k (@tariffs) {
                     my $v = $ds->[1][$k];
-                    if (    $v
-                        and $v ne 'Not used'
+                    if (    $v && lc $v ne 'not used'
                         and $v ne '#VALUE!'
                         and $v ne '#N/A'
                         and $v ne 'VOID'
