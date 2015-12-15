@@ -55,7 +55,7 @@ global OptionProblem = 0
 local Options "lowerIntermittentCredit checksums dcp185 legacy201 dcp189"
 
 local Val_lowerIntermittentCredit "0 1"
-local Val_checksums "0 Tariffchecksum5;Modelchecksum7"
+local Val_checksums "0 Tariffchecksum5;Modelchecksum7 Linechecksum5;Tablechecksum7"
 local Val_dcp185 "0 1 2"
 local Val_legacy201 "0 1"
 local Val_dcp189 "0 proportionsplitShortfall"
@@ -88,3 +88,10 @@ while `j'<=`m'{
         }
     local j = `j'+1
     }
+
+*4. Deal with fact that option "Tariffchecksum5;Modelchecksum7" is called "Linechecksum5;Tablechecksum7" in some models (and script uses former designation)
+
+	if "$Optionchecksums" == "Linechecksum5;Tablechecksum7" {
+		global Optioncheksums Tariffchecksum5;Modelchecksum7 
+		}
+
