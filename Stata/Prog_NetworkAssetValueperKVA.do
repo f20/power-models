@@ -23,6 +23,12 @@
 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
+*NOTE
+*14Dec2015 Revisions
+*Script changed to deal with change in tables t1133 and t1134, namely fact that first cell that existed in older versions of that table was deleted, so that these tables now only have five columns.
+
+
 capture program drop NetworkAssetValue
 program NetworkAssetValue
 
@@ -102,11 +108,11 @@ quietly{
 
 *(b) Using cap and collared network-use factors
 
-        gen CCNetworkUseFactor`i'= AdjNetworkUseFactor`i' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & (AdjNetworkUseFactor`i'>=t1134c`j' & AdjNetworkUseFactor`i'<=t1133c`j' )
+        gen CCNetworkUseFactor`i'= AdjNetworkUseFactor`i' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & (AdjNetworkUseFactor`i'>=t1134c`i' & AdjNetworkUseFactor`i'<=t1133c`i' )
 
-        replace CCNetworkUseFactor`i'= t1134c`j' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & AdjNetworkUseFactor`i'<t1134c`j'
+        replace CCNetworkUseFactor`i'= t1134c`i' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & AdjNetworkUseFactor`i'<t1134c`i'
 
-        replace CCNetworkUseFactor`i'= t1133c`j' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & AdjNetworkUseFactor`i'>t1133c`j'
+        replace CCNetworkUseFactor`i'= t1133c`i' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & AdjNetworkUseFactor`i'>t1133c`i'
 
         gen CCSSValCapL`i' = CCNetworkUseFactor`i' * AvNetAssetValueCapacityLevel`i' if CapacityFlagLevel`i'==1
         gen CCSSValDemL`i' = CCNetworkUseFactor`i' * AvNetAssetValueDemandLevel`i' if DemandFlagLevel`i'==1
