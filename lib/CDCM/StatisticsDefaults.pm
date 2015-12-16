@@ -166,19 +166,19 @@ __DATA__
   - Custom demand: 450
     Custom demand 2: 450
     Custom generation: 450
-    Domestic: 0.7
+    Domestic: 0.649
     Domestic electric heat: 1
-    Domestic low use: 0.35
+    Domestic low use: 0.3245
     Large business: 483
     Large continuous: 621
     Large housing electric: 100
-    Large housing standard: 175
+    Large housing standard: 162.25
     Large intermittent: 276
     Large off-peak: 0
     Medium business: 48.3
     Medium continuous: 62.1
     Medium housing electric: 10
-    Medium housing standard: 17.5
+    Medium housing standard: 16.225
     Medium intermittent: 27.6
     Medium off-peak: 0
     Small business: 4.83
@@ -188,26 +188,26 @@ __DATA__
     XL business: 3500
     XL continuous: 4500
     XL housing electric: 1000
-    XL housing standard: 1750
+    XL housing standard: 1622.5
     XL intermittent: 2000
     XL off-peak: 0
     _column: Peak-time load (kW)
   - Custom demand: 450
     Custom demand 2: 450
     Custom generation: 450
-    Domestic: 0.2
+    Domestic: 0.178
     Domestic electric heat: 1.2
-    Domestic low use: 0.1
+    Domestic low use: 0.089
     Large business: 155.25
     Large continuous: 621
     Large housing electric: 120
-    Large housing standard: 50
+    Large housing standard: 44.5
     Large intermittent: 276
     Large off-peak: 621
     Medium business: 15.525
     Medium continuous: 62.1
     Medium housing electric: 12
-    Medium housing standard: 5
+    Medium housing standard: 4.45
     Medium intermittent: 27.6
     Medium off-peak: 62.1
     Small business: 1.5525
@@ -217,26 +217,26 @@ __DATA__
     XL business: 1125
     XL continuous: 4500
     XL housing electric: 1200
-    XL housing standard: 500
+    XL housing standard: 445
     XL intermittent: 2000
     XL off-peak: 4500
     _column: Off-peak load (kW)
   - Custom demand: 450
     Custom demand 2: 450
     Custom generation: 450
-    Domestic: 0.35
+    Domestic: 0.333
     Domestic electric heat: 0.5
-    Domestic low use: 0.175
+    Domestic low use: 0.1665
     Large business: 155.25
     Large continuous: 621
     Large housing electric: 50
-    Large housing standard: 87.5
+    Large housing standard: 83.25
     Large intermittent: 276
     Large off-peak: 621
     Medium business: 15.525
     Medium continuous: 62.1
     Medium housing electric: 5
-    Medium housing standard: 8.75
+    Medium housing standard: 8.325
     Medium intermittent: 27.6
     Medium off-peak: 62.1
     Small business: 1.5525
@@ -246,7 +246,7 @@ __DATA__
     XL business: 1125
     XL continuous: 4500
     XL housing electric: 500
-    XL housing standard: 875
+    XL housing standard: 832.5
     XL intermittent: 2000
     XL off-peak: 4500
     _column: Load at other times (kW)
