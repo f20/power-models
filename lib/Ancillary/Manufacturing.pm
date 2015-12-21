@@ -475,7 +475,7 @@ sub factory {
                 my @scored;
                 my $metadata = [
                     $data->{'~datasetSource'} && $data->{'~datasetSource'}{file}
-                    ? $data->{'~datasetSource'}{file} =~
+                    ? "FILLER/$data->{'~datasetSource'}{file}" =~
                       /([A-Z0-9-]+)\/(?:.*(20[0-9][0-9]-[0-9][0-9]))?.*/
                     : ''
                 ];

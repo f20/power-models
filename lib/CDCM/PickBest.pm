@@ -7,7 +7,7 @@ use POSIX;
 sub score {
 
     my ( $class, $rule, $metadata ) = @_;
-    my $month = $metadata->[1] || strftime( '%Y-%m', localtime );
+    my $month = $metadata->[1] || strftime( '%Y-%m-est', localtime );
     $month =~ s/^-*//;
     my $score = 0;
 
