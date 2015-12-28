@@ -76,59 +76,71 @@ sub applyInstructions {
             $chart->combine($c);
             next;
         }
-        if (    $verb eq 'add_series'
-            and UNIVERSAL::isa( $args, 'SpreadsheetModel::Dataset' )
-            and !$args->{rows} && $args->{cols}
-            || $args->{rows}   && !$args->{cols} )
-        {
-            push @{ $self->{sourceLines} }, $args
-              unless $self->{sourceLines} && grep { $_ == $args }
-              @{ $self->{sourceLines} };
-            my ( $w2, $r2, $c2 ) = $args->wsWrite( $wb, $ws, undef, undef, 1 );
-            $w2 = "'" . $w2->get_name . "'!";
-            my $r3 = $r2;
-            my $c3 = $c2;
-            if ( $args->{cols} ) {
-                if (
-                    UNIVERSAL::isa(
-                        $args->{location}, 'SpreadsheetModel::CalcBlock'
-                    )
-                  )
-                {
-                    $r3 = $args->{location}{items}[0]{$wb}{row};
-                }
-                --$r3;
+        if ( $verb eq 'add_series' ) {
+            my $series = $args;
+            if ( ref $args eq 'ARRAY' ) {
+                $series = shift @$args;
             }
             else {
-                if (
-                    UNIVERSAL::isa(
-                        $args->{location}, 'SpreadsheetModel::Columnset'
-                    )
-                  )
-                {
-                    $c3 = $args->{location}{columns}[0]{$wb}{col};
-                }
-                --$c3;
+                $args = [];
             }
-            $args = [
-                name       => $args->objectShortName,
-                categories => '='
+            if ( UNIVERSAL::isa( $series, 'SpreadsheetModel::Dataset' )
+                and !$series->{rows} && $series->{cols}
+                || $series->{rows}   && !$series->{cols} )
+            {
+                push @{ $self->{sourceLines} }, $series
+                  unless $self->{sourceLines} && grep { $_ == $series }
+                  @{ $self->{sourceLines} };
+                my ( $w2, $r2, $c2 ) =
+                  $series->wsWrite( $wb, $ws, undef, undef, 1 );
+                $w2 = "'" . $w2->get_name . "'!";
+                my $r3 = $r2;
+                my $c3 = $c2;
+                if ( $series->{cols} ) {
+                    if (
+                        UNIVERSAL::isa(
+                            $series->{location}, 'SpreadsheetModel::CalcBlock'
+                        )
+                      )
+                    {
+                        $r3 = $series->{location}{items}[0]{$wb}{row};
+                    }
+                    --$r3;
+                }
+                else {
+                    if (
+                        UNIVERSAL::isa(
+                            $series->{location}, 'SpreadsheetModel::Columnset'
+                        )
+                      )
+                    {
+                        $c3 = $series->{location}{columns}[0]{$wb}{col};
+                    }
+                    --$c3;
+                }
+                unshift @$args,
+                  name       => $series->objectShortName,
+                  categories => '='
                   . $w2
                   . xl_rowcol_to_cell( $r3, $c3, 1, 1 ) . ':'
                   . xl_rowcol_to_cell(
-                    $r3 + $args->lastRow,
-                    $c3 + $args->lastCol,
+                    $r3 + $series->lastRow,
+                    $c3 + $series->lastCol,
                     1, 1
                   ),
-                values => '='
+                  values => '='
                   . $w2
                   . xl_rowcol_to_cell( $r2, $c2, 1, 1 ) . ':'
                   . xl_rowcol_to_cell(
-                    $r2 + $args->lastRow,
-                    $c2 + $args->lastCol,
+                    $r2 + $series->lastRow,
+                    $c2 + $series->lastCol,
                     1, 1
-                  ),
-            ];
+                  );
+            }
+            else {
+                warn "Something has probably gone wrong with @$args";
+                next;
+            }
         }
         $chart->$verb(@$args);
     }
@@ -192,11 +204,13 @@ sub wsWrite {
                     }
                 }
                 elsif (/^(https?|mailto:)/) {
-                    $ws->set_row( $row, undef, undef, 1, 1 ) if $hideFormulas;
+                    $ws->set_row( $row, undef, undef, 1, 1 )
+                      if $hideFormulas;
                     $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
                 }
                 else {
-                    $ws->set_row( $row, undef, undef, 1, 1 ) if $hideFormulas;
+                    $ws->set_row( $row, undef, undef, 1, 1 )
+                      if $hideFormulas;
                     $ws->write_string( $row++, $col, "$_", $textFormat );
                 }
             }
