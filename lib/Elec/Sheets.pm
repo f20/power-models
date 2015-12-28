@@ -38,6 +38,8 @@ sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
 
+    $wbook->{lastSheetNumber} = 49;
+
     my @detailedTables;
     push @detailedTables, @{ $model->{detailedTables} }
       if $model->{detailedTables};
@@ -47,7 +49,6 @@ sub worksheetsAndClosures {
     'Input' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 15;
-        $wbook->{lastSheetNumber} = $model->{table1653} ? 48 : 49;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );

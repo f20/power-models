@@ -158,7 +158,7 @@ sub finish {
         $model->{table1653} = Columnset(
             name     => 'Individual user data',
             number   => 1653,
-            location => 1653,
+            location => 'Customers',
             dataset  => $self->{model}{dataset},
             columns  => [
                 $self->{names} ? $self->{names} : (),
