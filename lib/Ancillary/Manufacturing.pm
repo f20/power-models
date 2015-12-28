@@ -368,7 +368,7 @@ sub factory {
                                 $_->[0] ) }{ $_->[1]
                               || '' };
                       } grep { $_->[0] }
-                      map    { [m#(.*)(-[0-9]{4}-[0-9]{2})#] }
+                      map    { [m#(.*)(-20[0-9]{2}-[0-9]+)#] }
                       grep { $_ } map { $_->{'~datasetName'} } @datasets;
                     foreach my $dno ( keys %nameset ) {
                         foreach my $suffix ( sort keys %$data ) {
@@ -424,7 +424,7 @@ sub factory {
             }
             $spreadsheetFile =~ s/%%/
                 require Ancillary::DnoAreas;
-                Ancillary::DnoAreas::normaliseDnoName($data->{'~datasetName'}=~m#(.*)-[0-9]{4}-[0-9]{2}#);
+                Ancillary::DnoAreas::normaliseDnoName($data->{'~datasetName'}=~m#(.*)-20[0-9]{2}-[0-9]+#);
               /eg;
             $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
             $spreadsheetFile .= $extension;
