@@ -1,13 +1,10 @@
 ---
-.: Micro-model after DCP 161
+.: Micro-model for DCP 161
 PerlModule: CDCM
-agghhequalisation: 1
-alwaysUseRAG: 1
-coincidenceAdj: groupums
 compact: 1
+coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
-fixedCap: 1-4
 nickName: CDCM model (after DCP 161)
 noLLFCs: 1
 noLinks: 1
@@ -18,6 +15,6 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: statisticsbrief
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163pc12hhpc34hh
-timeOfDay: timeOfDay179
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDaySpecial
 unauth: dayotex

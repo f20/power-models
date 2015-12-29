@@ -1,0 +1,11 @@
+makeModels
+	-sqlite
+	-pickbest
+	-checksums
+	CDCM/*/%-clean*.yml
+	CDCM/Data-2016-02/*
+	CDCM/Data-2017-02/*
+
+useDatabase
+	all
+	37
