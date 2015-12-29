@@ -1,9 +1,9 @@
 ---
 1400:
   - _table: 1400. Company and assumptions
-  - Company and assumptions: Green Fish
+  - Company and assumptions: The Fishing Company
     _column: Company
-  - Company and assumptions: Testing
+  - Company and assumptions: model testing
     _column: Assumptions
 1430:
   - _table: 1430. Sales items

@@ -1,0 +1,224 @@
+---
+1400:
+  - _table: 1400. Company and dataset
+  - Company: The New Acme Corporation
+    _column: Company
+  - Company: demonstration
+    _column: Dataset
+1430:
+  - _table: 1430. Sales items
+  - 1: Anvils
+    2: Rockets
+    3: ''
+    4: ''
+    _column: Names for sales items
+  - 1: 41821
+    2: 42705
+    3: ''
+    4: ''
+    _column: Start date
+  - 1: 43966
+    2: ''
+    3: ''
+    4: ''
+    _column: End date
+  - 1: 400000
+    2: 250000
+    3: 0
+    4: 0
+    _column: Annual sales (£)
+  - 1: -0.05
+    2: 0.3
+    3: 0
+    4: 0
+    _column: Annual growth rate
+  - 1: 45
+    2: 45
+    3: 0
+    4: 0
+    _column: Average credit and inventory days
+  - 1: 75
+    2: 75
+    3: 0
+    4: 0
+    _column: Worst-case credit and inventory days
+1440:
+  - _table: 1440. Cost of sales items
+  - 1: Materials for anvils
+    2: Labour for anvils
+    3: Materials for rockets
+    4: Labour for rockets
+    _column: Names for cost of sales items
+  - 1: 41821
+    2: 41821
+    3: 42705
+    4: 42644
+    _column: Start date
+  - 1: 43966
+    2: 43966
+    3: ''
+    4: ''
+    _column: End date
+  - 1: 150000
+    2: 150000
+    3: 100000
+    4: 50000
+    _column: Annual cost of sales (£)
+  - 1: -0.06
+    2: -0.07
+    3: 0.28
+    4: 0.25
+    _column: Annual growth rate
+  - 1: 15
+    2: 0
+    3: 15
+    4: 0
+    _column: Average credit and inventory days
+  - 1: 0
+    2: -10
+    3: 0
+    4: -10
+    _column: Worst-case credit and inventory days
+1442:
+  - _table: 1442. Administrative expense items
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    _column: Names for administrative expense items
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    _column: Start date
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    _column: End date
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    _column: Annual administrative expenses (£)
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    _column: Annual growth rate
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    _column: Average credit and inventory days
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    _column: Worst-case credit and inventory days
+1448:
+  - _table: 1448. Cash buffer diversity allowance
+  - Allowance: 0.5
+    _column: Cash buffer diversity allowance
+1450:
+  - _table: 1450. Fixed assets
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    _column: Asset name
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    _column: Commissioning date
+  - 1: ''
+    2: ''
+    3: ''
+    4: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    _column: Decommissioning date
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    _column: Cost (£)
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    _column: Straight-line depreciation period (years)
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    _column: Estimated scrap value at time of commissioning (£)
+  - 1: 0
+    2: 0
+    3: 0
+    4: 0
+    5: 0
+    6: 0
+    7: 0
+    8: 0
+    _column: Proceeds of scrapping (£)
+1460:
+  - _table: 1460. Borrowings
+  - 1: Bank loan
+    2: ''
+    3: ''
+    4: ''
+    _column: Name of debt tranche
+  - 1: 42156
+    2: ''
+    3: ''
+    4: ''
+    _column: Start date
+  - 1: 45808
+    2: ''
+    3: ''
+    4: ''
+    _column: End date
+  - 1: 30000
+    2: 0
+    3: 0
+    4: 0
+    _column: Amount (£)
+  - 1: 0.05
+    2: 0
+    3: 0
+    4: 0
+    _column: Interest rate
+1470:
+  - _table: 1470. Equity raising rounds in chronological order
+  - 1: ''
+    2: ''
+    3: ''
+    _column: Name of round (in chronological order)
+  - 1: ''
+    2: ''
+    3: ''
+    _column: Date
