@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,7 +41,7 @@
 *t1113c8 = DNO expenditure on network rates
 *t1131cX = Assets in CDCM model (�) (from CDCM table 2705) - at different network levels
 
-*t935c7 = Sole use asset MEAV (�) 
+*t935c7 = Sole use asset MEAV (�)
 *t953c14 = Proportion of sole use asset MEAV not chargeable to this tariff
 ***************
 
@@ -107,9 +107,9 @@ gen IndirectOpCostsContributionRate = t1113c7/(RawAggDemSS + TotalSoleUseAsset+E
 gen DemFixedChargeSolePenceDay=(100/t1113c1)*SoleUseAssetsImport*( NetworkRatesContributionRate+ DirectOpCostsContributionRate)
 
 if "$Optiondcp189"=="proportionsplitShortfall" {
-	rename DemFixedChargeSolePenceDay DemFixedChargeSolePDayNodcp189	
-	gen DemFixedChargeSolePenceDay=(100/t1113c1)*SoleUseAssetsImport*( NetworkRatesContributionRate+ (1-t935dcp189)*DirectOpCostsContributionRate)
-	}
+    rename DemFixedChargeSolePenceDay DemFixedChargeSolePDayNodcp189
+    gen DemFixedChargeSolePenceDay=(100/t1113c1)*SoleUseAssetsImport*( NetworkRatesContributionRate+ (1-t935dcp189)*DirectOpCostsContributionRate)
+    }
 
 gen GenFixedChargeSolePenceDay=(100/t1113c1)*SoleUseAssetsExportNotExempt*( NetworkRatesContributionRate+ DirectOpCostsContributionRate)
 
@@ -120,9 +120,9 @@ gen DemFixedChargePoundAnnual=(t1113c1-t935c22)*DemFixedChargeSolePenceDay/100
 by company, sort: egen DemFixedChargeRecovery=sum(DemFixedChargePoundAnnual)
 
 if "$Optiondcp189"=="proportionsplitShortfall" {
-	gen DemFixedChargePdAnnualNodcp189=(t1113c1-t935c22)*DemFixedChargeSolePDayNodcp189/100
-	by company, sort: egen DemFixedChargeRecoveryNodcp189=sum(DemFixedChargePdAnnualNodcp189)
-	}
+    gen DemFixedChargePdAnnualNodcp189=(t1113c1-t935c22)*DemFixedChargeSolePDayNodcp189/100
+    by company, sort: egen DemFixedChargeRecoveryNodcp189=sum(DemFixedChargePdAnnualNodcp189)
+    }
 
 
 gen GenFixedChargePoundAnnual=(t1113c1-t935c22)*round(GenFixedChargeSolePenceDay, 0.01)/100
@@ -146,7 +146,7 @@ drop _merge
 
 BlankToZero AggFCPSuperRedGenCredit AggLRICSuperRedGenCredit
 
-gen GCN = ExportCapChargeRecovery+GenFixedChargeRecovery+(AggFCPSuperRedGenCredit+AggLRICSuperRedGenCredit) 
+gen GCN = ExportCapChargeRecovery+GenFixedChargeRecovery+(AggFCPSuperRedGenCredit+AggLRICSuperRedGenCredit)
 
 *6. Residual revenue contribution rate
 
@@ -164,7 +164,7 @@ gen ImportCapDirectContr=RawTotSSAssets*t935c2 *  (1-t935c22/t1113c1)*DirectOpCo
 
 gen ImportCapIndirectContr=RawTotSSAssets*t935c2 * (1-t935c22/t1113c1)* IndirectOpCostsContributionRate
 
-gen ImportCapResidualRevContr=RawTotSSAssets*t935c2 * (1-t935c22/t1113c1)* ResidualRevContributionRate 
+gen ImportCapResidualRevContr=RawTotSSAssets*t935c2 * (1-t935c22/t1113c1)* ResidualRevContributionRate
 
 *8. Calculating demand sole use asset MEAV based contribution
 
@@ -183,15 +183,15 @@ gen TempVar=(ImportCapNetRatesContr+ImportCapDirectContr+ImportCapIndirectContr+
 
 by company, sort: egen AggDemandRevenueTarget=  sum(TempVar)
 
-*10. Calculating fixed charge reduction assoicated with DCP189 
+*10. Calculating fixed charge reduction assoicated with DCP189
 
 if "$Optiondcp189"=="proportionsplitShortfall" {
 
-	gen OMR = DemFixedChargeRecoveryNodcp189 - DemFixedChargeRecovery
-	gen FCR = OMR*(EHVAssets + HVandLVAssets)/(RawAggDemSS + EHVAssets + HVandLVAssets)
-	replace AggDemandRevenueTarget=AggDemandRevenueTarget - FCR
+    gen OMR = DemFixedChargeRecoveryNodcp189 - DemFixedChargeRecovery
+    gen FCR = OMR*(EHVAssets + HVandLVAssets)/(RawAggDemSS + EHVAssets + HVandLVAssets)
+    replace AggDemandRevenueTarget=AggDemandRevenueTarget - FCR
 
-	}
+    }
 
 drop TempVar
 

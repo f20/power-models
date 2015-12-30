@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -94,12 +94,12 @@ gen DemandFlagLevel5=0
 
 *2. Calculating average network asset value per kVA in respect of each network level
 
-*Deriving NetworkAssetValuepervKVA 
+*Deriving NetworkAssetValuepervKVA
 
 *Runs program NetworkAssetValue
 NetworkAssetValue
 
-*3. Calculating total site-specific shared assets of each demand user,  TNA in statement notation 
+*3. Calculating total site-specific shared assets of each demand user,  TNA in statement notation
 
 gen tempvar5=(t1113c1-t935c22)
 CheckZero t1113c3 tempvar5
@@ -107,15 +107,16 @@ CheckZero t1113c3 tempvar5
 gen RawTotSSAssets=RawSSValCapAllL + (RawSSValDemAllL* (1-(t935c23/t1113c3))*(t1113c1/(t1113c1-t935c22)))
 gen CCTotSSAssets=CCSSValCapAllL + (CCSSValDemAllL* (1-(t935c23/t1113c3))*(t1113c1/(t1113c1-t935c22)))
 
-replace CCTotSSAssets = 1e-100 if CCTotSSAssets==0
+*Line below commented out on 18Dec2015. Deemed unnecessary given revision in "Seg13 Results output.do", also dated 18Dec2015.
+*replace CCTotSSAssets = 1e-100 if CCTotSSAssets==0
 
-*4. Producing aggregate across all EDCM demand users 
+*4. Producing aggregate across all EDCM demand users
 
 CheckZero t1113c1
 gen RawVarTemp=(RawTotSSAssets)*t935c2* (1-t935c22/t1113c1)
-gen CCVarTemp=(CCTotSSAssets)*t935c2* (1-t935c22/t1113c1) 
+gen CCVarTemp=(CCTotSSAssets)*t935c2* (1-t935c22/t1113c1)
 
-by company, sort: egen RawAggDemSS= sum (RawVarTemp) 
+by company, sort: egen RawAggDemSS= sum (RawVarTemp)
 by company, sort: egen CCAggDemSS= sum (CCVarTemp)
 
 sort company line

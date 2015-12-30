@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -40,14 +40,14 @@ use Tariffs
 
 gen AnnualChargeCapDem=ImportCapacityCharge_r*(t1113c1-t935c22)*t935c2/100
 
-gen AnnualChargeSuperRedDem=SuperRedDem_r*(t1113c3-t935c23)*t935c15*t935c2/100 
+gen AnnualChargeSuperRedDem=SuperRedDem_r*(t1113c3-t935c23)*t935c15*t935c2/100
 
 gen AnnualChargeFixedDem=DemFixedCharge_r*(t1113c1-t935c22)/100
 
 gen AnnualChargeFixedGen=GenFixedCharge_r*(t1113c1-t935c22)/100
 
 BlankToZero t935c19
-gen AnnualCreditSuperRedGen=SuperRedCreditGen_r*t935c19/100 
+gen AnnualCreditSuperRedGen=SuperRedCreditGen_r*t935c19/100
 
 gen AnnualCreditCapGen= (t1113c1/100)*ExportCapacityCharge_r*ChargeableExportCap*(1-t935c22/t1113c1)
 
@@ -61,10 +61,10 @@ gen AnnualChargeDemR=AnnualChargeCapDem+AnnualChargeSuperRedDem+AnnualChargeFixe
 BlankToZero AnnualChargeFixedGen AnnualCreditSuperRedGen AnnualCreditCapGen
 gen AnnualCreditGenR=AnnualChargeFixedGen+AnnualCreditSuperRedGen+AnnualCreditCapGen
 
-BlankToZero AnnualChargeDemR 
+BlankToZero AnnualChargeDemR
 gen AnnualChargeDemPrevious = t935c24
-gen ChangeAnnualChargeDem= AnnualChargeDemR - AnnualChargeDemPrevious 
-gen PerChangeAnnualChargeDem= (AnnualChargeDemR / AnnualChargeDemPrevious)-1 
+gen ChangeAnnualChargeDem= AnnualChargeDemR - AnnualChargeDemPrevious
+gen PerChangeAnnualChargeDem= (AnnualChargeDemR / AnnualChargeDemPrevious)-1
 
 BlankToZero AnnualCreditGenR
 gen AnnualCreditCapGenPrevious=t935c25
@@ -77,7 +77,7 @@ gen PerChangeAnnualCreditGen= (AnnualCreditGenR / AnnualCreditCapGenPrevious) - 
 
 gen DOCImportCapCharge=  (100/t1113c1)*(CCTotSSAssets)*(EDCMDOCChargingRate)
 
-gen NRImportCapCharge=  (100/t1113c1)*(CCTotSSAssets)*(EDCMNetworkRatesChargingRate) 
+gen NRImportCapCharge=  (100/t1113c1)*(CCTotSSAssets)*(EDCMNetworkRatesChargingRate)
 
 *3.Second.
 
@@ -85,24 +85,28 @@ gen AnnualChargeRemoteFCPLRIC=SuperRedPreAdjustment*(t1113c3-t935c23)*t935c15*t9
 
 *3.Third
 
-*a. Have already defined "AnnualChargeRemoteFCPLRIC" as recovery from SuperRed in �, before any adjustment for cases where import capacity<0 
+*a. Have already defined "AnnualChargeRemoteFCPLRIC" as recovery from SuperRed in �, before any adjustment for cases where import capacity<0
 
 *b. Calculate annual recovery from import capacity charges based on contributions other than asset based adder, NR and DOC
-gen ImportCapacityChargePre= ImportCapFixedAdder + AssetBasedChargingRateResidRev + EDCMImportCapINDOCCharge +NRDOCImportCapCharge + LRICLocalCharge1 + FCPCapCharge1 + TransmissionExitCapCharge 
+gen ImportCapacityChargePre= ImportCapFixedAdder + AssetBasedChargingRateResidRev + EDCMImportCapINDOCCharge +NRDOCImportCapCharge + LRICLocalCharge1 + FCPCapCharge1 + TransmissionExitCapCharge
 
-gen Block1=ImportCapFixedAdder + EDCMImportCapINDOCCharge + LRICLocalCharge1 + FCPCapCharge1 + TransmissionExitCapCharge 
-gen RevBlock1=Block1/100 * (t1113c1-t935c22)*t935c2    
+gen Block1=ImportCapFixedAdder + EDCMImportCapINDOCCharge + LRICLocalCharge1 + FCPCapCharge1 + TransmissionExitCapCharge
+gen RevBlock1=Block1/100 * (t1113c1-t935c22)*t935c2
 
 *c. Calculate recovery from asset based adder, NR and DOC
 gen RevBlock2=(AssetBasedChargingRateResidRev + DOCImportCapCharge+NRImportCapCharge)/100 * (t1113c1-t935c22)*t935c2
 
 *3. Fourth
 
+*The condition "& RevBlock2!=0" was added on 18Dec2015.
+*This was coupled with commenting out the line "*replace CCTotSSAssets = 1e-100 if CCTotSSAssets==0" in "Seg07 Shared assets MEAV.do"
+
+
 gen Ratio=1
-replace Ratio = -(RevBlock1+AnnualChargeRemoteFCPLRIC)/RevBlock2 if (RevBlock1+AnnualChargeRemoteFCPLRIC+RevBlock2)<0
+replace Ratio = -(RevBlock1+AnnualChargeRemoteFCPLRIC)/RevBlock2 if (RevBlock1+AnnualChargeRemoteFCPLRIC+RevBlock2)<0 & RevBlock2!=0
 
 *3 Fifth
-* Impose cap on Block3Recovery so that Block3Recovery+ImportStartRecovery+AnnualChargeRemoteFCPLRIC cannot be negative; 
+* Impose cap on Block3Recovery so that Block3Recovery+ImportStartRecovery+AnnualChargeRemoteFCPLRIC cannot be negative;
 
 gen AssetBasedRateResidRevAdj =AssetBasedChargingRateResidRev * Ratio
 gen DOCImportCapAdj=DOCImportCapCharge * Ratio
@@ -114,7 +118,7 @@ gen AnnualSoleUseAssetCharge= DemFixedCharge*(t1113c1-t935c22)/100
 
 gen AnnualTransExitCharge=TransmissionExitCapCharge /100 * (t1113c1-t935c22)*t935c2
 
-gen AnnualScalingFixedAdder=ImportCapFixedAdder /100 * (t1113c1-t935c22)*t935c2 
+gen AnnualScalingFixedAdder=ImportCapFixedAdder /100 * (t1113c1-t935c22)*t935c2
 
 gen AnnualDirectCostAllocation=DOCImportCapAdj /100  * (t1113c1-t935c22)*t935c2
 
@@ -122,7 +126,7 @@ gen AnnualNetworkRatesAllocation=NRImportCapAdj/100 * (t1113c1-t935c22)*t935c2
 
 gen AnnualScalingAssetbased=AssetBasedRateResidRevAdj /100 * (t1113c1-t935c22)*t935c2
 
-gen AnnualIndirectCostAllocation=EDCMImportCapINDOCCharge/100 * (t1113c1-t935c22)*t935c2 
+gen AnnualIndirectCostAllocation=EDCMImportCapINDOCCharge/100 * (t1113c1-t935c22)*t935c2
 
 gen AnnualFCPLRICCharge=(LRICLocalCharge1 + FCPCapCharge1)/100 * (t1113c1-t935c22)*t935c2+AnnualChargeRemoteFCPLRIC
 

@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -27,9 +27,9 @@
 
 *It takes on a dataset with three variables:
 *t913c1 - a list of all locations in Table 913 that (a) have a linked location and/or (b) are a linked location of some other locations
-*t913c3 - location reported to be a linked location of t913c1 
+*t913c3 - location reported to be a linked location of t913c1
 *link - a variable that is 1 or 0. At start of program:
-    * link = 1 if t913c1==t913c3l. 
+    * link = 1 if t913c1==t913c3l.
     * link = 1 if t913c3 is the location linked to t913c1 according to original Table 913
     * link = 0 otherwise
 
@@ -42,37 +42,37 @@
 capture program drop linkages
 program linkages
 
-*quietly {    
+*quietly {
 
     local max_iterations = 10
     local number_companies = comp_id[_N]
     local iteration = 1
 
-    while `iteration' <=`max_iterations'  { 
+    while `iteration' <=`max_iterations'  {
 
     display `iteration'
-quietly {    
+quietly {
 
     egen old_link_sum=sum(link)
 
     local comp_selected = 1
     local initial_pos = 1
 
-    while `comp_selected'<= `number_companies' { 
+    while `comp_selected'<= `number_companies' {
 
-        local c_obs = obs_comp in `initial_pos' 
+        local c_obs = obs_comp in `initial_pos'
 
-        local i = 1  
+        local i = 1
 
         while `i'<= `c_obs' {
 
-            local j = 1       
-            while `j'<= `c_obs' { 
+            local j = 1
+            while `j'<= `c_obs' {
 
                 local pos = (`i' - 1)*`c_obs' +(`j'-1) + `initial_pos'
                 local check = link in `pos'
 
-                if `check' ==1  { 
+                if `check' ==1  {
 
                     local k = 1
                     while `k'<= `c_obs' {

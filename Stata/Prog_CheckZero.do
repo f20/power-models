@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -40,8 +40,8 @@ quietly{
                 global GuiltyCompany = comp in `k'
                 display as error "Invalid input data for $GuiltyCompany"
                 display as error "``i''" ": Observation:"  "`k'" ":  Dividing by a missing value"
-                global r = $r +1            
-                exit 
+                global r = $r +1
+                exit
         }
 
         if `n'==0 {
@@ -49,11 +49,11 @@ quietly{
                 display as error "Invalid input data for $GuiltyCompany"
                 display as error "``i''"  ": Observation:"  "`k'" ":  Dividing by zero"
                 global r = $r +1
-                exit 
+                exit
         }
 
         local k = `k' + 1
-        }            
+        }
 
     local i = `i' + 1
 }

@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -24,8 +24,8 @@
 * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ***************
-*Aim: 
-*1. Import CSV files with raw input data 
+*Aim:
+*1. Import CSV files with raw input data
 *2. Runs program to check validity of data (Prog_DataCheck)
 *2. Make changes to raw data to ensure numerical variables are treated as such
 *3. Save corrected data files as .dta files
@@ -62,9 +62,9 @@ replace company= subinstr(company," ","-",.)
 *Ensure numerical variables really are numerical (involves replacing "#VALUE!", "" and "#N/A" with missing values)
 
 HashValueToMissing t1113c1  t1113c2 t1113c3  t1113c4 t1113c5 t1113c6 t1113c7 t1113c8 t1113c9 t1113c10 t1113c11 t1113c12
-HashValueToMissing t1122c6 
+HashValueToMissing t1122c6
 HashValueToMissing t1131c1 t1131c2 t1131c3 t1131c4 t1131c5 t1131c6  t1131c7 t1131c8 t1131c9 t1131c10 t1131c11
-HashValueToMissing t1132c1  
+HashValueToMissing t1132c1
 HashValueToMissing t1133c1
 HashValueToMissing t1134c1
 
@@ -78,34 +78,40 @@ save 11.dta, replace
 
 *0.2 Importing Table 911
 
-clear
-insheet using 911.csv, c n
-replace company= subinstr(company," ","-",.)
+if $f911==1 {
 
-*Drop rows where location is given as "Not used" or is given as ""
+    clear
+    insheet using 911.csv, c n
+    replace company= subinstr(company," ","-",.)
 
-drop if t911c1=="Not used"|t911c1==""
+    *Drop rows where location is given as "Not used" or is given as ""
 
-*Check variables are numeric and then transform missing values into 0
+    drop if t911c1=="Not used"|t911c1==""
 
-HashValueToMissing t911c4  t911c6 t911c7 t911c8 t911c9
-BlankToZero t911c4 t911c6 t911c7 t911c8 t911c9 
+    *Check variables are numeric and then transform missing values into 0
 
-save 911.dta, replace
+    HashValueToMissing t911c4  t911c6 t911c7 t911c8 t911c9
+    BlankToZero t911c4 t911c6 t911c7 t911c8 t911c9
+
+    save 911.dta, replace
+    }
 *------------------------------
 
 *0.3 Importing Table 913
 
-clear
-insheet using 913.csv, c n
-replace company= subinstr(company," ","-",.)
+if $f913==1 {
 
-*Check variables are numeric and then transform missing values into 0
+    clear
+    insheet using 913.csv, c n
+    replace company= subinstr(company," ","-",.)
 
-HashValueToMissing t913c4 t913c5 t913c8 t913c9
-BlankToZero t913c4 t913c5 t913c8 t913c9
+    *Check variables are numeric and then transform missing values into 0
 
-save 913.dta, replace
+    HashValueToMissing t913c4 t913c5 t913c8 t913c9
+    BlankToZero t913c4 t913c5 t913c8 t913c9
+
+    save 913.dta, replace
+    }
 *------------------------------
 
 *0.4 Importing Table 935
@@ -120,18 +126,18 @@ replace company= subinstr(company," ","-",.)
 
 if "$Optiondcp189"=="proportionsplitShortfall" {
 
-	ren t935c8 t935dcp189
+    ren t935c8 t935dcp189
 
-	forvalues i = 9/28{
-		local j = `i'-1
-		rename t935c`i' t935c`j' 
-		}
+    forvalues i = 9/28{
+        local j = `i'-1
+        rename t935c`i' t935c`j'
+        }
 }
 
 *(a) Transform missing values into 0
 
 HashValueToMissing t935c7 t935c10 t935c11 t935c12 t935c13 t935c14 t935c15 t935c16 t935c17 t935c18 t935c19 t935c20 t935c21 t935c22 t935c23 t935c24 t935c25
-BlankToZero  t935c7 t935c9 t935c10 t935c11 t935c12 t935c13 t935c14 t935c15 t935c16 t935c17 t935c18 t935c19 t935c20 t935c21 t935c22 t935c23 t935c24 t935c25 
+BlankToZero  t935c7 t935c9 t935c10 t935c11 t935c12 t935c13 t935c14 t935c15 t935c16 t935c17 t935c18 t935c19 t935c20 t935c21 t935c22 t935c23 t935c24 t935c25
 
 * (b) Deal with "VOID" in t935c2 - t935c6
 

@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -44,7 +44,7 @@
 *t935c22 = Days for which not a customer
 *t953c7 = Maximum import capacity or maximum export capacity (kVA)
 *t953c8 = Capacity subject to DSM/GSM constraints (kVA)
-*t935c15 = Peak-time kW divided by kVA capacity    
+*t935c15 = Peak-time kW divided by kVA capacity
 ***************
 
 ***************
@@ -68,19 +68,19 @@ merge company line using LRICCharge1Final
 
 replace app=appLRIC if appLRIC=="LRIC"
 
-*keep  company line app ImportCapFixedAdder AssetBasedChargingRateResidRev  EDCMImportCapINDOCCharge  FixedChargeSoleUseAsset NRDOCImportCapCharge LRICLocalCharge1 LRICSuperRedRate SuperRedRate_FCP_Demand FCPCapCharge1 TransmissionExitCapCharge 
+*keep  company line app ImportCapFixedAdder AssetBasedChargingRateResidRev  EDCMImportCapINDOCCharge  FixedChargeSoleUseAsset NRDOCImportCapCharge LRICLocalCharge1 LRICSuperRedRate SuperRedRate_FCP_Demand FCPCapCharge1 TransmissionExitCapCharge
 
 *EDCM demand tariffs
 ********************
 
-BlankToZero LRICLocalCharge1 FCPCapCharge1 LRICSuperRedRate SuperRedRate_FCP_Demand 
+BlankToZero LRICLocalCharge1 FCPCapCharge1 LRICSuperRedRate SuperRedRate_FCP_Demand
 
 *BlankToZero FixedChargeSoleUseAsset
 ren DemFixedChargeSolePenceDay  DemFixedCharge
 
-BlankToZero ImportCapFixedAdder AssetBasedChargingRateResidRev EDCMImportCapINDOCCharge NRDOCImportCapCharge LRICLocalCharge1 FCPCapCharge1 TransmissionExitCapCharge 
+BlankToZero ImportCapFixedAdder AssetBasedChargingRateResidRev EDCMImportCapINDOCCharge NRDOCImportCapCharge LRICLocalCharge1 FCPCapCharge1 TransmissionExitCapCharge
 
-gen ImportCapacityCharge= (ImportCapFixedAdder + AssetBasedChargingRateResidRev + EDCMImportCapINDOCCharge +NRDOCImportCapCharge) + LRICLocalCharge1 + FCPCapCharge1 + TransmissionExitCapCharge 
+gen ImportCapacityCharge= (ImportCapFixedAdder + AssetBasedChargingRateResidRev + EDCMImportCapINDOCCharge +NRDOCImportCapCharge) + LRICLocalCharge1 + FCPCapCharge1 + TransmissionExitCapCharge
 
 gen SuperRedDem = SuperRedRate_FCP_Demand if app=="FCP"
 replace SuperRedDem=LRICSuperRedRate if app=="LRIC"
@@ -131,7 +131,7 @@ replace ChargeableExportCap = t935c4+t935c5+t935c6
 replace SuperRedCreditGen=. if ExportCapNA==1
 replace GenFixedCharge=. if ExportCapNA==1
 replace ExportCapacityCharge =. if ExportCapNA==1
-replace ExceededExpCapCharge=. if ExportCapNA==1 
+replace ExceededExpCapCharge=. if ExportCapNA==1
 
 *Presenting all tariffs
 ***********************

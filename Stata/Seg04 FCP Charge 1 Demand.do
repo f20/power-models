@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -43,12 +43,12 @@
 clear
 use 911
 
-*1. Calculate ActiveFlow and ReactiveFlow 
+*1. Calculate ActiveFlow and ReactiveFlow
 
 gen ActiveFlow=(t911c6+t911c8)
 gen ReactiveFlow=(t911c7+t911c9)
 
-*2. Set to zero any negative Charge 1 
+*2. Set to zero any negative Charge 1
 
 replace t911c4=0 if t911c4<0
 
@@ -171,7 +171,7 @@ gen CappedkVAr_kVA= t935c16
 replace CappedkVAr_kVA = sign(t935c16)*(1-t935c15^2)^0.5 if  (t935c15^2+ t935c16^2> 1)& t935c15^2<= 1
 replace CappedkVAr_kVA = 0 if  t935c15^2> 1
 
-*10a - Parent: 
+*10a - Parent:
 
 CheckZero t1113c3
 gen TempVarP=ParentActiveFlow^2+ParentReactiveFlow^2
@@ -202,16 +202,16 @@ replace SuperRedRate_Grandparent = (Grandparent_Charge1_kVAyear/t1113c3)* 100 if
 
 *10.c Replace missing values with 0 (missing values are generated when there are no parents or grandparents)
 
-BlankToZero SuperRedRate_Parent SuperRedRate_Grandparent 
+BlankToZero SuperRedRate_Parent SuperRedRate_Grandparent
 
 *10.d - Compute super-red charge
 
-*Zero-out any negative values in the parent and in trhe grand-parent components of the super-red 
+*Zero-out any negative values in the parent and in trhe grand-parent components of the super-red
 
 replace SuperRedRate_Parent = 0 if SuperRedRate_Parent < 0
 replace SuperRedRate_Grandparent = 0 if SuperRedRate_Grandparent<0
 
-gen SuperRedRate_FCP_Demand =SuperRedRate_Parent + SuperRedRate_Grandparent 
+gen SuperRedRate_FCP_Demand =SuperRedRate_Parent + SuperRedRate_Grandparent
 
 *10.f  - Adjust for cases with DSM agreements
 
@@ -219,7 +219,7 @@ gen SuperRedRate_FCP_Demand =SuperRedRate_Parent + SuperRedRate_Grandparent
 gen SuperRedRateFCPExceeded=SuperRedRate_FCP_Demand
 replace SuperRedRate_FCP_Demand  = SuperRedRate_FCP_Demand *((t935c2-t935c18)/t935c2) if t935c18 ~=0&t935c2~=0
 
-*11 - Calculate  FCP capacity charge 
+*11 - Calculate  FCP capacity charge
 
 *11.a - General case
 
@@ -313,7 +313,7 @@ erase Combined_3.dta
 erase Parent_details.dta
 erase Grandparent_details.dta
 erase Ancester_Location.dta
-erase 911_v2a.dta 
+erase 911_v2a.dta
 *erase 935_v2a_FCP.dta
 
 ***************

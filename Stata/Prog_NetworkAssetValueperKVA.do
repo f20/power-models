@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -41,10 +41,10 @@ quietly{
     local i = 0
     while `i'<=5 {
 
-    local j = `i'+ 1 
+    local j = `i'+ 1
     replace LossAdjustFactorConnection= t1135c`j' if  CapacityFlagLevel`i'==1
 
-    local i = `i' + 1 
+    local i = `i' + 1
     }
 
 * Loop to calculate notional assets
@@ -66,22 +66,22 @@ quietly{
 
 
         if `i'==5 {
-	
-			if "$Optionlegacy201"=="1" {
-				replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.
-			    }
 
-			if "$Optionlegacy201"=="0" {
-			     replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.&t1132c1~=0
-			    }
-	             }
+            if "$Optionlegacy201"=="1" {
+                replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.
+                }
+
+            if "$Optionlegacy201"=="0" {
+                 replace NetworkAssetRateperKVALevel5 = t1132c1 if (CapacityFlagLevel5==1|DemandFlagLevel5==1) & t1132c1~=.&t1132c1~=0
+                }
+                 }
 
         gen TempVar`i' = (1+t1105c`j') if CapacityFlagLevel`i'==1
         replace TempVar`i' = 99 if CapacityFlagLevel`i'~=1
         CheckZero TempVar`i'
         drop TempVar`i'
 
-*Hard-coded value of power factor in the 500MW model. What was an input data item is now set to 0.95. 
+*Hard-coded value of power factor in the 500MW model. What was an input data item is now set to 0.95.
 
         gen ActivePowerEquivalentLevel`i' = 0.95*t1135c`j' if CapacityFlagLevel`i'==1
 
@@ -117,7 +117,7 @@ quietly{
         gen CCSSValCapL`i' = CCNetworkUseFactor`i' * AvNetAssetValueCapacityLevel`i' if CapacityFlagLevel`i'==1
         gen CCSSValDemL`i' = CCNetworkUseFactor`i' * AvNetAssetValueDemandLevel`i' if DemandFlagLevel`i'==1
 
-    local i = `i' + 1         
+    local i = `i' + 1
     }
 
 *Replacing missing values with 0 so that they can be aggregated
@@ -137,19 +137,19 @@ quietly{
 
     local i =1
 
-        gen RawSSValCapAllL = 0 
-        gen RawSSValDemAllL = 0 
+        gen RawSSValCapAllL = 0
+        gen RawSSValDemAllL = 0
 
-        gen CCSSValCapAllL = 0 
-        gen CCSSValDemAllL = 0 
+        gen CCSSValCapAllL = 0
+        gen CCSSValDemAllL = 0
 
     while `i'<=5 {
 
-        replace RawSSValCapAllL =  RawSSValCapAllL + RawSSValCapL`i' 
-        replace RawSSValDemAllL =  RawSSValDemAllL + RawSSValDemL`i' 
+        replace RawSSValCapAllL =  RawSSValCapAllL + RawSSValCapL`i'
+        replace RawSSValDemAllL =  RawSSValDemAllL + RawSSValDemL`i'
 
-        replace CCSSValCapAllL = CCSSValCapAllL + CCSSValCapL`i' 
-        replace CCSSValDemAllL = CCSSValDemAllL + CCSSValDemL`i' 
+        replace CCSSValCapAllL = CCSSValCapAllL + CCSSValCapL`i'
+        replace CCSSValDemAllL = CCSSValDemAllL + CCSSValDemL`i'
 
     local i = `i' + 1
     }

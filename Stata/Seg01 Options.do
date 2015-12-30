@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -26,7 +26,7 @@
 ***************
 *1. Import CSV file with information on options
 *2. Check that values for some of the options are in line with "base"  Stata model
-*3. Define global variables to reflect options: these can be called later by $Optionxxx, where xxx is the name of the option itself 
+*3. Define global variables to reflect options: these can be called later by $Optionxxx, where xxx is the name of the option itself
 ***************
 
 *1 Importing Table Options
@@ -41,11 +41,11 @@ foreach var of varlist * {
         capture confirm string variable `var'
             if !_rc {
             replace `var'=subinstr(`var'," ","",.)
-            }                   
+            }
         }
 
 *2 Check options used in Stata model are defined within the Options.csv, and that values given for options match values recognised by the model
-*Deal with option "checksums" separately, as allowed 
+*Deal with option "checksums" separately, as allowed
 
 global OptionProblem = 0
 
@@ -72,14 +72,14 @@ while `j'<=`m'{
     capture confirm variable `OptionVariable'
     if _rc !=0 {
             noisily display as error "`OptionVariable' was not defined in Options.csv file. See file 0.csv."
-            global OptionProblem = 1 
+            global OptionProblem = 1
             exit
             }
     else {
         local OptionValue = `OptionVariable' in 1
         if subinword("`Val_`OptionVariable''", "`OptionValue'","XXXXXX",.)=="`Val_`OptionVariable''" {
             noisily display as error "The value `OptionValue' which was given for option `OptionVariable' is not valid. See file 0.csv."
-            global OptionProblem = 1  
+            global OptionProblem = 1
             exit
             }
 *3. Define global variables
@@ -91,7 +91,7 @@ while `j'<=`m'{
 
 *4. Deal with fact that option "Tariffchecksum5;Modelchecksum7" is called "Linechecksum5;Tablechecksum7" in some models (and script uses former designation)
 
-	if "$Optionchecksums" == "Linechecksum5;Tablechecksum7" {
-		global Optioncheksums Tariffchecksum5;Modelchecksum7 
-		}
+    if "$Optionchecksums" == "Linechecksum5;Tablechecksum7" {
+        global Optioncheksums Tariffchecksum5;Modelchecksum7
+        }
 

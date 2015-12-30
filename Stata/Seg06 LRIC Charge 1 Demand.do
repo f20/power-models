@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -142,7 +142,7 @@ CheckZero t1113c3
 gen LRICSuperRedRate=((Cluster_Remote_Charge1/cluster_PowerFactor)/t1113c3)*100
 
 CheckZero t1113c1
-gen LRICLocalCharge1=Cluster_Local_Charge1/t1113c1*100 
+gen LRICLocalCharge1=Cluster_Local_Charge1/t1113c1*100
 
 save Combined1_v3, replace
 
@@ -168,7 +168,7 @@ gen ChargeableExportCap=t935c4+t935c5+t935c6
 gen MaximumExportCap=t935c3+ChargeableExportCap
 
 *Note: Condition of MaximumExportCap==0  Set it to zero for now. Will make it blank at last stage
-*Define it with a negative sign 
+*Define it with a negative sign
 
 gen ShareChargeableExportCap=ChargeableExportCap/MaximumExportCap if MaximumExportCap~=0
 
@@ -184,7 +184,7 @@ gen CreditGenLRICTariff=-100*t935c21*(Cluster_Local_Charge1+Cluster_Remote_Charg
 
 replace CreditGenLRICTariff=0 if MaximumExportCap==0
 
-*Calculating generation credit in �, after rounding the credit to three-decimal places first 
+*Calculating generation credit in �, after rounding the credit to three-decimal places first
 gen CreditGenLRIC=(round(CreditGenLRICTariff,0.001)/100)*t935c19
 
 *10 - Calculate revenue from LRIC demand charges
@@ -203,7 +203,7 @@ by company, sort: egen AggLRICSuperRedGenCredit=sum(CreditGenLRIC)
 drop _merge
 ren app appLRIC
 sort company line
-save LRICCharge1Final, replace 
+save LRICCharge1Final, replace
 
 *10. Keep dataset just with revenue
 

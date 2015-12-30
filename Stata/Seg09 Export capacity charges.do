@@ -1,17 +1,17 @@
 * Copyright licence and disclaimer
-* 
+*
 * Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
-* 
+*
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
+*
 * 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
+*
 * 2. Redistributions in binary form must reproduce the above copyright notice,
 * this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
+*
 * THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -43,7 +43,7 @@ drop _merge
 
 *t1113c9 Average adjusted GP (�/year)
 *t1113c10 GL term from the DG incentive revenue calculation (�/year)
-*t1113c11 Total CDCM generation capacity 2005-2010 (kVA)        
+*t1113c11 Total CDCM generation capacity 2005-2010 (kVA)
 *t1113c12 Total CDCM generation capacity Post-2010 (kVA)
 
 *1.  Calculate EDCM DG revenue target
@@ -67,7 +67,7 @@ gen ExceededExpCapCharge=((100/t1113c1)*DGRevTarget /TotAdjChargeableExportCap)
 
 BlankToZero ExportCapCharge ExceededExpCapCharge
 
-*3. Calculate transmission exit recovery in �/year, after rounding charges to 2-decimal places 
+*3. Calculate transmission exit recovery in �/year, after rounding charges to 2-decimal places
 
 by comp, sort: egen ExportCapChargeRecovery=sum((t1113c1/100)*(round(ExportCapCharge,0.01)*ChargeableExportCap)*(1-t935c22/t1113c1))
 
