@@ -212,12 +212,11 @@ Keys used in %$options:
     my @num_date =
       $rightpad
       ? (
-        num_format => qq'${black}d mmm yyyy$rightpad;'
-          . qq'[Red]d mmm yyyy$rightpad;;$cyan@',
-        align => 'right'
+        num_format => qq'${black}d mmm yyyy;[Red]d mmm yyyy;;$cyan@',
+        align      => 'right'
       )
       : (
-        num_format => qq'${black}d mmm yyyy  ;[Red]d mmm yyyy;;$cyan@',
+        num_format => qq'${black}d mmm yyyy  ;[Red]d mmm yyyy  ;;$cyan@',
         align      => 'right'
       );
     my @num_time =
