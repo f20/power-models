@@ -122,19 +122,31 @@ sub applyInstructions {
                   name       => $series->objectShortName,
                   categories => '='
                   . $w2
-                  . xl_rowcol_to_cell( $r3, $c3, 1, 1 ) . ':'
                   . xl_rowcol_to_cell(
-                    $r3 + $series->lastRow,
-                    $c3 + $series->lastCol,
-                    1, 1
+                    $r3 + ( $self->{ignore_top}  || 0 ),
+                    $c3 + ( $self->{ignore_left} || 0 ),
+                    1, 1,
+                  )
+                  . ':'
+                  . xl_rowcol_to_cell(
+                    $r3 + $series->lastRow - ( $self->{ignore_bottom} || 0 ),
+                    $c3 + $series->lastCol - ( $self->{ignore_right}  || 0 ),
+                    1,
+                    1,
                   ),
                   values => '='
                   . $w2
-                  . xl_rowcol_to_cell( $r2, $c2, 1, 1 ) . ':'
                   . xl_rowcol_to_cell(
-                    $r2 + $series->lastRow,
-                    $c2 + $series->lastCol,
-                    1, 1
+                    $r2 + ( $self->{ignore_top}  || 0 ),
+                    $c2 + ( $self->{ignore_left} || 0 ),
+                    1, 1,
+                  )
+                  . ':'
+                  . xl_rowcol_to_cell(
+                    $r2 + $series->lastRow - ( $self->{ignore_bottom} || 0 ),
+                    $c2 + $series->lastCol - ( $self->{ignore_right}  || 0 ),
+                    1,
+                    1,
                   );
             }
             else {

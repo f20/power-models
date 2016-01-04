@@ -35,7 +35,7 @@ use SpreadsheetModel::Shortcuts ':all';
 sub new {
     my ( $class, %hash ) = @_;
     $hash{$_} || die __PACKAGE__ . " needs a $_ attribute"
-      foreach qw(model assets sales costSales adminExp debt);
+      foreach qw(model assets sales costSales expenses debt);
     bless \%hash, $class;
 }
 
@@ -71,14 +71,23 @@ sub tax {
         $tax = Arithmetic(
             name          => $periods->decorate('Tax (£)'),
             defaultFormat => '0soft',
-            arithmetic    => '=-1*A9*(A1+A21+A22+A3+A8)',
-            arguments     => {
+            arithmetic    => join( '+',
+                '=-1*A9*(A1+A21',
+                ( map { 'A' . ( $_ + 22 ); } 0 .. $#{ $income->{expenses} } ),
+                'A3+A8)' ),
+            arguments => {
                 A1  => $income->{sales}->stream($periods),
                 A21 => $income->{costSales}->stream($periods),
-                A2  => $income->{adminExp}->stream($periods),
-                A3  => $income->{assets}->capitalAllowance($periods),
-                A8  => $income->{debt}->interest($periods),
-                A9  => $income->taxRate($periods),
+                (
+                    map {
+                        ( 'A'
+                              . ( $_ + 22 ) =>
+                              $income->{expenses}[$_]->stream($periods) );
+                    } 0 .. $#{ $income->{expenses} }
+                ),
+                A3 => $income->{assets}->capitalAllowance($periods),
+                A8 => $income->{debt}->interest($periods),
+                A9 => $income->taxRate($periods),
             },
         );
     }
@@ -86,15 +95,24 @@ sub tax {
         $tax = Arithmetic(
             name          => $periods->decorate('Tax (£)'),
             defaultFormat => '0soft',
-            arithmetic    => '=-1*A9*(A1+A21+A22+A3+A4+A8)',
-            arguments     => {
+            arithmetic    => join( '+',
+                '=-1*A9*(A1+A21',
+                ( map { 'A' . ( $_ + 22 ); } 0 .. $#{ $income->{expenses} } ),
+                'A3+A4+A8)' ),
+            arguments => {
                 A1  => $income->{sales}->stream($periods),
                 A21 => $income->{costSales}->stream($periods),
-                A22 => $income->{adminExp}->stream($periods),
-                A3  => $income->{assets}->depreciationCharge($periods),
-                A4  => $income->{assets}->disposalGainLoss($periods),
-                A8  => $income->{debt}->interest($periods),
-                A9  => $income->taxRate($periods),
+                (
+                    map {
+                        ( 'A'
+                              . ( $_ + 22 ) =>
+                              $income->{expenses}[$_]->stream($periods) );
+                    } 0 .. $#{ $income->{expenses} }
+                ),
+                A3 => $income->{assets}->depreciationCharge($periods),
+                A4 => $income->{assets}->disposalGainLoss($periods),
+                A8 => $income->{debt}->interest($periods),
+                A9 => $income->taxRate($periods),
             },
         );
     }
@@ -115,20 +133,29 @@ sub statement {
                             $income->{costSales}->stream($periods),
                             A4 => $periods->decorate('Gross profits (£)'),
                         ],
-                        $income->{adminExp}->stream($periods),
+                        (
+                            map { $_->stream($periods); }
+                              @{ $income->{expenses} }
+                        ),
                         A1 => $periods->decorate(
+                            Label(
+                                'EBITDA (£)',
                                 'EBITDA: earnings before'
-                              . ' interest, tax and depreciation (£)'
+                                  . ' interest, tax and depreciation (£)'
+                            )
                         ),
                     ],
                     $income->{assets}->depreciationCharge($periods),
                     $income->{assets}->disposalGainLoss($periods),
                     A2 => $periods->decorate(
-                        'EBIT: earnings before interest and tax (£)'),
+                        Label(
+                            'EBIT (£)',
+                            'EBIT: earnings before interest and tax (£)'
+                        )
+                    ),
                 ],
                 $income->{debt}->interest($periods),
-                $periods->decorate(
-                    'EBIT: earnings before interest and tax (£)'),
+                $periods->decorate('Earnings before tax (£)'),
             ],
             $income->tax($periods),
             A3 => $periods->decorate('Earnings (£)'),
@@ -160,17 +187,27 @@ sub chart {
     my ( $income, $periods ) = @_;
     require SpreadsheetModel::Chart;
     SpreadsheetModel::Chart->new(
-        name         => 'Performance',
-        type         => 'column',
-        height       => 280,
-        width        => 640,
+        name   => 'Performance',
+        type   => 'column',
+        height => 280,
+        width  => 640,
+        $periods->{priorPeriod} ? ( ignore_left => 1 ) : (),
         instructions => [
             add_series => $income->{sales}->stream($periods),
             add_series => $income->gross($periods),
             add_series => $income->ebitda($periods),
             add_series => $income->ebit($periods),
             add_series => $income->earnings($periods),
-            set_legend => [ position => 'top' ],
+            set_legend => [
+                position => 'right',
+                font     => { name => 'Calibri', size => 13, },
+            ],
+            set_x_axis => [
+                num_font => { name => 'Calibri', size => 13, },
+            ],
+            set_y_axis => [
+                num_font => { name => 'Calibri', size => 13, },
+            ],
         ],
     );
 }

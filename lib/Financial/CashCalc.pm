@@ -35,20 +35,20 @@ use SpreadsheetModel::Shortcuts ':all';
 sub new {
     my ( $class, %hash ) = @_;
     $hash{$_} || die __PACKAGE__ . " needs a $_ attribute"
-      foreach qw(model sales costSales adminExp);
+      foreach qw(model sales expenses);
     bless \%hash, $class;
 }
 
-sub diversity {
+sub coincidence {
     my ( $cashCalc, $periods ) = @_;
-    $cashCalc->{diversity} ||= Dataset(
-        name          => 'Cash buffer diversity allowance',
+    $cashCalc->{coincidence} ||= Dataset(
+        name          => 'Cash buffer coincidence factor',
         singleRowName => 'Allowance',
         defaultFormat => '%hard',
         number        => 1448,
         dataset       => $cashCalc->{model}->{dataset},
         appendTo      => $cashCalc->{model}->{inputTables},
-        data          => [0],
+        data          => [0.8],
     );
 }
 
@@ -57,12 +57,17 @@ sub required {
     $cashCalc->{required}{ 0 + $periods } ||= Arithmetic(
         name => $periods->decorate('Cash reserve required for operations (£)'),
         defaultFormat => '0soft',
-        arithmetic    => '=(A1+A3+A4)/(1+A2)',
-        arguments     => {
+        arithmetic    => join( '',
+            '=(A1', ( map { "+A3$_" } 0 .. $#{ $cashCalc->{expenses} } ),
+            , ')*A2' ),
+        arguments => {
             A1 => $cashCalc->{sales}->buffer($periods),
-            A3 => $cashCalc->{costSales}->buffer($periods),
-            A4 => $cashCalc->{adminExp}->buffer($periods),
-            A2 => $cashCalc->diversity,
+            (
+                map {
+                    ( "A3$_" => $cashCalc->{expenses}[$_]->buffer($periods) );
+                } 0 .. $#{ $cashCalc->{expenses} }
+            ),
+            A2 => $cashCalc->coincidence,
         },
     );
 }

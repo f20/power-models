@@ -35,7 +35,7 @@ use SpreadsheetModel::Shortcuts ':all';
 sub new {
     my ( $class, %hash ) = @_;
     $hash{$_} || die __PACKAGE__ . " needs a $_ attribute"
-      foreach qw(model assets sales costSales adminExp debt cashCalc);
+      foreach qw(model assets sales expenses debt cashCalc);
     bless \%hash, $class;
 }
 
@@ -49,6 +49,7 @@ sub statement {
                 [
                     [
                         $balance->{assets}->netValue($periods),
+                        $balance->{assets}->assetInventory($periods),
                         [
                             $balance->{sales}->balance($periods),
                             A5 => $balance->{cashCalc}
@@ -57,8 +58,9 @@ sub statement {
                         ],
                         A1 => $periods->decorate('Total assets (£)'),
                     ],
-                    $balance->{costSales}->balance($periods),
-                    $balance->{adminExp}->balance($periods),
+                    (
+                        map { $_->balance($periods); } @{ $balance->{expenses} }
+                    ),
                     $periods->decorate(
                         'Total assets less current liabilities (£)'),
                 ],
@@ -103,8 +105,7 @@ sub workingCapital {
         name  => $periods->decorate('Working capital analysis'),
         items => [
             $balance->{sales}->balance($periods),
-            $balance->{costSales}->balance($periods),
-            $balance->{adminExp}->balance($periods),
+            ( map { $_->balance($periods); } @{ $balance->{expenses} } ),
             $balance->{cashCalc}->total( $periods, $balance->{reserve} ),
             A1 => $periods->decorate('Working capital (£)'),
         ],
@@ -114,7 +115,7 @@ sub workingCapital {
 sub fixedAssetAnalysis {
     my ( $balance, $periods ) = @_;
     $balance->{fixedAssetAnalysis}{ 0 + $periods } ||= CalcBlock(
-        name  => $periods->decorate('Fixed asset analysis'),
+        name  => $periods->decorate('Depreciation analysis'),
         items => [
             A1 => $balance->{assets}->grossValue($periods),
             A2 => $balance->{assets}->netValue($periods),

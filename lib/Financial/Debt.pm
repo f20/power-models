@@ -33,8 +33,9 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, ) = @_;
-    bless { model => $model, }, $class;
+    my ( $class, %args ) = @_;
+    die __PACKAGE__ . ' needs a model attribute' unless $args{model};
+    bless \%args, $class;
 }
 
 sub finish {

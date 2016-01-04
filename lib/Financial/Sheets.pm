@@ -56,15 +56,14 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 1,   42 );
         $wsheet->set_column( 2, 250, 13 );
         $wsheet->{nextFree} = 2;
-        $model->{inputTables} ||= [];
         my ( $sh, $ro, $co ) = Dataset(
             number             => 1400,
             dataset            => $model->{dataset},
-            name               => 'Company and dataset',
-            singleRowName      => 'Company',
-            cols               => Labelset( list => [qw(Company Dataset)] ),
+            name               => 'Title and subtitle',
+            singleRowName      => 'Title',
+            cols               => Labelset( list => [qw(Title Subtitle)] ),
             defaultFormat      => 'puretexthard',
-            data               => [ 'no company', 'no dataset' ],
+            data               => [ 'no title', 'no subtitle' ],
             usePlaceholderData => 1,
             forwardLinks       => {},
         )->wsWrite( $wbook, $wsheet );

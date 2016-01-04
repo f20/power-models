@@ -66,19 +66,23 @@ sub statement {
                         name => $periods->decorate(
                             'Cash released/absorbed in creditors (£)'),
                         defaultFormat => '0soft',
-                        arithmetic => '=INDEX(A5_A6,A2)-A1+INDEX(A7_A8,A3)-A4',
-                        arguments  => {
-                            A1 => $cashflow->{balance}{costSales}
-                              ->balance($periods),
-                            A5_A6 => $cashflow->{balance}{costSales}
-                              ->balance($periods),
-                            A4 =>
-                              $cashflow->{balance}{adminExp}->balance($periods),
-                            A7_A8 =>
-                              $cashflow->{balance}{adminExp}->balance($periods),
-                            A2 => $periods->indexPrevious,
-                            A3 => $periods->indexPrevious,
-                        },
+                        cols          => $periods->labelset,
+                        arithmetic    => '='
+                          . join( '+',
+                            map { "INDEX(A1${_}_A2$_,A3$_)-A4$_"; }
+                              0 .. $#{ $cashflow->{balance}{expenses} } ),
+                        arguments => {
+                            map {
+                                (
+                                    "A4$_" => $cashflow->{balance}{expenses}[$_]
+                                      ->balance($periods),
+                                    "A3$_" => $periods->indexPrevious,
+                                    "A1${_}_A2$_" =>
+                                      $cashflow->{balance}{expenses}[$_]
+                                      ->balance($periods),
+                                );
+                            } 0 .. $#{ $cashflow->{balance}{expenses} }
+                        }
                     ),
                     $cashflow->{income}->tax($periods),
                     A5 => $periods->decorate(

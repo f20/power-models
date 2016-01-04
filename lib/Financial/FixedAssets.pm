@@ -33,29 +33,18 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model ) = @_;
-    bless { model => $model }, $class;
-}
-
-sub databaseItems {
-    qw(
-      names
-      comDate
-      decomDate
-      cost
-      life
-      scrapValuation
-      scrappedValue
-      constructionDays
-      demolitionDays
-    );
+    my ( $class, %args ) = @_;
+    die __PACKAGE__ . ' needs a model attribute' unless $args{model};
+    bless \%args, $class;
 }
 
 sub finish {
     my ($assets) = @_;
     return unless $assets->{database};
     my @columns =
-      grep { $_ } @{ $assets->{database} }{ $assets->databaseItems };
+      grep { $_ }
+      @{ $assets->{database} }
+      {qw(names comDate decomDate cost life scrapValuation scrappedValue)};
     Columnset(
         name     => 'Fixed assets',
         columns  => \@columns,
@@ -85,7 +74,7 @@ sub labelsetNoNames {
     $assets->{labelsetNoNames} ||= Labelset(
         name          => 'Fixed assets without names',
         defaultFormat => 'thitem',
-        list          => [ 1 .. $assets->{model}{numAssets} || 8 ]
+        list          => [ 1 .. $assets->{model}{numAssets} || 4 ]
     );
 }
 
@@ -174,6 +163,44 @@ sub grossValue {
     );
 }
 
+sub assetInventory {
+    my ( $assets, $periods ) = @_;
+    return () unless $assets->{capitalExp};
+    $assets->{assetInventory}{ 0 + $periods } ||= Arithmetic(
+        name          => $periods->decorate('Assets held as inventory (£)'),
+        defaultFormat => '0soft',
+        arithmetic    => '=0-A1-A2',
+        arguments     => {
+            A1 => $assets->{capitalExp}->aggregate($periods),
+            A2 => GroupBy(
+                name => $periods->decorate('Net recognition to date (£)'),
+                cols => $periods->labelset,
+                defaultFormat => '0soft',
+                source        => Arithmetic(
+                    name => $periods->decorate(
+                        'Details of net recognition to date (£)'),
+                    defaultFormat => '0soft',
+                    rows          => $assets->labelset,
+                    cols          => $periods->labelset,
+                    arithmetic    => '=IF(A201>A901,0,'
+                      . 'IF(A301,IF(A302>A902,A501,A503-A504),A502))',
+                    arguments => {
+                        A201 => $assets->comDate,
+                        A301 => $assets->decomDate,
+                        A302 => $assets->decomDate,
+                        A501 => $assets->cost,
+                        A502 => $assets->cost,
+                        A503 => $assets->cost,
+                        A504 => $assets->scrappedValue,
+                        A901 => $periods->lastDay,
+                        A902 => $periods->lastDay,
+                    }
+                ),
+            ),
+        },
+    );
+}
+
 sub netValue {
     my ( $assets, $periods ) = @_;
     $assets->{netValue}{ 0 + $periods } ||= GroupBy(
@@ -186,7 +213,9 @@ sub netValue {
             rows          => $assets->labelset,
             cols          => $periods->labelset,
             arithmetic    => '=IF(A203,IF(A351,A601+(A501-A602)*MAX(0,'
-              . '1-IF(A702,(YEAR(A901)*12+MONTH(A902)+1-YEAR(A201)*12-MONTH(A202))/A701/12,0)),0),0)',
+              . '1-IF(A702,('
+              . '12*(YEAR(A901)-YEAR(A201))+MONTH(A902)-MONTH(A202)+1'
+              . ')/A701/12,0)),0),0)',
             arguments => {
                 A201 => $assets->comDate,
                 A202 => $assets->comDate,
@@ -289,7 +318,12 @@ sub depreciationCharge {
 
 sub capitalExpenditure {
     my ( $assets, $periods ) = @_;
-    $assets->{capitalExpenditure}{ 0 + $periods } ||= GroupBy(
+    return $assets->{capitalExpenditure}{ 0 + $periods }
+      if $assets->{capitalExpenditure}{ 0 + $periods };
+    return $assets->{capitalExpenditure}{ 0 + $periods } =
+      $assets->{capitalExp}->stream($periods)
+      if $assets->{capitalExp};
+    $assets->{capitalExpenditure}{ 0 + $periods } = GroupBy(
         name          => $periods->decorate('Capital expenditure (£)'),
         cols          => $periods->labelset,
         defaultFormat => '0soft',
@@ -352,7 +386,9 @@ sub disposalGainLoss {
             cols          => $periods->labelset,
             arithmetic    => '=IF(OR(NOT(A203),A301<A801,A302>A901),0,'
               . 'A651-A601-(A501-A602)*MAX(0,'
-              . '1-IF(A702,(YEAR(A303)*12+MONTH(A304)+1-YEAR(A201)*12-MONTH(A202))/A701/12,0)))',
+              . '1-IF(A702,('
+              . '12*(YEAR(A303)-YEAR(A201))+MONTH(A304)-MONTH(A202)+1'
+              . ')/A701/12,0)))',
             arguments => {
                 A201 => $assets->comDate,
                 A202 => $assets->comDate,

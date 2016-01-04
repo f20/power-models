@@ -2,6 +2,8 @@
 PerlModule: Financial
 forwardLinks: 1
 illustrative: 1
+numCapitalExp: 4
+numExceptional: 3
 numYears: 5
 startMonth: 7
 startYear: 2015

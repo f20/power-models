@@ -117,9 +117,9 @@
     4: 0
     _column: Worst-case credit and inventory days
 1448:
-  - _table: 1448. Cash buffer diversity allowance
-  - Allowance: 0.5
-    _column: Cash buffer diversity allowance
+  - _table: 1448. Cash buffer coincidence factor
+  - Allowance: 0.7
+    _column: Cash buffer coincidence factor
 1450:
   - _table: 1450. Fixed assets
   - 1: ''

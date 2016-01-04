@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015, 2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,97 +30,112 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use Financial::Balance;
-use Financial::CashCalc;
-use Financial::Cashflow;
-use Financial::Debt;
-use Financial::FixedAssetsUK;
-use Financial::Income;
-use Financial::Periods;
-use Financial::Ratios;
-use Financial::Reserve;
-use Financial::Sheets;
-use Financial::Stream;
 use SpreadsheetModel::CalcBlock;
 use SpreadsheetModel::Shortcuts ':all';
+use Financial::Sheets;
+
+sub AUTOLOAD {
+    my $model = shift;
+    our $AUTOLOAD;
+    eval "require $AUTOLOAD";
+    my $obj = $AUTOLOAD->new( model => $model, @_ );
+    push @{ $model->{finishList} }, $obj;
+    $obj;
+}
 
 sub new {
 
     my $class = shift;
 
-    my $model = bless {
-        balanceTables       => [],
-        cashflowTables      => [],
-        equityRaisingTables => [],
-        incomeTables        => [],
-        inputTables         => [],
-        ratioTables         => [],
-        @_,
-    }, $class;
+    my $model = bless { inputTables => [], @_, }, $class;
 
-    my $sales = Financial::Stream->new(
-        $model,
-        inputTableNumber => 1430,
-        numLines         => $model->{numSales},
+    my $sales = $model->FlowAnnual(
+        lines        => $model->{numSales},
+        name         => 'Sales',
+        number       => 1430,
+        show_balance => 'debtors (£)',
+        show_buffer  => 'debtors cash buffer (£)',
+        show_flow    => 'sales (£)',
     );
 
-    my $costSales = Financial::Stream->new(
-        $model,
-        signAdjustment   => '-1*',
-        databaseName     => 'cost of sales items',
-        flowName         => 'cost of sales (£)',
-        balanceName      => 'cost of sales creditors (£)',
-        bufferName       => 'cost of sales creditor cash buffer (£)',
-        inputTableNumber => 1440,
-        numLines         => $model->{numCostSales},
+    my $costSales = $model->FlowAnnual(
+        is_cost      => 1,
+        lines        => $model->{numCostSales},
+        name         => 'Cost of sales',
+        number       => 1440,
+        show_balance => 'cost of sales creditors (£)',
+        show_buffer  => 'cost of sales creditor cash buffer (£)',
+        show_flow    => 'cost of sales (£)',
     );
 
-    my $adminExp = Financial::Stream->new(
-        $model,
-        signAdjustment   => '-1*',
-        databaseName     => 'administrative expense items',
-        flowName         => 'administrative expenses (£)',
-        balanceName      => 'administrative expense creditors (£)',
-        bufferName       => 'administrative expense creditor cash buffer (£)',
-        inputTableNumber => 1442,
-        numLines         => $model->{numAdminExp},
+    my $adminExp = $model->FlowAnnual(
+        is_cost      => 1,
+        lines        => $model->{numAdminExp},
+        name         => 'Administrative expenses',
+        number       => 1442,
+        show_balance => 'administrative expense creditors (£)',
+        show_buffer  => 'administrative expense creditor cash buffer (£)',
+        show_flow    => 'administrative expenses (£)',
     );
 
-    my $assets = Financial::FixedAssetsUK->new($model);
+    my $exceptional;
+    if ( $model->{numExceptional} ) {
+        $exceptional = $model->FlowOnce(
+            is_cost      => 1,
+            lines        => $model->{numExceptional},
+            name         => 'Exceptional costs',
+            number       => 1444,
+            show_balance => 'exceptional cost creditors (£)',
+            show_buffer  => 'exceptional cost creditor cash buffer (£)',
+            show_flow    => 'exceptional cost (£)',
+        );
+    }
 
-    my $debt = Financial::Debt->new($model);
+    my $capitalExp;
+    if ( $model->{numCapitalExp} ) {
+        $capitalExp = $model->FlowOnce(
+            is_cost      => 1,
+            lines        => $model->{numCapitalExp},
+            name         => 'Capital expenditure',
+            number       => 1447,
+            show_balance => 'capital expenditure creditors (£)',
+            show_buffer  => 'capital expenditure cash buffer (£)',
+            show_flow    => 'capital expenditure (£)',
+        );
+    }
 
-    my $cashCalc = Financial::CashCalc->new(
-        model     => $model,
+    my $assets = $model->FixedAssetsUK( capitalExp => $capitalExp, );
+
+    my $debt = $model->Debt;
+
+    my @expensesForCreditors = grep { $_ } $costSales, $adminExp,
+      $exceptional, $capitalExp;
+
+    my $cashCalc = $model->CashCalc(
+        sales    => $sales,
+        expenses => \@expensesForCreditors,
+        assets   => $assets,
+        debt     => $debt,
+    );
+
+    my $income = $model->Income(
         sales     => $sales,
         costSales => $costSales,
-        adminExp  => $adminExp,
+        expenses  => [ grep { $_ } $adminExp, $exceptional, ],
         assets    => $assets,
         debt      => $debt,
     );
 
-    my $income = Financial::Income->new(
-        model     => $model,
-        sales     => $sales,
-        costSales => $costSales,
-        adminExp  => $adminExp,
-        assets    => $assets,
-        debt      => $debt,
+    my $balanceFrictionless = $model->Balance(
+        sales    => $sales,
+        expenses => \@expensesForCreditors,
+        assets   => $assets,
+        cashCalc => $cashCalc,
+        debt     => $debt,
+        suffix   => ' assuming frictionless equity',
     );
 
-    my $balanceFrictionless = Financial::Balance->new(
-        model     => $model,
-        sales     => $sales,
-        costSales => $costSales,
-        adminExp  => $adminExp,
-        assets    => $assets,
-        cashCalc  => $cashCalc,
-        debt      => $debt,
-        suffix    => ' assuming frictionless equity',
-    );
-
-    my $cashflowFrictionless = Financial::Cashflow->new(
-        model   => $model,
+    my $cashflowFrictionless = $model->Cashflow(
         income  => $income,
         balance => $balanceFrictionless,
         suffix  => ' assuming frictionless equity',
@@ -130,8 +145,7 @@ sub new {
     $model->{startMonth} ||= 7;
     $model->{startYear}  ||= 2015;
 
-    my $years = Financial::Periods->new(
-        model               => $model,
+    my $years = $model->Periods(
         numYears            => $model->{numYears},
         periodsAreFixed     => 1,
         periodsAreInputData => 0,
@@ -141,8 +155,7 @@ sub new {
         startYear           => $model->{startYear},
     );
 
-    my $months = Financial::Periods->new(
-        model => $model,
+    my $months = $model->Periods(
         $model->{quarterly}
         ? ( numQuarters => 4 * $model->{numYears} )
         : ( numMonths => 12 * $model->{numYears} ),
@@ -153,31 +166,26 @@ sub new {
         suffix          => 'monthly',
     );
 
-    my $reserve = Financial::Reserve->new(
-        model    => $model,
+    my $reserve = $model->Reserve(
         cashflow => $cashflowFrictionless,
         periods  => $months,
     );
 
-    my $balance = Financial::Balance->new(
-        model     => $model,
-        sales     => $sales,
-        costSales => $costSales,
-        adminExp  => $adminExp,
-        assets    => $assets,
-        cashCalc  => $cashCalc,
-        reserve   => $reserve,
-        debt      => $debt,
+    my $balance = $model->Balance(
+        sales    => $sales,
+        expenses => \@expensesForCreditors,
+        assets   => $assets,
+        cashCalc => $cashCalc,
+        reserve  => $reserve,
+        debt     => $debt,
     );
 
-    my $cashflow = Financial::Cashflow->new(
-        model   => $model,
+    my $cashflow = $model->Cashflow(
         income  => $income,
         balance => $balance,
     );
 
-    my $ratios = Financial::Ratios->new(
-        model    => $model,
+    my $ratios = $model->Ratios(
         income   => $income,
         balance  => $balance,
         cashflow => $cashflow,
@@ -188,7 +196,8 @@ sub new {
     push @{ $model->{equityRaisingTables} }, $reserve->raisingSchedule;
 
     push @{ $model->{balanceTables} },
-      $balance->statement($years), $balance->fixedAssetAnalysis($years),
+      $balance->statement($years),
+      $balance->fixedAssetAnalysis($years),
       $balance->workingCapital($years);
 
     push @{ $model->{cashflowTables} },
@@ -197,17 +206,20 @@ sub new {
       $cashflow->workingCapitalMovements($years),
       $cashflow->equityInitialAndRaised($years);
 
-    push @{ $model->{ratioTables} }, $ratios->statement($years),
-      $ratios->reference($years), $ratios->chart_ebitda_cover($years);
-    push @{ $model->{inputCharts} }, $cashflow->chart_equity_dividends($years),
+    push @{ $model->{ratioTables} },
+      $ratios->statement($years),
+      $ratios->reference($years),
+      $ratios->chart_ebitda_cover($years);
+
+    push @{ $model->{inputCharts} },
+      $cashflow->chart_equity_dividends($years),
       $ratios->chart_gearing($years);
+
     push @{ $model->{standaloneCharts} }, $income->chart($years);
 
     $_->finish
-      foreach grep { $_->can('finish'); } $months, $years, $assets, $sales,
-      $costSales,           $adminExp,             $debt,    $income,
-      $balanceFrictionless, $cashflowFrictionless, $reserve, $balance,
-      $cashflow,            $ratios;
+      foreach grep { UNIVERSAL::can( $_, 'finish' ); }
+      @{ $model->{finishList} };
 
     $model;
 
