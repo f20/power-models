@@ -1,7 +1,7 @@
 ---
 1000:
   - _table: '1000. Company, charging year, data version'
-  - Company charging year data version: 'Electricity North West '
+  - Company charging year data version: Electricity North West
     _column: Company
   - Company charging year data version: 2016/2017
     _column: Year
