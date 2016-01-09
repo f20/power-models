@@ -46,10 +46,10 @@ explore some of the functionality of this code:
     perl pmod.pl -xls CDCM/Current/%-after179.yml CDCM/Data-2015-02/WPD-SWest.yml
     perl pmod.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
     perl pmod.pl EDCM/Current/%-clean*.yml EDCM/Data-2014-02/UKPN-EPN.yml
-    perl pmod.pl -rtf -text -html -perl -yaml -graphviz CDCM/Current/%-after227.yml Blank.yml
+    perl pmod.pl -rtf -text -html CDCM/Current/%-after227.yml Blank.yml
 
 See "How to use.txt" in the "Stata" folder under "EDCM" for information on Stata tools
-to test EDCM spreadsheets.
+to test some EDCM spreadsheets.
 
 Licensing
 ---------
