@@ -1,6 +1,6 @@
 makeModels
 	-sqlite
-	CDCM/Current/%-after161.yml
+	CDCM/*/%-after161.yml
 	CDCM/DCP-227/%-clean227.yml
 	CDCM/Data-2015-03/*
 
@@ -12,6 +12,6 @@ useDatabase
 makeModels
 	-rtf
 	-tablemap
-	other/Blank.yml
-	CDCM/Current/%-after161.yml
+	Blank.yml
+	CDCM/*/%-after161.yml
 	CDCM/DCP-227/%-clean227.yml

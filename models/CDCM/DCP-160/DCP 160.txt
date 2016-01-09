@@ -1,14 +1,41 @@
 makeModels
+	-rtf
+	-tablemap
+	Blank.yml
+	CDCM/Current/%-after227.yml
+	CDCM/Current/%-model227.yml
+	CDCM/DCP-160/%-dcp160-a227.yml
+	CDCM/DCP-160/%-dcp160-m227.yml
+
+makeModels
 	-sqlite
-	CDCM/Current/%-model161.yml
-	CDCM/DCP-160/%-dcp160-m161.yml
-	CDCM/Data-2015-03/*
+	CDCM/Current/%-model227.yml
+	CDCM/Current/%-after227.yml
+	CDCM/DCP-160/%-dcp160-m227.yml
+	CDCM/DCP-160/%-dcp160-a227.yml
+	CDCM/DCP-160/%-ilf-a227.yml
+	CDCM/Data-2017-02/*
 
 useDatabase
 	-orange
-	-base=model161
-	-dcp=dcp160
+	-base=model227
+	-dcp=dcp160-m227
 	-name=DCP 160
+
+useDatabase
+	-base=after227
+	-dcp=dcp160-a227
+	-name=DCP 160 (check with clean models)
+
+useDatabase
+	-base=after227
+	-dcp=ilf-a227
+	-name=Implied load factors
+
+useDatabase
+	-base=dcp160-a227
+	-dcp=ilf-a227
+	-name=Implied load factors v DCP 160
 
 R
 	treemapByCategory
@@ -17,20 +44,24 @@ R
 	treemapWithComponents
 
 useDatabase
-	/dcp160-m161/
+	/dcp160-m227/
 	10
 	26
+	27
 
 useDatabase
-	/model161/
+	/model227/
 	10
 	26
+	27
 
-makeModels
-	-rtf
-	-tablemap
-	other/Blank.yml
-	CDCM/Current/%-after161.yml
-	CDCM/Current/%-model161.yml
-	CDCM/DCP-160/%-dcp160-c161.yml
-	CDCM/DCP-160/%-dcp160-m161.yml
+useDatabase
+	tscs
+	10
+	12
+	26
+	27
+	37
+	38
+	39
+	42
