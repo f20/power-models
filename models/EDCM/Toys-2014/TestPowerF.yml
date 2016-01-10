@@ -132,42 +132,6 @@
     _column: EHV/HV
   - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1
     _column: 132kV/HV
-1190:
-  - _table: 1190. Is this the master model containing all the tariff data?
-  - Enter TRUE or FALSE: TRUE
-    _column: Is this the master model containing all the tariff data?
-1191:
-  - _table: 1191. Baseline EDCM demand aggregates
-  - Baseline EDCM demand aggregates: 25000
-    _column: Baseline total EDCM peak time consumption (kW)
-  - Baseline EDCM demand aggregates: 75050
-    _column: Baseline total marginal effect of indirect cost adder (kVA)
-  - Baseline EDCM demand aggregates: 75050
-    _column: Baseline total marginal effect of demand adder (kVA)
-  - Baseline EDCM demand aggregates: 0
-    _column: Baseline revenue from demand charge 1 (£/year)
-1192:
-  - _table: 1192. Baseline EDCM generation aggregates
-  - Baseline EDCM generation aggregates: 300
-    _column: Baseline total chargeable export capacity (kVA)
-  - Baseline EDCM generation aggregates: 100
-    _column: Baseline total non-exempt 2005-2010 export capacity (kVA)
-  - Baseline EDCM generation aggregates: 100
-    _column: Baseline total non-exempt post-2010 export capacity (kVA)
-  - Baseline EDCM generation aggregates: 165.328522926916
-    _column: Baseline net forecast EDCM generation revenue (£/year)
-1193:
-  - _table: 1193. Baseline EDCM notional asset aggregates
-  - Baseline EDCM notional asset aggregates: 200005000
-    _column: Baseline total sole use assets for demand (£)
-  - Baseline EDCM notional asset aggregates: 15000
-    _column: Baseline total sole use assets for generation (£)
-  - Baseline EDCM notional asset aggregates: 3040
-    _column: Baseline total notional capacity assets (£)
-  - Baseline EDCM notional asset aggregates: 0
-    _column: Baseline total notional consumption assets (£)
-  - Baseline EDCM notional asset aggregates: 3040
-    _column: Baseline total non sole use notional assets subject to matching (£)
 911:
   - _table: 911. FCP power flow modelling data
 935:
