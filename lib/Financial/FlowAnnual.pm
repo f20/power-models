@@ -153,8 +153,8 @@ sub balance {
             cols          => $periods->labelset,
             arithmetic    => $flow->prefix_calc
               . '(1+A701)^((A903-A202)/365.25)*A501*'
-              . 'MIN(A601,'
-              . 'IF(A302>0,MAX(0,A301+A602-A901+1),A603),'
+              . 'MIN(0+A601,'
+              . 'IF(A302>0,MAX(0,A301+A602-A901+1),0+A603),'
               . 'MAX(0,A902-A201+1))'
               . '/365.25',
             arguments => {
@@ -185,11 +185,11 @@ sub buffer {
             name => $periods->decorate( 'Details of ' . $flow->{show_buffer} ),
             defaultFormat => $flow->{show_formatBase} . 'soft',
             arithmetic    => $flow->prefix_calc
-              . '(1+A701)^((A903-A202)/365.25)*A501*'
-              . 'MIN(A601,'
-              . 'IF(A302>0,MAX(0,A301+A602-A901+1),A603),'
+              . '((1+A701)^((A903-A202)/365.25)*A501*'
+              . 'MIN(0+A601,'
+              . 'IF(A302>0,MAX(0,A301+A602-A901+1),0+A603),'
               . 'MAX(0,A902-A201+1))'
-              . '/365.25-A1',
+              . '/365.25-A1)',
             arguments => {
                 A1   => $flow->balance($periods)->{source},
                 A201 => $flow->startDate,

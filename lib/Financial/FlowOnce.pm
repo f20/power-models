@@ -155,25 +155,20 @@ sub balance {
             rows          => $flow->labelset,
             cols          => $periods->labelset,
             arithmetic    => $flow->prefix_calc
-              . 'A501/(A204-A202+1)*'
-              . 'MIN(A601,'
-              . 'IF(A302>0,MAX(0,A301+A602-A901+1),A603),'
-              . 'MAX(0,A203-A103+1))',
+              . 'A501/(A301-A201+1)*'
+              . 'MIN(0+A601,'
+              . 'MAX(0,A302+A602-A901+1),'
+              . 'MAX(0,A902-A202+1))',
             arguments => {
-                A101 => $flow->startDate,
-                A102 => $flow->startDate,
-                A103 => $flow->startDate,
-                A201 => $flow->endDate,
-                A202 => $flow->endDate,
-                A203 => $flow->endDate,
-                A204 => $flow->endDate,
-                A301 => $periods->firstDay,
-                A302 => $periods->firstDay,
+                A201 => $flow->startDate,
+                A202 => $flow->startDate,
+                A301 => $flow->endDate,
+                A302 => $flow->endDate,
                 A501 => $flow->amount,
                 A601 => $flow->averageDays,
                 A602 => $flow->averageDays,
-                A603 => $flow->averageDays,
                 A901 => $periods->lastDay,
+                A902 => $periods->lastDay,
             }
         ),
     );
@@ -190,8 +185,8 @@ sub buffer {
             defaultFormat => $flow->{show_formatBase} . 'soft',
             arithmetic    => $flow->prefix_calc
               . 'A501/(A303-A202+1)*'
-              . 'MIN(A601,'
-              . 'IF(A302>0,MAX(0,A301+A602-A901+1),A603),'
+              . 'MIN(0+A601,'
+              . 'IF(A302>0,MAX(0,A301+A602-A901+1),0+A603),'
               . 'MAX(0,A902-A201+1))-A1',
             arguments => {
                 A1   => $flow->balance($periods)->{source},
