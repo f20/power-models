@@ -1,0 +1,28 @@
+makeModels
+	-sqlite
+	-pickbest
+	CDCM/*/%-clean*bung.yml
+	CDCM/Data-2015-02/*
+	CDCM/Data-2016-02/*
+	CDCM/Data-2017-02/*
+	-stats
+	-checksums
+	-edcm
+	-newrules
+	-newdata
+	CDCM/*/%-clean???.yml
+	CDCM/Data-2015-02/*
+	CDCM/Data-2016-02/*
+	CDCM/Data-2017-02/*
+	-stats
+	-checksums
+	-edcm
+
+useDatabase
+	tscs
+	10
+	11
+	37
+	38
+	39
+	42
