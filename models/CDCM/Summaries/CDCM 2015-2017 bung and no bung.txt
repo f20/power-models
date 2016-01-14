@@ -1,20 +1,19 @@
 makeModels
 	-sqlite
 	-pickbest
-	CDCM/*/%-clean*bung.yml
-	CDCM/Data-2015-02/*
-	CDCM/Data-2016-02/*
-	CDCM/Data-2017-02/*
-	-stats
-	-checksums
-	-edcm
-	-newrules
-	-newdata
 	CDCM/*/%-clean???.yml
 	CDCM/Data-2015-02/*
 	CDCM/Data-2016-02/*
 	CDCM/Data-2017-02/*
-	-stats
+	-stats36525
+	-checksums
+	-edcm
+	-newrules
+	-newdata
+	CDCM/*/%-clean*bung.yml
+	CDCM/Data-2015-02/*
+	CDCM/Data-2016-02/*
+	-stats36525
 	-checksums
 	-edcm
 

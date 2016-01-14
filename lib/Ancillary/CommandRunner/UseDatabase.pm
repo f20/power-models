@@ -115,8 +115,8 @@ sub useDatabase {
         my @arguments = (
             $workbookModule,
             dcpName   => $name,
-            basematch => sub { $_[0] =~ /$base/i; },
-            dcpmatch  => sub { $_[0] =~ /[-+]$dcp/i; },
+            basematch => $base,
+            dcpmatch  => "[-+]$dcp",
             %$options,
         );
         my @outputs = map { /^-+(cdcm\S*|edcm\S*|modelm\S*)/ ? $1 : (); } @_;
@@ -126,6 +126,11 @@ sub useDatabase {
               ? qw(cdcmTariffImpact cdcmPpuImpact cdcmRevenueMatrixImpact cdcmUserImpact)
               : $_ eq 'edcm' ? qw(edcmTariffImpact edcmRevenueMatrixImpact)
               :                $_;
+        } @outputs;
+        $db->$_( @arguments, tall => 1 ) foreach map {
+                $_ eq 'cdcm' ? qw(cdcmTariffImpact)
+              : $_ eq 'edcm' ? qw()
+              :                ();
         } @outputs;
         return;
     }

@@ -24,11 +24,6 @@ useDatabase
 
 useDatabase
 	-base=after227
-	-dcp=dcp160-a227
-	-name=DCP 160 (check with clean models)
-
-useDatabase
-	-base=after227
 	-dcp=ilf-a227
 	-name=Implied load factors
 

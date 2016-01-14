@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2009-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -43,41 +43,116 @@ Export fixed charge (p/day)
 Export capacity rate (p/kVA/day)
 Export exceeded capacity rate (p/kVA/day)
 EOL
-    $options{tableNumber}     ||= 4501;
-    $options{firstColumn}     ||= 2;
-    $options{nameExtraColumn} ||= 1;
+    $options{tableNumber}       ||= 4501;
+    $options{firstColumnBefore} ||= 2;
+    $options{firstColumnAfter}  ||= 2;
+    $options{nameExtraColumn}   ||= 1;
     $self->genericTariffImpact( $wbmodule, %options );
 }
 
-# The defaults assume that all the models in the current SQLite database share the same structure.
 sub cdcmTariffImpact {
+
     my ( $self, $wbmodule, %options ) = @_;
+
+    _defaultOptions( \%options );
     $options{tableNumber} ||= 3701;
-    $options{firstColumn} ||= $self->selectall_arrayref(
-        'select min(col) from data where tab=? and row=0 and'
-          . ' v<>"" and v not like "%LLF%" and v not like "PC%" and v not like "%checksum%"',
-        undef, $options{tableNumber}
+
+    $options{firstColumnBefore} ||= $self->selectall_arrayref(
+        'select min(col) from data inner join books using (bid)'
+          . ' where tab=? and row=0 and'
+          . ' v<>"" and v not like "%LLF%" and v not like "PC%" and'
+          . ' v not like "%checksum%"'
+          . ' and filename regexp ?',
+        undef, $options{tableNumber}, $options{basematch},
     )->[0][0];
-    $options{linesAfter} ||= [
+
+    $options{firstColumnAfter} ||= $self->selectall_arrayref(
+        'select min(col) from data inner join books using (bid)'
+          . ' where tab=? and row=0 and'
+          . ' v<>"" and v not like "%LLF%" and v not like "PC%" and'
+          . ' v not like "%checksum%"'
+          . ' and filename regexp ?',
+        undef, $options{tableNumber}, $options{dcpmatch},
+    )->[0][0];
+
+    my $linesExtractor = sub {
+        my ( $tab, $match ) = @_;
+        [
+            map { $_->[0] } @{
+                $self->selectall_arrayref(
+                    'select v from data as d1 inner join books using (bid)'
+                      . ' where tab=? and'
+                      . ' col=0 and row>0'
+                      . ' and filename regexp ?'
+                      . ' and (select v from data as d2 where d1.bid=d2.bid and d1.tab=d2.tab and d1.row=d2.row and d2.col>0 and d2.v)'
+                      . ' group by v order by min(row)',
+                    undef, $tab, $match,
+                )
+            }
+        ];
+    };
+
+    $options{linesBefore} ||=
+      $linesExtractor->( $options{tableNumber}, $options{basematch} );
+
+    $options{linesAfter} ||=
+      $linesExtractor->( $options{tableNumber}, $options{dcpmatch} );
+
+    die <<EOE
+Mismatch in tariff list:
+
+@{$options{linesBefore}}
+
+@{$options{linesAfter}}
+
+EOE
+      unless "@{$options{linesBefore}}" eq "@{$options{linesAfter}}";
+
+    $options{componentsBefore} ||= [
         map { $_->[0] } @{
             $self->selectall_arrayref(
-                'select v from data where tab=? and'
-                  . ' col=0 and row>0 group by v order by min(row)',
-                undef, $options{tableNumber}
+                'select v from data inner join books using (bid)'
+                  . ' where tab=? and row=0 and col>=? and'
+                  . ' v<>"" and v not like "%LLF%" and v not like "PC%" and'
+                  . ' v not like "%checksum%"'
+                  . ' and filename regexp ?'
+                  . ' group by v order by min(col)',
+                undef,
+                $options{tableNumber},
+                $options{firstColumnBefore},
+                $options{basematch},
             )
         }
     ];
+
     $options{components} ||= [
         map { $_->[0] } @{
             $self->selectall_arrayref(
-                'select v from data where tab=? and row=0 and col>=? and'
-                  . ' v<>"" and v not like "%LLF%" and v not like "PC%" and v not like "%checksum%"'
+                'select v from data inner join books using (bid)'
+                  . ' where tab=? and row=0 and col>=? and'
+                  . ' v<>"" and v not like "%LLF%" and v not like "PC%" and'
+                  . ' v not like "%checksum%"'
+                  . ' and filename regexp ?'
                   . ' group by v order by min(col)',
-                undef, $options{tableNumber}, $options{firstColumn},
+                undef,
+                $options{tableNumber},
+                $options{firstColumnAfter},
+                $options{dcpmatch},
             )
         }
     ];
+
+    die 'No tariff components found' unless @{ $options{components} };
+
+    die <<EOE
+Mismatch in tariff components:
+@{$options{componentsBefore}}
+@{$options{components}}
+EOE
+      unless "@{$options{componentsBefore}}" eq "@{$options{components}}";
+
     $self->genericTariffImpact( $wbmodule, %options );
+
 }
 
 sub genericTariffImpact {
@@ -86,8 +161,11 @@ sub genericTariffImpact {
 
     _defaultOptions( \%options );
 
-    my $wb = $wbmodule->new(
-        "Impact tariffs $options{dcpName}" . $wbmodule->fileExtension );
+    my $wb =
+      $wbmodule->new( ( $options{tall} ? 'Impact (tall)' : 'Impact' )
+        . ' tariffs '
+          . $options{dcpName}
+          . $wbmodule->fileExtension );
     $wb->setFormats(
         {
             $options{colour} ? ( colour => $options{colour} ) : (),
@@ -125,15 +203,102 @@ sub genericTariffImpact {
       $self->prepare(
         'select v from data where bid=? and tab=? and row=? and col=?');
 
+    my ( $ws, $diff, $perc, $topShift );
+    my $hShift     = $options{tall} ? 2 : 0;
+    my $vShift     = 0;
+    my $sheetSetup = sub {
+
+        my ( $name, $title ) = @_;
+
+        $ws = $wb->add_worksheet($name);
+        $ws->hide_gridlines(2);
+        if ($title) {
+            $topShift = 2;
+            $ws->write_string( 0, 0, $title, $wb->getFormat('notes') );
+        }
+        else { $topShift = 0; }
+
+        if ( $options{tall} ) {
+            $ws->set_column( 0, 0,   14 );
+            $ws->set_column( 1, 1,   9 );
+            $ws->set_column( 2, 2,   48 );
+            $ws->set_column( 3, 254, 12 );
+            $ws->freeze_panes( 2 + $topShift, 3 );
+            if (undef) {
+                $ws->write_string( 3, 0, 'DNO area',    $wb->getFormat('thc') );
+                $ws->write_string( 3, 1, 'Tariff ID',   $wb->getFormat('thc') );
+                $ws->write_string( 3, 2, 'Tariff name', $wb->getFormat('thc') );
+            }
+        }
+        else {
+            $ws->set_column( 0, 0,   48 );
+            $ws->set_column( 1, 254, 12 );
+            $ws->freeze_panes( 2 + $topShift, 1 );
+        }
+
+        my $thcaFormat = $wb->getFormat( 'captionca', 'tlttr' );
+        $ws->write_string(
+            $topShift,
+            1 + $hShift,
+            'Baseline prices', $thcaFormat
+        );
+        $ws->write( $topShift, $_ + $hShift, undef, $thcaFormat )
+          foreach 2 .. $ncol;
+
+        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'red' );
+        $ws->write_string(
+            $topShift,
+            1 + $ncol + $hShift,
+            'Prices on new basis', $thcaFormat
+        );
+        $ws->write( $topShift, $_ + $ncol + $hShift, undef, $thcaFormat )
+          foreach 2 .. $ncol;
+
+        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'blue' );
+        $ws->write_string( $topShift, 1 + $ncol * 2 + $hShift,
+            'Price change', $thcaFormat );
+        $ws->write( $topShift, $_ + $ncol * 2 + $hShift, undef, $thcaFormat )
+          foreach 2 .. $ncol;
+
+        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'red' );
+        $ws->write_string(
+            $topShift,
+            1 + $ncol * 3 + $hShift,
+            'Percentage change', $thcaFormat
+        );
+        $ws->write( $topShift, $_ + $ncol * 3 + $hShift, undef, $thcaFormat )
+          foreach 2 .. $ncol;
+
+        $diff = $ws->store_formula('=A2-A1');
+        $perc = $ws->store_formula('=IF(A1,A3/A2-1,"")');
+
+        my @list = @{ $options{components} };
+        for ( my $j = 1 ; $j < 2 + 3 * $ncol ; $j += $ncol ) {
+            for ( my $k = 0 ; $k < @list ; ++$k ) {
+                $ws->write_string(
+                    $topShift + 1,
+                    $j + $k + $hShift,
+                    $list[$k],
+                    $wb->getFormat( 'thc', $k == $#list ? 'tlttr' : () )
+                );
+            }
+        }
+    };
+
+    $sheetSetup->( 'All', "Illustrative impact of $options{dcpName}" )
+      if $options{tall};
+
     foreach my $i ( 0 .. $#{ $options{sheetNames} } ) {
         my $qr = $options{sheetNames}[$i];
         $qr =~ tr/ /-/;
         my ($bidb) =
-          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{basematch}/i; }
+          @books;
         next unless $bidb;
         $bidb = $bidb->[0];
         my ($bida) =
-          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{dcpmatch}/i; }
+          @books;
         next unless $bida;
         $bida = $bida->[0];
 
@@ -149,44 +314,8 @@ sub genericTariffImpact {
             ];
         }
 
-        my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
-        $ws->set_column( 0, 0,   48 );
-        $ws->set_column( 1, 254, 12 );
-        $ws->hide_gridlines(2);
-        $ws->freeze_panes( 4, 1 );
-        $ws->write_string(
-            0, 0,
-            $options{sheetTitles}[$i],
-            $wb->getFormat('notes')
-        );
-
-        my $thcaFormat = $wb->getFormat( 'captionca', 'tlttr' );
-        $ws->write_string( 2, 1, 'Baseline prices', $thcaFormat );
-        $ws->write( 2, $_, undef, $thcaFormat ) foreach 2 .. $ncol;
-
-        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'red' );
-        $ws->write_string( 2, 1 + $ncol, 'Prices on new basis', $thcaFormat );
-        $ws->write( 2, $_ + $ncol, undef, $thcaFormat ) foreach 2 .. $ncol;
-
-        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'blue' );
-        $ws->write_string( 2, 1 + $ncol * 2, 'Price change', $thcaFormat );
-        $ws->write( 2, $_ + $ncol * 2, undef, $thcaFormat ) foreach 2 .. $ncol;
-
-        0 and $thcaFormat = $wb->getFormat( 'captionca', 'tlttr', 'red' );
-        $ws->write_string( 2, 1 + $ncol * 3, 'Percentage change', $thcaFormat );
-        $ws->write( 2, $_ + $ncol * 3, undef, $thcaFormat ) foreach 2 .. $ncol;
-
-        my $diff = $ws->store_formula('=A2-A1');
-        my $perc = $ws->store_formula('=IF(A1,A3/A2-1,"")');
-
-        my @list = @{ $options{components} };
-
-        for ( my $j = 1 ; $j < 2 + 3 * $ncol ; $j += $ncol ) {
-            for ( my $k = 0 ; $k < @list ; ++$k ) {
-                $ws->write_string( 3, $j + $k, $list[$k],
-                    $wb->getFormat( 'thc', $k == $#list ? 'tlttr' : () ) );
-            }
-        }
+        $sheetSetup->( $options{sheetNames}[$i], $options{sheetTitles}[$i] )
+          unless $options{tall};
 
         my $thFormat = $wb->getFormat('th');
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
@@ -196,9 +325,17 @@ sub genericTariffImpact {
             $findRow->execute( $bida, $options{tableNumber},
                 $linesAfter->[$j] );
             my ($rowa) = $findRow->fetchrow_array;
+            if ( $options{tall} ) {
+                $ws->write_string(
+                    2 + $topShift + $j + $vShift, 0,
+                    $options{sheetNames}[$i],     $thFormat
+                );
+                $ws->write( 2 + $topShift + $j + $vShift,
+                    1, 1 + $j, $wb->getFormat('thtar') );
+            }
             $ws->write_string(
-                4 + $j,
-                0,
+                2 + $topShift + $j + $vShift,
+                $hShift,
                 $options{nameExtraColumn}
                 ? eval {
                     $q->execute(
@@ -215,35 +352,53 @@ sub genericTariffImpact {
             for ( my $k = 0 ; $k < $ncol ; ++$k ) {
                 $q->execute(
                     $bidb, $options{tableNumber},
-                    $rowb, $k + $options{firstColumn}
+                    $rowb, $k + $options{firstColumnBefore}
                 );
                 my ($vb) = $q->fetchrow_array;
                 $q->execute(
                     $bida, $options{tableNumber},
-                    $rowa, $k + $options{firstColumn}
+                    $rowa, $k + $options{firstColumnAfter}
                 );
                 my ($va) = $q->fetchrow_array;
 
-                $ws->write( 4 + $j, $k + 1,         $vb, $format1[$k] );
-                $ws->write( 4 + $j, $k + 1 + $ncol, $va, $format1[$k] );
+                $ws->write(
+                    2 + $topShift + $j + $vShift,
+                    $k + 1 + $hShift,
+                    $vb, $format1[$k]
+                );
+                $ws->write(
+                    2 + $topShift + $j + $vShift,
+                    $k + 1 + $ncol + $hShift,
+                    $va, $format1[$k]
+                );
 
                 use Spreadsheet::WriteExcel::Utility;
-                my $old = xl_rowcol_to_cell( 4 + $j, $k + 1 );
-                my $new = xl_rowcol_to_cell( 4 + $j, $k + 1 + $ncol );
+                my $old = xl_rowcol_to_cell( 2 + $topShift + $j + $vShift,
+                    $k + 1 + $hShift );
+                my $new = xl_rowcol_to_cell( 2 + $topShift + $j + $vShift,
+                    $k + 1 + $ncol + $hShift );
                 $ws->repeat_formula(
-                    4 + $j, $k + 1 + 2 * $ncol, $diff, $format2[$k],
+                    2 + $topShift + $j + $vShift, $k + 1 + 2 * $ncol + $hShift,
+                    $diff,
+                    $format2[$k],
                     A1 => $old,
                     A2 => $new,
                 );
                 $ws->repeat_formula(
-                    4 + $j, $k + 1 + 3 * $ncol, $perc, $format3[$k],
+                    2 + $topShift + $j + $vShift, $k + 1 + 3 * $ncol + $hShift,
+                    $perc,
+                    $format3[$k],
                     A1 => $old,
                     A2 => $old,
                     A3 => $new,
                 );
             }
         }
+        $vShift += @$linesAfter if $options{tall};
     }
+
+    $ws->autofilter( 1 + $topShift, 0, 1 + $topShift + $vShift, 2 + 4 * $ncol )
+      if $options{tall};
 
 }
 
@@ -296,11 +451,13 @@ sub cdcmPpuImpact {
         my $qr = $options{sheetNames}[$i];
         $qr =~ tr/ /-/;
         my ($bidb) =
-          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{basematch}/i; }
+          @books;
         next unless $bidb;
         $bidb = $bidb->[0];
         my ($bida) =
-          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{dcpmatch}/i; }
+          @books;
         next unless $bida;
         $bida = $bida->[0];
         my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
@@ -426,11 +583,13 @@ sub revenueMatrixImpact {
         my $qr = $options{sheetNames}[$i];
         $qr =~ tr/ /-/;
         my ($bidb) =
-          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{basematch}/i; }
+          @books;
         next unless $bidb;
         $bidb = $bidb->[0];
         my ($bida) =
-          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{dcpmatch}/i; }
+          @books;
         next unless $bida;
         $bida = $bida->[0];
 
@@ -671,11 +830,13 @@ sub cdcmUserImpact {
         my $qr = $options{sheetNames}[$i];
         $qr =~ tr/ /-/;
         my ($bidb) =
-          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{basematch}/i; }
+          @books;
         next unless $bidb;
         $bidb = $bidb->[0];
         my ($bida) =
-          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{dcpmatch}/i; }
+          @books;
         next unless $bida;
         $bida = $bida->[0];
         my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
@@ -778,11 +939,13 @@ sub modelmEdcmImpact {
         my $qr = $options{sheetNames}[$i];
         $qr =~ tr/ /-/;
         my ($bidb) =
-          grep { $_->[1] =~ /$qr/ && $options{basematch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{basematch}/i; }
+          @books;
         next unless $bidb;
         $bidb = $bidb->[0];
         my ($bida) =
-          grep { $_->[1] =~ /$qr/ && $options{dcpmatch}->( $_->[1] ) } @books;
+          grep { $_->[1] =~ /$qr/i && $_->[1] =~ /$options{dcpmatch}/i; }
+          @books;
         next unless $bida;
         $bida = $bida->[0];
         my $ws = $wb->add_worksheet( $options{sheetNames}[$i] );
@@ -802,8 +965,8 @@ sub modelmEdcmImpact {
         $ws->write_string( 2, 1 + $ncol, 'Discounts on new basis',
             $thcaFormat );
         $ws->write( 2, $_ + $ncol, undef, $thcaFormat ) foreach 2 .. $ncol;
-        $ws->write_string( 2, 1 + $ncol * 2, 'Change in discount',
-            $thcaFormat );
+        $ws->write_string( 2, 1 + $ncol * 2,
+            'Change in discount', $thcaFormat );
         $ws->write( 2, $_ + $ncol * 2, undef, $thcaFormat ) foreach 2 .. $ncol;
 
         my $thcFormat = $wb->getFormat('thc');
