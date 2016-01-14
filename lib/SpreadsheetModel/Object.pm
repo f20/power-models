@@ -73,7 +73,7 @@ sub requestForwardLinks {
     return unless $self->{forwardLinks};
     my $saveCol    = $col - 1;
     my $linkFormat = $wb->getFormat('link');
-    $ws->write( ++$$rowref, $saveCol, 'Used by:', $wb->getFormat('text') );
+    $ws->write( $$rowref += 2, $saveCol, 'Used by:', $wb->getFormat('text') );
     my $saveRow = $$rowref;
     foreach ( values %{ $self->{forwardLinks} } ) {
         ++$$rowref;
@@ -93,7 +93,7 @@ sub requestForwardTree {
     my $saveCol    = $col - 1;
     my $linkFormat = $wb->getFormat('link');
     my $textFormat = $wb->getFormat('text');
-    $ws->write( ++$$rowref, $saveCol, 'Used by:', $textFormat );
+    $ws->write( $$rowref += 2, $saveCol, 'Used by:', $textFormat );
     my $masterPrefix = ' ';
     my %map          = %{ $self->{forwardLinks} };
     my @next         = values %map;

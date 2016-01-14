@@ -685,7 +685,8 @@ EOL
                 arguments  => {
                     A2 => $standingFactors,
                     A1 => $forecastSml->{source},
-                }
+                },
+                defaultFormat => '0softnz',
             ),
             cols          => $diversityLevels,
             rows          => 0,

@@ -131,7 +131,7 @@ sub comDate {
 sub decomDate {
     my ($assets) = @_;
     $assets->{database}{decomDate} ||= Dataset(
-        name          => 'Decommissioning date',
+        name          => 'Withdrawal date',
         defaultFormat => 'datehard',
         rows          => $assets->labelsetNoNames,
         data          => [ map { '' } @{ $assets->labelsetNoNames->{list} } ],

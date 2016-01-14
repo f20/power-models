@@ -304,7 +304,8 @@ sub databaseWriter {
                             my $tableNumber = $1;
                             $processTable = sub {
                                 my $offset = $#_;
-                                --$offset while !defined $_[$offset][0];
+                                --$offset
+                                  while !$_[$offset] || @{ $_[$offset] } < 2;
                                 --$offset
                                   while $offset && defined $_[$offset][0];
 
@@ -325,8 +326,7 @@ sub databaseWriter {
                     $table[ $row - $tableTop ][$col] = $v;
                 }
             }
-            $processTable->(@table)
-              if @table;
+            $processTable->(@table) if @table;
         }
         eval {
             warn "Committing $book ($$)\n";

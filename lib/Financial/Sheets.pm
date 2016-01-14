@@ -116,14 +116,16 @@ sub worksheetsAndClosures {
 
       ,
 
-      'Monthly' => sub {
+      ( $model->{quarterly} ? 'Quarterly' : 'Monthly' ) => sub {
         my ($wsheet) = @_;
         $workingsSheet = $wsheet;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Workings (monthly)' );
+          foreach Notes( name => $model->{quarterly}
+            ? 'Workings (quarterly)'
+            : 'Workings (monthly)' );
       }
 
       ,
