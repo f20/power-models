@@ -149,10 +149,8 @@ sub makeModels {
                 );
             }
             elsif (/^-+stats=?(.*)/is) {
-                $maker->{setRule}->(
-                    summary => 'statistics',
-                    $1 ? ( statistics => $1 ) : (),
-                );
+                $maker->{setRule}
+                  ->( summary => 'statistics' . ( $1 ? $1 : '' ), );
             }
             elsif (/^-+template(?:=(.+))?/is) {
                 $maker->{setRule}->( template => $1 || ( time . "-$$" ) );

@@ -71,7 +71,7 @@ sub makeStatisticsAssumptions {
           )
     } @$colspec[ 3 .. 8 ];
 
-    if (1) {
+    if ( $model->{summary} =~ /override/i ) {
 
         my $blank = [ map { '' } @{ $rowset->{list} } ];
 
@@ -127,20 +127,24 @@ sub makeStatisticsTables {
         $overrideRed, $overrideAmber, $overrideGreen,
     ) = @{ $assumptions->{columns} };
 
-    my @columns;
-    my $overrideTotal;
+    my ( @columns, $overrideTotal, $doNotUseDaysInYear );
 
-    push @columns,
-      $overrideTotal = Arithmetic(
-        name          => "Total override kWh/year",
-        defaultFormat => '0soft',
-        arithmetic    => '=A1+A2+A3',
-        arguments     => {
-            A1 => $overrideRed,
-            A2 => $overrideAmber,
-            A3 => $overrideGreen,
-        },
-      ) if $overrideRed;
+    if ($overrideRed) {
+        push @columns,
+          $overrideTotal = Arithmetic(
+            name          => "Total override kWh/year",
+            defaultFormat => '0soft',
+            arithmetic    => '=A1+A2+A3',
+            arguments     => {
+                A1 => $overrideRed,
+                A2 => $overrideAmber,
+                A3 => $overrideGreen,
+            },
+          );
+    }
+    else {
+        $doNotUseDaysInYear = $model->{summary} =~ /365.?25/;
+    }
 
     push @columns,
       my $totalUnits = Arithmetic(
@@ -148,6 +152,7 @@ sub makeStatisticsTables {
         defaultFormat => '0soft',
         arithmetic    => $overrideTotal
         ? '=IF(A8,A9,(A1*A3+A2*A4+(168-A11-A21)*A5)*A7/7)'
+        : $doNotUseDaysInYear ? '=(A1*A3+A2*A4+(168-A11-A21)*A5)*365.25/7'
         : '=(A1*A3+A2*A4+(168-A11-A21)*A5)*A7/7',
         arguments => {
             A7 => $daysInYear,
@@ -171,8 +176,8 @@ sub makeStatisticsTables {
       my $rate2 = Arithmetic(
         name          => 'Rate 2 kWh/year',
         defaultFormat => '0soft',
-        arithmetic    => '=A1*A3*A2/7',
-        arguments     => {
+        arithmetic => $doNotUseDaysInYear ? '=A1*A3*365.25/7' : '=A1*A3*A2/7',
+        arguments  => {
             A1 => $offPeakHours,
             A3 => $offPeakLoad,
             A2 => $daysInYear,
@@ -187,6 +192,9 @@ sub makeStatisticsTables {
             $overrideTotal
             ? '=IF(A10,A11,A321*A613+(A311-A322)*MIN(A61,A72/7*A51)+'
               . '(A301-A323)*MAX(0,A77/7*A43-A631-A623))'
+            : $doNotUseDaysInYear
+            ? '=A321*A613+(A311-A322)*MIN(A61,365.25/7*A51)+'
+              . '(A301-A323)*MAX(0,365.25/7*A43-A631-A623)'
             : '=A321*A613+(A311-A322)*MIN(A61,A72/7*A51)+'
               . '(A301-A323)*MAX(0,A77/7*A43-A631-A623)'
         ],
@@ -242,6 +250,9 @@ sub makeStatisticsTables {
             ? '=IF(A10,A12,'
               . 'A324*A624+(A312-A325)*MIN(A620,MAX(0,A73/7*A52-A611))+'
               . '(A302-A326)*MIN(A621,MAX(0,A75/7*A42-A632)))'
+            : $doNotUseDaysInYear
+            ? '=A324*A624+(A312-A325)*MIN(A620,MAX(0,365.25/7*A52-A611))+'
+              . '(A302-A326)*MIN(A621,MAX(0,365.25/7*A42-A632))'
             : '=A324*A624+(A312-A325)*MIN(A620,MAX(0,A73/7*A52-A611))+'
               . '(A302-A326)*MIN(A621,MAX(0,A75/7*A42-A632))'
         ],
@@ -295,6 +306,9 @@ sub makeStatisticsTables {
             ? '=IF(A10,A13,'
               . 'A327*A633+(A313-A328)*MAX(0,A74/7*A53-A612-A622)+'
               . '(A303-A329)*MIN(A63,A76/7*A41))'
+            : $doNotUseDaysInYear
+            ? '=A327*A633+(A313-A328)*MAX(0,365.25/7*A53-A612-A622)+'
+              . '(A303-A329)*MIN(A63,365.25/7*A41)'
             : '=A327*A633+(A313-A328)*MAX(0,A74/7*A53-A612-A622)+'
               . '(A303-A329)*MIN(A63,A76/7*A41)'
         ],
