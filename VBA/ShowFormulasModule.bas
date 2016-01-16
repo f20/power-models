@@ -43,7 +43,7 @@ Sub sfWorkerSheet(ws)
         dispAlerts = Application.DisplayAlerts
         Application.DisplayAlerts = False
         On Error Resume Next
-        sheets(ws.Name & "=").Delete
+        Sheets(ws.Name & "=").Delete
         On Error GoTo 0
         Application.DisplayAlerts = dispAlerts
         ws.Copy After:=ws
@@ -113,7 +113,7 @@ Sub sfWorker()
             sfWorkerSheet ws
         Next ws
     Else
-        If Right(ActiveSheet.Name, 1) = "=" Then sheets(Left(ActiveSheet.Name, Len(ActiveSheet.Name) - 1)).Activate
+        If Right(ActiveSheet.Name, 1) = "=" Then Sheets(Left(ActiveSheet.Name, Len(ActiveSheet.Name) - 1)).Activate
         sfWorkerSheet ActiveSheet
     End If
 

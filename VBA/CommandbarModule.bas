@@ -1,5 +1,5 @@
 '
-' Copyright 2013-2015 Franck Latremoliere, Reckon LLP and others.
+' Copyright 2013-2016 Franck Latremoliere, Reckon LLP and others.
 '
 ' Redistribution and use in source and binary forms, with or without
 ' modification, are permitted provided that the following conditions are met:
@@ -24,8 +24,10 @@
 '
 
 Sub MakeCommandBar()
+
     On Error Resume Next
     Application.CommandBars("FranckVBATools").Delete
+
     On Error GoTo FAIL
     Dim bar As CommandBar
     Set bar = Application.CommandBars.Add("FranckVBATools")
@@ -34,15 +36,16 @@ Sub MakeCommandBar()
 
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
-     .Style = msoButtonCaption
-     .Caption = "Sheet List"
-     .OnAction = "ListWorksheets"
+     .Style = msoButtonIconAndCaption
+     .FaceId = 3
+     .Caption = "Tidy"
+     .OnAction = "TidySave"
     End With
 
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
      .Style = msoButtonCaption
-     .Caption = "Show Formulas..."
+     .Caption = "Formulas" & ChrW(&H2026)
      .BeginGroup = True
      .OnAction = "ShowFormulas"
     End With
@@ -50,6 +53,23 @@ Sub MakeCommandBar()
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
      .Style = msoButtonCaption
+     .Caption = "Sheets"
+     .BeginGroup = True
+     .OnAction = "ListWorksheets"
+    End With
+
+    Set btn = bar.Controls.Add(Type:=msoControlButton)
+    With btn
+     .Style = msoButtonCaption
+     .Caption = "InputDB" & ChrW(&H2026)
+     .BeginGroup = True
+     .OnAction = "ShowInputDBUI"
+    End With
+
+    Set btn = bar.Controls.Add(Type:=msoControlButton)
+    With btn
+     .Style = msoButtonIcon
+     .FaceId = 371
      .Caption = "Use VBACode"
      .BeginGroup = True
      .OnAction = "MakeVBAModules"
@@ -57,27 +77,30 @@ Sub MakeCommandBar()
 
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
-     .Style = msoButtonCaption
-     .Caption = "Use InputDB..."
-     .BeginGroup = True
-     .OnAction = "ShowInputDBUI"
+     .Style = msoButtonIcon
+     .FaceId = 270
+     .Caption = "Import"
+     .OnAction = "ImportVBA"
     End With
 
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
-     .Style = msoButtonCaption
-     .BeginGroup = True
+     .Style = msoButtonIcon
+     .FaceId = 271
      .Caption = "Export"
      .OnAction = "ExportVBA"
     End With
 
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
-     .Style = msoButtonCaption
-     .Caption = "Import"
-     .OnAction = "ImportVBA"
+     .Style = msoButtonIcon
+     .FaceId = 37
+     .Caption = "Refresh"
+     .OnAction = "MakeCommandBar"
+     ' Integrating this within ImportVBA causes a crash
     End With
 
     bar.Visible = True
+
 FAIL:
 End Sub

@@ -1,5 +1,5 @@
 '
-' Copyright 2013 Franck Latremoliere, Reckon LLP and others.
+' Copyright 2016 Franck Latremoliere, Reckon LLP and others.
 '
 ' Redistribution and use in source and binary forms, with or without
 ' modification, are permitted provided that the following conditions are met:
@@ -23,23 +23,31 @@
 ' THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 '
 
-Private Sub CommandButton1_Click()
-    Call DoInputDB(True, False, Nothing)
-End Sub
-
-Private Sub CommandButton2_Click()
-    Dim idbws As Worksheet
+Sub TidySave()
+    For Each ws In ActiveWorkbook.Worksheets
+        ws.Select
+        ActiveWindow.ScrollColumn = 1
+        ActiveWindow.ScrollRow = 1
+        Range("A1").Select
+    Next ws
+    ActiveWindow.ScrollWorkbookTabs Position:=xlFirst
+    Sheets(1).Select
+    ActiveWindow.Width = 1280
+    ActiveWindow.Height = 800
+    ActiveWindow.Left = 4
+    ActiveWindow.Top = 3
     On Error Resume Next
-    Set idbws = ActiveWorkbook.Sheets("InputDB")
+    For Each prop In ActiveWorkbook.BuiltinDocumentProperties
+        prop.Value = ""
+    Next
     On Error GoTo 0
-    If Not idbws Is Nothing Then
-        Dim x As String
-        x = Application.GetOpenFilename()
-        If x Then
-            Workbooks.Open x
-            Call DoInputDB(False, False, idbws)
-            idbws.Activate
-            InputDbUI.Hide
-        End If
-    End If
+    Let uName = Application.UserName
+    Application.UserName = ChrW(&H2014)
+    ' Use ChrW(&HD7) for a cross
+    ' Use ChrW(&H2014) for an em dash
+    ' Use ChrW(&H2702) for black scissors
+    ' Use ChrW(&H263A) for smiling face
+    ActiveWorkbook.Save
+    Application.UserName = uName
+    ActiveWorkbook.Close
 End Sub

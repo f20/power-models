@@ -40,7 +40,7 @@ End Sub
 Sub ActivateVBACode(wbook As Workbook)
     Dim vbaSheet As Worksheet
     On Error Resume Next
-    Set vbaSheet = wbook.sheets("VBACode")
+    Set vbaSheet = wbook.Sheets("VBACode")
     On Error GoTo 0
     If Not vbaSheet Is Nothing Then
         Dim vbaCode As String
@@ -59,7 +59,9 @@ Sub ActivateVBACode(wbook As Workbook)
 End Sub
 
 Sub ImportVBAOne(wbook As Workbook)
+    On Error Resume Next
     ChDir wbook.path
+    On Error GoTo 0
     Dim component As VBComponent
     Dim componentSet As VBComponents
     Set componentSet = wbook.VBProject.VBComponents
@@ -83,7 +85,9 @@ Sub ImportVBAOne(wbook As Workbook)
 End Sub
 
 Sub ExportVBAOne(wbook As Workbook)
+    On Error Resume Next
     ChDir wbook.path
+    On Error GoTo 0
     Dim component As VBComponent
     For Each component In wbook.VBProject.VBComponents
         Dim fileName As String

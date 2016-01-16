@@ -40,7 +40,7 @@ Sub DoInputDB(modifyThisBook As Boolean, internalFormulas As Boolean, wsDatabase
     On Error GoTo 0
     
     If modifyThisBook Then
-        sheets.Add
+        Sheets.Add
         Set wsDatabase = ActiveSheet
         On Error Resume Next
         wsDatabase.Name = "InputDB"
