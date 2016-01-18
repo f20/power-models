@@ -45,8 +45,8 @@ sub ymlWriter {
         $file =~ s/\.xl[a-z]+?$//is;
         my $tree;
         require YAML;
-        if ( -e $file ) {
-            open my $h, '<', "$file.yml";
+        if ( my ($oldYaml) = grep { -f $_; } "$file.yml", "$file.yaml" ) {
+            open my $h, '<', $oldYaml;
             binmode $h, ':utf8';
             local undef $/;
             $tree = YAML::Load(<$h>);
