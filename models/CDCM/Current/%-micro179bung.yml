@@ -9,7 +9,7 @@ drm: top500gsp
 electionBung: 1
 extraLevels: 1
 fixedCap: 1-4
-nickName: CDCM model (after DCP 179 with bung)
+nickName: CDCM model (after DCP 179, bung)
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket

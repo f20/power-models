@@ -1,5 +1,5 @@
 makeModels
-	-template=%%-to2023
+	-template=%%
 	-pickbest
 	-edcm
 	CDCM/Previous/*micro*
