@@ -25,6 +25,7 @@
 
 Sub TidySave()
     For Each ws In ActiveWorkbook.Worksheets
+        ws.Visible = True
         ws.Select
         ActiveWindow.ScrollColumn = 1
         ActiveWindow.ScrollRow = 1
