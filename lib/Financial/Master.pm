@@ -34,6 +34,23 @@ use SpreadsheetModel::CalcBlock;
 use SpreadsheetModel::Shortcuts ':all';
 use Financial::Sheets;
 
+sub requiredModulesForRuleset {
+    my ( $module, $ruleset ) = @_;
+    map { __PACKAGE__ . '::' . $_; } qw(
+      Balance
+      CashCalc
+      Cashflow
+      Debt
+      FixedAssetsUK
+      FlowAnnual
+      Income
+      Periods
+      Ratios
+      Reserve
+      ), $ruleset->{numExceptional}
+      || $ruleset->{numCapitalExp} ? qw(FlowOnce) : ();
+}
+
 sub AUTOLOAD {
     my $model = shift;
     our $AUTOLOAD;
