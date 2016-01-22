@@ -602,7 +602,7 @@ Keys used in %$options:
             @colourHard,
         ],
         puretextcon => [
-            locked => 0,
+            locked => 1,
             @sizeText,
             num_format => $numTextOnlyCopy,
             align      => 'center',
@@ -611,7 +611,7 @@ Keys used in %$options:
             @colourCon,
         ],
         puretextcopy => [
-            locked => 0,
+            locked => 1,
             @sizeText,
             num_format => $numTextOnlyCopy,
             align      => 'center',
