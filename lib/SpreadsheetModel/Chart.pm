@@ -149,6 +149,66 @@ sub applyInstructions {
                     1,
                   );
             }
+            elsif (ref $series eq 'ARRAY'
+                && UNIVERSAL::isa( $series->[0], 'SpreadsheetModel::Dataset' )
+                && UNIVERSAL::isa( $series->[1], 'SpreadsheetModel::Dataset' )
+                and !$series->[0]{rows}
+                && !$series->[1]{rows}
+                && $series->[0]{cols}
+                && $series->[1]{cols}
+                && $series->[0]{cols} == $series->[1]{cols}
+                || !$series->[0]{cols}
+                && !$series->[1]{cols}
+                && $series->[0]{rows}
+                && $series->[1]{rows}
+                && $series->[0]{rows} == $series->[1]{rows} )
+            {
+                foreach my $d (@$series) {
+                    push @{ $self->{sourceLines} }, $d
+                      unless $self->{sourceLines} && grep { $_ == $d }
+                      @{ $self->{sourceLines} };
+                }
+                my ( $w2, $r2, $c2 ) =
+                  $series->[1]->wsWrite( $wb, $ws, undef, undef, 1 );
+                $w2 = "'" . $w2->get_name . "'!";
+                my ( $w3, $r3, $c3 ) =
+                  $series->[0]->wsWrite( $wb, $ws, undef, undef, 1 );
+                $w3 = "'" . $w3->get_name . "'!";
+                unshift @$args,
+                  name       => $series->[1]->objectShortName,
+                  categories => '='
+                  . $w3
+                  . xl_rowcol_to_cell(
+                    $r3 + ( $self->{ignore_top}  || 0 ),
+                    $c3 + ( $self->{ignore_left} || 0 ),
+                    1, 1,
+                  )
+                  . ':'
+                  . xl_rowcol_to_cell(
+                    $r3 + $series->[0]->lastRow -
+                      ( $self->{ignore_bottom} || 0 ),
+                    $c3 + $series->[0]->lastCol -
+                      ( $self->{ignore_right} || 0 ),
+                    1,
+                    1,
+                  ),
+                  values => '='
+                  . $w2
+                  . xl_rowcol_to_cell(
+                    $r2 + ( $self->{ignore_top}  || 0 ),
+                    $c2 + ( $self->{ignore_left} || 0 ),
+                    1, 1,
+                  )
+                  . ':'
+                  . xl_rowcol_to_cell(
+                    $r2 + $series->[1]->lastRow -
+                      ( $self->{ignore_bottom} || 0 ),
+                    $c2 + $series->[1]->lastCol -
+                      ( $self->{ignore_right} || 0 ),
+                    1,
+                    1,
+                  );
+            }
             else {
                 warn "Something has probably gone wrong with @$args";
                 next;
