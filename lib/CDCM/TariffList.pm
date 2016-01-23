@@ -3,7 +3,7 @@ package CDCM;
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -407,7 +407,6 @@ LV generation non half hourly:
   - Unit rate 1 p/kWh
   - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio
   - Excluded: pc12hh|pc34hh|dcp179
-
 ---
 LV generation non half hourly:
   - PC8&0
@@ -459,6 +458,13 @@ LV generation half hourly single rate:
   - Reactive power charge p/kVArh
   - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio
 ---
+LV generation half hourly single rate no reactive:
+  - PC0
+  - Name: LV Generation Intermittent no RP charge
+  - Fixed charge p/MPAN/day
+  - Unit rate 1 p/kWh
+  - Included: gennoreact
+---
 LV generation (GDP) half hourly single rate:
   - PC0
   - Name: LV Generation (GDP area) Intermittent
@@ -482,6 +488,13 @@ LV generation half hourly:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|boundary|simplegen
+---
+LV generation half hourly no reactive:
+  - PC0
+  - Name: LV Generation Non-Intermittent no RP charge
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: gennoreact
 ---
 LV generation (GDP) half hourly:
   - PC0
@@ -507,6 +520,13 @@ LV substation generation half hourly single rate:
   - Reactive power charge p/kVArh
   - Included: gensub|portfolio
 ---
+LV substation generation half hourly single rate no reactive:
+  - PC0
+  - Name: LV Sub Generation Intermittent no RP charge
+  - Fixed charge p/MPAN/day
+  - Unit rate 1 p/kWh
+  - Included: gennoreact
+---
 LV substation generation (GDP) half hourly single rate:
   - PC0
   - Name: LV Sub Generation (GDP area) Intermittent
@@ -531,6 +551,13 @@ LV substation generation half hourly:
   - Reactive power charge p/kVArh
   - Included: gensub|portfolio
 ---
+LV substation generation half hourly no reactive:
+  - PC0
+  - Name: LV Sub Generation Non-Intermittent no RP charge
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: gennoreact
+---
 LV substation generation (GDP) half hourly:
   - PC0
   - Name: LV Sub Generation (GDP area) Non-Intermittent
@@ -554,6 +581,13 @@ HV generation half hourly single rate:
   - Unit rate 1 p/kWh
   - Reactive power charge p/kVArh
   - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio
+---
+HV generation half hourly single rate no reactive:
+  - PC0
+  - Name: HV Generation Intermittent no RP charge
+  - Fixed charge p/MPAN/day
+  - Unit rate 1 p/kWh
+  - Included: gennoreact
 ---
 HV generation half hourly single rate (67% credit):
   - PC0
@@ -602,6 +636,13 @@ HV generation half hourly:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: common|WS2|WS3|Opt6|portfolio|simplegen
+---
+HV generation half hourly no reactive:
+  - PC0
+  - Name: HV Generation Non-Intermittent no RP charge
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: gennoreact
 ---
 HV generation half hourly (67% credit):
   - PC0
@@ -652,6 +693,14 @@ HV substation generation half hourly single rate:
   - Included: gensub|portfolio
   - Excluded: dcp163
 ---
+HV substation generation half hourly single rate no reactive:
+  - PC0
+  - Name: HV Sub Generation Intermittent no RP charge
+  - Fixed charge p/MPAN/day
+  - Unit rate 1 p/kWh
+  - Included: gennoreact
+  - Excluded: dcp163
+---
 HV substation generation (GDP) half hourly single rate:
   - PC0
   - Name: HV Sub Generation (GDP area) Intermittent
@@ -677,6 +726,14 @@ HV substation generation half hourly:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: gensub|portfolio
+  - Excluded: dcp163
+---
+HV substation generation half hourly no reactive:
+  - PC0
+  - Name: HV Sub Generation Non-Intermittent no RP charge
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: gennoreact
   - Excluded: dcp163
 ---
 HV substation generation (GDP) half hourly:
