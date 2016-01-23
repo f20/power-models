@@ -101,6 +101,9 @@ gen RevBlock2=(AssetBasedChargingRateResidRev + DOCImportCapCharge+NRImportCapCh
 *The condition "& RevBlock2!=0" was added on 18Dec2015.
 *This was coupled with commenting out the line "*replace CCTotSSAssets = 1e-100 if CCTotSSAssets==0" in "Seg07 Shared assets MEAV.do"
 
+*Comment added on 19Jan2015
+*There is an error in the Excel model's calculation of the equivalent to AnnualDirectCostAllocation and AnnualIndirectCostAllocation.
+*This error has not been fixed. It should not matter for normal/expected datasets.
 
 gen Ratio=1
 replace Ratio = -(RevBlock1+AnnualChargeRemoteFCPLRIC)/RevBlock2 if (RevBlock1+AnnualChargeRemoteFCPLRIC+RevBlock2)<0 & RevBlock2!=0

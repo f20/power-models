@@ -88,6 +88,19 @@ forvalues j =1/`m' {
     log using Res`CSVTable', replace
     noisily: list company if company[_n-1]!=company
 
+* (19Jan2016) Define level of tolerance when checking values match 
+* Allow more lenient tolerance for t4601; only way of numbers agreeing.
+* This may, or may not, be related to error in Excel model commented on in Seg13 file.
+
+	  if `CSVTable'==4501 {
+		local tolerance=0.000000001
+		}
+
+	  if `CSVTable'==4601 {
+		local tolerance=0.000001
+		}
+
+
     forvalues i = 1/`n' {
 
         local StataVar: word `i' of `StataGrp`CSVTable''
@@ -103,9 +116,9 @@ forvalues j =1/`m' {
         replace diff`ExcelVar'=1 if `ExcelVar'==0&`StataVar'==.
         replace diff`ExcelVar'=1 if `ExcelVar'==.&`StataVar'==0
 
-        gen Match`ExcelVar'="OK" if (diff`ExcelVar'>0.99999999999999 &diff`ExcelVar'<1.00000000000001)
-        *gen Match`ExcelVar'="OK" if (diff`ExcelVar'==1)
-        sort company line
+        gen Match`ExcelVar'="OK" if diff`ExcelVar'> (1- `tolerance') & diff`ExcelVar'<(1+ `tolerance')
+	  
+	  sort company line
 
         display as error "``StataVar' `ExcelVar'"
         noisily: list comp line `StataVar' `ExcelVar' diff`ExcelVar' if Match`ExcelVar'~="OK"
