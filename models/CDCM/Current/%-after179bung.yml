@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 179 with election bung and statistics
+.: 'CDCM after DCP 179, with election bung and extras'
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

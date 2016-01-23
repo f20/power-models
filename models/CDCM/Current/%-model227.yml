@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 227 with CTables
+.: 'CDCM after DCP 227, with CTables'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

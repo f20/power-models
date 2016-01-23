@@ -84,7 +84,7 @@ sub ymlIndex {
             next;
         }
         while ( my ( $k, $v ) = each %$ruleset ) {
-            next if $k eq '.';
+            next if $k eq '.' || $k eq 'nickName';
             undef $keys{$k};
             my $fk = "$k?";
             my $fv = (

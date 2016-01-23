@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 179 with statistics
+.: 'CDCM after DCP 179, with extras'
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

@@ -1,5 +1,5 @@
 ---
-.: CDCM after DCP 179
+.: 'CDCM after DCP 179, clean'
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
