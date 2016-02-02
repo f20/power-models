@@ -688,7 +688,7 @@ Rules:
         push @rowArray, $rowEnd + 1;
         foreach ( 0 .. ( @rowArray - 2 ) ) {
             my $r = $rowArray[$_];
-            $ws->write( $r, $_, '', $wb->getFormat('hard') )
+            $ws->write( $r, $_, '', $wb->getFormat('textnocolour') )
               foreach $col .. $colEnd;
             $ws->data_validation(
                 $r, $col, $r, $colEnd,
