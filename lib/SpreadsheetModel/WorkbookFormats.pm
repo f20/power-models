@@ -534,13 +534,6 @@ Keys used in %$options:
             bold       => 1,
             @colourCaption,
         ],
-        hard => [
-            locked => !$options->{validation}
-              || $options->{validation} !~ /lenient/i ? 1 : 0,
-            @sizeText,
-            text_wrap => 0,
-            @sizeExtras,
-        ],
         link => [
             locked => 1,
             @sizeText,
@@ -705,6 +698,14 @@ Keys used in %$options:
             $options->{gridlines} ? ( right => 7, bottom => 1, )
             : ( left => 1, right => 1, ),
         ],
+        thcaleft => [
+            locked => 1,
+            @sizeLabelGroup,
+            num_format => $numText,
+            align      => 'left',
+            italic     => 1,
+            @colourHeader,
+        ],
         thg => [
             locked => 1,
             @sizeLabelGroup,
@@ -712,14 +713,6 @@ Keys used in %$options:
             align      => 'left',
             italic     => 1,
             text_wrap  => 1,
-            @colourHeader,
-        ],
-        thla => [
-            locked => 1,
-            @sizeLabelGroup,
-            num_format => $numText,
-            align      => 'left',
-            italic     => 1,
             @colourHeader,
         ],
         colnoteleft => [

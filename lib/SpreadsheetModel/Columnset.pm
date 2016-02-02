@@ -405,7 +405,8 @@ sub wsWrite {
                 }
                 else {
                     my $caFormat =
-                      $wb->getFormat( $#{ $co->{list} } > 2 ? 'thla' : 'thca' );
+                      $wb->getFormat(
+                        $#{ $co->{list} } > 2 ? 'thcaleft' : 'thca' );
                     $ws->write( $row - 1, $c4 + $_, $_ ? undef : $colShortName,
                         $caFormat )
                       foreach 0 .. $#{ $co->{list} };
