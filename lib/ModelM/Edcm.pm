@@ -317,7 +317,7 @@ EOT
                         /table|recursive|model/i ? ( recursive => 1 ) : (),
                         digits  => $digits,
                         columns => [$discounts],
-                        factors => [1000]
+                        factors => [10000]
                     );
                   } split /;\s*/,
                 $model->{checksums}
@@ -376,7 +376,7 @@ EOL
                 /table|recursive|model/i ? ( recursive => 1 ) : (),
                 digits  => $digits,
                 columns => [@columns],
-                factors => [ map { 1000 } 1 .. 4 ]
+                factors => [ map { 10000 } 1 .. 4 ]
             );
         } split /;\s*/, $model->{checksums} if $model->{checksums};
         $discounts = Columnset(

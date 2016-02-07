@@ -171,7 +171,7 @@ sub discounts {    # Not used if DCP 095
             /table|recursive|model/i ? ( recursive => 1 ) : (),
             digits  => $digits,
             columns => [@columns],
-            factors => [ map { 1000 } @columns ]
+            factors => [ map { 10000 } @columns ]
         );
       } split /;\s*/, $model->{checksums}
       if $model->{checksums};

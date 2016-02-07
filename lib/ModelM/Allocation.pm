@@ -135,6 +135,76 @@ sub allocation {
     );
 
     if ( $model->{dcp117} && $model->{dcp117} =~ /2014/ ) {
+        my $incomeForConnectionsIndirect =
+          $model->{objects}{incomeForConnectionsIndirect} ||= Dataset(
+            name  => 'Income for connections indirects (£)',
+            lines => 'In a legacy Method M workbook, this item is '
+              . 'on sheet Calc-Allocation, possibly cell G70',
+            defaultFormat => '0hard',
+            data          => [''],
+            number        => 1328,
+            dataset       => $model->{dataset},
+            appendTo      => $model->{objects}{inputTables},
+          );
+        if ( $model->{dcp118} && $model->{dcp117dcp118interaction} ) {
+            $model->{objects}{ehvRevenueInput} ||= Dataset(
+                name => 'EHV connected customers component of revenue (£/year)',
+                lines => 'In a legacy Method M workbook, this item is '
+                  . 'on sheet Calc-Allocation, possibly cell G68.',
+                defaultFormat => '0hard',
+                data          => [''],
+                number        => 1316,
+                dataset       => $model->{dataset},
+                appendTo      => $model->{objects}{inputTables},
+            );
+            $incomeForConnectionsIndirect =
+              $model->{objects}{incomeForConnectionsIndirectCooked} ||=
+              Arithmetic(
+                name => 'Income for connections indirects '
+                  . 'scaled by total/non-EHV revenue ratio (£)',
+                defaultFormat => '0soft',
+                arithmetic    => '=A1/(1-A2/A3)',
+                arguments     => {
+                    A1 => $incomeForConnectionsIndirect,
+                    A2 => $model->{objects}{ehvRevenueInput},
+                    A3 => $model->{objects}{oneYearDpcr}{columns}[0],
+                },
+              );
+        }
+        my $incomeForConnectionsIndirectPercentages = $expensedPercentages;
+        if ( $model->{dcp117weirdness} ) {
+            my $lvLevelset =
+              Labelset( list => [ @{ $ppu->{cols}{list} }[ 0, 1 ] ] );
+            my $ppuLv = Stack(
+                name => 'Pre-DCP 117 p/kWh split for LV mains and LV services',
+                cols => $lvLevelset,
+                sources => [$ppu],
+            );
+            my $expensedLv = Stack(
+                name    => 'Expensed proportions for LV mains and LV services',
+                cols    => $lvLevelset,
+                sources => [$expensedPercentages],
+            );
+            $incomeForConnectionsIndirectPercentages = Stack(
+                name          => 'Allocation for connections indirects income',
+                defaultFormat => '%copy',
+                cols          => $expensedPercentages->{cols},
+                sources       => [
+                    Arithmetic(
+                        name =>
+                          'LV allocations for connections indirects income',
+                        defaultFormat => '%soft',
+                        arithmetic    => '=A1/SUM(A2_A3)*SUM(A4_A5)',
+                        arguments     => {
+                            A1    => $ppuLv,
+                            A2_A3 => $ppuLv,
+                            A4_A5 => $expensedLv,
+                        },
+                    ),
+                    $expensedPercentages,
+                ],
+            );
+        }
         $ppu = Arithmetic(
             name       => 'p/kWh split (DCP 117 modified)',
             arithmetic => '=(((1-A52)*A2+A51*A1)*A6+A8*A18)/A7*100',
@@ -146,16 +216,8 @@ sub allocation {
                 A52 => $propOp,
                 A6  => $revenueToBeAllocated,
                 A1  => $expensedPercentages,
-                A18 => $expensedPercentages,
-                A8  => $model->{objects}{incomeForConnectionsIndirect} ||=
-                  Dataset(
-                    name          => 'Income for connections indirects (£)',
-                    defaultFormat => '0hard',
-                    data          => [''],
-                    number        => 1328,
-                    dataset       => $model->{dataset},
-                    appendTo      => $model->{objects}{inputTables},
-                  ),
+                A18 => $incomeForConnectionsIndirectPercentages,
+                A8  => $incomeForConnectionsIndirect,
             }
         );
     }
