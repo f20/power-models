@@ -90,6 +90,15 @@ sub expenditureAlloc {
                         Dataset(
                             name =>
                               'Net new connections and reinforcement costs (£)',
+                            lines => [
+                                'These data are derived from a combination of the'
+                                  . ' 2007/2008 regulatory reporting pack (table 2.4)'
+                                  . ' and 10-year averages from the FBPQ.',
+                                'In a post-DCP 117 legacy Method M workbook,'
+                                  . ' these data are on sheet Calc-Opex,'
+                                  . ' reading from right to left,'
+                                  . ' possibly starting at cell H7.',
+                            ],
                             rows => Labelset(
                                 list => [ $preAllocated->{rows}{list}[0] ]
                             ),

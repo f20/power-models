@@ -139,7 +139,7 @@ sub allocation {
           $model->{objects}{incomeForConnectionsIndirect} ||= Dataset(
             name  => 'Income for connections indirects (£)',
             lines => 'In a legacy Method M workbook, this item is '
-              . 'on sheet Calc-Allocation, possibly cell G70',
+              . 'on sheet Calc-Allocation, possibly cell G70.',
             defaultFormat => '0hard',
             data          => [''],
             number        => 1328,
