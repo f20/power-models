@@ -5,10 +5,11 @@ makeModels
 	-stats
 	ModelM/Current/%-*.yml
 	ModelM/Previous/%-*.yml
-	ModelM/Data-2011-01/*
-	ModelM/Data-2011-10/*
-	ModelM/Data-20??-02/*
+	ModelM/Data-20*/*
 
 useDatabase
 	tscs
 
+useDatabase
+	all
+	13
