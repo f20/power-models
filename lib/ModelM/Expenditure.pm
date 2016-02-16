@@ -247,7 +247,7 @@ sub expenditureAlloc {
     );
 
     my $direct = Arithmetic(
-        name          => 'Direct cost proportion',
+        name          => 'Direct cost proportion for each network level',
         defaultFormat => '%soft',
         arithmetic    => '=A1/A2',
         arguments     => { A1 => $totalDirect, A2 => $total }

@@ -229,7 +229,7 @@ sub discounts95 {
     );
 
     Columnset(
-        name    => 'Direct cost proportions',
+        name    => 'HV and LV direct cost proportions',
         columns => [ $lvDirect, $hvDirect ]
     );
 

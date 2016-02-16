@@ -72,7 +72,7 @@ sub discounts {    # Not used if DCP 095
     ) unless $model->{fixedIndirectPercentage};
 
     Columnset(
-        name    => 'Direct cost proportions',
+        name    => 'HV and LV direct cost proportions',
         columns => [ $lvDirect, $hvDirect ]
     ) unless $model->{fixedIndirectPercentage};
 
