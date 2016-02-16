@@ -132,7 +132,7 @@ sub totalUsage {
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $usageRates    = $self->usageRates;
     my $customerUsage = Arithmetic(
-        name       => 'Network usage for each user' . $labelTail,
+        name       => 'Network usage' . $labelTail,
         rows       => $volumes->[0]{rows},
         cols       => $usageRates->[0]{cols},
         arithmetic => '=' . join(

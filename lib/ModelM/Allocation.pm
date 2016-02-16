@@ -137,7 +137,7 @@ sub allocation {
     if ( $model->{dcp117} && $model->{dcp117} =~ /2014/ ) {
         my $incomeForConnectionsIndirect =
           $model->{objects}{incomeForConnectionsIndirect} ||= Dataset(
-            name  => 'Income for connections indirects (£)',
+            name  => 'DCP 117/DCP 231 additional annual income (£)',
             lines => 'In a legacy Method M workbook, this item is '
               . 'on sheet Calc-Allocation, possibly cell G70.',
             defaultFormat => '0hard',
@@ -160,7 +160,7 @@ sub allocation {
             $incomeForConnectionsIndirect =
               $model->{objects}{incomeForConnectionsIndirectCooked} ||=
               Arithmetic(
-                name => 'Income for connections indirects '
+                name => 'DCP 117/DCP 231 additional annual income '
                   . 'scaled by total/non-EHV revenue ratio (£)',
                 defaultFormat => '0soft',
                 arithmetic    => '=A1/(1-A2/A3)',
