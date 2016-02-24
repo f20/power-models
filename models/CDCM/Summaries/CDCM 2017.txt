@@ -6,6 +6,3 @@ makeModels
 
 useDatabase
 	all
-
-useDatabase
-	tscs
