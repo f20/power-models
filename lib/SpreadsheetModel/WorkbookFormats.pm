@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -369,21 +369,21 @@ Keys used in %$options:
         '%hardpm' => [
             locked => 0,
             @sizeNumber,
-            num_format => "$plus??,??0.0%;$minus??,??0.0%;[Green]=;$cyan@",
+            num_format => "$plus??,??0.00%;$minus??,??0.00%;[Green]=;$cyan@",
             align      => 'center',
             @colourHard,
         ],
         '%softpm' => [
             locked => 1,
             @sizeNumber,
-            num_format => "$plus??,??0.0%;$minus??,??0.0%;[Green]=;$cyan@",
+            num_format => "$plus??,??0.00%;$minus??,??0.00%;[Green]=;$cyan@",
             align      => 'center',
             @colourSoft,
         ],
         '%copypm' => [
             locked => 1,
             @sizeNumber,
-            num_format => "$plus??,??0.0%;$minus??,??0.0%;[Green]=;$cyan@",
+            num_format => "$plus??,??0.00%;$minus??,??0.00%;[Green]=;$cyan@",
             align      => 'center',
             @colourCopy,
         ],
