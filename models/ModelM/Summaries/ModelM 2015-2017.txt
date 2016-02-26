@@ -1,0 +1,13 @@
+makeModels
+	-sqlite
+	-pickbest
+	ModelM/Current/%-before117231.yml
+	ModelM/Current/%-after117231cooked.yml
+	ModelM/Data-2015-02*/*
+	ModelM/Data-2016-02*/*
+	ModelM/Data-2017-02*/*
+
+useDatabase
+	tscs
+	13
+	16
