@@ -199,10 +199,10 @@ sub create {
                 $options->{password},
                 /^(?:Index|Overview)$/is
                 ? {
-                    select_locked_cells   => 0,
+                    select_unlocked_cells => 1,
+                    select_locked_cells   => 1,
                     sort                  => 1,
                     autofilter            => 1,
-                    select_unlocked_cells => 1,
                   }
                 : ()
               ]
