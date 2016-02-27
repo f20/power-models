@@ -777,13 +777,9 @@ groups.  Only the DCUSA Panel and its working groups have authority to approve t
 Reckon LLP makes no representation about the suitability of this material for the purposes of complying with any licence
 conditions or furthering any relevant objective.
 EOL
-            $model->{colour} && $model->{colour} =~ /gold/ ? <<EOL :
-
-UNLESS STATED OTHERWISE, ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
-EOL
               <<EOL,
 
-UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
+{unlocked} UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
 EOL
             $model->{noLinks} ? () : <<EOL,
 
@@ -796,7 +792,7 @@ EOL
 
             <<'EOL',
 
-Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others. 
+Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others. 
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
 Use and distribution of the source code is subject to the conditions stated therein. 
 Any redistribution of this software must retain the following disclaimer:

@@ -112,9 +112,11 @@ sub wsWrite {
 
     for ( 0 .. $lastRow ) {
         my $rf = $self->{rowFormats}[$_];
+        local $_ = "$self->{lines}[$_]";
+        $rf = [ base => 'text', bold => 1, locked => 0 ]
+          if !defined $rf && s/^\{unlocked\}\s*//s;
         $ws->set_row( $row, 21 ) if $rf && $rf eq 'caption';
-        $ws->write( $row++, $col, "$self->{lines}[$_]",
-              $rf
+        $ws->write( $row++, $col, $_, $rf
             ? $wb->getFormat($rf)
             : $defaultFormat );
     }

@@ -99,10 +99,11 @@ sub wsWrite {
         $ws->write( $row++, $col, $title, $wb->getFormat('caption') );
         ++$row;
     }
-    my $numFormat0 = $wb->getFormat('0softnz');
-    my $numFormat1 = $wb->getFormat('0.000soft');
-    my $textFormat = $wb->getFormat('text');
-    my $linkFormat = $wb->getFormat('link');
+    my $headerFormat = $wb->getFormat( [ base => 'th',        locked => 0 ] );
+    my $numFormat0   = $wb->getFormat( [ base => '0softnz',   locked => 0 ] );
+    my $numFormat1   = $wb->getFormat( [ base => '0.000soft', locked => 0 ] );
+    my $textFormat   = $wb->getFormat( [ base => 'text',      locked => 0 ] );
+    my $linkFormat   = $wb->getFormat( [ base => 'link',      locked => 0 ] );
 
     if ( $logger->{lines} ) {
         $ws->write( $row++, $col, "$_", $textFormat )
@@ -112,7 +113,7 @@ sub wsWrite {
     my @h = ( 'Worksheet', 'Table', 'Type of table' );
     push @h, 'Dimensions', 'Count', 'Average' if $logger->{showDetails};
 
-    $ws->write( $row, $col + $_, "$h[$_]", $wb->getFormat('th') ) for 0 .. $#h;
+    $ws->write( $row, $col + $_, "$h[$_]", $headerFormat ) for 0 .. $#h;
     $row++;
 
     my @objectList = sort {

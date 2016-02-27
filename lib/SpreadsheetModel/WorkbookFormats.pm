@@ -29,10 +29,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
+use Storable qw(nfreeze);
+$Storable::canonical = 1;
 
 sub getFormat {
     my ( $workbook, $key, @decorations ) = @_;
-    $workbook->{formats}{ join ' ', $key, @decorations } ||=
+    $workbook->{formats}{ nfreeze( [ $key, @decorations ] ) } ||=
       UNIVERSAL::can( $key, 'copy' )
       ? do {
         my $f = $workbook->add_format;

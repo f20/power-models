@@ -2,7 +2,7 @@ package SpreadsheetModel::FormatSampler;
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -38,8 +38,13 @@ sub new {
 
 sub wsWrite {
     my ( $sampler, $wbook, $wsheet ) = @_;
-    my $row       = $wsheet->{nextFree} || 0;
-    my $row0      = $row;
+    my $row = $wsheet->{nextFree} || 0;
+    $wsheet->write_string(
+        $row, 0,
+        'Spreadsheet format sampler',
+        $wbook->getFormat('notes')
+    );
+    my $row0      = $row += 2;
     my $thFormat  = $wbook->getFormat('th');
     my $thcFormat = $wbook->getFormat('thc');
     $wsheet->write_string( $row,   0, 'Format',   $thcFormat );
@@ -49,6 +54,7 @@ sub wsWrite {
     $wsheet->write_string( $row,   4, 'Text',     $thcFormat );
     $wsheet->write_string( $row,   5, 'Error',    $thcFormat );
     $wsheet->write_string( $row++, 6, 'JSON',     $thcFormat );
+
     foreach ( sort keys %{ $wbook->{formatspec} } ) {
         my $format = $wbook->getFormat($_);
         $wsheet->write_string( $row, 0, $_, $thFormat );

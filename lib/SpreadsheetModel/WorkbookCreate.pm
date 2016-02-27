@@ -85,10 +85,8 @@ sub create {
 
     $wbook->setFormats( $optionArray[0] );
     my @models;
-    my ( %allClosures, @wsheetShowOrder, %wsheetActive, %wsheetPassword );
-    my @forwardLinkFindingRun;
-    my $multiModelSharing;
-    my %sheetDisplayName;
+    my ( %allClosures, @wsheetShowOrder, %wsheetActive, %wsheetProtect,
+        %sheetDisplayName, @forwardLinkFindingRun, $multiModelSharing );
 
     foreach my $i ( 0 .. $#optionArray ) {
         if ( my $dataset = $optionArray[$i]{dataset} ) {
@@ -197,8 +195,18 @@ sub create {
             $allClosures{$fullName} = $closure;
             undef $wsheetActive{$_}
               if $options->{activeSheets} && /$options->{activeSheets}/;
-            $wsheetPassword{$fullName} = $options->{password}
-              if $options->{protect} && !/^(?:Index|Overview)$/is;
+            $wsheetProtect{$fullName} = [
+                $options->{password},
+                /^(?:Index|Overview)$/is
+                ? {
+                    select_locked_cells   => 0,
+                    sort                  => 1,
+                    autofilter            => 1,
+                    select_unlocked_cells => 1,
+                  }
+                : ()
+              ]
+              if $options->{protect};
         }
 
     }
@@ -217,8 +225,7 @@ sub create {
                 $ws->set_header("&L&A&C&R&P of &N");
                 $ws->set_footer("&F");
                 $ws->hide_gridlines(2);
-                $ws->protect( $wsheetPassword{$_} )
-                  if exists $wsheetPassword{$_};
+                $ws->protect( @{ $wsheetProtect{$_} } ) if $wsheetProtect{$_};
                 $ws->activate if exists $wsheetActive{$_};
             }
             $wsheet{$_} = $byDisplayName{$dn} = $ws;

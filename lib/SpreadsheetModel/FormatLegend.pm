@@ -43,7 +43,7 @@ sub wsWrite {
     $wsheet->write_string( ++$row, 2, 'Colour coding',
         $wbook->getFormat('th') );
     $wsheet->write_string( ++$row, 2, 'Input data',
-        $wbook->getFormat('texthard') );
+        $wbook->getFormat( [ base => 'texthard', locked => 1 ] ) );
     $wsheet->write_string(
         ++$row, 2,
         'Constant value',
@@ -62,7 +62,7 @@ sub wsWrite {
     $wsheet->write_string(
         ++$row, 2,
         'Unused cell in input data table',
-        $wbook->getFormat('unused')
+        $wbook->getFormat( [ base => 'unused', locked => 1 ] )
     ) unless $colourCode->[0];
     $wsheet->write_string(
         ++$row, 2,
@@ -72,7 +72,7 @@ sub wsWrite {
     $wsheet->write_string(
         ++$row, 2,
         'Unlocked cell for notes',
-        $wbook->getFormat('scribbles')
+        $wbook->getFormat( [ base => 'scribbles', locked => 1 ] )
     ) unless $colourCode->[0];
     ++$row;
     $wsheet->{nextFree} = $row
