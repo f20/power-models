@@ -73,8 +73,10 @@ sub worksheetsAndClosures {
         $model->{multiModelSharing}->addModelName( qq%='$sh'!%
               . xl_rowcol_to_cell( $ro, $co )
               . qq%&" "&'$sh'!%
+              . xl_rowcol_to_cell( $ro, $co + 1 )
+              . qq%&" "&'$sh'!%
               . xl_rowcol_to_cell( $ro, $co + 2 ) )
-          if $model->{multiModelSharing};
+          if $model->{multiModelSharing} && !$wbook->{findForwardLinks};
         $_->wsWrite( $wbook, $wsheet )
           foreach sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
           @{ $model->{objects}{inputTables} };
@@ -125,7 +127,7 @@ sub worksheetsAndClosures {
           @{ $model->{objects}{resultsTables} };
         $model->{multiModelSharing}
           ->addImpactTableSet( $model->{objects}{resultsTables} )
-          if $model->{multiModelSharing};
+          if $model->{multiModelSharing} && !$wbook->{findForwardLinks};
     };
 
     return $model->{multiModelSharing}

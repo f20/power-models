@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2014 Franck Latrémolière.
+Copyright 2014-2016 Franck Latrémolière.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -78,38 +78,51 @@ sub worksheetsAndClosuresWithController {
                 my $colset = Labelset(
                     list => [
                         map {
-                            qq%='$sh'!%
+                            $leadTable->{columns}[$_]{name} =~ /checksum/i
+                              ? ()
+                              : qq%='$sh'!%
                               . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                                 $ro - 1, $co + $_ )
                         } 0 .. $#{ $leadTable->{columns} }
                     ]
                 );
-                my $defaultFormat = $leadTable->{defaultFormat}
-                  || $leadTable->{columns}[0]{defaultFormat};
+                my $defaultFormat =
+                    $leadTable->{columns}
+                  ? $leadTable->{columns}[0]{defaultFormat}
+                  : $leadTable->{defaultFormat};
                 $defaultFormat =~ s/soft/copy/
                   unless $defaultFormat =~ /pm$/;
-                Constant(
-                    name          => "From $leadTable->{name}",
-                    defaultFormat => $defaultFormat,
-                    rows          => $modelNameset,
-                    cols          => $colset,
-                    byrow         => 1,
-                    data          => [
-                        map {
-                            my $table = $_->[$tableNo];
-                            my ( $sh, $ro, $co ) =
-                              $table->{columns}[0]->wsWrite( $wbook, $wsheet );
-                            $sh = $sh->get_name;
-                            [
-                                map {
-                                    qq%='$sh'!%
-                                      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                        $ro, $co + $_ );
-                                } 0 .. $#{ $leadTable->{columns} }
-                            ];
-                        } @{ $mms->{impactTableSets} }
-                    ]
-                );
+                my $lastRow =
+                  $leadColumn->{rows} ? $#{ $leadColumn->{rows}{list} } : 0;
+                map {
+                    my $row = $_;
+                    Constant(
+                        name => "From $leadTable->{name}"
+                          . (
+                            $lastRow ? " $leadColumn->{rows}{list}[$row]" : ''
+                          ),
+                        defaultFormat => $defaultFormat,
+                        rows          => $modelNameset,
+                        cols          => $colset,
+                        byrow         => 1,
+                        data          => [
+                            map {
+                                my $table = $_->[$tableNo];
+                                my ( $sh, $ro, $co ) =
+                                  $table->{columns}[0]
+                                  ->wsWrite( $wbook, $wsheet );
+                                $sh = $sh->get_name;
+                                [
+                                    map {
+                                        qq%='$sh'!%
+                                          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                            $ro + $row, $co + $_ );
+                                    } 0 .. $#{ $colset->{list} }
+                                ];
+                            } @{ $mms->{impactTableSets} }
+                        ]
+                    );
+                } 0 .. $lastRow;
               } grep { $mms->{impactTableSets}[0][$_]{columns}; }
               0 .. $#{ $mms->{impactTableSets}[0] };
         };
