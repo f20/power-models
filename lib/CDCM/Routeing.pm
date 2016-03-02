@@ -410,8 +410,28 @@ EOL
         data  => [
             map {
                 my $ar =
-                  /^(LDNO )?LV sub.*generat/i ? [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
-                  : /^(LDNO )?LV.*generat/i   ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
+                  /EHV-matched/i
+                  ? (
+                    /^(LDNO )?LV sub/i
+                    ? [ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 ]
+                    : /^LV (additional|related)/i
+                    ? [ 0, 0, 0, 1, 1, 1, 1, 1, 0, 0 ]
+                    : $model->{boundary} && /^LDNO LV B[^:]*([0-9]+)/i ? [
+                        0, 0, 0, 1, 1, 1, 1, ( $1 - 1 ) / $model->{boundary},
+                        0, 0
+                      ]
+                    : /^LDNO LV/i        ? [ 0, 0, 0, 1, 1, 1, 1, undef, 0, 0 ]
+                    : /^LV/i             ? [ 0, 0, 0, 1, 1, 1, 1, 1,     1, 0 ]
+                    : /^(LDNO )?HV sub/i ? [ 0, 0, 0, 1, 1, 0, 0, 0,     0, 0 ]
+                    : /^LDNO HV/i        ? [ 0, 0, 0, 1, 1, 1, 0, 0,     0, 0 ]
+                    : /^HV (additional|related)/i
+                    ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ]
+                    : /^HV/i ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1 ]
+                    :          die $_
+                  )
+                  : /^(LDNO )?LV sub.*generat/i
+                  ? [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
+                  : /^(LDNO )?LV.*generat/i ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
                   : /^(LDNO HV.*: )?HV sub.*generat/i
                   ? [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 ]
                   : /^(LDNO HV.*: )?HV.*generat/i
@@ -494,7 +514,7 @@ EOT
                     ),
                     cols       => Labelset( list => ['LV circuits'] ),
                     arithmetic => '=A1',
-                    arguments  => { A1          => $splits }
+                    arguments  => { A1           => $splits }
                 ),
                 Arithmetic(
                     name => 'LDNO HV split',
@@ -506,7 +526,7 @@ EOT
                     ),
                     cols       => Labelset( list => ['HV'] ),
                     arithmetic => '=A1',
-                    arguments  => { A1          => $splits }
+                    arguments  => { A1           => $splits }
                 ),
                 $routeingFactors
             ],
@@ -643,11 +663,14 @@ EOT
         A5 => $routeingFactors,
       };
 
-    push @{ $model->{routeing} }, $lineLossFactorsToGsp,
+    push @{ $model->{routeing} },
+      $lineLossFactorsToGsp,
       $lineLossFactorsNetwork, $routeingFactors, $lineLossFactors;
 
-    $assetCustomerLevels, $assetDrmLevels, $assetLevels, $chargingDrmExitLevels,
-      $chargingLevels, $customerChargingLevels, $customerLevels, $networkLevels,
+    $assetCustomerLevels, $assetDrmLevels, $assetLevels,
+      $chargingDrmExitLevels,
+      $chargingLevels, $customerChargingLevels, $customerLevels,
+      $networkLevels,
       $operatingCustomerLevels, $operatingDrmExitLevels, $operatingDrmLevels,
       $operatingLevels,         $routeingFactors,        $lineLossFactorsToGsp,
       $lineLossFactorsLevel,    $lineLossFactorsNetwork, $lineLossFactors,

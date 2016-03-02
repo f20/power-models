@@ -913,7 +913,8 @@ sub timeOfDay179Runner {
         );
 
         foreach ( values %{ $eq{userSet} } ) {
-            die 'Mismatch' if @{ $_->{list} } != @{ $groupset->{list} };
+            die "Mismatch: @{ $_->{list} } != @{ $groupset->{list} }"
+              if @{ $_->{list} } != @{ $groupset->{list} };
             push @{ $_->{accepts} },        $groupset;
             push @{ $groupset->{accepts} }, $_;
         }

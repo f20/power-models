@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -309,7 +309,37 @@ EOY
           if $d->{1053};
     }
 
-# Below is mostly for DCP 179 but applied to all cases to help multi-model manufacturing.
+# Below is for EHV matching but applied to all cases to help multi-model manufacturing.
+
+    if (  !exists $d->{1025}[1]{'LV HH Metered EHV-matched source'}
+        && exists $d->{1025}[1]{'LV HH Metered'} )
+    {
+        foreach ( 1 .. 8 ) {
+            my $col = $d->{1025}[$_];
+            $col->{'LV HH Metered EHV-matched source'} = $col->{'LV HH Metered'};
+        }
+    }
+
+    if (  !exists $d->{1025}[1]{'LV Sub HH Metered EHV-matched source'}
+        && exists $d->{1025}[1]{'LV Sub HH Metered'} )
+    {
+        foreach ( 1 .. 8 ) {
+            my $col = $d->{1025}[$_];
+            $col->{'LV Sub HH Metered EHV-matched source'} =
+              $col->{'LV Sub HH Metered'};
+        }
+    }
+
+    if (  !exists $d->{1028}[1]{'HV HH Metered EHV-matched source'}
+        && exists $d->{1028}[1]{'HV HH Metered'} )
+    {
+        foreach ( 1 .. 8 ) {
+            my $col = $d->{1028}[$_];
+            $col->{'HV HH Metered EHV-matched source'} = $col->{'HV HH Metered'};
+        }
+    }
+
+# Below is for DCP 179 but applied to all cases to help multi-model manufacturing.
 
     if (  !exists $d->{1025}[1]{'LV Network Non-Domestic Non-CT'}
         && exists $d->{1025}[1]{'LV HH Metered'} )

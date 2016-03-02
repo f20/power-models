@@ -194,6 +194,15 @@ LV half hourly:
   - Included: special|common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|boundary|portfolio|dcp161toy|simple
   - Excluded: dcp179
 ---
+LV (EHV-matched source):
+  - PC0
+  - Name: LV HH Metered (EHV-matched source)
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: matching|portfolio
+---
 LV substation half hourly:
   - PC0
   - Name: LV Sub HH Metered
@@ -204,6 +213,15 @@ LV substation half hourly:
   - Included: common|EDF|WS2|WS3|Opt2|Opt3|Opt4|portfolio|simple
   - Excluded: dcp179
 ---
+LV substation (EHV-matched source):
+  - PC0
+  - Name: LV Sub HH Metered (EHV-matched source)
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: matching|portfolio
+---
 HV half hourly:
   - PC0
   - Name: HV HH Metered
@@ -213,6 +231,15 @@ HV half hourly:
   - Reactive power charge p/kVArh
   - Included: common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|T9|dcp161toy|simple
   - Excluded: dcp179
+---
+HV (EHV-matched source):
+  - PC0
+  - Name: HV HH Metered (EHV-matched source)
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: matching|portfolio
 ---
 HV substation half hourly:
   - PC0
