@@ -167,8 +167,8 @@ sub usetMatchAssets {
         vector        => $beforeMatching,
         defaultFormat => '0softnz',
     );
-    my $target = Dataset(
-        name          => 'Target total notional assets (£)',
+    my $maxAssets = Dataset(
+        name          => 'Maximum total notional asset value (£)',
         number        => 1558,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
@@ -182,11 +182,11 @@ sub usetMatchAssets {
               . 'and target gross modern equivalent asset value (£)',
             columns => [
                 $totalBefore,
-                Stack( sources => [$target] ),
+                Stack( sources => [$maxAssets] ),
                 Arithmetic(
                     name       => 'Ratio',
                     arithmetic => '=A1/A2',
-                    arguments  => { A1 => $totalBefore, A2 => $target },
+                    arguments  => { A1 => $totalBefore, A2 => $maxAssets },
                 )
             ]
           );
@@ -197,7 +197,7 @@ sub usetMatchAssets {
               . ' (£/kVA or £/point)',
             arithmetic => '=A1*MIN(1,A2/A3)',
             arguments =>
-              { A1 => $beforeMatching, A2 => $target, A3 => $totalBefore, },
+              { A1 => $beforeMatching, A2 => $maxAssets, A3 => $totalBefore, },
         );
     }
 }
