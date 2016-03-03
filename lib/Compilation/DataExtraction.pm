@@ -132,37 +132,38 @@ sub _extractInputData {
                             $dirtyOverall ||= $dirty{$tableNumber};
                             $dirty{$tableNumber} = 1;
                         }
+                        elsif ($v) {
+                            $v =~ s/[^A-Za-z0-9-]/ /g;
+                            $v =~ s/- / /g;
+                            $v =~ s/ +/ /g;
+                            $v =~ s/^ //;
+                            $v =~ s/ $//;
+                            $rowName = $v eq '' ? '•' : $v;
+                            $to1->[0][ $row - $columnHeadingsRow ] =
+                              $to2->[0][ $row - $columnHeadingsRow ] = $rowName
+                              if ref $to1->[0] eq 'ARRAY'
+                              and defined $columnHeadingsRow;
+                        }
                         else {
-                            if ($v) {
-                                $v =~ s/[^A-Za-z0-9-]/ /g;
-                                $v =~ s/- / /g;
-                                $v =~ s/ +/ /g;
-                                $v =~ s/^ //;
-                                $v =~ s/ $//;
-                                $rowName = $v eq '' ? '•' : $v;
-                                $to1->[0][ $row - $columnHeadingsRow ] =
-                                  $to2->[0][ $row - $columnHeadingsRow ] =
-                                  $rowName
-                                  if ref $to1->[0] eq 'ARRAY'
-                                  and defined $columnHeadingsRow;
-                            }
+                            undef $tableNumber;
                         }
                     }
-                    else {
-                        if ( ref $to1->[0] eq 'HASH' )
-                        {    # old-style table comment
-                            $to1->[0]{'_note'} = $to2->[0]{'_note'} = $v if $v;
+                    else {    # unlocked cell in column 0
+                        unless ( defined $tableNumber
+                            && $tableNumber eq $worksheet->{Name} . '!' )
+                        {
+                            $tableNumber = $worksheet->{Name} . '!';
+                            $to1         = $tree->{$tableNumber} ||= [ [] ];
+                            $to2         = [ [] ];
+                            $columnHeadingsRow = 0;
                         }
-                        else {
-                            $columnHeadingsRow = $row - 1
-                              unless defined $columnHeadingsRow;
-                            $to1->[0][ $row - $columnHeadingsRow ] =
-                              $to2->[0][ $row - $columnHeadingsRow ] = $v;
-                        }
+                        $rowName = '';
+                        $to1->[0][ $row - $columnHeadingsRow ] =
+                          $to2->[0][ $row - $columnHeadingsRow ] = $v;
                     }
                 }
-                elsif ($tableNumber) {
-                    if ( !$rowName ) {
+                elsif ( defined $tableNumber ) {
+                    if ( !defined $rowName ) {
                         $columnHeadingsRow = $row;
                         if ( ref $to1->[0] eq 'ARRAY' ) {
                             $to1->[$col][0] = $v;
@@ -177,7 +178,7 @@ sub _extractInputData {
                         && !$cell->{Format}{Lock}
                         && ( $v || $to1->[$col] ) )
                     {
-                        if ( ref $to1->[$col] eq 'ARRAY' ) {
+                        if ( ref $to1->[$col] eq 'ARRAY' || $rowName eq '' ) {
                             $to1->[$col][ $row - $columnHeadingsRow ] =
                               $to2->[$col][ $row - $columnHeadingsRow ] = $v;
                         }
