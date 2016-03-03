@@ -1,10 +1,10 @@
 ---
-.: 'Clean with EHV-matched demand tariffs, DCP 227 and DCP 161'
+.: 'Local sourcing tariffs (equalised), after DCP 227 and DCP 161'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
 checksums: Line checksum 5; Table checksum 7
-coincidenceAdj: groupums
+coincidenceAdj: grouphhcaplevel
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4

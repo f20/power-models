@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -58,7 +58,12 @@ sub timeOfDay179 {
         $volumeByEndUser,
         $unitsByEndUser,
         '',
-        $model->{agghhequalisation} ? 'equalisation' : 'none',
+        ( $model->{agghhequalisation} ? 'equalisation' : '' )
+          . (
+              $model->{coincidenceAdj} && $model->{coincidenceAdj} !~ /ums/i
+            ? $model->{coincidenceAdj}
+            : 'none'
+          ),
     );
 
     my (@pseudoLoadCoeffUnmetered) = $model->timeOfDay179Runner(
@@ -804,6 +809,210 @@ sub timeOfDay179Runner {
                     A3_A7 => $red,
                 }
             );
+
+        }
+
+        elsif ( $correctionRules =~ /group/i ) {
+
+            my $relevantUsers =
+              Labelset( list =>
+                  [ grep { !/gener/i } @{ $relevantEndUsersByRate[0]{list} } ]
+              );
+
+            my ( $tariffGroupset, $mapping );
+
+            if ( $correctionRules =~ /voltage/i ) {
+
+                $relevantUsers =
+                  Labelset( list =>
+                      [ grep { !/^hv sub/i } @{ $relevantUsers->{list} } ] );
+
+                $tariffGroupset =
+                  Labelset(
+                    list => [ 'LV network', 'LV substation', 'HV network', ] );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => [
+                        map {
+                                /^lv sub/i ? [qw(0 1 0)]
+                              : /^lv/i     ? [qw(1 0 0)]
+                              :              [qw(0 0 1)];
+                        } @{ $relevantUsers->{list} }
+                    ],
+                    byrow => 1,
+                );
+
+            }
+            elsif ( $correctionRules =~ /3|three/i ) {
+
+                $tariffGroupset = Labelset(
+                    list => [
+                        'Domestic and/or single-phase '
+                          . 'and/or non-half-hourly UMS',
+                        'Non-domestic and/or three-phase whole current metered',
+                        'Large and/or half-hourly',
+                    ]
+                );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => [
+                        map {
+                            /domestic|1p|single/i && !/non.?dom/i
+                              || !$componentMap->{$_}{'Fixed charge p/MPAN/day'}
+                              && !$componentMap->{$_}{'Unit rates p/kWh'}
+                              ? [qw(1 0 0)]
+                              : /wc|small/i ? [qw(0 1 0)]
+                              :               [qw(0 0 1)];
+                        } @{ $relevantUsers->{list} }
+                    ],
+                    byrow => 1,
+                );
+
+            }
+
+            elsif (
+                $correctionRules =~ /hhcap/i
+                && (
+                    my @relevantToGrouping2 =
+                    grep {
+                             $componentMap->{$_}{'Capacity charge p/kVA/day'}
+                          && $componentMap->{$_}{'Unit rates p/kWh'};
+                    } @{ $relevantUsers->{list} }
+                )
+              )
+            {
+
+                $relevantUsers =
+                  @{ $relevantEndUsersByRate[0]{list} } == @relevantToGrouping2
+                  ? $relevantEndUsersByRate[0]    # hack
+                  : Labelset( list => \@relevantToGrouping2 );
+
+                if ( $correctionRules =~ /level/i ) {
+
+                    $tariffGroupset =
+                      Labelset( list => [ 'LV HH', 'LV Sub HH', 'HV HH', ] );
+
+                    $mapping = Constant(
+                        name => 'Mapping of tariffs to '
+                          . 'tariff groups for coincidence adjustment factor',
+                        defaultFormat => '0connz',
+                        rows          => $relevantUsers,
+                        cols          => $tariffGroupset,
+                        data          => [
+                            map {
+                                    /^lv sub/i ? [qw(0 1 0)]
+                                  : /^lv/i     ? [qw(1 0 0)]
+                                  :              [qw(0 0 1)];
+                            } @{ $relevantUsers->{list} }
+                        ],
+                        byrow => 1,
+                    );
+
+                }
+                else {
+
+                    $tariffGroupset =
+                      Labelset(
+                        list => [ 'Half hourly with capacity charges', ] );
+
+                    $mapping = Constant(
+                        name => 'Mapping of tariffs to '
+                          . 'tariff groups for coincidence adjustment factor',
+                        defaultFormat => '0connz',
+                        rows          => $relevantUsers,
+                        cols          => $tariffGroupset,
+                        data => [ map { 1; } @{ $relevantUsers->{list} } ],
+                    );
+
+                }
+
+            }
+
+            if ($mapping) {
+
+                my $red = Arithmetic(
+                    name          => 'Contribution to peak band kW',
+                    defaultFormat => '0softnz',
+                    arithmetic    => '=A1*A2/24/A3*1000',
+                    rows          => $relevantUsers,
+                    arguments     => {
+                        A1 => $timebandLoadCoefficientAccording,
+                        A2 => $unitsByEndUser,
+                        A3 => $daysInYear,
+                    },
+                );
+
+                my $coin = Arithmetic(
+                    name          => 'Contribution to system-peak-time kW',
+                    defaultFormat => '0softnz',
+                    arithmetic    => '=A1*A2/24/A3*1000',
+                    rows          => $relevantUsers,
+                    arguments     => {
+                        A1 => $loadCoefficients,
+                        A2 => $unitsByEndUser,
+                        A3 => $daysInYear,
+                    },
+                );
+
+                $timebandLoadCoefficientAccording->{dontcolumnset} = 1;
+
+                Columnset(
+                    name => 'Estimated contributions to peak demand',
+                    columns => [    # $timebandLoadCoefficientAccording,
+                        $red, $coin,
+                    ]
+                );
+
+                my $redG = SumProduct(
+                    name          => 'Group contribution to first-band peak kW',
+                    defaultFormat => '0softnz',
+                    matrix        => $mapping,
+                    vector        => $red,
+                );
+
+                my $coinG = SumProduct(
+                    name => 'Group contribution to system-peak-time kW',
+                    defaultFormat => '0softnz',
+                    matrix        => $mapping,
+                    vector        => $coin,
+                );
+
+                $timebandLoadCoefficientAdjusted = Stack(
+                    name    => 'Load coefficient correction factor (combined)',
+                    rows    => $relevantEndUsersByRate[0],
+                    cols    => 0,
+                    sources => [
+                        SumProduct(
+                            name => 'Load coefficient correction factor '
+                              . '(based on group)',
+                            matrix => $mapping,
+                            vector => Arithmetic(
+                                name => 'Load coefficient correction factor'
+                                  . ' for each group',
+                                arithmetic => '=IF(A1,A2/A3,0)',
+                                rows       => 0,
+                                arguments  => {
+                                    A1 => $redG,
+                                    A2 => $coinG,
+                                    A3 => $redG,
+                                }
+                            ),
+                        ),
+                        $timebandLoadCoefficientAdjusted,
+                    ]
+                );
+
+            }
 
         }
 
