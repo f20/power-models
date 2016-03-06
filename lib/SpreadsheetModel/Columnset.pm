@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Franck Latremoliere, Reckon LLP and others.
+Copyright 2008-2016 Franck Latremoliere, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -550,13 +550,8 @@ use ->shortName here.
                     eval {
                         $ws->conditional_formatting(
                             $row, $c2,
-                            $row + $lastRow + (
-                                  $self->{columns}[$c]{rows}
-                                ? $self->{anonRow}
-                                : 0
-                            ),
-                            $c2 + $lastCol,
-                            $_
+                            $row + $lastRow,
+                            $c2 + $lastCol, $_
                         );
                     };
                     if ($@) {

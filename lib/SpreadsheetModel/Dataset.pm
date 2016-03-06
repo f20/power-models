@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -177,7 +177,6 @@ sub wsPrepare {
         my $fc = $self->{colOffset} || 0;
         my $lc = ++$fc + $self->lastCol;
         @overrideColumns = @{$dataset}[ $fc .. $lc ];
-        unless ( ref $dataset->[0] eq 'ARRAY' ) {
             @rowKeys = map {
                 local $_ = $_;
                 s/.*\n//s;
@@ -219,8 +218,7 @@ sub wsPrepare {
                 }
             }
             $self->{rowKeys} = \@rowKeys;
-        }
-    }
+            }
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000hard' );
     my $missingFormat =
       $wb->getFormat( $self->{defaultMissingFormat} || 'unused' );

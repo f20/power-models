@@ -85,7 +85,7 @@ sub create {
 
     $wbook->setFormats( $optionArray[0] );
     my @models;
-    my ( %allClosures, @wsheetShowOrder, %wsheetActive, %wsheetProtect,
+    my ( %allClosures, @wsheetShowOrder, %wsheetActive, %wsheetPassword,
         %sheetDisplayName, @forwardLinkFindingRun, $multiModelSharing );
 
     foreach my $i ( 0 .. $#optionArray ) {
@@ -195,17 +195,7 @@ sub create {
             $allClosures{$fullName} = $closure;
             undef $wsheetActive{$_}
               if $options->{activeSheets} && /$options->{activeSheets}/;
-            $wsheetProtect{$fullName} = [
-                $options->{password},
-                /^(?:Index|Overview)$/is
-                ? {
-                    select_unlocked_cells => 1,
-                    select_locked_cells   => 1,
-                    sort                  => 1,
-                    autofilter            => 1,
-                  }
-                : ()
-              ]
+            $wsheetPassword{$fullName} = $options->{password}
               if $options->{protect};
         }
 
@@ -217,18 +207,7 @@ sub create {
         my %byDisplayName;
         foreach ( @{ $wsheetShowOrder[$i] } ) {
             my $dn = $sheetDisplayName{$_};
-            my $ws = $byDisplayName{$dn};
-            unless ($ws) {
-                $ws = $wbook->add_worksheet($dn);
-                $ws->set_paper(9);
-                $ws->fit_to_pages( 1, 0 );
-                $ws->set_header("&L&A&C&R&P of &N");
-                $ws->set_footer("&F");
-                $ws->hide_gridlines(2);
-                $ws->protect( @{ $wsheetProtect{$_} } ) if $wsheetProtect{$_};
-                $ws->activate if exists $wsheetActive{$_};
-            }
-            $wsheet{$_} = $byDisplayName{$dn} = $ws;
+            $wsheet{$_} = $byDisplayName{$dn} ||= $wbook->add_worksheet($dn);
         }
     }
 
@@ -270,9 +249,18 @@ sub create {
         );
 
         foreach ( @{ $options->{wsheetRunOrder} } ) {
-            delete $wsheet{$_}{sheetNumber};
-            delete $wsheet{$_}{lastTableNumber};
-            $allClosures{$_}->( $wsheet{$_} );
+            my $ws = $wsheet{$_};
+            delete $ws->{sheetNumber};
+            delete $ws->{lastTableNumber};
+            $allClosures{$_}->($ws);
+            $ws->activate if exists $wsheetActive{$_};
+            $ws->fit_to_pages( 1, 0 );
+            $ws->hide_gridlines(2);
+            $ws->protect( $wsheetPassword{$_}, $ws->{protectionOptions} )
+              if exists $wsheetPassword{$_};
+            $ws->set_footer("&F");
+            $ws->set_header("&L&A&C&R&P of &N");
+            $ws->set_paper(9);
         }
 
         if ($exporter) {

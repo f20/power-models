@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Reckon LLP and others.
+Copyright 2008-2016 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,10 +34,7 @@ use Ancillary::ParallelRunning;
 
 sub ymlWriter {
     my ($arg) = @_;
-    my $options = {
-        $arg =~ /array/i ? ( preferArrays => 1 ) : (),
-        $arg =~ /min/i   ? ( minimum      => 1 ) : (),
-    };
+    my $options = { $arg =~ /min/i ? ( minimum => 1 ) : (), };
     sub {
         my ( $book, $workbook ) = @_;
         die unless $book;
@@ -62,10 +59,7 @@ sub ymlWriter {
 
 sub jsonWriter {
     my ($arg) = @_;
-    my $options = {
-        $arg =~ /array/i ? ( preferArrays => 1 ) : (),
-        $arg =~ /min/i   ? ( minimum      => 1 ) : (),
-    };
+    my $options = { $arg =~ /min/i ? ( minimum => 1 ) : (), };
     sub {
         my ( $book, $workbook ) = @_;
         die unless $book;
@@ -113,20 +107,14 @@ sub _extractInputData {
                             undef $columnHeadingsRow;
                             $to1 = $tree->{$tableNumber};
                             $to2 = [
-                                (
-                                          ref $to1->[0] ne 'HASH'
-                                      and ref $to1->[0] eq 'ARRAY'
-                                      || $options->{preferArrays}
-                                      && $tableNumber !~ /00$/
-                                )                     ? [$v]
-                                : $options->{minimum} ? {}
-                                :                       { '_table' => $v }
+                                $options->{minimum}
+                                ? undef
+                                : { '_table' => $v }
                             ];
                             $to1 = [
-                                $options->{preferArrays}
-                                  && $tableNumber !~ /00$/ ? [$v]
-                                : $options->{minimum} ? {}
-                                :                       { '_table' => $v }
+                                $options->{minimum}
+                                ? undef
+                                : { '_table' => $v }
                               ]
                               unless $to1->[0];
                             $dirtyOverall ||= $dirty{$tableNumber};
@@ -138,38 +126,37 @@ sub _extractInputData {
                             $v =~ s/ +/ /g;
                             $v =~ s/^ //;
                             $v =~ s/ $//;
-                            $rowName = $v eq '' ? '•' : $v;
-                            $to1->[0][ $row - $columnHeadingsRow ] =
-                              $to2->[0][ $row - $columnHeadingsRow ] = $rowName
-                              if ref $to1->[0] eq 'ARRAY'
-                              and defined $columnHeadingsRow;
+                            $rowName =
+                              $v eq ''
+                              ? 'Anon' . ( ( $columnHeadingsRow || 0 ) - $row )
+                              : $v;
                         }
                         else {
                             undef $tableNumber;
                         }
                     }
                     else {    # unlocked cell in column 0
-                        unless ( defined $tableNumber
-                            && $tableNumber eq $worksheet->{Name} . '!' )
-                        {
-                            $tableNumber = $worksheet->{Name} . '!';
-                            $to1         = $tree->{$tableNumber} ||= [ [] ];
-                            $to2         = [ [] ];
-                            $columnHeadingsRow = 0;
+                        if ( defined $tableNumber && $tableNumber eq '!' ) {
+                            $rowName =
+                              $v eq ''
+                              ? 'Anon' . ( $columnHeadingsRow - $row )
+                              : $v;
+                            $to1->[0][ $row - $columnHeadingsRow - 1 ] =
+                              $to2->[0][ $row - $columnHeadingsRow - 1 ] =
+                              $rowName;
                         }
-                        $rowName = '';
-                        $to1->[0][ $row - $columnHeadingsRow ] =
-                          $to2->[0][ $row - $columnHeadingsRow ] = $v;
+                        else {
+                            $tableNumber       = '!';
+                            $columnHeadingsRow = $row;
+                            $to1 = $tree->{$tableNumber} ||= [ [] ];
+                            $to2 = [ [] ];
+                        }
                     }
                 }
                 elsif ( defined $tableNumber ) {
                     if ( !defined $rowName ) {
                         $columnHeadingsRow = $row;
-                        if ( ref $to1->[0] eq 'ARRAY' ) {
-                            $to1->[$col][0] = $v;
-                            $to2->[$col][0] = $v;
-                        }
-                        elsif ( !$options->{minimum} ) {
+                        unless ( $options->{minimum} ) {
                             $to1->[$col]{'_column'} = $v;
                             $to2->[$col]{'_column'} = $v;
                         }
@@ -178,14 +165,8 @@ sub _extractInputData {
                         && !$cell->{Format}{Lock}
                         && ( $v || $to1->[$col] ) )
                     {
-                        if ( ref $to1->[$col] eq 'ARRAY' || $rowName eq '' ) {
-                            $to1->[$col][ $row - $columnHeadingsRow ] =
-                              $to2->[$col][ $row - $columnHeadingsRow ] = $v;
-                        }
-                        else {
-                            $to1->[$col]{$rowName} = $to2->[$col]{$rowName} =
-                              $v;
-                        }
+                        $to1->[$col]{$rowName} = $to2->[$col]{$rowName} =
+                          $v;
                         $tree->{$tableNumber} ||= $to1;
                         $byWorksheet{" $worksheet->{Name}"}{$tableNumber} =
                           $to2;

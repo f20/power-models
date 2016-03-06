@@ -91,14 +91,17 @@ sub loggableObjects {
 }
 
 sub wsWrite {
+
     my ( $logger, $wb, $ws, $row, $col ) = @_;
     ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )
       unless defined $row && defined $col;
-    if ( my $title = "$logger->{name}" ) {
+    if ( $logger->{name} ) {
         $ws->set_row( $row, 21 );
-        $ws->write( $row++, $col, $title, $wb->getFormat('caption') );
+        $ws->write( $row++, $col, "$logger->{name}",
+            $wb->getFormat('caption') );
         ++$row;
     }
+
     my $headerFormat = $wb->getFormat( [ base => 'th',        locked => 0 ] );
     my $numFormat0   = $wb->getFormat( [ base => '0softnz',   locked => 0 ] );
     my $numFormat1   = $wb->getFormat( [ base => '0.000soft', locked => 0 ] );
@@ -160,7 +163,6 @@ sub wsWrite {
               : die "Broken link to $obj->{name} $obj->{debug}";
             $wn =~ s/\000//g;    # squash strange rare bug
             my $na = "$_->{name}";
-            0 and $ws->set_row( $row + $r, undef, undef, 1 ) unless $na;
             $logger->{realRows}[$r] = $na;
 
             if ( $_->{logColumns} ) {
@@ -215,10 +217,15 @@ sub wsWrite {
     }
 
     $ws->autofilter( $row - 1, $col, $row + $r - 1, $col + 2 );
-    0 and $ws->filter_column( $col, 'x <> ""' );
+
+    $ws->{protectionOptions} ||= {
+        autofilter => 1,
+        sort       => 1,
+    };
 
     $ws->{nextFree} = $row + $r
       unless $ws->{nextFree} > $row + $r;
+
 }
 
 1;
