@@ -2,7 +2,7 @@ package CDCM;
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -82,18 +82,18 @@ __DATA__
     Domestic: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
     Domestic electric heat: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
     Domestic low use: '(?:^|: )(?:LV Network Domestic|Domestic [UT])'
-    Large business: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
-    Large continuous: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
-    Large housing electric: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
-    Large housing standard: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
-    Large intermittent: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
-    Large off-peak: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered$'
-    Medium business: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
-    Medium continuous: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
-    Medium housing electric: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
-    Medium housing standard: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
-    Medium intermittent: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
-    Medium off-peak: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered$)'
+    Large business: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered'
+    Large continuous: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered'
+    Large housing electric: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered'
+    Large housing standard: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered'
+    Large intermittent: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered'
+    Large off-peak: '^(?:LV|LV Sub|HV|LDNO .*:) HH Metered'
+    Medium business: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
+    Medium continuous: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
+    Medium housing electric: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
+    Medium housing standard: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
+    Medium intermittent: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
+    Medium off-peak: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
     Small business: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
     Small continuous: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
     Small intermittent: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'

@@ -1,0 +1,9 @@
+makeModels
+	-sqlite
+	-stats
+	CDCM/Local/%-local-227161.yml
+	CDCM/Data-2017-02/*
+
+useDatabase
+	all
+	42
