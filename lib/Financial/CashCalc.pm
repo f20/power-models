@@ -43,7 +43,7 @@ sub coincidence {
     my ( $cashCalc, $periods ) = @_;
     $cashCalc->{coincidence} ||= Dataset(
         name          => 'Cash buffer coincidence factor',
-        singleRowName => 'Allowance',
+        singleRowName => 'Factor',
         defaultFormat => '%hard',
         number        => 1448,
         dataset       => $cashCalc->{model}->{dataset},
