@@ -55,9 +55,10 @@ sub wsWrite {
 
     my $dataset;
     $dataset = $self->{dataset}{'!'} if $self->{dataset};
-    if ($dataset) {
+    if ( $dataset && ref $dataset->[1] eq 'HASH' ) {
         $dataset->[$_] = [ @{ $dataset->[$_] }{ @{ $dataset->[0] } } ]
           foreach grep { ref $dataset->[$_] eq 'HASH'; } 1 .. $#$dataset;
+        $_ = '' foreach grep { /^Anon-[0-9]+$/ } @{ $dataset->[0] };
     }
 
     $self->{$wb}{$ws} = 1;
@@ -67,26 +68,28 @@ sub wsWrite {
         @{ $_->{$wb} }{qw(worksheet row col)} = ( $ws, $row, $col + $lastCol );
 
         my $lCol = $_->lastCol;
+        foreach my $c ( 0 .. $lCol ) {
+            $ws->write(
+                $row - 1,
+                $col + $lastCol + $c,
+                $_->objectShortName
+                  . (
+                    $lCol
+                    ? (
+                        ': '
+                          . SpreadsheetModel::Object::_shortName(
+                            $_->{cols}{list}[$c]
+                          )
+                      )
+                    : ''
+                  ),
+                $thcFormat
+            );
+        }
 
         if ( ref $_ eq 'SpreadsheetModel::Dataset' ) {
             my $format = $wb->getFormat( $_->{defaultFormat} || 'texthard' );
             for my $c ( 0 .. $lCol ) {
-                $ws->write(
-                    $row - 1,
-                    $col + $lastCol + $c,
-                    $_->objectShortName
-                      . (
-                        $lCol
-                        ? (
-                            ': '
-                              . SpreadsheetModel::Object::_shortName(
-                                $_->{cols}{list}[$c]
-                              )
-                          )
-                        : ''
-                      ),
-                    $thcFormat
-                );
                 foreach my $r ( 0 .. $lastRow ) {
                     my $value =
                         $dataset
@@ -105,21 +108,22 @@ sub wsWrite {
             my $dobj = $_;
             my $drow = $row;
             my $dcol = $col + $lastCol;
+            my $dws  = $ws;
             $wb->{deferralMaster}->(
                 sub {
-                    my $cell = $dobj->wsPrepare( $wb, $ws );
+                    my $cell = $dobj->wsPrepare( $wb, $dws );
                     foreach my $c ( 0 .. $dobj->lastCol ) {
                         foreach my $r ( 0 .. $dobj->lastRow ) {
                             my ( $value, $format, $formula, @more ) =
                               $cell->( $c, $r );
                             if (@more) {
-                                $ws->repeat_formula(
+                                $dws->repeat_formula(
                                     $drow + $r, $dcol + $c, $formula,
                                     $format,    @more
                                 );
                             }
                             elsif ($formula) {
-                                $ws->write_formula(
+                                $dws->write_formula(
                                     $drow + $r, $dcol + $c, $formula,
                                     $format,    $value
                                 );
@@ -129,7 +133,7 @@ sub wsWrite {
                                   if $value
                                   and $value eq '#VALUE!' || $value eq '#N/A'
                                   and $wb->formulaHashValues;
-                                $ws->write( $drow + $r, $dcol + $c,
+                                $dws->write( $drow + $r, $dcol + $c,
                                     $value, $format );
                             }
                         }
@@ -140,6 +144,21 @@ sub wsWrite {
 
         $_->dataValidation( $wb, $ws, $row, $col + $lastCol, $row + $lastRow )
           if $_->{validation};
+
+        if ( $_->{validationDeferred} ) {
+            my $dobj = $_;
+            my $drow = $row;
+            my $dcol = $col + $lastCol;
+            my $dlst = $row + $lastRow;
+            my $dws  = $ws;
+            $wb->{deferralMaster}->(
+                sub {
+                    $dobj->{validation} =
+                      $dobj->{validationDeferred}->( $wb, $dws );
+                    $dobj->dataValidation( $wb, $dws, $drow, $dcol, $dlst );
+                }
+            );
+        }
 
         if ( my $cf = $_->{conditionalFormatting} ) {
             foreach (

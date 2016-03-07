@@ -214,22 +214,32 @@ Keys used in %$options:
     my @num_date =
       $rightpad
       ? (
-        num_format => qq'${black}d mmm yyyy;[Red]d mmm yyyy;;$cyan@',
+        num_format => qq'${black}d mmm yyyy;[Red]-0.000;;$cyan@',
         align      => 'right'
       )
       : (
-        num_format => qq'${black}d mmm yyyy  ;[Red]d mmm yyyy  ;;$cyan@',
+        num_format => qq'${black}d mmm yyyy  ;[Red]-0.000  ;;$cyan@',
+        align      => 'right'
+      );
+    my @num_datetime =
+      $rightpad
+      ? (
+        num_format => qq'${black}ddd d mmm yyyy HH:mm;[Red]-0.000;;$cyan@',
+        align      => 'right'
+      )
+      : (
+        num_format => qq'${black}ddd d mmm yyyy  HH:mm  ;[Red]-0.000  ;;$cyan@',
         align      => 'right'
       );
     my @num_time =
       $rightpad
       ? (
         num_format => qq'${black}h:mm am/pm$rightpad;'
-          . qq'[Red]h:mm am/pm$rightpad;;$cyan@',
+          . qq'[Red]-0.000$rightpad;;$cyan@',
         align => 'right'
       )
       : (
-        num_format => qq'${black}h:mm am/pm  ;[Red]h:mm am/pm;;$cyan@',
+        num_format => qq'${black}h:mm am/pm  ;[Red]-0.000;;$cyan@',
         align      => 'right'
       );
     my @num_ =
@@ -288,8 +298,10 @@ Keys used in %$options:
         align => 'center'
       );
 
-    my @defaultColour =
-      $backgroundColour && !$options->{noCyanText} ? ( color => MAGENTA ) : ();
+    my @defaultColour = (
+        $options->{gridlines} ? ( border => 7 ) : (),
+        $backgroundColour && !$options->{noCyanText} ? ( color => MAGENTA ) : ()
+    );
     my @colourCon = (
         $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
@@ -428,6 +440,14 @@ Keys used in %$options:
         'datecopy' => [ locked => 1, @sizeNumber, @num_date, @colourCopy, ],
         'datehard' => [ locked => 0, @sizeNumber, @num_date, @colourHard, ],
         'datesoft' => [ locked => 1, @sizeNumber, @num_date, @colourSoft, ],
+        'datetimecon' =>
+          [ locked => 1, @sizeNumber, @num_datetime, @colourCon, ],
+        'datetimecopy' =>
+          [ locked => 1, @sizeNumber, @num_datetime, @colourCopy, ],
+        'datetimehard' =>
+          [ locked => 0, @sizeNumber, @num_datetime, @colourHard, ],
+        'datetimesoft' =>
+          [ locked => 1, @sizeNumber, @num_datetime, @colourSoft, ],
         'timecon'  => [ locked => 1, @sizeNumber, @num_time, @colourCon, ],
         'timecopy' => [ locked => 1, @sizeNumber, @num_time, @colourCopy, ],
         'timehard' => [ locked => 0, @sizeNumber, @num_time, @colourHard, ],
@@ -484,19 +504,26 @@ Keys used in %$options:
             num_format => "${black}0000;-0000;${black}0000;$cyan@",
             @colourHard,
         ],
-        '0000con' => [
-            locked => 0,
+        '0000soft' => [
+            locked => 1,
             @sizeNumber,
             align      => 'center',
             num_format => "${black}0000;-0000;${black}0000;$cyan@",
-            @colourCon,
+            @colourSoft,
         ],
         '0000copy' => [
-            locked => 0,
+            locked => 1,
             @sizeNumber,
             align      => 'center',
             num_format => "${black}0000;-0000;${black}0000;$cyan@",
             @colourCopy,
+        ],
+        '0000con' => [
+            locked => 1,
+            @sizeNumber,
+            align      => 'center',
+            num_format => "${black}0000;-0000;${black}0000;$cyan@",
+            @colourCon,
         ],
         boolhard => [
             locked => 0,
@@ -651,6 +678,13 @@ Keys used in %$options:
             num_format => $numText,
             @alignText, @sizeExtras,
             text_wrap => 1,
+            @colourHard,
+        ],
+        texthardnowrap => [
+            locked => 0,
+            @sizeText,
+            num_format => $numText,
+            @alignText, @sizeExtras,
             @colourHard,
         ],
         textsoft => [

@@ -644,8 +644,6 @@ sub dataValidation {
 
 =item $dataset->dataValidation($wb, $ws, $row, $col, $rowEnd, $colEnd)
 
-Rules:
-
 * Only to be called if $self->{validation} is true.
 
 * $rowEnd and $colEnd are optional but must be true if supplied.
