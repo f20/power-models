@@ -177,12 +177,8 @@ sub sheetsForFirstModel {
         $wsheet->freeze_panes( 0, 1 );
         push @{ $me->{finishClosures} }, sub {
 
-            my @t1001 = map {
-                     $_->{table1001}
-                  && $_->{targetRevenue} !~ /DCP132longlabels/i
-                  ? $_->{table1001}
-                  : undef;
-            } @{ $me->{models} };
+            my @t1001 = map { $_->{table1001} ? $_->{table1001} : undef; }
+              @{ $me->{models} };
             Notes( name => 'Allowed revenue summary (DCUSA schedule 15)', )
               ->wsWrite( $wbook, $wsheet );
 
@@ -389,12 +385,8 @@ sub assumptionsClosure {
         my $table1001headerRowForLater;
         if (
             my @table1001Overridable =
-            map {
-                    !$_->{table1001}
-                  || $_->{targetRevenue} =~ /DCP132longlabels/i
-                  ? ()
-                  : [ $_, $_->{table1001}{columns}[3] ];
-            } @{ $me->{scenario} }
+            map { !$_->{table1001} ? () : [ $_, $_->{table1001}{columns}[3] ]; }
+            @{ $me->{scenario} }
           )
         {
             my $rows = $table1001Overridable[0][1]{rows};

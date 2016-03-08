@@ -69,8 +69,10 @@ sub requiredModulesForRuleset {
       && $ruleset->{addVolumes} =~ /matching/i ? 'CDCM::InYearAdjust'
       : (),
 
-      $ruleset->{targetRevenue} && $ruleset->{targetRevenue} =~ /dcp132/i
-      ? 'CDCM::Table1001'
+      $ruleset->{targetRevenue}
+      && $ruleset->{targetRevenue} =~ /dcp132/i ? 'CDCM::Table1001dcp132'
+      : $ruleset->{targetRevenue}
+      && $ruleset->{targetRevenue} =~ /dcp249/i ? 'CDCM::Table1001dcp249'
       : (),
 
       $ruleset->{scaler}

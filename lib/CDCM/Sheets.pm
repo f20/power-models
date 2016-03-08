@@ -70,10 +70,8 @@ sub worksheetsAndClosures {
         $wbook->{lastSheetNumber} = 19;
 
         $wsheet->freeze_panes( 1, 1 );
-        my $t1001width =
-             $model->{targetRevenue}
-          && $model->{targetRevenue} =~ /DCP132/i
-          && $model->{targetRevenue} !~ /DCP132longlabels/i;
+        my $t1001width = $model->{targetRevenue}
+          && $model->{targetRevenue} =~ /dcp132/i;
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
         $wsheet->{nextFree} ||= 2;
@@ -777,7 +775,7 @@ groups.  Only the DCUSA Panel and its working groups have authority to approve t
 Reckon LLP makes no representation about the suitability of this material for the purposes of complying with any licence
 conditions or furthering any relevant objective.
 EOL
-              <<EOL,
+            <<EOL,
 
 {unlocked} UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
 EOL

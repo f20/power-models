@@ -1,0 +1,19 @@
+---
+.: 'CDCM after DCP 179 and DCP 249, with CTables'
+PerlModule: CDCM
+agghhequalisation: 1
+alwaysUseRAG: 1
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: consultation
+targetRevenue: dcp249
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179
