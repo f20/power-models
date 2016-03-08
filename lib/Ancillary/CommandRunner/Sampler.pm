@@ -32,20 +32,23 @@ use strict;
 use utf8;
 
 sub sampler {
+    my ( $self, @options ) = @_;
+    my %options;
+    $options{colour} = 'gold'   if grep { /gold/i } @options;
+    $options{colour} = 'orange' if grep { /orange/i } @options;
     use SpreadsheetModel::WorkbookXLSX;
-    my $options = {};
-    my $wbook   = SpreadsheetModel::WorkbookXLSX->new($$);
-    $wbook->setFormats($options);
+    my $wbook = SpreadsheetModel::WorkbookXLSX->new($$);
+    $wbook->setFormats( \%options );
     my $wsheet = $wbook->add_worksheet('Sampler');
     $wsheet->set_paper(9);
     $wsheet->fit_to_pages( 1, 0 );
     $wsheet->hide_gridlines(2);
-    $wsheet->set_column( 0, 5, 16 );
+    $wsheet->set_column( 0, 5, 20 );
     $wsheet->set_column( 6, 6, 120 );
     require SpreadsheetModel::FormatSampler;
     SpreadsheetModel::FormatSampler->new->wsWrite( $wbook, $wsheet );
     undef $wbook;
-    rename $$, 'Format sampler.xlsx';
+    rename $$, join( ' ', 'Format sampler', @options ) . '.xlsx';
 }
 
 1;

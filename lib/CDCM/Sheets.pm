@@ -651,6 +651,31 @@ EOL
 
     push @wsheetsAndClosures,
 
+      'Info' => sub {
+        my ($wsheet) = @_;
+        $wsheet->freeze_panes( 1, 0 );
+        $wsheet->fit_to_pages( 1, 0 );
+        $wsheet->set_column( 0, 0,   50 );
+        $wsheet->set_column( 1, 250, 20 );
+        my $notes = Notes(
+            name  => 'Other information',
+            lines => [
+                split /\n/,
+                <<'EOL'
+This sheet is for information only.  It can be deleted without affecting any calculations in the model.
+EOL
+            ]
+        );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $notes,
+          @{ $model->{informationTables} };
+
+      }
+
+      if $model->{informationTables};
+
+    push @wsheetsAndClosures,
+
       '⇒11' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 43 unless $wbook->{lastSheetNumber} > 42;

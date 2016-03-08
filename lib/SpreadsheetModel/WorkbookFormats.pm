@@ -177,16 +177,11 @@ Keys used in %$options:
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
 
-    my $numText     = $backgroundColour ? '[Blue]0;[Red]-0;;[Black]@'    : '@';
-    my $numTextOnly = $backgroundColour ? '[Black]0;[Black]-0;;[Black]@' : '@';
-    my $numTextOnlyCopy =
-      $backgroundColour ? '[Black]0;[Black]-0;;[Black]@' : '0;-0;;@';
-    my @alignText = ( align => 'left' );
-    if ( $options->{alignText} && $options->{alignText} =~ /general/i ) {
-        @alignText = ();
-        $numText =
-          $backgroundColour ? '[Black]0;[Black]-0;;[Black]@' : '0;-0;;@';
-    }
+    my $numText         = '[Blue]General;[Red]-General;;[Black]@';
+    my $numTextOnly     = '[Blue]General;[Red]-General;;[Black]@';
+    my $numTextOnlyCopy = '[Blue]General;[Red]-General;;[Black]@';
+    my @alignText       = $options->{alignText}
+      && $options->{alignText} =~ /general/i ? () : ( align => 'left' );
 
     my @numPercent =
       $rightpad
@@ -214,33 +209,45 @@ Keys used in %$options:
     my @num_date =
       $rightpad
       ? (
-        num_format => qq'${black}d mmm yyyy;[Red]-0.000;;$cyan@',
+        num_format => qq'${black}d mmm yyyy;[Red]-General;;$cyan@',
         align      => 'right'
       )
       : (
-        num_format => qq'${black}d mmm yyyy  ;[Red]-0.000  ;;$cyan@',
+        num_format => qq'${black}d mmm yyyy  ;[Red]-General  ;;$cyan@',
         align      => 'right'
       );
     my @num_datetime =
       $rightpad
       ? (
-        num_format => qq'${black}ddd d mmm yyyy HH:mm;[Red]-0.000;;$cyan@',
+        num_format => qq'${black}ddd d mmm yyyy HH:mm;[Red]-General;;$cyan@',
         align      => 'right'
       )
       : (
-        num_format => qq'${black}ddd d mmm yyyy  HH:mm  ;[Red]-0.000  ;;$cyan@',
-        align      => 'right'
+        num_format =>
+          qq'${black}ddd d mmm yyyy  HH:mm  ;[Red]-General  ;;$cyan@',
+        align => 'right'
       );
     my @num_time =
       $rightpad
       ? (
-        num_format => qq'${black}h:mm am/pm$rightpad;'
-          . qq'[Red]-0.000$rightpad;;$cyan@',
+        num_format => qq'${black}[hh]:mm$rightpad;'
+          . qq'[Red]-General$rightpad;;$cyan@',
         align => 'right'
       )
       : (
-        num_format => qq'${black}h:mm am/pm  ;[Red]-0.000;;$cyan@',
-        align      => 'right'
+        num_format => qq'${black}[hh]:mm;[Red]-General;;$cyan@',
+        align      => 'center'
+      );
+    my @num_monthday =
+      $rightpad
+      ? (
+        num_format => qq'${black}mmmm d$rightpad;'
+          . qq'[Red]-General$rightpad;;$cyan@',
+        align => 'right'
+      )
+      : (
+        num_format => qq'${black}mmmm d;[Red]-General;;$cyan@',
+        align      => 'center'
       );
     my @num_ =
       $rightpad
@@ -452,6 +459,14 @@ Keys used in %$options:
         'timecopy' => [ locked => 1, @sizeNumber, @num_time, @colourCopy, ],
         'timehard' => [ locked => 0, @sizeNumber, @num_time, @colourHard, ],
         'timesoft' => [ locked => 1, @sizeNumber, @num_time, @colourSoft, ],
+        'monthdaycon' =>
+          [ locked => 1, @sizeNumber, @num_monthday, @colourCon, ],
+        'monthdaycopy' =>
+          [ locked => 1, @sizeNumber, @num_monthday, @colourCopy, ],
+        'monthdayhard' =>
+          [ locked => 0, @sizeNumber, @num_monthday, @colourHard, ],
+        'monthdaysoft' =>
+          [ locked => 1, @sizeNumber, @num_monthday, @colourSoft, ],
         'millioncon' => [ locked => 1, @sizeNumber, @num_million, @colourCon, ],
         'millioncopy' =>
           [ locked => 1, @sizeNumber, @num_million, @colourCopy, ],

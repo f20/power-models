@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -314,6 +314,9 @@ sub summaryOfRevenues {
             A3 => $myMpans,
         }
     );
+
+    push @{ $model->{informationTables} }, Stack( sources => [$averageByMpan] )
+      if $model->{summary} =~ /info/i;
 
     push @{ $model->{overallSummary} }, Columnset(
         name => 'Revenue summary'

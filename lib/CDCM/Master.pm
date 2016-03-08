@@ -81,7 +81,8 @@ sub requiredModulesForRuleset {
       $ruleset->{summary}
       && $ruleset->{summary} =~ /stat(?:istic)?s/i ? 'CDCM::Statistics' : (),
 
-      $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
+      $ruleset->{checksums}       ? qw(SpreadsheetModel::Checksum) : (),
+      $ruleset->{timebandDetails} ? qw(CDCM::Timebands)            : ();
 
 }
 
@@ -96,6 +97,8 @@ sub new {
     my $class = shift;
     my $model = {@_};
     bless $model, $class;
+
+    $model->timebandDetails if $model->{timebandDetails};
 
     $model->{inputTables} = [];
     $model->{edcmTables}  = [ [] ] if $model->{edcmTables};

@@ -7,13 +7,17 @@ coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
+frontSheets:
+  - Index
+  - Info
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: consultation
+summary: consultationinfo
 targetRevenue: dcp249
 tariffs: commongensubdcp130dcp163pc12hhpc34hh
 timeOfDay: timeOfDay179
+timebandDetails: 1
