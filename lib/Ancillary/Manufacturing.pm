@@ -315,6 +315,8 @@ sub factory {
             $_->{'~codeValidation'} = $sourceCodeDigest;
             delete $_->{'.'};
             $_->{revisionText} = $db->revisionText( Dump($_) ) if $db;
+            $_->{watermarkFile} = catfile( $perl5dir, $_->{watermarkFile} )
+              if $_->{watermarkFile};
         }
 
     };

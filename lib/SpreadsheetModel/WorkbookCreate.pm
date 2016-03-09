@@ -261,6 +261,8 @@ sub create {
             $ws->set_footer("&F");
             $ws->set_header("&L&A&C&R&P of &N");
             $ws->set_paper(9);
+            $ws->insert_image( 0, 0, $options->{watermarkFile} )
+              if $options->{watermarkFile};
         }
 
         if ($exporter) {
