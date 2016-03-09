@@ -513,8 +513,7 @@ EOL
         $wsheet->set_column( 0, 0,   40 );
         $wsheet->set_column( 1, 250, 20 );
 
-        my $logger = $wbook->{logger};
-        delete $wbook->{logger};
+        my $logger  = delete $wbook->{logger};
         my $noLinks = $wbook->{noLinks};
         $wbook->{noLinks} = 1;
 
@@ -657,7 +656,8 @@ EOL
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
-        my $notes = Notes(
+        my $logger = delete $wbook->{logger};
+        my $notes  = Notes(
             name  => 'Other information',
             lines => [
                 split /\n/,
@@ -669,7 +669,8 @@ EOL
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,
           @{ $model->{informationTables} };
-
+        $wsheet->{protectionOptions}{select_locked_cells} = 1;
+        $wbook->{logger} = $logger if $logger;
       }
 
       if $model->{informationTables};

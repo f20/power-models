@@ -1,5 +1,5 @@
 ---
-.: Cleaned-up DCP 130 model without consultation tables
+.: Cleaned-up DCP 130 model
 PerlModule: CDCM
 coincidenceAdj: groupums
 dcp130preprocess: 1

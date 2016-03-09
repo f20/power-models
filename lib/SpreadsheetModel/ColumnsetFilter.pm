@@ -49,7 +49,9 @@ sub wsWrite {
 
     ++$row;    # for column headers
 
-    my $thcFormat = $wb->getFormat( [ base => 'thc', locked => 0 ] );
+    my $thcFormat =
+      $wb->getFormat(
+        $self->{noFilter} ? 'thc' : [ base => 'thc', locked => 0 ] );
     my $lastRow = $self->{rows} ? $#{ $self->{rows}{list} } : 0;
     my $lastCol = 0;
 
@@ -109,37 +111,36 @@ sub wsWrite {
             my $drow = $row;
             my $dcol = $col + $lastCol;
             my $dws  = $ws;
-            $wb->{deferralMaster}->(
-                sub {
-                    my $cell = $dobj->wsPrepare( $wb, $dws );
-                    foreach my $c ( 0 .. $dobj->lastCol ) {
-                        foreach my $r ( 0 .. $dobj->lastRow ) {
-                            my ( $value, $format, $formula, @more ) =
-                              $cell->( $c, $r );
-                            if (@more) {
-                                $dws->repeat_formula(
-                                    $drow + $r, $dcol + $c, $formula,
-                                    $format,    @more
-                                );
-                            }
-                            elsif ($formula) {
-                                $dws->write_formula(
-                                    $drow + $r, $dcol + $c, $formula,
-                                    $format,    $value
-                                );
-                            }
-                            else {
-                                $value = "=$value"
-                                  if $value
-                                  and $value eq '#VALUE!' || $value eq '#N/A'
-                                  and $wb->formulaHashValues;
-                                $dws->write( $drow + $r, $dcol + $c,
-                                    $value, $format );
-                            }
+            my $doit = sub {
+                my $cell = $dobj->wsPrepare( $wb, $dws );
+                foreach my $c ( 0 .. $dobj->lastCol ) {
+                    foreach my $r ( 0 .. $dobj->lastRow ) {
+                        my ( $value, $format, $formula, @more ) =
+                          $cell->( $c, $r );
+                        if (@more) {
+                            $dws->repeat_formula(
+                                $drow + $r, $dcol + $c, $formula,
+                                $format,    @more
+                            );
+                        }
+                        elsif ($formula) {
+                            $dws->write_formula(
+                                $drow + $r, $dcol + $c, $formula,
+                                $format,    $value
+                            );
+                        }
+                        else {
+                            $value = "=$value"
+                              if $value
+                              and $value eq '#VALUE!' || $value eq '#N/A'
+                              and $wb->formulaHashValues;
+                            $dws->write( $drow + $r, $dcol + $c,
+                                $value, $format );
                         }
                     }
                 }
-            );
+            };
+            $wb->{deferralMaster} ? $wb->{deferralMaster}->($doit) : $doit->();
         }
 
         $_->dataValidation( $wb, $ws, $row, $col + $lastCol, $row + $lastRow )
@@ -188,19 +189,24 @@ sub wsWrite {
 
     }
 
-    $ws->autofilter( $row - 1, $col, $row + $lastRow, $col + $lastCol - 1 );
-    $ws->{protectionOptions} ||= {
-        autofilter            => 1,
-        select_locked_cells   => 0,
-        select_unlocked_cells => 1,
-        sort                  => 1,
-    };
+    unless ( $self->{noFilter} ) {
+        $ws->autofilter( $row - 1, $col, $row + $lastRow, $col + $lastCol - 1 );
+        $ws->{protectionOptions} ||= {
+            autofilter            => 1,
+            select_locked_cells   => 0,
+            select_unlocked_cells => 1,
+            sort                  => 1,
+        };
+    }
 
     $row += $lastRow;
     $self->requestForwardLinks( $wb, $ws, \$row, $col )
       if $wb->{forwardLinks};
     ++$row;
     $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
+    if ( $self->{objPostWriteCalls} ) {
+        $_->( $self, $wb, $ws ) foreach @{ $self->{objPostWriteCalls} };
+    }
     if ( $self->{postWriteCalls}{$wb} ) {
         $_->($self) foreach @{ $self->{postWriteCalls}{$wb} };
     }

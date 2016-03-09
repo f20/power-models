@@ -1088,19 +1088,15 @@
     LV circuits: 0.531458888704281
     _column: Black peaking probabilities
 1076:
-  - []
-  -
-    - '"Allowed revenue" (£/year)'
-    - 264078828.299361
-  -
-    - '"Pass-through charges" (£/year)'
-    - 145623.214764193
-  -
-    - Adjustment for previous year's under (over) recovery (£/year)
-    - 6935866.04643492
-  -
-    - Revenue raised outside this model (£/year)
-    - 13702797.4198611
+  - _table: 1076. Target revenue
+  - Target revenue: 264078828.299361
+    _column: '"Allowed revenue" (£/year)'
+  - Target revenue: 145623.214764193
+    _column: '"Pass-through charges" (£/year)'
+  - Target revenue: 6935866.04643492
+    _column: Adjustment for previous year's under (over) recovery (£/year)
+  - Target revenue: 13702797.4198611
+    _column: Revenue raised outside this model (£/year)
 1092:
   - _table: '1092. Average kVAr by kVA, by network level'
   - Average kVAr by kVA by network level: 0.274897871501282

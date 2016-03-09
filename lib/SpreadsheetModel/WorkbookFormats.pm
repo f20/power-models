@@ -621,13 +621,13 @@ Keys used in %$options:
             text_wrap => 0,
             @colourScribbles,
         ],
-        codecopy => [
+        code => [
             locked => 1,
             @sizeText,
-            num_format => '@',
+            num_format => $numTextOnly,
             align      => 'left',
-            font       => 'Courier New',
-            @colourSoft,
+            0 ? ( font => 'Consolas' ) : 0 ? ( font => 'Courier New' ) : (),
+            @defaultColour,
         ],
         puretexthard => [
             locked => 0,
@@ -746,7 +746,8 @@ Keys used in %$options:
             text_wrap  => 1,
             align      => 'center_across',
             @colourHeader,
-            $options->{gridlines} ? ( right => 7, bottom => 1, )
+            $options->{gridlines}
+            ? ( right => 7, bottom => 1, )
             : ( left => 1, right => 1, ),
         ],
         thcaleft => [

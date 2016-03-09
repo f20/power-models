@@ -176,7 +176,7 @@ sub templateImport {
         if ( my $nc = $d->lastCol ) {
             push @psv, map {
                 Arithmetic(
-                    defaultFormat => 'codecopy',
+                    defaultFormat => 'code',
                     name          => '',
                     arithmetic    => '="935|'
                       . ( $col + $_ )
@@ -194,7 +194,7 @@ sub templateImport {
         else {
             push @psv,
               Arithmetic(
-                defaultFormat => 'codecopy',
+                defaultFormat => 'code',
                 name          => '',
                 arithmetic    => '="935|' . $col . '|"&A1&"|"&INDEX(A3_A4,A2)',
                 arguments     => {
@@ -339,7 +339,7 @@ sub templateExport {
         else {
             push @psv,
               Arithmetic(
-                defaultFormat => 'codecopy',
+                defaultFormat => 'code',
                 name          => '',
                 arithmetic    => '="935|' . $col . '|"&A1&"|"&INDEX(A3_A4,A2)',
                 arguments     => {
