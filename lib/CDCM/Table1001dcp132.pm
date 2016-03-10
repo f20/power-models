@@ -268,15 +268,8 @@ sub table1001dcp132 {
         ],
         arithmetic => '= derived from A100',
         rows       => $specialRowset,
-        arguments  => {
-            map { ( "A$_" => $inputs ); } 100 .. 102,
-            104 .. 108,
-            110 .. 121,
-            123, 124,
-            126 .. 130,
-            133 .. 136,
-        },
-        wsPrepare => sub {
+        arguments  => { map { ( "A$_" => $inputs ); } 100 .. 136, },
+        wsPrepare  => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;

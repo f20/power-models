@@ -135,7 +135,8 @@ sub _extractInputData {
                             undef $tableNumber;
                         }
                     }
-                    else {    # unlocked cell in column 0
+                    elsif ( $worksheet->{Name} !~ /^(?:Index|Overview)$/s )
+                    {    # unlocked cell in column 0
                         if ( defined $tableNumber && $tableNumber eq '!' ) {
                             $rowName =
                               $v eq ''

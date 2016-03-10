@@ -243,15 +243,8 @@ EOL
         ],
         arithmetic => '= derived from A100',
         rows       => $specialRowset,
-        arguments  => {
-            map { ( "A$_" => $inputs ); } 100 .. 102,
-            104 .. 108,
-            110 .. 121,
-            123, 124,
-            126 .. 130,
-            133 .. 136,
-        },
-        wsPrepare => sub {
+        arguments  => { map { ( "A$_" => $inputs ); } 100 .. 137, },
+        wsPrepare  => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;
@@ -259,7 +252,7 @@ EOL
                     my $c = 'A' . ( 100 + $_ );
                     qr/\b$c\b/ =>
                       xl_rowcol_to_cell( $rowh->{A100} + $_, $colh->{A100} );
-                } 0 .. 36;
+                } 0 .. 37;
             };
         },
     );
