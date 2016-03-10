@@ -114,8 +114,8 @@ EOL
             Arithmetic(
                 name          => 'Human-readable form',
                 defaultFormat => 'colnoteleft',
-                arithmetic =>
-                  '=IF(A1>"",A91&" applies "&IF(A2="MF","Monday to Friday, ",'
+                arithmetic => '=IF(A1>"",A91&" time band applies "&IF(A2="MF",'
+                  . '"Monday to Friday, ",'
                   . 'IF(A92="SS","Saturdays and Sundays, ",""))&'
                   . 'IF(A3,TEXT(A93,"mmmm d")&" to "&TEXT(A4,"mmmm d")&'
                   . '", ","")&IF(A5,TEXT(A95,"[hh]:mm")&" to "&TEXT(A6,"[hh]:mm"),""),"")',
