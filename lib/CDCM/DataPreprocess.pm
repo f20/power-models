@@ -309,33 +309,62 @@ EOY
           if $d->{1053};
     }
 
-# Below is for EHV matching but applied to all cases to help multi-model manufacturing.
+    # Below is for EHV-local source energy
+    # but applied to all cases to help multi-model manufacturing.
 
-    if (  !exists $d->{1025}[1]{'LV HH Metered EHV-matched source'}
+    if (  !exists $d->{1025}[1]{'LV HH Metered EHV-local source'}
         && exists $d->{1025}[1]{'LV HH Metered'} )
     {
         foreach ( 1 .. 8 ) {
             my $col = $d->{1025}[$_];
-            $col->{'LV HH Metered EHV-matched source'} = $col->{'LV HH Metered'};
+            $col->{'LV HH Metered EHV-local source'} = $col->{'LV HH Metered'};
         }
     }
 
-    if (  !exists $d->{1025}[1]{'LV Sub HH Metered EHV-matched source'}
+    if (  !exists $d->{1025}[1]{'LV Sub HH Metered EHV-local source'}
         && exists $d->{1025}[1]{'LV Sub HH Metered'} )
     {
         foreach ( 1 .. 8 ) {
             my $col = $d->{1025}[$_];
-            $col->{'LV Sub HH Metered EHV-matched source'} =
+            $col->{'LV Sub HH Metered EHV-local source'} =
               $col->{'LV Sub HH Metered'};
         }
     }
 
-    if (  !exists $d->{1028}[1]{'HV HH Metered EHV-matched source'}
+    if (  !exists $d->{1028}[1]{'HV HH Metered EHV-local source'}
         && exists $d->{1028}[1]{'HV HH Metered'} )
     {
         foreach ( 1 .. 8 ) {
             my $col = $d->{1028}[$_];
-            $col->{'HV HH Metered EHV-matched source'} = $col->{'HV HH Metered'};
+            $col->{'HV HH Metered EHV-local source'} = $col->{'HV HH Metered'};
+        }
+    }
+
+    for my $level ( 'LV', 'LV Sub', 'HV' ) {
+        if (  !exists $d->{1041}[1]{ $level . ' HH Metered EHV-local source' }
+            && exists $d->{1041}[1]{ $level . ' HH Metered' } )
+        {
+            foreach ( 1 .. 2 ) {
+                my $col = $d->{1041}[$_] or next;
+                $col->{ $level . ' HH Metered EHV-local source' } =
+                  $col->{ $level . ' HH Metered' };
+            }
+        }
+        if (  !exists $d->{1053}[1]{ $level . ' HH Metered EHV-local source' }
+            && exists $d->{1053}[1]{ $level . ' HH Metered' } )
+        {
+            foreach ( 1 .. 7 ) {
+                my $col = $d->{1053}[$_] or next;
+                my $prop = $col->{ $level . ' HH Metered localprop' } || 0;
+                $col->{ $level . ' HH Metered' } ||= 0;
+                $col->{ "LDNO $_ " . $level . ' HH Metered EHV-local source' }
+                  = 0
+                  foreach $level eq 'LV' ? qw(HV LV) : qw(HV);
+                $col->{ $level . ' HH Metered EHV-local source' } =
+                  $prop * $col->{ $level . ' HH Metered' };
+                $col->{ $level . ' HH Metered' } =
+                  ( 1 - $prop ) * $col->{ $level . ' HH Metered' };
+            }
         }
     }
 

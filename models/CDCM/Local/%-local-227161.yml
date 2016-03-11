@@ -1,5 +1,5 @@
 ---
-.: 'Local sourcing tariffs (equalised), after DCP 227 and DCP 161'
+.: 'Local sourcing tariffs, after DCP 227 and DCP 161'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -8,7 +8,6 @@ coincidenceAdj: grouphhcaplevel
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-illustrative: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

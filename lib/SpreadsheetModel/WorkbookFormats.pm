@@ -600,12 +600,7 @@ Keys used in %$options:
             align      => 'center',
             @sizeExtras,
             $options->{gridlines} ? ( border => 7 ) : (),
-            $backgroundColour ? ( bg_color => SILVER, @defaultColour, )
-            : (
-                $borderColour ? ( border => 1, border_color => SILVER )
-                : (),
-                $textColour ? ( color => SILVER ) : (),
-            ),
+            @defaultColour,
         ],
         notes => [
             locked => 1,
