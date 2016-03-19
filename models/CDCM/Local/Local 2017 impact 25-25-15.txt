@@ -8,7 +8,7 @@ makeModels
 	-newdata
 	-xdata=1053|1|LV HH Metered localprop|0.25
 	-xdata=1053|1|LV Sub HH Metered localprop|0.25
-	-xdata=1053|1|HV HH Metered localprop|0.15
+	-xdata=1053|1|HV HH Metered localprop|0.25
 	-xdata=1053|2|LV HH Metered localprop|0.25
 	-xdata=1053|2|LV Sub HH Metered localprop|0.25
 	-xdata=1053|2|HV HH Metered localprop|0.25
