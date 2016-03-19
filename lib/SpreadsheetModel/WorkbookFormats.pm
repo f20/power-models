@@ -178,8 +178,8 @@ Keys used in %$options:
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
 
     my $numText         = '[Blue]General;[Red]-General;;[Black]@';
-    my $numTextOnly     = '[Blue]General;[Red]-General;;[Black]@';
-    my $numTextOnlyCopy = '[Blue]General;[Red]-General;;[Black]@';
+    my $numTextOnly     = '[Black]General;[Black]-General;;[Black]@';
+    my $numTextOnlyCopy = '[Black]General;[Black]-General;;[Black]@';
     my @alignText       = $options->{alignText}
       && $options->{alignText} =~ /general/i ? () : ( align => 'left' );
 

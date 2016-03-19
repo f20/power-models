@@ -687,14 +687,14 @@ EOL
 
         Dataset(
             name          => 'LLFC import',
-            defaultFormat => 'texthard',
+            defaultFormat => 'puretexthard',
             data          => [ map { ' ' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
         Dataset(
             name          => 'LLFC export',
-            defaultFormat => 'texthard',
+            defaultFormat => 'puretexthard',
             data          => [ map { ' ' } 1 .. $model->{numTariffs} ],
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
