@@ -233,6 +233,8 @@ EOS
             $calcFile = $calculator_postfork->($inFile) if $calculator_postfork;
             my $workbook;
             eval {
+                local %SIG;
+                $SIG{__WARN__} = sub { };
                 if ( $calcFile =~ /\.xlsx$/is ) {
                     require Spreadsheet::ParseXLSX;
                     my $parser = Spreadsheet::ParseXLSX->new;
@@ -241,11 +243,9 @@ EOS
                 else {
                     require Spreadsheet::ParseExcel;
                     my $parser = Spreadsheet::ParseExcel->new;
-                    local %SIG;
-                    $SIG{__WARN__} = sub { };
                     $workbook = $parser->Parse( $calcFile, 'NOOP_CLASS' );
-                    delete $SIG{__WARN__};
                 }
+                delete $SIG{__WARN__};
             };
             warn "$@ for $calcFile" if $@;
             if ($writer) {
