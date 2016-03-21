@@ -330,7 +330,7 @@ sub _parse_sheet {
                     }
                     elsif ($type eq 'n') {
                         $long_type = 'Numeric';
-                        $val = !defined $val ? undef : $val ? 0 + $val : 0;
+                        $val = defined($val) ? 0+$val : undef;
                     }
                     elsif ($type eq 'd') {
                         $long_type = 'Date';
