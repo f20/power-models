@@ -93,12 +93,15 @@ y=c(263,264,264,264,274,274,279,279,279,283,283,283,289,289,290,304,311,311,311,
 };
 
 plot.dno.map <- function (
-    l, map=map.England.Wales.Scotland(),
-    file.name='DNO map', file.type='pdf',
-    title=NA, option.names=c(), box=NA,
-    mincol=NA, maxcol=NA,
-    number.show=T, number.format='%2.1f',
-    legend.show=T, legend.digit=0
+    l,
+    colour.maker = function (i) { hsv(0.0025*i, 0.6+0.004*i, 1-0.0025*i); },
+    file.name = 'DNO map', file.type = 'pdf',
+    legend.show = TRUE, legend.digit = 0,
+    map = map.England.Wales.Scotland(),
+    maxcol = NA, maxcol.maker = function (v) { max(v, na.rm=T); },
+    mincol = NA, mincol.maker = function (v) { min(v, na.rm=T); },
+    number.show = TRUE, number.format = '%2.1f',
+    title = NA, option.names = c(), box = NA
 ) {
 
     if (is.data.frame(l)) {
@@ -117,7 +120,7 @@ plot.dno.map <- function (
                 set <- rep(NA, length(dno.areas));
                 for (a in 1:length(set)) {
                     t <- (1:length(rn))[rn==dno.areas[a]];
-                    if (length(t)>0) set[a] <- t[1];
+                    if (length(t)==1) set[a] <- t[1];
                 }
                 l[[i]] <- l[[i]][set];
             }
@@ -193,8 +196,8 @@ plot.dno.map <- function (
     maxy<-max(map$y, na.rm=T);
     if(maxy<1000)maxy<-maxy+200;
     shift<-(maxx-minx)*(1:numMaps - 1);
-    if (is.na(mincol)) mincol<-min(v, na.rm=T);
-    if (is.na(maxcol)) maxcol<-max(v, na.rm=T);
+    if (is.na(mincol)) mincol<-mincol.maker(v);
+    if (is.na(maxcol)) maxcol<-maxcol.maker(v);
     if (maxcol-mincol<0.02) {
         mincol <- mincol-0.01;
         maxcol <- maxcol+0.01;
@@ -206,7 +209,7 @@ plot.dno.map <- function (
         } else {
             if (i<0) i<-0;
             if (i>100) i<-100;
-            hsv(0.0025*i, 0.6+0.004*i, 1-0.0025*i);
+            colour.maker(i);
         }
     };
     xrange<-c(min(shift)+minx, max(shift)+maxx)

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -45,23 +45,24 @@ t4202 <- dbGetQuery(db, paste(
     'from data as a inner join data as b using (bid, tab, row) inner join data as c using (bid, tab, row)',
     'left join books using (bid) where a.tab=4202 and a.row>0 and a.col=0 and b.col=1 and c.col=2',
     'and c.v+0 > 0'
-    # order by company, period, option, tariff
     )
 );
-company <- factor(t4202$company);
 period <- factor(t4202$period);
-option <- factor(t4202$option);
-tariff <- factor(t4202$tariff);
+periodList <- levels(period);
+numPeriods <- length(periodList);
+company <- factor(t4202$company);
 peryear <- as.numeric(t4202$peryear);
 names(peryear) <- company;
 ppu <- as.numeric(t4202$permwh)*0.1;
 names(ppu) <- company;
-
+tariff <- factor(t4202$tariff);
+testkey <- factor(paste(tariff, period, company));
+if (length(testkey) > length(levels(testkey))) {
+	tariff <- factor(paste(tariff, t4202$option));
+}
 tariffList <- levels(tariff);
-periodList <- levels(period);
-numPeriods <- length(periodList);
 
-pdf('Graphs.pdf', width=11.69, height=8.27);
+pdf('Illustrative charges over time.pdf', width=11.69, height=8.27);
 for (t in tariffList[order(tariffList)]) {
     l <- list();
     for (o in 1:numPeriods) {
@@ -92,23 +93,24 @@ t4202 <- dbGetQuery(db, paste(
     'from data as a inner join data as b using (bid, tab, row) inner join data as c using (bid, tab, row)',
     'left join books using (bid) where a.tab=4202 and a.row>0 and a.col=0 and b.col=1 and c.col=2',
     'and c.v+0 > 0'
-    # order by company, period, option, tariff
-    )
+	)
 );
-company <- factor(t4202$company);
-period <- factor(t4202$period);
 option <- factor(t4202$option);
-tariff <- factor(t4202$tariff);
+optionList <- levels(option);
+numOptions <- length(optionList);
+company <- factor(t4202$company);
 peryear <- as.numeric(t4202$peryear);
 names(peryear) <- company;
 ppu <- as.numeric(t4202$permwh)*0.1;
 names(ppu) <- company;
-
+tariff <- factor(t4202$tariff);
+testkey <- factor(paste(tariff, option, company));
+if (length(testkey) > length(levels(testkey))) {
+	tariff <- factor(paste(tariff, t4202$period));
+}
 tariffList <- levels(tariff);
-optionList <- levels(option);
-numOptions <- length(optionList);
 
-pdf('Graphs.pdf', width=11.69, height=8.27);
+pdf('Illustrative charge comparison.pdf', width=11.69, height=8.27);
 for (t in tariffList[order(sapply(tariffList, function (t) { 1/max(ppu[tariff==t]); }))]) {
     l <- list();
     for (o in 1:numOptions) {
@@ -127,7 +129,73 @@ graphics.off();
 EOR
 }
 
-sub mapCdcmEdcm {
+sub margins {
+    my ( $self, $script ) = @_;
+    Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
+library(DBI);
+library(RSQLite);
+drv <- dbDriver('SQLite');
+db <- dbConnect(drv, dbname = '~$database.sqlite');
+t4203 <- dbGetQuery(db, paste(
+    'select company, period, option, a.v as tariff, b.v as margin, c.v as boundary',
+    'from data as a inner join data as b using (bid, tab, row) inner join data as c using (bid, tab)',
+    'left join books using (bid) where a.tab=4203 and a.row>0 and a.col=0 and b.col>0',
+    'and c.row=0 and c.col=b.col',
+    'and b.v+0 > 0'
+    )
+);
+boundary <- factor(t4203$boundary);
+boundaryList <- levels(boundary);
+numBoundaries <- length(boundaryList);
+company <- factor(t4203$company);
+value <- as.numeric(t4203$margin);
+names(value) <- company;
+tariff <- factor(t4203$tariff);
+testkey <- factor(paste(tariff, boundary, company));
+if (length(testkey) > length(levels(testkey))) {
+	tariff2 <- factor(paste(tariff, t4203$period));
+	testkey2 <- factor(paste(tariff2, boundary, company));
+	if (length(levels(testkey2)) > length(levels(testkey))) {
+		tariff <- tariff2;
+		testkey <- testkey2;
+	}
+}
+if (length(testkey) > length(levels(testkey))) {
+	tariff <- factor(paste(tariff, t4203$option));
+}
+
+pdf('Illustrative margins.pdf', width=11.69, height=8.27);
+for (t in levels(tariff)) {
+    l <- list();
+    scaling <- 1;
+    units <- '£';
+    format <- '%1.0f';
+    mx <- max(value[tariff==t]);
+    if (mx > 5000) {
+    	scaling <- 0.001;
+	    units <- '£k';
+		if (mx < 35000) format <- '%1.1f';
+    }
+    for (o in 1:numBoundaries) {
+        l[[o]] <- scaling*value[tariff==t&boundary==boundaryList[o]];
+    }
+    try(plot.dno.map(
+        l,
+        file.name = NA,
+        title = t,
+        option.names = paste(boundaryList, units),
+        legend.digit = 1,
+        number.format = format,
+		colour.maker = function (i) { hsv(0.25+0.004*i, 1-0.006*i, 1); },
+		mincol.maker = function (v) { min(v[2:length(v)], na.rm=T); },
+		maxcol.maker = function (v) { max(v[2:length(v)], na.rm=T); }
+    ));
+}
+graphics.off();
+EOR
+}
+
+sub mapCdcmEdcmHardCoded {
     my ( $self, $script ) = @_;
     Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
 v <- read.csv(textConnection('

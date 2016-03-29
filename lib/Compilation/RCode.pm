@@ -31,6 +31,23 @@ use warnings;
 use strict;
 use utf8;
 
+=head Dependencies
+
+This assumes a working version of R with the following packages:
+* RSQLite and its many dependencies
+* sp
+* plotrix
+* shape
+* treemap
+
+The following commands might help:
+	R -e 'install.packages(c("RSQLite", "sp", "plotrix", "shape", "treemap"), repos = "http://mirror.mdx.ac.uk/R/", dependencies = TRUE)'
+	R CMD INSTALL <package-file> <package-file> ...
+
+Packages are installed in ~/Library/R/3.2/library/ if using R 3.2 on Mac OS X.
+
+=cut
+
 sub rCode {
     my $self   = shift;
     my $script = {};
@@ -40,13 +57,19 @@ sub rCode {
 sub maps4202cs {
     my ( $self, $script ) = @_;
     require Compilation::RCode::PriceMaps;
-    Compilation::RCode::PriceMaps->maps4202ts($script);
+    Compilation::RCode::PriceMaps->maps4202cs($script);
 }
 
 sub maps4202ts {
     my ( $self, $script ) = @_;
     require Compilation::RCode::PriceMaps;
     Compilation::RCode::PriceMaps->maps4202ts($script);
+}
+
+sub margins {
+    my ( $self, $script ) = @_;
+    require Compilation::RCode::PriceMaps;
+    Compilation::RCode::PriceMaps->margins($script);
 }
 
 sub mapCdcmEdcm {

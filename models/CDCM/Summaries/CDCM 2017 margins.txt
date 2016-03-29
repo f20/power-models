@@ -1,0 +1,13 @@
+makeModels
+	-sqlite
+	-pickbest
+	CDCM/*/%-after*.yml
+	CDCM/Data-2017-02/*
+
+useDatabase
+	all
+
+R
+	margins
+	treemap
+	treemapWithComponents

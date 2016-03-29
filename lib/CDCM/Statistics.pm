@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -362,9 +362,9 @@ sub makeStatisticsTables {
 
     my $users = $assumptions->{rows}{list};
 
-    my ( %map, @groups );
+    my ( @groupList, %mapping, %margins );
     for ( my $uid = 0 ; $uid < @$users ; ++$uid ) {
-        my ( @list, @listmargin );
+        my (@tariffList);
         my $short = my $user = $users->[$uid];
         $short =~ s/^Customer *[0-9]+ *//;
         my $filter;
@@ -391,29 +391,19 @@ sub makeStatisticsTables {
             next unless $filter->($tariff);
             $tariff =~ s/^.*\n//s;
             my $row = "$short ($tariff)";
-            push @list, $row;
-            $map{$row} = [ $uid, $tid, $#list ];
+            push @tariffList, $row;
+            $mapping{$row} = [ $uid, $tid, $#tariffList ];
             if ( $tariff =~ /^LDNO ([^:]+): (.+)/ ) {
-                my $boundary = $1;
-                my $atw      = $2;
-                my $margin   = "Margin $boundary: $atw";
-                next unless $filter->($margin);
-                if ( my $atwmapped = $map{"$short ($atw)"} ) {
-                    my $marginrow = "$short ($margin)";
-                    push @listmargin, $marginrow;
-                    $map{$marginrow} = [ $atwmapped->[2], $#list ];
-                }
+                $margins{$1}{"$short ($2)"} = $row;
             }
         }
-        foreach (@listmargin) {
-            push @list, $_;
-            $map{$_} = [ undef, $map{$_}[0] - $#list, $map{$_}[1] - $#list, ];
-        }
-        push @groups, Labelset( name => $user, list => \@list );
+        push @groupList, Labelset( name => $user, list => \@tariffList );
     }
 
-    my $fullRowset = Labelset( groups => \@groups );
-    my @map = @map{ @{ $fullRowset->{list} } };
+    my $fullRowset = Labelset( groups => \@groupList );
+    my %ppyrow =
+      map { ( $fullRowset->{list}[$_] => $_ ); } 0 .. $#{ $fullRowset->{list} };
+    my @mapping = @mapping{ @{ $fullRowset->{list} } };
 
     my $ppy = SpreadsheetModel::Custom->new(
         name => Label(
@@ -453,8 +443,8 @@ sub makeStatisticsTables {
                     $self->{rowFormats}[$y]
                   ? $wb->getFormat( $self->{rowFormats}[$y] )
                   : $format;
-                return '', $cellFormat unless $map[$y];
-                my ( $uid, $tid, $eid ) = @{ $map[$y] };
+                return '', $wb->getFormat('unavailable') unless $mapping[$y];
+                my ( $uid, $tid, $eid ) = @{ $mapping[$y] };
                 unless ( defined $uid ) {
                     return '', $cellFormat, $formula->[3],
                       qr/\bA81\b/ =>
@@ -515,6 +505,92 @@ sub makeStatisticsTables {
         name    => 'Charges for illustrative customers',
         columns => [ $ppy, $ppu, ],
       );
+
+    if ( my @boundaries = sort keys %margins ) {
+        my $atwRowset = Labelset(
+            groups => [
+                map {
+                    my @list = grep {
+                        my $a = $_;
+                        grep { $margins{$_}{$a} } @boundaries;
+                    } @{ $_->{list} };
+                    @list ? Labelset( name => $_->{name}, list => \@list ) : ();
+                } @groupList
+            ]
+        );
+        my $atwTable = SpreadsheetModel::Custom->new(
+            name => Label( 'All-the-way', 'All-the-way charge (£/year)' ),
+            defaultFormat => '0copy',
+            rows          => $atwRowset,
+            custom        => [ '=A1', ],
+            arithmetic    => '=A1',
+            arguments     => {
+                A1 => $ppy,
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    my $ppyrow = $ppyrow{ $atwRowset->{list}[$y] };
+                    return '', $wb->getFormat('unavailable')
+                      unless defined $ppyrow;
+                    my $cellFormat =
+                        $self->{rowFormats}[$y]
+                      ? $wb->getFormat( $self->{rowFormats}[$y] )
+                      : $format;
+                    '', $cellFormat, $formula->[0],
+                      qr/\bA1\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A1} + $ppyrow,
+                        $colh->{A1} );
+                };
+            },
+        );
+        my $marginTable = SpreadsheetModel::Custom->new(
+            name          => 'Apparent LDNO margin (£/year)',
+            defaultFormat => '0soft',
+            rows          => $atwRowset,
+            cols   => Labelset( list => [ map { "$_ margin"; } @boundaries ] ),
+            custom => [ '=A2-A1', ],
+            arithmetic => '=A2-A1',
+            arguments  => {
+                A1 => $ppy,
+                A2 => $atwTable,
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    my $ppyrow =
+                      $margins{ $boundaries[$x] }{ $atwRowset->{list}[$y] };
+                    $ppyrow = $ppyrow{$ppyrow} if $ppyrow;
+                    return '', $wb->getFormat('unavailable')
+                      unless defined $ppyrow;
+                    my $cellFormat =
+                        $self->{rowFormats}[$y]
+                      ? $wb->getFormat( $self->{rowFormats}[$y] )
+                      : $format;
+                    '', $cellFormat, $formula->[0],
+                      qr/\bA1\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A1} + $ppyrow,
+                        $colh->{A1}
+                      ),
+                      qr/\bA2\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A2} + $y,
+                        $colh->{A2} );
+                };
+            },
+        );
+        push @{ $model->{statisticsTables} },
+          Columnset(
+            name    => 'Apparent LDNO margins for illustrative customers',
+            columns => [ $atwTable, $marginTable, ],
+          );
+    }
 
 }
 
