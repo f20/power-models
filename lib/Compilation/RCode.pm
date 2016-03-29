@@ -108,6 +108,30 @@ sub treemapByComponent {
     Compilation::RCode::Treemap->treemapWithComponents(1);
 }
 
+sub treemap1020ByLevel {
+    my ( $self, $script ) = @_;
+    require Compilation::RCode::Treemap;
+    Compilation::RCode::Treemap->treemap1020;
+}
+
+sub treemap1020ByCompany {
+    my ( $self, $script ) = @_;
+    require Compilation::RCode::Treemap;
+    Compilation::RCode::Treemap->treemap1020(1);
+}
+
+sub treemap2706ByLevel {
+    my ( $self, $script ) = @_;
+    require Compilation::RCode::Treemap;
+    Compilation::RCode::Treemap->treemap2706;
+}
+
+sub treemap2706ByCompany {
+    my ( $self, $script ) = @_;
+    require Compilation::RCode::Treemap;
+    Compilation::RCode::Treemap->treemap2706(1);
+}
+
 sub bandConsumption {
     my ( $self, $script ) = @_;
     require Compilation::RCode::Multi;

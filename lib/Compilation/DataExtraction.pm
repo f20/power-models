@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2016 Reckon LLP and others.
+Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -88,21 +88,30 @@ sub jsonWriter {
 
 sub _extractInputData {
     my ( $workbook, $tree, $options ) = @_;
-    my ( %byWorksheet, %dirty, $dirtyOverall );
+    my ( %byWorksheet, %used, $conflicting );
     for my $worksheet ( $workbook->worksheets() ) {
         my ( $row_min, $row_max ) = $worksheet->row_range();
         my ( $col_min, $col_max ) = $worksheet->col_range();
-        my ( $tableNumber, $columnHeadingsRow, $to1, $to2 );
+        my ( $tableNumber, $evenIfLocked, $columnHeadingsRow, $to1, $to2 );
         for my $row ( $row_min .. $row_max ) {
             my $rowName;
             for my $col ( $col_min .. $col_max ) {
                 my $cell = $worksheet->get_cell( $row, $col );
                 my $v;
                 $v = $cell->unformatted if $cell;
+                $evenIfLocked = 1
+                  if $col == 0
+                  && !$v
+                  && defined $evenIfLocked
+                  && !$evenIfLocked;
                 next unless defined $v;
                 if ( $col == 0 ) {
                     if ( !ref $cell->{Format} || $cell->{Format}{Lock} ) {
-                        if ( $v && $v =~ /^([0-9]{2,})\. / ) {
+                        if ( $v =~ /^[0-9]{3,}\. .*⇒([0-9]{3,})/
+                            && !( $evenIfLocked = 0 )
+                            || $v =~ /^([0-9]{3,})\. /
+                            && !( undef $evenIfLocked ) )
+                        {
                             $tableNumber = $1;
                             undef $columnHeadingsRow;
                             $to1 = $tree->{$tableNumber};
@@ -117,8 +126,9 @@ sub _extractInputData {
                                 : { '_table' => $v }
                               ]
                               unless $to1->[0];
-                            $dirtyOverall ||= $dirty{$tableNumber};
-                            $dirty{$tableNumber} = 1;
+                            warn $tableNumber
+                              if $conflicting ||= $used{$tableNumber};
+                            $used{$tableNumber} = 1;
                         }
                         elsif ($v) {
                             $v =~ s/[^A-Za-z0-9-]/ /g;
@@ -157,26 +167,31 @@ sub _extractInputData {
                 elsif ( defined $tableNumber ) {
                     if ( !defined $rowName ) {
                         $columnHeadingsRow = $row;
-                        unless ( $options->{minimum} ) {
+                        if ( $options->{minimum} ) {
+                            $to1->[$col] ||= {};
+                        }
+                        else {
                             $to1->[$col]{'_column'} = $v;
                             $to2->[$col]{'_column'} = $v;
                         }
                     }
-                    elsif (ref $cell->{Format}
-                        && !$cell->{Format}{Lock}
-                        && ( $v || $to1->[$col] ) )
+                    elsif ( $evenIfLocked
+                        || ref $cell->{Format} && !$cell->{Format}{Lock}
+                        and $v
+                        || $to1->[$col] )
                     {
                         $to1->[$col]{$rowName} = $to2->[$col]{$rowName} =
                           $v;
                         $tree->{$tableNumber} ||= $to1;
-                        $byWorksheet{" $worksheet->{Name}"}{$tableNumber} =
+                        $byWorksheet{' combined'}{$tableNumber} =
+                          $byWorksheet{" $worksheet->{Name}"}{$tableNumber} =
                           $to2;
                     }
                 }
             }
         }
     }
-    '', $tree, $dirtyOverall ? %byWorksheet : ();
+    '', $tree, $conflicting ? %byWorksheet : ();
 }
 
 sub databaseWriter {

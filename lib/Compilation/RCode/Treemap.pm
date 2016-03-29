@@ -79,7 +79,7 @@ for (c in levels(company)) {
         for (o in levels(option)) {
             name <- paste(c, p, o);
             filter <- company==c&period==p&option==o&t3901$category!='Total net revenue by tariff';
-            if (length(filter)) {
+            if (sum(filter)>0) {
                 tryCatch(treemap(
                     t3901[filter, ],
                     index=columnIndex,
@@ -154,7 +154,7 @@ for (c in levels(company)) {
         for (o in levels(option)) {
             name <- paste(c, p, o);
             filter <- company==c&period==p&option==o&t3801$category!='Total net revenue by tariff';
-            if (length(filter)) {
+            if (sum(filter)>0) {
                 treemap(
                     t3801[filter, ],
                     index=columnIndex,
@@ -176,6 +176,110 @@ EOR
             }
         }
     }
+}
+graphics.off();
+EOR
+}
+
+sub treemap1020 {
+    my ( $self, $byCompany ) = @_;
+    (
+        $byCompany
+        ? <<'EOR'
+columnIndex <- c('company', 'level');
+fileName <- 'Treemaps 500MW by company';
+EOR
+        : <<'EOR'
+columnIndex <- c('level', 'company');
+fileName <- 'Treemaps 500MW with companies';
+EOR
+      ) . <<'EOR'
+library(DBI);
+library(RSQLite);
+drv <- dbDriver('SQLite');
+db <- dbConnect(drv, dbname = '~$database.sqlite');
+t <- dbGetQuery(db, paste(
+    'select company, period, option,',
+    'a.v as level, b.v as amount',
+    'from data as a',
+    'inner join data as b using (bid, tab)',
+    'left join books using (bid)',
+    'where a.tab=1020',
+    'and a.row=b.row and a.col=0',
+    'and b.col=1 and b.row>0 and b.v+0<>0'
+));
+company <- factor(t$company);
+period <- factor(t$period);
+option <- factor(t$option);
+level <- factor(t$level);
+library(treemap);
+pdf(paste(fileName, 'pdf', sep='.'), width=11.69, height=8.27);
+for (p in levels(period)) {
+	for (o in levels(option)) {
+		name <- p;
+		filter <- period==p&option==o;
+		if (sum(filter)>0) {
+			tryCatch(treemap(
+				t[filter, ],
+				index=columnIndex,
+				vSize='amount',
+				title=name,
+				position.legend='none'
+			), error=function(e) e);
+		}
+	}
+}
+graphics.off();
+EOR
+}
+
+sub treemap2706 {
+    my ( $self, $byCompany ) = @_;
+    (
+        $byCompany
+        ? <<'EOR'
+columnIndex <- c('company', 'level');
+fileName <- 'Treemaps assets by company';
+EOR
+        : <<'EOR'
+columnIndex <- c('level', 'company');
+fileName <- 'Treemaps assets with companies';
+EOR
+      ) . <<'EOR'
+library(DBI);
+library(RSQLite);
+drv <- dbDriver('SQLite');
+db <- dbConnect(drv, dbname = '~$database.sqlite');
+t <- dbGetQuery(db, paste(
+    'select company, period, option,',
+    'a.v as level, b.v as amount',
+    'from data as a',
+    'inner join data as b using (bid, tab)',
+    'left join books using (bid)',
+    'where a.tab=2706',
+    'and a.col=b.col and a.row=0',
+    'and b.row=1 and b.col>0 and b.v+0<>0'
+));
+company <- factor(t$company);
+period <- factor(t$period);
+option <- factor(t$option);
+level <- factor(t$level);
+library(treemap);
+pdf(paste(fileName, 'pdf', sep='.'), width=11.69, height=8.27);
+for (p in levels(period)) {
+	for (o in levels(option)) {
+		name <- p;
+		filter <- period==p&option==o&level!="Denominator for allocation of operating expenditure";
+		if (sum(filter)>0) {
+			tryCatch(treemap(
+				t[filter, ],
+				index=columnIndex,
+				vSize='amount',
+				title=name,
+				position.legend='none'
+			), error=function(e) e);
+		}
+	}
 }
 graphics.off();
 EOR

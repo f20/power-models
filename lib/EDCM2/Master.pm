@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -2212,7 +2212,7 @@ EOT
             (
                 map {
                     Columnset(
-                        name => 'Summary aggregate data part ' . ( $_ - 1190 ),
+                        name    => "DNO-wide aggregated data ⇒$_",
                         number  => 3600 + $_,
                         columns => [
                             map { Stack( sources => [$_] ) } @{ $olTabCol{$_} }

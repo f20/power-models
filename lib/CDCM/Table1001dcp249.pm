@@ -260,9 +260,9 @@ EOL
     $model->{edcmTables}[0][4] = new SpreadsheetModel::Custom(
         name => 'The amount of money that the DNO wants to raise from use'
           . ' of system charges, less transmission exit (£/year)',
-        defaultFormat => '0hard',
         custom        => ['=A1+A2-A3'],
         arithmetic    => '=A1+A2-A3',
+        defaultFormat => '0soft',
         arguments     => {
             A1 => $target,
             A2 => $inputs,

@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -97,10 +98,9 @@ sub operating {
         ]
       );
 
-    $model->{edcmTables}[0][5] = Stack(
-        defaultFormat => '0hard',
-        sources       => [ $operatingExpenditureCodedByLevel->{sources}[0] ]
-    ) if $model->{edcmTables};
+    $model->{edcmTables}[0][5] =
+      Stack( sources => [ $operatingExpenditureCodedByLevel->{sources}[0] ] )
+      if $model->{edcmTables};
 
     my $operatingLvCustomer =
       Labelset( list =>
@@ -211,8 +211,7 @@ sub operating {
         );
 
         @{ $model->{edcmTables}[0] }[ 6 .. 8 ] =
-          map { Stack( defaultFormat => '0hard', sources => [$_] ); }
-          @otex[ 0, 1, 3 ]
+          map { Stack( sources => [$_] ); } @otex[ 0, 1, 3 ]
           if $model->{edcmTables};
 
         Columnset(
@@ -425,9 +424,8 @@ sub operating {
 
     push @{ $model->{edcmTables} },
       Stack(
-        name          => 'Assets in CDCM model (£)',
-        defaultFormat => '0hard',
-        number        => 1131,
+        name          => 'EDCM input data ⇒1131. Assets in CDCM model (£)',
+        singleRowName => 'EDCM input data',
         sources       => [$modelAssetsByLevelPossiblyScaled]
       ) if $model->{edcmTables};
 

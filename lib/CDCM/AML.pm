@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -738,9 +738,9 @@ EOL
 
         push @{ $model->{edcmTables} },
           Stack(
-            name => 'Diversity allowance between level exit and GSP Group',
-            defaultFormat => '0.000hard',
-            number        => 1105,
+            name => 'EDCM input data ⇒1105. Diversity allowance'
+              . ' between level exit and GSP Group',
+            singleRowName => 'EDCM input data',
             rows          => 0,
             cols          => Labelset(
                 list => [

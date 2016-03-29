@@ -70,7 +70,7 @@ sub addForwardLink {
 sub requestForwardLinks {
     my ( $self, $wb, $ws, $rowref, $col ) = @_;
     goto &requestForwardTree if $wb->{forwardLinks} =~ /tree/i;
-    return unless $self->{forwardLinks};
+    return unless $self->{forwardLinks} && %{ $self->{forwardLinks} };
     my $saveCol    = $col - 1;
     my $linkFormat = $wb->getFormat('link');
     $ws->write( $$rowref += 2, $saveCol, 'Used by:', $wb->getFormat('text') );
@@ -89,7 +89,7 @@ sub requestForwardLinks {
 
 sub requestForwardTree {
     my ( $self, $wb, $ws, $rowref, $col ) = @_;
-    return unless $self->{forwardLinks};
+    return unless $self->{forwardLinks} && %{ $self->{forwardLinks} };
     my $saveCol    = $col - 1;
     my $linkFormat = $wb->getFormat('link');
     my $textFormat = $wb->getFormat('text');

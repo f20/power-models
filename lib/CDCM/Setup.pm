@@ -95,8 +95,7 @@ EOL
         defaultFormat => '0hard'
     );
 
-    $model->{edcmTables}[0][1] =
-      Stack( defaultFormat => '0hard', sources => [$daysInYear] )
+    $model->{edcmTables}[0][1] = Stack( sources => [$daysInYear] )
       if $model->{edcmTables};
 
     my ($daysInBefore);

@@ -519,7 +519,7 @@ sub makeStatisticsTables {
             ]
         );
         my $atwTable = SpreadsheetModel::Custom->new(
-            name => Label( 'All-the-way', 'All-the-way charge (£/year)' ),
+            name => Label( 'All the way', 'All-the-way charge (£/year)' ),
             defaultFormat => '0copy',
             rows          => $atwRowset,
             custom        => [ '=A1', ],

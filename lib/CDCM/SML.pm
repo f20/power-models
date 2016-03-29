@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -188,10 +188,9 @@ sub networkUse {
 
     push @{ $model->{edcmTables} },
       Stack(
-        name => 'Forecast system simultaneous maximum load (kW)'
-          . ' from CDCM users',
-        defaultFormat => '0hard',
-        number        => 1122,
+        name => 'EDCM input data ⇒1122. Forecast system '
+          . 'simultaneous maximum load (kW) from CDCM users',
+        singleRowName => 'EDCM input data',
         cols =>
           Labelset( list => [ @{ $forecastSml->{cols}{list} }[ 0 .. 5 ] ] ),
         sources => [$forecastSml]

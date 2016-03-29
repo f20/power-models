@@ -170,11 +170,15 @@ for (t in levels(tariff)) {
     scaling <- 1;
     units <- '£';
     format <- '%1.0f';
+    digit <- 0;
     mx <- max(value[tariff==t]);
     if (mx > 5000) {
     	scaling <- 0.001;
 	    units <- '£k';
-		if (mx < 35000) format <- '%1.1f';
+		if (mx < 35000) {
+			format <- '%1.1f';
+			digit <- 1;
+		}
     }
     for (o in 1:numBoundaries) {
         l[[o]] <- scaling*value[tariff==t&boundary==boundaryList[o]];
@@ -184,7 +188,7 @@ for (t in levels(tariff)) {
         file.name = NA,
         title = t,
         option.names = paste(boundaryList, units),
-        legend.digit = 1,
+        legend.digit = digit,
         number.format = format,
 		colour.maker = function (i) { hsv(0.25+0.004*i, 1-0.006*i, 1); },
 		mincol.maker = function (v) { min(v[2:length(v)], na.rm=T); },

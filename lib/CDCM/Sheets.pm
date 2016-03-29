@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -677,9 +677,9 @@ EOL
 
     push @wsheetsAndClosures,
 
-      '⇒11' => sub {
+      '⇒EDCM' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 43 unless $wbook->{lastSheetNumber} > 42;
+        $wbook->{lastSheetNumber} = 42 unless $wbook->{lastSheetNumber} > 42;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->fit_to_pages( 1, 1 );
@@ -688,9 +688,9 @@ EOL
         if ( ref $model->{edcmTables}[0] eq 'ARRAY' ) {
             my $col = shift @{ $model->{edcmTables} };
             push @{ $model->{edcmTables} }, Columnset(
-                name    => 'General inputs',
-                number  => 1113,
-                columns => [
+                name          => 'EDCM input data ⇒1113. General inputs',
+                singleRowName => 'EDCM input data',
+                columns       => [
                     map {
                         $col->[$_]
                           || Constant( name => 'Placeholder', data => [], );
@@ -700,13 +700,13 @@ EOL
         }
 
         my $notes = Notes(
-            name  => 'Data for EDCM sheet 11',
+            name  => 'Data for EDCM model',
             lines => ['This sheet is for information only.']
         );
 
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,
-          sort { $a->{number} <=> $b->{number} } @{ $model->{edcmTables} };
+          sort { $a->{name} cmp $b->{name} } @{ $model->{edcmTables} };
 
       }
 
@@ -731,7 +731,7 @@ EOL
 
     if ( $model->{compact} ) {
         my %suffixes = (
-            '⇒11' => '',
+            '⇒EDCM' => '',
             $model->{summary} && $model->{summary} =~ /arp/i
             ? (
                 Tariffs => ' (2)$',

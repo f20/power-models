@@ -373,9 +373,8 @@ EOL
 
     push @{ $model->{edcmTables} },
       Stack(
-        name          => 'Loss adjustment factor to transmission',
-        defaultFormat => '0.000hard',
-        number        => 1135,
+        name => 'EDCM input data ⇒1135. Loss adjustment factor to transmission',
+        singleRowName => 'EDCM input data',
         cols          => Labelset(
             list => [ @{ $lineLossFactorsNetwork->{cols}{list} }[ 0 .. 5 ] ]
         ),
