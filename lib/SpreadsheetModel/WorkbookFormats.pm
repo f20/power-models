@@ -585,6 +585,14 @@ Keys used in %$options:
             underline  => 1,
             color      => BLUE,
         ],
+        loccopy => [
+            locked => 1,
+            @sizeLabel,
+            num_format => $black . '\L\o\c\a\t\i\o\n\ 0',
+            align      => 'center',
+            @sizeExtras,
+            @colourCopy,
+        ],
         locsoft => [
             locked => 1,
             @sizeLabel,
