@@ -414,6 +414,8 @@ EOT
         }
     );
 
+### Marker
+
     my $importCapacityUnscaled = $importCapacity;
     my $chargeableCapacity     = Arithmetic(
         name          => 'Import capacity not subject to DSM (kVA)',
@@ -570,6 +572,8 @@ EOT
         }
     );
 
+### Marker
+
     my $cdcmUse = $model->{cdcmComboTable} ? Stack(
         name => 'Forecast system simultaneous maximum load (kW)'
           . ' from CDCM users',
@@ -595,42 +599,6 @@ EOT
         }
       );
 
-    my $cdcmPurpleUse = Stack(
-        cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
-        name    => 'Total CDCM peak time consumption (kW)',
-        sources => [$cdcmUse]
-    );
-    $model->{transparency}{olFYI}{1237} = $cdcmPurpleUse
-      if $model->{transparency};
-
-    push @{ $model->{calc3Tables} }, $cdcmHvLvService, $cdcmEhvAssets,
-      $cdcmHvLvShared
-      if $model->{legacy201};
-
-    $reactiveCoincidence = Arithmetic(
-        name       => "$model->{TimebandName} kVAr/agreed kVA (capped)",
-        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
-          . ( $model->{legacy201} ? '' : '0+' )
-          . 'A1),0-SQRT(1-MIN(1,A3)^2))',
-        arguments => {
-            A1 => $reactiveCoincidence,
-            A2 => $activeCoincidence,
-            A3 => $activeCoincidence,
-        }
-    );
-
-    $reactiveCoincidence935 = Arithmetic(
-        name       => 'Unadjusted but capped red kVAr/agreed kVA',
-        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
-          . ( $model->{legacy201} ? '' : '0+' )
-          . 'A1),0-SQRT(1-MIN(1,A3)^2))',
-        arguments => {
-            A1 => $reactiveCoincidence935,
-            A2 => $activeCoincidence935,
-            A3 => $activeCoincidence935,
-        }
-    );
-
     my (
         $lossFactors,            $diversity,
         $accretion,              $purpleUseRate,
@@ -650,50 +618,7 @@ EOT
         $cdcmUse,
       );
 
-    my $edcmPurpleUse =
-      $model->{transparencyMasterFlag}
-      ? Arithmetic(
-        name          => 'Total EDCM peak time consumption (kW)',
-        defaultFormat => '0softnz',
-        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52,A53_A54)',
-        arguments     => {
-            A123    => $model->{transparencyMasterFlag},
-            A1      => $model->{transparency}{ol119101},
-            A21_A22 => $model->{transparency},
-            A51_A52 => ref $purpleUseRate eq 'ARRAY'
-            ? $purpleUseRate->[0]
-            : $purpleUseRate,
-            A53_A54 => $importCapacity,
-        }
-      )
-      : SumProduct(
-        name   => 'Total EDCM peak time consumption (kW)',
-        vector => ref $purpleUseRate eq 'ARRAY'
-        ? $purpleUseRate->[0]
-        : $purpleUseRate,
-        matrix        => $importCapacity,
-        defaultFormat => '0softnz'
-      );
-
-    $model->{transparency}{olTabCol}{119101} = $edcmPurpleUse
-      if $model->{transparency};
-
-    my $overallPurpleUse = Arithmetic(
-        name          => 'Estimated total peak-time consumption (kW)',
-        defaultFormat => '0softnz',
-        arithmetic    => '=A1+A2',
-        arguments     => { A1 => $cdcmPurpleUse, A2 => $edcmPurpleUse }
-    );
-    $model->{transparency}{olFYI}{1238} = $overallPurpleUse
-      if $model->{transparency};
-
-    my $rateExit = Arithmetic(
-        name       => 'Transmission exit charging rate (£/kW/year)',
-        arithmetic => '=A1/A2',
-        arguments  => { A1 => $chargeExit, A2 => $overallPurpleUse },
-        location   => 'Charging rates',
-    );
-    $model->{transparency}{olFYI}{1239} = $rateExit if $model->{transparency};
+### Marker
 
     my $rateDirect = Arithmetic(
         name          => 'Direct cost charging rate',
@@ -901,6 +826,155 @@ EOT
         arguments     => { A1 => $fixedGchargeUnround, }
     );
 
+### Marker
+
+    my $totalDcp189DiscountedAssets;
+
+    $totalDcp189DiscountedAssets =
+      $model->{transparencyMasterFlag}
+      ? (
+        $model->{dcp189} =~ /proportion/i
+        ? Arithmetic(
+            name => 'Total demand sole use assets '
+              . 'qualifying for DCP 189 discount (£)',
+            defaultFormat => '0softnz',
+            arithmetic => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A13_A14,A15_A16)',
+            arguments  => {
+                A123    => $model->{transparencyMasterFlag},
+                A1      => $model->{transparency}{ol119306},
+                A11_A12 => $demandSoleUseAsset,
+                A13_A14 => $dcp189Input,
+                A15_A16 => $model->{transparency},
+            },
+          )
+        : Arithmetic(
+            name => 'Total demand sole use assets '
+              . 'qualifying for DCP 189 discount (£)',
+            defaultFormat => '0softnz',
+            arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
+            arguments     => {
+                A123    => $model->{transparencyMasterFlag},
+                A1      => $model->{transparency}{ol119306},
+                A11_A12 => Arithmetic(
+                    name => 'Demand sole use assets '
+                      . 'qualifying for DCP 189 discount (£)',
+                    defaultFormat => '0softnz',
+                    arithmetic    => '=IF(A4="Y",A1,0)',
+                    arguments     => {
+                        A1 => $demandSoleUseAsset,
+                        A4 => $dcp189Input,
+                    }
+                ),
+                A15_A16 => $model->{transparency},
+            },
+        )
+      )
+      : $model->{dcp189} =~ /proportion/i ? SumProduct(
+        name => 'Total demand sole use assets '
+          . 'qualifying for DCP 189 discount (£)',
+        defaultFormat => '0softnz',
+        matrix        => $dcp189Input,
+        vector        => $demandSoleUseAsset,
+      )
+      : Arithmetic(
+        name => 'Total demand sole use assets '
+          . 'qualifying for DCP 189 discount (£)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=SUMIF(A1_A2,"Y",A3_A4)',
+        arguments     => {
+            A1_A2 => $dcp189Input,
+            A3_A4 => $demandSoleUseAsset,
+        }
+      ) if $model->{dcp189} && $model->{dcp189} =~ /preservePot|split/i;
+
+    $model->{transparency}{olTabCol}{119306} = $totalDcp189DiscountedAssets
+      if $model->{transparency} && $totalDcp189DiscountedAssets;
+
+### Marker
+
+    my $cdcmPurpleUse = Stack(
+        cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
+        name    => 'Total CDCM peak time consumption (kW)',
+        sources => [$cdcmUse]
+    );
+    $model->{transparency}{olFYI}{1237} = $cdcmPurpleUse
+      if $model->{transparency};
+
+    push @{ $model->{calc3Tables} }, $cdcmHvLvService, $cdcmEhvAssets,
+      $cdcmHvLvShared
+      if $model->{legacy201};
+
+    my $edcmPurpleUse =
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name          => 'Total EDCM peak time consumption (kW)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52,A53_A54)',
+        arguments     => {
+            A123    => $model->{transparencyMasterFlag},
+            A1      => $model->{transparency}{ol119101},
+            A21_A22 => $model->{transparency},
+            A51_A52 => ref $purpleUseRate eq 'ARRAY'
+            ? $purpleUseRate->[0]
+            : $purpleUseRate,
+            A53_A54 => $importCapacity,
+        }
+      )
+      : SumProduct(
+        name   => 'Total EDCM peak time consumption (kW)',
+        vector => ref $purpleUseRate eq 'ARRAY'
+        ? $purpleUseRate->[0]
+        : $purpleUseRate,
+        matrix        => $importCapacity,
+        defaultFormat => '0softnz'
+      );
+
+    $model->{transparency}{olTabCol}{119101} = $edcmPurpleUse
+      if $model->{transparency};
+
+    my $overallPurpleUse = Arithmetic(
+        name          => 'Estimated total peak-time consumption (kW)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=A1+A2',
+        arguments     => { A1 => $cdcmPurpleUse, A2 => $edcmPurpleUse }
+    );
+    $model->{transparency}{olFYI}{1238} = $overallPurpleUse
+      if $model->{transparency};
+
+    my $rateExit = Arithmetic(
+        name       => 'Transmission exit charging rate (£/kW/year)',
+        arithmetic => '=A1/A2',
+        arguments  => { A1 => $chargeExit, A2 => $overallPurpleUse },
+        location   => 'Charging rates',
+    );
+    $model->{transparency}{olFYI}{1239} = $rateExit if $model->{transparency};
+
+### Marker
+
+    $reactiveCoincidence = Arithmetic(
+        name       => "$model->{TimebandName} kVAr/agreed kVA (capped)",
+        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
+          . ( $model->{legacy201} ? '' : '0+' )
+          . 'A1),0-SQRT(1-MIN(1,A3)^2))',
+        arguments => {
+            A1 => $reactiveCoincidence,
+            A2 => $activeCoincidence,
+            A3 => $activeCoincidence,
+        }
+    );
+
+    $reactiveCoincidence935 = Arithmetic(
+        name       => 'Unadjusted but capped red kVAr/agreed kVA',
+        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
+          . ( $model->{legacy201} ? '' : '0+' )
+          . 'A1),0-SQRT(1-MIN(1,A3)^2))',
+        arguments => {
+            A1 => $reactiveCoincidence935,
+            A2 => $activeCoincidence935,
+            A3 => $activeCoincidence935,
+        }
+    );
+
     my ( $charges1, $acCoef, $reCoef ) =
       $model->charge1( $tariffLoc, $locations, $locParent, $c1, $a1d, $r1d,
         $a1g, $r1g,
@@ -936,6 +1010,8 @@ EOT
             A51 => $exportCapacityExempt,
         },
     );
+
+### Marker
 
     my $gCharge = $model->gCharge(
         $genPot20p,                        $genPotGP,
@@ -1042,67 +1118,7 @@ EOT
     $model->{transparency}{olTabCol}{119204} = $generationRevenue
       if $model->{transparency};
 
-    my $totalDcp189DiscountedAssets;
-
-    $totalDcp189DiscountedAssets =
-      $model->{transparencyMasterFlag}
-      ? (
-        $model->{dcp189} =~ /proportion/i
-        ? Arithmetic(
-            name => 'Total demand sole use assets '
-              . 'qualifying for DCP 189 discount (£)',
-            defaultFormat => '0softnz',
-            arithmetic => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A13_A14,A15_A16)',
-            arguments  => {
-                A123    => $model->{transparencyMasterFlag},
-                A1      => $model->{transparency}{ol119306},
-                A11_A12 => $demandSoleUseAsset,
-                A13_A14 => $dcp189Input,
-                A15_A16 => $model->{transparency},
-            },
-          )
-        : Arithmetic(
-            name => 'Total demand sole use assets '
-              . 'qualifying for DCP 189 discount (£)',
-            defaultFormat => '0softnz',
-            arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
-            arguments     => {
-                A123    => $model->{transparencyMasterFlag},
-                A1      => $model->{transparency}{ol119306},
-                A11_A12 => Arithmetic(
-                    name => 'Demand sole use assets '
-                      . 'qualifying for DCP 189 discount (£)',
-                    defaultFormat => '0softnz',
-                    arithmetic    => '=IF(A4="Y",A1,0)',
-                    arguments     => {
-                        A1 => $demandSoleUseAsset,
-                        A4 => $dcp189Input,
-                    }
-                ),
-                A15_A16 => $model->{transparency},
-            },
-        )
-      )
-      : $model->{dcp189} =~ /proportion/i ? SumProduct(
-        name => 'Total demand sole use assets '
-          . 'qualifying for DCP 189 discount (£)',
-        defaultFormat => '0softnz',
-        matrix        => $dcp189Input,
-        vector        => $demandSoleUseAsset,
-      )
-      : Arithmetic(
-        name => 'Total demand sole use assets '
-          . 'qualifying for DCP 189 discount (£)',
-        defaultFormat => '0softnz',
-        arithmetic    => '=SUMIF(A1_A2,"Y",A3_A4)',
-        arguments     => {
-            A1_A2 => $dcp189Input,
-            A3_A4 => $demandSoleUseAsset,
-        }
-      ) if $model->{dcp189} && $model->{dcp189} =~ /preservePot|split/i;
-
-    $model->{transparency}{olTabCol}{119306} = $totalDcp189DiscountedAssets
-      if $model->{transparency} && $totalDcp189DiscountedAssets;
+### Marker
 
     my $chargeOther = Arithmetic(
         name => 'Revenue less costs and '
@@ -1250,6 +1266,8 @@ EOT
 
     push @{ $model->{calc3Tables} }, $totalRevenue3;
 
+### Marker
+
     my ( $scalingChargeCapacity, $scalingChargeUnits );
 
     my $capacityChargeT = Arithmetic(
@@ -1336,6 +1354,8 @@ EOT
     push @{ $model->{matricesData}[0] },
       Stack( sources => [$unitRateFcpLricDSM] )
       if $model->{matricesData};
+
+### Marker
 
     my (
         $importCapacityScaledRound, $purpleRateFcpLricRound,
@@ -1551,6 +1571,8 @@ EOT
 
     }
 
+### Marker
+
     $model->fudge41(
         $activeCoincidence, $importCapacity,
         $edcmIndirect,      $edcmDirect,
@@ -1650,6 +1672,8 @@ EOT
         },
     );
 
+### Marker
+
     $importCapacityScaled =
       $scalingChargeCapacity
       ? Arithmetic(
@@ -1741,6 +1765,8 @@ EOT
         },
     );
 
+### Marker
+
     push @{ $model->{tablesG} }, $genCredit, $genCreditCapacity,
       $exportCapacityCharge;
 
@@ -1784,6 +1810,8 @@ EOT
       $fixedDchargeTrue, $importCapacityExceeded,
       $exportCapacityChargeRound,
       $fixedGchargeTrue;
+
+### Marker
 
     my @tariffColumns = (
         Stack( sources => [$tariffs] ),
@@ -1887,6 +1915,8 @@ EOT
             columns => $allTariffColumns,
           );
     }
+
+### Marker
 
     return $model unless $model->{summaries};
 
@@ -2279,6 +2309,8 @@ EOT
             )
         ];
     }
+
+### Marker
 
     $model->templates(
         $tariffs,                          $importCapacityUnscaled,
