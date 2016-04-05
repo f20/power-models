@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -76,7 +76,7 @@ sub templateImport {
     $model->{importTariffIndex} = my $index = Dataset(
         name          => 'Number',
         data          => [ [1] ],
-        defaultFormat => 'thtar',
+        defaultFormat => [ base => 'thtar', locked => 0 ],
     );
 
     my @tariffComponents = map {
@@ -98,9 +98,10 @@ sub templateImport {
     );
 
     my $exceededCapacity = Dataset(
-        name          => 'Exceeded import capacity (kVA)',
-        data          => [ [0] ],
-        defaultFormat => '0hard',
+        name               => 'Exceeded import capacity (kVA)',
+        data               => [ [0] ],
+        defaultFormat      => '0hard',
+        usePlaceholderData => 1,
     );
 
     foreach ( $activeCoincidence, $tariffDaysInYearNot,
@@ -316,7 +317,7 @@ sub templateExport {
     $model->{exportTariffIndex} = my $index = Dataset(
         name          => 'Number',
         data          => [ [1] ],
-        defaultFormat => 'thtar',
+        defaultFormat => [ base => 'thtar', locked => 0 ],
     );
 
     my @tariffComponents = map {
@@ -454,7 +455,7 @@ sub vbaWrite {
 
     my $sheetsForPublication = join ',', map { qq%"$_"% } 11,
       $model->{method} =~ /FCP/i ? 911 : $model->{method} =~ /LRIC/i ? 913 : (),
-      935, qw(Results OneLiners);
+      935, qw(Results Aggregates);
 
     ( undef, my $importTariffRow, undef ) =
       $model->{importTariffIndex}->wsWrite( $wb, $ws );
@@ -469,10 +470,12 @@ sub vbaWrite {
 ' 1.  Transfer this code to a module; and
 ' 2.  Run the Autorun macro.
 ' 
-' Opening the Microsoft Excel Addin http://dcmf.co.uk/FranckVBATools04.xla will do all this for you.
+' Opening the Microsoft Excel add-in "Franck VBA Tools" should do all this automatically.
+' This add-in is available from https://github.com/f20/power-models
 
 Sub Autorun()
     Worksheets("Index").Activate
+    ActiveSheet.Unprotect
     l = 0.5*(ActiveSheet.Columns(1).Left+ActiveSheet.Columns(2).Left)
     w = ActiveSheet.Columns(3).Left - ActiveSheet.Columns(2).Left
     Dim myButton As Shape

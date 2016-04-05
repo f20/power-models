@@ -39,7 +39,6 @@ use EDCM2::Locations;
 use EDCM2::Charges;
 use EDCM2::Generation;
 use EDCM2::Scaling;
-use EDCM2::Summary;
 use EDCM2::Sheets;
 use EDCM2::DataPreprocess;
 
@@ -1891,7 +1890,10 @@ EOT
 
     return $model unless $model->{summaries};
 
-    my $format0withLine = [ base => '0soft', left => 5, left_color => 8 ];
+    my $format0withLine =
+      $model->{vertical}
+      ? '0soft'
+      : [ base => '0soft', left => 5, left_color => 8 ];
 
     my @revenueBitsD = (
 
@@ -2100,14 +2102,58 @@ EOT
             name    => 'Change in export charges',
             columns => [ $rev2g, $rev1g, $change1g, $change2g, ],
           )->addDatasetGroup(
-            name    => 'Analysis of demand charges',
-            columns => [
-                ( grep { $_ } @{ $model->{summaryInformationColumns} } ),
-                $check,
-            ],
+            name => 'Analysis of import charges',
+            columns =>
+              [ grep { $_ } @{ $model->{summaryInformationColumns} }, $check, ],
           );
         push @{ $model->{revenueTables} }, @copyTariffs, @revenueBitsD,
           @revenueBitsG, $change2d, $change2g, $check;
+    }
+    elsif ( $model->{vertical} ) {
+        push @{ $model->{revenueTables} },
+          Columnset(
+            name    => 'Import charges',
+            columns => [
+                Stack( sources => [ $tariffColumns[0] ] ),
+                @revenueBitsD, $rev2d, $rev1d, $change1d, $change2d,
+            ],
+          ),
+          Columnset(
+            name    => 'Export charges',
+            columns => [
+                Stack( sources => [ $tariffColumns[0] ] ),
+                @revenueBitsG, $rev2g, $rev1g, $change1g, $change2g,
+            ],
+          ),
+          Columnset(
+            name    => 'Import charges based on sole-use assets',
+            columns => [
+                Stack( sources => [ $tariffColumns[0] ] ),
+                grep { $_ } $model->{summaryInformationColumns}[0],
+            ],
+          ),
+          Columnset(
+            name    => 'Import charges based on non-sole-use notional assets',
+            columns => [
+                Stack( sources => [ $tariffColumns[0] ] ),
+                grep { $_ } @{ $model->{summaryInformationColumns} }[ 2, 4, 7 ],
+            ],
+          ),
+          Columnset(
+            name    => 'Import charges based on capacity and consumption',
+            columns => [
+                Stack( sources => [ $tariffColumns[0] ] ),
+                grep { $_ } @{ $model->{summaryInformationColumns} }[ 1, 3, 6 ],
+            ],
+          ),
+          Columnset(
+            name    => 'Other elements of import charges',
+            columns => [
+                Stack( sources => [ $tariffColumns[0] ] ),
+                grep { $_ } $model->{summaryInformationColumns}[5],
+                $check,
+            ],
+          );
     }
     else {
         push @{ $model->{revenueTables} },
@@ -2117,15 +2163,17 @@ EOT
                 ( map { Stack( sources => [$_] ) } @tariffColumns ),
                 @revenueBitsD,
                 @revenueBitsG,
-                $rev2d, $rev1d,
+                $rev2d,
+                $rev1d,
                 $change1d,
                 $change2d,
-                $rev2g, $rev1g,
+                $rev2g,
+                $rev1g,
                 $change1g,
                 $change2g,
-                ( grep { $_ } @{ $model->{summaryInformationColumns} } ),
+                grep { $_ } @{ $model->{summaryInformationColumns} },
                 $check,
-            ]
+            ],
           );
     }
 
@@ -2181,21 +2229,6 @@ EOT
         ]
       ) if $model->{ldnoRevTables} && $model->{ldnoRevTables}[1];
 
-    my $revenue = $model->revenue(
-        $daysInYear,             $tariffs,
-        $importCapacity,         $exportCapacityChargeable,
-        $activeUnits,            $fixedDcharge,
-        $fixedGcharge,           $importCapacityScaledSaved,
-        $exportCapacityCharge,   $importCapacityExceeded,
-        $exportCapacityExceeded, $genCredit,
-        $genCreditCapacity,      $importCapacityScaled,
-        $purpleRateFcpLric,      $activeCoincidence,
-        $hoursInPurple,
-    );
-
-    $model->summary( $tariffs, $revenue, $previousChargeImport,
-        $importCapacity, $activeCoincidence, $charges1, );
-
     push @{ $model->{revenueTables} },
       $model->impactFinancialSummary( $tariffs, \@tariffColumns,
         $actualRedDemandRate, \@revenueBitsD, @revenueBitsG, $rev2g )
@@ -2212,13 +2245,16 @@ EOT
             (
                 map {
                     Columnset(
-                        name    => "DNO-wide aggregated data ⇒$_",
-                        number  => 3600 + $_,
+                        name    => "⇒$_->[0]. $_->[1]",
+                        number  => 3600 + $_->[0],
                         columns => [
-                            map { Stack( sources => [$_] ) } @{ $olTabCol{$_} }
+                            map { Stack( sources => [$_] ) }
+                              @{ $olTabCol{ $_->[0] } }
                         ]
                       )
-                } sort keys %olTabCol
+                  }[ 1191 => 'EDCM demand aggregates' ],
+                [ 1192 => 'EDCM generation aggregates' ],
+                [ 1193 => 'EDCM notional asset aggregates' ],
             ),
             (
                 map {

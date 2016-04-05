@@ -116,6 +116,15 @@ sub makeModels {
             {
                 $maker->{setRule}->( $1 => $2 );
             }
+            elsif (/^-+tariffs=(.+)/is) {
+                $maker->{setRule}->(
+                    tariffs      => [ split /[^0-9]+/, $1 ],
+                    vertical     => 1,
+                    dataOverride => {
+                        1190 => [ undef, { 'Enter TRUE or FALSE' => 'FALSE' } ]
+                    }
+                );
+            }
             elsif (/^-+orange/is) { $maker->{setRule}->( colour => 'orange' ); }
             elsif (/^-+gold/is) {
                 srand();

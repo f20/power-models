@@ -423,11 +423,11 @@ sub worksheetsAndClosures {
         :
 
           (
-            'HSummary' => sub {
+            $model->{vertical} ? 'Summary' : 'HSummary' => sub {
                 my ($wsheet) = @_;
                 $wsheet->{sheetNumber} = 46;
                 $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
-                $wsheet->set_landscape;
+                $wsheet->set_landscape unless $model->{vertical};
                 $wsheet->set_column( 0, 0,   20 );
                 $wsheet->set_column( 1, 1,   50 );
                 $wsheet->set_column( 2, 250, 20 );
@@ -608,7 +608,7 @@ groups.  Only the DCUSA Panel and its working groups have authority to approve t
 Reckon LLP makes no representation about the suitability of this material for the purposes of complying with any licence
 conditions or furthering any relevant objective.
 EOL
-              <<EOL,
+            <<EOL,
 
 {unlocked} UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
 EOL

@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -154,34 +154,34 @@ sub preprocessDataset {
             }
 
             if ($max) {
-                my @tariffs;
-                if (   $model->{numTariffs}
+                my $tariffs;
+                if ( ref $model->{tariffs} eq 'ARRAY' ) {
+                    $tariffs = $model->{tariffs};
+                }
+                elsif ($model->{numTariffs}
                     && $max <= $model->{numTariffs} )
                 {
-                    $model->{numTariffs} = 2
-                      unless $model->{transparency}
-                      && $model->{transparency} =~ /impact/i
-                      || $model->{numTariffs} > 1;
-                    @tariffs = ( 1 .. $model->{numTariffs} );
+                    $tariffs = [ 1 .. $model->{numTariffs} ];
                 }
                 else {
-                    @tariffs =
-                      sort { $a <=> $b } keys %tariffs,
-                      defined $model->{numTariffs}
-                      ? ()
-                      : ( $max + 1 .. $max + 16 );
-                    push @tariffs, $max + 1
+                    $tariffs = [
+                        sort { $a <=> $b } keys %tariffs,
+                        defined $model->{numTariffs}
+                        ? ()
+                        : ( $max + 1 .. $max + 16 )
+                    ];
+                    push @$tariffs, $max + 1
                       unless $model->{transparency}
                       && $model->{transparency} =~ /impact/i
-                      || @tariffs > 1;
-                    $model->{numTariffs} = @tariffs;
+                      || @$tariffs > 1;
                 }
-                $model->{tariffSet} = Labelset(
+                $model->{numTariffs} = @$tariffs;
+                $model->{tariffSet}  = Labelset(
                     name          => 'Tariffs',
-                    list          => \@tariffs,
+                    list          => $tariffs,
                     defaultFormat => 'thtar',
                 );
-                foreach my $k (@tariffs) {
+                foreach my $k (@$tariffs) {
                     my $v = $ds->[1]{$k};
                     if (    $v
                         and lc $v ne 'not used'
