@@ -122,7 +122,8 @@ sub makeModels {
                     vertical     => 1,
                     dataOverride => {
                         1190 => [ undef, { 'Enter TRUE or FALSE' => 'FALSE' } ]
-                    }
+                    },
+                    ldnoRev => 0,
                 );
             }
             elsif (/^-+orange/is) { $maker->{setRule}->( colour => 'orange' ); }

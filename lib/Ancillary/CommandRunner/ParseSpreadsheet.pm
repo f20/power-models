@@ -234,7 +234,8 @@ EOS
             my $workbook;
             eval {
                 local %SIG;
-                $SIG{__WARN__} = sub { };
+
+                #  $SIG{__WARN__} = sub { };
                 if ( $calcFile =~ /\.xlsx$/is ) {
                     require Spreadsheet::ParseXLSX;
                     my $parser = Spreadsheet::ParseXLSX->new;
@@ -242,8 +243,13 @@ EOS
                 }
                 else {
                     require Spreadsheet::ParseExcel;
-                    my $parser = Spreadsheet::ParseExcel->new;
-                    $workbook = $parser->Parse( $calcFile, 'NOOP_CLASS' );
+                    my $parser    = Spreadsheet::ParseExcel->new;
+                    my $formatter = 'NOOP_CLASS';
+                    eval {
+                        require Spreadsheet::ParseExcel::FmtJapan;
+                        $formatter = Spreadsheet::ParseExcel::FmtJapan->new;
+                    };
+                    $workbook = $parser->Parse( $calcFile, $formatter );
                 }
                 delete $SIG{__WARN__};
             };

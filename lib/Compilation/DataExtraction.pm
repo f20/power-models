@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use Encode;
 use Ancillary::ParallelRunning;
 
 sub ymlWriter {
@@ -105,7 +106,10 @@ sub _extractInputData {
                   && defined $evenIfLocked
                   && !$evenIfLocked;
                 next unless defined $v;
+                eval { $v = Encode::decode( 'UTF-16BE', $v ); }
+                  if $v =~ m/\x{0}/;
                 if ( $col == 0 ) {
+
                     if ( !ref $cell->{Format} || $cell->{Format}{Lock} ) {
                         if ( $v =~ /^[0-9]{3,}\. .*⇒([0-9]{3,})/
                             && !( $evenIfLocked = 0 )
@@ -126,7 +130,7 @@ sub _extractInputData {
                                 : { '_table' => $v }
                               ]
                               unless $to1->[0];
-                            warn $tableNumber
+                            warn "Two data sources for $tableNumber"
                               if $conflicting ||= $used{$tableNumber};
                             $used{$tableNumber} = 1;
                         }
@@ -288,7 +292,10 @@ sub databaseWriter {
                     next unless $cell;
                     my $v = $cell->unformatted;
                     next unless defined $v;
+                    eval { $v = Encode::decode( 'UTF-16BE', $v ); }
+                      if $v =~ m/\x{0}/;
                     if ( $col == 0 ) {
+
                         if ( $v eq '---' ) {
                             $processTable->(@table) if @table;
                             $tableTop     = $row;

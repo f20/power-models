@@ -90,7 +90,7 @@ sub useDatabase {
         my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @_;
         @tablesMatching = ('.') unless @tablesMatching;
         $options->{tablesMatching} = \@tablesMatching;
-        $options->{singleSheet} = grep { /singlesheet/i } @_;
+        $options->{singleSheet} = grep { /single/i } @_;
         $db->tscsCreateIntermediateTables($options)
           unless grep { /norebuild/i } @_;
         $db->tscsCompilation( $workbookModule, $options, );

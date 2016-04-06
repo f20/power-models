@@ -162,10 +162,11 @@ sub orderedLayout {
                 return @_ if @_ == 1 && !$_[0]{rows};
                 my $name;
                 $name = $_ foreach grep { $_ } map { $_->{groupName} } @_;
+                my $name_prefix = "$prefix #" . ++$counter;
                 Columnset(
-                    name => "$prefix #"
-                      . ++$counter
-                      . ( $name ? ": $name" : '' ),
+                    name => Label(
+                        $name_prefix, $name_prefix . ( $name ? ": $name" : '' )
+                    ),
                     logColumns => 1,
                     columns    => [@_],
                     @extras,
