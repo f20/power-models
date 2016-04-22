@@ -66,7 +66,7 @@ Sub ImportVBAOne(wbook As Workbook)
     Dim componentSet As VBComponents
     Set componentSet = wbook.VBProject.VBComponents
     For Each component In componentSet
-        fileName = component.Name & ".bas"
+        fileName = component.Name & ".vb"
         Dim vbaCode As String
         fnum = FreeFile()
         On Error Resume Next
@@ -91,7 +91,7 @@ Sub ExportVBAOne(wbook As Workbook)
     Dim component As VBComponent
     For Each component In wbook.VBProject.VBComponents
         Dim fileName As String
-        fileName = component.Name & ".bas"
+        fileName = component.Name & ".vb"
         If component.CodeModule.CountOfLines > 0 Then
             fnum = FreeFile()
             On Error Resume Next
