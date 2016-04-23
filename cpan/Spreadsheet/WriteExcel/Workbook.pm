@@ -1358,8 +1358,7 @@ sub _store_OLE_file {
 
 
             # Close the filehandle if it was created internally.
-            CORE::close($self->{_fh_out}) if $self->{_internal_fh};
-            return 1;
+            return CORE::close($self->{_fh_out}) if $self->{_internal_fh};
         }
         else {
             # File in greater than limit, set $! to "File too large"

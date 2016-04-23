@@ -6,7 +6,7 @@ package Excel::Writer::XLSX::Chartsheet;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2015, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2016, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -20,7 +20,7 @@ use Exporter;
 use Excel::Writer::XLSX::Worksheet;
 
 our @ISA     = qw(Excel::Writer::XLSX::Worksheet);
-our $VERSION = '0.85';
+our $VERSION = '0.89';
 
 
 ###############################################################################
@@ -150,6 +150,7 @@ sub set_drop_lines     { return shift->{_chart}->set_drop_lines( @_ ) }
 sub set_high_low_lines { return shift->{_chart}->high_low_lines( @_ ) }
 
 
+
 ###############################################################################
 #
 # Internal methods.
@@ -170,7 +171,7 @@ sub _prepare_chart {
     my $chart_id   = shift;
     my $drawing_id = shift;
 
-    $self->{_chart}->{_id} = $chart_id - 1;
+    $self->{_chart}->{_id} = $chart_id -1;
 
     my $drawing = Excel::Writer::XLSX::Drawing->new();
     $self->{_drawing} = $drawing;
@@ -267,7 +268,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-(c) MM-MMXV, John McNamara.
+(c) MM-MMXVI, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 
