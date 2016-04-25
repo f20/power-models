@@ -411,8 +411,18 @@ EOL
                 my $ar =
                   /EHV-(local|matched)/i
                   ? (
-                    /^(LDNO )?LV sub/i
-                    ? [ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 ]
+                    /^(LDNO )?LV sub.*generat/i
+                    ? [ 0, 0, 0, 1, 1, 1, 0, 0, 1, 0 ]
+                    : /^(LDNO )?LV.*generat/i ? [ 0, 0, 0, 1, 1, 1, 1, 0, 1, 0 ]
+                    : /^(LDNO HV.*: )?HV sub.*generat/i
+                    ? [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 ]
+                    : /^(LDNO HV.*: )?HV.*generat/i
+                    ? [ 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 ]
+                    : /^(LDNO 33.*: )?33kV sub.*generat/i
+                    ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+                    : /^(LDNO 33.*: )?33.*generat/i
+                    ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+                    : /^(LDNO )?LV sub/i ? [ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 ]
                     : /^LV (additional|related)/i
                     ? [ 0, 0, 0, 1, 1, 1, 1, 1, 0, 0 ]
                     : $model->{boundary} && /^LDNO LV B[^:]*([0-9]+)/i ? [

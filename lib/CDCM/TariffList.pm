@@ -194,9 +194,9 @@ LV half hourly:
   - Included: special|common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|boundary|portfolio|dcp161toy|simple
   - Excluded: dcp179
 ---
-LV (EHV-local source):
+LV half hourly (EHV-local source):
   - PC0
-  - Name: LV HH Metered (EHV-local source)
+  - Name: LV HH Metered EHV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
@@ -213,9 +213,9 @@ LV substation half hourly:
   - Included: common|EDF|WS2|WS3|Opt2|Opt3|Opt4|portfolio|simple
   - Excluded: dcp179
 ---
-LV substation (EHV-local source):
+LV substation half hourly (EHV-local source):
   - PC0
-  - Name: LV Sub HH Metered (EHV-local source)
+  - Name: LV Sub HH Metered EHV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
@@ -232,9 +232,9 @@ HV half hourly:
   - Included: common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|T9|dcp161toy|simple
   - Excluded: dcp179
 ---
-HV (EHV-local source):
+HV half hourly (EHV-local source):
   - PC0
-  - Name: HV HH Metered (EHV-local source)
+  - Name: HV HH Metered EHV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
@@ -516,6 +516,14 @@ LV generation half hourly:
   - Reactive power charge p/kVArh
   - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|boundary|simplegen
 ---
+LV generation half hourly (EHV-local supply):
+  - PC0
+  - Name: LV Generation EHV Local Supply
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: matchinggen|portfolio
+---
 LV generation half hourly no reactive:
   - PC0
   - Name: LV Generation Non-Intermittent no RP charge
@@ -577,6 +585,14 @@ LV substation generation half hourly:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: gensub|portfolio
+---
+LV substation generation half hourly (EHV-local supply):
+  - PC0
+  - Name: LV Sub Generation EHV Local Supply
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: matchinggen|portfolio
 ---
 LV substation generation half hourly no reactive:
   - PC0
@@ -663,6 +679,14 @@ HV generation half hourly:
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
   - Included: common|WS2|WS3|Opt6|portfolio|simplegen
+---
+HV generation half hourly (EHV-local supply):
+  - PC0
+  - Name: HV Generation EHV Local Supply
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: matchinggen|portfolio
 ---
 HV generation half hourly no reactive:
   - PC0

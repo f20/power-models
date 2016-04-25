@@ -50,7 +50,7 @@ sub useDatabase {
 
     if ( grep { /\bcsv\b/i } @_ ) {
         require Compilation::ExportCsv;
-        $db->csvCreateEdcm( grep { /all/i } @_ );
+        $db->csvCreateEdcm( grep { /^all$/i } @_ );
         exit 0;
     }
 
@@ -63,8 +63,7 @@ sub useDatabase {
     my $options = ( grep { /right/i } @_ ) ? { alignment => 'right' } : {};
 
     foreach
-      my $modelsMatching ( map { /\ball\b/i ? '.' : m#^/(.+)/$# ? $1 : (); }
-        @_ )
+      my $modelsMatching ( map { /^all$/i ? '.' : m#^/(.+)/$# ? $1 : (); } @_ )
     {
         require Compilation::ExportTabs;
         my $tablesMatching = join '|', map { /^([0-9]+)$/ ? "^$1" : (); } @_;

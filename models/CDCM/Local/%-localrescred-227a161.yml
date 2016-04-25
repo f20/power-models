@@ -1,8 +1,9 @@
 ---
-.: 'CDCM with local sourcing tariffs and CTables'
+.: 'Local sourcing tariffs with residual credits, after DCP 227 and DCP 161'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
+checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: grouphhcaplevel
 drm: top500gsp
 extraLevels: 1
@@ -13,8 +14,8 @@ pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: consultation
+summary: yes
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163pc12hhpc34hhmatching
+tariffs: commongensubdcp130dcp163pc12hhpc34hhmatchinggen
 timeOfDay: timeOfDay179
 unauth: dayotex

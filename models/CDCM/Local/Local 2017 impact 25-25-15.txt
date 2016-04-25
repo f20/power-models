@@ -2,7 +2,21 @@ makeModels
 	-sqlite
 	-stats
 	-template=%-baseline
-	CDCM/Local/%-local-227161.yml
+	CDCM/Local/%-local-227a161.yml
+	CDCM/Data-2017-02/*
+	-newrules
+	-newdata
+	-xdata=1053|1|LV HH Metered localprop|0.25
+	-xdata=1053|1|LV Sub HH Metered localprop|0.25
+	-xdata=1053|1|HV HH Metered localprop|0.25
+	-xdata=1053|2|LV HH Metered localprop|0.25
+	-xdata=1053|2|LV Sub HH Metered localprop|0.25
+	-xdata=1053|2|HV HH Metered localprop|0.25
+	-xdata=1053|3|LV HH Metered localprop|0.15
+	-xdata=1053|3|LV Sub HH Metered localprop|0.15
+	-xdata=1053|3|HV HH Metered localprop|0.15
+	-template=%-noCDCMgen
+	CDCM/Local/%-local-227a161.yml
 	CDCM/Data-2017-02/*
 	-newrules
 	-newdata
@@ -43,8 +57,8 @@ makeModels
 	-xdata=1053|3|LDNO HV LV Generation Non-Intermittent|0
 	-xdata=1053|3|LDNO HV LV Sub Generation Non-Intermittent|0
 	-xdata=1053|3|LDNO HV HV Generation Non-Intermittent|0
-	-template=%-scenario
-	CDCM/Local/%-local-227161.yml
+	-template=%-withCDCMgen
+	CDCM/Local/%-local-227a161.yml
 	CDCM/Data-2017-02/*
 
 useDatabase
@@ -54,5 +68,10 @@ useDatabase
 
 useDatabase
 	-base=baseline
-	-dcp=scenario
-	-name=15-25 per cent local-source energy
+	-dcp=withCDCMgen
+	-name=Local source energy (25% red, 25% amber, 15% green), all from EDCM
+
+useDatabase
+	-base=baseline
+	-dcp=noCDCMgen
+	-name=Local source energy (25% red, 25% amber, 15% green), no CDCM credits
