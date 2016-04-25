@@ -130,8 +130,10 @@ sub _extractInputData {
                                 : { '_table' => $v }
                               ]
                               unless $to1->[0];
-                            warn "Two data sources for $tableNumber"
-                              if $conflicting ||= $used{$tableNumber};
+                            if ( $used{$tableNumber} ) {
+                                warn "Two data sources for $tableNumber";
+                                $conflicting ||= 1;
+                            }
                             $used{$tableNumber} = 1;
                         }
                         elsif ($v) {

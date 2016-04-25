@@ -1,0 +1,23 @@
+---
+.: 'CDCM with HV Sub after DCP 227 and DCP 161, with extras'
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupums
+drm: top500gsp
+edcmTables: 1
+extraLevels: 1
+fixedCap: 1-4
+forwardLinks: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: statistics
+targetRevenue: dcp132
+tariffs: commongensubdcp130pc12hhpc34hh
+timeOfDay: timeOfDay179
+unauth: dayotex
