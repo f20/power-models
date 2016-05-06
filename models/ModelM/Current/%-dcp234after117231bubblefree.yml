@@ -16,8 +16,6 @@ dcp095: 1
 dcp096: 1
 dcp117: 2014
 dcp118: 1
-linesAsComment: 1
 meav: 1
 netCapex: 1
 suffix: CDCM
-validation: lenientwithlinesmsg

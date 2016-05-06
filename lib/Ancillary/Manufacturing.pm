@@ -359,6 +359,8 @@ sub factory {
 
     $self->{fileList} = sub {
 
+        return unless @rulesets && @datasets;
+
         if (%deferredData) {
             while ( my ( $book, $data ) = each %deferredData ) {
                 if ( $book eq '+' ) {
@@ -404,11 +406,11 @@ sub factory {
         }
 
         if (%dataOverrides) {
-            my $suffix = '-' . delete $dataOverrides{hash};
+            my $overrides = {%dataOverrides};
+            my $suffix    = '-' . delete $overrides->{hash};
             foreach (@datasets) {
-                $_->{dataOverride2} = \%dataOverrides;
-                $_->{'~datasetName'} .= $suffix
-                  if defined $_->{'~datasetName'};
+                $_->{dataOverride2} = $overrides;
+                $_->{'~datasetName'} .= $suffix if defined $_->{'~datasetName'};
             }
         }
 
