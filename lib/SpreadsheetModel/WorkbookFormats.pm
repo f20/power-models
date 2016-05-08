@@ -231,11 +231,11 @@ Keys used in %$options:
       $rightpad
       ? (
         num_format => qq'${black}[hh]:mm$rightpad;'
-          . qq'[Red]-General$rightpad;;$cyan@',
+          . qq'[Red]-General$rightpad;${black}[hh]:mm$rightpad;$cyan@',
         align => 'right'
       )
       : (
-        num_format => qq'${black}[hh]:mm;[Red]-General;;$cyan@',
+        num_format => qq'${black}[hh]:mm;[Red]-General;${black}[hh]:mm;$cyan@',
         align      => 'center'
       );
     my @num_monthday =
