@@ -1,0 +1,21 @@
+---
+.: 'CDCM after DCP 222, for ARP'
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+coincidenceAdj: groupums
+compact: 1
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+protect: 0
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: arp
+targetRevenue: single
+tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
+timeOfDay: timeOfDay179
+unauth: dayotex
