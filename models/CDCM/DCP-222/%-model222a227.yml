@@ -1,23 +1,19 @@
 ---
-.: 'CDCM after DCP 222, micro-model'
+.: 'DCP 222 on post-DCP 227 CDCM, with CTables'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
 coincidenceAdj: groupums
-compact: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-nickName: After DCP 222
-noLLFCs: 1
-noLinks: 1
+matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: statisticsbrief
+summary: consultation
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179
-unauth: dayotex

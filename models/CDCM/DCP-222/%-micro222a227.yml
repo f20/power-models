@@ -1,5 +1,5 @@
 ---
-.: 'CDCM after DCP 222, for ARP'
+.: 'DCP 222 on post-DCP 227 CDCM, micro-model'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -8,14 +8,15 @@ compact: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
+nickName: After DCP 222
+noLLFCs: 1
+noLinks: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-protect: 0
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: arp
-targetRevenue: single
+summary: statisticsbrief
+targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179
-unauth: dayotex
