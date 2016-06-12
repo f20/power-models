@@ -51,7 +51,14 @@ sub wsWrite {
         ++$row;
     }
 
-    ++$row;    # for column headers
+    if ( $self->{lines} ) {
+        my $textFormat = $wb->getFormat('text');
+        $ws->write_string( $row++, $col, $_, $textFormat )
+          foreach @{ $self->{lines} };
+        ++$row;
+    }
+
+    ++$row;
 
     my $thcFormat =
       $wb->getFormat(
