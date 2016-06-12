@@ -98,13 +98,12 @@ sub new {
     my $model = {@_};
     bless $model, $class;
 
-    $model->timebandDetails if $model->{timebandDetails};
-
     $model->{inputTables} = [];
-    $model->{edcmTables}  = [ [] ] if $model->{edcmTables};
-    $model->{timebands}   = 3 unless $model->{timebands};
-    $model->{timebands}   = 10 if $model->{timebands} > 10;
-    $model->{drm}         = 'top500gsp' unless $model->{drm};
+    $model->{edcmTables} = [ [] ] if $model->{edcmTables};
+
+    $model->{timebands} = 3 unless $model->{timebands};
+    $model->{timebands} = 10 if $model->{timebands} > 10;
+    $model->{drm} = 'top500gsp' unless $model->{drm};
 
     # Keep CDCM::DataPreprocess and CDCM::DataDerivative
     # out of the scope of revision number construction.
@@ -128,6 +127,8 @@ sub new {
             warn $@;
         }
     }
+
+    $model->timebandDetails if $model->{timebandDetails};
 
     my ( $daysInYear, $daysBefore, $daysAfter, $modelLife, $annuityRate,
         $powerFactorInModel, $drmLevels, $drmExitLevels, )

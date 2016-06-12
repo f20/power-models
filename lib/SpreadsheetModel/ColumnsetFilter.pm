@@ -41,6 +41,10 @@ sub wsWrite {
     my ( $self, $wb, $ws, ) = @_;
 
     my ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 );
+
+    my $number = $wb->{logger}
+      && $self->{name} ? $self->addTableNumber( $wb, $ws ) : undef;
+
     if ( $self->{name} ) {
         $ws->set_row( $row, 21 );
         $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
@@ -54,18 +58,30 @@ sub wsWrite {
         $self->{noFilter} ? 'thc' : [ base => 'thc', locked => 0 ] );
     my $lastRow = $self->{rows} ? $#{ $self->{rows}{list} } : 0;
     my $lastCol = 0;
-
     my $dataset;
-    $dataset = $self->{dataset}{'!'} if $self->{dataset};
-    if ( $dataset && ref $dataset->[1] eq 'HASH' ) {
-        $dataset->[$_] = [ @{ $dataset->[$_] }{ @{ $dataset->[0] } } ]
-          foreach grep { ref $dataset->[$_] eq 'HASH'; } 1 .. $#$dataset;
-        $_ = '' foreach grep { /^Anon-[0-9]+$/ } @{ $dataset->[0] };
+    $dataset = $self->{dataset}{ $self->{number} || '!' } if $self->{dataset};
+
+    if ( $dataset && ref $dataset->[0] eq 'HASH' ) {
+        my @keys =
+          sort { $a <=> $b; } grep { /^[0-9]+$/; } keys %{ $dataset->[0] };
+        $dataset->[$_] = [ @{ $dataset->[$_] }{@keys} ]
+          foreach grep { ref $dataset->[$_] eq 'HASH'; } 0 .. $#$dataset;
     }
 
     $self->{$wb}{$ws} = 1;
 
     foreach ( @{ $self->{columns} } ) {
+
+        if ( $wb->{logger} ) {
+            if ($number) {
+                my $n = $_->{name};
+                $_->{name} = new SpreadsheetModel::Label( $n, $number . $n );
+            }
+            elsif ( $self->{name} ) {
+                $_->addTableNumber( $wb, $ws, 1 );
+            }
+            $wb->{logger}->log($_);
+        }
 
         @{ $_->{$wb} }{qw(worksheet row col)} = ( $ws, $row, $col + $lastCol );
 

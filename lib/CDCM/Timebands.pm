@@ -87,12 +87,13 @@ To time	timehard
 EOL
     push @{ $model->{informationTables} },
       SpreadsheetModel::ColumnsetFilter->new(
-        name    => 'Enter time band specification here',
+        name    => 'Specification of time bands',
+        number  => 1210,
         columns => \@columns,
         dataset => $model->{dataset},
       ),
       SpreadsheetModel::ColumnsetFilter->new(
-        name     => 'Time bands',
+        name     => 'Time band description',
         rows     => $rows,
         noFilter => 1,
         columns  => [

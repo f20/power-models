@@ -413,7 +413,6 @@ EOL
             ]
           ),
           @{ $model->{overallSummary} };
-
       }
 
       if $model->{summary} && $model->{summary} =~ /change/i;
@@ -440,7 +439,6 @@ EOL
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,
           @{ $model->{overallSummary} };
-
       }
 
       if $model->{summary} && $model->{summary} !~ /change/i;
@@ -656,8 +654,7 @@ EOL
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
-        my $logger = delete $wbook->{logger};
-        my $notes  = Notes(
+        my $notes = Notes(
             name  => 'Other information',
             lines => [
                 split /\n/,
@@ -670,7 +667,6 @@ EOL
           foreach $notes,
           @{ $model->{informationTables} };
         $wsheet->{protectionOptions}{select_locked_cells} = 1;
-        $wbook->{logger} = $logger if $logger;
       }
 
       if $model->{informationTables};
