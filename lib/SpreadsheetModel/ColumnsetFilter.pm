@@ -94,7 +94,7 @@ sub wsWrite {
                   . (
                     $lCol
                     ? (
-                        ': '
+                        "\n"
                           . SpreadsheetModel::Object::_shortName(
                             $_->{cols}{list}[$c]
                           )

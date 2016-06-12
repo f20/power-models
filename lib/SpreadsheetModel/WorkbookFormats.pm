@@ -819,6 +819,13 @@ Keys used in %$options:
             @colourHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
+        'tarhard' => [
+            locked => 0,
+            @sizeNumber,
+            align      => 'left',
+            num_format => '[Black]\T\a\r\i\f\f\ 0;[Red]-0;;[Cyan]@',
+            @colourHard,
+        ],
         unavailable => [
             locked => 1,
             @sizeNumber,
