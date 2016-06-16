@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,34 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup, $customers ) = @_;
-    bless { model => $model, setup => $setup, customers => $customers }, $class;
+    bless {
+        model     => $model,
+        setup     => $setup,
+        customers => $customers,
+        $model->{usageTypes} ? ( usageTypes => $model->{usageTypes} ) : (),
+    }, $class;
+}
+
+sub usageTypes {
+    my ($self) = @_;
+    $self->{usageTypes} ||= [
+        'Boundary capacity kVA',
+        'Ring capacity kVA',
+        'Transformer capacity kVA',
+        'Low voltage network capacity kVA',
+        'Metering switchgear for ring supply',
+        'Low voltage metering switchgear',
+        'Low voltage service 100 Amp',
+        'Energy consumption kW',
+    ];
+}
+
+sub usageSet {
+    my ($self) = @_;
+    $self->{usageSet} ||= Labelset(
+        name => 'Network usage categories',
+        list => $self->usageTypes,
+    );
 }
 
 sub usageRates {
@@ -43,6 +70,7 @@ sub usageRates {
     my ( $model, $setup, $customers ) = @{$self}{qw(model setup customers)};
 
     # given up on marking some cells out of use -- was too hardcoded
+
     my $allBlank = [
         map {
             [ map { '' } $customers->tariffSet->indices ]
@@ -79,23 +107,6 @@ sub usageRates {
         ),
       );
     $self->{usageRates} = \@usageRates;
-}
-
-sub usageSet {
-    my ($self) = @_;
-    $self->{usageSet} ||= Labelset(
-        name => 'Network usage categories',
-        list => [
-            'Boundary capacity kVA',
-            'Ring capacity kVA',
-            'Transformer capacity kVA',
-            'Low voltage network capacity kVA',
-            'Metering switchgear for ring supply',
-            'Low voltage metering switchgear',
-            'Low voltage service 100 Amp',
-            'Energy consumption kW',
-        ]
-    );
 }
 
 sub boundaryUsageSet {
