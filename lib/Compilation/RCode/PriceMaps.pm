@@ -129,7 +129,7 @@ graphics.off();
 EOR
 }
 
-sub margins {
+sub margins4203 {
     my ( $self, $script ) = @_;
     Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
 library(DBI);

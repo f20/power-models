@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -66,11 +66,13 @@ sub maps4202ts {
     Compilation::RCode::PriceMaps->maps4202ts($script);
 }
 
-sub margins {
+sub margins4203 {
     my ( $self, $script ) = @_;
     require Compilation::RCode::PriceMaps;
-    Compilation::RCode::PriceMaps->margins($script);
+    Compilation::RCode::PriceMaps->margins4203($script);
 }
+
+*margins = \&margins4203;
 
 sub mapCdcmEdcm {
     my ( $self, $script ) = @_;
@@ -78,17 +80,13 @@ sub mapCdcmEdcm {
     Compilation::RCode::PriceMaps->mapCdcmEdcm($script);
 }
 
-sub treemap {
-    my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemapWithCategories;
-}
-
 sub treemapWithCategories {
     my ( $self, $script ) = @_;
     require Compilation::RCode::Treemap;
     Compilation::RCode::Treemap->treemapWithCategories;
 }
+
+*treemap = \&treemapWithCategories;
 
 sub treemapByCategory {
     my ( $self, $script ) = @_;
