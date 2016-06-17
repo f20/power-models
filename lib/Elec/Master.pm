@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -100,8 +100,27 @@ sub new {
             $tariffs->revenues(
                 $customers->detailedVolumes,
                 $customers->{compareppu} || $model->{showppu},
-                1, 'Notional revenue by customer',
+                1,
+                'Notional use of system revenue by customer',
             ) if $model->{notionalRevenue};
+        }
+    }
+    elsif ( $model->{usetUoS} ) {
+        $customers->{compareppu} = Dataset(
+            $model->{table1653} ? () : ( number => 1599 ),
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
+            name     => 'Comparison p/kWh',
+            rows     => $customers->userLabelset,
+            data     => [ map { 10 } @{ $customers->userLabelset->{list} } ]
+        ) if $model->{compareppu};
+        if ( $model->{compareppu} || $model->{showppu} ) {
+            my $volumes = $customers->individualDemand( $model->{usetUoS} );
+            $tariffs->revenues(
+                $customers->detailedVolumes,
+                $customers->{compareppu} || $model->{showppu},
+                1, 'Revenue by customer',
+            );
         }
     }
 

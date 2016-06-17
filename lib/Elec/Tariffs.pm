@@ -46,12 +46,13 @@ sub new {
     foreach my $charge ( $charging->charges ) {
         push @{ $model->{costTables} }, $charge;
         push @tariffContributions, Columnset(
-            name    => "Contributions from $charge->{name}",
+            name    => 'Contributions from ' . lcfirst( $charge->{name} ),
             columns => [
                 map {
                     my $contrib = Arithmetic(
-                        name => "Contributions from $charge->{name}"
-                          . " to $tariffComponents->[$_]",
+                        name => 'Contributions from '
+                          . lcfirst( $charge->{name} ) . ' to '
+                          . lcfirst( $tariffComponents->[$_] ),
                         arithmetic => '=A1*A2*100/A666' . ( $_ ? '' : '/24' ),
                         rows      => $usageRates->[$_]{rows},
                         arguments => {
@@ -62,8 +63,9 @@ sub new {
                     );
                     $contrib->lastCol
                       ? GroupBy(
-                        name => "Total contributions from $charge->{name}"
-                          . " to $tariffComponents->[$_]",
+                        name => 'Total contributions from '
+                          . lcfirst( $charge->{name} ) . ' to '
+                          . lcfirst( $tariffComponents->[$_] ),
                         rows   => $contrib->{rows},
                         source => $contrib,
                       )

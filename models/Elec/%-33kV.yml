@@ -1,15 +1,17 @@
 ---
 PerlModule: Elec
+compareppu: 1
 detailedAssets: 1
 forwardLinks: 1
+illustrative: 1
 noEnergy: 1
 table1653: 0
 ucount:
-  - HV Sub: 2
-  - HV: 2
-  - LV Sub: 2
-  - LV: 2
-  - Small LV: 2
+  - HV Sub: 4
+  - HV: 4
+  - LV Sub: 4
+  - LV: 4
+  - Small LV: 4
 usageTypes:
   - Boundary peak consumption kW
   - 33kV kVA
@@ -25,3 +27,4 @@ usageTypes:
 usetMatchAssets: all users
 usetRevenues: all users
 usetRunningCosts: all users
+usetUoS: all users

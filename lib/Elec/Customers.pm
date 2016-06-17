@@ -44,7 +44,8 @@ sub totalDemand {
     my $userLabelset    = $self->userLabelset;
     my $detailedVolumes = $self->detailedVolumes;
     push @{ $self->{scenarioProportions} }, my $prop = Dataset(
-        name          => "Proportion in $usetName",
+        name => 'Proportion '
+          . ( $usetName eq 'all users' ? 'taken into account' : "in $usetName" ),
         rows          => $userLabelset,
         defaultFormat => '%hardnz',
         data          => [ map { 1; } @{ $userLabelset->{list} } ],

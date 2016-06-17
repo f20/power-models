@@ -82,7 +82,7 @@ sub boundaryCharge {
     my ($self) = @_;
     return $self->{boundaryCharge} if $self->{boundaryCharge};
     $self->{boundaryCharge} = Dataset(
-        name     => 'Boundary charging rate (£/kVA/year)',
+        name     => 'Boundary charging rate (£/year/unit of usage)',
         number   => 1552,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
@@ -114,7 +114,7 @@ sub assetCharge {
     my ($self) = @_;
     return $self->{assetCharge} if $self->{assetCharge};
     $self->{assetCharge} = Arithmetic(
-        name       => 'Asset-related charging rate (£/kVA or point/year)',
+        name       => 'Asset-related charging rate (£/unit of usage)',
         arithmetic => '=A1*(A2+A3)',
         arguments  => {
             A1 => $self->assetRate,
