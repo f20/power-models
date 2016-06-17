@@ -587,9 +587,14 @@ sub makeStatisticsTables {
         );
         push @{ $model->{statisticsTables} },
           Columnset(
-            name    => 'Apparent LDNO margins for illustrative customers',
+            name    => 'LDNO margins for illustrative customers (£/year)',
             columns => [ $atwTable, $marginTable, ],
           );
+        $model->{sharedData}
+          ->addStats( 'LDNO margins for illustrative customers',
+            $model, $marginTable )
+          if $model->{sharedData};
+
     }
 
 }

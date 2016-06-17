@@ -39,6 +39,11 @@ sub new {
         scenario         => [],
         statsAssumptions => [],
         statsSections    => [ split /\n/, <<EOL ],
+Average pence per unit for each tariff
+Average charge per MPAN for each tariff
+LDNO margins for illustrative customers
+Illustrative charges (£/MWh)
+Illustrative charges (£/year)
 General input data
 Load characteristics
 Network model and related input data
@@ -47,10 +52,6 @@ DNO-wide aggregated
 Revenue by tariff
 Units distributed by tariff
 MPANs by tariff
-Average pence per unit for each tariff
-Average charge per MPAN for each tariff
-Illustrative charges (£/MWh)
-Illustrative charges (£/year)
 EOL
       },
       shift;
@@ -719,13 +720,15 @@ sub addStats {
     foreach my $table (@tables) {
         my $lastCol = $table->lastCol;
         if ( my $lastRow = $table->lastRow ) {
-            for ( my $col = 0 ; $col <= $lastCol ; ++$col ) {
-                for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
-                    my $groupid;
-                    $groupid = $table->{rows}{groupid}[$row]
-                      if $table->{rows}{groupid};
+            for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
+                my $groupid;
+                $groupid = $table->{rows}{groupid}[$row]
+                  if $table->{rows}{groupid};
+                for ( my $col = 0 ; $col <= $lastCol ; ++$col ) {
                     my $name = "$table->{rows}{list}[$row]";
-                    $name .= " $table->{cols}{list}[$col]" if $lastCol;
+                    $name .= " $table->{cols}{list}[$col]"
+                      if $lastCol
+                      and !$tables->{rows}{group} || defined $groupid;
                     my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
                     unless ( defined $rowNumber ) {
                         if ( defined $groupid ) {
