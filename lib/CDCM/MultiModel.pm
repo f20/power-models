@@ -726,9 +726,9 @@ sub addStats {
                   if $table->{rows}{groupid};
                 for ( my $col = 0 ; $col <= $lastCol ; ++$col ) {
                     my $name = "$table->{rows}{list}[$row]";
-                    $name .= " $table->{cols}{list}[$col]"
+                    $name .= " — $table->{cols}{list}[$col]"
                       if $lastCol
-                      and !$tables->{rows}{group} || defined $groupid;
+                      and !$table->{rows}{groups} || defined $groupid;
                     my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
                     unless ( defined $rowNumber ) {
                         if ( defined $groupid ) {
