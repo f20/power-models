@@ -2,22 +2,21 @@
 PerlModule: Elec
 detailedAssets: 1
 forwardLinks: 1
+noEnergy: 1
 table1653: 0
 ucount:
-  - HV Sub: 3
-  - HV: 3
-  - LV Sub: 3
-  - LV: 3
-  - Small LV: 3
+  - HV Sub: 2
+  - HV: 2
+  - LV Sub: 2
+  - LV: 2
+  - Small LV: 2
 usageTypes:
-  - Boundary capacity kVA
-  - Boundary consumption kW
+  - Boundary peak consumption kW
   - 33kV kVA
   - 33kV/11kV kVA
   - 11kV kVA
   - 11kV/LV kVA
   - LV kVA
-  - 11kV metering with dedicated transformer
   - 11kV metering at 33kV substation
   - 11kV metering at 11kV substation
   - LV metering at 11kV substation

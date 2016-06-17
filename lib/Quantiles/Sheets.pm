@@ -197,7 +197,7 @@ sub licenceNotes {
         lines => <<'EOL',
 Copyright 2013 Franck Latrémolière, Reckon LLP and others.
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
-Use and distribution of the source code is subject to the conditions stated therein. 
+Use and distribution of the source code is subject to the conditions stated therein.
 Any redistribution of this software must retain the following disclaimer:
 THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR

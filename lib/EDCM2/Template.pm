@@ -228,7 +228,7 @@ Charges between supplier and end customer are a bilateral contractual matter.  A
 its own charges in addition to, or instead of, the charges that this template illustrates.
 
 This template is for illustration only.  In case of conflict, the published statement of
-Distribution Use of System charges takes precedence. 
+Distribution Use of System charges takes precedence.
 
 EOX
       ),
@@ -465,11 +465,11 @@ sub vbaWrite {
 
     Notes( name => '', lines => <<EOX )->wsWrite( $wb, $ws );
 ' VBA Code
-' 
+'
 ' For full functionality in Microsoft Excel, please:
 ' 1.  Transfer this code to a module; and
 ' 2.  Run the Autorun macro.
-' 
+'
 ' Opening the Microsoft Excel add-in "Franck VBA Tools" should do all this automatically.
 ' This add-in is available from https://github.com/f20/power-models
 
@@ -611,7 +611,7 @@ Sub ImportData
     If wsDatabase Is Nothing Then GoTo RestoreSettings
     Dim x As String
     x = Application.GetOpenFilename()
-    If x = "" Then GoTo RestoreSettings            
+    If x = "" Then GoTo RestoreSettings
     Workbooks.Open x
 
     Dim dbLine As Long
@@ -660,7 +660,7 @@ Sub ImportData
                         If cl.Value <> "" Then twidth = c Else GoTo DontDoThisCell
                     End If
                     If cl.Locked Then GoTo DontDoThisCell
-                    
+
                     ' It does not seem to be possible to test for the existence of the Validation property
                     ' Credits to Jamie Ham for workaround idea
                     Dim validationType As Long
@@ -669,7 +669,7 @@ Sub ImportData
                     validationType = cl.Validation.Type
                     If validationType = xlValidateTextLength Then GoTo DontDoThisCell
                     ' if there is a validation by text length then the cell is not to be used
-                    
+
                     On Error GoTo 0
                     dbLine = dbLine + 1
                     If dbLine Mod 100 = 0 Then wsDatabase.Rows(dbLine & ":" & (dbLine + 99)).Insert Shift:=xlDown

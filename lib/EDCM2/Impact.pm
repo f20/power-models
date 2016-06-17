@@ -465,7 +465,7 @@ Networks Association. Reckon LLP is grateful for the assistance that distributor
 of this tool.  Mistakes are the sole responsibility of Reckon LLP. Reckon LLP does not approve of the EDCM charging
 methodologies illustrated by this tool.
 
-For any comments about this tool, contact Franck Latrémolière through http://dcmf.co.uk/franck or f20@reckon.co.uk. 
+For any comments about this tool, contact Franck Latrémolière through http://dcmf.co.uk/franck or f20@reckon.co.uk.
 
 EOL
 }

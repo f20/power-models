@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -83,7 +84,7 @@ EOL
                 name => 'LV service model 3',
                 list => [ map { $_ ? $_ : ' ' } split /\n/, <<'EOL'] ),
 (service model for one larger LV connection)
-Underground connection (three-phase 300mm waveform)	
+Underground connection (three-phase 300mm waveform)
 
 
 

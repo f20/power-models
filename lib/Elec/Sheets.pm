@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -189,8 +189,9 @@ sub worksheetsAndClosures {
         'Details' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   $model->{ulist} ? 50 : 20 );
-            $wsheet->set_column( 1, 250, $model->{ulist} ? 20 : 50 );
+            $wsheet->set_column( 0, 0, $model->{ulist} ? 50 : 20 );
+            $wsheet->set_column( 1, 250,
+                $model->{ulist} || !$model->{table1653} ? 20 : 50 );
             $wsheet->set_column( 2, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Detailed tables' ),
@@ -263,7 +264,7 @@ sub licenceNotes {
         lines => <<'EOL',
 Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
-Use and distribution of the source code is subject to the conditions stated therein. 
+Use and distribution of the source code is subject to the conditions stated therein.
 Any redistribution of this software must retain the following disclaimer:
 THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR

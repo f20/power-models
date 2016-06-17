@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014 Franck Latrémolière.
+Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -99,7 +99,7 @@ sub indexFinishClosure {
                   && $model->{colour} =~ /orange|gold/ ? <<EOL : (),
 
 This document, model or dataset has been prepared by Reckon LLP on the instructions of the DCUSA Panel or one of its working
-groups.  Only the DCUSA Panel and its working groups have authority to approve this material as meeting their requirements. 
+groups.  Only the DCUSA Panel and its working groups have authority to approve this material as meeting their requirements.
 Reckon LLP makes no representation about the suitability of this material for the purposes of complying with any licence
 conditions or furthering any relevant objective.
 EOL
@@ -110,9 +110,9 @@ EOL
 EOL
                 <<'EOL',
 
-Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others. 
+Copyright 2009-2011 Energy Networks Association Limited and others. Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
-Use and distribution of the source code is subject to the conditions stated therein. 
+Use and distribution of the source code is subject to the conditions stated therein.
 Any redistribution of this software must retain the following disclaimer:
 THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
 TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR

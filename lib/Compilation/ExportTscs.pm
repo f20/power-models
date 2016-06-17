@@ -50,12 +50,12 @@ drop table if exists companies;
 create table companies (com integer primary key, c char);
 create index companiesc on companies (c);
 insert into companies (c) select company from models group by company order by company;
-update models set com = (select com from companies where c=company); 
+update models set com = (select com from companies where c=company);
 drop table if exists periods;
 create table periods (per integer primary key, p char);
 create index periodsp on periods (p);
 insert into periods (p) select period from models group by period order by period;
-update models set per = (select per from periods where p=period); 
+update models set per = (select per from periods where p=period);
 drop table if exists mytables;
 create table mytables (tab integer, per integer, bidone integer, minrow integer, primary key (tab, per));
 insert into mytables (per, bidone, tab, minrow)

@@ -43,13 +43,19 @@ sub totalDemand {
     my $tariffSet       = $self->tariffSet;
     my $userLabelset    = $self->userLabelset;
     my $detailedVolumes = $self->detailedVolumes;
-    push @{ $self->{scenarioProportions} },
-      my $prop = Dataset(
+    push @{ $self->{scenarioProportions} }, my $prop = Dataset(
         name          => "Proportion in $usetName",
         rows          => $userLabelset,
         defaultFormat => '%hardnz',
-        data          => [ map { 1; } @{ $userLabelset->{list} } ]
-      );
+        data          => [ map { 1; } @{ $userLabelset->{list} } ],
+        validation => {    # required to trigger lenient cell locking
+            validate      => 'decimal',
+            criteria      => 'between',
+            minimum       => -1,
+            maximum       => 1,
+            input_message => 'Percentage',
+        },
+    );
     my $columns = [
         map {
             SumProduct(
@@ -122,7 +128,10 @@ sub userLabelset {
         defaultFormat => 'texthard',
         data          => [ map { '' } @{ $userLabelset->{list} } ],
         name          => 'Name',
-        rows          => $userLabelset
+        rows          => $userLabelset,
+        validation => {    # required to trigger lenient cell locking
+            validate => 'any',
+        },
     );
     $self->{userLabelset} = $userLabelset;
 }
@@ -138,6 +147,11 @@ sub detailedVolumes {
                 defaultFormat => '0hard',
                 name          => $_,
                 data          => [ map { 0 } @{ $userLabelset->{list} } ],
+                validation => {    # required to trigger lenient cell locking
+                    validate => 'decimal',
+                    criteria => '>=',
+                    value    => 0,
+                },
             );
         } @{ $self->{setup}->volumeComponents }
     ];

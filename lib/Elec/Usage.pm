@@ -39,6 +39,7 @@ sub new {
         setup     => $setup,
         customers => $customers,
         $model->{usageTypes} ? ( usageTypes => $model->{usageTypes} ) : (),
+        $model->{noEnergy}   ? ( noEnergy   => $model->{noEnergy} )   : (),
     }, $class;
 }
 
@@ -119,6 +120,8 @@ sub boundaryUsageSet {
 
 sub energyUsageSet {
     my ($self) = @_;
+    die join '|', map { defined $_ ? $_ : 'undef'; } caller
+      if $self->{noEnergy};
     my $listr = $self->usageSet->{list};
     $self->{energyUsageSet} ||= Labelset(
         name => 'Energy usage',
@@ -131,7 +134,7 @@ sub assetUsageSet {
     my $listr = $self->usageSet->{list};
     $self->{assetUsageSet} ||= Labelset(
         name => 'Asset usage',
-        list => [ @{$listr}[ 1 .. ( $#$listr - 1 ) ] ]
+        list => [ @{$listr}[ 1 .. ( $#$listr - $self->{noEnergy} ? 0 : 1 ) ] ]
     );
 }
 

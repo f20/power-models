@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -61,9 +62,8 @@ EOL
           . ' under current connection charging policy',
         validation => {
             validate      => 'decimal',
-            criteria      => 'between',
-            minimum       => 0,
-            maximum       => 4,
+            criteria      => '>=',
+            value         => 0,
             input_title   => 'Customer contribution:',
             input_message => 'Percentage',
             error_title   => 'Invalid customer contribution',
@@ -85,7 +85,7 @@ EOL
 0   0   0   0.1  .1  0.35   0.99   0.99
 0   0   0   0.1  .1  0.35   0.99
 0   0   0.05   0.2 .2  0.7
-0   0   0.05   0.4 
+0   0   0.05   0.4
 0   0.05   0.2
 0.05   0.1
 0.1

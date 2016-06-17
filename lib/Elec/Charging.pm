@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,12 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup, $usage ) = @_;
-    bless { model => $model, setup => $setup, usage => $usage }, $class;
+    bless {
+        model => $model,
+        setup => $setup,
+        usage => $usage,
+        $model->{noEnergy} ? ( noEnergy => $model->{noEnergy} ) : (),
+    }, $class;
 }
 
 sub energyCharge {
@@ -69,7 +74,7 @@ sub assetRate {
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         cols          => $usageSet,
-        data => [ 0, ( map { 1 } 3 .. @{ $usageSet->{list} } ), undef ],
+        data          => [ 0, ( map { 1 } 3 .. @{ $usageSet->{list} } ), 0 ],
     );
 }
 
@@ -231,7 +236,10 @@ sub usetMatchRevenue { }
 
 sub charges {
     my ($self) = @_;
-    ( $self->boundaryCharge, $self->assetCharge, $self->energyCharge, );
+    (
+        $self->boundaryCharge, $self->assetCharge,
+        $self->{noEnergy} ? () : $self->energyCharge,
+    );
 }
 
 sub finish { }

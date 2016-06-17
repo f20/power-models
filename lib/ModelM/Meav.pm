@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ LV overhead support
 LV main underground consac km
 LV main underground plastic km
 LV main underground paper km
-LV service underground 
+LV service underground
 LV pillar indoors
 LV pillar outdoors
 LV board wall-mounted
@@ -109,7 +109,7 @@ EHV submarine km
 66kV transformer
 66kV auxiliary transformer
 132kV overhead pole conductor km
-132kV overhead tower conductor km 
+132kV overhead tower conductor km
 132kV pole
 132kV tower
 132kV tower fittings
