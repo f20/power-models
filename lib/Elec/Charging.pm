@@ -39,6 +39,9 @@ sub new {
         setup => $setup,
         usage => $usage,
         $model->{noEnergy} ? ( noEnergy => $model->{noEnergy} ) : (),
+        $model->{contributions}
+        ? ( contributions => $model->{contributions} )
+        : (),
     }, $class;
 }
 
@@ -75,6 +78,21 @@ sub assetRate {
         dataset       => $self->{model}{dataset},
         cols          => $usageSet,
         data          => [ 0, ( map { 1 } 3 .. @{ $usageSet->{list} } ), 0 ],
+    );
+}
+
+sub contributionDiscount {
+    my ($self) = @_;
+    return $self->{contributionDiscount} if $self->{contributionDiscount};
+    my $usageSet = $self->{usage}->usageSet;
+    $self->{contributionDiscount} = Dataset(
+        name          => 'Contribution-related discount factors',
+        defaultFormat => '%hardnz',
+        number        => 1555,
+        appendTo      => $self->{model}{inputTables},
+        dataset       => $self->{model}{dataset},
+        cols          => $usageSet,
+        data          => [ map { 0 } @{ $usageSet->{list} } ],
     );
 }
 
@@ -115,11 +133,14 @@ sub assetCharge {
     return $self->{assetCharge} if $self->{assetCharge};
     $self->{assetCharge} = Arithmetic(
         name       => 'Asset-related charging rate (£/unit of usage)',
-        arithmetic => '=A1*(A2+A3)',
-        arguments  => {
+        arithmetic => '=A1*('
+          . ( $self->{contributions} ? '(1-A4)*' : '' )
+          . 'A2+A3)',
+        arguments => {
             A1 => $self->assetRate,
             A2 => $self->annuityRate,
             A3 => $self->runningRate,
+            $self->{contributions} ? ( A4 => $self->contributionDiscount ) : (),
         }
     );
 }

@@ -226,6 +226,7 @@ sub revenues {
               . $self->tariffName
               . ' revenue £/year'
               . $labelTail,
+            singleRowName => 'Total',
             defaultFormat => '0softnz',
             source        => $revenues,
           );
@@ -238,7 +239,7 @@ sub tariffs {
 }
 
 sub tariffName {
-    'distribution use of system tariffs';
+    'use of system tariffs';
 }
 
 sub finish {

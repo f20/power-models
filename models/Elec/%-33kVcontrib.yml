@@ -1,0 +1,36 @@
+---
+PerlModule: Elec
+compareppu: 1
+contributions: 1
+detailedAssets: 1
+forwardLinks: 1
+illustrative: 1
+noEnergy: 1
+table1653: 0
+ucount:
+  - HV Sub: 4
+  - HV: 4
+  - LV Sub: 4
+  - LV: 4
+  - Small LV: 4
+usageTypes:
+  - Boundary peak consumption kW
+  - 33kV kVA
+  - 33kV kVA contributed
+  - 33kV/11kV kVA
+  - 33kV/11kV kVA contributed
+  - 11kV kVA
+  - 11kV kVA contributed
+  - 11kV/LV kVA
+  - 11kV/LV kVA contributed
+  - LV kVA
+  - LV kVA contributed
+  - 11kV metering at 33kV substation
+  - 11kV metering at 11kV substation
+  - LV metering at 11kV substation
+  - LV >100A metering off LV mains
+  - LV <100A metering off LV mains
+usetMatchAssets: all users
+usetRevenues: all users
+usetRunningCosts: all users
+usetUoS: all users
