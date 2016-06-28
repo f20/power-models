@@ -4177,7 +4177,7 @@ sub add_table {
                     # Remove the leading = from formula.
                     $formula =~ s/^=//;
 
-                    # Covert Excel 2010 "@" ref to 2007 "#This Row".
+                    # Convert Excel 2010 "@" ref to 2007 "#This Row".
                     $formula =~ s/@/[#This Row],/g;
 
                     $col_data->{_formula} = $formula;
@@ -7130,7 +7130,7 @@ sub _write_cell {
         # Write an array formula.
         $self->xml_start_tag( 'c', @attributes );
         $self->_write_cell_array_formula( $token, $cell->[3] );
-        $self->_write_cell_value( $cell->[4] );
+        $self->_write_cell_value( $cell->[4] || 0 );
         $self->xml_end_tag( 'c' );
     }
     elsif ( $type eq 'l' ) {
