@@ -21,7 +21,7 @@ use Carp;
 use Excel::Writer::XLSX::Package::XMLwriter;
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.89';
+our $VERSION = '0.95';
 
 
 ###############################################################################
@@ -314,6 +314,21 @@ sub _add_vba_project {
     }
 
     $self->_add_default( 'bin', 'application/vnd.ms-office.vbaProject' );
+}
+
+
+###############################################################################
+#
+# _add_custom_properties()
+#
+# Add the custom properties to the ContentTypes overrides.
+#
+sub _add_custom_properties {
+
+    my $self   = shift;
+    my $custom = "/docProps/custom.xml";
+
+    $self->_add_override( $custom, $app_document . 'custom-properties+xml' );
 }
 
 

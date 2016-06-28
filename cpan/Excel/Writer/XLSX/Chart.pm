@@ -27,7 +27,7 @@ use Excel::Writer::XLSX::Utility qw(xl_cell_to_rowcol
   quote_sheetname );
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.89';
+our $VERSION = '0.95';
 
 
 ###############################################################################
@@ -571,6 +571,7 @@ sub set_table {
     $table{_vertical}   = $args{vertical}   if defined $args{vertical};
     $table{_outline}    = $args{outline}    if defined $args{outline};
     $table{_show_keys}  = $args{show_keys}  if defined $args{show_keys};
+    $table{_font}       = $self->_convert_font_args( $args{font} );
 
     $self->{_table} = \%table;
 }
@@ -4934,6 +4935,24 @@ sub _write_trendline {
     # Write the c:backward element.
     $self->_write_backward( $trendline->{backward} );
 
+    if ( defined $trendline->{intercept} ) {
+        # Write the c:intercept element.
+        $self->_write_intercept( $trendline->{intercept} );
+    }
+
+    if ($trendline->{display_r_squared}) {
+        # Write the c:dispRSqr element.
+        $self->_write_disp_rsqr();
+    }
+
+    if ($trendline->{display_equation}) {
+        # Write the c:dispEq element.
+        $self->_write_disp_eq();
+
+        # Write the c:trendlineLbl element.
+        $self->_write_trendline_lbl();
+    }
+
     $self->xml_end_tag( 'c:trendline' );
 }
 
@@ -5043,6 +5062,95 @@ sub _write_backward {
     $self->xml_empty_tag( 'c:backward', @attributes );
 }
 
+
+##############################################################################
+#
+# _write_intercept()
+#
+# Write the <c:intercept> element.
+#
+sub _write_intercept {
+
+    my $self = shift;
+    my $val  = shift;
+
+    my @attributes = ( 'val' => $val );
+
+    $self->xml_empty_tag( 'c:intercept', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_disp_eq()
+#
+# Write the <c:dispEq> element.
+#
+sub _write_disp_eq {
+
+    my $self = shift;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:dispEq', @attributes );
+}
+
+
+##############################################################################
+#
+# _write_disp_rsqr()
+#
+# Write the <c:dispRSqr> element.
+#
+sub _write_disp_rsqr {
+
+    my $self = shift;
+
+    my @attributes = ( 'val' => 1 );
+
+    $self->xml_empty_tag( 'c:dispRSqr', @attributes );
+}
+
+##############################################################################
+#
+# _write_trendline_lbl()
+#
+# Write the <c:trendlineLbl> element.
+#
+sub _write_trendline_lbl {
+
+    my $self = shift;
+
+    $self->xml_start_tag( 'c:trendlineLbl' );
+
+    # Write the c:layout element.
+    $self->_write_layout();
+
+    # Write the c:numFmt element.
+    $self->_write_trendline_num_fmt();
+
+    $self->xml_end_tag( 'c:trendlineLbl' );
+}
+
+##############################################################################
+#
+# _write_trendline_num_fmt()
+#
+# Write the <c:numFmt> element.
+#
+sub _write_trendline_num_fmt {
+
+    my $self          = shift;
+    my $format_code   = 'General';
+    my $source_linked = 0;
+
+    my @attributes = (
+        'formatCode'   => $format_code,
+        'sourceLinked' => $source_linked,
+    );
+
+    $self->xml_empty_tag( 'c:numFmt', @attributes );
+}
 
 ##############################################################################
 #
@@ -5621,6 +5729,11 @@ sub _write_d_table {
 
         # Write the c:showKeys element.
         $self->_write_show_keys();
+    }
+
+    if ( $table->{_font} ) {
+        # Write the table font.
+        $self->_write_tx_pr( undef, $table->{_font} );
     }
 
     $self->xml_end_tag( 'c:dTable' );
@@ -7192,12 +7305,13 @@ The C<set_table()> method adds a data table below the horizontal axis with the d
 
 The available options, with default values are:
 
-    vertical   => 1,    # Display vertical lines in the table.
-    horizontal => 1,    # Display horizontal lines in the table.
-    outline    => 1,    # Display an outline in the table.
-    show_keys  => 0     # Show the legend keys with the table data.
+    vertical   => 1    # Display vertical lines in the table.
+    horizontal => 1    # Display horizontal lines in the table.
+    outline    => 1    # Display an outline in the table.
+    show_keys  => 0    # Show the legend keys with the table data.
+    font       => {}   # Standard chart font properties.
 
-The data table can only be shown with Bar, Column, Line, Area and stock charts.
+The data table can only be shown with Bar, Column, Line, Area and stock charts. For font properties see the L</CHART FONTS> section below.
 
 
 =head2 set_up_down_bars
@@ -7344,12 +7458,16 @@ A trendline can be added to a chart series to indicate trends in the data such a
 The following properties can be set for trendlines in a chart series.
 
     type
-    order       (for polynomial trends)
-    period      (for moving average)
-    forward     (for all except moving average)
-    backward    (for all except moving average)
+    order               (for polynomial trends)
+    period              (for moving average)
+    forward             (for all except moving average)
+    backward            (for all except moving average)
     name
     line
+    intercept           (for exponential, linear and polynomial only)
+    display_equation    (for all except moving average)
+    display_r_squared   (for all except moving average)
+
 
 The C<type> property sets the type of trendline in the series.
 
@@ -7408,20 +7526,56 @@ The C<name> property sets an optional name for the trendline that will appear in
         },
     );
 
+The C<intercept> property sets the point where the trendline crosses the Y (value) axis:
+
+    $chart->add_series(
+        values    => '=Sheet1!$B$1:$B$5',
+        trendline => {
+            type      => 'linear',
+            intercept => 0.8,
+        },
+    );
+
+
+The C<display_equation> property displays the trendline equation on the chart.
+
+    $chart->add_series(
+        values    => '=Sheet1!$B$1:$B$5',
+        trendline => {
+            type             => 'linear',
+            display_equation => 1,
+        },
+    );
+
+The C<display_r_squared> property displays the R squared value of the trendline on the chart.
+
+    $chart->add_series(
+        values    => '=Sheet1!$B$1:$B$5',
+        trendline => {
+            type              => 'linear',
+            display_r_squared => 1
+        },
+    );
+
+
 Several of these properties can be set in one go:
 
     $chart->add_series(
         values     => '=Sheet1!$B$1:$B$5',
         trendline  => {
-            type     => 'linear',
-            name     => 'My trend name',
-            forward  => 0.5,
-            backward => 0.5,
-            line     => {
+            type              => 'polynomial',
+            name              => 'My trend name',
+            order             => 2,
+            forward           => 0.5,
+            backward          => 0.5,
+            intercept         => 1.5,
+            display_equation  => 1,
+            display_r_squared => 1,
+            line              => {
                 color     => 'red',
                 width     => 1,
                 dash_type => 'long_dash',
-            },
+            }
         },
     );
 
@@ -7634,6 +7788,16 @@ The C<font> property is used to set the font properties of the data labels in a 
         data_labels => {
             value => 1,
             font  => { name => 'Consolas' }
+        },
+    );
+
+The C<font> property is also used to rotate the data labels in a series:
+
+    $chart->add_series(
+        values      => '=Sheet1!$A$1:$A$5',
+        data_labels => {
+            value => 1,
+            font  => { rotation => 45 }
         },
     );
 

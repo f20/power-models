@@ -33,7 +33,7 @@ use Excel::Writer::XLSX::Package::XMLwriter;
 use Excel::Writer::XLSX::Utility qw(xl_cell_to_rowcol xl_rowcol_to_cell);
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.89';
+our $VERSION = '0.95';
 
 
 ###############################################################################
@@ -72,7 +72,7 @@ sub new {
     $self->{_worksheets}         = [];
     $self->{_charts}             = [];
     $self->{_drawings}           = [];
-    $self->{_sheetnames}         = [];
+    $self->{_sheetnames}         = {};
     $self->{_formats}            = [];
     $self->{_xf_formats}         = [];
     $self->{_xf_format_indices}  = {};
@@ -85,7 +85,8 @@ sub new {
     $self->{_named_ranges}       = [];
     $self->{_custom_colors}      = [];
     $self->{_doc_properties}     = {};
-    $self->{_localtime}          = [ localtime() ];
+    $self->{_custom_properties}  = [];
+    $self->{_createtime}         = [ gmtime() ];
     $self->{_num_vml_files}      = 0;
     $self->{_num_comment_files}  = 0;
     $self->{_optimization}       = 0;
@@ -298,6 +299,23 @@ sub sheets {
 
 ###############################################################################
 #
+# get_worksheet_by_name(name)
+#
+# Return a worksheet object in the workbook using the sheetname.
+#
+sub get_worksheet_by_name {
+
+    my $self      = shift;
+    my $sheetname = shift;
+
+    return undef if not defined $sheetname;
+
+    return $self->{_sheetnames}->{$sheetname};
+}
+
+
+###############################################################################
+#
 # worksheets()
 #
 # An accessor for the _worksheets[] array.
@@ -356,7 +374,7 @@ sub add_worksheet {
 
     my $worksheet = Excel::Writer::XLSX::Worksheet->new( @init_data );
     $self->{_worksheets}->[$index] = $worksheet;
-    $self->{_sheetnames}->[$index] = $name;
+    $self->{_sheetnames}->{$name} = $worksheet;
 
     return $worksheet;
 }
@@ -424,7 +442,7 @@ sub add_chart {
         $chartsheet->{_drawing} = $drawing;
 
         $self->{_worksheets}->[$index] = $chartsheet;
-        $self->{_sheetnames}->[$index] = $name;
+        $self->{_sheetnames}->{$name} = $chartsheet;
 
         push @{ $self->{_charts} }, $chart;
 
@@ -791,6 +809,36 @@ sub define_name {
 
 ###############################################################################
 #
+# set_size()
+#
+# Set the workbook size.
+#
+sub set_size {
+
+    my $self   = shift;
+    my $width  = shift;
+    my $height = shift;
+
+    if ( !$width ) {
+        $self->{_window_width} = 16095;
+    }
+    else {
+        # Convert to twips at 96 dpi.
+        $self->{_window_width} = int( $width * 1440 / 96 );
+    }
+
+    if ( !$height ) {
+        $self->{_window_height} = 9660;
+    }
+    else {
+        # Convert to twips at 96 dpi.
+        $self->{_window_height} = int( $height * 1440 / 96 );
+    }
+}
+
+
+###############################################################################
+#
 # set_properties()
 #
 # Set the document properties such as Title, Author etc. These are written to
@@ -830,12 +878,80 @@ sub set_properties {
 
     # Set the creation time unless specified by the user.
     if ( !exists $param{created} ) {
-        $param{created} = $self->{_localtime};
+        $param{created} = $self->{_createtime};
     }
 
 
     $self->{_doc_properties} = \%param;
 }
+
+
+###############################################################################
+#
+# set_custom_property()
+#
+# Set a user defined custom document property.
+#
+sub set_custom_property {
+
+    my $self  = shift;
+    my $name  = shift;
+    my $value = shift;
+    my $type  = shift;
+
+
+    # Valid types.
+    my %valid_type = (
+        'text'       => 1,
+        'date'       => 1,
+        'number'     => 1,
+        'number_int' => 1,
+        'bool'       => 1,
+    );
+
+    if ( !defined $name || !defined $value ) {
+        carp "The name and value parameters must be defined "
+          . "in set_custom_property()";
+
+        return -1;
+    }
+
+    # Determine the type for strings and numbers if it hasn't been specified.
+    if ( !$type ) {
+        if ( $value =~ /^\d+$/ ) {
+            $type = 'number_int';
+        }
+        elsif ( $value =~
+            /^([+-]?)(?=[0-9]|\.[0-9])[0-9]*(\.[0-9]*)?([Ee]([+-]?[0-9]+))?$/ )
+        {
+            $type = 'number';
+        }
+        else {
+            $type = 'text';
+        }
+    }
+
+    # Check for valid validation types.
+    if ( !exists $valid_type{$type} ) {
+        carp "Unknown custom type '$type' in set_custom_property()";
+        return -1;
+    }
+
+    #  Check for strings longer than Excel's limit of 255 chars.
+    if ( $type eq 'text' and length $value > 255 ) {
+        carp "Length of text custom value '$value' exceeds "
+          . "Excel's limit of 255 in set_custom_property()";
+        return -1;
+    }
+    if ( length $value > 255 ) {
+        carp "Length of custom name '$name' exceeds "
+          . "Excel's limit of 255 in set_custom_property()";
+        return -1;
+    }
+
+    push @{ $self->{_custom_properties} }, [ $name, $value, $type ];
+}
+
 
 
 ###############################################################################
@@ -2017,6 +2133,9 @@ sub _get_image_properties {
 
     push @{ $self->{_images} }, [ $filename, $type ];
 
+    # Set a default dpi for images with 0 dpi.
+    $x_dpi = 96 if $x_dpi == 0;
+    $y_dpi = 96 if $y_dpi == 0;
 
     $fh->close;
 
@@ -2207,19 +2326,17 @@ sub _get_sheet_index {
 
     my $self        = shift;
     my $sheetname   = shift;
-    my $sheet_count = @{ $self->{_sheetnames} };
     my $sheet_index = undef;
 
     $sheetname =~ s/^'//;
     $sheetname =~ s/'$//;
 
-    for my $i ( 0 .. $sheet_count - 1 ) {
-        if ( $sheetname eq $self->{_sheetnames}->[$i] ) {
-            $sheet_index = $i;
-        }
+    if ( exists $self->{_sheetnames}->{$sheetname} ) {
+        return $self->{_sheetnames}->{$sheetname}->{_index};
     }
-
-    return $sheet_index;
+    else {
+        return undef;
+    }
 }
 
 
