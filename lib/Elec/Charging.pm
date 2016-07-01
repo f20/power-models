@@ -157,7 +157,7 @@ sub usetBoundaryCosts {
         defaultFormat => '0hardnz',
     );
     $self->{boundaryCharge} = Arithmetic(
-        name       => 'Boundary charging rate (£/kVA/year)',
+        name       => 'Boundary charging rate (£/unit of usage/year)',
         cols       => $boundaryUsageSet,
         arithmetic => '=A1/A2',
         arguments  => { A1 => $charges, A2 => $totalUsage, }
