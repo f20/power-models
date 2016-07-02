@@ -122,11 +122,11 @@ sub revenueShortfall {
     my ( $allowedRevenue, $revenueFromElsewhere );
 
     if ( $model->{targetRevenue} ) {
-        if ( $model->{targetRevenue} =~ /dcp249/i ) {
-            $allowedRevenue = $model->table1001dcp249;
+        if ( $model->{targetRevenue} =~ /dcp249|dcp273|2016/i ) {
+            $allowedRevenue = $model->table1001_2016;
         }
-        elsif ( $model->{targetRevenue} =~ /dcp132/i ) {
-            $allowedRevenue = $model->table1001dcp132;
+        elsif ( $model->{targetRevenue} =~ /dcp132|2012/i ) {
+            $allowedRevenue = $model->table1001_2012;
         }
         elsif ( $model->{targetRevenue} =~ /single/i ) {
             $allowedRevenue = Dataset(

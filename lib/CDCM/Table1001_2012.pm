@@ -33,7 +33,7 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use Spreadsheet::WriteExcel::Utility;
 
-sub table1001dcp132 {
+sub table1001_2012 {
 
     my ($model) = @_;
 

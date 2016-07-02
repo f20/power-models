@@ -70,9 +70,10 @@ sub requiredModulesForRuleset {
       : (),
 
       $ruleset->{targetRevenue}
-      && $ruleset->{targetRevenue} =~ /dcp132/i ? 'CDCM::Table1001dcp132'
+      && $ruleset->{targetRevenue} =~ /dcp132|2012/i ? 'CDCM::Table1001_2012'
       : $ruleset->{targetRevenue}
-      && $ruleset->{targetRevenue} =~ /dcp249/i ? 'CDCM::Table1001dcp249'
+      && $ruleset->{targetRevenue} =~ /dcp249|dcp273|2016/i
+      ? 'CDCM::Table1001_2016'
       : (),
 
       $ruleset->{scaler}
