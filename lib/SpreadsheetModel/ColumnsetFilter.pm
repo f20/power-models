@@ -60,9 +60,10 @@ sub wsWrite {
 
     ++$row;
 
-    my $thcFormat =
-      $wb->getFormat(
-        $self->{noFilter} ? 'thc' : [ base => 'thc', locked => 0 ] );
+    # Headers are unlocked even if the noFilter option is set.
+    # Otherwise the user cannot activate a filter, and the parser gets confused.
+    my $thcFormat = $wb->getFormat( [ base => 'thc', locked => 0 ] );
+
     my $lastRow = $self->{rows} ? $#{ $self->{rows}{list} } : 0;
     my $lastCol = 0;
     my $dataset;
