@@ -59,11 +59,10 @@ sub check {
     my $colOffset = 0;
 
     foreach (@columns) {
-        0 and warn "$self->{name} $self->{debug} $_->{name} $self->{debug}";
         if ( defined $rows ) {
             unless ( !$_->{rows} && !$rows
                 || $_->{rows} == $rows
-                || $_->{rows}{accepts} && grep { $rows == $_ }
+                || $_->{rows} && $_->{rows}{accepts} && grep { $rows == $_ }
                 @{ $_->{rows}{accepts} } )
             {
                 return <<ERR ;
