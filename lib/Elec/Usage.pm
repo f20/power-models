@@ -70,17 +70,19 @@ sub usageRates {
     return $self->{usageRates} if $self->{usageRates};
     my ( $model, $setup, $customers ) = @{$self}{qw(model setup customers)};
 
-    # given up on marking some cells out of use -- was too hardcoded
-
+    # All cells are available; otherwise it would be insufficiently flexible.
     my $allBlank = [
         map {
             [ map { '' } $customers->tariffSet->indices ]
         } $self->usageSet->indices
     ];
+
     push @{ $model->{usageTables} },
       my @usageRates = (
         Dataset(
-            name     => 'Network usage of 1kW of average consumption',
+            name => 'Network usage of 1kW of '
+              . ( $self->{model}{timebands} ? '' : 'average ' )
+              . 'consumption',
             rows     => $customers->tariffSet,
             cols     => $self->usageSet,
             number   => 1531,
@@ -107,6 +109,124 @@ sub usageRates {
             data     => $allBlank,
         ),
       );
+
+    if ( $self->{model}{timebands} ) {
+
+        my $timebandSet =
+          Labelset( name => 'Timebands', list => $self->{model}{timebands} );
+
+        my $hours = Dataset(
+            name          => 'Annual hours by time band',
+            defaultFormat => '0.0hard',
+            rows          => $timebandSet,
+            number        => 1568,
+            appendTo      => $model->{inputTables},
+            dataset       => $model->{dataset},
+            data          => [ map { 1000 } @{ $timebandSet->{list} } ],
+        );
+
+        $hours = Arithmetic(
+            name          => 'Hours by time band in the charging year',
+            defaultFormat => '0.0soft',
+            arithmetic    => '=A1/A2*A6*24',
+            arguments     => {
+                A1 => $hours,
+                A2 => GroupBy(
+                    name          => 'Declared total annual hours',
+                    defaultFormat => '0.0soft',
+                    source        => $hours
+                ),
+                A6 => $self->{setup}->daysInYear,
+            },
+        );
+
+        my $peakingProbabilities = Dataset(
+            name          => 'Peaking probabilities',
+            defaultFormat => '%hard',
+            rows          => $timebandSet,
+            cols          => $self->usageSet,
+            number        => 1560,
+            appendTo      => $model->{inputTables},
+            dataset       => $model->{dataset},
+            data          => [
+                map {
+                    [ map { .5 } @{ $timebandSet->{list} } ]
+                } @{ $self->usageSet->{list} }
+            ],
+        );
+
+        my $totalProb = GroupBy(
+            name          => 'Claimed total probability',
+            cols          => $self->usageSet,
+            defaultFormat => '%soft',
+            source        => $peakingProbabilities
+        );
+
+        $peakingProbabilities = Arithmetic(
+            name          => 'Normalised peaking probabilties',
+            defaultFormat => '%soft',
+            arithmetic    => '=IF(A2,A1/A3,A5/A6)',
+            arguments     => {
+                A1 => $peakingProbabilities,
+                A2 => $totalProb,
+                A3 => $totalProb,
+                A5 => $hours->{arguments}{A1},
+                A6 => $hours->{arguments}{A2},
+            },
+        );
+
+        my $targetUtilisation = Dataset(
+            name          => 'Target average capacity utilisation',
+            defaultFormat => '%hard',
+            rows          => $timebandSet,
+            cols          => $self->usageSet,
+            number        => 1540,
+            appendTo      => $model->{inputTables},
+            dataset       => $model->{dataset},
+            data          => [
+                map {
+                    [ map { 1 } @{ $timebandSet->{list} } ]
+                } @{ $self->usageSet->{list} }
+            ],
+        );
+
+        my $routeingFactor = shift @usageRates;
+        my @fudgeRates;
+
+        foreach my $band ( @{ $timebandSet->{list} } ) {
+
+            my $fudgeVector = Arithmetic(
+                name       => "Temporary factor vector for $band",
+                rows       => Labelset( list => [$band] ),
+                cols       => $self->usageSet,
+                arithmetic => '=A4*A6/A5/IF(A81,A82,1)',
+                arguments  => {
+                    A4  => $peakingProbabilities,
+                    A5  => $hours->{arguments}{A1},
+                    A6  => $hours->{arguments}{A2},
+                    A81 => $targetUtilisation,
+                    A82 => $targetUtilisation,
+                },
+            );
+
+            push @fudgeRates,
+              Arithmetic(
+                name       => "Temporary factor matrix for $band",
+                rows       => $customers->tariffSet,
+                cols       => $self->usageSet,
+                arithmetic => '=A2*A3',
+                arguments  => {
+                    A2 => $routeingFactor,
+                    A3 => $fudgeVector,
+                },
+              );
+
+        }
+
+        unshift @usageRates, @fudgeRates;
+
+    }
+
     $self->{usageRates} = \@usageRates;
 }
 
@@ -144,35 +264,60 @@ sub totalUsage {
       if $self->{totalUsage}{ 0 + $volumes };
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
-    my $usageRates    = $self->usageRates;
-    my $customerUsage = Arithmetic(
-        name       => 'Network usage' . $labelTail,
-        rows       => $volumes->[0]{rows},
-        cols       => $usageRates->[0]{cols},
-        arithmetic => '=' . join(
-            '+',
-            map {
-                my $m = $_ + 1;
-                my $v = $_ + 100;
-                "A$m*A$v" . ( $_ ? '' : '/24/A666' );
-              } 0 .. 2    # undue hardcoding (only zero is a unit rate)
-        ),
-        arguments => {
-            A666 => $self->{setup}->daysInYear,
-            map {
-                my $m = $_ + 1;
-                my $v = $_ + 100;
-                (
-                    "A$m" => $usageRates->[$_],
-                    "A$v" => $volumes->[$_]
-                );
-              } 0 .. 2    # undue hardcoding
-        },
-        defaultFormat => '0softnz',
-        names         => $volumes->[0]{names},
-    );
+    my $usageRates = $self->usageRates;
+    my $customerUsage;
+    if ( $self->{model}{timebands} ) {
+        $customerUsage = Arithmetic(
+            name       => 'Network usage' . $labelTail,
+            rows       => $volumes->[0]{rows},
+            cols       => $usageRates->[0]{cols},
+            arithmetic => '=('
+              . join( '+', map { "A1$_*A2$_"; } 3 .. $#$volumes )
+              . ')/24/A6+'
+              . join( '+', map { "A1$_*A2$_"; } 1 .. 2 ),
+            arguments => {
+                A6 => $self->{setup}->daysInYear,
+                map {
+                    (
+                        "A1$_" => $usageRates->[ $#$volumes - $_ ],
+                        "A2$_" => $volumes->[ $#$volumes - $_ ]
+                    );
+                } 1 .. $#$volumes
+            },
+            defaultFormat => '0soft',
+            names         => $volumes->[0]{names},
+        );
+    }
+    else {    # three columns, 0 is a unit rate, others are daily
+        $customerUsage = Arithmetic(
+            name       => 'Network usage' . $labelTail,
+            rows       => $volumes->[0]{rows},
+            cols       => $usageRates->[0]{cols},
+            arithmetic => '=' . join(
+                '+',
+                map {
+                    my $m = $_ + 1;
+                    my $v = $_ + 100;
+                    "A$m*A$v" . ( $_ ? '' : '/24/A666' );
+                } 0 .. 2
+            ),
+            arguments => {
+                A666 => $self->{setup}->daysInYear,
+                map {
+                    my $m = $_ + 1;
+                    my $v = $_ + 100;
+                    (
+                        "A$m" => $usageRates->[$_],
+                        "A$v" => $volumes->[$_]
+                    );
+                } 0 .. 2
+            },
+            defaultFormat => '0soft',
+            names         => $volumes->[0]{names},
+        );
+    }
     $self->{totalUsage}{ 0 + $volumes } = GroupBy(
-        defaultFormat => '0softnz',
+        defaultFormat => '0soft',
         name          => 'Total network usage' . $labelTail,
         rows          => 0,
         cols          => $customerUsage->{cols},

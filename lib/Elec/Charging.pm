@@ -72,7 +72,7 @@ sub assetRate {
     my $usageSet = $self->{usage}->usageSet;
     $self->{assetRate} = Dataset(
         name          => 'Notional asset rates (£/kVA or £/point)',
-        defaultFormat => '0hardnz',
+        defaultFormat => '0hard',
         number        => 1550,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
@@ -87,7 +87,7 @@ sub contributionDiscount {
     my $usageSet = $self->{usage}->usageSet;
     $self->{contributionDiscount} = Dataset(
         name          => 'Contribution-related discount factors',
-        defaultFormat => '%hardnz',
+        defaultFormat => '%hard',
         number        => 1555,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
@@ -124,7 +124,7 @@ sub runningRate {
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         data          => [0.02],
-        defaultFormat => '%hardnz',
+        defaultFormat => '%hard',
     );
 }
 
@@ -154,7 +154,7 @@ sub usetBoundaryCosts {
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         data          => [5e5],
-        defaultFormat => '0hardnz',
+        defaultFormat => '0hard',
     );
     $self->{boundaryCharge} = Arithmetic(
         name       => 'Boundary charging rate (£/unit of usage/year)',
@@ -170,7 +170,7 @@ sub detailedAssets {
         name          => 'Notional assets (£)',
         matrix        => $usage,
         vector        => $self->assetRate,
-        defaultFormat => '0softnz',
+        defaultFormat => '0soft',
     );
     Columnset(
         name    => 'Notional assets by user',
@@ -179,7 +179,7 @@ sub detailedAssets {
     push @{ $self->{model}{detailedTables2} },
       GroupBy(
         name          => 'Total notional assets (£)',
-        defaultFormat => '0softnz',
+        defaultFormat => '0soft',
         source        => $notionalAssets,
       );
 }
@@ -191,7 +191,7 @@ sub usetMatchAssets {
         name          => 'Total notional assets before matching (£)',
         matrix        => $totalUsage,
         vector        => $beforeMatching,
-        defaultFormat => '0softnz',
+        defaultFormat => '0soft',
     );
     my $maxAssets = Dataset(
         name          => 'Maximum total notional asset value (£)',
@@ -199,7 +199,7 @@ sub usetMatchAssets {
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         data          => [1e7],
-        defaultFormat => '0hardnz',
+        defaultFormat => '0hard',
     );
     if ($doNotApply) {
         push @{ $self->{model}{checkTables} },
@@ -235,20 +235,20 @@ sub usetRunningCosts {
         name          => 'Total relevant notional assets (£)',
         matrix        => $totalUsage,
         vector        => $assetRate,
-        defaultFormat => '0softnz',
+        defaultFormat => '0soft',
     );
     my $target = Dataset(
         name          => 'Total running costs (£/year)',
         number        => 1559,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
-        data          => [6e5],
-        defaultFormat => '0hardnz',
+        data          => [1e6],
+        defaultFormat => '0hard',
     );
     $self->{runningRate} = Arithmetic(
         name          => 'Annual running costs (relative to notional assets)',
         arithmetic    => '=A1/A3',
-        defaultFormat => '%softnz',
+        defaultFormat => '%soft',
         arguments     => { A1 => $target, A3 => $totalAssets, },
     );
 }

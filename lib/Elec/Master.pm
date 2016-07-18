@@ -98,7 +98,7 @@ sub new {
                 $supplyTariffs->marginCalculation($volumes)
             );
             $tariffs->revenues(
-                $customers->detailedVolumes,
+                $volumes,
                 $customers->{compareppu} || $model->{showppu},
                 1,
                 'Notional use of system revenue by customer',
@@ -117,7 +117,7 @@ sub new {
         if ( $model->{compareppu} || $model->{showppu} ) {
             my $volumes = $customers->individualDemand( $model->{usetUoS} );
             $tariffs->revenues(
-                $customers->detailedVolumes,
+                $volumes,
                 $customers->{compareppu} || $model->{showppu},
                 1, 'Revenue by customer',
             );

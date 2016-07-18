@@ -33,46 +33,93 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
+
     my ( $class, $model, $setup, $usage, $charging, $competitiveEnergy ) = @_;
     my $self = bless {
         model => $model,
         setup => $setup,
     }, $class;
+
     my @tariffContributions;
     my $usageRates       = $usage->usageRates;
     my $days             = $setup->daysInYear;
     my $tariffComponents = $setup->tariffComponents;
     my $digitsRounding   = $setup->digitsRounding;
+    my @formatting       = map {
+            !defined $digitsRounding->[$_] ? []
+          : !$digitsRounding->[$_]     ? [ defaultFormat => '0soft' ]
+          : $digitsRounding->[$_] == 2 ? [ defaultFormat => '0.00soft' ]
+          :                              [];
+    } 0 .. $#$tariffComponents;
+
     foreach my $charge ( $charging->charges ) {
         push @{ $model->{costTables} }, $charge;
-        push @tariffContributions, Columnset(
-            name    => 'Contributions from ' . lcfirst( $charge->{name} ),
-            columns => [
-                map {
-                    my $contrib = Arithmetic(
-                        name => 'Contributions from '
-                          . lcfirst( $charge->{name} ) . ' to '
-                          . lcfirst( $tariffComponents->[$_] ),
-                        arithmetic => '=A1*A2*100/A666' . ( $_ ? '' : '/24' ),
-                        rows      => $usageRates->[$_]{rows},
-                        arguments => {
-                            A1   => $charge,
-                            A2   => $usageRates->[$_],
-                            A666 => $days,
-                        }
-                    );
-                    $contrib->lastCol
-                      ? GroupBy(
-                        name => 'Total contributions from '
-                          . lcfirst( $charge->{name} ) . ' to '
-                          . lcfirst( $tariffComponents->[$_] ),
-                        rows   => $contrib->{rows},
-                        source => $contrib,
-                      )
-                      : $contrib;
-                  } 0 .. 2    # undue hardcoding (only zero is a unit rate)
-            ],
-        );
+        if ( $self->{model}{timebands} ) {
+            push @tariffContributions, Columnset(
+                name    => 'Contributions from ' . lcfirst( $charge->{name} ),
+                columns => [
+                    map {
+                        my $contrib = Arithmetic(
+                            name => 'Contributions from '
+                              . lcfirst( $charge->{name} ) . ' to '
+                              . lcfirst( $tariffComponents->[$_] ),
+                            @{ $formatting[$_] },
+                            arithmetic => '=A1*A2*100/A6'
+                              . ( @$usageRates - $_ > 2 ? '/24' : '' ),
+                            rows      => $usageRates->[$_]{rows},
+                            arguments => {
+                                A1 => $charge,
+                                A2 => $usageRates->[$_],
+                                A6 => $days,
+                            }
+                        );
+                        $contrib->lastCol
+                          ? GroupBy(
+                            name => 'Total contributions from '
+                              . lcfirst( $charge->{name} ) . ' to '
+                              . lcfirst( $tariffComponents->[$_] ),
+                            @{ $formatting[$_] },
+                            rows   => $contrib->{rows},
+                            source => $contrib,
+                          )
+                          : $contrib;
+                    } 0 .. $#$usageRates
+                ],
+            );
+        }
+        else {    # three columns, 0 is a unit rate, others are daily
+            push @tariffContributions, Columnset(
+                name    => 'Contributions from ' . lcfirst( $charge->{name} ),
+                columns => [
+                    map {
+                        my $contrib = Arithmetic(
+                            name => 'Contributions from '
+                              . lcfirst( $charge->{name} ) . ' to '
+                              . lcfirst( $tariffComponents->[$_] ),
+                            @{ $formatting[$_] },
+                            arithmetic => '=A1*A2*100/A666'
+                              . ( $_ ? '' : '/24' ),
+                            rows      => $usageRates->[$_]{rows},
+                            arguments => {
+                                A1   => $charge,
+                                A2   => $usageRates->[$_],
+                                A666 => $days,
+                            }
+                        );
+                        $contrib->lastCol
+                          ? GroupBy(
+                            name => 'Total contributions from '
+                              . lcfirst( $charge->{name} ) . ' to '
+                              . lcfirst( $tariffComponents->[$_] ),
+                            @{ $formatting[$_] },
+                            rows   => $contrib->{rows},
+                            source => $contrib,
+                          )
+                          : $contrib;
+                    } 0 .. 2
+                ],
+            );
+        }
     }
     push @{ $model->{buildupTables} }, @tariffContributions;
     $self->{tariffs} = [
@@ -90,34 +137,57 @@ sub new {
                     map { ( "A$_" => $ingredients[ $_ - 1 ] ) }
                       1 .. @ingredients
                 },
-                !defined $digitsRounding->[$_] ? ()
-                : !$digitsRounding->[$_]     ? ( defaultFormat => '0softnz' )
-                : $digitsRounding->[$_] == 2 ? ( defaultFormat => '0.00softnz' )
-                :                              (),
+                @{ $formatting[$_] },
             );
-          } 0 .. 2    # undue hardcoding
+        } 0 .. $#$tariffComponents
     ];
+
     $self;
+
 }
 
 sub revenueCalculation {
     my ( $self, $volumes, $labelTail, $name ) = @_;
     $labelTail ||= '';
-    Arithmetic(
-        name => $name
-          || ( ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
-        arithmetic => '=(A1*A11+A666*(A2*A12+A3*A13))/100',    # hard coded
-        arguments  => {
-            A666 => $self->{setup}->daysInYear,
-            map {
-                (
-                    "A$_"  => $volumes->[ $_ - 1 ],
-                    "A1$_" => $self->{tariffs}[ $_ - 1 ]
-                  )
-            } 1 .. 3,
-        },
-        defaultFormat => '0softnz',
-    );
+    if ( $self->{model}{timebands} ) {
+        return Arithmetic(
+            rows => $volumes->[0]->{rows},
+            name => $name
+              || (
+                ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
+            arithmetic => '=('
+              . join( '+', map { "A1$_*A2$_"; } 3 .. $#$volumes )
+              . '+A6*(A11*A21+A12*A22))*0.01',
+            arguments => {
+                A6 => $self->{setup}->daysInYear,
+                map {
+                    (
+                        "A1$_" => $volumes->[ $#$volumes - $_ ],
+                        "A2$_" => $self->{tariffs}[ $#$volumes - $_ ]
+                      )
+                } 1 .. $#$volumes,
+            },
+            defaultFormat => '0soft',
+        );
+    }
+    else {    # three columns, 0 is a unit rate, others are daily
+        return Arithmetic(
+            name => $name
+              || (
+                ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
+            arithmetic => '=(A1*A11+A666*(A2*A12+A3*A13))*0.01',
+            arguments  => {
+                A666 => $self->{setup}->daysInYear,
+                map {
+                    (
+                        "A$_"  => $volumes->[ $_ - 1 ],
+                        "A1$_" => $self->{tariffs}[ $_ - 1 ]
+                      )
+                } 1 .. 3,
+            },
+            defaultFormat => '0soft',
+        );
+    }
 }
 
 sub revenues {
@@ -132,18 +202,34 @@ sub revenues {
             arithmetic => '=IF(A3,A1/A2*100,"")',
             arguments  => {
                 A1 => $revenues,
-                A2 => $volumes->[0],
-                A3 => $volumes->[0],
+                $self->{model}{timebands}
+                ? (
+                    A2 => $volumes->[$#$volumes],
+                    A3 => $volumes->[$#$volumes],
+                  )
+                : (
+                    A2 => $volumes->[0],
+                    A3 => $volumes->[0],
+                )
             },
         );
+
         my $compare;
-        $compare = Arithmetic(
-            defaultFormat => '0soft',
-            name          => 'Comparison £/year',
-            arguments =>
-              { A1 => $compareppu, A2 => $compareppu, A3 => $volumes->[0] },
-            arithmetic => '=IF(ISNUMBER(A1),A2*A3*0.01,0)'
-        ) if ref $compareppu;
+        if ( ref $compareppu ) {
+            $compare = Arithmetic(
+                defaultFormat => '0soft',
+                name          => 'Comparison £/year',
+                arguments     => {
+                    A1 => $compareppu,
+                    A2 => $compareppu,
+                    A3 => $self->{model}{timebands}
+                    ? $volumes->[$#$volumes]
+                    : $volumes->[0],
+                },
+                arithmetic => '=IF(ISNUMBER(A1),A2*A3*0.01,0)'
+            );
+        }
+
         my $difference;
         $difference = Arithmetic(
             name          => 'Difference £/year',
@@ -192,7 +278,7 @@ sub revenues {
                     $n =~ s/Total (.)/ 'Total '.lc($1)/e;
                     GroupBy(
                         name          => $n,
-                        defaultFormat => '0softnz',
+                        defaultFormat => '0soft',
                         source        => $_,
                     );
                   } $revenues,
@@ -227,7 +313,7 @@ sub revenues {
               . ' revenue £/year'
               . $labelTail,
             singleRowName => 'Total',
-            defaultFormat => '0softnz',
+            defaultFormat => '0soft',
             source        => $revenues,
           );
     }

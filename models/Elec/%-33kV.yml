@@ -7,11 +7,10 @@ illustrative: 1
 noEnergy: 1
 table1653: 0
 ucount:
-  - HV Sub: 4
-  - HV: 4
-  - LV Sub: 4
-  - LV: 4
-  - Small LV: 4
+  - HV Sub: 3
+  - HV: 3
+  - LV: 3
+  - Small LV: 3
 usageTypes:
   - Boundary peak consumption kW
   - 33kV kVA

@@ -79,12 +79,12 @@ sub marginCalculation {
         name       => 'Energy supply margin £/year' . $labelTail,
         arithmetic => '=A1*(A11-A12-A13)/100',
         arguments  => {
-            A1  => $volumes->[0],
+            A1  =>  $self->{model}{timebands}?$volumes->[$#$volumes]:$volumes->[0],
             A11 => $tariffs->[0],
             A12 => $uos->{tariffs}[0],
             A13 => $self->{basicEnergyCharge},
         },
-        defaultFormat => '0softnz',
+        defaultFormat => '0soft',
     );
 }
 
@@ -96,7 +96,7 @@ sub margin {
     push @{ $self->{revenueTables} },
       GroupBy(
         name          => 'Total energy supply margin £/year' . $labelTail,
-        defaultFormat => '0softnz',
+        defaultFormat => '0soft',
         source        => $revenues,
       );
 }

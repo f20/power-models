@@ -45,9 +45,10 @@ sub totalDemand {
     my $detailedVolumes = $self->detailedVolumes;
     push @{ $self->{scenarioProportions} }, my $prop = Dataset(
         name => 'Proportion '
-          . ( $usetName eq 'all users' ? 'taken into account' : "in $usetName" ),
+          . (
+            $usetName eq 'all users' ? 'taken into account' : "in $usetName" ),
         rows          => $userLabelset,
-        defaultFormat => '%hardnz',
+        defaultFormat => '%hard',
         data          => [ map { 1; } @{ $userLabelset->{list} } ],
         validation => {    # required to trigger lenient cell locking
             validate      => 'decimal',
@@ -65,10 +66,23 @@ sub totalDemand {
                 vector        => $_,
                 rows          => $tariffSet,
                 usetName      => $usetName,
-                defaultFormat => '0softnz',
+                defaultFormat => '0soft',
             );
         } @$detailedVolumes
     ];
+    if ( $self->{model}{timebands} ) {
+        push @$columns,
+          Arithmetic(
+            name          => 'Total units kWh',
+            defaultFormat => '0soft',
+            arithmetic    => '='
+              . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
+            arguments => {
+                map { ( "A$_" => $columns->[ $_ - 1 ] ); }
+                  1 .. @{ $self->{model}{timebands} }
+            },
+          );
+    }
     push @{ $self->{model}{volumeTables} },
       Columnset(
         name    => "Forecast volume for $usetName",
@@ -77,7 +91,7 @@ sub totalDemand {
     $self->{totalDemand}{$usetName} = $columns;
 }
 
-sub individualDemand {
+sub individualDemandUsed {
     my ( $self, $usetName ) = @_;
     return $self->{individualDemand}{$usetName}
       if $self->{individualDemand}{$usetName};
@@ -91,8 +105,20 @@ sub individualDemand {
                 defaultFormat => '0soft',
                 names         => $self->{names},
             );
-        } @$spcol
+          } grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
+          @$spcol
     ];
+    push @$columns,
+      Arithmetic(
+        name          => 'Total units kWh',
+        defaultFormat => '0soft',
+        arithmetic    => '='
+          . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
+        arguments => {
+            map { ( "A$_" => $columns->[ $_ - 1 ] ); }
+              1 .. @{ $self->{model}{timebands} }
+        },
+      );
     push @{ $self->{model}{volumeTables} },
       Columnset(
         name    => "Individual customer volumes in $usetName",
@@ -100,6 +126,34 @@ sub individualDemand {
       );
     $self->{individualDemand}{$usetName} = $columns;
 }
+
+sub individualDemandEvenIfNotUsed {
+    my ( $self, $usetName ) = @_;
+    return $self->{individualDemand}{$usetName}
+      if $self->{individualDemand}{$usetName};
+    my $spcol   = $self->totalDemand($usetName);
+    my $columns = [
+        map { $_->{vector} }
+          grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
+          @$spcol
+    ];
+    push @$columns,
+      my $total = Arithmetic(
+        name          => 'Total units kWh',
+        defaultFormat => '0soft',
+        arithmetic    => '='
+          . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
+        arguments => {
+            map { ( "A$_" => $columns->[ $_ - 1 ] ); }
+              1 .. @{ $self->{model}{timebands} }
+        },
+      );
+    push @{ $self->{model}{volumeTables} }, $total;
+    $self->{individualDemand}{$usetName} = $columns;
+}
+
+# *individualDemand = \&individualDemandUsed;
+*individualDemand = \&individualDemandEvenIfNotUsed;
 
 sub userLabelset {
     my ($self) = @_;
@@ -133,7 +187,7 @@ sub userLabelset {
         validation => {    # required to trigger lenient cell locking
             validate => 'any',
         },
-    );
+    ) if $self->{model}{table1653};
     $self->{userLabelset} = $userLabelset;
 }
 

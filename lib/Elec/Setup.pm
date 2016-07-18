@@ -86,7 +86,7 @@ sub annuityRate {
 
     $self->{annuityRate} = Arithmetic(
         name          => 'Annuity rate',
-        defaultFormat => '%softnz',
+        defaultFormat => '%soft',
         arithmetic    => '=PMT(A1,A2,-1)',
         arguments     => {
             A1 => $rateOfReturn,
@@ -98,18 +98,42 @@ sub annuityRate {
 
 sub tariffComponents {
     my ($self) = @_;
-    $self->{tariffComponents} ||=
-      [ 'Unit p/kWh', 'Fixed p/day', 'Capacity p/kVA/day', ];    # hard coded
+    $self->{tariffComponents} ||= [
+        (
+            map { "$_ p/kWh" }
+              $self->{model}{timebands}
+            ? @{ $self->{model}{timebands} }
+            : 'Unit'
+        ),
+        'Fixed p/day',
+        'Capacity p/kVA/day',
+    ];
 }
 
 sub digitsRounding {
-    [ 3, 0, 2, ];
+    my ($self) = @_;
+    [
+        (
+            $self->{model}{timebands}
+            ? map { 3 } @{ $self->{model}{timebands} }
+            : 3
+        ),
+        0, 2,
+    ];
 }
 
 sub volumeComponents {
     my ($self) = @_;
-    $self->{volumeComponents} ||=
-      [ 'Units kWh', 'Supply points', 'Capacity kVA', ];
+    $self->{volumeComponents} ||= [
+        (
+            map { "$_ kWh" }
+              $self->{model}{timebands}
+            ? @{ $self->{model}{timebands} }
+            : 'Units'
+        ),
+        'Supply points',
+        'Capacity kVA',
+    ];
 }
 
 sub finish {

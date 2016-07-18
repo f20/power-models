@@ -1,12 +1,14 @@
 ---
 PerlModule: Elec
 compareppu: 1
-contributions: 1
 detailedAssets: 1
 forwardLinks: 1
 illustrative: 1
 noEnergy: 1
 table1653: 0
+timebands:
+  - Redamber
+  - Green
 ucount:
   - HV Sub: 3
   - HV: 3
@@ -19,16 +21,12 @@ usageTypes:
   - 11kV kVA
   - 11kV/LV kVA
   - LV kVA
-  - 33kV kVA contributed
-  - 33kV/11kV kVA contributed
-  - 11kV kVA contributed
-  - 11kV/LV kVA contributed
-  - LV kVA contributed
   - 11kV metering at 33kV substation
   - 11kV metering at 11kV substation
   - LV metering at 11kV substation
   - LV >100A metering off LV mains
   - LV <100A metering off LV mains
+usetBoundaryCosts: all users
 usetMatchAssets: all users
 usetRevenues: all users
 usetRunningCosts: all users
