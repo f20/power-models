@@ -62,9 +62,11 @@ sub check {
 
     while ( my ( $ph, $arg ) = each %{ $self->{arguments} } ) {
 
+        0 and warn "For $self->{name} $self->{debug}, $ph => $arg";
         0
           and warn
-"$self->{name} $self->{debug} $ph $arg->{name} $self->{rows} $self->{cols} $arg->{rows} $arg->{cols}";
+          "For $self->{name} $self->{debug} $self->{rows} $self->{cols}\n"
+          . "  $ph $arg->{name} $arg->{rows} $arg->{cols}";
 
         next if $ph =~ /_/;
 
@@ -96,7 +98,7 @@ EOM
                $_->{rows}
             && ( !$self->{cols} || $_->{rows} != $self->{cols} )
             && !(    # horrible hack when accepts and transposition interact
-                   $self->{cols}
+                ref $self->{cols}
                 && $self->{cols}{accepts}
                 && $self->{cols}{accepts}[0] == $_->{rows}
                 && $#{ $self->{cols}{list} } == $#{ $_->{rows}{list} }
