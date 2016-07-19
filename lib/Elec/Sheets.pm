@@ -134,6 +134,22 @@ sub worksheetsAndClosures {
 
       ,
 
+      $model->{bandTables} && @{ $model->{bandTables} }
+      ? (
+        'Bands' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   36 );
+            $wsheet->set_column( 1, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Time band analysis' ),
+              @{ $model->{bandTables} };
+        }
+      )
+      : ()
+
+      ,
+
       'Costs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );

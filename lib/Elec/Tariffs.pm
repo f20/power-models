@@ -59,17 +59,27 @@ sub new {
                 name    => 'Contributions from ' . lcfirst( $charge->{name} ),
                 columns => [
                     map {
+                        my $usage   = $usageRates->[$_];
+                        my $array   = ref $usage eq 'ARRAY';
                         my $contrib = Arithmetic(
                             name => 'Contributions from '
                               . lcfirst( $charge->{name} ) . ' to '
                               . lcfirst( $tariffComponents->[$_] ),
                             @{ $formatting[$_] },
                             arithmetic => '=A1*A2*100/A6'
-                              . ( @$usageRates - $_ > 2 ? '/24' : '' ),
-                            rows      => $usageRates->[$_]{rows},
+                              . ( $array ? '/24*A3' : '' ),
+                            rows => (
+                                  $array ? $usageRates->[$_][0]
+                                : $usageRates->[$_]
+                              )->{rows},
                             arguments => {
+                                $array
+                                ? (
+                                    A2 => $usageRates->[$_][0],
+                                    A3 => $usageRates->[$_][1],
+                                  )
+                                : ( A2 => $usageRates->[$_] ),
                                 A1 => $charge,
-                                A2 => $usageRates->[$_],
                                 A6 => $days,
                             }
                         );

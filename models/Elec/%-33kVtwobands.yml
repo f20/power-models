@@ -15,7 +15,7 @@ ucount:
   - LV: 3
   - Small LV: 3
 usageTypes:
-  - Boundary peak consumption kW
+  - Boundary kW
   - 33kV kVA
   - 33kV/11kV kVA
   - 11kV kVA

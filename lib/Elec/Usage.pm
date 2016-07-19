@@ -132,13 +132,15 @@ sub usageRates {
             arguments     => {
                 A1 => $hours,
                 A2 => GroupBy(
-                    name          => 'Declared total annual hours',
+                    name          => 'Total annual hours across all time bands',
                     defaultFormat => '0.0soft',
                     source        => $hours
                 ),
                 A6 => $self->{setup}->daysInYear,
             },
         );
+
+        push @{ $model->{bandTables} }, $hours->{arguments}{A2};
 
         my $peakingProbabilities = Dataset(
             name          => 'Peaking probabilities',
@@ -156,8 +158,8 @@ sub usageRates {
         );
 
         my $totalProb = GroupBy(
-            name          => 'Claimed total probability',
-            cols          => $self->usageSet,
+            name => 'Sum of peaking probabilities (expected to be 100%)',
+            cols => $self->usageSet,
             defaultFormat => '%soft',
             source        => $peakingProbabilities
         );
@@ -180,7 +182,7 @@ sub usageRates {
             defaultFormat => '%hard',
             rows          => $timebandSet,
             cols          => $self->usageSet,
-            number        => 1540,
+            number        => 1565,
             appendTo      => $model->{inputTables},
             dataset       => $model->{dataset},
             data          => [
@@ -191,12 +193,12 @@ sub usageRates {
         );
 
         my $routeingFactor = shift @usageRates;
-        my @fudgeRates;
+        my @usageRatesUnitRates;
 
         foreach my $band ( @{ $timebandSet->{list} } ) {
 
-            my $fudgeVector = Arithmetic(
-                name       => "Temporary factor vector for $band",
+            my $bandFactor = Arithmetic(
+                name       => "$band time band capacity contribution factors",
                 rows       => Labelset( list => [$band] ),
                 cols       => $self->usageSet,
                 arithmetic => '=A4*A6/A5/IF(A81,A82,1)',
@@ -209,25 +211,18 @@ sub usageRates {
                 },
             );
 
-            push @fudgeRates,
-              Arithmetic(
-                name       => "Temporary factor matrix for $band",
-                rows       => $customers->tariffSet,
-                cols       => $self->usageSet,
-                arithmetic => '=A2*A3',
-                arguments  => {
-                    A2 => $routeingFactor,
-                    A3 => $fudgeVector,
-                },
-              );
+            push @{ $model->{bandTables} }, $bandFactor;
+
+            push @usageRatesUnitRates, [ $routeingFactor, $bandFactor ];
 
         }
 
-        unshift @usageRates, @fudgeRates;
+        unshift @usageRates, @usageRatesUnitRates;
 
     }
 
     $self->{usageRates} = \@usageRates;
+
 }
 
 sub boundaryUsageSet {
@@ -270,19 +265,30 @@ sub totalUsage {
         $customerUsage = Arithmetic(
             name       => 'Network usage' . $labelTail,
             rows       => $volumes->[0]{rows},
-            cols       => $usageRates->[0]{cols},
+            cols       => $self->usageSet,
             arithmetic => '=('
-              . join( '+', map { "A1$_*A2$_"; } 3 .. $#$volumes )
+              . join( '+', map { "A1$_*A2$_*A3$_"; } 3 .. $#$volumes )
               . ')/24/A6+'
               . join( '+', map { "A1$_*A2$_"; } 1 .. 2 ),
             arguments => {
                 A6 => $self->{setup}->daysInYear,
-                map {
-                    (
-                        "A1$_" => $usageRates->[ $#$volumes - $_ ],
-                        "A2$_" => $volumes->[ $#$volumes - $_ ]
-                    );
-                } 1 .. $#$volumes
+                (
+                    map {
+                        (
+                            "A1$_" => $usageRates->[ $#$volumes - $_ ],
+                            "A2$_" => $volumes->[ $#$volumes - $_ ]
+                        );
+                    } 1 .. 2
+                ),
+                (
+                    map {
+                        (
+                            "A1$_" => $usageRates->[ $#$volumes - $_ ][0],
+                            "A3$_" => $usageRates->[ $#$volumes - $_ ][1],
+                            "A2$_" => $volumes->[ $#$volumes - $_ ]
+                        );
+                    } 3 .. $#$volumes
+                ),
             },
             defaultFormat => '0soft',
             names         => $volumes->[0]{names},

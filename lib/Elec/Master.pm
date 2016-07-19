@@ -98,14 +98,15 @@ sub new {
                 $supplyTariffs->marginCalculation($volumes)
             );
             $tariffs->revenues(
-                $volumes,
-                $customers->{compareppu} || $model->{showppu},
-                1,
-                'Notional use of system revenue by customer',
+                $volumes, $customers->{compareppu} || $model->{showppu},
+                1, 'Notional use of system revenue by customer',
             ) if $model->{notionalRevenue};
+            $charging->detailedAssets( $usage->totalUsage($volumes) )
+              if $model->{detailedAssets};
         }
     }
     elsif ( $model->{usetUoS} ) {
+        my $volumes = $customers->individualDemand( $model->{usetUoS} );
         $customers->{compareppu} = Dataset(
             $model->{table1653} ? () : ( number => 1599 ),
             appendTo => $model->{inputTables},
@@ -114,22 +115,17 @@ sub new {
             rows     => $customers->userLabelset,
             data     => [ map { 10 } @{ $customers->userLabelset->{list} } ]
         ) if $model->{compareppu};
-        if ( $model->{compareppu} || $model->{showppu} ) {
-            my $volumes = $customers->individualDemand( $model->{usetUoS} );
-            $tariffs->revenues(
-                $volumes,
-                $customers->{compareppu} || $model->{showppu},
-                1, 'Revenue by customer',
-            );
-        }
+        $tariffs->revenues(
+            $volumes, $customers->{compareppu} || $model->{showppu},
+            1, 'Revenue by customer',
+        ) if $model->{compareppu} || $model->{showppu};
+        $charging->detailedAssets( $usage->totalUsage($volumes) )
+          if $model->{detailedAssets};
     }
 
-    $charging->detailedAssets(
-        $usage->totalUsage( $customers->detailedVolumes )->{source} )
-      if $model->{detailedAssets};
-
     $_->finish($model)
-      foreach grep { $_; } $setup, $usage, $charging, $customers, $tariffs,
+      foreach grep { $_; } $setup, $usage, $charging, $customers,
+      $tariffs,
       $supplyTariffs;
 
     $model;
