@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,15 +33,19 @@ use utf8;
 use base 'Elec::Tariffs';
 use SpreadsheetModel::Shortcuts ':all';
 
+sub tariffName {
+    'supply tariffs';
+}
+
 sub new {
     my ( $class, $model, $setup, $tariffs, $basicEnergyCharge ) = @_;
     my $uosTariffs = $tariffs->tariffs;
-    my $self       = bless {
+    my $self       =   $model->register(bless {
         uos               => $tariffs,
         model             => $model,
         setup             => $setup,
         basicEnergyCharge => $basicEnergyCharge,
-    }, $class;
+    }, $class);
     $self->{tariffs} = [
         Arithmetic(
             name       => 'Supply p/kWh',
@@ -68,8 +72,6 @@ sub new {
     $self;
 }
 
-sub tariffName { 'supply tariffs'; }
-
 sub marginCalculation {
     my ( $self, $volumes, $labelTail ) = @_;
     $labelTail ||= '';
@@ -79,7 +81,9 @@ sub marginCalculation {
         name       => 'Energy supply margin £/year' . $labelTail,
         arithmetic => '=A1*(A11-A12-A13)/100',
         arguments  => {
-            A1  =>  $self->{model}{timebands}?$volumes->[$#$volumes]:$volumes->[0],
+            A1 => $self->{model}{timebands}
+            ? $volumes->[$#$volumes]
+            : $volumes->[0],
             A11 => $tariffs->[0],
             A12 => $uos->{tariffs}[0],
             A13 => $self->{basicEnergyCharge},
@@ -100,4 +104,5 @@ sub margin {
         source        => $revenues,
       );
 }
+
 1;

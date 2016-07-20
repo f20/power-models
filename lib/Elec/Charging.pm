@@ -34,7 +34,7 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup, $usage ) = @_;
-    bless {
+    $model->register(  bless {
         model => $model,
         setup => $setup,
         usage => $usage,
@@ -42,7 +42,7 @@ sub new {
         $model->{contributions}
         ? ( contributions => $model->{contributions} )
         : (),
-    }, $class;
+    }, $class);
 }
 
 sub energyCharge {

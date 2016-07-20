@@ -18,11 +18,10 @@ usageTypes:
   - 11kV kVA
   - 11kV/LV kVA
   - LV kVA
-  - 11kV metering at 33kV substation
-  - 11kV metering at 11kV substation
-  - LV metering at 11kV substation
-  - LV >100A metering off LV mains
-  - LV <100A metering off LV mains
+  - 11kV metered source breaker
+  - 11kV metered ring main unit
+  - LV >100A metered service
+  - LV <100A metered service
 usetMatchAssets: all users
 usetRevenues: all users
 usetRunningCosts: all users

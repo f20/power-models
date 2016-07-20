@@ -97,8 +97,8 @@ sub worksheetsAndClosures {
         'Customers' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 2 );
-            $wsheet->set_column( 0, 0, $model->{ulist} ? 50 : 20 );
-            $wsheet->set_column( 1, 1, $model->{ulist} ? 20 : 50 );
+            $wsheet->set_column( 0, 0, $model->{ulist}          ? 50 : 20 );
+            $wsheet->set_column( 1, 1, $model->{table1653Names} ? 50 : 20 );
             $wsheet->set_column( 2, 250, 20 );
             $model->{table1653}->wsWrite( $wbook, $wsheet );
         }
@@ -206,8 +206,8 @@ sub worksheetsAndClosures {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 0, $model->{ulist} ? 50 : 20 );
-            $wsheet->set_column( 1, 250,
-                $model->{ulist} || !$model->{table1653} ? 20 : 50 );
+            $wsheet->set_column( 1, 1,
+                $model->{detailedTablesNames} ? 50 : 20 );
             $wsheet->set_column( 2, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Detailed tables' ),

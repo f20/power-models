@@ -34,13 +34,13 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup, $customers ) = @_;
-    bless {
+   $model->register(bless {
         model     => $model,
         setup     => $setup,
         customers => $customers,
         $model->{usageTypes} ? ( usageTypes => $model->{usageTypes} ) : (),
         $model->{noEnergy}   ? ( noEnergy   => $model->{noEnergy} )   : (),
-    }, $class;
+    }, $class);
 }
 
 sub usageTypes {
@@ -116,7 +116,7 @@ sub usageRates {
           Labelset( name => 'Timebands', list => $self->{model}{timebands} );
 
         my $hours = Dataset(
-            name          => 'Annual hours by time band',
+            name          => 'Typical annual hours by time band',
             defaultFormat => '0.0hard',
             rows          => $timebandSet,
             number        => 1568,
@@ -158,8 +158,11 @@ sub usageRates {
         );
 
         my $totalProb = GroupBy(
-            name => 'Sum of peaking probabilities (expected to be 100%)',
-            cols => $self->usageSet,
+            name => Label(
+                'Sum of peaking probabilities',
+                'Sum of peaking probabilities (expected to be 100%)'
+            ),
+            cols          => $self->usageSet,
             defaultFormat => '%soft',
             source        => $peakingProbabilities
         );

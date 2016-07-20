@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model ) = @_;
-    bless { model => $model }, $class;
+    $model->register(  bless { model => $model }, $class);
 }
 
 sub daysInYear {
@@ -112,14 +112,14 @@ sub tariffComponents {
 
 sub digitsRounding {
     my ($self) = @_;
-    [
+    $self->{model}{noRounding} ? []
+      : [
         (
-            $self->{model}{timebands}
-            ? map { 3 } @{ $self->{model}{timebands} }
+            $self->{model}{timebands} ? map { 3 } @{ $self->{model}{timebands} }
             : 3
         ),
         0, 2,
-    ];
+      ];
 }
 
 sub volumeComponents {

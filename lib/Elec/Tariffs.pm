@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,15 +30,23 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use base 'Elec::TariffsBase';
 use SpreadsheetModel::Shortcuts ':all';
+
+sub tariffName {
+    'use of system tariffs';
+}
 
 sub new {
 
     my ( $class, $model, $setup, $usage, $charging, $competitiveEnergy ) = @_;
-    my $self = bless {
-        model => $model,
-        setup => $setup,
-    }, $class;
+    my $self = $model->register(
+        bless {
+            model => $model,
+            setup => $setup,
+        },
+        $class
+    );
 
     my @tariffContributions;
     my $usageRates       = $usage->usageRates;
@@ -156,197 +164,14 @@ sub new {
 
 }
 
-sub revenueCalculation {
-    my ( $self, $volumes, $labelTail, $name ) = @_;
-    $labelTail ||= '';
-    if ( $self->{model}{timebands} ) {
-        return Arithmetic(
-            rows => $volumes->[0]->{rows},
-            name => $name
-              || (
-                ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
-            arithmetic => '=('
-              . join( '+', map { "A1$_*A2$_"; } 3 .. $#$volumes )
-              . '+A6*(A11*A21+A12*A22))*0.01',
-            arguments => {
-                A6 => $self->{setup}->daysInYear,
-                map {
-                    (
-                        "A1$_" => $volumes->[ $#$volumes - $_ ],
-                        "A2$_" => $self->{tariffs}[ $#$volumes - $_ ]
-                      )
-                } 1 .. $#$volumes,
-            },
-            defaultFormat => '0soft',
-        );
-    }
-    else {    # three columns, 0 is a unit rate, others are daily
-        return Arithmetic(
-            name => $name
-              || (
-                ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
-            arithmetic => '=(A1*A11+A666*(A2*A12+A3*A13))*0.01',
-            arguments  => {
-                A666 => $self->{setup}->daysInYear,
-                map {
-                    (
-                        "A$_"  => $volumes->[ $_ - 1 ],
-                        "A1$_" => $self->{tariffs}[ $_ - 1 ]
-                      )
-                } 1 .. 3,
-            },
-            defaultFormat => '0soft',
-        );
-    }
-}
-
-sub revenues {
-    my ( $self, $volumes, $compareppu, $notGrandTotal, $name, @extras ) = @_;
-    my $labelTail =
-      $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
-    my $revenues = $self->revenueCalculation( $volumes, $labelTail, $name );
-
-    if ($compareppu) {
-        my $ppu = Arithmetic(
-            name       => 'Average p/kWh',
-            arithmetic => '=IF(A3,A1/A2*100,"")',
-            arguments  => {
-                A1 => $revenues,
-                $self->{model}{timebands}
-                ? (
-                    A2 => $volumes->[$#$volumes],
-                    A3 => $volumes->[$#$volumes],
-                  )
-                : (
-                    A2 => $volumes->[0],
-                    A3 => $volumes->[0],
-                )
-            },
-        );
-
-        my $compare;
-        if ( ref $compareppu ) {
-            $compare = Arithmetic(
-                defaultFormat => '0soft',
-                name          => 'Comparison £/year',
-                arguments     => {
-                    A1 => $compareppu,
-                    A2 => $compareppu,
-                    A3 => $self->{model}{timebands}
-                    ? $volumes->[$#$volumes]
-                    : $volumes->[0],
-                },
-                arithmetic => '=IF(ISNUMBER(A1),A2*A3*0.01,0)'
-            );
-        }
-
-        my $difference;
-        $difference = Arithmetic(
-            name          => 'Difference £/year',
-            defaultFormat => '0softpm',
-            arithmetic    => '=IF(A1,A2-A3,"")',
-            arguments     => {
-                A1 => $compare,
-                A2 => $revenues,
-                A3 => $compare,
-            },
-        ) if ref $compareppu;
-        push @{ $self->{detailedTables} },
-          Columnset(
-            name    => 'Revenue (£/year) and average revenue (p/kWh)',
-            columns => [
-                $volumes->[0]{names}
-                ? Stack( sources => [ $volumes->[0]{names} ] )
-                : (),
-                $revenues,
-                @extras,
-                ref $compareppu
-                ? (
-                    $compare,
-                    $difference,
-                    Arithmetic(
-                        name          => 'Difference %',
-                        defaultFormat => '%softpm',
-                        arithmetic    => '=IF(A1,A2/A3-1,"")',
-                        arguments     => {
-                            A1 => $compare,
-                            A2 => $revenues,
-                            A3 => $compare,
-                        },
-                    ),
-                    $ppu,
-                    Stack( sources => [$compareppu] ),
-                  )
-                : $ppu,
-            ]
-          );
-
-        if ( ref $compareppu && !$notGrandTotal ) {
-            my @cols = (
-                map {
-                    my $n = 'Total ' . $_->{name}->shortName;
-                    $n =~ s/Total (.)/ 'Total '.lc($1)/e;
-                    GroupBy(
-                        name          => $n,
-                        defaultFormat => '0soft',
-                        source        => $_,
-                    );
-                  } $revenues,
-                @extras,
-                $compare,
-                $difference,
-            );
-            push @cols,
-              Arithmetic(
-                name          => 'Total difference %',
-                defaultFormat => '%softpm',
-                arithmetic    => '=IF(A1,A2/A3,"")',
-                arguments     => {
-                    A1 => $cols[0],
-                    A2 => $cols[ $#cols - 1 ],
-                    A3 => $cols[0],
-                },
-              );
-            push @{ $self->{detailedTables} },
-              Columnset(
-                name    => 'Total £/year' . $labelTail,
-                columns => \@cols,
-              );
-        }
-    }
-
-    elsif ( !$notGrandTotal ) {
-        push @{ $self->{revenueTables} },
-          GroupBy(
-            name => 'Total '
-              . $self->tariffName
-              . ' revenue £/year'
-              . $labelTail,
-            singleRowName => 'Total',
-            defaultFormat => '0soft',
-            source        => $revenues,
-          );
-    }
-}
-
-sub tariffs {
-    my ($self) = @_;
-    $self->{tariffs};
-}
-
-sub tariffName {
-    'use of system tariffs';
-}
-
 sub finish {
     my ($self) = @_;
+    $self->SUPER::finish;
     push @{ $self->{model}{tariffTables} },
       Columnset(
         name    => ucfirst( $self->tariffName ),
         columns => $self->{tariffs},
       );
-    push @{ $self->{model}{$_} }, @{ $self->{$_} }
-      foreach grep { $self->{$_} } qw(revenueTables detailedTables);
 }
 
 1;

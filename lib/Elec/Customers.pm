@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup ) = @_;
-    bless { model => $model, setup => $setup }, $class;
+    $model->register( bless { model => $model, setup => $setup }, $class );
 }
 
 sub totalDemand {
@@ -108,17 +108,19 @@ sub individualDemandUsed {
           } grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
           @$spcol
     ];
-    push @$columns,
-      Arithmetic(
-        name          => 'Total units kWh',
-        defaultFormat => '0soft',
-        arithmetic    => '='
-          . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
-        arguments => {
-            map { ( "A$_" => $columns->[ $_ - 1 ] ); }
-              1 .. @{ $self->{model}{timebands} }
-        },
-      );
+    if ( $self->{model}{timebands} ) {
+        push @$columns,
+          Arithmetic(
+            name          => 'Total units kWh',
+            defaultFormat => '0soft',
+            arithmetic    => '='
+              . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
+            arguments => {
+                map { ( "A$_" => $columns->[ $_ - 1 ] ); }
+                  1 .. @{ $self->{model}{timebands} }
+            },
+          );
+    }
     push @{ $self->{model}{volumeTables} },
       Columnset(
         name    => "Individual customer volumes in $usetName",
@@ -137,22 +139,23 @@ sub individualDemandEvenIfNotUsed {
           grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
           @$spcol
     ];
-    push @$columns,
-      my $total = Arithmetic(
-        name          => 'Total units kWh',
-        defaultFormat => '0soft',
-        arithmetic    => '='
-          . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
-        arguments => {
-            map { ( "A$_" => $columns->[ $_ - 1 ] ); }
-              1 .. @{ $self->{model}{timebands} }
-        },
-      );
-    push @{ $self->{model}{volumeTables} }, $total;
+    if ( $self->{model}{timebands} ) {
+        push @$columns,
+          my $total = Arithmetic(
+            name          => 'Total units kWh',
+            defaultFormat => '0soft',
+            arithmetic    => '='
+              . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
+            arguments => {
+                map { ( "A$_" => $columns->[ $_ - 1 ] ); }
+                  1 .. @{ $self->{model}{timebands} }
+            },
+          );
+        push @{ $self->{model}{volumeTables} }, $total;
+    }
     $self->{individualDemand}{$usetName} = $columns;
 }
 
-# *individualDemand = \&individualDemandUsed;
 *individualDemand = \&individualDemandEvenIfNotUsed;
 
 sub userLabelset {
@@ -221,10 +224,26 @@ sub tariffSet {
     );
 }
 
+sub addColumns {
+    my ( $self, @columns ) = @_;
+    push @{ $self->{extraColumns} }, @columns;
+}
+
+sub addColumnset {
+    my ( $self, %columnsetContents ) = @_;
+    if ( $self->{model}{table1653} ) {
+        $self->addColumns( @{ $columnsetContents{columns} } );
+    }
+    else {
+        Columnset(%columnsetContents);
+    }
+}
+
 sub finish {
     my ( $self, $model ) = @_;
     if ( $model->{table1653} ) {
-        $model->{table1653} = Columnset(
+        $model->{table1653Names} = $self->{names};
+        $model->{table1653}      = Columnset(
             name     => 'Individual user data',
             number   => 1653,
             location => 'Customers',
@@ -233,7 +252,7 @@ sub finish {
                 $self->{names} ? $self->{names} : (),
                 @{ $self->{scenarioProportions} },
                 @{ $self->{detailedVolumes} },
-                $self->{compareppu} ? $self->{compareppu} : (),
+                $self->{extraColumns} ? @{ $self->{extraColumns} } : (),
             ],
             doNotCopyInputColumns => 1,
         );

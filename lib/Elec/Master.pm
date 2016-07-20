@@ -30,24 +30,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use SpreadsheetModel::Shortcuts ':all';
-use Elec::Sheets;
-use Elec::Setup;
-use Elec::Customers;
-use Elec::Usage;
-use Elec::Charging;
-use Elec::Tariffs;
-use Elec::Supply;
+
+sub requiredModulesForRuleset {
+    my ( $class, $model ) = @_;
+    my @modules = (
+        'Elec::Setup',    'Elec::Sheets',
+        'Elec::Charging', 'Elec::Customers',
+        'Elec::Tariffs',  'Elec::Usage',
+    );
+    push @modules, 'Elec::Supply' if $model->{usetEnergy};
+    push @modules, 'Elec::Summaries'
+      if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};
+    @modules;
+}
 
 sub new {
     my $class     = shift;
-    my $model     = bless { inputTables => [], @_ }, $class;
+    my $model     = bless { inputTables => [], finishList => [], @_ }, $class;
     my $setup     = Elec::Setup->new($model);
     my $customers = Elec::Customers->new( $model, $setup );
     my $usage     = Elec::Usage->new( $model, $setup, $customers );
     my $charging  = Elec::Charging->new( $model, $setup, $usage );
 
-    foreach (    # the order affects the column order in input data
+    foreach (  # NB: this order affects the column order in the input data table
         qw(
         usetMatchAssets
         usetBoundaryCosts
@@ -69,67 +74,41 @@ sub new {
         $tariffs->revenues( $customers->totalDemand($usetName) );
     }
 
-    my $supplyTariffs;
+    my $summary;
     if ( my $usetName = $model->{usetEnergy} ) {
-        $supplyTariffs = Elec::Supply->new( $model, $setup, $tariffs,
+        my $supplyTariffs = Elec::Supply->new( $model, $setup, $tariffs,
             $charging->energyCharge->{arguments}{A1} );
         $supplyTariffs->revenues( $customers->totalDemand($usetName) );
         $supplyTariffs->margin( $customers->totalDemand($usetName) )
           if $model->{energyMargin};
-        $customers->{compareppu} = Dataset(
-            $model->{table1653} ? () : ( number => 1599 ),
-            appendTo => $model->{inputTables},
-            dataset  => $model->{dataset},
-            name     => 'Comparison p/kWh',
-            rows     => $customers->userLabelset,
-            data     => [ map { 10 } @{ $customers->userLabelset->{list} } ]
-        ) if $model->{compareppu};
-        if ( $model->{compareppu} || $model->{showppu} ) {
-            my $volumes = $customers->individualDemand($usetName);
-            $supplyTariffs->revenues(
-                $volumes,
-                $customers->{compareppu} || $model->{showppu},
-                undef, undef,
-                $tariffs->revenueCalculation(
-                    $customers->individualDemand(
-                        $model->{usetRevenues} || $usetName
-                    )
-                ),
-                $supplyTariffs->marginCalculation($volumes)
-            );
-            $tariffs->revenues(
-                $volumes, $customers->{compareppu} || $model->{showppu},
-                1, 'Notional use of system revenue by customer',
-            ) if $model->{notionalRevenue};
-            $charging->detailedAssets( $usage->totalUsage($volumes) )
-              if $model->{detailedAssets};
-        }
-    }
-    elsif ( $model->{usetUoS} ) {
-        my $volumes = $customers->individualDemand( $model->{usetUoS} );
-        $customers->{compareppu} = Dataset(
-            $model->{table1653} ? () : ( number => 1599 ),
-            appendTo => $model->{inputTables},
-            dataset  => $model->{dataset},
-            name     => 'Comparison p/kWh',
-            rows     => $customers->userLabelset,
-            data     => [ map { 10 } @{ $customers->userLabelset->{list} } ]
-        ) if $model->{compareppu};
-        $tariffs->revenues(
-            $volumes, $customers->{compareppu} || $model->{showppu},
-            1, 'Revenue by customer',
-        ) if $model->{compareppu} || $model->{showppu};
-        $charging->detailedAssets( $usage->totalUsage($volumes) )
-          if $model->{detailedAssets};
+        $summary =
+          Elec::Summaries->new( $model, $setup )
+          ->setupWithTotals( $customers, $usetName )->summariseTariffs(
+            $supplyTariffs,
+            [ revenueCalculation => $tariffs ],
+            [ marginCalculation  => $supplyTariffs ],
+          ) if $model->{compareppu} || $model->{showppu};
     }
 
-    $_->finish($model)
-      foreach grep { $_; } $setup, $usage, $charging, $customers,
-      $tariffs,
-      $supplyTariffs;
+    elsif ( $usetName = $model->{usetUoS} ) {
+        $summary =
+          Elec::Summaries->new( $model, $setup )
+          ->setupWithDisabledCustomers( $customers, $usetName )
+          ->summariseTariffs($tariffs);
+    }
+
+    $summary->addDetailedAssets( $charging, $usage ) if $summary;
+
+    $_->finish($model) foreach @{ $model->{finishList} };
 
     $model;
 
+}
+
+sub register {
+    my ( $model, $object ) = @_;
+    push @{ $model->{finishList} }, $object;
+    $object;
 }
 
 1;
