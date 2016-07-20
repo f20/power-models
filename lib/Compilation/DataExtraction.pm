@@ -58,6 +58,41 @@ sub ymlWriter {
     };
 }
 
+sub rebuildWriter {
+    my ( $arg, $runner ) = @_;
+    sub {
+        my ( $fileName, $workbook ) = @_;
+        die unless $fileName;
+        my ( $path, $core, $ext ) = $fileName =~ m#(.*/)?([^/]+)(\.xlsx?)$#is;
+        $path = '' unless defined $path;
+        my $tempFolder = $path . "Rebuild$$-$core.tmp";
+        mkdir $tempFolder or die "Cannot create $tempFolder: $!";
+        if ( my @rules = _extractYaml($workbook) ) {
+            open my $h, '>', "$tempFolder/%-$core.yml";
+            binmode $h, ':utf8';
+            print $h $_ foreach @rules;
+        }
+        my %trees = _extractInputData($workbook);
+        require YAML;
+        while ( my ( $key, $value ) = each %trees ) {
+            open my $h, '>', "$tempFolder/$core$key.yml";
+            binmode $h, ':utf8';
+            print $h YAML::Dump($value);
+        }
+        $runner->makeModels(
+            '-single', lc $ext eq '.xls' ? '-xls' : '-xlsx',
+            "-folder=$tempFolder",     "-template=%",
+            "$tempFolder/%-$core.yml", "$tempFolder/$core.yml"
+        );
+        if ( -s "$tempFolder/$core$ext" ) {
+            rename "$path$core$ext",        "$tempFolder/tempfile";
+            rename "$tempFolder/$core$ext", "$path$core$ext";
+            rename "$tempFolder/tempfile",  "$tempFolder/$core$ext";
+        }
+        rename $tempFolder, $path . "Z_Rebuild$$-$core";
+    };
+}
+
 sub jsonWriter {
     my ($arg) = @_;
     my $options = { $arg =~ /min/i ? ( minimum => 1 ) : (), };
@@ -85,6 +120,42 @@ sub jsonWriter {
               ->pretty->utf8->encode($value);
         }
     };
+}
+
+sub _extractYaml {
+    my ($workbook) = @_;
+    my @yamlBlobs;
+    my $current;
+    for my $worksheet ( $workbook->worksheets() ) {
+        my ( $row_min, $row_max ) = $worksheet->row_range();
+        my ( $tableNumber, $evenIfLocked, $columnHeadingsRow, $to1, $to2 );
+        for my $row ( $row_min .. $row_max ) {
+            my $rowName;
+            my $cell = $worksheet->get_cell( $row, 0 );
+            my $v;
+            $v = $cell->unformatted if $cell;
+            next unless defined $v;
+            eval { $v = Encode::decode( 'UTF-16BE', $v ); }
+              if $v =~ m/\x{0}/;
+            if ($current) {
+                if ( $v eq '' ) {
+                    push @yamlBlobs, $current;
+                    undef $current;
+                }
+                else {
+                    $current .= "$v\n";
+                }
+            }
+            elsif ( $v eq '---' ) {
+                $current = "$v\n";
+            }
+        }
+        if ($current) {
+            push @yamlBlobs, $current;
+            undef $current;
+        }
+    }
+    @yamlBlobs;
 }
 
 sub _extractInputData {

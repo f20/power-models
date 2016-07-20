@@ -42,6 +42,8 @@ sub makeModels {
 
     my $self = shift;
 
+    my $folder;
+
     require Ancillary::Manufacturing;
     my $maker = Ancillary::Manufacturing->factory(
         validate => [
@@ -165,6 +167,9 @@ sub makeModels {
             elsif (/^-+template(?:=(.+))?/is) {
                 $maker->{setRule}->( template => $1 || ( time . "-$$" ) );
             }
+            elsif (/^-+(?:folder|directory)=(.+)?/is) {
+                $folder = $1;
+            }
             elsif (/^-+([0-9]+)/is) {
                 $maker->{threads}->($1);
             }
@@ -220,7 +225,15 @@ sub makeModels {
     }
 
     my @files = $maker->{fileList}->();
-    mkdir 'models.tmp' if @files > 1 and !-e 'models.tmp' and !-e '~$models';
+    unless ( defined $folder ) {
+        mkdir 'models.tmp'
+          if @files > 1
+          and !-e 'models.tmp'
+          and !-e '~$models';
+        ($folder) =
+          grep { -d $_ && -w _; } qw(models.tmp ~$models);
+    }
+    $maker->{setting}->( folder => $folder ) if defined $folder;
     $maker->{run}->();
 
 }

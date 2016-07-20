@@ -521,28 +521,40 @@ sub factory {
                 $rulesDataSettings{$_}[2]
             ];
           } @fileNames;
-        my ($folder) =
-          grep { -d $_ && -w _; } qw(models.tmp ~$models);
-
         if ( $threads1 && eval 'require Ancillary::ParallelRunning' ) {
             foreach (@fileNames) {
                 Ancillary::ParallelRunning::waitanypid($threads1);
                 Ancillary::ParallelRunning::backgroundrun(
                     $workbookModule->( $instructionsSettings{$_}[1]{xls} ),
                     'create',
-                    defined $folder ? catfile( $folder, $_ ) : $_,
+                    defined $settings{folder}
+                    ? catfile( $settings{folder}, $_ )
+                    : $_,
                     $instructionsSettings{$_},
                     $instructionsSettings{$_}[1]{PostProcessing}
                 );
             }
             my $errorCount = Ancillary::ParallelRunning::waitanypid(0);
-            die "Some ($errorCount) things have gone wrong" if $errorCount;
+            if ($errorCount) {
+                die(
+                    (
+                        $errorCount > 1
+                        ? "$errorCount things have"
+                        : 'Something has'
+                    )
+                    . ' gone wrong'
+                );
+            }
         }
         else {
             foreach (@fileNames) {
-                $workbookModule->( $instructionsSettings{$_}[1]{xls} )
-                  ->create( defined $folder ? catfile( $folder, $_ ) : $_,
-                    , @{ $instructionsSettings{$_} } );
+                $workbookModule->( $instructionsSettings{$_}[1]{xls} )->create(
+                    defined $settings{folder}
+                    ? catfile( $settings{folder}, $_ )
+                    : $_,
+                    ,
+                    @{ $instructionsSettings{$_} }
+                );
                 $instructionsSettings{$_}[1]{PostProcessing}->($_)
                   if $instructionsSettings{$_}[1]{PostProcessing};
             }

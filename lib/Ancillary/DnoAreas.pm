@@ -31,9 +31,6 @@ use warnings;
 use strict;
 use utf8;
 
-# use base 'Exporter';
-# our @EXPORT = qw(normaliseDnoName);
-
 sub normaliseDnoName {
     local @_ = @_ if defined wantarray;
     foreach (@_) {

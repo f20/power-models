@@ -48,6 +48,11 @@ sub fillDatabase {
             $threads = $1 if $1 > 0;
             next;
         }
+        if (/^-+(re-?build.*)/i) {
+            require Compilation::DataExtraction;
+            $writer = Compilation::DataExtraction::rebuildWriter( $1, $self );
+            next;
+        }
         if (/^-+(ya?ml.*)/i) {
             require Compilation::DataExtraction;
             $writer = Compilation::DataExtraction::ymlWriter($1);
