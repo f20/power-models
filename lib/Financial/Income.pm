@@ -31,6 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
+use SpreadsheetModel::CalcBlock;
 
 sub new {
     my ( $class, %hash ) = @_;

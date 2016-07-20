@@ -30,7 +30,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use SpreadsheetModel::CalcBlock;
 use SpreadsheetModel::Shortcuts ':all';
 use Financial::Sheets;
 

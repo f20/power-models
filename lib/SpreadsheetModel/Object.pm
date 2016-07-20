@@ -33,8 +33,7 @@ use utf8;
 
 use SpreadsheetModel::Label;
 
-use Exporter;
-our @ISA = qw(Exporter);
+use Exporter qw(import);
 our @EXPORT_OK =
   qw(_rewriteFormulas _shortName _shortNameRow _shortNameCol _numsort);
 our %EXPORT_TAGS = ( '_util' => \@EXPORT_OK );

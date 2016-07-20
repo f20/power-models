@@ -31,6 +31,15 @@ use warnings;
 use strict;
 use utf8;
 
+use Exporter qw(import);
+our @EXPORT = qw(
+  CalcBlock);
+
+sub CalcBlock {
+    unshift @_, 'SpreadsheetModel::CalcBlock';
+    goto &SpreadsheetModel::Object::new;
+}
+
 use Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Object ':_util';
 our @ISA = qw(SpreadsheetModel::Objectset);

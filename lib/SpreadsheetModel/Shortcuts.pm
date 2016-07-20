@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Reckon LLP and others.
+Copyright 2008-2016 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,6 @@ use warnings;
 use strict;
 
 use SpreadsheetModel::Arithmetic;
-use SpreadsheetModel::CalcBlock;
 use SpreadsheetModel::Columnset;
 use SpreadsheetModel::Custom;
 use SpreadsheetModel::Dataset;
@@ -43,11 +42,9 @@ use SpreadsheetModel::Reshape;
 use SpreadsheetModel::Stack;
 use SpreadsheetModel::SumProduct;
 
-require Exporter;
-our @ISA       = qw(Exporter);
+use Exporter qw(import);
 our @EXPORT_OK = qw(
   Arithmetic
-  CalcBlock
   Columnset
   Constant
   Dataset
@@ -69,11 +66,6 @@ sub Label {
 
 sub Arithmetic {
     unshift @_, 'SpreadsheetModel::Arithmetic';
-    goto &SpreadsheetModel::Object::new;
-}
-
-sub CalcBlock {
-    unshift @_, 'SpreadsheetModel::CalcBlock';
     goto &SpreadsheetModel::Object::new;
 }
 
