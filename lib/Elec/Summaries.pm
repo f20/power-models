@@ -69,8 +69,14 @@ sub addDetailedAssets {
 
 sub summariseTariffs {
     my ( $self, $tariffs, @extras ) = @_;
-    $self->{comparison}->revenueComparison( $tariffs, $self->{volumes},
-        map { $_->[1]->$_->[0]( $self->{volumes} ) } @extras );
+    $self->{comparison}->revenueComparison(
+        $tariffs,
+        $self->{volumes},
+        map {
+            my ( $method, $object ) = @$_;
+            $object->$method( $self->{volumes} );
+        } @extras
+    );
     $self;
 }
 
