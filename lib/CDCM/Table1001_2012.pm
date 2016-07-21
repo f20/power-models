@@ -147,9 +147,10 @@ sub table1001_2012 {
             my ( $self, $wb, $ws, $format, $formula ) = @_;
             unless ( exists $avoidDoublePush{$wb} ) {
                 push @{ $self->{location}{postWriteCalls}{$wb} }, sub {
-                    $ws->write_string(
-                        $ws->{nextFree}++,
-                        0,
+                    my ( $me, $wbMe, $wsMe, $rowrefMe, $colMe ) = @_;
+                    $wsMe->write_string(
+                        $$rowrefMe += 1,
+                        $colMe - 1,
                         'Note 1: Revenues associated '
                           . 'with excluded services should only be included insofar '
                           . 'as they are charged as Use of System Charges.',

@@ -337,10 +337,9 @@ sub wsWrite {
             }
             $row++;
         }
-        if ( $item->{postWriteCalls}{$wb} ) {
-            $_->($item) foreach @{ $item->{postWriteCalls}{$wb} };
-        }
-
+        $_->( $item, $wb, $ws, \$row, $col )
+          foreach map { @{ $item->{postWriteCalls}{$_} }; }
+          grep { $item->{postWriteCalls}{$_} } 'obj', $wb;
     }
     $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
 

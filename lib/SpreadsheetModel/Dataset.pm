@@ -627,14 +627,12 @@ sub wsWrite {
     }
 
     $row += $lastRow;
+    $_->( $self, $wb, $ws, \$row, $col )
+      foreach map { @{ $self->{postWriteCalls}{$_} }; }
+      grep { $self->{postWriteCalls}{$_} } 'obj', $wb;
     $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
     ++$row;
     $dataAreHere[0]{nextFree} = $row unless $dataAreHere[0]{nextFree} > $row;
-
-    if ( $self->{postWriteCalls}{$wb} ) {
-        $_->($self) foreach @{ $self->{postWriteCalls}{$wb} };
-    }
-
     @dataAreHere;
 
 }

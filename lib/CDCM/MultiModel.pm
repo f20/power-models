@@ -234,9 +234,12 @@ sub sheetsForFirstModel {
                                         undef $needNote1;
                                         push @{ $self->{location}
                                               {postWriteCalls}{$wb} }, sub {
-                                            $ws->write_string(
-                                                $ws->{nextFree}++,
-                                                0,
+                                            my ( $me, $wbMe,
+                                                $wsMe, $rowrefMe, $colMe )
+                                              = @_;
+                                            $wsMe->write_string(
+                                                $$rowrefMe += 2,
+                                                $colMe - 1,
                                                 'Note 1: '
                                                   . 'Cost categories associated '
                                                   . 'with excluded services should only be populated '

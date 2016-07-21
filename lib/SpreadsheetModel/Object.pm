@@ -77,10 +77,10 @@ sub requestForwardLinks {
     foreach ( values %{ $self->{forwardLinks} } ) {
         ++$$rowref;
         push @{ $_->{postWriteCalls}{$wb} }, sub {
-            my ($me) = @_;
-            if ( my $url = $me->wsUrl($wb) ) {
+            my ($target) = @_;
+            if ( my $url = $target->wsUrl($wb) ) {
                 $ws->write_url( ++$saveRow, $saveCol, $url,
-                    "→ $me->{name}", $linkFormat );
+                    "→ $target->{name}", $linkFormat );
             }
         };
     }

@@ -355,9 +355,9 @@ sub wsWrite {
             ++$c4;
         }
 
-        if ( $column->{postWriteCalls}{$wb} ) {
-            $_->($column) foreach @{ $column->{postWriteCalls}{$wb} };
-        }
+        $_->( $column, $wb, $ws, undef, undef )
+          foreach map { @{ $column->{postWriteCalls}{$_} }; }
+          grep { $column->{postWriteCalls}{$_} } 'obj', $wb;
 
     }
 

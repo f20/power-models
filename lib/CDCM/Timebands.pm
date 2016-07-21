@@ -138,85 +138,87 @@ EOL
                 );
             } 2 .. 5
         ],
-        objPostWriteCalls => [
-            sub {
-                my ( $self, $wb, $ws ) = @_;
-                my ( $ws1, $ro1, $co1 ) = $columns[0]->wsWrite( $wb, $ws );
-                my ( $ws2, $ro2, $co2 ) =
-                  $self->{columns}[1]->wsWrite( $wb, $ws );
-                my @range =
-                  ( $ro2, $co2, $ro2 + $#{ $rows->{list} }, $co2 + 4 );
-                my $start = '='
-                  . ( $ws1 == $ws2 ? '' : "'" . $ws1->name . "'!" )
-                  . xl_rowcol_to_cell( $ro1, $co1, 0, 1 );
-                $ws2->conditional_formatting(
-                    @range,
-                    {
-                        type     => 'formula',
-                        criteria => $start . '="Red"',
-                        format   => $wb->getFormat(
-                            [ bg_color => 10, color => 9, bold => 1 ]
-                        ),
-                    }
-                );
-                $ws2->conditional_formatting(
-                    @range,
-                    {
-                        type     => 'formula',
-                        criteria => $start . '="Amber"',
-                        format   => $wb->getFormat(
-                            [ bg_color => 52, color => 8, bold => 1 ]
-                        ),
-                    }
-                );
-                $ws2->conditional_formatting(
-                    @range,
-                    {
-                        type     => 'formula',
-                        criteria => $start . '="Green"',
-                        format   => $wb->getFormat(
-                            [ bg_color => 17, color => 9, bold => 1 ]
-                        ),
-                    }
-                );
-                $ws2->conditional_formatting(
-                    @range,
-                    {
-                        type     => 'formula',
-                        criteria => $start . '="Black"',
-                        format   => $wb->getFormat(
-                            [ bg_color => 8, color => 9, bold => 1 ]
-                        ),
-                    }
-                );
-                $ws2->conditional_formatting(
-                    @range,
-                    {
-                        type     => 'formula',
-                        criteria => $start . '="Yellow"',
-                        format   => $wb->getFormat(
-                            [ bg_color => 43, color => 8, bold => 1 ]
-                        ),
-                    }
-                );
-                $ws2->conditional_formatting(
-                    @range,
-                    {
-                        type     => 'formula',
-                        criteria => $start . '="Super-red"',
-                        format   => $wb->getFormat(
-                            [
-                                bg_color => 10,
-                                fg_color => 8,
-                                pattern  => 9,
-                                color    => 9,
-                                bold     => 1
-                            ]
-                        ),
-                    }
-                );
-            },
-        ],
+        postWriteCalls => {
+            obj => [
+                sub {
+                    my ( $self, $wb, $ws ) = @_;
+                    my ( $ws1, $ro1, $co1 ) = $columns[0]->wsWrite( $wb, $ws );
+                    my ( $ws2, $ro2, $co2 ) =
+                      $self->{columns}[1]->wsWrite( $wb, $ws );
+                    my @range =
+                      ( $ro2, $co2, $ro2 + $#{ $rows->{list} }, $co2 + 4 );
+                    my $start = '='
+                      . ( $ws1 == $ws2 ? '' : "'" . $ws1->name . "'!" )
+                      . xl_rowcol_to_cell( $ro1, $co1, 0, 1 );
+                    $ws2->conditional_formatting(
+                        @range,
+                        {
+                            type     => 'formula',
+                            criteria => $start . '="Red"',
+                            format   => $wb->getFormat(
+                                [ bg_color => 10, color => 9, bold => 1 ]
+                            ),
+                        }
+                    );
+                    $ws2->conditional_formatting(
+                        @range,
+                        {
+                            type     => 'formula',
+                            criteria => $start . '="Amber"',
+                            format   => $wb->getFormat(
+                                [ bg_color => 52, color => 8, bold => 1 ]
+                            ),
+                        }
+                    );
+                    $ws2->conditional_formatting(
+                        @range,
+                        {
+                            type     => 'formula',
+                            criteria => $start . '="Green"',
+                            format   => $wb->getFormat(
+                                [ bg_color => 17, color => 9, bold => 1 ]
+                            ),
+                        }
+                    );
+                    $ws2->conditional_formatting(
+                        @range,
+                        {
+                            type     => 'formula',
+                            criteria => $start . '="Black"',
+                            format   => $wb->getFormat(
+                                [ bg_color => 8, color => 9, bold => 1 ]
+                            ),
+                        }
+                    );
+                    $ws2->conditional_formatting(
+                        @range,
+                        {
+                            type     => 'formula',
+                            criteria => $start . '="Yellow"',
+                            format   => $wb->getFormat(
+                                [ bg_color => 43, color => 8, bold => 1 ]
+                            ),
+                        }
+                    );
+                    $ws2->conditional_formatting(
+                        @range,
+                        {
+                            type     => 'formula',
+                            criteria => $start . '="Super-red"',
+                            format   => $wb->getFormat(
+                                [
+                                    bg_color => 10,
+                                    fg_color => 8,
+                                    pattern  => 9,
+                                    color    => 9,
+                                    bold     => 1
+                                ]
+                            ),
+                        }
+                    );
+                },
+            ],
+        },
       );
 }
 

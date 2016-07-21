@@ -62,7 +62,7 @@ Low Carbon Networks Fund part 2	C7	LCN2	CRC2J
 Connection Guaranteed Standards Systems & Processes penalty	C8	AUM, CGSRA	CRC2K-L
 Residual Losses incentive	C9	PPL	CRC2M
 Residual Growth incentive	C9	GTA	CRC2M
-Incentive Revenue and Other Adjustments	C = Sum of C1 to C9		
+Incentive Revenue and Other Adjustments	C = Sum of C1 to C9
 Correction Factor	D	-K	CRC2A
 Total allowed Revenue	E = A + B + C + D	AR	CRC2A
 Other 1. Excluded services - Top-up, standby, and enhanced system security	F1 (see note 1)	DRS4	CRC5C
@@ -70,14 +70,14 @@ Other 2. Excluded services - Revenue protection services	F2 (see note 1)	DRS5	CR
 Other 3. Excluded services - Miscellaneous	F3 (see note 1)	DRS9	CRC5C
 Other 4. Please decribe if used	F4	Please describe	if used
 Other 5. Please decribe if used	F5	Please describe	if used
-Total other revenue recovered by Use of System Charges	F = Sum of F1 to F5		
-Total Revenue for Use of System Charges	G = E + F		
-1. Revenue raised outside CDCM - EDCM and Certain Interconnector Revenue	H1		
-2. Revenue raised outside CDCM - Voluntary under-recovery	H2		
+Total other revenue recovered by Use of System Charges	F = Sum of F1 to F5
+Total Revenue for Use of System Charges	G = E + F
+1. Revenue raised outside CDCM - EDCM and Certain Interconnector Revenue	H1
+2. Revenue raised outside CDCM - Voluntary under-recovery	H2
 3. Revenue raised outside CDCM - Please decribe if used	H3	Please describe	if used
 4. Revenue raised outside CDCM - Please decribe if used	H4	Please describe	if used
-Total Revenue to be raised outside the CDCM	H = Sum of H1 to H4		
-Latest forecast of CDCM Revenue	I = G - H		
+Total Revenue to be raised outside the CDCM	H = Sum of H1 to H4
+Latest forecast of CDCM Revenue	I = G - H
 EOL
 
     my $labelset = Labelset( list => [ map { $_->[0] } @lines ] );
@@ -121,9 +121,10 @@ EOL
             my ( $self, $wb, $ws, $format, $formula ) = @_;
             unless ( exists $avoidDoublePush{$wb} ) {
                 push @{ $self->{location}{postWriteCalls}{$wb} }, sub {
-                    $ws->write_string(
-                        $ws->{nextFree}++,
-                        0,
+                    my ( $me, $wbMe, $wsMe, $rowrefMe, $colMe ) = @_;
+                    $wsMe->write_string(
+                        $$rowrefMe += 2,
+                        $colMe - 1,
                         'Note 1: Cost categories associated with excluded '
                           . 'services should only be populated if the Company '
                           . 'recovers the costs of providing these services '
