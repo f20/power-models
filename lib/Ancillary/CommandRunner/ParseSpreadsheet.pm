@@ -130,7 +130,14 @@ sub fillDatabase {
 
     if ( $threads > 1 ) {
         my $errorCount = Ancillary::ParallelRunning::waitanypid(0);
-        die "Some ($errorCount) things have gone wrong" if $errorCount;
+        die(
+            (
+                $errorCount > 1
+                ? "$errorCount things have"
+                : 'Something has'
+            )
+            . ' gone wrong'
+        ) if $errorCount;
     }
 
 }
@@ -262,10 +269,10 @@ EOS
             if ($writer) {
                 if ($workbook) {
                     eval { $writer->( $calcFile, $workbook ); };
-                    warn "$@ for $calcFile" if $@;
+                    die "$@ for $calcFile" if $@;
                 }
                 else {
-                    warn "Cannot parse $calcFile";
+                    die "Cannot parse $calcFile";
                 }
             }
             exit 0 if defined $pid;

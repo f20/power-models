@@ -535,16 +535,14 @@ sub factory {
                 );
             }
             my $errorCount = Ancillary::ParallelRunning::waitanypid(0);
-            if ($errorCount) {
-                die(
-                    (
-                        $errorCount > 1
-                        ? "$errorCount things have"
-                        : 'Something has'
-                    )
-                    . ' gone wrong'
-                );
-            }
+            die(
+                (
+                    $errorCount > 1
+                    ? "$errorCount things have"
+                    : 'Something has'
+                )
+                . ' gone wrong'
+            ) if $errorCount;
         }
         else {
             foreach (@fileNames) {
