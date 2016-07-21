@@ -33,11 +33,10 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, $omitTotal, $name, ) = @_;
+    my ( $class, $model, $omitTotal, ) = @_;
     $model->register(
         bless {
             model     => $model,
-            name      => $name,
             omitTotal => $omitTotal,
         },
         $class
@@ -70,8 +69,7 @@ sub revenueComparison {
     my ( $self, $tariff, $volumes, @extras ) = @_;
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
-    my $revenues =
-      $tariff->revenueCalculation( $volumes, $labelTail, $self->{name} );
+    my $revenues = $tariff->revenueCalculation( $volumes, $labelTail );
 
     my $totalUnits =
         $self->{model}{timebands}

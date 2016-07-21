@@ -41,26 +41,47 @@ sub new {
     my ( $class, $model, $setup, $customers, $prefix, $number, ) = @_;
     my $rows = $customers->userLabelset;
     my @columns;
-    push @columns,
-      Dataset(
+    push @columns, Dataset(
         name => ( $prefix ? "$prefix " . lcfirst($_) : $_ ) . ' p/kWh',
         rows => $rows,
-        data => [ map { 1 } @{ $rows->{list} } ],
-      ) foreach $model->{timebands} ? @{ $model->{timebands} } : 'Units';
-    push @columns,
-      Dataset(
+        data       => [ map { 1 } @{ $rows->{list} } ],
+        validation => {     # required to trigger lenient cell locking
+            validate => 'any',
+        },
+    ) foreach $model->{timebands} ? @{ $model->{timebands} } : 'Units';
+    push @columns, Dataset(
         name => ( $prefix ? "$prefix fixed" : 'Fixed' ) . ' p/day',
         rows => $rows,
-        data          => [ map { 1 } @{ $rows->{list} } ],
+        data       => [ map { 1 } @{ $rows->{list} } ],
+        validation => {     # required to trigger lenient cell locking
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        },
         defaultFormat => '0.00hard',
-      );
-    push @columns,
-      Dataset(
+    );
+    push @columns, Dataset(
         name => ( $prefix ? "$prefix capacity" : 'Capacity' ) . ' p/kVA/day',
         rows => $rows,
-        data          => [ map { 1 } @{ $rows->{list} } ],
+        data       => [ map { 1 } @{ $rows->{list} } ],
+        validation => {     # required to trigger lenient cell locking
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        },
         defaultFormat => '0.00hard',
-      );
+    );
+    push @columns, Dataset(
+        name => ( $prefix ? "$prefix excess reactive" : 'Excess reactive' )
+          . ' p/kVArh',
+        rows => $rows,
+        data => [ map { 1 } @{ $rows->{list} } ],
+        validation => {    # required to trigger lenient cell locking
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        },
+    ) if $model->{reactive};
     $customers->addColumnset(
         name => $prefix ? "$prefix tariff" : 'Tariff',
         number   => $number,
@@ -80,47 +101,29 @@ sub new {
 }
 
 sub revenueCalculation {
-    my ( $self, $volumes, $labelTail, $name ) = @_;
+    my ( $self, $volumes, $labelTail ) = @_;
     $labelTail ||= '';
-    if ( $self->{model}{timebands} ) {
-        return Arithmetic(
-            rows => $volumes->[0]->{rows},
-            name => $name
-              || (
-                ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
-            arithmetic => '=('
-              . join( '+', map { "A1$_*A2$_"; } 3 .. $#$volumes )
-              . '+A6*(A11*A21+A12*A22))*0.01',
-            arguments => {
-                A6 => $self->{setup}->daysInYear,
-                map {
-                    (
-                        "A1$_" => $volumes->[ $#$volumes - $_ ],
-                        "A2$_" => $self->{tariffs}[ $#$volumes - $_ ]
-                      )
-                } 1 .. $#$volumes,
-            },
-            defaultFormat => '0soft',
-        );
-    }
-    else {    # three columns, 0 is a unit rate, others are daily
-        return Arithmetic(
-            name => $name
-              || (
-                ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail ),
-            arithmetic => '=(A1*A11+A666*(A2*A12+A3*A13))*0.01',
-            arguments  => {
-                A666 => $self->{setup}->daysInYear,
-                map {
-                    (
-                        "A$_"  => $volumes->[ $_ - 1 ],
-                        "A1$_" => $self->{tariffs}[ $_ - 1 ]
-                      )
-                } 1 .. 3,
-            },
-            defaultFormat => '0soft',
-        );
-    }
+    return Arithmetic(
+        rows => $volumes->[0]->{rows},
+        name => ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail,
+        arithmetic => '=('
+          . join( '+',
+            map    { "A1$_*A2$_"; }
+              grep { $self->{tariffs}[$_]{name} !~ m#/day#i; }
+              0 .. $#{ $self->{tariffs} } )
+          . '+A6*('
+          . join( '+',
+            map    { "A1$_*A2$_"; }
+              grep { $self->{tariffs}[$_]{name} =~ m#/day#i; }
+              0 .. $#{ $self->{tariffs} } )
+          . '))*0.01',
+        arguments => {
+            A6 => $self->{setup}->daysInYear,
+            map { ( "A1$_" => $volumes->[$_], "A2$_" => $self->{tariffs}[$_] ) }
+              0 .. $#{ $self->{tariffs} },
+        },
+        defaultFormat => '0soft',
+    );
 }
 
 sub revenues {

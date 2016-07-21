@@ -34,7 +34,7 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model ) = @_;
-    $model->register(  bless { model => $model }, $class);
+    $model->register( bless { model => $model }, $class );
 }
 
 sub daysInYear {
@@ -107,6 +107,7 @@ sub tariffComponents {
         ),
         'Fixed p/day',
         'Capacity p/kVA/day',
+        $self->{model}{reactive} ? 'Excess reactive p/kVArh' : (),
     ];
 }
 
@@ -119,6 +120,7 @@ sub digitsRounding {
             : 3
         ),
         0, 2,
+        $self->{model}{reactive} ? 3 : (),
       ];
 }
 
@@ -133,6 +135,7 @@ sub volumeComponents {
         ),
         'Supply points',
         'Capacity kVA',
+        $self->{model}{reactive} ? 'Excess reactive kVArh' : (),
     ];
 }
 

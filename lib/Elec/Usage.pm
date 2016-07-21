@@ -34,13 +34,16 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup, $customers ) = @_;
-   $model->register(bless {
-        model     => $model,
-        setup     => $setup,
-        customers => $customers,
-        $model->{usageTypes} ? ( usageTypes => $model->{usageTypes} ) : (),
-        $model->{noEnergy}   ? ( noEnergy   => $model->{noEnergy} )   : (),
-    }, $class);
+    $model->register(
+        bless {
+            model     => $model,
+            setup     => $setup,
+            customers => $customers,
+            $model->{usageTypes} ? ( usageTypes => $model->{usageTypes} ) : (),
+            $model->{noEnergy}   ? ( noEnergy   => $model->{noEnergy} )   : (),
+        },
+        $class
+    );
 }
 
 sub usageTypes {
@@ -108,6 +111,15 @@ sub usageRates {
             dataset  => $model->{dataset},
             data     => $allBlank,
         ),
+        $self->{model}{reactive} ? Dataset(
+            name     => 'Network usage of 1kVAr reactive consumption',
+            rows     => $customers->tariffSet,
+            cols     => $self->usageSet,
+            number   => 1534,
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
+            data     => $allBlank,
+        ) : (),
       );
 
     if ( $self->{model}{timebands} ) {
@@ -263,68 +275,41 @@ sub totalUsage {
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $usageRates = $self->usageRates;
-    my $customerUsage;
-    if ( $self->{model}{timebands} ) {
-        $customerUsage = Arithmetic(
-            name       => 'Network usage' . $labelTail,
-            rows       => $volumes->[0]{rows},
-            cols       => $self->usageSet,
-            arithmetic => '=('
-              . join( '+', map { "A1$_*A2$_*A3$_"; } 3 .. $#$volumes )
-              . ')/24/A6+'
-              . join( '+', map { "A1$_*A2$_"; } 1 .. 2 ),
-            arguments => {
-                A6 => $self->{setup}->daysInYear,
-                (
-                    map {
-                        (
-                            "A1$_" => $usageRates->[ $#$volumes - $_ ],
-                            "A2$_" => $volumes->[ $#$volumes - $_ ]
-                        );
-                    } 1 .. 2
-                ),
-                (
-                    map {
-                        (
-                            "A1$_" => $usageRates->[ $#$volumes - $_ ][0],
-                            "A3$_" => $usageRates->[ $#$volumes - $_ ][1],
-                            "A2$_" => $volumes->[ $#$volumes - $_ ]
-                        );
-                    } 3 .. $#$volumes
-                ),
-            },
-            defaultFormat => '0soft',
-            names         => $volumes->[0]{names},
-        );
-    }
-    else {    # three columns, 0 is a unit rate, others are daily
-        $customerUsage = Arithmetic(
-            name       => 'Network usage' . $labelTail,
-            rows       => $volumes->[0]{rows},
-            cols       => $usageRates->[0]{cols},
-            arithmetic => '=' . join(
-                '+',
-                map {
-                    my $m = $_ + 1;
-                    my $v = $_ + 100;
-                    "A$m*A$v" . ( $_ ? '' : '/24/A666' );
-                } 0 .. 2
-            ),
-            arguments => {
-                A666 => $self->{setup}->daysInYear,
-                map {
-                    my $m = $_ + 1;
-                    my $v = $_ + 100;
-                    (
-                        "A$m" => $usageRates->[$_],
-                        "A$v" => $volumes->[$_]
-                    );
-                } 0 .. 2
-            },
-            defaultFormat => '0soft',
-            names         => $volumes->[0]{names},
-        );
-    }
+    my @type =
+      map {
+            'ARRAY' eq ref $usageRates->[$_] ? 3
+          : $_ == 0                          ? 1
+          : $self->{model}{reactive} && $_ == $#$usageRates ? 1
+          :                                                   0;
+      } 0 .. $#$usageRates;
+    my $customerUsage = Arithmetic(
+        name       => 'Network usage' . $labelTail,
+        rows       => $volumes->[0]{rows},
+        cols       => $self->usageSet,
+        arithmetic => '=('
+          . join( '+',
+            map { "A1$_*A2$_" . ( $type[$_] == 3 ? "*A3$_" : '' ); }
+            grep { $type[$_]; } 0 .. $#type )
+          . ')/24/A6+'
+          . join( '+', map { "A1$_*A2$_"; } grep { !$type[$_]; } 0 .. $#type ),
+        arguments => {
+            A6 => $self->{setup}->daysInYear,
+            map {
+                $type[$_] == 3
+                  ? (
+                    "A1$_" => $usageRates->[$_][0],
+                    "A3$_" => $usageRates->[$_][1],
+                    "A2$_" => $volumes->[$_]
+                  )
+                  : (
+                    "A1$_" => $usageRates->[$_],
+                    "A2$_" => $volumes->[$_]
+                  );
+            } 0 .. $#type,
+        },
+        defaultFormat => '0soft',
+        names         => $volumes->[0]{names},
+    );
     $self->{totalUsage}{ 0 + $volumes } = GroupBy(
         defaultFormat => '0soft',
         name          => 'Total network usage' . $labelTail,

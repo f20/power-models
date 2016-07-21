@@ -62,82 +62,52 @@ sub new {
 
     foreach my $charge ( $charging->charges ) {
         push @{ $model->{costTables} }, $charge;
-        if ( $self->{model}{timebands} ) {
-            push @tariffContributions, Columnset(
-                name    => 'Contributions from ' . lcfirst( $charge->{name} ),
-                columns => [
-                    map {
-                        my $usage   = $usageRates->[$_];
-                        my $array   = ref $usage eq 'ARRAY';
-                        my $contrib = Arithmetic(
-                            name => 'Contributions from '
-                              . lcfirst( $charge->{name} ) . ' to '
-                              . lcfirst( $tariffComponents->[$_] ),
-                            @{ $formatting[$_] },
-                            arithmetic => '=A1*A2*100/A6'
-                              . ( $array ? '/24*A3' : '' ),
-                            rows => (
-                                  $array ? $usageRates->[$_][0]
-                                : $usageRates->[$_]
-                              )->{rows},
-                            arguments => {
-                                $array
-                                ? (
-                                    A2 => $usageRates->[$_][0],
-                                    A3 => $usageRates->[$_][1],
-                                  )
-                                : ( A2 => $usageRates->[$_] ),
-                                A1 => $charge,
-                                A6 => $days,
-                            }
-                        );
-                        $contrib->lastCol
-                          ? GroupBy(
-                            name => 'Total contributions from '
-                              . lcfirst( $charge->{name} ) . ' to '
-                              . lcfirst( $tariffComponents->[$_] ),
-                            @{ $formatting[$_] },
-                            rows   => $contrib->{rows},
-                            source => $contrib,
-                          )
-                          : $contrib;
-                    } 0 .. $#$usageRates
-                ],
-            );
-        }
-        else {    # three columns, 0 is a unit rate, others are daily
-            push @tariffContributions, Columnset(
-                name    => 'Contributions from ' . lcfirst( $charge->{name} ),
-                columns => [
-                    map {
-                        my $contrib = Arithmetic(
-                            name => 'Contributions from '
-                              . lcfirst( $charge->{name} ) . ' to '
-                              . lcfirst( $tariffComponents->[$_] ),
-                            @{ $formatting[$_] },
-                            arithmetic => '=A1*A2*100/A666'
-                              . ( $_ ? '' : '/24' ),
-                            rows      => $usageRates->[$_]{rows},
-                            arguments => {
-                                A1   => $charge,
-                                A2   => $usageRates->[$_],
-                                A666 => $days,
-                            }
-                        );
-                        $contrib->lastCol
-                          ? GroupBy(
-                            name => 'Total contributions from '
-                              . lcfirst( $charge->{name} ) . ' to '
-                              . lcfirst( $tariffComponents->[$_] ),
-                            @{ $formatting[$_] },
-                            rows   => $contrib->{rows},
-                            source => $contrib,
-                          )
-                          : $contrib;
-                    } 0 .. 2
-                ],
-            );
-        }
+        push @tariffContributions, Columnset(
+            name    => 'Contributions from ' . lcfirst( $charge->{name} ),
+            columns => [
+                map {
+                    my $usage   = $usageRates->[$_];
+                    my $isArray = ref $usage eq 'ARRAY';
+                    my $isUnits =
+                         $isArray
+                      || $_ == 0
+                      || $self->{model}{reactive} && $_ == $#$usageRates;
+                    my $contrib = Arithmetic(
+                        name => 'Contributions from '
+                          . lcfirst( $charge->{name} ) . ' to '
+                          . lcfirst( $tariffComponents->[$_] ),
+                        @{ $formatting[$_] },
+                        arithmetic => '=A1*A2'
+                          . ( $isArray ? '*A3/24' : $isUnits ? '/24' : '' )
+                          . '/A6*100',
+                        rows => (
+                              $isArray ? $usageRates->[$_][0]
+                            : $usageRates->[$_]
+                          )->{rows},
+                        arguments => {
+                            $isArray
+                            ? (
+                                A2 => $usageRates->[$_][0],
+                                A3 => $usageRates->[$_][1],
+                              )
+                            : ( A2 => $usageRates->[$_] ),
+                            A1 => $charge,
+                            A6 => $days,
+                        }
+                    );
+                    $contrib->lastCol
+                      ? GroupBy(
+                        name => 'Total contributions from '
+                          . lcfirst( $charge->{name} ) . ' to '
+                          . lcfirst( $tariffComponents->[$_] ),
+                        @{ $formatting[$_] },
+                        rows   => $contrib->{rows},
+                        source => $contrib,
+                      )
+                      : $contrib;
+                } 0 .. $#$usageRates
+            ],
+        );
     }
     push @{ $model->{buildupTables} }, @tariffContributions;
     $self->{tariffs} = [
