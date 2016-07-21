@@ -147,7 +147,7 @@ sub usageRates {
             defaultFormat => '%hard',
             rows          => $timebandSet,
             cols          => $self->usageSet,
-            number        => 1560,
+            number        => 1569,
             appendTo      => $model->{inputTables},
             dataset       => $model->{dataset},
             data          => [
@@ -185,7 +185,7 @@ sub usageRates {
             defaultFormat => '%hard',
             rows          => $timebandSet,
             cols          => $self->usageSet,
-            number        => 1565,
+            number        => 1570,
             appendTo      => $model->{inputTables},
             dataset       => $model->{dataset},
             data          => [
