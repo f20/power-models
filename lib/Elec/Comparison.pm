@@ -33,11 +33,12 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, $omitTotal, ) = @_;
+    my ( $class, $model, $omitTotal, $destinationTablesName, ) = @_;
     $model->register(
         bless {
-            model     => $model,
-            omitTotal => $omitTotal,
+            model                 => $model,
+            omitTotal             => $omitTotal,
+            destinationTablesName => $destinationTablesName,
         },
         $class
     );
@@ -66,10 +67,10 @@ sub addComparisonTariff {
 
 sub revenueComparison {
 
-    my ( $self, $tariff, $volumes, @extras ) = @_;
+    my ( $self, $tariff, $volumes, $names, @extras ) = @_;
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
-    my $revenues = $tariff->revenueCalculation( $volumes, $labelTail );
+    my $revenues = $tariff->revenueCalculation($volumes);
 
     my $totalUnits =
         $self->{model}{timebands}
@@ -114,17 +115,17 @@ sub revenueComparison {
         },
     ) if $compare;
 
-    $self->{model}{detailedTablesNames} = $volumes->[0]{names};
+    $self->{model}{detailedTablesNames} = $names;
 
     push @{ $self->{detailedTables} },
       Columnset(
-        name    => 'Revenue (£/year) and average revenue (p/kWh)',
+        name    => 'Revenue (£/year) and average revenue (p/kWh)' . $labelTail,
         columns => [
-            $volumes->[0]{names}
-            ? Stack( sources => [ $volumes->[0]{names} ] )
+            $names
+            ? Stack( sources => [$names] )
             : (),
-            $revenues,
             @extras,
+            $revenues,
             $compare
             ? (
                 $compare,
@@ -192,8 +193,9 @@ sub revenueComparison {
 
 sub finish {
     my ($self) = @_;
-    push @{ $self->{model}{$_} }, @{ $self->{$_} }
-      foreach grep { $self->{$_} } qw(revenueTables detailedTables);
+    push @{ $self->{model}{ $self->{destinationTablesName} || $_ } },
+      @{ $self->{$_} }
+      foreach grep { $self->{$_} } qw(detailedTables);
 }
 
 1;

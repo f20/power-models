@@ -134,6 +134,23 @@ sub new {
 
 }
 
+sub showAverageUnitRateTable {
+    my ( $self, $customers ) = @_;
+    my $avgUnitRate = $self->averageUnitRate( $customers->individualDemand );
+    $self->{averageUnitRateColumns} = [
+        $avgUnitRate,
+        map {
+            Arithmetic(
+                name       => $_->{name},
+                rows       => $avgUnitRate->{rows},
+                arithmetic => '=A1',
+                arguments  => { A1 => $_, },
+            );
+          } map { $self->{tariffs}[$_]; }
+          @{ $self->{model}{timebands} } .. $#{ $self->{tariffs} }
+    ];
+}
+
 sub finish {
     my ($self) = @_;
     $self->SUPER::finish;
@@ -142,6 +159,11 @@ sub finish {
         name    => ucfirst( $self->tariffName ),
         columns => $self->{tariffs},
       );
+    push @{ $self->{model}{tariffTables} },
+      Columnset(
+        name    => ucfirst( $self->tariffName ) . ' with averaged unit rates',
+        columns => $self->{averageUnitRateColumns},
+      ) if $self->{averageUnitRateColumns};
 }
 
 1;

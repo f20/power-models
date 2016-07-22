@@ -52,7 +52,8 @@ sub new {
     my $usage     = Elec::Usage->new( $model, $setup, $customers );
     my $charging  = Elec::Charging->new( $model, $setup, $usage );
 
-    foreach (  # NB: this order affects the column order in the input data table
+    foreach
+      ( # NB: the order of this list affects the column order in the input data table
         qw(
         usetMatchAssets
         usetBoundaryCosts
@@ -70,8 +71,18 @@ sub new {
 
     my $tariffs = Elec::Tariffs->new( $model, $setup, $usage, $charging );
 
+    $tariffs->showAverageUnitRateTable($customers)
+      if $model->{timebands} && $model->{showAverageUnitRateTable};
+
     if ( my $usetName = $model->{usetRevenues} ) {
-        $tariffs->revenues( $customers->totalDemand($usetName) );
+        if ( $model->{showppu} ) {
+            Elec::Summaries->new( $model, $setup )
+              ->setupByGroup( $customers, $usetName )
+              ->summariseTariffs($tariffs);
+        }
+        else {
+            $tariffs->revenues( $customers->totalDemand($usetName) );
+        }
     }
 
     my $summary;
@@ -83,7 +94,7 @@ sub new {
           if $model->{energyMargin};
         $summary =
           Elec::Summaries->new( $model, $setup )
-          ->setupWithTotals( $customers, $usetName )->summariseTariffs(
+          ->setupWithTotal( $customers, $usetName )->summariseTariffs(
             $supplyTariffs,
             [ revenueCalculation => $tariffs ],
             [ marginCalculation  => $supplyTariffs ],
@@ -93,8 +104,7 @@ sub new {
     elsif ( $usetName = $model->{usetUoS} ) {
         $summary =
           Elec::Summaries->new( $model, $setup )
-          ->setupWithDisabledCustomers( $customers, $usetName )
-          ->summariseTariffs($tariffs);
+          ->setupWithAllCustomers($customers)->summariseTariffs($tariffs);
     }
 
     $summary->addDetailedAssets( $charging, $usage ) if $summary;

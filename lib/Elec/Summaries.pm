@@ -37,16 +37,26 @@ sub new {
     $model->register( bless { model => $model, setup => $setup, }, $class );
 }
 
-sub setupWithTotals {
+sub setupByGroup {
     my ( $self, $customers, $usetName ) = @_;
+    $self->{volumes} = $customers->totalDemand($usetName);
+    $self->{comparison} =
+      Elec::Comparison->new( $self->{model}, undef, 'revenueTables' );
+    $self;
+}
+
+sub setupWithTotal {
+    my ( $self, $customers, $usetName ) = @_;
+    $self->{names}      = $customers->names;
     $self->{volumes}    = $customers->individualDemandUsed($usetName);
     $self->{comparison} = Elec::Comparison->new( $self->{model} );
     $self->_addComparisonPpu($customers);
 }
 
-sub setupWithDisabledCustomers {
+sub setupWithAllCustomers {
     my ( $self, $customers, $usetName ) = @_;
-    $self->{volumes} = $customers->individualDemand($usetName);
+    $self->{names}      = $customers->names;
+    $self->{volumes}    = $customers->individualDemand($usetName);
     $self->{comparison} = Elec::Comparison->new( $self->{model}, 1 );
     $self->_addComparisonPpu($customers);
 }
@@ -72,6 +82,7 @@ sub summariseTariffs {
     $self->{comparison}->revenueComparison(
         $tariffs,
         $self->{volumes},
+        $self->{names},
         map {
             my ( $method, $object ) = @$_;
             $object->$method( $self->{volumes} );

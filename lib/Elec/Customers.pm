@@ -103,7 +103,6 @@ sub individualDemandUsed {
                 arguments     => { A1 => $_->{matrix}, A2 => $_->{vector}, },
                 arithmetic    => '=A1*A2',
                 defaultFormat => '0soft',
-                names         => $self->{names},
             );
           } grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
           @$spcol
@@ -129,16 +128,10 @@ sub individualDemandUsed {
     $self->{individualDemand}{$usetName} = $columns;
 }
 
-sub individualDemandEvenIfNotUsed {
-    my ( $self, $usetName ) = @_;
-    return $self->{individualDemand}{$usetName}
-      if $self->{individualDemand}{$usetName};
-    my $spcol   = $self->totalDemand($usetName);
-    my $columns = [
-        map { $_->{vector} }
-          grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
-          @$spcol
-    ];
+sub individualDemand {
+    my ($self) = @_;
+    return $self->{individualDemand} if $self->{individualDemand};
+    my $columns = $self->detailedVolumes;
     if ( $self->{model}{timebands} ) {
         push @$columns,
           my $total = Arithmetic(
@@ -153,10 +146,8 @@ sub individualDemandEvenIfNotUsed {
           );
         push @{ $self->{model}{volumeTables} }, $total;
     }
-    $self->{individualDemand}{$usetName} = $columns;
+    $self->{individualDemand} = $columns;
 }
-
-*individualDemand = \&individualDemandEvenIfNotUsed;
 
 sub userLabelset {
     my ($self) = @_;
@@ -222,6 +213,10 @@ sub tariffSet {
         name => 'Set of customer categories',
         list => $self->userLabelset->{groups},
     );
+}
+
+sub names {
+    $_[0]{names};
 }
 
 sub addColumns {

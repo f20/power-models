@@ -126,6 +126,31 @@ sub revenueCalculation {
     );
 }
 
+sub averageUnitRate {
+    my ( $self, $volumes ) = @_;
+    my $totalUnits =
+        $self->{model}{timebands}
+      ? $volumes->[$#$volumes]
+      : $volumes->[0];
+    return Arithmetic(
+        rows       => $volumes->[0]->{rows},
+        name       => 'Average unit rate p/kWh',
+        arithmetic => '=IF(A51,('
+          . join( '+',
+            map    { "A1$_*A2$_"; }
+              grep { $self->{tariffs}[$_]{name} !~ m#/day#i; }
+              0 .. $#{ $self->{tariffs} } )
+          . ')/A52,"")',
+        arguments => {
+            A6  => $self->{setup}->daysInYear,
+            A51 => $totalUnits,
+            A52 => $totalUnits,
+            map { ( "A1$_" => $volumes->[$_], "A2$_" => $self->{tariffs}[$_] ) }
+              0 .. $#{ $self->{tariffs} },
+        },
+    );
+}
+
 sub revenues {
     my ( $self, $volumes, $notGrandTotal, ) = @_;
     my $labelTail =
@@ -153,7 +178,7 @@ sub tariffs {
 sub finish {
     my ($self) = @_;
     push @{ $self->{model}{$_} }, @{ $self->{$_} }
-      foreach grep { $self->{$_} } qw(revenueTables detailedTables);
+      foreach grep { $self->{$_} } qw(revenueTables);
 }
 
 1;
