@@ -139,6 +139,57 @@ sub volumeComponents {
     ];
 }
 
+
+sub usageTypes {
+    my ($self) = @_;
+    $self->{usageTypes} ||= $self->{model}{usageTypes}||[
+        'Boundary capacity kVA',
+        'Ring capacity kVA',
+        'Transformer capacity kVA',
+        'Low voltage network capacity kVA',
+        'Metering switchgear for ring supply',
+        'Low voltage metering switchgear',
+        'Low voltage service 100 Amp',
+        'Energy consumption kW',
+    ];
+}
+
+sub usageSet {
+    my ($self) = @_;
+    $self->{usageSet} ||= Labelset(
+        name => 'Network usage categories',
+        list => $self->usageTypes,
+    );
+}
+
+sub boundaryUsageSet {
+    my ($self) = @_;
+    $self->{boundaryUsageSet} ||= Labelset(
+        name => 'Boundary usage',
+        list => [ $self->usageSet->{list}[0] ]
+    );
+}
+
+sub energyUsageSet {
+    my ($self) = @_;
+    die join '|', map { defined $_ ? $_ : 'undef'; } caller
+      if $self->{model}{noEnergy};
+    my $listr = $self->usageSet->{list};
+    $self->{energyUsageSet} ||= Labelset(
+        name => 'Energy usage',
+        list => [ $listr->[$#$listr] ]
+    );
+}
+
+sub assetUsageSet {
+    my ($self) = @_;
+    my $listr = $self->usageSet->{list};
+    $self->{assetUsageSet} ||= Labelset(
+        name => 'Asset usage',
+        list => [ @{$listr}[ 1 .. ( $#$listr - $self->{model}{noEnergy} ? 0 : 1 ) ] ]
+    );
+}
+
 sub finish {
     my ($self) = @_;
     return if $self->{generalInputDataTable};
@@ -157,5 +208,6 @@ sub finish {
         columns  => \@columns,
     );
 }
+
 
 1;

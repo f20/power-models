@@ -38,19 +38,24 @@ sub requiredModulesForRuleset {
         'Elec::Charging', 'Elec::Customers',
         'Elec::Tariffs',  'Elec::Usage',
     );
-    push @modules, 'Elec::Supply' if $model->{usetEnergy};
+    push @modules, 'Elec::Timebands' if $model->{timebands};
+    push @modules, 'Elec::Supply'    if $model->{usetEnergy};
     push @modules, 'Elec::Summaries'
       if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};
     @modules;
 }
 
 sub new {
-    my $class     = shift;
-    my $model     = bless { inputTables => [], finishList => [], @_ }, $class;
-    my $setup     = Elec::Setup->new($model);
+
+    my $class = shift;
+    my $model = bless { inputTables => [], finishList => [], @_ }, $class;
+
+    my $setup = Elec::Setup->new($model);
     my $customers = Elec::Customers->new( $model, $setup );
-    my $usage     = Elec::Usage->new( $model, $setup, $customers );
-    my $charging  = Elec::Charging->new( $model, $setup, $usage );
+    my $timebands =
+      $model->{timebands} ? Elec::Timebands->new( $model, $setup ) : undef;
+    my $usage = Elec::Usage->new( $model, $setup, $customers, $timebands );
+    my $charging = Elec::Charging->new( $model, $setup, $usage );
 
     foreach
       ( # NB: the order of this list affects the column order in the input data table

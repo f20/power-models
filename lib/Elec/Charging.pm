@@ -39,10 +39,6 @@ sub new {
             model => $model,
             setup => $setup,
             usage => $usage,
-            $model->{noEnergy} ? ( noEnergy => $model->{noEnergy} ) : (),
-            $model->{contributions}
-            ? ( contributions => $model->{contributions} )
-            : (),
         },
         $class
     );
@@ -50,15 +46,13 @@ sub new {
 
 sub energyCharge {
     my ($self) = @_;
-    return $self->{energyCharge} if $self->{energyCharge};
-    my $energyUsageSet = $self->{usage}->energyUsageSet;
-    $self->{energyCharge} = Arithmetic(
+    $self->{energyCharge} ||= Arithmetic(
         name      => 'Energy charging rate £/kW/year',
         arguments => {
             A2 => $self->{setup}->daysInYear,
             A1 => Dataset(
                 name     => 'Energy charging rate p/kWh',
-                cols     => $energyUsageSet,
+                cols     => $self->{setup}->energyUsageSet,
                 number   => 1585,
                 appendTo => $self->{model}{inputTables},
                 dataset  => $self->{model}{dataset},
@@ -71,57 +65,51 @@ sub energyCharge {
 
 sub assetRate {
     my ($self) = @_;
-    return $self->{assetRate} if $self->{assetRate};
-    my $usageSet = $self->{usage}->usageSet;
-    $self->{assetRate} = Dataset(
+    $self->{assetRate} ||= Dataset(
         name          => 'Notional asset rates (£/kVA or £/point)',
         defaultFormat => '0hard',
         number        => 1550,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
-        cols          => $usageSet,
-        data          => [ 0, ( map { 1 } 3 .. @{ $usageSet->{list} } ), 0 ],
+        cols          => $self->{setup}->usageSet,
+        data =>
+          [ 0, ( map { 1 } 3 .. @{ $self->{setup}->usageSet->{list} } ), 0 ],
     );
 }
 
 sub contributionDiscount {
     my ($self) = @_;
-    return $self->{contributionDiscount} if $self->{contributionDiscount};
-    my $usageSet = $self->{usage}->usageSet;
-    $self->{contributionDiscount} = Dataset(
+    $self->{contributionDiscount} ||= Dataset(
         name          => 'Contribution-related discount factors',
         defaultFormat => '%hard',
         number        => 1555,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
-        cols          => $usageSet,
-        data          => [ map { 0 } @{ $usageSet->{list} } ],
+        cols          => $self->{setup}->usageSet,
+        data          => [ map { 0 } @{ $self->{setup}->usageSet->{list} } ],
     );
 }
 
 sub boundaryCharge {
     my ($self) = @_;
-    return $self->{boundaryCharge} if $self->{boundaryCharge};
-    $self->{boundaryCharge} = Dataset(
+    $self->{boundaryCharge} ||= Dataset(
         name     => 'Boundary charging rate (£/year/unit of usage)',
         number   => 1552,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
-        cols     => $self->{usage}->boundaryUsageSet,
+        cols     => $self->{setup}->boundaryUsageSet,
         data     => [10],
     );
 }
 
 sub annuityRate {
     my ($self) = @_;
-    return $self->{annuityRate} if $self->{annuityRate};
-    $self->{annuityRate} = $self->{setup}->annuityRate;
+    $self->{annuityRate} ||= $self->{setup}->annuityRate;
 }
 
 sub runningRate {
     my ($self) = @_;
-    return $self->{runningRate} if $self->{runningRate};
-    $self->{runningRate} = Dataset(
+    $self->{runningRate} ||= Dataset(
         name          => 'Annual running costs (relative to notional assets)',
         number        => 1554,
         appendTo      => $self->{model}{inputTables},
@@ -133,37 +121,39 @@ sub runningRate {
 
 sub assetCharge {
     my ($self) = @_;
-    return $self->{assetCharge} if $self->{assetCharge};
-    $self->{assetCharge} = Arithmetic(
+    $self->{assetCharge} ||= Arithmetic(
         name       => 'Asset-related charging rate (£/unit of usage)',
         arithmetic => '=A1*('
-          . ( $self->{contributions} ? '(1-A4)*' : '' )
+          . ( $self->{model}{contributions} ? '(1-A4)*' : '' )
           . 'A2+A3)',
         arguments => {
             A1 => $self->assetRate,
             A2 => $self->annuityRate,
             A3 => $self->runningRate,
-            $self->{contributions} ? ( A4 => $self->contributionDiscount ) : (),
+            $self->{model}{contributions}
+            ? ( A4 => $self->contributionDiscount )
+            : (),
         }
     );
 }
 
 sub usetBoundaryCosts {
     my ( $self, $totalUsage ) = @_;
-    my $boundaryUsageSet = $self->{usage}->boundaryUsageSet;
-    my $charges          = Dataset(
-        name          => 'Relevant boundary charges (£/year)',
-        number        => 1556,
-        appendTo      => $self->{model}{inputTables},
-        dataset       => $self->{model}{dataset},
-        data          => [5e5],
-        defaultFormat => '0hard',
-    );
-    $self->{boundaryCharge} = Arithmetic(
+    $self->{boundaryCharge} ||= Arithmetic(
         name       => 'Boundary charging rate (£/unit of usage/year)',
-        cols       => $boundaryUsageSet,
+        cols       => $self->{setup}->boundaryUsageSet,
         arithmetic => '=A1/A2',
-        arguments  => { A1 => $charges, A2 => $totalUsage, }
+        arguments  => {
+            A1 => Dataset(
+                name          => 'Relevant boundary charges (£/year)',
+                number        => 1556,
+                appendTo      => $self->{model}{inputTables},
+                dataset       => $self->{model}{dataset},
+                data          => [5e5],
+                defaultFormat => '0hard',
+            ),
+            A2 => $totalUsage,
+        }
     );
 }
 
@@ -286,7 +276,7 @@ sub charges {
     my ($self) = @_;
     (
         $self->boundaryCharge, $self->assetCharge,
-        $self->{noEnergy} ? () : $self->energyCharge,
+        $self->{model}{noEnergy} ? () : $self->energyCharge,
     );
 }
 
