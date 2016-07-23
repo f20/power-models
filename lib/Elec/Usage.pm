@@ -268,10 +268,10 @@ sub assetUsageSet {
     );
 }
 
-sub totalUsage {
+sub detailedUsage {
     my ( $self, $volumes ) = @_;
-    return $self->{totalUsage}{ 0 + $volumes }
-      if $self->{totalUsage}{ 0 + $volumes };
+    return $self->{detailedUsage}{ 0 + $volumes }
+      if $self->{detailedUsage}{ 0 + $volumes };
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my $usageRates = $self->usageRates;
@@ -282,7 +282,7 @@ sub totalUsage {
           : $self->{model}{reactive} && $_ == $#$usageRates ? 1
           :                                                   0;
       } 0 .. $#$usageRates;
-    my $customerUsage = Arithmetic(
+    $self->{detailedUsage}{ 0 + $volumes } = Arithmetic(
         name       => 'Network usage' . $labelTail,
         rows       => $volumes->[0]{rows},
         cols       => $self->usageSet,
@@ -310,12 +310,20 @@ sub totalUsage {
         defaultFormat => '0soft',
         names         => $volumes->[0]{names},
     );
+}
+
+sub totalUsage {
+    my ( $self, $volumes ) = @_;
+    return $self->{totalUsage}{ 0 + $volumes }
+      if $self->{totalUsage}{ 0 + $volumes };
+    my $labelTail =
+      $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     $self->{totalUsage}{ 0 + $volumes } = GroupBy(
         defaultFormat => '0soft',
         name          => 'Total network usage' . $labelTail,
         rows          => 0,
-        cols          => $customerUsage->{cols},
-        source        => $customerUsage,
+        cols          => $self->detailedUsage($volumes)->{cols},
+        source        => $self->detailedUsage($volumes),
     );
 }
 

@@ -72,7 +72,7 @@ sub _addComparisonPpu {
 
 sub addDetailedAssets {
     my ( $self, $charging, $usage ) = @_;
-    $charging->detailedAssets( $usage->totalUsage( $self->{volumes} ) )
+    $charging->detailedAssets( $usage->detailedUsage( $self->{volumes} ) )
       if $self->{model}{detailedAssets};
     $self;
 }

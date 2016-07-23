@@ -119,7 +119,7 @@ sub new {
             Arithmetic(
                 name       => $tariffComponents->[$_],
                 arithmetic => defined $digitsRounding->[$_]
-                ? "=ROUND($formula, $digitsRounding->[$_])"
+                ? "=ROUND($formula,$digitsRounding->[$_])"
                 : "=$formula",
                 arguments => {
                     map { ( "A$_" => $ingredients[ $_ - 1 ] ) }
@@ -141,13 +141,15 @@ sub showAverageUnitRateTable {
         $avgUnitRate,
         map {
             Arithmetic(
-                name       => $_->{name},
+                name       => $self->{tariffs}[$_]{name},
                 rows       => $avgUnitRate->{rows},
-                arithmetic => '=A1',
-                arguments  => { A1 => $_, },
+                arithmetic => '=IF(A2,A1,"")',
+                arguments  => {
+                    A1 => $self->{tariffs}[$_],
+                    A2 => $customers->individualDemand->[$_],
+                },
             );
-          } map { $self->{tariffs}[$_]; }
-          @{ $self->{model}{timebands} } .. $#{ $self->{tariffs} }
+        } @{ $self->{model}{timebands} } .. $#{ $self->{tariffs} }
     ];
 }
 
@@ -161,7 +163,7 @@ sub finish {
       );
     push @{ $self->{model}{tariffTables} },
       Columnset(
-        name    => ucfirst( $self->tariffName ) . ' with averaged unit rates',
+        name    => 'Effective ' . $self->tariffName,
         columns => $self->{averageUnitRateColumns},
       ) if $self->{averageUnitRateColumns};
 }

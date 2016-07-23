@@ -34,15 +34,18 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup, $usage ) = @_;
-    $model->register(  bless {
-        model => $model,
-        setup => $setup,
-        usage => $usage,
-        $model->{noEnergy} ? ( noEnergy => $model->{noEnergy} ) : (),
-        $model->{contributions}
-        ? ( contributions => $model->{contributions} )
-        : (),
-    }, $class);
+    $model->register(
+        bless {
+            model => $model,
+            setup => $setup,
+            usage => $usage,
+            $model->{noEnergy} ? ( noEnergy => $model->{noEnergy} ) : (),
+            $model->{contributions}
+            ? ( contributions => $model->{contributions} )
+            : (),
+        },
+        $class
+    );
 }
 
 sub energyCharge {
@@ -166,21 +169,45 @@ sub usetBoundaryCosts {
 
 sub detailedAssets {
     my ( $self, $usage ) = @_;
-    my $notionalAssets = SumProduct(
+    my $notionalAssetMatrix = Arithmetic(
+        name          => 'Notional asset matrix (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1*A2',
+        arguments     => {
+            A1 => $usage,
+            A2 => $self->assetRate,
+        },
+    );
+    my $notionalAssetsByUser = GroupBy(
         name          => 'Notional assets (£)',
-        matrix        => $usage,
-        vector        => $self->assetRate,
+        rows          => $usage->{rows},
+        source        => $notionalAssetMatrix,
         defaultFormat => '0soft',
     );
     Columnset(
         name    => 'Notional assets by user',
-        columns => [ Stack( sources => [ $usage->{names} ] ), $notionalAssets ]
-    ) if $usage->{names};
+        columns => [
+            $usage->{names} ? Stack( sources => [ $usage->{names} ] ) : (),
+            $notionalAssetMatrix, $notionalAssetsByUser,
+        ]
+    );
     push @{ $self->{model}{detailedTables2} },
-      GroupBy(
-        name          => 'Total notional assets (£)',
-        defaultFormat => '0soft',
-        source        => $notionalAssets,
+      Columnset(
+        name    => 'Total notional assets',
+        columns => [
+            $usage->{names} ? Stack( sources => [ $usage->{names} ] ) : (),
+            GroupBy(
+                name          => 'Total notional assets (£)',
+                defaultFormat => '0soft',
+                cols          => $usage->{cols},
+                source        => $notionalAssetMatrix,
+            ),
+            GroupBy(
+                name          => 'Grand total notional assets (£)',
+                defaultFormat => '0soft',
+                source        => $notionalAssetsByUser,
+            ),
+        ]
       );
 }
 
