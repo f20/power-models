@@ -85,6 +85,7 @@ EOM
             || !$self->{rows}{groups}
             || $_->{rows}{list} != $self->{rows}{groups}
             and !$self->{rows}
+            || !UNIVERSAL::can( $self->{rows}, 'supersetIndex' )
             || !defined $self->{rows}->supersetIndex( $_->{rows} )
             or $_->{cols}
             and $#{ $_->{cols}{list} }
@@ -93,6 +94,7 @@ EOM
             || !$self->{cols}{groups}
             || $_->{cols}{list} != $self->{cols}{groups}
             and !$self->{cols}
+            || !UNIVERSAL::can( $self->{cols}, 'supersetIndex' )
             || !defined $self->{cols}->supersetIndex( $_->{cols} ) )
           and (
                $_->{rows}
