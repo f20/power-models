@@ -58,37 +58,36 @@ sub totalDemand {
             input_message => 'Percentage',
         },
     );
-    my $columns = [
-        map {
-            SumProduct(
-                name          => $_->{name},
-                matrix        => $prop,
-                vector        => $_,
-                rows          => $tariffSet,
-                usetName      => $usetName,
-                defaultFormat => '0soft',
-            );
-        } @$detailedVolumes
-    ];
+    my @columns =
+      map {
+        SumProduct(
+            name          => $_->{name},
+            matrix        => $prop,
+            vector        => $_,
+            rows          => $tariffSet,
+            usetName      => $usetName,
+            defaultFormat => '0soft',
+        );
+      } @$detailedVolumes;
+    push @{ $self->{model}{volumeTables} },
+      Columnset(
+        name    => "Forecast volume for $usetName",
+        columns => [@columns],
+      );
     if ( $self->{model}{timebands} ) {
-        push @$columns,
+        push @columns,
           Arithmetic(
             name          => 'Total units kWh',
             defaultFormat => '0soft',
             arithmetic    => '='
-              . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
+              . join( '+', map { "A$_"; } 1 .. $self->{setup}->timebandNumber ),
             arguments => {
-                map { ( "A$_" => $columns->[ $_ - 1 ] ); }
-                  1 .. @{ $self->{model}{timebands} }
+                map { ( "A$_" => $columns[ $_ - 1 ] ); }
+                  1 .. $self->{setup}->timebandNumber
             },
           );
     }
-    push @{ $self->{model}{volumeTables} },
-      Columnset(
-        name    => "Forecast volume for $usetName",
-        columns => $columns,
-      );
-    $self->{totalDemand}{$usetName} = $columns;
+    $self->{totalDemand}{$usetName} = \@columns;
 }
 
 sub individualDemandUsed {
@@ -113,10 +112,10 @@ sub individualDemandUsed {
             name          => 'Total units kWh',
             defaultFormat => '0soft',
             arithmetic    => '='
-              . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
+              . join( '+', map { "A$_"; } 1 .. $self->{setup}->timebandNumber ),
             arguments => {
                 map { ( "A$_" => $columns->[ $_ - 1 ] ); }
-                  1 .. @{ $self->{model}{timebands} }
+                  1 .. $self->{setup}->timebandNumber
             },
           );
     }
@@ -138,10 +137,10 @@ sub individualDemand {
             name          => 'Total units kWh',
             defaultFormat => '0soft',
             arithmetic    => '='
-              . join( '+', map { "A$_"; } 1 .. @{ $self->{model}{timebands} } ),
+              . join( '+', map { "A$_"; } 1 .. $self->{setup}->timebandNumber ),
             arguments => {
                 map { ( "A$_" => $columns->[ $_ - 1 ] ); }
-                  1 .. @{ $self->{model}{timebands} }
+                  1 .. $self->{setup}->timebandNumber
             },
           );
         push @{ $self->{model}{volumeTables} }, $total;

@@ -38,22 +38,23 @@ sub tariffName {
 }
 
 sub new {
-    my ( $class, $model, $setup, $customers, $prefix, $number, ) = @_;
+    my ( $class, $model, $setup, $customers, $prefix, $number, $suffix ) = @_;
     my $rows = $customers->userLabelset;
+    $suffix ||= '';
     my @columns;
     push @columns, Dataset(
-        name => ( $prefix ? "$prefix " . lcfirst($_) : $_ ) . ' p/kWh',
+        name => "$_ p/kWh$suffix",
         rows => $rows,
-        data       => [ map { 1 } @{ $rows->{list} } ],
-        validation => {     # required to trigger lenient cell locking
+        data => [ map { 1 } @{ $rows->{list} } ],
+        validation => {    # required to trigger lenient cell locking
             validate => 'any',
         },
-    ) foreach $model->{timebands} ? @{ $model->{timebands} } : 'Units';
+    ) foreach $setup->timebandList;
     push @columns, Dataset(
-        name => ( $prefix ? "$prefix fixed" : 'Fixed' ) . ' p/day',
+        name => "Fixed p/day$suffix",
         rows => $rows,
-        data       => [ map { 1 } @{ $rows->{list} } ],
-        validation => {     # required to trigger lenient cell locking
+        data => [ map { 1 } @{ $rows->{list} } ],
+        validation => {    # required to trigger lenient cell locking
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
@@ -61,10 +62,10 @@ sub new {
         defaultFormat => '0.00hard',
     );
     push @columns, Dataset(
-        name => ( $prefix ? "$prefix capacity" : 'Capacity' ) . ' p/kVA/day',
+        name => "Capacity p/kVA/day$suffix",
         rows => $rows,
-        data       => [ map { 1 } @{ $rows->{list} } ],
-        validation => {     # required to trigger lenient cell locking
+        data => [ map { 1 } @{ $rows->{list} } ],
+        validation => {    # required to trigger lenient cell locking
             validate => 'decimal',
             criteria => '>=',
             value    => 0,
@@ -72,8 +73,7 @@ sub new {
         defaultFormat => '0.00hard',
     );
     push @columns, Dataset(
-        name => ( $prefix ? "$prefix excess reactive" : 'Excess reactive' )
-          . ' p/kVArh',
+        name => "Excess reactive p/kVArh$suffix",
         rows => $rows,
         data => [ map { 1 } @{ $rows->{list} } ],
         validation => {    # required to trigger lenient cell locking

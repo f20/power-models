@@ -43,6 +43,29 @@ sub new {
     );
 }
 
+sub timebandConstants {
+    my ($self) = @_;
+    return @{ $self->{timebandConstants} } if $self->{timebandConstants};
+    push @{ $self->{timebandConstants} },
+      [
+        $_->[0],
+        Constant(
+            name          => "$_->[0]: to deduct",
+            rows          => $self->timebandSet,
+            data          => [ $_->[1] ],
+            defaultFormat => '0con',
+        ),
+        Constant(
+            name          => "$_->[0]: to scale",
+            rows          => $self->timebandSet,
+            data          => [ $_->[2] ],
+            defaultFormat => '0con',
+        ),
+      ]
+      foreach @{ $self->{timebandSets} };
+    @{ $self->{timebandConstants} };
+}
+
 sub timebandSet {
     my ($self) = @_;
     return $self->{timebandSet} if $self->{timebandSet};
@@ -54,13 +77,13 @@ sub timebandSet {
             die "Duplicate time band $_" if exists $self->{timebandRules}{$_};
             push @timebands, $_;
             $coreBand[ $id{$_} = $#timebands ] = 1;
-            return;
+            next;
         }
         while ( my ( $set, $bands ) = each %$_ ) {
             my @sharedBand;
             my @ownBand;
             foreach (@$bands) {
-                if ( my $id = $self->{timebandRules}{$_} ) {
+                if ( my $id = $id{$_} ) {
                     $sharedBand[$id] = 1;
                 }
                 else {
@@ -78,15 +101,14 @@ sub timebandSet {
 sub hours {
     my ($self) = @_;
     return $self->{hours} if $self->{hours};
-    my $timebandSet = $self->timebandSet;
-    my $hours       = Dataset(
+    my $hours = Dataset(
         name          => 'Typical annual hours by time band',
         defaultFormat => '0.0hard',
-        rows          => $timebandSet,
+        rows          => $self->timebandSet,
         number        => 1568,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
-        data          => [ map { 1000 } @{ $timebandSet->{list} } ],
+        data          => [ map { 1000 } @{ $self->timebandSet->{list} } ],
     );
     unless ( $self->{timebandSets} ) {
         my $totalHours = GroupBy(
@@ -105,20 +127,27 @@ sub hours {
             },
         );
     }
-    my @columns = ($hours);
-    foreach ( @{ $self->{timebandSets} } ) {
-        my ( $set, $sharedId, $ownId ) = @$_;
-        push @columns,
-          my $toScale = Constant(
-            name          => "$set: to scale",
-            rows          => $timebandSet,
-            data          => [ \@data ],
-            defaultFormat => '0con',
-          );
-    }
+    my @calculationColumns;
+    push @calculationColumns, $_->[1], $_->[2],
+      $hours = Arithmetic(
+        name          => 'Rescaled hours in ' . lcfirst $_->[0],
+        defaultFormat => '0.0soft',
+        arithmetic    => '=A1*IF(A3,'
+          . '(24*A2-SUMPRODUCT(A21_A22,A11_A12))'
+          . '/SUMPRODUCT(A31_A32,A13_A14),1)',
+        arguments => {
+            A1      => $hours,
+            A11_A12 => $hours,
+            A13_A14 => $hours,
+            A2      => $self->{setup}->daysInYear,
+            A21_A22 => $_->[1],
+            A3      => $_->[2],
+            A31_A32 => $_->[2],
+        },
+      ) foreach $self->timebandConstants;
     Columnset(
         name    => 'Normalise hours to fit charging year',
-        columns => \@columns,
+        columns => \@calculationColumns,
     );
     $self->{hours} = $hours;
 }
@@ -140,68 +169,148 @@ sub peakingProbabilities {
             } @{ $self->{setup}->usageSet->{list} }
         ],
     );
-    unless ( $self->{timebandSets} ) {
-        my $totalProb = GroupBy(
-            name => Label(
-                'Sum of peaking probabilities',
-                'Sum of peaking probabilities (expected to be 100%)'
-            ),
+    if ( $self->{timebandSets} ) {
+        foreach ( $self->timebandConstants ) {
+            my $totalProbability = GroupBy(
+                name          => "$_->[0]: total known peak probability",
+                cols          => $self->{setup}->usageSet,
+                defaultFormat => '%soft',
+                source        => Arithmetic(
+                    name => "$_->[0]: relevant known peaking probabilities",
+                    defaultFormat => '%soft',
+                    arithmetic    => '=IF(AND(ISNUMBER(A1),A2+A3>0),A11,0)',
+                    arguments     => {
+                        A1  => $peakingProbabilities,
+                        A11 => $peakingProbabilities,
+                        A2  => $_->[1],
+                        A3  => $_->[2],
+                    },
+                ),
+            );
+            my $relevantHours = Arithmetic(
+                name          => "$_->[0]: hours for spreading",
+                defaultFormat => '0.0soft',
+                arithmetic    => '=IF(AND(NOT(ISNUMBER(A1)),A3>0),A2,0)',
+                arguments     => {
+                    A1  => $peakingProbabilities,
+                    A11 => $peakingProbabilities,
+                    A2  => $self->hours,
+                    A3  => $_->[2],
+                },
+            );
+            my $hoursToSpread = GroupBy(
+                name          => "$_->[0]: total hours for spreading",
+                cols          => $self->{setup}->usageSet,
+                defaultFormat => '0.0soft',
+                source        => $relevantHours,
+            );
+            $peakingProbabilities = Arithmetic(
+                name          => "$_->[0]: filled in peaking probabilities",
+                defaultFormat => '%soft',
+                arithmetic    => '=IF(A41,IF(A31,(1-A5)*A32/A4,A1),'
+                  . 'IF(ABS(A51-1)<1e-7,A11,(1-A52)/A42))',
+                arguments => {
+                    A1  => $peakingProbabilities,
+                    A11 => $peakingProbabilities,
+                    A31 => $relevantHours,
+                    A32 => $relevantHours,
+                    A4  => $hoursToSpread,
+                    A41 => $hoursToSpread,
+                    A42 => $hoursToSpread,
+                    A5  => $totalProbability,
+                    A51 => $totalProbability,
+                    A52 => $totalProbability,
+                },
+            );
+        }
+    }
+    else {
+        my $totalProbability = GroupBy(
+            name          => 'Total known peak probability',
             cols          => $self->{setup}->usageSet,
             defaultFormat => '%soft',
-            source        => $peakingProbabilities
+            source        => Arithmetic(
+                name          => 'Known peaking probabilities',
+                defaultFormat => '%soft',
+                arithmetic    => '=IF(ISNUMBER(A1),A11,0)',
+                arguments     => {
+                    A1  => $peakingProbabilities,
+                    A11 => $peakingProbabilities,
+                },
+            ),
         );
-        return $self->{peakingProbabilities} = Arithmetic(
-            name          => 'Normalised peaking probabilties',
-            defaultFormat => '%soft',
-            arithmetic    => '=IF(A2,A1/A3,A5/A6/24)',
+        my $relevantHours = Arithmetic(
+            name          => 'Hours for spreading',
+            defaultFormat => '0.0soft',
+            arithmetic    => '=IF(ISNUMBER(A1),0,A2)',
             arguments     => {
                 A1 => $peakingProbabilities,
-                A2 => $totalProb,
-                A3 => $totalProb,
-                A5 => $self->hours,
-                A6 => $self->{setup}->daysInYear,
+                A2 => $self->hours,
+            },
+        );
+        my $hoursToSpread = GroupBy(
+            name          => 'Total hours for spreading',
+            cols          => $self->{setup}->usageSet,
+            defaultFormat => '0.0soft',
+            source        => $relevantHours,
+        );
+        $peakingProbabilities = Arithmetic(
+            name          => 'Filled in peaking probabilities',
+            defaultFormat => '%soft',
+            arithmetic    => '=IF(A41,IF(A31,(1-A5)*A32/A4,A1),'
+              . 'IF(ABS(A51-1)>1e-9,A11,(1-A52)/A42))',
+            arguments => {
+                A1  => $peakingProbabilities,
+                A11 => $peakingProbabilities,
+                A31 => $relevantHours,
+                A32 => $relevantHours,
+                A4  => $hoursToSpread,
+                A41 => $hoursToSpread,
+                A42 => $hoursToSpread,
+                A5  => $totalProbability,
+                A51 => $totalProbability,
+                A52 => $totalProbability,
             },
         );
     }
-    die 'Not implemented';
+
+    $self->{peakingProbabilities} = $peakingProbabilities;
+
 }
 
 sub bandFactors {
     my ($self) = @_;
     return $self->{bandFactors} if $self->{bandFactors};
-    my $timebandSet          = $self->timebandSet;
-    my $hours                = $self->hours;
-    my $peakingProbabilities = $self->peakingProbabilities;
     my $targetUtilisation    = Dataset(
         name          => 'Target average capacity utilisation',
         defaultFormat => '%hard',
-        rows          => $timebandSet,
+        rows          => $self->timebandSet,
         cols          => $self->{setup}->usageSet,
         number        => 1570,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         data          => [
             map {
-                [ map { 1 } @{ $timebandSet->{list} } ]
+                [ map { 1 } @{ $self->timebandSet->{list} } ]
             } @{ $self->{setup}->usageSet->{list} }
         ],
     );
     $self->{bandFactors} ||= [
         map {
             Arithmetic(
-                name       => "$_ time band capacity contribution factors",
+                name       => "$_ time band capacity estimation factors",
                 rows       => Labelset( list => [$_] ),
                 cols       => $self->{setup}->usageSet,
-                arithmetic => '=A4*A6/A5/IF(A81,A82,1)',
+                arithmetic => '=A4*A6*24/A5/IF(A81,A82,1)',
                 arguments  => {
-                    A4  => $peakingProbabilities,
-                    A5  => $hours->{arguments}{A1},
-                    A6  => $hours->{arguments}{A2},
+                    A4  => $self->peakingProbabilities,
+                    A5  => $self->hours,
+                    A6  => $self->{setup}->daysInYear,
                     A81 => $targetUtilisation,
                     A82 => $targetUtilisation,
                 },
             );
-        } @{ $timebandSet->{list} }
+        } @{ $self->timebandSet->{list} }
     ];
 }
 

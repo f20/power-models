@@ -51,10 +51,11 @@ sub new {
     my $model = bless { inputTables => [], finishList => [], @_ }, $class;
 
     my $setup = Elec::Setup->new($model);
+    $setup->registerTimebands( Elec::Timebands->new( $model, $setup ) )
+      if $model->{timebands};
+
     my $customers = Elec::Customers->new( $model, $setup );
-    my $timebands =
-      $model->{timebands} ? Elec::Timebands->new( $model, $setup ) : undef;
-    my $usage = Elec::Usage->new( $model, $setup, $customers, $timebands );
+    my $usage = Elec::Usage->new( $model, $setup, $customers );
     my $charging = Elec::Charging->new( $model, $setup, $usage );
 
     foreach

@@ -96,15 +96,25 @@ sub annuityRate {
 
 }
 
+sub registerTimebands {
+    my ( $self, $timebands ) = @_;
+    $self->{timebands} = $timebands;
+}
+
+sub timebandList {
+    my ($self) = @_;
+    $self->{timebands} ? @{ $self->{timebands}->timebandSet->{list} } : ('All');
+}
+
+sub timebandNumber {
+    my ($self) = @_;
+    $self->{timebandNumber} ||= $self->timebandList;
+}
+
 sub tariffComponents {
     my ($self) = @_;
     $self->{tariffComponents} ||= [
-        (
-            map { "$_ p/kWh" }
-              $self->{model}{timebands}
-            ? @{ $self->{model}{timebands} }
-            : 'Unit'
-        ),
+        ( map { "$_ p/kWh" } $self->timebandList ),
         'Fixed p/day',
         'Capacity p/kVA/day',
         $self->{model}{reactive} ? 'Excess reactive p/kVArh' : (),
@@ -113,36 +123,27 @@ sub tariffComponents {
 
 sub digitsRounding {
     my ($self) = @_;
-    $self->{model}{noRounding} ? []
+    $self->{model}{noRounding}
+      ? []
       : [
-        (
-            $self->{model}{timebands} ? map { 3 } @{ $self->{model}{timebands} }
-            : 3
-        ),
-        0, 2,
-        $self->{model}{reactive} ? 3 : (),
+        ( map { 3 } 1 .. $self->timebandNumber ),
+        2, 2, $self->{model}{reactive} ? 3 : (),
       ];
 }
 
 sub volumeComponents {
     my ($self) = @_;
     $self->{volumeComponents} ||= [
-        (
-            map { "$_ kWh" }
-              $self->{model}{timebands}
-            ? @{ $self->{model}{timebands} }
-            : 'Units'
-        ),
+        ( map { "$_ kWh" } $self->timebandList ),
         'Supply points',
-        'Capacity kVA',
-        $self->{model}{reactive} ? 'Excess reactive kVArh' : (),
+        'Capacity kVA', $self->{model}{reactive} ? 'Excess reactive kVArh' : (),
     ];
 }
 
-
 sub usageTypes {
     my ($self) = @_;
-    $self->{usageTypes} ||= $self->{model}{usageTypes}||[
+    $self->{usageTypes} ||= $self->{model}{usageTypes}
+      || [
         'Boundary capacity kVA',
         'Ring capacity kVA',
         'Transformer capacity kVA',
@@ -151,7 +152,7 @@ sub usageTypes {
         'Low voltage metering switchgear',
         'Low voltage service 100 Amp',
         'Energy consumption kW',
-    ];
+      ];
 }
 
 sub usageSet {
@@ -186,7 +187,8 @@ sub assetUsageSet {
     my $listr = $self->usageSet->{list};
     $self->{assetUsageSet} ||= Labelset(
         name => 'Asset usage',
-        list => [ @{$listr}[ 1 .. ( $#$listr - $self->{model}{noEnergy} ? 0 : 1 ) ] ]
+        list =>
+          [ @{$listr}[ 1 .. ( $#$listr - $self->{model}{noEnergy} ? 0 : 1 ) ] ]
     );
 }
 
@@ -208,6 +210,5 @@ sub finish {
         columns  => \@columns,
     );
 }
-
 
 1;

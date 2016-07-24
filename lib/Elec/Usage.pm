@@ -39,7 +39,7 @@ sub new {
             model     => $model,
             setup     => $setup,
             customers => $customers,
-            timebands => $timebands,
+            timebands => $setup->{timebands},
         },
         $class
     );

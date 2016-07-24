@@ -141,15 +141,16 @@ sub showAverageUnitRateTable {
         $avgUnitRate,
         map {
             Arithmetic(
-                name       => $self->{tariffs}[$_]{name},
-                rows       => $avgUnitRate->{rows},
-                arithmetic => '=IF(A2,A1,"")',
-                arguments  => {
+                name          => $self->{tariffs}[$_]{name},
+                rows          => $avgUnitRate->{rows},
+                defaultFormat => $self->{tariffs}[$_]{defaultFormat},
+                arithmetic    => '=IF(A2,A1,"")',
+                arguments     => {
                     A1 => $self->{tariffs}[$_],
                     A2 => $customers->individualDemand->[$_],
                 },
             );
-        } @{ $self->{model}{timebands} } .. $#{ $self->{tariffs} }
+        } $self->{setup}->timebandNumber .. $#{ $self->{tariffs} }
     ];
 }
 
@@ -163,7 +164,7 @@ sub finish {
       );
     push @{ $self->{model}{tariffTables} },
       Columnset(
-        name    => 'Effective ' . $self->tariffName,
+        name    => $self->tariffName . ' (effective rates for subgroups)',
         columns => $self->{averageUnitRateColumns},
       ) if $self->{averageUnitRateColumns};
 }
