@@ -31,32 +31,51 @@ use warnings;
 use strict;
 use utf8;
 
-sub requiredModulesForRuleset {
-    my ( $class, $model ) = @_;
+sub serviceMap {
+    my ($model) = @_;
     my @modules = (
-        'Elec::Setup',    'Elec::Sheets',
-        'Elec::Charging', 'Elec::Customers',
-        'Elec::Tariffs',  'Elec::Usage',
+        sheets    => 'Elec::Sheets',
+        setup     => 'Elec::Setup',
+        charging  => 'Elec::Charging',
+        customers => $model->{ulist}
+        ? 'Elec::CustomersTyped'
+        : 'Elec::Customers',
+        tariffs => 'Elec::Tariffs',
+        usage   => 'Elec::Usage'
     );
-    push @modules, 'Elec::Timebands' if $model->{timebands};
-    push @modules, 'Elec::Supply'    if $model->{usetEnergy};
-    push @modules, 'Elec::Summaries'
+    push @modules, timebands => 'Elec::Timebands'    if $model->{timebands};
+    push @modules, timebands => 'Elec::TimebandSets' if $model->{timebandSets};
+    push @modules, checksum => 'SpreadsheetModel::Checksum'
+      if $model->{checksums};
+    push @modules, supply => 'Elec::Supply' if $model->{usetEnergy};
+    push @modules, summaries => 'Elec::Summaries'
       if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};
     @modules;
 }
 
+sub requiredModulesForRuleset {
+    my ( $class, $model ) = @_;
+    my %serviceMap = serviceMap($model);
+    values %serviceMap;
+}
+
+sub register {
+    my ( $model, $object ) = @_;
+    push @{ $model->{finishList} }, $object;
+    $object;
+}
+
 sub new {
 
-    my $class = shift;
-    my $model = bless { inputTables => [], finishList => [], @_ }, $class;
-
-    my $setup = Elec::Setup->new($model);
-    $setup->registerTimebands( Elec::Timebands->new( $model, $setup ) )
-      if $model->{timebands};
-
-    my $customers = Elec::Customers->new( $model, $setup );
-    my $usage = Elec::Usage->new( $model, $setup, $customers );
-    my $charging = Elec::Charging->new( $model, $setup, $usage );
+    my $class      = shift;
+    my $model      = bless { inputTables => [], finishList => [], @_ }, $class;
+    my %serviceMap = $model->serviceMap;
+    my $setup      = $serviceMap{setup}->new($model);
+    $setup->registerTimebands( $serviceMap{timebands}->new( $model, $setup ) )
+      if $serviceMap{timebands};
+    my $customers = $serviceMap{customers}->new( $model, $setup );
+    my $usage = $serviceMap{usage}->new( $model, $setup, $customers );
+    my $charging = $serviceMap{charging}->new( $model, $setup, $usage );
 
     foreach
       ( # NB: the order of this list affects the column order in the input data table
@@ -67,22 +86,19 @@ sub new {
         )
       )
     {
-        my $usetName = $model->{$_};
-        next unless $usetName;
-        my $doNotApply = 0;
-        $doNotApply = 1 if $usetName =~ s/ \(information only\)$//i;
+        next unless my $usetName = $model->{$_};
         $charging->$_( $usage->totalUsage( $customers->totalDemand($usetName) ),
-            $doNotApply );
+            $usetName !~ s/ \(information only\)$//i );
     }
 
-    my $tariffs = Elec::Tariffs->new( $model, $setup, $usage, $charging );
+    my $tariffs =
+      $serviceMap{tariffs}->new( $model, $setup, $usage, $charging );
 
     $tariffs->showAverageUnitRateTable($customers)
       if $model->{timebands} && $model->{showAverageUnitRateTable};
-
     if ( my $usetName = $model->{usetRevenues} ) {
         if ( $model->{showppu} ) {
-            Elec::Summaries->new( $model, $setup )
+            $serviceMap{summaries}->new( $model, $setup )
               ->setupByGroup( $customers, $usetName )
               ->summariseTariffs($tariffs);
         }
@@ -91,40 +107,30 @@ sub new {
         }
     }
 
-    my $summary;
     if ( my $usetName = $model->{usetEnergy} ) {
-        my $supplyTariffs = Elec::Supply->new( $model, $setup, $tariffs,
+        my $supplyTariffs =
+          $serviceMap{supply}->new( $model, $setup, $tariffs,
             $charging->energyCharge->{arguments}{A1} );
         $supplyTariffs->revenues( $customers->totalDemand($usetName) );
         $supplyTariffs->margin( $customers->totalDemand($usetName) )
           if $model->{energyMargin};
-        $summary =
-          Elec::Summaries->new( $model, $setup )
+        $serviceMap{summaries}->new( $model, $setup )
           ->setupWithTotal( $customers, $usetName )->summariseTariffs(
             $supplyTariffs,
             [ revenueCalculation => $tariffs ],
             [ marginCalculation  => $supplyTariffs ],
-          ) if $model->{compareppu} || $model->{showppu};
+          )->addDetailedAssets( $charging, $usage )
+          if $model->{compareppu} || $model->{showppu};
     }
-
     elsif ( $usetName = $model->{usetUoS} ) {
-        $summary =
-          Elec::Summaries->new( $model, $setup )
-          ->setupWithAllCustomers($customers)->summariseTariffs($tariffs);
+        $serviceMap{summaries}->new( $model, $setup )
+          ->setupWithAllCustomers($customers)->summariseTariffs($tariffs)
+          ->addDetailedAssets( $charging, $usage );
     }
-
-    $summary->addDetailedAssets( $charging, $usage ) if $summary;
 
     $_->finish($model) foreach @{ $model->{finishList} };
-
     $model;
 
-}
-
-sub register {
-    my ( $model, $object ) = @_;
-    push @{ $model->{finishList} }, $object;
-    $object;
 }
 
 1;

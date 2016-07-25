@@ -154,9 +154,27 @@ sub showAverageUnitRateTable {
     ];
 }
 
+sub addChecksums {
+    my ($self) = @_;
+    my @tariffColumns = @{ $self->{tariffs} };
+    my @factors = map { 10**$_; } @{ $self->{setup}->digitsRounding };
+    foreach ( split /;\s*/, $self->{model}{checksums} ) {
+        my $digits = /([0-9])/ ? $1 : 6;
+        push @{ $self->{tariffs} },
+          SpreadsheetModel::Checksum->new(
+            name => $_,
+            /table|recursive|model/i ? ( recursive => 1 ) : (),
+            digits  => $digits,
+            columns => \@tariffColumns,
+            factors => \@factors,
+          );
+    }
+}
+
 sub finish {
     my ($self) = @_;
     $self->SUPER::finish;
+    $self->addChecksums if $self->{model}{checksums};
     push @{ $self->{model}{tariffTables} },
       Columnset(
         name    => ucfirst( $self->tariffName ),

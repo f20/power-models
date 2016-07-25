@@ -34,22 +34,27 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, $setup ) = @_;
-    $model->register( bless { model => $model, setup => $setup }, $class );
+    $model->register(
+        bless {
+            model => $model,
+            setup => $setup,
+        },
+        $class
+    );
 }
 
 sub totalDemand {
     my ( $self, $usetName ) = @_;
     return $self->{totalDemand}{$usetName} if $self->{totalDemand}{$usetName};
     my $tariffSet       = $self->tariffSet;
-    my $userLabelset    = $self->userLabelset;
     my $detailedVolumes = $self->detailedVolumes;
     push @{ $self->{scenarioProportions} }, my $prop = Dataset(
         name => 'Proportion '
           . (
             $usetName eq 'all users' ? 'taken into account' : "in $usetName" ),
-        rows          => $userLabelset,
+        rows          => $self->userLabelset,
         defaultFormat => '%hard',
-        data          => [ map { 1; } @{ $userLabelset->{list} } ],
+        data          => [ map { 1; } @{ $self->userLabelset->{list} } ],
         validation => {    # required to trigger lenient cell locking
             validate      => 'decimal',
             criteria      => 'between',
@@ -130,22 +135,22 @@ sub individualDemandUsed {
 sub individualDemand {
     my ($self) = @_;
     return $self->{individualDemand} if $self->{individualDemand};
-    my $columns = $self->detailedVolumes;
+    my @columns = @{ $self->detailedVolumes };
     if ( $self->{model}{timebands} ) {
-        push @$columns,
+        push @columns,
           my $total = Arithmetic(
             name          => 'Total units kWh',
             defaultFormat => '0soft',
             arithmetic    => '='
               . join( '+', map { "A$_"; } 1 .. $self->{setup}->timebandNumber ),
             arguments => {
-                map { ( "A$_" => $columns->[ $_ - 1 ] ); }
+                map { ( "A$_" => $columns[ $_ - 1 ] ); }
                   1 .. $self->{setup}->timebandNumber
             },
           );
         push @{ $self->{model}{volumeTables} }, $total;
     }
-    $self->{individualDemand} = $columns;
+    $self->{individualDemand} = \@columns;
 }
 
 sub userLabelset {
@@ -184,17 +189,21 @@ sub userLabelset {
     $self->{userLabelset} = $userLabelset;
 }
 
+sub volumeDataColumn {
+    my ( $self, $component ) = @_;
+    [ map { 0 } @{ $self->userLabelset->{list} } ];
+}
+
 sub detailedVolumes {
     my ($self) = @_;
     return $self->{detailedVolumes} if $self->{detailedVolumes};
-    my $userLabelset = $self->userLabelset;
     $self->{detailedVolumes} = [
         map {
             Dataset(
-                rows          => $userLabelset,
+                rows          => $self->userLabelset,
                 defaultFormat => '0hard',
                 name          => $_,
-                data          => [ map { 0 } @{ $userLabelset->{list} } ],
+                data          => $self->volumeDataColumn($_),
                 validation => {    # required to trigger lenient cell locking
                     validate => 'decimal',
                     criteria => '>=',
@@ -203,7 +212,6 @@ sub detailedVolumes {
             );
         } @{ $self->{setup}->volumeComponents }
     ];
-    return $self->{detailedVolumes};
 }
 
 sub tariffSet {
