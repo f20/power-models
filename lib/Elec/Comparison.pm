@@ -44,6 +44,11 @@ sub new {
     );
 }
 
+sub setRows {
+    my ( $self, $rows ) = @_;
+    $self->{rows} = $rows;
+}
+
 sub addComparisonPpu {
     my ( $self, $customers ) = @_;
     $customers->addColumns(
@@ -70,22 +75,30 @@ sub revenueComparison {
     my ( $self, $tariff, $volumes, $names, @extras ) = @_;
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
-    my $revenues = $tariff->revenueCalculation($volumes);
+    my ( @srcCol, @columns );
+
+    push @columns,
+      Stack( $self->{rows} ? ( rows => $self->{rows} ) : (),
+        sources => [$names] )
+      if $names;
+    $self->{model}{detailedTablesNames} = $names;
 
     my $totalUnits =
         $self->{model}{timebands}
       ? $volumes->[$#$volumes]
       : $volumes->[0];
+    push @columns,
+      $totalUnits = Stack( rows => $self->{rows}, sources => [$totalUnits] )
+      if $self->{rows};
 
-    my $ppu = Arithmetic(
-        name       => 'Average p/kWh',
-        arithmetic => '=IF(A3,A1/A2*100,"")',
-        arguments  => {
-            A1 => $revenues,
-            A2 => $totalUnits,
-            A3 => $totalUnits,
-        },
-    );
+    push @columns, @extras;
+
+    my $revenues = $tariff->revenueCalculation($volumes);
+    if ( $self->{rows} ) {
+        push @srcCol, $revenues;
+        $revenues = Stack( rows => $self->{rows}, sources => [$revenues] );
+    }
+    push @columns, $revenues;
 
     my ( $compare, $difference );
     if ( $self->{comparisonppu} ) {
@@ -104,89 +117,130 @@ sub revenueComparison {
         $compare = $self->{comparisonTariff}->revenueCalculation($volumes);
     }
 
-    $difference = Arithmetic(
-        name          => 'Difference £/year',
-        defaultFormat => '0softpm',
-        arithmetic    => '=IF(A1,A2-A3,"")',
-        arguments     => {
-            A1 => $compare,
-            A2 => $revenues,
-            A3 => $compare,
-        },
-    ) if $compare;
+    if ($compare) {
+        if ( $self->{rows} ) {
+            push @srcCol, $compare;
+            $compare = Stack( rows => $self->{rows}, sources => [$compare] );
+        }
+        push @columns, $compare,
+          $difference = Arithmetic(
+            name          => 'Difference £/year',
+            defaultFormat => '0softpm',
+            arithmetic    => '=IF(A1,A2-A3,"")',
+            arguments     => {
+                A1 => $compare,
+                A2 => $revenues,
+                A3 => $compare,
+            },
+          ),
+          Arithmetic(
+            name          => 'Difference %',
+            defaultFormat => '%softpm',
+            arithmetic    => '=IF(A1,A2/A3-1,"")',
+            arguments     => {
+                A1 => $compare,
+                A2 => $revenues,
+                A3 => $compare,
+            },
+          );
+    }
 
-    $self->{model}{detailedTablesNames} = $names;
+    push @columns,
+      my $ppu = Arithmetic(
+        name       => 'Average p/kWh',
+        arithmetic => '=IF(A3,A1/A2*100,"")',
+        arguments  => {
+            A1 => $revenues,
+            A2 => $totalUnits,
+            A3 => $totalUnits,
+        },
+      );
+
+    push @columns,
+      $self->{comparisonppu}
+      ? Stack( sources => [ $self->{comparisonppu} ] )
+      : Arithmetic(
+        name       => 'Comparison p/kWh',
+        arithmetic => '=IF(A3,A1/A2*100,"")',
+        arguments  => {
+            A1 => $compare,
+            A2 => $totalUnits,
+            A3 => $totalUnits,
+        }
+      ) if $compare;
+
+    push @{ $self->{revenueTables} },
+      Columnset(
+        name    => 'Revenue (£/year)' . $labelTail,
+        columns => \@srcCol,
+      ) if @srcCol;
 
     push @{ $self->{detailedTables} },
       Columnset(
         name    => 'Revenue (£/year) and average revenue (p/kWh)' . $labelTail,
-        columns => [
-            $names
-            ? Stack( sources => [$names] )
-            : (),
-            @extras,
-            $revenues,
-            $compare
-            ? (
-                $compare,
-                $difference,
-                Arithmetic(
-                    name          => 'Difference %',
-                    defaultFormat => '%softpm',
-                    arithmetic    => '=IF(A1,A2/A3-1,"")',
-                    arguments     => {
-                        A1 => $compare,
-                        A2 => $revenues,
-                        A3 => $compare,
-                    },
-                ),
-                $ppu,
-                $self->{comparisonppu}
-                ? Stack( sources => [ $self->{comparisonppu} ] )
-                : Arithmetic(
-                    name       => 'Comparison p/kWh',
-                    arithmetic => '=IF(A3,A1/A2*100,"")',
-                    arguments  => {
-                        A1 => $compare,
-                        A2 => $totalUnits,
-                        A3 => $totalUnits,
-                    }
-                ),
-              )
-            : $ppu,
-        ]
+        columns => \@columns,
       );
 
     if ( !$self->{omitTotal} ) {
-        my @cols = (
-            map {
-                my $n = 'Total ' . $_->{name}->shortName;
-                $n =~ s/Total (.)/ 'Total '.lc($1)/e;
-                GroupBy(
-                    name          => $n,
-                    defaultFormat => '0soft',
-                    source        => $_,
-                );
-              } $revenues,
-            @extras,
-            $compare ? ( $compare, $difference, ) : ()
-        );
-        push @cols,
-          Arithmetic(
-            name          => 'Total difference %',
-            defaultFormat => '%softpm',
-            arithmetic    => '=IF(A1,A2/A3,"")',
-            arguments     => {
-                A1 => $cols[0],
-                A2 => $cols[ $#cols - 1 ],
-                A3 => $cols[0],
-            },
-          ) if $compare;
-        push @{ $self->{detailedTables} },
-          Columnset(
-            name    => 'Total £/year' . $labelTail,
-            columns => \@cols,
-          );
+        foreach my $groupedRows (
+            $revenues->{rows}{groups}
+            ? Labelset( list => $revenues->{rows}{groups} )
+            : (),
+            undef
+          )
+        {
+            my $totalTerm = $groupedRows ? 'Subtotal' : 'Total';
+            my @cols = (
+                map {
+                    my $n = $totalTerm . ' ' . lcfirst( $_->{name}->shortName );
+                    GroupBy(
+                        name          => $n,
+                        rows          => $groupedRows,
+                        defaultFormat => $_->{defaultFormat},
+                        source        => $_,
+                    );
+                  } $totalUnits,
+                $revenues,
+                @extras,
+                $compare ? ( $compare, $difference, ) : ()
+            );
+            push @cols,
+              Arithmetic(
+                name          => "$totalTerm difference %",
+                defaultFormat => '%softpm',
+                arithmetic    => '=IF(A1,A2/A3,"")',
+                arguments     => {
+                    A1 => $cols[ $#cols - 1 ],
+                    A2 => $cols[$#cols],
+                    A3 => $cols[ $#cols - 1 ],
+                },
+              ) if $compare;
+            push @cols,
+              Arithmetic(
+                name       => 'Comparison p/kWh',
+                arithmetic => '=IF(A3,A1/A2*100,"")',
+                arguments  => {
+                    A1 => $cols[1],
+                    A2 => $cols[0],
+                    A3 => $cols[0],
+                }
+              );
+            push @cols,
+              Arithmetic(
+                name       => 'Comparison p/kWh',
+                arithmetic => '=IF(A3,A1/A2*100,"")',
+                arguments  => {
+                    A1 => $cols[ $#cols - 3 ],
+                    A2 => $cols[0],
+                    A3 => $cols[0],
+                }
+              ) if $compare;
+            push @{ $self->{detailedTables} },
+              Columnset(
+                name    => "$totalTerm £/year$labelTail",
+                columns => \@cols,
+              );
+        }
     }
 
 }
@@ -195,7 +249,7 @@ sub finish {
     my ($self) = @_;
     push @{ $self->{model}{ $self->{destinationTablesName} || $_ } },
       @{ $self->{$_} }
-      foreach grep { $self->{$_} } qw(detailedTables);
+      foreach grep { $self->{$_} } qw(revenueTables detailedTables);
 }
 
 1;

@@ -74,11 +74,6 @@ sub totalDemand {
             defaultFormat => '0soft',
         );
       } @$detailedVolumes;
-    push @{ $self->{model}{volumeTables} },
-      Columnset(
-        name    => "Forecast volume for $usetName",
-        columns => [@columns],
-      );
     if ( $self->{model}{timebands} ) {
         push @columns,
           Arithmetic(
@@ -92,6 +87,11 @@ sub totalDemand {
             },
           );
     }
+    push @{ $self->{model}{volumeTables} },
+      Columnset(
+        name    => "Forecast volumes for $usetName",
+        columns => \@columns,
+      );
     $self->{totalDemand}{$usetName} = \@columns;
 }
 

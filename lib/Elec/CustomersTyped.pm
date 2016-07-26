@@ -47,4 +47,29 @@ sub volumeDataColumn {
     ];
 }
 
+sub userLabelsetRegrouped {
+    my ($self) = @_;
+    return $self->{userLabelsetRegrouped}
+      if $self->{userLabelsetRegrouped};
+    my $userLabelset = $self->userLabelset;
+    my @groupNameList;
+    my %groupMembers;
+    foreach ( @{ $userLabelset->{groups} } ) {
+        my $group = $_->{name};
+        foreach ( @{ $_->{list} } ) {
+            $group = $_ if /Non-CT|Unrestricted|Two Rate|UMS|Unmetered/;
+            $group =~ s/[^a-zA-Z0-9]*\[.*\][^a-zA-Z0-9]*$//;
+            push @groupNameList, $group unless $groupMembers{$group};
+            push @{ $groupMembers{$group} }, $_;
+        }
+    }
+    $self->{userLabelsetRegrouped} = Labelset(
+        name   => 'Tariffs regrouped',
+        groups => [
+            map { Labelset( name => $_, list => $groupMembers{$_} ); }
+              @groupNameList
+        ],
+    );
+}
+
 1;

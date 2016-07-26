@@ -87,15 +87,16 @@ sub new {
       )
     {
         next unless my $usetName = $model->{$_};
+        my $doNotApply = $usetName =~ s/ \(information only\)$//i;
         $charging->$_( $usage->totalUsage( $customers->totalDemand($usetName) ),
-            $usetName !~ s/ \(information only\)$//i );
+            $doNotApply );
     }
 
     my $tariffs =
       $serviceMap{tariffs}->new( $model, $setup, $usage, $charging );
 
     $tariffs->showAverageUnitRateTable($customers)
-      if $model->{timebands} && $model->{showAverageUnitRateTable};
+      if $serviceMap{timebands} && $model->{showAverageUnitRateTable};
     if ( my $usetName = $model->{usetRevenues} ) {
         if ( $model->{showppu} ) {
             $serviceMap{summaries}->new( $model, $setup )

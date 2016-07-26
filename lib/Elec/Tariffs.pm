@@ -182,7 +182,7 @@ sub finish {
       );
     push @{ $self->{model}{tariffTables} },
       Columnset(
-        name    => $self->tariffName . ' (effective rates for subgroups)',
+        name    => ucfirst( $self->tariffName ) . ' with average unit rates',
         columns => $self->{averageUnitRateColumns},
       ) if $self->{averageUnitRateColumns};
 }
