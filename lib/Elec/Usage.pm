@@ -59,7 +59,7 @@ sub usageRates {
 
     my $unitsRouteingFactor = Dataset(
         name => 'Network usage of 1kW of '
-          . ( $self->{model}{timebands} ? '' : 'average ' )
+          . ( $self->{setup}{timebands} ? '' : 'average ' )
           . 'consumption',
         rows     => $customers->tariffSet,
         cols     => $setup->usageSet,

@@ -74,7 +74,7 @@ sub totalDemand {
             defaultFormat => '0soft',
         );
       } @$detailedVolumes;
-    if ( $self->{model}{timebands} ) {
+    if ( $self->{setup}{timebands} ) {
         push @columns,
           Arithmetic(
             name          => 'Total units kWh',
@@ -111,7 +111,7 @@ sub individualDemandUsed {
           } grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
           @$spcol
     ];
-    if ( $self->{model}{timebands} ) {
+    if ( $self->{setup}{timebands} ) {
         push @$columns,
           Arithmetic(
             name          => 'Total units kWh',
@@ -136,7 +136,7 @@ sub individualDemand {
     my ($self) = @_;
     return $self->{individualDemand} if $self->{individualDemand};
     my @columns = @{ $self->detailedVolumes };
-    if ( $self->{model}{timebands} ) {
+    if ( $self->{setup}{timebands} ) {
         push @columns,
           my $total = Arithmetic(
             name          => 'Total units kWh',

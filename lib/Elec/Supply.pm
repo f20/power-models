@@ -40,12 +40,15 @@ sub tariffName {
 sub new {
     my ( $class, $model, $setup, $tariffs, $basicEnergyCharge ) = @_;
     my $uosTariffs = $tariffs->tariffs;
-    my $self       =   $model->register(bless {
-        uos               => $tariffs,
-        model             => $model,
-        setup             => $setup,
-        basicEnergyCharge => $basicEnergyCharge,
-    }, $class);
+    my $self       = $model->register(
+        bless {
+            uos               => $tariffs,
+            model             => $model,
+            setup             => $setup,
+            basicEnergyCharge => $basicEnergyCharge,
+        },
+        $class
+    );
     $self->{tariffs} = [
         Arithmetic(
             name       => 'Supply p/kWh',
@@ -81,7 +84,7 @@ sub marginCalculation {
         name       => 'Energy supply margin £/year' . $labelTail,
         arithmetic => '=A1*(A11-A12-A13)/100',
         arguments  => {
-            A1 => $self->{model}{timebands}
+            A1 => $self->{setup}{timebands}
             ? $volumes->[$#$volumes]
             : $volumes->[0],
             A11 => $tariffs->[0],

@@ -129,7 +129,7 @@ sub revenueCalculation {
 sub averageUnitRate {
     my ( $self, $volumes ) = @_;
     my $totalUnits =
-        $self->{model}{timebands}
+        $self->{setup}{timebands}
       ? $volumes->[$#$volumes]
       : $volumes->[0];
     return Arithmetic(

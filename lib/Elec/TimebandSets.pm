@@ -100,7 +100,7 @@ sub hours {
         dataset       => $self->{model}{dataset},
         data          => [ map { 1000 } @{ $self->timebandSet->{list} } ],
     );
-       my @calculationColumns;
+    my @calculationColumns;
     push @calculationColumns, $_->[1], $_->[2],
       $hours = Arithmetic(
         name          => 'Rescaled hours in ' . lcfirst $_->[0],
@@ -143,60 +143,60 @@ sub peakingProbabilities {
         ],
     );
 
-        foreach ( $self->timebandConstants ) {
-            my $totalProbability = GroupBy(
-                name          => "$_->[0]: total known peak probability",
-                cols          => $self->{setup}->usageSet,
+    foreach ( $self->timebandConstants ) {
+        my $totalProbability = GroupBy(
+            name          => "$_->[0]: total known peak probability",
+            cols          => $self->{setup}->usageSet,
+            defaultFormat => '%soft',
+            source        => Arithmetic(
+                name => "$_->[0]: relevant known peaking probabilities",
                 defaultFormat => '%soft',
-                source        => Arithmetic(
-                    name => "$_->[0]: relevant known peaking probabilities",
-                    defaultFormat => '%soft',
-                    arithmetic    => '=IF(AND(ISNUMBER(A1),A2+A3>0),A11,0)',
-                    arguments     => {
-                        A1  => $peakingProbabilities,
-                        A11 => $peakingProbabilities,
-                        A2  => $_->[1],
-                        A3  => $_->[2],
-                    },
-                ),
-            );
-            my $relevantHours = Arithmetic(
-                name          => "$_->[0]: hours for spreading",
-                defaultFormat => '0.0soft',
-                arithmetic    => '=IF(AND(NOT(ISNUMBER(A1)),A3>0),A2,0)',
+                arithmetic    => '=IF(AND(ISNUMBER(A1),A2+A3>0),A11,0)',
                 arguments     => {
                     A1  => $peakingProbabilities,
                     A11 => $peakingProbabilities,
-                    A2  => $self->hours,
+                    A2  => $_->[1],
                     A3  => $_->[2],
                 },
-            );
-            my $hoursToSpread = GroupBy(
-                name          => "$_->[0]: total hours for spreading",
-                cols          => $self->{setup}->usageSet,
-                defaultFormat => '0.0soft',
-                source        => $relevantHours,
-            );
-            $peakingProbabilities = Arithmetic(
-                name          => "$_->[0]: filled in peaking probabilities",
-                defaultFormat => '%soft',
-                arithmetic    => '=IF(A41,IF(A31,(1-A5)*A32/A4,A1),'
-                  . 'IF(ABS(A51-1)<1e-7,A11,(1-A52)/A42))',
-                arguments => {
-                    A1  => $peakingProbabilities,
-                    A11 => $peakingProbabilities,
-                    A31 => $relevantHours,
-                    A32 => $relevantHours,
-                    A4  => $hoursToSpread,
-                    A41 => $hoursToSpread,
-                    A42 => $hoursToSpread,
-                    A5  => $totalProbability,
-                    A51 => $totalProbability,
-                    A52 => $totalProbability,
-                },
-            );
-        }
-        $self->{peakingProbabilities} = $peakingProbabilities;
+            ),
+        );
+        my $relevantHours = Arithmetic(
+            name          => "$_->[0]: hours for spreading",
+            defaultFormat => '0.0soft',
+            arithmetic    => '=IF(AND(NOT(ISNUMBER(A1)),A3>0),A2,0)',
+            arguments     => {
+                A1  => $peakingProbabilities,
+                A11 => $peakingProbabilities,
+                A2  => $self->hours,
+                A3  => $_->[2],
+            },
+        );
+        my $hoursToSpread = GroupBy(
+            name          => "$_->[0]: total hours for spreading",
+            cols          => $self->{setup}->usageSet,
+            defaultFormat => '0.0soft',
+            source        => $relevantHours,
+        );
+        $peakingProbabilities = Arithmetic(
+            name          => "$_->[0]: filled in peaking probabilities",
+            defaultFormat => '%soft',
+            arithmetic    => '=IF(A41,IF(A31,(1-A5)*A32/A4,A1),'
+              . 'IF(ABS(A51-1)<1e-7,A11,(1-A52)/A42))',
+            arguments => {
+                A1  => $peakingProbabilities,
+                A11 => $peakingProbabilities,
+                A31 => $relevantHours,
+                A32 => $relevantHours,
+                A4  => $hoursToSpread,
+                A41 => $hoursToSpread,
+                A42 => $hoursToSpread,
+                A5  => $totalProbability,
+                A51 => $totalProbability,
+                A52 => $totalProbability,
+            },
+        );
+    }
+    $self->{peakingProbabilities} = $peakingProbabilities;
 }
 
 1;

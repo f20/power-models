@@ -41,23 +41,26 @@ sub setupByGroup {
     my ( $self, $customers, $usetName ) = @_;
     $self->{volumes} = $customers->totalDemand($usetName);
     $self->{comparison} =
-      Elec::Comparison->new( $self->{model}, undef, 'revenueTables' );
+      Elec::Comparison->new( $self->{model}, $self->{setup}, undef,
+        'revenueTables' );
     $self;
 }
 
 sub setupWithTotal {
     my ( $self, $customers, $usetName ) = @_;
-    $self->{names}      = $customers->names;
-    $self->{volumes}    = $customers->individualDemandUsed($usetName);
-    $self->{comparison} = Elec::Comparison->new( $self->{model} );
+    $self->{names}   = $customers->names;
+    $self->{volumes} = $customers->individualDemandUsed($usetName);
+    $self->{comparison} =
+      Elec::Comparison->new( $self->{model}, $self->{setup}, );
     $self->_addComparisonPpu($customers);
 }
 
 sub setupWithAllCustomers {
     my ( $self, $customers, $usetName ) = @_;
-    $self->{names}      = $customers->names;
-    $self->{volumes}    = $customers->individualDemand($usetName);
-    $self->{comparison} = Elec::Comparison->new( $self->{model} );
+    $self->{names}   = $customers->names;
+    $self->{volumes} = $customers->individualDemand($usetName);
+    $self->{comparison} =
+      Elec::Comparison->new( $self->{model}, $self->{setup}, );
     $self->{comparison}->setRows( $customers->userLabelsetRegrouped )
       if UNIVERSAL::can( $customers, 'userLabelsetRegrouped' );
     $self->_addComparisonPpu($customers);
