@@ -68,14 +68,14 @@ Total allowed Revenue	E = A + B + C + D	AR	CRC2A
 Other 1. Excluded services - Top-up, standby, and enhanced system security	F1 (see note 1)	DRS4	CRC5C
 Other 2. Excluded services - Revenue protection services	F2 (see note 1)	DRS5	CRC5C
 Other 3. Excluded services - Miscellaneous	F3 (see note 1)	DRS9	CRC5C
-Other 4. Please decribe if used	F4	Please describe	if used
-Other 5. Please decribe if used	F5	Please describe	if used
+Other 4. Please describe if used	F4	Please describe	if used
+Other 5. Please describe if used	F5	Please describe	if used
 Total other revenue recovered by Use of System Charges	F = Sum of F1 to F5
 Total Revenue for Use of System Charges	G = E + F
 1. Revenue raised outside CDCM - EDCM and Certain Interconnector Revenue	H1
 2. Revenue raised outside CDCM - Voluntary under-recovery	H2
-3. Revenue raised outside CDCM - Please decribe if used	H3	Please describe	if used
-4. Revenue raised outside CDCM - Please decribe if used	H4	Please describe	if used
+3. Revenue raised outside CDCM - Please describe if used	H3	Please describe	if used
+4. Revenue raised outside CDCM - Please describe if used	H4	Please describe	if used
 Total Revenue to be raised outside the CDCM	H = Sum of H1 to H4
 Latest forecast of CDCM Revenue	I = G - H
 EOL
