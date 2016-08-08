@@ -218,7 +218,7 @@ sub revenueComparison {
               ) if $compare;
             push @cols,
               Arithmetic(
-                name       => 'Comparison p/kWh',
+                name       => 'Average p/kWh',
                 arithmetic => '=IF(A3,A1/A2*100,"")',
                 arguments  => {
                     A1 => $cols[1],

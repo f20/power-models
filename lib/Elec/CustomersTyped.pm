@@ -57,8 +57,7 @@ sub userLabelsetRegrouped {
     foreach ( @{ $userLabelset->{groups} } ) {
         my $group = $_->{name};
         foreach ( @{ $_->{list} } ) {
-            $group = $_ if /Non-CT|Unrestricted|Two Rate|UMS|Unmetered/;
-            $group =~ s/[^a-zA-Z0-9]*\[.*\][^a-zA-Z0-9]*$//;
+            $group = $1 if /^(.*?)[^a-zA-Z0-9]*\[.*\][^a-zA-Z0-9]*$/s;
             push @groupNameList, $group unless $groupMembers{$group};
             push @{ $groupMembers{$group} }, $_;
         }

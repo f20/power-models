@@ -830,6 +830,7 @@ Keys used in %$options:
             locked => 1,
             @sizeNumber,
             num_format => $numText,
+            align      => 'center',
             @colourUnavailable,
         ],
         unused => [
@@ -837,6 +838,7 @@ Keys used in %$options:
               || $options->{validation} !~ /lenient/i ? 1 : 0,
             @sizeNumber,
             num_format => $numText,
+            align      => 'center',
             @colourUnused,
         ],
     );

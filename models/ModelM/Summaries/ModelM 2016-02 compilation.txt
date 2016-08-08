@@ -1,0 +1,7 @@
+makeModels
+	-sqlite
+	ModelM/Current/%-after117231.yml
+	ModelM/Data-2016-02/*
+
+useDatabase
+	all

@@ -566,7 +566,7 @@ sub makeStatisticsTables {
                     my $ppyrow =
                       $margins{ $boundaries[$x] }{ $atwRowset->{list}[$y] };
                     $ppyrow = $ppyrow{$ppyrow} if $ppyrow;
-                    return 'N/A', $wb->getFormat('unavailable')
+                    return ' ', $wb->getFormat('unavailable')
                       unless defined $ppyrow;
                     my $cellFormat =
                         $self->{rowFormats}[$y]
