@@ -37,6 +37,70 @@ sub _writeCsvLine {
       "\n";
 }
 
+sub csvTall {
+    my ( $self, $inputOnlyFlag ) = @_;
+    open my $fh, '>', '~$' . $$ . '.csv';
+    binmode $fh, ':utf8';
+    _writeCsvLine(
+        $fh,
+        'Model number',
+        'Area',
+        'Period',
+        'Options',
+        'Table number',
+        'Table name',
+        'Column number',
+        'Column name',
+        'Row number',
+        'Row name',
+        'Value'
+    );
+    $self->do(
+        'create temporary table tabminrow (bid int, tab int, minrow int)');
+    $self->do(
+        'insert into tabminrow
+            select bid, tab, min(row) as minrow
+                from data '
+          . ( $inputOnlyFlag ? 'where tab>999 and tab<1100 ' : '' )
+          . 'group by bid, tab'
+    );
+    $self->do('create temporary table tabnames (bid int, tab int, name char)');
+    $self->do(
+        'insert into tabnames
+            select tabminrow.bid, tabminrow.tab, data.v as name
+                from tabminrow left join data on (
+                    data.bid=tabminrow.bid and data.tab=tabminrow.tab and row=minrow and col=0
+                )'
+    );
+    my $fetch = $self->prepare(
+        'select
+            data.bid,
+            books.company,
+            books.period,
+            books.option,
+            data.tab,
+            tabnames.name,
+            data.col,
+            dcol.v,
+            data.row,
+            drow.v,
+            data.v
+        from data
+            inner join books using (bid)
+            inner join tabnames on (data.bid=tabnames.bid and data.tab=tabnames.tab)
+            left join data as drow on (data.bid=drow.bid and data.tab=drow.tab and data.row=drow.row and drow.col=0)
+            left join data as dcol on (data.bid=dcol.bid and data.tab=dcol.tab and data.col=dcol.col and dcol.row=0)
+            where data.row>0 and data.col>0'
+    );
+    $fetch->execute;
+
+    while ( my (@row) = $fetch->fetchrow_array ) {
+        _writeCsvLine( $fh, @row );
+    }
+    close $fh;
+    rename '~$' . $$ . '.csv', '~$dump.csv';
+}
+
 sub csvCreateEdcm {
 
     my ( $self, $allTables ) = @_;

@@ -50,8 +50,12 @@ sub useDatabase {
 
     if ( grep { /\bcsv\b/i } @_ ) {
         require Compilation::ExportCsv;
+        if ( grep { /^tall$/i } @_ ) {
+            $db->csvTall( grep { /^input/; } @_ );
+            return;
+        }
         $db->csvCreateEdcm( grep { /^all$/i } @_ );
-        exit 0;
+        return;
     }
 
     my $workbookModule =
@@ -75,15 +79,6 @@ sub useDatabase {
         return;
     }
 
-    if ( grep { /csv/i } @_ ) {
-        require Compilation::ExportCsv;
-        $options->{tablesMatching} =
-          [qw(^11 ^911$ ^913$ ^935$ ^4501$ ^4601$ ^47)]
-          unless grep { /all/i } @_;
-        $db->csvCompilation( $options, );
-        return;
-    }
-
     if ( grep { /\btscs/i } @_ ) {
         require Compilation::ExportTscs;
         my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @_;
@@ -96,7 +91,11 @@ sub useDatabase {
         return;
     }
 
-    if ( my ($dcp) = map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @_ ) {
+    if (
+        my ($dcp) =
+        map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @_
+      )
+    {
         my $options = {};
         if ( my ($yml) = grep { /\.ya?ml$/is } @_ ) {
             require YAML;
@@ -118,7 +117,8 @@ sub useDatabase {
             dcpmatch  => "[-+]$dcp",
             %$options,
         );
-        my @outputs = map { /^-+(cdcm\S*|edcm\S*|modelm\S*)/ ? $1 : (); } @_;
+        my @outputs =
+          map { /^-+(cdcm\S*|edcm\S*|modelm\S*)/ ? $1 : (); } @_;
         @outputs = qw(cdcm) unless @outputs;
         $db->$_(@arguments) foreach map {
             $_ eq 'cdcm'

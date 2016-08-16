@@ -1,7 +1,6 @@
 makeModels
 	-sqlite
 	-pickbest
-	-stats
 	-checksums
 	CDCM/*/%-clean100.yml
 	CDCM/*/%-clean132.yml
@@ -31,3 +30,5 @@ useDatabase
 	42
 
 useDatabase all 10
+
+useDatabase csv tall inputonly

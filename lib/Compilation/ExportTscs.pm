@@ -78,17 +78,6 @@ insert into tscs (com, per, tab, col, row, v)
 drop table models;
 EOSQL
 
-=head Disabled
-
-insert into tscs (com, per, tab, col, row, v) select com, 0, 0, 0, 0, c from companies;
-drop table companies;
-insert into tscs (com, per, tab, col, row, v) select 0, per, 0, 0, 0, p from periods;
-drop table periods;
-insert into tscs (com, per, tab, col, row, v) select com, per, tab, 0, 0, v from data inner join mytables using (bid, tab, row) where col=0;
-drop table mytables;
-
-=cut
-
     sleep 1 while !$self->commit;
 
 }
