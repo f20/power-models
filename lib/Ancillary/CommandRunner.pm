@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2015 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -49,7 +49,7 @@ use constant {
     C_LOG      => 3,
 };
 
-sub factory {
+sub new {
     my ( $class, $perl5dir, $homedir ) = @_;
     bless [ $perl5dir, $homedir ], $class;
 }
@@ -61,6 +61,7 @@ sub finish {
 
 sub log {
     my ( $self, $verb, @objects ) = @_;
+    warn "$verb: @objects\n";
     return if $verb eq 'makeFolder';
     push @{ $self->[C_LOG] },
       join( "\n", $verb, map { "\t$_"; } @objects ) . "\n\n";

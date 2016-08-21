@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2014 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,16 +31,20 @@ use warnings;
 use strict;
 use utf8;
 
-sub factory {
+sub new {
     bless [], $_[0];
 }
 
-sub readCommand {
-    my $a = shift @{ $_[0] };
-    $a ? @$a : ();
+sub run {
+    my ( $parser, $runner ) = @_;
+    foreach (@$parser) {
+        my ( $verb, @objects ) = @$_;
+        $runner->log( $verb, @objects );
+        $runner->$verb(@objects);
+    }
 }
 
-sub dispatch {
+sub acceptCommand {
     my $self = shift;
     if ( local $_ = $_[0] ) {
         return push @$self, [ makeFolder => @_[ 1 .. $#_ ] ] if /folder$/i;
@@ -63,14 +67,14 @@ sub dispatch {
     return push @$self, [ makeModels => @_ ] if grep { /[*?]/; } @_;
 
     if ( grep { /\.txt$/i } @_ ) {
-        $self->interpret($_) foreach grep { -s $_; } @_;
+        $self->acceptScript($_) foreach grep { -s $_; } @_;
     }
     else {
         push @$self, [ useDatabase => @_ ];
     }
 }
 
-sub interpret {
+sub acceptScript {
     my ( $self, $file ) = @_;
     my $fh;
     if ( ref $file ) {
@@ -104,11 +108,11 @@ sub interpret {
             push @current, $_;
             next;
         }
-        $self->dispatch(@current) if @current;
+        $self->acceptCommand(@current) if @current;
         $indent = qr(\s+);
         @current = /\S\s\S/ ? split /\s+/s : $_;
     }
-    $self->dispatch(@current) if @current;
+    $self->acceptCommand(@current) if @current;
 }
 
 1;
