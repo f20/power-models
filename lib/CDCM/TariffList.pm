@@ -96,6 +96,7 @@ LV non-domestic profiles 5-8 two rates:
   - Unit rate 1 p/kWh
   - Unit rate 2 p/kWh
   - Included: special|common|CE|CN|SPEN|WPD|WS2|test|t4|Opt1|Opt4|Opt5|Opt6|portfolio|simple
+  - Excluded: dcp270
 ---
 LV non-domestic profiles 5-8 two rates whole current meter:
   - PC5-8
@@ -112,6 +113,7 @@ LV substation non-domestic profiles 5-8 two rates:
   - Unit rate 1 p/kWh
   - Unit rate 2 p/kWh
   - Included: common|SPEN|SSE|WPD|Opt1
+  - Excluded: dcp270
 ---
 HV non-domestic profiles 5-8 two rates:
   - PC5-8
@@ -120,6 +122,7 @@ HV non-domestic profiles 5-8 two rates:
   - Unit rate 1 p/kWh
   - Unit rate 2 p/kWh
   - Included: common|CE|CN|SPEN|SSE|WPD|Opt1
+  - Excluded: dcp270
 ---
 LV Agg WC Domestic:
   - Fixed charge p/MPAN/day
