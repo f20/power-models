@@ -1,4 +1,4 @@
-﻿package Compilation::RCode::AreaMaps;
+﻿package DataManagement::RCode::AreaMaps;
 
 =head Copyright licence and disclaimer
 
@@ -252,7 +252,7 @@ plot.dno.map <- function (
         }
         rect(xr[1], bot, xr[2], top);
     }
-    
+
     if (legend.show) {
         if (maxcol-mincol>70) { quantum <- 50; }
         else if (maxcol-mincol>19) { quantum <- 10; }

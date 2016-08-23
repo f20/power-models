@@ -59,9 +59,9 @@ sub tableCompilations {
 
         while ( my ( $bid, $co ) = $findCo->fetchrow_array ) {
             next unless $co =~ s/\.xlsx?$//is;
-            require Ancillary::DnoAreas;
+            require DataManagement::DnoAreas;
             push @models,
-              [ $bid, $co, Ancillary::DnoAreas::normaliseDnoName($co) ];
+              [ $bid, $co, DataManagement::DnoAreas::normaliseDnoName($co) ];
             ++$numCo;
         }
         $addCo->execute( @{$_}[ 0, 1 ] )

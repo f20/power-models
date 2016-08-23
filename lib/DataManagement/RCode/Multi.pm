@@ -1,4 +1,4 @@
-﻿package Compilation::RCode::Multi;
+﻿package DataManagement::RCode::Multi;
 
 =head Copyright licence and disclaimer
 
@@ -31,11 +31,11 @@ use warnings;
 use strict;
 use utf8;
 
-require Compilation::RCode::ExportGraph;
+require DataManagement::RCode::ExportGraph;
 
 sub bandConsumption {
     my ( $self, $script ) = @_;
-    Compilation::RCode::ExportGraph->rCode($script) . <<'EOR';
+    DataManagement::RCode::ExportGraph->rCode($script) . <<'EOR';
 dset2<-read.csv(textConnection('
 Customer type,DNO area,Time red,Time amber,Time green,Power red,Power amber,Power green
 Domestic,ENWL,0.089480874,0.28904827,0.621470856,1.413854729,1.138344214,0.876067819
@@ -104,7 +104,7 @@ EOR
 
 sub coincidenceWaterfall {
     my ( $self, $script ) = @_;
-    Compilation::RCode::ExportGraph->rCode($script) . <<'EOR';
+    DataManagement::RCode::ExportGraph->rCode($script) . <<'EOR';
 dset1<-read.csv(textConnection('
 Customer type,DNO area,HV PP,P PP,BSP PP,GSP PP,Red,X,1/LF
 Domestic,ENWL,1.285189769,1.285189769,1.32458814,1.372785233,1.413854729,1.974167296,2.26396621
@@ -159,7 +159,7 @@ coincidencePlot <- function (d) {
     p <- p + geom_segment(mapping=aes(y=i, x=coin0, yend=i, xend=coin), data=data.frame(i=nms[1:5], coin=db[1:5], coin0=db0[1:5]), colour=c(rep('#000000', 4), '#FF0000'), arrow=arrow(length=unit(0.125, "in")), size=1.25);
     p <- p + geom_segment(mapping=aes(y=i, x=coin, yend=i1, xend=coin), data=data.frame(i=nms[1:4], coin=db[1:4], i1=nms[2:5]), size=0.6, colour=rep('#000000', 4));
     pl[[1]] <- p + scale_y_discrete(limits=nms[5:1]);
-    
+
     p <- p + geom_segment(mapping=aes(y=i, x=coin, yend=i1, xend=coin), data=data.frame(i=nms[5], coin=db[5], i1=nms[6]), size=0.6, colour='#FF0000');
     p <- p + geom_segment(mapping=aes(x=0, y=i, xend=x, yend=i), data=data.frame(i=nms[6], x=db[6]), arrow=arrow(length=unit(0.125, "in")), size=0.25, colour='#009966');
     p <- p + geom_segment(mapping=aes(y=i, x=coin0, yend=i, xend=coin), data=data.frame(i=nms[6], coin=db[6], coin0=db0[6]), colour='#0000FF', arrow=arrow(length=unit(0.125, "in")), size=1.25);
@@ -169,7 +169,7 @@ coincidencePlot <- function (d) {
     p <- p + geom_segment(mapping=aes(y=i, x=coin, yend=i1, xend=coin), data=data.frame(i=nms[7], coin=db[7], i1=nms[9]), size=0.6, colour='#CCCCCC');
     p <- p + geom_segment(mapping=aes(y=i, x=coin, yend=i1, xend=coin), data=data.frame(i=nms[6], coin=db[6], i1=nms[9]), size=0.6, colour='#0000FF');
     pl[[2]] <- p + scale_y_discrete(limits=nms[9:1]);
-    
+
     p <- p + geom_segment(mapping=aes(y=i, x=coin, yend=i1, xend=coin), data=data.frame(i=nms[9], coin=db[6], i1=nms[10]), size=0.6, colour='#0000FF');
     p <- p + geom_segment(mapping=aes(x=x, y=i1, xend=x, yend=as.numeric(i2)+0.2), data=data.frame(i1=nms[1:4], i2=nms[11:14], x=db[1:4]), size=0.25, colour='#FF00FF');
     p <- p + geom_segment(mapping=aes(x=x, y=i1, xend=x, yend=i2), data=data.frame(i1=nms[6], i2=nms[10], x=db[6]), size=0.25, colour='#009966');
@@ -179,7 +179,7 @@ coincidencePlot <- function (d) {
     p <- p + geom_segment(mapping=aes(x=x, y=y, xend=xend, yend=y), data=data.frame(y=as.numeric(nms[11:14])+0.2, xend=db[1:4], x=rep(0, 4)), arrow=arrow(length=unit(0.125, "in")), size=1.25, colour='#FF00FF');
     p <- p + geom_segment(mapping=aes(x=x, y=y, xend=xend, yend=y), data=data.frame(y=nms[11:14], x=rep(db[5], 4), xend=rep(db[6], 4)), arrow=arrow(length=unit(0.125, "in")), size=1.25, colour='#0000FF');
     pl[[3]] <- p;
-    
+
     pl;
 };
 

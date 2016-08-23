@@ -1,4 +1,4 @@
-﻿package Compilation::Chedam;
+﻿package DataManagement::Chedam;
 
 =head Copyright licence and disclaimer
 

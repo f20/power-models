@@ -1,4 +1,4 @@
-﻿package Compilation::RCode::Treemap;
+﻿package DataManagement::RCode::Treemap;
 
 =head Copyright licence and disclaimer
 

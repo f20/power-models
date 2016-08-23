@@ -1,4 +1,4 @@
-﻿package Compilation::Chedam;
+﻿package DataManagement::Chedam;
 
 =head Copyright licence and disclaimer
 
@@ -32,25 +32,25 @@ use strict;
 use utf8;
 
 sub runFromDatabase {
-    require Compilation::Database;
-    require Compilation::DotDiagrams;
-    require Compilation::ChedamDataLocator;
-    require Compilation::ChedamToDot;
+    require DataManagement::Database;
+    require DataManagement::DotDiagrams;
+    require DataManagement::ChedamDataLocator;
+    require DataManagement::ChedamToDot;
     my ( $dataReader, $bookTableIndexHash ) = Compilation->makeDatabaseReader;
-    Compilation::DotDiagrams::writeDotDiagrams(
+    DataManagement::DotDiagrams::writeDotDiagrams(
         map { $_->calculate->toDot } map {
             my $filename = $_;
             map { $dataReader->( $bookTableIndexHash->{$filename}{bid}, $_ ); }
               exists $bookTableIndexHash->{$filename}{1703}
               ? (
-                Compilation::Chedam->locateHidamModelled($filename),
-                Compilation::Chedam->locateHidamAdjMMD($filename),
-                Compilation::Chedam->locateHidamActualCap($filename),
-                Compilation::Chedam->locateHidamActualMD($filename),
+                DataManagement::Chedam->locateHidamModelled($filename),
+                DataManagement::Chedam->locateHidamAdjMMD($filename),
+                DataManagement::Chedam->locateHidamActualCap($filename),
+                DataManagement::Chedam->locateHidamActualMD($filename),
               )
               : (),
               exists $bookTableIndexHash->{$filename}{1017}
-              ? ( Compilation::Chedam->locateDrm($filename), )
+              ? ( DataManagement::Chedam->locateDrm($filename), )
               : (),
         } sort keys %$bookTableIndexHash
     );

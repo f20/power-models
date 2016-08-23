@@ -1,4 +1,4 @@
-﻿package Compilation::Dumpers;
+﻿package DataManagement::Dumpers;
 
 =head Copyright licence and disclaimer
 

@@ -61,7 +61,7 @@ sub acceptCommand {
     return push @$self, [ ymlMerge => @_ ] if grep { /-+ya?mlmerge/si } @_;
     return push @$self, [ ymlSplit => @_ ] if grep { /-+ya?mlsplit/si } @_;
     return push @$self, [ makeModels => @_ ]
-      if grep { /\.(?:ya?ml|json|dta)$/si } @_;
+      if grep { /\.(?:ya?ml|json|dta|csv)$/si } @_;
     return push @$self, [ fillDatabase => @_ ]
       if grep { /\.xl\S+$/si || /^-+prune=/si; } @_;
     return push @$self, [ makeModels => @_ ] if grep { /[*?]/; } @_;
@@ -89,7 +89,7 @@ sub acceptScript {
         local $_ = $file;
         s#.*/##s;
         s/\.te?xt$//i;
-        push @$self, [ makeFolder => "_$_" ];
+        push @$self, [ makeFolder => $_ ];
     }
     binmode $fh, ':utf8';
     local $/ = "\n";

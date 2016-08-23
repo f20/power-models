@@ -1,4 +1,4 @@
-﻿package Compilation::DotDiagrams;
+﻿package DataManagement::DotDiagrams;
 
 =head Copyright licence and disclaimer
 

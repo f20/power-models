@@ -72,11 +72,11 @@ sub makeModels {
                 $maker->{setRule}
                   ->( checksums => 'Line checksum 5; Table checksum 7' );
                 if (/^-+autocheck/is) {
-                    require Compilation::DataExtraction;
+                    require DataManagement::DataExtraction;
                     $maker->{setting}->(
                         PostProcessing => _makePostProcessor(
                             $maker->{threads}->(),
-                            Compilation::DataExtraction::checksumWriter(),
+                            DataManagement::DataExtraction::checksumWriter(),
                             'convert'
                         )
                     );
@@ -151,11 +151,11 @@ sub makeModels {
             elsif (/^-+(right.*)/is) { $maker->{setRule}->( alignment => $1 ); }
             elsif (/^-+single/is) { $maker->{threads}->(1); }
             elsif (/^-+(sqlite.*)/is) {
-                require Compilation::DataExtraction;
+                require DataManagement::DataExtraction;
                 $maker->{setting}->(
                     PostProcessing => _makePostProcessor(
                         $maker->{threads}->(),
-                        Compilation::DataExtraction::databaseWriter(),
+                        DataManagement::DataExtraction::databaseWriter(),
                         "convert$1"
                     )
                 );
@@ -226,16 +226,21 @@ sub makeModels {
 
     my @files = $maker->{fileList}->();
     unless ( defined $folder ) {
-        mkdir 'models.tmp'
-          if @files > 1
-          and !-e 'models.tmp'
-          and !-e '~$models';
-        ($folder) =
-          grep { -d $_ && -w _; } qw(models.tmp ~$models);
+        $folder = _temporaryFolder();
+        if ( !defined $folder && @files > 1 ) {
+            mkdir 'models.tmp';
+            $folder = _temporaryFolder();
+        }
     }
     $maker->{setting}->( folder => $folder ) if defined $folder;
     $maker->{run}->();
 
+}
+
+sub _temporaryFolder {
+    my ($folder) =
+      grep { -d $_ && -w _; } qw(models.tmp ~$models);
+    $folder;
 }
 
 1;

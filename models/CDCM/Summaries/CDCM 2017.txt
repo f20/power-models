@@ -6,3 +6,12 @@ makeModels
 
 useDatabase
 	all
+
+useDatabase
+    csv
+    tall
+    inputonly
+
+useDatabase
+    csv
+    tall

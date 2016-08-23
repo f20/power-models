@@ -79,8 +79,9 @@ sub requiredModulesForRuleset {
       $ruleset->{scaler}
       && $ruleset->{scaler} =~ /dcp123/i ? 'CDCM::Matching123' : (),
 
-      $ruleset->{summary}
-      && $ruleset->{summary} =~ /stat(?:istic)?s/i ? 'CDCM::Statistics' : (),
+       !$ruleset->{summary} || $ruleset->{summary} !~ /stat(?:istic)?s/i ? ()
+      : $ruleset->{summary} =~ /1203/ ? 'CDCM::Statistics1203'
+      : 'CDCM::Statistics',
 
       $ruleset->{checksums}       ? qw(SpreadsheetModel::Checksum) : (),
       $ruleset->{timebandDetails} ? qw(CDCM::Timebands)            : ();
@@ -995,10 +996,16 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
               if $model->{summary} =~ /hybrid/i;
         }
 
-        $model->makeStatisticsTables(
-            $tariffTableReordered,  $daysInYear,
-            $nonExcludedComponents, $componentMap,
-        ) if $model->{summary} =~ /stat(?:istic)?s/i;
+        if ( $model->{summary} =~ /stat(?:istic)?s/i ) {
+            my $statsMethod =
+              $model->{summary} =~ /1203/
+              ? 'makeStatisticsTables1203'
+              : 'makeStatisticsTables';
+            $model->$statsMethod(
+                $tariffTableReordered,  $daysInYear,
+                $nonExcludedComponents, $componentMap,
+            );
+        }
 
         $model->consultationSummary(
             $revenuesByTariff,

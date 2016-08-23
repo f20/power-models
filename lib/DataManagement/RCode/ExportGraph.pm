@@ -1,4 +1,4 @@
-﻿package Compilation::RCode::ExportGraph;
+﻿package DataManagement::RCode::ExportGraph;
 
 =head Copyright licence and disclaimer
 

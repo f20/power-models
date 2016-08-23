@@ -1,4 +1,4 @@
-﻿package Compilation::RCode::PriceMaps;
+﻿package DataManagement::RCode::PriceMaps;
 
 =head Copyright licence and disclaimer
 
@@ -31,11 +31,11 @@ use warnings;
 use strict;
 use utf8;
 
-require Compilation::RCode::AreaMaps;
+require DataManagement::RCode::AreaMaps;
 
 sub maps4202ts {
     my ( $self, $script ) = @_;
-    Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
+    DataManagement::RCode::AreaMaps->rCode($script) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -83,7 +83,7 @@ EOR
 
 sub maps4202cs {
     my ( $self, $script ) = @_;
-    Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
+    DataManagement::RCode::AreaMaps->rCode($script) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -131,7 +131,7 @@ EOR
 
 sub margins4203 {
     my ( $self, $script ) = @_;
-    Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
+    DataManagement::RCode::AreaMaps->rCode($script) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -201,7 +201,7 @@ EOR
 
 sub mapCdcmEdcmHardCoded {
     my ( $self, $script ) = @_;
-    Compilation::RCode::AreaMaps->rCode($script) . <<'EOR';
+    DataManagement::RCode::AreaMaps->rCode($script) . <<'EOR';
 v <- read.csv(textConnection('
 CDCM,EDCM Zero,EDCM Avg,DNO
 9.230136098,4.697991667,5.961880556,ENWL

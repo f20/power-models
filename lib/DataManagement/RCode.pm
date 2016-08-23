@@ -1,4 +1,4 @@
-﻿package Compilation::RCode;
+﻿package DataManagement::RCode;
 
 =head Copyright licence and disclaimer
 
@@ -56,90 +56,90 @@ sub rCode {
 
 sub maps4202cs {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::PriceMaps;
-    Compilation::RCode::PriceMaps->maps4202cs($script);
+    require DataManagement::RCode::PriceMaps;
+    DataManagement::RCode::PriceMaps->maps4202cs($script);
 }
 
 sub maps4202ts {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::PriceMaps;
-    Compilation::RCode::PriceMaps->maps4202ts($script);
+    require DataManagement::RCode::PriceMaps;
+    DataManagement::RCode::PriceMaps->maps4202ts($script);
 }
 
 sub margins4203 {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::PriceMaps;
-    Compilation::RCode::PriceMaps->margins4203($script);
+    require DataManagement::RCode::PriceMaps;
+    DataManagement::RCode::PriceMaps->margins4203($script);
 }
 
 *margins = \&margins4203;
 
 sub mapCdcmEdcm {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::PriceMaps;
-    Compilation::RCode::PriceMaps->mapCdcmEdcm($script);
+    require DataManagement::RCode::PriceMaps;
+    DataManagement::RCode::PriceMaps->mapCdcmEdcm($script);
 }
 
 sub treemapWithCategories {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemapWithCategories;
+    require DataManagement::RCode::Treemap;
+    DataManagement::RCode::Treemap->treemapWithCategories;
 }
 
 *treemap = \&treemapWithCategories;
 
 sub treemapByCategory {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemapWithCategories(1);
+    require DataManagement::RCode::Treemap;
+    DataManagement::RCode::Treemap->treemapWithCategories(1);
 }
 
 sub treemapWithComponents {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemapWithComponents;
+    require DataManagement::RCode::Treemap;
+    DataManagement::RCode::Treemap->treemapWithComponents;
 }
 
 sub treemapByComponent {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemapWithComponents(1);
+    require DataManagement::RCode::Treemap;
+    DataManagement::RCode::Treemap->treemapWithComponents(1);
 }
 
 sub treemap1020ByLevel {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemap1020;
+    require DataManagement::RCode::Treemap;
+    DataManagement::RCode::Treemap->treemap1020;
 }
 
 sub treemap1020ByCompany {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemap1020(1);
+    require DataManagement::RCode::Treemap;
+    DataManagement::RCode::Treemap->treemap1020(1);
 }
 
 sub treemap2706ByLevel {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemap2706;
+    require DataManagement::RCode::Treemap;
+    DataManagement::RCode::Treemap->treemap2706;
 }
 
 sub treemap2706ByCompany {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Treemap;
-    Compilation::RCode::Treemap->treemap2706(1);
+    require DataManagement::RCode::Treemap;
+    DataManagement::RCode::Treemap->treemap2706(1);
 }
 
 sub bandConsumption {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Multi;
-    Compilation::RCode::Multi->bandConsumption($script);
+    require DataManagement::RCode::Multi;
+    DataManagement::RCode::Multi->bandConsumption($script);
 }
 
 sub coincidenceWaterfall {
     my ( $self, $script ) = @_;
-    require Compilation::RCode::Multi;
-    Compilation::RCode::Multi->coincidenceWaterfall($script);
+    require DataManagement::RCode::Multi;
+    DataManagement::RCode::Multi->coincidenceWaterfall($script);
 }
 
 1;

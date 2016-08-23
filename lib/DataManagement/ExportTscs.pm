@@ -115,7 +115,8 @@ sub tscsCompilation {
         $col,
     );
     my $newWorkbook = sub {
-        my $wb = $workbookModule->new( $_[0] );
+        my $wb = $workbookModule->new( $_[0] )
+          or die "Cannot create workbook $_[0]";
         $wb->setFormats($options);
         $smallNumberFormat = $wb->getFormat('0.000copynz');
         $bigNumberFormat   = $wb->getFormat('0copynz');

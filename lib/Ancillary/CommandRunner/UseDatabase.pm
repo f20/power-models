@@ -36,25 +36,25 @@ sub useDatabase {
     my $self = shift;
 
     if ( grep { /extract1076from1001/i } @_ ) {
-        require Compilation::Database;
+        require DataManagement::Database;
         Compilation->extract1076from1001;
     }
 
     if ( grep { /chedam/i } @_ ) {
-        require Compilation::ChedamMaster;
-        Compilation::Chedam->runFromDatabase;
+        require DataManagement::ChedamMaster;
+        DataManagement::Chedam->runFromDatabase;
     }
 
-    require Compilation::Database;
+    require DataManagement::Database;
     my $db = Compilation->new;
 
     if ( grep { /\bcsv\b/i } @_ ) {
-        require Compilation::ExportCsv;
+        require DataManagement::ExportCsv;
         if ( grep { /^tall$/i } @_ ) {
-            $db->csvTall( grep { /^input/; } @_ );
+            $db->dumpTallCsv( grep { /^input/; } @_ );
             return;
         }
-        $db->csvCreateEdcm( grep { /^all$/i } @_ );
+        $db->dumpEdcmCsv( grep { /^all$/i } @_ );
         return;
     }
 
@@ -69,7 +69,7 @@ sub useDatabase {
     foreach
       my $modelsMatching ( map { /^all$/i ? '.' : m#^/(.+)/$# ? $1 : (); } @_ )
     {
-        require Compilation::ExportTabs;
+        require DataManagement::ExportTabs;
         my $tablesMatching = join '|', map { /^([0-9]+)$/ ? "^$1" : (); } @_;
         $tablesMatching ||= '.';
         local $_ = "Compilation $modelsMatching$tablesMatching";
@@ -80,7 +80,7 @@ sub useDatabase {
     }
 
     if ( grep { /\btscs/i } @_ ) {
-        require Compilation::ExportTscs;
+        require DataManagement::ExportTscs;
         my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @_;
         @tablesMatching = ('.') unless @tablesMatching;
         $options->{tablesMatching} = \@tablesMatching;
@@ -109,7 +109,7 @@ sub useDatabase {
             $name ||= $dcp;
             $base = qr/original|clean|after|master|mini|F201|L201|F600|L600/i;
         }
-        require Compilation::ExportImpact;
+        require DataManagement::ExportImpact;
         my @arguments = (
             $workbookModule,
             dcpName   => $name,

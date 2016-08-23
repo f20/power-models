@@ -1,4 +1,4 @@
-﻿package Compilation::DataExtraction;
+﻿package DataManagement::DataExtraction;
 
 =head Copyright licence and disclaimer
 
@@ -281,7 +281,7 @@ sub databaseWriter {
     };
 
     my $newBook = sub {
-        require Compilation::Database;
+        require DataManagement::Database;
         $db = Compilation->new(1);
         sleep 1 while !$db->do('begin immediate transaction');
         $bid = $db->addModel( $_[0] );
@@ -313,7 +313,7 @@ sub databaseWriter {
         my ( $book, $workbook ) = @_;
 
         if ( !defined $book ) {    # pruning
-            require Compilation::Database;
+            require DataManagement::Database;
             $db ||= Compilation->new(1);
             my $gbid;
             sleep 1
@@ -518,4 +518,18 @@ sub jbzWriter {
 
 }
 
+sub rulesWriter {
+    sub {
+        my ( $book, $workbook ) = @_;
+        $book =~ s/\.xl\S+//i;
+        $book .= '-rules.yml';
+        open my $fh, '>', $book . $$;
+        binmode $fh;
+        print {$fh} _extractYaml($workbook);
+        close $fh;
+        rename $book . $$, $book;
+    };
+}
+
 1;
+

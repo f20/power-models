@@ -2,7 +2,7 @@ package Ancillary::Manufacturing;
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -66,126 +66,32 @@ sub factory {
         %ruleOverrides = ( %ruleOverrides, @_ );
     };
 
-    my $applyDataOverride = sub {
-        foreach ( grep { ref $_ eq 'HASH' } @_ ) {
-            while ( my ( $tab, $dat ) = each %$_ ) {
-                if ( ref $dat eq 'HASH' ) {
-                    while ( my ( $row, $rd ) = each %$dat ) {
-                        next unless ref $rd eq 'ARRAY';
-                        for ( my $col = 0 ; $col < @$rd ; ++$col ) {
-                            $dataOverrides{$tab}[ $col + 1 ]{$row} =
-                              $rd->[$col];
-                        }
-                    }
-                }
-                elsif ( ref $dat eq 'ARRAY' ) {
-                    for ( my $col = 0 ; $col < @$dat ; ++$col ) {
-                        my $cd = $dat->[$col];
-                        next unless ref $cd eq 'HASH';
-                        while ( my ( $row, $v ) = each %$cd ) {
-                            $dataOverrides{$tab}[$col]{$row} = $v;
-                        }
-                    }
-                }
-            }
-        }
-    };
-
     $self->{xdata} = sub {
-        foreach (@_) {
-            if (/^---\r?\n/s) {
-                my @y = eval { Load $_; };
-                warn $@ if $@;
-                $applyDataOverride->(@y);
-                next;
-            }
-            local $_ = $_;
-            if (s/\{(.*)\}//s) {
-                foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
-                    my $d = _jsonMachine()->decode( '{' . $_ . '}' );
-                    next unless ref $d eq 'HASH';
-                    $setRule->(
-                        map { %$_; } grep { $_; }
-                          map  { delete $_[0]{$_}; }
-                          grep { /^rules?$/is; }
-                          keys %$d
-                    );
-                    $applyDataOverride->($d);
-                }
-            }
-            while (s/(\S.*\|.*\S)//m) {
-                my ( $tab, $col, @more ) = split /\|/, $1, -1;
-                next unless $tab;
-                if ( $tab =~ /^rules$/is ) {
-                    $setRule->( $col, @more );
-                }
-                elsif ( @more == 1 ) {
-                    $dataOverrides{$tab}{$col} = $more[0];
-                }
-                elsif (@more == 2
-                    && $tab =~ /^[0-9]+$/s
-                    && $col
-                    && $col =~ /^[0-9]+$/s )
-                {
-                    $dataOverrides{$tab}[$col]{ $more[0] } = $more[1];
-                }
-            }
-        }
-
-        return unless %dataOverrides;
-        my $key = rand();
-        $dataOverrides{hash} = 'hashing-error';
-        eval {
-            my $digestMachine = Ancillary::Validation::digestMachine();
-            $key = $digestMachine->add( Dump( \%dataOverrides ) )->digest;
-            $dataOverrides{hash} =
-              substr( $digestMachine->add($key)->hexdigest, 5, 8 );
-        };
-        warn "Data overrides hashing error: $@" if $@;
-        $key;
-
+        require DataManagement::ParseXdata;
+        DataManagement::ParseXdata::parseXdata( \%dataOverrides, @_ );
     };
 
     my $processStream = $self->{processStream} = sub {
 
         my ( $blob, $fileName ) = @_;
 
-        if ( $fileName =~ /\.dta$/is ) {    # $blob must be a file handle
-            require Parse::Stata::DtaReader;
-            warn "Reading $_ with Parse::Stata::DtaReader\n";
-            my $dta = Parse::Stata::DtaReader->new($blob);
-            my ( @table, @column );
-            for ( my $i = 1 ; $i < $dta->{nvar} ; ++$i ) {
-                if ( $dta->{varlist}[$i] =~ /t([0-9]+)c([0-9]+)/ ) {
-                    $table[$i]  = $1;
-                    $column[$i] = $2;
-                }
-                else {
-                    $table[$i]  = $dta->{varlist}[$i];
-                    $column[$i] = 0;
-                }
+        if ( ref $blob eq 'GLOB' ) {    # file handle
+            if ( $fileName =~ /\.(?:csv|dta)$/is ) {
+                require DataManagement::ParseInputData;
+                DataManagement::ParseInputData::parseInputData( \%deferredData,
+                    $blob, $fileName );
+                return;
             }
-            while ( my @row = $dta->readRow ) {
-                my $book = $row[0];
-                my $line = 'Value';
-                $line = $row[1] if $row[1] && $row[1] =~ /^[0-9]+$/s;
-                $deferredData{$book}{ $table[$_] }[ $column[$_] ]{$line} =
-                  $row[$_]
-                  foreach grep { $table[$_] } 1 .. $#table;
-            }
-            return;
-        }
-
-        if ( ref $blob eq 'GLOB' ) {
             local undef $/;
             binmode $blob, ':utf8';
             $blob = <$blob>;
         }
+
         my @objects;
         if ( ref $blob ) {
             @objects = $blob;
         }
-        elsif ( $blob =~ /^---/s ) {
+        elsif ( $blob =~ /^---\s*\n/s ) {
             @objects = length($blob) < 4_196 && $fileName !~ /^\+/s
               || defined $fileName
               && $fileName =~ /%/ ? Load($blob) : { yaml => $blob };
@@ -296,7 +202,8 @@ sub factory {
                 $_->{PerlModule}->requiredModulesForRuleset($_) )
               || return;
             $_->{protect} = 1 unless exists $_->{protect};
-            $_->{validation} = 'lenientnomsg' unless exists $_->{validation};
+            $_->{validation} = 'lenientnomsg'
+              unless exists $_->{validation};
         }
 
         require SpreadsheetModel::WorkbookCreate;
@@ -359,18 +266,17 @@ sub factory {
 
     $self->{fileList} = sub {
 
-        return unless @rulesets && @datasets;
-
         if (%deferredData) {
             while ( my ( $book, $data ) = each %deferredData ) {
                 if ( $book eq '+' ) {
                     my %nameset;
-                    require Ancillary::DnoAreas;
+                    require DataManagement::DnoAreas;
                     map {
-                        undef
-                          $nameset{ Ancillary::DnoAreas::normaliseDnoName(
-                                $_->[0] ) }{ $_->[1]
-                              || '' };
+                        undef $nameset{
+                            DataManagement::DnoAreas::normaliseDnoName(
+                                $_->[0]
+                            )
+                        }{ $_->[1] || '' };
                       } grep { $_->[0] }
                       map    { [m#(.*)(-20[0-9]{2}-[0-9]+)#] }
                       grep { $_ } map { $_->{'~datasetName'} } @datasets;
@@ -381,36 +287,47 @@ sub factory {
                             s/\+\./+$dno./;
                             push @datasets,
                               {
-                                '~datasetName'   => $dno . $suffix,
                                 dataset          => $data->{$suffix}[0],
+                                '~datasetName'   => $dno . $suffix,
                                 '~datasetSource' => { file => $_ },
                               };
                         }
                     }
                 }
                 else {
-                    $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?([+-]r[0-9]+)?$//is;
-                    $data->{numTariffs} = 2;
-                    my $blob     = Dump($data);
-                    my $fileName = "$book.yml";
-                    warn "Writing $book data\n";
-                    open my $h, '>', $fileName . $$;
-                    binmode $h, ':utf8';
-                    print {$h} $blob;
-                    close $h;
-                    rename $fileName . $$, $fileName;
-                    $processStream->( $blob, $fileName );
+                    $data->{numTariffs} = 2
+                      if $book =~
+                      s/(?:-LRIC|-LRICsplit|-FCP)?([+-]r[0-9]+)?$//is;
+                    push @datasets,
+                      {
+                        dataset          => $data,
+                        '~datasetName'   => $book,
+                        '~datasetSource' => { file => $book },
+                      };
+                    unless ( $settings{noDumpInputYaml} ) {
+                        my $blob     = Dump($data);
+                        my $fileName = "$book.yml";
+                        warn "Writing $book data\n";
+                        open my $h, '>', $fileName . $$;
+                        binmode $h, ':utf8';
+                        print {$h} $blob;
+                        close $h;
+                        rename $fileName . $$, $fileName;
+                    }
                 }
             }
             %deferredData = ();
         }
+
+        return unless @rulesets && @datasets;
 
         if (%dataOverrides) {
             my $overrides = {%dataOverrides};
             my $suffix    = '-' . delete $overrides->{hash};
             foreach (@datasets) {
                 $_->{dataOverride2} = $overrides;
-                $_->{'~datasetName'} .= $suffix if defined $_->{'~datasetName'};
+                $_->{'~datasetName'} .= $suffix
+                  if defined $_->{'~datasetName'};
             }
         }
 
@@ -427,8 +344,8 @@ sub factory {
                 $spreadsheetFile .= $rule->{revisionText};
             }
             $spreadsheetFile =~ s/%%/
-                require Ancillary::DnoAreas;
-                Ancillary::DnoAreas::normaliseDnoName($data->{'~datasetName'}=~m#(.*)-20[0-9]{2}-[0-9]+#);
+                require DataManagement::DnoAreas;
+                DataManagement::DnoAreas::normaliseDnoName($data->{'~datasetName'}=~m#(.*)-20[0-9]{2}-[0-9]+#);
               /eg;
             $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
             $spreadsheetFile .= $extension;
@@ -457,7 +374,8 @@ sub factory {
                     && $data->{'~datasetName'}
                     && $data->{'~datasetName'} =~ /^([A-Z-]*[A-Z])[ -]*(.*)/i )
                 {
-                    $byCompany{$1}{ $2 || 'undated' } = $data->{dataset}{yaml};
+                    $byCompany{$1}{ $2 || 'undated' } =
+                      $data->{dataset}{yaml};
                 }
                 else {
                     push @mergedData, $data;
@@ -478,7 +396,8 @@ sub factory {
             foreach my $data (@datasets) {
                 my @scored;
                 my $metadata = [
-                    $data->{'~datasetSource'} && $data->{'~datasetSource'}{file}
+                    $data->{'~datasetSource'}
+                      && $data->{'~datasetSource'}{file}
                     ? "FILLER/$data->{'~datasetSource'}{file}" =~
                       /([A-Z0-9-]+)\/(?:.*(20[0-9][0-9]-[0-9][0-9]))?.*/
                     : ''
@@ -608,7 +527,9 @@ sub _loadModules {
         if ($@) {
             %INC = %savedINC;
             my $for =
-              defined $ruleset->{template} ? " for $ruleset->{template}" : '';
+              defined $ruleset->{template}
+              ? " for $ruleset->{template}"
+              : '';
             warn <<EOW;
 Cannot load $_$for:
 $@

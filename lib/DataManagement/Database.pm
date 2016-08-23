@@ -98,8 +98,8 @@ sub addModel {
     local $_ = $filename;
     s#.*[/\\]##s;
     s/\.xlsx?$//is;
-    require Ancillary::DnoAreas;
-    Ancillary::DnoAreas::normaliseDnoName($_);
+    require DataManagement::DnoAreas;
+    DataManagement::DnoAreas::normaliseDnoName($_);
 
     my @a = /^(.+?)(-20[0-9]{2}-[0-9]+)([+-].*)$/s;
     @a = /^(.+?)(-20[0-9]{2}-[0-9]+)?(-[^-]*)?$/s unless @a;

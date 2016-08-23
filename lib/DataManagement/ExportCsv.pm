@@ -32,12 +32,31 @@ use strict;
 use utf8;
 
 sub _writeCsvLine {
-    print {shift} join( ',',
-        map { local $_ = defined $_ ? $_ : ''; s/"/""/g; qq%"$_"%; } @_ ),
+    print {shift} join(
+        ',',
+        map {
+            local $_ = defined $_ ? $_ : '';
+            s/"/""/g;
+            s/\r//sg;
+            s/\n/\\n /sg;
+            qq%"$_"%;
+        } @_
+      ),
       "\n";
 }
 
-sub csvTall {
+sub _normaliseRowName {
+    foreach (@_) {
+
+        s/[^A-Za-z0-9-]/ /g;
+        s/- / /g;
+        s/ +/ /g;
+        s/^ //;
+        s/ $//;
+    }
+}
+
+sub dumpTallCsv {
     my ( $self, $inputOnlyFlag ) = @_;
     open my $fh, '>', '~$' . $$ . '.csv';
     binmode $fh, ':utf8';
@@ -61,7 +80,7 @@ sub csvTall {
         'insert into tabminrow
             select bid, tab, min(row) as minrow
                 from data '
-          . ( $inputOnlyFlag ? 'where tab>999 and tab<1100 ' : '' )
+          . ( $inputOnlyFlag ? 'where tab>999 and tab<2000 ' : '' )
           . 'group by bid, tab'
     );
     $self->do('create temporary table tabnames (bid int, tab int, name char)');
@@ -95,13 +114,15 @@ sub csvTall {
     $fetch->execute;
 
     while ( my (@row) = $fetch->fetchrow_array ) {
+        _normaliseRowName( $row[9] );
         _writeCsvLine( $fh, @row );
     }
     close $fh;
-    rename '~$' . $$ . '.csv', '~$dump.csv';
+    rename '~$' . $$ . '.csv',
+      '~$' . ( $inputOnlyFlag ? 'input-data' : 'all-data' ) . '.csv';
 }
 
-sub csvCreateEdcm {
+sub dumpEdcmCsv {
 
     my ( $self, $allTables ) = @_;
     my $numCo = 0;

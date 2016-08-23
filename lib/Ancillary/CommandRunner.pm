@@ -69,7 +69,7 @@ sub log {
 
 sub makeFolder {
     my ( $self, $folder ) = @_;
-    if ( $self->[C_FOLDER] ) {
+    if ( $self->[C_FOLDER] ) {    # Close out previous folder $self->[C_FOLDER]
         return if $folder && $folder eq $self->[C_FOLDER];
         if ( $self->[C_LOG] ) {
             open my $h, '>', '~$tmptxt' . $$;
@@ -86,9 +86,21 @@ sub makeFolder {
         rename $self->[C_FOLDER], $tmp . '/~$old-' . $$
           if -e $self->[C_FOLDER];
         rename $tmp, $self->[C_FOLDER];
+        system 'open', $self->[C_FOLDER] if -d '/System/Library';
         delete $self->[C_FOLDER];
     }
-    if ($folder) {
+    if ( -d '/System/Library' ) {  # Try to use a temporary memory disk on macOS
+        my $ramDiskBlocks = 12_000_000;    # About 6G, in 512-byte blocks.
+        my $ramDiskName       = 'Temporary volume (power-models)';
+        my $ramDiskMountPoint = "/Volumes/$ramDiskName";
+        unless ( -d $ramDiskMountPoint ) {
+            my $device = `hdiutil attach -nomount ram://$ramDiskBlocks`;
+            $device =~ s/\s*$//s;
+            system qw(diskutil erasevolume HFS+), $ramDiskName, $device;
+        }
+        chdir $ramDiskMountPoint if -d $ramDiskMountPoint && -w _;
+    }
+    if ($folder) {                        # Create temporary folder
         my $tmp = '~$tmp-' . $$ . ' ' . ( $self->[C_FOLDER] = $folder );
         mkdir $tmp;
         chdir $tmp;
@@ -99,8 +111,8 @@ sub R {
     my ( $self, @commands ) = @_;
     open my $r, '| R --vanilla --slave';
     binmode $r, ':utf8';
-    require Compilation::RCode;
-    print {$r} Compilation::RCode->rCode(@commands);
+    require DataManagement::RCode;
+    print {$r} DataManagement::RCode->rCode(@commands);
 }
 
 our $AUTOLOAD;

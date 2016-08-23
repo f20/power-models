@@ -39,37 +39,37 @@ sub makeStatisticsAssumptions {
     return $model->{sharedData}{statisticsAssumptions}
       if $model->{sharedData} && $model->{sharedData}{statisticsAssumptions};
 
-    my $colspec;
-    $colspec = $model->{statistics} if ref $model->{statistics} eq 'ARRAY';
-    $colspec = $model->{dataset}{$1}
-      if !$colspec
+    my $table1202ByColumn;
+    $table1202ByColumn = $model->{statistics} if ref $model->{statistics} eq 'ARRAY';
+    $table1202ByColumn = $model->{dataset}{$1}
+      if !$table1202ByColumn
       && $model->{summary} =~ /([0-9]{3,4})/
       && $model->{dataset}
       && $model->{dataset}{$1};
-    $colspec = $model->table1202
-      if !$colspec && require CDCM::StatisticsDefaults;
+    $table1202ByColumn = $model->table1202
+      if !$table1202ByColumn && require CDCM::StatisticsDefaults;
 
     my @rows =
-      sort { $colspec->[1]{$a} <=> $colspec->[1]{$b} }
-      grep { !/^_/; } keys %{ $colspec->[1] };
-    @rows = grep { !( $colspec->[1]{$_} % 10 ) } @rows
+      sort { $table1202ByColumn->[1]{$a} <=> $table1202ByColumn->[1]{$b} }
+      grep { !/^_/; } keys %{ $table1202ByColumn->[1] };
+    @rows = grep { !( $table1202ByColumn->[1]{$_} % 10 ) } @rows
       unless $model->{summary} =~ /long/;
 
     my $rowset = Labelset( list => \@rows );
 
     my @columns = map {
-        my $col = $_;
+        my $dataColumn = $_;
         Dataset(
-            name          => $col->{_column},
-            defaultFormat => $col->{_column} =~ /hours\/week/ ? '0.0hard'
-            : $col->{_column} =~ /kVA/ ? '0hard'
+            name          => $dataColumn->{_column},
+            defaultFormat => $dataColumn->{_column} =~ /hours\/week/ ? '0.0hard'
+            : $dataColumn->{_column} =~ /kVA/ ? '0hard'
             : '0.000hard',
             rows               => $rowset,
             data               => [ @$_{@rows} ],
             usePlaceholderData => 1,
             dataset            => $model->{dataset},
           )
-    } @$colspec[ 3 .. 8 ];
+    } @$table1202ByColumn[ 3 .. 8 ];
 
     if ( $model->{summary} =~ /override/i ) {
 
@@ -100,7 +100,7 @@ sub makeStatisticsAssumptions {
             dataset  => $model->{dataset},
         ),
         columns => \@columns,
-        regex   => $colspec->[2],
+        regex   => $table1202ByColumn->[2],
     );
 
     $model->{sharedData}{statisticsAssumptions} = $assumptions

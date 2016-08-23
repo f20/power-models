@@ -68,7 +68,7 @@ Step B3.  Give the following command to the shell interpreter:
 
 This will generate for each company, a YML file containing the input data
 extracted from the .dta files, and a Microsoft Excel workbook.  The Microsoft
-Excel workbooks are saved in a new subfolder called "models.tmp".
+Excel workbooks are usually saved in a subfolder called "models.tmp".
 
 --
 
@@ -129,4 +129,4 @@ Step D5.  To view the results, give either of the following commands to Stata:
 
 --
 
-14 December 2015
+23 August 2016

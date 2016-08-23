@@ -1,4 +1,4 @@
-﻿package Ancillary::DnoAreas;
+﻿package DataManagement::DnoAreas;
 
 =head Copyright licence and disclaimer
 

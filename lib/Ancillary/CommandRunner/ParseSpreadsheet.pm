@@ -49,28 +49,34 @@ sub fillDatabase {
             next;
         }
         if (/^-+(re-?build.*)/i) {
-            require Compilation::DataExtraction;
-            $writer = Compilation::DataExtraction::rebuildWriter( $1, $self );
+            require DataManagement::DataExtraction;
+            $writer =
+              DataManagement::DataExtraction::rebuildWriter( $1, $self );
             next;
         }
         if (/^-+(ya?ml.*)/i) {
-            require Compilation::DataExtraction;
-            $writer = Compilation::DataExtraction::ymlWriter($1);
+            require DataManagement::DataExtraction;
+            $writer = DataManagement::DataExtraction::ymlWriter($1);
+            next;
+        }
+        if (/^-+rules/i) {
+            require DataManagement::DataExtraction;
+            $writer = DataManagement::DataExtraction::rulesWriter();
             next;
         }
         if (/^-+jbz/i) {
-            require Compilation::DataExtraction;
-            $writer = Compilation::DataExtraction::jbzWriter();
+            require DataManagement::DataExtraction;
+            $writer = DataManagement::DataExtraction::jbzWriter();
             next;
         }
         if (/^-+(?:auto|model)check/i) {
-            require Compilation::DataExtraction;
-            $writer = Compilation::DataExtraction::checksumWriter();
+            require DataManagement::DataExtraction;
+            $writer = DataManagement::DataExtraction::checksumWriter();
             next;
         }
         if (/^-+(json.*)/i) {
-            require Compilation::DataExtraction;
-            $writer = Compilation::DataExtraction::jsonWriter($1);
+            require DataManagement::DataExtraction;
+            $writer = DataManagement::DataExtraction::jsonWriter($1);
             next;
         }
         if (/^-+sqlite3?(=.*)?$/i) {
@@ -79,8 +85,9 @@ sub fillDatabase {
                 $wantedSheet =~ s/^=//;
                 $settings{sheetFilter} = sub { $_[0]{Name} eq $wantedSheet; };
             }
-            require Compilation::DataExtraction;
-            $writer = Compilation::DataExtraction::databaseWriter( \%settings );
+            require DataManagement::DataExtraction;
+            $writer =
+              DataManagement::DataExtraction::databaseWriter( \%settings );
             next;
         }
         if (/^-+prune=(.*)$/i) {
@@ -88,34 +95,34 @@ sub fillDatabase {
             next;
         }
         if (/^-+xls$/i) {
-            require Compilation::Dumpers;
-            $writer = Compilation::Dumpers::xlsWriter();
+            require DataManagement::Dumpers;
+            $writer = DataManagement::Dumpers::xlsWriter();
             next;
         }
         if (/^-+flat/i) {
-            require Compilation::Dumpers;
-            $writer = Compilation::Dumpers::xlsFlattener();
+            require DataManagement::Dumpers;
+            $writer = DataManagement::Dumpers::xlsFlattener();
             next;
         }
         if (/^-+(tsv|txt|csv)$/i) {
-            require Compilation::Dumpers;
-            $writer = Compilation::Dumpers::tsvDumper($1);
+            require DataManagement::Dumpers;
+            $writer = DataManagement::Dumpers::tsvDumper($1);
             next;
         }
         if (/^-+tall(csv)?$/i) {
-            require Compilation::Dumpers;
-            $writer = Compilation::Dumpers::tallDumper( $1 || 'xls' );
+            require DataManagement::Dumpers;
+            $writer = DataManagement::Dumpers::tallDumper( $1 || 'xls' );
             next;
         }
         if (/^-+cat$/i) {
             $threads = 1;
-            require Compilation::Dumpers;
-            $writer = Compilation::Dumpers::tsvDumper( \*STDOUT );
+            require DataManagement::Dumpers;
+            $writer = DataManagement::Dumpers::tsvDumper( \*STDOUT );
             next;
         }
         if (/^-+split$/i) {
-            require Compilation::Dumpers;
-            $writer = Compilation::Dumpers::xlsSplitter();
+            require DataManagement::Dumpers;
+            $writer = DataManagement::Dumpers::xlsSplitter();
             next;
         }
         if (/^-+(calc|convert.*)/i) {
