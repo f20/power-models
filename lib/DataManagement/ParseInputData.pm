@@ -77,19 +77,21 @@ sub parseInputData {
         }
         my $headers = $csvParser->getline($blob) or return;
         my @rank = map {
-                /area|dno/i            ? 0.0
-              : /period|year/i         ? 1.0
-              : /option/i              ? 2.0
-              : /model/i               ? 2.1
-              : /tab/i                 ? 3.0
-              : /col.*(?:no|number)/i  ? 4.0
-              : /col/i                 ? 4.1
-              : /row.*(?:name|label)/i ? 5.0
-              : /row/i                 ? 5.1
-              : /tariff/i              ? 5.2
-              : /value/i               ? 6.0
-              : /^v/i                  ? 6.1
-              :                          7.0;
+                /area|dno/i           ? 0.0
+              : /period|year/i        ? 1.0
+              : /option/i             ? 2.0
+              : /model/i              ? 2.1
+              : /tab/i                ? 3.0
+              : /col.*(?:no|number)/i ? 4.0
+              : /col/i                ? 4.1
+              : /normalis.*row/i      ? 5.0
+              : /row.*label/i         ? 5.1
+              : /row.*name/i          ? 5.2
+              : /row/i                ? 5.3
+              : /tariff/i             ? 5.4
+              : /value/i              ? 6.0
+              : /^v/i                 ? 6.1
+              :                         7.0;
         } @$headers;
         my ( $area, $period, $options, $table, $column, $rowName, $value );
         my @selectedColumns;

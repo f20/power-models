@@ -91,7 +91,7 @@ sub factory {
         if ( ref $blob ) {
             @objects = $blob;
         }
-        elsif ( $blob =~ /^---\s*\n/s ) {
+        elsif ( $blob =~ /^---/s ) {
             @objects = length($blob) < 4_196 && $fileName !~ /^\+/s
               || defined $fileName
               && $fileName =~ /%/ ? Load($blob) : { yaml => $blob };

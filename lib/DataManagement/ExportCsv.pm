@@ -45,15 +45,14 @@ sub _writeCsvLine {
       "\n";
 }
 
-sub _normaliseRowName {
-    foreach (@_) {
-
-        s/[^A-Za-z0-9-]/ /g;
-        s/- / /g;
-        s/ +/ /g;
-        s/^ //;
-        s/ $//;
-    }
+sub _normalisedRowName {
+    ( local $_ ) = @_;
+    s/[^A-Za-z0-9-]/ /g;
+    s/- / /g;
+    s/ +/ /g;
+    s/^ //;
+    s/ $//;
+    $_;
 }
 
 sub dumpTallCsv {
@@ -71,7 +70,8 @@ sub dumpTallCsv {
         'Column number',
         'Column name',
         'Row number',
-        'Row name',
+        'Full row name',
+        'Normalised row label',
         'Value'
     );
     $self->do(
@@ -114,7 +114,7 @@ sub dumpTallCsv {
     $fetch->execute;
 
     while ( my (@row) = $fetch->fetchrow_array ) {
-        _normaliseRowName( $row[9] );
+        splice @row, 10, 0, _normalisedRowName( $row[9] );
         _writeCsvLine( $fh, @row );
     }
     close $fh;

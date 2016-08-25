@@ -1,11 +1,11 @@
 makeModels
-	-sqlite
-	-pickbest
-	CDCM/*/%-clean*.yml
-	CDCM/Data-2017-02/*
+    -sqlite
+    -pickbest
+    CDCM/*/%-clean*.yml
+    CDCM/Data-2017-02/*
 
 useDatabase
-	all
+    all
 
 useDatabase
     csv
