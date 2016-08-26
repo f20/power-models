@@ -62,6 +62,7 @@ sub parseInputData {
     }
 
     if ( $fileName =~ /\.csv$/is ) {
+        local $/ = "\n";
         my $csvParser;
         eval {
             require Text::CSV;
@@ -127,13 +128,23 @@ EOM
                 $book =~ tr/ /-/;
                 $deferredData->{$book}{ $row->[ $selectedColumns[3] ] }
                   [ $row->[ $selectedColumns[4] ] ]
-                  { $row->[ $selectedColumns[5] ] } =
+                  { _normalisedRowName( $row->[ $selectedColumns[5] ] ) } =
                   $row->[ $selectedColumns[6] ];
             }
         }
         return;
     }
 
+}
+
+sub _normalisedRowName {
+    ( local $_ ) = @_;
+    s/[^A-Za-z0-9-]/ /g;
+    s/- / /g;
+    s/ +/ /g;
+    s/^ //;
+    s/ $//;
+    $_;
 }
 
 1;

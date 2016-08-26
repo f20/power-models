@@ -56,6 +56,7 @@ sub factory {
     $self->{resetData} = sub {
         @datasets      = ();
         %dataOverrides = ();
+        %deferredData  = ();
     };
 
     $self->{setting} = sub {
@@ -295,16 +296,16 @@ sub factory {
                     }
                 }
                 else {
+                    $book =~ s/([+-]r[0-9]+)$//is;
                     $data->{numTariffs} = 2
-                      if $book =~
-                      s/(?:-LRIC|-LRICsplit|-FCP)?([+-]r[0-9]+)?$//is;
+                      if $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?$//is;
                     push @datasets,
                       {
                         dataset          => $data,
                         '~datasetName'   => $book,
                         '~datasetSource' => { file => $book },
                       };
-                    unless ( $settings{noDumpInputYaml} ) {
+                    if ( !@rulesets || $settings{dumpInputYaml} ) {
                         my $blob     = Dump($data);
                         my $fileName = "$book.yml";
                         warn "Writing $book data\n";
@@ -441,7 +442,7 @@ sub factory {
             ];
           } @fileNames;
         if ( $threads1 && eval 'require Ancillary::ParallelRunning' ) {
-            warn 'Using ' . ( $threads1 + 1 ) . ' threads';
+            warn 'Using ' . ( $threads1 + 1 ) . " parallel processes.\n";
             foreach (@fileNames) {
                 Ancillary::ParallelRunning::waitanypid($threads1);
                 Ancillary::ParallelRunning::backgroundrun(

@@ -92,21 +92,8 @@ sub cdcmTariffImpact {
         ];
     };
 
-    $options{linesBefore} ||=
-      $linesExtractor->( $options{tableNumber}, $options{basematch} );
-
     $options{linesAfter} ||=
       $linesExtractor->( $options{tableNumber}, $options{dcpmatch} );
-
-    die <<EOE
-Mismatch in tariff list:
-
-@{$options{linesBefore}}
-
-@{$options{linesAfter}}
-
-EOE
-      unless "@{$options{linesBefore}}" eq "@{$options{linesAfter}}";
 
     $options{componentsBefore} ||= [
         map { $_->[0] } @{
@@ -149,7 +136,8 @@ Mismatch in tariff components:
 @{$options{componentsBefore}}
 @{$options{components}}
 EOE
-      unless "@{$options{componentsBefore}}" eq "@{$options{components}}";
+      unless join( '|', @{ $options{componentsBefore} } ) eq
+      join( '|', @{ $options{components} } );
 
     $self->genericTariffImpact( $wbmodule, %options );
 
@@ -174,7 +162,6 @@ sub genericTariffImpact {
     );
 
     my $linesAfter = $options{linesAfter};
-    my $linesBefore = $options{linesBefore} || $linesAfter;
 
     my $ncol = @{ $options{components} };
     my @format1 =
@@ -303,7 +290,7 @@ sub genericTariffImpact {
         $bida = $bida->[0];
 
         unless ( $options{linesAfter} ) {
-            $linesBefore = $linesAfter = [
+            $linesAfter = [
                 map { @$_ } @{
                     $self->selectall_arrayref(
                         'select v from data where bid=? and tab=?'
@@ -320,7 +307,7 @@ sub genericTariffImpact {
         my $thFormat = $wb->getFormat('th');
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $findRow->execute( $bidb, $options{tableNumber},
-                $linesBefore->[$j] );
+                $linesAfter->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $options{tableNumber},
                 $linesAfter->[$j] );
@@ -427,8 +414,6 @@ sub cdcmPpuImpact {
         }
       ];
 
-    my $linesBefore = $options{linesBefore} || $linesAfter;
-
     my $thFormat   = $wb->getFormat('th');
     my $thcFormat  = $wb->getFormat('thc');
     my $thcaFormat = $wb->getFormat('caption');
@@ -482,7 +467,7 @@ sub cdcmPpuImpact {
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $ws->write_string( 3 + $j, 0, $linesAfter->[$j], $thFormat );
-            $findRow->execute( $bidb, $linesBefore->[$j] );
+            $findRow->execute( $bidb, $linesAfter->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $linesAfter->[$j] );
             my ($rowa) = $findRow->fetchrow_array;
@@ -494,9 +479,19 @@ sub cdcmPpuImpact {
             my ($vb) = $q->fetchrow_array;
             $q->execute( $bida, $rowa, 1 );
             my ($va) = $q->fetchrow_array;
-            eval { $va = defined $va ? 0.1 * $ra / $va : ''; };
+            eval {
+                     $va = defined $va
+                  && $va !~ /^#/
+                  && defined $ra
+                  && $ra !~ /^#/ ? 0.1 * $ra / $va : '';
+            };
             $va = '' if $@;
-            eval { $vb = defined $vb ? 0.1 * $rb / $vb : ''; };
+            eval {
+                     $vb = defined $vb
+                  && $vb !~ /^#/
+                  && defined $rb
+                  && $rb !~ /^#/ ? 0.1 * $rb / $vb : '';
+            };
             $vb = '' if $@;
             $ws->write( 3 + $j, 1, $vb, $format1[0] );
             $ws->write( 3 + $j, 2, $va, $format1[0] );
@@ -562,7 +557,6 @@ sub revenueMatrixImpact {
         { $options{colour} ? ( colour => $options{colour} ) : () } );
 
     my $linesAfter = $options{linesAfter};
-    my $linesBefore = $options{linesBefore} || $linesAfter;
 
     my $thFormat   = $wb->getFormat('th');
     my $thcFormat  = $wb->getFormat('thc');
@@ -594,7 +588,7 @@ sub revenueMatrixImpact {
         $bida = $bida->[0];
 
         unless ( $options{linesAfter} ) {
-            $linesBefore = $linesAfter = [
+            $linesAfter = [
                 map { @$_ } @{
                     $self->selectall_arrayref(
                         'select v from data where bid=? and tab=?'
@@ -661,7 +655,7 @@ sub revenueMatrixImpact {
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $findRow->execute( $bidb, $options{tableNumber},
-                $linesBefore->[$j] );
+                $linesAfter->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $options{tableNumber},
                 $linesAfter->[$j] );
@@ -718,8 +712,8 @@ sub revenueMatrixImpact {
 
                 if ( grep { $k + $options{col1} == $_ } @{ $options{columns} } )
                 {
-                    $tota += $va if defined $va;
-                    $totb += $vb if defined $vb;
+                    $tota += $va if defined $va && $va !~ /^#/;
+                    $totb += $vb if defined $vb && $vb !~ /^#/;
                 }
             }
 
@@ -815,8 +809,6 @@ sub cdcmUserImpact {
         }
       ];
 
-    my $linesBefore = $options{linesBefore} || $linesAfter;
-
     my $scalingFactor = $options{MWh} ? 1      : 0.1;
     my $ppuFormatCore = $options{MWh} ? '0.00' : '0.000';
 
@@ -865,7 +857,7 @@ sub cdcmUserImpact {
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $ws->write_string( 3 + $j, 0, $linesAfter->[$j],
                 $wb->getFormat( $linesAfter->[$j] =~ /\(/ ? 'th' : 'thg' ) );
-            $findRow->execute( $bidb, $linesBefore->[$j] );
+            $findRow->execute( $bidb, $linesAfter->[$j] );
             my ($rowb) = $findRow->fetchrow_array;
             $findRow->execute( $bida, $linesAfter->[$j] );
             my ($rowa) = $findRow->fetchrow_array;
@@ -896,7 +888,11 @@ sub cdcmUserImpact {
                 my ($vb) = $q->fetchrow_array;
                 $q->execute( $bida, $rowa, 2 );
                 my ($va) = $q->fetchrow_array;
-                next unless defined $va && defined $vb;
+                next
+                  unless defined $va
+                  && defined $vb
+                  && $va !~ /^#/
+                  && $vb !~ /^#/;
                 $ws->write(
                     3 + $j, 2,
                     $vb * $scalingFactor,
@@ -1000,7 +996,11 @@ sub modelmEdcmImpact {
                     my ($vb) = $q->fetchrow_array;
                     $q->execute( $bida, $row );
                     my ($va) = $q->fetchrow_array;
-                    next unless defined $va && defined $vb;
+                    next
+                      unless defined $va
+                      && defined $vb
+                      && $va !~ /^#/
+                      && $vb !~ /^#/;
                     $ws->write( 4 + $j, $k, $vb,
                         $wb->getFormat( '%copy', @deco ) );
                     $ws->write( 4 + $j, 4 + $k, $va,

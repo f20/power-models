@@ -61,8 +61,10 @@ sub new {
         '', '', { sqlite_unicode => 1, AutoCommit => 1, } )
       or die "Cannot open sqlite database: $!";
 
-    eval { $databaseHandle->do('pragma journal_mode=wal') or die $!; };
-    warn "Cannot set WAL mode: $@" if $@;
+    if (undef) {    # WAL disabled: consumes lots of temporary disk space
+        eval { $databaseHandle->do('pragma journal_mode=wal') or die $!; };
+        warn "Cannot set WAL mode: $@" if $@;
+    }
 
     if ($create) {
         sleep 1 while !$databaseHandle->do('begin exclusive transaction');

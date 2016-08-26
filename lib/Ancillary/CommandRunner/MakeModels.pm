@@ -224,19 +224,26 @@ sub makeModels {
         }
     }
 
-    my @files = $maker->{fileList}->();
-    unless ( defined $folder ) {
-        $folder = _temporaryFolder();
-        if ( !defined $folder && @files > 1 ) {
-            mkdir 'models.tmp';
+    if ( my @files = $maker->{fileList}->() ) {
+        unless ( defined $folder ) {
             $folder = _temporaryFolder();
+            if ( !defined $folder && @files > 1 ) {
+                mkdir 'models.tmp';
+                $folder = _temporaryFolder();
+            }
         }
+        if ( defined $folder ) {
+            $maker->{setting}->( folder => $folder );
+        }
+        warn( ( @files > 1 ? ( @files . ' models' ) : 'One model' )
+            . ' will be saved'
+              . ( defined $folder ? " to $folder folder" : '' )
+              . ".\n" );
+        $maker->{run}->();
     }
-    if ( defined $folder ) {
-        warn "Models will be saved to $folder folder.\n";
-        $maker->{setting}->( folder => $folder );
+    else {
+        warn "Nothing to do.\n";
     }
-    $maker->{run}->();
 
 }
 
