@@ -1,5 +1,5 @@
 ---
-.: 'CDCM after DCP 227 and DCP 270, with CTables'
+.: 'DCP 270 on DCP 227, with CTables'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
