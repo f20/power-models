@@ -441,6 +441,7 @@ sub factory {
             ];
           } @fileNames;
         if ( $threads1 && eval 'require Ancillary::ParallelRunning' ) {
+            warn 'Using ' . ( $threads1 + 1 ) . ' threads';
             foreach (@fileNames) {
                 Ancillary::ParallelRunning::waitanypid($threads1);
                 Ancillary::ParallelRunning::backgroundrun(
@@ -464,7 +465,9 @@ sub factory {
             ) if $errorCount;
         }
         else {
+            warn 'No multi-threading';
             foreach (@fileNames) {
+                warn "$_ started";
                 $workbookModule->( $instructionsSettings{$_}[1]{xls} )->create(
                     defined $settings{folder}
                     ? catfile( $settings{folder}, $_ )
@@ -474,6 +477,7 @@ sub factory {
                 );
                 $instructionsSettings{$_}[1]{PostProcessing}->($_)
                   if $instructionsSettings{$_}[1]{PostProcessing};
+                warn "$_ complete";
             }
         }
     };

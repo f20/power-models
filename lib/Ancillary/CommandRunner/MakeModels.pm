@@ -214,7 +214,7 @@ sub makeModels {
                 if ( -f $file ) {
                     $maker->{addFile}->( abs2rel($file) );
                 }
-                elsif ( my @list = eval "<$file>" ) {
+                elsif ( my @list = glob($file) ) {
                     $maker->{addFile}->( abs2rel($_) ) foreach @list;
                 }
                 else {
@@ -232,7 +232,10 @@ sub makeModels {
             $folder = _temporaryFolder();
         }
     }
-    $maker->{setting}->( folder => $folder ) if defined $folder;
+    if ( defined $folder ) {
+        warn "Models will be saved to $folder folder.\n";
+        $maker->{setting}->( folder => $folder );
+    }
     $maker->{run}->();
 
 }

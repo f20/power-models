@@ -56,6 +56,7 @@ sub backgroundrun {
         #   eval { File::Temp::cleanup(); };
         #   require POSIX and POSIX::_exit($status);
 
+        # This crashes with Windows' fork emulation.
     }
     elsif ($continuation) {
         $continuation->();
@@ -65,7 +66,7 @@ sub backgroundrun {
 sub waitanypid {
     my ($limit) = @_;
     while ( keys %names > $limit ) {
-        my $pid = waitpid -1, 0;    # WNOHANG
+        my $pid = waitpid -1, 0;
         $status{$pid} = $?;
         my $name = delete $names{$pid};
         if ( my $continuation = delete $conts{$pid} ) {
