@@ -51,7 +51,7 @@ sub useDatabase {
     if ( grep { /\bcsv\b/i } @_ ) {
         require DataManagement::ExportCsv;
         if ( grep { /^tall$/i } @_ ) {
-            $db->dumpTallCsv( grep { /^input/; } @_ );
+            $db->dumpTallCsv(@_);
             return;
         }
         $db->dumpEdcmCsv( grep { /^all$/i } @_ );

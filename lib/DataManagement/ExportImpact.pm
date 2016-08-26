@@ -405,7 +405,7 @@ sub cdcmPpuImpact {
     );
 
     my $linesAfter = $options{linesAfter}
-      || [
+      || [    # use all tariffs present in any model in the entire database
         map { $_->[0] } @{
             $self->selectall_arrayref(
                     'select v from data where tab=3901 and'
@@ -462,8 +462,9 @@ sub cdcmPpuImpact {
         $ws->write_string( 2, 4, 'Percentage change',          $thcFormat );
 
         use Spreadsheet::WriteExcel::Utility;
-        my $diff = $ws->store_formula('=A2-A1');
-        my $perc = $ws->store_formula('=IF(A1,A3/A2-1,0)');
+        my $diff =
+          $ws->store_formula('=IF(AND(ISNUMBER(A3),ISNUMBER(A4)),A2-A1," ")');
+        my $perc = $ws->store_formula('=IF(AND(ISNUMBER(A3)),A2/A1-1," ")');
 
         for ( my $j = 0 ; $j < @$linesAfter ; ++$j ) {
             $ws->write_string( 3 + $j, 0, $linesAfter->[$j], $thFormat );
@@ -476,37 +477,37 @@ sub cdcmPpuImpact {
             $q->execute( $bida, $rowa, 3 );
             my ($ra) = $q->fetchrow_array;
             $q->execute( $bidb, $rowb, 1 );
-            my ($vb) = $q->fetchrow_array;
+            my ($ub) = $q->fetchrow_array;
             $q->execute( $bida, $rowa, 1 );
-            my ($va) = $q->fetchrow_array;
-            eval {
-                     $va = defined $va
-                  && $va !~ /^#/
-                  && defined $ra
-                  && $ra !~ /^#/ ? 0.1 * $ra / $va : '';
-            };
-            $va = '' if $@;
-            eval {
-                     $vb = defined $vb
-                  && $vb !~ /^#/
-                  && defined $rb
-                  && $rb !~ /^#/ ? 0.1 * $rb / $vb : '';
-            };
-            $vb = '' if $@;
-            $ws->write( 3 + $j, 1, $vb, $format1[0] );
-            $ws->write( 3 + $j, 2, $va, $format1[0] );
+            my ($ua) = $q->fetchrow_array;
+            my $pa =
+                 defined $ua
+              && $ua !~ /^#/
+              && $ua != 0
+              && defined $ra
+              && $ra !~ /^#/ ? 0.1 * $ra / $ua : ' ';
+            my $pb =
+                 defined $ub
+              && $ub !~ /^#/
+              && $ub != 0
+              && defined $rb
+              && $rb !~ /^#/ ? 0.1 * $rb / $ub : ' ';
+            $ws->write( 3 + $j, 1, $pb, $format1[0] );
+            $ws->write( 3 + $j, 2, $pa, $format1[0] );
             my $old = xl_rowcol_to_cell( 3 + $j, 1 );
             my $new = xl_rowcol_to_cell( 3 + $j, 2 );
             $ws->repeat_formula(
                 3 + $j, 3, $diff, $format2[0],
                 A1 => $old,
                 A2 => $new,
+                A3 => $old,
+                A4 => $new,
             );
             $ws->repeat_formula(
                 3 + $j, 4, $perc, $format3[0],
                 A1 => $old,
-                A2 => $old,
-                A3 => $new,
+                A2 => $new,
+                A3 => xl_rowcol_to_cell( 3 + $j, 3 ),
             );
         }
     }
@@ -516,14 +517,15 @@ sub cdcmRevenueMatrixImpact {
 
     my ( $self, $wbmodule, %options ) = @_;
 
-    $options{linesAfter} ||= [
+    $options{linesAfter} ||=
+      [    # use all tariffs present in any model in the entire database
         map { $_->[0] } @{
             $self->selectall_arrayref(
                     'select v from data where tab=3901 and'
                   . ' col=0 and row>0 group by v order by min(row)'
             )
         }
-    ];
+      ];
 
     $options{tableNumber} = 3901;
     $options{col1}        = 0;
