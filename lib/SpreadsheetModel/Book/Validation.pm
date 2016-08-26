@@ -1,7 +1,8 @@
+﻿package SpreadsheetModel::Book::Validation;
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2009-2014 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -26,37 +27,47 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-use strict;
 use warnings;
-use lib qw(cpan lib t/lib);
-use SpreadsheetModel::Tests::PowerModelTesting qw(newTestArea);
+use strict;
+use utf8;
 
-use SpreadsheetModel::Shortcuts ':all';
+my $_digestMachine;
 
-sub test_sumif {
-    my ( $wbook, $wsheet, $arg ) = @_;
-    $wsheet->set_column( 0, 5, 20 );
-    my $rows = Labelset( list => [qw(A B C D)] );
-    my $c1 = Dataset(
-        name => 'c1',
-        rows => $rows,
-        data => [ [ 41, 42, 'forty one', 'forty two', ] ],
-    );
-    my $c2 = Dataset(
-        name => 'c2',
-        rows => $rows,
-        data => [ [ 43, 44, 45, 46, ] ],
-    );
-    Arithmetic(
-        name       => 'sumif',
-        arithmetic => '=SUMIF(IV1_IV2,' . $arg . ',IV3_IV4)',
-        arguments  => { IV1_IV2 => $c1, IV3_IV4 => $c2, },
-    )->wsWrite( $wbook, $wsheet );
-    1;
+sub digestMachine {
+    return $_digestMachine if $_digestMachine;
+    foreach (qw(Digest::SHA Digest::SHA1 Digest::SHA::PurePerl)) {
+        eval "require $_";
+        eval { $_digestMachine = $_->new; };
+        return $_digestMachine if $_digestMachine;
+    }
 }
 
-use Test::More tests => 4;
-ok( test_sumif( newTestArea('test-sumif_1.xls'),  42 ) );
-ok( test_sumif( newTestArea('test-sumif_1.xlsx'), 42 ) );
-ok( test_sumif( newTestArea('test-sumif_2.xls'),  '"forty two"' ) );
-ok( test_sumif( newTestArea('test-sumif_2.xlsx'), '"forty two"' ) );
+sub digestFile {
+    my ($file) = @_;
+    return 'no file' unless -f $file;
+    my $digest = eval {
+        my $digestMachine = digestMachine();
+        open my $fh, '<', $file;
+        $digestMachine->addfile($fh)->hexdigest;
+    };
+    warn $@ if $@;
+    $digest;
+}
+
+sub sourceCodeDigest {
+    my ($validatedLibs) = @_;
+    my @libs = map { [ $_, length $_ ]; } @$validatedLibs;
+    my %hash;
+    eval {
+        my $digestMachine = digestMachine();
+        while ( my ( $key, $file ) = each %INC ) {
+            next if $key =~ m#^SpreadsheetModel/(?:CLI|Data)/#s;
+            next unless grep { substr( $file, 0, $_->[1] ) eq $_->[0]; } @libs;
+            open my $fh, '<', $file;
+            $hash{$key} = $digestMachine->addfile($fh)->hexdigest;
+        }
+    };
+    \%hash;
+}
+
+1;

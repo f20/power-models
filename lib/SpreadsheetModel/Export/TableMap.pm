@@ -84,7 +84,7 @@ sub updateTableMap {
       join( "\t", $_, map { $_ || ''; } @{ $list{$_} }[ 0 .. $#columns ] )
       . "\n"
       foreach @keys;
-    my $wbmodule = 'SpreadsheetModel::Workbook';
+    my $wbmodule = 'SpreadsheetModel::Book::Workbook';
     if ( eval "require $wbmodule" ) {
         my $wb = $wbmodule->new( 'Table map' . $wbmodule->fileExtension );
         $wb->setFormats();

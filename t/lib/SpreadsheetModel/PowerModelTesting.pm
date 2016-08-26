@@ -1,3 +1,4 @@
+package SpreadsheetModel::Tests::PowerModelTesting;
 
 =head Copyright licence and disclaimer
 
@@ -26,37 +27,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-use strict;
 use warnings;
-use lib qw(cpan lib t/lib);
-use SpreadsheetModel::Tests::PowerModelTesting qw(newTestArea);
+use strict;
+use utf8;
+use base 'Exporter';
+our @EXPORT_OK = qw(newTestArea);
 
-use SpreadsheetModel::Shortcuts ':all';
+use File::Spec::Functions qw(catfile);
 
-sub test_sumif {
-    my ( $wbook, $wsheet, $arg ) = @_;
-    $wsheet->set_column( 0, 5, 20 );
-    my $rows = Labelset( list => [qw(A B C D)] );
-    my $c1 = Dataset(
-        name => 'c1',
-        rows => $rows,
-        data => [ [ 41, 42, 'forty one', 'forty two', ] ],
-    );
-    my $c2 = Dataset(
-        name => 'c2',
-        rows => $rows,
-        data => [ [ 43, 44, 45, 46, ] ],
-    );
-    Arithmetic(
-        name       => 'sumif',
-        arithmetic => '=SUMIF(IV1_IV2,' . $arg . ',IV3_IV4)',
-        arguments  => { IV1_IV2 => $c1, IV3_IV4 => $c2, },
-    )->wsWrite( $wbook, $wsheet );
-    1;
+sub newTestArea {
+    my ( $filename, @formats ) = @_;
+    my $workbookModule;
+    if ( $filename =~ /\.xlsx$/is ) {
+        require SpreadsheetModel::Book::WorkbookXLSX;
+        $workbookModule = 'SpreadsheetModel::Book::WorkbookXLSX';
+    }
+    else {
+        require SpreadsheetModel::Book::Workbook;
+        $workbookModule = 'SpreadsheetModel::Book::Workbook';
+    }
+    mkdir 'models.tmp';
+    my $wbook = $workbookModule->new( catfile( 'models.tmp', $filename ) );
+    $wbook->setFormats(@formats);
+    my $wsheet = $wbook->add_worksheet();
+    $wbook, $wsheet;
 }
 
-use Test::More tests => 4;
-ok( test_sumif( newTestArea('test-sumif_1.xls'),  42 ) );
-ok( test_sumif( newTestArea('test-sumif_1.xlsx'), 42 ) );
-ok( test_sumif( newTestArea('test-sumif_2.xls'),  '"forty two"' ) );
-ok( test_sumif( newTestArea('test-sumif_2.xlsx'), '"forty two"' ) );
+1;

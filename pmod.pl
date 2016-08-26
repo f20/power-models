@@ -35,26 +35,37 @@ binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 use File::Spec::Functions qw(rel2abs catdir);
 use File::Basename 'dirname';
-my ( $homedir, $perl5dir );
+my ( $home, @validatedLibs, @otherLibs );
 
 BEGIN {
-    $homedir = dirname( rel2abs( -l $0 ? ( readlink $0, dirname $0) : $0 ) );
-    while (1) {
-        $perl5dir = catdir( $homedir, 'lib' );
-        last if -d catdir( $perl5dir, 'SpreadsheetModel' );
-        my $parent = dirname $homedir;
-        last if $parent eq $homedir;
-        $homedir = $parent;
+    my @scriptPaths;
+    push @scriptPaths, rel2abs($0);
+    push @scriptPaths, rel2abs( readlink $0, dirname $0) if -l $0;
+    foreach my $folder (@scriptPaths) {
+        while (1) {
+            my $parent = dirname $folder;
+            last if $parent eq $folder;
+            $folder = $parent;
+            $home ||= $folder if -e catdir( $folder, 'models' );
+            my $lib = catdir( $folder, 'lib' );
+            if ( -d $lib ) {
+                push @validatedLibs, $lib;
+                $lib = catdir( $folder, 'cpan' );
+                push @otherLibs, $lib if -d $lib;
+                last;
+            }
+        }
     }
 }
 
-use lib catdir( $homedir, 'cpan' ), $perl5dir;
+use lib @validatedLibs, @otherLibs;
 
-use Ancillary::CommandParser;
-my $parser = Ancillary::CommandParser->new;
+use SpreadsheetModel::CLI::CommandParser;
+my $parser = SpreadsheetModel::CLI::CommandParser->new;
 @ARGV ? $parser->acceptCommand(@ARGV) : $parser->acceptScript( \*STDIN );
 
-use Ancillary::CommandRunner;
-my $runner = Ancillary::CommandRunner->new( $perl5dir, $homedir );
+use SpreadsheetModel::CLI::CommandRunner;
+my $runner =
+  SpreadsheetModel::CLI::CommandRunner->new( $home, \@validatedLibs );
 $parser->run($runner);
 $runner->finish;

@@ -1,7 +1,8 @@
+﻿package SpreadsheetModel::Data::DnoAreas;
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2010-2014 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -26,37 +27,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-use strict;
 use warnings;
-use lib qw(cpan lib t/lib);
-use SpreadsheetModel::Tests::PowerModelTesting qw(newTestArea);
+use strict;
+use utf8;
 
-use SpreadsheetModel::Shortcuts ':all';
-
-sub test_sumif {
-    my ( $wbook, $wsheet, $arg ) = @_;
-    $wsheet->set_column( 0, 5, 20 );
-    my $rows = Labelset( list => [qw(A B C D)] );
-    my $c1 = Dataset(
-        name => 'c1',
-        rows => $rows,
-        data => [ [ 41, 42, 'forty one', 'forty two', ] ],
-    );
-    my $c2 = Dataset(
-        name => 'c2',
-        rows => $rows,
-        data => [ [ 43, 44, 45, 46, ] ],
-    );
-    Arithmetic(
-        name       => 'sumif',
-        arithmetic => '=SUMIF(IV1_IV2,' . $arg . ',IV3_IV4)',
-        arguments  => { IV1_IV2 => $c1, IV3_IV4 => $c2, },
-    )->wsWrite( $wbook, $wsheet );
-    1;
+sub normaliseDnoName {
+    local @_ = @_ if defined wantarray;
+    foreach (@_) {
+        s/^CE-NEDL/NPG-Northeast/;
+        s/^CE-YEDL/NPG-Yorkshire/;
+        s/^CN-East/WPD-EastM/;
+        s/^CN-West/WPD-WestM/;
+        s/^EDFEN-/UKPN-/;
+        s/^NP-/NPG-/;
+        s/^SP-/SPEN-/;
+        s/^SSE-/SSEPD-/;
+        s/^WPD-Wales/WPD-SWales/;
+        s/^WPD-West\b/WPD-SWest/;
+    }
+    wantarray ? @_ : $_[0];
 }
 
-use Test::More tests => 4;
-ok( test_sumif( newTestArea('test-sumif_1.xls'),  42 ) );
-ok( test_sumif( newTestArea('test-sumif_1.xlsx'), 42 ) );
-ok( test_sumif( newTestArea('test-sumif_2.xls'),  '"forty two"' ) );
-ok( test_sumif( newTestArea('test-sumif_2.xlsx'), '"forty two"' ) );
+1;

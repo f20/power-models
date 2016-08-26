@@ -29,7 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use strict;
 use warnings;
 use lib qw(cpan lib t/lib);
-use Ancillary::PowerModelTesting qw(newTestArea);
+use SpreadsheetModel::Tests::PowerModelTesting qw(newTestArea);
 
 use SpreadsheetModel::Shortcuts ':all';
 

@@ -38,6 +38,7 @@ sub new {
 
 sub wsWrite {
     my ( $sampler, $wbook, $wsheet ) = @_;
+    my $includeJsonColumn = $sampler->[0];
     my $row = $wsheet->{nextFree} || 0;
     $wsheet->write_string(
         $row, 0,
@@ -47,13 +48,15 @@ sub wsWrite {
     my $row0      = $row += 2;
     my $thFormat  = $wbook->getFormat('th');
     my $thcFormat = $wbook->getFormat('thc');
-    $wsheet->write_string( $row,   0, 'Format',   $thcFormat );
-    $wsheet->write_string( $row,   1, 'Positive', $thcFormat );
-    $wsheet->write_string( $row,   2, 'Negative', $thcFormat );
-    $wsheet->write_string( $row,   3, 'Zero',     $thcFormat );
-    $wsheet->write_string( $row,   4, 'Text',     $thcFormat );
-    $wsheet->write_string( $row,   5, 'Error',    $thcFormat );
-    $wsheet->write_string( $row++, 6, 'JSON',     $thcFormat );
+
+    $wsheet->write_string( $row, 1, 'Positive', $thcFormat );
+    $wsheet->write_string( $row, 2, 'Negative', $thcFormat );
+    $wsheet->write_string( $row, 3, 'Zero',     $thcFormat );
+    $wsheet->write_string( $row, 4, 'Text',     $thcFormat );
+    $wsheet->write_string( $row, 5, 'Error',    $thcFormat );
+    $wsheet->write_string( $row, 6, 'JSON',     $thcFormat )
+      if $includeJsonColumn;
+    ++$row;
 
     foreach ( sort keys %{ $wbook->{formatspec} } ) {
         my $format = $wbook->getFormat($_);
@@ -63,9 +66,11 @@ sub wsWrite {
         $wsheet->write( $row, 3, 0,   $format );
         $wsheet->write_string( $row, 4, $_, $format );
         $wsheet->write( $row, 5, '=1/0', $format );
-        $wsheet->write_string( $row++, 6, to_json( $wbook->{formatspec}{$_} ) );
+        $wsheet->write_string( $row, 6, to_json( $wbook->{formatspec}{$_} ) )
+          if $includeJsonColumn;
+        ++$row;
     }
-    $wsheet->autofilter( $row0, 0, $row - 1, 6 );
+    $wsheet->autofilter( $row0, 0, $row - 1, $includeJsonColumn ? 6 : 5 );
     $wsheet->{nextFree} = $row
       unless $wsheet->{nextFree} && $wsheet->{nextFree} > $row;
 }
