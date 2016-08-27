@@ -51,8 +51,10 @@ sub makeModels {
         ]
     );
 
-    if ( $^O !~ /win32/i ) {
-        if ( my $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc` ) {
+    unless ( $^O =~ /win32/i ) {
+        if ( my $threads = `sysctl -n hw.ncpu 2>/dev/null`
+            || `nproc 2>/dev/null` )
+        {
             chomp $threads;
             $maker->{threads}->($threads);
         }
