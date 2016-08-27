@@ -37,16 +37,16 @@ sub useDatabase {
 
     if ( grep { /extract1076from1001/i } @_ ) {
         require SpreadsheetModel::Data::Database;
-        Compilation->extract1076from1001;
+        SpreadsheetModel::Data::Database->extract1076from1001;
     }
 
     if ( grep { /chedam/i } @_ ) {
         require SpreadsheetModel::Data::ChedamMaster;
-        SpreadsheetModel::Data::Chedam->runFromDatabase;
+        SpreadsheetModel::Data::ChedamMaster->runFromDatabase;
     }
 
     require SpreadsheetModel::Data::Database;
-    my $db = Compilation->new;
+    my $db = SpreadsheetModel::Data::Database->new;
 
     if ( grep { /\bcsv\b/i } @_ ) {
         require SpreadsheetModel::Data::ExportCsv;

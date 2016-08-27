@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::Data::Chedam;
+﻿package SpreadsheetModel::Data::ChedamMaster;
 
 =head Copyright licence and disclaimer
 
@@ -36,7 +36,8 @@ sub runFromDatabase {
     require SpreadsheetModel::Data::DotDiagrams;
     require SpreadsheetModel::Data::ChedamDataLocator;
     require SpreadsheetModel::Data::ChedamToDot;
-    my ( $dataReader, $bookTableIndexHash ) = Compilation->makeDatabaseReader;
+    my ( $dataReader, $bookTableIndexHash ) =
+      SpreadsheetModel::Data::Database->makeDatabaseReader;
     SpreadsheetModel::Data::DotDiagrams::writeDotDiagrams(
         map { $_->calculate->toDot } map {
             my $filename = $_;

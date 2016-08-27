@@ -282,7 +282,7 @@ sub databaseWriter {
 
     my $newBook = sub {
         require SpreadsheetModel::Data::Database;
-        $db = Compilation->new(1);
+        $db = SpreadsheetModel::Data::Database->new(1);
         sleep 1 while !$db->do('begin immediate transaction');
         $bid = $db->addModel( $_[0] );
         sleep 1 while !$db->commit;
@@ -314,7 +314,7 @@ sub databaseWriter {
 
         if ( !defined $book ) {    # pruning
             require SpreadsheetModel::Data::Database;
-            $db ||= Compilation->new(1);
+            $db ||= SpreadsheetModel::Data::Database->new(1);
             my $gbid;
             sleep 1
               while !(

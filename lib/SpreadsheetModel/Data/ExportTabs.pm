@@ -1,4 +1,4 @@
-﻿package Compilation;
+﻿package SpreadsheetModel::Data::Database;
 
 =head Copyright licence and disclaimer
 
@@ -61,7 +61,10 @@ sub tableCompilations {
             next unless $co =~ s/\.xlsx?$//is;
             require SpreadsheetModel::Data::DnoAreas;
             push @models,
-              [ $bid, $co, SpreadsheetModel::Data::DnoAreas::normaliseDnoName($co) ];
+              [
+                $bid, $co,
+                SpreadsheetModel::Data::DnoAreas::normaliseDnoName($co)
+              ];
             ++$numCo;
         }
         $addCo->execute( @{$_}[ 0, 1 ] )

@@ -1,4 +1,4 @@
-﻿package Compilation;
+﻿package SpreadsheetModel::Data::Database;
 
 =head Copyright licence and disclaimer
 
