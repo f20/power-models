@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::Data::ParseXdata;
+﻿package SpreadsheetModel::Data::XdataParser;
 
 =head Copyright licence and disclaimer
 
@@ -31,11 +31,15 @@ use warnings;
 use strict;
 use utf8;
 
-sub parseXdata {
+use constant {
+    XDP_dataOverrides      => 0,
+    XDP_setRule            => 1,
+    XDP_applyDataOverrides => 2,
+};
 
-    my $dataOverrides = shift;
-
-    my $applyDataOverride = sub {
+sub new {
+    my ( $class, $dataOverrides, $setRule ) = @_;
+    my $applyDataOverrides = sub {
         foreach ( grep { ref $_ eq 'HASH' } @_ ) {
             while ( my ( $tab, $dat ) = each %$_ ) {
                 if ( ref $dat eq 'HASH' ) {
@@ -59,12 +63,19 @@ sub parseXdata {
             }
         }
     };
+    my $self = bless [ $dataOverrides, $setRule, $applyDataOverrides, ], $class;
+    $self;
+}
+
+sub parseXdata {
+
+    my $self = shift;
 
     foreach (@_) {
         if (/^---\r?\n/s) {
             my @y = eval { Load $_; };
             warn $@ if $@;
-            $applyDataOverride->(@y);
+            $self->[XDP_applyDataOverrides]->(@y);
             next;
         }
         local $_ = $_;
@@ -72,45 +83,33 @@ sub parseXdata {
             foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
                 my $d = _jsonMachine()->decode( '{' . $_ . '}' );
                 next unless ref $d eq 'HASH';
-                $setRule->(
+                $self->[XDP_setRule]->(
                     map { %$_; } grep { $_; }
                       map  { delete $_[0]{$_}; }
                       grep { /^rules?$/is; }
                       keys %$d
                 );
-                $applyDataOverride->($d);
+                $self->[XDP_applyDataOverrides]->($d);
             }
         }
         while (s/(\S.*\|.*\S)//m) {
             my ( $tab, $col, @more ) = split /\|/, $1, -1;
             next unless $tab;
             if ( $tab =~ /^rules$/is ) {
-                $setRule->( $col, @more );
+                $self->[XDP_setRule]->( $col, @more );
             }
             elsif ( @more == 1 ) {
-                $dataOverrides->{$tab}{$col} = $more[0];
+                $self->[XDP_dataOverrides]{$tab}{$col} = $more[0];
             }
             elsif (@more == 2
                 && $tab =~ /^[0-9]+$/s
                 && $col
                 && $col =~ /^[0-9]+$/s )
             {
-                $dataOverrides->{$tab}[$col]{ $more[0] } = $more[1];
+                $self->[XDP_dataOverrides]{$tab}[$col]{ $more[0] } = $more[1];
             }
         }
     }
-
-    return unless %$dataOverrides;
-    my $key = rand();
-    $dataOverrides->{hash} = 'hashing-error';
-    eval {
-        my $digestMachine = SpreadsheetModel::Book::Validation::digestMachine();
-        $key = $digestMachine->add( Dump($dataOverrides) )->digest;
-        $dataOverrides->{hash} =
-          substr( $digestMachine->add($key)->hexdigest, 5, 8 );
-    };
-    warn "Data overrides hashing error: $@" if $@;
-    $key;
 
 }
 

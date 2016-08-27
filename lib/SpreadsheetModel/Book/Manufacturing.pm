@@ -63,13 +63,32 @@ sub factory {
         %settings = ( %settings, @_ );
     };
 
-    my $setRule = $self->{setRule} = sub {
+    $self->{setRule} = sub {
         %ruleOverrides = ( %ruleOverrides, @_ );
     };
 
-    $self->{xdata} = sub {
-        require SpreadsheetModel::Data::ParseXdata;
-        SpreadsheetModel::Data::ParseXdata::parseXdata( \%dataOverrides, @_ );
+    my $xdataParser;
+    $self->{xdataParser} = sub {
+        return $xdataParser if $xdataParser;
+        require SpreadsheetModel::Data::XdataParser;
+        $xdataParser =
+          SpreadsheetModel::Data::XdataParser->new( \%dataOverrides,
+            $self->{setRule} );
+    };
+
+    $self->{xdataKey} = sub {
+        return unless %dataOverrides;
+        my $key = rand();
+        $dataOverrides{hash} = 'hashing-error';
+        eval {
+            my $digestMachine =
+              SpreadsheetModel::Book::Validation::digestMachine();
+            $key = $digestMachine->add( Dump( \%dataOverrides ) )->digest;
+            $dataOverrides{hash} =
+              substr( $digestMachine->add($key)->hexdigest, 5, 8 );
+        };
+        warn "Data overrides hashing error: $@" if $@;
+        $key;
     };
 
     my $processStream = $self->{processStream} = sub {
@@ -488,6 +507,11 @@ sub factory {
 
     $self;
 
+}
+
+sub parseXdata {
+    my $self = shift;
+    $self->{xdataParser}->()->parseXdata(@_);
 }
 
 my $_jsonMachine;

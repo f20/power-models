@@ -87,21 +87,22 @@ sub makeFolder {
         rename $self->[C_DESTINATION], $tmp . '/~$old-' . $$
           if -e $self->[C_DESTINATION];
         rename $tmp, $self->[C_DESTINATION];
-        system 'open', $self->[C_DESTINATION] if -d '/System/Library';
+        system 'open', $self->[C_DESTINATION] if -d '/System/Library';   # macOS
         delete $self->[C_DESTINATION];
     }
-    if ( -d '/System/Library' ) {  # Try to use a temporary memory disk on macOS
-        my $ramDiskBlocks = 12_000_000;    # About 6G, in 512-byte blocks.
-        my $ramDiskName       = 'Temporary volume (power-models)';
-        my $ramDiskMountPoint = "/Volumes/$ramDiskName";
-        unless ( -d $ramDiskMountPoint ) {
-            my $device = `hdiutil attach -nomount ram://$ramDiskBlocks`;
-            $device =~ s/\s*$//s;
-            system qw(diskutil erasevolume HFS+), $ramDiskName, $device;
+    if ($folder) {    # Create temporary folder
+        if ( -d '/System/Library' )
+        {             # Try to use a temporary memory disk on macOS
+            my $ramDiskBlocks = 12_000_000;    # About 6G, in 512-byte blocks.
+            my $ramDiskName       = 'Temporary volume (power-models)';
+            my $ramDiskMountPoint = "/Volumes/$ramDiskName";
+            unless ( -d $ramDiskMountPoint ) {
+                my $device = `hdiutil attach -nomount ram://$ramDiskBlocks`;
+                $device =~ s/\s*$//s;
+                system qw(diskutil erasevolume HFS+), $ramDiskName, $device;
+            }
+            chdir $ramDiskMountPoint if -d $ramDiskMountPoint && -w _;
         }
-        chdir $ramDiskMountPoint if -d $ramDiskMountPoint && -w _;
-    }
-    if ($folder) {                         # Create temporary folder
         my $tmp = '~$tmp-' . $$ . ' ' . ( $self->[C_DESTINATION] = $folder );
         mkdir $tmp;
         chdir $tmp;

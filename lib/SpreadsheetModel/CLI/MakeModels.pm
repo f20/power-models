@@ -178,21 +178,21 @@ sub makeModels {
             elsif (/^-+([0-9]+)/is) {
                 $maker->{threads}->($1);
             }
-            elsif (/^-+xdata=(.*)/is) {
+            elsif (/^-+xdata=?(.*)/is) {
                 if ($1) {
                     if ( open my $fh, '<', $1 ) {
                         binmode $fh, ':utf8';
                         local undef $/;
-                        $maker->{xdata}->(<$fh>);
+                        $maker->parseXdata(<$fh>);
                     }
                     else {
-                        $maker->{xdata}->($1);
+                        $maker->parseXdata($1);
                     }
                 }
                 else {
                     local undef $/;
                     print "Enter xdata:\n";
-                    $maker->{xdata}->(<STDIN>);
+                    $maker->parseXdata(<STDIN>);
                 }
             }
             elsif (/^-+xls$/is)  { $maker->{setting}->( xls => 1 ); }
