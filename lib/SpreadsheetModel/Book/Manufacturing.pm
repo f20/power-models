@@ -345,7 +345,7 @@ sub factory {
             my $overrides = {%dataOverrides};
             my $suffix    = '-' . delete $overrides->{hash};
             foreach (@datasets) {
-                $_->{datasetOverride} = $overrides;
+                $_->{'~datasetOverride'} = $overrides;
                 $_->{'~datasetName'} .= $suffix
                   if defined $_->{'~datasetName'};
             }
@@ -530,7 +530,7 @@ sub _mergeRulesData {
       if !$_[0] && ref $_[1] eq 'ARRAY';
     my %options = map { %$_ } @_;
     my @keys =
-      grep { exists $options{$_}; } qw(password dataset datasetOverride);
+      grep { exists $options{$_}; } qw(password dataset ~datasetOverride);
     my @removed = map { delete $options{$_}; } @keys;
     $options{$_} = '***' foreach grep { $_ ne 'dataset'; } @keys;
     $options{yaml} = Dump( \%options );

@@ -123,7 +123,7 @@ sub create {
                 foreach my $overrides (
                     grep { $_ }
                     map  { $optionArray[$i]{$_} }
-                    qw(dataOverride datasetOverride)
+                    qw(dataOverride ~datasetOverride)
                   )
                 {
                     $dataset = Storable::dclone($dataset);
