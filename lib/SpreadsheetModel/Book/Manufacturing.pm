@@ -287,7 +287,8 @@ sub factory {
     $self->{fileList} = sub {
 
         if (%deferredData) {
-            while ( my ( $book, $data ) = each %deferredData ) {
+            foreach my $book ( sort keys %deferredData ) {
+                my $data = $deferredData{$book};
                 if ( $book eq '+' ) {
                     my %nameset;
                     require SpreadsheetModel::Data::DnoAreas;

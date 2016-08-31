@@ -154,6 +154,10 @@ sub genericTariffImpact {
         . ' tariffs '
           . $options{dcpName}
           . $wbmodule->fileExtension );
+    unless ($wb) {
+        warn 'Could not create tariff impact file';
+        return;
+    }
     $wb->setFormats(
         {
             $options{colour} ? ( colour => $options{colour} ) : (),
@@ -365,14 +369,16 @@ sub genericTariffImpact {
                 my $new = xl_rowcol_to_cell( 2 + $topShift + $j + $vShift,
                     $k + 1 + $ncol + $hShift );
                 $ws->repeat_formula(
-                    2 + $topShift + $j + $vShift, $k + 1 + 2 * $ncol + $hShift,
+                    2 + $topShift + $j + $vShift,
+                    $k + 1 + 2 * $ncol + $hShift,
                     $diff,
                     $format2[$k],
                     A1 => $old,
                     A2 => $new,
                 );
                 $ws->repeat_formula(
-                    2 + $topShift + $j + $vShift, $k + 1 + 3 * $ncol + $hShift,
+                    2 + $topShift + $j + $vShift,
+                    $k + 1 + 3 * $ncol + $hShift,
                     $perc,
                     $format3[$k],
                     A1 => $old,
@@ -397,6 +403,10 @@ sub cdcmPpuImpact {
 
     my $wb = $wbmodule->new(
         "Impact pence per unit $options{dcpName}" . $wbmodule->fileExtension );
+    unless ($wb) {
+        warn 'Could not create ppu impact file';
+        return;
+    }
     $wb->setFormats(
         {
             $options{colour} ? ( colour => $options{colour} ) : (),
@@ -553,6 +563,10 @@ sub revenueMatrixImpact {
     my $wb =
       $wbmodule->new(
         "Impact revenue $options{dcpName}" . $wbmodule->fileExtension );
+    unless ($wb) {
+        warn 'Could not create revenue impact file';
+        return;
+    }
     $wb->setFormats(
         { $options{colour} ? ( colour => $options{colour} ) : () } );
 
@@ -796,6 +810,10 @@ sub cdcmUserImpact {
 
     my $wb = $wbmodule->new(
         "Impact users $options{dcpName}" . $wbmodule->fileExtension );
+    unless ($wb) {
+        warn 'Could not create user impact file';
+        return;
+    }
     $wb->setFormats(
         { $options{colour} ? ( colour => $options{colour} ) : (), } );
 
@@ -924,6 +942,10 @@ sub modelmEdcmImpact {
 
     my $wb = $wbmodule->new(
         "Impact EDCM discounts $options{dcpName}" . $wbmodule->fileExtension );
+    unless ($wb) {
+        warn 'Could not EDCM discount impact file';
+        return;
+    }
     $wb->setFormats(
         { $options{colour} ? ( colour => $options{colour} ) : (), } );
 

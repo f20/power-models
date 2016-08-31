@@ -34,7 +34,7 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub table1203 {
     my ($model) = @_;
-    my @rows = map { "Illustrative customer $_"; } 1 .. 12;
+    my @rows = map { "Illustrative customer $_"; } 1 .. 7;
     my $rowset = Labelset( list => \@rows );
     my $blank = [ map { '' } @{ $rowset->{list} } ];
     my @columns = map {

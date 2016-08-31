@@ -57,7 +57,7 @@ sub new {
       [ map { [ $levelShortNames[$_] => $levels[$_] ] } 0 .. $#levels ];
 
     my %dnos = (
-        'ENWL'          => 'Electricity North West Limited',
+        'ENWL'          => 'Electricity North West',
         'NPG Northeast' => 'Northern Powergrid Northeast',
         'NPG Yorkshire' => 'Northern Powergrid Yorkshire',
         'SPEN SPD'      => 'SP Distribution',
