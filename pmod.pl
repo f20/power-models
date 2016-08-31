@@ -34,18 +34,16 @@ binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 use File::Spec::Functions qw(rel2abs catdir);
-use File::Basename 'dirname';
+use File::Basename qw(dirname);
+use Cwd qw(getcwd);
+
 my ( $home, @validatedLibs, @otherLibs );
 
 BEGIN {
-    my @scriptPaths;
-    push @scriptPaths, rel2abs($0);
-    push @scriptPaths, rel2abs( readlink $0, dirname $0) if -l $0;
+    my @scriptPaths = ( getcwd(), dirname( rel2abs($0) ) );
+    push @scriptPaths, dirname( rel2abs( readlink $0, dirname $0) ) if -l $0;
     foreach my $folder (@scriptPaths) {
         while (1) {
-            my $parent = dirname $folder;
-            last if $parent eq $folder;
-            $folder = $parent;
             $home ||= $folder if -e catdir( $folder, 'models' );
             my $lib = catdir( $folder, 'lib' );
             if ( -d $lib ) {
@@ -54,10 +52,12 @@ BEGIN {
                 push @otherLibs, $lib if -d $lib;
                 last;
             }
+            my $parent = dirname $folder;
+            last if $parent eq $folder;
+            $folder = $parent;
         }
     }
 }
-
 use lib @validatedLibs, @otherLibs;
 
 use SpreadsheetModel::CLI::CommandParser;
