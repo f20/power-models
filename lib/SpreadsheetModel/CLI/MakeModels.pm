@@ -219,7 +219,7 @@ sub makeModels {
                 if ( -f $file ) {
                     $maker->{addFile}->( abs2rel($file) );
                 }
-                elsif ( my @list = glob($file) ) {
+                elsif ( my @list = grep { -f $_; } glob($file) ) {
                     $maker->{addFile}->( abs2rel($_) ) foreach @list;
                 }
                 else {
