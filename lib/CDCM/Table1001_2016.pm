@@ -37,47 +37,47 @@ sub table1001_2016 {
 
     my ($model) = @_;
 
-    my @lines = map { [ split /\t/, $_, -1 ] } split /\n/, <<EOL;
-Base Demand Revenue before inflation	A1	PU	CRC2A
-Annual Iteration adjustment before inflation	A2	MOD	CRC2A
-RPI True-up before inflation	A3	TRU	CRC2A
-Price index adjustment	A4	RPIF	CRC2A
-Base demand revenue	A = (A1 + A2 + A3) * A4	BR	CRC2A
-Pass-Through Licence Fees	B1	LF	CRC2B
-Pass-Through Business Rates	B2	RB	CRC2B
-Pass-Through Transmission Connection Point Charges	B3	TB	CRC2B
-Pass-through Smart Meter Communication Licence Costs	B4	SMC	CRC2B
-Pass-through Smart Meter IT Costs	B5	SMIT	CRC2B
-Pass-through Ring Fence Costs	B6	RF	CRC2B
-Pass-Through Others	B7	HB, SEC, UNC	CRC2B
-Allowed Pass-Through Items	B = Sum of B1 to B7	PT	CRC2B
-Broad Measure of Customer Service incentive	C1	BM	CRC2C
-Quality of Service incentive	C2	IQ	CRC2D
-Connections Engagement incentive	C3	ICE	CRC2E
-Time to Connect incentive	C4	TTC	CRC2F
-Losses Discretionary Reward incentive	C5	LDR	CRC2G
-Network Innovation Allowance	C6	IFI / NIA	CRC2H
-Low Carbon Networks Fund part 1	C7	LCN1	CRC2J
-Low Carbon Networks Fund part 2	C7	LCN2	CRC2J
-Connection Guaranteed Standards Systems & Processes penalty	C8	AUM, CGSRA	CRC2K-L
-Residual Losses incentive	C9	PPL	CRC2M
-Residual Growth incentive	C9	GTA	CRC2M
-Incentive Revenue and Other Adjustments	C = Sum of C1 to C9
-Correction Factor	D	-K	CRC2A
-Total allowed Revenue	E = A + B + C + D	AR	CRC2A
-Other 1. Excluded services - Top-up, standby, and enhanced system security	F1 (see note 1)	DRS4	CRC5C
-Other 2. Excluded services - Revenue protection services	F2 (see note 1)	DRS5	CRC5C
-Other 3. Excluded services - Miscellaneous	F3 (see note 1)	DRS9	CRC5C
-Other 4. Please describe if used	F4	Please describe	if used
-Other 5. Please describe if used	F5	Please describe	if used
-Total other revenue recovered by Use of System Charges	F = Sum of F1 to F5
-Total Revenue for Use of System Charges	G = E + F
-1. Revenue raised outside CDCM - EDCM and Certain Interconnector Revenue	H1
-2. Revenue raised outside CDCM - Voluntary under-recovery	H2
-3. Revenue raised outside CDCM - Please describe if used	H3	Please describe	if used
-4. Revenue raised outside CDCM - Please describe if used	H4	Please describe	if used
-Total Revenue to be raised outside the CDCM	H = Sum of H1 to H4
-Latest forecast of CDCM Revenue	I = G - H
+    my @lines = map { [ split /\|/, $_, -1 ] } split /\n/, <<EOL;
+Base Demand Revenue before inflation|A1|PU|CRC2A
+Annual Iteration adjustment before inflation|A2|MOD|CRC2A
+RPI True-up before inflation|A3|TRU|CRC2A
+Price index adjustment (RPI index)|A4|RPIF|CRC2A
+Base demand revenue|A = (A1 + A2 + A3) * A4|BR|CRC2A
+Pass-Through Licence Fees|B1|LF|CRC2B
+Pass-Through Business Rates|B2|RB|CRC2B
+Pass-Through Transmission Connection Point Charges|B3|TB|CRC2B
+Pass-through Smart Meter Communication Licence Costs|B4|SMC|CRC2B
+Pass-through Smart Meter IT Costs|B5|SMIT|CRC2B
+Pass-through Ring Fence Costs|B6|RF|CRC2B
+Pass-Through Others|B7|HB, SEC, UNC|CRC2B
+Allowed Pass-Through Items|B = Sum of B1 to B7|PT|CRC2B
+Broad Measure of Customer Service incentive|C1|BM|CRC2C
+Quality of Service incentive|C2|IQ|CRC2D
+Connections Engagement incentive|C3|ICE|CRC2E
+Time to Connect incentive|C4|TTC|CRC2F
+Losses Discretionary Reward incentive|C5|LDR|CRC2G
+Network Innovation Allowance|C6|NIA|CRC2H
+Low Carbon Network Fund - Tier 1 unrecoverable|C7|LCN1|CRC2J
+Low Carbon Network Fund - Tier 2 & Discretionary Funding|C7|LCN2|CRC2J
+Connection Guaranteed Standards Systems & Processes penalty|C8|AUM, CGSRA|CRC2K-L
+Residual Losses and Growth Incentive - Losses|C9|PPL|CRC2M
+Residual Losses and Growth Incentive - Growth|C9|GTA|CRC2M
+Incentive Revenue and Other Adjustments|C = Sum of C1 to C9
+Correction Factor|D|-K|CRC2A
+Total allowed Revenue|E = A + B + C + D|AR|CRC2A
+Other 1. Excluded services - Top-up, standby, and enhanced system security|F1 (see note 1)|DRS4|CRC5C
+Other 2. Excluded services - Revenue protection services|F2 (see note 1)|DRS5|CRC5C
+Other 3. Excluded services - Miscellaneous|F3 (see note 1)|DRS9|CRC5C
+Other 4. Please describe if used|F4|Please describe|if used
+Other 5. Please describe if used|F5|Please describe|if used
+Total other revenue recovered by Use of System Charges|F = Sum of F1 to F5
+Total Revenue for Use of System Charges|G = E + F
+1. Revenue raised outside CDCM - EDCM and Certain Interconnector Revenue|H1
+2. Revenue raised outside CDCM - Voluntary under-recovery|H2
+3. Revenue raised outside CDCM - Please describe if used|H3|Please describe|if used
+4. Revenue raised outside CDCM - Please describe if used|H4|Please describe|if used
+Total Revenue to be raised outside the CDCM|H = Sum of H1 to H4
+Latest forecast of CDCM Revenue|I = G - H
 EOL
 
     my $labelset = Labelset( list => [ map { $_->[0] } @lines ] );
@@ -196,7 +196,7 @@ EOL
       [ map { $_->[1] =~ /=/ ? $textnocolourbc : undef; } @lines ];
 
     $model->{table1001} = Columnset(
-        name     => 'CDCM target revenue',
+        name     => 'CDCM target revenue (£ unless otherwise stated)',
         number   => 1001,
         appendTo => $model->{inputTables},
         dataset  => $model->{dataset},

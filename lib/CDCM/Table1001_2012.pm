@@ -221,7 +221,7 @@ sub table1001_2012 {
     my $rowFormatsc = [ map { /=/ ? $textnocolourbc : undef; } @descriptions ];
 
     $model->{table1001} = Columnset(
-        name     => 'CDCM target revenue',
+        name     => 'CDCM target revenue (monetary amounts in £)',
         number   => 1001,
         appendTo => $model->{inputTables},
         dataset  => $model->{dataset},
