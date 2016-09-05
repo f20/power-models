@@ -44,9 +44,17 @@ Sub MakeCommandBar()
 
     Set btn = bar.Controls.Add(Type:=msoControlButton)
     With btn
+     .Style = msoButtonIcon
+     .FaceId = 625
+     .BeginGroup = True
+     .OnAction = "PasswordBreakerAllSheets"
+    End With
+
+    Set btn = bar.Controls.Add(Type:=msoControlButton)
+    With btn
      .Style = msoButtonCaption
      .Caption = "Formulas" & ChrW(&H2026)
-     .BeginGroup = True
+     .BeginGroup = False
      .OnAction = "ShowFormulas"
     End With
 
