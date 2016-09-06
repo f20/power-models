@@ -763,8 +763,8 @@ NPG Northeast
 NPG Yorkshire
 SPEN SPD
 SPEN SPM
-SSEPD SEPD
-SSEPD SHEPD
+SSEN SEPD
+SSEN SHEPD
 UKPN EPN
 UKPN LPN
 UKPN SPN
@@ -785,8 +785,8 @@ Northern Powergrid Northeast
 Northern Powergrid Yorkshire
 SP Distribution
 SP Manweb
-SEPD
-SHEPD
+Southern Electric Power Distribution
+Scottish Hydro Electric Power Distribution
 Eastern Power Networks
 London Power Networks
 South Eastern Power Networks

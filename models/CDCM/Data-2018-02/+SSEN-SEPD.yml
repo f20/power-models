@@ -1,7 +1,7 @@
 ---
 1000:
   - _table: '1000. Company, charging year, data version'
-  - Company charging year data version: SEPD
+  - Company charging year data version: Southern Electric Power Distribution
     _column: Company
   - Company charging year data version: 2018/2019
     _column: Year

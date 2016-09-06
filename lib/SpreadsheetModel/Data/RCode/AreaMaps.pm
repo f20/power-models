@@ -45,7 +45,7 @@ sub rCode {
 1;
 
 __DATA__
-dno.areas<-c('ENWL', 'NPG Northeast', 'NPG Yorkshire', 'SPEN SPD', 'SPEN SPM', 'SSEPD SEPD', 'SSEPD SHEPD', 'UKPN EPN', 'UKPN LPN', 'UKPN SPN', 'WPD EastM', 'WPD SWales', 'WPD SWest', 'WPD WestM');
+dno.areas<-c('ENWL', 'NPG Northeast', 'NPG Yorkshire', 'SPEN SPD', 'SPEN SPM', 'SSEN SEPD', 'SSEN SHEPD', 'UKPN EPN', 'UKPN LPN', 'UKPN SPN', 'WPD EastM', 'WPD SWales', 'WPD SWest', 'WPD WestM');
 
 map.England.Wales.Scotland <- function () {
     data.frame(

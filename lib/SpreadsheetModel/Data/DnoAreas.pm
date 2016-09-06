@@ -41,7 +41,7 @@ sub normaliseDnoName {
         s/^EDFEN-/UKPN-/;
         s/^NP-/NPG-/;
         s/^SP-/SPEN-/;
-        s/^SSE-/SSEPD-/;
+        s/^SSE(PD)?-/SSEN-/;
         s/^WPD-Wales/WPD-SWales/;
         s/^WPD-West\b/WPD-SWest/;
     }

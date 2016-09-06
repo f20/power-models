@@ -1,7 +1,7 @@
 ---
 1000:
   - _table: '1000. Company, charging year, data version'
-  - Company charging year data version: SHEPD
+  - Company charging year data version: Scottish Hydro Electric Power Distribution
     _column: Company
   - Company charging year data version: 2019/2020
     _column: Year
