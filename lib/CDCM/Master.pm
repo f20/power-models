@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -57,10 +57,12 @@ sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
 
     my $todmodule = ucfirst( $ruleset->{timeOfDay} || 'timeOfDay' );
-    die "Time of day module $todmodule is unsafe"
+    die "Time of day module CDCM::$todmodule is unsafe"
       unless $todmodule =~ /^[a-zA-Z0-9_]+$/s;
 
     "CDCM::$todmodule",
+
+      $ruleset->{tariffSpec} ? 'CDCM::TariffSpec' : 'CDCM::TariffList',
 
       $ruleset->{pcd} ? 'CDCM::Discounts' : (),
 

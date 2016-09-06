@@ -37,8 +37,50 @@ local undef $/;
 binmode DATA, ':utf8';
 my @tariffList = Load <DATA>;
 
-sub tariffList {
-    @tariffList;
+sub tariffSpecLegacy {
+    my ($model) = @_;
+    my @tspec;
+    foreach (@tariffList) {
+        my ( $endUser, $components ) = %$_;
+        if ( $endUser =~ /^(GSP|132|33)/i ) {
+            next if !$model->{ehv};
+            next if $model->{ehv} =~ /gen/i && $endUser !~ /gener/i;
+            next
+              if $model->{ehv} =~ /33/ && $endUser =~ /132|33kV sub/i;
+        }
+        my %hash = map { %$_ } grep { ref $_ eq 'HASH' } @$components;
+        next unless $hash{Included};
+        my $included = qr/$hash{Included}/ or next;
+        my $boundary;
+        if ( $model->{boundary} && 'boundary' =~ $included ) {
+            $boundary = $model->{boundary};
+        }
+        my $portfolio;
+        if ( $model->{portfolio} && 'portfolio' =~ $included ) {
+            $portfolio = $model->{portfolio};
+        }
+        if ( $model->{tariffs} ) {
+            next if $model->{tariffs} !~ $included;
+            next
+              if $hash{Excluded}
+              && $model->{tariffs} =~ qr/$hash{Excluded}/;
+        }
+        else {
+            next if $included !~ /common/i;
+        }
+        my @components = sort grep { !ref $_ } @$components;
+        push @tspec,
+          [
+            $endUser,
+            {
+                $portfolio  ? ( Portfolio => $portfolio )  : (),
+                $boundary   ? ( Boundary  => $boundary )   : (),
+                $hash{Name} ? ( Name      => $hash{Name} ) : (),
+            },
+            @components,
+          ];
+    }
+    @tspec;
 }
 
 1;

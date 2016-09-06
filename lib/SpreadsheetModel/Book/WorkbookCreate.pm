@@ -2,7 +2,7 @@ package SpreadsheetModel::Book::WorkbookCreate;
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -163,6 +163,7 @@ sub create {
             \@optionArray )
           if $#optionArray
           && UNIVERSAL::can( $options->{PerlModule}, 'setUpMultiModelSharing' );
+        $options->{tariffSpecification} = [] if $exporter;
         my $model = $options->{PerlModule}->new(%$options);
         map { $_->($model); } @{ $options->{requestsToSeeModel} }
           if $options->{requestsToSeeModel};

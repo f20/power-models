@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,228 +32,193 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use CDCM::TariffList;
 
 sub tariffs {
 
     my ($model) = @_;
 
+    my $hardMaxUnitRates = 10;
+    my $maxUnitRates     = 1;
+    my $noLdno           = !$model->{boundary} && !$model->{portfolio};
     my @allComponents;
     my @nonExcludedComponents;
     my %componentMap;
     my %componentUsed;
-
     my ( $allTariffs, $allTariffsByEndUser, $allEndUsers );
-
     my @endUserTypeList;
-
     my @allTariffs;
 
-    my $hardMaxUnitRates = 10;
+    my $method = $model->{tariffSpec} ? 'tariffSpec' : 'tariffSpecLegacy';
+    my @tariffSpec = $model->$method;
+    push @{ $model->{tariffSpecification} }, @tariffSpec
+      if $model->{tariffSpecification};
 
-    my $maxUnitRates = 1;
+    foreach (@tariffSpec) {
 
-    my $noLdno = !$model->{boundary} && !$model->{portfolio};
+        my ( $endUser, $hash, @components ) = @$_;
 
-    {
-        my @hashes = $model->tariffList;
-        my @reserve;
+        my %map = map { $_ => 'nothing' } @components;
 
-        while ( @hashes || @reserve ) {
+        if ( $map{'Unit rates p/kWh'} ) {
+            $map{"Unit rate $_ p/kWh"} = 'nothing'
+              foreach 1 .. $model->{timebands};
+        }
 
-            my ( $endUser, $components ) =
-              %{ @hashes ? shift @hashes : shift @reserve };
+        if ( $map{'Generation capacity rate p/kW/day'} ) {
+            $map{'Generation capacity rate p/kW/day'} = 'PAYG yardstick kW';
+            $map{'Reactive power charge p/kVArh'}     = 'PAYG kVArh'
+              if $map{'Reactive power charge p/kVArh'};
+        }
 
-            if ( $endUser =~ /^(GSP|132|33)/i ) {
-                next if !$model->{ehv};
-                next if $model->{ehv} =~ /gen/i && $endUser !~ /gener/i;
-                next
-                  if $model->{ehv} =~ /33/ && $endUser =~ /132|33kV sub/i;
-            }
-
-            my %hash = map { %$_ } grep { ref $_ eq 'HASH' } @$components;
-
-            next
-              unless $hash{Included} && ( my $included = qr/$hash{Included}/ );
-
-            $endUser .= "\n$hash{Name}" if !$model->{rawNames} && $hash{Name};
-
-            my $boundary;
-
-            if ( $model->{boundary} && 'boundary' =~ $included ) {
-                $boundary = $model->{boundary};
-            }
-            elsif ( $model->{tariffs} ) {
-                next if $model->{tariffs} !~ $included;
-                next
-                  if $hash{Excluded}
-                  && $model->{tariffs} =~ qr/$hash{Excluded}/;
+        elsif ( $map{'Capacity charge p/kVA/day'} ) {
+            $map{'Capacity charge p/kVA/day'} = 'Capacity';
+            if (   $map{'Unit rate 2 p/kWh'}
+                || $map{'Unit rate 0 p/kWh'} )
+            {
+                foreach ( grep { $map{"Unit rate $_ p/kWh"} }
+                    1 .. $hardMaxUnitRates )
+                {
+                    $map{"Unit rate $_ p/kWh"} = "Standard $_ kWh";
+                    $maxUnitRates = $_ if $maxUnitRates < $_;
+                }
             }
             else {
-                next if $included !~ /common/i;
+                $map{'Unit rate 1 p/kWh'} = 'Standard yardstick kWh';
             }
+            $map{'Reactive power charge p/kVArh'} = 'Standard kVArh'
+              if $map{'Reactive power charge p/kVArh'};
+        }
 
-            my @tariffs = $endUser;    # "$endUser (directly connected)"
-
-            if ( $model->{portfolio}
-                && 'portfolio' =~ $included )
+        elsif ($endUser !~ /(generat|unmeter)/i
+            && $map{'Fixed charge p/MPAN/day'} )
+        {
+            $map{'Fixed charge p/MPAN/day'} = 'Fixed from network';
+            if (   $map{'Unit rate 2 p/kWh'}
+                || $map{'Unit rate 0 p/kWh'} )
             {
-                my @boundaryLevels;
-                push @boundaryLevels, 'Any'
-                  if $model->{portfolio} =~ /umsone/i
-                  && $endUser =~ /ums|unmeter/i;
-                push @boundaryLevels, 'LV',
-                  $model->{portfolio} =~ /lvsub/i ? 'LV Sub' : (), 'HV',
-                  $model->{portfolio} =~ /15/
-                  ? qw(0000 0001 0002 0010 0011 0100 0101 0110 0111 1000 1001 1100 1101 1110 1111)
-                  : (
-                    $model->{portfolio} =~ /hvsub/i ? 'HV Sub' : (),
-                    $model->{portfolio} =~ /ehv/i
-                    ? ( '33kV', '33kV Sub', '132kV' )
-                    : (),
-                    $model->{portfolio} =~ /gsp/i ? 'GSP'
-                    : (),
-                  )
-                  unless $model->{portfolio} =~ /umsoneonly/i
-                  && $endUser =~ /ums|unmeter/i;
-                foreach my $l (@boundaryLevels) {
-                         $endUser =~ /^(HV|33|132)/i  && $l =~ /^LV/i
-                      || $endUser =~ /^(33|132)/i     && $l =~ /^HV/i
-                      || $endUser =~ /^132/i          && $l =~ /^33/i
-                      || $endUser =~ /^LV sub/i       && $l =~ /^LV/i
-                      || $endUser =~ /^HV (pri|sub)/i && $l =~ /^HV/i
-                      || push @tariffs, join "\n",
-                      map { "LDNO $l: $_" } split /\n/, $endUser;
+                foreach ( grep { $map{"Unit rate $_ p/kWh"} }
+                    1 .. $hardMaxUnitRates )
+                {
+                    $map{"Unit rate $_ p/kWh"} = "Standard $_ kWh";
+                    $maxUnitRates = $_ if $maxUnitRates < $_;
                 }
-
             }
-
-            my %map = map { $_ => 'nothing' } grep { !ref $_ } @$components;
-            $map{'Unit rate 0 p/kWh'} = 'nothing'
-              if $model->{alwaysUseRAG} && $endUser !~ /gener/i;
-
-            $map{
-                $model->{unauth} && $model->{unauth} =~ /day/i
-                ? 'Exceeded capacity charge p/kVA/day'
-                : 'Unauthorised demand charge p/kVAh'
-              }
-              = 'Capacity'
-              if $model->{unauth}
-              && $map{'Capacity charge p/kVA/day'};
-
-            if ($boundary) {
-                push @tariffs, "LDNO LV $_: $endUser"
-                  foreach $boundary > 1
-                  ? map { "B$_" } 1 .. $boundary
-                  : 'boundary';
-            }
-
-            if ( $map{'Unit rates p/kWh'} ) {
-                $map{"Unit rate $_ p/kWh"} = 'nothing'
-                  foreach 1 .. $model->{timebands};
-            }
-
-            undef $componentUsed{$_} foreach keys %map;
-
-            if ( $map{'Generation capacity rate p/kW/day'} ) {
-                $map{'Generation capacity rate p/kW/day'} = 'PAYG yardstick kW';
-                $map{'Reactive power charge p/kVArh'}     = 'PAYG kVArh'
-                  if $map{'Reactive power charge p/kVArh'};
-            }
-
-            elsif ( $map{'Capacity charge p/kVA/day'} ) {
-                $map{'Capacity charge p/kVA/day'} = 'Capacity';
-                if ( $map{'Unit rate 2 p/kWh'} || $map{'Unit rate 0 p/kWh'} ) {
-                    foreach ( grep { $map{"Unit rate $_ p/kWh"} }
-                        1 .. $hardMaxUnitRates )
-                    {
-                        $map{"Unit rate $_ p/kWh"} = "Standard $_ kWh";
-                        $maxUnitRates = $_ if $maxUnitRates < $_;
-                    }
-                }
-                else {
-                    $map{'Unit rate 1 p/kWh'} = 'Standard yardstick kWh';
-                }
-                $map{'Reactive power charge p/kVArh'} = 'Standard kVArh'
-                  if $map{'Reactive power charge p/kVArh'};
-            }
-
-            elsif ($endUser !~ /(generat|unmeter)/i
-                && $map{'Fixed charge p/MPAN/day'} )
-            {
-                $map{'Fixed charge p/MPAN/day'} = 'Fixed from network';
-                if ( $map{'Unit rate 2 p/kWh'} || $map{'Unit rate 0 p/kWh'} ) {
-                    foreach ( grep { $map{"Unit rate $_ p/kWh"} }
-                        1 .. $hardMaxUnitRates )
-                    {
-                        $map{"Unit rate $_ p/kWh"} = "Standard $_ kWh";
-                        $maxUnitRates = $_ if $maxUnitRates < $_;
-                    }
-                }
-                else {
-                    $map{'Unit rate 1 p/kWh'} = 'Standard yardstick kWh';
-                }
-                $map{'Reactive power charge p/kVArh'} = 'PAYG kVArh'
-                  if $map{'Reactive power charge p/kVArh'};
-            }
-
             else {
-                if ( $map{'Unit rate 2 p/kWh'} || $map{'Unit rate 0 p/kWh'} ) {
-                    foreach ( grep { $map{"Unit rate $_ p/kWh"} }
-                        1 .. $hardMaxUnitRates )
-                    {
-                        $map{"Unit rate $_ p/kWh"} = (
-                            $endUser =~ /(additional|related) MPAN/i
-                            ? 'Standard'
-                            : 'PAYG'
-                        ) . " $_ kWh";
-                        $maxUnitRates = $_ if $maxUnitRates < $_;
-                    }
-                }
-                else {
-                    $map{'Unit rate 1 p/kWh'} = (
+                $map{'Unit rate 1 p/kWh'} = 'Standard yardstick kWh';
+            }
+            $map{'Reactive power charge p/kVArh'} = 'PAYG kVArh'
+              if $map{'Reactive power charge p/kVArh'};
+        }
+
+        else {
+            if (   $map{'Unit rate 2 p/kWh'}
+                || $map{'Unit rate 0 p/kWh'} )
+            {
+                foreach ( grep { $map{"Unit rate $_ p/kWh"} }
+                    1 .. $hardMaxUnitRates )
+                {
+                    $map{"Unit rate $_ p/kWh"} = (
                         $endUser =~ /(additional|related) MPAN/i
                         ? 'Standard'
                         : 'PAYG'
-                    ) . ' yardstick kWh';
+                    ) . " $_ kWh";
+                    $maxUnitRates = $_ if $maxUnitRates < $_;
                 }
-                $map{'Reactive power charge p/kVArh'} = (
+            }
+            else {
+                $map{'Unit rate 1 p/kWh'} = (
                     $endUser =~ /(additional|related) MPAN/i
                     ? 'Standard'
                     : 'PAYG'
-                  )
-                  . ' kVArh'
-                  if $map{'Reactive power charge p/kVArh'};
+                ) . ' yardstick kWh';
             }
-
-            if ( $map{'Fixed charge p/MPAN/day'} ) {
-                $map{'Fixed charge p/MPAN/day'} =
-                  $map{'Fixed charge p/MPAN/day'} eq 'nothing'
-                  ? 'Customer'
-                  : "$map{'Fixed charge p/MPAN/day'} & customer";
-            }
-            elsif ( $endUser !~ /(additional|related) MPAN/i ) {
-                $map{"Unit rate $_ p/kWh"} .= " & customer"
-                  foreach grep { $map{"Unit rate $_ p/kWh"} }
-                  1 .. $hardMaxUnitRates;
-            }
-
-            $endUser = join "\n", map { $noLdno ? $_ : "> $_" } split /\n/,
-              $endUser;
-
-            for my $tariff ( $endUser, @tariffs ) {
-                $componentMap{$tariff} = \%map;
-            }
-
-            push @endUserTypeList,
-              Labelset(
-                name => $endUser,
-                list => \@tariffs
-              );
-
-            push @allTariffs, @tariffs;
-
+            $map{'Reactive power charge p/kVArh'} = (
+                $endUser =~ /(additional|related) MPAN/i
+                ? 'Standard'
+                : 'PAYG'
+              )
+              . ' kVArh'
+              if $map{'Reactive power charge p/kVArh'};
         }
+
+        if ( $map{'Fixed charge p/MPAN/day'} ) {
+            $map{'Fixed charge p/MPAN/day'} =
+              $map{'Fixed charge p/MPAN/day'} eq 'nothing'
+              ? 'Customer'
+              : "$map{'Fixed charge p/MPAN/day'} & customer";
+        }
+        elsif ( $endUser !~ /(additional|related) MPAN/i ) {
+            $map{"Unit rate $_ p/kWh"} .= " & customer"
+              foreach grep { $map{"Unit rate $_ p/kWh"} }
+              1 .. $hardMaxUnitRates;
+        }
+
+        $map{'Unit rate 0 p/kWh'} = 'nothing'
+          if $model->{alwaysUseRAG} && $endUser !~ /gener/i;
+
+        $map{
+            $model->{unauth} && $model->{unauth} =~ /day/i
+            ? 'Exceeded capacity charge p/kVA/day'
+            : 'Unauthorised demand charge p/kVAh'
+          }
+          = 'Capacity'
+          if $model->{unauth}
+          && $map{'Capacity charge p/kVA/day'};
+
+        undef $componentUsed{$_} foreach keys %map;
+
+        $endUser .= "\n$hash->{Name}" if !$model->{rawNames} && $hash->{Name};
+        my @tariffs = $endUser;
+        if ( my $boundary = $hash->{Boundary} ) {
+            push @tariffs, "LDNO LV $_: $endUser"
+              foreach $boundary > 1
+              ? map { "B$_" } 1 .. $boundary
+              : 'boundary';
+        }
+        if ( my $portfolio = $hash->{Portfolio} ) {
+            my @boundaryLevels;
+            push @boundaryLevels, 'Any'
+              if $portfolio =~ /umsone/i
+              && $endUser =~ /ums|unmeter/i;
+            push @boundaryLevels, 'LV',
+              $portfolio =~ /lvsub/i ? 'LV Sub' : (), 'HV',
+              $portfolio =~ /15/
+              ? qw(0000 0001 0002 0010 0011 0100 0101 0110 0111 1000 1001 1100 1101 1110 1111)
+              : (
+                $portfolio =~ /hvsub/i ? 'HV Sub' : (),
+                $portfolio =~ /ehv/i ? ( '33kV', '33kV Sub', '132kV' )
+                : (),
+                $portfolio =~ /gsp/i ? 'GSP'
+                : (),
+              )
+              unless $portfolio =~ /umsoneonly/i
+              && $endUser =~ /ums|unmeter/i;
+            foreach my $l (@boundaryLevels) {
+                     $endUser =~ /^(HV|33|132)/i  && $l =~ /^LV/i
+                  || $endUser =~ /^(33|132)/i     && $l =~ /^HV/i
+                  || $endUser =~ /^132/i          && $l =~ /^33/i
+                  || $endUser =~ /^LV sub/i       && $l =~ /^LV/i
+                  || $endUser =~ /^HV (pri|sub)/i && $l =~ /^HV/i
+                  || push @tariffs, join "\n",
+                  map { "LDNO $l: $_" } split /\n/, $endUser;
+            }
+        }
+
+        $endUser = join "\n", map { $noLdno ? $_ : "> $_" } split /\n/,
+          $endUser;
+
+        for my $tariff ( $endUser, @tariffs ) {
+            $componentMap{$tariff} = \%map;
+        }
+
+        push @endUserTypeList,
+          Labelset(
+            name => $endUser,
+            list => \@tariffs
+          );
+
+        push @allTariffs, @tariffs;
+
     }
 
     $model->{maxUnitRates} = $maxUnitRates;
@@ -286,7 +251,9 @@ EOL
         );
 
         $allTariffs =
-          !$model->{reorderTariffsInSummary} ? $allTariffsByEndUser : Labelset(
+           !$model->{reorderTariffsInSummary}
+          ? $allTariffsByEndUser
+          : Labelset(
             name => 'All tariffs',
             list => [
                 ( grep { !/LDNO/i } @allTariffs ),

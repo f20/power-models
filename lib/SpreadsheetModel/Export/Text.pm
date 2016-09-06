@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,9 @@ use strict;
 use utf8;
 
 sub writeText {
+
     my ( $options, $pathPrefix ) = @_;
+
     if ( my $yaml = $options->{yaml} ) {
         my $file  = "${pathPrefix}Rules.txt";
         my $tfile = $pathPrefix . $$ . '.txt';
@@ -42,6 +44,7 @@ sub writeText {
         close $fh;
         rename $tfile, $file;
     }
+
     my $logger = $options->{logger};
     $pathPrefix = '' unless defined $pathPrefix;
     my %writer;
@@ -76,6 +79,19 @@ sub writeText {
     );
     $_->htmlWrite( \%writer, $writer{Calculations} ) foreach @objects;
     $_->() foreach @end;
+
+    if ( my $tariffSpecification = $options->{tariffSpecification} ) {
+        if (@$tariffSpecification) {
+            open my $fh, '>', $pathPrefix . $$ . '.Tariffs.txt';
+            binmode $fh, ':utf8';
+            require YAML;
+            print {$fh} YAML::Dump(@$tariffSpecification);
+            close $fh;
+            rename $pathPrefix . $$ . '.Tariffs.txt',
+              $pathPrefix . 'Tariffs.txt';
+        }
+    }
+
 }
 
 sub _pmarks {
