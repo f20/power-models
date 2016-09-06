@@ -1,0 +1,19 @@
+---
+.: 'DCP 168 model (clean, old tariff names)'
+PerlModule: CDCM
+checksums: Line checksum 5; Table checksum 7
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: yes
+targetRevenue: dcp132
+tariffGrouping: supercustomer
+tariffSpec: 1
+tariffs: dcp130_omitnhh_offpeakhh
+timeOfDay: timeOfDaySpecial

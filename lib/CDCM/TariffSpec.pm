@@ -39,9 +39,17 @@ my @tariffSpec = Load <DATA>;
 
 sub tariffSpec {
     my ($model) = @_;
-    $model->{tariffs} && $model->{tariffs} =~ /gennoreact/i
-      ? @tariffSpec
-      : grep { $_->[0] !~ /no reactive/i; } @tariffSpec;
+    my @list = @tariffSpec;
+    @list = grep { $_->[0] !~ /no reactive/i; } @tariffSpec
+      unless $model->{tariffs} && $model->{tariffs} =~ /gennoreact/i;
+    @list = grep {
+        $_->[0] !~ /related/i || !grep { $_ eq 'Unit rates p/kWh' } @$_;
+      } @list
+      unless $model->{tariffs} && $model->{tariffs} =~ /offpeakhh/i;
+    @list = grep {
+        grep { $_ eq 'Unit rates p/kWh' } @$_;
+    } @list if $model->{tariffs} && $model->{tariffs} =~ /omitnhh/i;
+    @list;
 }
 
 1;

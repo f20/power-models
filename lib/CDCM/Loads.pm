@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -93,7 +94,9 @@ EOL
                 error_message => 'The volume must be a non-negative number.'
             },
             data          => $componentVolumeData{$_},
-            defaultFormat => /k(?:W|VAr)h/ ? '0.000hard' : '0hard',
+            defaultFormat => $model->{summary}
+              && $model->{summary} =~ /consultation/i
+              && /k(?:W|VAr)h/ ? '0.000hard' : '0hard',
           )
     } @$nonExcludedComponents;
 
@@ -116,8 +119,8 @@ EOL
         columns  => [ @volumeData{@$nonExcludedComponents} ]
     );
 
-    return ( \%volumeData )
-      unless ref $unitsAdjustmentFactor || !$unitsAdjustmentFactor;
+    return \%volumeData
+      if $unitsAdjustmentFactor && !ref $unitsAdjustmentFactor;
 
     my %volumesAdjusted;
 

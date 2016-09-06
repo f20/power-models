@@ -1,0 +1,21 @@
+---
+.: Tariff grouping (explicit capacity)
+PerlModule: CDCM
+checksums: Line checksum 5; Table checksum 7
+drm: top500gsp
+edcmTables: 1
+extraLevels: 1
+fixedCap: 1-4
+forwardLinks: 1
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: statistics
+targetRevenue: dcp132
+tariffGrouping: total
+tariffSpec: 1
+tariffs: dcp130
+timeOfDay: timeOfDaySpecial

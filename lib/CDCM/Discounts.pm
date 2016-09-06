@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,19 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
-sub pcdPreprocessVolumes {
+sub pcdSetUp {
+    my ( $model, $allEndUsers, $allTariffsByEndUser, $allTariffs ) = @_;
+    delete $model->{portfolio};
+    delete $model->{boundary};
+    $model->{pcd} = {
+        allTariffsByEndUser => $allTariffsByEndUser,
+        allTariffs          => $allTariffs
+    };
+    map { $_->{name} =~ s/> //g; } @{ $allEndUsers->{list} };
+    $allEndUsers, $allEndUsers, $allEndUsers;
+}
+
+sub pcdPreprocessedVolumes {
 
     my (
         $model,                   $allEndUsers,
@@ -144,7 +156,7 @@ sub pcdPreprocessVolumes {
         # separate discounts for demand unit changes, demand standing charges,
         # generation credits and generation fixed charges.
 
-        die 'EDCM discounted LDNO tariffs are not implemented here (yet)';
+        die 'EDCM discounted LDNO tariffs are not implemented here';
 
     }
 

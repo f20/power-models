@@ -64,6 +64,8 @@ sub requiredModulesForRuleset {
 
       $ruleset->{tariffSpec} ? 'CDCM::TariffSpec' : 'CDCM::TariffList',
 
+      $ruleset->{tariffGrouping} ? 'CDCM::Grouping' : (),
+
       $ruleset->{pcd} ? 'CDCM::Discounts' : (),
 
       $ruleset->{inYear} ? qw(CDCM::InYearAdjust CDCM::InYearSummaries)
@@ -85,8 +87,11 @@ sub requiredModulesForRuleset {
       : $ruleset->{summary} =~ /1203/ ? 'CDCM::Statistics1203'
       : 'CDCM::Statistics',
 
-      $ruleset->{checksums}       ? qw(SpreadsheetModel::Checksum) : (),
-      $ruleset->{timebandDetails} ? qw(CDCM::Timebands)            : ();
+      $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : (),
+
+      $ruleset->{timebandDetails} ? qw(CDCM::Timebands) : (),
+
+      ;
 
 }
 
@@ -142,21 +147,14 @@ sub new {
         $nonExcludedComponents, $componentMap )
       = $model->tariffs;
 
-    if ( $model->{pcd} ) {
+    ( $allEndUsers, $allTariffsByEndUser, $allTariffs ) =
+      $model->setUpGrouping( $componentMap, $allEndUsers, $allTariffsByEndUser,
+        $allTariffs )
+      if $model->{tariffGrouping};
 
-        delete $model->{portfolio};
-        delete $model->{boundary};
-
-        $model->{pcd} = {
-            allTariffsByEndUser => $allTariffsByEndUser,
-            allTariffs          => $allTariffs
-        };
-
-        map { $_->{name} =~ s/> //g; } @{ $allEndUsers->{list} };
-
-        $allTariffs = $allTariffsByEndUser = $allEndUsers;
-
-    }
+    ( $allEndUsers, $allTariffsByEndUser, $allTariffs ) =
+      $model->pcdSetUp( $allEndUsers, $allTariffsByEndUser, $allTariffs )
+      if $model->{pcd};
 
     my $coreLevels     = $drmLevels;
     my $coreExitLevels = $drmExitLevels;
@@ -389,7 +387,7 @@ EOT
     );
 
     if ( $model->{pcd} ) {
-        $model->pcdPreprocessVolumes(
+        $model->pcdPreprocessedVolumes(
             $allEndUsers,      $componentMap,
             $daysAfter,        $daysBefore,
             $daysInYear,       $nonExcludedComponents,
