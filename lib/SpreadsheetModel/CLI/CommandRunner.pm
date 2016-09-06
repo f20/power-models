@@ -90,7 +90,7 @@ sub makeFolder {
         system 'open', $self->[C_DESTINATION] if -d '/System/Library';   # macOS
         delete $self->[C_DESTINATION];
     }
-    if ($folder) {    # Create temporary folder
+    if ($folder) {    # Create temporary folder and go there
         if ( -d '/System/Library' )
         {             # Try to use a temporary memory disk on macOS
             my $ramDiskBlocks = 12_000_000;    # About 6G, in 512-byte blocks.

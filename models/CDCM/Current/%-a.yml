@@ -1,0 +1,37 @@
+---
+.: CDCM-EDCM experiment
+PerlModule: CDCM
+alwaysUseRAG: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupumsdomnondomredonly
+dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
+  1020:
+    - ~
+    - LV circuits: 200000000
+  1059:
+    - ~
+    - ~
+    - ~
+    - Other expenditure: 0.4
+drm: top500gsp
+edcmTables: 1
+ehv: 1
+extraLevels: 1
+fixedCap: 1-4
+forwardLinks: 1
+matrices: big
+noLossAdj: 1
+noReplacement: 0.453
+portfolio: hvsub_ehv
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: statistics
+targetRevenue: dcp132
+tariffSpec: 1
+tariffs: dcp130
+timeOfDay: timeOfDaySpecial
