@@ -34,33 +34,11 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use YAML;
 
-sub volumes {
+sub volumeData {
 
-    my (
-        $model,                 $allTariffsByEndUser, $allEndUsers,
-        $nonExcludedComponents, $componentMap,        $unitsAdjustmentFactor
-    ) = @_;
-
-    my %componentVolumeName = (
-        (
-            map { ( "Unit rate $_ p/kWh", "Rate $_ units (MWh)" ) }
-              1 .. $model->{maxUnitRates}
-        ),
-        split "\n",
-        <<'EOL');
-Fixed charge p/MPAN/day
-MPANs
-Capacity charge p/kVA/day
-Import capacity (kVA)
-Unauthorised demand charge p/kVAh
-Unauthorised demand (MVAh)
-Exceeded capacity charge p/kVA/day
-Exceeded capacity (kVA)
-Generation capacity rate p/kW/day
-Generation capacity (kW)
-Reactive power charge p/kVArh
-Reactive power units (MVArh)
-EOL
+    my ( $model, $allTariffsByEndUser, $nonExcludedComponents, $componentMap,
+        $componentVolumeNameMap )
+      = @_;
 
     # MPANs are included for all tariffs, even if the model does not need them
 
@@ -79,8 +57,8 @@ EOL
     my %volumeData = map {
         $_ => Dataset(
             name => Label(
-                $componentVolumeName{$_},
-                "$componentVolumeName{$_} by tariff"
+                $componentVolumeNameMap->{$_},
+                "$componentVolumeNameMap->{$_} by tariff"
             ),
             rows       => $allTariffsByEndUser,
             validation => {
@@ -88,7 +66,7 @@ EOL
                 criteria      => '>=',
                 value         => 0,
                 input_title   => 'Volume data:',
-                input_message => $componentVolumeName{$_}
+                input_message => $componentVolumeNameMap->{$_}
                   . ( /kVA/ ? ' (except where excluded revenue)' : '' ),
                 error_title   => 'Volume data error',
                 error_message => 'The volume must be a non-negative number.'
@@ -119,8 +97,55 @@ EOL
         columns  => [ @volumeData{@$nonExcludedComponents} ]
     );
 
-    return \%volumeData
-      if $unitsAdjustmentFactor && !ref $unitsAdjustmentFactor;
+    \%volumeData;
+
+}
+
+sub volumes {
+
+    my (
+        $model,                 $allTariffsByEndUser, $allEndUsers,
+        $nonExcludedComponents, $componentMap,        $unitsAdjustmentFactor
+    ) = @_;
+
+    my $componentVolumeNameMap = {
+        (
+            map { ( "Unit rate $_ p/kWh", "Rate $_ units (MWh)" ) }
+              1 .. $model->{maxUnitRates}
+        ),
+        split "\n",
+        <<'EOL' };
+Fixed charge p/MPAN/day
+MPANs
+Capacity charge p/kVA/day
+Import capacity (kVA)
+Unauthorised demand charge p/kVAh
+Unauthorised demand (MVAh)
+Exceeded capacity charge p/kVA/day
+Exceeded capacity (kVA)
+Generation capacity rate p/kW/day
+Generation capacity (kW)
+Reactive power charge p/kVArh
+Reactive power units (MVArh)
+EOL
+
+    my $volumeData =
+      $model->{ungrouped}
+      ? $model->groupVolumes(
+        $model->volumeData(
+            $model->{ungrouped}{allTariffsByEndUser}, $nonExcludedComponents,
+            $componentMap,                            $componentVolumeNameMap,
+        ),
+        $allTariffsByEndUser,
+        $nonExcludedComponents,
+        $componentVolumeNameMap,
+      )
+      : $model->volumeData(
+        $allTariffsByEndUser, $nonExcludedComponents,
+        $componentMap,        $componentVolumeNameMap,
+      );
+
+    return $volumeData if $unitsAdjustmentFactor && !ref $unitsAdjustmentFactor;
 
     my %volumesAdjusted;
 
@@ -129,10 +154,10 @@ EOL
         %volumesAdjusted = map {
             if (/Unit rate/i) {
                 my $adj = Arithmetic(
-                    name       => "$componentVolumeName{$_} loss adjusted",
+                    name       => "$componentVolumeNameMap->{$_} loss adjusted",
                     arithmetic => '=A1*(1+A2)',
                     arguments  => {
-                        A1 => $volumeData{$_},
+                        A1 => $volumeData->{$_},
                         A2 => $unitsAdjustmentFactor,
                     }
                 );
@@ -141,8 +166,8 @@ EOL
             }
             else {
                 $_ => 1
-                  ? Stack( sources => [ $volumeData{$_} ] )
-                  : $volumeData{$_};
+                  ? Stack( sources => [ $volumeData->{$_} ] )
+                  : $volumeData->{$_};
             }
         } @$nonExcludedComponents;
         Columnset(
@@ -154,7 +179,7 @@ EOL
         );
     }
     else {
-        %volumesAdjusted = %volumeData;
+        %volumesAdjusted = %$volumeData;
     }
 
     my $unitsInYear = Arithmetic(
@@ -172,8 +197,8 @@ EOL
     my %volumesByEndUser = map {
         $_ => GroupBy(
             name => Label(
-                $componentVolumeName{$_},
-                "$componentVolumeName{$_} aggregated by end user"
+                $componentVolumeNameMap->{$_},
+                "$componentVolumeNameMap->{$_} aggregated by end user"
             ),
             rows          => $allEndUsers,
             source        => $volumesAdjusted{$_},
@@ -213,7 +238,7 @@ EOIDNONOTE
           [ @volumesByEndUser{@$nonExcludedComponents}, $unitsByEndUser ]
     );
 
-    \%volumeData, \%volumesAdjusted, \%volumesByEndUser, $unitsInYear,
+    $volumeData, \%volumesAdjusted, \%volumesByEndUser, $unitsInYear,
       $unitsByEndUser;
 
 }

@@ -1,21 +1,20 @@
 ---
-.: Total tariff grouping
+.: 'DCP 168 clean'
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
 drm: top500gsp
-edcmTables: 1
 extraLevels: 1
-fixedCap: nosheet
-forwardLinks: 1
+fixedCap: 1-4
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: statistics
+summary: yes
 targetRevenue: dcp132
-tariffGrouping: total
+tariffGrouping: supercustomer
+tariffNameField: Name268
 tariffSpec: 1
-tariffs: dcp130
-timeOfDay: timeOfDay
+tariffs: dcp130_omitnhh_offpeakhh
+timeOfDay: timeOfDaySpecial

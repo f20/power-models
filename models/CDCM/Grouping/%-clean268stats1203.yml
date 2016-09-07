@@ -1,21 +1,21 @@
 ---
-.: Total tariff grouping
+.: DCP 268 with table 1203 statistics
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupums
 drm: top500gsp
-edcmTables: 1
 extraLevels: 1
-fixedCap: nosheet
-forwardLinks: 1
+fixedCap: 1-4
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: statistics
+summary: stats1203
 targetRevenue: dcp132
-tariffGrouping: total
+tariffGrouping: supercustomer
+tariffNameField: Name268
 tariffSpec: 1
-tariffs: dcp130
-timeOfDay: timeOfDay
+tariffs: dcp130_omitnhh_offpeakhh
+timeOfDay: timeOfDaySpecial

@@ -151,7 +151,8 @@ sub pcdPreprocessedVolumes {
     if ( $model->{portfolio} && $model->{portfolio} =~ /ehv/i ) {
 
         # Supplement table 1037 with table 1181 or
-        # replace everything with a totally new table 1038
+        # replace everything with a totally new table 1038.
+
         # A new table 1038 would show, for each level pair,
         # separate discounts for demand unit changes, demand standing charges,
         # generation credits and generation fixed charges.

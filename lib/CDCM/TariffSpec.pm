@@ -43,12 +43,16 @@ sub tariffSpec {
     @list = grep { $_->[0] !~ /no reactive/i; } @tariffSpec
       unless $model->{tariffs} && $model->{tariffs} =~ /gennoreact/i;
     @list = grep {
-        $_->[0] !~ /related/i || !grep { $_ eq 'Unit rates p/kWh' } @$_;
+        $_->[0] !~ /related /i || !grep { $_ eq 'Unit rates p/kWh' } @$_;
       } @list
       unless $model->{tariffs} && $model->{tariffs} =~ /offpeakhh/i;
     @list = grep {
         grep { $_ eq 'Unit rates p/kWh' } @$_;
     } @list if $model->{tariffs} && $model->{tariffs} =~ /omitnhh/i;
+    map { $_->[1]{Name} = $_->[1]{ $model->{tariffNameField} }; }
+      grep { $_->[1]{ $model->{tariffNameField} }; } @list
+      if $model->{tariffNameField};
+    @list = grep { $_->[1]{Name}; } @list unless $model->{tariffsWithNoNames};
     @list;
 }
 
@@ -124,20 +128,37 @@ __DATA__
 ---
 - LV half hourly domestic
 - Name: LV Network Domestic
+  Name268: LV Domestic Aggregated
   Portfolio: 1
 - Fixed charge p/MPAN/day
+- PC0
+- Unit rates p/kWh
+---
+- LV half hourly domestic (related MPAN)
+- Name: LV Network Domestic (related MPAN)
+  Name268: LV Domestic (Related MPAN)
+  Portfolio: 1
 - PC0
 - Unit rates p/kWh
 ---
 - LV half hourly WC
 - Name: LV Network Non-Domestic Non-CT
+  Name268: LV Non Domestic Aggregated
   Portfolio: 1
 - Fixed charge p/MPAN/day
 - PC0
 - Unit rates p/kWh
 ---
+- LV half hourly WC (related MPAN)
+- Name: LV Network Non-Domestic Non-CT (related MPAN)
+  Name268: LV Non Domestic (Related MPAN)
+  Portfolio: 1
+- PC0
+- Unit rates p/kWh
+---
 - LV half hourly
 - Name: LV HH Metered
+  Name268: LV Site Specific
   Portfolio: 1
 - Capacity charge p/kVA/day
 - Fixed charge p/MPAN/day
@@ -147,6 +168,7 @@ __DATA__
 ---
 - LV substation half hourly
 - Name: LV Sub HH Metered
+  Name268: LV Sub Site Specific
   Portfolio: 1
 - Capacity charge p/kVA/day
 - Fixed charge p/MPAN/day
@@ -156,6 +178,7 @@ __DATA__
 ---
 - HV half hourly
 - Name: HV HH Metered
+  Name268: HV Site Specific
   Portfolio: 1
 - Capacity charge p/kVA/day
 - Fixed charge p/MPAN/day
@@ -193,6 +216,7 @@ __DATA__
 ---
 - LV unmetered pseudo half hourly
 - Name: LV UMS (Pseudo HH Metered)
+  Name268: LV UMS
   Portfolio: 1
 - PC0
 - Unit rates p/kWh
@@ -225,8 +249,25 @@ __DATA__
 - PC0
 - Unit rate 1 p/kWh
 ---
+- LV generation half hourly (clone)
+- Name268: LV Generation Aggregated
+  Portfolio: 1
+- Fixed charge p/MPAN/day
+- PC0
+- Reactive power charge p/kVArh
+- Unit rates p/kWh
+---
+- LV substation generation half hourly (clone)
+- Name268: LV Sub Generation Aggregated
+  Portfolio: 1
+- Fixed charge p/MPAN/day
+- PC0
+- Reactive power charge p/kVArh
+- Unit rates p/kWh
+---
 - LV generation half hourly
 - Name: LV Generation Non-Intermittent
+  Name268: LV Generation Site Specific
   Portfolio: 1
 - Fixed charge p/MPAN/day
 - PC0
@@ -255,6 +296,7 @@ __DATA__
 ---
 - LV substation generation half hourly
 - Name: LV Sub Generation Non-Intermittent
+  Name268: LV Sub Generation Site Specific
   Portfolio: 1
 - Fixed charge p/MPAN/day
 - PC0
@@ -283,6 +325,7 @@ __DATA__
 ---
 - HV generation half hourly
 - Name: HV Generation Non-Intermittent
+  Name268: HV Generation Site Specific
   Portfolio: 1
 - Fixed charge p/MPAN/day
 - PC0
