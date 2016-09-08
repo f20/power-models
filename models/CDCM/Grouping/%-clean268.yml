@@ -1,11 +1,12 @@
 ---
-.: 'DCP 168 clean'
+.: DCP 168 clean
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
 matrices: big
+noPCs: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1

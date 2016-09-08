@@ -254,10 +254,10 @@ sub pcdPreprocessedVolumes {
 
 sub pcdApplyDiscounts {
 
-    my (
-        $model,     $allComponents, $allTariffs, $componentMap,
-        $daysAfter, $tariffTable,   $volumeData, $volumeDataAfter,
-    ) = @_;
+    my ( $model, $allComponents, $tariffTable, $daysInYear, ) = @_;
+
+    my $allTariffs = $model->{pcd}{allTariffsByEndUser};
+    my $volumeData = $model->{pcd}{volumeData};
 
     push @{ $model->{roundingResults} },
       Columnset(
@@ -301,10 +301,9 @@ sub pcdApplyDiscounts {
             defaultFormat => '0soft',
             arithmetic    => '=0.01*A1*SUMPRODUCT(A2_A3,A4_A5)',
             arguments     => {
-                A1    => $daysAfter,
+                A1    => $daysInYear,
                 A2_A3 => $electionBung,
-                A4_A5 => ( $volumeDataAfter || $volumeData )
-                  ->{'Fixed charge p/MPAN/day'}
+                A4_A5 => $volumeData->{'Fixed charge p/MPAN/day'}
             }
           );
         $model->{sharedData}->addStats( 'DNO-wide aggregates',
@@ -312,17 +311,12 @@ sub pcdApplyDiscounts {
           if $model->{sharedData};
     }
 
-    $tariffTable = {
+    my $newTariffTable = {
         map {
             $_ => Arithmetic(
-                name => SpreadsheetModel::Object::_shortName(
-                    $tariffTable->{$_}{name}
-                ),
-                defaultFormat => (
-                    map { local $_ = $_; s/soft/copy/ if $_; $_; }
-                      $tariffTable->{$_}{defaultFormat}
-                ),
-                arithmetic => $model->{model100} ? '=A2*(1-A1)'
+                name          => $_,
+                defaultFormat => $tariffTable->{$_}{defaultFormat},
+                arithmetic    => $model->{model100} ? '=A2*(1-A1)'
                 : (   ( $electionBung && /MPAN/ ? '=A3+' : '=' )
                     . 'ROUND('
                       . 'A2*(1-A1),'
@@ -340,7 +334,7 @@ sub pcdApplyDiscounts {
         } @$allComponents
     };
 
-    $tariffTable, $unitsInYear;
+    $allTariffs, $allTariffs, $volumeData, $unitsInYear, $newTariffTable;
 
 }
 

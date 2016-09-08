@@ -818,14 +818,19 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $siteSpecificCharges, )
       if $model->{inYear} && $model->{inYear} =~ /target/;
 
-    if ( $model->{pcd} ) {
-        $allTariffs = $allTariffsByEndUser = $model->{pcd}{allTariffsByEndUser};
-        $volumesAdjusted = $volumeData = $model->{pcd}{volumeData};
-        ( $tariffTable, $unitsInYear ) = $model->pcdApplyDiscounts(
-            $allComponents, $allTariffs, $componentMap, $daysAfter,
-            $tariffTable,   $volumeData, $volumeDataAfter,
-        );
-    }
+    (
+        $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,
+        $tariffTable,
+      )
+      = $model->pcdApplyDiscounts( $allComponents, $tariffTable, $daysInYear, )
+      if $model->{pcd};
+
+    (
+        $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,
+        $tariffTable,
+      )
+      = $model->degroupTariffs( $allComponents, $tariffTable )
+      if $model->{tariffGrouping};
 
     my $allTariffsReordered  = $allTariffs;
     my $tariffTableReordered = $tariffTable;
@@ -893,7 +898,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             dataset               => $model->{dataset},
             doNotCopyInputColumns => 1,
             number                => 3701,
-        ),    # hacks to get the LLFCs to copy
+        ),
         columns => [
             $model->{noLLFCs} ? () : (
                 Dataset(
@@ -902,7 +907,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                     data          => [ map { '' } @{ $allTariffs->{list} } ],
                     name          => 'Open LLFCs',
                 ),
-                Constant(
+                $model->{noPCs} ? () : Constant(
                     rows          => $allTariffsReordered,
                     defaultFormat => 'puretextcon',
                     data          => [

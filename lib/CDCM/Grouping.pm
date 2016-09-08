@@ -31,25 +31,106 @@ use warnings;
 use strict;
 use utf8;
 
+sub degroupTariffs {
+
+    my ( $model, $allComponents, $tariffTable ) = @_;
+
+    # $unitsInYear is calculated for the summary table
+    my $unitsInYear = Arithmetic(
+        noCopy     => 1,
+        name       => 'All units (MWh)',
+        arithmetic => '='
+          . join( '+', map { "A$_" } 1 .. $model->{maxUnitRates} ),
+        arguments => {
+            map {
+                ( "A$_" =>
+                      $model->{ungrouped}{volumeData}{"Unit rate $_ p/kWh"} )
+            } 1 .. $model->{maxUnitRates}
+        },
+        defaultFormat => '0soft',
+    );
+
+    my %applicability = map {
+        $_ => Constant(
+            name          => $_,
+            defaultFormat => '0con',
+            rows          => $model->{ungrouped}{allTariffsByGroup},
+            data          => [
+                m#/day#i
+                ? [
+                    map { /related mpan/i ? 0 : 1; }
+                      @{ $model->{ungrouped}{allTariffsByGroup}{list} }
+                  ]
+                : [
+                    map { 1; } @{ $model->{ungrouped}{allTariffsByGroup}{list} }
+                ]
+            ],
+        );
+    } @$allComponents;
+    Columnset(
+        name    => 'Component applicability matrix',
+        columns => [ @applicability{@$allComponents} ]
+    );
+    my ( @columns1, @columns2, $tariffTableNew );
+    foreach (@$allComponents) {
+        my $defaultFormat = $tariffTable->{$_}{defaultFormat} || '0.000soft';
+        $defaultFormat =~ s/soft/copy/;
+        push @columns1,
+          my $flattened = Arithmetic(
+            name       => $_,
+            arithmetic => '=A1',
+            rows       => $model->{ungrouped}{allTariffGroups},
+            cols       => $tariffTable->{$_}{cols},
+            arguments  => { A1 => $tariffTable->{$_} },
+          );
+        $defaultFormat =~ s/copy/soft/;
+        push @columns2,
+          my $exploded = Arithmetic(
+            name          => $_,
+            defaultFormat => $defaultFormat,
+            arithmetic    => '=A1*A2',
+            rows          => $model->{ungrouped}{allTariffsByGroup},
+            cols          => $tariffTable->{$_}{cols},
+            arguments     => { A1 => $flattened, A2 => $applicability{$_}, },
+          );
+        $defaultFormat =~ s/soft/copy/;
+        $tariffTableNew->{$_} = Arithmetic(
+            name          => $_,
+            defaultFormat => $defaultFormat,
+            arithmetic    => '=A1',
+            rows          => $model->{ungrouped}{allTariffsByEndUser},
+            cols          => $tariffTable->{$_}{cols},
+            arguments     => { A1 => $exploded },
+        );
+    }
+
+    Columnset(
+        name    => 'Tariff table before flattening',
+        columns => [ @{$tariffTable}{@$allComponents} ],
+    ) unless grep { $_->{location}; } @{$tariffTable}{@$allComponents};
+
+    Columnset(
+        name    => 'Tariff table before tariff degrouping',
+        columns => \@columns1,
+    );
+
+    Columnset(
+        name    => 'Tariff table after tariff degrouping',
+        columns => \@columns2,
+    );
+
+    $model->{ungrouped}{allTariffs},
+      $model->{ungrouped}{allTariffsByEndUser},
+      $model->{ungrouped}{volumeData}, $unitsInYear,
+      $tariffTableNew;
+
+}
+
 sub groupVolumes {
     my ( $model, $volumeDataUngrouped, $allTariffsByEndUser,
         $nonExcludedComponents, $componentVolumeNameMap, )
       = @_;
-    my $map    = $model->{ungrouped}{map};
-    my @groups = map {
-        my $g = $_;
-        Labelset(
-            name => $g,
-            list => [
-                grep { $g eq $_ || $map->{$_} && $g eq $map->{$_}; }
-                  @{ $model->{ungrouped}{allTariffs}{list} }
-            ]
-        );
-      } $allTariffsByEndUser->{groups}
-      ? map { @{ $_->{list} }; } @{ $allTariffsByEndUser->{groups} }
-      : @{ $allTariffsByEndUser->{list} };
-    my $allTariffGroups   = Labelset( list   => \@groups );
-    my $allTariffsByGroup = Labelset( groups => \@groups );
+    $model->{ungrouped}{volumeData} = $volumeDataUngrouped;
     my (
         @columnsRegrouped, @columnsAggregated,
         @columnsReordered, %volumeDataGrouped
@@ -75,14 +156,14 @@ sub groupVolumes {
         push @columnsRegrouped,
           my $regrouped = Stack(
             name          => $componentVolumeNameMap->{$_},
-            rows          => $allTariffsByGroup,
+            rows          => $model->{ungrouped}{allTariffsByGroup},
             defaultFormat => '0copy',
             sources       => [ @patches, $volumeDataUngrouped->{$_} ],
           );
         push @columnsAggregated,
           my $aggregated = GroupBy(
             name          => $componentVolumeNameMap->{$_},
-            rows          => $allTariffGroups,
+            rows          => $model->{ungrouped}{allTariffGroups},
             source        => $regrouped,
             defaultFormat => '0soft',
           );
@@ -181,25 +262,39 @@ sub setUpGrouping {
             }
         }
     }
+    my @groups = map {
+        my $g = $_;
+        Labelset(
+            name => $g,
+            list => [
+                grep { $g eq $_ || $map{$_} && $g eq $map{$_}; }
+                  @{ $allTariffs->{list} }
+            ]
+        );
+      } grep { !$map{$_}; }
+      $allTariffsByEndUser->{groups}
+      ? map { @{ $_->{list} }; } @{ $allTariffsByEndUser->{groups} }
+      : @{ $allTariffsByEndUser->{list} };
+    my $allTariffGroups =
+      Labelset( name => 'All tariff groups', list => \@groups );
+    my $allTariffsByGroup =
+      Labelset( name => 'All tariffs by tariff group', groups => \@groups );
     $model->{ungrouped} = {
-        map                 => \%map,
         allEndUsers         => $allEndUsers,
         allTariffsByEndUser => $allTariffsByEndUser,
         allTariffs          => $allTariffs,
+        allTariffGroups     => $allTariffGroups,
+        allTariffsByGroup   => $allTariffsByGroup,
     };
     my $retainedEndUsers = Labelset(
         name => 'End user groups',
         list => [ grep { !$map{$_}; } @{ $allEndUsers->{list} } ]
     );
-    $retainedEndUsers,
-      Labelset(
-        name   => 'Tariff groups by end user',
+    my $groupedTariffsByEndUser = Labelset(
+        name   => 'All tariff groups by end user',
         groups => $retainedEndUsers->{list}
-      ),
-      Labelset(
-        name => 'Tariff groups (flat list)',
-        list => [ grep { !$map{$_}; } @{ $allTariffs->{list} } ]
-      );
+    );
+    $retainedEndUsers, $groupedTariffsByEndUser, $allTariffGroups;
 }
 
 1;
