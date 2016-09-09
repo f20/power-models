@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2015 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -92,29 +92,31 @@ sub useDatabase {
     }
 
     if (
-        my ($dcp) =
-        map { /^(dcp\S*)/i ? $1 : /-dcp=(.+)/i ? $1 : (); } @_
+        my ($change) =
+        map { /^(change\S*|dcp\S*)/i ? $1 : /-(?:change|dcp)=(.+)/i ? $1 : (); }
+        @_
       )
     {
         my $options = {};
-        if ( my ($yml) = grep { /\.ya?ml$/is } @_ ) {
+        if ( my (@yml) = grep { /\.ya?ml$/is && -s $_; } @_ ) {
             require YAML;
-            $options = YAML::LoadFile($yml);
+            @yml = map { YAML::LoadFile($_); } @yml;
+            $options = @yml == 1 ? $yml[0] : { map { %$_; } @yml };
         }
         $options->{colour} = 'orange' if grep { /^-*orange$/ } @_;
         my ($name) = map { /-+name=(.*)/i ? $1 : (); } @_;
         my ($base) = map { /-+base=(.+)/i ? $1 : (); } @_;
-        if ($base) { $name ||= $dcp . ' v ' . $base; }
+        if ($base) { $name ||= $change . ' v ' . $base; }
         else {
-            $name ||= $dcp;
+            $name ||= $change;
             $base = qr/original|clean|after|master|mini|F201|L201|F600|L600/i;
         }
         require SpreadsheetModel::Data::ExportImpact;
         my @arguments = (
             $workbookModule,
-            dcpName   => $name,
+            name      => $name,
             basematch => $base,
-            dcpmatch  => "[-+]$dcp",
+            newmatch  => "[-+]$change",
             %$options,
         );
         my @outputs =

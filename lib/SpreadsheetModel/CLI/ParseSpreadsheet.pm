@@ -51,7 +51,8 @@ sub fillDatabase {
         if (/^-+(re-?build.*)/i) {
             require SpreadsheetModel::Data::DataExtraction;
             $writer =
-              SpreadsheetModel::Data::DataExtraction::rebuildWriter( $1, $self );
+              SpreadsheetModel::Data::DataExtraction::rebuildWriter( $1,
+                $self );
             next;
         }
         if (/^-+(ya?ml.*)/i) {
@@ -87,10 +88,16 @@ sub fillDatabase {
             }
             require SpreadsheetModel::Data::DataExtraction;
             $writer =
-              SpreadsheetModel::Data::DataExtraction::databaseWriter( \%settings );
+              SpreadsheetModel::Data::DataExtraction::databaseWriter(
+                \%settings );
             next;
         }
         if (/^-+prune=(.*)$/i) {
+            unless ($writer) {
+                require SpreadsheetModel::Data::DataExtraction;
+                $writer =
+                  SpreadsheetModel::Data::DataExtraction::databaseWriter( {} );
+            }
             $writer->( undef, $1 );
             next;
         }
@@ -111,7 +118,8 @@ sub fillDatabase {
         }
         if (/^-+tall(csv)?$/i) {
             require SpreadsheetModel::Data::Dumpers;
-            $writer = SpreadsheetModel::Data::Dumpers::tallDumper( $1 || 'xls' );
+            $writer =
+              SpreadsheetModel::Data::Dumpers::tallDumper( $1 || 'xls' );
             next;
         }
         if (/^-+cat$/i) {
@@ -242,10 +250,12 @@ EOS
         }
         my $calcFile = $inFile;
         $calcFile = $calculator_prefork->($inFile) if $calculator_prefork;
-        SpreadsheetModel::Book::ParallelRunning::waitanypid($threads1) if $threads1;
+        SpreadsheetModel::Book::ParallelRunning::waitanypid($threads1)
+          if $threads1;
         my $pid;
         if ( $threads1 && ( $pid = fork ) ) {
-            SpreadsheetModel::Book::ParallelRunning::registerpid( $pid, $calcFile );
+            SpreadsheetModel::Book::ParallelRunning::registerpid( $pid,
+                $calcFile );
         }
         else {
             $0 = "perl: $calcFile";
