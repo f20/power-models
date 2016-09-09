@@ -278,6 +278,7 @@ sub create {
       if UNIVERSAL::can( $multiModelSharing, 'finish' );
 
     $wbook->close;
+    close $handle;    # otherwise the file is not finalised until exit
     $closer->() if $closer;
     0;
 
