@@ -56,7 +56,9 @@ sub _normalisedRowName {
 }
 
 sub dumpTallCsv {
-    my ( $self, $inputOnlyFlag ) = @_;
+    my ( $self, @args ) = @_;
+    my (@prefixes) =
+      ( ( grep { /input/i; } @args ? '1' : () ), grep { /^[0-9]+$/; } @args );
     open my $fh, '>', '~$' . $$ . '.csv';
     binmode $fh, ':utf8';
     _writeCsvLine(
@@ -79,9 +81,13 @@ sub dumpTallCsv {
     $self->do(
         'insert into tabminrow
             select bid, tab, min(row) as minrow
-                from data '
-          . ( $inputOnlyFlag ? 'where tab>999 and tab<2000 ' : '' )
-          . 'group by bid, tab'
+                from data'
+          . (
+            @prefixes
+            ? ' where ' . join( ' and ', map { qq^tab like "$_%"^; } @prefixes )
+            : ''
+          )
+          . ' group by bid, tab'
     );
     $self->do('create temporary table tabnames (bid int, tab int, name char)');
     $self->do(
@@ -119,7 +125,9 @@ sub dumpTallCsv {
     }
     close $fh;
     rename '~$' . $$ . '.csv',
-      '~$' . ( $inputOnlyFlag ? 'input-data' : 'all-data' ) . '.csv';
+      @prefixes
+      ? join( '-', 'data', @prefixes ) . '.csv'
+      : '~$all-data.csv';
 }
 
 sub dumpEdcmCsv {
