@@ -41,7 +41,7 @@ sub tariffSpec {
     my ($model) = @_;
     my @list = @tariffSpec;
     @list =
-      grep { $_->[1]{Name} && $_->[1]{Name} !~ /no rp charge/i; } @tariffSpec
+      grep { !$_->[1]{Name} || $_->[1]{Name} !~ /no rp charge/i; } @tariffSpec
       unless $model->{tariffs} && $model->{tariffs} =~ /gennoreact/i;
     @list = grep {
         $_->[0] !~ /related /i || !grep { $_ eq 'Unit rates p/kWh' } @$_;
