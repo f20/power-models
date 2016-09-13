@@ -40,7 +40,8 @@ my @tariffSpec = Load <DATA>;
 sub tariffSpec {
     my ($model) = @_;
     my @list = @tariffSpec;
-    @list = grep { $_->[0] !~ /no reactive/i; } @tariffSpec
+    @list =
+      grep { $_->[1]{Name} && $_->[1]{Name} !~ /no rp charge/i; } @tariffSpec
       unless $model->{tariffs} && $model->{tariffs} =~ /gennoreact/i;
     @list = grep {
         $_->[0] !~ /related /i || !grep { $_ eq 'Unit rates p/kWh' } @$_;
@@ -243,26 +244,24 @@ __DATA__
 - Reactive power charge p/kVArh
 - Unit rate 1 p/kWh
 ---
-- LV generation half hourly single rate no reactive
+- LV generation half hourly single rate (no reactive)
 - Name: LV Generation Intermittent no RP charge
 - Fixed charge p/MPAN/day
 - PC0
 - Unit rate 1 p/kWh
 ---
-- LV generation half hourly (clone)
+- LV generation half hourly (no reactive)
 - Name268: LV Generation Aggregated
   Portfolio: 1
 - Fixed charge p/MPAN/day
 - PC0
-- Reactive power charge p/kVArh
 - Unit rates p/kWh
 ---
-- LV substation generation half hourly (clone)
+- LV substation generation half hourly (no reactive)
 - Name268: LV Sub Generation Aggregated
   Portfolio: 1
 - Fixed charge p/MPAN/day
 - PC0
-- Reactive power charge p/kVArh
 - Unit rates p/kWh
 ---
 - LV generation half hourly
@@ -274,7 +273,7 @@ __DATA__
 - Reactive power charge p/kVArh
 - Unit rates p/kWh
 ---
-- LV generation half hourly no reactive
+- LV generation half hourly (no reactive)
 - Name: LV Generation Non-Intermittent no RP charge
 - Fixed charge p/MPAN/day
 - PC0
@@ -288,7 +287,7 @@ __DATA__
 - Reactive power charge p/kVArh
 - Unit rate 1 p/kWh
 ---
-- LV substation generation half hourly single rate no reactive
+- LV substation generation half hourly single rate (no reactive)
 - Name: LV Sub Generation Intermittent no RP charge
 - Fixed charge p/MPAN/day
 - PC0
@@ -303,7 +302,7 @@ __DATA__
 - Reactive power charge p/kVArh
 - Unit rates p/kWh
 ---
-- LV substation generation half hourly no reactive
+- LV substation generation half hourly (no reactive)
 - Name: LV Sub Generation Non-Intermittent no RP charge
 - Fixed charge p/MPAN/day
 - PC0
@@ -317,7 +316,7 @@ __DATA__
 - Reactive power charge p/kVArh
 - Unit rate 1 p/kWh
 ---
-- HV generation half hourly single rate no reactive
+- HV generation half hourly single rate (no reactive)
 - Name: HV Generation Intermittent no RP charge
 - Fixed charge p/MPAN/day
 - PC0
@@ -332,7 +331,7 @@ __DATA__
 - Reactive power charge p/kVArh
 - Unit rates p/kWh
 ---
-- HV generation half hourly no reactive
+- HV generation half hourly (no reactive)
 - Name: HV Generation Non-Intermittent no RP charge
 - Fixed charge p/MPAN/day
 - PC0
