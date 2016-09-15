@@ -121,8 +121,7 @@ yyyyny	HV Generation Non-Intermittent
 EOL
       ;
 
-    @tariffData = grep { $_->[1] !~ /\bMedium\b/i; } @tariffData
-      if $model->{dcp270};
+    @tariffData = grep { !/\bMedium\b/i; } @tariffData if $model->{dcp270};
 
     foreach (@tariffData) {
         if ( my ( $a, $b ) = /^([yn]+)\s+(.+)/ ) {
