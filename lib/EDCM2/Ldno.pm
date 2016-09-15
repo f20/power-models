@@ -38,9 +38,8 @@ sub ldnoRev {
 
     my ( @endUsers, @tariffComponentMatrix );
 
-    foreach (
-        $model->{dcp179}
-        ? split /\n/, <<EOL
+    my @tariffData = $model->{dcp179}
+      ? split /\n/, <<EOL
 ynnynn	Domestic Unrestricted
 yynynn	Domestic Two Rate
 ynnnnn	Domestic Off Peak (related MPAN)
@@ -69,7 +68,7 @@ yyyyny	LV Sub Generation Non-Intermittent
 ynnyny	HV Generation Intermittent
 yyyyny	HV Generation Non-Intermittent
 EOL
-        : $model->{dcp130} ? split /\n/, <<EOL
+      : $model->{dcp130} ? split /\n/, <<EOL
 ynnynn	Domestic Unrestricted
 yynynn	Domestic Two Rate
 ynnnnn	Domestic Off Peak (related MPAN)
@@ -96,7 +95,7 @@ yyyyny	LV Sub Generation Non-Intermittent
 ynnyny	HV Generation Intermittent
 yyyyny	HV Generation Non-Intermittent
 EOL
-        : split /\n/, <<EOL
+      : split /\n/, <<EOL
 ynnynn	Domestic Unrestricted
 yynynn	Domestic Two Rate
 ynnnnn	Domestic Off Peak (related MPAN)
@@ -120,8 +119,12 @@ yyyyny	LV Sub Generation Non-Intermittent
 ynnyny	HV Generation Intermittent
 yyyyny	HV Generation Non-Intermittent
 EOL
-      )
-    {
+      ;
+
+    @tariffData = grep { $_->[1] !~ /\bMedium\b/i; } @tariffData
+      if $model->{dcp270};
+
+    foreach (@tariffData) {
         if ( my ( $a, $b ) = /^([yn]+)\s+(.+)/ ) {
             if ( $model->{dcp137} && $b =~ /HV Generation/i ) {
                 push @tariffComponentMatrix, $a, $a, $a, $a;
