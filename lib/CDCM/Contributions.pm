@@ -197,8 +197,8 @@ EOT
     );
 
     0 and $customerTypeMatrixForContributions = Stack
-      name =>
-'Mapping of network level of supply (for customer contributions) to each LV tariff',
+      name => 'Mapping of network level of supply '
+      . '(for customer contributions) to each LV tariff',
       rows          => $allTariffsByEndUser,
       cols          => $customerTypesForContributions,
       defaultFormat => '%copynz',
@@ -243,7 +243,7 @@ EOT
     my $proportionCoveredByContributions = SumProduct(
         name => Label(
             'Contribution proportion',
-            'Proportion of assets annuities'
+            'Proportion of asset annuities'
               . ' deemed to be covered by customer contributions'
         ),
         matrix => $customerTypeMatrixForContributions,
@@ -281,7 +281,7 @@ EOT
                     map {
                         [ map { 0 } @{ $allTariffsByEndUser->{list} } ]
                     } @{ $operatingDrmExitLevels->{list} }
-                ]
+                ],
             ),
             Constant(
                 name          => 'Zero for GSPs level',
@@ -289,12 +289,43 @@ EOT
                 rows          => $allTariffsByEndUser,
                 cols =>
                   Labelset( list => [ $chargingDrmExitLevels->{list}[0] ] ),
-                data => [
-                    map {
-                        [ map { 0 } @{ $allTariffsByEndUser->{list} } ]
-                    } @{ $operatingDrmExitLevels->{list} }
-                ]
+                data => [ [ map { 0 } @{ $allTariffsByEndUser->{list} } ] ],
             ),
+            $model->{genade}
+            ? (
+                $model->{genade} =~ /100/
+                ? Arithmetic(
+                    name          => 'Full contribution for generation',
+                    defaultFormat => '%soft',
+                    rows          => Labelset(
+                        name => 'Generation tariffs',
+                        list => [
+                            grep { /gener/i; } @{ $allTariffsByEndUser->{list} }
+                        ]
+                    ),
+                    cols       => $chargingDrmExitLevels,
+                    arithmetic => '=1-A2',
+                    arguments  => { A2 => $proportionChargeable, },
+                  )
+                : Constant(
+                    name          => 'Zero for generation',
+                    defaultFormat => '%con',
+                    rows          => Labelset(
+                        name => 'Generation tariffs',
+                        list => [
+                            grep { /gener/i; } @{ $allTariffsByEndUser->{list} }
+                        ]
+                    ),
+                    cols => $chargingDrmExitLevels,
+                    data => [
+                        map {
+                            [ map { 0 } @{ $allTariffsByEndUser->{list} } ]
+                          } grep { /gener/i; }
+                          @{ $chargingDrmExitLevels->{list} }
+                    ],
+                )
+              )
+            : (),
             $proportionCoveredByContributions
         ]
       );

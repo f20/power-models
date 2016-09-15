@@ -438,9 +438,16 @@ EOL
                     : /^HV/i ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1 ]
                     :          die $_
                   )
-                  : /^(LDNO )?LV sub.*generat/i
-                  ? [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
-                  : /^(LDNO )?LV.*generat/i ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
+                  : /^(LDNO )?LV sub.*generat/i ? (
+                    $model->{genade} && /non.intermittent|site.specific/i
+                    ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
+                    : [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
+                  )
+                  : /^(LDNO )?LV.*generat/i ? (
+                    $model->{genade} && /non.intermittent|site.specific/i
+                    ? [ 1, 1, 1, 1, 1, 1, 1, 0.75, 1, 0 ]
+                    : [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
+                  )
                   : /^(LDNO HV.*: )?HV sub.*generat/i
                   ? [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 ]
                   : /^(LDNO HV.*: )?HV.*generat/i

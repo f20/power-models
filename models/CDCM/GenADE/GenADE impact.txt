@@ -1,0 +1,18 @@
+makeModels
+	-sqlite
+	CDCM/Current/%-after227.yml
+	CDCM/GenADE/%-genade0.yml
+	CDCM/GenADE/%-genade100.yml
+	CDCM/Data-2017-02/*
+
+useDatabase
+	-base=after227
+	-change=genade0
+
+useDatabase
+	-base=after227
+	-change=genade100
+
+useDatabase
+	-base=genade0
+	-change=genade100
