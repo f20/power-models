@@ -35,6 +35,24 @@ use SpreadsheetModel::Shortcuts ':all';
 sub table1203 {
     my ($model) = @_;
     my @rows = map { "Illustrative customer $_"; } 1 .. 7;
+    @rows = split /\n/, <<EOL;
+Business long day
+Business off peak
+Business short day
+Continuous high load factor
+Continuous low load factor
+Domestic two rate average
+Domestic unrestricted average
+Medium solar generator
+Medium wind generator
+Small business day
+Small solar generator
+Small wind generator
+Unmetered continuous
+Unmetered dawn to dusk
+Unmetered dusk to dawn
+Unmetered part night
+EOL
     my $rowset = Labelset( list => \@rows );
     my $blank = [ map { '' } @{ $rowset->{list} } ];
     my @columns = map {
@@ -126,6 +144,7 @@ sub makeStatisticsTables1203 {
         my $filter = sub {
             $_[0] !~ /\bunmeter|\bums\b|\bgener/i;
         };
+        $filter = sub { 1; };
         for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
             next
               if $allTariffs->{groupid}

@@ -81,7 +81,6 @@ sub parseInputData {
                 /area|dno/i           ? 0.0
               : /period|year/i        ? 1.0
               : /option/i             ? 2.0
-              : /model/i              ? 2.1
               : /tab/i                ? 3.0
               : /col.*(?:no|number)/i ? 4.0
               : /col/i                ? 4.1
