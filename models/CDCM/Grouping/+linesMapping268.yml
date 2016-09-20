@@ -1,6 +1,6 @@
 ---
 linesMapping:
-  HV Generation Site Specific: HV Generation Intermittent
+  HV Generation Site Specific: HV Generation Non-Intermittent
   HV Site Specific: HV HH Metered
   LV Domestic Aggregated: LV Network Domestic
   LV Generation Aggregated: LV Generation Intermittent

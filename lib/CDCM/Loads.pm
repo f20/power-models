@@ -360,8 +360,21 @@ sub loadProfiles {
         );
 
         Columnset(
-            name     => 'Load profile data for demand users',
-            lines    => 'Source: load data analysis.',
+            $model->{tariffGrouping}
+            ? (
+                name  => 'Load profile data for demand user groups',
+                lines => [
+                    'Source: load data analysis.',
+                    'These figures relate to groups of'
+                      . ' users not to individual users or tariffs.',
+                    'For example, related MPAN users are'
+                      . ' grouped with the corresponding non-related MPAN users.',
+                ],
+              )
+            : (
+                name  => 'Load profile data for demand users',
+                lines => 'Source: load data analysis.',
+            ),
             number   => 1041,
             appendTo => $model->{inputTables},
             dataset  => $model->{dataset},
