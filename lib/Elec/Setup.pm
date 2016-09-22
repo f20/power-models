@@ -167,7 +167,13 @@ sub boundaryUsageSet {
     my ($self) = @_;
     $self->{boundaryUsageSet} ||= Labelset(
         name => 'Boundary usage',
-        list => [ $self->usageSet->{list}[0] ]
+        list => [
+            $self->usageSet->{list}[0],
+            $self->usageSet->{list}[1]
+              && $self->usageSet->{list}[1] =~ /^Boundary/i
+            ? $self->usageSet->{list}[1]
+            : (),
+        ]
     );
 }
 
@@ -187,8 +193,12 @@ sub assetUsageSet {
     my $listr = $self->usageSet->{list};
     $self->{assetUsageSet} ||= Labelset(
         name => 'Asset usage',
-        list =>
-          [ @{$listr}[ 1 .. ( $#$listr - $self->{model}{noEnergy} ? 0 : 1 ) ] ]
+        list => [
+            @{$listr}[
+              @{ $self->boundaryUsageSet->{list} }
+              .. ( $#$listr - $self->{model}{noEnergy} ? 0 : 1 )
+            ]
+        ]
     );
 }
 
