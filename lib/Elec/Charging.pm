@@ -98,7 +98,7 @@ sub boundaryCharge {
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
         cols     => $self->{setup}->boundaryUsageSet,
-        data     => [10],
+        data => [ map { 10; } @{ $self->{setup}->boundaryUsageSet->{list} } ],
     );
 }
 
