@@ -204,6 +204,9 @@ sub factory {
         $processStream->( $dh, $_ );
     };
 
+    # This applies rules overrides and, where configured,
+    # attributes a revision number to the resulting rules.
+    # Returns an array of ruleset hashes.
     my $validate = $self->{validate} = sub {
         my ( $validatedLibs, $dbString ) = @_;
         $validatedLibs = [ grep { -d $_; } $validatedLibs ]
@@ -245,6 +248,8 @@ sub factory {
             delete $_->{'.'};
             $_->{revisionText} = $db->revisionText( Dump($_) ) if $db;
         }
+
+        @rulesets;
 
     };
 

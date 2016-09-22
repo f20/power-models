@@ -69,8 +69,7 @@ sub log {
 
 sub makeFolder {
     my ( $self, $folder ) = @_;
-    if ( $self->[C_DESTINATION] )
-    {    # Close out previous folder $self->[C_DESTINATION]
+    if ( $self->[C_DESTINATION] ) {    # Close out previous folder
         return if $folder && $folder eq $self->[C_DESTINATION];
         if ( $self->[C_LOG] ) {
             open my $h, '>', '~$tmptxt' . $$;
