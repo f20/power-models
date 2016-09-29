@@ -59,6 +59,9 @@ sub tariffs {
 
         my %map = map { $_ => 'nothing' } @components;
 
+        $map{'Unit rate 0 p/kWh'} = 'nothing'
+          if $model->{alwaysUseRAG} && $endUser !~ /gener/i;
+
         if ( $map{'Unit rates p/kWh'} ) {
             $map{"Unit rate $_ p/kWh"} = 'nothing'
               foreach 1 .. $model->{timebands};
@@ -152,9 +155,6 @@ sub tariffs {
               foreach grep { $map{"Unit rate $_ p/kWh"} }
               1 .. $hardMaxUnitRates;
         }
-
-        $map{'Unit rate 0 p/kWh'} = 'nothing'
-          if $model->{alwaysUseRAG} && $endUser !~ /gener/i;
 
         $map{
             $model->{unauth} && $model->{unauth} =~ /day/i
