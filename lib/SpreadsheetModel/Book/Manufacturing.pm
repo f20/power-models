@@ -269,8 +269,8 @@ sub factory {
             unless ($xlsModule) {
                 eval {
                     local $SIG{__DIE__} = \&Carp::confess;
-                    require SpreadsheetModel::Book::Workbook;
-                    $xlsModule = 'SpreadsheetModel::Book::Workbook';
+                    require SpreadsheetModel::Book::WorkbookXLS;
+                    $xlsModule = 'SpreadsheetModel::Book::WorkbookXLS';
                 };
                 warn $@ if $@;
             }

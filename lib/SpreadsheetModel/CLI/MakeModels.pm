@@ -132,7 +132,9 @@ sub makeModels {
                     ldnoRev => 0,
                 );
             }
-            elsif (/^-+orange/is) { $maker->{setRule}->( colour => 'orange' ); }
+            elsif (/^-+orange/is) {
+                $maker->{setRule}->( colour => 'orange' );
+            }
             elsif (/^-+gold/is) {
                 srand();
                 $maker->{setRule}->( colour => 'gold', password => rand() );

@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::Book::Workbook;
+﻿package SpreadsheetModel::Book::WorkbookXLS;
 
 =head Copyright licence and disclaimer
 

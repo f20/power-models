@@ -68,8 +68,8 @@ Other code in the repository
 ----------------------------
 
 There is some VBA code (Excel macros) in the VBA folder, and some Stata code in
-the Stata folder. See "How to use.txt" in the "Stata" folder for information on
-Stata tools to test EDCM spreadsheets.
+the Stata folder. The VBA code is not currently documented. See "How to use.txt"
+in the "Stata" folder for information on Stata tools to test EDCM spreadsheets.
 
 Licensing
 ---------
@@ -88,4 +88,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 17 May 2016.
+Franck Latrémolière, 1 October 2016.

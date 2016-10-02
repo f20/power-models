@@ -27,9 +27,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# Avoid using this container for complex calculations
-# as it breaks the golden rule of sensible model ordering.
-
 use warnings;
 use strict;
 use utf8;
@@ -210,7 +207,7 @@ sub wsWrite {
             "$self->{name}",
             $wb->getFormat( 'captionca', $deco || (), 'tlttr' ) );
     }
-    else {    # center-across formatting; buggy in Excel 2013?
+    else {    # center-across formatting; might be buggy in Microsoft Excel 2013
         my $captionFormat = $wb->getFormat( 'captionca', $deco || () );
         $ws->write( $titlesRow, $col,      "$self->{name}", $captionFormat );
         $ws->write( $titlesRow, $col + $_, undef,           $captionFormat )

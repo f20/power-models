@@ -60,7 +60,7 @@ sub useDatabase {
 
     my $workbookModule =
       ( grep { /^-+xls$/i } @_ )
-      ? 'SpreadsheetModel::Book::Workbook'
+      ? 'SpreadsheetModel::Book::WorkbookXLS'
       : 'SpreadsheetModel::Book::WorkbookXLSX';
     eval "require $workbookModule" or die $@;
 

@@ -43,8 +43,8 @@ sub newTestArea {
         $workbookModule = 'SpreadsheetModel::Book::WorkbookXLSX';
     }
     else {
-        require SpreadsheetModel::Book::Workbook;
-        $workbookModule = 'SpreadsheetModel::Book::Workbook';
+        require SpreadsheetModel::Book::WorkbookXLS;
+        $workbookModule = 'SpreadsheetModel::Book::WorkbookXLS';
     }
     mkdir 'models.tmp';
     my $wbook = $workbookModule->new( catfile( 'models.tmp', $filename ) );
