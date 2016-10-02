@@ -61,7 +61,7 @@ sub getFormat {
       );
 }
 
-# These codes (between 8 and 63) are equal to the colour number used in VBA (1-56) plus 7
+# These codes (between 8 and 63) are equal to 7 plus the colour number used in VBA (1-56)
 use constant {
     EXCELCOL0 => 8,  #000000 Black
     WHITE     => 9,  #FFFFFF White
@@ -132,11 +132,11 @@ sub setFormats {
 
 =head setFormats
 
-Keys used in %$options:
+Keys used from %$options:
 * alignment (flag: true means right-aligned, false means centered with padding)
-* colour (matched: see below)
-* validation (matched: for void cells in input data tables)
+* colour (various meanings extracted by matching)
 * lockedInputs
+* validation (meaning extracted by matching: affects void cells in input data tables)
 
 =cut
 

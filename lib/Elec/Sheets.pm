@@ -31,9 +31,8 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
+use SpreadsheetModel::Book::FrontSheet;
 use Spreadsheet::WriteExcel::Utility;
-use SpreadsheetModel::FormatLegend;
-use Elec::Notes;
 
 sub worksheetsAndClosures {
 
@@ -219,20 +218,11 @@ sub worksheetsAndClosures {
 
       ,
 
-      'Index' => sub {
-        my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_print_scale(50);
-        $wsheet->set_column( 0, 0,   16 );
-        $wsheet->set_column( 1, 1,   112 );
-        $wsheet->set_column( 2, 250, 32 );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach $model->topNotes, $model->licenceNotes,
-          SpreadsheetModel::FormatLegend->new,
-          $wbook->{logger}, $model->technicalNotes;
-      }
-
-      ;
+      'Index' => SpreadsheetModel::Book::FrontSheet->new(
+        model => $model,
+        copyright =>
+          'Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.'
+      )->closure($wbook);
 
 }
 

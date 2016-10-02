@@ -32,8 +32,8 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
+use SpreadsheetModel::Book::FrontSheet;
 use Spreadsheet::WriteExcel::Utility;
-use SpreadsheetModel::FormatLegend;
 
 sub worksheetsAndClosures {
 
@@ -134,69 +134,14 @@ sub worksheetsAndClosures {
       ->worksheetsAndClosuresWithController( $model, $wbook, @pairs )
       if $model->{multiModelSharing};
 
-    @pairs, 'Index' => sub {
-        my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_print_scale(50);
-        $wsheet->set_column( 0, 0,   16 );
-        $wsheet->set_column( 1, 1,   112 );
-        $wsheet->set_column( 2, 250, 32 );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach $model->topNotes, $model->licenceNotes,
-          SpreadsheetModel::FormatLegend->new,
-          $wbook->{logger}, $model->technicalNotes;
-    };
+    @pairs,
+      'Index' => SpreadsheetModel::Book::FrontSheet->new(
+        model     => $model,
+        copyright => 'Copyright 2009-2012 The Competitive Networks'
+          . ' Association and others. '
+          . 'Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.'
+      )->closure($wbook);
 
-}
-
-sub technicalNotes {
-    my ($model) = @_;
-    require POSIX;
-    Notes(
-        name       => '',
-        rowFormats => ['caption'],
-        lines      => [
-            'Technical model rules and version control',
-            $model->{yaml},
-            '',
-            'Generated on '
-              . POSIX::strftime( '%a %e %b %Y %H:%M:%S',
-                $model->{localTime} ? @{ $model->{localTime} } : localtime )
-              . ( $ENV{SERVER_NAME} ? " by $ENV{SERVER_NAME}" : '' ),
-        ]
-    );
-}
-
-sub topNotes {
-    my ($model) = @_;
-    Notes(
-        name  => 'Index',
-        lines => [
-            $model->{colour} && $model->{colour} =~ /orange|gold/ ? <<EOL : (),
-
-This document, model or dataset has been prepared by Reckon LLP on the instructions of the DCUSA Panel or one of its working
-groups.  Only the DCUSA Panel and its working groups have authority to approve this material as meeting their requirements.
-Reckon LLP makes no representation about the suitability of this material for the purposes of complying with any licence
-conditions or furthering any relevant objective.
-EOL
-            $model->dataNotes,
-            $model->{noLinks} ? () : <<EOL,
-
-This workbook is structured as a series of named and numbered tables. There is a list of tables below, with hyperlinks. Above
-each calculation table, there is a description of the calculations and hyperlinks to tables from which data are used. Hyperlinks
-point to the relevant table column heading of the relevant table. Scrolling up or down is usually required after clicking a
-hyperlink in order to bring the relevant data and/or headings into view. Some versions of Microsoft Excel can display a "Back"
-button, which can be useful when using hyperlinks to navigate around the workbook.
-EOL
-        ]
-    );
-}
-
-sub dataNotes {
-    <<EOL;
-
-{unlocked} UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
-EOL
 }
 
 sub licenceNotes {

@@ -31,8 +31,8 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
+use SpreadsheetModel::Book::FrontSheet;
 require Spreadsheet::WriteExcel::Utility;
-require SpreadsheetModel::FormatLegend;
 
 sub worksheetsAndClosures {
 
@@ -143,70 +143,12 @@ sub worksheetsAndClosures {
 
       ,
 
-      'Index' => sub {
-        my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_print_scale(50);
-        $wsheet->set_column( 0, 0,   16 );
-        $wsheet->set_column( 1, 1,   112 );
-        $wsheet->set_column( 2, 250, 32 );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach $model->topNotes, $model->licenceNotes,
-          SpreadsheetModel::FormatLegend->new,
-          $wbook->{logger}, $model->technicalNotes;
-      }
+      'Index' => SpreadsheetModel::Book::FrontSheet->new(
+        model => $model,
+        copyright =>
+          'Copyright 2013 Franck Latrémolière, Reckon LLP and others.'
+      )->closure($wbook);
 
-      ;
-
-}
-
-sub technicalNotes {
-    my ($model) = @_;
-    require POSIX;
-    Notes(
-        name       => '',
-        rowFormats => ['caption'],
-        lines      => [
-            'Technical model rules and version control',
-            $model->{yaml},
-            '',
-            'Generated on '
-              . POSIX::strftime( '%a %e %b %Y %H:%M:%S',
-                $model->{localTime} ? @{ $model->{localTime} } : localtime )
-              . ( $ENV{SERVER_NAME} ? " by $ENV{SERVER_NAME}" : '' ),
-        ]
-    );
-}
-
-sub topNotes {
-    my ($model) = @_;
-    Notes(
-        name  => 'Quantile calculator',
-        lines => [
-            <<EOL,
-
-{unlocked} UNLESS STATED OTHERWISE, THIS WORKBOOK IS ONLY A PROTOTYPE FOR TESTING PURPOSES AND ALL THE DATA IN THIS MODEL ARE FOR ILLUSTRATION ONLY.
-EOL
-        ]
-    );
-}
-
-sub licenceNotes {
-    Notes(
-        name  => '',
-        lines => <<'EOL',
-Copyright 2013 Franck Latrémolière, Reckon LLP and others.
-The code used to generate this spreadsheet includes open-source software published at https://github.com/f20/power-models.
-Use and distribution of the source code is subject to the conditions stated therein.
-Any redistribution of this software must retain the following disclaimer:
-THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
-TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL AUTHORS OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-EOL
-    );
 }
 
 1;
