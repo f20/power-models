@@ -118,8 +118,7 @@ EOL
 This workbook has been laid out as a collection of columns in tables. Columns are sequentially numbered
 but are not sequentially laid out in the workbook. There is a list of columns below, with hyperlinks.
 Scrolling up or down is usually required after clicking a hyperlink in order to bring the relevant data
-and/or headings into view. Some versions of Microsoft Excel can display a "Back" button, which can be
-useful when using hyperlinks to navigate around the workbook.
+and/or headings into view.
 EOL
       if $_[0]{model}{tolerateMisordering}
       && $_[0]{model}{layout}
