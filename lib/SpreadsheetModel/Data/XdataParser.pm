@@ -67,6 +67,17 @@ sub new {
     $self;
 }
 
+my $_jsonMachine;
+
+sub _jsonMachine {
+    return $_jsonMachine if $_jsonMachine;
+    foreach (qw(JSON JSON::PP)) {
+        return $_jsonMachine = $_->new
+          if eval "require $_";
+    }
+    die 'No JSON module';
+}
+
 sub parseXdata {
 
     my $self = shift;
