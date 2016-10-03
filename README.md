@@ -60,8 +60,8 @@ Once everything seems to be working, you can try any of the following sample
 commands to explore some of the functionality of this code:
 
     perl pmod.pl -xls CDCM/Current/%-after179.yml CDCM/Data-2015-02/WPD-SWest.yml
-    perl pmod.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2014-02/SSEPD-SEPD.yml
-    perl pmod.pl EDCM/Current/%-clean*.yml EDCM/Data-2014-02/UKPN-EPN.yml
+    perl pmod.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2015-02/SSEPD-SEPD.yml
+    perl pmod.pl EDCM/Current/%-clean*.yml EDCM/Data-2017-02/UKPN-EPN.yml
     perl pmod.pl -rtf -text -html CDCM/Current/%-after227.yml Blank.yml
 
 Other code in the repository
@@ -88,4 +88,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 1 October 2016.
+Franck Latrémolière, 4 October 2016.

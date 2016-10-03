@@ -1,7 +1,11 @@
 makeModels
 	-autocheck
 	-pickbest
-	CDCM/Current/%-clean*.yml
+	CDCM/Historical/%-clean*.yml
+	CDCM/Data-2010-02/*.yml
+	CDCM/Data-2011-02/*.yml
+	CDCM/Data-2012-02/*.yml
+	CDCM/Data-2013-02/*.yml
 	CDCM/Data-2014-02/*.yml
 	CDCM/Data-2015-02/*.yml
 	CDCM/Data-2016-02/*.yml

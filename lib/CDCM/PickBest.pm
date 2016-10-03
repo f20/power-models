@@ -65,7 +65,7 @@ sub score {
     # Fun
     $score += 999 if !$rule->{pcd} xor $month lt '2017-03';
 
-    0
+    1
       and warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month,
       $score;
 
