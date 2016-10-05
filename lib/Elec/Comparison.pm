@@ -193,7 +193,10 @@ sub revenueComparison {
             my $totalTerm = $groupedRows ? 'Subtotal' : 'Total';
             my @cols = (
                 map {
-                    my $n = $totalTerm . ' ' . lcfirst( $_->{name}->shortName );
+                    my $n =
+                      $totalTerm . ' '
+                      . lcfirst(
+                        SpreadsheetModel::Object::_shortName( $_->{name} ) );
                     GroupBy(
                         name          => $n,
                         rows          => $groupedRows,

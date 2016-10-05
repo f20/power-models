@@ -45,8 +45,9 @@ sub new {
 
 sub timebandSet {
     my ($self) = @_;
+    return 0 unless $self->{model}{timebands};
     $self->{timebandSet} ||=
-      Labelset( name => 'Timebands', list => $self->{setup}{timebands} );
+      Labelset( name => 'Timebands', list => $self->{model}{timebands} );
 }
 
 sub hours {

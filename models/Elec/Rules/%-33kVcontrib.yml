@@ -1,0 +1,34 @@
+---
+PerlModule: Elec
+compareppu: 1
+contributions: 1
+detailedAssets: 1
+forwardLinks: 1
+illustrative: 1
+noEnergy: 1
+table1653: 0
+ucount:
+  - HV Sub: 3
+  - HV: 3
+  - LV: 3
+  - Small LV: 3
+usageTypes:
+  - Boundary kW
+  - 33kV kVA
+  - 33kV/11kV kVA
+  - 11kV kVA
+  - 11kV/LV kVA
+  - LV kVA
+  - 33kV kVA contributed
+  - 33kV/11kV kVA contributed
+  - 11kV kVA contributed
+  - 11kV/LV kVA contributed
+  - LV kVA contributed
+  - 11kV metered source breaker
+  - 11kV metered ring main unit
+  - LV >100A metered service
+  - LV <100A metered service
+usetMatchAssets: all users
+usetRevenues: all users
+usetRunningCosts: all users
+usetUoS: all users

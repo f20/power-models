@@ -108,7 +108,7 @@ sub timebandList {
 
 sub timebandNumber {
     my ($self) = @_;
-    $self->{timebandNumber} ||= $self->timebandList;
+    $self->{timebandNumber} ||= () = $self->timebandList;
 }
 
 sub tariffComponents {
