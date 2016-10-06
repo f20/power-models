@@ -92,7 +92,7 @@ sub peakingProbabilities {
         dataset       => $self->{model}{dataset},
         data          => [
             map {
-                [ map { .5 } @{ $self->timebandSet->{list} } ]
+                [ map { 'spread' } @{ $self->timebandSet->{list} } ]
             } @{ $self->{setup}->usageSet->{list} }
         ],
     );

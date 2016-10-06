@@ -1,0 +1,418 @@
+---
+1500:
+  - _table: '1500. Company, charging year, data version'
+  - Company charging year data version: Illustrative 33kV private network
+    _column: Company
+  - Company charging year data version: illustrative year
+    _column: Year
+  - Company charging year data version: illustration with three timebands
+    _column: Version
+1510:
+  - _table: 1510. Financial and general input data
+  - Financial and general input data: 365
+    _column: Days in the charging year
+  - Financial and general input data: 0.08
+    _column: Rate of return
+  - Financial and general input data: 40
+    _column: Annualisation period (years)
+1512:
+  - _table: 1512. Forecast volumes
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    User 10001: 10000000
+    User 10002: 10000000
+    User 10003: ''
+    User 20001: 1000000
+    User 20002: 1000000
+    User 20003: ''
+    User 30001: 200000
+    User 30002: 200000
+    User 30003: ''
+    User 40001: 80000
+    User 40002: 8000
+    User 40003: ''
+    _column: Red kWh
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    User 10001: 20000000
+    User 10002: 20000000
+    User 10003: ''
+    User 20001: 2000000
+    User 20002: 2000000
+    User 20003: ''
+    User 30001: 400000
+    User 30002: 400000
+    User 30003: ''
+    User 40001: 160000
+    User 40002: 16000
+    User 40003: ''
+    _column: Amber kWh
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    User 10001: 20000000
+    User 10002: 20000000
+    User 10003: ''
+    User 20001: 2000000
+    User 20002: 2000000
+    User 20003: ''
+    User 30001: 400000
+    User 30002: 400000
+    User 30003: ''
+    User 40001: 160000
+    User 40002: 16000
+    User 40003: 0
+    _column: Green kWh
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    User 10001: 1
+    User 10002: 1
+    User 10003: ''
+    User 20001: 1
+    User 20002: 1
+    User 20003: ''
+    User 30001: 1
+    User 30002: 1
+    User 30003: ''
+    User 40001: 10
+    User 40002: 1
+    User 40003: ''
+    _column: Supply points
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    User 10001: 10000
+    User 10002: 10000
+    User 10003: ''
+    User 20001: 1000
+    User 20002: 1000
+    User 20003: ''
+    User 30001: 200
+    User 30002: 200
+    User 30003: ''
+    User 40001: 0
+    User 40002: 0
+    User 40003: 0
+    _column: Capacity kVA
+1514:
+  - _table: 1514. Definition of user sets
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    User 10001: 1
+    User 10002: 1
+    User 10003: 1
+    User 20001: 1
+    User 20002: 1
+    User 20003: 1
+    User 30001: 1
+    User 30002: 1
+    User 30003: 1
+    User 40001: 1
+    User 40002: 1
+    User 40003: 1
+    _column: Proportion taken into account
+1531:
+  - _table: 1531. Network usage of 1kW of consumption
+  - HV: 1.01
+    HV Sub: 1.01
+    LV: 1.03
+    Small LV: 1.03
+    _column: Boundary kW
+  - HV: 1.05
+    HV Sub: 1.05
+    LV: 1.07
+    Small LV: 1.07
+    _column: 33kV kVA
+  - HV: 1.05
+    HV Sub: ''
+    LV: 1.07
+    Small LV: 1.07
+    _column: 33kV/11kV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: 1.06
+    Small LV: 1.06
+    _column: 11kV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: 1.05
+    Small LV: 1.05
+    _column: 11kV/LV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: LV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV metered source breaker
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV metered ring main unit
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: LV >100A metered service
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: LV <100A metered service
+1532:
+  - _table: 1532. Network usage of an exit point
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: Boundary kW
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 33kV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 33kV/11kV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV/LV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: 20
+    _column: LV kVA
+  - HV: ''
+    HV Sub: 1
+    LV: ''
+    Small LV: ''
+    _column: 11kV metered source breaker
+  - HV: 1
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV metered ring main unit
+  - HV: ''
+    HV Sub: ''
+    LV: 1
+    Small LV: ''
+    _column: LV >100A metered service
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: 1
+    _column: LV <100A metered service
+1533:
+  - _table: 1533. Network usage of 1kVA of agreed capacity
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: Boundary kW
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 33kV kVA
+  - HV: ''
+    HV Sub: 1
+    LV: ''
+    Small LV: ''
+    _column: 33kV/11kV kVA
+  - HV: 1
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV/LV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: 1
+    Small LV: ''
+    _column: LV kVA
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV metered source breaker
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: 11kV metered ring main unit
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: LV >100A metered service
+  - HV: ''
+    HV Sub: ''
+    LV: ''
+    Small LV: ''
+    _column: LV <100A metered service
+1550:
+  - _table: 1550. Notional asset rates (£/kVA or £/point)
+  - Notional asset rates kVA or point: 0
+    _column: Boundary kW
+  - Notional asset rates kVA or point: 100
+    _column: 33kV kVA
+  - Notional asset rates kVA or point: 100
+    _column: 33kV/11kV kVA
+  - Notional asset rates kVA or point: 150
+    _column: 11kV kVA
+  - Notional asset rates kVA or point: 50
+    _column: 11kV/LV kVA
+  - Notional asset rates kVA or point: 50
+    _column: LV kVA
+  - Notional asset rates kVA or point: 40000
+    _column: 11kV metered source breaker
+  - Notional asset rates kVA or point: 25000
+    _column: 11kV metered ring main unit
+  - Notional asset rates kVA or point: 2500
+    _column: LV >100A metered service
+  - Notional asset rates kVA or point: 1500
+    _column: LV <100A metered service
+1556:
+  - _table: 1556. Relevant boundary charges (£/year)
+  - Relevant boundary charges year: 500000
+    _column: Relevant boundary charges (£/year)
+1558:
+  - _table: 1558. Maximum total notional asset value (£)
+  - Maximum total notional asset value: 4000000
+    _column: Maximum total notional asset value (£)
+1559:
+  - _table: 1559. Total running costs (£/year)
+  - Total running costs year: 100000
+    _column: Total running costs (£/year)
+1568:
+  - _table: 1568. Typical annual hours by time band
+  - Amber: 1000
+    Green: 1000
+    Red: 1000
+    _column: Typical annual hours by time band
+1569:
+  - _table: 1569. Peaking probabilities
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: Boundary kW
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: 33kV kVA
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: 33kV/11kV kVA
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: 11kV kVA
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: 11kV/LV kVA
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: LV kVA
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: 11kV metered source breaker
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: 11kV metered ring main unit
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: LV >100A metered service
+  - Amber: spread
+    Green: spread
+    Red: spread
+    _column: LV <100A metered service
+1570:
+  - _table: 1570. Target average capacity utilisation
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: Boundary kW
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: 33kV kVA
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: 33kV/11kV kVA
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: 11kV kVA
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: 11kV/LV kVA
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: LV kVA
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: 11kV metered source breaker
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: 11kV metered ring main unit
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: LV >100A metered service
+  - Amber: 1
+    Green: 1
+    Red: 1
+    _column: LV <100A metered service
+1599:
+  - _table: 1599. Comparison p/kWh
+  - User 10001: 1
+    User 10002: 1
+    User 10003: 1
+    User 20001: 1.2
+    User 20002: 1.2
+    User 20003: 1.2
+    User 30001: 1.4
+    User 30002: 1.4
+    User 30003: 1.4
+    User 40001: 1.6
+    User 40002: 1.6
+    User 40003: 1.6
+    _column: Comparison p/kWh

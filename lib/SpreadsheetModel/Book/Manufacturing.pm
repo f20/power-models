@@ -130,6 +130,15 @@ sub factory {
             {
                 $_->{template} = $1;
                 push @rulesets, $_;
+                if ( $settings{autoData} ) {
+                    my $dataFile = $fileName;
+                    $dataFile =~ s/%-//;
+                    if ( -f $dataFile ) {
+                        $_->{wantDataset} = $_->{template};
+                        $_->{wantDataset} =~ s/%-//;
+                        $self->{addFile}->($dataFile);
+                    }
+                }
             }
             elsif (
                 defined $fileName
@@ -429,7 +438,7 @@ sub factory {
                     : ''
                 ];
                 foreach my $rule (@rulesets) {
-                    next if _notPossible( $rule, $data );
+                    next if _invalidRulesDataCombination( $rule, $data );
                     push @scored,
                       [ $rule, $pickBestScorer->( $metadata, $rule ) ];
                 }
@@ -443,7 +452,7 @@ sub factory {
             foreach my $data (@datasets) {
                 foreach my $rule (@rulesets) {
                     $addToList->( $data, $rule )
-                      unless _notPossible( $rule, $data );
+                      unless _invalidRulesDataCombination( $rule, $data );
                 }
             }
         }
@@ -546,14 +555,19 @@ sub _mergeRulesData {
     \%options;
 }
 
-sub _notPossible {
+sub _invalidRulesDataCombination {
     my ( $rule, $data ) = @_;
-    $rule->{wantTables} && keys %{ $data->{dataset} }
-      and grep {
+    return 1
+      if $rule->{wantDataset}
+      && $data->{'~datasetName'}
+      && $rule->{wantDataset} ne $data->{'~datasetName'};
+    return 1
+      if $rule->{wantTables} && keys %{ $data->{dataset} } and grep {
               !$data->{dataset}{$_}
           and !$data->{dataset}{yaml}
           || $data->{dataset}{yaml} !~ /^$_:/m
       } split /\s+/, $rule->{wantTables};
+    return;
 }
 
 sub _loadModules {
