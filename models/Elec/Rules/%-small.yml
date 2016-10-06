@@ -1,4 +1,5 @@
 ---
+.: Simple private network
 PerlModule: Elec
 detailedAssets: 1
 forwardLinks: 1

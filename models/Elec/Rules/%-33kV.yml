@@ -1,4 +1,5 @@
 ---
+.: 33kV private network (single unit rate)
 PerlModule: Elec
 compareppu: 1
 detailedAssets: 1

@@ -57,8 +57,8 @@ sub new {
     my $model = bless {@_}, $class;
 
     die 'Cannot build an orange model without a suitable disclaimer'
-      if $_[0]{model}{colour}
-      && $_[0]{model}{colour} =~ /orange/i
+      if $model->{colour}
+      && $model->{colour} =~ /orange/i
       && !($model->{extraNotice}
         && length( $model->{extraNotice} ) > 299
         && $model->{extraNotice} =~ /DCUSA/ );
