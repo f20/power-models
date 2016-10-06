@@ -158,7 +158,7 @@ sub sheetsForFirstModel {
 
             my @t1001 = map { $_->{table1001} ? $_->{table1001} : undef; }
               @{ $me->{models} };
-            Notes( name => 'Allowed revenue summary (DCUSA schedule 15)', )
+            Notes( name => 'Allowed revenue summary (Schedule 15)', )
               ->wsWrite( $wbook, $wsheet );
 
             my ($first1001) = grep { $_ } @t1001 or return;
@@ -392,7 +392,7 @@ sub assumptionsClosure {
                     );
                 } @table1001Overridable
             };
-            Notes( name => 'DCUSA schedule 15 input data in £ million' )
+            Notes( name => 'Schedule 15 input data in £ million' )
               ->wsWrite( $wbook, $wsheet );
             $table1001headerRowForLater = ++$wsheet->{nextFree};
             Columnset(

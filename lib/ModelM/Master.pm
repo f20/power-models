@@ -80,6 +80,14 @@ sub new {
         dataset => {},
         @_,
     }, $class;
+
+    die 'Cannot build an orange model without a suitable disclaimer'
+      if $_[0]{model}{colour}
+      && $_[0]{model}{colour} =~ /orange/i
+      && !($model->{extraNotice}
+        && length( $model->{extraNotice} ) > 299
+        && $model->{extraNotice} =~ /DCUSA/ );
+
     my $extras = delete $model->{AdditionalRules};
     $model->run;
     foreach (

@@ -83,10 +83,6 @@ sub title {
 
 sub extraNotes {
     my $notice = $_[0]{model}{extraNotice};
-    die 'Cannot build an orange model without a suitable disclaimer'
-      if $_[0]{model}{colour}
-      && $_[0]{model}{colour} =~ /orange/i
-      && !( $notice && length($notice) > 299 && $notice =~ /DCUSA/ );
     return unless $notice;
     Notes( name => '', lines => $notice );
 }
