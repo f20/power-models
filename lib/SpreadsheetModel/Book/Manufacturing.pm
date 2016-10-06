@@ -131,13 +131,8 @@ sub factory {
                 $_->{template} = $1;
                 push @rulesets, $_;
                 if ( $settings{autoData} ) {
-                    my $dataFile = $fileName;
-                    $dataFile =~ s/%-//;
-                    if ( -f $dataFile ) {
-                        $_->{wantDataset} = $_->{template};
-                        $_->{wantDataset} =~ s/%-//;
-                        $self->{addFile}->($dataFile);
-                    }
+                    $_->{wantDataset} = $_->{template};
+                    $_->{wantDataset} =~ s/%-//;
                 }
             }
             elsif (
@@ -211,6 +206,7 @@ sub factory {
             }
         }
         $processStream->( $dh, $_ );
+        $self->{addFile}->($_) if $settings{autoData} && s/%-//;
     };
 
     # This applies rules overrides and, where configured,
