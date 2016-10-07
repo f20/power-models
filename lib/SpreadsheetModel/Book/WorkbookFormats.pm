@@ -810,6 +810,15 @@ Keys used from %$options:
             @colourHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
+        thmpan => [
+            locked => 1,
+            @sizeLabel,
+            num_format => '00 000 0000 0000',
+            align      => 'left',
+            bold       => 1,
+            @colourHeader,
+            $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
+        ],
         thtar => [
             locked => 1,
             @sizeLabel,
