@@ -132,7 +132,9 @@ sub factory {
                 push @rulesets, $_;
                 if ( $settings{autoData} ) {
                     $_->{wantDataset} = $_->{template};
-                    $_->{wantDataset} =~ s/%-//;
+                    $_->{wantDataset} =~ s/%/$_->{PerlModule}/;
+                    $self->{addFile}->($fileName)
+                      if $fileName =~ s/%/$_->{PerlModule}/;
                 }
             }
             elsif (
@@ -206,7 +208,6 @@ sub factory {
             }
         }
         $processStream->( $dh, $_ );
-        $self->{addFile}->($_) if $settings{autoData} && s/%-//;
     };
 
     # This applies rules overrides and, where configured,
@@ -368,7 +369,7 @@ sub factory {
         my $addToList = sub {
             my ( $data, $rule ) = @_;
             my $spreadsheetFile = $rule->{template};
-            $spreadsheetFile =~ s/-/-$rule->{PerlModule}-/
+            $spreadsheetFile =~ s/^%-/%-$rule->{PerlModule}-/
               unless $spreadsheetFile =~ /$rule->{PerlModule}/;
             if ( $rule->{revisionText} ) {
                 $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
@@ -376,7 +377,9 @@ sub factory {
             }
             $spreadsheetFile =~ s/%%/
                 require SpreadsheetModel::Data::DnoAreas;
-                SpreadsheetModel::Data::DnoAreas::normaliseDnoName($data->{'~datasetName'}=~m#(.*)-20[0-9]{2}-[0-9]+#);
+                SpreadsheetModel::Data::DnoAreas::normaliseDnoName(
+                    $data->{'~datasetName'}=~m#(.*)-20[0-9]{2}-[0-9]+#
+                );
               /eg;
             $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
             $spreadsheetFile .= $extension;
