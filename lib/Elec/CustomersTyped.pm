@@ -40,7 +40,7 @@ sub volumeDataColumn {
             $component =~ m#kWh#
               ? ( /\[standing\]/ ? undef : 0 )
               : $component =~ m#kVArh#
-              ? ( /Non-CT|Unrestricted|Two Rate|UMS|Unmetered/ ? undef : 0 )
+              ? ( /Medium|Non-CT|Unrestricted|Two Rate|UMS|Unmetered/ ? undef : 0 )
               : $component =~ m#kVA# ? ( /\[.*units\]/ ? undef : 0 )
               : ( /\[.*units\]/ ? undef : 0 );
         } @{ $self->userLabelset->{list} }

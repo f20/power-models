@@ -813,7 +813,7 @@ Keys used from %$options:
         thmpan => [
             locked => 1,
             @sizeLabel,
-            num_format => '00 000 0000 0000',
+            num_format => '00 0000 0000 000',
             align      => 'left',
             bold       => 1,
             @colourHeader,

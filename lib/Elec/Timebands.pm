@@ -130,7 +130,7 @@ sub peakingProbabilities {
         name          => 'Filled in peaking probabilities',
         defaultFormat => '%soft',
         arithmetic    => '=IF(A41,IF(A31,(1-A5)*A32/A4,A1),'
-          . 'IF(ABS(A51-1)>1e-9,A11,(1-A52)/A42))',
+          . 'IF(ABS(A51-1)<1e-7,A11,(1-A52)/A42))',
         arguments => {
             A1  => $peakingProbabilities,
             A11 => $peakingProbabilities,
