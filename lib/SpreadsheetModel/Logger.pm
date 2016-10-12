@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -133,6 +133,7 @@ sub wsWrite {
     foreach my $obj (@objectList) {
 
         my ( $wo, $ro, $co ) = @{ $obj->{$wb} }{qw(worksheet row col)};
+        my $url = $obj->wsUrl($wb);
 
         my @displayList = $obj;
         if ( my $cset = $obj->{location} ) {
@@ -151,12 +152,6 @@ sub wsWrite {
         }
 
         foreach (@displayList) {
-            my $ce = xl_rowcol_to_cell(
-                UNIVERSAL::isa( $obj->{location},
-                    'SpreadsheetModel::CalcBlock' )
-                ? ( $ro, $co - 1 )
-                : ( $ro - 1, $co )
-            );
             my $wn =
                 $wo
               ? $wo->get_name
@@ -175,8 +170,7 @@ sub wsWrite {
                     'SpreadsheetModel::Objectset' );
             }
             else {
-                $ws->write_url( $row + $r, $col + 1, "internal:'$wn'!$ce", $na,
-                    $linkFormat );
+                $ws->write_url( $row + $r, $col + 1, $url, $na, $linkFormat );
                 $ws->write_string(
                     $row + $r,
                     $col + 2,

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -60,7 +60,7 @@ sub wsUrl {
     my ( $self, $wb ) = @_;
     return unless $self->{$wb};
     my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
-    my $ce = xl_rowcol_to_cell( $ro + 1, $co );
+    my $ce = xl_rowcol_to_cell( $ro, $co );
     my $wn =
         $wo
       ? $wo->get_name

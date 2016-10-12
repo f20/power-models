@@ -101,8 +101,8 @@ sub structureNotes {
     return Notes( name => '', lines => <<'EOL')
 This workbook is structured as a sequential series of named and numbered tables. There is a list of
 tables below, with hyperlinks. Above each calculation table, there is a description of the calculations
-and hyperlinks to tables from which data are used. Hyperlinks point to the relevant table column
-heading of the relevant table. Scrolling up or down is usually required after clicking a hyperlink in
+and hyperlinks to tables from which data are used. Hyperlinks point to the first relevant table column
+heading in the relevant table. Scrolling up or down is usually required after clicking a hyperlink in
 order to bring the relevant data and/or headings into view. Some versions of Microsoft Excel can
 display a "Back" button, which can be useful when using hyperlinks to navigate around the workbook.
 EOL

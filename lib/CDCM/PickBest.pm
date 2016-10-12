@@ -62,10 +62,13 @@ sub score {
     $score += 10
       if $rule->{electionBung} && $month gt '2013-03' && $month lt '2016-03';
 
-    # Fun
-    $score += 999 if !$rule->{pcd} xor $month lt '2017-03';
+    # DCP 268
+    $score += 900 if !$rule->{tariffGrouping};
 
-    1
+    # Fun
+    $score += 900 if !$rule->{pcd} xor $month lt '2020-03';
+
+    0
       and warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month,
       $score;
 
