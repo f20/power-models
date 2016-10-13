@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use JSON;
+use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my $class = shift;
@@ -39,9 +40,10 @@ sub new {
 sub wsWrite {
     my ( $sampler, $wbook, $wsheet ) = @_;
     my $includeJsonColumn = $sampler->[0];
-    my $row = $wsheet->{nextFree} || 0;
+
+    my $row = $wsheet->{nextFree} || -1;
     $wsheet->write_string(
-        $row, 0,
+        ++$row, 0,
         'Spreadsheet format sampler',
         $wbook->getFormat('notes')
     );
@@ -73,6 +75,31 @@ sub wsWrite {
     $wsheet->autofilter( $row0, 0, $row - 1, $includeJsonColumn ? 6 : 5 );
     $wsheet->{nextFree} = $row
       unless $wsheet->{nextFree} && $wsheet->{nextFree} > $row;
+
+    my $rows = Labelset( list => [ map { "MPAN $_"; } 1 .. 3 ] );
+    my $data = [ [ 4200004242423 .. 4200004242425 ] ];
+    Columnset(
+        name    => 'Conditional formatting for MPAN validation',
+        columns => [
+            Constant(
+                name          => 'mpanhard',
+                rows          => $rows,
+                data          => $data,
+                defaultFormat => 'mpanhard',
+                conditionalFormatting =>
+                  { type => 'MPAN', format => [ bg_color => 10 ], },
+            ),
+            Constant(
+                name          => 'mpancopy',
+                rows          => $rows,
+                data          => $data,
+                defaultFormat => 'mpancopy',
+                conditionalFormatting =>
+                  { type => 'MPAN', format => [ color => 10 ], },
+            ),
+        ]
+    )->wsWrite( $wbook, $wsheet );
+
 }
 
 1;

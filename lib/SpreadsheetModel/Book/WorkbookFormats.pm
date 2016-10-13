@@ -177,13 +177,15 @@ Keys used from %$options:
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
 
-    my $numText         = '[Blue]General;[Red]-General;;[Black]@';
-    my $numTextOnly     = '[Black]General;[Black]-General;;[Black]@';
-    my $numTextOnlyCopy = '[Black]General;[Black]-General;;[Black]@';
-    my @alignText       = $options->{alignText}
+    my @alignText = $options->{alignText}
       && $options->{alignText} =~ /general/i ? () : ( align => 'left' );
 
-    my @numPercent =
+    my $num_text         = '[Blue]General;[Red]-General;;[Black]@';
+    my $num_mpan         = "${black}00 0000 0000 000;[Red]-General;;$cyan@";
+    my $num_textonly     = '[Black]General;[Black]-General;;[Black]@';
+    my $num_textonlycopy = '[Black]General;[Black]-General;;[Black]@';
+
+    my @num_percent =
       $rightpad
       ? (
         num_format =>
@@ -383,10 +385,10 @@ Keys used from %$options:
     my $plus  = '[Blue]_-+';
     my $minus = '[Red]_+-';
     my %specs = (
-        '%con'    => [ locked => 1, @sizeNumber, @numPercent, @colourCon, ],
-        '%copy'   => [ locked => 1, @sizeNumber, @numPercent, @colourCopy, ],
-        '%hard'   => [ locked => 0, @sizeNumber, @numPercent, @colourHard, ],
-        '%soft'   => [ locked => 1, @sizeNumber, @numPercent, @colourSoft, ],
+        '%con'    => [ locked => 1, @sizeNumber, @num_percent, @colourCon, ],
+        '%copy'   => [ locked => 1, @sizeNumber, @num_percent, @colourCopy, ],
+        '%hard'   => [ locked => 0, @sizeNumber, @num_percent, @colourHard, ],
+        '%soft'   => [ locked => 1, @sizeNumber, @num_percent, @colourSoft, ],
         '%hardpm' => [
             locked => 0,
             @sizeNumber,
@@ -544,21 +546,21 @@ Keys used from %$options:
             locked => 0,
             @sizeNumber,
             align      => 'center',
-            num_format => $numText,
+            num_format => $num_text,
             @colourHard,
         ],
         boolsoft => [
             locked => 1,
             @sizeNumber,
             align      => 'center',
-            num_format => $numText,
+            num_format => $num_text,
             @colourSoft,
         ],
         boolcopy => [
             locked => 1,
             @sizeNumber,
             align      => 'center',
-            num_format => $numText,
+            num_format => $num_text,
             @colourCopy,
         ],
         caption => [
@@ -627,15 +629,33 @@ Keys used from %$options:
         code => [
             locked => 1,
             @sizeText,
-            num_format => $numTextOnly,
+            num_format => $num_textonly,
             align      => 'left',
             0 ? ( font => 'Consolas' ) : 0 ? ( font => 'Courier New' ) : (),
             @defaultColour,
         ],
+        mpanhard => [
+            locked => 0,
+            @sizeText,
+            num_format => $num_mpan,
+            align      => 'center',
+            @sizeExtras,
+            text_wrap => 1,
+            @colourHard,
+        ],
+        mpancopy => [
+            locked => 1,
+            @sizeText,
+            num_format => $num_mpan,
+            align      => 'center',
+            @sizeExtras,
+            text_wrap => 1,
+            @colourCopy,
+        ],
         puretexthard => [
             locked => 0,
             @sizeText,
-            num_format => $numTextOnly,
+            num_format => $num_textonly,
             align      => 'center',
             @sizeExtras,
             text_wrap => 1,
@@ -644,7 +664,7 @@ Keys used from %$options:
         puretextcon => [
             locked => 1,
             @sizeText,
-            num_format => $numTextOnlyCopy,
+            num_format => $num_textonlycopy,
             align      => 'center',
             @sizeExtras,
             text_wrap => 1,
@@ -653,7 +673,7 @@ Keys used from %$options:
         puretextcopy => [
             locked => 1,
             @sizeText,
-            num_format => $numTextOnlyCopy,
+            num_format => $num_textonlycopy,
             align      => 'center',
             @sizeExtras,
             text_wrap => 1,
@@ -667,7 +687,7 @@ Keys used from %$options:
         textcon => [
             locked => 1,
             @sizeText,
-            num_format => $numText,
+            num_format => $num_text,
             @alignText,
             text_wrap => 1,
             @sizeExtras,
@@ -676,7 +696,7 @@ Keys used from %$options:
         textcopy => [
             locked => 1,
             @sizeText,
-            num_format => $numText,
+            num_format => $num_text,
             @alignText, @sizeExtras,
             text_wrap => 1,
             @colourCopy,
@@ -684,7 +704,7 @@ Keys used from %$options:
         textcopycentered => [
             locked => 1,
             @sizeText,
-            num_format => $numText,
+            num_format => $num_text,
             align      => 'center',
             @sizeExtras,
             text_wrap => 1,
@@ -693,7 +713,7 @@ Keys used from %$options:
         texthard => [
             locked => 0,
             @sizeText,
-            num_format => $numText,
+            num_format => $num_text,
             @alignText, @sizeExtras,
             text_wrap => 1,
             @colourHard,
@@ -701,14 +721,14 @@ Keys used from %$options:
         texthardnowrap => [
             locked => 0,
             @sizeText,
-            num_format => $numText,
+            num_format => $num_text,
             @alignText, @sizeExtras,
             @colourHard,
         ],
         textsoft => [
             locked => 1,
             @sizeText,
-            num_format => $numText,
+            num_format => $num_text,
             @alignText, @sizeExtras,
             text_wrap => 1,
             @colourSoft,
@@ -716,7 +736,7 @@ Keys used from %$options:
         textnocolour => [
             locked => 0,
             @sizeText,
-            num_format => $numText,
+            num_format => $num_text,
             @alignText, @sizeExtras,
             text_wrap => 1,
             @defaultColour,
@@ -724,7 +744,7 @@ Keys used from %$options:
         th => [
             locked => 1,
             @sizeLabel,
-            num_format => $numText,
+            num_format => $num_text,
             align      => 'left',
             bold       => 1,
             text_wrap  => 1,
@@ -734,7 +754,7 @@ Keys used from %$options:
         thc => [
             locked => 1,
             @sizeLabel,
-            num_format => $numText,
+            num_format => $num_text,
             bold       => 1,
             text_wrap  => 1,
             align      => 'center',
@@ -744,7 +764,7 @@ Keys used from %$options:
         thca => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => $numText,
+            num_format => $num_text,
             italic     => 1,
             text_wrap  => 1,
             align      => 'center_across',
@@ -756,7 +776,7 @@ Keys used from %$options:
         thcaleft => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => $numText,
+            num_format => $num_text,
             align      => 'left',
             italic     => 1,
             @colourHeader,
@@ -764,7 +784,7 @@ Keys used from %$options:
         thg => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => $numText,
+            num_format => $num_text,
             align      => 'left',
             italic     => 1,
             text_wrap  => 1,
@@ -810,15 +830,6 @@ Keys used from %$options:
             @colourHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
-        thmpan => [
-            locked => 1,
-            @sizeLabel,
-            num_format => '00 0000 0000 000',
-            align      => 'left',
-            bold       => 1,
-            @colourHeader,
-            $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
-        ],
         thtar => [
             locked => 1,
             @sizeLabel,
@@ -838,7 +849,7 @@ Keys used from %$options:
         unavailable => [
             locked => 1,
             @sizeNumber,
-            num_format => $numText,
+            num_format => $num_text,
             align      => 'center',
             @colourUnavailable,
         ],
@@ -846,7 +857,7 @@ Keys used from %$options:
             locked => !$options->{validation}
               || $options->{validation} !~ /lenient/i ? 1 : 0,
             @sizeNumber,
-            num_format => $numText,
+            num_format => $num_text,
             align      => 'center',
             @colourUnused,
         ],

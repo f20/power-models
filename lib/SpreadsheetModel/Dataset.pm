@@ -603,28 +603,11 @@ sub wsWrite {
         $col + $lastCol
     ) if $self->{validation};
 
-    if ( $self->{conditionalFormatting} ) {
-        foreach (
-            ref $self->{conditionalFormatting} eq 'ARRAY'
-            ? @{ $self->{conditionalFormatting} }
-            : $self->{conditionalFormatting}
-          )
-        {
-            $_->{format} = $wb->getFormat( $_->{format} )
-              if $_->{format} && ( ref $_->{format} ) !~ /ormat/;
-            eval {
-                $ws->conditional_formatting(
-                    $row, $col,
-                    $row + $lastRow,
-                    $col + $lastCol, $_
-                );
-            };
-            if ($@) {
-                warn "Omitting conditional formatting: $@";
-                return;
-            }
-        }
-    }
+    $self->conditionalFormatting(
+        $wb, $ws, $row, $col,
+        $row + $lastRow,
+        $col + $lastCol
+    ) if $self->{conditionalFormatting};
 
     $row += $lastRow;
     $_->( $self, $wb, $ws, \$row, $col )
@@ -706,6 +689,46 @@ sub dataValidation {
             { %{ $self->{validation} } } );
     }
 
+}
+
+sub conditionalFormatting {
+
+=item $dataset->dataValidation($wb, $ws, $row, $col, $rowEnd, $colEnd)
+
+* Only to be called if $self->{conditionalFormatting} is true.
+
+* Implements conditionalFormatting type = 'MPAN'.
+
+=cut
+
+    my ( $self, $wb, $ws, $row, $col, $rowEnd, $colEnd ) = @_;
+
+    foreach (
+        ref $self->{conditionalFormatting} eq 'ARRAY'
+        ? @{ $self->{conditionalFormatting} }
+        : $self->{conditionalFormatting}
+      )
+    {
+        $_->{format} = $wb->getFormat( $_->{format} )
+          if $_->{format} && ( ref $_->{format} ) !~ /ormat/;
+        local $_ = $_;
+        if ( $_->{type} && $_->{type} eq 'MPAN' ) {
+            my $c = xl_rowcol_to_cell( $row, $col );
+            $_ = {
+                %$_,
+                type => 'formula',
+                criteria =>
+"MOD($c-MOD(3*MOD(INT($c/1e12),10)+5*MOD(INT($c/1e11),10)-4*MOD(INT($c/1e10),10)+2*MOD(INT($c/1e9),10)-5*MOD(INT($c/1e8),10)-3*MOD(INT($c/1e7),10)+MOD(INT($c/1e6),10)-4*MOD(INT($c/1e5),10)-2*MOD(INT($c/1e4),10)+4*MOD(INT($c/1e3),10)-3*MOD(INT($c/100),10)-MOD(INT($c/10),10),11),10)>0",
+            };
+        }
+        eval {
+            $ws->conditional_formatting( $row, $col, $rowEnd, $colEnd, $_ );
+        };
+        if ($@) {
+            warn "Omitting conditional formatting: $@";
+            return;
+        }
+    }
 }
 
 sub _indices {

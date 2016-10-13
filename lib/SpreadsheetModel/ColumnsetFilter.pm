@@ -185,29 +185,12 @@ sub wsWrite {
             );
         }
 
-        if ( my $cf = $_->{conditionalFormatting} ) {
-            foreach (
-                ref $cf eq 'ARRAY'
-                ? @$cf
-                : $cf
-              )
-            {
-                $_->{format} = $wb->getFormat( $_->{format} )
-                  if $_->{format} && ( ref $_->{format} ) !~ /ormat/;
-                eval {
-                    $ws->conditional_formatting(
-                        $row,
-                        $col + $lastCol,
-                        $row + $lastRow,
-                        $col + $lastCol + $lCol, $_
-                    );
-                };
-                if ($@) {
-                    warn "Omitting conditional formatting: $@";
-                    return;
-                }
-            }
-        }
+        $_->conditionalFormatting(
+            $wb, $ws, $row,
+            $col + $lastCol,
+            $row + $lastRow,
+            $col + $lastCol + $lCol
+        ) if $_->{conditionalFormatting};
 
         $lastCol += $lCol + 1;
 

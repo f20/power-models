@@ -534,34 +534,22 @@ use ->shortName here.
                     }
                 }
             }
+
             $self->{columns}[$c]
               ->dataValidation( $wb, $ws, $row, $c2, $row + $lastRow )
               if $self->{columns}[$c]{validation};
-            if ( my $cf = $self->{columns}[$c]{conditionalFormatting} ) {
-                foreach (
-                    ref $cf eq 'ARRAY'
-                    ? @$cf
-                    : $cf
-                  )
-                {
-                    $_->{format} = $wb->getFormat( $_->{format} )
-                      if $_->{format} && ( ref $_->{format} ) !~ /ormat/;
-                    eval {
-                        $ws->conditional_formatting(
-                            $row, $c2,
-                            $row + $lastRow,
-                            $c2 + $lastCol, $_
-                        );
-                    };
-                    if ($@) {
-                        warn "Omitting conditional formatting: $@";
-                        return;
-                    }
-                }
-            }
+
+            $self->{columns}[$c]->conditionalFormatting(
+                $wb, $ws, $row, $c2,
+                $row + $lastRow,
+                $c2 + @{ $co->{list} }
+            ) if $self->{columns}[$c]{conditionalFormatting};
+
             $c2 += @{ $co->{list} };
+
         }
         else {
+
             foreach my $y ( $self->{columns}[$c]->rowIndices ) {
                 my ( $value, $format, $formula, @more ) = $cell[$c]->( 0, $y );
                 if (@more) {
@@ -609,25 +597,10 @@ use ->shortName here.
               ->dataValidation( $wb, $ws, $row, $c2, $row + $lastRow, $c2 )
               if $self->{columns}[$c]{validation};
 
-            if ( my $cf = $self->{columns}[$c]{conditionalFormatting} ) {
-                foreach (
-                    ref $cf eq 'ARRAY'
-                    ? @$cf
-                    : $cf
-                  )
-                {
-                    $_->{format} = $wb->getFormat( $_->{format} )
-                      if $_->{format} && ( ref $_->{format} ) !~ /ormat/;
-                    eval {
-                        $ws->conditional_formatting( $row, $c2, $row + $lastRow,
-                            $c2, $_ );
-                    };
-                    if ($@) {
-                        warn "Omitting conditional formatting: $@";
-                        return;
-                    }
-                }
-            }
+            $self->{columns}[$c]
+              ->conditionalFormatting( $wb, $ws, $row, $c2, $row + $lastRow,
+                $c2 )
+              if $self->{columns}[$c]{conditionalFormatting};
 
             ++$c2;
         }
