@@ -76,13 +76,16 @@ sub wsWrite {
     $wsheet->{nextFree} = $row
       unless $wsheet->{nextFree} && $wsheet->{nextFree} > $row;
 
-    my $rows = Labelset( list => [ map { "MPAN $_"; } 1 .. 3 ] );
-    my $data = [ [ 4200004242423 .. 4200004242425 ] ];
+    my $rows = Labelset(
+        defaultFormat => [ base => 'th', num_format => '\M\P\A\N 00', ],
+        list          => [ 1 .. 12 ]
+    );
+    my $data = [ [ 4200004242423 .. 4200004242434 ] ];
     Columnset(
         name    => 'Conditional formatting for MPAN validation',
         columns => [
             Constant(
-                name          => 'mpanhard',
+                name          => 'mpanhard with bg_color',
                 rows          => $rows,
                 data          => $data,
                 defaultFormat => 'mpanhard',
@@ -90,7 +93,7 @@ sub wsWrite {
                   { type => 'MPAN', format => [ bg_color => 10 ], },
             ),
             Constant(
-                name          => 'mpancopy',
+                name          => 'mpancopy with color',
                 rows          => $rows,
                 data          => $data,
                 defaultFormat => 'mpancopy',
