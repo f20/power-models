@@ -31,7 +31,6 @@ use warnings;
 use strict;
 use utf8;
 use Encode;
-use SpreadsheetModel::Book::ParallelRunning;
 
 sub ymlWriter {
     my ($arg) = @_;
@@ -407,60 +406,6 @@ sub databaseWriter {
 
     };
 
-}
-
-sub checksumWriter {
-    sub {
-        my ( $book, $workbook ) = @_;
-        for my $worksheet ( $workbook->worksheets() ) {
-            my ( $row_min, $row_max ) = $worksheet->row_range();
-            my ( $col_min, $col_max ) = $worksheet->col_range();
-          ROW: for my $row ( $row_min .. $row_max ) {
-                my $rowName;
-              COL: for my $col ( $col_min .. $col_max ) {
-                    my $cell = $worksheet->get_cell( $row, $col );
-                    my $v;
-                    $v = $cell->unformatted if $cell;
-                    next unless defined $v;
-                    if ( $v =~ /^Table checksum ([0-9]{1,2})$/si ) {
-                        my $checksumType = $1;
-                        my $checksum = $worksheet->get_cell( $row + 1, $col );
-                        $checksum = $checksum->unformatted if $checksum;
-                        if (   $checksum
-                            && $checksumType == 7
-                            && $checksum =~ /^[0-9.-]+$/ )
-                        {
-                            local $_ = 5.5e-8 + 1e-7 * $checksum;
-                            $checksum = "$1 $2" if /.*\.(...)(....)5.*/;
-                        }
-                        my ( $base, $ext ) =
-                          $book =~ m#([^/]*)(\.[a-zA-Z0-9]+)$#s;
-                        $base ||= '';
-                        $ext  ||= '';
-                        my $symlinkpath = $book;
-                        $symlinkpath = "../$symlinkpath"
-                          unless $book =~ m#^[./]#s;
-                        symlink $symlinkpath, "~\$a$$";
-                        mkdir 'Copy this list of file names as a record';
-                        rename "~\$a$$",
-                          'Copy this list of file names as a record/'
-                          . "$checksum\t$base$ext";
-                        $symlinkpath = "../$symlinkpath"
-                          unless $book =~ m#^[./]#s;
-                        my $folder =
-                           !$checksum          ? '✘none'
-                          : $checksum =~ /^#/s ? "✘$checksum"
-                          :                      "✔$checksum";
-                        mkdir 'By checksum';
-                        mkdir "By checksum/$folder";
-                        symlink $symlinkpath, "~\$b$$";
-                        rename "~\$b$$",
-                          "By checksum/$folder/$base $checksum$ext";
-                    }
-                }
-            }
-        }
-    };
 }
 
 sub jbzWriter {

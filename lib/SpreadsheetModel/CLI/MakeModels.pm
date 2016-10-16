@@ -34,7 +34,6 @@ use utf8;
 use constant {
     C_HOMEDIR       => 0,
     C_VALIDATEDLIBS => 1,
-    C_DESTINATION   => 2,
 };
 
 sub makeModels {
@@ -77,12 +76,13 @@ sub makeModels {
                 $maker->{setRule}
                   ->( checksums => 'Line checksum 5; Table checksum 7' );
                 if (/^-+autocheck/is) {
-                    require SpreadsheetModel::Data::DataExtraction;
+                    require SpreadsheetModel::Data::Autocheck;
                     $maker->{setting}->(
                         PostProcessing => _makePostProcessor(
                             $maker->{threads}->(),
-                            SpreadsheetModel::Data::DataExtraction::checksumWriter(
-                            ),
+                            SpreadsheetModel::Data::Autocheck->new(
+                                $self->[C_HOMEDIR]
+                              )->checker,
                             'convert'
                         )
                     );

@@ -31,6 +31,8 @@ use warnings;
 use strict;
 use utf8;
 
+use constant { C_HOMEDIR => 0, };
+
 sub fillDatabase {
 
     my $self = shift;
@@ -71,8 +73,10 @@ sub fillDatabase {
             next;
         }
         if (/^-+(?:auto|model)check/i) {
-            require SpreadsheetModel::Data::DataExtraction;
-            $writer = SpreadsheetModel::Data::DataExtraction::checksumWriter();
+            require SpreadsheetModel::Data::Autocheck;
+            $writer =
+              SpreadsheetModel::Data::Autocheck->new( $self->[C_HOMEDIR] )
+              ->checker;
             next;
         }
         if (/^-+(json.*)/i) {

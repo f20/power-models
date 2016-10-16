@@ -62,22 +62,18 @@ sub check {
     $self->SUPER::check;
 }
 
-=head Perl code to check whether something is a generator
+=head Perl code to test whether $t is a generator for prime $p
 
-my ($p) = shift;
-foreach ( @ARGV ) {
-    my $t = $_;
-    my $i = 0;
-    my $x = $t;
-    my @h = ( undef, undef );
-    while (1) {
-        ++$i;
-        $x = ( $x * $t ) % $p;
-        last if exists $h[$x];
-        undef $h[$x];
-    }
-    print "$t^$i mod $p = $x\n" if $i > $p - 3;
+my $i = 0;
+my $x = $t;
+my @h = ( undef, undef );
+while (1) {
+    ++$i;
+    $x = ( $x * $t ) % $p;
+    last if exists $h[$x];
+    undef $h[$x];
 }
+print "$t^$i mod $p = $x\n" if $i > $p - 3;
 
 =cut
 
