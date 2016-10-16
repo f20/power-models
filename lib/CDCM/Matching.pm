@@ -427,8 +427,9 @@ sub matching {
 
             my @slope = map {
                 Arithmetic(
-                    name       => "Effect through $_",
-                    arithmetic => /day/
+                    name          => "Effect through $_",
+                    defaultFormat => '0softnz',
+                    arithmetic    => /day/
                     ? '=A4*A2*A1/100'
                     : '=IF(A3<0,0,A4*A1*10)',    # A4*
                     arguments => {
@@ -436,14 +437,14 @@ sub matching {
                         A2 => $daysInYear,
                         A1 => $volumeData->{$_},
                         A4 => $assetElements->{$_},
-                    }
+                    },
                 );
             } @$scaledComponents;
 
             push @{ $model->{assetScaler} },
               my $slopeSet = Columnset(
                 name    => 'Marginal revenue effect of scaler',
-                columns => \@slope
+                columns => \@slope,
               );
 
             my %minScaler = map {
@@ -557,8 +558,7 @@ sub matching {
                     name       => 'Net revenues to which the scaler applies',
                     rows       => $scalableTariffs,
                     arithmetic => '='
-                      . join(
-                        '+',
+                      . join( '+',
                         @termsWithDays
                         ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                         : ('0'),
@@ -931,8 +931,7 @@ sub matching {
                     name       => 'Lost revenues by tariff from deductions',
                     rows       => $tariffsByAtw,
                     arithmetic => '=0-'
-                      . join(
-                        '-',
+                      . join( '-',
                         @termsWithDays
                         ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                         : ('0'),
@@ -1450,8 +1449,7 @@ sub matching {
                                       {tariffs},
                                     cols       => $fixedAdderPot,
                                     arithmetic => '=IF(OR(A5,A2>=0),'
-                                      . 'ABS(A1)*A7*A4/A3/(24*A6)*100'
-                                      . ',0)',
+                                      . 'ABS(A1)*A7*A4/A3/(24*A6)*100' . ',0)',
                                     arguments => {
                                         A1 =>
                                           $unitRateSystemLoadCoefficients[$r],
