@@ -80,7 +80,24 @@ sub pcdPreprocessedVolumes {
     my $combinations =
       Labelset( name => 'Discount combinations', list => \@combinations );
 
-    my $rawDiscount = Dataset(
+    my $rawDiscount = $model->{pcdByTariff} ? Dataset(
+        name       => 'Embedded network (LDNO) discounts',
+        number     => 1038,
+        appendTo   => $model->{inputTables},
+        dataset    => $model->{dataset},
+        validation => {
+            validate      => 'decimal',
+            criteria      => 'between',
+            minimum       => 0,
+            maximum       => 1,
+            input_title   => 'LDNO discount:',
+            input_message => 'Between 0% and 100%',
+            error_message => 'The LDNO discount'
+              . ' must be between 0% and 100%.'
+        },
+        rows => $model->{pcd}{allTariffsByEndUser},
+        data => [ map { 0 } @{ $model->{pcd}{allTariffsByEndUser}{list} } ],
+      ) : Dataset(
         name          => 'Embedded network (LDNO) discounts',
         singleRowName => 'LDNO discount',
         number        => 1037,
@@ -107,10 +124,11 @@ sub pcdPreprocessedVolumes {
                   :                  0.4;
             } @combinations
         ]
-    );
+      );
 
     push @{ $model->{volumeData} },
-      $model->{pcd}{discount} = SumProduct(
+      $model->{pcd}{discount} =
+      $rawDiscount->{rows} ? $rawDiscount : SumProduct(
         name          => 'Discount for each tariff (except for fixed charges)',
         defaultFormat => '%softnz',
         matrix        => Constant(
@@ -150,10 +168,8 @@ sub pcdPreprocessedVolumes {
 
     if ( $model->{portfolio} && $model->{portfolio} =~ /ehv/i ) {
 
-        # Supplement table 1037 with table 1181 or
-        # replace everything with a totally new table 1038.
-
-        # A new table 1038 would show, for each level pair,
+        # Supplement table 1037 with table 1181 or replace everything
+        # with a new table which might, for each level pair,
         # separate discounts for demand unit changes, demand standing charges,
         # generation credits and generation fixed charges.
 
@@ -213,7 +229,9 @@ sub pcdPreprocessedVolumes {
     Columnset(
         name    => 'LDNO discounts and volumes adjusted for discount',
         columns => [
-            $model->{pcd}{discount},
+            ref $model->{pcd}{discount} eq 'SpreadsheetModel::Dataset'
+            ? ()
+            : $model->{pcd}{discount},
             $model->{pcd}{discountFixed},
             @intermediate{@$nonExcludedComponents}
         ]
