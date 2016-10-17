@@ -1,0 +1,18 @@
+---
+.: DCP 266 model G (after DCP 227)
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179
+unroundedTariffAnalysis: modelg

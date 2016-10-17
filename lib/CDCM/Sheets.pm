@@ -349,9 +349,7 @@ sub worksheetsAndClosures {
           ? @{ $model->{postPcdApplicationResults} }
           : ();
 
-      };
-
-    push @wsheetsAndClosures,
+      },
 
       'Tariffs' => sub {
         my ($wsheet) = @_;
@@ -367,7 +365,10 @@ sub worksheetsAndClosures {
           foreach $notes,
           @{ $model->{tariffSummary} };
 
-      };
+      }
+
+      unless $model->{unroundedTariffAnalysis}
+      && $model->{unroundedTariffAnalysis} =~ /modelg/i;
 
     push @wsheetsAndClosures,
 
@@ -709,6 +710,39 @@ EOL
       }
 
       if $model->{edcmTables};
+
+    push @wsheetsAndClosures,
+
+      'G-Calc' => sub {
+        my ($wsheet) = @_;
+        $wbook->{lastSheetNumber} = 42 unless $wbook->{lastSheetNumber} > 42;
+        $wsheet->fit_to_pages( 1, 0 );
+        $wsheet->set_column( 0, 0,   48 );
+        $wsheet->set_column( 1, 250, 16 );
+
+        my $notes = Notes( name => 'Model G calculations', );
+
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $notes, @{ $model->{modelgTables} };
+
+      },
+
+      'G-Discounts' => sub {
+        my ($wsheet) = @_;
+        $wbook->{lastSheetNumber} = 43 unless $wbook->{lastSheetNumber} > 43;
+        $wsheet->fit_to_pages( 1, 0 );
+        $wsheet->set_column( 0, 0,   48 );
+        $wsheet->set_column( 1, 250, 16 );
+
+        my $notes = Notes( name => 'Model G results', );
+
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $notes, @{ $model->{modelgTables2} };
+
+      }
+
+      if $model->{unroundedTariffAnalysis}
+      && $model->{unroundedTariffAnalysis} =~ /modelg/i;
 
     my $frontSheet = SpreadsheetModel::Book::FrontSheet->new(
         model => $model,

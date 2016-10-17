@@ -91,6 +91,13 @@ sub requiredModulesForRuleset {
 
       $ruleset->{timebandDetails} ? qw(CDCM::Timebands) : (),
 
+      $ruleset->{unroundedTariffAnalysis}
+      ? (
+        qw(CDCM::TariffAnalysis),
+        $ruleset->{unroundedTariffAnalysis} =~ /modelg/i ? qw(CDCM::ModelG) : ()
+      )
+      : (),
+
       ;
 
 }
@@ -770,6 +777,17 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         }
     }
 
+    if ( $model->{unroundedTariffAnalysis} ) {
+        my @utaTables = $model->unroundedTariffAnalysis(
+            $allComponents, $allTariffsByEndUser, $componentLabelset,
+            $daysAfter,     $tariffsExMatching,   @matchingTables,
+        );
+        return $model->modelG( $nonExcludedComponents, $daysAfter,
+            $volumeData, @utaTables )
+          if $model->{unroundedTariffAnalysis} =~ /modelg/i;
+        push @{ $model->{modelgTables} }, map { values %$_; } @utaTables;
+    }
+
     push @{ $model->{tariffSummary} },
       Arithmetic(
         name          => 'Charging rate for site-specific sole use assets',
@@ -793,7 +811,11 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $daysAfter,
         $nonExcludedComponents,
         $unitsLossAdjustment,
-        ( $model->{pcd} ? $volumesAdjustedAfter : $volumeDataAfter )
+        (
+              $model->{pcd}
+            ? $volumesAdjustedAfter
+            : $volumeDataAfter
+          )
           || $volumeData,
         $allTariffsByEndUser,
         $totalRevenuesSoFar,
@@ -820,21 +842,21 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         @matchingTables
     ) if $model->{matrices};
 
-    $model->displayWholeYearTarget( $allComponents, $daysInYear, $volumeData,
-        $tariffsBeforeRounding, $allowedRevenue, $revenueFromElsewhere,
-        $siteSpecificCharges, )
+    $model->displayWholeYearTarget( $allComponents, $daysInYear,
+        $volumeData, $tariffsBeforeRounding,
+        $allowedRevenue, $revenueFromElsewhere, $siteSpecificCharges, )
       if $model->{inYear} && $model->{inYear} =~ /target/;
 
     (
-        $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,
-        $tariffTable,
+        $allTariffs, $allTariffsByEndUser, $volumeData,
+        $unitsInYear, $tariffTable,
       )
       = $model->pcdApplyDiscounts( $allComponents, $tariffTable, $daysInYear, )
       if $model->{pcd};
 
     (
-        $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,
-        $tariffTable,
+        $allTariffs, $allTariffsByEndUser, $volumeData,
+        $unitsInYear, $tariffTable,
       )
       = $model->degroupTariffs( $allComponents, $tariffTable )
       if $model->{tariffGrouping};
