@@ -513,7 +513,7 @@ sub modelG {
       );
     push @{ $model->{modelgTables2} },
       Arithmetic(
-        name          => 'LDNO discounts ⇒1138. For CDCM',
+        name          => 'LDNO discounts ⇒1038. For CDCM',
         defaultFormat => '%soft',
         arithmetic    => '=IF(A21,A1/A22,0)',
         arguments     => {
