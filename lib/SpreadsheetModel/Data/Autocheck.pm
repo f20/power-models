@@ -56,11 +56,15 @@ sub check {
       if $file =~ s/^(.+)-(20[0-9]{2}-[0-9]{2})-//s;
 
     my @records;
-    open my $fh, '+<', $autocheck->[C_TSV] or die;
+    my $fh;
+    open $fh,      '+<', $autocheck->[C_TSV]
+      or open $fh, '<',  $autocheck->[C_TSV]
+      or die "Could not open $autocheck->[C_TSV]";
     flock $fh, LOCK_EX or die;
     local $/ = "\n";
     @records = <$fh>;
     chomp foreach @records;
+
     foreach (@records) {
         my @a = split /\t/;
         next unless @a > 4;
