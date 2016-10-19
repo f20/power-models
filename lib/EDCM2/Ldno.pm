@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
+Copyright 2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -229,13 +230,22 @@ EOF
 
     $endUsers = Labelset( list => $allTariffsByEndUser->{groups} );
 
-    my $discounts = $model->{ldnoRev} =~ /5/
-      ? Dataset(
-        name          => 'LDNO discounts',
-        cols          => $cdcmLevels,
-        rows          => $ldnoLevels,
-        defaultFormat => '%hardnz',
-        data          => [
+    my $ppu;
+    $ppu = Dataset(
+        name     => 'All-the-way reference p/kWh values',
+        rows     => $endUsers,
+        data     => [ map { 1 } @{ $endUsers->{list} } ],
+        number   => 1185,
+        dataset  => $model->{dataset},
+        appendTo => $model->{inputTables},
+    ) if $model->{ldnoRev} =~ /ppu/i;
+
+    my $discounts = Dataset(
+        name => 'LDNO discount ' . ( $ppu ? 'p/kWh' : 'percentage' ),
+        cols => $cdcmLevels,
+        rows => $ldnoLevels,
+        $ppu ? () : ( defaultFormat => '%hardnz' ),
+        data => [
             map {
                 [ map { '' } @{ $ldnoLevels->{list} } ]
             } @{ $cdcmLevels->{list} }
@@ -248,32 +258,10 @@ EOF
             criteria      => '>=',
             value         => 0,
             input_title   => 'LDNO discount:',
-            input_message => 'At least 0%',
+            input_message => 'At least zero',
             error_message => 'The LDNO discount must not be negative'
         },
-      )
-      : Dataset(
-        name          => 'LDNO discounts',
-        rows          => $cdcmLevels,
-        cols          => $ldnoLevels,
-        defaultFormat => '%hardnz',
-        data          => [
-            map {
-                [ map { '' } @{ $cdcmLevels->{list} } ]
-            } @{ $ldnoLevels->{list} }
-        ],
-        number     => 1181,
-        dataset    => $model->{dataset},
-        appendTo   => $model->{inputTables},
-        validation => {
-            validate      => 'decimal',
-            criteria      => '>=',
-            value         => 0,
-            input_title   => 'LDNO discount:',
-            input_message => 'At least 0%',
-            error_message => 'The LDNO discount must not be negative'
-        },
-      );
+    );
 
     my @endUserTariffs = map {
         my $regexp = '^' . ( '.' x $_ ) . 'y';
@@ -294,25 +282,38 @@ EOF
         columns  => \@endUserTariffs,
     );
 
-    my $discountsByTariff = $model->{ldnoRev} =~ /5/
-      ? new SpreadsheetModel::Custom(
-        name          => 'Applicable discount for each tariff',
-        rows          => $allTariffsByEndUser,
-        defaultFormat => '%copy',
-        arithmetic    => '= A1',
-        custom        => ['=A1'],
-        objectType    => 'Special copy',
-        arguments     => { A1 => $discounts },
-        wsPrepare     => sub {
+    my $discountsByTariff = new SpreadsheetModel::Custom(
+        name => 'Applicable discount for each tariff',
+        rows => $allTariffsByEndUser,
+        $ppu ? () : ( defaultFormat => '%copy' ),
+        arithmetic => '= A1',
+        custom     => ['=A1'],
+        objectType => 'Special copy',
+        arguments  => { A1 => $discounts },
+        wsPrepare  => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;
                 local $_ = $allTariffsByEndUser->{list}[$y];
-                $y = 0 if s/^LDNO 0000: //;
-                $y = 2 if s/^LDNO 132kV\/EHV: //;
-                $y = 1 if s/^LDNO 132kV: //;
-                $y = 3 if s/^LDNO EHV: //;
-                $y = 4 if s/^LDNO HVplus: //;
+                $y = 0  if s/^LDNO 0000: //;
+                $y = 2  if s/^LDNO 132kV\/EHV: //;
+                $y = 1  if s/^LDNO 132kV: //;
+                $y = 3  if s/^LDNO EHV: //;
+                $y = 4  if s/^LDNO HVplus: //;
+                $y = 1  if s/^LDNO 1000: //;
+                $y = 2  if s/^LDNO 1100: //;
+                $y = 3  if s/^LDNO 0100: //;
+                $y = 4  if s/^LDNO 1110: //;
+                $y = 5  if s/^LDNO 0110: //;
+                $y = 6  if s/^LDNO 0010: //;
+                $y = 7  if s/^LDNO 0001: //;
+                $y = 8  if s/^LDNO 0002: //;
+                $y = 9  if s/^LDNO 1001: //;
+                $y = 10 if s/^LDNO 0011: //;
+                $y = 11 if s/^LDNO 0111: //;
+                $y = 12 if s/^LDNO 0101: //;
+                $y = 13 if s/^LDNO 1101: //;
+                $y = 14 if s/^LDNO 1111: //;
                 $x =
                     /^HV Sub Gen/i ? 40
                   : /^HV Sub/i     ? 30
@@ -332,55 +333,7 @@ EOF
                   );
             };
         }
-      )
-      : new SpreadsheetModel::Custom(
-        name          => 'Applicable discount for each tariff',
-        rows          => $allTariffsByEndUser,
-        defaultFormat => '%copy',
-        arithmetic    => '= A1',
-        custom        => ['=A1'],
-        objectType    => 'Special copy',
-        arguments     => { A1 => $discounts },
-        wsPrepare     => sub {
-            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
-            sub {
-                my ( $x, $y ) = @_;
-                local $_ = $allTariffsByEndUser->{list}[$y];
-                $x = 0  if s/^LDNO 0000: //;
-                $x = 1  if s/^LDNO 1000: //;
-                $x = 2  if s/^LDNO 1100: //;
-                $x = 3  if s/^LDNO 0100: //;
-                $x = 4  if s/^LDNO 1110: //;
-                $x = 5  if s/^LDNO 0110: //;
-                $x = 6  if s/^LDNO 0010: //;
-                $x = 7  if s/^LDNO 0001: //;
-                $x = 8  if s/^LDNO 0002: //;
-                $x = 9  if s/^LDNO 1001: //;
-                $x = 10 if s/^LDNO 0011: //;
-                $x = 11 if s/^LDNO 0111: //;
-                $x = 12 if s/^LDNO 0101: //;
-                $x = 13 if s/^LDNO 1101: //;
-                $x = 14 if s/^LDNO 1111: //;
-                $y =
-                    /^HV Sub Gen/i ? 40
-                  : /^HV Sub/i     ? 30
-                  : /^HV Gen/i     ? 3
-                  : /^HV/i         ? 2
-                  : /^LV Sub Gen/i ? 2
-                  : /^LV Sub/i     ? 1
-                  : /^LV Gen/i     ? 1
-                  :                  0;
-                return '#VALUE!', $format if $y > 3;
-                '', $format, $formula->[0],
-                  qr/\bA1\b/ =>
-                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{A1} + $y,
-                    $colh->{A1} + $x,
-                    1, 1
-                  );
-            };
-        }
-      );
+    );
 
     my @explodedData = map {
         my $unexploded = $endUserTariffs[$_]{data};
@@ -389,9 +342,31 @@ EOF
     } 0 .. $#tariffComponents;
 
     my @allTariffs = map {
-        Arithmetic(
+        $ppu
+          ? Arithmetic(
             name          => $tariffComponents[$_],
-            defaultFormat => $tariffComponents[$_] =~ /day/ ? '0.00softnz'
+            defaultFormat => $tariffComponents[$_] =~ /day/
+            ? '0.00softnz'
+            : '0.000softnz',
+            arithmetic => '=IF(A31,ROUND(A2*(1-A1/A3),'
+              . ( $tariffComponents[$_] =~ /day/ ? 2 : 3 )
+              . '),A21)',
+            arguments => {
+                A1  => $discountsByTariff,
+                A2  => $endUserTariffs[$_],
+                A21 => $endUserTariffs[$_],
+                A3  => $ppu,
+                A31 => $ppu,
+            },
+            rowFormats => [
+                map { defined $_ ? undef : 'unavailable' }
+                  @{ $explodedData[$_] }
+            ],
+          )
+          : Arithmetic(
+            name          => $tariffComponents[$_],
+            defaultFormat => $tariffComponents[$_] =~ /day/
+            ? '0.00softnz'
             : '0.000softnz',
             arithmetic => $model->{ldnoRev} !~ /round/i ? '=A2*(1-A1)'
             : '=ROUND(A2*(1-A1),'
@@ -404,7 +379,7 @@ EOF
                 map { defined $_ ? undef : 'unavailable' }
                   @{ $explodedData[$_] }
             ],
-          )
+          );
     } 0 .. $#tariffComponents;
 
     return Notes( lines => 'LDNO discounted tariffs' ), undef,
