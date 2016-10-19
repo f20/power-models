@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -380,11 +380,12 @@ EOL
             );
         } split /;\s*/, $model->{checksums} if $model->{checksums};
         $discounts = Columnset(
-            name    => 'LDNO discounts (EDCM)',
+            name    => 'LDNO discounts (EDCM) ⇒1181. For EDCM model',
             columns => \@columns,
         );
     }
     push @{ $model->{objects}{resultsTables} }, $discounts;
+    $discounts;
 }
 
 1;

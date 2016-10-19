@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,9 @@ sub requiredModulesForRuleset {
         $ruleset->{dcp117}
           && $ruleset->{dcp117} !~ /201[34]/ ? 'ModelM::Dcp117_2012' : (),
 
-        $ruleset->{checksums} ? 'SpreadsheetModel::Checksum' : ()
+        $ruleset->{checksums} ? 'SpreadsheetModel::Checksum' : (),
+
+        $ruleset->{ppuCalc} ? 'ModelM::PPU' : (),
 
     );
 
@@ -148,7 +150,7 @@ sub run {
         $netCapexPercentages, $units, )
       if $model->{dcp095};
 
-    my ( $alloc, ) = $model->allocation(
+    my ( $alloc, $ppu, $ppuNotSplit ) = $model->allocation(
         $afterAllocation,     $allocLevelset, $allocationRules,
         $capitalised,         $expenditure,   $incentive,
         $netCapexPercentages, $revenue,       $totalDepreciation,
@@ -158,11 +160,18 @@ sub run {
     unless ( $model->{edcm} && $model->{edcm} =~ /only/ ) {
         my $dcp071 = $model->{dcp071} || $model->{dcp071A};
         my $discountCall = $model->{dcp095} ? 'discounts95' : 'discounts';
-        $model->$discountCall( $alloc, $allocLevelset, $dcp071, $direct,
+        my $cdcmDiscounts =
+          $model->$discountCall( $alloc, $allocLevelset, $dcp071, $direct,
             $model->hvSplit, $model->lvSplit, );
+        $model->ppuCalcCdcm( $cdcmDiscounts, $ppu, $ppuNotSplit )
+          if $model->{ppuCalc};
     }
 
-    $model->discountEdcm( $alloc, $direct ) if $model->{edcm};
+    if ( $model->{edcm} ) {
+        my $edcmDiscounts = $model->discountEdcm( $alloc, $direct );
+        $model->ppuCalcEdcm( $edcmDiscounts, $ppu, $ppuNotSplit )
+          if $model->{ppuCalc};
+    }
 
 }
 
