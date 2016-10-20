@@ -97,29 +97,27 @@ sub totalDemand {
 
 sub individualDemandUsed {
     my ( $self, $usetName ) = @_;
-    return $self->{individualDemand}{$usetName}
-      if $self->{individualDemand}{$usetName};
-    my $spcol   = $self->totalDemand($usetName);
-    my $columns = [
-        map {
-            Arithmetic(
-                name          => $_->{name},
-                arguments     => { A1 => $_->{matrix}, A2 => $_->{vector}, },
-                arithmetic    => '=A1*A2',
-                defaultFormat => '0soft',
-            );
-          } grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
-          @$spcol
-    ];
+    return $self->{individualDemandUsed}{$usetName}
+      if $self->{individualDemandUsed}{$usetName};
+    my @columns =
+      map {
+        Arithmetic(
+            name          => $_->{name},
+            arguments     => { A1 => $_->{matrix}, A2 => $_->{vector}, },
+            arithmetic    => '=A1*A2',
+            defaultFormat => '0soft',
+        );
+      } grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::SumProduct' ); }
+      @{ $self->totalDemand($usetName) };
     if ( $self->{setup}{timebands} ) {
-        push @$columns,
+        push @columns,
           Arithmetic(
             name          => 'Total units kWh',
             defaultFormat => '0soft',
             arithmetic    => '='
               . join( '+', map { "A$_"; } 1 .. $self->{setup}->timebandNumber ),
             arguments => {
-                map { ( "A$_" => $columns->[ $_ - 1 ] ); }
+                map { ( "A$_" => $columns[ $_ - 1 ] ); }
                   1 .. $self->{setup}->timebandNumber
             },
           );
@@ -127,9 +125,9 @@ sub individualDemandUsed {
     push @{ $self->{model}{volumeTables} },
       Columnset(
         name    => "Individual customer volumes in $usetName",
-        columns => $columns,
+        columns => \@columns,
       );
-    $self->{individualDemand}{$usetName} = $columns;
+    $self->{individualDemandUsed}{$usetName} = \@columns;
 }
 
 sub individualDemand {

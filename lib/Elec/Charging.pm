@@ -158,7 +158,7 @@ sub usetBoundaryCosts {
 }
 
 sub detailedAssets {
-    my ( $self, $usage ) = @_;
+    my ( $self, $usage, %flags ) = @_;
     my $notionalAssetMatrix = Arithmetic(
         name          => 'Notional asset matrix (£)',
         defaultFormat => '0soft',
@@ -174,14 +174,15 @@ sub detailedAssets {
         source        => $notionalAssetMatrix,
         defaultFormat => '0soft',
     );
-    Columnset(
-        name    => 'Notional assets by user',
+    push @{ $self->{model}{detailedTablesBottom} },
+      Columnset(
+        name => 'Notional assets by ' . ( $flags{userName} || 'user' ),
         columns => [
             $usage->{names} ? Stack( sources => [ $usage->{names} ] ) : (),
             $notionalAssetMatrix, $notionalAssetsByUser,
         ]
-    );
-    push @{ $self->{model}{detailedTables2} },
+      );
+    push @{ $self->{model}{detailedTablesBottom} },
       Columnset(
         name    => 'Total notional assets',
         columns => [
@@ -198,7 +199,7 @@ sub detailedAssets {
                 source        => $notionalAssetsByUser,
             ),
         ]
-      );
+      ) if $flags{showTotals};
 }
 
 sub usetMatchAssets {

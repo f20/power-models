@@ -101,7 +101,7 @@ sub new {
         if ( $model->{showppu} ) {
             $serviceMap{summaries}->new( $model, $setup )
               ->setupByGroup( $customers, $usetName )
-              ->summariseTariffs($tariffs);
+              ->addRevenueComparison($tariffs);
         }
         else {
             $tariffs->revenues( $customers->totalDemand($usetName) );
@@ -116,7 +116,8 @@ sub new {
         $supplyTariffs->margin( $customers->totalDemand($usetName) )
           if $model->{energyMargin};
         $serviceMap{summaries}->new( $model, $setup )
-          ->setupWithTotal( $customers, $usetName )->summariseTariffs(
+          ->setupWithActiveCustomers( $customers, $usetName )
+          ->addRevenueComparison(
             $supplyTariffs,
             [ revenueCalculation => $tariffs ],
             [ marginCalculation  => $supplyTariffs ],
@@ -125,8 +126,19 @@ sub new {
     }
     elsif ( $usetName = $model->{usetUoS} ) {
         $serviceMap{summaries}->new( $model, $setup )
-          ->setupWithAllCustomers($customers)->summariseTariffs($tariffs)
+          ->setupByGroup( $customers, $usetName )
+          ->addRevenueComparison($tariffs)
           ->addDetailedAssets( $charging, $usage );
+        if ( $model->{detailsByCustomer} ) {
+            my $method =
+              $model->{detailsByCustomer} =~ /all/i
+              ? 'setupWithAllCustomers'
+              : 'setupWithActiveCustomers';
+            $serviceMap{summaries}->new( $model, $setup )
+              ->$method( $customers, $usetName )
+              ->addRevenueComparison($tariffs)
+              ->addDetailedAssets( $charging, $usage );
+        }
     }
 
     $_->finish($model) foreach @{ $model->{finishList} };

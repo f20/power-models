@@ -39,17 +39,19 @@ sub new {
 
 sub setupByGroup {
     my ( $self, $customers, $usetName ) = @_;
-    $self->{volumes} = $customers->totalDemand($usetName);
+    $self->{usetName} = $usetName;
+    $self->{volumes}  = $customers->totalDemand($usetName);
     $self->{comparison} =
       Elec::Comparison->new( $self->{model}, $self->{setup}, undef,
         'revenueTables' );
     $self;
 }
 
-sub setupWithTotal {
+sub setupWithActiveCustomers {
     my ( $self, $customers, $usetName ) = @_;
-    $self->{names}   = $customers->names;
-    $self->{volumes} = $customers->individualDemandUsed($usetName);
+    $self->{usetName} = $usetName;
+    $self->{names}    = $customers->names;
+    $self->{volumes}  = $customers->individualDemandUsed($usetName);
     $self->{comparison} =
       Elec::Comparison->new( $self->{model}, $self->{setup}, );
     $self->_addComparisonPpu($customers);
@@ -58,10 +60,12 @@ sub setupWithTotal {
 sub setupWithAllCustomers {
     my ( $self, $customers, $usetName ) = @_;
     $self->{names}   = $customers->names;
-    $self->{volumes} = $customers->individualDemand($usetName);
+    $self->{volumes} = $customers->individualDemand;
     $self->{comparison} =
-      Elec::Comparison->new( $self->{model}, $self->{setup}, );
-    $self->{comparison}->setRows( $customers->userLabelsetRegrouped )
+      Elec::Comparison->new( $self->{model}, $self->{setup},
+        $customers->totalDemand($usetName)->[0]{matrix} );
+    $self->{comparison}
+      ->useAlternativeRowset( $customers->userLabelsetRegrouped )
       if UNIVERSAL::can( $customers, 'userLabelsetRegrouped' );
     $self->_addComparisonPpu($customers);
 }
@@ -77,12 +81,16 @@ sub _addComparisonPpu {
 
 sub addDetailedAssets {
     my ( $self, $charging, $usage ) = @_;
-    $charging->detailedAssets( $usage->detailedUsage( $self->{volumes} ) )
-      if $self->{model}{detailedAssets};
+    $charging->detailedAssets(
+        $usage->detailedUsage( $self->{volumes} ),
+        $self->{usetName}
+        ? ( showTotals => 1, userName => $self->{usetName} )
+        : ()
+    ) if $self->{model}{detailedAssets};
     $self;
 }
 
-sub summariseTariffs {
+sub addRevenueComparison {
     my ( $self, $tariffs, @extras ) = @_;
     $self->{comparison}->revenueComparison(
         $tariffs,

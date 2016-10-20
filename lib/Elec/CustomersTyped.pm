@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -39,8 +39,11 @@ sub volumeDataColumn {
         map {
             $component =~ m#kWh#
               ? ( /\[standing\]/ ? undef : 0 )
-              : $component =~ m#kVArh#
-              ? ( /Medium|Non-CT|Unrestricted|Two Rate|UMS|Unmetered/ ? undef : 0 )
+              : $component =~ m#kVArh# ? (
+                /Medium|Non-CT|Unrestricted|Two Rate|UMS|Unmetered/
+                ? undef
+                : 0
+              )
               : $component =~ m#kVA# ? ( /\[.*units\]/ ? undef : 0 )
               : ( /\[.*units\]/ ? undef : 0 );
         } @{ $self->userLabelset->{list} }
@@ -55,9 +58,12 @@ sub userLabelsetRegrouped {
     my @groupNameList;
     my %groupMembers;
     foreach ( @{ $userLabelset->{groups} } ) {
-        my $group = $_->{name};
+        my $groupName = $_->{name};
+        push @groupNameList, $groupName;
+        $groupMembers{$groupName} ||= [];
         foreach ( @{ $_->{list} } ) {
-            $group = $1 if /^(.*?)[^a-zA-Z0-9]*\[.*\][^a-zA-Z0-9]*$/s;
+            my $group =
+              /^(.*?)[^a-zA-Z0-9]*\[.*\][^a-zA-Z0-9]*$/s ? $1 : $groupName;
             push @groupNameList, $group unless $groupMembers{$group};
             push @{ $groupMembers{$group} }, $_;
         }

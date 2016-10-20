@@ -43,8 +43,8 @@ sub worksheetsAndClosures {
     my @detailedTables;
     push @detailedTables, @{ $model->{detailedTables} }
       if $model->{detailedTables};
-    push @detailedTables, @{ $model->{detailedTables2} }
-      if $model->{detailedTables2};
+    push @detailedTables, @{ $model->{detailedTablesBottom} }
+      if $model->{detailedTablesBottom};
 
     'Input' => sub {
         my ($wsheet) = @_;

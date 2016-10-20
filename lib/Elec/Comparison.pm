@@ -33,21 +33,26 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, $setup, $omitTotal, $destinationTablesName, ) = @_;
+    my ( $class, $model, $setup, $proportionUsed, $destinationTablesName, ) =
+      @_;
     $model->register(
         bless {
             model                 => $model,
             setup                 => $setup,
-            omitTotal             => $omitTotal,
+            proportionUsed        => $proportionUsed,
             destinationTablesName => $destinationTablesName,
         },
         $class
     );
 }
 
-sub setRows {
-    my ( $self, $rows ) = @_;
-    $self->{rows} = $rows;
+sub useAlternativeRowset {
+    my ( $self, $rowset ) = @_;
+    $self->{rows}           = $rowset;
+    $self->{proportionUsed} = Stack(
+        sources => [ $self->{proportionUsed} ],
+        rows    => $rowset,
+    );
 }
 
 sub addComparisonPpu {
@@ -170,6 +175,9 @@ sub revenueComparison {
         }
       ) if $compare;
 
+    push @columns, $self->{proportionUsed}
+      if $self->{rows} && $self->{proportionUsed};
+
     push @{ $self->{revenueTables} },
       Columnset(
         name    => 'Revenue (£/year)' . $labelTail,
@@ -182,69 +190,75 @@ sub revenueComparison {
         columns => \@columns,
       );
 
-    if ( !$self->{omitTotal} ) {
-        foreach my $groupedRows (
-            $revenues->{rows}{groups}
-            ? Labelset( list => $revenues->{rows}{groups} )
-            : (),
-            undef
-          )
-        {
-            my $totalTerm = $groupedRows ? 'Subtotal' : 'Total';
-            my @cols = (
-                map {
-                    my $n =
-                      $totalTerm . ' '
-                      . lcfirst(
-                        SpreadsheetModel::Object::_shortName( $_->{name} ) );
-                    GroupBy(
-                        name          => $n,
-                        rows          => $groupedRows,
-                        defaultFormat => $_->{defaultFormat},
-                        source        => $_,
-                    );
-                  } $totalUnits,
-                $revenues,
-                @extras,
-                $compare ? ( $compare, $difference, ) : ()
-            );
-            push @cols,
-              Arithmetic(
-                name          => "$totalTerm difference %",
-                defaultFormat => '%softpm',
-                arithmetic    => '=IF(A1,A2/A3,"")',
-                arguments     => {
-                    A1 => $cols[ $#cols - 1 ],
-                    A2 => $cols[$#cols],
-                    A3 => $cols[ $#cols - 1 ],
-                },
-              ) if $compare;
-            push @cols,
-              Arithmetic(
-                name       => 'Average p/kWh',
-                arithmetic => '=IF(A3,A1/A2*100,"")',
-                arguments  => {
-                    A1 => $cols[1],
-                    A2 => $cols[0],
-                    A3 => $cols[0],
-                }
-              );
-            push @cols,
-              Arithmetic(
-                name       => 'Comparison p/kWh',
-                arithmetic => '=IF(A3,A1/A2*100,"")',
-                arguments  => {
-                    A1 => $cols[ $#cols - 3 ],
-                    A2 => $cols[0],
-                    A3 => $cols[0],
-                }
-              ) if $compare;
-            push @{ $self->{detailedTables} },
-              Columnset(
-                name    => "$totalTerm £/year$labelTail",
-                columns => \@cols,
-              );
-        }
+    foreach my $groupedRows (
+        $revenues->{rows}{groups}
+        ? Labelset( list => $revenues->{rows}{groups} )
+        : (),
+        undef
+      )
+    {
+        my $totalTerm = $groupedRows ? 'Subtotal' : 'Total';
+        my @cols = (
+            map {
+                my $n =
+                  $totalTerm . ' '
+                  . lcfirst(
+                    SpreadsheetModel::Object::_shortName( $_->{name} ) );
+                $self->{proportionUsed}
+                  ? SumProduct(
+                    name          => $n,
+                    rows          => $groupedRows,
+                    defaultFormat => $_->{defaultFormat},
+                    matrix        => $self->{proportionUsed},
+                    vector        => $_,
+                  )
+                  : GroupBy(
+                    name          => $n,
+                    rows          => $groupedRows,
+                    defaultFormat => $_->{defaultFormat},
+                    source        => $_,
+                  );
+              } $totalUnits,
+            $revenues,
+            @extras,
+            $compare ? ( $compare, $difference, ) : ()
+        );
+        push @cols,
+          Arithmetic(
+            name          => "$totalTerm difference %",
+            defaultFormat => '%softpm',
+            arithmetic    => '=IF(A1,A2/A3,"")',
+            arguments     => {
+                A1 => $cols[ $#cols - 1 ],
+                A2 => $cols[$#cols],
+                A3 => $cols[ $#cols - 1 ],
+            },
+          ) if $compare;
+        push @cols,
+          Arithmetic(
+            name       => 'Average p/kWh',
+            arithmetic => '=IF(A3,A1/A2*100,"")',
+            arguments  => {
+                A1 => $cols[1],
+                A2 => $cols[0],
+                A3 => $cols[0],
+            }
+          );
+        push @cols,
+          Arithmetic(
+            name       => 'Comparison p/kWh',
+            arithmetic => '=IF(A3,A1/A2*100,"")',
+            arguments  => {
+                A1 => $cols[ $#cols - 3 ],
+                A2 => $cols[0],
+                A3 => $cols[0],
+            }
+          ) if $compare;
+        push @{ $self->{detailedTables} },
+          Columnset(
+            name    => "$totalTerm £/year$labelTail",
+            columns => \@cols,
+          );
     }
 
 }
