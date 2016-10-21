@@ -98,6 +98,8 @@ EOM
               || !defined $self->{rows}->supersetIndex( $_->{rows} );
 
         }
+
+        # This is not the mirror image of summingByRowGroup
         $self->{summingByColumnGroup} = 1;
         return $self->SUPER::check;
     }
@@ -184,6 +186,7 @@ sub wsPrepare {
       || $vecsheet == $ws ? '' : "'" . $vecsheet->get_name . "'!";
     my $formula =
       $ws->store_formula("=SUMPRODUCT(${matsheet}A1:A2,${vecsheet}A3:A4)");
+    my $formulaSingleCell = $ws->store_formula("=${matsheet}A1*${vecsheet}A3");
     my $format = $wb->getFormat( $self->{defaultFormat} || '0.000soft' );
 
     if ( $self->{summingByRowGroup} ) {
@@ -199,7 +202,7 @@ sub wsPrepare {
         }
         return sub {
             my ( $x, $y ) = @_;
-            '', $format, $formula,
+            '', $format, $start[$y] == $end[$y] ? $formulaSingleCell : $formula,
               qr/\bA1\b/ =>
               xl_rowcol_to_cell( $matr + $start[$y], $matc + $x, 1, 0 ),
               qr/\bA2\b/ =>
@@ -222,8 +225,7 @@ sub wsPrepare {
         } @{$self}{qw(matrix vector)};
         my $n     = $self->{vector}->lastCol;
         my $veccl = $vecc + $n;
-        $formula = $ws->store_formula("=${matsheet}A1*${vecsheet}A3")
-          unless $n;
+        $formula = $formulaSingleCell unless $n;
         my $mat0 = $matc + ( $n ? 1 : 0 );
         my $n1 = $n ? $n + 2 : 1;
         return sub {
@@ -256,8 +258,7 @@ sub wsPrepare {
         && ( !$self->{cols} || !$#{ $self->{cols}{list} } ) )
     {
         my $n = $self->{vector}->lastCol;
-        $formula = $ws->store_formula("=${matsheet}A1*${vecsheet}A3")
-          unless $n;
+        $formula = $formulaSingleCell unless $n;
         my $matcl = $matc + $n;
         my $veccl = $vecc + $n;
         return sub {
@@ -275,8 +276,7 @@ sub wsPrepare {
         && $self->{vector}->{rows} == $self->{matrix}->{rows} )
     {
         my $n = $self->{vector}->lastRow;
-        $formula = $ws->store_formula("=${matsheet}A1*${vecsheet}A3")
-          unless $n;
+        $formula = $formulaSingleCell unless $n;
         my $matrl = $matr + $n;
         my $vecrl = $vecr + $n;
         return sub {
@@ -293,8 +293,7 @@ sub wsPrepare {
         && $self->{vector}{cols} == $self->{matrix}{cols} )
     {
         my $n = $self->{vector}->lastCol;
-        $formula = $ws->store_formula("=${matsheet}A1*${vecsheet}A3")
-          unless $n;
+        $formula = $formulaSingleCell unless $n;
         my $matcl = $matc + $n;
         my $veccl = $vecc + $n;
         return sub {
