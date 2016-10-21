@@ -112,15 +112,35 @@ sub check {
     my ($self) = @_;
     return $self->_checkName if 'ARRAY' eq ref $self->{list};
     if ( $self->{editable} ) {
-        $self->{list} =
-          $self->{editable}{cols}
-          ? [ map { [ $self->{editable}, 0, $_ ] }
-              0 .. $self->{editable}->lastCol ]
-          : $self->{editable}{rows} ? [ map { [ $self->{editable}, $_, 0 ] }
-              0 .. $self->{editable}->lastRow ]
-          : [ $self->{editable} ];
-        push @{ $self->{accepts} },
-          $self->{editable}{cols} || $self->{editable}{rows};
+        my $srcLabelset = $self->{editable}{cols} || $self->{editable}{rows};
+        if ($srcLabelset) {
+            push @{ $self->{accepts} }, $srcLabelset;
+            if ( $srcLabelset->{groups} ) {
+                $self->{groups}     = $srcLabelset->{groups};
+                $self->{noCollapse} = $srcLabelset->{noCollapse};
+                $self->{indices}    = $srcLabelset->{indices};
+                $self->{groupid}    = $srcLabelset->{groupid};
+                $self->{list} = [ map { "$_" } @{ $srcLabelset->{list} } ];
+                $self->{list}[$_] = [
+                    $self->{editable},
+                    $self->{editable}{cols} ? ( 0, $_ ) : ( $_, 0 ),
+                  ]
+                  foreach $srcLabelset->indices;
+            }
+            else {
+                $self->{list} = [
+                    map {
+                        [
+                            $self->{editable},
+                            $self->{editable}{cols} ? ( 0, $_ ) : ( $_, 0 ),
+                        ]
+                    } 0 .. $#{ $srcLabelset->{list} }
+                ];
+            }
+        }
+        else {
+            $self->{list} = [ $self->{editable} ];
+        }
         return;
     }
     return 'Broken labelset' unless 'ARRAY' eq ref $self->{groups};

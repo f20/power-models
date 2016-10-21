@@ -205,7 +205,8 @@ sub worksheetsAndClosures {
         'Details' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0, $model->{ulist} ? 50 : 20 );
+            $wsheet->set_column( 0, 0,
+                $model->{ulist} || $model->{table1653Names} ? 50 : 20 );
             $wsheet->set_column( 1, 1,
                 $model->{detailedTablesNames} ? 50 : 20 );
             $wsheet->set_column( 2, 250, 20 );

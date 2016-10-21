@@ -175,7 +175,9 @@ sub userLabelset {
             } @{ $self->{model}{ucount} }
         ]
     );
-    $self->{names} = Dataset(
+    return $self->{userLabelset} = $userLabelset
+      unless $self->{model}{table1653};
+    $self->{namesInLabelset} = Dataset(
         defaultFormat => 'texthard',
         data          => [ map { '' } @{ $userLabelset->{list} } ],
         name          => 'Name',
@@ -183,8 +185,8 @@ sub userLabelset {
         validation => {    # required to trigger lenient cell locking
             validate => 'any',
         },
-    ) if $self->{model}{table1653};
-    $self->{userLabelset} = $userLabelset;
+    );
+    $self->{userLabelset} = Labelset( editable => $self->{namesInLabelset} );
 }
 
 sub volumeDataColumn {
@@ -242,14 +244,14 @@ sub addColumnset {
 sub finish {
     my ( $self, $model ) = @_;
     if ( $model->{table1653} ) {
-        $model->{table1653Names} = $self->{names};
-        $model->{table1653}      = Columnset(
+        $model->{table1653Names} = $self->{names} || $self->{namesInLabelset};
+        $model->{table1653} = Columnset(
             name     => 'Individual user data',
             number   => 1653,
             location => 'Customers',
             dataset  => $self->{model}{dataset},
             columns  => [
-                $self->{names} ? $self->{names} : (),
+                $model->{table1653Names} ? $model->{table1653Names} : (),
                 @{ $self->{scenarioProportions} },
                 @{ $self->{detailedVolumes} },
                 $self->{extraColumns} ? @{ $self->{extraColumns} } : (),
