@@ -36,7 +36,6 @@ use SpreadsheetModel::CLI::MakeModels;
 use SpreadsheetModel::CLI::ParseSpreadsheet;
 use SpreadsheetModel::CLI::Sampler;
 use SpreadsheetModel::CLI::UseDatabase;
-use SpreadsheetModel::CLI::YamlTools;
 
 use Encode qw(decode_utf8);
 use File::Spec::Functions qw(abs2rel catdir catfile rel2abs);

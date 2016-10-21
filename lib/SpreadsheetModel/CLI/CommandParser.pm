@@ -57,7 +57,6 @@ sub acceptCommand {
         return push @$self, [ sampler => @_[ 1 .. $#_ ] ] if /^sampler$/i;
     }
     return push @$self, [ ymlDiff  => @_ ] if grep { /-+ya?mldiff/si } @_;
-    return push @$self, [ ymlIndex => @_ ] if grep { /-*ya?mlindex/si } @_;
     return push @$self, [ ymlMerge => @_ ] if grep { /-+ya?mlmerge/si } @_;
     return push @$self, [ ymlSplit => @_ ] if grep { /-+ya?mlsplit/si } @_;
     return push @$self, [ makeModels => @_ ]
