@@ -1196,16 +1196,16 @@ sub matching {
 
         else {    # not ppugeneral
 
-            my $includeGenerators =
-              Arithmetic
-              name       => 'Are generator tariffs subject to adder?',
-              arithmetic => !$model->{genAdder} ? 'FALSE'
-              : $model->{genAdder} =~ /charge/ ? '=A1>0'
-              : $model->{genAdder} =~ /pay/    ? '=A1<0'
-              : $model->{genAdder} =~ /always/ ? 'TRUE'
-              : $model->{genAdder} =~ /never/  ? 'FALSE'
-              : 'FALSE',
-              arguments => { A1 => $adderAmount };
+            my $includeGenerators = Arithmetic(
+                name       => 'Are generator tariffs subject to adder?',
+                arithmetic => !$model->{genAdder} ? 'FALSE'
+                : $model->{genAdder} =~ /charge/ ? '=A1>0'
+                : $model->{genAdder} =~ /pay/    ? '=A1<0'
+                : $model->{genAdder} =~ /always/ ? 'TRUE'
+                : $model->{genAdder} =~ /never/  ? 'FALSE'
+                : $model->{genAdder},
+                arguments => { A1 => $adderAmount },
+            );
 
             push @{ $model->{optionLines} },
               'Adder for generators: '
