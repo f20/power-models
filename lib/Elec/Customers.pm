@@ -243,7 +243,10 @@ sub addColumnset {
 
 sub finish {
     my ( $self, $model ) = @_;
-    if ( $model->{table1653} ) {
+    if (   $model->{table1653}
+        && $self->{detailedVolumes}
+        && $self->{scenarioProportions} )
+    {
         $model->{table1653Names} = $self->{names} || $self->{namesInLabelset};
         $model->{table1653} = Columnset(
             name     => 'Individual user data',
@@ -257,6 +260,21 @@ sub finish {
                 $self->{extraColumns} ? @{ $self->{extraColumns} } : (),
             ],
             doNotCopyInputColumns => 1,
+        );
+    }
+    elsif ($model->{table1513}
+        && $self->{detailedVolumes}
+        && $self->{scenarioProportions} )
+    {
+        Columnset(
+            name     => 'Forecast volumes',
+            number   => 1513,
+            appendTo => $self->{model}{inputTables},
+            dataset  => $self->{model}{dataset},
+            columns  => [
+                @{ $self->{detailedVolumes} },
+                @{ $self->{scenarioProportions} },
+            ],
         );
     }
     else {

@@ -62,8 +62,10 @@ sub new {
 
     foreach my $charge ( $charging->charges ) {
         push @{ $model->{costTables} }, $charge;
+        my $sourceName = lcfirst( $charge->{name} );
+        $sourceName =~ s/ \(.*\)//gs;
         push @tariffContributions, Columnset(
-            name    => 'Contributions from ' . lcfirst( $charge->{name} ),
+            name    => "Contributions from $sourceName",
             columns => [
                 map {
                     my $usage   = $usageRates->[$_];
@@ -73,8 +75,7 @@ sub new {
                       || $_ == 0
                       || $self->{model}{reactive} && $_ == $#$usageRates;
                     my $contrib = Arithmetic(
-                        name => 'Contributions from '
-                          . lcfirst( $charge->{name} ) . ' to '
+                        name => "Contributions from $sourceName to "
                           . lcfirst( $tariffComponents->[$_] ),
                         @{ $formatting[$_] },
                         arithmetic => '=A1*A2'
@@ -97,8 +98,7 @@ sub new {
                     );
                     $contrib->lastCol
                       ? GroupBy(
-                        name => 'Total contributions from '
-                          . lcfirst( $charge->{name} ) . ' to '
+                        name => "Total contributions from $sourceName to "
                           . lcfirst( $tariffComponents->[$_] ),
                         @{ $formatting[$_] },
                         rows   => $contrib->{rows},

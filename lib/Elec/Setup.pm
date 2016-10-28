@@ -163,14 +163,15 @@ sub usageSet {
     );
 }
 
-sub boundaryUsageSet {
+sub nonAssetUsageSet {
     my ($self) = @_;
-    $self->{boundaryUsageSet} ||= Labelset(
-        name => 'Boundary usage',
+    $self->{nonAssetUsageSet} ||= Labelset(
+        name => 'Usage to allocate non-asset costs',
         list => [
             $self->usageSet->{list}[0],
             $self->usageSet->{list}[1]
-              && $self->usageSet->{list}[1] =~ /^Boundary/i
+              && $self->usageSet->{list}[1] =~
+              /^(?:Boundary|Indirect|Non[ -]?asset)/i
             ? $self->usageSet->{list}[1]
             : (),
         ]
@@ -195,7 +196,7 @@ sub assetUsageSet {
         name => 'Asset usage',
         list => [
             @{$listr}[
-              @{ $self->boundaryUsageSet->{list} }
+              @{ $self->nonAssetUsageSet->{list} }
               .. ( $#$listr - $self->{model}{noEnergy} ? 0 : 1 )
             ]
         ]

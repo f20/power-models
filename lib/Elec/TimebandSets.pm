@@ -103,7 +103,7 @@ sub hours {
     my @calculationColumns;
     push @calculationColumns, $_->[1], $_->[2],
       $hours = Arithmetic(
-        name          => 'Rescaled hours in ' . lcfirst $_->[0],
+        name          => 'Rescaled hours after ' . lcfirst $_->[0],
         defaultFormat => '0.0soft',
         arithmetic    => '=A1*IF(A3,'
           . '(24*A2-SUMPRODUCT(A21_A22,A11_A12))'

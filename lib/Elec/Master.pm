@@ -77,11 +77,14 @@ sub new {
     my $usage = $serviceMap{usage}->new( $model, $setup, $customers );
     my $charging = $serviceMap{charging}->new( $model, $setup, $usage );
 
-    foreach
-      ( # NB: the order of this list affects the column order in the input data table
+    # Legacy parameter support
+    $model->{usetNonAssetCosts} ||= $model->{usetBoundaryCosts};
+
+    # NB: the order of the list affects the column order in the input data table
+    foreach (
         qw(
         usetMatchAssets
-        usetBoundaryCosts
+        usetNonAssetCosts
         usetRunningCosts
         )
       )
@@ -97,6 +100,7 @@ sub new {
 
     $tariffs->showAverageUnitRateTable($customers)
       if $serviceMap{timebands} && $model->{showAverageUnitRateTable};
+
     if ( my $usetName = $model->{usetRevenues} ) {
         if ( $model->{showppu} ) {
             $serviceMap{summaries}->new( $model, $setup )
@@ -124,7 +128,8 @@ sub new {
           )->addDetailedAssets( $charging, $usage )
           if $model->{compareppu} || $model->{showppu};
     }
-    elsif ( $usetName = $model->{usetUoS} ) {
+
+    if ( my $usetName = $model->{usetUoS} ) {
         $serviceMap{summaries}->new( $model, $setup )
           ->setupByGroup( $customers, $usetName )
           ->addRevenueComparison($tariffs)

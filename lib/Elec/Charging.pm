@@ -90,15 +90,15 @@ sub contributionDiscount {
     );
 }
 
-sub boundaryCharge {
+sub nonAssetCharge {
     my ($self) = @_;
-    $self->{boundaryCharge} ||= Dataset(
-        name     => 'Boundary charging rate (£/year/unit of usage)',
+    $self->{nonAssetCharge} ||= Dataset(
+        name     => 'Non asset charges (£/year/unit of usage)',
         number   => 1552,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
-        cols     => $self->{setup}->boundaryUsageSet,
-        data => [ map { 10; } @{ $self->{setup}->boundaryUsageSet->{list} } ],
+        cols     => $self->{setup}->nonAssetUsageSet,
+        data => [ map { 10; } @{ $self->{setup}->nonAssetUsageSet->{list} } ],
     );
 }
 
@@ -122,7 +122,7 @@ sub runningRate {
 sub assetCharge {
     my ($self) = @_;
     $self->{assetCharge} ||= Arithmetic(
-        name       => 'Asset-related charging rate (£/unit of usage)',
+        name       => 'Asset-related charges (£/unit of usage)',
         arithmetic => '=A1*('
           . ( $self->{model}{contributions} ? '(1-A4)*' : '' )
           . 'A2+A3)',
@@ -137,19 +137,21 @@ sub assetCharge {
     );
 }
 
-sub usetBoundaryCosts {
+sub usetNonAssetCosts {
     my ( $self, $totalUsage ) = @_;
-    $self->{boundaryCharge} ||= Arithmetic(
-        name       => 'Boundary charging rate (£/unit of usage/year)',
-        cols       => $self->{setup}->boundaryUsageSet,
+    $self->{nonAssetCharge} ||= Arithmetic(
+        name       => 'Non-asset-based charges (£/unit of usage/year)',
         arithmetic => '=A1/A2',
         arguments  => {
             A1 => Dataset(
-                name          => 'Relevant boundary charges (£/year)',
-                number        => 1556,
-                appendTo      => $self->{model}{inputTables},
-                dataset       => $self->{model}{dataset},
-                data          => [5e5],
+                name     => 'Relevant non-asset charges (£/year)',
+                number   => 1556,
+                cols     => $self->{setup}->nonAssetUsageSet,
+                appendTo => $self->{model}{inputTables},
+                dataset  => $self->{model}{dataset},
+                data     => [
+                    map { 5e5; } @{ $self->{setup}->nonAssetUsageSet->{list} }
+                ],
                 defaultFormat => '0hard',
             ),
             A2 => $totalUsage,
@@ -256,7 +258,7 @@ sub usetRunningCosts {
         defaultFormat => '0soft',
     );
     my $target = Dataset(
-        name          => 'Total running costs (£/year)',
+        name          => 'Total asset running costs (£/year)',
         number        => 1559,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
@@ -264,8 +266,8 @@ sub usetRunningCosts {
         defaultFormat => '0hard',
     );
     $self->{runningRate} = Arithmetic(
-        name          => 'Annual running costs (relative to notional assets)',
-        arithmetic    => '=A1/A3',
+        name       => 'Annual running costs relative to notional asset value',
+        arithmetic => '=A1/A3',
         defaultFormat => '%soft',
         arguments     => { A1 => $target, A3 => $totalAssets, },
     );
@@ -275,10 +277,8 @@ sub usetMatchRevenue { }
 
 sub charges {
     my ($self) = @_;
-    (
-        $self->boundaryCharge, $self->assetCharge,
-        $self->{model}{noEnergy} ? () : $self->energyCharge,
-    );
+    $self->nonAssetCharge, $self->assetCharge,
+      $self->{model}{noEnergy} ? () : $self->energyCharge;
 }
 
 sub finish { }
