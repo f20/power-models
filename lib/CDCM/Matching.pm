@@ -206,12 +206,12 @@ sub matching {
             {
 
                 $assetFlag = Stack(
-                    name    => 'Applicability factor for £1/kW scaler',
+                    name    => 'Applicability factor for £1/kW/year scaler',
                     cols    => $chargingLevels,
                     sources => [
                         $model->{scaler} =~ /exit|ehv/i
                         ? Arithmetic(
-                            name => 'Factor to scale to £1/kW '
+                            name => 'Factor to scale to £1/kW/year '
                               . (
                                 $model->{scaler} =~ /exit/i
                                 ? 'at transmission exit level'
@@ -242,7 +242,7 @@ sub matching {
                           )
 
                         : Arithmetic(
-                            name => 'Factor to scale to £1/kW '
+                            name => 'Factor to scale to £1/kW/year '
                               . ' at each level',
                             arithmetic => '=IF(A1,A3/A2,0)',
                             rows       => 0,
@@ -282,8 +282,8 @@ sub matching {
                 if ( $model->{scaler} =~ /op/i ) {
                     push @factors,
                       Arithmetic(
-                        name => 'Factor to scale to £1/kW '
-                          . '(operating) at each level',
+                        name => 'Factor to scale to £1/kW/year (operating)'
+                          . ' at each level',
                         arithmetic => '=IF(A1,1/A2,0)',
                         rows       => 0,
                         $model->{scaler} =~ /ehv/i
@@ -307,8 +307,8 @@ sub matching {
                     push @factors,
                       $model->{scaler} =~ /ehv/
                       ? Arithmetic(
-                        name =>
-                          'Factor to scale to £1/kW (assets) at each level',
+                        name => 'Factor to scale to £1/kW/year (assets)'
+                          . ' at each level',
                         arithmetic => '=IF(A1,A3/A2,0)',
                         cols       => $modelCostToSml->{rows},
                         rows       => 0,
@@ -327,8 +327,8 @@ sub matching {
                         }
                       )
                       : Arithmetic(
-                        name =>
-                          'Factor to scale to £1/kW (assets) at each level',
+                        name => 'Factor to scale to £1/kW/year (assets)'
+                          . ' at each level',
                         arithmetic => '=IF(A1,1/A2,0)',
                         cols       => $modelCostToSml->{rows},
                         rows       => 0,
@@ -337,7 +337,8 @@ sub matching {
                       );
                 }
                 $assetFlag = Stack(
-                    name    => 'Applicability factor for £1/kW (assets) scaler',
+                    name =>
+                      'Applicability factor for £1/kW/year (assets) scaler',
                     cols    => $chargingLevels,
                     sources => [
                         @factors,
