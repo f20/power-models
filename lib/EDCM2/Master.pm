@@ -2226,45 +2226,53 @@ EOT
         defaultFormat => '0softnz'
     );
 
-    push @{ $model->{ $model->{layout} ? 'TotalsTables' : 'revenueTables' } },
-      my $totalAllTariffs = Columnset(
-        name    => 'Total for all tariffs (£/year)',
-        columns => [
-            $model->{layout} ? () : Constant(
-                name          => 'This column is not used',
-                defaultFormat => '0con',
-                data          => [ [''] ]
-            ),
-            $totalForDemandAllTariffs,
-            $totalForGenerationAllTariffs,
-            Arithmetic(
-                name          => 'Total for all tariffs (£/year)',
-                defaultFormat => '0softnz',
-                arithmetic    => '=A1+A2',
-                arguments     => {
-                    A1 => $totalForDemandAllTariffs,
-                    A2 => $totalForGenerationAllTariffs,
-                }
-            )
-        ]
-      );
+    if (   $model->{ldnoRevTables}
+        || $model->{summaries} && $model->{summaries} =~ /total/i )
+    {
 
-    push @{ $model->{TotalsTables} },
-      Columnset(
-        name    => 'Total EDCM revenue (£/year)',
-        columns => [
-            Arithmetic(
-                name => 'All EDCM tariffs including discounted LDNO (£/year)',
-                defaultFormat => '0softnz',
-                arithmetic    => '=A1+A2+A3',
-                arguments     => {
-                    A1 => $totalForDemandAllTariffs,
-                    A2 => $totalForGenerationAllTariffs,
-                    A3 => $model->{ldnoRevTables}[1],
-                }
-            )
-        ]
-      ) if $model->{ldnoRevTables} && $model->{ldnoRevTables}[1];
+        push @{ $model->{ $model->{layout} ? 'TotalsTables' : 'revenueTables' }
+          },
+          my $totalAllTariffs = Columnset(
+            name    => 'Total for all tariffs (£/year)',
+            columns => [
+                $model->{layout} ? () : Constant(
+                    name          => 'This column is not used',
+                    defaultFormat => '0con',
+                    data          => [ [''] ]
+                ),
+                $totalForDemandAllTariffs,
+                $totalForGenerationAllTariffs,
+                Arithmetic(
+                    name          => 'Total for all tariffs (£/year)',
+                    defaultFormat => '0softnz',
+                    arithmetic    => '=A1+A2',
+                    arguments     => {
+                        A1 => $totalForDemandAllTariffs,
+                        A2 => $totalForGenerationAllTariffs,
+                    }
+                )
+            ]
+          );
+
+        push @{ $model->{TotalsTables} },
+          Columnset(
+            name    => 'Total EDCM revenue (£/year)',
+            columns => [
+                Arithmetic(
+                    name =>
+                      'All EDCM tariffs including discounted LDNO (£/year)',
+                    defaultFormat => '0softnz',
+                    arithmetic    => '=A1+A2+A3',
+                    arguments     => {
+                        A1 => $totalForDemandAllTariffs,
+                        A2 => $totalForGenerationAllTariffs,
+                        A3 => $model->{ldnoRevTables}[1],
+                    }
+                )
+            ]
+          ) if $model->{ldnoRevTables} && $model->{ldnoRevTables}[1];
+
+    }
 
     push @{ $model->{revenueTables} },
       $model->impactFinancialSummary( $tariffs, \@tariffColumns,
