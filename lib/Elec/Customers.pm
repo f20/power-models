@@ -52,7 +52,7 @@ sub totalDemand {
         name => 'Proportion '
           . (
             $usetName eq 'all users' ? 'taken into account' : "in $usetName" ),
-        rows          => $self->userLabelset,
+        rows          => $self->userLabelsetForInput,
         defaultFormat => '%hard',
         data          => [ map { 1; } @{ $self->userLabelset->{list} } ],
         validation => {    # required to trigger lenient cell locking
@@ -177,7 +177,8 @@ sub userLabelset {
     );
     return $self->{userLabelset} = $userLabelset
       unless $self->{model}{table1653};
-    $self->{namesInLabelset} = Dataset(
+    $self->{userLabelsetForInput} = $userLabelset;
+    $self->{namesInLabelset}      = Dataset(
         defaultFormat => 'texthard',
         data          => [ map { '' } @{ $userLabelset->{list} } ],
         name          => 'Name',
@@ -186,7 +187,16 @@ sub userLabelset {
             validate => 'any',
         },
     );
-    $self->{userLabelset} = Labelset( editable => $self->{namesInLabelset} );
+    $self->{userLabelset} = Labelset(
+        name     => 'Editable labelset for customer names',
+        editable => $self->{namesInLabelset}
+    );
+}
+
+sub userLabelsetForInput {
+    my ($self) = @_;
+    my $lset = $self->userLabelset;
+    $self->{userLabelsetForInput} || $lset;
 }
 
 sub volumeDataColumn {
@@ -200,7 +210,7 @@ sub detailedVolumes {
     $self->{detailedVolumes} = [
         map {
             Dataset(
-                rows          => $self->userLabelset,
+                rows          => $self->userLabelsetForInput,
                 defaultFormat => '0hard',
                 name          => $_,
                 data          => $self->volumeDataColumn($_),
@@ -252,14 +262,14 @@ sub finish {
             name     => 'Individual user data',
             number   => 1653,
             location => 'Customers',
-            dataset  => $self->{model}{dataset},
+            dataset  => $model->{dataset},
             columns  => [
                 $model->{table1653Names} ? $model->{table1653Names} : (),
                 @{ $self->{scenarioProportions} },
                 @{ $self->{detailedVolumes} },
                 $self->{extraColumns} ? @{ $self->{extraColumns} } : (),
             ],
-            doNotCopyInputColumns => 1,
+            ignoreDatasheet => 1,
         );
     }
     elsif ($model->{table1513}
@@ -269,8 +279,8 @@ sub finish {
         Columnset(
             name     => 'Forecast volumes',
             number   => 1513,
-            appendTo => $self->{model}{inputTables},
-            dataset  => $self->{model}{dataset},
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
             columns  => [
                 @{ $self->{detailedVolumes} },
                 @{ $self->{scenarioProportions} },
@@ -281,15 +291,15 @@ sub finish {
         Columnset(
             name     => 'Forecast volumes',
             number   => 1512,
-            appendTo => $self->{model}{inputTables},
-            dataset  => $self->{model}{dataset},
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
             columns  => $self->{detailedVolumes},
         ) if $self->{detailedVolumes};
         Columnset(
             name     => 'Definition of user sets',
             number   => 1514,
-            appendTo => $self->{model}{inputTables},
-            dataset  => $self->{model}{dataset},
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
             columns  => $self->{scenarioProportions},
         ) if $self->{scenarioProportions};
     }

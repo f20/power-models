@@ -101,7 +101,7 @@ sub preprocessDataset {
                 $model->{numLocations} =
                   (      $model->{randomise}
                       || $model->{small}
-                      || defined $model->{numLocations} ? 0 : 16 ) +
+                      || defined $model->{numLocations} ? 0 : 8 ) +
                   $max;
                 my $ds = $d->{
                     $model->{method} =~ /FCP/i
@@ -168,7 +168,7 @@ sub preprocessDataset {
                         sort { $a <=> $b } keys %tariffs,
                         defined $model->{numTariffs}
                         ? ()
-                        : ( $max + 1 .. $max + 16 )
+                        : ( $max + 1 .. $max + 8 )
                     ];
                     push @$tariffs, $max + 1
                       unless $model->{transparency}
@@ -270,7 +270,7 @@ sub preprocessDataset {
                       sort { $a <=> $b } keys %tariffs,
                       defined $model->{numTariffs}
                       ? ()
-                      : ( $max + 1 .. $max + 16 );
+                      : ( $max + 1 .. $max + 8 );
                     push @tariffs, $max + 1
                       unless $model->{transparency}
                       && $model->{transparency} =~ /impact/i

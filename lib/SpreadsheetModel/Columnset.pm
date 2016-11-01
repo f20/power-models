@@ -282,13 +282,6 @@ sub wsWrite {
 
     return if $self->{rows} && !@{ $self->{rows}{list} };
 
-    my $dataset;
-    $dataset = $self->{dataset}{ $self->{number} } if $self->{number};
-    $dataset = $self->{dataset}{defaultClosure}->( $self->{number}, $wb, $ws )
-      if !$dataset && $self->{dataset}{defaultClosure};
-    $dataset = $dataset->( $self->{number}, $wb, $ws )
-      if ref $dataset eq 'CODE';
-
     if ( $self->{name} ) {
         $ws->set_row( $row, 21 );
         $ws->write_string( $row++, $col, "$self->{name}",
@@ -608,6 +601,13 @@ use ->shortName here.
     }
 
     unless ( $self->{noHeaders} ) {
+        my $dataset;
+        $dataset = $self->{dataset}{ $self->{number} } if $self->{number};
+        $dataset =
+          $self->{dataset}{defaultClosure}->( $self->{number}, $wb, $ws )
+          if !$dataset && $self->{dataset}{defaultClosure};
+        $dataset = $dataset->( $self->{number}, $wb, $ws )
+          if ref $dataset eq 'CODE';
         my $scribbleFormat = $wb->getFormat('scribbles');
         foreach ( 1 .. 1 ) {    # Scribble columns
             my @note;

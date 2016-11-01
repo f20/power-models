@@ -103,7 +103,9 @@ sub registerTimebands {
 
 sub timebandList {
     my ($self) = @_;
-    $self->{timebands} ? @{ $self->{timebands}->timebandSet->{list} } : ('All');
+    $self->{timebands}
+      ? @{ $self->{timebands}->timebandSet->{list} }
+      : ('Units');
 }
 
 sub timebandNumber {
