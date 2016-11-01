@@ -81,11 +81,12 @@ sub pcdPreprocessedVolumes {
       Labelset( name => 'Discount combinations', list => \@combinations );
 
     my $rawDiscount = $model->{pcdByTariff} ? Dataset(
-        name       => 'Embedded network (LDNO) discounts',
-        number     => 1038,
-        appendTo   => $model->{inputTables},
-        dataset    => $model->{dataset},
-        validation => {
+        name          => 'Embedded network (LDNO) discounts',
+        defaultFormat => '%hard',
+        number        => 1038,
+        appendTo      => $model->{inputTables},
+        dataset       => $model->{dataset},
+        validation    => {
             validate      => 'decimal',
             criteria      => 'between',
             minimum       => 0,

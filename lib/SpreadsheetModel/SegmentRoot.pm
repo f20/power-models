@@ -96,9 +96,11 @@ sub check {
         list => [ 'Starting point', map { "Kink $_" } 1 .. @kinks ] );
 
     my $kx = new SpreadsheetModel::Custom(
-        name      => 'Location',
-        rows      => $kinkSet,
-        custom    => ['=A1'],      # assumes all on the same sheet
+        name       => 'Location',
+        rows       => $kinkSet,
+        custom     => [ '=A1', map { "=A2$_"; } 0 .. $#minmax, ],
+        arithmetic => '= '
+          . join( ' or ', 'A1', map { "A2$_"; } 0 .. $#minmax, ),
         arguments => {
             A1 => $startingPoint,
             map { ( "A2$_" => $minmax[$_] ); } 0 .. $#minmax,
@@ -111,17 +113,20 @@ sub check {
                   qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} )
                   if !$y;
                 my ( $n, $r, $c ) = @{ $kinks[ $y - 1 ] };
-                return '', $format, $formula->[0],
-                  qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
+                return '', $format, $formula->[ $n + 1 ],
+                  qr/\bA2$n\b/ => xl_rowcol_to_cell( $rowh->{"A2$n"} + $r,
                     $colh->{"A2$n"} + $c );
             };
         }
     );
 
     my $kk = new SpreadsheetModel::Custom(
-        name       => 'Kink',
-        rows       => $kinkSet,
-        custom     => [ '=A2', '=0-A2' ],      # assumes all on the same sheet
+        name   => 'Kink',
+        rows   => $kinkSet,
+        custom => [
+            ( map { "=A4$_"; } 0 .. $#slopes ),
+            ( map { "=0-A4$_"; } 0 .. $#slopes ),
+        ],
         arithmetic => 'Special calculation',
         arguments  => {
             A1 => $startingPoint,
@@ -135,18 +140,19 @@ sub check {
                   if !$y;
                 my ( $n, $r, $c ) = @{ $kinks[ $y - 1 ] };
                 my $m = $n % @slopes;
-                '', $format, $formula->[ $n < @min ? 0 : 1 ],
-                  qr/\bA2\b/ => xl_rowcol_to_cell( $rowh->{"A4$m"} + $r,
+                '', $format, $formula->[ ( $n < @min ? 0 : @slopes ) + $m ],
+                  qr/\bA4$m\b/ => xl_rowcol_to_cell( $rowh->{"A4$m"} + $r,
                     $colh->{"A4$m"} + $c );
             };
         }
     );
 
     my $startingSlope = new SpreadsheetModel::Custom(
-        name   => 'Starting slope contributions',
-        rows   => $kinkSet,
-        custom => ['=IF(ISERROR(A1),A2,0)']
-        ,    # ISERROR is true for #N/A and errors
+        name => 'Starting slope contributions',
+        rows => $kinkSet,
+
+        # ISERROR is true for #N/A and errors
+        custom    => ['=IF(ISERROR(A1),A2,0)'],
         arguments => {
             A2 => $kk,
             A1 => $kx
@@ -210,7 +216,7 @@ sub check {
         rows          => $kinkSet,
         custom        => ['=RANK(A1,A2:A3,1)'],
         arguments     => {
-            A1     => $kx,
+            A1    => $kx,
             A2_A3 => $kx,
         },
         wsPrepare => sub {
@@ -246,7 +252,7 @@ sub check {
         rows          => $kinkSet,
         custom        => ['=RANK(A1,A2:A3,1)'],
         arguments     => {
-            A1     => $kr2,
+            A1    => $kr2,
             A2_A3 => $kr2,
         },
         wsPrepare => sub {
@@ -272,8 +278,8 @@ sub check {
         rows          => $kinkSet,
         custom        => ['=MATCH(A1,A2:A3,0)'],
         arguments     => {
-            A1     => $counter,
-            A2     => $kr,
+            A1    => $counter,
+            A2    => $kr,
             A2_A3 => $kr,
         },
         wsPrepare => sub {
@@ -298,8 +304,8 @@ sub check {
         rows      => $kinkSet,
         custom    => [ '=INDEX(A2:A3,A1,1)', '=A2' ],
         arguments => {
-            A2     => $kx,
-            A1     => $ror,
+            A2    => $kx,
+            A1    => $ror,
             A2_A3 => $kx,
         },
         wsPrepare => sub {
@@ -338,9 +344,9 @@ sub check {
                 my ( $x, $y ) = @_;
                 return '', $format, $formula->[1],
                   qr/\bA5\b/ =>
-                  xl_rowcol_to_cell( $rowh->{A5}, $colh->{A5}, 1, 0 ),
-                  qr/\bA6\b/ => xl_rowcol_to_cell( $rowh->{A5} + @kinks - 1,
-                    $colh->{A5}, 1, 0 )
+                  xl_rowcol_to_cell( $rowh->{A5} + 1, $colh->{A5}, 1, 0 ),
+                  qr/\bA6\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A5} + @kinks, $colh->{A5}, 1, 0 )
                   unless $y;
                 '', $format, $formula->[0],
                   qr/\bA1\b/ =>
@@ -374,9 +380,9 @@ sub check {
                   qr/\bA9\b/ =>
                   xl_rowcol_to_cell( $rowh->{A9}, $colh->{A9}, 1, 1 ),
                   qr/\bA5\b/ =>
-                  xl_rowcol_to_cell( $rowh->{A5}, $colh->{A5}, 1, 1 ),
-                  qr/\bA6\b/ => xl_rowcol_to_cell( $rowh->{A5} + @kinks - 1,
-                    $colh->{A5}, 1, 1 )
+                  xl_rowcol_to_cell( $rowh->{A5} + 1, $colh->{A5}, 1, 1 ),
+                  qr/\bA6\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A5} + @kinks, $colh->{A5}, 1, 1 )
                   unless $y;
                 '', $format, $formula->[0],
                   qr/\bA2\b/ =>

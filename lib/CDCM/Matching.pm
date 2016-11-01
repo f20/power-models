@@ -1035,7 +1035,7 @@ sub matching {
             if ( $model->{scaler} =~ /min/i ) {
                 my %min = map {
                     my $tariffComponent = $_;
-                    $_ => $model->{scaler} =~ /zero/i
+                    $_ => $model->{scaler} =~ /zeroexplicit/i
                       ? Constant(
                         name => "Minimum $_",
                         rows => $allTariffsByEndUser,
@@ -1048,6 +1048,7 @@ sub matching {
                             } @{ $allTariffsByEndUser->{list} }
                         ]
                       )
+                      : $model->{scaler} =~ /zero/i ? undef
                       : Dataset(
                         name       => "Minimum $_",
                         rows       => $allTariffsByEndUser,
@@ -1066,16 +1067,21 @@ sub matching {
                         ]
                       );
                 } @columns;
-                Columnset(
-                    name    => 'Minimum rates',
-                    columns => [ @min{@columns} ]
-                );
+                if ( my @cols = grep { $_ } @min{@columns} ) {
+                    Columnset(
+                        name    => 'Minimum rates',
+                        columns => \@cols,
+                    );
+                }
                 %minAdder = map {
                     my $tariffComponent = $_;
 
-       # cannot think of an better test than ISNUMBER when applied to input data
-                    $_ => Arithmetic(
-                        name       => "Adder threshold for $_",
+                    $_ => $min{$_}
+                      ? Arithmetic(
+                        name => "Adder threshold for $_",
+
+                        # cannot think of a better test than
+                        # ISNUMBER when applied to input data
                         arithmetic => '=IF(ISNUMBER(A3),A2-A1,0)',
                         arguments  => {
                             A1 => $tariffsExMatching->{$_},
@@ -1089,7 +1095,20 @@ sub matching {
                                   : 'unavailable';
                             } @{ $allTariffsByEndUser->{list} }
                         ]
-                    );
+                      )
+                      : Arithmetic(
+                        name       => "Adder threshold for $_",
+                        arithmetic => '=0-A1',
+                        arguments  => {
+                            A1 => $tariffsExMatching->{$_},
+                        },
+                        rowFormats => [
+                            map {
+                                $componentMap->{$_}{$tariffComponent} ? undef
+                                  : 'unavailable';
+                            } @{ $allTariffsByEndUser->{list} }
+                        ]
+                      );
                 } @columns;
                 $minAdderSet = Columnset(
                     name    => 'Adder value at which the minimum is breached',
