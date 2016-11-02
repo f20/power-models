@@ -140,11 +140,10 @@ sub makeModels {
                 $maker->{setRule}->( colour => 'orange' );
             }
             elsif (/^-+gold/is) {
-                srand();
-                $maker->{setRule}->( colour => 'gold', password => rand() );
+                $maker->{setRule}->( colour => 'gold' );
             }
             elsif (/^-+illustrative/is) {
-                $maker->{setRule}->( illustrative => 1, );
+                $maker->{setRule}->( illustrative => 1 );
             }
             elsif (/^-+datamerge/is) {
                 $maker->{setting}->( dataMerge => 1 );
@@ -154,6 +153,10 @@ sub makeModels {
             }
             elsif (/^-+password=(.+)/is) {
                 $maker->{setRule}->( password => $1 );
+            }
+            elsif (/^-+password/is) {
+                srand();
+                $maker->{setRule}->( password => rand() );
             }
             elsif (/^-+(no|skip)protect/is) {
                 $maker->{setRule}->( protect => 0 );
@@ -199,6 +202,24 @@ sub makeModels {
                     local undef $/;
                     print "Enter xdata:\n";
                     $maker->parseXdata(<STDIN>);
+                }
+            }
+            elsif (/^-+extraNotice=?(.*)/is) {
+                if ($1) {
+                    if ( open my $fh, '<', $1 ) {
+                        binmode $fh, ':utf8';
+                        local undef $/;
+                        $maker->{setRule}->( extraNotice => <$fh> );
+                    }
+                    else {
+                        $maker->{setRule}->( extraNotice => $1 );
+                    }
+                }
+                else {
+                    binmode STDIN, ':utf8';
+                    local undef $/;
+                    print "Enter extraNotice text:\n";
+                    $maker->{setRule}->( extraNotice => <STDIN> );
                 }
             }
             elsif (/^-+xls$/is)  { $maker->{setting}->( xls => 1 ); }

@@ -210,9 +210,10 @@ sub factory {
         $processStream->( $dh, $_ );
     };
 
-    # This applies rules overrides and, where configured,
+    # This applies rules overrides, loads relevant code,
+    # and, where configured to do so,
     # attributes a revision number to the resulting rules.
-    # Returns an array of ruleset hashes.
+    # Returns an array of rulesets, or nothing if there is a problem.
     my $validate = $self->{validate} = sub {
         my ( $validatedLibs, $dbString ) = @_;
         $validatedLibs = [ grep { -d $_; } $validatedLibs ]
@@ -227,11 +228,12 @@ sub factory {
 
         $settings{safetyCheck}->(@rulesets) if $settings{safetyCheck};
         foreach (@rulesets) {
-            _loadModules( $_, "$_->{PerlModule}::Master" ) || return;
-            $_->{PerlModule}->can('requiredModulesForRuleset')
-              and _loadModules( $_,
-                $_->{PerlModule}->requiredModulesForRuleset($_) )
-              || return;
+            return unless _loadModules( $_, "$_->{PerlModule}::Master" );
+            if ( $_->{PerlModule}->can('requiredModulesForRuleset') ) {
+                return
+                  unless _loadModules( $_,
+                    $_->{PerlModule}->requiredModulesForRuleset($_) );
+            }
             $_->{protect} = 1 unless exists $_->{protect};
             $_->{validation} = 'lenientnomsg'
               unless exists $_->{validation};
@@ -504,7 +506,7 @@ sub factory {
             ) if $errorCount;
         }
         else {
-            warn 'No multi-threading';
+            0 and warn 'No multi-threading';
             foreach (@fileNames) {
                 warn "$_ started";
                 $workbookModule->( $instructionsSettings{$_}[1]{xls} )->create(
@@ -545,11 +547,18 @@ sub _mergeRulesData {
     return [ map { _mergeRulesData(@$_); } @{ $_[1] } ]
       if !$_[0] && ref $_[1] eq 'ARRAY';
     my %options = map { %$_ } @_;
+    my $extraNotice = delete $options{extraNotice};
     my @keys =
       grep { exists $options{$_}; } qw(password dataset ~datasetOverride);
     my @removed = map { delete $options{$_}; } @keys;
     $options{$_} = '***' foreach grep { $_ ne 'dataset'; } @keys;
     $options{yaml} = Dump( \%options );
+    if ( defined $extraNotice ) {
+        $options{extraNotice} =
+          'ARRAY' eq ref $extraNotice
+          ? join( "\n", @$extraNotice )
+          : $extraNotice;
+    }
     for ( my $i = 0 ; $i < @keys ; ++$i ) {
         $options{ $keys[$i] } = $removed[$i];
     }

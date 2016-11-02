@@ -164,7 +164,32 @@ sub create {
           if $#optionArray
           && UNIVERSAL::can( $options->{PerlModule}, 'setUpMultiModelSharing' );
         $options->{tariffSpecification} = [] if $exporter;
-        my $model = $options->{PerlModule}->new(%$options);
+        my $model = eval { $options->{PerlModule}->new(%$options) };
+        die "\n" . $@ . ( $@ =~ /suitable disclaimer/ ? <<'EOW': '' ) if $@;
+
+To add an additional disclaimer notice, use one of the following methods.
+
+Method 1:
+    Use the spreadsheet generator at http://dcmf.co.uk/models/
+    and look under "Show additional options".
+
+Method 2:
+    Use the pmod.pl command line tool, either with the option
+    -extraNotice and provide the notice text through STDIN, or with the option
+    -extraNotice='Put your additional notice text here'.
+
+Method 3:
+    Put something like this in your rules file:
+
+extraNotice:
+  - The first line of your disclaimer goes here.
+  - The second line of your disclaimer goes here.
+  - And so on.
+  - Please do not exceed 140 characters per line.
+
+EOW
+        die "$options->{PerlModule}->new(...) has failed" unless $model;
+
         map { $_->($model); } @{ $options->{requestsToSeeModel} }
           if $options->{requestsToSeeModel};
         $forwardLinkFindingRun[$_] = $model if $options->{forwardLinks};

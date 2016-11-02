@@ -56,7 +56,9 @@ sub new {
     my $class = shift;
     my $model = bless {@_}, $class;
 
-    die 'Cannot build an orange model without a suitable disclaimer'
+    die 'This system will not build an orange '
+      . 'EDCM model'
+      . ' without a suitable disclaimer.' . "\n--"
       if $model->{colour}
       && $model->{colour} =~ /orange/i
       && !($model->{extraNotice}

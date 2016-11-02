@@ -83,7 +83,9 @@ sub new {
         @_,
     }, $class;
 
-    die 'Cannot build an orange model without a suitable disclaimer'
+    die 'This system will not build an orange '
+      . 'Model M'
+      . ' without a suitable disclaimer.' . "\n--"
       if $model->{colour}
       && $model->{colour} =~ /orange/i
       && !($model->{extraNotice}
