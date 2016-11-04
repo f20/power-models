@@ -24,10 +24,6 @@ A suitable version of Perl is usually pre-installed on Mac OS X and Linux
 systems. For Windows systems, Strawberry Perl (strawberryperl.com) usually
 works.
 
-There is no support for running Perl on iOS (iPhone/iPad), Android, Chrome OS or
-Windows Mobile, but spreadsheet models created by a server such as
-dcmf.co.uk/models can be used on these devices.
-
 To check whether you have a suitable version of Perl, try this at the Terminal
 or command line:
 
@@ -87,4 +83,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 31 October 2016.
+Franck Latrémolière, 4 November 2016.
