@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use File::Glob qw(:bsd_glob);
 
 use constant { C_HOMEDIR => 0, };
 
@@ -142,8 +143,9 @@ sub fillDatabase {
             next;
         }
 
-        ( $postProcessor ||=
-              _makePostProcessor( $threads, $writer, $settings ) )->($_);
+        ( $postProcessor ||= makePostProcessor( $threads, $writer, $settings ) )
+          ->($_)
+          foreach -f $_ ? $_ : grep { -f $_; } glob($_);
 
     }
 
@@ -161,7 +163,7 @@ sub fillDatabase {
 
 }
 
-sub _makePostProcessor {
+sub makePostProcessor {
 
     my ( $threads1, $writer, $settings ) = @_;
     $threads1 = $threads1 && $threads1 > 1 ? $threads1 - 1 : 0;

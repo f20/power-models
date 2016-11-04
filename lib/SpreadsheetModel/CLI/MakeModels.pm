@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use File::Glob qw(:bsd_glob);
 
 use constant {
     C_HOMEDIR       => 0,
@@ -78,7 +79,7 @@ sub makeModels {
                 if (/^-+autocheck/is) {
                     require SpreadsheetModel::Data::Autocheck;
                     $maker->{setting}->(
-                        PostProcessing => _makePostProcessor(
+                        PostProcessing => makePostProcessor(
                             $maker->{threads}->(),
                             SpreadsheetModel::Data::Autocheck->new(
                                 $self->[C_HOMEDIR]
@@ -166,7 +167,7 @@ sub makeModels {
             elsif (/^-+(sqlite.*)/is) {
                 require SpreadsheetModel::Data::DataExtraction;
                 $maker->{setting}->(
-                    PostProcessing => _makePostProcessor(
+                    PostProcessing => makePostProcessor(
                         $maker->{threads}->(),
                         SpreadsheetModel::Data::DataExtraction::databaseWriter(
                         ),
