@@ -35,7 +35,7 @@ use SpreadsheetModel::Shortcuts ':all';
 sub modelG {
 
     my ( $model, $nonExcludedComponents, $daysAfter, $volumeDataPcd,
-        @utaTables, )
+        $allEndUsers, @utaTables, )
       = @_;
 
     my @utaPoundsOriginal = map {
@@ -511,9 +511,10 @@ sub modelG {
             ),
         },
       );
-    push @{ $model->{modelgTables2} },
-      Arithmetic(
-        name          => 'LDNO discounts ⇒1038. For CDCM',
+
+    push @{ $model->{modelgTables} },
+      my $discounts = Arithmetic(
+        name          => 'LDNO discounts',
         defaultFormat => '%soft',
         arithmetic    => '=IF(A21,A1/A22,0)',
         arguments     => {
@@ -522,8 +523,16 @@ sub modelG {
             A22 => $ppu,
         },
       );
-    push @{ $model->{modelgTables2} }, Arithmetic(
-        name       => 'All-the-way reference p/kWh values ⇒1185. For EDCM model',
+
+    push @{ $model->{modelgTables2} },
+      Stack(
+        name    => 'LDNO discounts ⇒1038. For CDCM',
+        rows    => $model->{pcd}{allTariffsByEndUser},
+        sources => [$discounts],
+      );
+
+    push @{ $model->{modelgTables} }, my $ppuReference = Arithmetic(
+        name       => 'All-the-way reference p/kWh values',
         arithmetic => '=A1',
         arguments  => { A1 => $ppu },
         rows       => Labelset(
@@ -537,6 +546,13 @@ sub modelG {
             ]
         ),
     );
+
+    push @{ $model->{modelgTables2} },
+      Stack(
+        name    => 'All-the-way reference p/kWh values ⇒1185. For EDCM model',
+        rows    => $allEndUsers,
+        sources => [$ppuReference],
+      );
 
     $model;
 
