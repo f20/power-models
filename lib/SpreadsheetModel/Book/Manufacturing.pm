@@ -254,6 +254,7 @@ sub factory {
         foreach (@rulesets) {
             $_->{'~codeValidation'} = $sourceCodeDigest;
             delete $_->{'.'};
+            delete $_->{revisionText};
             my $template = delete $_->{template};
             $_->{revisionText} = $db->revisionText( Dump($_) ) if $db;
             $_->{template} = $template if defined $template;
