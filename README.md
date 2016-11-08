@@ -24,7 +24,7 @@ A suitable version of Perl is usually pre-installed on Mac OS X and Linux
 systems. For Windows systems, Strawberry Perl (strawberryperl.com) usually
 works.
 
-To check whether you have a suitable version of Perl, try this at the Terminal
+To test whether you have a suitable version of Perl, try this at the Terminal
 or command line:
 
     perl --version
@@ -83,4 +83,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 4 November 2016.
+Franck Latrémolière, 8 November 2016.
