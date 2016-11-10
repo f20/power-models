@@ -128,11 +128,10 @@ sub revenueComparison {
             push @srcCol, $compare;
             $compare = Stack( rows => $self->{rows}, sources => [$compare] );
         }
-        push @columns, $compare,
-          $difference = Arithmetic(
+        push @columns, $compare, $difference = Arithmetic(
             name          => 'Difference £/year',
             defaultFormat => '0softpm',
-            arithmetic    => '=IF(A1,A2-A3,"")',
+            arithmetic    => '=A2-A1',              # '=IF(A1,A2-A3,"")',
             arguments     => {
                 A1 => $compare,
                 A2 => $revenues,
