@@ -64,32 +64,69 @@ sub rebuildWriter {
         die unless $fileName;
         my ( $path, $core, $ext ) = $fileName =~ m#(.*/)?([^/]+)(\.xlsx?)$#is;
         $path = '' unless defined $path;
-        my $tempFolder = $path . "Rebuild$$-$core.tmp";
+        my $tempFolder = $path . $core . '-' . $$ . '.tmp';
+        my $sidecar    = $path . $core;
+        undef $sidecar unless -d $sidecar && -w _;
+        unless ( defined $sidecar ) {
+            $sidecar = $path . '~$' . $core;
+            undef $sidecar unless -d $sidecar && -w _;
+        }
         mkdir $tempFolder or die "Cannot create $tempFolder: $!";
-        if ( my @rules = _extractYaml($workbook) ) {
-            open my $h, '>', "$tempFolder/%-$core.yml";
-            binmode $h, ':utf8';
-            print $h $_ foreach @rules;
+        my $rulesFile;
+        if ( defined $sidecar ) {
+            $rulesFile = "$sidecar/%-$core.yml";
+            undef $rulesFile unless -f $rulesFile;
+            unless ( defined $rulesFile ) {
+                $rulesFile = "$sidecar/%.yml";
+                undef $rulesFile unless -f $rulesFile;
+            }
+        }
+        require YAML;
+        {
+            my ( $h1, $h2 );
+            open $h1, '>', "$tempFolder/index-$core.yml";
+            binmode $h1, ':utf8';
+            unless ( defined $rulesFile ) {
+                open $h2, '>', $rulesFile = "$tempFolder/%-$core.yml";
+                binmode $h2, ':utf8';
+            }
+            foreach ( _extractYaml($workbook) ) {
+                print $h1 $_;
+                if ($h2) {
+                    my $rules = YAML::Load($_);
+                    delete $rules->{$_}
+                      foreach 'template', grep { /^~/s } keys %$rules;
+                    print {$h2} YAML::Dump($rules);
+                }
+            }
         }
         my %trees = _extractInputData($workbook);
-        require YAML;
         while ( my ( $key, $value ) = each %trees ) {
             open my $h, '>', "$tempFolder/$core$key.yml";
             binmode $h, ':utf8';
             print $h YAML::Dump($value);
         }
-        $runner->makeModels(
-            '-single', lc $ext eq '.xls' ? '-xls' : '-xlsx',
-            "-folder=$tempFolder",     "-template=%",
-            "$tempFolder/%-$core.yml", "$tempFolder/$core.yml"
-        );
+        $runner->makeModels( '-single', lc $ext eq '.xls' ? '-xls' : '-xlsx',
+            "-folder=$tempFolder", "-template=%",
+            $rulesFile, "$tempFolder/$core.yml" );
         if ( -s "$tempFolder/$core$ext" ) {
-            rename "$path$core$ext",        "$tempFolder/tempfile";
+            rename "$path$core$ext", "$tempFolder/$core-old$ext"
+              unless defined $sidecar;
             rename "$tempFolder/$core$ext", "$path$core$ext";
-            rename "$tempFolder/tempfile",  "$tempFolder/$core$ext";
         }
-        rename $tempFolder, $path . "Z_Rebuild$$-$core";
-    };
+        if ( defined $sidecar ) {
+            my $dh;
+            opendir $dh, $tempFolder;
+            foreach ( readdir $dh ) {
+                next if /^\.\.?$/s;
+                rename "$tempFolder/$_", "$sidecar/$_";
+            }
+            rmdir $tempFolder;
+        }
+        else {
+            rename $tempFolder, $path . "Z_Rebuild-$core-$$";
+        }
+      }
 }
 
 sub jsonWriter {
@@ -108,7 +145,9 @@ sub jsonWriter {
             binmode $h;
             local undef $/;
             $tree =
-              $jsonpp ? JSON::PP::decode_json(<$h>) : JSON::decode_json(<$h>);
+              $jsonpp
+              ? JSON::PP::decode_json(<$h>)
+              : JSON::decode_json(<$h>);
         }
         my %trees = _extractInputData( $workbook, $tree, $options );
         while ( my ( $key, $value ) = each %trees ) {
@@ -331,8 +370,8 @@ sub databaseWriter {
                         warn $db->do( 'delete from books where bid=?',
                             undef, $bid ),
                           ' ',
-                          $db->do( 'delete from data where bid=?', undef,
-                            $bid );
+                          $db->do( 'delete from data where bid=?',
+                            undef, $bid );
                     }
                 }
             }
@@ -375,7 +414,8 @@ sub databaseWriter {
                             $processTable = sub {
                                 my $offset = $#_;
                                 --$offset
-                                  while !$_[$offset] || @{ $_[$offset] } < 2;
+                                  while !$_[$offset]
+                                  || @{ $_[$offset] } < 2;
                                 --$offset
                                   while $offset && defined $_[$offset][0];
 

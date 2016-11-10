@@ -488,9 +488,7 @@ sub factory {
                 SpreadsheetModel::Book::ParallelRunning::backgroundrun(
                     $workbookModule->( $instructionsSettings{$_}[1]{xls} ),
                     'create',
-                    defined $settings{folder}
-                    ? catfile( $settings{folder}, $_ )
-                    : $_,
+                    $_,
                     $instructionsSettings{$_},
                     $instructionsSettings{$_}[1]{PostProcessing}
                 );
@@ -510,13 +508,8 @@ sub factory {
             0 and warn 'No multi-threading';
             foreach (@fileNames) {
                 warn "$_ started";
-                $workbookModule->( $instructionsSettings{$_}[1]{xls} )->create(
-                    defined $settings{folder}
-                    ? catfile( $settings{folder}, $_ )
-                    : $_,
-                    ,
-                    @{ $instructionsSettings{$_} }
-                );
+                $workbookModule->( $instructionsSettings{$_}[1]{xls} )
+                  ->create( $_,, @{ $instructionsSettings{$_} } );
                 $instructionsSettings{$_}[1]{PostProcessing}->($_)
                   if $instructionsSettings{$_}[1]{PostProcessing};
                 warn "$_ complete";

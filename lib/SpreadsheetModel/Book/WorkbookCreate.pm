@@ -30,7 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use SpreadsheetModel::Logger;
-use File::Spec::Functions qw(catfile);
+use File::Spec::Functions qw(catdir catfile);
 
 sub create {
 
@@ -47,20 +47,25 @@ sub create {
             return \*STDOUT;
         }
         my $finalFile = $fn;
-        my $tempFile  = $fn;
-        my $closer;
-        $tmpDir = '~$tmp-' . $$ unless $^O =~ /win32/i;
-        if ($tmpDir) {
+        $finalFile = catfile( $settings->{folder}, $finalFile )
+          if $settings->{folder};
+        my ( $tempFile, $closer );
+        if ( $^O =~ /win32/i ) {
+            $tempFile = $finalFile;
+        }
+        else {
+            my $tmpDir = '~$tmp-' . $$;
+            $tmpDir = catdir( $settings->{folder}, $tmpDir )
+              if $settings->{folder};
             mkdir $tmpDir;
             chmod 0770, $tmpDir;
-
-            $fn =~ s#.*/##s;
-            $tempFile = catfile( $tmpDir, $fn );
-            $closer = sub {
-                rename $tempFile, $finalFile;
-                rmdir $tmpDir;
-            };
-
+            if ( -d $tmpDir && -w _ ) {
+                $tempFile = catfile( $tmpDir, $fn );
+                $closer = sub {
+                    rename $tempFile, $finalFile;
+                    rmdir $tmpDir;
+                };
+            }
         }
         open my $handle, '>', $tempFile;
         binmode $handle;
