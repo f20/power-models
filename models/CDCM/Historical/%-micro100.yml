@@ -1,5 +1,5 @@
 ---
-.: Micro CDCM model (original)
+.: 'CDCM original, micro-model'
 PerlModule: CDCM
 compact: permpan
 drm: top500gsp

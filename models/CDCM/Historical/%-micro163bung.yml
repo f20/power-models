@@ -1,5 +1,5 @@
 ---
-.: Micro-model after DCP 163 (with election bung)
+.: 'CDCM after DCP 163, micro-model with election bung'
 PerlModule: CDCM
 coincidenceAdj: groupums
 compact: permpan

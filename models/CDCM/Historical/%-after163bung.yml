@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 163 (with election bung)
+.: 'CDCM after DCP 163, with election bung and extras'
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums

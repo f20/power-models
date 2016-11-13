@@ -1,5 +1,5 @@
 ---
-.: Cleaned-up model 100 without consultation tables
+.: 'CDCM original, clean'
 PerlModule: CDCM
 drm: top500gsp
 extraLevels: 1

@@ -1,5 +1,5 @@
 ---
-.: 'CDCM after DCP 227, with table 1203 statistics'
+.: 'CDCM after DCP 227, with table 1203'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

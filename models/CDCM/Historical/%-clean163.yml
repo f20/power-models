@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 163 (clean)
+.: 'CDCM after DCP 163, clean'
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp

@@ -1,5 +1,5 @@
 ---
-.: 'Draft CDCM for 2018/2019 with DCP 228, clean model'
+.: 'Draft for 2018/2019 with DCP 228, clean'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

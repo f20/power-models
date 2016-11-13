@@ -1,5 +1,5 @@
 ---
-.: Model with DCP 130, DCP 132 and CTables
+.: CDCM after DCP 130 and DCP 132, with CTables
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp

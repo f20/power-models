@@ -1,5 +1,5 @@
 ---
-.: Micro-model after DCP 132
+.: 'CDCM after DCP 130 and DCP 132, micro-model'
 PerlModule: CDCM
 compact: 1
 coincidenceAdj: groupums
