@@ -1,5 +1,5 @@
 ---
-.: 'Draft CDCM for 2018/2019, with CTables'
+.: 'Draft CDCM for 2018/2019 with DCP 228, with CTables'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -11,7 +11,7 @@ matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: levelledpickexitnogenminzero
+scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: consultation
 targetRevenue: dcp249

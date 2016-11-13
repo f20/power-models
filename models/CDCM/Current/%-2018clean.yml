@@ -1,5 +1,5 @@
 ---
-.: 'Draft CDCM for 2018/2019, clean model'
+.: 'Draft CDCM for 2018/2019 with DCP 228, clean model'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -12,7 +12,7 @@ matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: levelledpickexitnogenminzero
+scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: yes
 targetRevenue: dcp249
