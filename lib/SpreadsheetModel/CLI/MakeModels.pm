@@ -97,9 +97,9 @@ sub makeModels {
                   html|
                   perl|
                   rtf|
-                  text|
+                  te?xt|
                   tablemap|
-                  yaml
+                  ya?ml
                 )/xis
               )
             {
