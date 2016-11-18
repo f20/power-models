@@ -399,7 +399,8 @@ sub timeOfDaySpecialRunner {
             arithmetic    => '=A1',
             arguments     => { A1 => $model->{redAmberGreenPeaking}, }
         );
-        my $amberPeakingRate = Arithmetic(
+        my $amberPeakingRate;
+        $amberPeakingRate = Arithmetic(
             name       => 'Amber peaking rates',
             arithmetic => '=A1*24*A3/A2',
             arguments  => {
@@ -407,21 +408,28 @@ sub timeOfDaySpecialRunner {
                 A2 => $model->{redAmberGreenHours},
                 A3 => $daysInYear,
             }
-        );
+        ) unless $model->{blackPeakingProbabilityRequired};
         my $yellowPeaking = Arithmetic(
             name          => 'Yellow peaking probabilities',
             defaultFormat => '%soft',
             rows          => $amberPeaking->{rows},
             cols          => Labelset( list => [ $timebandSet->{list}[1] ] ),
-            arithmetic    => '=IF(A1,MAX(0,A2+A3-A4),A6*A7/A8/24)',
-            arguments     => {
-                A1 => $model->{blackPeaking},
-                A2 => $amberPeaking,
-                A3 => $redPeaking,
-                A4 => $model->{blackPeaking},
-                A6 => $amberPeakingRate,
-                A7 => $annualHoursByTimeband,
-                A8 => $daysInYear,
+            arithmetic    => $amberPeakingRate
+            ? '=IF(A1,MAX(0,A2+A3-A4),A6*A7/A8/24)'
+            : '=IF(A1,MAX(0,A2+A3-A4),IF(A5,1/0,0))',
+            arguments => {
+                A1  => $model->{blackPeaking},
+                A2  => $amberPeaking,
+                A3  => $redPeaking,
+                A4  => $model->{blackPeaking},
+                A5 => $model->{totalProbability},
+                $amberPeakingRate
+                ? (
+                    A6 => $amberPeakingRate,
+                    A7 => $annualHoursByTimeband,
+                    A8 => $daysInYear,
+                  )
+                : (),
             }
         );
         my $blackPeaking = Arithmetic(
@@ -448,8 +456,9 @@ sub timeOfDaySpecialRunner {
         Columnset(
             name    => 'Calculation of special peaking probabilities',
             columns => [
-                $redPeaking,       $amberPeaking,  $greenPeaking,
-                $amberPeakingRate, $yellowPeaking, $blackPeaking,
+                grep { $_; } $redPeaking, $amberPeaking,
+                $greenPeaking,  $amberPeakingRate,
+                $yellowPeaking, $blackPeaking,
             ]
         );
 
@@ -521,7 +530,7 @@ sub timeOfDaySpecialRunner {
             columns  => [ $peakingProbabilitiesTable, $model->{blackPeaking}, ],
         );
 
-        my $totalProbability = GroupBy(
+        $model->{totalProbability} = GroupBy(
             name => 'Total'
               . ( $blackYellowGreen ? ' special ' : ' ' )
               . 'probability (should be 100%)',
@@ -540,8 +549,8 @@ sub timeOfDaySpecialRunner {
                 A8 => $annualHoursByTimebandRaw,
                 A9 => $annualHoursByTimebandTotal,
                 A1 => $peakingProbabilitiesTable,
-                A2 => $totalProbability,
-                A3 => $totalProbability,
+                A2 => $model->{totalProbability},
+                A3 => $model->{totalProbability},
             }
         );
 
@@ -549,7 +558,7 @@ sub timeOfDaySpecialRunner {
             name => 'Normalisation of'
               . ( $blackYellowGreen ? ' special ' : ' ' )
               . 'peaking probabilities',
-            columns => [ $totalProbability, $peakingProbabilitiesTable ]
+            columns => [ $model->{totalProbability}, $peakingProbabilitiesTable ]
         );
 
         unless ($blackYellowGreen) {
