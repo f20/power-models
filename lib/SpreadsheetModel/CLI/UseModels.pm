@@ -269,9 +269,6 @@ EOS
               if $calculator_afterfork;
             my $workbook;
             eval {
-                local %SIG;
-
-                #  $SIG{__WARN__} = sub { };
                 if ( $calcFile =~ /\.xlsx$/is ) {
                     require Spreadsheet::ParseXLSX;
                     my $parser = Spreadsheet::ParseXLSX->new;
@@ -287,7 +284,6 @@ EOS
                     };
                     $workbook = $parser->Parse( $calcFile, $formatter );
                 }
-                delete $SIG{__WARN__};
             };
             warn "$@ for $calcFile" if $@;
             if ($writer) {

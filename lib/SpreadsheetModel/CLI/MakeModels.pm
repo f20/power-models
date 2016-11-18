@@ -259,31 +259,30 @@ sub makeModels {
 
     if ( my @files = $maker->{fileList}->() ) {
         unless ( defined $folder ) {
-            $folder = _temporaryFolder();
-            if ( !defined $folder && @files > 1 ) {
-                mkdir 'models.tmp';
-                $folder = _temporaryFolder();
+            ($folder) = grep { -d $_ && -w _; } qw(~$models);
+            if ( !defined $folder ) {
+                require POSIX;
+                $folder = POSIX::strftime( '%Y-%m-%d.tmp', localtime );
+                if ( @files > 1 && !-e $folder ) {
+                    warn "Created folder $folder to save models.\n";
+                    mkdir $folder;
+                }
+                undef $folder unless -d $folder && -w _;
             }
         }
         if ( defined $folder ) {
             $maker->{setting}->( folder => $folder );
         }
-        warn( ( @files > 1 ? ( @files . ' models' ) : 'One model' )
-            . ' to be saved'
-              . ( defined $folder ? " to $folder folder" : '' )
-              . ".\n" );
-        $maker->{run}->();
+        my $message =
+            ( @files > 1 ? ( @files . ' models' ) : 'One model' )
+          . ' to be saved'
+          . ( defined $folder ? " to $folder" : '' );
+        $maker->{run}->( sub { warn "$message @_.\n"; } );
     }
     else {
         warn "Nothing to do.\n";
     }
 
-}
-
-sub _temporaryFolder {
-    my ($folder) =
-      grep { -d $_ && -w _; } qw(models.tmp ~$models);
-    $folder;
 }
 
 1;

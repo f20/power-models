@@ -59,7 +59,7 @@ sub backgroundrun {
         # This crashes with Windows' fork emulation.
     }
     elsif ($continuation) {
-        $continuation->();
+        $continuation->($firstArg);
     }
 }
 

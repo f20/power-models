@@ -68,7 +68,7 @@ Step B3.  Give the following command to the shell interpreter:
 
 This will generate for each company, a YML file containing the input data
 extracted from the .dta files, and a Microsoft Excel workbook.  The Microsoft
-Excel workbooks are usually saved in a subfolder called "models.tmp".
+Excel workbooks are usually saved in a newly created subfolder.
 
 --
 
@@ -85,7 +85,7 @@ specified in the spreadsheets.
 Step C2.  Follow the same procedure as in steps B1 and B2 if necessary, then
 give the following command to the shell interpreter:
 
-    perl pmod.pl -sqlite *.xls* models.tmp/*.xls*
+    perl pmod.pl -sqlite subfolder_name/*.xls*
 
 Step C3.  Give the following command to the shell interpreter:
 
@@ -126,7 +126,3 @@ Step D5.  To view the results, give either of the following commands to Stata:
     view "Res4501.smcl"
 
     view "Res4601.smcl"
-
---
-
-23 August 2016

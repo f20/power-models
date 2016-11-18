@@ -471,6 +471,7 @@ sub factory {
     };
 
     $self->{run} = sub {
+        my ($statusWriter) = @_;
         my @fileNames = keys %rulesDataSettings;
         my %instructionsSettings =
           map {
@@ -482,7 +483,9 @@ sub factory {
         if ( $threads1
             && eval 'require SpreadsheetModel::Book::ParallelRunning' )
         {
-            warn 'Up to ' . ( $threads1 + 1 ) . ' parallel processes.' . "\n";
+            $statusWriter->(
+                'using up to ' . ( $threads1 + 1 ) . ' parallel processes' )
+              if $statusWriter;
             foreach (@fileNames) {
                 SpreadsheetModel::Book::ParallelRunning::waitanypid($threads1);
                 SpreadsheetModel::Book::ParallelRunning::backgroundrun(
@@ -507,7 +510,8 @@ sub factory {
             ) if $errorCount;
         }
         else {
-            0 and warn 'No multi-threading';
+            $statusWriter->('using a single process with a single thread')
+              if $statusWriter;
             foreach (@fileNames) {
                 warn "$_ started";
                 $workbookModule->( $instructionsSettings{$_}[1]{xls} )
