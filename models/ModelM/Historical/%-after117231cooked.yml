@@ -1,0 +1,27 @@
+---
+.: Clean after DCP 117 (r6939 flavour) and DCP 231
+AdditionalRules:
+  - calcUnits: 1
+    checksums: Line checksum 5; Table checksum 7
+    dcp071: 1
+    dcp096: 1
+    dcp117: 2014
+    edcm: only
+    forwardLinks: 1
+    meav: 1
+    netCapex: 1
+    suffix: EDCM
+PerlModule: ModelM
+calcUnits: 1
+checksums: Line checksum 5; Table checksum 7
+dcp071: 1
+dcp095: 1
+dcp096: 1
+dcp117: 2014
+dcp117dcp118interaction: 1
+dcp117weirdness: 1
+dcp118: 1
+forwardLinks: 1
+meav: 1
+netCapex: 1
+suffix: CDCM

@@ -7,14 +7,15 @@ makeModels
 	CDCM/*/%-clean163.yml
 	CDCM/*/%-clean179.yml
 	CDCM/*/%-clean227.yml
-	CDCM/Data-2010-02/*
-	CDCM/Data-2011-02/*
-	CDCM/Data-2012-02/*
-	CDCM/Data-2013-02/*
-	CDCM/Data-2014-02/*
-	CDCM/Data-2015-02/*
-	CDCM/Data-2016-02/*
-	CDCM/Data-2017-02/*
+	CDCM/*/%-2018clean.yml
+	CDCM/2010-02/*
+	CDCM/2011-02/*
+	CDCM/2012-02/*
+	CDCM/2013-02/*
+	CDCM/2014-02/*
+	CDCM/2015-02/*
+	CDCM/2016-02/*
+	CDCM/2017-02/*
 
 useDatabase
 	tscs

@@ -1,0 +1,21 @@
+---
+.: DCP 234 after DCP 117 and DCP 231
+AdditionalRules:
+  - calcUnits: 1
+    dcp071: 1
+    dcp096: 1
+    dcp117: 2014
+    edcm: only
+    meav: 1
+    netCapex: 1
+    suffix: EDCM
+PerlModule: ModelM
+calcUnits: 1
+dcp071: 1
+dcp095: 1
+dcp096: 1
+dcp117: 2014
+dcp118: 1
+meav: 1
+netCapex: 1
+suffix: CDCM

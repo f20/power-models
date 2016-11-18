@@ -43,7 +43,7 @@ Step 3.  Install any missing modules.
 
 Change to the root of the repository and try this sample command:
 
-    perl pmod.pl CDCM/Current/%-after227.yml CDCM/Data-2017-02/SPEN-SPM.yml
+    perl pmod.pl CDCM/2017-02/%-extras227.yml CDCM/2017-02/SPEN-SPM.yml
 
 If this fails, examine the error messages.  Usually the problem is a missing
 module, which can be installed from CPAN (www.cpan.org).  Once you have solved
@@ -55,9 +55,8 @@ Step 4.  Start using the code.
 Once everything seems to be working, you can try any of the following sample
 commands to explore some of the functionality of this code:
 
-    perl pmod.pl ModelM/Current/%-postDCP118.yml ModelM/Data-2015-02/SSEPD-SEPD.yml
-    perl pmod.pl EDCM/Current/%-clean*.yml EDCM/Data-2017-02/UKPN-EPN.yml
-    perl pmod.pl -rtf -text -html CDCM/Current/%-after227.yml Blank.yml
+    perl pmod.pl ModelM/*/%-postDCP118.yml ModelM/2015-02/SSEPD-SEPD.yml
+    perl pmod.pl -rtf -text -html CDCM/2017-02/%-clean227.yml Blank.yml
 
 Other code in the repository
 ----------------------------
@@ -83,4 +82,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 8 November 2016.
+Franck Latrémolière, 18 November 2016.
