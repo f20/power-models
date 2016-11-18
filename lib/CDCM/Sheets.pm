@@ -469,7 +469,7 @@ EOL
             push @tables, $_ if $_->{name};
         }
 
-        $wsheet->{nextFree} = 4 + @tables;
+        $wsheet->{nextFree} = 4 + @tables unless $model->{compact};
         $count = 0;
         my @breaks;
         foreach (@pairs) {
@@ -485,8 +485,7 @@ EOL
                   || $model->{boundary} ? ' (all-the-way tariffs)' : ''
               ),
             lines => [
-                split /\n/,
-                <<'EOL'
+                split /\n/, <<'EOL', -1
 This sheet provides matrices breaking down each tariff component into its elements.
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
@@ -495,7 +494,7 @@ EOL
         );
 
         delete $wbook->{noLinks};
-        $notes->wsWrite( $wbook, $wsheet, 0, 0 );
+        $notes->wsWrite( $wbook, $wsheet, $model->{compact} ? () : ( 0, 0 ) );
         $logger->log($notes) if $logger;
         $wbook->{logger} = $logger if $logger;
         $wbook->{noLinks} = $noLinks;
@@ -527,7 +526,7 @@ EOL
             push @tables, $_ if $_->{name};
         }
 
-        $wsheet->{nextFree} = 4 + @tables;
+        $wsheet->{nextFree} = 4 + @tables unless $model->{compact};
         $count = 0;
         my @breaks;
         foreach (@pairs) {
@@ -539,8 +538,7 @@ EOL
         my $notes = Notes(
             name  => 'Tariff matrices for embedded network tariffs',
             lines => [
-                split /\n/,
-                <<'EOL'
+                split /\n/, <<'EOL', -1
 This sheet provides matrices breaking down each tariff component into its elements.
 This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
 EOL
@@ -549,7 +547,7 @@ EOL
         );
 
         delete $wbook->{noLinks};
-        $notes->wsWrite( $wbook, $wsheet, 0, 0 );
+        $notes->wsWrite( $wbook, $wsheet, $model->{compact} ? () : ( 0, 0 ) );
         $logger->log($notes) if $logger;
         $wbook->{logger} = $logger if $logger;
         $wbook->{noLinks} = $noLinks;
