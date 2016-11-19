@@ -59,11 +59,13 @@ sub worksheetsAndClosuresWithController {
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 20 );
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-            name  => 'Controller',
-            lines => $model->dataNotes,
-          ),
-          $model->licenceNotes,
+        require SpreadsheetModel::Book::FrontSheet;
+        my $noticeMaker =
+          SpreadsheetModel::Book::FrontSheet->new( model => $model );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => 'Controller' ), $noticeMaker->extraNotes,
+          $noticeMaker->dataNotes,
+          $noticeMaker->licenceNotes,
           @{ $mms->{optionsColumns} };
 
         $mms->{finish} = sub {
