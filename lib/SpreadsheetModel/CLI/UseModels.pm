@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2015 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -38,7 +38,7 @@ sub fillDatabase {
 
     my $self = shift;
 
-    my ( $writer, $settings, $postProcessor );
+    my ( $writer, $fillSettings, $postProcessor );
 
     my $threads;
     $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc`
@@ -139,12 +139,12 @@ sub fillDatabase {
             next;
         }
         if (/^-+(calc|convert.*)/i) {
-            $settings = $1;
+            $fillSettings = $1;
             next;
         }
 
-        ( $postProcessor ||= makePostProcessor( $threads, $writer, $settings ) )
-          ->($_)
+        ( $postProcessor ||=
+              makePostProcessor( $threads, $writer, $fillSettings ) )->($_)
           foreach -f $_ ? $_ : grep { -f $_; } bsd_glob($_);
 
     }
@@ -165,15 +165,15 @@ sub fillDatabase {
 
 sub makePostProcessor {
 
-    my ( $threads1, $writer, $settings ) = @_;
+    my ( $threads1, $writer, $processSettings ) = @_;
     $threads1 = $threads1 && $threads1 > 1 ? $threads1 - 1 : 0;
     require SpreadsheetModel::Book::ParallelRunning if $threads1;
 
-    my ( $calculator_prefork, $calculator_postfork );
-    if ( $settings && $settings =~ /calc|convert/i ) {
+    my ( $calculator_beforefork, $calculator_afterfork );
+    if ( $processSettings && $processSettings =~ /calc|convert/i ) {
         if (`which osascript`) {
-            if ( $settings =~ /calc/ ) {
-                $calculator_prefork = sub {
+            if ( $processSettings =~ /calc/ ) {
+                $calculator_beforefork = sub {
                     my ($inname) = @_;
                     my $inpath = rel2abs($inname);
                     $inpath =~ s/\.(xls.?)$/-$$.$1/i;
@@ -194,11 +194,11 @@ EOS
             else {
                 my $convert          = ' file format Excel98to2004 file format';
                 my $convertExtension = '.xls';
-                if ( $settings =~ /xlsx/i ) {
+                if ( $processSettings =~ /xlsx/i ) {
                     $convert          = '';
                     $convertExtension = '.xlsx';
                 }
-                $calculator_prefork = sub {
+                $calculator_beforefork = sub {
                     my ($inname) = @_;
                     my $inpath   = rel2abs($inname);
                     my $outpath  = $inpath;
@@ -226,7 +226,7 @@ EOS
         else {
             if (`which ssconvert`) {
                 warn 'Using ssconvert';
-                $calculator_postfork = sub {
+                $calculator_afterfork = sub {
                     my ($inname) = @_;
                     my $inpath   = rel2abs($inname);
                     my $outpath  = $inpath;
@@ -255,7 +255,7 @@ EOS
             return;
         }
         my $calcFile = $inFile;
-        $calcFile = $calculator_prefork->($inFile) if $calculator_prefork;
+        $calcFile = $calculator_beforefork->($inFile) if $calculator_beforefork;
         SpreadsheetModel::Book::ParallelRunning::waitanypid($threads1)
           if $threads1;
         my $pid;
@@ -264,8 +264,9 @@ EOS
                 $calcFile );
         }
         else {
-            $0 = "perl: $calcFile";
-            $calcFile = $calculator_postfork->($inFile) if $calculator_postfork;
+            $0        = "perl: $calcFile";
+            $calcFile = $calculator_afterfork->($inFile)
+              if $calculator_afterfork;
             my $workbook;
             eval {
                 local %SIG;
