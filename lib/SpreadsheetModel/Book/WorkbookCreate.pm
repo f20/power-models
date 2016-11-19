@@ -30,7 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use SpreadsheetModel::Logger;
-use File::Spec::Functions qw(catdir catfile);
+use File::Spec::Functions qw(catdir catfile splitpath);
 
 sub create {
 
@@ -41,14 +41,11 @@ sub create {
     my $streamMaker = $settings->{streamMaker};
     my $tmpDir;
     $streamMaker ||= sub {
-        my ($fn) = @_;
-        unless ($fn) {
+        my ($finalFile) = @_;
+        unless ($finalFile) {
             binmode STDOUT;
             return \*STDOUT;
         }
-        my $finalFile = $fn;
-        $finalFile = catfile( $settings->{folder}, $finalFile )
-          if $settings->{folder};
         my ( $tempFile, $closer );
         if ( $^O =~ /win32/i ) {
             $tempFile = $finalFile;
@@ -60,7 +57,7 @@ sub create {
             mkdir $tmpDir;
             chmod 0770, $tmpDir;
             if ( -d $tmpDir && -w _ ) {
-                $tempFile = catfile( $tmpDir, $fn );
+                $tempFile = catfile( $tmpDir, (splitpath($finalFile))[2] );
                 $closer = sub {
                     rename $tempFile, $finalFile;
                     rmdir $tmpDir;

@@ -488,7 +488,9 @@ sub factory {
                 SpreadsheetModel::Book::ParallelRunning::backgroundrun(
                     $workbookModule->( $instructionsSettings{$_}[1]{xls} ),
                     'create',
-                    $_,
+                    defined $settings{folder}
+                    ? catfile( $settings{folder}, $_ )
+                    : $_,
                     $instructionsSettings{$_},
                     $instructionsSettings{$_}[1]{PostProcessing}
                 );
