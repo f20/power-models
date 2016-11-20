@@ -1,14 +1,14 @@
 makeModels
 	EDCM/Current/%-clean*.yml
-	EDCM/Data-2014-02/*SPM*.yml
+	EDCM/2014-02/*SPM*.yml
 	-template=%
 	-newrules
 	-newdata
 	CDCM/Current/%-clean*.yml
-	CDCM/Data-2014-02/*SPM*.yml
+	CDCM/2014-02/*SPM*.yml
 	-template=%
 	-newrules
 	-newdata
 	ModelM/Current/%-clean*.yml
-	ModelM/Data-2014-02/*SPM*.yml
+	ModelM/2014-02/*SPM*.yml
 	-template=%

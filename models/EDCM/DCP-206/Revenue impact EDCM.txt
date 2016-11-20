@@ -1,26 +1,26 @@
 -sqlite
     EDCM/DCP-206/%-b206-*.yml
-    EDCM/Data-2013-02/*.yml
-    EDCM/Data-2014-02/*.yml
+    EDCM/2013-02/*.yml
+    EDCM/2014-02/*.yml
     -xdata=rules|template|%-avg
     -newrules
     -newdata
     EDCM/Current/%-beta-*.yml
-    EDCM/Data-2013-02/*.yml
-    EDCM/Data-2014-02/*.yml
+    EDCM/2013-02/*.yml
+    EDCM/2014-02/*.yml
     -xdata=rules|template|%-zero
     -newrules
     -newdata
     EDCM/DCP-206/%-b206-*.yml
-    EDCM/Data-2013-02/*.yml
-    EDCM/Data-2014-02/*.yml
+    EDCM/2013-02/*.yml
+    EDCM/2014-02/*.yml
     -xdata=rules|revenueAdj|-5e6
     -xdata=rules|template|%-avg-5m
     -newrules
     -newdata
     EDCM/Current/%-beta-*.yml
-    EDCM/Data-2013-02/*.yml
-    EDCM/Data-2014-02/*.yml
+    EDCM/2013-02/*.yml
+    EDCM/2014-02/*.yml
     -xdata=rules|revenueAdj|-5e6
     -xdata=rules|template|%-zero-5m
 tscs 11 45 46 47 48

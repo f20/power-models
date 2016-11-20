@@ -2,7 +2,7 @@ makeModels
 	-sqlite
 	-edcm
 	CDCM/Current/%-after179.yml
-	CDCM/Data-2015-06/*
+	CDCM/2015-06/*
 
 useDatabase
     /-2015-06/

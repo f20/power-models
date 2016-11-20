@@ -1,7 +1,7 @@
 makeModels
 	-sqlite
 	CDCM/ExtEHV-2015/%-extehv-1.yml
-	CDCM/Data-2015-06/*
+	CDCM/2015-06/*
 
 useDatabase
 	all

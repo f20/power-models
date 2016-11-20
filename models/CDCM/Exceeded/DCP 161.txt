@@ -1,6 +1,6 @@
 makeModels
 	-sqlite
-	CDCM/Data-2014-02/*
+	CDCM/2014-02/*
 	CDCM/Exceeded/%-base163.yml
 	CDCM/Exceeded/%-dcp161adj.yml
 	CDCM/Exceeded/%-scenario161.yml

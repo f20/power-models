@@ -3,7 +3,7 @@ makeModels
 	-template=%-baseline
 	-stats
 	CDCM/Local/%-local-227a161.yml
-	CDCM/Data-2017-02/*
+	CDCM/2017-02/*
 	-newrules
 	-newdata
 	-xdata=1053|1|LV HH Metered localprop|0.1
@@ -18,7 +18,7 @@ makeModels
 	-template=%-withCDCMgen
 	-stats
 	CDCM/Local/%-local-227a161.yml
-	CDCM/Data-2017-02/*
+	CDCM/2017-02/*
 	-newrules
 	-newdata
 	-xdata=1053|1|LV HH Metered localprop|0.1
@@ -61,7 +61,7 @@ makeModels
 	-template=%-noCDCMgen
 	-stats
 	CDCM/Local/%-local-227a161.yml
-	CDCM/Data-2017-02/*
+	CDCM/2017-02/*
 
 useDatabase
 	tscs

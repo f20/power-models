@@ -1,12 +1,12 @@
 makeModels
 	-sqlite
 	CDCM/*/%-after161.yml
-	CDCM/Data-2015-03/*.yml
+	CDCM/2015-03/*.yml
 	-newrules
 	-newdata
 	CDCM/*/%-after161.yml
-	CDCM/Data-2015-03/*.yml
-	CDCM/Data-2016-02/+*.yml
+	CDCM/2015-03/*.yml
+	CDCM/2016-02/+*.yml
 	-template=%-dcp066
 	-datamerge
 

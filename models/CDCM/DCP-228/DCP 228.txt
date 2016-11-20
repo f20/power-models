@@ -2,7 +2,7 @@ makeModels
 	-sqlite
 	CDCM/*/%-after161.yml
 	CDCM/DCP-228/%-clean228.yml
-	CDCM/Data-2015-03/*
+	CDCM/2015-03/*
 
 useDatabase
 	-base=after161

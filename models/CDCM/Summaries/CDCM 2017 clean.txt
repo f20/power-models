@@ -2,7 +2,7 @@ makeModels
     -sqlite
     -pickbest
     CDCM/*/%-clean*.yml
-    CDCM/Data-2017-02/*
+    CDCM/2017-02/*
 
 useDatabase
     all

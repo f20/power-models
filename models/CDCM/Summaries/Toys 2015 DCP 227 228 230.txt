@@ -1,7 +1,7 @@
 makeModels
 	-sqlite
 	CDCM/Toys-2015/%-*.yml
-	CDCM/Data-2015-06/*
+	CDCM/2015-06/*
 
 useDatabase
 	-base=after179
@@ -41,4 +41,3 @@ useDatabase
 	38
 	39
 	42
-	

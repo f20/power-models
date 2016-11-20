@@ -5,7 +5,7 @@ makeModels
 	-stats
 	ModelM/Current/%-*.yml
 	ModelM/Previous/%-*.yml
-	ModelM/Data-20*/*
+	ModelM/20*/*
 
 useDatabase
 	tscs

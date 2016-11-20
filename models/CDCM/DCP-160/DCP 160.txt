@@ -14,7 +14,7 @@ makeModels
 	CDCM/DCP-160/%-dcp160-m227.yml
 	CDCM/DCP-160/%-dcp160-a227.yml
 	CDCM/DCP-160/%-ilf-a227.yml
-	CDCM/Data-2017-02/*
+	CDCM/2017-02/*
 
 useDatabase
 	-orange

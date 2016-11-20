@@ -1,8 +1,8 @@
 -sqlite
     CDCM/Previous/%-after163.yml
-    CDCM/Data-2014-02/*
+    CDCM/2014-02/*
     -newdata
-    CDCM/Data-2014-02/*
+    CDCM/2014-02/*
     -xdata=rules|template|%-ror-0.04
     -xdata=1010|1|Financial and general assumptions|0.04
 -base=after163

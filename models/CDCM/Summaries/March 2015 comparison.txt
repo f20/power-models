@@ -1,12 +1,12 @@
 makeModels
 	-sqlite
 	CDCM/Current/%-after179.yml
-	CDCM/Data-2015-02/*
+	CDCM/2015-02/*
 	-xdata=rules|template|%-base
 	-newrules
 	-newdata
 	CDCM/Current/%-after161.yml
-	CDCM/Data-2015-03/*
+	CDCM/2015-03/*
 	-xdata=rules|template|%-update
 
 useDatabase

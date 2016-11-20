@@ -3,8 +3,8 @@ makeModels
 	-pickbest
 	CDCM/Current/%-after163.yml
 	CDCM/Current/%-after179.yml
-	CDCM/Data-2015-02/*
-	CDCM/Data-2014-02/*
+	CDCM/2015-02/*
+	CDCM/2014-02/*
 
 useDatabase
 	-dcp=2015-02
