@@ -549,10 +549,19 @@ sub _mergeRulesData {
     my %options = map { %$_ } @_;
     my $extraNotice = delete $options{extraNotice};
     my @keys =
-      grep { exists $options{$_}; } qw(password dataset ~datasetOverride);
+      grep { exists $options{$_}; }
+      qw(
+          password
+          revisionText
+          template
+          dataset
+          ~datasetOverride
+        );
     my @removed = map { delete $options{$_}; } @keys;
-    $options{$_} = '***' foreach grep { $_ ne 'dataset'; } @keys;
+    $options{$_} = '***'
+      foreach grep { /^(?:password|\~datasetOverride)$/s; } @keys;
     $options{yaml} = Dump( \%options );
+
     if ( defined $extraNotice ) {
         $options{extraNotice} =
           'ARRAY' eq ref $extraNotice
