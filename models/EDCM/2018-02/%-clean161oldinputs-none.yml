@@ -1,7 +1,6 @@
 ---
-.: EDCM cleaned-up after DCP 161 no charge 1
+.: 'EDCM clean after DCP 161 (traditional inputs), no charge 1'
 PerlModule: EDCM2
-activeSheets: Results
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1
 dcp161: 1
