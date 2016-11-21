@@ -78,7 +78,7 @@ sub addComparisonTariff {
 
 sub revenueComparison {
 
-    my ( $self, $tariff, $volumes, $names, @extras ) = @_;
+    my ( $self, $tariff, $volumes, $names, @extraColumns ) = @_;
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
     my ( @srcCol, @columns );
@@ -97,7 +97,7 @@ sub revenueComparison {
       $totalUnits = Stack( rows => $self->{rows}, sources => [$totalUnits] )
       if $self->{rows};
 
-    push @columns, @extras;
+    push @columns, @extraColumns;
 
     my $revenues = $tariff->revenueCalculation($volumes);
     if ( $self->{rows} ) {
@@ -179,7 +179,10 @@ sub revenueComparison {
 
     push @{ $self->{revenueTables} },
       Columnset(
-        name    => 'Revenue (£/year)' . $labelTail,
+        name => 'Revenue'
+          . ( $compare ? ' comparison' : '' )
+          . ' (£/year)'
+          . $labelTail,
         columns => \@srcCol,
       ) if @srcCol;
 
@@ -219,7 +222,7 @@ sub revenueComparison {
                   );
               } $totalUnits,
             $revenues,
-            @extras,
+            @extraColumns,
             $compare ? ( $compare, $difference, ) : ()
         );
         push @cols,

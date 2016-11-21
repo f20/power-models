@@ -91,7 +91,7 @@ sub addDetailedAssets {
 }
 
 sub addRevenueComparison {
-    my ( $self, $tariffs, @extras ) = @_;
+    my ( $self, $tariffs, @methodObjectPairs ) = @_;
     $self->{comparison}->revenueComparison(
         $tariffs,
         $self->{volumes},
@@ -99,7 +99,7 @@ sub addRevenueComparison {
         map {
             my ( $method, $object ) = @$_;
             $object->$method( $self->{volumes} );
-        } @extras
+        } @methodObjectPairs
     );
     $self;
 }

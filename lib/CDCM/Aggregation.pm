@@ -28,7 +28,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# Aggregation includes rounding, finishing and matrices (including revenue matrices)
+# Includes rounding, finishing, tariff matrices and revenue matrices.
 
 use warnings;
 use strict;
