@@ -112,7 +112,8 @@ sub rebuildWriter {
         if ( -s "$tempFolder/$core$ext" ) {
             rename "$path$core$ext", "$tempFolder/$core-old$ext"
               unless defined $sidecar;
-            rename "$tempFolder/$core$ext", "$path$core$ext";
+            rename "$tempFolder/$core$ext", "$path$core$ext"
+              or warn "Cannot move $tempFolder/$core$ext to $path$core$ext: $!";
         }
         if ( defined $sidecar ) {
             my $dh;

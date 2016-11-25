@@ -514,8 +514,12 @@ sub factory {
               if $statusWriter;
             foreach (@fileNames) {
                 warn "$_ started";
-                $workbookModule->( $instructionsSettings{$_}[1]{xls} )
-                  ->create( $_,, @{ $instructionsSettings{$_} } );
+                $workbookModule->( $instructionsSettings{$_}[1]{xls} )->create(
+                    defined $settings{folder}
+                    ? catfile( $settings{folder}, $_ )
+                    : $_,
+                    @{ $instructionsSettings{$_} }
+                );
                 $instructionsSettings{$_}[1]{PostProcessing}->($_)
                   if $instructionsSettings{$_}[1]{PostProcessing};
                 warn "$_ complete";
@@ -551,12 +555,12 @@ sub _mergeRulesData {
     my @keys =
       grep { exists $options{$_}; }
       qw(
-          password
-          revisionText
-          template
-          dataset
-          ~datasetOverride
-        );
+      password
+      revisionText
+      template
+      dataset
+      ~datasetOverride
+    );
     my @removed = map { delete $options{$_}; } @keys;
     $options{$_} = '***'
       foreach grep { /^(?:password|\~datasetOverride)$/s; } @keys;
