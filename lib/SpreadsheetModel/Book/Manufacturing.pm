@@ -130,12 +130,6 @@ sub factory {
             {
                 $_->{template} = $1;
                 push @rulesets, $_;
-                if ( $settings{autoData} ) {
-                    $_->{wantDataset} = $_->{template};
-                    $_->{wantDataset} =~ s/%/$_->{PerlModule}/;
-                    $self->{addFile}->($fileName)
-                      if $fileName =~ s/%/$_->{PerlModule}/;
-                }
             }
             elsif (
                 defined $fileName

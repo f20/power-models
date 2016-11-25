@@ -65,10 +65,6 @@ sub makeModels {
             if ( $_ eq '-' ) {
                 $maker->{processStream}->( \*STDIN );
             }
-            elsif (/^-autodata/i) {
-                $maker->{setting}->( autoData => 1 );
-                $maker->{setRule}->( template => '%' );
-            }
             elsif (/^-+(?:carp|confess)/is) {
                 require Carp;
                 $SIG{__DIE__} = \&Carp::confess;
