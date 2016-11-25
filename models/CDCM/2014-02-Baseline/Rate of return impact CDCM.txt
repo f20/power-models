@@ -1,0 +1,10 @@
+-sqlite
+    CDCM/*/%-after163.yml
+    CDCM/2014-02/*
+    -newdata
+    CDCM/2014-02/*
+    -xdata=rules|template|%-ror-0.04
+    -xdata=1010|1|Financial and general assumptions|0.04
+-base=after163
+    -dcp=ror-0.04
+    -name=4.0% rate of return

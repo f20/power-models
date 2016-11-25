@@ -1,4 +1,5 @@
 ---
+.: Financial model with forward links
 PerlModule: Financial
 forwardLinks: 1
 illustrative: 1

@@ -1,7 +1,0 @@
-makeModels
-	-template=%%
-	-pickbest
-	CDCM/Current/*micro*
-	CDCM/2014-02/**
-	CDCM/2015-02/**
-	CDCM/2015-03/**

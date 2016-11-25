@@ -1,0 +1,13 @@
+makeModels
+	-sqlite
+	CDCM/*/%-after179*.yml
+	CDCM/2015-02/*
+
+makeModels
+	-sqlite
+	CDCM/*/%-after163*.yml
+	CDCM/2013-02/*
+	CDCM/2014-02/*
+
+R
+    maps4202ts

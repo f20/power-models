@@ -2,15 +2,15 @@ makeModels
 	-rtf
 	-tablemap
 	Blank.yml
-	CDCM/Current/%-after227.yml
-	CDCM/Current/%-model227.yml
+	CDCM/*/%-after227.yml
+	CDCM/*/%-model227.yml
 	CDCM/DCP-160/%-dcp160-a227.yml
 	CDCM/DCP-160/%-dcp160-m227.yml
 
 makeModels
 	-sqlite
-	CDCM/Current/%-model227.yml
-	CDCM/Current/%-after227.yml
+	CDCM/*/%-model227.yml
+	CDCM/*/%-after227.yml
 	CDCM/DCP-160/%-dcp160-m227.yml
 	CDCM/DCP-160/%-dcp160-a227.yml
 	CDCM/DCP-160/%-ilf-a227.yml

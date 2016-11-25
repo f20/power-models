@@ -1,4 +1,5 @@
 ---
+.: Financial model (small with simple tax)
 PerlModule: Financial
 illustrative: 1
 numCapitalExp: 4

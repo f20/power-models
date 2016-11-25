@@ -31,7 +31,6 @@ use warnings;
 use strict;
 use utf8;
 use YAML;
-require Storable;
 require SpreadsheetModel::Book::Validation;
 use File::Spec::Functions qw(catfile);
 
@@ -121,7 +120,9 @@ sub factory {
             warn "$fileName: $@" if $@;
         }
 
-        foreach ( grep { ref $_ eq 'HASH' } @objects ) {
+        my @remainingObjects = grep { ref $_ eq 'HASH' } @objects;
+        while (@remainingObjects) {
+            local $_ = shift @remainingObjects;
             if ( exists $_->{template} ) {
                 push @rulesets, $_;
             }
@@ -129,6 +130,10 @@ sub factory {
                 && $fileName =~ /([^\\\/]*%[^\\\/]*)\.(?:yml|yaml|json)$/is )
             {
                 $_->{template} = $1;
+                if (@remainingObjects) {
+                    $_->{'~datasetIllustrative'} = [@remainingObjects];
+                    @remainingObjects = ();
+                }
                 push @rulesets, $_;
             }
             elsif (

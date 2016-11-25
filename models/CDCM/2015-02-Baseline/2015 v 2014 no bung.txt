@@ -1,0 +1,26 @@
+makeModels
+	-sqlite
+	-pickbest
+	CDCM/2014-02-Baseline/%-after163bungoff.yml
+	CDCM/2014-02/*
+	CDCM/2015-02-Baseline/%-after179bungoff.yml
+	CDCM/2015-02/*
+
+useDatabase
+	-dcp=2015-02
+	-base=2014-02
+
+useDatabase
+	tscs
+	10
+	20
+	22
+	25
+	26
+	27
+	37
+	38
+	39
+	42
+
+useDatabase all 10

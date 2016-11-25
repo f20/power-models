@@ -1,0 +1,13 @@
+makeModels
+	-sqlite
+	-checksums
+	-pickbest
+	-stats
+	ModelM/*-Baseline/%-*.yml
+	ModelM/2011-01/*
+	ModelM/2011-10/*
+	ModelM/20??-02/*
+
+useDatabase
+	tscs
+

@@ -1,5 +1,0 @@
-makeModels
-	-template=%%
-	CDCM/*/%-micro161.yml
-	CDCM/2015-03/**
-	CDCM/2016-02/**

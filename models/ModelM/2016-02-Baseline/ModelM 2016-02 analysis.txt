@@ -1,0 +1,24 @@
+makeModels
+	-sqlite
+	ModelM/*/%-after117231cooked.yml
+	ModelM/2016-02/*
+
+useDatabase
+	all
+	13
+	16
+
+makeModels
+	-sqlite
+	ModelM/*/%-after117231cooked.yml
+	ModelM/2016-02/*
+
+makeModels
+	-sqlite
+	ModelM/*/%-after117231.yml
+	ModelM/2016-02/*
+
+useDatabase
+	tscs
+	13
+	16

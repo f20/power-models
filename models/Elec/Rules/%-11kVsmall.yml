@@ -11,3 +11,239 @@ ucount:
 usetMatchAssets: all users
 usetRevenues: all users
 usetRunningCosts: all users
+---
+1500:
+  - _table: '1500. Company, charging year, data version'
+  - Company charging year data version: Illustrative private network
+    _column: Company
+  - Company charging year data version: illustrative year
+    _column: Year
+  - Company charging year data version: illustration with single unit rate
+    _column: Version
+1510:
+  - _table: 1510. Financial and general input data
+  - Financial and general input data: 365
+    _column: Days in the charging year
+  - Financial and general input data: 0.08
+    _column: Rate of return
+  - Financial and general input data: 40
+    _column: Annualisation period (years)
+1512:
+  - _table: 1512. Forecast volumes
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    User 10001: 50000000
+    User 10002: 50000000
+    User 20001: 5000000
+    User 20002: 5000000
+    User 30001: 1000000
+    User 30002: 1000000
+    User 40001: 400000
+    User 40002: 40000
+    _column: All kWh
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    User 10001: 1
+    User 10002: 1
+    User 20001: 1
+    User 20002: 1
+    User 30001: 1
+    User 30002: 1
+    User 40001: 10
+    User 40002: 1
+    _column: Supply points
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    User 10001: 10000
+    User 10002: 10000
+    User 20001: 1000
+    User 20002: 1000
+    User 30001: 200
+    User 30002: 200
+    User 40001: 0
+    User 40002: 0
+    _column: Capacity kVA
+1514:
+  - _table: 1514. Definition of user sets
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    User 10001: 1
+    User 10002: 1
+    User 20001: 1
+    User 20002: 1
+    User 30001: 1
+    User 30002: 1
+    User 40001: 1
+    User 40002: 1
+    _column: Proportion taken into account
+1531:
+  - _table: 1531. Network usage of 1kW of average consumption
+  - HV: 1.01
+    LV: 1.03
+    LV Sub: 1.01
+    Small LV: 1.03
+    _column: Boundary capacity kVA
+  - HV: ''
+    LV: 1.07
+    LV Sub: 1.05
+    Small LV: 1.07
+    _column: Ring capacity kVA
+  - HV: ''
+    LV: 1.07
+    LV Sub: ''
+    Small LV: 1.07
+    _column: Transformer capacity kVA
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Low voltage network capacity kVA
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Metering switchgear for ring supply
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Low voltage metering switchgear
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Low voltage service 100 Amp
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Energy consumption kW
+1532:
+  - _table: 1532. Network usage of an exit point
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Boundary capacity kVA
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Ring capacity kVA
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Transformer capacity kVA
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: 25
+    _column: Low voltage network capacity kVA
+  - HV: 1
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Metering switchgear for ring supply
+  - HV: ''
+    LV: 1
+    LV Sub: 1
+    Small LV: ''
+    _column: Low voltage metering switchgear
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: 1
+    _column: Low voltage service 100 Amp
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Energy consumption kW
+  - LV: 1
+    Small LV: ''
+1533:
+  - _table: 1533. Network usage of 1kVA of agreed capacity
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Boundary capacity kVA
+  - HV: 1
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Ring capacity kVA
+  - HV: ''
+    LV: ''
+    LV Sub: 1
+    Small LV: ''
+    _column: Transformer capacity kVA
+  - HV: ''
+    LV: 1
+    LV Sub: ''
+    Small LV: ''
+    _column: Low voltage network capacity kVA
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Metering switchgear for ring supply
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Low voltage metering switchgear
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Low voltage service 100 Amp
+  - HV: ''
+    LV: ''
+    LV Sub: ''
+    Small LV: ''
+    _column: Energy consumption kW
+1550:
+  - _table: 1550. Notional asset rates (£/kVA or £/point)
+  - Notional asset rates kVA or point: 0
+    _column: Boundary capacity kVA
+  - Notional asset rates kVA or point: 150
+    _column: Ring capacity kVA
+  - Notional asset rates kVA or point: 50
+    _column: Transformer capacity kVA
+  - Notional asset rates kVA or point: 50
+    _column: Low voltage network capacity kVA
+  - Notional asset rates kVA or point: 30000
+    _column: Metering switchgear for ring supply
+  - Notional asset rates kVA or point: 3000
+    _column: Low voltage metering switchgear
+  - Notional asset rates kVA or point: 2000
+    _column: Low voltage service 100 Amp
+  - Notional asset rates kVA or point: ''
+    _column: Energy consumption kW
+  - Notional asset rates kVA or point: 2500
+1552:
+  - _table: 1552. Boundary charging rate (£/year/unit of usage)
+  - Boundary charging rate year unit of usage: 50
+    _column: Boundary capacity kVA
+1558:
+  - _table: 1558. Maximum total notional asset value (£)
+  - Maximum total notional asset value: 4000000
+    _column: Maximum total notional asset value (£)
+1559:
+  - _table: 1559. Total running costs (£/year)
+  - Total running costs year: 100000
+    _column: Total running costs (£/year)
+1585:
+  - _table: 1585. Energy charging rate p/kWh
+  - Energy charging rate p kWh: 8
+    _column: Energy consumption kW

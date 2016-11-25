@@ -57,7 +57,7 @@ sub create {
             mkdir $tmpDir;
             chmod 0770, $tmpDir;
             if ( -d $tmpDir && -w _ ) {
-                $tempFile = catfile( $tmpDir, (splitpath($finalFile))[2] );
+                $tempFile = catfile( $tmpDir, ( splitpath($finalFile) )[2] );
                 $closer = sub {
                     rename $tempFile, $finalFile;
                     rmdir $tmpDir;
@@ -122,36 +122,59 @@ sub create {
                 }
             }
             else {
-                foreach my $overrides (
-                    grep { $_ }
-                    map  { $optionArray[$i]{$_} }
-                    qw(dataOverride ~datasetOverride)
-                  )
-                {
-                    $dataset = Storable::dclone($dataset);
-                    foreach my $override (
-                        ref $overrides eq 'ARRAY' ? @$overrides : $overrides )
-                    {
-                        foreach my $itable ( keys %$override ) {
-                            for (
-                                my $icolumn = 1 ;
-                                $icolumn < @{ $override->{$itable} } ;
-                                ++$icolumn
-                              )
-                            {
-                                foreach my $irow (
-                                    keys %{ $override->{$itable}[$icolumn] } )
-                                {
-                                    $dataset->{$itable}[$icolumn]{$irow} =
-                                      $override->{$itable}[$icolumn]{$irow};
+                my @dataLayers =
+                  grep { $_ }
+                  $optionArray[$i]{illustrative}
+                  ? { usePlaceholderData => $optionArray[$i]{illustrative}, }
+                  : (), $optionArray[$i]{illustrative}
+                  || $dataset && $dataset->{usePlaceholderData}
+                  ? $optionArray[$i]{'~datasetIllustrative'}
+                  : (),
+                  $dataset,
+                  map { $optionArray[$i]{$_} }
+                  qw(dataOverride ~datasetOverride);
+                if ( @dataLayers > 1 ) {
+                    my $comboDataset;
+                    $comboDataset->{usePlaceholderData} =
+                      $optionArray[$i]{illustrative}
+                      if $optionArray[$i]{illustrative};
+                    foreach my $dataLayer (@dataLayers) {
+                        foreach my $override (
+                            ref $dataLayer eq 'ARRAY'
+                            ? @$dataLayer
+                            : $dataLayer
+                          )
+                        {
+                            foreach my $itable ( keys %$override ) {
+                                if ( 'ARRAY' eq ref $override->{$itable} ) {
+                                    for (
+                                        my $icolumn = 1 ;
+                                        $icolumn < @{ $override->{$itable} } ;
+                                        ++$icolumn
+                                      )
+                                    {
+                                        foreach my $irow (
+                                            keys
+                                            %{ $override->{$itable}[$icolumn] }
+                                          )
+                                        {
+                                            $comboDataset->{$itable}[$icolumn]
+                                              {$irow} =
+                                              $override->{$itable}[$icolumn]
+                                              {$irow};
+                                        }
+                                    }
+                                }
+                                else {
+                                    $comboDataset->{itable} =
+                                      $override->{$itable};
                                 }
                             }
                         }
                     }
+                    $dataset = $comboDataset;
                 }
             }
-            $dataset->{usePlaceholderData} ||= $optionArray[$i]{illustrative}
-              if $optionArray[$i]{illustrative};
             $optionArray[$i]{dataset} = $dataset;
         }
     }

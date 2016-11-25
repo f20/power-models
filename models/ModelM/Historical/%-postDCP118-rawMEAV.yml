@@ -1,8 +1,0 @@
----
-.: Method M after DCP 118 using raw MEAV data
-PerlModule: ModelM
-dcp071: 1
-dcp095: 1
-dcp096: 1
-dcp118: 1
-meav: 1

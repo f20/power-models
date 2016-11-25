@@ -1,0 +1,11 @@
+-sqlite
+    CDCM/*/%-after163.yml
+    CDCM/2014-02/*
+    -xdata=rules|template|%-base
+    -newrules
+    -newdata
+    CDCM/*/%-after163.yml
+    CDCM/2014-02/*
+    -xdata=rules|revenueAdj|-5e6
+    -xdata=rules|template|%-5m
+tscs 10 37 38 39 42

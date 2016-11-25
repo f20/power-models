@@ -1,0 +1,20 @@
+---
+.: '2015 CDCM after DCP 179, clean no election bung'
+PerlModule: CDCM
+agghhequalisation: 1
+alwaysUseRAG: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: yes
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179

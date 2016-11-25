@@ -1,0 +1,6 @@
+makeModels
+	-autocheck
+	ModelM/*-Baseline/%-*.yml
+	ModelM/Toys-2015/%+testing.yml
+	ModelM/2014-02/*.yml
+

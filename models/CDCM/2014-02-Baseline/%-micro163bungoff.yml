@@ -1,0 +1,19 @@
+---
+.: '2014 CDCM after DCP 163, micro no election bung'
+PerlModule: CDCM
+compact: permpan
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+nickName: CDCM model (after DCP 163)
+noLLFCs: 1
+noLinks: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: statisticsbrief
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163
+timeOfDay: timeOfDaySpecial

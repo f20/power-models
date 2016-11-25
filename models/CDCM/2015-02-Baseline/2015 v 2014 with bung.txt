@@ -1,0 +1,15 @@
+makeModels
+	-sqlite
+	-pickbest
+	CDCM/2014-02-Baseline/%-after163*.yml
+	CDCM/2014-02/*
+	CDCM/2015-02-Baseline/%-after179*.yml
+	CDCM/2015-02/*
+
+useDatabase
+	-dcp=2015-02
+	-base=2014-02
+
+useDatabase
+    /-2015-02/
+	37
