@@ -20,9 +20,10 @@ Step 1.  Check or set-up Perl 5.
 
 You need Perl 5, v5.8.8 or later.
 
-A suitable version of Perl is usually pre-installed on Mac OS X and Linux
-systems. For Windows systems, Strawberry Perl (strawberryperl.com) usually
-works.
+A suitable version of Perl is pre-installed on Apple macOS systems.
+For Microsoft Windows systems, Strawberry Perl (strawberryperl.com) is
+usually a good choice.  For FreeBSD, Linux and similar systems, Perl is
+either pre-installed or readily available from the ports/packages system.
 
 To test whether you have a suitable version of Perl, try this at the Terminal
 or command line:
@@ -47,7 +48,7 @@ Change to the root of the repository and try this sample command:
 
 If this fails, examine the error messages.  Usually the problem is a missing
 module, which can be installed from CPAN (www.cpan.org).  Once you have solved
-the problem, re-run the test command.  Repeat until it works.
+the problem, re-run the test command and repeat the process until it works.
 
 Step 4.  Start using the code.
 ------------------------------
@@ -68,7 +69,7 @@ in the "Stata" folder for information on Stata tools to test EDCM spreadsheets.
 Licensing
 ---------
 
-This software is licensed under open source licences.
+All the components of this software are licensed under open source licences.
 Check the source code for details.
 
 THIS SOFTWARE AND DATA ARE PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
@@ -82,4 +83,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 18 November 2016.
+Franck Latrémolière, 24 November 2016.
