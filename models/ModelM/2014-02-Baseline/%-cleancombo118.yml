@@ -2,7 +2,7 @@
 .: Clean before DCP 117 and DCP 231
 AdditionalRules:
   - calcUnits: 1
-    checksums: Line checksum 5; Table checksum 7
+    checksums: Table checksum 7
     dcp071: 1
     dcp096: 1
     edcm: only
@@ -11,7 +11,7 @@ AdditionalRules:
     suffix: EDCM
 PerlModule: ModelM
 calcUnits: 1
-checksums: Line checksum 5; Table checksum 7
+checksums: Table checksum 7
 dcp071: 1
 dcp095: 1
 dcp096: 1

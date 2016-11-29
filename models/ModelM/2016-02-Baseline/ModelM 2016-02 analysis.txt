@@ -1,6 +1,6 @@
 makeModels
 	-sqlite
-	ModelM/*/%-after117231cooked.yml
+	ModelM/*/%-clean117231cooked.yml
 	ModelM/2016-02/*
 
 useDatabase
@@ -10,12 +10,12 @@ useDatabase
 
 makeModels
 	-sqlite
-	ModelM/*/%-after117231cooked.yml
+	ModelM/*/%-clean117231cooked.yml
 	ModelM/2016-02/*
 
 makeModels
 	-sqlite
-	ModelM/*/%-after117231.yml
+	ModelM/*/%-clean117231.yml
 	ModelM/2016-02/*
 
 useDatabase

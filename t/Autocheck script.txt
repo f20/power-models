@@ -1,0 +1,21 @@
+makeModels
+	-autocheck
+	-pickbest
+	CDCM/20??-??-Baseline/%-*.yml
+	CDCM/2010-02/*.yml
+	CDCM/2011-02/*.yml
+	CDCM/2011-08/*.yml
+	CDCM/2012-02/*.yml
+	CDCM/2013-02/*.yml
+	CDCM/2014-02/*.yml
+	CDCM/2015-02/*.yml
+	CDCM/2016-02/*.yml
+	CDCM/2017-02/*.yml
+	-newrules
+	-newdata
+	ModelM/20??-??-Baseline/%-*.yml
+	ModelM/20??-??/*.yml
+	-newrules
+	-newdata
+	EDCM/20??-??-Baseline/%-*.yml
+	EDCM/20??-??/*.yml

@@ -101,6 +101,8 @@ sub checker {
                     my $v;
                     $v = $cell->unformatted if $cell;
                     next unless defined $v;
+                    eval { $v = Encode::decode( 'UTF-16BE', $v ); }
+                      if $v =~ m/\x{0}/;
                     if ( !$col && $v =~ /^([0-9]+)\. /s ) {
                         $tableNumber = $1;
                     }

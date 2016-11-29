@@ -23,6 +23,15 @@ sub score {
     # DCP 118
     $score += 100 if $rule->{dcp118} && !$rule->{edcm} xor $month lt '2013-10';
 
+    # Units input data
+    $score += 40 if $rule->{calcUnits} xor $month lt '2014-01';
+
+    # MEAV input data
+    $score += 40 if $rule->{meav} xor $month lt '2014-01';
+
+    # Net capex input data
+    $score += 40 if $rule->{netCapex} xor $month lt '2014-01';
+
     # DCP 117 and DCP 231
     $score += 100 if $rule->{dcp117} xor $month lt '2015-10';
 

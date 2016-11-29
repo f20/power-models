@@ -1,9 +1,9 @@
 makeModels
 	-sqlite
 	-pickbest
-	CDCM/2014-02-Baseline/%-after163bungoff.yml
+	CDCM/2014-02-Baseline/%-extras163bungoff.yml
 	CDCM/2014-02/*
-	CDCM/2015-02-Baseline/%-after179bungoff.yml
+	CDCM/2015-02-Baseline/%-extras179bungoff.yml
 	CDCM/2015-02/*
 
 useDatabase

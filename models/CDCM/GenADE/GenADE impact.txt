@@ -1,6 +1,6 @@
 makeModels
 	-sqlite
-	CDCM/Current/%-after227.yml
+	CDCM/Current/%-extras227.yml
 	CDCM/GenADE/%-genade0.yml
 	CDCM/GenADE/%-genade100.yml
 	CDCM/2017-02/*

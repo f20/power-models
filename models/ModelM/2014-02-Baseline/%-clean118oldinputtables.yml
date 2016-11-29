@@ -1,6 +1,7 @@
 ---
 .: Method M after DCP 118 (from 1 April 2014)
 PerlModule: ModelM
+checksums: Table checksum 7
 dcp071: 1
 dcp095: 1
 dcp096: 1
