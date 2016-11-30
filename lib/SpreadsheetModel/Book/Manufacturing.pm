@@ -555,7 +555,6 @@ sub _mergeRulesData {
       grep { exists $options{$_}; }
       qw(
       password
-      revisionText
       template
       dataset
       ~datasetOverride
