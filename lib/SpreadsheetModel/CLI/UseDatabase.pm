@@ -93,7 +93,7 @@ sub useDatabase {
 
     if (
         my ($change) =
-        map { /^(change\S*|dcp\S*)/i ? $1 : /-(?:change|dcp)=(.+)/i ? $1 : (); }
+        map { /^(dcp\S*)/i ? $1 : /-(?:change|scenario|dcp)=(.+)/i ? $1 : (); }
         @_
       )
     {
