@@ -34,8 +34,9 @@ use utf8;
 sub sampler {
     my ( $self, @options ) = @_;
     my %options;
-    $options{colour} = 'gold'   if grep { /gold/i } @options;
-    $options{colour} = 'orange' if grep { /orange/i } @options;
+    $options{validation} = 'lenient';
+    $options{colour}     = 'gold' if grep { /gold/i } @options;
+    $options{colour}     = 'orange' if grep { /orange/i } @options;
     use SpreadsheetModel::Book::WorkbookXLSX;
     my $wbook = SpreadsheetModel::Book::WorkbookXLSX->new($$);
     $wbook->setFormats( \%options );
