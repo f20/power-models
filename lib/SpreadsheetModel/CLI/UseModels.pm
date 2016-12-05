@@ -171,7 +171,69 @@ sub makePostProcessor {
 
     my ( $calculator_beforefork, $calculator_afterfork );
     if ( $processSettings && $processSettings =~ /calc|convert/i ) {
-        if (`which osascript`) {
+
+        if ( $^O =~ /win32/i ) {
+
+            # Quick and dirty code to control Microsoft Excel
+            # (not Excel Mobile) under Microsoft Windows.
+            require Win32::OLE;
+            if ( $processSettings =~ /calc/ ) {
+                $calculator_beforefork = sub {
+                    my ($inname) = @_;
+                    my $inpath = rel2abs($inname);
+                    $inpath =~ s/\.(xls.?)$/-$$.$1/i;
+                    rename $inname, $inpath;
+
+                    my $excelApp =
+                         Win32::OLE->GetActiveObject('Excel.Application')
+                      || Win32::OLE->new( 'Excel.Application', 'Quit' );
+                    my $excelWorkbook = $excelApp->Workbooks->Open($inpath);
+                    $excelApp->{Visible}       = 0;
+                    $excelApp->{DisplayAlerts} = 0;
+                    $excelWorkbook->Save;
+                    $excelApp->Quit;
+                    sleep 2;
+                    rename $inpath, $inname;
+                    $inname;
+                };
+            }
+            else {
+                my @convertIncantation = ( FileFormat => 39 );
+                my $convertExtension = '.xls';
+                if ( $processSettings =~ /xlsx/i ) {
+                    @convertIncantation = ();
+                    $convertExtension   = '.xlsx';
+                }
+                $calculator_beforefork = sub {
+                    my ($inname) = @_;
+                    my $inpath   = rel2abs($inname);
+                    my $outpath  = $inpath;
+
+                    $outpath =~ s/\.xls.?$/$convertExtension/i;
+                    my $outname = abs2rel($outpath);
+                    s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
+                    rename $inname, $inpath;
+
+                    my $excelApp =
+                         Win32::OLE->GetActiveObject('Excel.Application')
+                      || Win32::OLE->new( 'Excel.Application', 'Quit' );
+                    my $excelWorkbook = $excelApp->Workbooks->Open($inpath);
+                    $excelApp->{Visible}       = 0;
+                    $excelApp->{DisplayAlerts} = 0;
+                    $excelWorkbook->SaveAs(
+                        { FileName => $outpath, @convertIncantation } );
+                    $excelApp->Quit;
+                    sleep 2;
+                    rename $inpath, $inname;
+                    rename $outpath, $outname or die $!;
+                    $outname;
+                };
+            }
+        }
+
+        elsif (`which osascript`) {
+
+            # Code to control Microsoft Excel under Apple macOS.
             if ( $processSettings =~ /calc/ ) {
                 $calculator_beforefork = sub {
                     my ($inname) = @_;
@@ -225,6 +287,8 @@ EOS
         }
         else {
             if (`which ssconvert`) {
+
+                # Experimental code to calculate workbooks using ssconvert
                 warn 'Using ssconvert';
                 $calculator_afterfork = sub {
                     my ($inname) = @_;

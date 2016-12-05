@@ -512,16 +512,17 @@ sub factory {
             $statusWriter->('using a single process with a single thread')
               if $statusWriter;
             foreach (@fileNames) {
-                warn "$_ started";
-                $workbookModule->( $instructionsSettings{$_}[1]{xls} )->create(
-                    defined $settings{folder}
+				my $file = defined $settings{folder}
                     ? catfile( $settings{folder}, $_ )
-                    : $_,
+                    : $_;
+                warn "$file started";
+                $workbookModule->( $instructionsSettings{$_}[1]{xls} )->create(
+                    $file,
                     @{ $instructionsSettings{$_} }
                 );
-                $instructionsSettings{$_}[1]{PostProcessing}->($_)
+                $instructionsSettings{$_}[1]{PostProcessing}->($file)
                   if $instructionsSettings{$_}[1]{PostProcessing};
-                warn "$_ complete";
+                warn "$file complete";
             }
         }
     };
