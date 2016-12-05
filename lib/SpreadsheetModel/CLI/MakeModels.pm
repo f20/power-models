@@ -160,14 +160,14 @@ sub makeModels {
             }
             elsif (/^-+(right.*)/is) { $maker->{setRule}->( alignment => $1 ); }
             elsif (/^-+single/is) { $maker->{threads}->(1); }
-            elsif (/^-+(sqlite.*)/is) {
+            elsif (/^-+sqlite(.*)/is) {
                 require SpreadsheetModel::Data::DataExtraction;
                 $maker->{setting}->(
                     PostProcessing => makePostProcessor(
                         $maker->{threads}->(),
                         SpreadsheetModel::Data::DataExtraction::databaseWriter(
                         ),
-                        "convert$1"
+                        $1 ? "convert$1" : 'calc'
                     )
                 );
             }

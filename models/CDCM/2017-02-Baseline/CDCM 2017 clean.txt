@@ -1,5 +1,5 @@
 makeModels
-    -sqlite
+    -sqlitexls
     -pickbest
     CDCM/*/%-clean*.yml
     CDCM/2017-02/*
