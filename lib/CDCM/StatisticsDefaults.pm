@@ -47,9 +47,9 @@ __DATA__
 ---
 1202:
   - _table: 1202. Consumption assumptions for illustrative customers
-  - Domestic 1550: 110
-    Domestic 3100: 120
-    Domestic 8400: 140
+  - Domestic 1550: 710
+    Domestic 3100: 720
+    Domestic 8400: 740
     Large business: 310
     Large continuous: 320
     Large housing electric: 355
