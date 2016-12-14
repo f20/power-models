@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 163 (hidden links)
+.: CDCM after DCP 163 with hidden links
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums

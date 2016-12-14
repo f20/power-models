@@ -1,5 +1,5 @@
 ---
-.: Alternative CDCM model (no black/yellow/green)
+.: CDCM without black/yellow/green
 PerlModule: CDCM
 alwaysUseRAG: 1
 coincidenceAdj: groupumsdomnondomredonly

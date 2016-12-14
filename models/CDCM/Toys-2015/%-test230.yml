@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 230 (4.28%)
+.: CDCM after DCP 230 (4.28%)
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

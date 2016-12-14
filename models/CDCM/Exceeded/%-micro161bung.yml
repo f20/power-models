@@ -1,5 +1,5 @@
 ---
-.: Micro-model after DCP 161 (with election bung)
+.: 'CDCM with DCP 161, micro-model with bung'
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
@@ -9,7 +9,7 @@ drm: top500gsp
 electionBung: 1
 extraLevels: 1
 fixedCap: 1-4
-nickName: CDCM model (after DCP 161 with bung)
+nickName: After DCP 161 with bung
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket

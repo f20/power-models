@@ -195,7 +195,7 @@ EOL
     my $rowFormatsc =
       [ map { $_->[1] =~ /=/ ? $textnocolourbc : undef; } @lines ];
 
-    $model->{table1001} = Columnset(
+    $model->{table1001_2016} = Columnset(
         name     => 'CDCM target revenue (£ unless otherwise stated)',
         number   => 1001,
         appendTo => $model->{inputTables},

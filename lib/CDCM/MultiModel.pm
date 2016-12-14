@@ -154,119 +154,129 @@ sub sheetsForFirstModel {
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 254, 16 );
         $wsheet->freeze_panes( 0, 1 );
-        push @{ $me->{finishClosures} }, sub {
+        foreach my $t1001version (qw(2012 2016)) {
+            push @{ $me->{finishClosures} }, sub {
 
-            my @t1001 = map { $_->{table1001} ? $_->{table1001} : undef; }
-              @{ $me->{models} };
-            Notes( name => 'Allowed revenue summary (Schedule 15)', )
-              ->wsWrite( $wbook, $wsheet );
+                my @t1001 = map {
+                        $_->{"table1001_$t1001version"}
+                      ? $_->{"table1001_$t1001version"}
+                      : undef;
+                } @{ $me->{models} };
 
-            my ($first1001) = grep { $_ } @t1001 or return;
-            my $rowset     = $first1001->{columns}[0]{rows};
-            my $rowformats = $first1001->{columns}[3]{rowFormats};
-            $wbook->{noLinks} = 1;
-            my $needNote1 = 1;
-            Columnset(
-                name    => 'Schedule 15 table 1',
-                columns => [
-                    (
-                        map {
-                            Stack(
-                                name    => $_->{name},
-                                rows    => $rowset,
-                                sources => [
-                                    $_,
-                                    Constant(
-                                        rows => $rowset,
-                                        data => [
-                                            [ map { '' } @{ $rowset->{list} } ]
-                                        ]
-                                    )
-                                ],
-                                defaultFormat => 'textnocolour',
-                            );
-                        } @{ $first1001->{columns} }[ 0 .. 2 ]
-                    ),
-                    (
-                        map {
-                            my $t1001 = $t1001[ $_ - 1 ];
-                            $t1001
-                              ? SpreadsheetModel::Custom->new(
-                                name          => "Model $_",
-                                rows          => $rowset,
-                                custom        => [ '=A1', '=A2' ],
-                                defaultFormat => 'millioncopy',
-                                arguments     => {
-                                    A1 => $t1001->{columns}[3],
-                                    A2 => $t1001->{columns}[4],
-                                },
-                                model     => $me->{models}[ $_ - 1 ],
-                                wsPrepare => sub {
-                                    my ( $self, $wb, $ws, $format, $formula,
-                                        $pha, $rowh, $colh )
-                                      = @_;
-                                    $self->{name} =
-                                      $me->modelIdentifier( $self->{model},
-                                        $wb, $ws );
-                                    if ($needNote1) {
-                                        undef $needNote1;
-                                        push @{ $self->{location}
-                                              {postWriteCalls}{$wb} }, sub {
-                                            my ( $me, $wbMe,
-                                                $wsMe, $rowrefMe, $colMe )
-                                              = @_;
-                                            $wsMe->write_string(
-                                                $$rowrefMe += 2,
-                                                $colMe - 1,
-                                                'Note 1: '
-                                                  . 'Cost categories associated '
-                                                  . 'with excluded services should only be populated '
-                                                  . 'if the Company recovers the costs of providing '
-                                                  . 'these services from Use of System Charges.',
-                                                $wb->getFormat('text')
-                                            );
-                                              };
-                                    }
-                                    my $boldFormat = $wb->getFormat(
-                                        [
-                                            base => 'millioncopy',
-                                            bold => 1
-                                        ]
-                                    );
+                my ($first1001) = grep { $_ } @t1001 or return;
+                my $rowset     = $first1001->{columns}[0]{rows};
+                my $rowformats = $first1001->{columns}[3]{rowFormats};
+                $wbook->{noLinks} = 1;
+                my $needNote1 = 1;
+                Columnset(
+                    name => 'Allowed revenue summary (Schedule 15 table 1, '
+                      . $t1001version
+                      . ' version)',
+                    columns => [
+                        (
+                            map {
+                                Stack(
+                                    name    => $_->{name},
+                                    rows    => $rowset,
+                                    sources => [
+                                        $_,
+                                        Constant(
+                                            rows => $rowset,
+                                            data => [
+                                                [
+                                                    map { '' }
+                                                      @{ $rowset->{list} }
+                                                ]
+                                            ]
+                                        )
+                                    ],
+                                    defaultFormat => 'textnocolour',
+                                );
+                            } @{ $first1001->{columns} }[ 0 .. 2 ]
+                        ),
+                        (
+                            map {
+                                my $t1001 = $t1001[ $_ - 1 ];
+                                $t1001
+                                  ? SpreadsheetModel::Custom->new(
+                                    name          => "Model $_",
+                                    rows          => $rowset,
+                                    custom        => [ '=A1', '=A2' ],
+                                    defaultFormat => 'millioncopy',
+                                    arguments     => {
+                                        A1 => $t1001->{columns}[3],
+                                        A2 => $t1001->{columns}[4],
+                                    },
+                                    model     => $me->{models}[ $_ - 1 ],
+                                    wsPrepare => sub {
+                                        my ( $self, $wb, $ws, $format, $formula,
+                                            $pha, $rowh, $colh )
+                                          = @_;
+                                        $self->{name} =
+                                          $me->modelIdentifier( $self->{model},
+                                            $wb, $ws );
+                                        if ($needNote1) {
+                                            undef $needNote1;
+                                            push @{ $self->{location}
+                                                  {postWriteCalls}{$wb} }, sub {
+                                                my ( $me, $wbMe,
+                                                    $wsMe, $rowrefMe, $colMe )
+                                                  = @_;
+                                                $wsMe->write_string(
+                                                    $$rowrefMe += 2,
+                                                    $colMe - 1,
+                                                    'Note 1: '
+                                                      . 'Cost categories associated '
+                                                      . 'with excluded services should only be populated '
+                                                      . 'if the Company recovers the costs of providing '
+                                                      . 'these services from Use of System Charges.',
+                                                    $wb->getFormat('text')
+                                                );
+                                                  };
+                                        }
+                                        my $boldFormat = $wb->getFormat(
+                                            [
+                                                base => 'millioncopy',
+                                                bold => 1
+                                            ]
+                                        );
 
-                                    sub {
-                                        my ( $x, $y ) = @_;
-                                        local $_ = $rowformats->[$y];
-                                        $_ && /hard/
-                                          ? (
-                                            '',
-                                            /(0\.0+)hard/
-                                            ? $wb->getFormat( $1 . 'copy' )
-                                            : $format,
-                                            $formula->[0],
-                                            qr/\bA1\b/ => xl_rowcol_to_cell(
-                                                $rowh->{A1} + $y, $colh->{A1},
-                                                1
-                                            )
-                                          )
-                                          : (
-                                            '',
-                                            $boldFormat,
-                                            $formula->[1],
-                                            qr/\bA2\b/ => xl_rowcol_to_cell(
-                                                $rowh->{A2} + $y, $colh->{A2},
-                                                1
-                                            )
-                                          );
-                                    };
-                                },
-                              )
-                              : ();
-                        } 1 .. @t1001,
-                    )
-                ]
-            )->wsWrite( $wbook, $wsheet );
-        };
+                                        sub {
+                                            my ( $x, $y ) = @_;
+                                            local $_ = $rowformats->[$y];
+                                            $_ && /hard/
+                                              ? (
+                                                '',
+                                                /(0\.0+)hard/
+                                                ? $wb->getFormat( $1 . 'copy' )
+                                                : $format,
+                                                $formula->[0],
+                                                qr/\bA1\b/ => xl_rowcol_to_cell(
+                                                    $rowh->{A1} + $y,
+                                                    $colh->{A1},
+                                                    1
+                                                )
+                                              )
+                                              : (
+                                                '',
+                                                $boldFormat,
+                                                $formula->[1],
+                                                qr/\bA2\b/ => xl_rowcol_to_cell(
+                                                    $rowh->{A2} + $y,
+                                                    $colh->{A2},
+                                                    1
+                                                )
+                                              );
+                                        };
+                                    },
+                                  )
+                                  : ();
+                            } 1 .. @t1001,
+                        )
+                    ]
+                )->wsWrite( $wbook, $wsheet );
+            };
+        }
       },
 
       'Illustrative$' => sub {
@@ -367,8 +377,11 @@ sub assumptionsClosure {
         my $table1001headerRowForLater;
         if (
             my @table1001Overridable =
-            map { !$_->{table1001} ? () : [ $_, $_->{table1001}{columns}[3] ]; }
-            @{ $me->{scenario} }
+            map {
+                !$_->{table1001_2016}
+                  ? ()
+                  : [ $_, $_->{table1001_2016}{columns}[3] ];
+            } @{ $me->{scenario} }
           )
         {
             my $rows = $table1001Overridable[0][1]{rows};

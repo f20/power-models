@@ -1,5 +1,5 @@
 ---
-.: CDCM model after DCP 161 with forward links
+.: CDCM after DCP 161 with forward links
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

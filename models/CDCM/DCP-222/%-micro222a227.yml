@@ -8,7 +8,7 @@ compact: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-nickName: After DCP 222
+nickName: After DCP 222 and DCP 227
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket

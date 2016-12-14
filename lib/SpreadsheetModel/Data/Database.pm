@@ -103,8 +103,8 @@ sub addModel {
     require SpreadsheetModel::Data::DnoAreas;
     SpreadsheetModel::Data::DnoAreas::normaliseDnoName($_);
 
-    my @a = /^(.+?)(-20[0-9]{2}-[0-9]+)([+-].*)$/s;
-    @a = /^(.+?)(-20[0-9]{2}-[0-9]+)?(-[^-]*)?$/s unless @a;
+    my @a = /^(.+?)(-20[0-9]{2}-[0-9][^+-]*)([+-].*)$/s;
+    @a = /^(.+?)(-20[0-9]{2}-[0-9][^+-]*)?(-[^-]*)?$/s unless @a;
     map { $_ = '' unless defined $_; tr/-/ /; s/^ //; } @a;
     my $insert = $self->[INSERT] ||=
       $self->[DB_HANDLE]->prepare( 'insert or ignore into books '

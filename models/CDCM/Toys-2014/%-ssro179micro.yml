@@ -1,5 +1,5 @@
 ---
-.: Micro-model after DCP XXX
+.: Micro-model experimental
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
@@ -24,7 +24,7 @@ extraLevels: 1
 fixedCap: 1-4
 impliedLoadFactors: 1
 ldnoSplits: 1
-nickName: CDCM model (after DCP XXX)
+nickName: Experimental
 noLLFCs: 1
 noLinks: 1
 noLossAdj: 1

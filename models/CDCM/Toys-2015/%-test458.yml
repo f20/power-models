@@ -1,5 +1,5 @@
 ---
-.: CDCM model with DCP 228 and 230
+.: CDCM with DCP 228 and 230
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

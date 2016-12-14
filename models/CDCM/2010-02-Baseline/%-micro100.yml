@@ -4,7 +4,7 @@ PerlModule: CDCM
 compact: permpan
 drm: top500gsp
 extraLevels: 1
-nickName: CDCM model (original)
+nickName: Original
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket

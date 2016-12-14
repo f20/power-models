@@ -1,11 +1,11 @@
 ---
-.: Micro-model for DCP 123 after DCP 163
+.: 'CDCM after DCP 123, micro-model'
 PerlModule: CDCM
-compact: 1
 coincidenceAdj: groupums
+compact: 1
 drm: top500gsp
 extraLevels: 1
-nickName: CDCM model (with DCP 123)
+nickName: After DCP 123
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
