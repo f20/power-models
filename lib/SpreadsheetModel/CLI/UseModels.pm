@@ -31,6 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use File::Glob qw(bsd_glob);
+use File::Spec::Functions qw(abs2rel rel2abs);
 
 use constant { C_HOMEDIR => 0, };
 
@@ -40,15 +41,14 @@ sub fillDatabase {
 
     my ( $writer, $fillSettings, $postProcessor );
 
-    my $threads;
-    $threads = `sysctl -n hw.ncpu 2>/dev/null` || `nproc`
-      unless $^O =~ /win32/i;
-    chomp $threads if $threads;
-    $threads ||= 1;
+    my $executor;
+    $executor = SpreadsheetModel::CLI::ExecutorFork->new
+      if eval 'require SpreadsheetModel::CLI::ExecutorFork';
 
     foreach (@_) {
         if (/^-+([0-9]+)$/i) {
-            $threads = $1 if $1 > 0;
+            if   ( $1 > 1 ) { $executor->setThreads($1); }
+            else            { $executor = 0; }
             next;
         }
         if (/^-+(re-?build.*)/i) {
@@ -128,7 +128,7 @@ sub fillDatabase {
             next;
         }
         if (/^-+cat$/i) {
-            $threads = 1;
+            $executor = 0;
             require SpreadsheetModel::Data::Dumpers;
             $writer = SpreadsheetModel::Data::Dumpers::tsvDumper( \*STDOUT );
             next;
@@ -143,31 +143,29 @@ sub fillDatabase {
             next;
         }
 
-        ( $postProcessor ||=
-              makePostProcessor( $threads, $writer, $fillSettings ) )->($_)
+        ( $postProcessor ||= makePostProcessor( $writer, $fillSettings ) )->($_)
           foreach -f $_ ? $_ : grep { -f $_; } bsd_glob($_);
 
     }
 
-    if ( $threads > 1 ) {
-        my $errorCount = SpreadsheetModel::Book::ParallelRunning::waitanypid(0);
-        die(
-            (
-                $errorCount > 1
-                ? "$errorCount things have"
-                : 'Something has'
-            )
-            . ' gone wrong'
-        ) if $errorCount;
+    if ($executor) {
+        if ( my $errorCount = $executor->complete ) {
+            die(
+                (
+                    $errorCount > 1
+                    ? "$errorCount things have"
+                    : 'Something has'
+                )
+                . ' gone wrong'
+            );
+        }
     }
 
 }
 
 sub makePostProcessor {
 
-    my ( $threads1, $writer, $processSettings ) = @_;
-    $threads1 = $threads1 && $threads1 > 1 ? $threads1 - 1 : 0;
-    require SpreadsheetModel::Book::ParallelRunning if $threads1;
+    my ( $writer, $processSettings ) = @_;
 
     my ( $calculator_beforefork, $calculator_afterfork );
     if ( $processSettings && $processSettings =~ /calc|convert/i ) {
@@ -313,55 +311,59 @@ EOS
     }
 
     sub {
-        my ($inFile) = @_;
+        my ( $inFile, $executor ) = @_;
         unless ( -f $inFile ) {
             warn "$inFile not found";
             return;
         }
-        my $calcFile = $inFile;
-        $calcFile = $calculator_beforefork->($inFile) if $calculator_beforefork;
-        SpreadsheetModel::Book::ParallelRunning::waitanypid($threads1)
-          if $threads1;
-        my $pid;
-        if ( $threads1 && ( $pid = fork ) ) {
-            SpreadsheetModel::Book::ParallelRunning::registerpid( $pid,
-                $calcFile );
+        my $fileToParse = $inFile;
+        $fileToParse = $calculator_beforefork->($inFile)
+          if $calculator_beforefork;
+        if ($executor) {
+            $executor->run( __PACKAGE__, 'parseModel', $fileToParse,
+                [ $calculator_afterfork, $writer ] );
         }
         else {
-            $0        = "perl: $calcFile";
-            $calcFile = $calculator_afterfork->($inFile)
-              if $calculator_afterfork;
-            my $workbook;
-            eval {
-                if ( $calcFile =~ /\.xlsx$/is ) {
-                    require Spreadsheet::ParseXLSX;
-                    my $parser = Spreadsheet::ParseXLSX->new;
-                    $workbook = $parser->parse( $calcFile, 'NOOP_CLASS' );
-                }
-                else {
-                    require Spreadsheet::ParseExcel;
-                    my $parser    = Spreadsheet::ParseExcel->new;
-                    my $formatter = 'NOOP_CLASS';
-                    eval {
-                        require Spreadsheet::ParseExcel::FmtJapan;
-                        $formatter = Spreadsheet::ParseExcel::FmtJapan->new;
-                    };
-                    $workbook = $parser->Parse( $calcFile, $formatter );
-                }
-            };
-            warn "$@ for $calcFile" if $@;
-            if ($writer) {
-                if ($workbook) {
-                    eval { $writer->( $calcFile, $workbook ); };
-                    die "$@ for $calcFile" if $@;
-                }
-                else {
-                    die "Cannot parse $calcFile";
-                }
-            }
-            exit 0 if defined $pid;
+            __PACKAGE__->parseModel( $fileToParse, $calculator_afterfork,
+                $writer );
         }
     };
+
+}
+
+sub parseModel {
+    my ( undef, $fileToParse, $calculator_afterfork, $writer ) = @_;
+    $fileToParse = $calculator_afterfork->($fileToParse)
+      if $calculator_afterfork;
+    my $workbook;
+    eval {
+        if ( $fileToParse =~ /\.xlsx$/is ) {
+            require Spreadsheet::ParseXLSX;
+            my $parser = Spreadsheet::ParseXLSX->new;
+            $workbook = $parser->parse( $fileToParse, 'NOOP_CLASS' );
+        }
+        else {
+            require Spreadsheet::ParseExcel;
+            my $parser    = Spreadsheet::ParseExcel->new;
+            my $formatter = 'NOOP_CLASS';
+            eval {
+                require Spreadsheet::ParseExcel::FmtJapan;
+                $formatter = Spreadsheet::ParseExcel::FmtJapan->new;
+            };
+            $workbook = $parser->Parse( $fileToParse, $formatter );
+        }
+    };
+    warn "$@ for $fileToParse" if $@;
+    if ($writer) {
+        if ($workbook) {
+            eval { $writer->( $fileToParse, $workbook ); };
+            die "$@ for $fileToParse" if $@;
+        }
+        else {
+            die "Cannot parse $fileToParse";
+        }
+    }
+    0;
 }
 
 1;

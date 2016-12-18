@@ -122,6 +122,7 @@ sub rebuildWriter {
                 next if /^\.\.?$/s;
                 rename "$tempFolder/$_", "$sidecar/$_";
             }
+            closedir $dh;
             rmdir $tempFolder;
         }
         else {
@@ -382,7 +383,7 @@ sub databaseWriter {
 
         $newBook->($book);
 
-        warn "Processing $book ($$)\n";
+        warn "process $book ($$)\n";
         for my $worksheet ( $workbook->worksheets() ) {
             next
               if $settings->{sheetFilter}
@@ -440,7 +441,7 @@ sub databaseWriter {
             $processTable->(@table) if @table;
         }
         eval {
-            warn "Committing $book ($$)\n";
+            warn "commit $book ($$)\n";
             $commit->();
         };
         warn "$@ for $book ($$)\n" if $@;

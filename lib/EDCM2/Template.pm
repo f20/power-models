@@ -372,7 +372,7 @@ on a generator or supplier under an EHV Distribution Charging Methodology (EDCM)
 Any charges between generator, supplier, customer and site owner are contractual matters.  They
 may or may not reflect the charges that this template illustrates.
 
-This template is not complete, and  is for illustration only.  In case of conflict, the
+This template is for illustration only.  In case of conflict, the
 published statement of Distribution Use of System charges takes precedence.
 
 EOX

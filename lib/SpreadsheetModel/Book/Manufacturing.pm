@@ -36,8 +36,7 @@ use File::Spec::Functions qw(catfile);
 
 sub factory {
     my ( $class, %factorySettings ) = @_;
-    my $self     = bless {}, $class;
-    my $threads1 = 0;
+    my $self = bless {}, $class;
     my %settings = %factorySettings;
     my ( %ruleOverrides, %dataOverrides );
     my ( @rulesets, @datasets, %deferredData );
@@ -462,67 +461,40 @@ sub factory {
         return keys %rulesDataSettings if wantarray;
     };
 
-    $self->{threads} = sub {
-        my ($threads) = @_;
-        $threads1 = $threads - 1
-          if $threads && $threads > 0 && $threads < 1_000;
-        1 + $threads1;
-    };
-
     $self->{run} = sub {
-        my ($statusWriter) = @_;
-        my @fileNames = keys %rulesDataSettings;
-        my %instructionsSettings =
-          map {
-            $_ => [
-                _mergeRulesData( @{ $rulesDataSettings{$_} }[ 0, 1 ] ),
-                $rulesDataSettings{$_}[2]
-            ];
-          } @fileNames;
-        if ( $threads1
-            && eval 'require SpreadsheetModel::Book::ParallelRunning' )
-        {
-            $statusWriter->(
-                'using up to ' . ( $threads1 + 1 ) . ' parallel processes' )
-              if $statusWriter;
-            foreach (@fileNames) {
-                SpreadsheetModel::Book::ParallelRunning::waitanypid($threads1);
-                SpreadsheetModel::Book::ParallelRunning::backgroundrun(
-                    $workbookModule->( $instructionsSettings{$_}[1]{xls} ),
-                    'create',
-                    defined $settings{folder}
-                    ? catfile( $settings{folder}, $_ )
-                    : $_,
-                    $instructionsSettings{$_},
-                    $instructionsSettings{$_}[1]{PostProcessing}
-                );
+        my ($executor) = @_;
+        foreach ( keys %rulesDataSettings ) {
+            my $fileName =
+              defined $rulesDataSettings{$_}[2]{folder}
+              ? catfile( $rulesDataSettings{$_}[2]{folder}, $_ )
+              : $_;
+            my $rulesData =
+              _mergeRulesData( @{ $rulesDataSettings{$_} }[ 0, 1 ] );
+            my $module = $workbookModule->( $rulesDataSettings{$_}[2]{xls} );
+            my $continuation = $rulesDataSettings{$_}[2]{PostProcessing};
+            if ($executor) {
+                $executor->run( $module, 'create', $fileName,
+                    [ $rulesData, $rulesDataSettings{$_}[2] ],
+                    $continuation );
             }
-            my $errorCount =
-              SpreadsheetModel::Book::ParallelRunning::waitanypid(0);
-            die(
-                (
-                    $errorCount > 1
-                    ? "$errorCount things have"
-                    : 'Something has'
-                )
-                . ' gone wrong'
-            ) if $errorCount;
+            else {
+                warn "create $fileName\n";
+                $module->create( $fileName, $rulesData,
+                    $rulesDataSettings{$_}[2] );
+                $continuation->($fileName) if $continuation;
+                warn "finished $fileName\n";
+            }
         }
-        else {
-            $statusWriter->('using a single process with a single thread')
-              if $statusWriter;
-            foreach (@fileNames) {
-				my $file = defined $settings{folder}
-                    ? catfile( $settings{folder}, $_ )
-                    : $_;
-                warn "$file started";
-                $workbookModule->( $instructionsSettings{$_}[1]{xls} )->create(
-                    $file,
-                    @{ $instructionsSettings{$_} }
+        if ($executor) {
+            if ( my $errorCount = $executor->complete ) {
+                die(
+                    (
+                        $errorCount > 1
+                        ? "$errorCount things have"
+                        : 'Something has'
+                    )
+                    . ' gone wrong'
                 );
-                $instructionsSettings{$_}[1]{PostProcessing}->($file)
-                  if $instructionsSettings{$_}[1]{PostProcessing};
-                warn "$file complete";
             }
         }
     };

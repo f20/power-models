@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2015 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,6 +31,8 @@ use warnings;
 use strict;
 use utf8;
 use File::Glob qw(bsd_glob);
+use File::Spec::Functions qw(abs2rel catdir catfile);
+use Encode qw(decode_utf8);
 
 use constant {
     C_HOMEDIR       => 0,
@@ -51,13 +53,12 @@ sub makeModels {
         ]
     );
 
-    unless ( $^O =~ /win32/i ) {
-        if ( my $threads = `sysctl -n hw.ncpu 2>/dev/null`
-            || `nproc 2>/dev/null` )
-        {
-            chomp $threads;
-            $maker->{threads}->($threads);
-        }
+    my $executor;
+    if ( eval 'require SpreadsheetModel::CLI::ExecutorFork' ) {
+        $executor = SpreadsheetModel::CLI::ExecutorFork->new;
+    }
+    else {
+        warn "Multi-threading disabled: $@";
     }
 
     foreach ( map { decode_utf8 $_} @_ ) {
@@ -72,15 +73,14 @@ sub makeModels {
             elsif (/^-+(auto)?check/is) {
                 $maker->{setRule}
                   ->( checksums => 'Line checksum 5; Table checksum 7' );
-                if (/^-+autocheck/is) {
+                if (/^-+autocheck(.*)/is) {
                     require SpreadsheetModel::Data::Autocheck;
                     $maker->{setting}->(
                         PostProcessing => makePostProcessor(
-                            $maker->{threads}->(),
                             SpreadsheetModel::Data::Autocheck->new(
                                 $self->[C_HOMEDIR]
                               )->checker,
-                            'convert'
+                            $1 ? "convert$1" : 'calc'
                         )
                     );
                 }
@@ -159,12 +159,11 @@ sub makeModels {
                 $maker->{setRule}->( protect => 0 );
             }
             elsif (/^-+(right.*)/is) { $maker->{setRule}->( alignment => $1 ); }
-            elsif (/^-+single/is) { $maker->{threads}->(1); }
+            elsif (/^-+single/is) { $executor = 0; }
             elsif (/^-+sqlite(.*)/is) {
                 require SpreadsheetModel::Data::DataExtraction;
                 $maker->{setting}->(
                     PostProcessing => makePostProcessor(
-                        $maker->{threads}->(),
                         SpreadsheetModel::Data::DataExtraction::databaseWriter(
                         ),
                         $1 ? "convert$1" : 'calc'
@@ -176,13 +175,13 @@ sub makeModels {
                   ->( summary => 'statistics' . ( $1 ? $1 : '' ), );
             }
             elsif (/^-+template(?:=(.+))?/is) {
-                $maker->{setRule}->( template => $1 || ( time . "-$$" ) );
+                $maker->{setRule}->( template => $1 || ( time . '-' . $$ ) );
             }
             elsif (/^-+(?:folder|directory)=(.+)?/is) {
                 $folder = $1;
             }
             elsif (/^-+([0-9]+)/is) {
-                $maker->{threads}->($1);
+                $executor->setThreads($1);
             }
             elsif (/^-+xdata=?(.*)/is) {
                 if ($1) {
@@ -273,7 +272,7 @@ sub makeModels {
             ( @files > 1 ? ( @files . ' models' ) : 'One model' )
           . ' to be saved'
           . ( defined $folder ? " to $folder" : '' );
-        $maker->{run}->( sub { warn "$message @_.\n"; } );
+        $maker->{run}->($executor);
     }
     else {
         warn "Nothing to do.\n";

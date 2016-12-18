@@ -37,10 +37,6 @@ use SpreadsheetModel::CLI::Sampler;
 use SpreadsheetModel::CLI::UseDatabase;
 use SpreadsheetModel::CLI::UseModels;
 
-use Encode qw(decode_utf8);
-use File::Spec::Functions qw(abs2rel catdir catfile rel2abs);
-use File::Basename 'dirname';
-
 use constant {
     C_HOMEDIR       => 0,
     C_VALIDATEDLIBS => 1,
@@ -71,12 +67,13 @@ sub makeFolder {
     if ( $self->[C_DESTINATION] ) {    # Close out previous folder
         return if $folder && $folder eq $self->[C_DESTINATION];
         if ( $self->[C_LOG] ) {
-            open my $h, '>', '~$tmptxt' . $$;
+            my $tmpFile = '~$tmptxt' . $$;
+            open my $h, '>', $tmpFile;
             print {$h} @{ $self->[C_LOG] };
             close $h;
             local $_ = "$self->[C_DESTINATION].txt";
             s/^_+([^\.])/$1/s;
-            rename '~$tmptxt' . $$, $_;
+            rename $tmpFile, $_;
             delete $self->[C_LOG];
         }
         chdir '..';

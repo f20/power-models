@@ -51,7 +51,7 @@ sub create {
             $tempFile = $finalFile;
         }
         else {
-            my $tmpDir = '~$tmp-' . $$;
+            my $tmpDir = '~$tmp-' . $$ . rand();
             $tmpDir = catdir( $settings->{folder}, $tmpDir )
               if $settings->{folder};
             mkdir $tmpDir;
@@ -62,6 +62,9 @@ sub create {
                     rename $tempFile, $finalFile;
                     rmdir $tmpDir;
                 };
+            }
+            else {
+                die 'Failed to create ' . $tmpDir . ' in ' . `pwd`;
             }
         }
         open my $handle, '>', $tempFile;

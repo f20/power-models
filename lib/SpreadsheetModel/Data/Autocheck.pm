@@ -33,6 +33,7 @@ use utf8;
 use Encode;
 use File::Spec;
 use Fcntl qw(:flock :seek);
+use File::Spec::Functions qw(catfile);
 
 use constant { C_TSV => 0, };
 
