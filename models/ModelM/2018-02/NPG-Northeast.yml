@@ -1,42 +1,37 @@
 ---
 1300:
   - _table: '1300. Company, charging year, data version'
-  - Company charging year data version: Northern Powergrid Yorkshire
+  - Company charging year data version: Northern Powergrid (Northeast)
     _column: Company
-  - Company charging year data version: 2017/2018
+  - Company charging year data version: 2018/2019
     _column: Year
-  - Company charging year data version: 'December 2015 wrong, as published and used'
+  - Company charging year data version: December 2016
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset tries to reproduce the December 2015 price notice for 2017/2018 when built against a suitably cooked post-DCP 117 model.
+      This dataset tries to reproduce the December 2016 price notice for 2018/2019 when used with a suitable model.
 1301:
   - _table: 1301. DNO LV mains usage
-  - DNO LV mains usage: 0.158292842171807
+  - DNO LV mains usage: 0.0575341662029484
     _column: DNO LV mains usage
 1302:
   - _table: 1302. DNO HV mains usage
-  - DNO HV mains usage: 0.59
+  - DNO HV mains usage: 0.63
     _column: DNO HV mains usage
 1310:
   - _table: 1310. DPCR4 aggregate allowances (£)
-  - DPCR4 aggregate allowances: 253400000
+  - DPCR4 aggregate allowances: 253469463.348655
     _column: Aggregate return
   - DPCR4 aggregate allowances: 258000000
     _column: Aggregate depreciation
-  - DPCR4 aggregate allowances: 273400000
+  - DPCR4 aggregate allowances: 273335500
     _column: Aggregate operating
-  - DPCR4 aggregate allowances: Aggregated from annual data
 1315:
   - _table: 1315. Analysis of allowed revenue for 2007/2008 (£/year)
   - Analysis of allowed revenue for 2007 2008 year: 186776200
     _column: Total revenue
-  - Analysis of allowed revenue for 2007 2008 year: 565000
+  - Analysis of allowed revenue for 2007 2008 year: 565082
     _column: Net incentive revenue
-1316:
-  - _table: 1316. EHV connected customers component of revenue (£/year)
-  - EHV connected customers component of revenue year: 7200243.38991411
-    _column: EHV connected customers component of revenue (£/year)
 1321:
   - _table: 1321. Units distributed (GWh)
   - EHV Includes 132kV: 2243.4
@@ -48,184 +43,184 @@
   - Losses GWh: 891.2
     _column: Losses (GWh)
 1328:
-  - _table: 1328. Income for connections indirects (£)
-  - Income for connections indirects: 7581974.9254
-    _column: Income for connections indirects (£)
+  - _table: 1328. DCP 117/DCP 231 additional annual income (£)
+  - DCP 117 DCP 231 additional annual income: 7581974.92550747
+    _column: DCP 117/DCP 231 additional annual income (£)
 1329:
   - _table: 1329. Net new connections and reinforcement costs (£)
-  - Load related new connections reinforcement net of contributions: 2097795.279
+  - Load related new connections reinforcement net of contributions: 2097795.27887396
     _column: LV
-  - Load related new connections reinforcement net of contributions: ''
+  - Load related new connections reinforcement net of contributions: 0
     _column: HV/LV
-  - Load related new connections reinforcement net of contributions: 3704076.486
+  - Load related new connections reinforcement net of contributions: 3704076.48577945
     _column: HV
   - Load related new connections reinforcement net of contributions: 14622655.718
     _column: EHV&132
 1330:
   - _table: 1330. Allocated costs (£/year)
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
     Faults: 9900000
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
     Inspections Maintenance: 500000
     Load related new connections reinforcement net of contributions: -4700000
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
     Non-load new replacement assets net of contributions: 11000000
     Non-operational capex: 0
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
     Tree Cutting: 3100000
-    Vehicles Transport: ''
+    Vehicles Transport: 0
     _column: LV
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
     Faults: 500000
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
     Inspections Maintenance: 1700000
     Load related new connections reinforcement net of contributions: 0
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
     Non-load new replacement assets net of contributions: 6200000
     Non-operational capex: 0
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
     Tree Cutting: 0
-    Vehicles Transport: ''
+    Vehicles Transport: 0
     _column: HV/LV
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
     Faults: 4400000
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
     Inspections Maintenance: 200000
     Load related new connections reinforcement net of contributions: 6300000
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
     Non-load new replacement assets net of contributions: 11300000
     Non-operational capex: 0
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
     Tree Cutting: 1900000
-    Vehicles Transport: ''
+    Vehicles Transport: 0
     _column: HV
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
     Faults: 1600000
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
     Inspections Maintenance: 2000000
     Load related new connections reinforcement net of contributions: 14300000
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
     Non-load new replacement assets net of contributions: 9000000
     Non-operational capex: 0
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
     Tree Cutting: 300000
-    Vehicles Transport: ''
+    Vehicles Transport: 0
     _column: EHV&132
 1331:
-  - _table: 1131. Assets in CDCM model (£)
+  - _table: 1331. Assets in CDCM model (£)
   - Assets in CDCM model: 0
-    _column: GSPs
-  - Assets in CDCM model: 382780394.182523
-    _column: "Assets\n132kV"
-  - Assets in CDCM model: 129364295.011686
-    _column: "Assets\n132kV/EHV"
-  - Assets in CDCM model: 529628577.265822
-    _column: "Assets\nEHV"
-  - Assets in CDCM model: 276639610.637333
-    _column: "Assets\nEHV/HV"
+    _column: GSP
+  - Assets in CDCM model: 234705269.269991
+    _column: 132kV circuits
+  - Assets in CDCM model: 91979584.225385
+    _column: 132kV/EHV
+  - Assets in CDCM model: 456445708.777073
+    _column: EHV circuits
+  - Assets in CDCM model: 186417415.595012
+    _column: EHV/HV
   - Assets in CDCM model: 0
-    _column: "Assets\n132kV/HV"
-  - Assets in CDCM model: 747796913.974907
-    _column: "Assets\nHV"
-  - Assets in CDCM model: 264680490.472665
-    _column: "Assets\nHV/LV"
-  - Assets in CDCM model: 457447891.539258
-    _column: "Assets\nLV circuits"
-  - Assets in CDCM model: 1395248534.48798
-    _column: "Assets\nLV customer"
-  - Assets in CDCM model: 44940063.8460221
-    _column: "Assets\nHV customer"
+    _column: 132kV/HV
+  - Assets in CDCM model: 762242062.78602
+    _column: HV circuits
+  - Assets in CDCM model: 380048975.990719
+    _column: HV/LV
+  - Assets in CDCM model: 406975612.286708
+    _column: LV circuits
+  - Assets in CDCM model: 974604139.154102
+    _column: LV customer
+  - Assets in CDCM model: 19754884.1737785
+    _column: HV customer
 1332:
   - _table: 1332. All notional assets in EDCM (£)
-  - All notional assets in EDCM: 133767098.934531
+  - All notional assets in EDCM: 111687331.313456
     _column: All notional assets in EDCM (£)
 1335:
   - _table: 1335. Total costs (£/year)
@@ -248,14 +243,14 @@
     Network Design Engineering: 4000000
     Network Policy: 400000
     Network Rates: 14100000
-    Non activity costs and reconciling amounts note 3: -2800000
+    Non activity costs and reconciling amounts note 3: -2799999.99999995
     Non-load new replacement assets net of contributions: 37500000
     Non-operational capex: 4200000
     Pension deficit payments: 22100000
     Pension deficit repair payments by related parties note 2: -200000
     Project Management: 2600000
     Property Mgt: 2600000
-    Relevant distributed generation less contributions: 500000
+    Relevant distributed generation less contributions: 499999.999999999
     Statutory Depreciation: 33100000
     Stores: 700000
     System Mapping Cartographical: 1400000
