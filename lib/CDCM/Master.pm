@@ -83,9 +83,15 @@ sub requiredModulesForRuleset {
       $ruleset->{scaler}
       && $ruleset->{scaler} =~ /dcp123/i ? 'CDCM::Matching123' : (),
 
-       !$ruleset->{summary} || $ruleset->{summary} !~ /stat(?:istic)?s/i ? ()
-      : $ruleset->{summary} =~ /1203/ ? 'CDCM::Statistics1203'
-      : 'CDCM::Statistics',
+      !$ruleset->{summary}
+      ? ()
+      : $ruleset->{summary} =~ /stat(?:istic)?s/i ? (
+        $ruleset->{summary} =~ /1203/
+        ? 'CDCM::Statistics1203'
+        : 'CDCM::Statistics'
+      )
+      : $ruleset->{summary} =~ /consul/i ? 'CDCM::SummaryDeprecated'
+      : (),
 
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : (),
 
@@ -1032,6 +1038,24 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
               if $model->{summary} =~ /hybrid/i;
         }
 
+        $model->comparisonSummary(
+            $revenuesByTariff,
+            $tariffTable,
+            $model->{summary} =~ /partyear/i ? $volumeDataAfter
+            : $volumeData,
+            $model->{summary} =~ /partyear/i ? $daysAfter : $daysInYear,
+            $nonExcludedComponents,
+            $componentMap,
+            $allTariffs,
+            $allTariffsByEndUser,
+            $model->{summary} =~ /partyear/i ? $unitsInYearAfter
+            : $unitsInYear,
+            $unitsLossAdjustment,
+            $tariffsBefore,
+            $revenuesBefore,
+            $unitsInYear,
+        ) if $model->{summary} =~ /1201/;
+
         if ( $model->{summary} =~ /stat(?:istic)?s/i ) {
             my $statsMethod =
               $model->{summary} =~ /1203/
@@ -1042,22 +1066,25 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                 $nonExcludedComponents, $componentMap,
             );
         }
-
-        $model->consultationSummary(
-            $revenuesByTariff,
-            $tariffTable,
-            $model->{summary} =~ /partyear/i ? $volumeDataAfter : $volumeData,
-            $model->{summary} =~ /partyear/i ? $daysAfter       : $daysInYear,
-            $nonExcludedComponents,
-            $componentMap,
-            $allTariffs,
-            $allTariffsByEndUser,
-            $model->{summary} =~ /partyear/i ? $unitsInYearAfter : $unitsInYear,
-            $unitsLossAdjustment,
-            $tariffsBefore,
-            $revenuesBefore,
-            $unitsInYear,
-        ) if $model->{summary} =~ /consul/i;
+        elsif ( $model->{summary} =~ /consul/i ) {
+            $model->consultationSummaryDeprecated(
+                $revenuesByTariff,
+                $tariffTable,
+                $model->{summary} =~ /partyear/i ? $volumeDataAfter
+                : $volumeData,
+                $model->{summary} =~ /partyear/i ? $daysAfter : $daysInYear,
+                $nonExcludedComponents,
+                $componentMap,
+                $allTariffs,
+                $allTariffsByEndUser,
+                $model->{summary} =~ /partyear/i ? $unitsInYearAfter
+                : $unitsInYear,
+                $unitsLossAdjustment,
+                $tariffsBefore,
+                $revenuesBefore,
+                $unitsInYear,
+            );
+        }
 
     }
 

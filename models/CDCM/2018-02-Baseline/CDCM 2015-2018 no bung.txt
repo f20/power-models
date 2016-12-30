@@ -1,7 +1,7 @@
 makeModels
 	-sqlitexls
 	-pickbest
-	-stats36525
+	-stats=1201_36525
 	-checksums
 	-edcm
 	CDCM/*/%-clean???.yml

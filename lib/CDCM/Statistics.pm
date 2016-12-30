@@ -40,10 +40,11 @@ sub makeStatisticsAssumptions {
       if $model->{sharedData} && $model->{sharedData}{statisticsAssumptions};
 
     my $table1202ByColumn;
-    $table1202ByColumn = $model->{statistics} if ref $model->{statistics} eq 'ARRAY';
+    $table1202ByColumn = $model->{statistics}
+      if ref $model->{statistics} eq 'ARRAY';
     $table1202ByColumn = $model->{dataset}{$1}
       if !$table1202ByColumn
-      && $model->{summary} =~ /([0-9]{3,4})/
+      && $model->{summary} =~ /(120[2-9])/
       && $model->{dataset}
       && $model->{dataset}{$1};
     $table1202ByColumn = $model->table1202

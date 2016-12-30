@@ -584,9 +584,9 @@ EOL
 
     push @wsheetsAndClosures,
 
-      'Stats' => sub {
+      'Comp' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 42 unless $wbook->{lastSheetNumber} > 41;
+        $wsheet->{sheetNumber} = 41 unless $wbook->{lastSheetNumber} > 40;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 0 );
@@ -594,7 +594,7 @@ EOL
             $wsheet->set_column( 1, 250, 16 );
         }
         my $notes = Notes(
-            name  => 'Statistics',
+            name  => 'Comparisons',
             lines => [
                 split /\n/,
                 <<'EOL'
@@ -603,11 +603,10 @@ EOL
             ]
         );
         $_->wsWrite( $wbook, $wsheet )
-          foreach $notes, @{ $model->{statisticsTables} };
-
+          foreach $notes, @{ $model->{comparisonTables} };
       }
 
-      if $model->{statisticsTables};
+      if $model->{comparisonTables};
 
     push @wsheetsAndClosures,
 
@@ -646,6 +645,32 @@ EOL
       }
 
       if $model->{summary} && $model->{summary} =~ /consul/i;
+
+    push @wsheetsAndClosures,
+
+      'Stats' => sub {
+        my ($wsheet) = @_;
+        $wsheet->{sheetNumber} = 42 unless $wbook->{lastSheetNumber} > 41;
+        unless ( $model->{compact} ) {
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->fit_to_pages( 1, 0 );
+            $wsheet->set_column( 0, 0,   56 );
+            $wsheet->set_column( 1, 250, 16 );
+        }
+        my $notes = Notes(
+            name  => 'Statistics',
+            lines => [
+                split /\n/,
+                <<'EOL'
+This sheet is for information only.  It can be deleted without affecting any calculations elsewhere in the model.
+EOL
+            ]
+        );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $notes, @{ $model->{statisticsTables} };
+      }
+
+      if $model->{statisticsTables};
 
     push @wsheetsAndClosures,
 
