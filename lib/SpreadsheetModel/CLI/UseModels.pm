@@ -143,7 +143,8 @@ sub fillDatabase {
             next;
         }
 
-        ( $postProcessor ||= makePostProcessor( $writer, $fillSettings ) )->($_)
+        ( $postProcessor ||= makePostProcessor( $writer, $fillSettings ) )
+          ->( $_, $executor )
           foreach -f $_ ? $_ : grep { -f $_; } bsd_glob($_);
 
     }
