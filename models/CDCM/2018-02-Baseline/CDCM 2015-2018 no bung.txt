@@ -4,7 +4,8 @@ makeModels
 	-stats=1201_36525
 	-checksums
 	-edcm
-	CDCM/*-Baseline/%-clean???.yml
+	CDCM/*/%-clean???.yml
+	CDCM/*/%-clean*bungoff.yml
 	CDCM/2015-02/*
 	CDCM/2016-02/*
 	CDCM/2017-02/*
