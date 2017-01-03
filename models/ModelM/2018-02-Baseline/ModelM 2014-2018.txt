@@ -1,9 +1,10 @@
 makeModels
 	-sqlite
 	-pickbest
-	ModelM/2015-02-Baseline/%-*.yml
+	ModelM/2014-02-Baseline/%-*.yml
 	ModelM/2016-02-Baseline/%-*.yml
 	ModelM/2018-02-Baseline/%-*.yml
+	ModelM/2014-02/*
 	ModelM/2015-02/*
 	ModelM/2016-02/*
 	ModelM/2017-02/*

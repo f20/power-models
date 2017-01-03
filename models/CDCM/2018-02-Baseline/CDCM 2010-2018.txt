@@ -1,0 +1,18 @@
+makeModels
+	-sqlitexls
+	-pickbest
+	-stats=1201_36525
+	-checksums
+	-edcm
+	CDCM/*-Baseline/%-*.yml
+	CDCM/20*-02/*.yml
+
+useDatabase
+	tscs
+	10
+	37
+	38
+	39
+	41
+	42
+	43

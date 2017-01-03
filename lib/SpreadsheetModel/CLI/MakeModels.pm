@@ -170,6 +170,9 @@ sub makeModels {
                     )
                 );
             }
+            elsif (/^-+stats=?(.*)only/is) {
+                $maker->{setRule}->( summary => $1 );
+            }
             elsif (/^-+stats=?(.*)/is) {
                 $maker->{setRule}
                   ->( summary => 'statistics' . ( $1 ? $1 : '' ), );
