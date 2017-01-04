@@ -1,7 +1,7 @@
 ---
 1300:
   - _table: '1300. Company, charging year, data version'
-  - Company charging year data version: SPEN SPM
+  - Company charging year data version: SP Manweb
     _column: Company
   - Company charging year data version: N/A
     _column: Year

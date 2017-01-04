@@ -1,7 +1,7 @@
 ---
 1300:
   - _table: '1300. Company, charging year, data version'
-  - Company charging year data version: SPEN SPD
+  - Company charging year data version: SP Distribution
     _column: Company
   - Company charging year data version: 2017/2018
     _column: Year
@@ -12,9 +12,9 @@
       This dataset fails to reproduce the December 2015 price notice for 2017/2018 when built against a suitably cooked post-DCP 117 model.
 1301:
   - _table: 1301. DNO LV mains usage
-  - DNO LV mains usage: 0.008
+  - DNO LV mains usage: 0.009
     _column: DNO LV mains usage
-  - DNO LV mains usage: Fitted
+  - DNO LV mains usage: Reverse engineered
 1302:
   - _table: 1302. DNO HV mains usage
   - DNO HV mains usage: 0.59
@@ -50,9 +50,9 @@
   - Losses GWh: 1334.046
     _column: Losses (GWh)
 1328:
-  - _table: 1328. Income for connections indirects (£)
-  - Income for connections indirects: 6764501.7887
-    _column: Income for connections indirects (£)
+  - _table: 1328. DCP 117/DCP 231 additional annual income (£)
+  - DCP 117 DCP 231 additional annual income: 6764501.7887
+    _column: DCP 117/DCP 231 additional annual income (£)
 1329:
   - _table: 1329. Net new connections and reinforcement costs (£)
   - Load related new connections reinforcement net of contributions: 3896755.358
@@ -202,34 +202,35 @@
     Vehicles Transport: ''
     _column: EHV&132
 1331:
-  - _table: 1131. Assets in CDCM model (£)
+  - _table: 1331. Assets in CDCM model (£)
+  - Assets in CDCM model: ''
+    _column: GSP
   - Assets in CDCM model: 0
-    _column: GSPs
+    _column: 132kV circuits
   - Assets in CDCM model: 0
-    _column: "Assets\n132kV"
-  - Assets in CDCM model: 0
-    _column: "Assets\n132kV/EHV"
+    _column: 132kV/EHV
   - Assets in CDCM model: 718741540.305877
-    _column: "Assets\nEHV"
+    _column: EHV circuits
   - Assets in CDCM model: 200429980.688926
-    _column: "Assets\nEHV/HV"
+    _column: EHV/HV
   - Assets in CDCM model: 0
-    _column: "Assets\n132kV/HV"
+    _column: 132kV/HV
   - Assets in CDCM model: 864899228.477193
-    _column: "Assets\nHV"
+    _column: HV circuits
   - Assets in CDCM model: 189394390.747567
-    _column: "Assets\nHV/LV"
+    _column: HV/LV
   - Assets in CDCM model: 263516393.780244
-    _column: "Assets\nLV circuits"
+    _column: LV circuits
   - Assets in CDCM model: 840363329.693972
-    _column: "Assets\nLV customer"
+    _column: LV customer
   - Assets in CDCM model: 16751652.8874351
-    _column: "Assets\nHV customer"
+    _column: HV customer
+  - Assets in CDCM model: From CDCM model
 1332:
   - _table: 1332. All notional assets in EDCM (£)
-  - All notional assets in EDCM: 200000000
+  - All notional assets in EDCM: 234000000
     _column: All notional assets in EDCM (£)
-  - All notional assets in EDCM: Rough
+  - All notional assets in EDCM: Reverse engineered
 1335:
   - _table: 1335. Total costs (£/year)
   - Atypical cash costs: 1600000

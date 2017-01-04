@@ -1,7 +1,7 @@
 ---
 1300:
   - _table: '1300. Company, charging year, data version'
-  - Company charging year data version: SPEN SPM
+  - Company charging year data version: SP Manweb
     _column: Company
   - Company charging year data version: 2017/2018
     _column: Year
@@ -14,7 +14,7 @@
   - _table: 1301. DNO LV mains usage
   - DNO LV mains usage: 0.01
     _column: DNO LV mains usage
-  - DNO LV mains usage: Fitted
+  - DNO LV mains usage: Reverse engineered
 1302:
   - _table: 1302. DNO HV mains usage
   - DNO HV mains usage: 0.59
@@ -50,9 +50,9 @@
   - Losses GWh: 1061.624
     _column: Losses (GWh)
 1328:
-  - _table: 1328. Income for connections indirects (£)
-  - Income for connections indirects: 5861065.1154
-    _column: Income for connections indirects (£)
+  - _table: 1328. DCP 117/DCP 231 additional annual income (£)
+  - DCP 117 DCP 231 additional annual income: 5861065.1154
+    _column: DCP 117/DCP 231 additional annual income (£)
 1329:
   - _table: 1329. Net new connections and reinforcement costs (£)
   - Load related new connections reinforcement net of contributions: 3452468.834
@@ -202,34 +202,35 @@
     Vehicles Transport: ''
     _column: EHV&132
 1331:
-  - _table: 1131. Assets in CDCM model (£)
+  - _table: 1331. Assets in CDCM model (£)
   - Assets in CDCM model: 0
-    _column: GSPs
+    _column: GSP
   - Assets in CDCM model: 665509280.569028
-    _column: "Assets\n132kV"
+    _column: 132kV circuits
   - Assets in CDCM model: 54124423.0284692
-    _column: "Assets\n132kV/EHV"
+    _column: 132kV/EHV
   - Assets in CDCM model: 563600345.698091
-    _column: "Assets\nEHV"
+    _column: EHV circuits
   - Assets in CDCM model: 101964326.731762
-    _column: "Assets\nEHV/HV"
+    _column: EHV/HV
   - Assets in CDCM model: 0
-    _column: "Assets\n132kV/HV"
+    _column: 132kV/HV
   - Assets in CDCM model: 890000789.081014
-    _column: "Assets\nHV"
+    _column: HV circuits
   - Assets in CDCM model: 312941334.003244
-    _column: "Assets\nHV/LV"
+    _column: HV/LV
   - Assets in CDCM model: 140418071.560576
-    _column: "Assets\nLV circuits"
+    _column: LV circuits
   - Assets in CDCM model: 615574391.370679
-    _column: "Assets\nLV customer"
+    _column: LV customer
   - Assets in CDCM model: 10079347.1767606
-    _column: "Assets\nHV customer"
+    _column: HV customer
+  - Assets in CDCM model: From CDCM model
 1332:
   - _table: 1332. All notional assets in EDCM (£)
-  - All notional assets in EDCM: 320000000
+  - All notional assets in EDCM: 332000000
     _column: All notional assets in EDCM (£)
-  - All notional assets in EDCM: Rough
+  - All notional assets in EDCM: Reverse engineered
 1335:
   - _table: 1335. Total costs (£/year)
   - Atypical cash costs: 1000000
@@ -266,39 +267,9 @@
     Tree Cutting: 7700000
     Vehicles Transport: 5500000
     _column: Total costs (£/year)
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
-    Faults: ''
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
-    Inspections Maintenance: ''
-    Load related new connections reinforcement net of contributions: ''
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
-    Non-load new replacement assets net of contributions: ''
-    Non-operational capex: ''
-    Pension deficit payments: ''
+  - Non activity costs and reconciling amounts note 3: ''
     Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
     Transmission Exit Charges: Franck guess May 2011 to match published table 1037
-    Tree Cutting: ''
-    Vehicles Transport: ''
 1355:
   - _table: 1355. MEAV data
   - 132kV EHV remote terminal unit ground-mounted: 0
@@ -486,15 +457,3 @@
   - LV services: 0.1
     _column: LV
   - LV services: Approximate guess that gives a good approximation of the result in table 1037.
-1602:
-  - _table: 1602. LDNO discounts (EDCM)
-  - Data sources: 0.3746
-    _column: LV demand
-  - Data sources: 0.6046
-    _column: LV Sub demand or LV generation
-  - Data sources: 0.3664
-    _column: HV demand or LV Sub generation
-  - Data sources: 0.2846
-    _column: HV generation
-  - _column: Line checksum 5
-  - _column: Table checksum 7

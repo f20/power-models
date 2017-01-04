@@ -1,29 +1,26 @@
 ---
 1300:
-  - _note: |-
-      Input data compiled by Franck from public sources. E&OE.
-      This dataset is intended to reproduce results published in February 2013.
-      Data sourced from published PDF file from 2009 and inferred from results in indicative model 100.
-    _table: '1300. Company, charging year, data version'
-  - Company charging year data version: SPEN SPD
+  - _table: '1300. Company, charging year, data version'
+  - Company charging year data version: SP Distribution
     _column: Company
   - Company charging year data version: 2013/2014
     _column: Year
   - Company charging year data version: February 2013
     _column: Version
-  - Company charging year data version: ''
+  - Company charging year data version: |-
+      Input data compiled by Franck from public sources. E&OE.
+      This dataset is intended to reproduce results published in February 2013.
+      Data sourced from published PDF file from 2009 and inferred from results in indicative model 100.
 1301:
   - _table: 1301. DNO LV mains usage
   - DNO LV mains usage: 0.235
     _column: DNO LV mains usage
-  - DNO LV mains usage: ''
 1302:
   - _table: 1302. DNO HV mains usage
   - DNO HV mains usage: 0.54
     _column: DNO HV mains usage
-  - DNO HV mains usage: ''
 1310:
-  - _table: 1310. DPCR4 aggregate allowances
+  - _table: 1310. DPCR4 aggregate allowances (£)
   - DPCR4 aggregate allowances: 514200000
     _column: Aggregate return
   - DPCR4 aggregate allowances: 568400000

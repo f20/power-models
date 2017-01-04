@@ -1,7 +1,7 @@
 ---
 1300:
   - _table: '1300. Company, charging year, data version'
-  - Company charging year data version: SPEN SPM
+  - Company charging year data version: SP Manweb
     _column: Company
   - Company charging year data version: 2014/2015
     _column: Year
@@ -198,36 +198,37 @@
     Vehicles Transport: ''
     _column: EHV&132
 1331:
-  - _table: 1331. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
-  - Assets in CDCM model from CDCM table 2705 or 2706: ''
+  - _table: 1331. Assets in CDCM model (£)
+  - Assets in CDCM model: ''
     _column: GSP
-  - Assets in CDCM model from CDCM table 2705 or 2706: 718524842.916849
+  - Assets in CDCM model: 702178457.153147
     _column: 132kV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 60242578.6870961
+  - Assets in CDCM model: 58872064.584032
     _column: 132kV/EHV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 620550937.670218
+  - Assets in CDCM model: 606413219.132721
     _column: EHV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 109514803.286022
+  - Assets in CDCM model: 107036908.870968
     _column: EHV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 0
+  - Assets in CDCM model: 0
     _column: 132kV/HV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 917492316.907893
+  - Assets in CDCM model: 897371375.299821
     _column: HV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 312528033.242628
+  - Assets in CDCM model: 305386618.356595
     _column: HV/LV
-  - Assets in CDCM model from CDCM table 2705 or 2706: 157356375.916841
+  - Assets in CDCM model: 153240433.132746
     _column: LV circuits
-  - Assets in CDCM model from CDCM table 2705 or 2706: 607471119.601097
+  - Assets in CDCM model: 607833198.326421
     _column: LV customer
-  - Assets in CDCM model from CDCM table 2705 or 2706: 9465646.56446575
+  - Assets in CDCM model: 9513465.76438188
     _column: HV customer
+  - Assets in CDCM model: From CDCM model
 1332:
-  - _table: '1332. All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
-  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: 307000000
-    _column: 'All notional assets in EDCM (£) (from EDCM table 4167, 4168, 4169 or 4170)'
-  - All notional assets in EDCM from EDCM table 4167 4168 4169 or 4170: Reverse engineered
+  - _table: 1332. All notional assets in EDCM (£)
+  - All notional assets in EDCM: 294000000
+    _column: All notional assets in EDCM (£)
+  - All notional assets in EDCM: Reverse engineered
 1335:
-  - _table: 1335. Total costs
+  - _table: 1335. Total costs (£/year)
   - Atypical cash costs: 1000000
     CEO etc: 2600000
     Control Centre: 2300000

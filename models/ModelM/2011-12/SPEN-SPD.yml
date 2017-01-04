@@ -5,7 +5,7 @@
       This dataset is intended to reproduce results published in December 2011.
       Data sourced from published PDF file from 2009 and inferred from results in indicative model 100.
     _table: '1300. Company, charging year, data version'
-  - Company charging year data version: SPEN SPD
+  - Company charging year data version: SP Distribution
     _column: Company
   - Company charging year data version: 2012/2013
     _column: Year

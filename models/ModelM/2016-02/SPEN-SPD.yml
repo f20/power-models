@@ -1,7 +1,7 @@
 ---
 1300:
   - _table: '1300. Company, charging year, data version'
-  - Company charging year data version: SPEN SPD
+  - Company charging year data version: SP Distribution
     _column: Company
   - Company charging year data version: 2016/2017
     _column: Year
@@ -50,9 +50,9 @@
   - Losses GWh: 1334.046
     _column: Losses (GWh)
 1328:
-  - _table: 1328. Income for connections indirects (£)
-  - Income for connections indirects: 6764501.7887
-    _column: Income for connections indirects (£)
+  - _table: 1328. DCP 117/DCP 231 additional annual income (£)
+  - DCP 117 DCP 231 additional annual income: 6764501.7887
+    _column: DCP 117/DCP 231 additional annual income (£)
 1329:
   - _table: 1329. Net new connections and reinforcement costs (£)
   - Load related new connections reinforcement net of contributions: 3896755.358
@@ -225,11 +225,12 @@
     _column: LV customer
   - Assets in CDCM model: 16750380.5238762
     _column: HV customer
+  - Assets in CDCM model: From CDCM model
 1332:
   - _table: 1332. All notional assets in EDCM (£)
-  - All notional assets in EDCM: 209462765.421262
+  - All notional assets in EDCM: 209400000
     _column: All notional assets in EDCM (£)
-  - All notional assets in EDCM: Fitted
+  - All notional assets in EDCM: Reverse engineered
 1335:
   - _table: 1335. Total costs (£/year)
   - Atypical cash costs: 1600000
