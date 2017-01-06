@@ -1,19 +1,19 @@
 ---
-.: DCP 268 with table 1203 statistics
+.: DCP 268 on ARP post-DCP 227 model
 PerlModule: CDCM
-checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
+compact: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
+protect: 0
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: stats1203
-targetRevenue: dcp132
+summary: arp
+targetRevenue: single
 tariffGrouping: supercustomer
 tariffNameField: Name268
 tariffSpec: 1

@@ -171,7 +171,7 @@ sub modelG {
             input_message => 'p/kWh',
             error_title   => 'Invalid discount',
             error_message => 'The discount must be'
-              . ' a non-negative percentage value.',
+              . ' a non-negative value.',
         },
         data => [
             map { /gener/i ? undef : /^LDNO/ ? 1 : 0; }
@@ -202,7 +202,7 @@ sub modelG {
                 input_message => 'p/kWh',
                 error_title   => 'Invalid discount',
                 error_message => 'The discount must be'
-                  . ' a non-negative percentage value.',
+                  . ' a non-negative value.',
             },
             data => [
                 map {

@@ -1,21 +1,23 @@
 ---
-.: DCP 268 for ARP
+.: DCP 268 on post-DCP 228 model with CTables
 PerlModule: CDCM
+blackPeakingProbabilityRequired: 1
 coincidenceAdj: groupums
-compact: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
+matrices: big
+noPCs: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-protect: 0
-scaler: levelledpickexitnogenminzero
+scaler: adderppugeneralminzeronogen
 standing: sub132
-summary: arp
-targetRevenue: single
+summary: consultation
+targetRevenue: dcp249
 tariffGrouping: supercustomer
 tariffNameField: Name268
 tariffSpec: 1
 tariffs: dcp130_omitnhh_offpeakhh
 timeOfDay: timeOfDaySpecial
+unauth: dayotex

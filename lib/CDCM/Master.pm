@@ -121,8 +121,7 @@ sub new {
     bless $model, $class;
 
     die 'This system will not build an orange '
-      . 'CDCM model'
-      . ' without a suitable disclaimer.' . "\n--"
+      . 'CDCM model without a suitable disclaimer.' . "\n--"
       if $model->{colour}
       && $model->{colour} =~ /orange/i
       && !($model->{extraNotice}

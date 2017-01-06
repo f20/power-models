@@ -1,6 +1,0 @@
-makeModels
-	-rtf
-	-tablemap
-	Blank.yml
-	CDCM/*/%-model227.yml
-	CDCM/*/%-model268.yml

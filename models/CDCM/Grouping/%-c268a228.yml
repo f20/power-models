@@ -1,20 +1,23 @@
 ---
-.: DCP 268 with CTables
+.: DCP 268 on post-DCP 228 model clean
 PerlModule: CDCM
-coincidenceAdj: groupums
+blackPeakingProbabilityRequired: 1
+checksums: Line checksum 5; Table checksum 7
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
 matrices: big
+noPCs: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: levelledpickexitnogenminzero
+scaler: adderppugeneralminzeronogen
 standing: sub132
-summary: consultation
-targetRevenue: dcp132
+summary: yes
+targetRevenue: dcp249
 tariffGrouping: supercustomer
 tariffNameField: Name268
 tariffSpec: 1
 tariffs: dcp130_omitnhh_offpeakhh
 timeOfDay: timeOfDaySpecial
+unauth: dayotex

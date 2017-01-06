@@ -1,18 +1,18 @@
 ---
-.: DCP 268 clean
+.: DCP 268 on post-DCP 227 model with table 1203 statistics
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
 matrices: big
-noPCs: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1
 scaler: levelledpickexitnogenminzero
 standing: sub132
-summary: yes
+summary: stats1203
 targetRevenue: dcp132
 tariffGrouping: supercustomer
 tariffNameField: Name268
