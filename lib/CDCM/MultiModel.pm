@@ -154,7 +154,7 @@ sub sheetsForFirstModel {
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 254, 16 );
         $wsheet->freeze_panes( 0, 1 );
-        foreach my $t1001version (qw(2012 2016)) {
+        foreach my $t1001version (qw(2016 2012)) {
             push @{ $me->{finishClosures} }, sub {
 
                 my @t1001 = map {
