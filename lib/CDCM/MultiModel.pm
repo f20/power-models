@@ -41,9 +41,9 @@ sub new {
         statsSections    => [ split /\n/, <<EOL ],
 Average pence per unit for each tariff
 Average charge per MPAN for each tariff
-LDNO margins for illustrative customers
 Illustrative charges (£/MWh)
 Illustrative charges (£/year)
+LDNO margins for illustrative customers
 General input data
 Load characteristics
 Network model and related input data

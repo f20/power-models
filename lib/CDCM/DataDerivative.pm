@@ -61,7 +61,7 @@ sub derivativeDataset {
                   && defined $table1001data->[$col]{$irow};
                 return defined $hardData ? $hardData : "=$cell"
                   unless $col == 4;
-                my $isIndexRow = $row =~ /RPI Indexation Factor/i;
+                my $isIndexRow = $row =~ /RPI Index/i;
                 my $preOverride =
                   defined $hardData ? $hardData
                   : $isIndexRow     ? ( "(1+"

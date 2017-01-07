@@ -1,5 +1,5 @@
 makeModels
     -datamerge
-    CDCM/2018-02/N*.yml
-    ModelM/2018-02/N*.yml
-    CDCM/DCP-266/%-modelgm.yml
+    CDCM/2018-02/*.yml
+    ModelM/2018-02/*.yml
+    CDCM/DCP-266/%-modelgm228.yml
