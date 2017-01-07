@@ -96,7 +96,7 @@ sub create {
     foreach my $i ( 0 .. $#optionArray ) {
         if ( my $dataset = $optionArray[$i]{dataset} ) {
             if ( my $yaml = $dataset->{yaml} ) {
-                require YAML;    # for deferred parsing
+                require YAML;    # deferred parsing of YAML data
                 my @parsed = YAML::Load($yaml);
                 if ( @parsed > 1 ) {
                     foreach my $section (@parsed) {

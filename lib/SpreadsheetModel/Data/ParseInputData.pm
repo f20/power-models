@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,9 +31,9 @@ use warnings;
 use strict;
 use utf8;
 
-sub parseInputData {
+sub parseCsvDtaInputData {
 
-    my ( $deferredData, $blob, $fileName ) = @_;
+    my ( $dataHandle, $blob, $fileName ) = @_;
 
     if ( $fileName =~ /\.dta$/is ) {
         require Parse::Stata::DtaReader;
@@ -54,8 +54,7 @@ sub parseInputData {
             my $book = $row[0];
             my $line = 'Value';
             $line = $row[1] if $row[1] && $row[1] =~ /^[0-9]+$/s;
-            $deferredData->{$book}{ $table[$_] }[ $column[$_] ]{$line} =
-              $row[$_]
+            $dataHandle->{$book}{ $table[$_] }[ $column[$_] ]{$line} = $row[$_]
               foreach grep { $table[$_] } 1 .. $#table;
         }
         return;
@@ -125,7 +124,7 @@ EOM
                   map  { "@{$row}[$_]"; }
                   grep { defined $_; } @selectedColumns[ 0 .. 2 ];
                 $book =~ tr/ /-/;
-                $deferredData->{$book}{ $row->[ $selectedColumns[3] ] }
+                $dataHandle->{$book}{ $row->[ $selectedColumns[3] ] }
                   [ $row->[ $selectedColumns[4] ] ]
                   { _normalisedRowName( $row->[ $selectedColumns[5] ] ) } =
                   $row->[ $selectedColumns[6] ];

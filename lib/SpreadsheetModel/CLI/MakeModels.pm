@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2017 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -144,6 +144,32 @@ sub makeModels {
             }
             elsif (/^-+datamerge/is) {
                 $maker->{setting}->( dataMerge => 1 );
+            }
+            elsif (/^-+extend=(20[0-9]{2})-(20[0-9]{2})/is) {
+                $maker->{setting}->(
+                    extraDataYears => [
+                        map {
+                            [
+                                "-$1-02", "-$_-02",
+                                {
+                                    1000 => [
+                                        {},
+                                        {},
+                                        {
+                                            'Company charging year data version'
+                                              => join( '/', $_, $_ + 1 ),
+                                        },
+                                        {
+                                            'Company charging year data version'
+                                              => 'Scenario',
+                                        }
+                                    ],
+                                    baseDataset => 1,
+                                }
+                            ]
+                        } $1 + 1 .. $2
+                    ]
+                );
             }
             elsif (/^-+pickbest/is) {
                 $maker->{setting}->( pickBestRules => 1 );

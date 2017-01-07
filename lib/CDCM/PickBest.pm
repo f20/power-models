@@ -2,7 +2,7 @@ package CDCM::PickBest;
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,9 +34,9 @@ use POSIX;
 
 sub score {
 
-    my ( $class, $rule, $metadata ) = @_;
-    my $month = $metadata->[1] || strftime( '%Y-%m-est', localtime );
-    $month =~ s/^-*//;
+    my ( $class, $rule, $month ) = @_;
+    $month ||= strftime( '%Y-%m', localtime );
+
     my $score = 0;
 
     # DCP 130

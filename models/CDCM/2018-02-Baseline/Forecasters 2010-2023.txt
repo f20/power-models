@@ -1,0 +1,9 @@
+makeModels
+	-pickbest
+	-stats
+	-checksums
+	-edcm
+	-extend=2018-2023
+	-template=%%
+	CDCM/201?-02-Baseline/%-micro*.yml
+	CDCM/201?-02/*.yml

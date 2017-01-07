@@ -2,7 +2,7 @@ package SpreadsheetModel::Book::Manufacturing;
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@ sub factory {
     my $self = bless {}, $class;
     my %settings = %factorySettings;
     my ( %ruleOverrides, %dataOverrides );
-    my ( @rulesets, @datasets, %deferredData );
+    my ( @rulesets, @datasets, %dataByDatasetName );
     my %rulesDataSettings;
 
     $self->{resetSettings} = sub {
@@ -52,9 +52,9 @@ sub factory {
     };
 
     $self->{resetData} = sub {
-        @datasets      = ();
-        %dataOverrides = ();
-        %deferredData  = ();
+        @datasets          = ();
+        %dataOverrides     = ();
+        %dataByDatasetName = ();
     };
 
     $self->{setting} = sub {
@@ -96,8 +96,8 @@ sub factory {
         if ( ref $blob eq 'GLOB' ) {    # file handle
             if ( $fileName =~ /\.(?:csv|dta)$/is ) {
                 require SpreadsheetModel::Data::ParseInputData;
-                SpreadsheetModel::Data::ParseInputData::parseInputData(
-                    \%deferredData, $blob, $fileName );
+                SpreadsheetModel::Data::ParseInputData::parseCsvDtaInputData(
+                    \%dataByDatasetName, $blob, $fileName );
                 return;
             }
             local undef $/;
@@ -141,7 +141,7 @@ sub factory {
                         [/\\]*\+\.(?:yml|yaml|json)$#six
               )
             {
-                $deferredData{'+'}{ $1 ? "-$1" : '' } = [ $_, $fileName ];
+                $dataByDatasetName{'+'}{ $1 ? "-$1" : '' } = [ $_, $fileName ];
             }
             else {
                 my $datasetName;
@@ -163,7 +163,10 @@ sub factory {
                             defined $fileName
                             ? (
                                 '~datasetSource' => {
-                                    file       => $fileName,
+                                    file => scalar(
+                                        $fileName =~ s#.*/models/#…/models#,
+                                        $fileName
+                                    ),
                                     validation => eval {
                                         require Encode;
                                         SpreadsheetModel::Book::Validation::digestMachine(
@@ -263,11 +266,10 @@ sub factory {
     };
 
     my $pickBestScorer = sub {
-        my ( $metadata, $rule ) = @_;
-        my $score = 0;
-        $score += 9000 if $metadata->[0] eq $rule->{PerlModule};
+        my ( $rule, $period ) = @_;
+        my $score         = 0;
         my $scoringModule = "$rule->{PerlModule}::PickBest";
-        $score += $scoringModule->score( $rule, $metadata )
+        $score += $scoringModule->score( $rule, $period )
           if eval "require $scoringModule";
     };
 
@@ -300,61 +302,68 @@ sub factory {
 
     $self->{fileList} = sub {
 
-        if (%deferredData) {
-            foreach my $book ( sort keys %deferredData ) {
-                my $data = $deferredData{$book};
-                if ( $book eq '+' ) {
-                    my %nameset;
-                    require SpreadsheetModel::Data::DnoAreas;
-                    map {
-                        undef $nameset{
-                            SpreadsheetModel::Data::DnoAreas::normaliseDnoName(
-                                $_->[0]
-                            )
-                        }{ $_->[1] || '' };
-                      } grep { $_->[0] }
-                      map    { [m#(.*)(-20[0-9]{2}-[0-9]+)#] }
-                      grep { $_ } map { $_->{'~datasetName'} } @datasets;
-                    foreach my $dno ( keys %nameset ) {
-                        foreach my $suffix ( sort keys %$data ) {
-                            next if exists $nameset{$dno}{$suffix};
-                            local $_ = $data->{$suffix}[1];
-                            s/\+\./+$dno./;
-                            push @datasets,
-                              {
-                                dataset          => $data->{$suffix}[0],
-                                '~datasetName'   => $dno . $suffix,
-                                '~datasetSource' => { file => $_ },
-                              };
-                        }
-                    }
-                }
-                else {
-                    $book =~ s/([+-]r[0-9]+)$//is;
-                    $data->{numTariffs} = 2
-                      if $book =~ s/(?:-LRIC|-LRICsplit|-FCP)?$//is;
-                    push @datasets,
-                      {
-                        dataset          => $data,
-                        '~datasetName'   => $book,
-                        '~datasetSource' => { file => $book },
-                      };
-                    if ( !@rulesets || $settings{dumpInputYaml} ) {
-                        my $blob     = Dump($data);
-                        my $fileName = "$book.yml";
-                        warn "Writing $book data\n";
-                        open my $h, '>', $fileName . $$;
-                        binmode $h, ':utf8';
-                        print {$h} $blob;
-                        close $h;
-                        rename $fileName . $$, $fileName;
-                    }
+        if (%dataByDatasetName) {
+            while ( my ( $book, $data ) = each %dataByDatasetName ) {
+                $book =~ s/([+-]r[0-9]+)$//is;
+                $data->{numTariffs} = 2
+                  if $book =~ s/-(?:LRIC|LRICsplit|FCP)?$//is;
+                push @datasets,
+                  {
+                    dataset        => $data,
+                    '~datasetName' => $book,
+                  };
+                if ( !@rulesets || $settings{dumpInputYaml} ) {
+                    my $blob     = Dump($data);
+                    my $fileName = "$book.yml";
+                    warn "Writing $book data\n";
+                    open my $h, '>', $fileName . $$;
+                    binmode $h, ':utf8';
+                    print {$h} $blob;
+                    close $h;
+                    rename $fileName . $$, $fileName;
                 }
             }
-            %deferredData = ();
+            %dataByDatasetName = ();
         }
 
         return unless @rulesets && @datasets;
+
+        if ( $settings{dataMerge} ) {
+            my %byDatasetName;
+            foreach (@datasets) {
+                push @{ $byDatasetName{ $_->{'~datasetName'} || $_ } }, $_;
+            }
+            @datasets = ();
+            while ( my ( $name, $heap ) = each %byDatasetName ) {
+                push @datasets,
+                  {
+                    '~datasetName' => $name,
+                    '~datasetSource' =>
+                      [ map { $_->{'~datasetSource'}; } @$heap ],
+                    dataset => {
+                        yaml => join '',
+                        map { $_->{dataset}{yaml} || Dump( $_->{dataset} ); }
+                          @$heap
+                    },
+                  };
+            }
+        }
+
+        if ( $settings{extraDataYears} ) {
+            foreach ( @{ $settings{extraDataYears} } ) {
+                my ( $sourceYear, $targetYear, $dataset ) = @$_;
+                foreach (@datasets) {
+                    my $name = $_->{'~datasetName'} or next;
+                    $name =~ s/$sourceYear/$targetYear/ or next;
+                    push @datasets,
+                      {
+                        '~datasetName'   => $name,
+                        '~datasetSource' => "Additional data year $targetYear",
+                        dataset          => $dataset,
+                      };
+                }
+            }
+        }
 
         if (%dataOverrides) {
             my $overrides = {%dataOverrides};
@@ -369,6 +378,7 @@ sub factory {
         $validate->( @{ $settings{validate} } ) if $settings{validate};
 
         my $extension = $workbookModule->( $settings{xls} )->fileExtension;
+
         my $addToList = sub {
             my ( $data, $rule ) = @_;
             my $spreadsheetFile = $rule->{template};
@@ -394,7 +404,8 @@ sub factory {
                         ? $rulesDataSettings{$spreadsheetFile}
                         : @{ $rulesDataSettings{$spreadsheetFile}[1] },
                         [ $rule, $data, \%settings ]
-                    ]
+                    ],
+                    \%settings
                 ];
             }
             else {
@@ -403,46 +414,22 @@ sub factory {
             }
         };
 
-        if ( $settings{dataMerge} ) {
-            my @mergedData;
-            my %byCompany;
-            foreach my $data (@datasets) {
-                if (   $data->{dataset}{yaml}
-                    && $data->{'~datasetName'}
-                    && $data->{'~datasetName'} =~ /^([A-Z-]*[A-Z])[ -]*(.*)/i )
-                {
-                    $byCompany{$1}{ $2 || 'undated' } =
-                      $data->{dataset}{yaml};
-                }
-                else {
-                    push @mergedData, $data;
-                }
-            }
-            foreach my $co ( keys %byCompany ) {
-                my @k = sort keys %{ $byCompany{$co} };
-                push @mergedData,
-                  {
-                    '~datasetName' => join( '-', $co, @k ),
-                    dataset => { yaml => join '', @{ $byCompany{$co} }{@k} },
-                  };
-            }
-            @datasets = @mergedData;
-        }
-
         if ( $settings{pickBestRules} ) {
             foreach my $data (@datasets) {
                 my @scored;
-                my $metadata = [
-                    $data->{'~datasetSource'}
-                      && $data->{'~datasetSource'}{file}
-                    ? "FILLER/$data->{'~datasetSource'}{file}" =~
-                      /([A-Z0-9-]+)\/(?:.*(20[0-9][0-9]-[0-9][0-9]))?.*/
-                    : ''
-                ];
                 foreach my $rule (@rulesets) {
                     next if _invalidRulesDataCombination( $rule, $data );
                     push @scored,
-                      [ $rule, $pickBestScorer->( $metadata, $rule ) ];
+                      [
+                        $rule,
+                        $pickBestScorer->(
+                            $rule,
+                            $data->{'~datasetName'}
+                            ? $data->{'~datasetName'} =~
+                              /(20[0-9]{2}-[0-9]{2})/
+                            : ()
+                        )
+                      ];
                 }
                 if (@scored) {
                     @scored = sort { $b->[1] <=> $a->[1] } @scored;
@@ -459,28 +446,25 @@ sub factory {
             }
         }
         return keys %rulesDataSettings if wantarray;
+
     };
 
     $self->{run} = sub {
         my ($executor) = @_;
-        foreach ( keys %rulesDataSettings ) {
-            my $fileName =
-              defined $rulesDataSettings{$_}[2]{folder}
-              ? catfile( $rulesDataSettings{$_}[2]{folder}, $_ )
-              : $_;
-            my $rulesData =
-              _mergeRulesData( @{ $rulesDataSettings{$_} }[ 0, 1 ] );
-            my $module = $workbookModule->( $rulesDataSettings{$_}[2]{xls} );
-            my $continuation = $rulesDataSettings{$_}[2]{PostProcessing};
+        while ( my ( $fileName, $rds ) = each %rulesDataSettings ) {
+            $fileName = catfile( $rds->[2]{folder}, $fileName )
+              if $rds->[2]{folder};
+            my $rulesData    = _mergeRulesData( @{$rds}[ 0, 1 ] );
+            my $module       = $workbookModule->( $rds->[2]{xls} );
+            my $continuation = $rds->[2]{PostProcessing};
             if ($executor) {
                 $executor->run( $module, 'create', $fileName,
-                    [ $rulesData, $rulesDataSettings{$_}[2] ],
+                    [ $rulesData, $rds->[2] ],
                     $continuation );
             }
             else {
                 warn "create $fileName\n";
-                $module->create( $fileName, $rulesData,
-                    $rulesDataSettings{$_}[2] );
+                $module->create( $fileName, $rulesData, $rds->[2] );
                 $continuation->($fileName) if $continuation;
                 warn "finished $fileName\n";
             }
