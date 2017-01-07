@@ -104,6 +104,13 @@ sub requiredModulesForRuleset {
       )
       : (),
 
+      $ruleset->{embeddedModelM}
+      ? eval {
+        require ModelM::Master;
+        ModelM->requiredModulesForRuleset( $ruleset->{embeddedModelM} );
+      }
+      : (),
+
       ;
 
 }

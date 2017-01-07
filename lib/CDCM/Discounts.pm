@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -68,6 +68,7 @@ sub pcdPreprocessedVolumes {
           : /^LDNO Any: .*(?:ums|unmeter)/i       ? "LDNO Any: Unmetered"
           : /^(LDNO (?:.*?): (?:\S+V(?: Sub)?))/i ? "$1 user"
           :                                         'No discount';
+        $combi =~ s/\bsub/Sub/;
         push @combinations, $combi
           unless grep { $_ eq $combi } @combinations;
         push @data,
@@ -80,7 +81,18 @@ sub pcdPreprocessedVolumes {
     my $combinations =
       Labelset( name => 'Discount combinations', list => \@combinations );
 
-    my $rawDiscount = $model->{pcdByTariff} ? Dataset(
+    $model->{embeddedModelM} = ModelM->new(
+        dataset => $model->{dataset},
+        objects => {
+            inputTables      => $model->{inputTables},
+            table1037sources => [],
+            table1039sources => [],
+        },
+        %{ $model->{embeddedModelM} },
+    ) if $model->{embeddedModelM};
+
+    my $rawDiscount =
+      $model->{pcdByTariff} ? Dataset(
         name          => 'Embedded network (LDNO) discounts',
         defaultFormat => '%hard',
         number        => 1038,
@@ -98,7 +110,15 @@ sub pcdPreprocessedVolumes {
         },
         rows => $model->{pcd}{allTariffsByEndUser},
         data => [ map { 0 } @{ $model->{pcd}{allTariffsByEndUser}{list} } ],
-      ) : Dataset(
+      )
+      : $model->{embeddedModelM} ? Stack(
+        name          => 'Embedded network (LDNO) discounts',
+        singleRowName => 'LDNO discount',
+        defaultFormat => '%copy',
+        cols          => $combinations,
+        sources       => $model->{embeddedModelM}{objects}{table1037sources},
+      )
+      : Dataset(
         name          => 'Embedded network (LDNO) discounts',
         singleRowName => 'LDNO discount',
         number        => 1037,
@@ -217,8 +237,9 @@ sub pcdPreprocessedVolumes {
             name => SpreadsheetModel::Object::_shortName(
                 $model->{pcd}{volumeData}{$_}{name}
             ),
-            arithmetic => '=A1*(1-A2)',
-            arguments  => {
+            defaultFormat => '0soft',
+            arithmetic    => '=A1*(1-A2)',
+            arguments     => {
                 A1 => $model->{pcd}{volumeData}{$_},
                 A2 => /fix/i
                 ? $model->{pcd}{discountFixed}

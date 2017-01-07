@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2016-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -42,40 +42,53 @@ sub ppuCalcCdcm {
         singleRowName => 'LDNO discount p/kWh',
         columns       => [
             map {
-                my $offset = /: HV/i ? 2 : /: LV Sub/i ? 1 : 0;
-                ++$offset if $offset && $model->{dcp095};
-                /No discount/
-                  ? Constant( name => 'No discount', data => [ [] ], )
-                  : SpreadsheetModel::Custom->new(
-                    name       => $_->{name},
-                    custom     => ['=A1*SUM(A2:A3,A4)'],
-                    arithmetic => 'Special calculation',
-                    arguments  => {
-                        A1 => $_,
-                        A2 => $ppu,
-                        A3 => $ppu,
-                        A4 => $ppuNotSplit,
-                    },
-                    wsPrepare => sub {
-                        my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
-                            $colh )
-                          = @_;
-                        sub {
-                            my ( $x, $y ) = @_;
-                            '', $format, $formula->[0], map {
-                                qr/\b$_\b/ =>
-                                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                    $rowh->{$_},
-                                    $colh->{$_} + (
-                                          /A3/ ? $ppu->lastCol
-                                        : /A2/ ? $offset
-                                        : 0
-                                    ),
-                                  )
-                            } @$pha;
-                        };
-                    },
-                  );
+                if (/No discount/) {
+                    Constant( name => 'No discount', data => [ [] ], );
+                }
+                else {
+                    my $offset = /: HV/i ? 2 : /: LV Sub/i ? 1 : 0;
+                    ++$offset if $offset && $model->{dcp095};
+                    push @{ $model->{objects}{table1039sources} },
+                      my $col = SpreadsheetModel::Custom->new(
+                        name =>
+                          SpreadsheetModel::Object::_shortName( $_->{name} ),
+                        cols => Labelset(
+                            list => [
+                                SpreadsheetModel::Object::_shortName(
+                                    $_->{name}
+                                )
+                            ]
+                        ),
+                        custom     => ['=A1*SUM(A2:A3,A4)'],
+                        arithmetic => 'Special calculation',
+                        arguments  => {
+                            A1 => $_,
+                            A2 => $ppu,
+                            A3 => $ppu,
+                            A4 => $ppuNotSplit,
+                        },
+                        wsPrepare => sub {
+                            my ( $self, $wb, $ws, $format, $formula, $pha,
+                                $rowh, $colh )
+                              = @_;
+                            sub {
+                                my ( $x, $y ) = @_;
+                                '', $format, $formula->[0], map {
+                                    qr/\b$_\b/ =>
+                                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                        $rowh->{$_},
+                                        $colh->{$_} + (
+                                              /A3/ ? $ppu->lastCol
+                                            : /A2/ ? $offset
+                                            : 0
+                                        ),
+                                      )
+                                } @$pha;
+                            };
+                        },
+                      );
+                    $col;
+                }
             } @{ $discounts->{columns} }
         ],
     );

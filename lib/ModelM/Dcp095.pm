@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -237,6 +237,7 @@ sub discounts95 {
         Constant( name => 'No discount', data => [ [] ], ),
         Arithmetic(
             name       => 'LDNO LV: LV user',
+            cols       => Labelset( list => ['LDNO LV: LV user'] ),
             arithmetic => $model->{fixedIndirectPercentage}
             ? '=A4+A1*(1-A2)'
             : '=A4+A1*(1-A2*A3)',
@@ -252,6 +253,7 @@ sub discounts95 {
         ),
         Arithmetic(
             name       => 'LDNO HV: LV user',
+            cols       => Labelset( list => ['LDNO HV: LV user'] ),
             arithmetic => $dcp071
             ? (
                 $model->{fixedIndirectPercentage}
@@ -277,6 +279,7 @@ sub discounts95 {
         ),
         Arithmetic(
             name       => 'LDNO HV: LV Sub user',
+            cols       => Labelset( list => ['LDNO HV: LV Sub user'] ),
             arithmetic => $dcp071
             ? (
                 $model->{fixedIndirectPercentage}
@@ -302,6 +305,7 @@ sub discounts95 {
         ),
         Arithmetic(
             name       => 'LDNO HV: HV user',
+            cols       => Labelset( list => ['LDNO HV: HV user'] ),
             arithmetic => $model->{fixedIndirectPercentage}
             ? '=A1*(1-A2)/(1-A9-A4-A5)'
             : '=A1*(1-A2*A3)/(1-A9-A4-A5)',
@@ -325,6 +329,9 @@ sub discounts95 {
         map { @{ $_->{arguments} }{ sort keys %{ $_->{arguments} } }; }
           @columns
       ];
+
+    push @{ $model->{objects}{table1037sources} },
+      grep { $_->{cols}; } @columns;
 
     push @columns, map {
         my $digits = /([0-9])/ ? $1 : 6;

@@ -118,6 +118,18 @@ sub worksheetsAndClosures {
         $wsheet->{nextFree} = $nextFree;
       };
 
+    if ( $model->{embeddedModelM}
+        && UNIVERSAL::can( $model->{embeddedModelM}, 'worksheetsAndClosures' ) )
+    {
+        my @mwac = $model->{embeddedModelM}->worksheetsAndClosures($wbook);
+        while (@mwac) {
+            my $sheet   = shift @mwac;
+            my $closure = shift @mwac;
+            next if $sheet =~ /^(?:Index|Input)/;
+            push @wsheetsAndClosures, "M($sheet)", $closure;
+        }
+    }
+
     push @wsheetsAndClosures, 'CDCM Revenues' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 10;
@@ -173,7 +185,8 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 0, 0,   50 );
             $wsheet->set_column( 1, 250, 24 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach $model->serviceModelNotes, @{ $model->{serviceModels} };
+              foreach $model->serviceModelNotes,
+              @{ $model->{serviceModels} };
         }
       ),
 
@@ -222,7 +235,8 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 16 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach $model->operatingNotes, @{ $model->{operatingExpenditure} };
+          foreach $model->operatingNotes,
+          @{ $model->{operatingExpenditure} };
       },
 
       'Contrib' => sub {
@@ -260,7 +274,8 @@ sub worksheetsAndClosures {
 
       $model->{fixedCap} && $model->{fixedCap} =~ /nosheet/ ? () : (
         (
-            $model->{tariffs} && $model->{tariffs} =~ /dcp179|pc12hh|pc34hh/i
+            $model->{tariffs}
+              && $model->{tariffs} =~ /dcp179|pc12hh|pc34hh/i
             ? 'AggCap'
             : 'NHH'
         ) => sub {
@@ -342,9 +357,8 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 250, 28 );
         $_->wsWrite( $wbook, $wsheet )
           foreach $model->roundingNotes, @{ $model->{roundingResults} },
-          $model->{model100} ? @{ $model->{postPcdApplicationResults} } : (),
-          @{ $model->{revenueSummaryTables} },
-          $model->{model100} ? ()
+          $model->{model100} ? @{ $model->{postPcdApplicationResults} }
+          : (), @{ $model->{revenueSummaryTables} }, $model->{model100} ? ()
           : $model->{postPcdApplicationResults}
           ? @{ $model->{postPcdApplicationResults} }
           : ();
@@ -701,7 +715,8 @@ EOL
 
       '⇒EDCM' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 42 unless $wbook->{lastSheetNumber} > 42;
+        $wbook->{lastSheetNumber} = 42
+          unless $wbook->{lastSheetNumber} > 42;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->fit_to_pages( 1, 1 );
@@ -738,7 +753,8 @@ EOL
 
       'G-Calc' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 42 unless $wbook->{lastSheetNumber} > 42;
+        $wbook->{lastSheetNumber} = 42
+          unless $wbook->{lastSheetNumber} > 42;
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 16 );
@@ -752,7 +768,8 @@ EOL
 
       'G-Discounts' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 43 unless $wbook->{lastSheetNumber} > 43;
+        $wbook->{lastSheetNumber} = 43
+          unless $wbook->{lastSheetNumber} > 43;
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 16 );

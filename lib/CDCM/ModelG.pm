@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2016-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -170,8 +170,7 @@ sub modelG {
             input_title   => 'Discount:',
             input_message => 'p/kWh',
             error_title   => 'Invalid discount',
-            error_message => 'The discount must be'
-              . ' a non-negative value.',
+            error_message => 'The discount must be' . ' a non-negative value.',
         },
         data => [
             map { /gener/i ? undef : /^LDNO/ ? 1 : 0; }
@@ -188,7 +187,13 @@ sub modelG {
             cols          => $model->{pcd}{discount}{matrix}{cols},
             rows          => $regroupedTariffset,
         ),
-        vector => Dataset(
+        vector => $model->{embeddedModelM}
+        ? Stack(
+            name    => 'LDNO discounts (p/kWh)',
+            cols    => $model->{pcd}{discount}{matrix}{cols},
+            sources => $model->{embeddedModelM}{objects}{table1039sources},
+          )
+        : Dataset(
             name       => 'LDNO discounts (p/kWh)',
             number     => 1039,
             appendTo   => $model->{inputTables},
