@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -110,7 +110,9 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Income statement' ),
+          foreach Notes( name => $model->{oldTerminology}
+            ? 'Profit and loss account'
+            : 'Income statement' ),
           @{ $model->{incomeTables} };
       }
 
@@ -156,7 +158,9 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Balance sheet' ),
+          foreach Notes( name => $model->{oldTerminology}
+            ? 'Balance sheet'
+            : 'Statement of financial position' ),
           @{ $model->{balanceTables} };
         delete $wsheet->{workingsSheet};
       }
@@ -173,7 +177,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 250, 15 );
         my @tables = @{ $model->{cashflowTables} };
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Cashflow statement' ),
+          foreach Notes( name => 'Statement of cash flows' ),
           shift @tables;
         delete $wsheet->{workingsSheet};
         $_->wsWrite( $wbook, $wsheet ) foreach @tables;

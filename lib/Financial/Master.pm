@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015, 2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -69,8 +69,8 @@ sub new {
         lines        => $model->{numSales},
         name         => 'Sales',
         number       => 1430,
-        show_balance => 'debtors (£)',
-        show_buffer  => 'debtors cash buffer (£)',
+        show_balance => 'trade receivables (£)',
+        show_buffer  => 'trade receivables cash buffer (£)',
         show_flow    => 'sales (£)',
     );
 
@@ -79,8 +79,8 @@ sub new {
         lines        => $model->{numCostSales},
         name         => 'Cost of sales',
         number       => 1440,
-        show_balance => 'cost of sales creditors (£)',
-        show_buffer  => 'cost of sales creditor cash buffer (£)',
+        show_balance => 'cost of sales trade payables (£)',
+        show_buffer  => 'cost of sales trade payables cash buffer (£)',
         show_flow    => 'cost of sales (£)',
     );
 
@@ -89,8 +89,8 @@ sub new {
         lines        => $model->{numAdminExp},
         name         => 'Administrative expenses',
         number       => 1442,
-        show_balance => 'administrative expense creditors (£)',
-        show_buffer  => 'administrative expense creditor cash buffer (£)',
+        show_balance => 'administrative expense trade payables (£)',
+        show_buffer  => 'administrative expense trade payables cash buffer (£)',
         show_flow    => 'administrative expenses (£)',
     );
 
@@ -101,8 +101,8 @@ sub new {
             lines        => $model->{numExceptional},
             name         => 'Exceptional costs',
             number       => 1444,
-            show_balance => 'exceptional cost creditors (£)',
-            show_buffer  => 'exceptional cost creditor cash buffer (£)',
+            show_balance => 'exceptional cost trade payables (£)',
+            show_buffer  => 'exceptional cost trade payables cash buffer (£)',
             show_flow    => 'exceptional cost (£)',
         );
     }
@@ -114,7 +114,7 @@ sub new {
             lines        => $model->{numCapitalExp},
             name         => 'Capital expenditure',
             number       => 1447,
-            show_balance => 'capital expenditure creditors (£)',
+            show_balance => 'capital expenditure trade payables (£)',
             show_buffer  => 'capital expenditure cash buffer (£)',
             show_flow    => 'capital expenditure (£)',
         );
@@ -124,12 +124,12 @@ sub new {
 
     my $debt = $model->Debt;
 
-    my @expensesForCreditors = grep { $_ } $costSales, $adminExp,
+    my @expensesForPayables = grep { $_ } $costSales, $adminExp,
       $exceptional, $capitalExp;
 
     my $cashCalc = $model->CashCalc(
         sales    => $sales,
-        expenses => \@expensesForCreditors,
+        expenses => \@expensesForPayables,
         assets   => $assets,
         debt     => $debt,
     );
@@ -144,7 +144,7 @@ sub new {
 
     my $balanceFrictionless = $model->Balance(
         sales    => $sales,
-        expenses => \@expensesForCreditors,
+        expenses => \@expensesForPayables,
         assets   => $assets,
         cashCalc => $cashCalc,
         debt     => $debt,
@@ -189,7 +189,7 @@ sub new {
 
     my $balance = $model->Balance(
         sales    => $sales,
-        expenses => \@expensesForCreditors,
+        expenses => \@expensesForPayables,
         assets   => $assets,
         cashCalc => $cashCalc,
         reserve  => $reserve,

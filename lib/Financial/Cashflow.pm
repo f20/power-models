@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,7 @@ sub statement {
     my ( $cashflow, $periods ) = @_;
     $cashflow->{statement}{ 0 + $periods } ||= CalcBlock(
         name => $periods->decorate(
-            'Cashflow statement' . ( $cashflow->{suffix} || '' )
+            'Statement of cash flows' . ( $cashflow->{suffix} || '' )
         ),
         items => [
             [
@@ -52,7 +52,7 @@ sub statement {
                     $cashflow->{income}->ebitda($periods),
                     A11 => Arithmetic(
                         name => $periods->decorate(
-                            'Cash released/absorbed in debtors (£)'),
+                            'Cash released/absorbed in trade receivables (£)'),
                         defaultFormat => '0soft',
                         arithmetic    => '=INDEX(A5_A6,A2)-A1',
                         arguments     => {
@@ -65,7 +65,7 @@ sub statement {
                     ),
                     A12 => Arithmetic(
                         name => $periods->decorate(
-                            'Cash released/absorbed in creditors (£)'),
+                            'Cash released/absorbed in trade payables (£)'),
                         defaultFormat => '0soft',
                         cols          => $periods->labelset,
                         arithmetic    => '='

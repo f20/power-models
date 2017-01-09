@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -43,8 +43,13 @@ sub new {
 sub statement {
     my ( $balance, $periods ) = @_;
     $balance->{statement}{ 0 + $periods } ||= CalcBlock(
-        name =>
-          $periods->decorate( 'Balance sheet' . ( $balance->{suffix} || '' ) ),
+        name => $periods->decorate(
+            (
+                $model->{oldTerminology} ? 'Balance sheet'
+                : 'Statement of financial position'
+            )
+            . ( $balance->{suffix} || '' )
+        ),
         items => [
             A2 => [
                 [

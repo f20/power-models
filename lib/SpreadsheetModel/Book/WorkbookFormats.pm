@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -24,6 +24,18 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=cut
+
+=head Notes
+
+Keys used from %$options:
+* alignment
+* colour
+* lockedInputs
+* validation (affects void cells in input data tables)
+
+?,??0 style formats do not work with OpenOffice.org.  To work around this, set the alignment option to right[0-9]* (where the number is the amount of padding on the right).
 
 =cut
 
@@ -130,16 +142,6 @@ sub setFormats {
     $workbook->{_window_height} = 800 * 20;
     $workbook->{_tab_ratio}     = 0.88 * 1000;
 
-=head setFormats
-
-Keys used from %$options:
-* alignment (flag: true means right-aligned, false means centered with padding)
-* colour (various meanings extracted by matching)
-* lockedInputs
-* validation (meaning extracted by matching: affects void cells in input data tables)
-
-=cut
-
     my $defaultColours = $options->{colour} && $options->{colour} =~ /default/i;
     my $orangeColours  = $options->{colour} && $options->{colour} =~ /orange/i;
     my $goldColours    = $options->{colour} && $options->{colour} =~ /gold/i;
@@ -167,8 +169,6 @@ Keys used from %$options:
         $workbook->set_custom_color( SILVER,   '#e9e9e9' );
     }
 
-# ?,??0 style formats do not work with OpenOffice.org.
-# Use "alignment: right[0-9]*" where the number is the amount of padding on the right.
     my $q3 = $options->{alignment} ? ',' : '??,???,';
     my $q4 = $options->{alignment} ? ',' : '??,';
     my $cyan = $backgroundColour && !$options->{noCyanText} ? '[Cyan]' : '';
@@ -744,7 +744,7 @@ Keys used from %$options:
         th => [
             locked => 1,
             @sizeLabel,
-            num_format => $num_text,
+            num_format => $num_textonly,
             align      => 'left',
             bold       => 1,
             text_wrap  => 1,
@@ -754,7 +754,7 @@ Keys used from %$options:
         thc => [
             locked => 1,
             @sizeLabel,
-            num_format => $num_text,
+            num_format => $num_textonly,
             bold       => 1,
             text_wrap  => 1,
             align      => 'center',
@@ -764,7 +764,7 @@ Keys used from %$options:
         thca => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => $num_text,
+            num_format => $num_textonly,
             italic     => 1,
             text_wrap  => 1,
             align      => 'center_across',
@@ -776,7 +776,7 @@ Keys used from %$options:
         thcaleft => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => $num_text,
+            num_format => $num_textonly,
             align      => 'left',
             italic     => 1,
             @colourHeader,
@@ -784,7 +784,7 @@ Keys used from %$options:
         thg => [
             locked => 1,
             @sizeLabelGroup,
-            num_format => $num_text,
+            num_format => $num_textonly,
             align      => 'left',
             italic     => 1,
             text_wrap  => 1,
