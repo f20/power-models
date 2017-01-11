@@ -205,33 +205,70 @@ sub profitAndLossReserveMovements {
     );
 }
 
-sub equityInitialAndRaised {
+sub equityInternalRateOfReturn {
     my ( $cashflow, $periods ) = @_;
-    $cashflow->{equityInitialAndRaised}{ 0 + $periods } ||= Arithmetic(
-        name          => 'Equity raised, including initial equity (£)',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1+IF(A2>A3,A4,0)',
+    return $cashflow->{equityInternalRateOfReturn}{ 0 + $periods }
+      if $cashflow->{equityInternalRateOfReturn}{ 0 + $periods };
+    $cashflow->{equityInternalRateOfReturn}{ 0 + $periods } = my $number =
+      Arithmetic(
+        name          => 'Equity IRR',
+        defaultFormat => '%soft',
+        arithmetic    => '=IRR(A1_A2)',
         arguments     => {
-            A1 => $cashflow->{balance}{reserve}->raised($periods),
-            A2 => $periods->firstDay,
-            A3 => $periods->lastDay,
-            A4 => $cashflow->{balance}->initialEquity($periods),
+            A1_A2 => Arithmetic(
+                name          => 'Cash flow to/from equity investors',
+                defaultFormat => '0soft',
+                arithmetic    => '=A1-A2',
+                arguments     => {
+                    A1 => $cashflow->investors($periods),
+                    A2 =>
+                      $cashflow->{balance}->equityInitialAndRaised($periods),
+                },
+            ),
+        },
+      );
+    my $text = Arithmetic(
+        name          => 'Graph title',
+        defaultFormat => 'textsoft',
+        arithmetic    => '="Equity IRR = "&TEXT(A1,"0.0%")',
+        arguments     => {
+            A1 => $number,
         },
     );
+    my @cols = ( $number, $text );
+    Columnset(
+        name    => 'Internal rate of return on equity',
+        columns => \@cols
+    );
+    $cashflow->{equityInternalRateOfReturn}{ 0 + $periods } = \@cols;
 }
 
 sub chart_equity_dividends {
     my ( $cashflow, $periods ) = @_;
     require SpreadsheetModel::Chart;
     SpreadsheetModel::Chart->new(
-        name         => 'Equity raised and dividends',
+        name         => 'Dividends',
         type         => 'column',
         height       => 280,
         width        => 640,
         instructions => [
-            add_series => $cashflow->investors($periods),
-            add_series => $cashflow->equityInitialAndRaised($periods),
-            set_legend => [ position => 'top' ],
+            add_series => [
+                $cashflow->{balance}->equityInitialAndRaised($periods),
+                overlap => 100,
+                fill    => { color => 'red' },
+            ],
+            add_series => [
+                $cashflow->investors($periods),
+                gap  => 0,
+                fill => { color => 'black' },
+            ],
+            set_legend => [ position => 'top', font => { size => 16 }, ],
+            set_y_axis =>
+              [ num_font => { size => 16 }, name_font => { size => 16 }, ],
+            set_title => [
+                name_formula =>
+                  $cashflow->equityInternalRateOfReturn($periods)->[1]
+            ],
         ],
     );
 }

@@ -76,6 +76,21 @@ sub applyInstructions {
             $chart->combine($c);
             next;
         }
+        if (   'ARRAY' eq ref $args
+            && $args->[0]
+            && $args->[0] eq 'name_formula'
+            && UNIVERSAL::isa( $args->[1], 'SpreadsheetModel::Dataset' )
+            && !$args->[1]{rows}
+            && !$args->[1]{cols} )
+        {
+            push @{ $self->{sourceLines} }, $args->[1]
+              unless $self->{sourceLines} && grep { $_ == $args->[1] }
+              @{ $self->{sourceLines} };
+            my ( $w2, $r2, $c2 ) =
+              $args->[1]->wsWrite( $wb, $ws, undef, undef, 1 );
+            $args->[1] =
+              "='" . $w2->get_name . "'!" . xl_rowcol_to_cell( $r2, $c2 );
+        }
         if ( $verb eq 'add_series' ) {
             my $series = $args;
             if ( ref $args eq 'ARRAY' ) {
