@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -40,9 +40,9 @@ sub new {
 
 sub finish {
     my ($debt) = @_;
-    return unless $debt->{database};
+    return unless $debt->{inputDataColumns};
     my @columns =
-      grep { $_ } @{ $debt->{database} }{
+      grep { ref $_ =~ /Dataset/; } @{ $debt->{inputDataColumns} }{
         qw(
           names
           startDate
@@ -64,7 +64,7 @@ sub labelset {
     my ($debt) = @_;
     $debt->{labelset} ||= Labelset(
         editable => (
-            $debt->{database}{names} ||= Dataset(
+            $debt->{inputDataColumns}{names} ||= Dataset(
                 name          => 'Name of debt tranche',
                 defaultFormat => 'texthard',
                 rows          => $debt->labelsetNoNames,
@@ -85,7 +85,7 @@ sub labelsetNoNames {
 
 sub amount {
     my ($debt) = @_;
-    $debt->{database}{amount} ||= Dataset(
+    $debt->{inputDataColumns}{amount} ||= Dataset(
         name          => 'Amount (£)',
         defaultFormat => '0hard',
         rows          => $debt->labelsetNoNames,
@@ -95,7 +95,7 @@ sub amount {
 
 sub rate {
     my ($debt) = @_;
-    $debt->{database}{rate} ||= Dataset(
+    $debt->{inputDataColumns}{rate} ||= Dataset(
         name          => 'Interest rate',
         defaultFormat => '%hard',
         rows          => $debt->labelsetNoNames,
@@ -105,7 +105,7 @@ sub rate {
 
 sub startDate {
     my ($debt) = @_;
-    $debt->{database}{startDate} ||= Dataset(
+    $debt->{inputDataColumns}{startDate} ||= Dataset(
         name          => 'Start date',
         defaultFormat => 'datehard',
         rows          => $debt->labelsetNoNames,
@@ -115,7 +115,7 @@ sub startDate {
 
 sub endDate {
     my ($debt) = @_;
-    $debt->{database}{endDate} ||= Dataset(
+    $debt->{inputDataColumns}{endDate} ||= Dataset(
         name          => 'End date',
         defaultFormat => 'datehard',
         rows          => $debt->labelsetNoNames,
@@ -184,7 +184,7 @@ sub due {
 
 sub raised {
     my ( $debt, $periods ) = @_;
-    $debt->{capitalExpenditure}{ 0 + $periods } ||= GroupBy(
+    $debt->{raised}{ 0 + $periods } ||= GroupBy(
         name          => $periods->decorate('Debt raised (£)'),
         cols          => $periods->labelset,
         defaultFormat => '0soft',

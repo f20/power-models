@@ -165,7 +165,7 @@ sub labelset {
 
 sub firstDay {
     my ($periods) = @_;
-    $periods->{database}{firstDay} ||= $periods->makeInputDataset(
+    $periods->{inputDataColumns}{firstDay} ||= $periods->makeInputDataset(
         1452, 'date',
         name => $periods->decorate('First day of accounting period'),
         cols => $periods->labelset,
@@ -175,7 +175,7 @@ sub firstDay {
 
 sub lastDay {
     my ($periods) = @_;
-    $periods->{database}{lastDay} ||= $periods->makeInputDataset(
+    $periods->{inputDataColumns}{lastDay} ||= $periods->makeInputDataset(
         1451, 'date',
         name => $periods->decorate('Last day of accounting period'),
         cols => $periods->labelset,

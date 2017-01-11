@@ -73,12 +73,15 @@ sub tax {
             name          => $periods->decorate('Tax (£)'),
             defaultFormat => '0soft',
             arithmetic    => join( '+',
-                '=-1*A9*(A1+A21',
+                '=-1*A9*(A1',
+                $income->{costSales} ? 'A21' : (),
                 ( map { 'A' . ( $_ + 22 ); } 0 .. $#{ $income->{expenses} } ),
                 'A3+A8)' ),
             arguments => {
-                A1  => $income->{sales}->stream($periods),
-                A21 => $income->{costSales}->stream($periods),
+                A1 => $income->{sales}->stream($periods),
+                $income->{costSales}
+                ? ( A21 => $income->{costSales}->stream($periods) )
+                : (),
                 (
                     map {
                         ( 'A'
@@ -97,12 +100,15 @@ sub tax {
             name          => $periods->decorate('Tax (£)'),
             defaultFormat => '0soft',
             arithmetic    => join( '+',
-                '=-1*A9*(A1+A21',
+                '=-1*A9*(A1',
+                $income->{costSales} ? 'A21' : (),
                 ( map { 'A' . ( $_ + 22 ); } 0 .. $#{ $income->{expenses} } ),
                 'A3+A4+A8)' ),
             arguments => {
-                A1  => $income->{sales}->stream($periods),
-                A21 => $income->{costSales}->stream($periods),
+                A1 => $income->{sales}->stream($periods),
+                $income->{costSales}
+                ? ( A21 => $income->{costSales}->stream($periods) )
+                : (),
                 (
                     map {
                         ( 'A'
@@ -123,19 +129,20 @@ sub tax {
 sub statement {
     my ( $income, $periods ) = @_;
     my $incomeBlock = $income->{statement}{ 0 + $periods } ||= CalcBlock(
-        name => $income->{model}{oldTerminology}
-        ? 'Profit and loss account'
+        name => $income->{model}{oldTerminology} ? 'Profit and loss account'
         : 'Income statement',
         consolidate => 1,
         items       => [
             [
                 [
                     [
-                        [
+                        $income->{costSales}
+                        ? [
                             $income->{sales}->stream($periods),
                             $income->{costSales}->stream($periods),
                             A4 => $periods->decorate('Gross profits (£)'),
-                        ],
+                          ]
+                        : ( A4 => $income->{sales}->stream($periods) ),
                         (
                             map { $_->stream($periods); }
                               @{ $income->{expenses} }

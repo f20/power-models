@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -40,10 +40,10 @@ sub new {
 
 sub finish {
     my ($assets) = @_;
-    return unless $assets->{database};
+    return unless $assets->{inputDataColumns};
     my @columns =
-      grep { $_ }
-      @{ $assets->{database} }
+      grep { ref $_ =~ /Dataset/; }
+      @{ $assets->{inputDataColumns} }
       {qw(names comDate decomDate cost life scrapValuation scrappedValue)};
     Columnset(
         name     => 'Fixed assets',
@@ -59,7 +59,7 @@ sub labelset {
     $assets->{labelset} ||= Labelset(
         name     => 'Fixed assets with names',
         editable => (
-            $assets->{database}{names} ||= Dataset(
+            $assets->{inputDataColumns}{names} ||= Dataset(
                 name          => 'Asset name',
                 defaultFormat => 'texthard',
                 rows          => $assets->labelsetNoNames,
@@ -80,7 +80,7 @@ sub labelsetNoNames {
 
 sub life {
     my ($assets) = @_;
-    $assets->{database}{life} ||= Dataset(
+    $assets->{inputDataColumns}{life} ||= Dataset(
         name          => 'Straight-line depreciation period (years)',
         defaultFormat => '0.0hard',
         rows          => $assets->labelsetNoNames,
@@ -90,7 +90,7 @@ sub life {
 
 sub cost {
     my ($assets) = @_;
-    $assets->{database}{cost} ||= Dataset(
+    $assets->{inputDataColumns}{cost} ||= Dataset(
         name          => 'Cost (£)',
         defaultFormat => '0hard',
         rows          => $assets->labelsetNoNames,
@@ -100,7 +100,7 @@ sub cost {
 
 sub scrapValuation {
     my ($assets) = @_;
-    $assets->{database}{scrapValuation} ||= Dataset(
+    $assets->{inputDataColumns}{scrapValuation} ||= Dataset(
         name          => 'Estimated scrap value at time of commissioning (£)',
         defaultFormat => '0hard',
         rows          => $assets->labelsetNoNames,
@@ -110,7 +110,7 @@ sub scrapValuation {
 
 sub scrappedValue {
     my ($assets) = @_;
-    $assets->{database}{scrappedValue} ||= Dataset(
+    $assets->{inputDataColumns}{scrappedValue} ||= Dataset(
         name          => 'Proceeds of scrapping (£)',
         defaultFormat => '0hard',
         rows          => $assets->labelsetNoNames,
@@ -120,7 +120,7 @@ sub scrappedValue {
 
 sub comDate {
     my ($assets) = @_;
-    $assets->{database}{comDate} ||= Dataset(
+    $assets->{inputDataColumns}{comDate} ||= Dataset(
         name          => 'Commissioning date',
         defaultFormat => 'datehard',
         rows          => $assets->labelsetNoNames,
@@ -130,7 +130,7 @@ sub comDate {
 
 sub decomDate {
     my ($assets) = @_;
-    $assets->{database}{decomDate} ||= Dataset(
+    $assets->{inputDataColumns}{decomDate} ||= Dataset(
         name          => 'Withdrawal date',
         defaultFormat => 'datehard',
         rows          => $assets->labelsetNoNames,

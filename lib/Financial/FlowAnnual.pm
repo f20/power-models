@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015, 2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -35,10 +35,10 @@ use base 'Financial::FlowBase';
 
 sub finish {
     my ($flow) = @_;
-    return unless $flow->{database};
+    return unless $flow->{inputDataColumns};
     my @columns =
-      grep { $_ }
-      @{ $flow->{database} }
+      grep { ref $_ =~ /Dataset/; }
+      @{ $flow->{inputDataColumns} }
       {qw(names startDate endDate annual growth averageDays maxDays minDays)};
     Columnset(
         name     => $flow->{name},
@@ -51,7 +51,7 @@ sub finish {
 
 sub annual {
     my ($flow) = @_;
-    $flow->{database}{annual} ||= Dataset(
+    $flow->{inputDataColumns}{annual} ||= Dataset(
         name          => 'Annual ' . $flow->{show_flow},
         defaultFormat => $flow->{show_formatBase} . 'hard',
         rows          => $flow->labelsetNoNames,
@@ -61,7 +61,7 @@ sub annual {
 
 sub growth {
     my ($flow) = @_;
-    $flow->{database}{growth} ||= Dataset(
+    $flow->{inputDataColumns}{growth} ||= Dataset(
         name          => 'Annual growth rate',
         defaultFormat => '%hard',
         rows          => $flow->labelsetNoNames,

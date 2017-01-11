@@ -74,7 +74,8 @@ sub new {
         show_flow    => 'sales (£)',
     );
 
-    my $costSales = $model->FlowAnnual(
+    my $costSales;
+    $costSales = $model->FlowAnnual(
         is_cost      => 1,
         lines        => $model->{numCostSales},
         name         => 'Cost of sales',
@@ -82,7 +83,7 @@ sub new {
         show_balance => 'cost of sales trade payables (£)',
         show_buffer  => 'cost of sales trade payables cash buffer (£)',
         show_flow    => 'cost of sales (£)',
-    );
+    ) if $model->{numCostSales};
 
     my $adminExp = $model->FlowAnnual(
         is_cost      => 1,
@@ -95,32 +96,28 @@ sub new {
     );
 
     my $exceptional;
-    if ( $model->{numExceptional} ) {
-        $exceptional = $model->FlowOnce(
-            is_cost      => 1,
-            lines        => $model->{numExceptional},
-            name         => 'Exceptional costs',
-            number       => 1444,
-            show_balance => 'exceptional cost trade payables (£)',
-            show_buffer  => 'exceptional cost trade payables cash buffer (£)',
-            show_flow    => 'exceptional cost (£)',
-        );
-    }
+    $exceptional = $model->FlowOnce(
+        is_cost      => 1,
+        lines        => $model->{numExceptional},
+        name         => 'Exceptional costs',
+        number       => 1444,
+        show_balance => 'exceptional cost trade payables (£)',
+        show_buffer  => 'exceptional cost trade payables cash buffer (£)',
+        show_flow    => 'exceptional cost (£)',
+    ) if $model->{numExceptional};
 
     my $capitalExp;
-    if ( $model->{numCapitalExp} ) {
-        $capitalExp = $model->FlowOnce(
-            is_cost      => 1,
-            lines        => $model->{numCapitalExp},
-            name         => 'Capital expenditure',
-            number       => 1447,
-            show_balance => 'capital expenditure trade payables (£)',
-            show_buffer  => 'capital expenditure cash buffer (£)',
-            show_flow    => 'capital expenditure (£)',
-        );
-    }
+    $capitalExp = $model->FlowOnce(
+        is_cost      => 1,
+        lines        => $model->{numCapitalExp},
+        name         => 'Capital expenditure',
+        number       => 1447,
+        show_balance => 'capital expenditure trade payables (£)',
+        show_buffer  => 'capital expenditure cash buffer (£)',
+        show_flow    => 'capital expenditure (£)',
+    ) if $model->{numCapitalExp};
 
-    my $assets = $model->FixedAssetsUK( capitalExp => $capitalExp, );
+    my $assets = $model->FixedAssets( capitalExp => $capitalExp, );
 
     my $debt = $model->Debt;
 
@@ -148,13 +145,13 @@ sub new {
         assets   => $assets,
         cashCalc => $cashCalc,
         debt     => $debt,
-        suffix   => ' assuming frictionless equity',
+        suffix   => ' if frictionless equity was available',
     );
 
     my $cashflowFrictionless = $model->Cashflow(
         income  => $income,
         balance => $balanceFrictionless,
-        suffix  => ' assuming frictionless equity',
+        suffix  => ' if frictionless equity was available',
     );
 
     $model->{numYears}   ||= 2;
@@ -220,18 +217,17 @@ sub new {
       $cashflow->statement($years),
       $cashflow->profitAndLossReserveMovements($years),
       $cashflow->workingCapitalMovements($years),
-      $cashflow->equityInitialAndRaised($years);
+      @{ $cashflow->equityInternalRateOfReturn($years) };
 
     push @{ $model->{ratioTables} },
       $ratios->statement($years),
       $ratios->reference($years),
       $ratios->chart_ebitda_cover($years);
 
-    push @{ $model->{inputCharts} },
-      $cashflow->chart_equity_dividends($years),
-      $ratios->chart_gearing($years);
+    push @{ $model->{inputCharts} }, $ratios->chart_gearing($years);
 
-    push @{ $model->{standaloneCharts} }, $income->chart($years);
+    push @{ $model->{standaloneCharts} }, $income->chart($years),
+      $cashflow->chart_equity_dividends($years);
 
     $_->finish
       foreach grep { UNIVERSAL::can( $_, 'finish' ); }

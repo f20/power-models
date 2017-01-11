@@ -125,7 +125,7 @@ sub statement {
                     $cashflow->{balance}{reserve} ? 'Distributions (£)'
                     : 'Cashflow to/from investors (£)'
                 ),
-                rounding => 1,
+                rounding => 2,
             },
         ]
     );
@@ -182,7 +182,7 @@ s#^Cash released/absorbed in#Increase/decrease through#;
 sub profitAndLossReserveMovements {
     my ( $cashflow, $periods ) = @_;
     $cashflow->{profitAndLossReserveMovements}{ 0 + $periods } ||= CalcBlock(
-        name  => 'Movements in the profit and loss reserve',
+        name  => 'Movements in retained earnings',
         items => [
             [
                 A5_A6 => $cashflow->{balance}->profitAndLossReserve($periods),

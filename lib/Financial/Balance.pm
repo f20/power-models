@@ -64,8 +64,24 @@ sub statement {
                         ],
                         A1 => $periods->decorate('Total assets (£)'),
                     ],
-                    (
-                        map { $_->balance($periods); } @{ $balance->{expenses} }
+                    $balance->{model}{itemisePayables}
+                    ? ( map { $_->balance($periods); }
+                          @{ $balance->{expenses} } )
+                    : Arithmetic(
+                        name => $periods->decorate('Trade payables (£)'),
+                        defaultFormat => '0soft',
+                        cols          => $periods->labelset,
+                        arithmetic    => '='
+                          . join( '+',
+                            map { "SUM(A1${_}_A2${_})"; }
+                              0 .. $#{ $balance->{expenses} } ),
+                        arguments => {
+                            map {
+                                ( "A1${_}_A2${_}" =>
+                                      $balance->{expenses}[$_]
+                                      ->balance($periods)->{source} );
+                            } 0 .. $#{ $balance->{expenses} }
+                        },
                     ),
                     $periods->decorate(
                         'Total assets less current liabilities (£)'),
@@ -79,9 +95,9 @@ sub statement {
             ? (
                 A8 => $balance->{reserve}->shareCapital($periods),
                 A9 => {
-                    name => $periods->decorate('Profit and loss reserve (£)'),
-                    cols => $periods->labelset,
-                    arithmetic    => '=A2-A8',
+                    name       => $periods->decorate('Retained earnings (£)'),
+                    cols       => $periods->labelset,
+                    arithmetic => '=A2-A8',
                     defaultFormat => '0soft',
                 }
               )
@@ -145,6 +161,21 @@ sub initialEquity {
           . ( $periods->{reverseTime} ? @{ $periods->{list} } : 1 ) . ')',
         arguments => {
             A31_A32 => $balance->equity($periods),
+        },
+    );
+}
+
+sub equityInitialAndRaised {
+    my ( $balance, $periods ) = @_;
+    $balance->{equityInitialAndRaised}{ 0 + $periods } ||= Arithmetic(
+        name          => 'Equity raised (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1+IF(A2>A3,A4,0)',
+        arguments     => {
+            A1 => $balance->{reserve}->raised($periods),
+            A2 => $periods->firstDay,
+            A3 => $periods->lastDay,
+            A4 => $balance->initialEquity($periods),
         },
     );
 }

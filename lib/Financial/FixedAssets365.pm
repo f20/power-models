@@ -1,4 +1,4 @@
-package Financial::FixedAssetsUK;
+package Financial::FixedAssets365;
 
 =head Copyright licence and disclaimer
 

@@ -109,10 +109,11 @@ sub worksheetsAndClosures {
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => $model->{oldTerminology}
+        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+            name => $model->{oldTerminology}
             ? 'Profit and loss account'
-            : 'Income statement' ),
+            : 'Income statement (profit and loss)'
+          ),
           @{ $model->{incomeTables} };
       }
 
@@ -157,10 +158,11 @@ sub worksheetsAndClosures {
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
-        $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => $model->{oldTerminology}
+        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+            name => $model->{oldTerminology}
             ? 'Balance sheet'
-            : 'Statement of financial position' ),
+            : 'Statement of financial position (balance sheet)'
+          ),
           @{ $model->{balanceTables} };
         delete $wsheet->{workingsSheet};
       }

@@ -48,7 +48,7 @@ sub coincidence {
         number        => 1448,
         dataset       => $cashCalc->{model}->{dataset},
         appendTo      => $cashCalc->{model}->{inputTables},
-        data          => [0.8],
+        data          => [1],
     );
 }
 

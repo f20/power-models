@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015, 2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2016 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -58,7 +58,7 @@ sub labelset {
     my ($flow) = @_;
     $flow->{labelset} ||= Labelset(
         editable => (
-            $flow->{database}{names} ||= Dataset(
+            $flow->{inputDataColumns}{names} ||= Dataset(
                 name          => 'Item name',
                 defaultFormat => 'texthard',
                 rows          => $flow->labelsetNoNames,
@@ -79,7 +79,7 @@ sub labelsetNoNames {
 
 sub startDate {
     my ($flow) = @_;
-    $flow->{database}{startDate} ||= Dataset(
+    $flow->{inputDataColumns}{startDate} ||= Dataset(
         name          => 'Start date',
         defaultFormat => 'datehard',
         rows          => $flow->labelsetNoNames,
@@ -89,7 +89,7 @@ sub startDate {
 
 sub endDate {
     my ($flow) = @_;
-    $flow->{database}{endDate} ||= Dataset(
+    $flow->{inputDataColumns}{endDate} ||= Dataset(
         name          => 'End date',
         defaultFormat => 'datehard',
         rows          => $flow->labelsetNoNames,
@@ -99,7 +99,7 @@ sub endDate {
 
 sub averageDays {
     my ($flow) = @_;
-    $flow->{database}{averageDays} ||= Dataset(
+    $flow->{inputDataColumns}{averageDays} ||= Dataset(
         name          => 'Average credit and inventory days',
         defaultFormat => '0.0hard',
         rows          => $flow->labelsetNoNames,
@@ -111,7 +111,7 @@ sub worstDays {
     my ($flow) = @_;
     my $worstDays  = $flow->{is_cost} ? 'minDays' : 'maxDays';
     my $worstLabel = $flow->{is_cost} ? 'Lowest'  : 'Highest';
-    $flow->{database}{$worstDays} ||= Dataset(
+    $flow->{inputDataColumns}{$worstDays} ||= Dataset(
         name          => $worstLabel . ' credit and inventory days',
         defaultFormat => '0.0hard',
         rows          => $flow->labelsetNoNames,
