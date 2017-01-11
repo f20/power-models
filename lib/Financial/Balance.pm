@@ -45,7 +45,7 @@ sub statement {
     $balance->{statement}{ 0 + $periods } ||= CalcBlock(
         name => $periods->decorate(
             (
-                $model->{oldTerminology} ? 'Balance sheet'
+                $balance->{model}{oldTerminology} ? 'Balance sheet'
                 : 'Statement of financial position'
             )
             . ( $balance->{suffix} || '' )

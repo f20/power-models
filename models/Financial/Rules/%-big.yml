@@ -2,10 +2,10 @@
 .: Financial model (big no tax)
 PerlModule: Financial
 illustrative: 1
-numAssets: 50
-numDebt: 12
-numSales: 12
-numYears: 45
+numAssets: 4
+numDebt: 4
+numSales: 6
+numYears: 35
 quarterly: 1
-startMonth: 4
-startYear: 2016
+startMonth: 1
+startYear: 2019

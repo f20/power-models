@@ -123,7 +123,7 @@ sub tax {
 sub statement {
     my ( $income, $periods ) = @_;
     my $incomeBlock = $income->{statement}{ 0 + $periods } ||= CalcBlock(
-        name => name => $model->{oldTerminology}
+        name => $income->{model}{oldTerminology}
         ? 'Profit and loss account'
         : 'Income statement',
         consolidate => 1,
