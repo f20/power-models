@@ -35,6 +35,7 @@ use SpreadsheetModel::Shortcuts ':all';
 sub new {
     my ( $class, %args ) = @_;
     die __PACKAGE__ . ' needs a model attribute' unless $args{model};
+    $args{lines} ||= 4;
     bless \%args, $class;
 }
 
@@ -42,15 +43,15 @@ sub finish {
     my ($assets) = @_;
     return unless $assets->{inputDataColumns};
     my @columns =
-      grep { ref $_ =~ /Dataset/; }
+      grep { (ref $_) =~ /Dataset/; }
       @{ $assets->{inputDataColumns} }
       {qw(names comDate decomDate cost life scrapValuation scrappedValue)};
     Columnset(
-        name     => 'Fixed assets',
-        columns  => \@columns,
         appendTo => $assets->{model}{inputTables},
+        columns  => \@columns,
         dataset  => $assets->{model}{dataset},
-        number   => 1450,
+        name     => $assets->{name},
+        number   => $assets->{number},
     );
 }
 
@@ -74,7 +75,7 @@ sub labelsetNoNames {
     $assets->{labelsetNoNames} ||= Labelset(
         name          => 'Fixed assets without names',
         defaultFormat => 'thitem',
-        list          => [ 1 .. $assets->{model}{numAssets} || 4 ]
+        list          => [ 1 .. $assets->{lines} ]
     );
 }
 

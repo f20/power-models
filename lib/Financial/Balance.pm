@@ -143,7 +143,7 @@ sub fixedAssetAnalysis {
             A2 => $balance->{assets}->netValue($periods),
             {
                 name => $periods->decorate('Accumulated depreciation (£)'),
-                defaultFormat => '0boldsoft',
+                defaultFormat => '0soft',
                 arithmetic    => '=A1-A2',
             },
         ],

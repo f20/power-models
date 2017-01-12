@@ -40,98 +40,90 @@ sub requiredModulesForRuleset {
       CashCalc
       Cashflow
       Debt
-      FixedAssetsUK
+      FixedAssets
       FlowAnnual
       Income
       Periods
       Ratios
       Reserve
       ), $ruleset->{numExceptional}
-      || $ruleset->{numCapitalExp} ? qw(FlowOnce) : ();
+      || $ruleset->{numCapitalExp} ? qw(FlowOnce) : (),
+      $ruleset->{inputDataModule}
+      || 'Inputs';
 }
 
 sub AUTOLOAD {
-    my $model = shift;
+    my ( $model, @arguments ) = @_;
     our $AUTOLOAD;
-    eval "require $AUTOLOAD";
-    my $obj = $AUTOLOAD->new( model => $model, @_ );
-    push @{ $model->{finishList} }, $obj;
-    $obj;
+    my $module = $AUTOLOAD;
+    eval "require $module";
+    sub {
+        return unless @_;
+        my (@obj) = $module->new( model => $model, @arguments, @_ );
+        push @{ $model->{finishList} }, @obj;
+        wantarray ? @obj : $obj[0];
+    };
 }
 
 sub new {
 
-    my $class = shift;
-
-    my $model = bless { inputTables => [], @_, }, $class;
+    my $class           = shift;
+    my $model           = bless { inputTables => [], @_, }, $class;
+    my $inputDataModule = $model->{inputDataModule} || 'Inputs';
+    my $input =
+      $model->$inputDataModule( inputTableOffset => 0 )
+      ->( inputTables => $model->{inputTables} );
 
     my $sales = $model->FlowAnnual(
-        lines        => $model->{numSales},
-        name         => 'Sales',
-        number       => 1430,
         show_balance => 'trade receivables (£)',
         show_buffer  => 'trade receivables cash buffer (£)',
         show_flow    => 'sales (£)',
-    );
+    )->( $input->sales );
 
-    my $costSales;
-    $costSales = $model->FlowAnnual(
+    my $costSales = $model->FlowAnnual(
         is_cost      => 1,
-        lines        => $model->{numCostSales},
-        name         => 'Cost of sales',
-        number       => 1440,
         show_balance => 'cost of sales trade payables (£)',
         show_buffer  => 'cost of sales trade payables cash buffer (£)',
         show_flow    => 'cost of sales (£)',
-    ) if $model->{numCostSales};
+    )->( $input->costSales );
 
     my $adminExp = $model->FlowAnnual(
         is_cost      => 1,
-        lines        => $model->{numAdminExp},
-        name         => 'Administrative expenses',
-        number       => 1442,
         show_balance => 'administrative expense trade payables (£)',
         show_buffer  => 'administrative expense trade payables cash buffer (£)',
         show_flow    => 'administrative expenses (£)',
-    );
+    )->( $input->adminExp );
 
-    my $exceptional;
-    $exceptional = $model->FlowOnce(
+    my $exceptional = $model->FlowOnce(
         is_cost      => 1,
-        lines        => $model->{numExceptional},
-        name         => 'Exceptional costs',
-        number       => 1444,
         show_balance => 'exceptional cost trade payables (£)',
         show_buffer  => 'exceptional cost trade payables cash buffer (£)',
         show_flow    => 'exceptional cost (£)',
-    ) if $model->{numExceptional};
+    )->( $input->exceptional );
 
-    my $capitalExp;
-    $capitalExp = $model->FlowOnce(
+    my $capitalExp = $model->FlowOnce(
         is_cost      => 1,
-        lines        => $model->{numCapitalExp},
-        name         => 'Capital expenditure',
-        number       => 1447,
         show_balance => 'capital expenditure trade payables (£)',
         show_buffer  => 'capital expenditure cash buffer (£)',
         show_flow    => 'capital expenditure (£)',
-    ) if $model->{numCapitalExp};
+    )->( $input->capitalExp );
 
-    my $assets = $model->FixedAssets( capitalExp => $capitalExp, );
+    my $assets =
+      $model->FixedAssets( capitalExp => $capitalExp, )->( $input->assets );
 
-    my $debt = $model->Debt;
+    my $debt = $model->Debt->( $input->debt );
 
     my @expensesForPayables = grep { $_ } $costSales, $adminExp,
       $exceptional, $capitalExp;
 
-    my $cashCalc = $model->CashCalc(
+    my $cashCalc = $model->CashCalc->(
         sales    => $sales,
         expenses => \@expensesForPayables,
         assets   => $assets,
         debt     => $debt,
     );
 
-    my $income = $model->Income(
+    my $income = $model->Income->(
         sales     => $sales,
         costSales => $costSales,
         expenses  => [ grep { $_ } $adminExp, $exceptional, ],
@@ -139,7 +131,7 @@ sub new {
         debt      => $debt,
     );
 
-    my $balanceFrictionless = $model->Balance(
+    my $balanceFrictionless = $model->Balance->(
         sales    => $sales,
         expenses => \@expensesForPayables,
         assets   => $assets,
@@ -148,7 +140,7 @@ sub new {
         suffix   => ' if frictionless equity was available',
     );
 
-    my $cashflowFrictionless = $model->Cashflow(
+    my $cashflowFrictionless = $model->Cashflow->(
         income  => $income,
         balance => $balanceFrictionless,
         suffix  => ' if frictionless equity was available',
@@ -158,7 +150,7 @@ sub new {
     $model->{startMonth} ||= 7;
     $model->{startYear}  ||= 2015;
 
-    my $years = $model->Periods(
+    my $years = $model->Periods->(
         numYears            => $model->{numYears},
         periodsAreFixed     => 1,
         periodsAreInputData => 0,
@@ -168,7 +160,7 @@ sub new {
         startYear           => $model->{startYear},
     );
 
-    my $months = $model->Periods(
+    my $months = $model->Periods->(
         $model->{quarterly}
         ? ( numQuarters => 4 * $model->{numYears} )
         : ( numMonths => 12 * $model->{numYears} ),
@@ -179,12 +171,12 @@ sub new {
         suffix          => 'monthly',
     );
 
-    my $reserve = $model->Reserve(
+    my $reserve = $model->Reserve->(
         cashflow => $cashflowFrictionless,
         periods  => $months,
     );
 
-    my $balance = $model->Balance(
+    my $balance = $model->Balance->(
         sales    => $sales,
         expenses => \@expensesForPayables,
         assets   => $assets,
@@ -193,12 +185,12 @@ sub new {
         debt     => $debt,
     );
 
-    my $cashflow = $model->Cashflow(
+    my $cashflow = $model->Cashflow->(
         income  => $income,
         balance => $balance,
     );
 
-    my $ratios = $model->Ratios(
+    my $ratios = $model->Ratios->(
         income   => $income,
         balance  => $balance,
         cashflow => $cashflow,

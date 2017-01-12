@@ -35,6 +35,7 @@ use SpreadsheetModel::Shortcuts ':all';
 sub new {
     my ( $class, %args ) = @_;
     die __PACKAGE__ . ' needs a model attribute' unless $args{model};
+    $args{lines} ||= 4;
     bless \%args, $class;
 }
 
@@ -42,7 +43,7 @@ sub finish {
     my ($debt) = @_;
     return unless $debt->{inputDataColumns};
     my @columns =
-      grep { ref $_ =~ /Dataset/; } @{ $debt->{inputDataColumns} }{
+      grep { (ref $_) =~ /Dataset/; } @{ $debt->{inputDataColumns} }{
         qw(
           names
           startDate
@@ -52,11 +53,11 @@ sub finish {
           )
       };
     Columnset(
-        name     => 'Borrowings',
-        columns  => \@columns,
         appendTo => $debt->{model}{inputTables},
+        columns  => \@columns,
         dataset  => $debt->{model}{dataset},
-        number   => 1460,
+        name     => $debt->{name},
+        number   => $debt->{number},
     );
 }
 

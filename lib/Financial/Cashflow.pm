@@ -209,24 +209,38 @@ sub equityInternalRateOfReturn {
     my ( $cashflow, $periods ) = @_;
     return $cashflow->{equityInternalRateOfReturn}{ 0 + $periods }
       if $cashflow->{equityInternalRateOfReturn}{ 0 + $periods };
-    $cashflow->{equityInternalRateOfReturn}{ 0 + $periods } = my $number =
-      Arithmetic(
+    my $block = CalcBlock(
+        name => $periods->decorate(
+            'Cash flow to/from equity investors' . ( $cashflow->{suffix} || '' )
+        ),
+        items => [
+            A1 => $cashflow->investors($periods),
+            A2 => $cashflow->{balance}->equityInitialAndRaised($periods),
+            A3 => {
+                name          => 'Cash flow to/from equity investors',
+                defaultFormat => '0soft',
+                arithmetic    => '=A1-A2',
+            },
+            A4 => {
+                name          => $periods->decorate('Net equity raised (£)'),
+                defaultFormat => '0soft',
+                arithmetic    => '=0-MIN(A3,0)',
+            },
+            A5 => {
+                name          => $periods->decorate('Net distributions (£)'),
+                defaultFormat => '0soft',
+                arithmetic    => '=MAX(A3,0)',
+            },
+        ]
+    );
+    my $number = Arithmetic(
         name          => 'Equity IRR',
         defaultFormat => '%soft',
         arithmetic    => '=IRR(A1_A2)',
         arguments     => {
-            A1_A2 => Arithmetic(
-                name          => 'Cash flow to/from equity investors',
-                defaultFormat => '0soft',
-                arithmetic    => '=A1-A2',
-                arguments     => {
-                    A1 => $cashflow->investors($periods),
-                    A2 =>
-                      $cashflow->{balance}->equityInitialAndRaised($periods),
-                },
-            ),
-        },
-      );
+            A1_A2 => $block->{A3},
+        }
+    );
     my $text = Arithmetic(
         name          => 'Graph title',
         defaultFormat => 'textsoft',
@@ -240,7 +254,8 @@ sub equityInternalRateOfReturn {
         name    => 'Internal rate of return on equity',
         columns => \@cols
     );
-    $cashflow->{equityInternalRateOfReturn}{ 0 + $periods } = \@cols;
+    $cashflow->{equityInternalRateOfReturn}{ 0 + $periods } =
+      [ @cols, @{$block}{qw(A4 A5)} ];
 }
 
 sub chart_equity_dividends {
@@ -253,16 +268,29 @@ sub chart_equity_dividends {
         width        => 640,
         instructions => [
             add_series => [
-                $cashflow->{balance}->equityInitialAndRaised($periods),
+                1
+                ? $cashflow->equityInternalRateOfReturn($periods)->[2]
+                : $cashflow->{balance}->equityInitialAndRaised($periods),
                 overlap => 100,
-                fill    => { color => 'red' },
+                pattern => {
+                    pattern  => 'percent_10',    # 'horizontal_brick',
+                    fg_color => 'yellow',
+                    bg_color => 'red',
+                },
             ],
             add_series => [
-                $cashflow->investors($periods),
+                1
+                ? $cashflow->equityInternalRateOfReturn($periods)->[3]
+                : $cashflow->investors($periods),
                 gap  => 0,
                 fill => { color => 'black' },
             ],
             set_legend => [ position => 'top', font => { size => 16 }, ],
+            set_x_axis => [
+                num_font  => { size => 16 },
+                name_font => { size => 16 },
+                interval_unit => 1 + int( @{ $periods->labelset->{list} } / 6 ),
+            ],
             set_y_axis =>
               [ num_font => { size => 16 }, name_font => { size => 16 }, ],
             set_title => [

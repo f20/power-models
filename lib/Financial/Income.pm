@@ -36,7 +36,7 @@ use SpreadsheetModel::CalcBlock;
 sub new {
     my ( $class, %hash ) = @_;
     $hash{$_} || die __PACKAGE__ . " needs a $_ attribute"
-      foreach qw(model assets sales costSales expenses debt);
+      foreach qw(model assets sales expenses debt);
     bless \%hash, $class;
 }
 
