@@ -37,7 +37,7 @@ sub finish {
     my ($flow) = @_;
     return unless $flow->{inputDataColumns};
     my @columns =
-      grep { (ref $_) =~ /Dataset/; }
+      grep { $_; }
       @{ $flow->{inputDataColumns} }
       {qw(names startDate endDate amount averageDays maxDays minDays)};
     Columnset(

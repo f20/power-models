@@ -71,8 +71,7 @@ sub new {
     my $model           = bless { inputTables => [], @_, }, $class;
     my $inputDataModule = $model->{inputDataModule} || 'Inputs';
     my $input =
-      $model->$inputDataModule( inputTableOffset => 0 )
-      ->( inputTables => $model->{inputTables} );
+      $model->$inputDataModule->( inputTables => $model->{inputTables} );
 
     my $sales = $model->FlowAnnual(
         show_balance => 'trade receivables (£)',

@@ -37,7 +37,7 @@ sub finish {
     my ($flow) = @_;
     return unless $flow->{inputDataColumns};
     my @columns =
-      grep { (ref $_) =~ /Dataset/; }
+      grep { $_; }
       @{ $flow->{inputDataColumns} }
       {qw(names startDate endDate annual growth averageDays maxDays minDays)};
     Columnset(
@@ -51,7 +51,18 @@ sub finish {
 
 sub annual {
     my ($flow) = @_;
-    $flow->{inputDataColumns}{annual} ||= Dataset(
+    return $flow->{annual} if $flow->{annual};
+    if ( $flow->{annualClosure} ) {
+        $flow->{inputDataColumns}{annual} = Constant(
+            name          => 'Annual ' . $flow->{show_flow},
+            defaultFormat => 'unused',
+            rows          => $flow->labelsetNoNames,
+            data =>
+              [ map { 'calculated' } @{ $flow->labelsetNoNames->{list} } ],
+        );
+        return $flow->{annual} = $flow->{annualClosure}->($flow);
+    }
+    $flow->{annual} = $flow->{inputDataColumns}{annual} = Dataset(
         name          => 'Annual ' . $flow->{show_flow},
         defaultFormat => $flow->{show_formatBase} . 'hard',
         rows          => $flow->labelsetNoNames,

@@ -36,9 +36,8 @@ require Spreadsheet::WriteExcel::Utility;
 
 sub sheetPriority {
     ( my $model, local $_ ) = @_;
-    return 1 if /^Calc/;
     return 9 if /^Index/;
-    return 5;
+    5;
 }
 
 sub worksheetsAndClosures {
@@ -90,6 +89,18 @@ sub worksheetsAndClosures {
 
       ,
 
+      $model->{preprocessingSheets}
+      ? map {
+        my ( $name, $closure ) = @$_;
+        $name => sub {
+            my ($wsheet) = @_;
+            $closure->( $wbook, $wsheet );
+        };
+      } @{ $model->{preprocessingSheets} }
+      : ()
+
+      ,
+
       'Annual' => sub {
         my ($wsheet) = @_;
         $workingsSheet = $wsheet;
@@ -115,6 +126,7 @@ sub worksheetsAndClosures {
             : 'Income statement (profit and loss)'
           ),
           @{ $model->{incomeTables} };
+        delete $wsheet->{workingsSheet};
       }
 
       ,

@@ -43,7 +43,7 @@ sub finish {
     my ($assets) = @_;
     return unless $assets->{inputDataColumns};
     my @columns =
-      grep { (ref $_) =~ /Dataset/; }
+      grep { $_; }
       @{ $assets->{inputDataColumns} }
       {qw(names comDate decomDate cost life scrapValuation scrappedValue)};
     Columnset(
@@ -91,7 +91,18 @@ sub life {
 
 sub cost {
     my ($assets) = @_;
-    $assets->{inputDataColumns}{cost} ||= Dataset(
+    return $assets->{cost} if $assets->{cost};
+    if ( $assets->{costClosure} ) {
+        $assets->{inputDataColumns}{cost} = Constant(
+            name          => 'Cost (£)',
+            defaultFormat => 'unused',
+            rows          => $assets->labelsetNoNames,
+            data =>
+              [ map { 'calculated' } @{ $assets->labelsetNoNames->{list} } ],
+        );
+        return $assets->{cost} = $assets->{costClosure}->($assets);
+    }
+    $assets->{cost} = $assets->{inputDataColumns}{cost} = Dataset(
         name          => 'Cost (£)',
         defaultFormat => '0hard',
         rows          => $assets->labelsetNoNames,
@@ -101,22 +112,48 @@ sub cost {
 
 sub scrapValuation {
     my ($assets) = @_;
-    $assets->{inputDataColumns}{scrapValuation} ||= Dataset(
+    return $assets->{scrapValuation} if $assets->{scrapValuation};
+    if ( $assets->{scrapValuationClosure} ) {
+        $assets->{inputDataColumns}{scrapValuation} = Constant(
+            name => 'Estimated scrap value at time of commissioning (£)',
+            defaultFormat => 'unused',
+            rows          => $assets->labelsetNoNames,
+            data =>
+              [ map { 'calculated' } @{ $assets->labelsetNoNames->{list} } ],
+        );
+        return $assets->{scrapValuation} =
+          $assets->{scrapValuationClosure}->($assets);
+    }
+    $assets->{scrapValuation} = $assets->{inputDataColumns}{scrapValuation} =
+      Dataset(
         name          => 'Estimated scrap value at time of commissioning (£)',
         defaultFormat => '0hard',
         rows          => $assets->labelsetNoNames,
         data          => [ map { 0 } @{ $assets->labelsetNoNames->{list} } ],
-    );
+      );
 }
 
 sub scrappedValue {
     my ($assets) = @_;
-    $assets->{inputDataColumns}{scrappedValue} ||= Dataset(
+    return $assets->{scrappedValue} if $assets->{scrappedValue};
+    if ( $assets->{scrappedValueClosure} ) {
+        $assets->{inputDataColumns}{scrappedValue} = Constant(
+            name          => 'Proceeds of scrapping (£)',
+            defaultFormat => 'unused',
+            rows          => $assets->labelsetNoNames,
+            data =>
+              [ map { 'calculated' } @{ $assets->labelsetNoNames->{list} } ],
+        );
+        return $assets->{scrappedValue} =
+          $assets->{scrappedValueClosure}->($assets);
+    }
+    $assets->{scrappedValue} = $assets->{inputDataColumns}{scrappedValue} =
+      Dataset(
         name          => 'Proceeds of scrapping (£)',
         defaultFormat => '0hard',
         rows          => $assets->labelsetNoNames,
         data          => [ map { 0 } @{ $assets->labelsetNoNames->{list} } ],
-    );
+      );
 }
 
 sub comDate {

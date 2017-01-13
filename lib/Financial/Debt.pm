@@ -43,7 +43,7 @@ sub finish {
     my ($debt) = @_;
     return unless $debt->{inputDataColumns};
     my @columns =
-      grep { (ref $_) =~ /Dataset/; } @{ $debt->{inputDataColumns} }{
+      grep { $_; } @{ $debt->{inputDataColumns} }{
         qw(
           names
           startDate
