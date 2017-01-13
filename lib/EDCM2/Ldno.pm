@@ -250,7 +250,7 @@ EOF
                 [ map { '' } @{ $ldnoLevels->{list} } ]
             } @{ $cdcmLevels->{list} }
         ],
-        number     => 1181,
+        number => $ppu ? 1184 : 1181,
         dataset    => $model->{dataset},
         appendTo   => $model->{inputTables},
         validation => {

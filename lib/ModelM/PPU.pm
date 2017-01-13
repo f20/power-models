@@ -99,7 +99,8 @@ sub ppuCalcEdcm {
 
     my ( $model, $discounts, $ppu, $ppuNotSplit, ) = @_;
 
-    push @{ $model->{objects}{resultsTables} }, Columnset(
+    push @{ $model->{objects}{resultsTables} },
+      $model->{objects}{table1184columnset} = Columnset(
         name    => 'Discount p/kWh ⇒1184. For EDCM model',
         columns => [
             map {
@@ -142,7 +143,7 @@ sub ppuCalcEdcm {
                 );
             } @{ $discounts->{columns} }
         ],
-    );
+      );
 
 }
 

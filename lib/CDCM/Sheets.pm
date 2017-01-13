@@ -125,7 +125,7 @@ sub worksheetsAndClosures {
         while (@mwac) {
             my $sheet   = shift @mwac;
             my $closure = shift @mwac;
-            next if $sheet =~ /^(?:Index|Input)/;
+            next if $sheet =~ /^(?:Index|Input|Result)/;
             push @wsheetsAndClosures, "M($sheet)", $closure;
         }
     }

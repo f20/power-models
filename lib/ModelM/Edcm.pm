@@ -384,7 +384,8 @@ EOL
             columns => \@columns,
         );
     }
-    push @{ $model->{objects}{resultsTables} }, $discounts;
+    push @{ $model->{objects}{resultsTables} },
+      $model->{objects}{table1181columnset} = $discounts;
     $discounts;
 }
 

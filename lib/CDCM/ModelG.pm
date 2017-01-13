@@ -559,6 +559,18 @@ sub modelG {
         sources => [$ppuReference],
       );
 
+    if ( $model->{embeddedModelM} ) {
+        push @{ $model->{embeddedModelM}{objects}{calcSheets} },
+          map { [ CDCM => @$_ ]; }
+          grep { $_; }
+          @{ $model->{embeddedModelM}{objects} }
+          {qw(table1037sources table1039sources)};
+        push @{ $model->{modelgTables} },
+          grep { $_; } $model->{embeddedModelM}{objects}{table1181columnset};
+        push @{ $model->{modelgTables2} },
+          grep { $_; } $model->{embeddedModelM}{objects}{table1184columnset};
+    }
+
     $model;
 
 }
