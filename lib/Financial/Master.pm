@@ -31,6 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
+use SpreadsheetModel::Chart;
 use Financial::Sheets;
 
 sub requiredModulesForRuleset {
@@ -43,13 +44,13 @@ sub requiredModulesForRuleset {
       FlowAnnual
       Income
       Periods
-      Ratios
       Reserve
       ), $ruleset->{numExceptional}
       || $ruleset->{numCapitalExp} ? qw(FlowOnce) : (),
       $ruleset->{inputDataModule}
-      || 'Inputs', $ruleset->{fixedAssetsModule}
-      || 'FixedAssets';
+      || 'Inputs',      $ruleset->{fixedAssetsModule}
+      || 'FixedAssets', $ruleset->{noEquityReturns} ? () : qw(EquityReturns),
+      $ruleset->{noRatios} ? () : qw(Ratios);
 }
 
 sub AUTOLOAD {
@@ -191,15 +192,10 @@ sub new {
         balance => $balance,
     );
 
-    my $ratios = $model->Ratios->(
-        income   => $income,
-        balance  => $balance,
-        cashflow => $cashflow,
-    );
-
     push @{ $model->{incomeTables} }, $income->statement($years);
 
-    push @{ $model->{equityRaisingTables} }, $reserve->raisingSchedule;
+    push @{ $model->{monthlyTables} }, $reserve->raisingSchedule,
+      $reserve->openingSpareCash, $reserve->{periods}->openingDay;
 
     push @{ $model->{balanceTables} },
       $balance->statement($years),
@@ -208,20 +204,36 @@ sub new {
 
     push @{ $model->{cashflowTables} },
       $cashflow->statement($years),
-      $cashflow->profitAndLossReserveMovements($years),
-      $cashflow->workingCapitalMovements($years),
-      @{ $cashflow->equityInternalRateOfReturn($years) };
+      $cashflow->retainedEarningsMovements($years),
+      $cashflow->workingCapitalMovements($years);
 
-    push @{ $model->{ratioTables} },
-      $ratios->statement($years),
-      $ratios->reference($years),
-      $ratios->chart_ebitda_cover($years);
+    unless ( $model->{noEquityReturns} ) {
+        my $equityReturns = $model->EquityReturns->(
+            income   => $income,
+            balance  => $balance,
+            cashflow => $cashflow,
+        );
+        push @{ $model->{cashflowTables} },
+          @{ $equityReturns->equityInternalRateOfReturn($years) },
+          $equityReturns->npv($years);
+        push @{ $model->{standaloneCharts} },
+          $equityReturns->chart_equity_dividends($years),
+          $equityReturns->chart_npv($years);
+    }
 
-    push @{ $model->{inputCharts} }, $ratios->chart_gearing($years);
+    unless ( $model->{noRatios} ) {
+        my $ratios = $model->Ratios->(
+            income   => $income,
+            balance  => $balance,
+            cashflow => $cashflow,
+        );
+        push @{ $model->{ratioTables} },
+          $ratios->statement($years),          $ratios->reference($years),
+          $ratios->chart_ebitda_cover($years), $ratios->chart_roce($years);
+        push @{ $model->{inputCharts} }, $ratios->chart_gearing($years);
+    }
 
-    push @{ $model->{standaloneCharts} },
-      $cashflow->chart_equity_dividends($years), $income->chart($years),
-      $ratios->chart_roce($years);
+    push @{ $model->{standaloneCharts} }, $income->chart($years);
 
     $_->finish
       foreach grep { UNIVERSAL::can( $_, 'finish' ); }

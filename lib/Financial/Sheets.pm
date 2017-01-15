@@ -50,7 +50,7 @@ sub worksheetsAndClosures {
     'Input' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber}    = 14;
-        $wbook->{lastSheetNumber} = 14;
+        $wbook->{lastSheetNumber} = 19;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   13 );
         $wsheet->set_column( 1, 1,   42 );
@@ -101,14 +101,14 @@ sub worksheetsAndClosures {
 
       ,
 
-      'Annual' => sub {
+      'Acct1' => sub {
         my ($wsheet) = @_;
         $workingsSheet = $wsheet;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Workings (annual)' );
+          foreach Notes( name => 'Workings for annual income statement' );
       }
 
       ,
@@ -131,33 +131,28 @@ sub worksheetsAndClosures {
 
       ,
 
-      ( $model->{quarterly} ? 'Quarterly' : 'Monthly' ) => sub {
+      ( $model->{quarterly} ? 'Qly' : 'Mly' ) => sub {
         my ($wsheet) = @_;
-        $workingsSheet = $wsheet;
-        $wsheet->freeze_panes( 1, 1 );
-        $wsheet->set_column( 0, 0,   42 );
-        $wsheet->set_column( 1, 250, 15 );
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-            name => $model->{quarterly}
-            ? 'Workings (quarterly)'
-            : 'Workings (monthly)'
-        );
-      }
-
-      ,
-
-      'Reserve' => sub {
-        my ($wsheet) = @_;
-        $wsheet->{workingsSheet} = $workingsSheet;
-        $workingsSheet = $wsheet;
-        $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Equity raising' ),
-          @{ $model->{equityRaisingTables} };
-        delete $wsheet->{workingsSheet};
+          foreach Notes( name => 'Cash calculations on a '
+              . ( $model->{quarterly} ? 'quarterly' : 'montly' )
+              . ' basis' ), @{ $model->{monthlyTables} };
+      }
+
+      ,
+
+      'Acct2' => sub {
+        my ($wsheet) = @_;
+        $workingsSheet = $wsheet;
+        $wsheet->freeze_panes( 1, 1 );
+        $wsheet->set_column( 0, 0,   42 );
+        $wsheet->set_column( 1, 250, 15 );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes(
+            name => 'Workings for annual statement of financial position' );
       }
 
       ,
@@ -171,11 +166,17 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-            name => $model->{oldTerminology}
-            ? 'Balance sheet'
+            name => $model->{oldTerminology} ? 'Balance sheet'
             : 'Statement of financial position (balance sheet)'
           ),
-          @{ $model->{balanceTables} };
+          @{ $model->{balanceTables} },
+          Notes(
+            name => 'Calculations for the '
+              . (
+                $model->{oldTerminology} ? 'cashflow statement'
+                : 'statement of cash flows'
+              )
+          );
         delete $wsheet->{workingsSheet};
       }
 
@@ -190,8 +191,11 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 250, 15 );
         my @tables = @{ $model->{cashflowTables} };
-        $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Statement of cash flows' ),
+        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+            name => $model->{oldTerminology}
+            ? 'Cashflow statement'
+            : 'Statement of cash flows'
+          ),
           shift @tables;
         delete $wsheet->{workingsSheet};
         $_->wsWrite( $wbook, $wsheet ) foreach @tables;

@@ -67,7 +67,7 @@ sub finish {
                 defaultFormat => 'texthard',
                 data          => [''],
             ),
-            Constant( name => 'Not used', data => [] ),
+            Dataset( name => 'Not used', data => [] ),
             $pricing->{constructionCost}[1],
         ],
     ) if $pricing->{constructionCost}[1];
@@ -101,7 +101,7 @@ sub finish {
                 defaultFormat => 'th',
                 data          => ['Annual cost of capital'],
             ),
-            Constant( name => 'Not used', data => [] ),
+            Dataset( name => 'Not used', data => [] ),
             $pricing->{costOfCapital}[1],
         ],
     ) if $pricing->{costOfCapital}[1];
@@ -157,43 +157,29 @@ sub leaseRate {
     $pricing->{periodLengthInYears} ||= 8;
     my $periodset       = $pricing->periodset($version);
     my @relevantPeriods = reverse @{ $periodset->{list} };
+    my $costOfCapital =
+      Stack( sources => [ $pricing->costOfCapital($version) ] );
+    my $constructionCost =
+      Stack( sources => [ $pricing->constructionCost($version) ] );
 
     my $discountFactor = Arithmetic(
-        name => 'Discount factor over the period'
-          . ( $version ? ' (revised pricing run)' : ' (initial pricing run)' ),
+        name       => 'Discount factor over the period',
         arithmetic => '=(1+A1)^-' . $pricing->{periodLengthInYears},
-        arguments  => { A1 => $pricing->costOfCapital($version), },
+        arguments  => { A1 => $costOfCapital, },
     );
 
     my $periodWeight = Arithmetic(
         name       => 'Present value weight of period income',
-        arithmetic => '=(A1-1)/(1-A2^(-1/'
-          . $pricing->{periodLengthInYears} . '))',
-        arguments => { A1 => $discountFactor, A2 => $discountFactor, },
+        arithmetic => '=(1-A1)/A2',
+        arguments  => { A1 => $discountFactor, A2 => $costOfCapital, },
     );
-
-    my $numPeriodsFolded = Constant(
-        name          => 'Number of periods folded into the last one',
-        cols          => $periodset,
-        defaultFormat => '0con',
-        data          => [
-            map {
-                $#{ $periodset->{list} } - $_ < $pricing->{assetLifeInPeriods}
-                  ? $pricing->{assetLifeInPeriods} - $#{ $periodset->{list} } +
-                  $_
-                  : undef;
-            } 0 .. $#{ $periodset->{list} }
-        ],
-    );
-
-    my $constructionCost =
-      Stack( sources => [ $pricing->constructionCost($version) ] );
 
     my $combinedFactor = SpreadsheetModel::Custom->new(
-        name      => 'Combined discount and indexation factor',
-        custom    => ['=A1*A2/A3'],
-        cols      => $periodset,
-        arguments => {
+        name       => 'Combined discount and indexation factor',
+        custom     => ['=A1*A2/A3'],
+        arithmetic => '=A1*A2/(previous A3)',
+        cols       => $periodset,
+        arguments  => {
             A1 => $discountFactor,
             A2 => $constructionCost,
             A3 => $constructionCost,
@@ -233,10 +219,11 @@ sub leaseRate {
 
     foreach my $period ( 1 .. $#relevantPeriods ) {
         push @compoundDiscountFactor, SpreadsheetModel::Custom->new(
-            name      => "$relevantPeriods[$period] compound discount factor",
-            cols      => $periodset,
-            custom    => [ '=A1*A2', ],
-            arguments => {
+            name       => "$relevantPeriods[$period] compound discount factor",
+            cols       => $periodset,
+            custom     => [ '=A1*A2', ],
+            arithmetic => '= 0 or 1 or A1*A2',
+            arguments  => {
                 A1 => $compoundDiscountFactor[ $period - 1 ],
                 A2 => $discountFactor,
             },
@@ -265,16 +252,28 @@ sub leaseRate {
 
     my @periodWeight;
     foreach my $period ( 0 .. $#relevantPeriods ) {
+        my $foldedAtEnd = $pricing->{assetLifeInPeriods} - $period;
         push @periodWeight, SpreadsheetModel::Custom->new(
             name => "$relevantPeriods[$period] present value factor for income",
             cols => $periodset,
-            custom    => [ '=A1', '=A11*(1-A21^A3)/(1-A22)' ],
+            custom => [
+                '=A1',
+                $foldedAtEnd > 1 ? "=A11*(1-A21^$foldedAtEnd)/(1-A22)" : ()
+            ],
+            arithmetic => '= 0 or A1'
+              . (
+                $foldedAtEnd > 1 ? " or A11*(1-A21^$foldedAtEnd)/(1-A22)"
+                : ''
+              ),
             arguments => {
-                A1  => $periodWeight,
-                A11 => $periodWeight,
-                A21 => $combinedFactor,
-                A22 => $combinedFactor,
-                A3  => $numPeriodsFolded,
+                A1 => $periodWeight,
+                $foldedAtEnd > 1
+                ? (
+                    A11 => $periodWeight,
+                    A21 => $combinedFactor,
+                    A22 => $combinedFactor,
+                  )
+                : (),
             },
             wsPrepare => sub {
                 my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
@@ -286,31 +285,34 @@ sub leaseRate {
                       $pricing->{assetLifeInPeriods} - 1;
                     return 0, $wb->getFormat('unavailable')
                       if $x + $period < $#{ $periodset->{list} };
-                    '', $format,
-                      $formula->[ $x == $#{ $periodset->{list} } ? 1 : 0 ],
+                    '',
+                      $foldedAtEnd > 1
+                      && $x == $#{ $periodset->{list} } ? $format
+                      : $wb->getFormat('0.000copy'),
+                      $formula->[ $foldedAtEnd > 1
+                      && $x == $#{ $periodset->{list} } ? 1 : 0 ],
                       qr/\bA1\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                         $rowh->{A1},
                         $colh->{A1} + $#{ $periodset->{list} } - $period,
                       ),
-                      qr/\bA11\b/ =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{A11},
-                        $colh->{A11} + $#{ $periodset->{list} } - $period,
-                      ),
-                      qr/\bA21\b/ =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{A21}, $colh->{A21} + $x
-                      ),
-                      qr/\bA22\b/ =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{A22}, $colh->{A22} + $x
-                      ),
-                      qr/\bA3\b/ =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{A3},
-                        $colh->{A3} + $#{ $periodset->{list} } - $period,
-                      );
+                      $foldedAtEnd > 1
+                      ? (
+                        qr/\bA11\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A11},
+                            $colh->{A11} + $#{ $periodset->{list} } - $period,
+                          ),
+                        qr/\bA21\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A21}, $colh->{A21} + $x
+                          ),
+                        qr/\bA22\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A22}, $colh->{A22} + $x
+                          ),
+                      )
+                      : ();
                 };
             },
         );
@@ -319,14 +321,14 @@ sub leaseRate {
     my @leaseRates;
     foreach my $period ( 0 .. $#relevantPeriods ) {
         push @leaseRates, SpreadsheetModel::Custom->new(
-            name          => "$relevantPeriods[$period] lease rate estimation",
+            name          => "$relevantPeriods[$period] lease rate estimation ",
             defaultFormat => '0soft',
             cols          => $periodset,
             custom        => [
                 $period ? ( '=(A1-SUMPRODUCT(A2:A3,A4:A5,A6:A7))/A8', '=A9' )
                 : '=A1/A8',
             ],
-            arithmetic => $period ? '=(A1-SUMPRODUCT(A2,A4,A6))/A8 or A9'
+            arithmetic => $period ? '= A9 or (A1-SUMPRODUCT(A2,A4,A6))/A8'
             : '=A1/A8',
             arguments => {
                 A1 => $constructionCost,
@@ -348,9 +350,11 @@ sub leaseRate {
                   @_;
                 sub {
                     my ( $x, $y ) = @_;
-                    return '', $wb->getFormat('unavailable')
+                    return 0, $wb->getFormat('unavailable')
                       if $x + $period < $#{ $periodset->{list} };
-                    '', $format,
+                    '',
+                      $x + $period == $#{ $periodset->{list} } ? $format
+                      : $wb->getFormat('0copy'),
                       $formula->[
                       $x + $period == $#{ $periodset->{list} } ? 0
                       : 1
@@ -409,10 +413,10 @@ sub leaseRate {
         name => 'Annual lease rate estimation'
           . ( $version ? ' (revised pricing run)' : ' (initial pricing run)' ),
         items => [
-            $discountFactor,   $periodWeight,
-            $numPeriodsFolded, $constructionCost,
-            $combinedFactor,   @compoundDiscountFactor,
-            @periodWeight,     @leaseRates
+            $costOfCapital,          $discountFactor,
+            @compoundDiscountFactor, $constructionCost,
+            $combinedFactor,         $periodWeight,
+            @periodWeight,           @leaseRates,
         ],
       );
 
@@ -504,9 +508,7 @@ sub sales {
                     )
                 ],
             );
-            my $result = $pricing->leaseRateCombined($flow);
-            push @{ $pricing->{tables} }, $result;
-            $result;
+            $pricing->leaseRateCombined($flow);
         },
     );
 }
@@ -527,7 +529,7 @@ sub assets {
                     map { 0; } 2 .. @{ $assets->labelsetNoNames->{list} }
                 ],
             );
-            my $result = SpreadsheetModel::Custom->new(
+            SpreadsheetModel::Custom->new(
                 name          => 'Cost (£)',
                 defaultFormat => '0copy',
                 rows          => $assets->labelsetNoNames,
@@ -554,8 +556,53 @@ sub assets {
                     };
                 },
             );
-            push @{ $pricing->{tables} }, $result;
-            $result;
+        },
+    );
+}
+
+sub capitalExp {
+    my ($pricing) = @_;
+    (
+        $pricing->SUPER::capitalExp,
+        amountClosure => sub {
+            my ($flow) = @_;
+            $flow->{inputDataColumns}{amount} = Dataset(
+                name          => 'Total ' . $flow->{show_flow},
+                defaultFormat => $flow->{show_formatBase} . 'hard',
+                rows          => $flow->labelsetNoNames,
+                rowFormats    => [ 'unused', ],
+                data          => [
+                    'copied',
+                    map { 0; } 2 .. @{ $flow->labelsetNoNames->{list} }
+                ],
+            );
+            SpreadsheetModel::Custom->new(
+                name          => 'Total ' . $flow->{show_flow},
+                defaultFormat => $flow->{show_formatBase} . 'copy',
+                rows          => $flow->labelsetNoNames,
+                custom        => [ '=A1', '=A2', ],
+                arguments     => {
+                    A1 => $pricing->constructionCost,
+                    A2 => $flow->{inputDataColumns}{amount},
+                },
+                wsPrepare => sub {
+                    my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
+                        $colh ) = @_;
+                    sub {
+                        my ( $x, $y ) = @_;
+                        return '', $format, $formula->[1],
+                          qr/\bA2\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A2} + $y,
+                            $colh->{A2} )
+                          if $y;
+                        '', $format, $formula->[0],
+                          qr/\bA1\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A1}, $colh->{A1} );
+                    };
+                },
+            );
         },
     );
 }

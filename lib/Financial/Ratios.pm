@@ -169,7 +169,6 @@ sub reference {
 
 sub chart_ebitda_cover {
     my ( $ratios, $periods ) = @_;
-    require SpreadsheetModel::Chart;
     SpreadsheetModel::Chart->new(
         name         => 'EBITDA interest cover',
         type         => 'column',
@@ -192,7 +191,6 @@ sub chart_ebitda_cover {
 
 sub chart_gearing {
     my ( $ratios, $periods ) = @_;
-    require SpreadsheetModel::Chart;
     SpreadsheetModel::Chart->new(
         name         => '',
         type         => 'column',
@@ -210,7 +208,6 @@ sub chart_gearing {
 
 sub chart_roce {
     my ( $ratios, $periods ) = @_;
-    require SpreadsheetModel::Chart;
     SpreadsheetModel::Chart->new(
         name         => 'ROCE',
         type         => 'column',

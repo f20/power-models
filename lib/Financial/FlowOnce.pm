@@ -51,12 +51,17 @@ sub finish {
 
 sub amount {
     my ($flow) = @_;
-    $flow->{inputDataColumns}{amount} ||= Dataset(
-        name          => 'Total ' . $flow->{show_flow},
-        defaultFormat => $flow->{show_formatBase} . 'hard',
-        rows          => $flow->labelsetNoNames,
-        data          => [ map { 0 } @{ $flow->labelsetNoNames->{list} } ],
-    );
+    $flow->{amount} ||=
+        $flow->{amountClosure}
+      ? $flow->{amountClosure}->($flow)
+      : (
+        $flow->{inputDataColumns}{amount} = Dataset(
+            name          => 'Total ' . $flow->{show_flow},
+            defaultFormat => $flow->{show_formatBase} . 'hard',
+            rows          => $flow->labelsetNoNames,
+            data          => [ map { 0 } @{ $flow->labelsetNoNames->{list} } ],
+        )
+      );
 }
 
 sub stream {

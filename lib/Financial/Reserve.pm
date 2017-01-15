@@ -187,8 +187,25 @@ sub raisingSchedule {
                 name    => 'Date of equity raising',
                 sources => [ $reserve->raisingDates ]
             ),
-            Stack( sources => [ $reserve->amountsRaised ] ),
+            $reserve->amountsRaised,
         ],
+    );
+}
+
+sub openingSpareCash {
+    my ($reserve) = @_;
+    $reserve->{openingSpareCash} ||= Arithmetic(
+        name          => 'Opening spare cash (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(ISNUMBER(A1),IF(A81=INDEX(A82_A83,A11),A2,0),A3)',
+        arguments     => {
+            A1      => $reserve->{periods}->indexPrevious,
+            A11     => $reserve->{periods}->indexPrevious,
+            A2      => $reserve->cashNeededToNextTranche,
+            A3      => $reserve->cashNeededToNextTranche,
+            A81     => $reserve->trancheId,
+            A82_A83 => $reserve->trancheId,
+        }
     );
 }
 
@@ -204,20 +221,7 @@ sub spareCash {
             A11     => $periods->lastDay,
             A5_A6   => $reserve->{periods}->openingDay,
             A51_A61 => $reserve->{periods}->openingDay,
-            A2_A3   => Arithmetic(
-                name          => 'Opening spare cash (£)',
-                defaultFormat => '0soft',
-                arithmetic =>
-                  '=IF(ISNUMBER(A1),IF(A81=INDEX(A82_A83,A11),A2,0),A3)',
-                arguments => {
-                    A1      => $reserve->{periods}->indexPrevious,
-                    A11     => $reserve->{periods}->indexPrevious,
-                    A2      => $reserve->cashNeededToNextTranche,
-                    A3      => $reserve->cashNeededToNextTranche,
-                    A81     => $reserve->trancheId,
-                    A82_A83 => $reserve->trancheId,
-                }
-            ),
+            A2_A3   => $reserve->openingSpareCash,
         },
     );
 }

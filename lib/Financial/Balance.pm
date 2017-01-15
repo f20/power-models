@@ -111,7 +111,7 @@ sub equity {
     $balance->statement($periods)->{A2};
 }
 
-sub profitAndLossReserve {
+sub retainedEarnings {
     my ( $balance, $periods ) = @_;
     $balance->statement($periods)->{A9};
 }

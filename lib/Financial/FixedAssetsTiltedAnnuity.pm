@@ -54,7 +54,7 @@ sub rateOfReturn {
 }
 
 sub flattenFormula {
-    my $argcounter = 0;
+    my $argcounter = 10000;
     my %arguments;
     my $flatten;
     $flatten = sub {
@@ -65,7 +65,7 @@ sub flattenFormula {
                 $replacement = '(' . $flatten->(@$v) . ')';
             }
             else {
-                $replacement = 'F' . ++$argcounter;
+                $replacement = 'A' . ++$argcounter; # must be A
                 $arguments{$replacement} = $v;
             }
             s/\b$k\b/$replacement/;

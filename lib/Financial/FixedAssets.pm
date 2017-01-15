@@ -122,10 +122,9 @@ sub scrapValuation {
       : (
         $assets->{inputDataColumns}{scrapValuation} = Dataset(
             name => 'Estimated scrap value at time of commissioning (£)',
-            defaultFormat => 'unused',
+            defaultFormat => '0hard',
             rows          => $assets->labelsetNoNames,
-            data =>
-              [ map { 'calculated' } @{ $assets->labelsetNoNames->{list} } ],
+            data => [ map { 0; } @{ $assets->labelsetNoNames->{list} } ],
         )
       );
 }
