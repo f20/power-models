@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -39,6 +39,11 @@ sub objectType {
     'Chart';
 }
 
+sub sheetPriority {
+    my ($self) = @_;
+    $self->{sheetPriority} ||= 5;
+}
+
 sub check {
     my ($self) = @_;
     return
@@ -51,16 +56,11 @@ sub check {
     return;
 }
 
-sub wsUrl {
-    my ( $self, $wb ) = @_;
-    return unless $self->{$wb};
-    my ( $wo, $ro, $co ) = @{ $self->{$wb} }{qw(worksheet row col)};
-    my $ce = xl_rowcol_to_cell( $ro, $co );
-    my $wn =
-        $wo
-      ? $wo->get_name
-      : die( join "No worksheet for $self->{name}" );
-    "internal:'$wn'!$ce";
+sub wsWrite {
+    my ( $self, $wb, $ws, $row, $col ) = @_;
+    my $chart = $self->wsCreate( $wb, $ws, $row, $col );
+    $self->applyInstructions( $self->wsCreate( $wb, $ws, $row, $col ),
+        $wb, $ws, $self->{instructions} );
 }
 
 sub applyInstructions {
@@ -233,91 +233,98 @@ sub applyInstructions {
     }
 }
 
-sub wsWrite {
+sub wsCreate {
+
     my ( $self, $wb, $ws, $row, $col ) = @_;
-    return if $self->{$wb};
+    return $self->{$wb} if $self->{$wb};
+
     my $chart = $wb->add_chart(
         %$self,
         embedded => $ws ? 1 : 0,
         name => $self->objectShortName,
     );
-    $self->applyInstructions( $chart, $wb, $ws, $self->{instructions} );
 
-    if ($ws) {
-        ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )
-          unless defined $row && defined $col;
+    if ( !$ws ) {    # Chartsheet
 
-        if ( $self->{name} ) {
-            $ws->write( $row, $col, "$self->{name}", $wb->getFormat('notes') );
-            $ws->set_row( $row, 21 );
-            ++$row;
-        }
+        # Does not work: problem with the <c:protection> element in the chart?
+        $chart->protect() unless $self->{unprotected};
 
-        if ( $self->{lines}
-            or !( $wb->{noLinks} && $wb->{noLinks} == 1 )
-            and $self->{name} && $self->{sourceLines} )
+        return $self->{$wb} = $chart;
+
+    }
+
+    ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )
+      unless defined $row && defined $col;
+
+    if ( $self->{name} ) {
+        $ws->write( $row, $col, "$self->{name}", $wb->getFormat('notes') );
+        $ws->set_row( $row, 21 );
+        ++$row;
+    }
+
+    if ( $self->{lines}
+        or !( $wb->{noLinks} && $wb->{noLinks} == 1 )
+        and $self->{name} && $self->{sourceLines} )
+    {
+        my $hideFormulas = $wb->{noLinks} && $self->{sourceLines};
+        my $textFormat   = $wb->getFormat('text');
+        my $linkFormat   = $wb->getFormat('link');
+        my $xc           = 0;
+        foreach (
+            $self->{lines} ? @{ $self->{lines} } : (),
+            !( $wb->{noLinks} && $wb->{noLinks} == 1 )
+            && $self->{sourceLines} && @{ $self->{sourceLines} }
+            ? ( 'Data sources:', @{ $self->{sourceLines} } )
+            : ()
+          )
         {
-            my $hideFormulas = $wb->{noLinks} && $self->{sourceLines};
-            my $textFormat   = $wb->getFormat('text');
-            my $linkFormat   = $wb->getFormat('link');
-            my $xc           = 0;
-            foreach (
-                $self->{lines} ? @{ $self->{lines} } : (),
-                !( $wb->{noLinks} && $wb->{noLinks} == 1 )
-                && $self->{sourceLines} && @{ $self->{sourceLines} }
-                ? ( 'Data sources:', @{ $self->{sourceLines} } )
-                : ()
-              )
-            {
-                if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Object' ) ) {
-                    my $na = 'x' . ( ++$xc ) . " = $_->{name}";
-                    if ( my $url = $_->wsUrl($wb) ) {
-                        $ws->set_row( $row, undef, undef, 1, 1 )
-                          if $hideFormulas;
-                        $ws->write_url( $row++, $col, $url, $na, $linkFormat );
-                        (
-                            $_->{location}
-                              && UNIVERSAL::isa( $_->{location},
-                                'SpreadsheetModel::Columnset' )
-                            ? $_->{location}
-                            : $_
-                          )->addForwardLink($self)
-                          if $wb->{findForwardLinks};
-                    }
-                    else {
-                        $ws->set_row( $row, undef, undef, 1, 1 )
-                          if $hideFormulas;
-                        $ws->write_string( $row++, $col, $na, $textFormat );
-                    }
-                }
-                elsif (/^(https?|mailto:)/) {
+            if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Object' ) ) {
+                my $na = 'x' . ( ++$xc ) . " = $_->{name}";
+                if ( my $url = $_->wsUrl($wb) ) {
                     $ws->set_row( $row, undef, undef, 1, 1 )
                       if $hideFormulas;
-                    $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
+                    $ws->write_url( $row++, $col, $url, $na, $linkFormat );
+                    (
+                        $_->{location}
+                          && UNIVERSAL::isa( $_->{location},
+                            'SpreadsheetModel::Columnset' )
+                        ? $_->{location}
+                        : $_
+                      )->addForwardLink($self)
+                      if $wb->{findForwardLinks};
                 }
                 else {
                     $ws->set_row( $row, undef, undef, 1, 1 )
                       if $hideFormulas;
-                    $ws->write_string( $row++, $col, "$_", $textFormat );
+                    $ws->write_string( $row++, $col, $na, $textFormat );
                 }
             }
-            $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
-              if $hideFormulas;
+            elsif (/^(https?|mailto:)/) {
+                $ws->set_row( $row, undef, undef, 1, 1 )
+                  if $hideFormulas;
+                $ws->write_url( $row++, $col, "$_", "$_", $linkFormat );
+            }
+            else {
+                $ws->set_row( $row, undef, undef, 1, 1 )
+                  if $hideFormulas;
+                $ws->write_string( $row++, $col, "$_", $textFormat );
+            }
         }
+        $ws->set_row( $row, undef, undef, undef, 0, 0, 1 )
+          if $hideFormulas;
+    }
 
-        ++$row;
-        $ws->set_row( $row, $self->{height} * 0.75 );
-        $ws->insert_chart(
-            $row, $col + 1, $chart, 0, 0,
-            $self->{width} / 480.0,
-            $self->{height} / 288.0
-        );
-        $row += 2;
-        $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
-    }
-    else {    # Chartsheet
-        $chart->protect();
-    }
+    ++$row;
+    $ws->set_row( $row, $self->{height} * 0.75 );
+    $ws->insert_chart(
+        $row, $col + 1, $chart, 0, 0,
+        $self->{width} / 480.0,
+        $self->{height} / 288.0
+    );
+    $row += 2;
+    $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
+
+    $self->{$wb} = $chart;
 
 }
 

@@ -238,7 +238,6 @@ EOW
 
         my $canPriority = $model->can('sheetPriority');
         my @pairs       = $model->worksheetsAndClosures($wbook);
-        $options->{wsheetRunOrder} = [];
         while ( ( local $_, my $closure ) = splice @pairs, 0, 2 ) {
             my $priority = $canPriority ? $model->sheetPriority($_)
               || 0 : /^(?:Index|Overview)$/is ? 1 : 0;
@@ -254,15 +253,24 @@ EOW
               if $options->{protect};
         }
 
+        map { push @{ $wsheetShowOrder[ $_->sheetPriority ] }, $_; }
+          @{ $model->{standaloneCharts} }
+          if $model->{standaloneCharts};
+
     }
 
     my %wsheet;
-
     for ( my $i = $#wsheetShowOrder ; $i >= 0 ; --$i ) {
         my %byDisplayName;
         foreach ( @{ $wsheetShowOrder[$i] } ) {
-            my $dn = $sheetDisplayName{$_};
-            $wsheet{$_} = $byDisplayName{$dn} ||= $wbook->add_worksheet($dn);
+            if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Chart' ) ) {
+                $_->wsCreate($wbook);
+            }
+            else {
+                my $dn = $sheetDisplayName{$_};
+                $wsheet{$_} = $byDisplayName{$dn} ||=
+                  $wbook->add_worksheet($dn);
+            }
         }
     }
 
