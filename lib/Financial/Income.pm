@@ -127,50 +127,56 @@ sub tax {
 }
 
 sub statement {
-    my ( $income, $periods ) = @_;
-    my $incomeBlock = $income->{statement}{ 0 + $periods } ||= CalcBlock(
-        name => $income->{model}{oldTerminology} ? 'Profit and loss account'
-        : 'Income statement',
-        consolidate => 1,
-        items       => [
-            [
+    my ( $income, $periods, $stopAtEbitda ) = @_;
+    $stopAtEbitda ||= '';
+    $income->{"statement$stopAtEbitda"}{ 0 + $periods } ||=
+      $income->{statement}{ 0 + $periods }
+      || do {
+        my $ebitdaItems = [
+            $income->{costSales}
+            ? [
+                $income->{sales}->stream($periods),
+                $income->{costSales}->stream($periods),
+                A4 => $periods->decorate('Gross profits (£)'),
+              ]
+            : ( A4 => $income->{sales}->stream($periods) ),
+            ( map { $_->stream($periods); } @{ $income->{expenses} } ),
+            A1 => $periods->decorate(
+                Label(
+                    'EBITDA (£)',
+                    'EBITDA: earnings before'
+                      . ' interest, tax and depreciation (£)'
+                )
+            ),
+        ];
+        CalcBlock(
+            name => $stopAtEbitda
+            ? 'Earnings before interest, tax and depreciation'
+            : $income->{model}{oldTerminology} ? 'Profit and loss account'
+            : 'Income statement',
+            consolidate => 1,
+            items       => $stopAtEbitda ? $ebitdaItems
+            : [
                 [
                     [
-                        $income->{costSales}
-                        ? [
-                            $income->{sales}->stream($periods),
-                            $income->{costSales}->stream($periods),
-                            A4 => $periods->decorate('Gross profits (£)'),
-                          ]
-                        : ( A4 => $income->{sales}->stream($periods) ),
-                        (
-                            map { $_->stream($periods); }
-                              @{ $income->{expenses} }
-                        ),
-                        A1 => $periods->decorate(
+                        $ebitdaItems,
+                        $income->{assets}->depreciationCharge($periods),
+                        $income->{assets}->disposalGainLoss($periods),
+                        A2 => $periods->decorate(
                             Label(
-                                'EBITDA (£)',
-                                'EBITDA: earnings before'
-                                  . ' interest, tax and depreciation (£)'
+                                'EBIT (£)',
+                                'EBIT: earnings before interest and tax (£)'
                             )
                         ),
                     ],
-                    $income->{assets}->depreciationCharge($periods),
-                    $income->{assets}->disposalGainLoss($periods),
-                    A2 => $periods->decorate(
-                        Label(
-                            'EBIT (£)',
-                            'EBIT: earnings before interest and tax (£)'
-                        )
-                    ),
+                    $income->{debt}->interest($periods),
+                    $periods->decorate('Earnings before tax (£)'),
                 ],
-                $income->{debt}->interest($periods),
-                $periods->decorate('Earnings before tax (£)'),
+                $income->tax($periods),
+                A3 => $periods->decorate('Earnings (£)'),
             ],
-            $income->tax($periods),
-            A3 => $periods->decorate('Earnings (£)'),
-        ],
-    );
+        );
+      };
 }
 
 sub gross {
@@ -180,7 +186,7 @@ sub gross {
 
 sub ebitda {
     my ( $income, $periods ) = @_;
-    $income->statement($periods)->{A1};
+    $income->statement( $periods, 'EBITDA' )->{A1};
 }
 
 sub ebit {
@@ -204,7 +210,9 @@ sub chart {
         $periods->{priorPeriod} ? ( ignore_left => 1 ) : (),
         instructions => [
             add_series => $income->{sales}->stream($periods),
-            add_series => $income->gross($periods),
+            $income->{costSales}
+            ? ( add_series => $income->gross($periods) )
+            : (),
             add_series => $income->ebitda($periods),
             add_series => $income->ebit($periods),
             add_series => $income->earnings($periods),

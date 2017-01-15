@@ -188,8 +188,8 @@ sub profitAndLossReserveMovements {
                 A5_A6 => $cashflow->{balance}->profitAndLossReserve($periods),
                 A1    => $periods->indexPrevious,
                 {
-                    name => $periods->decorate('Opening P&L reserve (£)'),
-                    defaultFormat => '0boldsoft',
+                    name => $periods->decorate('Opening retained earnings (£)'),
+                    defaultFormat => '0soft',
                     arithmetic    => '=INDEX(A5_A6,A1)',
                 }
             ],

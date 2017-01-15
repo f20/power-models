@@ -43,9 +43,19 @@ sub finish {
     my ($assets) = @_;
     return unless $assets->{inputDataColumns};
     my @columns =
-      grep { $_; }
-      @{ $assets->{inputDataColumns} }
-      {qw(names comDate decomDate cost life scrapValuation scrappedValue)};
+      grep { $_; } @{ $assets->{inputDataColumns} }{
+        qw(
+          names
+          comDate
+          decomDate
+          cost
+          life
+          scrapValuation
+          scrappedValue
+          annuityIndex
+          rateOfReturn
+          )
+      };
     Columnset(
         appendTo => $assets->{model}{inputTables},
         columns  => \@columns,
@@ -82,7 +92,7 @@ sub labelsetNoNames {
 sub life {
     my ($assets) = @_;
     $assets->{inputDataColumns}{life} ||= Dataset(
-        name          => 'Straight-line depreciation period (years)',
+        name          => 'Depreciation period (years)',
         defaultFormat => '0.0hard',
         rows          => $assets->labelsetNoNames,
         data          => [ map { 0 } @{ $assets->labelsetNoNames->{list} } ],
@@ -91,68 +101,47 @@ sub life {
 
 sub cost {
     my ($assets) = @_;
-    return $assets->{cost} if $assets->{cost};
-    if ( $assets->{costClosure} ) {
-        $assets->{inputDataColumns}{cost} = Constant(
+    $assets->{cost} ||=
+        $assets->{costClosure}
+      ? $assets->{costClosure}->($assets)
+      : (
+        $assets->{inputDataColumns}{cost} = Dataset(
             name          => 'Cost (£)',
-            defaultFormat => 'unused',
+            defaultFormat => '0hard',
             rows          => $assets->labelsetNoNames,
-            data =>
-              [ map { 'calculated' } @{ $assets->labelsetNoNames->{list} } ],
-        );
-        return $assets->{cost} = $assets->{costClosure}->($assets);
-    }
-    $assets->{cost} = $assets->{inputDataColumns}{cost} = Dataset(
-        name          => 'Cost (£)',
-        defaultFormat => '0hard',
-        rows          => $assets->labelsetNoNames,
-        data          => [ map { 0 } @{ $assets->labelsetNoNames->{list} } ],
-    );
+            data => [ map { 0 } @{ $assets->labelsetNoNames->{list} } ],
+        )
+      );
 }
 
 sub scrapValuation {
     my ($assets) = @_;
-    return $assets->{scrapValuation} if $assets->{scrapValuation};
-    if ( $assets->{scrapValuationClosure} ) {
-        $assets->{inputDataColumns}{scrapValuation} = Constant(
+    $assets->{scrapValuation} ||=
+        $assets->{scrapValuationClosure}
+      ? $assets->{scrapValuationClosure}->($assets)
+      : (
+        $assets->{inputDataColumns}{scrapValuation} = Dataset(
             name => 'Estimated scrap value at time of commissioning (£)',
             defaultFormat => 'unused',
             rows          => $assets->labelsetNoNames,
             data =>
               [ map { 'calculated' } @{ $assets->labelsetNoNames->{list} } ],
-        );
-        return $assets->{scrapValuation} =
-          $assets->{scrapValuationClosure}->($assets);
-    }
-    $assets->{scrapValuation} = $assets->{inputDataColumns}{scrapValuation} =
-      Dataset(
-        name          => 'Estimated scrap value at time of commissioning (£)',
-        defaultFormat => '0hard',
-        rows          => $assets->labelsetNoNames,
-        data          => [ map { 0 } @{ $assets->labelsetNoNames->{list} } ],
+        )
       );
 }
 
 sub scrappedValue {
     my ($assets) = @_;
-    return $assets->{scrappedValue} if $assets->{scrappedValue};
-    if ( $assets->{scrappedValueClosure} ) {
-        $assets->{inputDataColumns}{scrappedValue} = Constant(
+    $assets->{scrappedValue} ||=
+        $assets->{scrappedValueClosure}
+      ? $assets->{scrappedValueClosure}->($assets)
+      : (
+        $assets->{inputDataColumns}{scrappedValue} = Dataset(
             name          => 'Proceeds of scrapping (£)',
-            defaultFormat => 'unused',
+            defaultFormat => '0hard',
             rows          => $assets->labelsetNoNames,
-            data =>
-              [ map { 'calculated' } @{ $assets->labelsetNoNames->{list} } ],
-        );
-        return $assets->{scrappedValue} =
-          $assets->{scrappedValueClosure}->($assets);
-    }
-    $assets->{scrappedValue} = $assets->{inputDataColumns}{scrappedValue} =
-      Dataset(
-        name          => 'Proceeds of scrapping (£)',
-        defaultFormat => '0hard',
-        rows          => $assets->labelsetNoNames,
-        data          => [ map { 0 } @{ $assets->labelsetNoNames->{list} } ],
+            data => [ map { 0 } @{ $assets->labelsetNoNames->{list} } ],
+        )
       );
 }
 
@@ -174,184 +163,6 @@ sub decomDate {
         rows          => $assets->labelsetNoNames,
         data          => [ map { '' } @{ $assets->labelsetNoNames->{list} } ],
     );
-}
-
-sub grossValue {
-    my ( $assets, $periods ) = @_;
-    $assets->{grossValue}{ 0 + $periods } ||= GroupBy(
-        name          => $periods->decorate('Gross asset value (£)'),
-        cols          => $periods->labelset,
-        defaultFormat => '0soft',
-        source        => Arithmetic(
-            name => $periods->decorate('Details of gross asset value (£)'),
-            defaultFormat => '0soft',
-            rows          => $assets->labelset,
-            cols          => $periods->labelset,
-            arithmetic => '=IF(A201>A901,0,IF(A301,IF(A302>A902,A501,0),A502))',
-            arguments  => {
-                A201 => $assets->comDate,
-                A301 => $assets->decomDate,
-                A302 => $assets->decomDate,
-                A501 => $assets->cost,
-                A502 => $assets->cost,
-                A901 => $periods->lastDay,
-                A902 => $periods->lastDay,
-            }
-        ),
-    );
-}
-
-sub assetInventory {
-    my ( $assets, $periods ) = @_;
-    return () unless $assets->{capitalExp};
-    $assets->{assetInventory}{ 0 + $periods } ||= Arithmetic(
-        name          => $periods->decorate('Assets held as inventory (£)'),
-        defaultFormat => '0soft',
-        arithmetic    => '=0-A1-A2',
-        arguments     => {
-            A1 => $assets->{capitalExp}->aggregate($periods),
-            A2 => GroupBy(
-                name => $periods->decorate('Net recognition to date (£)'),
-                cols => $periods->labelset,
-                defaultFormat => '0soft',
-                source        => Arithmetic(
-                    name => $periods->decorate(
-                        'Details of net recognition to date (£)'),
-                    defaultFormat => '0soft',
-                    rows          => $assets->labelset,
-                    cols          => $periods->labelset,
-                    arithmetic    => '=IF(A201>A901,0,'
-                      . 'IF(A301,IF(A302>A902,A501,A503-A504),A502))',
-                    arguments => {
-                        A201 => $assets->comDate,
-                        A301 => $assets->decomDate,
-                        A302 => $assets->decomDate,
-                        A501 => $assets->cost,
-                        A502 => $assets->cost,
-                        A503 => $assets->cost,
-                        A504 => $assets->scrappedValue,
-                        A901 => $periods->lastDay,
-                        A902 => $periods->lastDay,
-                    }
-                ),
-            ),
-        },
-    );
-}
-
-sub netValue {
-    my ( $assets, $periods ) = @_;
-    $assets->{netValue}{ 0 + $periods } ||= GroupBy(
-        name          => $periods->decorate('Fixed assets (£)'),
-        cols          => $periods->labelset,
-        defaultFormat => '0soft',
-        source        => Arithmetic(
-            name => $periods->decorate('Details of net asset value (£)'),
-            defaultFormat => '0soft',
-            rows          => $assets->labelset,
-            cols          => $periods->labelset,
-            arithmetic    => '=IF(A203,IF(A351,A601+(A501-A602)*MAX(0,'
-              . '1-IF(A702,('
-              . '12*(YEAR(A901)-YEAR(A201))+MONTH(A902)-MONTH(A202)+1'
-              . ')/A701/12,0)),0),0)',
-            arguments => {
-                A201 => $assets->comDate,
-                A202 => $assets->comDate,
-                A203 => $assets->comDate,
-                A351 => $assets->grossValue($periods)->{source},
-                A501 => $assets->cost,
-                A601 => $assets->scrapValuation,
-                A602 => $assets->scrapValuation,
-                A701 => $assets->life,
-                A702 => $assets->life,
-                A901 => $periods->lastDay,
-                A902 => $periods->lastDay,
-            }
-        ),
-    );
-}
-
-sub depreciationEndDate {
-    my ($assets) = @_;
-    $assets->{depreciationEndDate} ||= Arithmetic(
-        name          => 'Depreciation end date for each asset',
-        defaultFormat => 'datesoft',
-        rows          => $assets->labelset,
-        arithmetic    => '=IF(A5,DATE(YEAR(A1),MONTH(A2)+12*A3,1)-1,0)',
-        arguments     => {
-            A1 => $assets->comDate,
-            A2 => $assets->comDate,
-            A3 => $assets->life,
-            A4 => $assets->comDate,
-            A5 => $assets->life,
-        }
-    );
-}
-
-sub depreciationCharge {
-
-    my ( $assets, $periods, $recache ) = @_;
-
-    if ( my $cached = $assets->{depreciationCharge}{ 0 + $periods } ) {
-        return $cached unless $recache;
-        return $assets->{depreciationCharge}{ 0 + $periods } = Stack(
-            name    => $cached->objectShortName,
-            sources => [$cached]
-        );
-    }
-
-    my $start = Arithmetic(
-        name          => 'Start of depreciation period',
-        defaultFormat => 'datesoft',
-        rows          => $assets->labelset,
-        cols          => $periods->labelset,
-        arithmetic    => '=IF(A702,MAX(A202,A802),0)',
-        arguments     => {
-            A202 => $assets->comDate,
-            A702 => $assets->life,
-            A802 => $periods->firstDay,
-        },
-    );
-
-    my $end = Arithmetic(
-        name          => 'End of the depreciation period',
-        defaultFormat => 'datesoft',
-        rows          => $assets->labelset,
-        cols          => $periods->labelset,
-        arithmetic    => '=IF(A302,MIN(A901,A301,A251),MIN(A902,A252))',
-        arguments     => {
-            A251 => $assets->depreciationEndDate,
-            A252 => $assets->depreciationEndDate,
-            A301 => $assets->decomDate,
-            A302 => $assets->decomDate,
-            A901 => $periods->lastDay,
-            A902 => $periods->lastDay,
-        },
-    );
-
-    $assets->{depreciationCharge}{ 0 + $periods } = GroupBy(
-        name          => $periods->decorate('Depreciation charge (£)'),
-        cols          => $periods->labelset,
-        defaultFormat => '0soft',
-        source        => Arithmetic(
-            name => $periods->decorate('Details of depreciation charge (£)'),
-            defaultFormat => '0soft',
-            arithmetic =>
-              '=IF(A702,MAX(0,YEAR(A1)*12+MONTH(A2)+1-YEAR(A3)*12-MONTH(A4))'
-              . '/A701/12*(A601-A501),0)',
-            arguments => {
-                A1   => $end,
-                A2   => $end,
-                A3   => $start,
-                A4   => $start,
-                A501 => $assets->cost,
-                A601 => $assets->scrapValuation,
-                A701 => $assets->life,
-                A702 => $assets->life,
-            }
-        ),
-    );
-
 }
 
 sub capitalExpenditure {
@@ -406,8 +217,158 @@ sub capitalReceipts {
     );
 }
 
+sub assetInventory {
+    my ( $assets, $periods ) = @_;
+    return () unless $assets->{capitalExp};
+    $assets->{assetInventory}{ 0 + $periods } ||= Arithmetic(
+        name          => $periods->decorate('Assets held as inventory (£)'),
+        defaultFormat => '0soft',
+        arithmetic    => '=0-A1-A2',
+        arguments     => {
+            A1 => $assets->{capitalExp}->aggregate($periods),
+            A2 => GroupBy(
+                name => $periods->decorate('Net recognition to date (£)'),
+                cols => $periods->labelset,
+                defaultFormat => '0soft',
+                source        => Arithmetic(
+                    name => $periods->decorate(
+                        'Details of net recognition to date (£)'),
+                    defaultFormat => '0soft',
+                    rows          => $assets->labelset,
+                    cols          => $periods->labelset,
+                    arithmetic    => '=IF(A201>A901,0,'
+                      . 'IF(A301,IF(A302>A902,A501,A503-A504),A502))',
+                    arguments => {
+                        A201 => $assets->comDate,
+                        A301 => $assets->decomDate,
+                        A302 => $assets->decomDate,
+                        A501 => $assets->cost,
+                        A502 => $assets->cost,
+                        A503 => $assets->cost,
+                        A504 => $assets->scrappedValue,
+                        A901 => $periods->lastDay,
+                        A902 => $periods->lastDay,
+                    }
+                ),
+            ),
+        },
+    );
+}
+
+sub grossValue {
+    my ( $assets, $periods ) = @_;
+    $assets->{grossValue}{ 0 + $periods } ||= GroupBy(
+        name          => $periods->decorate('Gross asset value (£)'),
+        cols          => $periods->labelset,
+        defaultFormat => '0soft',
+        source        => Arithmetic(
+            name => $periods->decorate('Details of gross asset value (£)'),
+            defaultFormat => '0soft',
+            rows          => $assets->labelset,
+            cols          => $periods->labelset,
+            arithmetic => '=IF(A201>A901,0,IF(A301,IF(A302>A902,A501,0),A502))',
+            arguments  => {
+                A201 => $assets->comDate,
+                A301 => $assets->decomDate,
+                A302 => $assets->decomDate,
+                A501 => $assets->cost,
+                A502 => $assets->cost,
+                A901 => $periods->lastDay,
+                A902 => $periods->lastDay,
+            }
+        ),
+    );
+}
+
+sub depreciationEndDate {
+    my ($assets) = @_;
+    $assets->{depreciationEndDate} ||= Arithmetic(
+        name          => 'Depreciation end date for each asset',
+        defaultFormat => 'datesoft',
+        rows          => $assets->labelset,
+        arithmetic    => '=IF(A5,DATE(YEAR(A1),MONTH(A2)+12*A3,1)-1,0)',
+        arguments     => {
+            A1 => $assets->comDate,
+            A2 => $assets->comDate,
+            A3 => $assets->life,
+            A4 => $assets->comDate,
+            A5 => $assets->life,
+        }
+    );
+}
+
+sub netValueArithmetic {
+    my ( $assets, $periods ) = @_;
+    (
+        arithmetic => '=IF(A351,A601+(A501-A602)*MAX(0,'
+          . '1-IF(A702,('
+          . '12*(YEAR(A901)-YEAR(A201))+MONTH(A902)-MONTH(A202)+1'
+          . ')/A701/12,0)),0)',
+        arguments => {
+            A201 => $assets->comDate,
+            A202 => $assets->comDate,
+            A351 => $assets->grossValue($periods)->{source},
+            A501 => $assets->cost,
+            A601 => $assets->scrapValuation,
+            A602 => $assets->scrapValuation,
+            A701 => $assets->life,
+            A702 => $assets->life,
+            A901 => $periods->lastDay,
+            A902 => $periods->lastDay,
+        },
+    );
+}
+
+sub netValue {
+    my ( $assets, $periods ) = @_;
+    $assets->{netValue}{ 0 + $periods } ||= GroupBy(
+        name          => $periods->decorate('Fixed assets (£)'),
+        cols          => $periods->labelset,
+        defaultFormat => '0soft',
+        source        => Arithmetic(
+            name => $periods->decorate('Details of net asset value (£)'),
+            defaultFormat => '0soft',
+            rows          => $assets->labelset,
+            cols          => $periods->labelset,
+            $assets->netValueArithmetic($periods),
+        ),
+    );
+}
+
+sub disposalGainLossArithmetic {
+    my ( $assets, $periods ) = @_;
+    (
+        arithmetic => '=IF(OR(NOT(A203),A301<A801,A302>A901),0,'
+          . 'A651-A601-(A501-A602)*MAX(0,'
+          . '1-IF(A702,('
+          . '12*(YEAR(A303)-YEAR(A201))+MONTH(A304)-MONTH(A202)+1'
+          . ')/A701/12,0)))',
+        arguments => {
+            A201 => $assets->comDate,
+            A202 => $assets->comDate,
+            A203 => $assets->comDate,
+            A301 => $assets->decomDate,
+            A302 => $assets->decomDate,
+            A303 => $assets->decomDate,
+            A304 => $assets->decomDate,
+            A501 => $assets->cost,
+            A601 => $assets->scrapValuation,
+            A602 => $assets->scrapValuation,
+            A651 => $assets->scrappedValue,
+            A701 => $assets->life,
+            A702 => $assets->life,
+            A801 => $periods->firstDay,
+            A901 => $periods->lastDay,
+        },
+    );
+}
+
 sub disposalGainLoss {
     my ( $assets, $periods, $recache ) = @_;
+
+    # Cannot use net value because the disposal valuation date
+    # might not be the end of any reporting period.
+
     return $assets->{disposalGainLoss}{ 0 + $periods } = Stack(
         name    => $recache->objectShortName,
         sources => [$recache]
@@ -422,30 +383,84 @@ sub disposalGainLoss {
             defaultFormat => '0soft',
             rows          => $assets->labelset,
             cols          => $periods->labelset,
-            arithmetic    => '=IF(OR(NOT(A203),A301<A801,A302>A901),0,'
-              . 'A651-A601-(A501-A602)*MAX(0,'
-              . '1-IF(A702,('
-              . '12*(YEAR(A303)-YEAR(A201))+MONTH(A304)-MONTH(A202)+1'
-              . ')/A701/12,0)))',
-            arguments => {
-                A201 => $assets->comDate,
-                A202 => $assets->comDate,
-                A203 => $assets->comDate,
-                A301 => $assets->decomDate,
-                A302 => $assets->decomDate,
-                A303 => $assets->decomDate,
-                A304 => $assets->decomDate,
-                A501 => $assets->cost,
-                A601 => $assets->scrapValuation,
-                A602 => $assets->scrapValuation,
-                A651 => $assets->scrappedValue,
-                A701 => $assets->life,
-                A702 => $assets->life,
-                A801 => $periods->firstDay,
-                A901 => $periods->lastDay,
-            }
+            $assets->disposalGainLossArithmetic($periods),
         ),
     );
+}
+
+sub depreciationArithmetic {
+    my ( $assets, $periods, $start, $end ) = @_;
+    (
+        arithmetic =>
+          '=IF(A702,MAX(0,YEAR(A1)*12+MONTH(A2)+1-YEAR(A3)*12-MONTH(A4))'
+          . '/A701/12*(A601-A501),0)',
+        arguments => {
+            A1   => $end,
+            A2   => $end,
+            A3   => $start,
+            A4   => $start,
+            A501 => $assets->cost,
+            A601 => $assets->scrapValuation,
+            A701 => $assets->life,
+            A702 => $assets->life,
+        },
+    );
+}
+
+sub depreciationCharge {
+
+    my ( $assets, $periods, $recache ) = @_;
+
+    if ( my $cached = $assets->{depreciationCharge}{ 0 + $periods } ) {
+        return $cached unless $recache;
+        return $assets->{depreciationCharge}{ 0 + $periods } = Stack(
+            name    => $cached->objectShortName,
+            sources => [$cached]
+        );
+    }
+
+    my $start = Arithmetic(
+        name          => 'Start of depreciation period',
+        defaultFormat => 'datesoft',
+        rows          => $assets->labelset,
+        cols          => $periods->labelset,
+        arithmetic    => '=IF(A702,MAX(A202,A802),0)',
+        arguments     => {
+            A202 => $assets->comDate,
+            A702 => $assets->life,
+            A802 => $periods->firstDay,
+        },
+    );
+
+    my $end = Arithmetic(
+        name          => 'End of the depreciation period',
+        defaultFormat => 'datesoft',
+        rows          => $assets->labelset,
+        cols          => $periods->labelset,
+        arithmetic    => '=IF(A302,MIN(A901,A301,A251),MIN(A902,A252))',
+        arguments     => {
+            A251 => $assets->depreciationEndDate,
+            A252 => $assets->depreciationEndDate,
+            A301 => $assets->decomDate,
+            A302 => $assets->decomDate,
+            A901 => $periods->lastDay,
+            A902 => $periods->lastDay,
+        },
+    );
+
+    $assets->{depreciationCharge}{ 0 + $periods } = GroupBy(
+        name          => $periods->decorate('Depreciation charge (£)'),
+        cols          => $periods->labelset,
+        defaultFormat => '0soft',
+        source        => Arithmetic(
+            name => $periods->decorate('Details of depreciation charge (£)'),
+            defaultFormat => '0soft',
+            rows          => $assets->labelset,
+            cols          => $periods->labelset,
+            $assets->depreciationArithmetic( $periods, $start, $end ),
+        ),
+    );
+
 }
 
 1;

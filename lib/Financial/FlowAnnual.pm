@@ -51,23 +51,16 @@ sub finish {
 
 sub annual {
     my ($flow) = @_;
-    return $flow->{annual} if $flow->{annual};
-    if ( $flow->{annualClosure} ) {
-        $flow->{inputDataColumns}{annual} = Constant(
+    $flow->{annual} ||= $flow->{annualClosure}
+      ? $flow->{annualClosure}->($flow)
+      : (
+        $flow->{inputDataColumns}{annual} = Dataset(
             name          => 'Annual ' . $flow->{show_flow},
-            defaultFormat => 'unused',
+            defaultFormat => $flow->{show_formatBase} . 'hard',
             rows          => $flow->labelsetNoNames,
-            data =>
-              [ map { 'calculated' } @{ $flow->labelsetNoNames->{list} } ],
-        );
-        return $flow->{annual} = $flow->{annualClosure}->($flow);
-    }
-    $flow->{annual} = $flow->{inputDataColumns}{annual} = Dataset(
-        name          => 'Annual ' . $flow->{show_flow},
-        defaultFormat => $flow->{show_formatBase} . 'hard',
-        rows          => $flow->labelsetNoNames,
-        data          => [ map { 0 } @{ $flow->labelsetNoNames->{list} } ],
-    );
+            data          => [ map { 0 } @{ $flow->labelsetNoNames->{list} } ],
+        )
+      );
 }
 
 sub growth {

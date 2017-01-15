@@ -40,7 +40,6 @@ sub requiredModulesForRuleset {
       CashCalc
       Cashflow
       Debt
-      FixedAssets
       FlowAnnual
       Income
       Periods
@@ -49,7 +48,8 @@ sub requiredModulesForRuleset {
       ), $ruleset->{numExceptional}
       || $ruleset->{numCapitalExp} ? qw(FlowOnce) : (),
       $ruleset->{inputDataModule}
-      || 'Inputs';
+      || 'Inputs', $ruleset->{fixedAssetsModule}
+      || 'FixedAssets';
 }
 
 sub AUTOLOAD {
@@ -107,8 +107,10 @@ sub new {
         show_flow    => 'capital expenditure (£)',
     )->( $input->capitalExp );
 
+    my $fixedAssetsModule = $model->{fixedAssetsModule} || 'FixedAssets';
     my $assets =
-      $model->FixedAssets( capitalExp => $capitalExp, )->( $input->assets );
+      $model->$fixedAssetsModule( capitalExp => $capitalExp, )
+      ->( $input->assets );
 
     my $debt = $model->Debt->( $input->debt );
 
@@ -167,7 +169,7 @@ sub new {
         priorPeriod     => 1,
         startMonth      => $model->{startMonth},
         startYear       => $model->{startYear},
-        suffix          => 'monthly',
+        suffix          => $model->{quarterly} ? 'quarterly' : 'monthly',
     );
 
     my $reserve = $model->Reserve->(
@@ -217,8 +219,9 @@ sub new {
 
     push @{ $model->{inputCharts} }, $ratios->chart_gearing($years);
 
-    push @{ $model->{standaloneCharts} }, $income->chart($years),
-      $cashflow->chart_equity_dividends($years);
+    push @{ $model->{standaloneCharts} },
+      $cashflow->chart_equity_dividends($years), $income->chart($years),
+      $ratios->chart_roce($years);
 
     $_->finish
       foreach grep { UNIVERSAL::can( $_, 'finish' ); }

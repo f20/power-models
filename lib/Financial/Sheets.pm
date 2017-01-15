@@ -36,8 +36,9 @@ require Spreadsheet::WriteExcel::Utility;
 
 sub sheetPriority {
     ( my $model, local $_ ) = @_;
-    return 9 if /^Index/;
-    5;
+    return 7 if /^Index/;
+    return 6 if /^Input/;
+    0;
 }
 
 sub worksheetsAndClosures {
@@ -58,9 +59,8 @@ sub worksheetsAndClosures {
         my ( $sh, $ro, $co ) = Dataset(
             number             => 1400,
             dataset            => $model->{dataset},
-            name               => 'Title and subtitle',
-            singleRowName      => 'Title',
-            cols               => Labelset( list => [qw(Title Subtitle)] ),
+            name               => 'Model identification',
+            rows               => Labelset( list => [qw(Title Subtitle)] ),
             defaultFormat      => 'puretexthard',
             data               => [ 'no title', 'no subtitle' ],
             usePlaceholderData => 1,
@@ -72,8 +72,8 @@ sub worksheetsAndClosures {
                 qq%" for "&'$sh'!%
               . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
               . qq%&" ("&'$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
-                $co + 1 )
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro + 1,
+                $co )
               . '&")"';
         }
         $_->wsWrite( $wbook, $wsheet )
@@ -210,7 +210,7 @@ sub worksheetsAndClosures {
           foreach Notes( name => 'Financial ratios' ),
           @{ $model->{ratioTables} };
         $_->wsWrite( $wbook, $inputSheet ) foreach @{ $model->{inputCharts} };
-        $_->wsWrite($wbook) foreach @{ $model->{standaloneCharts} };
+        $_->wsWrite( $wbook, $wsheet ) foreach @{ $model->{standaloneCharts} };
       }
 
       ,
