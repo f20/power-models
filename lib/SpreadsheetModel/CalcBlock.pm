@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,8 +32,7 @@ use strict;
 use utf8;
 
 use Exporter qw(import);
-our @EXPORT = qw(
-  CalcBlock);
+our @EXPORT = qw(CalcBlock);
 
 sub CalcBlock {
     unshift @_, 'SpreadsheetModel::CalcBlock';
@@ -297,6 +296,7 @@ sub wsWrite {
         local $_ = $formulas[$i]
           . ( $item->{singleExternalSource} ? $item->{arithmetic} : '' );
         s/(x[0-9]+)[=\s]+/$1 = /;
+        s/ = $/ = constant/;
         if ( $item->{singleExternalSource} ) {
             unless (s/(=\s*)A[0-9]+$/$1$item->{sourceLines}[0]{name}/) {
                 s/([(,])A[0-9]+([),])/$1$item->{sourceLines}[0]{name}$2/g;
