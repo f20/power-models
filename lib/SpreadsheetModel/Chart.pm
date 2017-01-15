@@ -100,8 +100,7 @@ sub applyInstructions {
                 $args = [];
             }
             if ( UNIVERSAL::isa( $series, 'SpreadsheetModel::Dataset' )
-                and !$series->{rows} && $series->{cols}
-                || $series->{rows}   && !$series->{cols} )
+                and $series->{cols} || $series->{rows} )
             {
                 push @{ $self->{sourceLines} }, $series
                   unless $self->{sourceLines} && grep { $_ == $series }
@@ -133,36 +132,64 @@ sub applyInstructions {
                     }
                     --$c3;
                 }
-                unshift @$args,
-                  name       => $series->objectShortName,
-                  categories => '='
-                  . $w2
-                  . xl_rowcol_to_cell(
-                    $r3 + ( $self->{ignore_top}  || 0 ),
-                    $c3 + ( $self->{ignore_left} || 0 ),
-                    1, 1,
-                  )
-                  . ':'
-                  . xl_rowcol_to_cell(
-                    $r3 + $series->lastRow - ( $self->{ignore_bottom} || 0 ),
-                    $c3 + $series->lastCol - ( $self->{ignore_right}  || 0 ),
-                    1,
-                    1,
-                  ),
-                  values => '='
-                  . $w2
-                  . xl_rowcol_to_cell(
-                    $r2 + ( $self->{ignore_top}  || 0 ),
-                    $c2 + ( $self->{ignore_left} || 0 ),
-                    1, 1,
-                  )
-                  . ':'
-                  . xl_rowcol_to_cell(
-                    $r2 + $series->lastRow - ( $self->{ignore_bottom} || 0 ),
-                    $c2 + $series->lastCol - ( $self->{ignore_right}  || 0 ),
-                    1,
-                    1,
-                  );
+                my ( $w4, $r4, $c4 );
+                if ( $series->{legendText} ) {
+                    ( $w4, $r4, $c4 ) =
+                      $series->{legendText}
+                      ->wsWrite( $wb, $ws, undef, undef, 1 );
+                    $w4 = "'" . $w4->get_name . "'!";
+                }
+                map {
+                    $chart->$verb(
+                        $w4
+                        ? (
+                                name_formula => '='
+                              . $w4
+                              . xl_rowcol_to_cell(
+                                $r4 + $_->[0],
+                                $c4 + $_->[1],
+                                1, 1
+                              )
+                          )
+                        : ( name => $_->[4] ),
+                        categories => '='
+                          . $w2
+                          . xl_rowcol_to_cell(
+                            $r3 + ( $self->{ignore_top}  || 0 ),
+                            $c3 + ( $self->{ignore_left} || 0 ),
+                            1, 1,
+                          )
+                          . ':'
+                          . xl_rowcol_to_cell(
+                            $r3 + $_->[2] - ( $self->{ignore_bottom} || 0 ),
+                            $c3 + $_->[3] - ( $self->{ignore_right}  || 0 ),
+                            1,
+                            1,
+                          ),
+                        values => '='
+                          . $w2
+                          . xl_rowcol_to_cell(
+                            $r2 + $_->[0] + ( $self->{ignore_top}  || 0 ),
+                            $c2 + $_->[1] + ( $self->{ignore_left} || 0 ),
+                            1, 1,
+                          )
+                          . ':'
+                          . xl_rowcol_to_cell(
+                            $r2 + $_->[2] - ( $self->{ignore_bottom} || 0 ),
+                            $c2 + $_->[3] - ( $self->{ignore_right}  || 0 ),
+                            1,
+                            1,
+                          ),
+                        @$args
+                    );
+                  } !$series->lastCol
+                  ? [ 0, 0, $series->lastRow, 0, $series->objectShortName ]
+                  : !$series->lastRow
+                  ? [ 0, 0, 0, $series->lastCol, $series->objectShortName ]
+                  : map {
+                    [ $_, 0, $_, $series->lastCol, $series->{rows}{list}[$_] ];
+                  } $series->{rows}->indices;
+                next;
             }
             elsif (ref $series eq 'ARRAY'
                 && UNIVERSAL::isa( $series->[0], 'SpreadsheetModel::Dataset' )
