@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -161,7 +161,7 @@ sub reference {
             A12 => Constant(
                 name => 'Reference EBITDA interest cover',
                 cols => $periods->labelset,
-                data => [ map { 3 } @{ $periods->labelset->{list} } ],
+                data => [ map { 3; } @{ $periods->labelset->{list} } ],
             ),
         ],
     );
@@ -178,7 +178,7 @@ sub chart_ebitda_cover {
         instructions => [
             add_series => $ratios->statement($periods)->{A12},
             set_x_axis => [ name => 'Year', ],
-            set_y_axis => [ name => 'Cover ratio' ],
+            set_y_axis => [ name => 'Cover ratio', min => 0, max => 6, ],
             set_legend => [ position => 'none' ],
             combine    => [
                 type         => 'line',
@@ -203,6 +203,37 @@ sub chart_gearing {
             set_x_axis => [ name => 'Year', ],
             set_y_axis =>
               [ name => 'Gearing', min => 0, max => 1, num_format => '0%', ],
+            set_legend => [ position => 'none' ],
+        ],
+    );
+}
+
+sub chart_roce {
+    my ( $ratios, $periods ) = @_;
+    require SpreadsheetModel::Chart;
+    SpreadsheetModel::Chart->new(
+        name         => 'ROCE',
+        type         => 'column',
+        instructions => [
+            add_series => Arithmetic(
+                name          => 'Return (EBIT) on capital employed',
+                defaultFormat => '%soft',
+                arithmetic    => '=A1/(INDEX(A2_A3,A4)-INDEX(A5_A6,A7))',
+                arguments     => {
+                    A1    => $ratios->{income}->ebit($periods),
+                    A2_A3 => $ratios->{balance}->equity($periods),
+                    A4    => $periods->indexPrevious,
+                    A5_A6 => $ratios->{balance}{debt}->due($periods),
+                    A7    => $periods->indexPrevious,
+                },
+            ),
+            set_x_axis => [
+                num_font  => { size => 16 },
+                name_font => { size => 16 },
+                interval_unit => 1 + int( @{ $periods->labelset->{list} } / 6 ),
+            ],
+            set_y_axis =>
+              [ num_font => { size => 16 }, name_font => { size => 16 }, ],
             set_legend => [ position => 'none' ],
         ],
     );
