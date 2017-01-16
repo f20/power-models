@@ -51,8 +51,8 @@ sub check {
       . ( ref $self->{instructions} )
       . ' but must be ARRAY'
       unless ref $self->{instructions} eq 'ARRAY';
-    $self->{height} ||= 288;
-    $self->{width}  ||= 480;
+    $self->{height} ||= 360;
+    $self->{width}  ||= 640;
     return;
 }
 

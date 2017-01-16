@@ -202,10 +202,8 @@ sub earnings {
 sub chart {
     my ( $income, $periods ) = @_;
     SpreadsheetModel::Chart->new(
-        name   => 'Earnings',
-        type   => 'column',
-        height => 280,
-        width  => 640,
+        name => 'Earnings',
+        type => 'column',
         $periods->{priorPeriod} ? ( ignore_left => 1 ) : (),
         instructions => [
             add_series => $income->{sales}->stream($periods),

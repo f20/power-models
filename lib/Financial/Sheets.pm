@@ -52,9 +52,9 @@ sub worksheetsAndClosures {
         $wsheet->{sheetNumber}    = 14;
         $wbook->{lastSheetNumber} = 19;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   13 );
+        $wsheet->set_column( 0, 0,   14 );
         $wsheet->set_column( 1, 1,   42 );
-        $wsheet->set_column( 2, 250, 13 );
+        $wsheet->set_column( 2, 250, 14 );
         $wsheet->{nextFree} = 2;
         my ( $sh, $ro, $co ) = Dataset(
             number             => 1400,
@@ -81,7 +81,7 @@ sub worksheetsAndClosures {
           @{ $model->{inputTables} };
         my $nextFree = delete $wsheet->{nextFree};
         Notes( lines =>
-              [ 'Input data', '', 'This sheet contains the input data.' ] )
+              [ 'Input data', '', 'This sheet contains all the input data.' ] )
           ->wsWrite( $wbook, $wsheet );
         $wsheet->{nextFree} = $nextFree;
         $inputSheet = $wsheet;

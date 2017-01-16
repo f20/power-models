@@ -172,7 +172,6 @@ sub chart_ebitda_cover {
     SpreadsheetModel::Chart->new(
         name         => 'EBITDA interest cover',
         type         => 'column',
-        height       => 360,
         width        => 110 * @{ $periods->labelset->{list} },
         instructions => [
             add_series => $ratios->statement($periods)->{A12},
@@ -194,13 +193,10 @@ sub chart_gearing {
     SpreadsheetModel::Chart->new(
         name         => '',
         type         => 'column',
-        height       => 280,
-        width        => 640,
+        height       => 320,
         instructions => [
             add_series => $ratios->statement($periods)->{A10},
-            set_x_axis => [ name => 'Year', ],
-            set_y_axis =>
-              [ name => 'Gearing', min => 0, max => 1, num_format => '0%', ],
+            set_y_axis => [ min => 0, max => 1, num_format => '0%', ],
             set_legend => [ position => 'none' ],
         ],
     );

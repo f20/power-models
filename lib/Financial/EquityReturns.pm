@@ -181,8 +181,6 @@ sub chart_equity_dividends {
     SpreadsheetModel::Chart->new(
         name         => 'IRR',
         type         => 'column',
-        height       => 280,
-        width        => 640,
         instructions => [
             add_series => [
                 1

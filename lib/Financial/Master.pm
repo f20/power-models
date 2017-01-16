@@ -208,17 +208,24 @@ sub new {
       $cashflow->workingCapitalMovements($years);
 
     unless ( $model->{noEquityReturns} ) {
+
         my $equityReturns = $model->EquityReturns->(
             income   => $income,
             balance  => $balance,
             cashflow => $cashflow,
         );
+
         push @{ $model->{cashflowTables} },
           @{ $equityReturns->equityInternalRateOfReturn($years) },
           $equityReturns->npv($years);
+
+        # Useful charts should be standalone as it is difficult
+        # to copy charts embedded in locked worksheets.
+        # Unfortunately this means that there is no easy link to data sources.
         push @{ $model->{standaloneCharts} },
           $equityReturns->chart_equity_dividends($years),
           $equityReturns->chart_npv($years);
+
     }
 
     unless ( $model->{noRatios} ) {
