@@ -1,0 +1,16 @@
+---
+.: 2015 CDCM toy only
+PerlModule: CDCM
+agghhequalisation: 1
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+forwardLinks: 1
+matrices: big
+noReplacement: blanket
+scaler: levelledpickexitnogenminzero
+standing: sub132
+targetRevenue: dcp132
+tariffs: toy2
+timeOfDay: timeOfDay

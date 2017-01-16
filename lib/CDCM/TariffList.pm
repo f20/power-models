@@ -236,7 +236,7 @@ LV half hourly:
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: special|common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|boundary|portfolio|dcp161toy|simple
+  - Included: special|common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|boundary|portfolio|dcp161toy|simple|toy2
   - Excluded: dcp179
 ---
 LV half hourly (EHV-local source):
@@ -274,7 +274,7 @@ HV half hourly:
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|T9|dcp161toy|simple
+  - Included: common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|T9|dcp161toy|simple|toy2
   - Excluded: dcp179
 ---
 HV half hourly (EHV-local source):
@@ -723,7 +723,7 @@ HV generation half hourly:
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: common|WS2|WS3|Opt6|portfolio|simplegen
+  - Included: common|WS2|WS3|Opt6|portfolio|simplegen|toy2
 ---
 HV generation half hourly (EHV-local supply):
   - PC0
