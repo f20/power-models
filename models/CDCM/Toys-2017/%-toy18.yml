@@ -1,10 +1,7 @@
 ---
-.: 2018 CDCM toy only after DCP 228
+.: 2018 CDCM educational toy after DCP 228
 PerlModule: CDCM
-agghhequalisation: rag
 alwaysUseRAG: 1
-blackPeakingProbabilityRequired: 1
-coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4

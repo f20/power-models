@@ -1,9 +1,7 @@
 ---
-.: 2017 CDCM toy only after DCP 227
+.: 2017 CDCM educational toy after DCP 227
 PerlModule: CDCM
-agghhequalisation: rag
 alwaysUseRAG: 1
-coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
