@@ -789,7 +789,7 @@ EOL
         $model->{legacy201} ? ( name => 'Overview' ) : (),
         copyright =>
           'Copyright 2009-2011 Energy Networks Association Limited and others. '
-          . 'Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.'
+          . 'Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.'
     );
 
     push @wsheetsAndClosures,

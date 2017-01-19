@@ -569,7 +569,7 @@ sub worksheetsAndClosures {
         $model->{legacy201} ? ( name => 'Overview' ) : (),
         copyright =>
           'Copyright 2009-2012 Energy Networks Association Limited and others. '
-          . 'Copyright 2013-2016 Franck Latrémolière, Reckon LLP and others.'
+          . 'Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.'
       )->closure($wbook);
 
 }

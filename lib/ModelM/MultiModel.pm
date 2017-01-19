@@ -60,8 +60,12 @@ sub worksheetsAndClosuresWithController {
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 20 );
         require SpreadsheetModel::Book::FrontSheet;
-        my $noticeMaker =
-          SpreadsheetModel::Book::FrontSheet->new( model => $model );
+        my $noticeMaker = SpreadsheetModel::Book::FrontSheet->new(
+            model     => $model,
+            copyright => 'Copyright 2009-2012 The Competitive Networks'
+              . ' Association and others. '
+              . 'Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.',
+        );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Controller' ), $noticeMaker->extraNotes,
           $noticeMaker->dataNotes,

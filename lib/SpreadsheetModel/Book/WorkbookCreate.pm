@@ -317,7 +317,7 @@ EOW
             delete $ws->{lastTableNumber};
             $allClosures{$_}->($ws);
             $ws->activate if exists $wsheetActive{$_};
-            $ws->fit_to_pages( 1, 0 );
+            $ws->fit_to_pages( 1, 0 ) unless /^(?:Index|Overview)/;
             $ws->hide_gridlines(2);
             $ws->protect( $wsheetPassword{$_}, $ws->{protectionOptions} )
               if exists $wsheetPassword{$_};
