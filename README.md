@@ -34,10 +34,7 @@ Step 2.  Download the code.
 ---------------------------
 
 Either download https://github.com/f20/power-models/archive/master.zip and
-extract all the files from it, or clone this repository using git with the
-command:
-
-    git clone https://github.com/f20/power-models.git
+extract all the files from it, or use a git client to clone this repository.
 
 Step 3.  Install any missing modules.
 -------------------------------------
