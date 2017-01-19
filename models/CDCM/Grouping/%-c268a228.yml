@@ -1,5 +1,5 @@
 ---
-.: DCP 268 on post-DCP 228 model clean
+.: DCP 268 on 2018 model, clean
 PerlModule: CDCM
 blackPeakingProbabilityRequired: 1
 checksums: Line checksum 5; Table checksum 7
@@ -18,6 +18,6 @@ targetRevenue: dcp249
 tariffGrouping: supercustomer
 tariffNameField: Name268
 tariffSpec: 1
-tariffs: dcp130_omitnhh_offpeakhh
+tariffs: dcp130_omitnhh_offpeakhh_gennoreact
 timeOfDay: timeOfDaySpecial
 unauth: dayotex
