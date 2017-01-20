@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -53,6 +53,20 @@ sub rCode {
     my $script = {};
     map { $self->$_($script); } @_;
 }
+
+sub maps3701rate3ts {
+    my ( $self, $script ) = @_;
+    require SpreadsheetModel::Data::RCode::PriceMaps;
+    SpreadsheetModel::Data::RCode::PriceMaps->maps3701rate3ts($script);
+}
+
+sub maps3701reactivets {
+    my ( $self, $script ) = @_;
+    require SpreadsheetModel::Data::RCode::PriceMaps;
+    SpreadsheetModel::Data::RCode::PriceMaps->maps3701reactivets($script);
+}
+
+
 
 sub maps4202cs {
     my ( $self, $script ) = @_;

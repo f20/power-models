@@ -1,0 +1,11 @@
+makeModels
+	-sqlitexls
+	-pickbest
+	CDCM/*/%-clean*.yml
+	CDCM/2016-02/*
+	CDCM/2017-02/*
+	CDCM/2018-02/*
+
+R
+    maps3701rate3ts
+    maps3701reactivets

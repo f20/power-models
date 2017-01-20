@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,149 @@ use warnings;
 use strict;
 use utf8;
 
-require SpreadsheetModel::Data::RCode::AreaMaps;
+use SpreadsheetModel::Data::RCode::AreaMaps;
+
+sub maps3701rate3ts {
+    my ( $self, $script ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+library(DBI);
+library(RSQLite);
+drv <- dbDriver('SQLite');
+db <- dbConnect(drv, dbname = '~$database.sqlite');
+t <- dbGetQuery(db, paste(
+    'select company, period, option, a.v as tariff, b.v as value',
+    'from data as a',
+    'inner join data as b using (bid, tab, row)',
+    'inner join data as c using (bid, tab)',
+    'left join books using (bid)',
+    'where a.tab=3701 and a.row>0 and a.col=0 and b.col=c.col and c.row=0',
+    'and c.v like "Unit rate 3 p/kWh"'
+    )
+);
+period <- factor(t$period);
+periodList <- gsub(' 02', '', fixed=T, levels(period));
+levels(period) <- periodList;
+numPeriods <- length(periodList);
+company <- factor(t$company);
+v <- as.numeric(t$value);
+names(v) <- company;
+tariff <- factor(t$tariff);
+testkey <- factor(paste(tariff, period, company));
+if (length(testkey) > length(levels(testkey))) {
+	tariff <- factor(paste(tariff, t$option));
+}
+tariffList <- levels(tariff);
+
+pdf('Green unit rates.pdf', width=11.69, height=8.27);
+for (t in tariffList[order(tariffList)]) {
+    if (sum(v[tariff==t] != 0) > 0) {
+        l <- list();
+        for (o in 1:numPeriods) {
+            l[[o]] <- v[tariff==t&period==periodList[o]];
+        }
+        try(plot.dno.map(
+            l,
+            file.name=NA,
+            title=t,
+            option.names=paste(periodList, 'off-peak p/kWh'),
+            legend.digit=1,
+            number.format='%1.2f'
+        ));
+    }
+}
+graphics.off();
+
+for (t in tariffList[order(tariffList)]) {
+    if (t == "HV HH Metered" || t == "LV Sub HH Metered" || t == "LV HH Metered") {
+        l <- list();
+        for (o in 1:numPeriods) {
+            l[[o]] <- v[tariff==t&period==periodList[o]];
+        }
+        try(plot.dno.map(
+            l,
+            file.name=paste(t, 'green'),
+            file.type=1200,
+            title=paste(t, 'Green unit rate', sep=' \U{2014} '),
+            option.names=paste(periodList, 'off-peak p/kWh'),
+            legend.digit=1,
+            number.format='%1.2f'
+        ));
+    }
+}
+
+EOR
+}
+
+sub maps3701reactivets {
+    my ( $self, $script ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+library(DBI);
+library(RSQLite);
+drv <- dbDriver('SQLite');
+db <- dbConnect(drv, dbname = '~$database.sqlite');
+t <- dbGetQuery(db, paste(
+    'select company, period, option, a.v as tariff, b.v as value',
+    'from data as a',
+    'inner join data as b using (bid, tab, row)',
+    'inner join data as c using (bid, tab)',
+    'left join books using (bid)',
+    'where a.tab=3701 and a.row>0 and a.col=0 and b.col=c.col and c.row=0',
+    'and c.v like "%kVArh%"'
+    )
+);
+period <- factor(t$period);
+periodList <- gsub(' 02', '', fixed=T, levels(period));
+levels(period) <- periodList;
+numPeriods <- length(periodList);
+company <- factor(t$company);
+v <- as.numeric(t$value);
+names(v) <- company;
+tariff <- factor(t$tariff);
+testkey <- factor(paste(tariff, period, company));
+if (length(testkey) > length(levels(testkey))) {
+	tariff <- factor(paste(tariff, t$option));
+}
+tariffList <- levels(tariff);
+
+pdf('Reactive power charges.pdf', width=11.69, height=8.27);
+for (t in tariffList[order(tariffList)]) {
+    if (sum(v[tariff==t] != 0) > 0) {
+        l <- list();
+        for (o in 1:numPeriods) {
+            l[[o]] <- v[tariff==t&period==periodList[o]];
+        }
+        try(plot.dno.map(
+            l,
+            file.name=NA,
+            title=t,
+            option.names=paste(periodList, 'p/kVArh'),
+            legend.digit=1,
+            number.format='%1.2f'
+        ));
+    }
+}
+graphics.off();
+
+for (t in tariffList[order(tariffList)]) {
+    if (t == "HV HH Metered" || t == "LV Sub HH Metered" || t == "LV HH Metered") {
+        l <- list();
+        for (o in 1:numPeriods) {
+            l[[o]] <- v[tariff==t&period==periodList[o]];
+        }
+        try(plot.dno.map(
+            l,
+            file.name=paste(t, 'reactive'),
+            file.type=1200,
+            title=paste(t, 'Excess reactive power charges', sep=' \U{2014} '),
+            option.names=paste(periodList, 'p/kVArh'),
+            legend.digit=1,
+            number.format='%1.2f'
+        ));
+    }
+}
+
+EOR
+}
 
 sub maps4202ts {
     my ( $self, $script ) = @_;
