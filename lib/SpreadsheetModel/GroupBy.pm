@@ -61,15 +61,11 @@ sub check {
     else {
         return "Mismatch in cols $self->{debug}"
           unless !$self->{cols}
-
-     #   || !$self->{source}{cols} -- we don't do extending as part of a GroupBy
           || $self->{cols} == $self->{source}{cols}
           || $self->{cols}{list} == $self->{source}{cols}{groups};
 
         return "Mismatch in rows $self->{debug}"
           unless !$self->{rows}
-
-     #   || !$self->{source}{rows} -- we don't do extending as part of a GroupBy
           || $self->{rows} == $self->{source}{rows}
           || $self->{rows}{list} == $self->{source}{rows}{groups};
     }
