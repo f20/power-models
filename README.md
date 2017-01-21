@@ -1,32 +1,38 @@
 github.com/f20/power-models
 ===========================
 
-This repository contains:
+This repository contains an open source Perl 5 system to construct
+Microsoft Excel spreadsheet models that address business problems.
 
-* Perl code to build various Microsoft Excel spreadsheet models, including
-models that implement the methods used by the regional electricity distribution
-companies in England, Scotland and Wales to set their use of system charges.
+This project's first task was to implement the methods used by the regional
+electricity distribution companies in England, Scotland and Wales to set
+their use of system charges.  It has subsequently expanded to explore other
+areas to which the Perl-managed spreadsheet model methodology pioneered for
+distribution charging models can make a useful contribution.
 
-* Data published by these companies to populate these models, in a structured
-plain text format (YAML) designed for use with the Perl code above.
+The repository also contains data used by regional electricity distribution
+companies in England, Scotland and Wales in models to set their use of
+system charges, in a form suitable for use with the Perl code above, and
+some (currently undocumented) tools to manage these data.
 
-To download spreadsheets built using this code, go to http://dcmf.co.uk/models/.
+To download some of the use of system charging workbooks that can be built
+using this code, go to http://dcmf.co.uk/models/.
 
-To build spreadsheet models on your own computer using this code, follow the
-instructions below.
+To get started with building spreadsheet models on your own computer using
+this code, follow the instructions below.
 
 Step 1.  Check or set-up Perl 5.
 --------------------------------
 
 You need Perl 5, v5.8.8 or later.
 
-A suitable version of Perl is pre-installed on Apple macOS systems.
-For Microsoft Windows systems, Strawberry Perl (strawberryperl.com) is
-usually a good choice.  For FreeBSD, Linux and similar systems, Perl is
-either pre-installed or readily available from the ports/packages system.
+A suitable version of Perl is pre-installed on Apple macOS systems. For
+Microsoft Windows systems, Strawberry Perl (strawberryperl.com) is usually
+a good choice.  For FreeBSD, Linux and similar systems, Perl is either
+pre-installed or readily available from the ports/packages system.
 
-To test whether you have a suitable version of Perl, try this at the Terminal
-or command line:
+To test whether you have a suitable version of Perl, try this at the
+Terminal or command line:
 
     perl --version
 
@@ -43,25 +49,29 @@ Change to the root of the repository and try this sample command:
 
     perl pmod.pl CDCM/2017-02-Baseline/%-extras227.yml CDCM/2017-02/SPEN-SPM.yml
 
-If this fails, examine the error messages.  Usually the problem is a missing
-module, which can be installed from CPAN (www.cpan.org).  Once you have solved
-the problem, re-run the test command and repeat the process until it works.
+If this fails, examine the error messages.  Often the problem is a missing
+module, which can be installed from CPAN (www.cpan.org).  Once you have
+solved the problem, re-run the test command and repeat until it works.
 
 Step 4.  Start using the code.
 ------------------------------
 
-Once everything seems to be working, you can try any of the following sample
-commands to explore some of the functionality of this code:
+Once everything seems to be working, you can try any of the following
+sample commands to explore some of the functionality of this code:
 
     perl pmod.pl ModelM/2014-02-Baseline/%-cleancombo118.yml ModelM/2015-02/SSEPD-SEPD.yml
     perl pmod.pl -rtf -text -html CDCM/2017-02-Baseline/%-clean227.yml Blank.yml
 
-Other code in the repository
-----------------------------
+Non-Perl code in the repository
+-------------------------------
 
-There is some VBA code (Excel macros) in the VBA folder, and some Stata code in
-the Stata folder. The VBA code is not currently documented. See "How to use.txt"
-in the "Stata" folder for information on Stata tools to test EDCM spreadsheets.
+There is some VBA code (Excel macros) in the VBA folder, and some Stata
+code in the Stata folder.
+
+See "How to use.txt" in the "Stata" folder for information on Stata tools
+to test workbooks implementing aspects of the EDCM charging methodology.
+
+The VBA code is currently undocumented.
 
 Licensing
 ---------
@@ -80,4 +90,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 29 November 2016.
+Franck Latrémolière, 21 January 2017.
