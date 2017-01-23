@@ -1030,7 +1030,8 @@ sub set_calc_mode {
 sub _store_workbook {
 
     my $self     = shift;
-    my $tempdir  = File::Temp->newdir( DIR => $self->{_tempdir} );
+    push @{ $self->{_temporary_items} },
+      my $tempdir = File::Temp->newdir( DIR => $self->{_tempdir} );
     my $packager = Excel::Writer::XLSX::Package::Packager->new();
     my $zip      = Archive::Zip->new();
 
@@ -1085,6 +1086,7 @@ sub _store_workbook {
     File::Find::find(
         {
             wanted          => $wanted,
+            no_chdir        => 1,
             untaint         => 1,
             untaint_pattern => qr|^(.+)$|
         },
