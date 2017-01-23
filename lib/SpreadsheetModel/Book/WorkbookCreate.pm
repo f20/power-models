@@ -46,27 +46,33 @@ sub create {
             binmode STDOUT;
             return \*STDOUT;
         }
-        my ( $tempFile, $closer );
-        if ( $^O =~ /win32/i ) {
-            $tempFile = $finalFile;
-        }
-        else {
-            my $tmpDir = '~$tmp-' . $$ . rand();
+        my ( $tempFile, $closer, $tmpDir );
+        if ( $^O !~ /win32/i ) {
+            $tmpDir = '~$tmp-' . $$ . rand();
             $tmpDir = catdir( $settings->{folder}, $tmpDir )
               if $settings->{folder};
             mkdir $tmpDir;
             chmod 0770, $tmpDir;
-            if ( -d $tmpDir && -w _ ) {
-                $tempFile =
-                  catfile( $tmpDir, ( splitpath($finalFile) )[2] );
-                $closer = sub {
-                    rename $tempFile, $finalFile;
-                    rmdir $tmpDir;
-                };
+            unless ( -d $tmpDir && -w _ ) {
+                warn 'Failed to create ' . $tmpDir . ' in ' . `pwd`;
+                undef $tmpDir;
             }
-            else {
-                die 'Failed to create ' . $tmpDir . ' in ' . `pwd`;
-            }
+        }
+        if ( defined $tmpDir ) {
+            $tempFile =
+              catfile( $tmpDir, ( splitpath($finalFile) )[2] );
+            $closer = sub {
+                rename $tempFile, $finalFile;
+                rmdir $tmpDir or warn $!;
+            };
+        }
+        else {
+            my @split = splitpath($finalFile);
+            $tempFile =
+              catfile( $split[1], '~$tmp-' . $$ . rand() . '-' . $split[2] );
+            $closer = sub {
+                rename $tempFile, $finalFile;
+            };
         }
         open my $handle, '>', $tempFile;
         binmode $handle;
