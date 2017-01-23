@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2009-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,27 +31,12 @@ use warnings;
 use strict;
 use utf8;
 
-my $_digestMachine;
-
 sub digestMachine {
-    return $_digestMachine if $_digestMachine;
     foreach (qw(Digest::SHA Digest::SHA1 Digest::SHA::PurePerl)) {
         eval "require $_";
-        eval { $_digestMachine = $_->new; };
-        return $_digestMachine if $_digestMachine;
+        my $digestMachine = eval { $_->new; };
+        return $digestMachine if $digestMachine;
     }
-}
-
-sub digestFile {
-    my ($file) = @_;
-    return 'no file' unless -f $file;
-    my $digest = eval {
-        my $digestMachine = digestMachine();
-        open my $fh, '<', $file;
-        $digestMachine->addfile($fh)->hexdigest;
-    };
-    warn $@ if $@;
-    $digest;
 }
 
 sub sourceCodeDigest {
