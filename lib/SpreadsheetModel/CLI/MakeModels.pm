@@ -270,6 +270,12 @@ sub makeModels {
             if ( -f $_ ) {
                 $maker->{addFile}->( abs2rel($_) );
             }
+            elsif (   # Windows cmd.exe does not expand globs, so we try it here
+                my @list = grep { -f $_; } bsd_glob($_)
+              )
+            {
+                $maker->{addFile}->( abs2rel($_) ) foreach @list;
+            }
             else {
                 my $file = catfile( $self->[C_HOMEDIR], 'models', $_ );
                 if ( -f $file ) {
