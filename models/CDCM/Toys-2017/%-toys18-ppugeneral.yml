@@ -1,0 +1,16 @@
+---
+.: '2018 CDCM educational toy: exploration of adder options'
+PerlModule: CDCM
+alwaysUseRAG: 1
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+forwardLinks: 1
+matrices: big
+noReplacement: blanket
+scaler: adderppugeneralminmax
+standing: sub132
+targetRevenue: dcp249
+tariffs: toy2
+timeOfDay: timeOfDay
+unauth: dayotex

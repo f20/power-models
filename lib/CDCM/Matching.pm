@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2012 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -432,7 +432,7 @@ sub matching {
                     defaultFormat => '0softnz',
                     arithmetic    => /day/
                     ? '=A4*A2*A1/100'
-                    : '=IF(A3<0,0,A4*A1*10)',    # A4*
+                    : '=IF(A3<0,0,A4*A1*10)',
                     arguments => {
                         A3 => $loadCoefficients,
                         A2 => $daysInYear,
@@ -1010,7 +1010,8 @@ sub matching {
             else { $adderAmount = $totalRevenueRemoved; }
         }
 
-        if ( $model->{scaler} =~ /ppugeneral/i ) {
+        if ( $model->{scaler} =~ /ppugeneral/i )
+        {    # single adder on demand only, with caps and collars
 
             my @columns = grep { /kWh/ } @$nonExcludedComponents;
             my @slope = map {
@@ -1058,19 +1059,22 @@ sub matching {
                             minimum  => -999_999.999,
                             maximum  => 999_999.999,
                         },
-                        data => [ map { 0 } @{ $allTariffsByEndUser->{list} } ],
-                        rowFormats => [
+                        usePlaceholderData => 1,
+                        data               => [
                             map {
-                                $componentMap->{$_}{$tariffComponent} ? undef
-                                  : 'unavailable';
+                                $componentMap->{$_}{$tariffComponent}
+                                  ? -999_999.999
+                                  : undef;
                             } @{ $allTariffsByEndUser->{list} }
-                        ]
+                        ],
                       );
                 } @columns;
                 if ( my @cols = grep { $_ } @min{@columns} ) {
                     Columnset(
-                        name    => 'Minimum rates',
-                        columns => \@cols,
+                        name     => 'Minimum rates',
+                        columns  => \@cols,
+                        dataset  => $model->{dataaset},
+                        appendTo => $model->{inputTables},
                     );
                 }
                 %minAdder = map {
@@ -1078,10 +1082,7 @@ sub matching {
 
                     $_ => $min{$_}
                       ? Arithmetic(
-                        name => "Adder threshold for $_",
-
-                        # cannot think of a better test than
-                        # ISNUMBER when applied to input data
+                        name       => "Adder threshold for $_",
                         arithmetic => '=IF(ISNUMBER(A3),A2-A1,0)',
                         arguments  => {
                             A1 => $tariffsExMatching->{$_},
@@ -1128,27 +1129,25 @@ sub matching {
                             minimum  => -999_999.999,
                             maximum  => 999_999.999,
                         },
-                        data => [
-                            map { 999_999.999 }
-                              @{ $allTariffsByEndUser->{list} }
-                        ],
-                        rowFormats => [
+                        usePlaceholderData => 1,
+                        data               => [
                             map {
                                 $componentMap->{$_}{$tariffComponent}
-                                  ? undef
-                                  : 'unavailable';
+                                  ? 999_999.999
+                                  : undef;
                             } @{ $allTariffsByEndUser->{list} }
-                        ]
+                        ],
                     );
                 } @columns;
                 Columnset(
-                    name    => 'Maximum rates',
-                    columns => [ @max{@columns} ]
+                    name     => 'Maximum rates',
+                    columns  => [ @max{@columns} ],
+                    dataset  => $model->{dataaset},
+                    appendTo => $model->{inputTables},
                 );
                 %maxAdder = map {
                     my $tariffComponent = $_;
 
-       # cannot think of an better test than ISNUMBER when applied to input data
                     $_ => Arithmetic(
                         name       => "Adder threshold for $_",
                         arithmetic => '=IF(ISNUMBER(A3),A2-A1,0)',
