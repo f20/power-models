@@ -169,6 +169,7 @@ sub factory {
                                     ),
                                     validation => eval {
                                         require Encode;
+                                        require SpreadsheetModel::Book::Validation;
                                         SpreadsheetModel::Book::Validation::digestMachine
                                           ->add( Encode::encode_utf8($blob) )
                                           ->hexdigest;

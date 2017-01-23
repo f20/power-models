@@ -54,12 +54,6 @@ sub makeModels {
     );
 
     my $executor;
-    if ( eval 'require SpreadsheetModel::CLI::ExecutorFork' ) {
-        $executor = SpreadsheetModel::CLI::ExecutorFork->new;
-    }
-    else {
-        warn "Multi-threading disabled: $@";
-    }
 
     foreach ( map { decode_utf8 $_} @_ ) {
         if (/^-/s) {
@@ -209,8 +203,18 @@ sub makeModels {
             elsif (/^-+(?:folder|directory)=(.+)?/is) {
                 $folder = $1;
             }
-            elsif (/^-+([0-9]+)/is) {
-                $executor->setThreads($1);
+            elsif (/^-+([0-9]*)([tp])?$/is) {
+                unless ($executor) {
+                    if ( $2 ? $2 eq 't' : $^O =~ /win32/i ) {
+                        require SpreadsheetModel::CLI::ExecutorThread;
+                        $executor = SpreadsheetModel::CLI::ExecutorThread->new;
+                    }
+                    else {
+                        require SpreadsheetModel::CLI::ExecutorFork;
+                        $executor = SpreadsheetModel::CLI::ExecutorFork->new;
+                    }
+                }
+                $executor->setThreads($1) if $1;
             }
             elsif (/^-+xdata=?(.*)/is) {
                 if ($1) {
@@ -278,6 +282,20 @@ sub makeModels {
                     warn "Ignored argument: $_";
                 }
             }
+        }
+    }
+
+    unless ( defined $executor ) {
+        if ( $^O !~ /win32/i
+            && eval 'require SpreadsheetModel::CLI::ExecutorFork' )
+        {
+            $executor = SpreadsheetModel::CLI::ExecutorFork->new;
+        }
+        elsif ( eval 'require SpreadsheetModel::CLI::ExecutorThread' ) {
+            $executor = SpreadsheetModel::CLI::ExecutorThread->new;
+        }
+        else {
+            warn "No multi-threading: $@";
         }
     }
 

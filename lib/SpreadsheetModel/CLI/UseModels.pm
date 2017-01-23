@@ -174,24 +174,27 @@ sub makePostProcessor {
         if ( $^O =~ /win32/i ) {
 
             # Quick and dirty code to control Microsoft Excel
-            # (not Excel Mobile) under Microsoft Windows.
-            require Win32::OLE;
+            # (but not Excel Mobile) under Microsoft Windows.
+
             if ( $processSettings =~ /calc/ ) {
-                $calculator_beforefork = sub {
+                $calculator_afterfork = sub {
                     my ($inname) = @_;
                     my $inpath = rel2abs($inname);
                     $inpath =~ s/\.(xls.?)$/-$$.$1/i;
                     rename $inname, $inpath;
-
-                    my $excelApp =
-                         Win32::OLE->GetActiveObject('Excel.Application')
-                      || Win32::OLE->new( 'Excel.Application', 'Quit' );
-                    my $excelWorkbook = $excelApp->Workbooks->Open($inpath);
-                    $excelApp->{Visible}       = 0;
-                    $excelApp->{DisplayAlerts} = 0;
-                    $excelWorkbook->Save;
-                    $excelApp->Quit;
-                    sleep 2;
+                    require Win32::OLE;
+                    if ( my $excelApp =
+                           Win32::OLE->GetActiveObject('Excel.Application')
+                        || Win32::OLE->new( 'Excel.Application', 'Quit' ) )
+                    {
+                        my $excelWorkbook = $excelApp->Workbooks->Open($inpath);
+                        $excelWorkbook->Save;
+                        warn 'Waiting for Excel' until $excelWorkbook->Saved;
+                        $excelWorkbook->Close;
+                    }
+                    else {
+                        warn 'Cannot find Microsoft Excel';
+                    }
                     rename $inpath, $inname;
                     $inname;
                 };
@@ -203,7 +206,7 @@ sub makePostProcessor {
                     @convertIncantation = ();
                     $convertExtension   = '.xlsx';
                 }
-                $calculator_beforefork = sub {
+                $calculator_afterfork = sub {
                     my ($inname) = @_;
                     my $inpath   = rel2abs($inname);
                     my $outpath  = $inpath;
@@ -212,17 +215,22 @@ sub makePostProcessor {
                     my $outname = abs2rel($outpath);
                     s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
                     rename $inname, $inpath;
-
-                    my $excelApp =
-                         Win32::OLE->GetActiveObject('Excel.Application')
-                      || Win32::OLE->new( 'Excel.Application', 'Quit' );
-                    my $excelWorkbook = $excelApp->Workbooks->Open($inpath);
-                    $excelApp->{Visible}       = 0;
-                    $excelApp->{DisplayAlerts} = 0;
-                    $excelWorkbook->SaveAs(
-                        { FileName => $outpath, @convertIncantation } );
-                    $excelApp->Quit;
-                    sleep 2;
+                    require Win32::OLE;
+                    if ( my $excelApp =
+                           Win32::OLE->GetActiveObject('Excel.Application')
+                        || Win32::OLE->new( 'Excel.Application', 'Quit' ) )
+                    {
+                        $excelApp->{Visible}       = 0;
+                        $excelApp->{DisplayAlerts} = 0;
+                        my $excelWorkbook = $excelApp->Workbooks->Open($inpath);
+                        $excelWorkbook->SaveAs(
+                            { FileName => $outpath, @convertIncantation } );
+                        warn 'Waiting for Excel' until $excelWorkbook->Saved;
+                        $excelWorkbook->Close;
+                    }
+                    else {
+                        warn 'Cannot find Microsoft Excel';
+                    }
                     rename $inpath, $inname;
                     rename $outpath, $outname or die $!;
                     $outname;

@@ -39,11 +39,9 @@ my @nameStatusPairs;
 sub new {
     my ( $class, $threads ) = @_;
     unless ($threads) {
-        if (
-            $^O !~ /win32/i    # exit after fork crashes on Windows
+        if (    $^O !~ /win32/i
             and $threads = `sysctl -n hw.ncpu 2>/dev/null`
-            || `nproc 2>/dev/null`
-          )
+            || `nproc 2>/dev/null` )
         {
             chomp $threads;
         }
