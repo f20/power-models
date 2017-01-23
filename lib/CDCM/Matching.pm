@@ -1062,8 +1062,7 @@ sub matching {
                         usePlaceholderData => 1,
                         data               => [
                             map {
-                                $componentMap->{$_}{$tariffComponent}
-                                  ? -999_999.999
+                                $componentMap->{$_}{$tariffComponent} ? ''
                                   : undef;
                             } @{ $allTariffsByEndUser->{list} }
                         ],
@@ -1072,6 +1071,7 @@ sub matching {
                 if ( my @cols = grep { $_ } @min{@columns} ) {
                     Columnset(
                         name     => 'Minimum rates',
+                        number   => 1077,
                         columns  => \@cols,
                         dataset  => $model->{dataaset},
                         appendTo => $model->{inputTables},
@@ -1133,7 +1133,7 @@ sub matching {
                         data               => [
                             map {
                                 $componentMap->{$_}{$tariffComponent}
-                                  ? 999_999.999
+                                  ? ''
                                   : undef;
                             } @{ $allTariffsByEndUser->{list} }
                         ],
@@ -1141,6 +1141,7 @@ sub matching {
                 } @columns;
                 Columnset(
                     name     => 'Maximum rates',
+                    number   => 1078,
                     columns  => [ @max{@columns} ],
                     dataset  => $model->{dataaset},
                     appendTo => $model->{inputTables},
