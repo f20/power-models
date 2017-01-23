@@ -1030,8 +1030,12 @@ sub set_calc_mode {
 sub _store_workbook {
 
     my $self     = shift;
-    push @{ $self->{_temporary_items} },
-      my $tempdir = File::Temp->newdir( DIR => $self->{_tempdir} );
+    my $tempdir  = File::Temp->newdir( DIR => $self->{_tempdir} );
+
+    # Store the File::Temp object within $self so that
+    # the user can control its destruction in a thread-safe way
+    $self->{_tempdir_object} = $tempdir;
+
     my $packager = Excel::Writer::XLSX::Package::Packager->new();
     my $zip      = Archive::Zip->new();
 

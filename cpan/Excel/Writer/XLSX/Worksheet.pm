@@ -4143,6 +4143,7 @@ sub add_table {
     }
 
     # Add the table columns.
+    my %seen_names;
     my $col_id = 1;
     for my $col_num ( $col1 .. $col2 ) {
 
@@ -4167,6 +4168,17 @@ sub add_table {
                 $col_data->{_name} = $user_data->{header}
                   if $user_data->{header};
 
+                # Excel requires unique case insensitive header names.
+                my $name = $col_data->{_name};
+                my $key = lc $name;
+                if (exists $seen_names{$key}) {
+                    carp "add_table() contains duplicate name: '$name'";
+                    return -1;
+                }
+                else {
+                    $seen_names{$key} = 1;
+                }
+
                 # Get the header format if defined.
                 $col_data->{_name_format} = $user_data->{header_format};
 
@@ -4177,7 +4189,7 @@ sub add_table {
                     # Remove the leading = from formula.
                     $formula =~ s/^=//;
 
-                    # Convert Excel 2010 "@" ref to 2007 "#This Row".
+                    # Covert Excel 2010 "@" ref to 2007 "#This Row".
                     $formula =~ s/@/[#This Row],/g;
 
                     $col_data->{_formula} = $formula;
@@ -7130,7 +7142,7 @@ sub _write_cell {
         # Write an array formula.
         $self->xml_start_tag( 'c', @attributes );
         $self->_write_cell_array_formula( $token, $cell->[3] );
-        $self->_write_cell_value( $cell->[4] || 0 );
+        $self->_write_cell_value( $cell->[4] );
         $self->xml_end_tag( 'c' );
     }
     elsif ( $type eq 'l' ) {
@@ -8693,7 +8705,7 @@ sub _write_cf_rule {
     push @attributes, ( 'priority' => $param->{priority} );
 
     push @attributes, ( 'stopIfTrue' => 1 )
-      if defined $param->{stop_if_true};
+      if $param->{stop_if_true};
 
     if ( $param->{type} eq 'cellIs' ) {
         push @attributes, ( 'operator' => $param->{criteria} );

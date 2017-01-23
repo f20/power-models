@@ -188,6 +188,12 @@ sub add_series {
         croak "Must specify 'categories' in add_series() for this chart type";
     }
 
+    if ( @{ $self->{_series} } == 255 ) {
+        carp "The maxiumn number of series that can be added to an "
+          . "Excel Chart is 255";
+        return
+    }
+
     # Convert aref params into a formula string.
     my $values     = $self->_aref_to_formula( $arg{values} );
     my $categories = $self->_aref_to_formula( $arg{categories} );
@@ -4629,25 +4635,6 @@ sub _write_marker {
     $self->_write_sp_pr( $marker );
 
     $self->xml_end_tag( 'c:marker' );
-}
-
-
-##############################################################################
-#
-# _write_marker_value()
-#
-# Write the <c:marker> element without a sub-element.
-#
-sub _write_marker_value {
-
-    my $self  = shift;
-    my $style = $self->{_default_marker};
-
-    return unless $style;
-
-    my @attributes = ( 'val' => 1 );
-
-    $self->xml_empty_tag( 'c:marker', @attributes );
 }
 
 
