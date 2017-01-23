@@ -57,7 +57,8 @@ sub create {
             mkdir $tmpDir;
             chmod 0770, $tmpDir;
             if ( -d $tmpDir && -w _ ) {
-                $tempFile = catfile( $tmpDir, ( splitpath($finalFile) )[2] );
+                $tempFile =
+                  catfile( $tmpDir, ( splitpath($finalFile) )[2] );
                 $closer = sub {
                     rename $tempFile, $finalFile;
                     rmdir $tmpDir;
@@ -161,8 +162,8 @@ sub create {
                                             %{ $override->{$itable}[$icolumn] }
                                           )
                                         {
-                                            $comboDataset->{$itable}[$icolumn]
-                                              {$irow} =
+                                            $comboDataset->{$itable}
+                                              [$icolumn]{$irow} =
                                               $override->{$itable}[$icolumn]
                                               {$irow};
                                         }
@@ -182,6 +183,7 @@ sub create {
         }
     }
 
+    my @loggers;
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
         my $modelCount = $_ ? ".$_" : '';
@@ -230,20 +232,17 @@ EOW
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
-        $options->{logger} = new SpreadsheetModel::Logger(
-            name            => '',
-            showFinalTables => $model->{forwardLinks},
-            showDetails     => $model->{debug},
-        );
-
         my $canPriority = $model->can('sheetPriority');
         my @pairs       = $model->worksheetsAndClosures($wbook);
+
         while ( ( local $_, my $closure ) = splice @pairs, 0, 2 ) {
             my $priority = $canPriority ? $model->sheetPriority($_)
               || 0 : /^(?:Index|Overview)$/is ? 1 : 0;
             my $fullName = $_ . $modelCount;
             $sheetDisplayName{$fullName} =
-              m#(.*)/# ? $1 . $modelCount : /(.*)\$$/ ? $1 : $_ . $modelCount;
+                m#(.*)/#  ? $1 . $modelCount
+              : /(.*)\$$/ ? $1
+              :             $_ . $modelCount;
             push @{ $options->{wsheetRunOrder} }, $fullName;
             push @{ $wsheetShowOrder[$priority] }, $fullName;
             $allClosures{$fullName} = $closure;
@@ -252,11 +251,14 @@ EOW
             $wsheetPassword{$fullName} = $options->{password}
               if $options->{protect};
         }
-
+        $loggers[$_] = new SpreadsheetModel::Logger(
+            name            => '',
+            showFinalTables => $model->{forwardLinks},
+            showDetails     => $model->{debug},
+        );
         map { push @{ $wsheetShowOrder[ $_->sheetPriority ] }, $_; }
           @{ $model->{standaloneCharts} }
           if $model->{standaloneCharts};
-
     }
 
     my %wsheet;
@@ -303,13 +305,13 @@ EOW
           debug
           forwardLinks
           linesAsComment
-          logger
           mergedRanges
           noLinks
           rowHeight
           tolerateMisordering
           validation
         );
+        $wbook->{logger} = $loggers[$_];
 
         foreach ( @{ $options->{wsheetRunOrder} } ) {
             my $ws = $wsheet{$_};
@@ -341,6 +343,10 @@ EOW
     $wbook->close;
     close $handle;    # otherwise the file is not finalised until exit
     $closer->() if $closer;
+
+    lock $SpreadsheetModel::CLI::ExecutorThread::WORKBOOKCLEANUP;
+    undef $wbook;
+
     0;
 
 }
