@@ -1,5 +1,5 @@
 ---
-.: Financial model (small with simple tax)
+.: Financial model (small no tax)
 PerlModule: Financial
 illustrative: 1
 numCapitalExp: 4
@@ -7,4 +7,3 @@ numExceptional: 2
 numYears: 5
 startMonth: 1
 startYear: 2017
-tax: 1
