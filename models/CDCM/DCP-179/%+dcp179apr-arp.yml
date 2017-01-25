@@ -1,10 +1,9 @@
 ---
-.: DCP 179 micro orange model
+.: DCP 179 micro model
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
 compact: 1
-colour: orange
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4

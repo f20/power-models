@@ -1,9 +1,8 @@
 ---
-.: DCP 161 micro orange model
+.: DCP 161 micro model
 PerlModule: CDCM
 compact: 1
 coincidenceAdj: groupums
-colour: orange
 drm: top500gsp
 extraLevels: 1
 noReplacement: blanket

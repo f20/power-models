@@ -1,9 +1,8 @@
 ---
-.: DCP 137 mciro orange model
+.: DCP 137 micro model
 PerlModule: CDCM
 compact: 1
 coincidenceAdj: groupums
-colour: orange
 drm: top500gsp
 extraLevels: 1
 noReplacement: blanket
