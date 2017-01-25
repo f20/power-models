@@ -2260,8 +2260,8 @@ EOT
             name    => 'Total EDCM revenue (£/year)',
             columns => [
                 Arithmetic(
-                    name =>
-                      'All EDCM tariffs including discounted LDNO (£/year)',
+                    name => 'All EDCM tariffs '
+                      . 'including discounted CDCM tariffs (£/year)',
                     defaultFormat => '0softnz',
                     arithmetic    => '=A1+A2+A3',
                     arguments     => {

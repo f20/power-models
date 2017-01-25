@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2016-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -197,14 +197,17 @@ EOF
         s/^(....)(.)/$1$2$2/ foreach @tariffComponentMatrix;
     }
 
+    my $ldnoWord = $model->{ldnoRev} =~ /qno/i ? 'QNO' : 'LDNO';
+
     my $allTariffsByBoundaryLevelNotUsed = Labelset(
         groups => [
             map {
                 my $b = $_;
                 $b =~ s/\s*boundary\s*//i;
                 Labelset(
-                    name => "LDNO $b tariffs",
-                    list => [ map { "LDNO $b: $_" } @{ $endUsers->{list} } ]
+                    name => "$ldnoWord $b tariffs",
+                    list =>
+                      [ map { "$ldnoWord $b: $_" } @{ $endUsers->{list} } ]
                   )
             } @{ $ldnoLevels->{list} }
         ]
@@ -220,7 +223,7 @@ EOF
                         map {
                             local $_ = $_;
                             s/\s*boundary\s*//i;
-                            "LDNO $_: $e"
+                            "$ldnoWord $_: $e"
                         } @{ $ldnoLevels->{list} }
                     ]
                   )
@@ -241,7 +244,7 @@ EOF
     ) if $model->{ldnoRev} =~ /ppu/i;
 
     my $discounts = Dataset(
-        name => 'LDNO discount ' . ( $ppu ? 'p/kWh' : 'percentage' ),
+        name => "$ldnoWord discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
         cols => $cdcmLevels,
         rows => $ldnoLevels,
         $ppu ? () : ( defaultFormat => '%hardnz' ),
@@ -257,9 +260,9 @@ EOF
             validate      => 'decimal',
             criteria      => '>=',
             value         => 0,
-            input_title   => 'LDNO discount:',
+            input_title   => "$ldnoWord discount:",
             input_message => 'At least zero',
-            error_message => 'The LDNO discount must not be negative'
+            error_message => "The $ldnoWord discount must not be negative",
         },
     );
 
@@ -295,25 +298,25 @@ EOF
             sub {
                 my ( $x, $y ) = @_;
                 local $_ = $allTariffsByEndUser->{list}[$y];
-                $y = 0  if s/^LDNO 0000: //;
-                $y = 2  if s/^LDNO 132kV\/EHV: //;
-                $y = 1  if s/^LDNO 132kV: //;
-                $y = 3  if s/^LDNO EHV: //;
-                $y = 4  if s/^LDNO HVplus: //;
-                $y = 1  if s/^LDNO 1000: //;
-                $y = 2  if s/^LDNO 1100: //;
-                $y = 3  if s/^LDNO 0100: //;
-                $y = 4  if s/^LDNO 1110: //;
-                $y = 5  if s/^LDNO 0110: //;
-                $y = 6  if s/^LDNO 0010: //;
-                $y = 7  if s/^LDNO 0001: //;
-                $y = 8  if s/^LDNO 0002: //;
-                $y = 9  if s/^LDNO 1001: //;
-                $y = 10 if s/^LDNO 0011: //;
-                $y = 11 if s/^LDNO 0111: //;
-                $y = 12 if s/^LDNO 0101: //;
-                $y = 13 if s/^LDNO 1101: //;
-                $y = 14 if s/^LDNO 1111: //;
+                $y = 0  if s/^$ldnoWord 0000: //;
+                $y = 2  if s/^$ldnoWord 132kV\/EHV: //;
+                $y = 1  if s/^$ldnoWord 132kV: //;
+                $y = 3  if s/^$ldnoWord EHV: //;
+                $y = 4  if s/^$ldnoWord HVplus: //;
+                $y = 1  if s/^$ldnoWord 1000: //;
+                $y = 2  if s/^$ldnoWord 1100: //;
+                $y = 3  if s/^$ldnoWord 0100: //;
+                $y = 4  if s/^$ldnoWord 1110: //;
+                $y = 5  if s/^$ldnoWord 0110: //;
+                $y = 6  if s/^$ldnoWord 0010: //;
+                $y = 7  if s/^$ldnoWord 0001: //;
+                $y = 8  if s/^$ldnoWord 0002: //;
+                $y = 9  if s/^$ldnoWord 1001: //;
+                $y = 10 if s/^$ldnoWord 0011: //;
+                $y = 11 if s/^$ldnoWord 0111: //;
+                $y = 12 if s/^$ldnoWord 0101: //;
+                $y = 13 if s/^$ldnoWord 1101: //;
+                $y = 14 if s/^$ldnoWord 1111: //;
                 $x =
                     /^HV Sub Gen/i ? 40
                   : /^HV Sub/i     ? 30
@@ -382,9 +385,9 @@ EOF
           );
     } 0 .. $#tariffComponents;
 
-    return Notes( lines => 'LDNO discounted tariffs' ), undef,
+    return Notes( lines => "$ldnoWord discounted tariffs" ), undef,
       Columnset(
-        name    => 'Discounted LDNO tariffs',
+        name    => "Discounted $ldnoWord tariffs",
         columns => \@allTariffs
       ) if $model->{ldnoRev} =~ /tar/i;
 
@@ -412,7 +415,7 @@ EOF
         number   => 1183,
         dataset  => $model->{dataset},
         appendTo => $model->{inputTables},
-        name     => 'LDNO volume data',
+        name     => "$ldnoWord volume data",
         columns  => \@volumeData
     );
 
@@ -435,8 +438,8 @@ EOF
             $args{"A3$pad"} = $volumeData[$_];
         }
         $revenueByTariff = Arithmetic(
-            name       => 'Net revenue from discounted LDNO tariffs (£/year)',
-            rows       => $allTariffsByEndUser,
+            name => "Net revenue from discounted $ldnoWord tariffs (£/year)",
+            rows => $allTariffsByEndUser,
             arithmetic => '='
               . join( '+',
                 @termsWithDays
@@ -450,15 +453,16 @@ EOF
           )
     }
 
-    1 and Columnset(
-        name    => 'LDNO discounted CDCM tariffs',
+    Columnset(
+        name    => "$ldnoWord discounted CDCM tariffs",
         columns => \@allTariffs,
     );
 
     my @result = (
-        Notes( lines => 'LDNO revenue model' ),
+        Notes( lines => "$ldnoWord revenue model" ),
         GroupBy(
-            name => 'Total net revenue from discounted LDNO tariffs (£/year)',
+            name =>
+              "Total net revenue from discounted $ldnoWord tariffs (£/year)",
             defaultFormat => '0softnz',
             source        => $revenueByTariff
         )
@@ -469,21 +473,29 @@ EOF
         my $allTariffsReordered = Labelset(
             name => 'All tariffs (reordered)',
             list => [
-                ( grep { /^LDNO HVplus/i } @{ $allTariffsByEndUser->{list} } ),
-                ( grep { /^LDNO EHV/i } @{ $allTariffsByEndUser->{list} } ),
                 (
-                    grep { /^LDNO 132kV\/EHV/i }
+                    grep { /^$ldnoWord HVplus/i }
                       @{ $allTariffsByEndUser->{list} }
                 ),
                 (
-                    grep { /^LDNO 132kV/i && !/^LDNO 132kV\/EHV/i }
+                    grep { /^$ldnoWord EHV/i } @{ $allTariffsByEndUser->{list} }
+                ),
+                (
+                    grep { /^$ldnoWord 132kV\/EHV/i }
                       @{ $allTariffsByEndUser->{list} }
                 ),
-                ( grep { /^LDNO 0000/i } @{ $allTariffsByEndUser->{list} } ),
+                (
+                    grep { /^$ldnoWord 132kV/i && !/^$ldnoWord 132kV\/EHV/i }
+                      @{ $allTariffsByEndUser->{list} }
+                ),
+                (
+                    grep { /^$ldnoWord 0000/i }
+                      @{ $allTariffsByEndUser->{list} }
+                ),
             ]
         );
         push @result, Columnset(
-            name    => 'LDNO discounted CDCM tariffs (reordered)',
+            name    => "$ldnoWord discounted CDCM tariffs (reordered)",
             columns => [
                 map {
                     my $oldRowFormats = $_->{rowFormats};
