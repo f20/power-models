@@ -33,18 +33,21 @@ use utf8;
 
 =head Dependencies
 
-This assumes a working version of R with the following packages:
-* RSQLite and its many dependencies
+This code needs a working version of R callable from the command line as "R",
+with the following CRAN packages installed:
 * sp
 * plotrix
 * shape
 * treemap
+* RSQLite and its dependencies
 
-The following commands might help:
+The following command should trigger the right installations:
 	R -e 'install.packages(c("RSQLite", "sp", "plotrix", "shape", "treemap"), repos = "http://mirror.mdx.ac.uk/R/", dependencies = TRUE)'
+
+Alternatively, download the package files manually and run:
 	R CMD INSTALL <package-file> <package-file> ...
 
-Packages are installed in ~/Library/R/3.2/library/ if using R 3.2 on Mac OS X.
+Installing treemap might require GNU Fortran to be installed first.
 
 =cut
 
@@ -56,42 +59,40 @@ sub rCode {
 
 sub maps3701rate3ts {
     my ( $self, $script ) = @_;
-    require SpreadsheetModel::Data::RCode::PriceMaps;
-    SpreadsheetModel::Data::RCode::PriceMaps->maps3701rate3ts($script);
+    require SpreadsheetModel::Data::RCode::MapsFromDatabase;
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps3701rate3ts($script);
 }
 
 sub maps3701reactivets {
     my ( $self, $script ) = @_;
-    require SpreadsheetModel::Data::RCode::PriceMaps;
-    SpreadsheetModel::Data::RCode::PriceMaps->maps3701reactivets($script);
+    require SpreadsheetModel::Data::RCode::MapsFromDatabase;
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps3701reactivets($script);
 }
-
-
 
 sub maps4202cs {
     my ( $self, $script ) = @_;
-    require SpreadsheetModel::Data::RCode::PriceMaps;
-    SpreadsheetModel::Data::RCode::PriceMaps->maps4202cs($script);
+    require SpreadsheetModel::Data::RCode::MapsFromDatabase;
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps4202cs($script);
 }
 
 sub maps4202ts {
     my ( $self, $script ) = @_;
-    require SpreadsheetModel::Data::RCode::PriceMaps;
-    SpreadsheetModel::Data::RCode::PriceMaps->maps4202ts($script);
+    require SpreadsheetModel::Data::RCode::MapsFromDatabase;
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps4202ts($script);
 }
 
 sub margins4203 {
     my ( $self, $script ) = @_;
-    require SpreadsheetModel::Data::RCode::PriceMaps;
-    SpreadsheetModel::Data::RCode::PriceMaps->margins4203($script);
+    require SpreadsheetModel::Data::RCode::MapsFromDatabase;
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->margins4203($script);
 }
 
 *margins = \&margins4203;
 
 sub mapCdcmEdcm {
     my ( $self, $script ) = @_;
-    require SpreadsheetModel::Data::RCode::PriceMaps;
-    SpreadsheetModel::Data::RCode::PriceMaps->mapCdcmEdcm($script);
+    require SpreadsheetModel::Data::RCode::MapsFromDatabase;
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->mapCdcmEdcm($script);
 }
 
 sub treemapWithCategories {
@@ -142,18 +143,6 @@ sub treemap2706ByCompany {
     my ( $self, $script ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemap2706(1);
-}
-
-sub bandConsumption {
-    my ( $self, $script ) = @_;
-    require SpreadsheetModel::Data::RCode::Multi;
-    SpreadsheetModel::Data::RCode::Multi->bandConsumption($script);
-}
-
-sub coincidenceWaterfall {
-    my ( $self, $script ) = @_;
-    require SpreadsheetModel::Data::RCode::Multi;
-    SpreadsheetModel::Data::RCode::Multi->coincidenceWaterfall($script);
 }
 
 1;

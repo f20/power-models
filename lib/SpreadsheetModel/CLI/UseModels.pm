@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2017 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -173,8 +173,7 @@ sub makePostProcessor {
 
         if ( $^O =~ /win32/i ) {
 
-            # Quick and dirty code to control Microsoft Excel
-            # (but not Excel Mobile) under Microsoft Windows.
+            # Control Microsoft Excel (not Excel Mobile) under Windows.
 
             if ( $processSettings =~ /calc/ ) {
                 $calculator_afterfork = sub {
@@ -240,7 +239,8 @@ sub makePostProcessor {
 
         elsif (`which osascript`) {
 
-            # Code to control Microsoft Excel under Apple macOS.
+            # Control Microsoft Excel under Apple macOS.
+
             if ( $processSettings =~ /calc/ ) {
                 $calculator_beforefork = sub {
                     my ($inname) = @_;
@@ -292,31 +292,33 @@ EOS
                 };
             }
         }
-        else {
-            if (`which ssconvert`) {
 
-                # Experimental code to calculate workbooks using ssconvert
-                warn 'Using ssconvert';
-                $calculator_afterfork = sub {
-                    my ($inname) = @_;
-                    my $inpath   = rel2abs($inname);
-                    my $outpath  = $inpath;
-                    $outpath =~ s/\.xls.?$/\.xls/i;
-                    my $outname = abs2rel($outpath);
-                    s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
-                    rename $inname, $inpath;
-                    my @b = ( $inpath, $outpath );
-                    s/'/'"'"'/g foreach @b;
-                    system qq%ssconvert --recalc '$b[0]' '$b[1]' 2>/dev/null%;
-                    rename $inpath,  $inname;
-                    rename $outpath, $outname;
-                    $outname;
-                };
-            }
-            else {
-                warn 'No calculator found';
-            }
+        elsif (`which ssconvert`) {
+
+            # Try to calculate workbooks using ssconvert
+
+            warn 'Using ssconvert';
+            $calculator_afterfork = sub {
+                my ($inname) = @_;
+                my $inpath   = rel2abs($inname);
+                my $outpath  = $inpath;
+                $outpath =~ s/\.xls.?$/\.xls/i;
+                my $outname = abs2rel($outpath);
+                s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
+                rename $inname, $inpath;
+                my @b = ( $inpath, $outpath );
+                s/'/'"'"'/g foreach @b;
+                system qq%ssconvert --recalc '$b[0]' '$b[1]' 2>/dev/null%;
+                rename $inpath,  $inname;
+                rename $outpath, $outname;
+                $outname;
+            };
         }
+
+        else {
+            warn 'No automatic calculation attempted';
+        }
+
     }
 
     sub {

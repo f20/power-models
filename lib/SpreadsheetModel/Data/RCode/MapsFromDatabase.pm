@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::Data::RCode::PriceMaps;
+﻿package SpreadsheetModel::Data::RCode::MapsFromDatabase;
 
 =head Copyright licence and disclaimer
 
@@ -190,22 +190,25 @@ t4202 <- dbGetQuery(db, paste(
     )
 );
 period <- factor(t4202$period);
-periodList <- levels(period);
+periodList <- gsub(' 02', '', fixed=T, levels(period));
+levels(period) <- periodList;
 numPeriods <- length(periodList);
 company <- factor(t4202$company);
 peryear <- as.numeric(t4202$peryear);
 names(peryear) <- company;
 ppu <- as.numeric(t4202$permwh)*0.1;
 names(ppu) <- company;
-tariff <- factor(t4202$tariff);
+tariff <- factor(gsub('([0-9])([0-9][0-9][0-9])','\\1,\\2kWh',t4202$tariff));
 testkey <- factor(paste(tariff, period, company));
 if (length(testkey) > length(levels(testkey))) {
 	tariff <- factor(paste(tariff, t4202$option));
 }
 tariffList <- levels(tariff);
 
+myTariffList <- tariffList[order(tariffList)];
+
 pdf('Illustrative charges over time.pdf', width=11.69, height=8.27);
-for (t in tariffList[order(tariffList)]) {
+for (t in myTariffList) {
     l <- list();
     for (o in 1:numPeriods) {
         l[[o]] <- ppu[tariff==t&period==periodList[o]];
@@ -220,6 +223,59 @@ for (t in tariffList[order(tariffList)]) {
     ));
 }
 graphics.off();
+
+myTariffList <- myTariffList[grep(':', myTariffList, invert=T)];
+for (t in myTariffList) {
+    minimum <- min(ppu[tariff==t]);
+    maximum <- max(ppu[tariff==t]);
+    for (o in 2:numPeriods) {
+        oo <- 1;
+        l <- list();
+        for (ooo in (o-oo):o) {
+            l[[ooo-o+oo+1]] <- ppu[tariff==t&period==periodList[ooo]];
+        }
+        try(plot.dno.map(
+            l,
+            mincol=minimum,
+            maxcol=maximum,
+            file.name=paste(t,
+                ifelse(oo, paste(periodList[o-oo], periodList[o], sep='-'), periodList[o])
+            ),
+            file.type='1080p',
+            title=t,
+            option.names=paste(periodList[(o-oo):o], 'p/kWh')
+        ));
+    }
+}
+
+myTariffList <- myTariffList[grep('[0-9],[0-9][0-9][0-9]', myTariffList)];
+for (t in myTariffList) {
+    minimum <- min(peryear[tariff==t]);
+    maximum <- max(peryear[tariff==t]);
+    for (o in 1:numPeriods) {
+        oomax <- min(o-1, 2);
+        for (oo in 0:oomax) {
+            l <- list();
+            for (ooo in (o-oo):o) {
+                l[[ooo-o+oo+1]] <- peryear[tariff==t&period==periodList[ooo]];
+            }
+            try(plot.dno.map(
+                l,
+                mincol=minimum,
+                maxcol=maximum,
+                file.name=paste(t, 'annual',
+                    ifelse(oo, paste(periodList[o-oo], periodList[o], sep='-'), periodList[o])
+                ),
+                file.type='1080p',
+                title=t,
+                option.names=paste(periodList[(o-oo):o], '\U{a3}/year'),
+                legend.digit=0,
+                number.format='%.0f'
+            ));
+        }
+    }
+}
+
 EOR
 }
 
@@ -235,8 +291,7 @@ t4202 <- dbGetQuery(db, paste(
     'from data as a inner join data as b using (bid, tab, row) inner join data as c using (bid, tab, row)',
     'left join books using (bid) where a.tab=4202 and a.row>0 and a.col=0 and b.col=1 and c.col=2',
     'and c.v+0 > 0'
-	)
-);
+));
 option <- factor(t4202$option);
 optionList <- levels(option);
 numOptions <- length(optionList);

@@ -40,7 +40,7 @@ sub xlsWriter {
         $outfile =~ s/\.xlsx? cleaned.xls$/ cleaned.xls/is;
         if ( -e $outfile ) {
             warn "$infile skipped";
-            next;
+            return;
         }
         my $outputBook = new Spreadsheet::WriteExcel($outfile);
         for my $worksheet ( $workbook->worksheets() ) {

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -152,9 +152,9 @@ plot.dno.map <- function (
             # 192 dpi up to 10" by 6.7" images for 10" by 7.5" slides
             if (numMaps == 3) file.type <- 1920 else file.type <- 1280;
         } else if ( file.type == '1080p' | file.type == 'FullHD' ) {
-            if (numMaps == 3) file.type <- 1080*1.5 else file.type <- 1080;
+            if (numMaps == 3) file.type <- 1920 else file.type <- 1080;
         } else if ( file.type == '720p' | file.type == 'HD' ) {
-            if (numMaps == 3) file.type <- 720*1.5 else file.type <- 720;
+            if (numMaps == 3) file.type <- 1280 else file.type <- 720;
         } else if (file.type == 'Retina15') {
             if (numMaps == 3) file.type <- 2700 else file.type <- 1800;
         }
@@ -175,15 +175,15 @@ plot.dno.map <- function (
         } else if ( file.type == 'jpg' | file.type == 'jpeg' | file.type == 'JPG' | file.type == 'JPEG' ) {
             file.type <- 2048;
             filename<-paste(file.name, '.jpeg', sep='');
-            if (numMaps == 1) jpeg(filename, width=file.type/1.5, height=file.type, res=file.type/10.0) else
+            if (numMaps == 1) jpeg(filename, width=file.type*9/16, height=file.type, res=file.type/10.0) else
             if (numMaps == 2) jpeg(filename, width=file.type, height=file.type, res=file.type/8.0) else
-            if (numMaps == 3) jpeg(filename, width=file.type, height=file.type/1.5, res=file.type/10.0);
+            if (numMaps == 3) jpeg(filename, width=file.type, height=file.type*9/16, res=file.type/10.0);
         } else {
             file.type <- as.integer(file.type);
             filename<-paste(file.name, '.png', sep='');
-            if (numMaps == 1) png(filename, width=file.type/1.5, height=file.type, res=file.type/10.0) else
+            if (numMaps == 1) png(filename, width=file.type*9/16, height=file.type, res=file.type/10.0) else
             if (numMaps == 2) png(filename, width=file.type, height=file.type, res=file.type/8.0) else
-            if (numMaps == 3) png(filename, width=file.type, height=file.type/1.5, res=file.type/10.0);
+            if (numMaps == 3) png(filename, width=file.type, height=file.type*9/16, res=file.type/10.0);
         }
     }
 
@@ -232,9 +232,9 @@ plot.dno.map <- function (
     mar<-c(4, 4, 8, 4);
     cex<-1.25;
     if (!is.na(title)) {
-        bot<-textbox(xr, bot, title, fill="white", border=F, margin=mar, cex=cex, font=2);
-        bot<-top;
-        bot<-textbox(xr, bot, title, border=F, margin=mar, cex=cex, font=2);
+        bot<-textbox(xr, top, title, border=F, margin=mar, cex=cex, font=2);
+        rect(xr[1], bot, xr[2], top, col="white", border=F);
+        bot<-textbox(xr, top, title, border=F, margin=mar, cex=cex, font=2);
     }
     if (numMaps == 1) prop<-c(0.02, 0.77) else prop<-c(0.02, 0.58);
     xr<-max(xrange)*prop+min(xrange)*(1-prop);

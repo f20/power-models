@@ -21,9 +21,9 @@ R
 	for (t in c('pdf', 'Word')) {
 	    plot.dno.map(
 	        v[,1:2],
-	        file.name='EDCM opacity ratings', file.type=t, number.show=F, legend.show=F
-	        , title='EDCM opacity ratings'
-	        , box=c(paste(
+	        file.name='EDCM opacity ratings', file.type=t, number.show=F, legend.show=F,
+	        title='EDCM opacity ratings',
+	        box=c(paste(
 	            "Green is good, red is bad.",
 	            "Ratings reflect Franck's experience in seeking non-confidential",
 	            "aggregate data that would help understand how each",
