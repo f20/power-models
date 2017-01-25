@@ -3,6 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
+Copyright 2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -125,20 +126,20 @@ sub reactive {
         byrow => 1,
         data  => [
             map {
-                /^(LDNO )?LV sub/i
+                /^((?:LD|Q)NO )?LV sub/i
                   ? [ 1, 1, 1, 1, $model->{extraLevels} ? 1 : (), 1, 1, 1, 0 ]
-                  : /^(LDNO )?LV/i ? [ map { 1 } 0 .. 8 ]
-                  : /^(LDNO )?HV sub/i
+                  : /^((?:LD|Q)NO )?LV/i ? [ map { 1 } 0 .. 8 ]
+                  : /^((?:LD|Q)NO )?HV sub/i
                   ? [ 1, 1, 1, 1, $model->{extraLevels} ? 0 : (), 1, 0, 0, 0 ]
-                  : /^(LDNO )?HV/i
+                  : /^((?:LD|Q)NO )?HV/i
                   ? [ 1, 1, 1, 1, $model->{extraLevels} ? 1 : (), 1, 1, 0, 0 ]
-                  : /^(LDNO )?33kV sub/i
+                  : /^((?:LD|Q)NO )?33kV sub/i
                   ? [ 1, 1, 1, 0, $model->{extraLevels} ? 0 : (), 0, 0, 0, 0 ]
-                  : /^(LDNO )?33/i
+                  : /^((?:LD|Q)NO )?33/i
                   ? [ 1, 1, 1, 1, $model->{extraLevels} ? 0 : (), 0, 0, 0, 0 ]
                   : /^GSP/i
                   ? [ 1, 0, 0, 0, $model->{extraLevels} ? 0 : (), 0, 0, 0, 0 ]
-                  : /^(LDNO )?132/i
+                  : /^((?:LD|Q)NO )?132/i
                   ? [ 1, 1, 0, 0, $model->{extraLevels} ? 0 : (), 0, 0, 0, 0 ]
                   : [ 0, 0, 0, 0, $model->{extraLevels} ? 0 : (), 0, 0, 0, 0 ]
             } @{ $tariffsetForReactiveByEndUserPayg->{list} }

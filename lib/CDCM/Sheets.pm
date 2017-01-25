@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -475,7 +475,8 @@ EOL
         $wbook->{noLinks} = 1;
 
         my @pairs =
-          $model->{niceTariffMatrices}->( sub { local ($_) = @_; !/LDNO/i } );
+          $model->{niceTariffMatrices}
+          ->( sub { local ($_) = @_; !/(?:LD|Q)NO/i } );
         my @tables;
 
         my $count = 0;
@@ -519,7 +520,9 @@ EOL
 
     push @wsheetsAndClosures,
 
-      'M-LDNO' => sub {
+      'M-'
+      . (    $model->{portfolio}
+          && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO' ) => sub {
         return if $wbook->{findForwardLinks};
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 1 );
@@ -532,7 +535,8 @@ EOL
         $wbook->{noLinks} = 1;
 
         my @pairs =
-          $model->{niceTariffMatrices}->( sub { local ($_) = @_; /LDNO/i } );
+          $model->{niceTariffMatrices}
+          ->( sub { local ($_) = @_; /(?:LD|Q)NO/i } );
         my @tables;
 
         my $count = 0;

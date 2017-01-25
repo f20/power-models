@@ -1,8 +1,8 @@
-package CDCM;
+﻿package CDCM;
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -73,12 +73,12 @@ __DATA__
   - Domestic 1550: '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
     Domestic 3100: '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
     Domestic 8400: '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
-    Large business: '^(?:|LDNO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Large continuous: '^(?:|LDNO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Large housing electric: '^(?:|LDNO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Large housing standard: '^(?:|LDNO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Large intermittent: '^(?:|LDNO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Large off-peak: '^(?:|LDNO .*: )(?:LV|LV Sub|HV) HH Metered'
+    Large business: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
+    Large continuous: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
+    Large housing electric: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
+    Large housing standard: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
+    Large intermittent: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
+    Large off-peak: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
     Medium business: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
     Medium continuous: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
     Medium intermittent: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
@@ -86,12 +86,12 @@ __DATA__
     Other demand: All-the-way demand
     Other generation: All-the-way generation
     Small business: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
-    XL business: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
-    XL continuous: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
-    XL housing electric: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
-    XL housing standard: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
-    XL intermittent: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
-    XL off-peak: '^(?:|LDNO .*: )(?:Demand Category|HV.*HH)'
+    XL business: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
+    XL continuous: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
+    XL housing electric: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
+    XL housing standard: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
+    XL intermittent: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
+    XL off-peak: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
     _column: Tariff selection
   - Domestic 1550: 35
     Domestic 3100: 35

@@ -1,4 +1,4 @@
-package CDCM::PickBest;
+﻿package CDCM::PickBest;
 
 =head Copyright licence and disclaimer
 

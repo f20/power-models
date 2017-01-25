@@ -660,7 +660,7 @@ sub comparisonSummary {
           );
     }
 
-    push @{ $model->{comparisonTables} },
+    push @{ $model->{ comparisonTables } },
       Columnset(
         name    => 'Comparison with selected current tariffs',
         columns => [

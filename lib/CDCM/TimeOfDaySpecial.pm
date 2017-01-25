@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -63,9 +63,9 @@ sub timeOfDaySpecial {
                 $d->{1053}[1]{"NHH UMS category C"}  = 0.20 * $units;
                 $d->{1053}[1]{"NHH UMS category D"}  = 0.05 * $units;
                 $d->{1053}[4]{"NHH UMS category $_"} = '' foreach qw(A B C D);
-                foreach my $ldno (qw(LV HV)) {
-                    $d->{1053}[4]{"LDNO $ldno NHH UMS category $_"} =
-                      $d->{1053}[1]{"LDNO $ldno NHH UMS category $_"} = ''
+                foreach my $ldno ( 'LDNO LV', 'LDNO HV', 'QNO LV', 'QNO HV' ) {
+                    $d->{1053}[4]{"$ldno NHH UMS category $_"} =
+                      $d->{1053}[1]{"$ldno NHH UMS category $_"} = ''
                       foreach qw(A B C D);
                 }
             }
@@ -418,10 +418,10 @@ sub timeOfDaySpecialRunner {
             ? '=IF(A1,MAX(0,A2+A3-A4),A6*A7/A8/24)'
             : '=IF(A1,MAX(0,A2+A3-A4),IF(A5,1/0,0))',
             arguments => {
-                A1  => $model->{blackPeaking},
-                A2  => $amberPeaking,
-                A3  => $redPeaking,
-                A4  => $model->{blackPeaking},
+                A1 => $model->{blackPeaking},
+                A2 => $amberPeaking,
+                A3 => $redPeaking,
+                A4 => $model->{blackPeaking},
                 A5 => $model->{totalProbability},
                 $amberPeakingRate
                 ? (
@@ -558,7 +558,8 @@ sub timeOfDaySpecialRunner {
             name => 'Normalisation of'
               . ( $blackYellowGreen ? ' special ' : ' ' )
               . 'peaking probabilities',
-            columns => [ $model->{totalProbability}, $peakingProbabilitiesTable ]
+            columns =>
+              [ $model->{totalProbability}, $peakingProbabilitiesTable ]
         );
 
         unless ($blackYellowGreen) {

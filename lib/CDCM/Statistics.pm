@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -373,11 +373,13 @@ sub makeStatisticsTables {
             my $regex = $assumptions->{regex}{$user};
             if ( $regex eq 'All-the-way demand' ) {
                 $filter = sub {
-                    $_[0] !~ /^LDNO /i && $_[0] !~ /\bunmeter|\bums\b|\bgener/i;
+                    $_[0] !~ /^(?:LD|Q)NO /i
+                      && $_[0] !~ /\bunmeter|\bums\b|\bgener/i;
                 };
             }
             elsif ( $regex eq 'All-the-way generation' ) {
-                $filter = sub { $_[0] !~ /^LDNO /i && $_[0] =~ /\bgener/i; };
+                $filter =
+                  sub { $_[0] !~ /^(?:LD|Q)NO /i && $_[0] =~ /\bgener/i; };
             }
             else {
                 $regex = qr/$regex/m;
@@ -394,7 +396,7 @@ sub makeStatisticsTables {
             my $row = "$short ($tariff)";
             push @tariffList, $row;
             $mapping{$row} = [ $uid, $tid, $#tariffList ];
-            if ( $tariff =~ /^LDNO ([^:]+): (.+)/ ) {
+            if ( $tariff =~ /^(?:LD|Q)NO ([^:]+): (.+)/ ) {
                 $margins{$1}{"$short ($2)"} = $row;
             }
         }
@@ -548,8 +550,10 @@ sub makeStatisticsTables {
                 };
             },
         );
+        my $ldnoWord =
+          $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
         my $marginTable = SpreadsheetModel::Custom->new(
-            name          => 'Apparent LDNO margin (£/year)',
+            name          => "Apparent $ldnoWord margin (£/year)",
             defaultFormat => '0soft',
             rows          => $atwRowset,
             cols   => Labelset( list => [ map { "$_ margin"; } @boundaries ] ),
@@ -588,11 +592,11 @@ sub makeStatisticsTables {
         );
         push @{ $model->{statisticsTables} },
           Columnset(
-            name    => 'LDNO margins for illustrative customers (£/year)',
+            name    => "$ldnoWord margins for illustrative customers (£/year)",
             columns => [ $atwTable, $marginTable, ],
           );
         $model->{sharedData}
-          ->addStats( 'LDNO margins for illustrative customers',
+          ->addStats( "$ldnoWord margins for illustrative customers",
             $model, $marginTable )
           if $model->{sharedData};
 

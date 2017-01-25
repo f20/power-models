@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -891,20 +891,20 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $allTariffsReordered = Labelset(
             name => 'All tariffs',
             list => [
-                ( grep { !/LDNO/i } @allT ),
-                ( grep { /LDNO lv/i } @allT ),
-                ( grep { /LDNO hv/i && !/LDNO hv sub/i } @allT ),
-                ( grep { /LDNO hv sub/i } @allT ),
-                ( grep { /LDNO 33/i && !/LDNO 33kV sub/i } @allT ),
-                ( grep { /LDNO 33kV sub/i } @allT ),
-                ( grep { /LDNO 132/i } @allT ),
+                ( grep { !/(?:LD|Q)NO/i } @allT ),
+                ( grep { /(?:LD|Q)NO lv/i } @allT ),
+                ( grep { /(?:LD|Q)NO hv/i && !/(?:LD|Q)NO hv sub/i } @allT ),
+                ( grep { /(?:LD|Q)NO hv sub/i } @allT ),
+                ( grep { /(?:LD|Q)NO 33/i && !/(?:LD|Q)NO 33kV sub/i } @allT ),
+                ( grep { /(?:LD|Q)NO 33kV sub/i } @allT ),
+                ( grep { /(?:LD|Q)NO 132/i } @allT ),
                 (
                     grep {
-                             /LDNO/i
-                          && !/LDNO lv/i
-                          && !/LDNO hv/i
-                          && !/LDNO 33/i
-                          && !/LDNO 132/i
+                             /(?:LD|Q)NO/i
+                          && !/(?:LD|Q)NO lv/i
+                          && !/(?:LD|Q)NO hv/i
+                          && !/(?:LD|Q)NO 33/i
+                          && !/(?:LD|Q)NO 132/i
                     } @allT
                 )
             ]

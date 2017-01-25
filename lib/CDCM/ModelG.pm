@@ -69,17 +69,19 @@ sub modelG {
     my %volumeData      = %{ $model->{pcd}{volumeData} };
     my $ldnoGenLabelset = Labelset(
         list => [
-            grep { /ldno.*gener/i; }
+            grep { /(?:LD|Q)NO.*gener/i; }
               @{ $model->{pcd}{allTariffsByEndUser}{list} }
         ]
     );
+    my $ldnoWord =
+      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
     $volumeData{'Fixed charge p/MPAN/day'} = Stack(
-        name          => 'MPANs excluding LDNO generation',
+        name          => "MPANs excluding $ldnoWord generation",
         rows          => $volumeData{'Fixed charge p/MPAN/day'}{rows},
         defaultFormat => '0copy',
         sources       => [
             Constant(
-                name          => '0 for LDNO generation',
+                name          => "0 for $ldnoWord generation",
                 defaultFormat => '0con',
                 rows          => $ldnoGenLabelset,
                 data => [ [ map { 0 } @{ $ldnoGenLabelset->{list} } ] ],
@@ -158,7 +160,7 @@ sub modelG {
     my $ppuDiscounts =
       $model->{pcdByTariff}
       ? Dataset(
-        name       => 'LDNO discounts (p/kWh)',
+        name       => "$ldnoWord discounts (p/kWh)",
         number     => 1039,
         appendTo   => $model->{inputTables},
         dataset    => $model->{dataset},
@@ -173,7 +175,7 @@ sub modelG {
             error_message => 'The discount must be' . ' a non-negative value.',
         },
         data => [
-            map { /gener/i ? undef : /^LDNO/ ? 1 : 0; }
+            map { /gener/i ? undef : /^(?:LD|Q)NO/ ? 1 : 0; }
               @{ $regroupedTariffset->{list} },
         ],
       )
@@ -189,12 +191,12 @@ sub modelG {
         ),
         vector => $model->{embeddedModelM}
         ? Stack(
-            name    => 'LDNO discounts (p/kWh)',
+            name    => "$ldnoWord discounts (p/kWh)",
             cols    => $model->{pcd}{discount}{matrix}{cols},
             sources => $model->{embeddedModelM}{objects}{table1039sources},
           )
         : Dataset(
-            name       => 'LDNO discounts (p/kWh)',
+            name       => "$ldnoWord discounts (p/kWh)",
             number     => 1039,
             appendTo   => $model->{inputTables},
             dataset    => $model->{dataset},
@@ -211,10 +213,10 @@ sub modelG {
             },
             data => [
                 map {
-                        /^no/i         ? undef
-                      : /LDNO LV: LV/i ? 1
-                      : /LDNO HV: LV/i ? 2
-                      :                  1.5;
+                        /^no/i               ? undef
+                      : /(?:LD|Q)NO LV: LV/i ? 1
+                      : /(?:LD|Q)NO HV: LV/i ? 2
+                      :                        1.5;
                 } @{ $model->{pcd}{discount}{matrix}{cols}{list} },
             ],
         ),
@@ -519,7 +521,7 @@ sub modelG {
 
     push @{ $model->{modelgTables} },
       my $discounts = Arithmetic(
-        name          => 'LDNO discounts',
+        name          => "$ldnoWord discounts",
         defaultFormat => '%soft',
         arithmetic    => '=IF(A21,A1/A22,0)',
         arguments     => {
@@ -531,7 +533,7 @@ sub modelG {
 
     push @{ $model->{modelgTables2} },
       Stack(
-        name    => 'LDNO discounts ⇒1038. For CDCM',
+        name    => "$ldnoWord discounts ⇒1038. For CDCM",
         rows    => $model->{pcd}{allTariffsByEndUser},
         sources => [$discounts],
       );
@@ -545,7 +547,7 @@ sub modelG {
                 map {
                     Labelset(
                         name => "$_",
-                        list => [ grep { !/^LDNO/i } @{ $_->{list} } ]
+                        list => [ grep { !/^(?:LD|Q)NO/i } @{ $_->{list} } ]
                     );
                 } @groups
             ]

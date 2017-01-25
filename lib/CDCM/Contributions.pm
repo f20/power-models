@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2016-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -166,14 +166,14 @@ EOT
         byrow => 1,
         data  => [
             map {
-                    /^(LDNO )?LV sub/i   ? [qw(0 1 0 0 0 0 0 0)]
-                  : /^(LDNO )?LV/i       ? [qw(1 0 0 0 0 0 0 0)]
-                  : /^(LDNO )?HV sub/i   ? [qw(0 0 0 1 0 0 0 0)]
-                  : /^(LDNO )?HV/i       ? [qw(0 0 1 0 0 0 0 0)]
-                  : /^(LDNO )?33kV sub/i ? [qw(0 0 0 0 0 1 0 0)]
-                  : /^(LDNO )?33/i       ? [qw(0 0 0 0 1 0 0 0)]
-                  : /^(LDNO )?132/i      ? [qw(0 0 0 0 0 0 1 0)]
-                  : /^GSP/i              ? [qw(0 0 0 0 0 0 0 1)]
+                    /^((?:LD|Q)NO )?LV sub/i   ? [qw(0 1 0 0 0 0 0 0)]
+                  : /^((?:LD|Q)NO )?LV/i       ? [qw(1 0 0 0 0 0 0 0)]
+                  : /^((?:LD|Q)NO )?HV sub/i   ? [qw(0 0 0 1 0 0 0 0)]
+                  : /^((?:LD|Q)NO )?HV/i       ? [qw(0 0 1 0 0 0 0 0)]
+                  : /^((?:LD|Q)NO )?33kV sub/i ? [qw(0 0 0 0 0 1 0 0)]
+                  : /^((?:LD|Q)NO )?33/i       ? [qw(0 0 0 0 1 0 0 0)]
+                  : /^((?:LD|Q)NO )?132/i      ? [qw(0 0 0 0 0 0 1 0)]
+                  : /^GSP/i                    ? [qw(0 0 0 0 0 0 0 1)]
                   : []
             } @{ $allTariffsByEndUser->{list} }
         ],
@@ -190,7 +190,7 @@ EOT
     my $lvTariffset = Labelset(
         name => 'LV tariffs',
         list => [
-            grep  { /^(LDNO )?LV/i }
+            grep  { /^((?:LD|Q)NO )?LV/i }
               map { $allTariffsByEndUser->{list}[$_] }
               $allTariffsByEndUser->indices
         ]

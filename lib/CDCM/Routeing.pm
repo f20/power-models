@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2013-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -179,7 +179,7 @@ EOL
         data  => [
             map {
                 local $_ = $_;
-                s/^LDNO.*?:\s*//;
+                s/^(?:LD|Q)NO.*?:\s*//;
                     /^LV sub/i   ? [ reverse qw(0 1 0 0 0 0 0) ]
                   : /^LV/i       ? [ reverse qw(1 0 0 0 0 0 0) ]
                   : /^HV sub/i   ? [ reverse qw(0 0 0 1 0 0 0) ]
@@ -241,14 +241,15 @@ EOL
             data  => [
                 map {
                     local $_ = $_;
-                        /^LDNO LV/i          ? [ reverse qw(0 1 0 0 0 0 0) ]
-                      : /^LV sub/i           ? [ reverse qw(0 1 0 0 0 0 0) ]
-                      : /^LV/i               ? [ reverse qw(1 0 0 0 0 0 0) ]
-                      : /^(LDNO )?HV sub/i   ? [ reverse qw(0 0 0 1 0 0 0) ]
-                      : /^(LDNO )?HV/i       ? [ reverse qw(0 0 1 0 0 0 0) ]
-                      : /^(LDNO )?33kV sub/i ? [ reverse qw(0 0 0 0 0 1 0) ]
-                      : /^(LDNO )?33/i       ? [ reverse qw(0 0 0 0 1 0 0) ]
-                      : /^(LDNO )?132/i      ? [ reverse qw(0 0 0 0 0 0 1) ]
+                        /^(?:LD|Q)NO LV/i        ? [ reverse qw(0 1 0 0 0 0 0) ]
+                      : /^LV sub/i               ? [ reverse qw(0 1 0 0 0 0 0) ]
+                      : /^LV/i                   ? [ reverse qw(1 0 0 0 0 0 0) ]
+                      : /^((?:LD|Q)NO )?HV sub/i ? [ reverse qw(0 0 0 1 0 0 0) ]
+                      : /^((?:LD|Q)NO )?HV/i     ? [ reverse qw(0 0 1 0 0 0 0) ]
+                      : /^((?:LD|Q)NO )?33kV sub/i
+                      ? [ reverse qw(0 0 0 0 0 1 0) ]
+                      : /^((?:LD|Q)NO )?33/i  ? [ reverse qw(0 0 0 0 1 0 0) ]
+                      : /^((?:LD|Q)NO )?132/i ? [ reverse qw(0 0 0 0 0 0 1) ]
                       : []
                 } @{ $allTariffsByEndUser->{list} }
             ],
@@ -392,11 +393,16 @@ EOL
           . ' network level (by tariff)',
     );
 
+    my $ldnoWord =
+      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
     my $idnoDataInputTariffs = Labelset(
-        name => 'LV LDNO demand portfolio tariffs',
+        name => "LV $ldnoWord demand portfolio tariffs",
         list => [
-            grep { /^LDNO LV/ && !/^LDNO LV B[^:]*[0-9]/i && !/generat/i }
-              @{ $allTariffsByEndUser->{list} }
+            grep {
+                /^(?:LD|Q)NO LV/
+                  && !/^(?:LD|Q)NO LV B[^:]*[0-9]/i
+                  && !/generat/i
+            } @{ $allTariffsByEndUser->{list} }
         ]
     );
 
@@ -411,72 +417,76 @@ EOL
                 my $ar =
                   /EHV-(local|matched)/i
                   ? (
-                    /^(LDNO )?LV sub.*generat/i
+                    /^((?:LD|Q)NO )?LV sub.*generat/i
                     ? [ 0, 0, 0, 1, 1, 1, 0, 0, 1, 0 ]
-                    : /^(LDNO )?LV.*generat/i ? [ 0, 0, 0, 1, 1, 1, 1, 0, 1, 0 ]
-                    : /^(LDNO HV.*: )?HV sub.*generat/i
+                    : /^((?:LD|Q)NO )?LV.*generat/i
+                    ? [ 0, 0, 0, 1, 1, 1, 1, 0, 1, 0 ]
+                    : /^((?:LD|Q)NO HV.*: )?HV sub.*generat/i
                     ? [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 ]
-                    : /^(LDNO HV.*: )?HV.*generat/i
+                    : /^((?:LD|Q)NO HV.*: )?HV.*generat/i
                     ? [ 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 ]
-                    : /^(LDNO 33.*: )?33kV sub.*generat/i
+                    : /^((?:LD|Q)NO 33.*: )?33kV sub.*generat/i
                     ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                    : /^(LDNO 33.*: )?33.*generat/i
+                    : /^((?:LD|Q)NO 33.*: )?33.*generat/i
                     ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                    : /^(LDNO )?LV sub/i ? [ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 ]
+                    : /^((?:LD|Q)NO )?LV sub/i
+                    ? [ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 ]
                     : /^LV (additional|related)/i
                     ? [ 0, 0, 0, 1, 1, 1, 1, 1, 0, 0 ]
-                    : $model->{boundary} && /^LDNO LV B[^:]*([0-9]+)/i ? [
+                    : $model->{boundary} && /^(?:LD|Q)NO LV B[^:]*([0-9]+)/i ? [
                         0, 0, 0, 1, 1, 1, 1, ( $1 - 1 ) / $model->{boundary},
                         0, 0
                       ]
-                    : /^LDNO LV/i        ? [ 0, 0, 0, 1, 1, 1, 1, undef, 0, 0 ]
-                    : /^LV/i             ? [ 0, 0, 0, 1, 1, 1, 1, 1,     1, 0 ]
-                    : /^(LDNO )?HV sub/i ? [ 0, 0, 0, 1, 1, 0, 0, 0,     0, 0 ]
-                    : /^LDNO HV/i        ? [ 0, 0, 0, 1, 1, 1, 0, 0,     0, 0 ]
+                    : /^(?:LD|Q)NO LV/i ? [ 0, 0, 0, 1, 1, 1, 1, undef, 0, 0 ]
+                    : /^LV/i            ? [ 0, 0, 0, 1, 1, 1, 1, 1,     1, 0 ]
+                    : /^((?:LD|Q)NO )?HV sub/i
+                    ? [ 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ]
+                    : /^(?:LD|Q)NO HV/i ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ]
                     : /^HV (additional|related)/i
                     ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ]
                     : /^HV/i ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1 ]
                     :          die $_
                   )
-                  : /^(LDNO )?LV sub.*generat/i ? (
+                  : /^((?:LD|Q)NO )?LV sub.*generat/i ? (
                     $model->{genade} && /non.intermittent|site.specific/i
                     ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
                     : [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
                   )
-                  : /^(LDNO )?LV.*generat/i ? (
+                  : /^((?:LD|Q)NO )?LV.*generat/i ? (
                     $model->{genade} && /non.intermittent|site.specific/i
                     ? [ 1, 1, 1, 1, 1, 1, 1, 0.75, 1, 0 ]
                     : [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
                   )
-                  : /^(LDNO HV.*: )?HV sub.*generat/i
+                  : /^((?:LD|Q)NO HV.*: )?HV sub.*generat/i
                   ? [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 1 ]
-                  : /^(LDNO HV.*: )?HV.*generat/i
+                  : /^((?:LD|Q)NO HV.*: )?HV.*generat/i
                   ? [ 1, 1, 1, 1, 1, 0, 0, 0, 0, 1 ]
-                  : /^(LDNO 33.*: )?33kV sub.*generat/i
+                  : /^((?:LD|Q)NO 33.*: )?33kV sub.*generat/i
                   ? [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                  : /^(LDNO 33.*: )?33.*generat/i
+                  : /^((?:LD|Q)NO 33.*: )?33.*generat/i
                   ? [ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ]
-                  : /^(LDNO 132.*: )?132.*generat/i
+                  : /^((?:LD|Q)NO 132.*: )?132.*generat/i
                   ? [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                  : /^GSP.*generat/i   ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                  : /^(LDNO )?LV sub/i ? [ 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ]
+                  : /^GSP.*generat/i         ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+                  : /^((?:LD|Q)NO )?LV sub/i ? [ 1, 1, 1, 1, 1, 1, 1, 0, 0, 0 ]
                   : /^LV (additional|related)/i
                   ? [ 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ]
-                  : $model->{boundary} && /^LDNO LV B[^:]*([0-9]+)/i
+                  : $model->{boundary} && /^(?:LD|Q)NO LV B[^:]*([0-9]+)/i
                   ? [ 1, 1, 1, 1, 1, 1, 1, ( $1 - 1 ) / $model->{boundary}, 0,
                     0 ]
-                  : /^LDNO LV/i        ? [ 1, 1, 1, 1, 1, 1, 1, undef, 0, 0 ]
-                  : /^LV/i             ? [ 1, 1, 1, 1, 1, 1, 1, 1,     1, 0 ]
-                  : /^(LDNO )?HV sub/i ? [ 1, 1, 1, 1, 1, 0, 0, 0,     0, 0 ]
-                  : /^LDNO HV/i        ? [ 1, 1, 1, 1, 1, 1, 0, 0,     0, 0 ]
+                  : /^(?:LD|Q)NO LV/i ? [ 1, 1, 1, 1, 1, 1, 1, undef, 0, 0 ]
+                  : /^LV/i            ? [ 1, 1, 1, 1, 1, 1, 1, 1,     1, 0 ]
+                  : /^((?:LD|Q)NO )?HV sub/i ? [ 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 ]
+                  : /^(?:LD|Q)NO HV/i        ? [ 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ]
                   : /^HV (additional|related)/i
                   ? [ 1, 1, 1, 1, 1, 1, 0, 0, 0, 0 ]
-                  : /^HV/i               ? [ 1, 1, 1, 1, 1, 1, 0, 0, 0, 1 ]
-                  : /^(LDNO )?33kV sub/i ? [ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ]
-                  : /^(LDNO )?33/i       ? [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ]
-                  : /^(LDNO )?132/i      ? [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                  : /^GSP/i              ? [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                  :                        [];
+                  : /^HV/i ? [ 1, 1, 1, 1, 1, 1, 0, 0, 0, 1 ]
+                  : /^((?:LD|Q)NO )?33kV sub/i
+                  ? [ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0 ]
+                  : /^((?:LD|Q)NO )?33/i  ? [ 1, 1, 1, 1, 0, 0, 0, 0, 0, 0 ]
+                  : /^((?:LD|Q)NO )?132/i ? [ 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 ]
+                  : /^GSP/i               ? [ 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+                  :                         [];
                 if (/([0-9]+)% credit/i) {
                     my $factor = 0.01 * $1;
                     $_ *= $factor foreach @$ar;
@@ -503,7 +513,7 @@ EOT
 
     if ( $model->{ldnoSplits} ) {
         my $splits = Dataset(
-            name          => 'HV and LV DNO main usage for LDNO tariffs',
+            name          => "HV and LV DNO mains usage for $ldnoWord tariffs",
             cols          => Labelset( list => [ 'LV circuits', 'HV' ] ),
             data          => [ [0.1], [0.4] ],
             defaultFormat => '%hard',
@@ -521,11 +531,13 @@ EOT
             cols    => $coreExitLevels,
             sources => [
                 Arithmetic(
-                    name => 'LDNO LV split',
+                    name => "$ldnoWord LV split",
                     rows => Labelset(
                         list => [
-                            grep { /^LDNO LV: LV/i && !/^LDNO LV: LV Sub/i; }
-                              @{ $allTariffsByEndUser->{list} }
+                            grep {
+                                /^(?:LD|Q)NO LV: LV/i
+                                  && !/^(?:LD|Q)NO LV: LV Sub/i;
+                            } @{ $allTariffsByEndUser->{list} }
                         ]
                     ),
                     cols       => Labelset( list => ['LV circuits'] ),
@@ -533,11 +545,13 @@ EOT
                     arguments  => { A1           => $splits }
                 ),
                 Arithmetic(
-                    name => 'LDNO HV split',
+                    name => "$ldnoWord HV split",
                     rows => Labelset(
                         list => [
-                            grep { /^LDNO HV: [LH]V/i && !/^LDNO HV: HV Sub/i; }
-                              @{ $allTariffsByEndUser->{list} }
+                            grep {
+                                /^(?:LD|Q)NO HV: [LH]V/i
+                                  && !/^(?:LD|Q)NO HV: HV Sub/i;
+                            } @{ $allTariffsByEndUser->{list} }
                         ]
                     ),
                     cols       => Labelset( list => ['HV'] ),
@@ -558,8 +572,10 @@ EOT
         );
         my $hvSubTariffs = Labelset(
             name => 'HV Sub tariffs',
-            list =>
-              [ grep { /^(LDNO )?HV Sub/i } @{ $allTariffsByEndUser->{list} } ]
+            list => [
+                grep { /^((?:LD|Q)NO )?HV Sub/i }
+                  @{ $allTariffsByEndUser->{list} }
+            ]
         );
         my $gdTariffs = Labelset(
             name => 'Generation dominated tariffs',
@@ -580,14 +596,14 @@ EOT
                         map {
                             /GDT/i
                               ? (
-                                /^(LDNO )LV.*generat/i
+                                /^((?:LD|Q)NO )LV.*generat/i
                                 ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 ]
                                 : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ]
                               )
                               : (
-                                /^(LDNO )?LV.*generat/i
+                                /^((?:LD|Q)NO )?LV.*generat/i
                                 ? [ 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0 ]
-                                : /^(LDNO HV.*: )?HV.*generat/i
+                                : /^((?:LD|Q)NO HV.*: )?HV.*generat/i
                                 ? [ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 ]
                                 : [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
                               )

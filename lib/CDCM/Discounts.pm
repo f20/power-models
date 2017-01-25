@@ -64,10 +64,10 @@ sub pcdPreprocessedVolumes {
 
     foreach ( @{ $model->{pcd}{allTariffsByEndUser}{list} } ) {
         my $combi =
-            /gener/i                              ? 'No discount'
-          : /^LDNO Any: .*(?:ums|unmeter)/i       ? "LDNO Any: Unmetered"
-          : /^(LDNO (?:.*?): (?:\S+V(?: Sub)?))/i ? "$1 user"
-          :                                         'No discount';
+            /gener/i                                    ? 'No discount'
+          : /^((?:LD|Q)NO Any): .*(?:ums|unmeter)/i     ? "$1: Unmetered"
+          : /^((?:LD|Q)NO (?:.*?): (?:\S+V(?: Sub)?))/i ? "$1 user"
+          :                                               'No discount';
         $combi =~ s/\bsub/Sub/;
         push @combinations, $combi
           unless grep { $_ eq $combi } @combinations;
@@ -91,36 +91,38 @@ sub pcdPreprocessedVolumes {
         %{ $model->{embeddedModelM} },
     ) if $model->{embeddedModelM};
 
+    my $ldnoWord =
+      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
+
     my $rawDiscount =
       $model->{pcdByTariff} ? Dataset(
-        name          => 'Embedded network (LDNO) discounts',
+        name          => "Embedded network ($ldnoWord) discounts",
         defaultFormat => '%hard',
         number        => 1038,
         appendTo      => $model->{inputTables},
         dataset       => $model->{dataset},
         validation    => {
             validate      => 'decimal',
-            criteria      => 'between',
-            minimum       => 0,
-            maximum       => 1,
-            input_title   => 'LDNO discount:',
-            input_message => 'Between 0% and 100%',
-            error_message => 'The LDNO discount'
-              . ' must be between 0% and 100%.'
+            criteria      => '>=',
+            value         => 0,
+            input_title   => "$ldnoWord discount:",
+            input_message => 'At least 0%',
+            error_message => "The $ldnoWord discount"
+              . ' must not be negative.'
         },
         rows => $model->{pcd}{allTariffsByEndUser},
         data => [ map { 0 } @{ $model->{pcd}{allTariffsByEndUser}{list} } ],
       )
       : $model->{embeddedModelM} ? Stack(
-        name          => 'Embedded network (LDNO) discounts',
-        singleRowName => 'LDNO discount',
+        name          => "Embedded network ($ldnoWord) discounts",
+        singleRowName => "$ldnoWord discount",
         defaultFormat => '%copy',
         cols          => $combinations,
         sources       => $model->{embeddedModelM}{objects}{table1037sources},
       )
       : Dataset(
-        name          => 'Embedded network (LDNO) discounts',
-        singleRowName => 'LDNO discount',
+        name          => "Embedded network ($ldnoWord) discounts",
+        singleRowName => "$ldnoWord discount",
         number        => 1037,
         appendTo      => $model->{inputTables},
         dataset       => $model->{dataset},
@@ -129,9 +131,9 @@ sub pcdPreprocessedVolumes {
             criteria      => 'between',
             minimum       => 0,
             maximum       => 1,
-            input_title   => 'LDNO discount:',
+            input_title   => "$ldnoWord discount:",
             input_message => 'Between 0% and 100%',
-            error_message => 'The LDNO discount'
+            error_message => "The $ldnoWord discount"
               . ' must be between 0% and 100%.'
         },
         lines => [ 'Source: separate price control disaggregation model.', ],
@@ -139,10 +141,10 @@ sub pcdPreprocessedVolumes {
         cols          => $combinations,
         data          => [
             map {
-                    /^no/i         ? undef
-                  : /LDNO LV: LV/i ? 0.3
-                  : /LDNO HV: LV/i ? 0.5
-                  :                  0.4;
+                    /^no/i               ? undef
+                  : /(?:LD|Q)NO LV: LV/i ? 0.3
+                  : /(?:LD|Q)NO HV: LV/i ? 0.5
+                  :                        0.4;
             } @combinations
         ]
       );
@@ -164,9 +166,9 @@ sub pcdPreprocessedVolumes {
       );
 
     my $ldnoGenerators = Labelset(
-        name => 'Generators on LDNO networks',
+        name => "Generators on $ldnoWord networks",
         list => [
-            grep { /ldno/i && /gener/i }
+            grep { /(?:LD|Q)NO/i && /gener/i }
               @{ $model->{pcd}{allTariffsByEndUser}{list} }
         ]
     );
@@ -178,7 +180,8 @@ sub pcdPreprocessedVolumes {
         cols          => $model->{pcd}{discount}{cols},
         sources       => [
             Constant(
-                name => '100 per cent discount for generators on LDNO networks',
+                name =>
+                  "100 per cent discount for generators on $ldnoWord networks",
                 defaultFormat => '%connz',
                 rows          => $ldnoGenerators,
                 data          => [ [ map { 1 } @{ $ldnoGenerators->{list} } ] ]
@@ -194,7 +197,7 @@ sub pcdPreprocessedVolumes {
         # separate discounts for demand unit changes, demand standing charges,
         # generation credits and generation fixed charges.
 
-        die 'EDCM discounted LDNO tariffs are not implemented here';
+        die "EDCM discounted $ldnoWord tariffs are not implemented here";
 
     }
 
@@ -249,7 +252,7 @@ sub pcdPreprocessedVolumes {
     } @$nonExcludedComponents;
 
     Columnset(
-        name    => 'LDNO discounts and volumes adjusted for discount',
+        name    => "$ldnoWord discounts and volumes adjusted for discount",
         columns => [
             ref $model->{pcd}{discount} eq 'SpreadsheetModel::Dataset'
             ? ()

@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -220,7 +220,7 @@ sub consultationSummaryDeprecated {
                 rows => Labelset(
                     list => [
                         grep {
-                            !/LDNO/i
+                            !/(?:LD|Q)NO/i
                               && $componentMap->{$_}
                               {'Reactive power charge p/kVArh'}
                           } map { $allTariffs->{list}[$_] }
@@ -346,26 +346,28 @@ sub consultationSummaryDeprecated {
     );
 
     push @rev, $atwRev;
+    my $ldnoWord =
+      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
 
     foreach my $idnoType ( 'LV', 'HV', 'HV Sub', 'Any' ) {
-        next unless grep { /^LDNO $idnoType:/ } @{ $allTariffs->{list} };
+        next unless grep { /^(?:LD|Q)NO $idnoType:/ } @{ $allTariffs->{list} };
         push @{ $atwMarginTariffs->{accepts} }, my $tariffset = Labelset(
             list => [
                 map {
-                    ( grep { /^LDNO $idnoType:/ } @{ $_->{list} } )[0]
+                    ( grep { /^(?:LD|Q)NO $idnoType:/ } @{ $_->{list} } )[0]
                       || 'N/A'
                 } @{ $atwMarginTariffs->{list} }
             ],
         );
         push @{ $model->{consultationInput} },
           my $irev = Stack(
-            name    => "LDNO $idnoType charges (normalised £)",
+            name    => "$ldnoWord $idnoType charges (normalised £)",
             rows    => $tariffset,
             sources => [$rev]
           );
         push @rev,
           Arithmetic(
-            name          => "LDNO $idnoType margin (normalised £)",
+            name          => "$ldnoWord $idnoType margin (normalised £)",
             defaultFormat => '0.00soft',
             rowFormats    => [
                 map { $_ eq 'N/A' ? 'unavailable' : undef }
@@ -502,7 +504,7 @@ sub consultationSummaryDeprecated {
 
     push @{ $model->{consultationTables} },
       Columnset(
-        name    => 'LDNO margins in use of system charges',
+        name    => "$ldnoWord margins in use of system charges",
         columns => \@rev
       );
 

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -155,7 +155,7 @@ sub makeStatisticsTables1203 {
             my $row = "$short ($tariff)";
             push @tariffList, $row;
             $mapping{$row} = [ $uid, $tid, $#tariffList ];
-            if ( $tariff =~ /^LDNO ([^:]+): (.+)/ ) {
+            if ( $tariff =~ /^(?:LD|Q)NO ([^:]+): (.+)/ ) {
                 $margins{$1}{"$short ($2)"} = $row;
             }
         }
@@ -308,8 +308,10 @@ sub makeStatisticsTables1203 {
                 };
             },
         );
+        my $ldnoWord =
+          $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
         my $marginTable = SpreadsheetModel::Custom->new(
-            name          => 'Apparent LDNO margin (£/year)',
+            name          => "Apparent $ldnoWord margin (£/year)",
             defaultFormat => '0soft',
             rows          => $atwRowset,
             cols   => Labelset( list => [ map { "$_ margin"; } @boundaries ] ),
@@ -348,11 +350,11 @@ sub makeStatisticsTables1203 {
         );
         push @{ $model->{statisticsTables} },
           Columnset(
-            name    => 'LDNO margins for illustrative customers (£/year)',
+            name    => "$ldnoWord margins for illustrative customers (£/year)",
             columns => [ $atwTable, $marginTable, ],
           );
         $model->{sharedData}
-          ->addStats( 'LDNO margins for illustrative customers',
+          ->addStats( "$ldnoWord margins for illustrative customers",
             $model, $marginTable )
           if $model->{sharedData};
 

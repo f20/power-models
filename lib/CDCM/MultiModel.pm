@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,7 @@ Average charge per MPAN for each tariff
 Illustrative charges (£/MWh)
 Illustrative charges (£/year)
 LDNO margins for illustrative customers
+QNO margins for illustrative customers
 General input data
 Load characteristics
 Network model and related input data

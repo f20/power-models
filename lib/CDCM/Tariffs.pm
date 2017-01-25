@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,8 @@ sub tariffs {
     my $hardMaxUnitRates = 10;
     my $maxUnitRates     = 1;
     my $noLdno           = !$model->{boundary} && !$model->{portfolio};
+    my $qno =
+      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
     my @allComponents;
     my @nonExcludedComponents;
     my %componentMap;
@@ -170,7 +172,7 @@ sub tariffs {
         $endUser .= "\n$hash->{Name}" if !$model->{rawNames} && $hash->{Name};
         my @tariffs = $endUser;
         if ( my $boundary = $hash->{Boundary} ) {
-            push @tariffs, "LDNO LV $_: $endUser"
+            push @tariffs, "$qno LV $_: $endUser"
               foreach $boundary > 1
               ? map { "B$_" } 1 .. $boundary
               : 'boundary';
@@ -200,7 +202,7 @@ sub tariffs {
                   || $endUser =~ /^LV sub/i       && $l =~ /^LV/i
                   || $endUser =~ /^HV (pri|sub)/i && $l =~ /^HV/i
                   || push @tariffs, join "\n",
-                  map { "LDNO $l: $_" } split /\n/, $endUser;
+                  map { "$qno $l: $_" } split /\n/, $endUser;
             }
         }
 
@@ -256,20 +258,26 @@ EOL
           : Labelset(
             name => 'All tariffs',
             list => [
-                ( grep { !/LDNO/i } @allTariffs ),
-                ( grep { /LDNO lv/i } @allTariffs ),
-                ( grep { /LDNO hv/i && !/LDNO hv sub/i } @allTariffs ),
-                ( grep { /LDNO hv sub/i } @allTariffs ),
-                ( grep { /LDNO 33/i && !/LDNO 33kV sub/i } @allTariffs ),
-                ( grep { /LDNO 33kV sub/i } @allTariffs ),
-                ( grep { /LDNO 132/i } @allTariffs ),
+                ( grep { !/(?:LD|Q)NO/i } @allTariffs ),
+                ( grep { /(?:LD|Q)NO lv/i } @allTariffs ),
+                (
+                    grep { /(?:LD|Q)NO hv/i && !/(?:LD|Q)NO hv sub/i }
+                      @allTariffs
+                ),
+                ( grep { /(?:LD|Q)NO hv sub/i } @allTariffs ),
+                (
+                    grep { /(?:LD|Q)NO 33/i && !/(?:LD|Q)NO 33kV sub/i }
+                      @allTariffs
+                ),
+                ( grep { /(?:LD|Q)NO 33kV sub/i } @allTariffs ),
+                ( grep { /(?:LD|Q)NO 132/i } @allTariffs ),
                 (
                     grep {
-                             /LDNO/i
-                          && !/LDNO lv/i
-                          && !/LDNO hv/i
-                          && !/LDNO 33/i
-                          && !/LDNO 132/i
+                             /(?:LD|Q)NO/i
+                          && !/(?:LD|Q)NO lv/i
+                          && !/(?:LD|Q)NO hv/i
+                          && !/(?:LD|Q)NO 33/i
+                          && !/(?:LD|Q)NO 132/i
                     } @allTariffs
                 )
             ]

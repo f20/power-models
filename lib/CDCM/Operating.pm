@@ -253,7 +253,7 @@ sub operating {
             sources => [$unitsInYear],
             rows    => $serviceModelAssetsPerAnnualMwh->{rows} || Labelset(
                 list => [
-                    grep { /un-?met/i && !/^ldno/i }
+                    grep { /un-?met/i && !/^(?:LD|Q)NO/i }
                       @{ $unitsInYear->{rows}{list} }
                 ]
             ),

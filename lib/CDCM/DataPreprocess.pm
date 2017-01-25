@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -388,7 +388,9 @@ EOY
                 my $prop = $col->{ $level . ' HH Metered localprop' } || 0;
                 $col->{ $level . ' HH Metered' } ||= 0;
                 $col->{"LDNO $_ $level HH Metered EHV Local Source"} =
-                  $col->{"LDNO $_ $level Generation EHV Local Supply"} = 0
+                  $col->{"LDNO $_ $level Generation EHV Local Supply"} =
+                  $col->{"QNO $_ $level HH Metered EHV Local Source"} =
+                  $col->{"QNO $_ $level Generation EHV Local Supply"} = 0
                   foreach $level eq 'LV' ? qw(HV LV) : qw(HV);
                 $col->{ $level . ' HH Metered EHV Local Source' } =
                   $prop * $col->{ $level . ' HH Metered' };
@@ -460,7 +462,9 @@ EOY
         }
         foreach ( 1 .. 6 ) {
             my $col = $d->{1053}[$_];
-            foreach my $prefix ( '', 'LDNO LV ', 'LDNO HV ' ) {
+            foreach
+              my $prefix ( '', 'LDNO LV ', 'LDNO HV ', 'QNO LV ', 'QNO HV ' )
+            {
                 $col->{ $prefix . 'LV Network Domestic' }            ||= '';
                 $col->{ $prefix . 'LV Network Non-Domestic Non-CT' } ||= '';
                 $col->{ $prefix . 'LV Network Non-Domestic CT' } ||=
@@ -512,14 +516,19 @@ EOY
     {
         foreach ( 1 .. 6 ) {
             my $col = $d->{1053}[$_];
-            foreach my $prefix ( '', 'LDNO LV ', 'LDNO HV ' ) {
+            foreach
+              my $prefix ( '', 'LDNO LV ', 'LDNO HV ', 'QNO LV ', 'QNO HV ' )
+            {
                 $col->{ $prefix . 'LV Generation NHH or Aggregate HH' } ||=
                   $col->{ $prefix . 'LV Generation NHH' };
             }
         }
     }
 
-    if ( $d->{p300} ) {
+    if (   $d->{p300}
+        && $d->{1041}[2]{'Domestic Unrestricted'}
+        && $d->{1053}[1]{'Domestic Unrestricted'} )
+    {
         foreach ( 'Domestic', 'Small Non Domestic' ) {
             $model->addModifiedWarning;
             my $hhTariffName =
