@@ -88,13 +88,16 @@ sub applyInstructions {
               @{ $self->{sourceLines} };
             my ( $w2, $r2, $c2 ) =
               $args->[1]->wsWrite( $wb, $ws, undef, undef, 1 );
-            $args->[1] =
-              "='" . $w2->get_name . "'!" . xl_rowcol_to_cell( $r2, $c2 );
+            $args =
+              [     name_formula => "='"
+                  . $w2->get_name . "'!"
+                  . xl_rowcol_to_cell( $r2, $c2 ) ];
         }
         if ( $verb eq 'add_series' ) {
             my $series = $args;
             if ( ref $args eq 'ARRAY' ) {
-                $series = shift @$args;
+                ( $series, my @newArgs ) = @$args;
+                $args = \@newArgs;
             }
             else {
                 $args = [];
