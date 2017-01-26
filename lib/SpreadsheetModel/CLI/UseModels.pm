@@ -186,10 +186,14 @@ sub makePostProcessor {
                            Win32::OLE->GetActiveObject('Excel.Application')
                         || Win32::OLE->new( 'Excel.Application', 'Quit' ) )
                     {
-                        my $excelWorkbook = $excelApp->Workbooks->Open($inpath);
+						my $excelWorkbooks;
+						$excelWorkbooks = $excelApp->Workbooks until $excelWorkbooks;
+                        my $excelWorkbook;
+						$excelWorkbook = $excelWorkbooks->Open($inpath) until $excelWorkbook;
                         $excelWorkbook->Save;
                         warn 'Waiting for Excel' until $excelWorkbook->Saved;
                         $excelWorkbook->Close;
+                        $excelWorkbook->Dispose;						
                     }
                     else {
                         warn 'Cannot find Microsoft Excel';
@@ -219,19 +223,21 @@ sub makePostProcessor {
                            Win32::OLE->GetActiveObject('Excel.Application')
                         || Win32::OLE->new( 'Excel.Application', 'Quit' ) )
                     {
-                        $excelApp->{Visible}       = 0;
-                        $excelApp->{DisplayAlerts} = 0;
-                        my $excelWorkbook = $excelApp->Workbooks->Open($inpath);
+						my $excelWorkbooks;
+						$excelWorkbooks = $excelApp->Workbooks until $excelWorkbooks;
+                        my $excelWorkbook;
+						$excelWorkbook = $excelWorkbooks->Open($inpath) until $excelWorkbook;
                         $excelWorkbook->SaveAs(
                             { FileName => $outpath, @convertIncantation } );
                         warn 'Waiting for Excel' until $excelWorkbook->Saved;
                         $excelWorkbook->Close;
+                        $excelWorkbook->Dispose;						
                     }
                     else {
                         warn 'Cannot find Microsoft Excel';
                     }
                     rename $inpath, $inname;
-                    rename $outpath, $outname or die $!;
+                    rename $outpath, $outname or die "rename $outpath, $outname: $!";
                     $outname;
                 };
             }
