@@ -91,6 +91,8 @@ sub new {
         && length( $model->{extraNotice} ) > 299
         && $model->{extraNotice} =~ /DCUSA/ );
 
+    $model->{qno} = $model->{qno} ? 'QNO' : 'LDNO';
+
     my $extras = delete $model->{AdditionalRules};
     $model->run;
     foreach (
@@ -103,6 +105,7 @@ sub new {
             bless {
                 objects => $model->{objects},
                 dataset => $model->{dataset},
+                qno     => $model->{qno},
                 %$_,
             },
             $class

@@ -236,8 +236,8 @@ sub discounts95 {
     my @columns = (
         Constant( name => 'No discount', data => [ [] ], ),
         Arithmetic(
-            name       => 'LDNO LV: LV user',
-            cols       => Labelset( list => ['LDNO LV: LV user'] ),
+            name => $model->{qno} . ' LV: LV user',
+            cols => Labelset( list => [ $model->{qno} . ' LV: LV user' ] ),
             arithmetic => $model->{fixedIndirectPercentage}
             ? '=A4+A1*(1-A2)'
             : '=A4+A1*(1-A2*A3)',
@@ -252,8 +252,8 @@ sub discounts95 {
             defaultFormat => '%soft',
         ),
         Arithmetic(
-            name       => 'LDNO HV: LV user',
-            cols       => Labelset( list => ['LDNO HV: LV user'] ),
+            name => $model->{qno} . ' HV: LV user',
+            cols => Labelset( list => [ $model->{qno} . ' HV: LV user' ] ),
             arithmetic => $dcp071
             ? (
                 $model->{fixedIndirectPercentage}
@@ -278,8 +278,8 @@ sub discounts95 {
             defaultFormat => '%soft',
         ),
         Arithmetic(
-            name       => 'LDNO HV: LV Sub user',
-            cols       => Labelset( list => ['LDNO HV: LV Sub user'] ),
+            name => $model->{qno} . ' HV: LV Sub user',
+            cols => Labelset( list => [ $model->{qno} . ' HV: LV Sub user' ] ),
             arithmetic => $dcp071
             ? (
                 $model->{fixedIndirectPercentage}
@@ -304,8 +304,8 @@ sub discounts95 {
             defaultFormat => '%soft',
         ),
         Arithmetic(
-            name       => 'LDNO HV: HV user',
-            cols       => Labelset( list => ['LDNO HV: HV user'] ),
+            name => $model->{qno} . ' HV: HV user',
+            cols => Labelset( list => [ $model->{qno} . ' HV: HV user' ] ),
             arithmetic => $model->{fixedIndirectPercentage}
             ? '=A1*(1-A2)/(1-A9-A4-A5)'
             : '=A1*(1-A2*A3)/(1-A9-A4-A5)',
@@ -346,8 +346,8 @@ sub discounts95 {
       if $model->{checksums};
 
     my $discount = Columnset(
-        name          => 'LDNO discounts (CDCM) ⇒1037. For CDCM model',
-        singleRowName => 'LDNO discount',
+        name => $model->{qno} . ' discounts (CDCM) ⇒1037. For CDCM model',
+        singleRowName => $model->{qno} . ' discount',
         columns       => \@columns,
     );
 

@@ -39,7 +39,7 @@ sub ppuCalcCdcm {
 
     push @{ $model->{objects}{resultsTables} }, Columnset(
         name          => 'Discount p/kWh ⇒1039. For Model G',
-        singleRowName => 'LDNO discount p/kWh',
+        singleRowName => $model->{qno} . ' discount p/kWh',
         columns       => [
             map {
                 if (/No discount/) {

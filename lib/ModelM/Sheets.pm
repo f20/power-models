@@ -50,7 +50,7 @@ sub worksheetsAndClosures {
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 20 );
-        $wsheet->{nextFree} = 2;    # One comment line under "Input data" title
+        $wsheet->{nextFree} ||= $model->{noSingleInputSheet} ? 1 : 2;
         $model->{objects}{inputTables} ||= [];
         my ( $sh, $ro, $co ) = Dataset(
             number        => 1300,
@@ -77,13 +77,28 @@ sub worksheetsAndClosures {
               . qq%&" "&'$sh'!%
               . xl_rowcol_to_cell( $ro, $co + 2 ) )
           if $model->{multiModelSharing} && !$wbook->{findForwardLinks};
-        $_->wsWrite( $wbook, $wsheet )
-          foreach sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
-          @{ $model->{objects}{inputTables} };
-        my $nextFree = delete $wsheet->{nextFree};
-        Notes( lines =>
-              [ 'Input data', '', 'This sheet contains the input data.' ] )
-          ->wsWrite( $wbook, $wsheet );
+        my $nextFree;
+
+        if ( $model->{noSingleInputSheet} ) {
+            my $dataSheet = delete $wbook->{dataSheet};
+            $_->wsWrite( $wbook, $wsheet )
+              foreach
+              sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
+              @{ $model->{objects}{inputTables} };
+            $nextFree = delete $wsheet->{nextFree};
+            Notes( name => 'Input data (part)' )->wsWrite( $wbook, $wsheet );
+            $wbook->{dataSheet} = $dataSheet;
+        }
+        else {
+            $_->wsWrite( $wbook, $wsheet )
+              foreach
+              sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
+              @{ $model->{objects}{inputTables} };
+            my $nextFree = delete $wsheet->{nextFree};
+            Notes( lines =>
+                  [ 'Input data', '', 'This sheet contains the input data.' ] )
+              ->wsWrite( $wbook, $wsheet );
+        }
         $wsheet->{nextFree} = $nextFree;
     };
 

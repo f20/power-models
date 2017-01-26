@@ -19,7 +19,8 @@ THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTI
+AL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -75,52 +76,52 @@ sub discountEdcm {
     );
     my $discountLevelset = $model->{edcm} =~ /only/i
       ? Labelset( list => [ split /\n/, <<EOL] )
-LDNO HVplus: LV demand
-LDNO HVplus: LV Sub dem | LV gen
-LDNO HVplus: HV dem | LV Sub gen
-LDNO HVplus: HV generation
-LDNO EHV: LV demand
-LDNO EHV: LV Sub dem | LV gen
-LDNO EHV: HV dem | LV Sub gen
-LDNO EHV: HV generation
-LDNO 132kV/EHV: LV demand
-LDNO 132kV/EHV: LV Sub dem | LV gen
-LDNO 132kV/EHV: HV dem | LV Sub gen
-LDNO 132kV/EHV: HV generation
-LDNO 132kV: LV demand
-LDNO 132kV: LV Sub dem | LV gen
-LDNO 132kV: HV dem | LV Sub gen
-LDNO 132kV: HV generation
-LDNO 0000: LV demand
-LDNO 0000: LV Sub dem | LV gen
-LDNO 0000: HV dem | LV Sub gen
-LDNO 0000: HV generation
+$model->{qno} HVplus: LV demand
+$model->{qno} HVplus: LV Sub dem | LV gen
+$model->{qno} HVplus: HV dem | LV Sub gen
+$model->{qno} HVplus: HV generation
+$model->{qno} EHV: LV demand
+$model->{qno} EHV: LV Sub dem | LV gen
+$model->{qno} EHV: HV dem | LV Sub gen
+$model->{qno} EHV: HV generation
+$model->{qno} 132kV/EHV: LV demand
+$model->{qno} 132kV/EHV: LV Sub dem | LV gen
+$model->{qno} 132kV/EHV: HV dem | LV Sub gen
+$model->{qno} 132kV/EHV: HV generation
+$model->{qno} 132kV: LV demand
+$model->{qno} 132kV: LV Sub dem | LV gen
+$model->{qno} 132kV: HV dem | LV Sub gen
+$model->{qno} 132kV: HV generation
+$model->{qno} 0000: LV demand
+$model->{qno} 0000: LV Sub dem | LV gen
+$model->{qno} 0000: HV dem | LV Sub gen
+$model->{qno} 0000: HV generation
 EOL
       : Labelset( list => [ split /\n/, <<EOL] );
-LDNO LV: LV demand
-LDNO HV: LV demand
-LDNO HV: LV Sub demand
-LDNO HV: HV demand
-LDNO HVplus: LV demand
-LDNO HVplus: LV Sub dem | LV gen
-LDNO HVplus: HV dem | LV Sub gen
-LDNO HVplus: HV generation
-LDNO EHV: LV demand
-LDNO EHV: LV Sub dem | LV gen
-LDNO EHV: HV dem | LV Sub gen
-LDNO EHV: HV generation
-LDNO 132kV/EHV: LV demand
-LDNO 132kV/EHV: LV Sub dem | LV gen
-LDNO 132kV/EHV: HV dem | LV Sub gen
-LDNO 132kV/EHV: HV generation
-LDNO 132kV: LV demand
-LDNO 132kV: LV Sub dem | LV gen
-LDNO 132kV: HV dem | LV Sub gen
-LDNO 132kV: HV generation
-LDNO 0000: LV demand
-LDNO 0000: LV Sub dem | LV gen
-LDNO 0000: HV dem | LV Sub gen
-LDNO 0000: HV generation
+$model->{qno} LV: LV demand
+$model->{qno} HV: LV demand
+$model->{qno} HV: LV Sub demand
+$model->{qno} HV: HV demand
+$model->{qno} HVplus: LV demand
+$model->{qno} HVplus: LV Sub dem | LV gen
+$model->{qno} HVplus: HV dem | LV Sub gen
+$model->{qno} HVplus: HV generation
+$model->{qno} EHV: LV demand
+$model->{qno} EHV: LV Sub dem | LV gen
+$model->{qno} EHV: HV dem | LV Sub gen
+$model->{qno} EHV: HV generation
+$model->{qno} 132kV/EHV: LV demand
+$model->{qno} 132kV/EHV: LV Sub dem | LV gen
+$model->{qno} 132kV/EHV: HV dem | LV Sub gen
+$model->{qno} 132kV/EHV: HV generation
+$model->{qno} 132kV: LV demand
+$model->{qno} 132kV: LV Sub dem | LV gen
+$model->{qno} 132kV: HV dem | LV Sub gen
+$model->{qno} 132kV: HV generation
+$model->{qno} 0000: LV demand
+$model->{qno} 0000: LV Sub dem | LV gen
+$model->{qno} 0000: HV dem | LV Sub gen
+$model->{qno} 0000: HV generation
 EOL
     my $dataAtwBypass = [ map { [ split /\s+/ ] } split /\n/, <<EOT];
 
@@ -294,7 +295,7 @@ EOT
     );
 
     my $discounts = Arithmetic(
-        name          => 'LDNO discounts (EDCM)',
+        name          => $model->{qno}.' discounts (EDCM)',
         defaultFormat => '%soft',
         arithmetic    => '=1-MAX(0,(1-A1)/(1-A2))',
         arguments     => {
@@ -307,7 +308,7 @@ EOT
         push @{ $model->{objects}{calcSheets} },
           [ $model->{suffix}, $atwBypassed, $dnoBypassed ];
         $discounts = Columnset(
-            name    => 'LDNO discounts (EDCM)',
+            name    => $model->{qno}.' discounts (EDCM)',
             columns => [
                 $discounts,
                 map {
@@ -380,7 +381,7 @@ EOL
             );
         } split /;\s*/, $model->{checksums} if $model->{checksums};
         $discounts = Columnset(
-            name    => 'LDNO discounts (EDCM) ⇒1181. For EDCM model',
+            name    => $model->{qno}.' discounts (EDCM) ⇒1181. For EDCM model',
             columns => \@columns,
         );
     }

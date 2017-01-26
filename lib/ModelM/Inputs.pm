@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -78,10 +78,10 @@ sub hvSplit {
 sub checks {
     my ( $model, $allocLevelset ) = @_;
     my $discounts = Columnset(
-        name    => 'Current LDNO discounts',
+        name    => 'Current ' . $model->{qno} . ' discounts',
         columns => [
             Dataset(
-                name          => 'LDNO LV: LV user',
+                name          => $model->{qno} . ' LV: LV user',
                 data          => [ ['#VALUE!'] ],
                 defaultFormat => '%hard',
                 dataset       => $model->{dataset},
@@ -92,7 +92,7 @@ sub checks {
                 },
             ),
             Dataset(
-                name          => 'LDNO HV: LV user',
+                name          => $model->{qno} . ' HV: LV user',
                 data          => [ ['#VALUE!'] ],
                 defaultFormat => '%hard',
                 dataset       => $model->{dataset},
@@ -103,7 +103,7 @@ sub checks {
                 },
             ),
             Dataset(
-                name          => 'LDNO HV: LV Sub user',
+                name          => $model->{qno} . ' HV: LV Sub user',
                 data          => [ ['#VALUE!'] ],
                 defaultFormat => '%hard',
                 dataset       => $model->{dataset},
@@ -114,7 +114,7 @@ sub checks {
                 },
             ),
             Dataset(
-                name          => 'LDNO HV: HV user',
+                name          => $model->{qno} . ' HV: HV user',
                 data          => [ ['#VALUE!'] ],
                 defaultFormat => '%hard',
                 dataset       => $model->{dataset},
@@ -215,7 +215,9 @@ sub oneYearDpcr {
         ),
     );
     $model->{objects}{oneYearDpcr} = Columnset(
-        name  => 'Analysis of allowed revenue for 2007/2008 (£/year)',
+        name => 'Analysis of allowed revenue '
+          . ( $model->{not2007incentives} ? '' : 'for 2007/2008' )
+          . ' (£/year)',
         lines => 'In a legacy Method M workbook, these data are on'
           . ' sheet Calc-Allocation, possibly cells F66 and F63.',
         columns  => \@columns,
