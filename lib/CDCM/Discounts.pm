@@ -35,6 +35,8 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub pcdSetUp {
     my ( $model, $allEndUsers, $allTariffsByEndUser, $allTariffs ) = @_;
+    $model->{ldnoWord} =
+      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
     delete $model->{portfolio};
     delete $model->{boundary};
     $model->{pcd} = {
@@ -93,12 +95,9 @@ sub pcdPreprocessedVolumes {
         %{ $model->{embeddedModelM} },
     ) if $model->{embeddedModelM};
 
-    my $ldnoWord =
-      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
-
     my $rawDiscount =
       $model->{pcdByTariff} ? Dataset(
-        name          => "Embedded network ($ldnoWord) discounts",
+        name          => "Embedded network ($model->{ldnoWord}) discounts",
         defaultFormat => '%hard',
         number        => 1038,
         appendTo      => $model->{inputTables},
@@ -107,24 +106,24 @@ sub pcdPreprocessedVolumes {
             validate      => 'decimal',
             criteria      => '>=',
             value         => 0,
-            input_title   => "$ldnoWord discount:",
+            input_title   => "$model->{ldnoWord} discount:",
             input_message => 'At least 0%',
-            error_message => "The $ldnoWord discount"
+            error_message => "The $model->{ldnoWord} discount"
               . ' must not be negative.'
         },
         rows => $model->{pcd}{allTariffsByEndUser},
         data => [ map { 0 } @{ $model->{pcd}{allTariffsByEndUser}{list} } ],
       )
       : $model->{embeddedModelM} ? Stack(
-        name          => "Embedded network ($ldnoWord) discounts",
-        singleRowName => "$ldnoWord discount",
+        name          => "Embedded network ($model->{ldnoWord}) discounts",
+        singleRowName => "$model->{ldnoWord} discount",
         defaultFormat => '%copy',
         cols          => $combinations,
         sources       => $model->{embeddedModelM}{objects}{table1037sources},
       )
       : Dataset(
-        name          => "Embedded network ($ldnoWord) discounts",
-        singleRowName => "$ldnoWord discount",
+        name          => "Embedded network ($model->{ldnoWord}) discounts",
+        singleRowName => "$model->{ldnoWord} discount",
         number        => 1037,
         appendTo      => $model->{inputTables},
         dataset       => $model->{dataset},
@@ -133,9 +132,9 @@ sub pcdPreprocessedVolumes {
             criteria      => 'between',
             minimum       => 0,
             maximum       => 1,
-            input_title   => "$ldnoWord discount:",
+            input_title   => "$model->{ldnoWord} discount:",
             input_message => 'Between 0% and 100%',
-            error_message => "The $ldnoWord discount"
+            error_message => "The $model->{ldnoWord} discount"
               . ' must be between 0% and 100%.'
         },
         lines => [ 'Source: separate price control disaggregation model.', ],
@@ -168,7 +167,7 @@ sub pcdPreprocessedVolumes {
       );
 
     my $ldnoGenerators = Labelset(
-        name => "Generators on $ldnoWord networks",
+        name => "Generators on $model->{ldnoWord} networks",
         list => [
             grep { /(?:LD|Q)NO/i && /gener/i }
               @{ $model->{pcd}{allTariffsByEndUser}{list} }
@@ -183,7 +182,7 @@ sub pcdPreprocessedVolumes {
         sources       => [
             Constant(
                 name =>
-                  "100 per cent discount for generators on $ldnoWord networks",
+"100 per cent discount for generators on $model->{ldnoWord} networks",
                 defaultFormat => '%connz',
                 rows          => $ldnoGenerators,
                 data          => [ [ map { 1 } @{ $ldnoGenerators->{list} } ] ]
@@ -199,7 +198,8 @@ sub pcdPreprocessedVolumes {
         # separate discounts for demand unit changes, demand standing charges,
         # generation credits and generation fixed charges.
 
-        die "EDCM discounted $ldnoWord tariffs are not implemented here";
+        die
+          "EDCM discounted $model->{ldnoWord} tariffs are not implemented here";
 
     }
 
@@ -254,7 +254,8 @@ sub pcdPreprocessedVolumes {
     } @$nonExcludedComponents;
 
     Columnset(
-        name    => "$ldnoWord discounts and volumes adjusted for discount",
+        name =>
+          "$model->{ldnoWord} discounts and volumes adjusted for discount",
         columns => [
             ref $model->{pcd}{discount} eq 'SpreadsheetModel::Dataset'
             ? ()
