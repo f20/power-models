@@ -74,7 +74,7 @@ sub worksheetsAndClosures {
           && $model->{targetRevenue} =~ /dcp132/i;
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
-        $wsheet->{nextFree} ||= 2;
+        $wsheet->{nextFree} ||= $model->{noSingleInputSheet} ? 1 : 2;
         my ( $sh, $ro, $co ) = (
             $model->{table1000} = Dataset(
                 number        => 1000,
@@ -125,7 +125,8 @@ sub worksheetsAndClosures {
         while (@mwac) {
             my $sheet   = shift @mwac;
             my $closure = shift @mwac;
-            next if $sheet =~ /^(?:Index|Input|Result)/;
+            next if $sheet =~ /^(?:Index|Result)/;
+            next if $sheet =~ /^Input/ && !$model->{noSingleInputSheet};
             push @wsheetsAndClosures, "M($sheet)", $closure;
         }
     }
@@ -867,11 +868,14 @@ EOL
 }
 
 sub inputDataNotes {
+    my ($model) = @_;
     Notes(
-        lines => <<'EOL'
+        lines => $model->{noSingleInputSheet}
+        ? 'Input data (part)'
+        : <<'EOL'
 Input data
 
-This sheet contains all the input data (except LLFCs which might be entered directly into the Tariff sheet).
+This sheet contains all the input data, except LLFCs which are entered directly into the Tariff sheet.
 EOL
     );
 }

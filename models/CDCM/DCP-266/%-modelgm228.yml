@@ -7,7 +7,6 @@ blackPeakingProbabilityRequired: 1
 coincidenceAdj: groupums
 drm: top500gsp
 embeddedModelM:
-  .: DCP 266
   AdditionalRules:
     - calcUnits: 1
       dcp071: 1
@@ -27,11 +26,15 @@ embeddedModelM:
   dcp118: 1
   meav: 1
   netCapex: 1
+  noSingleInputSheet: 1
+  not2007incentives: 1
+  not2007units: 1
   ppuCalc: 1
   suffix: CDCM
 extraLevels: 1
 fixedCap: 1-4
 noReplacement: blanket
+noSingleInputSheet: 1
 pcd: 1
 portfolio: 1
 scaler: adderppugeneralminzeronogen
