@@ -186,14 +186,16 @@ sub makePostProcessor {
                            Win32::OLE->GetActiveObject('Excel.Application')
                         || Win32::OLE->new( 'Excel.Application', 'Quit' ) )
                     {
-						my $excelWorkbooks;
-						$excelWorkbooks = $excelApp->Workbooks until $excelWorkbooks;
+                        my $excelWorkbooks;
+                        $excelWorkbooks = $excelApp->Workbooks
+                          until $excelWorkbooks;
                         my $excelWorkbook;
-						$excelWorkbook = $excelWorkbooks->Open($inpath) until $excelWorkbook;
+                        $excelWorkbook = $excelWorkbooks->Open($inpath)
+                          until $excelWorkbook;
                         $excelWorkbook->Save;
                         warn 'Waiting for Excel' until $excelWorkbook->Saved;
                         $excelWorkbook->Close;
-                        $excelWorkbook->Dispose;						
+                        $excelWorkbook->Dispose;
                     }
                     else {
                         warn 'Cannot find Microsoft Excel';
@@ -223,21 +225,24 @@ sub makePostProcessor {
                            Win32::OLE->GetActiveObject('Excel.Application')
                         || Win32::OLE->new( 'Excel.Application', 'Quit' ) )
                     {
-						my $excelWorkbooks;
-						$excelWorkbooks = $excelApp->Workbooks until $excelWorkbooks;
+                        my $excelWorkbooks;
+                        $excelWorkbooks = $excelApp->Workbooks
+                          until $excelWorkbooks;
                         my $excelWorkbook;
-						$excelWorkbook = $excelWorkbooks->Open($inpath) until $excelWorkbook;
+                        $excelWorkbook = $excelWorkbooks->Open($inpath)
+                          until $excelWorkbook;
                         $excelWorkbook->SaveAs(
                             { FileName => $outpath, @convertIncantation } );
                         warn 'Waiting for Excel' until $excelWorkbook->Saved;
                         $excelWorkbook->Close;
-                        $excelWorkbook->Dispose;						
+                        $excelWorkbook->Dispose;
                     }
                     else {
                         warn 'Cannot find Microsoft Excel';
                     }
-                    rename $inpath, $inname;
-                    rename $outpath, $outname or die "rename $outpath, $outname: $!";
+                    rename $inpath,  $inname;
+                    rename $outpath, $outname
+                      or die "rename $outpath, $outname: $!";
                     $outname;
                 };
             }
