@@ -59,7 +59,7 @@ my $REG_TAG_NAME=$REG_NAME;
 # name or wildcard (* or '') (leading # allowed)
 my $REG_NAME_W = qq{(?:$REG_NAME|[*])}; 
 
-# class and ids are deliberatly permissive
+# class and ids are deliberately permissive
 my $REG_NTOKEN_FIRST_LETTER;
 #$REG_NTOKEN_FIRST_LETTER= q{(?:[^\W\d]|[:_])};  # < perl 5.6 - does not work for leading non-ascii letters
 $REG_NTOKEN_FIRST_LETTER= q{(?:[[:alpha:]:_])}; # >= perl 5.6
@@ -144,7 +144,7 @@ my $SEP= qr/\s*(?:$|\|)/;
 
 BEGIN
 { 
-$VERSION = '3.49';
+$VERSION = '3.48';
 
 use XML::Parser;
 my $needVersion = '2.23';
@@ -673,7 +673,7 @@ sub new
     else
       { $self->set_output_text_filter( 0); }
 
-    if( $args{KeepAttsOrder})
+    if( exists $args{KeepAttsOrder})
       { $self->{keep_atts_order}= $args{KeepAttsOrder};
         if( _use( 'Tie::IxHash'))
           { $self->set_keep_atts_order(  $self->{keep_atts_order}); }
@@ -8987,7 +8987,7 @@ sub set_text
           }
       }
     elsif( $elt->contains_a_single( $PCDATA) )
-      { # optimized so we have a slight chance of not loosing embedded comments and pi's
+      { # optimized so we have a slight chance of not losing embedded comments and pi's
         $elt->{first_child}->set_pcdata( $string);
         return $elt;
       }

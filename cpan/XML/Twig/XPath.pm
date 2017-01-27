@@ -1,6 +1,7 @@
 # $Id: /xmltwig/trunk/Twig/XPath.pm 32 2008-01-18T13:11:52.128782Z mrodrigu  $
 package XML::Twig::XPath;
 use strict;
+use warnings;
 use XML::Twig;
 
 my $XPATH;        # XPath engine (XML::XPath or XML::XPathEngine);
@@ -17,7 +18,8 @@ use vars qw($VERSION);
 $VERSION="0.02";
 
 BEGIN
-{ package XML::XPath::NodeSet;
+{ package # hide from PAUSE
+    XML::XPath::NodeSet;
   no warnings; # to avoid the "Subroutine sort redefined" message
   # replace the native sort routine by a Twig'd one
   sub sort
@@ -26,7 +28,8 @@ BEGIN
       return $self;
     }
 
-  package XML::XPathEngine::NodeSet;
+  package # hide from PAUSE
+    XML::XPathEngine::NodeSet;
   no warnings; # to avoid the "Subroutine sort redefined" message
   # replace the native sort routine by a Twig'd one
   sub sort
