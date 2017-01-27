@@ -39,16 +39,25 @@ sub fillDatabase {
 
     my $self = shift;
 
-    my ( $writer, $fillSettings, $postProcessor );
-
-    my $executor;
-    $executor = SpreadsheetModel::CLI::ExecutorFork->new
-      if eval 'require SpreadsheetModel::CLI::ExecutorFork';
+    my ( $writer, $fillSettings, $postProcessor, $executor, @files );
 
     foreach (@_) {
-        if (/^-+([0-9]+)$/i) {
-            if   ( $1 > 1 ) { $executor->setThreads($1); }
-            else            { $executor = 0; }
+        if (/^-+single/is) {
+            $executor = 0;
+            next;
+        }
+        if (/^-+([0-9]*)([tp])?$/is) {
+            unless ($executor) {
+                if ( $2 ? $2 eq 't' : $^O =~ /win32/i ) {
+                    require SpreadsheetModel::CLI::ExecutorThread;
+                    $executor = SpreadsheetModel::CLI::ExecutorThread->new;
+                }
+                else {
+                    require SpreadsheetModel::CLI::ExecutorFork;
+                    $executor = SpreadsheetModel::CLI::ExecutorFork->new;
+                }
+            }
+            $executor->setThreads($1) if $1;
             next;
         }
         if (/^-+(re-?build.*)/i) {
@@ -143,11 +152,27 @@ sub fillDatabase {
             next;
         }
 
-        ( $postProcessor ||= makePostProcessor( $writer, $fillSettings ) )
-          ->( $_, $executor )
-          foreach -f $_ ? $_ : grep { -f $_; } bsd_glob($_);
+        push @files, -f $_ ? $_ : grep { -f $_; } bsd_glob($_);
 
     }
+
+    unless ( defined $executor ) {
+        if ( $^O !~ /win32/i
+            && eval 'require SpreadsheetModel::CLI::ExecutorFork' )
+        {
+            $executor = SpreadsheetModel::CLI::ExecutorFork->new;
+        }
+        elsif ( eval 'require SpreadsheetModel::CLI::ExecutorThread' ) {
+            $executor = SpreadsheetModel::CLI::ExecutorThread->new;
+        }
+        else {
+            warn "No multi-threading: $@";
+        }
+    }
+
+    ( $postProcessor ||= makePostProcessor( $writer, $fillSettings ) )
+      ->( $_, $executor )
+      foreach @files;
 
     if ($executor) {
         if ( my $errorCount = $executor->complete ) {
@@ -386,6 +411,15 @@ sub parseModel {
         }
     }
     0;
+}
+
+package NOOP_CLASS;
+our $AUTOLOAD;
+
+sub AUTOLOAD {
+    no strict 'refs';
+    *{$AUTOLOAD} = sub { };
+    return;
 }
 
 1;

@@ -125,13 +125,4 @@ sub AUTOLOAD {
     return;
 }
 
-package NOOP_CLASS;
-our $AUTOLOAD;
-
-sub AUTOLOAD {
-    no strict 'refs';
-    *{$AUTOLOAD} = sub { };
-    return;
-}
-
 1;

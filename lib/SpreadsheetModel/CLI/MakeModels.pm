@@ -180,6 +180,19 @@ sub makeModels {
             }
             elsif (/^-+(right.*)/is) { $maker->{setRule}->( alignment => $1 ); }
             elsif (/^-+single/is) { $executor = 0; }
+            elsif (/^-+([0-9]*)([tp])?$/is) {
+                unless ($executor) {
+                    if ( $2 ? $2 eq 't' : $^O =~ /win32/i ) {
+                        require SpreadsheetModel::CLI::ExecutorThread;
+                        $executor = SpreadsheetModel::CLI::ExecutorThread->new;
+                    }
+                    else {
+                        require SpreadsheetModel::CLI::ExecutorFork;
+                        $executor = SpreadsheetModel::CLI::ExecutorFork->new;
+                    }
+                }
+                $executor->setThreads($1) if $1;
+            }
             elsif (/^-+sqlite(.*)/is) {
                 require SpreadsheetModel::Data::DataExtraction;
                 $maker->{setting}->(
@@ -202,19 +215,6 @@ sub makeModels {
             }
             elsif (/^-+(?:folder|directory)=(.+)?/is) {
                 $folder = $1;
-            }
-            elsif (/^-+([0-9]*)([tp])?$/is) {
-                unless ($executor) {
-                    if ( $2 ? $2 eq 't' : $^O =~ /win32/i ) {
-                        require SpreadsheetModel::CLI::ExecutorThread;
-                        $executor = SpreadsheetModel::CLI::ExecutorThread->new;
-                    }
-                    else {
-                        require SpreadsheetModel::CLI::ExecutorFork;
-                        $executor = SpreadsheetModel::CLI::ExecutorFork->new;
-                    }
-                }
-                $executor->setThreads($1) if $1;
             }
             elsif (/^-+xdata=?(.*)/is) {
                 if ($1) {
