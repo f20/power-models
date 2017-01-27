@@ -39,7 +39,7 @@ sub xlsWriter {
         my $outfile = "$infile cleaned.xls";
         $outfile =~ s/\.xlsx? cleaned.xls$/ cleaned.xls/is;
         if ( -e $outfile ) {
-            warn "$infile skipped";
+            warn "$infile skipped as $outfile exists";
             return;
         }
         my $outputBook = new Spreadsheet::WriteExcel($outfile);

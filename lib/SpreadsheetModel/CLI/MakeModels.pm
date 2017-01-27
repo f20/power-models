@@ -71,10 +71,10 @@ sub makeModels {
                     require SpreadsheetModel::Data::Autocheck;
                     $maker->{setting}->(
                         PostProcessing => makePostProcessor(
+                            $1 ? "convert$1" : 'calc',
                             SpreadsheetModel::Data::Autocheck->new(
                                 $self->[C_HOMEDIR]
-                              )->checker,
-                            $1 ? "convert$1" : 'calc'
+                            )->checker,
                         )
                     );
                 }
@@ -197,9 +197,9 @@ sub makeModels {
                 require SpreadsheetModel::Data::DataExtraction;
                 $maker->{setting}->(
                     PostProcessing => makePostProcessor(
+                        $1 ? "convert$1" : 'calc',
                         SpreadsheetModel::Data::DataExtraction::databaseWriter(
                         ),
-                        $1 ? "convert$1" : 'calc'
                     )
                 );
             }

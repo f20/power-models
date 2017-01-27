@@ -35,11 +35,12 @@ use File::Spec::Functions qw(abs2rel rel2abs);
 
 use constant { C_HOMEDIR => 0, };
 
-sub fillDatabase {
+sub useModels {
 
     my $self = shift;
 
-    my ( $writer, $fillSettings, $postProcessor, $executor, @files );
+    my ( @writerAndParserOptions, $fillSettings, $postProcessor, $executor,
+        @files );
 
     foreach (@_) {
         if (/^-+single/is) {
@@ -62,36 +63,40 @@ sub fillDatabase {
         }
         if (/^-+(re-?build.*)/i) {
             require SpreadsheetModel::Data::DataExtraction;
-            $writer =
+            @writerAndParserOptions =
               SpreadsheetModel::Data::DataExtraction::rebuildWriter( $1,
                 $self );
             next;
         }
         if (/^-+(ya?ml.*)/i) {
             require SpreadsheetModel::Data::DataExtraction;
-            $writer = SpreadsheetModel::Data::DataExtraction::ymlWriter($1);
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::DataExtraction::ymlWriter($1);
             next;
         }
         if (/^-+rules/i) {
             require SpreadsheetModel::Data::DataExtraction;
-            $writer = SpreadsheetModel::Data::DataExtraction::rulesWriter();
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::DataExtraction::rulesWriter();
             next;
         }
         if (/^-+jbz/i) {
             require SpreadsheetModel::Data::DataExtraction;
-            $writer = SpreadsheetModel::Data::DataExtraction::jbzWriter();
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::DataExtraction::jbzWriter();
             next;
         }
         if (/^-+(?:auto|model)check/i) {
             require SpreadsheetModel::Data::Autocheck;
-            $writer =
+            @writerAndParserOptions =
               SpreadsheetModel::Data::Autocheck->new( $self->[C_HOMEDIR] )
               ->checker;
             next;
         }
         if (/^-+(json.*)/i) {
             require SpreadsheetModel::Data::DataExtraction;
-            $writer = SpreadsheetModel::Data::DataExtraction::jsonWriter($1);
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::DataExtraction::jsonWriter($1);
             next;
         }
         if (/^-+sqlite3?(=.*)?$/i) {
@@ -101,50 +106,55 @@ sub fillDatabase {
                 $settings{sheetFilter} = sub { $_[0]{Name} eq $wantedSheet; };
             }
             require SpreadsheetModel::Data::DataExtraction;
-            $writer =
+            @writerAndParserOptions =
               SpreadsheetModel::Data::DataExtraction::databaseWriter(
                 \%settings );
             next;
         }
         if (/^-+prune=(.*)$/i) {
-            unless ($writer) {
+            unless (@writerAndParserOptions) {
                 require SpreadsheetModel::Data::DataExtraction;
-                $writer =
+                @writerAndParserOptions =
                   SpreadsheetModel::Data::DataExtraction::databaseWriter( {} );
             }
-            $writer->( undef, $1 );
+            @writerAndParserOptions->( undef, $1 );
             next;
         }
         if (/^-+xls$/i) {
             require SpreadsheetModel::Data::Dumpers;
-            $writer = SpreadsheetModel::Data::Dumpers::xlsWriter();
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::Dumpers::xlsWriter();
             next;
         }
         if (/^-+flat/i) {
             require SpreadsheetModel::Data::Dumpers;
-            $writer = SpreadsheetModel::Data::Dumpers::xlsFlattener();
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::Dumpers::xlsFlattener();
             next;
         }
         if (/^-+(tsv|txt|csv)$/i) {
             require SpreadsheetModel::Data::Dumpers;
-            $writer = SpreadsheetModel::Data::Dumpers::tsvDumper($1);
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::Dumpers::tsvDumper($1);
             next;
         }
         if (/^-+tall(csv)?$/i) {
             require SpreadsheetModel::Data::Dumpers;
-            $writer =
+            @writerAndParserOptions =
               SpreadsheetModel::Data::Dumpers::tallDumper( $1 || 'xls' );
             next;
         }
         if (/^-+cat$/i) {
             $executor = 0;
             require SpreadsheetModel::Data::Dumpers;
-            $writer = SpreadsheetModel::Data::Dumpers::tsvDumper( \*STDOUT );
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::Dumpers::tsvDumper( \*STDOUT );
             next;
         }
         if (/^-+split$/i) {
             require SpreadsheetModel::Data::Dumpers;
-            $writer = SpreadsheetModel::Data::Dumpers::xlsSplitter();
+            @writerAndParserOptions =
+              SpreadsheetModel::Data::Dumpers::xlsSplitter();
             next;
         }
         if (/^-+(calc|convert.*)/i) {
@@ -170,7 +180,8 @@ sub fillDatabase {
         }
     }
 
-    ( $postProcessor ||= makePostProcessor( $writer, $fillSettings ) )
+    ( $postProcessor ||=
+          makePostProcessor( $fillSettings, @writerAndParserOptions ) )
       ->( $_, $executor )
       foreach @files;
 
@@ -191,7 +202,7 @@ sub fillDatabase {
 
 sub makePostProcessor {
 
-    my ( $writer, $processSettings ) = @_;
+    my ( $processSettings, @writerAndParserOptions, ) = @_;
 
     my ( $calculator_beforefork, $calculator_afterfork );
     if ( $processSettings && $processSettings =~ /calc|convert/i ) {
@@ -368,37 +379,40 @@ EOS
           if $calculator_beforefork;
         if ($executor) {
             $executor->run( __PACKAGE__, 'parseModel', $fileToParse,
-                [ $calculator_afterfork, $writer ] );
+                [ $calculator_afterfork, @writerAndParserOptions ] );
         }
         else {
             __PACKAGE__->parseModel( $fileToParse, $calculator_afterfork,
-                $writer );
+                @writerAndParserOptions );
         }
     };
 
 }
 
 sub parseModel {
-    my ( undef, $fileToParse, $calculator_afterfork, $writer ) = @_;
+    my ( undef, $fileToParse, $calculator_afterfork, $writer, @parserOptions )
+      = @_;
     $fileToParse = $calculator_afterfork->($fileToParse)
       if $calculator_afterfork;
     my $workbook;
     eval {
+        my $parserModule;
+        my $formatter = 'NOOP_CLASS';
         if ( $fileToParse =~ /\.xlsx$/is ) {
             require Spreadsheet::ParseXLSX;
-            my $parser = Spreadsheet::ParseXLSX->new;
-            $workbook = $parser->parse( $fileToParse, 'NOOP_CLASS' );
+            $parserModule = 'Spreadsheet::ParseXLSX';
         }
         else {
             require Spreadsheet::ParseExcel;
-            my $parser    = Spreadsheet::ParseExcel->new;
-            my $formatter = 'NOOP_CLASS';
-            eval {
+            eval
+            { # The NOOP_CLASS produces warnings, the Japanese formatter does not
                 require Spreadsheet::ParseExcel::FmtJapan;
                 $formatter = Spreadsheet::ParseExcel::FmtJapan->new;
             };
-            $workbook = $parser->Parse( $fileToParse, $formatter );
+            $parserModule = 'Spreadsheet::ParseExcel';
         }
+        my $parser = $parserModule->new(@parserOptions);
+        $workbook = $parser->parse( $fileToParse, $formatter );
     };
     warn "$@ for $fileToParse" if $@;
     if ($writer) {
@@ -413,7 +427,9 @@ sub parseModel {
     0;
 }
 
+# Do-nothing cell content formatter for Spreadsheet::ParseExcel
 package NOOP_CLASS;
+
 our $AUTOLOAD;
 
 sub AUTOLOAD {

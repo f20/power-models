@@ -49,8 +49,8 @@ sub acceptCommand {
     if ( local $_ = $_[0] ) {
         return push @$self, [ makeFolder => @_[ 1 .. $#_ ] ] if /folder$/i;
         return push @$self, [ makeModels => @_[ 1 .. $#_ ] ] if /models$/i;
-        return push @$self, [ fillDatabase => @_[ 1 .. $#_ ] ]
-          if /fillDatabase$/i;
+        return push @$self, [ useModels  => @_[ 1 .. $#_ ] ]
+          if /useModels$/i;
         return push @$self, [ useDatabase => @_[ 1 .. $#_ ] ]
           if /useDatabase$/i;
         return push @$self, [ R       => @_[ 1 .. $#_ ] ] if /^R$/i;
@@ -61,7 +61,7 @@ sub acceptCommand {
     return push @$self, [ ymlSplit => @_ ] if grep { /-+ya?mlsplit/si } @_;
     return push @$self, [ makeModels => @_ ]
       if grep { /\.(?:ya?ml|json|dta|csv)$/si } @_;
-    return push @$self, [ fillDatabase => @_ ]
+    return push @$self, [ useModels => @_ ]
       if grep { /\.xl\S+$/si || /^-+prune=/si; } @_;
     return push @$self, [ makeModels => @_ ] if grep { /[*?]/; } @_;
 
