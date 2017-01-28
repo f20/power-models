@@ -35,15 +35,15 @@ require SpreadsheetModel::Book::Validation;
 use File::Spec::Functions qw(catfile);
 
 sub factory {
-    my ( $class, %factorySettings ) = @_;
+    my ( $class, @factorySettings ) = @_;
     my $self = bless {}, $class;
-    my %settings = %factorySettings;
+    my $settings = {@factorySettings};
     my ( %ruleOverrides, %dataOverrides );
     my ( @rulesets, @datasets, %dataByDatasetName );
     my %rulesDataSettings;
 
     $self->{resetSettings} = sub {
-        %settings = %factorySettings;
+        $settings = {@factorySettings};
     };
 
     $self->{resetRules} = sub {
@@ -58,7 +58,7 @@ sub factory {
     };
 
     $self->{setting} = sub {
-        %settings = ( %settings, @_ );
+        %$settings = ( %$settings, @_ );
     };
 
     $self->{setRule} = sub {
@@ -169,7 +169,8 @@ sub factory {
                                     ),
                                     validation => eval {
                                         require Encode;
-                                        require SpreadsheetModel::Book::Validation;
+                                        require
+                                          SpreadsheetModel::Book::Validation;
                                         SpreadsheetModel::Book::Validation::digestMachine
                                           ->add( Encode::encode_utf8($blob) )
                                           ->hexdigest;
@@ -228,7 +229,7 @@ sub factory {
             }
         }
 
-        $settings{safetyCheck}->(@rulesets) if $settings{safetyCheck};
+        $settings->{safetyCheck}->(@rulesets) if $settings->{safetyCheck};
         foreach (@rulesets) {
             return unless _loadModules( $_, "$_->{PerlModule}::Master" );
             if ( $_->{PerlModule}->can('requiredModulesForRuleset') ) {
@@ -313,7 +314,7 @@ sub factory {
                     dataset        => $data,
                     '~datasetName' => $book,
                   };
-                if ( !@rulesets || $settings{dumpInputYaml} ) {
+                if ( !@rulesets || $settings->{dumpInputYaml} ) {
                     my $blob     = Dump($data);
                     my $fileName = "$book.yml";
                     warn "Writing $book data\n";
@@ -329,7 +330,7 @@ sub factory {
 
         return unless @rulesets && @datasets;
 
-        if ( $settings{dataMerge} ) {
+        if ( $settings->{dataMerge} ) {
             my %byDatasetName;
             foreach (@datasets) {
                 push @{ $byDatasetName{ $_->{'~datasetName'} || $_ } }, $_;
@@ -350,8 +351,8 @@ sub factory {
             }
         }
 
-        if ( $settings{extraDataYears} ) {
-            foreach ( @{ $settings{extraDataYears} } ) {
+        if ( $settings->{extraDataYears} ) {
+            foreach ( @{ $settings->{extraDataYears} } ) {
                 my ( $sourceYear, $targetYear, $dataset ) = @$_;
                 foreach (@datasets) {
                     my $name = $_->{'~datasetName'} or next;
@@ -376,9 +377,9 @@ sub factory {
             }
         }
 
-        $validate->( @{ $settings{validate} } ) if $settings{validate};
+        $validate->( @{ $settings->{validate} } ) if $settings->{validate};
 
-        my $extension = $workbookModule->( $settings{xls} )->fileExtension;
+        my $extension = $workbookModule->( $settings->{xls} )->fileExtension;
 
         my $addToList = sub {
             my ( $data, $rule ) = @_;
@@ -404,18 +405,18 @@ sub factory {
                           $rulesDataSettings{$spreadsheetFile}[0]
                         ? $rulesDataSettings{$spreadsheetFile}
                         : @{ $rulesDataSettings{$spreadsheetFile}[1] },
-                        [ $rule, $data, \%settings ]
+                        [ $rule, $data, $settings ]
                     ],
-                    \%settings
+                    $settings
                 ];
             }
             else {
                 $rulesDataSettings{$spreadsheetFile} =
-                  [ $rule, $data, \%settings ];
+                  [ $rule, $data, $settings ];
             }
         };
 
-        if ( $settings{pickBestRules} ) {
+        if ( $settings->{pickBestRules} ) {
             foreach my $data (@datasets) {
                 my @scored;
                 foreach my $rule (@rulesets) {
@@ -451,7 +452,11 @@ sub factory {
     };
 
     $self->{run} = sub {
-        my ($executor) = @_;
+        my ( $executor, $progressReporter ) = @_;
+        $progressReporter->( 0 + keys %rulesDataSettings )
+          if $progressReporter;
+        my $increment = %rulesDataSettings ? 1.0 / keys %rulesDataSettings : 0;
+        my $progress = 0;
         while ( my ( $fileName, $rds ) = each %rulesDataSettings ) {
             $fileName = catfile( $rds->[2]{folder}, $fileName )
               if $rds->[2]{folder};
@@ -461,7 +466,7 @@ sub factory {
             if ($executor) {
                 $executor->run( $module, 'create', $fileName,
                     [ $rulesData, $rds->[2] ],
-                    $continuation );
+                    $continuation, 1 );
             }
             else {
                 warn "create $fileName\n";
@@ -469,6 +474,7 @@ sub factory {
                 $continuation->($fileName) if $continuation;
                 warn "finished $fileName\n";
             }
+            $progressReporter->() if $progressReporter;
         }
         if ($executor) {
             if ( my $errorCount = $executor->complete ) {

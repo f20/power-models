@@ -33,7 +33,8 @@ use threads;
 use threads::shared;
 use Thread::Queue;
 
-share $SpreadsheetModel::CLI::ExecutorThread::WORKBOOKCLEANUP;
+my $chdir_lock = 0;
+share $chdir_lock;
 
 sub new {
     my ( $class, $threads ) = @_;
@@ -64,16 +65,25 @@ sub setThreads {
 sub complete {
     my ( $executor, $maxThreadsLeft ) = @_;
     $maxThreadsLeft ||= 0;
-    while ( keys %{ $executor->{nameByTid} } > $maxThreadsLeft ) {
-        my ( $tid, $status ) = @{ $executor->{completedThreads}->dequeue };
-        ( delete $executor->{threadByTid}{$tid} )->join;
-        my $name = delete $executor->{nameByTid}{$tid};
-        push @{ $executor->{nameStatusPairs} }, [ $name, $status ];
-        if ( my $continuation = delete $executor->{continuationByTid}{$tid} ) {
-            $continuation->( $name, $executor );
+    while (keys %{ $executor->{nameByTid} } > $maxThreadsLeft
+        || keys %{ $executor->{threadByTid} } > 5 * $maxThreadsLeft )
+    {
+        my $dequeued = $executor->{completedThreads}->dequeue;
+        if ( ref $dequeued ) {
+            my ( $tid, $status ) = @$dequeued;
+            my $name = delete $executor->{nameByTid}{$tid};
+            push @{ $executor->{nameStatusPairs} }, [ $name, $status ];
+            if ( my $continuation =
+                delete $executor->{continuationByTid}{$tid} )
+            {
+                $continuation->( $name, $executor );
+            }
+            else {
+                warn "finished $name ($tid)\n";
+            }
         }
         else {
-            warn "finished $name\n";
+            ( delete $executor->{threadByTid}{$dequeued} )->join;
         }
     }
     return grep { $_->[1]; } @{ $executor->{nameStatusPairs} }
@@ -81,27 +91,54 @@ sub complete {
 }
 
 sub thread_run {
-    my ( $completionQueue, $myid, $module, $method, $firstArg, $otherArgsRef )
+    my ( $completionQueue, $myid, $module, $method, $firstArg, $otherArgsRef,
+        $protectionFlag )
       = @_;
-    my @status = eval { $module->$method( $firstArg, @$otherArgsRef ); };
+    my ( $status, @hazardousWaste );
+    if ($protectionFlag) {
+        lock $chdir_lock;
+        ++$chdir_lock;
+    }
+    eval {
+        ( $status, @hazardousWaste ) =
+          $module->$method( $firstArg, @$otherArgsRef );
+    };
+    if ($protectionFlag) {
+        lock $chdir_lock;
+        --$chdir_lock;
+        cond_signal $chdir_lock;
+    }
     if ($@) {
         warn "$@ in thread $myid";
-        @status = ( -1, $@ );
+        $status = $@;
     }
-    $completionQueue->enqueue( [ $myid, @status ] );
+    $completionQueue->enqueue( [ $myid, $status ] );
+    if (@hazardousWaste) {
+        lock $chdir_lock;
+        cond_wait $chdir_lock while $chdir_lock > 0;
+        require Cwd;
+        my $wd = Cwd::getcwd();
+        $_->DESTROY foreach @hazardousWaste;
+        chdir $wd or warn "chdir $wd: $!";
+        cond_signal $chdir_lock;
+    }
+    $completionQueue->enqueue($myid);
 }
 
 sub run {
-    my ( $executor, $module, $method, $firstArg, $otherArgsRef, $continuation )
+    my ( $executor, $module, $method, $firstArg, $otherArgsRef, $continuation,
+        $protectionFlag )
       = @_;
     $executor->complete( $executor->{maxThreadsMinusOne} );
     my $tid = ++$executor->{lastTid};
-    warn "$method $firstArg started\n";
-    $executor->{nameByTid}{$tid} = $firstArg;
+    local $_ = $firstArg;
+    $_ = $1 if m#[/\\].*[/\\]([^/\\]+)#s;
+    warn "$method $_ ($tid)\n";
+    $executor->{nameByTid}{$tid} = $_;
     $executor->{continuationByTid}{$tid} = $continuation if $continuation;
     $executor->{threadByTid}{$tid} =
       threads->new( \&thread_run, $executor->{completedThreads},
-        $tid, $module, $method, $firstArg, $otherArgsRef, );
+        $tid, $module, $method, $firstArg, $otherArgsRef, $protectionFlag );
 }
 
 1;

@@ -87,7 +87,7 @@ sub check {
 
 }
 
-sub checker {
+sub checkerOld {
     my ($autocheck) = @_;
     sub {
         my ( $book, $workbook ) = @_;
@@ -119,6 +119,42 @@ sub checker {
             }
         }
     };
+}
+
+sub checker {
+    my ($autocheck) = @_;
+    my @tableNumber;
+    my @checksumLocation;
+    my $book;
+    (
+        sub { },
+        Setup => sub { $book = $_[0]; },
+        NotSetCell  => 1,
+        CellHandler => sub {
+            my ( $wbook, $sheetIdx, $row, $col, $cell ) = @_;
+            my $v;
+            $v = $cell->unformatted if $cell;
+            return unless defined $v;
+            eval { $v = Encode::decode( 'UTF-16BE', $v ); }
+              if $v =~ m/\x{0}/;
+            if ( !$col && $v =~ /^([0-9]+)\. /s ) {
+                local $_ = $1;
+                return 1 unless /^(?:15|16|37|45)/;
+                $tableNumber[$sheetIdx] = $_;
+            }
+            elsif ($checksumLocation[$sheetIdx]
+                && $checksumLocation[$sheetIdx][0] == $row
+                && $checksumLocation[$sheetIdx][1] == $col )
+            {
+                $autocheck->check( $book, $tableNumber[$sheetIdx],
+                    $checksumLocation[$sheetIdx][2], $v );
+            }
+            elsif ( $v =~ /^Table checksum ([0-9]{1,2})$/si ) {
+                $checksumLocation[$sheetIdx] = [ $row + 1, $col, $1 ];
+            }
+            0;
+        }
+    );
 }
 
 1;

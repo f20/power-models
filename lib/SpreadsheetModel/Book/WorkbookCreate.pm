@@ -2,7 +2,7 @@ package SpreadsheetModel::Book::WorkbookCreate;
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -35,23 +35,24 @@ use File::Spec::Functions qw(catdir catfile splitpath);
 sub create {
 
     my ( $module, $fileName, $instructions, $settings ) = @_;
+
+    my @hazardousWaste;
     my @optionArray =
       ref $instructions eq 'ARRAY' ? @$instructions : $instructions;
     my @localTime   = localtime;
     my $streamMaker = $settings->{streamMaker};
-    my $tmpDir;
     $streamMaker ||= sub {
         my ($finalFile) = @_;
         unless ($finalFile) {
             binmode STDOUT;
             return \*STDOUT;
         }
-        my ( $tempFile, $closer, $tmpDir );
+        my ( $tempFile, $afterClose, $tmpDir );
         if ( $^O !~ /win32/i ) {
             $tmpDir = '~$tmp-' . $$ . rand();
             $tmpDir = catdir( $settings->{folder}, $tmpDir )
               if $settings->{folder};
-            mkdir $tmpDir;
+            mkdir $tmpDir or warn "Failed mkdir $tmpDir: $! in " . `pwd`;
             chmod 0770, $tmpDir;
             unless ( -d $tmpDir && -w _ ) {
                 warn 'Failed to create ' . $tmpDir . ' in ' . `pwd`;
@@ -61,26 +62,24 @@ sub create {
         if ( defined $tmpDir ) {
             $tempFile =
               catfile( $tmpDir, ( splitpath($finalFile) )[2] );
-            $closer = sub {
+            $afterClose = sub {
                 rename $tempFile, $finalFile;
-                rmdir $tmpDir or warn $!;
+                rmdir $tmpDir or warn "rmdir $tmpDir: $! in " . `pwd`;
             };
         }
         else {
             my @split = splitpath($finalFile);
             $tempFile =
               catfile( $split[1], '~$tmp-' . $$ . rand() . '-' . $split[2] );
-            $closer = sub {
+            $afterClose = sub {
                 rename $tempFile, $finalFile;
             };
         }
-        open my $handle, '>', $tempFile;
-        binmode $handle;
-        $handle, $closer, $finalFile;
+        $tempFile, $afterClose, $finalFile;
     };
 
-    ( my $handle, my $closer, $fileName ) = $streamMaker->($fileName);
-    my $wbook = $module->new($handle);
+    ( my $fileOrHandle, my $afterClose, $fileName ) = $streamMaker->($fileName);
+    my $wbook = $module->new($fileOrHandle);
     my @exports = grep { $settings->{$_} && /^Export/ } keys %$settings;
     my $exporter;
     if (@exports) {
@@ -91,9 +90,6 @@ sub create {
         };
         warn "@exports: $@" if $@;
     }
-
-    # Work around taint issue with IO::File
-    $wbook->set_tempdir($tmpDir) if $tmpDir && $module !~ /xlsx/i;
 
     $wbook->setFormats( $optionArray[0] );
     my @models;
@@ -304,6 +300,7 @@ EOW
             $closures2{$_}->( $wb2->{$_} )
               foreach grep { !/Overview|Index/i } @sheetNames2;
             $wb2->close;
+            push @hazardousWaste, $wb2;
         }
 
         $wbook->{$_} = $options->{$_} foreach grep { exists $options->{$_} } qw(
@@ -347,13 +344,21 @@ EOW
       if UNIVERSAL::can( $multiModelSharing, 'finish' );
 
     $wbook->close;
-    close $handle;    # otherwise the file is not finalised until exit
-    $closer->() if $closer;
+    close $fileOrHandle if ref $fileOrHandle;
+    $afterClose->() if $afterClose;
 
-    lock $SpreadsheetModel::CLI::ExecutorThread::WORKBOOKCLEANUP;
-    undef $wbook;
-
-    0;
+    wantarray
+      ? (
+        0,
+        grep {
+            # XLSX workbooks are chdir-hazardous waste.
+            # XLS workbooks must be disposed of quickly
+            # because they hog file descriptors.
+            !$_->isa('Spreadsheet::WriteExcel');
+          } @hazardousWaste,
+        $wbook,
+      )
+      : 0;
 
 }
 

@@ -214,7 +214,7 @@ sub makePostProcessor {
             if ( $processSettings =~ /calc/ ) {
                 $calculator_afterfork = sub {
                     my ($inname) = @_;
-                    my $inpath = rel2abs($inname);
+                    my $inpath = $inname;
                     $inpath =~ s/\.(xls.?)$/-$$.$1/i;
                     rename $inname, $inpath;
                     require Win32::OLE;
@@ -236,7 +236,8 @@ sub makePostProcessor {
                     else {
                         warn 'Cannot find Microsoft Excel';
                     }
-                    rename $inpath, $inname;
+                    rename $inpath, $inname
+                      or die "rename $inpath, $inname: $! in " . `pwd`;
                     $inname;
                 };
             }
@@ -249,11 +250,11 @@ sub makePostProcessor {
                 }
                 $calculator_afterfork = sub {
                     my ($inname) = @_;
-                    my $inpath   = rel2abs($inname);
+                    my $inpath   = $inname;
                     my $outpath  = $inpath;
 
                     $outpath =~ s/\.xls.?$/$convertExtension/i;
-                    my $outname = abs2rel($outpath);
+                    my $outname = $outpath;
                     s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
                     rename $inname, $inpath;
                     require Win32::OLE;
@@ -278,7 +279,7 @@ sub makePostProcessor {
                     }
                     rename $inpath,  $inname;
                     rename $outpath, $outname
-                      or die "rename $outpath, $outname: $!";
+                      or die "rename $outpath, $outname: $! in " . `pwd`;
                     $outname;
                 };
             }
@@ -291,7 +292,7 @@ sub makePostProcessor {
             if ( $processSettings =~ /calc/ ) {
                 $calculator_beforefork = sub {
                     my ($inname) = @_;
-                    my $inpath = rel2abs($inname);
+                    my $inpath = $inname;
                     $inpath =~ s/\.(xls.?)$/-$$.$1/i;
                     rename $inname, $inpath;
                     open my $fh, '| osascript';
@@ -303,7 +304,8 @@ tell application "Microsoft Excel"
 end tell
 EOS
                     close $fh;
-                    rename $inpath, $inname;
+                    rename $inpath, $inname
+                      or die "rename $inpath, $inname: $! in " . `pwd`;
                     $inname;
                 };
             }
@@ -316,10 +318,10 @@ EOS
                 }
                 $calculator_beforefork = sub {
                     my ($inname) = @_;
-                    my $inpath   = rel2abs($inname);
+                    my $inpath   = $inname;
                     my $outpath  = $inpath;
                     $outpath =~ s/\.xls.?$/$convertExtension/i;
-                    my $outname = abs2rel($outpath);
+                    my $outname = $outpath;
                     s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
                     rename $inname, $inpath;
                     open my $fh, '| osascript';
@@ -334,7 +336,8 @@ end tell
 EOS
                     close $fh;
                     rename $inpath,  $inname;
-                    rename $outpath, $outname;
+                    rename $outpath, $outname
+                      or die "rename $outpath, $outname: $! in " . `pwd`;
                     $outname;
                 };
             }
@@ -347,7 +350,7 @@ EOS
             warn 'Using ssconvert';
             $calculator_afterfork = sub {
                 my ($inname) = @_;
-                my $inpath   = rel2abs($inname);
+                my $inpath   = $inname;
                 my $outpath  = $inpath;
                 $outpath =~ s/\.xls.?$/\.xls/i;
                 my $outname = abs2rel($outpath);
@@ -368,21 +371,24 @@ EOS
 
     }
 
+    require Cwd;
+    my $wd = Cwd::getcwd();
+
     sub {
         my ( $inFile, $executor ) = @_;
-        unless ( -f $inFile ) {
-            warn "$inFile not found";
+        my $absFile = rel2abs( $inFile, $wd );
+        unless ( -f $absFile ) {
+            warn "$absFile not found";
             return;
         }
-        my $fileToParse = $inFile;
-        $fileToParse = $calculator_beforefork->($inFile)
+        $absFile = $calculator_beforefork->($absFile)
           if $calculator_beforefork;
         if ($executor) {
-            $executor->run( __PACKAGE__, 'parseModel', $fileToParse,
+            $executor->run( __PACKAGE__, 'parseModel', $absFile,
                 [ $calculator_afterfork, @writerAndParserOptions ] );
         }
         else {
-            __PACKAGE__->parseModel( $fileToParse, $calculator_afterfork,
+            __PACKAGE__->parseModel( $absFile, $calculator_afterfork,
                 @writerAndParserOptions );
         }
     };
@@ -390,7 +396,7 @@ EOS
 }
 
 sub parseModel {
-    my ( undef, $fileToParse, $calculator_afterfork, $writer, @parserOptions )
+    my ( undef, $fileToParse, $calculator_afterfork, $writer, %parserOptions )
       = @_;
     $fileToParse = $calculator_afterfork->($fileToParse)
       if $calculator_afterfork;
@@ -411,7 +417,10 @@ sub parseModel {
             };
             $parserModule = 'Spreadsheet::ParseExcel';
         }
-        my $parser = $parserModule->new(@parserOptions);
+        if ( my $setup = delete $parserOptions{Setup} ) {
+            $setup->($fileToParse);
+        }
+        my $parser = $parserModule->new(%parserOptions);
         $workbook = $parser->parse( $fileToParse, $formatter );
     };
     warn "$@ for $fileToParse" if $@;
@@ -421,7 +430,7 @@ sub parseModel {
             die "$@ for $fileToParse" if $@;
         }
         else {
-            die "Cannot parse $fileToParse";
+            die "Cannot parse $fileToParse in " . `pwd`;
         }
     }
     0;

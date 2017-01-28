@@ -43,8 +43,6 @@ sub makeModels {
 
     my $self = shift;
 
-    my $folder;
-
     require SpreadsheetModel::Book::Manufacturing;
     my $maker = SpreadsheetModel::Book::Manufacturing->factory(
         validate => [
@@ -52,6 +50,26 @@ sub makeModels {
             grep { -d $_ } catdir( $self->[C_HOMEDIR], 'X_Revisions' )
         ]
     );
+
+    my $folder;
+    my $setFolder = sub {
+        my ($forceCreation) = @_;
+        unless ( defined $folder ) {
+            ($folder) = grep { -d $_ && -w _; } qw(~$models);
+            if ( !defined $folder ) {
+                require POSIX;
+                $folder = POSIX::strftime( '%Y-%m-%d.tmp', localtime );
+                if ( $forceCreation && !-e $folder ) {
+                    warn "Created folder $folder to save models.\n";
+                    mkdir $folder;
+                }
+                undef $folder unless -d $folder && -w _;
+            }
+        }
+        if ( defined $folder ) {
+            $maker->{setting}->( folder => $folder );
+        }
+    };
 
     my $executor;
 
@@ -254,6 +272,7 @@ sub makeModels {
             elsif (/^-+xls$/is)  { $maker->{setting}->( xls => 1 ); }
             elsif (/^-+xlsx$/is) { $maker->{setting}->( xls => 0 ); }
             elsif (/^-+new(data|rules|settings)/is) {
+                $setFolder->(1);
                 $maker->{fileList}->();
                 $maker->{ 'reset' . ucfirst( lc($1) ) }->();
             }
@@ -306,26 +325,16 @@ sub makeModels {
     }
 
     if ( my @files = $maker->{fileList}->() ) {
-        unless ( defined $folder ) {
-            ($folder) = grep { -d $_ && -w _; } qw(~$models);
-            if ( !defined $folder ) {
-                require POSIX;
-                $folder = POSIX::strftime( '%Y-%m-%d.tmp', localtime );
-                if ( @files > 1 && !-e $folder ) {
-                    warn "Created folder $folder to save models.\n";
-                    mkdir $folder;
-                }
-                undef $folder unless -d $folder && -w _;
+        $setFolder->( @files > 1 );
+        my ( $progress, $total );
+        $maker->{run}->(
+            $executor,
+            sub {
+                return $total = $_[0] if $_[0];
+                my $done80 = int( 80 * ++$progress / $total );
+                warn '|' x $done80 . '-' x ( 80 - $done80 ) . "\n";
             }
-        }
-        if ( defined $folder ) {
-            $maker->{setting}->( folder => $folder );
-        }
-        my $message =
-            ( @files > 1 ? ( @files . ' models' ) : 'One model' )
-          . ' to be saved'
-          . ( defined $folder ? " to $folder" : '' );
-        $maker->{run}->($executor);
+        );
     }
     else {
         warn "Nothing to do.\n";

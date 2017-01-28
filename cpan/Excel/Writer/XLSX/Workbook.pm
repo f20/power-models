@@ -7,7 +7,7 @@ package Excel::Writer::XLSX::Workbook;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2016, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2017, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -269,6 +269,7 @@ sub DESTROY {
     local ( $@, $!, $^E, $? );
 
     $self->close() if not $self->{_fileclosed};
+    delete $self->{_tempdir_object};
 }
 
 
@@ -1083,6 +1084,7 @@ sub _store_workbook {
     # Add the files to the zip archive. Due to issues with Archive::Zip in
     # taint mode we can't use addTree() so we have to build the file list
     # with File::Find and pass each one to addFile().
+    # The no_chdir option to File::Find::find is for thread safety.
     my @xlsx_files;
 
     my $wanted = sub { push @xlsx_files, $File::Find::name if -f };

@@ -76,14 +76,16 @@ sub run {
     my ( $executor, $module, $method, $firstArg, $otherArgsRef, $continuation )
       = @_;
     $executor->complete($maxThreadsMinusOne);
+    local $_ = $firstArg;
+    $_ = $1 if m#[/\\].*[/\\]([^/\\]+)#s;
     my $pid = fork;
     if ($pid) {
-        $processNameByPid{$pid} = $firstArg;
+        $processNameByPid{$pid} = $_;
         $continuationByPid{$pid} = $continuation if $continuation;
-        warn "$method $firstArg started ($pid)\n";
+        warn "$method $_ ($pid)\n";
     }
     else {
-        $0 = "perl: $method $firstArg" if defined $pid;
+        $0 = "perl: $method $_" if defined $pid;
         my $status = $module->$method( $firstArg, @$otherArgsRef );
         if ( defined $pid ) {
             exit $status;
