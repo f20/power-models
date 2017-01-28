@@ -39,7 +39,7 @@ use constant { C_TSV => 0, };
 
 sub new {
     my ( $class, $homeFolder ) = @_;
-    bless [ File::Spec->catfile( $homeFolder, 't', 'checks.tsv' ), ], $class;
+    bless [ File::Spec->catfile( $homeFolder, 't', 'Checksums.csv' ), ], $class;
 }
 
 sub check {
@@ -58,16 +58,17 @@ sub check {
 
     my @records;
     my $fh;
-    open $fh,      '+<', $autocheck->[C_TSV]
+         open $fh, '+<', $autocheck->[C_TSV]
       or open $fh, '<',  $autocheck->[C_TSV]
-      or die "Could not open $autocheck->[C_TSV]";
-    flock $fh, LOCK_EX or die;
+      or open $fh, '+>', $autocheck->[C_TSV]
+      or warn "Could not open $autocheck->[C_TSV]";
+    flock $fh, LOCK_EX or die 'flock failed';
     local $/ = "\n";
     @records = <$fh>;
     chomp foreach @records;
 
     foreach (@records) {
-        my @a = split /\t/;
+        my @a = split /[\t,]/;
         next unless @a > 4;
         if (   $a[0] eq $file
             && $a[1] eq $year
@@ -80,14 +81,14 @@ sub check {
               . "Expected $a[4], got $checksum\n";
         }
     }
-    push @records, join "\t", $file, $year, $company, $tableNumber, $checksum,
+    push @records, join ',', $file, $year, $company, $tableNumber, $checksum,
       $revision ? $revision : ();
     seek $fh, 0, SEEK_SET;
     print {$fh} map { "$_\n"; } sort @records;
 
 }
 
-sub checkerOld {
+sub checkerSlow {
     my ($autocheck) = @_;
     sub {
         my ( $book, $workbook ) = @_;
