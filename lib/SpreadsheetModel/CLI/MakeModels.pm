@@ -92,7 +92,7 @@ sub makeModels {
                             $1 ? "convert$1" : 'calc',
                             SpreadsheetModel::Data::Autocheck->new(
                                 $self->[C_HOMEDIR]
-                            )->checker,
+                            )->makeWriterAndParserOptions,
                         )
                     );
                 }
@@ -326,13 +326,21 @@ sub makeModels {
 
     if ( my @files = $maker->{fileList}->() ) {
         $setFolder->( @files > 1 );
-        my ( $progress, $total );
+        my ( $progress, $total ) = ( 0, 0 );
         $maker->{run}->(
             $executor,
             sub {
-                return $total = $_[0] if $_[0];
-                my $done80 = int( 80 * ++$progress / $total );
-                warn '|' x $done80 . '-' x ( 80 - $done80 ) . "\n";
+                if ( $_[0] ) {
+
+                  # Receive number of items to process.
+                  # The progress bar is shown when starting to create each model
+                  # so it deliberately never completes.
+                    $total = 1 + $_[0];
+                }
+                elsif ( $total > 2 ) {
+                    my $done80 = int( 80 * ++$progress / $total );
+                    warn '|' x $done80 . '-' x ( 80 - $done80 ) . "\n";
+                }
             }
         );
     }

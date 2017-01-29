@@ -1,0 +1,18 @@
+makeModels
+	-t
+	-sqlite
+	-pickbest
+	-stats=1201_36525
+	-checksums
+	-edcm
+	CDCM/2018-02-Baseline/%-extras???.yml
+	CDCM/2018-02/*
+
+useDatabase
+	csv
+	tall
+	10
+	37
+	38
+	39
+	42

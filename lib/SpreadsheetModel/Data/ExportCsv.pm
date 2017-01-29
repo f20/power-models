@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2014 Reckon LLP and others.
+Copyright 2009-2017 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -63,7 +63,6 @@ sub dumpTallCsv {
     binmode $fh, ':utf8';
     _writeCsvLine(
         $fh,
-        'Model number',
         'Area',
         'Period',
         'Options',
@@ -84,7 +83,7 @@ sub dumpTallCsv {
                 from data'
           . (
             @prefixes
-            ? ' where ' . join( ' and ', map { qq^tab like "$_%"^; } @prefixes )
+            ? ' where ' . join( ' or ', map { qq^tab like "$_%"^; } @prefixes )
             : ''
           )
           . ' group by bid, tab'
@@ -99,7 +98,6 @@ sub dumpTallCsv {
     );
     my $fetch = $self->prepare(
         'select
-            data.bid,
             books.company,
             books.period,
             books.option,
@@ -115,12 +113,23 @@ sub dumpTallCsv {
             inner join tabnames on (data.bid=tabnames.bid and data.tab=tabnames.tab)
             left join data as drow on (data.bid=drow.bid and data.tab=drow.tab and data.row=drow.row and drow.col=0)
             left join data as dcol on (data.bid=dcol.bid and data.tab=dcol.tab and data.col=dcol.col and dcol.row=0)
-            where data.row>0 and data.col>0'
+            where data.row>0 and data.col>0
+        order by
+            books.company,
+            books.period,
+            books.option,
+            data.tab,
+            tabnames.name,
+            data.col,
+            dcol.v,
+            data.row,
+            drow.v,
+            data.v'
     );
     $fetch->execute;
 
     while ( my (@row) = $fetch->fetchrow_array ) {
-        splice @row, 10, 0, _normalisedRowName( $row[9] );
+        splice @row, 9, 0, _normalisedRowName( $row[8] );
         _writeCsvLine( $fh, @row );
     }
     close $fh;

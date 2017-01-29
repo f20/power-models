@@ -90,7 +90,7 @@ sub useModels {
             require SpreadsheetModel::Data::Autocheck;
             @writerAndParserOptions =
               SpreadsheetModel::Data::Autocheck->new( $self->[C_HOMEDIR] )
-              ->checker;
+              ->makeWriterAndParserOptions;
             next;
         }
         if (/^-+(json.*)/i) {

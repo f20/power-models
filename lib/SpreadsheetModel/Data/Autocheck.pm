@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2016-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,16 +33,15 @@ use utf8;
 use Encode;
 use File::Spec;
 use Fcntl qw(:flock :seek);
-use File::Spec::Functions qw(catfile);
 
-use constant { C_TSV => 0, };
+use constant { AC_CSV => 0, };
 
 sub new {
     my ( $class, $homeFolder ) = @_;
     bless [ File::Spec->catfile( $homeFolder, 't', 'Checksums.csv' ), ], $class;
 }
 
-sub check {
+sub processChecksum {
 
     my ( $autocheck, $book, $tableNumber, $checksumType, $checksum ) = @_;
 
@@ -58,10 +57,10 @@ sub check {
 
     my @records;
     my $fh;
-         open $fh, '+<', $autocheck->[C_TSV]
-      or open $fh, '<',  $autocheck->[C_TSV]
-      or open $fh, '+>', $autocheck->[C_TSV]
-      or warn "Could not open $autocheck->[C_TSV]";
+         open $fh, '+<', $autocheck->[AC_CSV]
+      or open $fh, '<',  $autocheck->[AC_CSV]
+      or open $fh, '+>', $autocheck->[AC_CSV]
+      or warn "Could not open $autocheck->[AC_CSV]";
     flock $fh, LOCK_EX or die 'flock failed';
     local $/ = "\n";
     @records = <$fh>;
@@ -76,9 +75,8 @@ sub check {
             && $a[3] == $tableNumber )
         {
             return if $a[4] eq $checksum;
-            die "***\n"
-              . "Wrong checksum for $book table $tableNumber\n"
-              . "Expected $a[4], got $checksum\n";
+            die "\n\n*** Expected $a[4], got $checksum"
+              . " for $book table $tableNumber\n\n";
         }
     }
     push @records, join ',', $file, $year, $company, $tableNumber, $checksum,
@@ -88,9 +86,9 @@ sub check {
 
 }
 
-sub checkerSlow {
+sub makeWriterAndParserOptions {
     my ($autocheck) = @_;
-    sub {
+    undef and return sub {    # slow version
         my ( $book, $workbook ) = @_;
         for my $worksheet ( $workbook->worksheets() ) {
             my ( $row_min, $row_max ) = $worksheet->row_range();
@@ -112,18 +110,14 @@ sub checkerSlow {
                         my $checksumType = $1;
                         my $checksumCell =
                           $worksheet->get_cell( $row + 1, $col );
-                        $autocheck->check( $book, $tableNumber, $checksumType,
-                            $checksumCell->unformatted )
+                        $autocheck->processChecksum( $book, $tableNumber,
+                            $checksumType, $checksumCell->unformatted )
                           if $checksumCell;
                     }
                 }
             }
         }
     };
-}
-
-sub checker {
-    my ($autocheck) = @_;
     my @tableNumber;
     my @checksumLocation;
     my $book;
@@ -147,7 +141,7 @@ sub checker {
                 && $checksumLocation[$sheetIdx][0] == $row
                 && $checksumLocation[$sheetIdx][1] == $col )
             {
-                $autocheck->check( $book, $tableNumber[$sheetIdx],
+                $autocheck->processChecksum( $book, $tableNumber[$sheetIdx],
                     $checksumLocation[$sheetIdx][2], $v );
             }
             elsif ( $v =~ /^Table checksum ([0-9]{1,2})$/si ) {
@@ -159,4 +153,3 @@ sub checker {
 }
 
 1;
-
