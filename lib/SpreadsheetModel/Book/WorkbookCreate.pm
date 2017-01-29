@@ -186,10 +186,9 @@ sub create {
     }
 
     my @loggers;
-    foreach ( 0 .. $#optionArray ) {
-        my $options = $optionArray[$_];
-        my $modelCount = $_ ? ".$_" : '';
-        $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
+    foreach my $optionNumber ( 0 .. $#optionArray ) {
+        my $options = $optionArray[$optionNumber];
+        my $modelCount = @optionArray > 1 ? '.' . ( 1 + $optionNumber ) : '';
         $options->{PerlModule}
           ->setUpMultiModelSharing( \$multiModelSharing, $options,
             \@optionArray )
@@ -224,7 +223,8 @@ EOW
 
         map { $_->($model); } @{ $options->{requestsToSeeModel} }
           if $options->{requestsToSeeModel};
-        $forwardLinkFindingRun[$_] = $model if $options->{forwardLinks};
+        $forwardLinkFindingRun[$optionNumber] = $model
+          if $options->{forwardLinks};
         $options->{revisionText} ||= '';
         $wbook->{titlePrefix} =
             $options->{titlePrefix} eq 'revision'
@@ -253,7 +253,7 @@ EOW
             $wsheetPassword{$fullName} = $options->{password}
               if $options->{protect};
         }
-        $loggers[$_] = new SpreadsheetModel::Logger(
+        $loggers[$optionNumber] = new SpreadsheetModel::Logger(
             name            => '',
             showFinalTables => $model->{forwardLinks},
             showDetails     => $model->{debug},
