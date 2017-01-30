@@ -116,10 +116,7 @@ sub thread_run {
     if (@hazardousWaste) {
         lock $chdir_lock;
         cond_wait $chdir_lock while $chdir_lock > 0;
-        require Cwd;
-        my $wd = Cwd::getcwd();
         $_->DESTROY foreach @hazardousWaste;
-        chdir $wd or warn "chdir $wd: $!";
         cond_signal $chdir_lock;
     }
     $completionQueue->enqueue($myid);
