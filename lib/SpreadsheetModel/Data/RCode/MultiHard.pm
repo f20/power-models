@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::Data::RCode::Multi;
+﻿package SpreadsheetModel::Data::RCode;
 
 =head Copyright licence and disclaimer
 

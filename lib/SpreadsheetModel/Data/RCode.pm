@@ -33,16 +33,13 @@ use utf8;
 
 =head Dependencies
 
-This code needs a working version of R callable from the command line as "R",
-with the following CRAN packages installed:
-* sp
-* plotrix
-* shape
-* treemap
-* RSQLite and its dependencies
+This code needs a working version of R callable from the command line as "R".
 
-The following command should trigger the right installations:
-	R -e 'install.packages(c("RSQLite", "sp", "plotrix", "shape", "treemap"), repos = "http://mirror.mdx.ac.uk/R/", dependencies = TRUE)'
+Treeemaps need the treemap package, and any charts based on data from
+a SQLite database need the RSQLite package and its dependencies.
+
+For example, the following command should trigger the installation of treemap:
+	R -e 'install.packages(c("treemap"), repos = "http://mirror.mdx.ac.uk/R/", dependencies = TRUE)'
 
 Alternatively, download the package files manually and run:
 	R CMD INSTALL <package-file> <package-file> ...
@@ -144,5 +141,8 @@ sub treemap2706ByCompany {
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemap2706(1);
 }
+
+eval "require SpreadsheetModel::Data::RCode::MapsOther";
+eval "require SpreadsheetModel::Data::RCode::MultiHard";
 
 1;

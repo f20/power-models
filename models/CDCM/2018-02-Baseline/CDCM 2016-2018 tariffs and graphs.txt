@@ -6,6 +6,11 @@ makeModels
 	CDCM/2017-02/*
 	CDCM/2018-02/*
 
+useDatabase
+    csv
+    tall
+    37
+
 R
     maps3701rate3ts
     maps3701reactivets

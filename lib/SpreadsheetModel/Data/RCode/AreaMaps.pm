@@ -92,6 +92,78 @@ y=c(263,264,264,264,274,274,279,279,279,283,283,283,289,289,290,304,311,311,311,
 
 };
 
+
+# textbox function
+# based on plotrix's textbox, modified to provide a variable-size background
+# replaces hyphens with soft hyphens to work around the
+# too-clever-by-half tendencies of R's PDF graphics drive
+textbox <- function (x, y, textlist, justify = c("l", "c", "r"), cex = 1,
+    leading = 0.5, box = TRUE, adj = c(0, 0), font = NULL, vfont = NULL,
+    col = NULL, border = NULL, fill = NA, density = NULL, angle = 45,
+    lty = par("lty"), lwd = par("lwd"), margin = 0)
+{
+    if (length(margin) == 1) {
+        margin <- rep(margin, 4);
+    } else if (length(margin) == 2) {
+        margin <- rep(margin, 2);
+    }
+    saveAdj <- par(adj = 0);
+    textstr <- sub ('-', '\U{AD}', paste(textlist, collapse = " "));
+    words <- strsplit(textstr, " ")[[1]];
+    line.height <- strheight("hy", cex = cex, font = font, vfont = vfont) * (1 + leading);
+    if (margin[2] > 0) x[1] <- x[1] + margin[2];
+    if (margin[3] > 0) y <- y - margin[3];
+    if (margin[4] > 0) x[2] <- x[2] - margin[4];
+    if (x[1] >= x[2]) x[2] <- x[1] + diff(par("usr")[1:2]) * 0.1;
+    x.len <- diff(x);
+    y.pos <- y;
+    x.pos <- x[1];
+    adj2 <- c(0, 1);
+    if (justify[1] == "c") {
+        x.pos <- x.pos + x.len/2;
+        adj2[1] <- 0.5;
+    }
+    else if (justify[1] == "r") {
+        x.pos <- x.pos + x.len;
+        adj2[1] <- 1;
+    }
+    curword <- 1;
+    lineData <- list();
+    while (curword <= length(words)) {
+        curline <- "";
+        curline <- paste(curline, words[curword]);
+        curword <- curword + 1;
+        while (strwidth(paste(curline, words[curword]), cex = cex,
+            font = font, vfont = vfont) < x.len && !is.na(words[curword])) {
+            curline <- paste(curline, words[curword]);
+            curword <- curword + 1;
+        }
+        lineData[[1+length(lineData)]] <- list(x.pos, y.pos, curline);
+        y.pos <- y.pos - line.height;
+    }
+    if (box) {
+        xbox <- x;
+        ybox <- c(y.pos, y);
+        ybox[1] <- ybox[1] - abs(margin[1]);
+        xbox[1] <- xbox[1] - abs(margin[2]);
+        ybox[2] <- ybox[2] + abs(margin[3]);
+        xbox[2] <- xbox[2] + abs(margin[4]);
+        rect(xbox[1], ybox[1], xbox[2], ybox[2], border = border,
+            col = fill, density = density, angle = angle, lty = lty,
+            lwd = lwd);
+        y.pos <- ybox[1];
+    }
+    for (i in 1:length(lineData)) {
+        text(
+            lineData[[i]][[1]], lineData[[i]][[2]],
+            lineData[[i]][[3]],
+            adj = adj + adj2, cex = cex,
+            col = col, font = font, vfont = vfont);
+    }
+    par(saveAdj);
+    return(y.pos);
+};
+
 plot.dno.map <- function (
     l,
     colour.maker = function (i) { hsv(0.0025*i, 0.6+0.004*i, 1-0.0025*i); },
@@ -175,21 +247,18 @@ plot.dno.map <- function (
         } else if ( file.type == 'jpg' | file.type == 'jpeg' | file.type == 'JPG' | file.type == 'JPEG' ) {
             file.type <- 2048;
             filename<-paste(file.name, '.jpeg', sep='');
-            if (numMaps == 1) jpeg(filename, width=file.type*9/16, height=file.type, res=file.type/10.0) else
-            if (numMaps == 2) jpeg(filename, width=file.type, height=file.type, res=file.type/8.0) else
-            if (numMaps == 3) jpeg(filename, width=file.type, height=file.type*9/16, res=file.type/10.0);
+            if (numMaps == 1) jpeg(filename, width=file.type*9/16, height=file.type, res=file.type/11) else
+            if (numMaps == 2) jpeg(filename, width=file.type, height=file.type, res=file.type/7.58) else
+            if (numMaps == 3) jpeg(filename, width=file.type, height=file.type*9/16, res=file.type/11);
         } else {
             file.type <- as.integer(file.type);
             filename<-paste(file.name, '.png', sep='');
-            if (numMaps == 1) png(filename, width=file.type*9/16, height=file.type, res=file.type/10.0) else
-            if (numMaps == 2) png(filename, width=file.type, height=file.type, res=file.type/8.0) else
-            if (numMaps == 3) png(filename, width=file.type, height=file.type*9/16, res=file.type/10.0);
+            if (numMaps == 1) png(filename, width=file.type*9/16, height=file.type, res=file.type/11) else
+            if (numMaps == 2) png(filename, width=file.type, height=file.type, res=file.type/7.58) else
+            if (numMaps == 3) png(filename, width=file.type, height=file.type*9/16, res=file.type/11);
         }
     }
 
-    library(sp);
-    library(plotrix);
-    library(shape);
     minx<-min(map$x, na.rm=T);
     maxx<-max(map$x, na.rm=T);
     miny<-min(map$y, na.rm=T)-20;
@@ -232,9 +301,7 @@ plot.dno.map <- function (
     mar<-c(4, 4, 8, 4);
     cex<-1.25;
     if (!is.na(title)) {
-        bot<-textbox(xr, top, title, border=F, margin=mar, cex=cex, font=2);
-        rect(xr[1], bot, xr[2], top, col="white", border=F);
-        bot<-textbox(xr, top, title, border=F, margin=mar, cex=cex, font=2);
+        bot<-textbox(xr, top, title, box=F, margin=mar, cex=cex, font=2, fill="white");
     }
     if (numMaps == 1) prop<-c(0.02, 0.77) else prop<-c(0.02, 0.58);
     xr<-max(xrange)*prop+min(xrange)*(1-prop);
@@ -243,14 +310,7 @@ plot.dno.map <- function (
     mar<-c(4, 4, 8, 4);
     cex<-1.0;
     if (!is.na(box[1])) {
-        for (l in 1:length(box)) {
-            bot<-textbox(xr, bot, box[l], fill="white", border=F, margin=mar, cex=cex);
-        }
-        bot<-top;
-        for (l in 1:length(box)) {
-            bot<-textbox(xr, bot, box[l], border=F, margin=mar, cex=cex);
-        }
-        rect(xr[1], bot, xr[2], top);
+        bot<-textbox(xr, bot, box, fill="white", margin=mar, cex=cex);
     }
 
     if (legend.show) {
