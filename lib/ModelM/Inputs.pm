@@ -218,8 +218,10 @@ sub oneYearDpcr {
         name => 'Analysis of allowed revenue '
           . ( $model->{not2007incentives} ? '' : 'for 2007/2008' )
           . ' (£/year)',
-        lines => 'In a legacy Method M workbook, these data are on'
-          . ' sheet Calc-Allocation, possibly cells F66 and F63.',
+        $model->{not2007incentives}
+        ? ()
+        : ( lines => 'In a legacy Method M workbook, these data are on'
+              . ' sheet Calc-Allocation, possibly cells F66 and F63.' ),
         columns  => \@columns,
         number   => 1315,
         dataset  => $model->{dataset},
@@ -257,13 +259,17 @@ sub allocated {
 sub expenditure {
     my ( $model, $expenditureSet ) = @_;
     $model->{objects}{expenditure}{ 0 + $expenditureSet } ||= Dataset(
-        name  => 'Total costs (£/year)',
-        lines => [
-            'These data are taken from the'
-              . ' 2007/2008 regulatory reporting pack (table 1.3).',
-            'In a legacy Method M workbook, these data are on'
-              . ' sheet Calc-Opex, starting at cell D7.',
-        ],
+        name => 'Total costs (£/year)',
+        $model->{not2007incentives}
+        ? ()
+        : (
+            lines => [
+                'These data are taken from the'
+                  . ' 2007/2008 regulatory reporting pack (table 1.3).',
+                'In a legacy Method M workbook, these data are on'
+                  . ' sheet Calc-Opex, starting at cell D7.',
+            ]
+        ),
         data          => [ map { 0 } @{ $expenditureSet->{list} } ],
         defaultFormat => '0hard',
         number        => 1335,

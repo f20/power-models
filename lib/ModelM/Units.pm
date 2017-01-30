@@ -79,9 +79,11 @@ sub units {
     );
 
     my $losses = Dataset(
-        name  => 'Losses (GWh)',
-        lines => 'This data item is taken from the'
-          . ' 2007/2008 regulatory reporting pack (table 5.1), cell G40.',
+        name => 'Losses (GWh)',
+        $model->{not2007units}
+        ? ()
+        : ( lines => 'This data item is taken from the'
+              . ' 2007/2008 regulatory reporting pack (table 5.1), cell G40.' ),
         data       => [2500],
         number     => 1322,
         dataset    => $model->{dataset},
