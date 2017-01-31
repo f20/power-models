@@ -52,10 +52,10 @@ sub create {
             $tmpDir = '~$tmp-' . $$ . rand();
             $tmpDir = catdir( $settings->{folder}, $tmpDir )
               if $settings->{folder};
-            mkdir $tmpDir or warn "Failed mkdir $tmpDir: $! in " . `pwd`;
+            mkdir $tmpDir or warn "Failed mkdir $tmpDir: $!";
             chmod 0770, $tmpDir;
             unless ( -d $tmpDir && -w _ ) {
-                warn 'Failed to create ' . $tmpDir . ' in ' . `pwd`;
+                warn "Failed to create $tmpDir";
                 undef $tmpDir;
             }
         }
@@ -64,7 +64,7 @@ sub create {
               catfile( $tmpDir, ( splitpath($finalFile) )[2] );
             $afterClose = sub {
                 rename $tempFile, $finalFile;
-                rmdir $tmpDir or warn "rmdir $tmpDir: $! in " . `pwd`;
+                rmdir $tmpDir or warn "rmdir $tmpDir: $!";
             };
         }
         else {

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2017 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use File::Spec;
 
 sub new {
     bless [], $_[0];
@@ -85,8 +86,7 @@ sub acceptScript {
             warn "Cannot open $file";
             return;
         }
-        local $_ = $file;
-        s#.*/##s;
+        ( undef, undef, local $_ ) = File::Spec->splitpath($file);
         s/\.te?xt$//i;
         push @$self, [ makeFolder => $_ ];
     }

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2017 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -86,8 +86,7 @@ sub makeFolder {
         delete $self->[C_DESTINATION];
     }
     if ($folder) {    # Create temporary folder and go there
-        if ( -d '/System/Library' )
-        {             # Try to use a temporary memory disk on macOS
+        if ( -d '/System/Library' ) {    # macOS: use a memory disk
             my $ramDiskBlocks = 12_000_000;    # About 6G, in 512-byte blocks.
             my $ramDiskName       = 'Temporary volume (power-models)';
             my $ramDiskMountPoint = "/Volumes/$ramDiskName";
