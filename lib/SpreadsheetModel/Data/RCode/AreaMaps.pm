@@ -164,6 +164,8 @@ textbox <- function (x, y, textlist, justify = c("l", "c", "r"), cex = 1,
     return(y.pos);
 };
 
+library(shape);
+
 plot.dno.map <- function (
     l,
     colour.maker = function (i) { hsv(0.0025*i, 0.6+0.004*i, 1-0.0025*i); },
@@ -301,7 +303,7 @@ plot.dno.map <- function (
     mar<-c(4, 4, 8, 4);
     cex<-1.25;
     if (!is.na(title)) {
-        bot<-textbox(xr, top, title, box=F, margin=mar, cex=cex, font=2, fill="white");
+        bot<-textbox(xr, top, title, border="white", margin=mar, cex=cex, font=2, fill="white");
     }
     if (numMaps == 1) prop<-c(0.02, 0.77) else prop<-c(0.02, 0.58);
     xr<-max(xrange)*prop+min(xrange)*(1-prop);

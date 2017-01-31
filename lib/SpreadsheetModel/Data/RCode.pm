@@ -33,18 +33,19 @@ use utf8;
 
 =head Dependencies
 
-This code needs a working version of R callable from the command line as "R".
+This code needs a working version of R callable from the command line as "R",
+with the shape package installed.
 
 Treeemaps need the treemap package, and any charts based on data from
 a SQLite database need the RSQLite package and its dependencies.
 
-For example, the following command should trigger the installation of treemap:
-	R -e 'install.packages(c("treemap"), repos = "http://mirror.mdx.ac.uk/R/", dependencies = TRUE)'
+The following command should trigger the installation of shape and treemap:
+	R -e 'install.packages(c("shape", "treemap"), repos = "http://mirror.mdx.ac.uk/R/", dependencies = TRUE)'
 
 Alternatively, download the package files manually and run:
 	R CMD INSTALL <package-file> <package-file> ...
 
-Installing treemap might require GNU Fortran to be installed first.
+Installing treemap might require GNU Fortran to be setup first.
 
 =cut
 

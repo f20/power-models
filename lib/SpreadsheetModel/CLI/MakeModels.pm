@@ -338,8 +338,8 @@ sub makeModels {
                     $total = 1 + $_[0];
                 }
                 elsif ( $total > 2 ) {
-                    my $done80 = int( 80 * ++$progress / $total );
-                    warn '|' x $done80 . '-' x ( 80 - $done80 ) . "\n";
+                    my $done = int( 76 * ++$progress / $total );
+                    warn '|' x $done . '-' x ( 76 - $done ) . "\n";
                 }
             }
         );
