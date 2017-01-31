@@ -1,6 +1,5 @@
 makeModels
-	-t
-	-autocheck
+	-autocheckxls
 	-pickbest
 	CDCM/20??-??-Baseline/%-*.yml
 	CDCM/2010-02/*.yml

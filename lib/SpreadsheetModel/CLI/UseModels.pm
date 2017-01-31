@@ -204,15 +204,19 @@ sub makePostProcessor {
 
     my ( $processSettings, @writerAndParserOptions, ) = @_;
 
-    my ( $calculator_beforefork, $calculator_afterfork );
+    my ( $calc_mainprocess, $calc_ownthread, $calc_worker );
     if ( $processSettings && $processSettings =~ /calc|convert/i ) {
 
         if ( $^O =~ /win32/i ) {
 
             # Control Microsoft Excel (not Excel Mobile) under Windows.
+            # Each calculator runs in its own thread, run synchronously.
+            # (Loading Win32::OLE in the mother thread causes a crash.)
+            # It would have been better to set up a single worker thread
+            # and some queues to handle Win32::OLE calculations.
 
             if ( $processSettings =~ /calc/ ) {
-                $calculator_afterfork = sub {
+                $calc_ownthread = sub {
                     my ($inname) = @_;
                     my $inpath = $inname;
                     $inpath =~ s/\.(xls.?)$/-$$.$1/i;
@@ -248,7 +252,7 @@ sub makePostProcessor {
                     @convertIncantation = ();
                     $convertExtension   = '.xlsx';
                 }
-                $calculator_afterfork = sub {
+                $calc_ownthread = sub {
                     my ($inname) = @_;
                     my $inpath   = $inname;
                     my $outpath  = $inpath;
@@ -290,7 +294,7 @@ sub makePostProcessor {
             # Control Microsoft Excel under Apple macOS.
 
             if ( $processSettings =~ /calc/ ) {
-                $calculator_beforefork = sub {
+                $calc_mainprocess = sub {
                     my ($inname) = @_;
                     my $inpath = $inname;
                     $inpath =~ s/\.(xls.?)$/-$$.$1/i;
@@ -316,7 +320,7 @@ EOS
                     $convert          = '';
                     $convertExtension = '.xlsx';
                 }
-                $calculator_beforefork = sub {
+                $calc_mainprocess = sub {
                     my ($inname) = @_;
                     my $inpath   = $inname;
                     my $outpath  = $inpath;
@@ -348,7 +352,7 @@ EOS
             # Try to calculate workbooks using ssconvert
 
             warn 'Using ssconvert';
-            $calculator_afterfork = sub {
+            $calc_worker = sub {
                 my ($inname) = @_;
                 my $inpath   = $inname;
                 my $outpath  = $inpath;
@@ -381,14 +385,18 @@ EOS
             warn "$absFile not found";
             return;
         }
-        $absFile = $calculator_beforefork->($absFile)
-          if $calculator_beforefork;
+        $absFile = $calc_mainprocess->($absFile) if $calc_mainprocess;
+        $absFile =
+          $INC{'threads.pm'}
+          ? threads->new( $calc_ownthread, $absFile )->join
+          : $calc_ownthread->($absFile)
+          if $calc_ownthread;
         if ($executor) {
             $executor->run( __PACKAGE__, 'parseModel', $absFile,
-                [ $calculator_afterfork, @writerAndParserOptions ] );
+                [ $calc_worker, @writerAndParserOptions ] );
         }
         else {
-            __PACKAGE__->parseModel( $absFile, $calculator_afterfork,
+            __PACKAGE__->parseModel( $absFile, $calc_worker,
                 @writerAndParserOptions );
         }
     };
@@ -396,10 +404,8 @@ EOS
 }
 
 sub parseModel {
-    my ( undef, $fileToParse, $calculator_afterfork, $writer, %parserOptions )
-      = @_;
-    $fileToParse = $calculator_afterfork->($fileToParse)
-      if $calculator_afterfork;
+    my ( undef, $fileToParse, $calc_worker, $writer, %parserOptions ) = @_;
+    $fileToParse = $calc_worker->($fileToParse) if $calc_worker;
     my $workbook;
     eval {
         my $parserModule;
