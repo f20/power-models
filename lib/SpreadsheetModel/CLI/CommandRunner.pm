@@ -33,7 +33,6 @@ use utf8;
 
 use SpreadsheetModel::CLI::DataTools;
 use SpreadsheetModel::CLI::MakeModels;
-use SpreadsheetModel::CLI::Sampler;
 use SpreadsheetModel::CLI::UseDatabase;
 use SpreadsheetModel::CLI::UseModels;
 

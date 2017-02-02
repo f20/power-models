@@ -494,7 +494,7 @@ sub worksheetsAndClosures {
             my $noLinks = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
             splice @{ $model->{tablesTemplateImport} }, 1, 0,
-              SpreadsheetModel::FormatLegend->new(1);
+              SpreadsheetModel::Book::FormatLegend->new(1);
             $_->wsWrite( $wbook, $wsheet )
               foreach @{ $model->{tablesTemplateImport} };
             delete $wbook->{noLinks};
@@ -510,7 +510,7 @@ sub worksheetsAndClosures {
             my $noLinks = $wbook->{noLinks};
             $wbook->{noLinks} = 1;
             splice @{ $model->{tablesTemplateExport} }, 1, 0,
-              SpreadsheetModel::FormatLegend->new(1);
+              SpreadsheetModel::Book::FormatLegend->new(1);
             $_->wsWrite( $wbook, $wsheet )
               foreach @{ $model->{tablesTemplateExport} };
             delete $wbook->{noLinks};

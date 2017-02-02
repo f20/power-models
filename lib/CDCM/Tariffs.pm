@@ -50,7 +50,7 @@ sub tariffs {
     my @endUserTypeList;
     my @allTariffs;
 
-    my $method = $model->{tariffSpec} ? 'tariffSpec' : 'tariffSpecLegacy';
+    my $method = $model->{tariffSpec} ? 'tariffSpec' : 'tariffList';
     my @tariffSpec = $model->$method;
     push @{ $model->{tariffSpecification} }, @tariffSpec
       if $model->{tariffSpecification};

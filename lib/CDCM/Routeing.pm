@@ -399,7 +399,7 @@ EOL
         name => "LV $ldnoWord demand portfolio tariffs",
         list => [
             grep {
-                /^(?:LD|Q)NO LV/
+                     /^(?:LD|Q)NO LV/
                   && !/^(?:LD|Q)NO LV B[^:]*[0-9]/i
                   && !/generat/i
             } @{ $allTariffsByEndUser->{list} }
@@ -415,39 +415,8 @@ EOL
         data  => [
             map {
                 my $ar =
-                  /EHV-(local|matched)/i
+                  /^((?:LD|Q)NO )?LV sub.*generat/i
                   ? (
-                    /^((?:LD|Q)NO )?LV sub.*generat/i
-                    ? [ 0, 0, 0, 1, 1, 1, 0, 0, 1, 0 ]
-                    : /^((?:LD|Q)NO )?LV.*generat/i
-                    ? [ 0, 0, 0, 1, 1, 1, 1, 0, 1, 0 ]
-                    : /^((?:LD|Q)NO HV.*: )?HV sub.*generat/i
-                    ? [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 ]
-                    : /^((?:LD|Q)NO HV.*: )?HV.*generat/i
-                    ? [ 0, 0, 0, 1, 1, 0, 0, 0, 0, 1 ]
-                    : /^((?:LD|Q)NO 33.*: )?33kV sub.*generat/i
-                    ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                    : /^((?:LD|Q)NO 33.*: )?33.*generat/i
-                    ? [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
-                    : /^((?:LD|Q)NO )?LV sub/i
-                    ? [ 0, 0, 0, 1, 1, 1, 1, 0, 0, 0 ]
-                    : /^LV (additional|related)/i
-                    ? [ 0, 0, 0, 1, 1, 1, 1, 1, 0, 0 ]
-                    : $model->{boundary} && /^(?:LD|Q)NO LV B[^:]*([0-9]+)/i ? [
-                        0, 0, 0, 1, 1, 1, 1, ( $1 - 1 ) / $model->{boundary},
-                        0, 0
-                      ]
-                    : /^(?:LD|Q)NO LV/i ? [ 0, 0, 0, 1, 1, 1, 1, undef, 0, 0 ]
-                    : /^LV/i            ? [ 0, 0, 0, 1, 1, 1, 1, 1,     1, 0 ]
-                    : /^((?:LD|Q)NO )?HV sub/i
-                    ? [ 0, 0, 0, 1, 1, 0, 0, 0, 0, 0 ]
-                    : /^(?:LD|Q)NO HV/i ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ]
-                    : /^HV (additional|related)/i
-                    ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 0 ]
-                    : /^HV/i ? [ 0, 0, 0, 1, 1, 1, 0, 0, 0, 1 ]
-                    :          die $_
-                  )
-                  : /^((?:LD|Q)NO )?LV sub.*generat/i ? (
                     $model->{genade} && /non.intermittent|site.specific/i
                     ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
                     : [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
@@ -490,6 +459,18 @@ EOL
                 if (/([0-9]+)% credit/i) {
                     my $factor = 0.01 * $1;
                     $_ *= $factor foreach @$ar;
+                }
+                if (/132kV netting/i) {
+                    $ar->[$_] = 0 foreach 0;
+                }
+                elsif (/EHV netting/i) {
+                    $ar->[$_] = 0 foreach 0 .. 2;
+                }
+                elsif (/HV netting/i) {
+                    $ar->[$_] = 0 foreach 0 .. 4;
+                }
+                elsif (/LV netting/i) {
+                    $ar->[$_] = 0 foreach 0 .. 6;
                 }
                 $ar;
             } @{ $allTariffsByEndUser->{list} }

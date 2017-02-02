@@ -1,4 +1,4 @@
-package SpreadsheetModel::FormatLegend;
+package SpreadsheetModel::Book::FormatLegend;
 
 =head Copyright licence and disclaimer
 

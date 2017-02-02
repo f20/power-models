@@ -286,12 +286,26 @@ plot.dno.map <- function (
     xrange<-c(min(shift)+minx, max(shift)+maxx)
     yrange<-c(miny, maxy);
     par(mar=c(0, 0, 0, 0));
-    plot(xrange, yrange, asp=1, pch='', bty='n', frame.plot=F, ann=F, axes=F, xaxt='n', yaxt='n');
+    plot.new();
+    plot.window(xrange, yrange, asp=1);
     for (g in 1:numMaps) {
         for (a in 1:14) {
             if (length(map$z[map$z == a])>0) {
-                polypath(shift[g]+map$x[map$z == a], map$y[map$z == a], col=getcol(v[[g]][a]), rule="evenodd", lwd=0.2, fg="black");
-                if (number.show) text(shift[g]+mean(map$x[map$z == a], na.rm=T), mean(map$y[map$z == a], na.rm=T), sprintf(number.format, v[[g]][a]), cex=0.75);
+                polypath(
+                    shift[g]+map$x[map$z == a],
+                    map$y[map$z == a],
+                    col=getcol(v[[g]][a]),
+                    rule="evenodd",
+                    lwd=0.2,
+                    fg="black"
+                );
+                if (number.show)
+                    text(
+                        shift[g]+mean(map$x[map$z == a], na.rm=T),
+                        mean(map$y[map$z == a], na.rm=T),
+                        sprintf(number.format, v[[g]][a]),
+                        cex=0.75
+                    );
             }
         }
         if (numMaps>1) text(shift[g]+0.5*(maxx+minx), miny, names(v)[g], cex=1.25, font=2);
@@ -300,20 +314,23 @@ plot.dno.map <- function (
     bot<-top;
     if (numMaps == 1) prop<-c(0, 0.85) else prop<-c(0, 0.75);
     xr<-max(xrange)*prop+min(xrange)*(1-prop);
-    mar<-c(4, 4, 8, 4);
-    cex<-1.25;
-    if (!is.na(title)) {
-        bot<-textbox(xr, top, title, border="white", margin=mar, cex=cex, font=2, fill="white");
-    }
+    if (!is.na(title))
+        bot<-textbox(
+            xr,
+            top,
+            title,
+            border="white",
+            margin=c(4, 4, 8, 4),
+            cex=1.25,
+            font=2,
+            fill="white"
+        );
     if (numMaps == 1) prop<-c(0.02, 0.77) else prop<-c(0.02, 0.58);
     xr<-max(xrange)*prop+min(xrange)*(1-prop);
     top<-bot-20;
     bot<-top;
-    mar<-c(4, 4, 8, 4);
-    cex<-1.0;
-    if (!is.na(box[1])) {
-        bot<-textbox(xr, bot, box, fill="white", margin=mar, cex=cex);
-    }
+    if (!is.na(box[1]))
+        bot<-textbox(xr, bot, box, fill="white", margin=c(4, 4, 8, 4), cex=1.0);
 
     if (legend.show) {
         if (maxcol-mincol>70) { quantum <- 50; }

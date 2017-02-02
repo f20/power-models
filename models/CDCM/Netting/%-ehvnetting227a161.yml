@@ -1,10 +1,10 @@
 ---
-.: 'Local sourcing tariffs (unequalised), after DCP 227 and DCP 161'
+.: 'Local sourcing tariffs, after DCP 227 and DCP 161'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
 checksums: Line checksum 5; Table checksum 7
-coincidenceAdj: groupums
+coincidenceAdj: grouphhcaplevel
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
@@ -16,6 +16,6 @@ scaler: levelledpickexitnogenminzero
 standing: sub132
 summary: yes
 targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163pc12hhpc34hhmatching
+tariffs: commongensubdcp130dcp163pc12hhpc34hhnettingehv
 timeOfDay: timeOfDay179
 unauth: dayotex

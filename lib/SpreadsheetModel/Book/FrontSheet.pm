@@ -31,7 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::FormatLegend;
+use SpreadsheetModel::Book::FormatLegend;
 
 sub new {
     my ( $class, %properties ) = @_;
@@ -50,7 +50,7 @@ sub closure {
         $_->wsWrite( $wbook, $wsheet )
           foreach $self->title, $self->extraNotes, $self->dataNotes,
           $self->structureNotes, $self->licenceNotes,
-          SpreadsheetModel::FormatLegend->new,
+          SpreadsheetModel::Book::FormatLegend->new,
           $wbook->{logger}, $self->technicalNotes;
     };
 }

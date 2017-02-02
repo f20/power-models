@@ -33,6 +33,19 @@ use utf8;
 
 use SpreadsheetModel::Data::RCode::AreaMaps;
 
+sub svgNoText {
+    my ( $self, $script ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+plot.dno.map(
+    data.frame(1:14),
+    file.name='Map without text',
+    file.type='svg',
+    number.show=F,
+    legend.show=F
+);
+EOR
+}
+
 sub edcmOpacity {
     my ( $self, $script ) = @_;
     SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';

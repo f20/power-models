@@ -78,7 +78,7 @@ sub preprocessDataset {
         my $vd = $d->{1053};
         if (    $vd
             and $vd->[6]
-            and !$vd->[6]{_column} || $vd->[6]{_column} !~ /exceed/i )
+            and !$vd->[6]{_column} || $vd->[6]{_column} =~ /reactive/i )
         {
             splice @$vd, 6, 0, { map { ( $_ => '' ); } keys %{ $vd->[5] } };
             my $add = $model->{unauth} =~ /add/i;
@@ -385,7 +385,7 @@ EOY
         {
             foreach ( 1 .. 7 ) {
                 my $col = $d->{1053}[$_] or next;
-                my $prop = $col->{ $level . ' HH Metered localprop' } || 0;
+                my $prop = $col->{ $level . ' HH Metered nettedprop' } || 0;
                 $col->{ $level . ' HH Metered' } ||= 0;
                 $col->{"LDNO $_ $level HH Metered EHV Local Source"} =
                   $col->{"LDNO $_ $level Generation EHV Local Supply"} =

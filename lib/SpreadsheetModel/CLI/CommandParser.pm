@@ -55,7 +55,6 @@ sub acceptCommand {
         return push @$self, [ useDatabase => @_[ 1 .. $#_ ] ]
           if /useDatabase$/i;
         return push @$self, [ R       => @_[ 1 .. $#_ ] ] if /^R$/i;
-        return push @$self, [ sampler => @_[ 1 .. $#_ ] ] if /^sampler$/i;
     }
     return push @$self, [ ymlDiff  => @_ ] if grep { /-+ya?mldiff/si } @_;
     return push @$self, [ ymlMerge => @_ ] if grep { /-+ya?mlmerge/si } @_;

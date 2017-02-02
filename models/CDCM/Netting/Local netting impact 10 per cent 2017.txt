@@ -2,34 +2,34 @@ makeModels
 	-sqlite
 	-template=%-baseline
 	-stats
-	CDCM/Local/%-local-227a161.yml
+	CDCM/Netting/%-local-227a161.yml
 	CDCM/2017-02/*
 	-newrules
 	-newdata
-	-xdata=1053|1|LV HH Metered localprop|0.1
-	-xdata=1053|1|LV Sub HH Metered localprop|0.1
-	-xdata=1053|1|HV HH Metered localprop|0.1
-	-xdata=1053|2|LV HH Metered localprop|0.1
-	-xdata=1053|2|LV Sub HH Metered localprop|0.1
-	-xdata=1053|2|HV HH Metered localprop|0.1
-	-xdata=1053|3|LV HH Metered localprop|0.1
-	-xdata=1053|3|LV Sub HH Metered localprop|0.1
-	-xdata=1053|3|HV HH Metered localprop|0.1
+	-xdata=1053|1|LV HH Metered nettedprop|0.1
+	-xdata=1053|1|LV Sub HH Metered nettedprop|0.1
+	-xdata=1053|1|HV HH Metered nettedprop|0.1
+	-xdata=1053|2|LV HH Metered nettedprop|0.1
+	-xdata=1053|2|LV Sub HH Metered nettedprop|0.1
+	-xdata=1053|2|HV HH Metered nettedprop|0.1
+	-xdata=1053|3|LV HH Metered nettedprop|0.1
+	-xdata=1053|3|LV Sub HH Metered nettedprop|0.1
+	-xdata=1053|3|HV HH Metered nettedprop|0.1
 	-template=%-withCDCMgen
 	-stats
-	CDCM/Local/%-local-227a161.yml
+	CDCM/Netting/%-local-227a161.yml
 	CDCM/2017-02/*
 	-newrules
 	-newdata
-	-xdata=1053|1|LV HH Metered localprop|0.1
-	-xdata=1053|1|LV Sub HH Metered localprop|0.1
-	-xdata=1053|1|HV HH Metered localprop|0.1
-	-xdata=1053|2|LV HH Metered localprop|0.1
-	-xdata=1053|2|LV Sub HH Metered localprop|0.1
-	-xdata=1053|2|HV HH Metered localprop|0.1
-	-xdata=1053|3|LV HH Metered localprop|0.1
-	-xdata=1053|3|LV Sub HH Metered localprop|0.1
-	-xdata=1053|3|HV HH Metered localprop|0.1
+	-xdata=1053|1|LV HH Metered nettedprop|0.1
+	-xdata=1053|1|LV Sub HH Metered nettedprop|0.1
+	-xdata=1053|1|HV HH Metered nettedprop|0.1
+	-xdata=1053|2|LV HH Metered nettedprop|0.1
+	-xdata=1053|2|LV Sub HH Metered nettedprop|0.1
+	-xdata=1053|2|HV HH Metered nettedprop|0.1
+	-xdata=1053|3|LV HH Metered nettedprop|0.1
+	-xdata=1053|3|LV Sub HH Metered nettedprop|0.1
+	-xdata=1053|3|HV HH Metered nettedprop|0.1
 	-xdata=1053|1|LV Generation Intermittent|0
 	-xdata=1053|1|LV Generation Non-Intermittent|0
 	-xdata=1053|1|LV Sub Generation Intermittent|0
@@ -60,7 +60,7 @@ makeModels
 	-xdata=1053|3|LDNO HV HV Generation Non-Intermittent|0
 	-template=%-noCDCMgen
 	-stats
-	CDCM/Local/%-local-227a161.yml
+	CDCM/Netting/%-local-227a161.yml
 	CDCM/2017-02/*
 
 useDatabase
@@ -70,10 +70,10 @@ useDatabase
 
 useDatabase
 	-base=baseline
-	-dcp=withCDCMgen
+	-change=withCDCMgen
 	-name=Local source energy (10% local), all from EDCM
 
 useDatabase
 	-base=baseline
-	-dcp=noCDCMgen
+	-change=noCDCMgen
 	-name=Local source energy (10% local), no CDCM credits

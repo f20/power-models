@@ -37,7 +37,7 @@ local undef $/;
 binmode DATA, ':utf8';
 my @tariffList = Load <DATA>;
 
-sub tariffSpecLegacy {
+sub tariffList {
     my ($model) = @_;
     my @tspec;
     foreach (@tariffList) {
@@ -195,12 +195,26 @@ LV half hourly domestic:
   - Unit rates p/kWh
   - Included: pc12hh|dcp179|portfolio
 ---
-LV half hourly WC:
+LV half hourly domestic HV netting:
+  - PC0
+  - Name: LV Network Domestic HV Netting
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: nettinghv|portfolio
+---
+LV half hourly non-domestic aggregated:
   - PC0
   - Name: LV Network Non-Domestic Non-CT
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Included: pc34hh|dcp179|portfolio
+---
+LV half hourly non-domestic aggregated HV netting:
+  - PC0
+  - Name: LV Network Non-Domestic Non-CT HV Netting
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Included: nettinghv|portfolio
 ---
 LV half hourly CT:
   - PC0
@@ -239,14 +253,23 @@ LV half hourly:
   - Included: special|common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|boundary|portfolio|dcp161toy|simple|toy2
   - Excluded: dcp179
 ---
-LV half hourly (EHV-local source):
+LV half hourly HV netting:
+  - PC0
+  - Name: LV HH Metered HV Netting
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: nettinghv|portfolio
+---
+LV half hourly EHV netting:
   - PC0
   - Name: LV HH Metered EHV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: matching|portfolio
+  - Included: nettingehv|portfolio
 ---
 LV substation half hourly:
   - PC0
@@ -258,14 +281,23 @@ LV substation half hourly:
   - Included: common|EDF|WS2|WS3|Opt2|Opt3|Opt4|portfolio|simple
   - Excluded: dcp179
 ---
-LV substation half hourly (EHV-local source):
+LV substation half hourly HV netting:
+  - PC0
+  - Name: LV Sub HH Metered HV Netting
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: nettinghv|portfolio
+---
+LV substation half hourly EHV netting:
   - PC0
   - Name: LV Sub HH Metered EHV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: matching|portfolio
+  - Included: nettingehv|portfolio
 ---
 HV half hourly:
   - PC0
@@ -277,14 +309,23 @@ HV half hourly:
   - Included: common|EDF|WS2|WS3|test|t4|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|T9|dcp161toy|simple|toy2
   - Excluded: dcp179
 ---
-HV half hourly (EHV-local source):
+HV half hourly HV netting:
+  - PC0
+  - Name: HV HH Metered HV Netting
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Capacity charge p/kVA/day
+  - Reactive power charge p/kVArh
+  - Included: nettingehv|portfolio
+---
+HV half hourly EHV netting:
   - PC0
   - Name: HV HH Metered EHV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: matching|portfolio
+  - Included: nettingehv|portfolio
 ---
 HV substation half hourly:
   - PC0
@@ -561,13 +602,21 @@ LV generation half hourly:
   - Reactive power charge p/kVArh
   - Included: common|CE|CN|EDF|ENW|SPEN|SSE|WPD|WS2|test|t4|Opt1|Opt2|Opt3|Opt4|Opt5|Opt6|portfolio|boundary|simplegen
 ---
-LV generation half hourly (EHV-local supply):
+LV generation half hourly HV netting:
+  - PC0
+  - Name: LV Generation HV Netting
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: nettinghv|portfolio
+---
+LV generation half hourly EHV netting:
   - PC0
   - Name: LV Generation EHV Local Supply
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: matchinggen|portfolio
+  - Included: nettingehvgen|portfolio
 ---
 LV generation half hourly no reactive:
   - PC0
@@ -631,13 +680,21 @@ LV substation generation half hourly:
   - Reactive power charge p/kVArh
   - Included: gensub|portfolio
 ---
-LV substation generation half hourly (EHV-local supply):
+LV substation generation half hourly HV netting:
+  - PC0
+  - Name: LV Sub Generation HV Netting
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: nettinghv|portfolio
+---
+LV substation generation half hourly EHV netting:
   - PC0
   - Name: LV Sub Generation EHV Local Supply
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: matchinggen|portfolio
+  - Included: nettingehvgen|portfolio
 ---
 LV substation generation half hourly no reactive:
   - PC0
@@ -725,13 +782,21 @@ HV generation half hourly:
   - Reactive power charge p/kVArh
   - Included: common|WS2|WS3|Opt6|portfolio|simplegen|toy2
 ---
-HV generation half hourly (EHV-local supply):
+HV generation half hourly HV netting:
+  - PC0
+  - Name: HV Generation HV Netting
+  - Fixed charge p/MPAN/day
+  - Unit rates p/kWh
+  - Reactive power charge p/kVArh
+  - Included: nettinghv|portfolio
+---
+HV generation half hourly EHV netting:
   - PC0
   - Name: HV Generation EHV Local Supply
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: matchinggen|portfolio
+  - Included: nettingehvgen|portfolio
 ---
 HV generation half hourly no reactive:
   - PC0

@@ -251,10 +251,10 @@ sub timeOfDay179Runner {
             ? '=IF(A1,MAX(0,A2+A3-A4),A6*A7/A8/24)'
             : '=IF(A1,MAX(0,A2+A3-A4),IF(A5,1/0,0))',
             arguments => {
-                A1  => $model->{blackPeaking},
-                A2  => $amberPeaking,
-                A3  => $redPeaking,
-                A4  => $model->{blackPeaking},
+                A1 => $model->{blackPeaking},
+                A2 => $amberPeaking,
+                A3 => $redPeaking,
+                A4 => $model->{blackPeaking},
                 A5 => $model->{totalProbability},
                 $amberPeakingRate
                 ? (
@@ -389,7 +389,8 @@ sub timeOfDay179Runner {
             name => 'Normalisation of '
               . $blackYellowGreen
               . 'peaking probabilities',
-            columns => [ $model->{totalProbability}, $peakingProbabilitiesTable ]
+            columns =>
+              [ $model->{totalProbability}, $peakingProbabilitiesTable ]
         );
 
         unless ($blackYellowGreen) {
@@ -1124,6 +1125,7 @@ sub timeOfDay179Runner {
             list => [
                 grep {
                          !/gener/i
+                      && !/netting/i
                       && $componentMap->{$_}{'Unit rates p/kWh'}
                       && !$componentMap->{$_}{'Capacity charge p/kVA/day'}
                 } @{ $allEndUsers->{list} }

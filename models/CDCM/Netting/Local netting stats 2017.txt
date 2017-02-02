@@ -1,7 +1,7 @@
 makeModels
 	-sqlite
 	-stats
-	CDCM/Local/%-localrescred-227a161.yml
+	CDCM/Netting/%-localrescred-227a161.yml
 	CDCM/2017-02/*
 
 useDatabase
