@@ -27,7 +27,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-# This file is out of the scope of revision numbers.
+# This file is out of the scope of revision numbering.
 
 use warnings;
 use strict;
@@ -76,9 +76,10 @@ sub preprocessDataset {
     }
     elsif ( $model->{unauth} =~ /day/ ) {
         my $vd = $d->{1053};
-        if (    $vd
-            and $vd->[6]
-            and !$vd->[6]{_column} || $vd->[6]{_column} =~ /reactive/i )
+        if (   $vd
+            && $vd->[6]
+            && $vd->[6]{_column}
+            && $vd->[6]{_column} =~ /reactive/i )
         {
             splice @$vd, 6, 0, { map { ( $_ => '' ); } keys %{ $vd->[5] } };
             my $add = $model->{unauth} =~ /add/i;
@@ -309,8 +310,71 @@ EOY
           if $d->{1053};
     }
 
-    # Below is for EHV-local source/supply energy
-    # but applied to all cases to help multi-model manufacturing.
+    if (   $d->{p300}
+        && $d->{1041}[2]{'Domestic Unrestricted'}
+        && $d->{1053}[1]{'Domestic Unrestricted'} )
+    {
+        foreach ( 'Domestic', 'Small Non Domestic' ) {
+            $model->addModifiedWarning;
+            my $hhTariffName =
+              $_ eq 'Domestic'
+              ? 'LV Network Domestic'
+              : 'LV Network Non-Domestic Non-CT';
+            my $units1 = $d->{1053}[1]{"$_ Unrestricted"};
+            my $units0 = $d->{1053}[1]{"$_ Off Peak related MPAN"};
+            my $units2 =
+              $d->{1053}[1]{"$_ Two Rate"} + $d->{1053}[2]{"$_ Two Rate"};
+            $d->{1041}[2]{$hhTariffName} =
+              ( $units1 + $units2 + $units0 ) /
+              ( $units1 / $d->{1041}[2]{"$_ Unrestricted"} +
+                  $units2 / $d->{1041}[2]{"$_ Two Rate"} );
+            $d->{1041}[1]{$hhTariffName} =
+              $d->{1041}[2]{$hhTariffName} *
+              ( $units1 * $d->{1041}[1]{"$_ Unrestricted"} /
+                  $d->{1041}[2]{"$_ Unrestricted"} +
+                  $units2 * $d->{1041}[1]{"$_ Two Rate"} /
+                  $d->{1041}[2]{"$_ Two Rate"} ) /
+              ( $units1 + $units2 + $units0 );
+            if ( my $prop = $d->{p300}[1]{$_} ) {
+
+                foreach my $rate ( 1 .. 3 ) {
+                    $d->{1053}[$rate]{$hhTariffName} =
+                      $prop *
+                      ( $d->{1053}[1]{"$_ Unrestricted"} *
+                          $d->{1061}[$rate]{"$_ Unrestricted"} +
+                          $d->{1053}[1]{"$_ Off Peak related MPAN"} *
+                          $d->{1061}[$rate]{"$_ Off Peak related MPAN"} +
+                          $d->{1053}[1]{"$_ Two Rate"} *
+                          $d->{1061}[$rate]{"$_ Two Rate"} +
+                          $d->{1053}[2]{"$_ Two Rate"} *
+                          ( $d->{1062}[$rate]{"$_ Two Rate"} || 0 ) );
+                }
+                $d->{1053}[4]{$hhTariffName} =
+                  $prop *
+                  ( $d->{1053}[4]{"$_ Unrestricted"} +
+                      $d->{1053}[4]{"$_ Two Rate"} );
+                foreach my $c ( 1, 4 ) {
+                    $d->{1053}[$c]{$_} *= 1 - $prop
+                      foreach grep { $d->{1053}[$c]{$_} } "$_ Unrestricted",
+                      "$_ Off Peak related MPAN";
+                }
+                foreach my $c ( 1, 2, 4 ) {
+                    $d->{1053}[$c]{"$_ Two Rate"} *= 1 - $prop;
+                }
+            }
+        }
+    }
+
+    $model->infillNewTariffs($d);
+
+}
+
+sub infillNewTariffs {
+
+    my ( $model, $d ) = @_;
+
+    # This is useful for some options and harmless otherwise.
+    # It is applied in all cases to help multi-model manufacturing.
 
     if (  !exists $d->{1025}[1]{'LV HH Metered EHV Local Source'}
         && exists $d->{1025}[1]{'LV HH Metered'} )
@@ -401,8 +465,6 @@ EOY
         }
     }
 
-# Below is for DCP 179 but applied to all cases to help multi-model manufacturing.
-
     if (  !exists $d->{1025}[1]{'LV Network Non-Domestic Non-CT'}
         && exists $d->{1025}[1]{'LV HH Metered'} )
     {
@@ -479,19 +541,6 @@ EOY
         }
     }
 
-    if (  !exists $d->{1061}[1]{'Domestic Unrestricted'}
-        && exists $d->{1061}[1]{'Domestic Two Rate'} )
-    {
-        0 and $model->addModifiedWarning;
-        foreach my $t ( 'Domestic', 'Small Non Domestic' ) {
-            foreach ( 1, 2, 3 ) {
-                $d->{1061}[$_]{ $t . ' Unrestricted' } =
-                  0.85 * $d->{1061}[$_]{ $t . ' Two Rate' } +
-                  0.15 * ( $d->{1062}[$_]{ $t . ' Two Rate' } || 0 );
-            }
-        }
-    }
-
     if (  !exists $d->{1025}[1]{'LV Generation NHH or Aggregate HH'}
         && exists $d->{1025}[1]{'LV Generation NHH'} )
     {
@@ -519,63 +568,12 @@ EOY
             foreach
               my $prefix ( '', 'LDNO LV ', 'LDNO HV ', 'QNO LV ', 'QNO HV ' )
             {
-                $col->{ $prefix . 'LV Generation NHH or Aggregate HH' } ||=
-                  $col->{ $prefix . 'LV Generation NHH' };
-            }
-        }
-    }
-
-    if (   $d->{p300}
-        && $d->{1041}[2]{'Domestic Unrestricted'}
-        && $d->{1053}[1]{'Domestic Unrestricted'} )
-    {
-        foreach ( 'Domestic', 'Small Non Domestic' ) {
-            $model->addModifiedWarning;
-            my $hhTariffName =
-              $_ eq 'Domestic'
-              ? 'LV Network Domestic'
-              : 'LV Network Non-Domestic Non-CT';
-            my $units1 = $d->{1053}[1]{"$_ Unrestricted"};
-            my $units0 = $d->{1053}[1]{"$_ Off Peak related MPAN"};
-            my $units2 =
-              $d->{1053}[1]{"$_ Two Rate"} + $d->{1053}[2]{"$_ Two Rate"};
-            $d->{1041}[2]{$hhTariffName} =
-              ( $units1 + $units2 + $units0 ) /
-              ( $units1 / $d->{1041}[2]{"$_ Unrestricted"} +
-                  $units2 / $d->{1041}[2]{"$_ Two Rate"} );
-            $d->{1041}[1]{$hhTariffName} =
-              $d->{1041}[2]{$hhTariffName} *
-              ( $units1 * $d->{1041}[1]{"$_ Unrestricted"} /
-                  $d->{1041}[2]{"$_ Unrestricted"} +
-                  $units2 * $d->{1041}[1]{"$_ Two Rate"} /
-                  $d->{1041}[2]{"$_ Two Rate"} ) /
-              ( $units1 + $units2 + $units0 );
-            if ( my $prop = $d->{p300}[1]{$_} ) {
-
-                foreach my $rate ( 1 .. 3 ) {
-                    $d->{1053}[$rate]{$hhTariffName} =
-                      $prop *
-                      ( $d->{1053}[1]{"$_ Unrestricted"} *
-                          $d->{1061}[$rate]{"$_ Unrestricted"} +
-                          $d->{1053}[1]{"$_ Off Peak related MPAN"} *
-                          $d->{1061}[$rate]{"$_ Off Peak related MPAN"} +
-                          $d->{1053}[1]{"$_ Two Rate"} *
-                          $d->{1061}[$rate]{"$_ Two Rate"} +
-                          $d->{1053}[2]{"$_ Two Rate"} *
-                          ( $d->{1062}[$rate]{"$_ Two Rate"} || 0 ) );
-                }
-                $d->{1053}[4]{$hhTariffName} =
-                  $prop *
-                  ( $d->{1053}[4]{"$_ Unrestricted"} +
-                      $d->{1053}[4]{"$_ Two Rate"} );
-                foreach my $c ( 1, 4 ) {
-                    $d->{1053}[$c]{$_} *= 1 - $prop
-                      foreach grep { $d->{1053}[$c]{$_} } "$_ Unrestricted",
-                      "$_ Off Peak related MPAN";
-                }
-                foreach my $c ( 1, 2, 4 ) {
-                    $d->{1053}[$c]{"$_ Two Rate"} *= 1 - $prop;
-                }
+                $col->{ $prefix . 'LV Generation NHH or Aggregate HH' } =
+                  $col->{ $prefix . 'LV Generation NHH' }
+                  if defined $col->{ $prefix . 'LV Generation NHH' }
+                  && !
+                  defined $col->{ $prefix
+                      . 'LV Generation NHH or Aggregate HH' };
             }
         }
     }
