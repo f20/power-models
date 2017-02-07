@@ -371,79 +371,60 @@ EOY
 
 sub infillNewTariffs {
 
-    my ( $model, $d ) = @_;
-
     # This is useful for some options and harmless otherwise.
     # It is applied in all cases to help multi-model manufacturing.
 
-    if (  !exists $d->{1025}[1]{'LV HH Metered EHV Local Source'}
-        && exists $d->{1025}[1]{'LV HH Metered'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV HH Metered EHV Local Source'} = $col->{'LV HH Metered'};
-        }
-    }
+    my ( $model, $d ) = @_;
 
-    if (  !exists $d->{1025}[1]{'LV Generation EHV Local Supply'}
-        && exists $d->{1025}[1]{'LV Generation Non-Intermittent'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV Generation EHV Local Supply'} =
-              $col->{'LV Generation Non-Intermittent'};
-        }
-    }
+    my %tariffMap = (
+        'LV Network Domestic'            => 'Domestic Unrestricted',
+        'LV Network Non-Domestic Non-CT' => 'Small Non Domestic Unrestricted',
+        'LV Network Non-Domestic CT'     => 'LV HH Metered',
+        'LV Sub Non-CT'                  => 'LV Sub Medium Non-Domestic',
+        'LV Sub CT'                      => 'LV Sub HH Metered',
+        'HV Network Non-CT'              => 'HV Medium Non-Domestic',
+        'HV Network CT'                  => 'HV HH Metered',
+        (
+            map { ( "$_ HV Netting" => $_ ); } 'LV Network Domestic',
+            'LV Network Non-Domestic Non-CT',
+            'LV HH Metered',
+            'LV Sub HH Metered',
+            'HV HH Metered',
+        ),
+        map {
+            (
+                "$_ HH Metered EHV Local Source" => "$_ HH Metered",
+                "$_ Generation EHV Local Supply" =>
+                  "$_ Generation Non-Intermittent",
+                "$_ Generation HV Netting" => "$_ Generation Non-Intermittent"
 
-    if (  !exists $d->{1025}[1]{'LV Sub HH Metered EHV Local Source'}
-        && exists $d->{1025}[1]{'LV Sub HH Metered'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV Sub HH Metered EHV Local Source'} =
-              $col->{'LV Sub HH Metered'};
-        }
-    }
+            );
+        } ( 'LV', 'LV Sub', 'HV', )
+    );
+    _infill( $d, 1025, [ 1 .. 8 ], %tariffMap, );
+    _infill( $d, 1028, [ 1 .. 8 ], %tariffMap, );
+    _infill( $d, 1041, [ 1 .. 2 ], %tariffMap, );
 
-    if (  !exists $d->{1025}[1]{'LV Sub Generation EHV Local Supply'}
-        && exists $d->{1025}[1]{'LV Sub Generation Non-Intermittent'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV Sub Generation EHV Local Supply'} =
-              $col->{'LV Sub Generation Non-Intermittent'};
-        }
-    }
-
-    if (  !exists $d->{1028}[1]{'HV HH Metered EHV Local Source'}
-        && exists $d->{1028}[1]{'HV HH Metered'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1028}[$_];
-            $col->{'HV HH Metered EHV Local Source'} = $col->{'HV HH Metered'};
-        }
-    }
-
-    if (  !exists $d->{1028}[1]{'HV Generation EHV Local Supply'}
-        && exists $d->{1028}[1]{'HV Generation Non-Intermittent'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1028}[$_];
-            $col->{'HV Generation EHV Local Supply'} =
-              $col->{'HV Generation Non-Intermittent'};
-        }
-    }
+    my @hvNettingList = (
+        'LV Network Domestic HV Netting',
+        'LV Network Non-Domestic Non-CT HV Netting',
+        'LV HH Metered HV Netting',
+        'LV Sub HH Metered HV Netting',
+        'HV HH Metered HV Netting',
+        'LV Generation HV Netting',
+        'LV Sub Generation HV Netting',
+        'HV Generation HV Netting',
+    );
+    _infill(
+        $d, 1053,
+        [ 1 .. 7 ],
+        map {
+            my $prefix = $_;
+            map { ( $prefix . $_ => 0 ); } @hvNettingList
+        } ( '', 'LDNO LV ', 'LDNO HV ', 'QNO LV ', 'QNO HV ', )
+    );
 
     for my $level ( 'LV', 'LV Sub', 'HV' ) {
-        if (  !exists $d->{1041}[1]{ $level . ' HH Metered EHV Local Source' }
-            && exists $d->{1041}[1]{ $level . ' HH Metered' } )
-        {
-            foreach ( 1 .. 2 ) {
-                my $col = $d->{1041}[$_] or next;
-                $col->{ $level . ' HH Metered EHV Local Source' } =
-                  $col->{ $level . ' HH Metered' };
-            }
-        }
         if (  !exists $d->{1053}[1]{ $level . ' HH Metered EHV Local Source' }
             && exists $d->{1053}[1]{ $level . ' HH Metered' } )
         {
@@ -464,42 +445,37 @@ sub infillNewTariffs {
             }
         }
     }
+    my %p272volumeMapping = (
+        'LV Network Domestic'            => '',
+        'LV Network Non-Domestic Non-CT' => '',
+        'LV Network Non-Domestic CT'     => 'LV HH Metered',
+        'LV Sub Non-CT'                  => '',
+        'LV Sub CT'                      => 'LV Sub HH Metered',
+        'HV Network Non-CT'              => '',
+        'HV Network CT'                  => 'HV HH Metered',
+    );
+    _infill(
+        $d, 1053,
+        [ 1 .. 7 ],
+        map {
+            my $prefix = $_;
+            map { $_ ? $prefix . $_ : $_; } %p272volumeMapping;
+        } ( '', 'LDNO LV ', 'LDNO HV ', 'QNO LV ', 'QNO HV ', )
+    );
 
-    if (  !exists $d->{1025}[1]{'LV Network Non-Domestic Non-CT'}
-        && exists $d->{1025}[1]{'LV HH Metered'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV Network Domestic'} = $col->{'Domestic Unrestricted'};
-            $col->{'LV Network Non-Domestic Non-CT'} = $col->{
-                $model->{tariffs} =~ /dcp179bare/i
-                ? 'LV Medium Non-Domestic'
-                : 'Small Non Domestic Unrestricted'
-            };
-            $col->{'LV Network Non-Domestic CT'} = $col->{'LV HH Metered'};
-            $col->{'LV Sub Non-CT'} = $col->{'LV Sub Medium Non-Domestic'};
-            $col->{'LV Sub CT'}     = $col->{'LV Sub HH Metered'};
-        }
-    }
-
-    if (  !exists $d->{1025}[1]{'LV Network Domestic'}
-        && exists $d->{1025}[1]{'Domestic Unrestricted'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV Network Domestic'} = $col->{'Domestic Unrestricted'};
-        }
-    }
-
-    if (  !exists $d->{1025}[1]{'LV Network Non-Domestic Non-CT'}
-        && exists $d->{1025}[1]{'Small Non Domestic Unrestricted'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV Network Non-Domestic Non-CT'} =
-              $col->{'Small Non Domestic Unrestricted'};
-        }
-    }
+    my %lvGenAggMap = (
+        'LV Generation NHH or Aggregate HH' => 'LV Generation NHH',
+        'LV Generation NHH' => 'LV Generation NHH or Aggregate HH',
+    );
+    _infill( $d, 1025, [ 1 .. 8 ], %lvGenAggMap );
+    _infill(
+        $d, 1053,
+        [ 1 .. 7 ],
+        map {
+            my $prefix = $_;
+            map { $prefix . $_; } %lvGenAggMap;
+        } ( '', 'LDNO LV ', 'LDNO HV ', 'QNO LV ', 'QNO HV ', )
+    );
 
     $d->{1042}[1] = $d->{1041}[2]
       if $model->{impliedLoadFactors}
@@ -508,76 +484,24 @@ sub infillNewTariffs {
       && $d->{1041}
       && $d->{1041}[2];
 
-    if (  !exists $d->{1041}[1]{'LV Network Non-Domestic Non-CT'}
-        && exists $d->{1041}[1]{'Domestic Unrestricted'} )
-    {
-        foreach ( 1 .. 2 ) {
-            my $col = $d->{1041}[$_];
-            $col->{'LV Network Domestic'} ||= $col->{'Domestic Unrestricted'};
-            $col->{'LV Network Non-Domestic Non-CT'} ||=
-              $col->{'Small Non Domestic Unrestricted'};
-            $col->{'LV Network Non-Domestic CT'} ||= $col->{'LV HH Metered'};
-            $col->{'LV Sub Non-CT'} ||= $col->{'LV Sub Medium Non-Domestic'};
-            $col->{'LV Sub CT'}     ||= $col->{'LV Sub HH Metered'};
-            $col->{'HV Network Non-CT'} ||= $col->{'HV Medium Non-Domestic'};
-            $col->{'HV Network CT'}     ||= $col->{'HV HH Metered'};
-        }
-        foreach ( 1 .. 6 ) {
-            my $col = $d->{1053}[$_];
-            foreach
-              my $prefix ( '', 'LDNO LV ', 'LDNO HV ', 'QNO LV ', 'QNO HV ' )
-            {
-                $col->{ $prefix . 'LV Network Domestic' }            ||= '';
-                $col->{ $prefix . 'LV Network Non-Domestic Non-CT' } ||= '';
-                $col->{ $prefix . 'LV Network Non-Domestic CT' } ||=
-                  $col->{ $prefix . 'LV HH Metered' };
-                $col->{ $prefix . 'LV Sub Non-CT' } ||= '';
-                $col->{ $prefix . 'LV Sub CT' } ||=
-                  $col->{ $prefix . 'LV Sub HH Metered' };
-                $col->{ $prefix . 'HV Network Non-CT' } ||= '';
-                $col->{ $prefix . 'HV Network CT' } ||=
-                  $col->{ $prefix . 'HV HH Metered' };
+}
+
+sub _infill {
+    my ( $d, $tableNumber, $columnsRef, %tariffSourceMap ) = @_;
+    my $tab = $d->{$tableNumber} or return;
+    foreach (@$columnsRef) {
+        my $col = $tab->[$_] or next;
+        while ( my ( $new, $old ) = each %tariffSourceMap ) {
+            if ($old) {
+                $col->{$new} = $col->{$old}
+                  if defined $col->{$old}
+                  && !defined $col->{$new};
+            }
+            else {
+                $col->{$new} = $old if !defined $col->{$new};
             }
         }
     }
-
-    if (  !exists $d->{1025}[1]{'LV Generation NHH or Aggregate HH'}
-        && exists $d->{1025}[1]{'LV Generation NHH'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV Generation NHH or Aggregate HH'} ||=
-              $col->{'LV Generation NHH'};
-        }
-    }
-    elsif ( !exists $d->{1025}[1]{'LV Generation NHH'}
-        && exists $d->{1025}[1]{'LV Generation NHH or Aggregate HH'} )
-    {
-        foreach ( 1 .. 8 ) {
-            my $col = $d->{1025}[$_];
-            $col->{'LV Generation NHH'} ||=
-              $col->{'LV Generation NHH or Aggregate HH'};
-        }
-    }
-
-    if (  !exists $d->{1053}[1]{'LV Generation NHH or Aggregate HH'}
-        && exists $d->{1053}[1]{'LV Generation NHH'} )
-    {
-        foreach ( 1 .. 6 ) {
-            my $col = $d->{1053}[$_];
-            foreach
-              my $prefix ( '', 'LDNO LV ', 'LDNO HV ', 'QNO LV ', 'QNO HV ' )
-            {
-                $col->{ $prefix . 'LV Generation NHH or Aggregate HH' } =
-                  $col->{ $prefix . 'LV Generation NHH' }
-                  if defined $col->{ $prefix . 'LV Generation NHH' }
-                  && !
-                  defined $col->{ $prefix
-                      . 'LV Generation NHH or Aggregate HH' };
-            }
-        }
-    }
-
 }
 
 sub addModifiedWarning {
