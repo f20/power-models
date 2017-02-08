@@ -410,7 +410,7 @@ sub parseModel {
     eval {
         my $parserModule;
         my $formatter = 'NOOP_CLASS';
-        if ( $fileToParse =~ /\.xlsx$/is ) {
+        if ( $fileToParse =~ /\.xls[xm]$/is ) {
             require Spreadsheet::ParseXLSX;
             $parserModule = 'Spreadsheet::ParseXLSX';
         }

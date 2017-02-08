@@ -37,7 +37,7 @@ sub xlsWriter {
         my ( $infile, $workbook ) = @_;
         die unless $infile;
         my $outfile = "$infile cleaned.xls";
-        $outfile =~ s/\.xlsx? cleaned.xls$/ cleaned.xls/is;
+        $outfile =~ s/\.xls[xm]? cleaned.xls$/ cleaned.xls/is;
         if ( -e $outfile ) {
             warn "$infile skipped as $outfile exists";
             return;

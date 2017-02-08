@@ -2,9 +2,10 @@ makeModels
 	-pickbest
 	-stats
 	-checksums
-	-extend=2018-2023
+	-extend=2018-2022
 	-template=%%
 	CDCM/201?-02-Baseline/%-micro*.yml
+	CDCM/2015-02/*.yml
 	CDCM/2016-02/*.yml
 	CDCM/2017-02/*.yml
 	CDCM/2018-02/*.yml
