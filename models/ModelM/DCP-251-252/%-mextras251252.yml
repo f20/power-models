@@ -1,5 +1,5 @@
 ---
-.: Clean after DCP 117 and DCP 231
+.: DCP 251 and DCP 252 relabelling on 2018 enhanced
 AdditionalRules:
   - calcUnits: 1
     checksums: Table checksum 7
