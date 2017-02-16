@@ -1016,13 +1016,14 @@ sub matching {
             my @columns = grep { /kWh/ } @$nonExcludedComponents;
             my @slope = map {
                 Arithmetic(
-                    name       => "Effect through $_",
-                    arithmetic => '=IF(A3<0,0,A1*10)',
-                    arguments  => {
+                    name          => "Effect through $_",
+                    arithmetic    => '=IF(A3<0,0,A1*10)',
+                    defaultFormat => '0soft',
+                    arguments     => {
                         A3 => $loadCoefficients,
                         A2 => $daysInYear,
                         A1 => $volumeData->{$_},
-                    }
+                    },
                 );
             } @columns;
 
