@@ -80,8 +80,10 @@ sub requiredModulesForRuleset {
       ? 'CDCM::Table1001_2016'
       : (),
 
-      $ruleset->{scaler}
-      && $ruleset->{scaler} =~ /dcp123/i ? 'CDCM::Matching123' : (),
+       !$ruleset->{scaler}               ? ()
+      : $ruleset->{scaler} =~ /ppuflex/i ? 'CDCM::MatchingFlex'
+      : $ruleset->{scaler} =~ /dcp123/i  ? 'CDCM::Matching123'
+      : (),
 
       !$ruleset->{summary}
       ? ()

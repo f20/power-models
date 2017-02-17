@@ -1011,7 +1011,7 @@ sub matching {
         }
 
         if ( $model->{scaler} =~ /ppugeneral/i )
-        {    # single adder on demand only, with caps and collars
+        {    # single adder with caps and collars, on demand only by default
 
             my @columns = grep { /kWh/ } @$nonExcludedComponents;
             my @slope = map {
@@ -1021,7 +1021,6 @@ sub matching {
                     defaultFormat => '0soft',
                     arguments     => {
                         A3 => $loadCoefficients,
-                        A2 => $daysInYear,
                         A1 => $volumeData->{$_},
                     },
                 );
@@ -1029,7 +1028,7 @@ sub matching {
 
             my $slopeSet = Columnset(
                 name    => 'Marginal revenue effect of adder',
-                columns => \@slope
+                columns => \@slope,
             );
 
             my ( %minAdder, $minAdderSet, %maxAdder, $maxAdderSet );
@@ -1074,7 +1073,7 @@ sub matching {
                         name     => 'Minimum rates',
                         number   => 1077,
                         columns  => \@cols,
-                        dataset  => $model->{dataaset},
+                        dataset  => $model->{dataset},
                         appendTo => $model->{inputTables},
                     );
                 }
@@ -1084,7 +1083,7 @@ sub matching {
                     $_ => $min{$_}
                       ? Arithmetic(
                         name       => "Adder threshold for $_",
-                        arithmetic => '=IF(ISNUMBER(A3),A2-A1,0)',
+                        arithmetic => '=IF(ISNUMBER(A3),A2-A1,"")',
                         arguments  => {
                             A1 => $tariffsExMatching->{$_},
                             A2 => $min{$_},
@@ -1144,7 +1143,7 @@ sub matching {
                     name     => 'Maximum rates',
                     number   => 1078,
                     columns  => [ @max{@columns} ],
-                    dataset  => $model->{dataaset},
+                    dataset  => $model->{dataset},
                     appendTo => $model->{inputTables},
                 );
                 %maxAdder = map {
@@ -1152,7 +1151,7 @@ sub matching {
 
                     $_ => Arithmetic(
                         name       => "Adder threshold for $_",
-                        arithmetic => '=IF(ISNUMBER(A3),A2-A1,0)',
+                        arithmetic => '=IF(ISNUMBER(A3),A2-A1,"")',
                         arguments  => {
                             A1 => $tariffsExMatching->{$_},
                             A2 => $max{$_},
@@ -1215,7 +1214,14 @@ sub matching {
 
         }
 
-        else {    # not ppugeneral
+        elsif ( $model->{scaler} =~ /ppuflex/i ) {
+            $adderTable =
+              $model->flexibleAdder( $allTariffsByEndUser,
+                $nonExcludedComponents, $componentMap, $volumeData,
+                $tariffsExMatching, $adderAmount, );
+        }
+
+        else {    #  various legacy adder options but no caps/collars
 
             my $includeGenerators = Arithmetic(
                 name       => 'Are generator tariffs subject to adder?',

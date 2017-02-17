@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2013 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -148,11 +148,9 @@ sub check {
     );
 
     my $startingSlope = new SpreadsheetModel::Custom(
-        name => 'Starting slope contributions',
-        rows => $kinkSet,
-
-        # ISERROR is true for #N/A and errors
-        custom    => ['=IF(ISERROR(A1),A2,0)'],
+        name      => 'Starting slope contributions',
+        rows      => $kinkSet,
+        custom    => ['=IF(ISNUMBER(A1),0,A2)'],
         arguments => {
             A2 => $kk,
             A1 => $kx
@@ -240,9 +238,11 @@ sub check {
     );
 
     my $kr2 = new SpreadsheetModel::Arithmetic(
-        name          => 'Tie breaker',
-        arguments     => { A1 => $kr1, A4 => $counter },
-        arithmetic    => '=A1*' . @kinks . '+A4',
+        name       => 'Tie breaker',
+        arguments  => { A1 => $kr1, A2 => $kr1, A4 => $counter },
+        arithmetic => '=IF(ISERROR(A1),'
+          . ( 1 + @kinks ) . ',A2)*'
+          . @kinks . '+A4',
         defaultFormat => '0softnz'
     );
 
@@ -364,13 +364,14 @@ sub check {
     my $kvs = new SpreadsheetModel::Custom(
         name       => 'Value',
         rows       => $kinkSet,
-        custom     => [ '=A7+(A4-A3)*A2', '=SUM(A5:A6)-A9' ],
+        custom     => [ '=A7+IF(ISNUMBER(A41),(A4-A3)*A2,0)', '=SUM(A5:A6)-A9' ],
         arithmetic => 'Special calculation',
         arguments  => {
-            A4 => $kxs,
-            A2 => $kks,
-            A5 => $startingValue,
-            A9 => $self->{target},
+            A4  => $kxs,
+            A41 => $kxs,
+            A2  => $kks,
+            A5  => $startingValue,
+            A9  => $self->{target},
         },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -391,6 +392,8 @@ sub check {
                   xl_rowcol_to_cell( $rowh->{A4} + $y - 1, $colh->{A4} ),
                   qr/\bA4\b/ =>
                   xl_rowcol_to_cell( $rowh->{A4} + $y, $colh->{A4} ),
+                  qr/\bA41\b/ =>
+                  xl_rowcol_to_cell( $rowh->{A41} + $y, $colh->{A41} ),
                   qr/\bA7\b/ => xl_rowcol_to_cell( $me->{$wb}{row} + $y - 1,
                     $me->{$wb}{col} );
             };
