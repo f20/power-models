@@ -1,0 +1,21 @@
+---
+.: 'DCP 283 and factor 0.65 generation scaling on 2017 baseline, clean'
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+genade: yes
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexit_gen0.65_minzero
+standing: sub132
+summary: yes
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179

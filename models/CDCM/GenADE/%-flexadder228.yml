@@ -1,5 +1,5 @@
 ---
-.: 'Flexible adder (DCP 284) on 2018 CDCM, clean with 1201'
+.: 'Flexible adder on 2018 CDCM, with extras'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -7,15 +7,17 @@ blackPeakingProbabilityRequired: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
+edcmTables: 1
 extraLevels: 1
 fixedCap: 1-4
+forwardLinks: 1
 matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: adder_ppuflex_gen-0.5_zero
+scaler: adder_ppuflex_gen0_zero
 standing: sub132
-summary: yes1201
+summary: statistics1201
 targetRevenue: dcp249
 tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179

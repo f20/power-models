@@ -96,15 +96,56 @@ sub matching {
         }
     }
 
-    else {    # not an adder
+    else {    # cost scaler
 
         my $dontScaleGeneration =
           $model->{scaler} && $model->{scaler} =~ /nogen/i;
-
-        my $scalableTariffs =
-            $dontScaleGeneration
-          ? $demandTariffsByEndUser
-          : $allTariffsByEndUser;
+        my ( $scalerWeightsConsumption, $scalerWeightsStanding );
+        if ( $model->{scaler} =~ /gen([0-9.]+)/ ) {
+            my $generationWeight   = $1;
+            my @scalerWeightsItems = (
+                rows => $allTariffsByEndUser,
+                data => [
+                    map { /gener/i ? $generationWeight : 1; }
+                      @{ $allTariffsByEndUser->{list} }
+                ],
+                validation => {
+                    validate      => 'decimal',
+                    criteria      => '>=',
+                    value         => 0,
+                    input_title   => 'Tariff weighting:',
+                    input_message => 'Non-negative number',
+                    error_message =>
+                      'This weighting cannot sensibly be negative.'
+                },
+            );
+            if ( $model->{scaler} =~ /editable/i ) {
+                $scalerWeightsConsumption = Dataset(
+                    name => 'Scaler weighting on consumption charges',
+                    @scalerWeightsItems, usePlaceholderData => 1,
+                );
+                $scalerWeightsStanding = Dataset(
+                    name => 'Scaler weighting on standing charges',
+                    @scalerWeightsItems, usePlaceholderData => 1,
+                );
+                Columnset(
+                    name =>
+                      'Tariff-specific weightings for revenue matching scaler',
+                    appendTo => $model->{inputTables},
+                    dataset  => $model->{dataset},
+                    number   => 1079,
+                    columns =>
+                      [ $scalerWeightsConsumption, $scalerWeightsStanding, ],
+                );
+            }
+            else {
+                $scalerWeightsConsumption = $scalerWeightsStanding = Constant(
+                    name =>
+                      'Tariff-specific weighting for revenue matching scaler',
+                    @scalerWeightsItems,
+                );
+            }
+        }
 
         my $levelled = $model->{scaler} && $model->{scaler} =~ /levelled/i;
 
@@ -386,8 +427,8 @@ sub matching {
                     arithmetic    => '=A1*A4',
                     arguments     => {
                         A1 => Dataset(
-                            name => 'Maximum scaling'
-                              . ' (set to zero to prohibit scaling up)',
+                            name  => 'Maximum scaling',
+                            lines => 'Set this to zero to prohibit scaling up.',
                             defaultFormat => '%hard',
                             number        => 1012,
                             appendTo      => $model->{inputTables},
@@ -427,17 +468,24 @@ sub matching {
             # now get on with madcapping
 
             my @slope = map {
+                my $weighting =
+                  /day/ ? $scalerWeightsStanding : $scalerWeightsConsumption;
                 Arithmetic(
                     name          => "Effect through $_",
                     defaultFormat => '0softnz',
-                    arithmetic    => /day/
-                    ? '=A4*A2*A1/100'
-                    : '=IF(A3<0,0,A4*A1*10)',
+                    arithmetic    => (
+                          /day/                ? '=A4*A2*A1/100'
+                        : $dontScaleGeneration ? '=IF(A3<0,0,A4*A1*10)'
+                        :                        '=A4*A1*10'
+                      )
+                      . ( $weighting ? '*A5' : '' ),
                     arguments => {
-                        A3 => $loadCoefficients,
+                        /day/ || !$dontScaleGeneration ? ()
+                        : ( A3 => $loadCoefficients ),
                         A2 => $daysInYear,
                         A1 => $volumeData->{$_},
                         A4 => $assetElements->{$_},
+                        $weighting ? ( A5 => $weighting ) : (),
                     },
                 );
             } @$scaledComponents;
@@ -449,19 +497,23 @@ sub matching {
               );
 
             my %minScaler = map {
+                my $weighting =
+                  /day/ ? $scalerWeightsStanding : $scalerWeightsConsumption;
                 my $tariffComponent = $_;
                 $_ => Arithmetic(
                     name       => "Scaler threshold for $_",
-                    arithmetic => '=IF(A3,0-A1/A2,0)',
-                    arguments  => {
+                    arithmetic => $weighting ? '=IF(A3*A31,0-A1/(A2*A21),0)'
+                    : '=IF(A3,0-A1/A2,0)',
+                    arguments => {
                         A1 => $tariffsExMatching->{$_},
                         A2 => $assetElements->{$_},
-                        A3 => $assetElements->{$_}
+                        A3 => $assetElements->{$_},
+                        $weighting ? ( A21 => $weighting, A31 => $weighting, )
+                        : (),
                     },
                     rowFormats => [
                         map {
-                            $componentMap->{$_}{$tariffComponent}
-                              ? undef
+                            $componentMap->{$_}{$tariffComponent} ? undef
                               : 'unavailable';
                         } @{ $allTariffsByEndUser->{list} }
                     ]
@@ -485,20 +537,31 @@ sub matching {
 
             $scalerTable = {
                 map {
+                    my $weighting =
+                      /day/
+                      ? $scalerWeightsStanding
+                      : $scalerWeightsConsumption;
+                    my $factor1 = $weighting ? '*A71' : '';
+                    my $factor2 = $weighting ? '*A72' : '';
+                    my $if      = /kWh/
+                      ? "IF(IF(A41<0,-1,1)*(A1*A3$factor1+A9)>0,A11*A31$factor2,0-A91)"
+                      : "IF(A1*A3$factor1+A9>0,A11*A31$factor2,0-A91)";
                     $_ => Arithmetic(
                         name       => "$_ scaler",
                         cols       => $assetScalerPot,
-                        arithmetic => $dontScaleGeneration
-                        ? '=IF(A4<0,0,IF(A1*A3+A9>0,A81*A83,0-A89))'
-                        : '=IF(A1*A3+A9>0,A81*A83,0-A89)',
+                        arithmetic => /day/
+                          || !$dontScaleGeneration ? "=$if" : "=IF(A4<0,0,$if)",
                         arguments => {
                             A1  => $assetElements->{$_},
+                            A11 => $assetElements->{$_},
                             A3  => $scalerRate,
-                            A4  => $loadCoefficients,
+                            A31 => $scalerRate,
+                            !/day/ && $dontScaleGeneration
+                            ? ( A4 => $loadCoefficients )
+                            : (),
+                            /kWh/ ? ( A41 => $loadCoefficients ) : (),
                             A9  => $tariffsExMatching->{$_},
-                            A81 => $assetElements->{$_},
-                            A83 => $scalerRate,
-                            A89 => $tariffsExMatching->{$_},
+                            A91 => $tariffsExMatching->{$_},
                         }
                     );
                 } @$scaledComponents
@@ -556,8 +619,9 @@ sub matching {
                     $args{"A3$pad"} = $volumeData->{$_};
                 }
                 $revenuesFromAsset = Arithmetic(
-                    name       => 'Net revenues to which the scaler applies',
-                    rows       => $scalableTariffs,
+                    name => 'Net revenues to which the scaler applies',
+                    rows => $dontScaleGeneration ? $demandTariffsByEndUser
+                    : $allTariffsByEndUser,
                     arithmetic => '='
                       . join( '+',
                         @termsWithDays

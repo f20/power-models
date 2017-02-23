@@ -36,7 +36,7 @@ use SpreadsheetModel::SegmentRoot;
 
 sub flexibleAdder {
 
-    # single adder with caps and collars, with additional flexibility
+    # single adder with caps and collars, with flexibility to include generation
 
     my ( $model, $allTariffsByEndUser, $nonExcludedComponents, $componentMap,
         $volumeData, $tariffsExMatching, $adderAmount, )
@@ -44,18 +44,24 @@ sub flexibleAdder {
 
     my $generationWeight = $model->{scaler} =~ /gen([0-9.-]+)/ ? $1 : 0;
 
-    my $adderWeights = Dataset(
-        name => 'Weighting for revenue matching adder',
+    my @adderWeightsItems = (
+        name => 'Tariff-specific weighting for revenue matching adder',
         rows => $allTariffsByEndUser,
         data => [
             map { /gener/i ? $generationWeight : 1; }
               @{ $allTariffsByEndUser->{list} }
         ],
+    );
+    my $adderWeights =
+      $model->{scaler} =~ /editable/i
+      ? Dataset(
+        @adderWeightsItems,
         appendTo           => $model->{inputTables},
         dataset            => $model->{dataset},
         number             => 1079,
         usePlaceholderData => 1,
-    );
+      )
+      : Constant(@adderWeights);
 
     my @columns = grep { /kWh/ } @$nonExcludedComponents;
     my @slope = map {
