@@ -1,5 +1,6 @@
 ---
 .: '2015 CDCM after DCP 179, with extras and election bung'
+.Style: Model with additional features
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

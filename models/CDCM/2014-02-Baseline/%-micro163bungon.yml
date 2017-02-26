@@ -1,5 +1,6 @@
 ---
 .: '2014 CDCM after DCP 163, micro with election bung'
+.Style: Micro model for forecasters
 PerlModule: CDCM
 coincidenceAdj: groupums
 compact: permpan

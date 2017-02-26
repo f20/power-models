@@ -1,5 +1,6 @@
 ---
 .: '2010 CDCM, clean'
+.Style: Clean model with checksums
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
 drm: top500gsp

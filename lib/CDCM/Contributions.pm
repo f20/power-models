@@ -291,9 +291,9 @@ EOT
                   Labelset( list => [ $chargingDrmExitLevels->{list}[0] ] ),
                 data => [ [ map { 0 } @{ $allTariffsByEndUser->{list} } ] ],
             ),
-            $model->{genade}
+            $model->{generationCreditsContrib}
             ? (
-                $model->{genade} =~ /100/
+                $model->{generationCreditsContrib} =~ /100/
                 ? Arithmetic(
                     name          => 'Full contribution for generation',
                     defaultFormat => '%soft',

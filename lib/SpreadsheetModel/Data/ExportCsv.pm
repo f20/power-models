@@ -155,11 +155,10 @@ sub dumpEdcmCsv {
       $self->prepare(
         'insert into companies (bid, company, settings) values (?, ?, ?)');
     $findCo->execute;
-    my %exclude =
-      ( identification => undef, method => undef, wantTables => undef, );
+    my %exclude = ( method => undef, );
     while ( my ( $bid, $co, $option ) = $findCo->fetchrow_array ) {
         next unless $co =~ s/\.xlsx?$//is;
-        $co =~ s/.*\///s;
+        $co =~ s/.*[\/\\]//s;
         $addCo->execute(
             $bid, $co,
             join "\n",

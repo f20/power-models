@@ -417,12 +417,14 @@ EOL
                 my $ar =
                   /^((?:LD|Q)NO )?LV sub.*generat/i
                   ? (
-                    $model->{genade} && /non.intermittent|site.specific/i
+                    $model->{generationCreditsLevels}
+                      && /non.intermittent|site.specific/i
                     ? [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
                     : [ 1, 1, 1, 1, 1, 1, 0, 0, 1, 0 ]
                   )
                   : /^((?:LD|Q)NO )?LV.*generat/i ? (
-                    $model->{genade} && /non.intermittent|site.specific/i
+                    $model->{generationCreditsLevels}
+                      && /non.intermittent|site.specific/i
                     ? [ 1, 1, 1, 1, 1, 1, 1, 0.75, 1, 0 ]
                     : [ 1, 1, 1, 1, 1, 1, 1, 0, 1, 0 ]
                   )

@@ -1,5 +1,6 @@
 ---
 .: '2018 CDCM after DCP 228, with extras'
+.Style: Model with additional features
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

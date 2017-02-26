@@ -1,5 +1,6 @@
 ---
 .: '2017 CDCM after DCP 227, with CTables'
+.Style: DCUSA-style model with CTables
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

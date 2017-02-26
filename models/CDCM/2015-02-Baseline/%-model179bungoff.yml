@@ -1,5 +1,6 @@
 ---
 .: '2015 CDCM after DCP 179, with CTables, no election bung'
+.Style: DCUSA-style model with CTables
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

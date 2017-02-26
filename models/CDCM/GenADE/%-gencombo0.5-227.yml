@@ -8,7 +8,9 @@ coincidenceAdj: groupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-genade: yes
+.GenADE: ADE proposal DCP 283
+generationCreditsContrib: ADE
+generationCreditsLevels: ADE
 matrices: big
 noReplacement: blanket
 pcd: 1

@@ -1,5 +1,6 @@
 ---
 .: '2013 CDCM after DCP 130 and DCP 132, clean'
+.Style: Clean model with checksums
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums

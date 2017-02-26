@@ -1,5 +1,6 @@
 ---
 .: '2015 CDCM after DCP 179, clean with election bung'
+.Style: Clean model with checksums
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

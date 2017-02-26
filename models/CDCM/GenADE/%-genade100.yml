@@ -10,7 +10,9 @@ edcmTables: 1
 extraLevels: 1
 fixedCap: 1-4
 forwardLinks: 1
-genade: 100
+.GenADE: ADE proposal with 100% contributions
+generationCreditsContrib: 100
+generationCreditsLevels: ADE
 matrices: big
 noReplacement: blanket
 pcd: 1

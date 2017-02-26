@@ -1,5 +1,6 @@
 ---
 .: '2013 CDCM after DCP 130 and DCP 132, micro-model'
+.Style: Micro model for forecasters
 PerlModule: CDCM
 coincidenceAdj: groupums
 compact: 1

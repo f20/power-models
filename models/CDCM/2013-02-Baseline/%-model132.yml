@@ -1,5 +1,6 @@
 ---
 .: '2013 CDCM after DCP 130 and DCP 132, with CTables'
+.Style: DCUSA-style model with CTables
 PerlModule: CDCM
 coincidenceAdj: groupums
 drm: top500gsp

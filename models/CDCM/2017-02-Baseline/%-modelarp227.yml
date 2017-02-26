@@ -1,5 +1,6 @@
 ---
 .: '2017 CDCM after DCP 227, for ARP'
+.Style: Micro model for ARP
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

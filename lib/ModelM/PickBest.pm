@@ -29,12 +29,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use POSIX;
+use utf8;
 
 sub score {
 
     my ( $class, $rule, $month ) = @_;
-    $month ||= strftime( '%Y-%m', localtime );
 
     my $score = 0;
 

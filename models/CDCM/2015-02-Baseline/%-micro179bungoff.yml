@@ -1,5 +1,6 @@
 ---
 .: '2015 CDCM after DCP 179, micro no election bung'
+.Style: Micro model for forecasters
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1

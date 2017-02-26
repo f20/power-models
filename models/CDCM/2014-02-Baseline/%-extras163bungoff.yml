@@ -1,10 +1,13 @@
 ---
 .: '2014 CDCM after DCP 163, with extras, no election bung'
+.Style: Model with additional features
 PerlModule: CDCM
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
+edcmTables: 1
 extraLevels: 1
+forwardLinks: 1
 matrices: big
 noReplacement: blanket
 pcd: 1

@@ -256,8 +256,7 @@ sub factory {
 
         foreach (@rulesets) {
             $_->{'~codeValidation'} = $sourceCodeDigest;
-            delete $_->{'.'};
-            delete $_->{revisionText};
+            delete @{$_}{ 'revisionText', grep { /^\./s } keys %$_ };
             my $template = delete $_->{template};
             $_->{revisionText} = $db->revisionText( Dump($_) ) if $db;
             $_->{template} = $template if defined $template;
@@ -267,12 +266,25 @@ sub factory {
 
     };
 
-    my $pickBestScorer = sub {
-        my ( $rule, $period ) = @_;
-        my $score         = 0;
+    my $scorer = sub {
+        my ( $rule, $data ) = @_;
+        my $score = 0;
+        return -666 unless $rule->{PerlModule};
         my $scoringModule = "$rule->{PerlModule}::PickBest";
-        $score += $scoringModule->score( $rule, $period )
-          if eval "require $scoringModule";
+        eval "require $scoringModule";
+        $score += $scoringModule->score( $rule, $1 )
+          if $scoringModule->can('score')
+          and $data->{'~datasetName'}
+          and $data->{'~datasetName'} =~ /(20[0-9]{2}-[0-9]{2})/;
+        $score -= 1_000_000
+          if $scoringModule->can('wantTables')
+          and keys %{ $data->{dataset} }
+          and grep {
+                  !$data->{dataset}{$_}
+              and !$data->{dataset}{yaml}
+              || $data->{dataset}{yaml} !~ /^$_:/m
+          } $scoringModule->wantTables($rule);
+        $score;
     };
 
     my ( $xlsModule, $xlsxModule, $workbookModule );
@@ -420,18 +432,7 @@ sub factory {
             foreach my $data (@datasets) {
                 my @scored;
                 foreach my $rule (@rulesets) {
-                    next if _invalidRulesDataCombination( $rule, $data );
-                    push @scored,
-                      [
-                        $rule,
-                        $pickBestScorer->(
-                            $rule,
-                            $data->{'~datasetName'}
-                            ? $data->{'~datasetName'} =~
-                              /(20[0-9]{2}-[0-9]{2})/
-                            : ()
-                        )
-                      ];
+                    push @scored, [ $rule, $scorer->( $rule, $data ) ];
                 }
                 if (@scored) {
                     @scored = sort { $b->[1] <=> $a->[1] } @scored;
@@ -443,7 +444,8 @@ sub factory {
             foreach my $data (@datasets) {
                 foreach my $rule (@rulesets) {
                     $addToList->( $data, $rule )
-                      unless _invalidRulesDataCombination( $rule, $data );
+                      if $settings->{allowInconsistentRules}
+                      || $scorer->( $rule, $data ) >= 0;
                 }
             }
         }
@@ -538,21 +540,6 @@ sub _mergeRulesData {
         $options{ $keys[$i] } = $removed[$i];
     }
     \%options;
-}
-
-sub _invalidRulesDataCombination {
-    my ( $rule, $data ) = @_;
-    return 1
-      if $rule->{wantDataset}
-      && $data->{'~datasetName'}
-      && $rule->{wantDataset} ne $data->{'~datasetName'};
-    return 1
-      if $rule->{wantTables} && keys %{ $data->{dataset} } and grep {
-              !$data->{dataset}{$_}
-          and !$data->{dataset}{yaml}
-          || $data->{dataset}{yaml} !~ /^$_:/m
-      } split /\s+/, $rule->{wantTables};
-    return;
 }
 
 sub _loadModules {

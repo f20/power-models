@@ -1,11 +1,13 @@
 ---
 .: '2017 CDCM after DCP 227, with table 1203'
+.Style: Model with additional features
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
+edcmTables: 1
 extraLevels: 1
 fixedCap: 1-4
 matrices: big

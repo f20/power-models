@@ -183,6 +183,9 @@ sub makeModels {
                     ]
                 );
             }
+            elsif (/^-+pickall/is) {
+                $maker->{setting}->( allowInconsistentRules => 1 );
+            }
             elsif (/^-+pickbest/is) {
                 $maker->{setting}->( pickBestRules => 1 );
             }

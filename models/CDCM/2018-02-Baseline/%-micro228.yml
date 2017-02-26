@@ -1,5 +1,6 @@
 ---
 .: '2018 CDCM after DCP 228, micro-model'
+.Style: Micro model for forecasters
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

@@ -1,5 +1,6 @@
 ---
 .: '2017 CDCM after DCP 227, showing exceeded capacity charges'
+.Style: Clean model with checksums
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

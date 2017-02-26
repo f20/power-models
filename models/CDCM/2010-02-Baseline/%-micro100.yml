@@ -1,5 +1,6 @@
 ---
 .: '2010 CDCM, micro-model'
+.Style: Micro model for forecasters
 PerlModule: CDCM
 compact: permpan
 drm: top500gsp

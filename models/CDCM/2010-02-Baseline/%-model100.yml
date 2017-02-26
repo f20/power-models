@@ -1,5 +1,6 @@
 ---
 .: '2010 CDCM, with CTables'
+.Style: DCUSA-style model with CTables
 PerlModule: CDCM
 activeSheets: '^Tariffs$'
 drm: top500gsp
