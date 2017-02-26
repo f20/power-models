@@ -61,7 +61,7 @@ sub flexibleAdder {
         number             => 1079,
         usePlaceholderData => 1,
       )
-      : Constant(@adderWeights);
+      : Constant(@adderWeightsItems);
 
     my @columns = grep { /kWh/ } @$nonExcludedComponents;
     my @slope = map {

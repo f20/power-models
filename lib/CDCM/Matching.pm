@@ -560,6 +560,9 @@ sub matching {
                             ? ( A4 => $loadCoefficients )
                             : (),
                             /kWh/ ? ( A41 => $loadCoefficients ) : (),
+                            $weighting
+                            ? ( A71 => $weighting, A72 => $weighting, )
+                            : (),
                             A9  => $tariffsExMatching->{$_},
                             A91 => $tariffsExMatching->{$_},
                         }
