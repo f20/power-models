@@ -300,6 +300,7 @@ sub makePostProcessor {
                     $inpath =~ s/\.(xls.?)$/-$$.$1/i;
                     rename $inname, $inpath;
                     open my $fh, '| osascript';
+                    binmode $fh, ':utf8';
                     print $fh <<EOS;
 tell application "Microsoft Excel"
 	set theWorkbook to open workbook workbook file name POSIX file "$inpath"
@@ -329,6 +330,7 @@ EOS
                     s/\.(xls.?)$/-$$.$1/i foreach $inpath, $outpath;
                     rename $inname, $inpath;
                     open my $fh, '| osascript';
+                    binmode $fh, ':utf8';
                     print $fh <<EOS;
 tell application "Microsoft Excel"
 	set theWorkbook to open workbook workbook file name POSIX file "$inpath"

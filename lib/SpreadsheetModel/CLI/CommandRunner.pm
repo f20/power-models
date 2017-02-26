@@ -31,10 +31,11 @@ use warnings;
 use strict;
 use utf8;
 
-use SpreadsheetModel::CLI::DataTools;
 use SpreadsheetModel::CLI::MakeModels;
 use SpreadsheetModel::CLI::UseDatabase;
 use SpreadsheetModel::CLI::UseModels;
+use SpreadsheetModel::Data::DataTools;
+use SpreadsheetModel::Rules::RulesTools;
 
 use constant {
     C_HOMEDIR       => 0,
