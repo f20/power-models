@@ -342,7 +342,7 @@ plot.dno.map <- function (
         if (quantum < 0.5) {
             legend.digit <- 2;
         }
-        minmax <- c(floor(mincol/quantum), ceiling(maxcol/quantum))*quantum;
+        minmax <- c(trunc(mincol/quantum), ceiling(maxcol/quantum))*quantum;
         colorlegend(
             col=sapply(0.01*(minmax[1]*(100:0)+minmax[2]*(0:100)), getcol),
             minmax, zlevels=4,

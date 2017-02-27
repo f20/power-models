@@ -57,7 +57,14 @@ sub rCode {
 
 sub areaMaps {
     my ( $self, $rIncluded ) = @_;
+    require SpreadsheetModel::Data::RCode::AreaMaps;
     SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded);
+}
+
+sub exportGraph {
+    my ( $self, $rIncluded ) = @_;
+    require SpreadsheetModel::Data::RCode::ExportGraph;
+    SpreadsheetModel::Data::RCode::ExportGraph->rCode($rIncluded);
 }
 
 sub maps3701rate3ts {

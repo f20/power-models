@@ -546,22 +546,22 @@ sub setFormats {
         boolhard => [
             locked => 0,
             @sizeNumber,
-            align      => 'center',
-            num_format => $num_text,
+            align => 'center',
+            @num_,
             @colourHard,
         ],
         boolsoft => [
             locked => 1,
             @sizeNumber,
-            align      => 'center',
-            num_format => $num_text,
+            align => 'center',
+            @num_,
             @colourSoft,
         ],
         boolcopy => [
             locked => 1,
             @sizeNumber,
-            align      => 'center',
-            num_format => $num_text,
+            align => 'center',
+            @num_,
             @colourCopy,
         ],
         caption => [
