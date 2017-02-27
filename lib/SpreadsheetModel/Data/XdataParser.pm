@@ -96,7 +96,7 @@ sub parseXdata {
                 next unless ref $d eq 'HASH';
                 $self->[XDP_setRule]->(
                     map { %$_; } grep { $_; }
-                      map  { delete $_[0]{$_}; }
+                      map  { delete $d->{$_}; }
                       grep { /^rules?$/is; }
                       keys %$d
                 );

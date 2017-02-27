@@ -86,9 +86,9 @@ sub processChecksum {
 
 }
 
-sub makeWriterAndParserOptions {
+sub makeWriterAndParserOptions_slow {
     my ($autocheck) = @_;
-    undef and return sub {    # slow version
+    sub {
         my ( $book, $workbook ) = @_;
         for my $worksheet ( $workbook->worksheets() ) {
             my ( $row_min, $row_max ) = $worksheet->row_range();
@@ -118,6 +118,10 @@ sub makeWriterAndParserOptions {
             }
         }
     };
+}
+
+sub makeWriterAndParserOptions {
+    my ($autocheck) = @_;
     my @tableNumber;
     my @checksumLocation;
     my $book;

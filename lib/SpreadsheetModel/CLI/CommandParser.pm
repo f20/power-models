@@ -48,7 +48,7 @@ sub run {
 sub acceptCommand {
     my $self = shift;
     if ( local $_ = $_[0] ) {
-        return push @$self, [ R => @_[ 1 .. $#_ ] ] if /^R$/i;
+        return push @$self, [@_] if /^R/i;
         return push @$self, [ combineRulesets => @_[ 1 .. $#_ ] ]
           if /combineRulesets$/i;
         return push @$self, [ makeFolder => @_[ 1 .. $#_ ] ] if /folder$/i;
@@ -60,16 +60,24 @@ sub acceptCommand {
         return push @$self, [ ymlMerge => @_[ 1 .. $#_ ] ] if /ya?mlmerge$/si;
         return push @$self, [ ymlSplit => @_[ 1 .. $#_ ] ] if /ya?mlsplit$/si;
     }
-    return push @$self, [ makeModels => @_ ]
-      if grep { /\.(?:ya?ml|json|dta|csv)$/si } @_;
-    return push @$self, [ useModels => @_ ]
-      if grep { /\.xl\S+$/si || /^-+prune=/si; } @_;
-    return push @$self, [ makeModels => @_ ] if grep { /[*?]/; } @_;
     if ( grep { /\.txt$/i } @_ ) {
         $self->acceptScript($_) foreach grep { -s $_; } @_;
         return;
     }
-    push @$self, [ useDatabase => @_ ];
+    return push @$self, [ makeModels => @_ ]
+      if grep { /\.(?:ya?ml|json|dta|csv)$/si || /[*?]/; } @_;
+    return push @$self, [ useModels => @_ ]
+      if grep { /\.xl\S+$/si || /^-+prune=/si; } @_;
+    return push @$self, [ useDatabase => @_ ]
+      if grep {
+             /^tscs/i
+          || /^csv/i
+          || /^all/i
+          || /\//
+          || /^[0-9]/
+          || /^-+(?:base|dcp|change)=/i;
+      } @_;
+    warn "Ignored: @_";
 }
 
 sub acceptScript {

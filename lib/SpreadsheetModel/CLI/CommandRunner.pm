@@ -111,6 +111,21 @@ sub R {
     print {$r} SpreadsheetModel::Data::RCode->rCode(@commands);
 }
 
+sub Rcode {
+    my ( $self, @commands ) = @_;
+    open my $r, '>', "$$.R";
+    binmode $r, ':utf8';
+    print $r "# R code from power-models\n\n";
+    require SpreadsheetModel::Data::RCode;
+    print {$r} SpreadsheetModel::Data::RCode->rCode(@commands);
+    close $r;
+    rename "$$.R", 'power-models.R';
+    warn <<EOW
+To use this R code, say:
+    source("power-models.R");
+EOW
+}
+
 our $AUTOLOAD;
 
 sub comment { }

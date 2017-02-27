@@ -1,5 +1,5 @@
 -sqlite
-    CDCM/*/%-extras163.yml
+    CDCM/2014-02-Baseline/%-extras163bungoff.yml
     CDCM/2014-02/*
     -newdata
     CDCM/2014-02/*

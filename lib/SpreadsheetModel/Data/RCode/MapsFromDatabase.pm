@@ -34,8 +34,8 @@ use utf8;
 use SpreadsheetModel::Data::RCode::AreaMaps;
 
 sub maps3701rate3ts {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -105,8 +105,8 @@ EOR
 }
 
 sub maps3701reactivets {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -176,8 +176,8 @@ EOR
 }
 
 sub maps4202ts {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -280,8 +280,8 @@ EOR
 }
 
 sub maps4202cs {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -327,8 +327,8 @@ EOR
 }
 
 sub margins4203 {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');

@@ -50,51 +50,58 @@ Installing treemap might require GNU Fortran to be setup first.
 =cut
 
 sub rCode {
-    my $self   = shift;
-    my $script = {};
-    map { $self->$_($script); } @_;
+    my $self      = shift;
+    my $rIncluded = {};
+    map { $self->$_($rIncluded); } @_;
+}
+
+sub areaMaps {
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded);
 }
 
 sub maps3701rate3ts {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::MapsFromDatabase;
-    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps3701rate3ts($script);
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps3701rate3ts(
+        $rIncluded);
 }
 
 sub maps3701reactivets {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::MapsFromDatabase;
-    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps3701reactivets($script);
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps3701reactivets(
+        $rIncluded);
 }
 
 sub maps4202cs {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::MapsFromDatabase;
-    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps4202cs($script);
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps4202cs($rIncluded);
 }
 
 sub maps4202ts {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::MapsFromDatabase;
-    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps4202ts($script);
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->maps4202ts($rIncluded);
 }
 
 sub margins4203 {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::MapsFromDatabase;
-    SpreadsheetModel::Data::RCode::MapsFromDatabase->margins4203($script);
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->margins4203($rIncluded);
 }
 
 *margins = \&margins4203;
 
 sub mapCdcmEdcm {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::MapsFromDatabase;
-    SpreadsheetModel::Data::RCode::MapsFromDatabase->mapCdcmEdcm($script);
+    SpreadsheetModel::Data::RCode::MapsFromDatabase->mapCdcmEdcm($rIncluded);
 }
 
 sub treemapWithCategories {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemapWithCategories;
 }
@@ -102,43 +109,43 @@ sub treemapWithCategories {
 *treemap = \&treemapWithCategories;
 
 sub treemapByCategory {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemapWithCategories(1);
 }
 
 sub treemapWithComponents {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemapWithComponents;
 }
 
 sub treemapByComponent {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemapWithComponents(1);
 }
 
 sub treemap1020ByLevel {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemap1020;
 }
 
 sub treemap1020ByCompany {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemap1020(1);
 }
 
 sub treemap2706ByLevel {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemap2706;
 }
 
 sub treemap2706ByCompany {
-    my ( $self, $script ) = @_;
+    my ( $self, $rIncluded ) = @_;
     require SpreadsheetModel::Data::RCode::Treemap;
     SpreadsheetModel::Data::RCode::Treemap->treemap2706(1);
 }

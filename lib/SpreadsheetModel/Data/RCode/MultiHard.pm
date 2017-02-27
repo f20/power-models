@@ -34,8 +34,8 @@ use utf8;
 require SpreadsheetModel::Data::RCode::ExportGraph;
 
 sub bandConsumption {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::ExportGraph->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::ExportGraph->rCode($rIncluded) . <<'EOR';
 dset2<-read.csv(textConnection('
 Customer type,DNO area,Time red,Time amber,Time green,Power red,Power amber,Power green
 Domestic,ENWL,0.089480874,0.28904827,0.621470856,1.413854729,1.138344214,0.876067819
@@ -103,8 +103,8 @@ EOR
 }
 
 sub coincidenceWaterfall {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::ExportGraph->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::ExportGraph->rCode($rIncluded) . <<'EOR';
 dset1<-read.csv(textConnection('
 Customer type,DNO area,HV PP,P PP,BSP PP,GSP PP,Red,X,1/LF
 Domestic,ENWL,1.285189769,1.285189769,1.32458814,1.372785233,1.413854729,1.974167296,2.26396621

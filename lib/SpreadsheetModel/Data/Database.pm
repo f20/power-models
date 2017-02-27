@@ -55,7 +55,12 @@ sub DESTROY {
 }
 
 sub new {
+
     my ( $class, $create ) = @_;
+
+    die 'No database in current working folder'
+      unless $create || -s '~$database.sqlite';
+
     require DBI;
     my $databaseHandle = DBI->connect( 'dbi:SQLite:dbname=~$database.sqlite',
         '', '', { sqlite_unicode => 1, AutoCommit => 1, } )
@@ -93,6 +98,7 @@ EOSQL
     $databaseHandle->{AutoCommit} = 0;
     $databaseHandle->{RaiseError} = 1;
     bless [$databaseHandle], $class;
+
 }
 
 sub addModel {

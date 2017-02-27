@@ -36,9 +36,9 @@ binmode DATA, ':utf8';
 my $rCode = <DATA>;
 
 sub rCode {
-    my ( $self, $script ) = @_;
-    return '' if $script->{$self};
-    $script->{$self} = 1;
+    my ( $self, $rIncluded ) = @_;
+    return '' if $rIncluded->{$self};
+    $rIncluded->{$self} = 1;
     $rCode;
 }
 

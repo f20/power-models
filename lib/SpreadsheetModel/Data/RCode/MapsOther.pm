@@ -34,8 +34,8 @@ use utf8;
 use SpreadsheetModel::Data::RCode::AreaMaps;
 
 sub svgNoText {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 plot.dno.map(
     data.frame(1:14),
     file.name='Map without text',
@@ -47,8 +47,8 @@ EOR
 }
 
 sub edcmOpacity {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 csv <- textConnection('
     Opacity 2013,Opacity 2014,DNO
     0.25,0.25,ENWL
@@ -85,8 +85,8 @@ EOR
 }
 
 sub mapCdcmEdcm2013 {
-    my ( $self, $script ) = @_;
-    SpreadsheetModel::Data::RCode::AreaMaps->rCode($script) . <<'EOR';
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 v <- read.csv(textConnection('
 CDCM,EDCM Zero,EDCM Avg,DNO
 9.230136098,4.697991667,5.961880556,ENWL
