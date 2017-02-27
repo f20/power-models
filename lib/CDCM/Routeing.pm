@@ -393,10 +393,8 @@ EOL
           . ' network level (by tariff)',
     );
 
-    my $ldnoWord =
-      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
     my $idnoDataInputTariffs = Labelset(
-        name => "LV $ldnoWord demand portfolio tariffs",
+        name => "LV $model->{ldnoWord} demand portfolio tariffs",
         list => [
             grep {
                      /^(?:LD|Q)NO LV/
@@ -496,9 +494,9 @@ EOT
 
     if ( $model->{ldnoSplits} ) {
         my $splits = Dataset(
-            name          => "HV and LV DNO mains usage for $ldnoWord tariffs",
-            cols          => Labelset( list => [ 'LV circuits', 'HV' ] ),
-            data          => [ [0.1], [0.4] ],
+            name => "HV and LV DNO mains usage for $model->{ldnoWord} tariffs",
+            cols => Labelset( list => [ 'LV circuits', 'HV' ] ),
+            data => [ [0.1], [0.4] ],
             defaultFormat => '%hard',
             number        => 1036,
             dataset       => $model->{dataset},
@@ -514,7 +512,7 @@ EOT
             cols    => $coreExitLevels,
             sources => [
                 Arithmetic(
-                    name => "$ldnoWord LV split",
+                    name => "$model->{ldnoWord} LV split",
                     rows => Labelset(
                         list => [
                             grep {
@@ -528,7 +526,7 @@ EOT
                     arguments  => { A1           => $splits }
                 ),
                 Arithmetic(
-                    name => "$ldnoWord HV split",
+                    name => "$model->{ldnoWord} HV split",
                     rows => Labelset(
                         list => [
                             grep {

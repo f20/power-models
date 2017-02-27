@@ -73,15 +73,13 @@ sub modelG {
               @{ $model->{pcd}{allTariffsByEndUser}{list} }
         ]
     );
-    my $ldnoWord =
-      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
     $volumeData{'Fixed charge p/MPAN/day'} = Stack(
-        name          => "MPANs excluding $ldnoWord generation",
+        name          => "MPANs excluding $model->{ldnoWord} generation",
         rows          => $volumeData{'Fixed charge p/MPAN/day'}{rows},
         defaultFormat => '0copy',
         sources       => [
             Constant(
-                name          => "0 for $ldnoWord generation",
+                name          => "0 for $model->{ldnoWord} generation",
                 defaultFormat => '0con',
                 rows          => $ldnoGenLabelset,
                 data => [ [ map { 0 } @{ $ldnoGenLabelset->{list} } ] ],
@@ -160,7 +158,7 @@ sub modelG {
     my $ppuDiscounts =
       $model->{pcdByTariff}
       ? Dataset(
-        name       => "$ldnoWord discounts (p/kWh)",
+        name       => "$model->{ldnoWord} discounts (p/kWh)",
         number     => 1039,
         appendTo   => $model->{inputTables},
         dataset    => $model->{dataset},
@@ -191,12 +189,12 @@ sub modelG {
         ),
         vector => $model->{embeddedModelM}
         ? Stack(
-            name    => "$ldnoWord discounts (p/kWh)",
+            name    => "$model->{ldnoWord} discounts (p/kWh)",
             cols    => $model->{pcd}{discount}{matrix}{cols},
             sources => $model->{embeddedModelM}{objects}{table1039sources},
           )
         : Dataset(
-            name       => "$ldnoWord discounts (p/kWh)",
+            name       => "$model->{ldnoWord} discounts (p/kWh)",
             number     => 1039,
             appendTo   => $model->{inputTables},
             dataset    => $model->{dataset},
@@ -521,7 +519,7 @@ sub modelG {
 
     push @{ $model->{modelgTables} },
       my $discounts = Arithmetic(
-        name          => "$ldnoWord discounts",
+        name          => "$model->{ldnoWord} discounts",
         defaultFormat => '%soft',
         arithmetic    => '=IF(A21,A1/A22,0)',
         arguments     => {
@@ -533,7 +531,7 @@ sub modelG {
 
     push @{ $model->{modelgTables2} },
       Stack(
-        name    => "$ldnoWord discounts ⇒1038. For CDCM",
+        name    => "$model->{ldnoWord} discounts ⇒1038. For CDCM",
         rows    => $model->{pcd}{allTariffsByEndUser},
         sources => [$discounts],
       );

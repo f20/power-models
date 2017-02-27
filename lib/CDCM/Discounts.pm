@@ -35,8 +35,6 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub pcdSetUp {
     my ( $model, $allEndUsers, $allTariffsByEndUser, $allTariffs ) = @_;
-    $model->{ldnoWord} =
-      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
     delete $model->{portfolio};
     delete $model->{boundary};
     $model->{pcd} = {

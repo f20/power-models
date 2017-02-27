@@ -182,6 +182,9 @@ sub new {
         $allTariffs )
       if $model->{tariffGrouping};
 
+    $model->{ldnoWord} =
+      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
+
     ( $allEndUsers, $allTariffsByEndUser, $allTariffs ) =
       $model->pcdSetUp( $allEndUsers, $allTariffsByEndUser, $allTariffs )
       if $model->{pcd};

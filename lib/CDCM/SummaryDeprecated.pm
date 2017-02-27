@@ -346,8 +346,6 @@ sub consultationSummaryDeprecated {
     );
 
     push @rev, $atwRev;
-    my $ldnoWord =
-      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
 
     foreach my $idnoType ( 'LV', 'HV', 'HV Sub', 'Any' ) {
         next unless grep { /^(?:LD|Q)NO $idnoType:/ } @{ $allTariffs->{list} };
@@ -361,13 +359,13 @@ sub consultationSummaryDeprecated {
         );
         push @{ $model->{consultationInput} },
           my $irev = Stack(
-            name    => "$ldnoWord $idnoType charges (normalised £)",
+            name    => "$model->{ldnoWord} $idnoType charges (normalised £)",
             rows    => $tariffset,
             sources => [$rev]
           );
         push @rev,
           Arithmetic(
-            name          => "$ldnoWord $idnoType margin (normalised £)",
+            name => "$model->{ldnoWord} $idnoType margin (normalised £)",
             defaultFormat => '0.00soft',
             rowFormats    => [
                 map { $_ eq 'N/A' ? 'unavailable' : undef }
@@ -504,7 +502,7 @@ sub consultationSummaryDeprecated {
 
     push @{ $model->{consultationTables} },
       Columnset(
-        name    => "$ldnoWord margins in use of system charges",
+        name    => "$model->{ldnoWord} margins in use of system charges",
         columns => \@rev
       );
 

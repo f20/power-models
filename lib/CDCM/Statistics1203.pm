@@ -308,10 +308,8 @@ sub makeStatisticsTables1203 {
                 };
             },
         );
-        my $ldnoWord =
-          $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
         my $marginTable = SpreadsheetModel::Custom->new(
-            name          => "Apparent $ldnoWord margin (£/year)",
+            name          => "Apparent $model->{ldnoWord} margin (£/year)",
             defaultFormat => '0soft',
             rows          => $atwRowset,
             cols   => Labelset( list => [ map { "$_ margin"; } @boundaries ] ),
@@ -350,11 +348,12 @@ sub makeStatisticsTables1203 {
         );
         push @{ $model->{statisticsTables} },
           Columnset(
-            name    => "$ldnoWord margins for illustrative customers (£/year)",
+            name =>
+              "$model->{ldnoWord} margins for illustrative customers (£/year)",
             columns => [ $atwTable, $marginTable, ],
           );
         $model->{sharedData}
-          ->addStats( "$ldnoWord margins for illustrative customers",
+          ->addStats( "$model->{ldnoWord} margins for illustrative customers",
             $model, $marginTable )
           if $model->{sharedData};
 
