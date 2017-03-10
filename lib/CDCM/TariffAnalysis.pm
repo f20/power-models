@@ -84,7 +84,7 @@ sub unroundedTariffAnalysis {
         );
         my %hash = ( name => $cat );
         $hash{$_} = SumProduct(
-            name   => "$cat contributions to $_",
+            name   => "$cat contributions to " . lcfirst($_),
             vector => $con,
             matrix => $tariffsExMatching->{$_}{source},
         ) foreach @$allComponents;
@@ -104,15 +104,17 @@ sub unroundedTariffAnalysis {
             $hash{$tariffComponent} =
               @tables
               ? Arithmetic(
-                name       => "Matching contributions to $tariffComponent",
+                name => 'Matching contributions to '
+                  . lcfirst($tariffComponent),
                 arithmetic => '=' . join( '+', map { "A$_" } 1 .. @tables ),
                 arguments =>
                   { map { ( "A$_" => $tables[ $_ - 1 ] ); } 1 .. @tables },
               )
               : Constant(
-                name => $_,
+                name => 'Matching contributions to '
+                  . lcfirst($tariffComponent),
                 rows => $allTariffsByEndUser,
-                cols => $componentLabelset->{$_},
+                cols => $componentLabelset->{$tariffComponent},
                 data => [ [] ]
               );
         }

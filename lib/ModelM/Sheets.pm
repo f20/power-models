@@ -51,6 +51,8 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 20 );
         $wsheet->{nextFree} ||= $model->{noSingleInputSheet} ? 1 : 2;
+        my $dataSheet;
+        $dataSheet = delete $wbook->{dataSheet} if $model->{noSingleInputSheet};
         $model->{objects}{inputTables} ||= [];
         my ( $sh, $ro, $co ) = Dataset(
             number        => 1300,
@@ -80,7 +82,6 @@ sub worksheetsAndClosures {
         my $nextFree;
 
         if ( $model->{noSingleInputSheet} ) {
-            my $dataSheet = delete $wbook->{dataSheet};
             $_->wsWrite( $wbook, $wsheet )
               foreach
               sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
@@ -99,6 +100,7 @@ sub worksheetsAndClosures {
                   [ 'Input data', '', 'This sheet contains the input data.' ] )
               ->wsWrite( $wbook, $wsheet );
         }
+        $wbook->{dataSheet} = $dataSheet if defined $dataSheet;
         $wsheet->{nextFree} = $nextFree;
     };
 

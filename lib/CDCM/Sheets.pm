@@ -755,39 +755,49 @@ EOL
       if $model->{edcmTables};
 
     push @wsheetsAndClosures,
-
-      'G-Calc' => sub {
+      'G(Details)' => sub {
         my ($wsheet) = @_;
         $wbook->{lastSheetNumber} = 42
           unless $wbook->{lastSheetNumber} > 42;
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 16 );
-
-        my $notes = Notes( name => 'Model G calculations', );
-
+        my $notes = Notes( name => 'Details of Model G calculations', );
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes, @{ $model->{modelgTables} };
+      }
+      if $model->{modelgTables};
 
-      },
+    push @wsheetsAndClosures,
+      'G(Summary)' => sub {
+        my ($wsheet) = @_;
+        $wbook->{lastSheetNumber} = 42
+          unless $wbook->{lastSheetNumber} > 42;
+        $wsheet->fit_to_pages( 1, 0 );
+        $wsheet->set_column( 0, 0,   56 );
+        $wsheet->set_column( 1, 250, 14 );
+        my $noLinks = $wbook->{noLinks};
+        $wbook->{noLinks} = 1;
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => 'Summary of Model G calculations', ),
+          @{ $model->{modelgSummary} };
+        $wbook->{noLinks} = $noLinks;
+      }
+      if $model->{modelgSummary};
 
-      'G-Discounts' => sub {
+    push @wsheetsAndClosures,
+      'G(Results)' => sub {
         my ($wsheet) = @_;
         $wbook->{lastSheetNumber} = 43
           unless $wbook->{lastSheetNumber} > 43;
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 16 );
-
         my $notes = Notes( name => 'Model G results', );
-
         $_->wsWrite( $wbook, $wsheet )
-          foreach $notes, @{ $model->{modelgTables2} };
-
+          foreach $notes, @{ $model->{modelgResults} };
       }
-
-      if $model->{unroundedTariffAnalysis}
-      && $model->{unroundedTariffAnalysis} =~ /modelg/i;
+      if $model->{modelgResults};
 
     my $frontSheet = SpreadsheetModel::Book::FrontSheet->new(
         model => $model,

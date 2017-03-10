@@ -178,9 +178,8 @@ sub modelG {
         ],
       )
       : SumProduct(
-        name          => 'Discount for each tariff (except for fixed charges)',
-        defaultFormat => '%softnz',
-        matrix        => Stack(
+        name   => 'Discount for each tariff (p/kWh)',
+        matrix => Stack(
             name          => 'Discount map (re-grouped)',
             defaultFormat => '0copy',
             sources       => [ $model->{pcd}{discount}{matrix} ],
@@ -220,12 +219,16 @@ sub modelG {
         ),
       );
 
+    my @runs;
     my $calcErrors = sub {
 
         my (@scalingFactors) = @_;
 
+        my $runid  = 1 + @runs;
+        my $suffix = " (run $runid)";
+
         my $ppu = Arithmetic(
-            name       => 'Average p/kWh',
+            name       => 'Average p/kWh' . $suffix,
             arithmetic => '=IF(A91,('
               . join( '+',
                 map { $_ == 1 ? 'A1' : "A$_*A93$_" }
@@ -245,7 +248,7 @@ sub modelG {
             },
         );
         my $chargeablePercentage = Arithmetic(
-            name          => 'Chargeable percentage',
+            name          => 'Chargeable percentage' . $suffix,
             defaultFormat => '%soft',
             arithmetic    => '=IF(A21,1-A1/A22,0)',
             arguments     => {
@@ -265,7 +268,7 @@ sub modelG {
 
         push @{ $model->{modelgTables} },
           Columnset(
-            name    => 'Total discounted revenue by charge category',
+            name    => 'Total discounted revenue by charge category' . $suffix,
             columns => \@discountedCharges,
           );
 
@@ -296,12 +299,28 @@ sub modelG {
                 map { ( "A9$_" => $errors[$_] ); } 0 .. $#errors,
             },
           );
+
+        push @runs,
+          [
+            \@scalingFactors, \@errors,              $runid,
+            $ppu,             $chargeablePercentage, \@discountedCharges,
+          ];
+        push @{ $model->{modelgTables} },
+          Columnset(
+            name    => 'Scaling factors' . $suffix,
+            columns => \@scalingFactors,
+          ),
+          Columnset(
+            name    => 'Error values' . $suffix,
+            columns => \@errors,
+          );
+
         @errors;
+
     };
 
     # hard-coded three dimensional
 
-    my @runs;
     foreach ( my $run = 1 ; $run < 5 ; ++$run ) {
         my @scalingFactors = map {
             Constant(
@@ -311,22 +330,16 @@ sub modelG {
             );
         } 1 .. $#utaPounds;
         my @errors = $calcErrors->(@scalingFactors);
-        push @runs, [ \@scalingFactors, \@errors, ];
-        push @{ $model->{modelgTables} },
-          Columnset(
-            name    => "Scaling factors for run $run",
-            columns => \@scalingFactors,
-          ),
-          Columnset(
-            name    => "Error values from run $run",
-            columns => \@errors,
-          );
     }
 
     my $matrixLabelset = Labelset( list => [qw(X Y Z)] );
     my $iterate = sub {
+        my (@runs) = @_;
+        my $suffix =
+            ' based on runs '
+          . "$runs[0][2], $runs[1][2], $runs[2][2] and $runs[3][2]";
         my $derivatives = SpreadsheetModel::Custom->new(
-            name   => 'First derivatives (£ million)',
+            name   => 'First derivatives (£ million)' . $suffix,
             rows   => $matrixLabelset,
             cols   => $matrixLabelset,
             custom => [
@@ -371,7 +384,7 @@ sub modelG {
             },
         );
         my $codeterminants = SpreadsheetModel::Custom->new(
-            name   => 'Co-determinants',
+            name   => 'Co-determinants' . $suffix,
             rows   => $matrixLabelset,
             cols   => $matrixLabelset,
             custom => [
@@ -404,7 +417,7 @@ sub modelG {
             },
         );
         my $determinant = SpreadsheetModel::Custom->new(
-            name      => 'Determinant',
+            name      => 'Determinant' . $suffix,
             custom    => ['=SUMPRODUCT(B14:D14,B19:D19)'],
             arguments => {
                 B14 => $derivatives,
@@ -461,14 +474,10 @@ sub modelG {
         } 0 .. 2;
     };
 
-    my $runOffset = 0;
-
-    my @nextScalingFactors = $iterate->();
-    splice @runs, 0, 3;
-    $runOffset += 3;
+    my @nextScalingFactors = $iterate->(@runs);
     foreach ( my $run = 2 ; $run < 5 ; ++$run ) {
-        my @scalingFactors = $run == 4 ? @nextScalingFactors : map {
-            Stack(
+        my @scalingFactors = map {
+            $run == $_ + 1 ? $nextScalingFactors[ $_ - 1 ] : Stack(
                 sources => [
                       $_ < $run
                     ? $nextScalingFactors[ $_ - 1 ]
@@ -477,25 +486,91 @@ sub modelG {
             );
         } 1 .. $#utaPounds;
         my @errors = $calcErrors->(@scalingFactors);
-        push @runs, [ \@scalingFactors, \@errors, ];
-        my $runa = $run + $runOffset;
+    }
+
+    my @finalScalingFactors = $iterate->( @runs[ 0, 4 .. 6 ] );
+    if ( $model->{unroundedTariffAnalysis} =~ /spuriouscalcs/i ) {
+        $calcErrors->(@finalScalingFactors);
+    }
+    else {
+        push @runs, [ \@finalScalingFactors ];
         push @{ $model->{modelgTables} },
           Columnset(
-            name    => "Scaling factors for run $runa",
-            columns => \@scalingFactors,
-          ),
-          Columnset(
-            name    => "Error values from run $runa",
-            columns => \@errors,
+            name    => 'Final scaling factors',
+            columns => \@finalScalingFactors,
           );
     }
 
-    my @finalScalingFactors = $iterate->();
-    push @{ $model->{modelgTables} },
-      Columnset(
-        name    => 'Final scaling factors',
-        columns => \@finalScalingFactors,
-      );
+    if ( $model->{unroundedTariffAnalysis} =~ /summary/i ) {
+        foreach my $e ( 0, 1, 5 ) {
+            push @{ $model->{modelgSummary} }, Columnset(
+                name => 'Run summary: '
+                  . (
+                      $e == 0 ? 'scaling factors'
+                    : $e == 1 ? 'errors'
+                    :           'revenue analysis'
+                  ),
+                singleRowName => '',
+                noHeaders     => 1,
+                noSpaceBelow  => 1,
+                columns       => [
+                    map {
+                        Constant(
+                            defaultFormat => 'thc',
+                            data          => [
+                                defined $_->[2]
+                                  && $_->[2] < @runs ? "Run $_->[2]" : 'Final'
+                            ]
+                        );
+                    } grep { $_->[$e]; } @runs
+                ]
+            );
+            for ( my $i = 0 ; $i < @{ $runs[0][$e] } ; ++$i ) {
+                push @{ $model->{modelgSummary} },
+                  Columnset(
+                    name          => '',
+                    noHeaders     => 1,
+                    noSpaceBelow  => $i < $#{ $runs[0][$e] },
+                    singleRowName => $runs[0][$e][$i]->objectShortName,
+                    columns       => [
+                        map { Stack( sources => [ $_->[$e][$i] ] ); }
+                        grep { $_->[$e]; } @runs
+                    ],
+                  );
+            }
+        }
+        foreach my $e ( 3, 4 ) {
+            my $name = $runs[0][$e]->objectShortName;
+            push @{ $model->{modelgSummary} }, Columnset(
+                name          => 'Run summary: ' . lcfirst($name),
+                singleRowName => '',
+                noHeaders     => 1,
+                noSpaceBelow  => 1,
+                columns       => [
+                    map {
+                        Constant(
+                            defaultFormat => 'thc',
+                            data          => [
+                                defined $_->[2]
+                                  && $_->[2] < @runs ? "Run $_->[2]" : 'Final'
+                            ]
+                        );
+                    } grep { $_->[$e]; } @runs
+                ]
+            );
+            push @{ $model->{modelgSummary} },
+              Columnset(
+                name          => '',
+                noHeaders     => 1,
+                singleRowName => $name,
+                columns       => [
+                    map { Stack( sources => [ $_->[$e] ] ); }
+                    grep { $_->[$e]; } @runs
+                ],
+              );
+        }
+    }
+
     push @{ $model->{modelgTables} },
       my $ppu = Arithmetic(
         name       => 'All-the-way p/kWh',
@@ -529,7 +604,7 @@ sub modelG {
         },
       );
 
-    push @{ $model->{modelgTables2} },
+    push @{ $model->{modelgResults} },
       Stack(
         name    => "$model->{ldnoWord} discounts ⇒1038. For CDCM",
         rows    => $model->{pcd}{allTariffsByEndUser},
@@ -552,7 +627,7 @@ sub modelG {
         ),
     );
 
-    push @{ $model->{modelgTables2} },
+    push @{ $model->{modelgResults} },
       Stack(
         name    => 'All-the-way reference p/kWh values ⇒1185. For EDCM model',
         rows    => $allEndUsers,
@@ -567,7 +642,7 @@ sub modelG {
           {qw(table1037sources table1039sources)};
         push @{ $model->{modelgTables} },
           grep { $_; } $model->{embeddedModelM}{objects}{table1181columnset};
-        push @{ $model->{modelgTables2} },
+        push @{ $model->{modelgResults} },
           grep { $_; } $model->{embeddedModelM}{objects}{table1184columnset};
     }
 
