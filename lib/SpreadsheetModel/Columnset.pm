@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2016 Franck Latremoliere, Reckon LLP and others.
+Copyright 2008-2017 Franck Latremoliere, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -182,7 +182,7 @@ sub wsWrite {
     my $headerCols =
          $self->{rows}
       || !exists $self->{singleRowName}
-      || $self->{singleRowName} ? 1 : 0;
+      || defined $self->{singleRowName} ? 1 : 0;
 
     my @sourceLines;
     @sourceLines = @{ $self->{sourceLines} } if $self->{sourceLines};
@@ -368,7 +368,7 @@ sub wsWrite {
     }
 
     # Blank line
-    $row += 1 if $self->{name} || $self->{lines} || @sourceLines;
+    ++$row if $self->{name} || $self->{lines} || @sourceLines;
 
     unless ( $self->{noHeaders} ) {
 
@@ -646,7 +646,7 @@ use ->shortName here.
       foreach map { @{ $self->{postWriteCalls}{$_} }; }
       grep { $self->{postWriteCalls}{$_} } 'obj', $wb;
     $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
-    ++$row;
+    ++$row unless $self->{noSpaceBelow};
     $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
 
 }
