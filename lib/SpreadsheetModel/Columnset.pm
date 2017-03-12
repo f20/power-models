@@ -600,7 +600,7 @@ use ->shortName here.
 
     }
 
-    unless ( $self->{noHeaders} ) {
+    {
         my $dataset;
         $dataset = $self->{dataset}{ $self->{number} } if $self->{number};
         $dataset =

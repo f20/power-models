@@ -220,7 +220,7 @@ sub modelG {
       );
 
     my @runs;
-    my $calcErrors = sub {
+    my $calcRun = sub {
 
         my (@scalingFactors) = @_;
 
@@ -304,7 +304,7 @@ sub modelG {
           );
 
         push @runs,
-          [
+          my $run = [
             \@scalingFactors, \@errors,              $runid,
             $ppu,             $chargeablePercentage, \@discountedCharges,
           ];
@@ -318,143 +318,138 @@ sub modelG {
             columns => \@errors,
           );
 
-        @errors;
+        $run;
 
     };
 
     # hard-coded three dimensional
-
-    foreach ( my $run = 1 ; $run < 5 ; ++$run ) {
-        my @scalingFactors = map {
-            Constant(
-                name => 'Scaling factor for '
-                  . lcfirst( $utaPounds[$_]->objectShortName ),
-                data => [ [ $_ < $run ? .99 : 1 ] ],
-            );
-        } 1 .. $#utaPounds;
-        my @errors = $calcErrors->(@scalingFactors);
-    }
-
     my $matrixLabelset = Labelset( list => [qw(X Y Z)] );
-    my $iterate = sub {
-        my (@runs) = @_;
+    my %determinants;
+    my $newtonRaphson = sub {
+        my ( $bestEstimate, @tetrahedron ) = @_;
         my $suffix =
             ' based on runs '
-          . "$runs[0][2], $runs[1][2], $runs[2][2] and $runs[3][2]";
-        my $derivatives = SpreadsheetModel::Custom->new(
-            name   => 'First derivatives (£ million)' . $suffix,
-            rows   => $matrixLabelset,
-            cols   => $matrixLabelset,
-            custom => [
-                '=1e-6*(B9-B8)/(B3-B2)',   '=1e-6*(C9-C8)/(B3-B2)',
-                '=1e-6*(D9-D8)/(B3-B2)',   '=1e-6*(B10-B9)/(C4-C3)',
-                '=1e-6*(C10-C9)/(C4-C3)',  '=1e-6*(D10-D9)/(C4-C3)',
-                '=1e-6*(B11-B10)/(D5-D4)', '=1e-6*(C11-C10)/(D5-D4)',
-                '=1e-6*(D11-D10)/(D5-D4)',
-            ],
-            arithmetic => '= Special calculation',
-            arguments  => {
-                (
-                    map {
-                        (
-                            "B$_" => $runs[ $_ - 2 ][0][0],
-                            "C$_" => $runs[ $_ - 2 ][0][1],
-                            "D$_" => $runs[ $_ - 2 ][0][2],
-                        );
-                    } 2 .. 5
-                ),
-                (
-                    map {
-                        (
-                            "B$_" => $runs[ $_ - 8 ][1][0],
-                            "C$_" => $runs[ $_ - 8 ][1][1],
-                            "D$_" => $runs[ $_ - 8 ][1][2],
-                        );
-                    } 8 .. 11
-                ),
-            },
-            wsPrepare => sub {
-                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
-                  @_;
-                sub {
-                    my ( $x, $y ) = @_;
-                    '', $format, $formula->[ 3 * $y + $x ], map {
-                        qr/\b$_\b/ =>
-                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                            $rowh->{$_}, $colh->{$_} )
-                    } @$pha;
-                };
-            },
-        );
-        my $codeterminants = SpreadsheetModel::Custom->new(
-            name   => 'Co-determinants' . $suffix,
-            rows   => $matrixLabelset,
-            cols   => $matrixLabelset,
-            custom => [
-                '=C15*D16-D15*C16', '=D15*B16-B15*D16',
-                '=B15*C16-C15*B16', '=D14*C16-C14*D16',
-                '=B14*D16-D14*B16', '=C14*B16-B14*C16',
-                '=C14*D15-D14*C15', '=D14*B15-B14*D15',
-                '=B14*C15-C14*B15',
-            ],
-            arithmetic => '= Special calculation',
-            arguments  => {
-                A1 => $derivatives,
-            },
-            wsPrepare => sub {
-                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
-                  @_;
-                my @mappings = map {
-                    my $letter = qw(B C D) [$_];
-                    my $x = $colh->{A1} + $_;
-                    map {
-                        qr/\b$letter$_\b/ =>
-                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                            $rowh->{A1} + $_ - 14, $x, );
-                    } 14 .. 16;
-                } 0 .. 2;
-                sub {
-                    my ( $x, $y ) = @_;
-                    '', $format, $formula->[ 3 * $y + $x ], @mappings;
-                };
-            },
-        );
-        my $determinant = SpreadsheetModel::Custom->new(
-            name      => 'Determinant' . $suffix,
-            custom    => ['=SUMPRODUCT(B14:D14,B19:D19)'],
-            arguments => {
-                B14 => $derivatives,
-                D14 => $derivatives,
-                B19 => $codeterminants,
-                D19 => $codeterminants,
-            },
-            wsPrepare => sub {
-                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
-                  @_;
-                sub {
-                    my ( $x, $y ) = @_;
-                    '', $format, $formula->[0], map {
-                        qr/\b$_\b/ =>
-                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                            $rowh->{$_},
-                            $colh->{$_} +
-                              ( /^B/ ? 0 : /^C/ ? 1 : /^D/ ? 2 : die ),
-                          )
-                    } @$pha;
-                };
-            },
-        );
+          . "$tetrahedron[0][2], $tetrahedron[1][2], "
+          . "$tetrahedron[2][2] and $tetrahedron[3][2]";
+        my $determinant = $determinants{$suffix};
+        unless ($determinant) {
+            my $derivatives = SpreadsheetModel::Custom->new(
+                name   => 'First derivatives (£ million)' . $suffix,
+                rows   => $matrixLabelset,
+                cols   => $matrixLabelset,
+                custom => [
+                    '=1e-6*(B9-B8)/(B3-B2)',   '=1e-6*(C9-C8)/(B3-B2)',
+                    '=1e-6*(D9-D8)/(B3-B2)',   '=1e-6*(B10-B9)/(C4-C3)',
+                    '=1e-6*(C10-C9)/(C4-C3)',  '=1e-6*(D10-D9)/(C4-C3)',
+                    '=1e-6*(B11-B10)/(D5-D4)', '=1e-6*(C11-C10)/(D5-D4)',
+                    '=1e-6*(D11-D10)/(D5-D4)',
+                ],
+                arithmetic => '= Special calculation',
+                arguments  => {
+                    (
+                        map {
+                            (
+                                "B$_" => $tetrahedron[ $_ - 2 ][0][0],
+                                "C$_" => $tetrahedron[ $_ - 2 ][0][1],
+                                "D$_" => $tetrahedron[ $_ - 2 ][0][2],
+                            );
+                        } 2 .. 5
+                    ),
+                    (
+                        map {
+                            (
+                                "B$_" => $tetrahedron[ $_ - 8 ][1][0],
+                                "C$_" => $tetrahedron[ $_ - 8 ][1][1],
+                                "D$_" => $tetrahedron[ $_ - 8 ][1][2],
+                            );
+                        } 8 .. 11
+                    ),
+                },
+                wsPrepare => sub {
+                    my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
+                        $colh ) = @_;
+                    sub {
+                        my ( $x, $y ) = @_;
+                        '', $format, $formula->[ 3 * $y + $x ], map {
+                            qr/\b$_\b/ =>
+                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                $rowh->{$_}, $colh->{$_} )
+                        } @$pha;
+                    };
+                },
+            );
+            my $codeterminants = SpreadsheetModel::Custom->new(
+                name   => 'Co-determinants' . $suffix,
+                rows   => $matrixLabelset,
+                cols   => $matrixLabelset,
+                custom => [
+                    '=C15*D16-D15*C16', '=D15*B16-B15*D16',
+                    '=B15*C16-C15*B16', '=D14*C16-C14*D16',
+                    '=B14*D16-D14*B16', '=C14*B16-B14*C16',
+                    '=C14*D15-D14*C15', '=D14*B15-B14*D15',
+                    '=B14*C15-C14*B15',
+                ],
+                arithmetic => '= Special calculation',
+                arguments  => {
+                    A1 => $derivatives,
+                },
+                wsPrepare => sub {
+                    my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
+                        $colh ) = @_;
+                    my @mappings = map {
+                        my $letter = qw(B C D) [$_];
+                        my $x = $colh->{A1} + $_;
+                        map {
+                            qr/\b$letter$_\b/ =>
+                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                $rowh->{A1} + $_ - 14, $x, );
+                        } 14 .. 16;
+                    } 0 .. 2;
+                    sub {
+                        my ( $x, $y ) = @_;
+                        '', $format, $formula->[ 3 * $y + $x ], @mappings;
+                    };
+                },
+            );
+            $determinant = $determinants{$suffix} =
+              SpreadsheetModel::Custom->new(
+                name      => 'Determinant' . $suffix,
+                custom    => ['=SUMPRODUCT(B14:D14,B19:D19)'],
+                arguments => {
+                    B14 => $derivatives,
+                    D14 => $derivatives,
+                    B19 => $codeterminants,
+                    D19 => $codeterminants,
+                },
+                wsPrepare => sub {
+                    my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
+                        $colh ) = @_;
+                    sub {
+                        my ( $x, $y ) = @_;
+                        '', $format, $formula->[0], map {
+                            qr/\b$_\b/ =>
+                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                $rowh->{$_},
+                                $colh->{$_} +
+                                  ( /^B/ ? 0 : /^C/ ? 1 : /^D/ ? 2 : die ),
+                              )
+                        } @$pha;
+                    };
+                },
+              );
+        }
         map {
-            my $offset = $_;
+            my $offset         = $_;
+            my $codeterminants = $determinant->{arguments}{B19};
             SpreadsheetModel::Custom->new(
-                name => 'New scaling factor ' . ( 1 + $offset ),
+                name      => $bestEstimate->[0][$offset]->objectShortName,
                 custom    => ['=B1-1e-6*(B11*B19+C11*C19+D11*D19)/B24'],
                 arguments => {
-                    B1  => $runs[3][0][$offset],
+                    B1  => $bestEstimate->[0][$offset],
                     B24 => $determinant,
-                    B11 => $runs[3][1][0],
-                    C11 => $runs[3][1][1],
-                    D11 => $runs[3][1][2],
+                    B11 => $bestEstimate->[1][0],
+                    C11 => $bestEstimate->[1][1],
+                    D11 => $bestEstimate->[1][2],
                     B19 => $codeterminants,
                     C19 => $codeterminants,
                     D19 => $codeterminants,
@@ -477,23 +472,74 @@ sub modelG {
         } 0 .. 2;
     };
 
-    my @nextScalingFactors = $iterate->(@runs);
-    foreach ( my $run = 2 ; $run < 5 ; ++$run ) {
+    foreach ( my $run = 1 ; $run < 5 ; ++$run ) {
         my @scalingFactors = map {
-            $run == $_ + 1 ? $nextScalingFactors[ $_ - 1 ] : Stack(
-                sources => [
-                      $_ < $run
-                    ? $nextScalingFactors[ $_ - 1 ]
-                    : $runs[0][0][ $_ - 1 ]
-                ],
+            Constant(
+                name => 'Scaling factor for '
+                  . lcfirst( $utaPounds[$_]->objectShortName ),
+                data => [ [ $_ < $run ? .99 : 1 ] ],
             );
         } 1 .. $#utaPounds;
-        my @errors = $calcErrors->(@scalingFactors);
+        $calcRun->(@scalingFactors);
     }
 
-    my @finalScalingFactors = $iterate->( @runs[ 0, 4 .. 6 ] );
+    my @nextScalingFactors = $newtonRaphson->( $runs[0], @runs );
+    my ( $nextRun, @nextTetrahedronRuns, @nextTetrahedronCorners );
+    if ( $model->{unroundedTariffAnalysis} =~ /corner/i ) {
+        @nextTetrahedronCorners = @nextScalingFactors;
+    }
+    elsif ( $model->{unroundedTariffAnalysis} =~ /centre/i ) {
+        $nextRun                = $calcRun->(@nextScalingFactors);
+        @nextTetrahedronCorners = map {
+            Arithmetic(
+                name => $_->objectShortName,
+                arithmetic =>
+                  '=IF(ABS(A1-1)>0.00025,2*A2-1,IF(A3>1,1.001,0.999))',
+                arguments => { A1 => $_, A2 => $_, A3 => $_, },
+            );
+        } @nextScalingFactors;
+    }
+    else {
+        @nextTetrahedronRuns = @runs;
+        $nextRun             = $calcRun->(@nextScalingFactors);
+    }
+    if (@nextTetrahedronCorners) {
+        @nextTetrahedronRuns = ( $runs[0] );
+        foreach ( my $run = 2 ; $run < 5 ; ++$run ) {
+            my @scalingFactors = map {
+                $run == $_ + 1 ? $nextTetrahedronCorners[ $_ - 1 ] : Stack(
+                    sources => [
+                          $_ < $run
+                        ? $nextTetrahedronCorners[ $_ - 1 ]
+                        : $runs[0][0][ $_ - 1 ]
+                    ],
+                );
+            } 1 .. $#utaPounds;
+            push @nextTetrahedronRuns, $calcRun->(@scalingFactors);
+        }
+        $nextRun ||= $nextTetrahedronRuns[$#nextTetrahedronRuns];
+    }
+
+    $nextRun = $calcRun->( $newtonRaphson->( $nextRun, @nextTetrahedronRuns ) )
+      if $model->{unroundedTariffAnalysis} =~ /extrarun/i;
+
+    my @finalScalingFactors =
+      $newtonRaphson->( $nextRun, @nextTetrahedronRuns );
     if ( $model->{unroundedTariffAnalysis} =~ /spuriouscalcs/i ) {
-        $calcErrors->(@finalScalingFactors);
+        my $spuriousRun = $calcRun->(@finalScalingFactors);
+        push @{ $model->{modelgSummary} }, Columnset(
+            name    => 'Final errors (µ£)',
+            columns => [
+                map {
+                    Arithmetic(
+                        name          => $_->objectShortName,
+                        arithmetic    => '=1e6*A1',
+                        defaultFormat => '0.000softpm',
+                        arguments     => { A1 => $_, },
+                    );
+                } @{ $spuriousRun->[1] }
+            ],
+        ) if $model->{unroundedTariffAnalysis} =~ /micropounds/i;
     }
     else {
         push @runs, [ \@finalScalingFactors ];
@@ -505,7 +551,7 @@ sub modelG {
     }
 
     if ( $model->{unroundedTariffAnalysis} =~ /summary/i ) {
-        foreach my $e ( 0, 1, 5 ) {
+        foreach my $e ( 0, 1 ) {
             for ( my $i = 0 ; $i < @{ $runs[0][$e] } ; ++$i ) {
                 push @{ $model->{modelgSummary} }, Columnset(
                     $i

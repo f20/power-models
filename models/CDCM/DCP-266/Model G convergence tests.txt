@@ -1,0 +1,30 @@
+makeModels
+    -sqlitexls
+    -datamerge
+    CDCM/2018-02/*.yml
+    ModelM/2018-02/*.yml
+    CDCM/DCP-266/%-modelgm228.yml
+    -xdata=rules|unroundedTariffAnalysis|modelg_summary_spuriouscalcs_micropounds_single
+    -template=%-modelg_summary_spuriouscalcs_micropounds_single
+    -newrules
+    CDCM/DCP-266/%-modelgm228.yml
+    -xdata=rules|unroundedTariffAnalysis|modelg_summary_spuriouscalcs_micropounds_centre
+    -template=%-modelg_summary_spuriouscalcs_micropounds_centre
+    -newrules
+    CDCM/DCP-266/%-modelgm228.yml
+    -xdata=rules|unroundedTariffAnalysis|modelg_summary_spuriouscalcs_micropounds_corner
+    -template=%-modelg_summary_spuriouscalcs_micropounds_corner
+    -newrules
+    CDCM/DCP-266/%-modelgm228.yml
+    -xdata=rules|unroundedTariffAnalysis|modelg_summary_spuriouscalcs_micropounds_single_extrarun
+    -template=%-modelg_summary_spuriouscalcs_micropounds_single_extrarun
+    -newrules
+    CDCM/DCP-266/%-modelgm228.yml
+    -xdata=rules|unroundedTariffAnalysis|modelg_summary_spuriouscalcs_micropounds_centre_extrarun
+    -template=%-modelg_summary_spuriouscalcs_micropounds_centre_extrarun
+    -newrules
+    CDCM/DCP-266/%-modelgm228.yml
+    -xdata=rules|unroundedTariffAnalysis|modelg_summary_spuriouscalcs_micropounds_corner_extrarun
+    -template=%-modelg_summary_spuriouscalcs_micropounds_corner_extrarun
+
+useDatabase all 4401
