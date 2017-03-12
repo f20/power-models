@@ -102,6 +102,7 @@ sub parseXdata {
                 );
                 $self->[XDP_applyDataOverrides]->($d);
             }
+            next;
         }
         while (s/(\S.*\|.*\S)//m) {
             my ( $tab, $col, @more ) = split /\|/, $1, -1;
@@ -120,6 +121,8 @@ sub parseXdata {
                 $self->[XDP_dataOverrides]{$tab}[$col]{ $more[0] } = $more[1];
             }
         }
+        s/^\s*\n//gm;
+        $self->[XDP_setRule]->( extraNotice => $_ ) if /\S/;
     }
 
 }
