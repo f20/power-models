@@ -378,8 +378,8 @@ sub modelG {
                     };
                 },
             );
-            my $codeterminants = SpreadsheetModel::Custom->new(
-                name   => 'Co-determinants' . $suffix,
+            my $cofactors = SpreadsheetModel::Custom->new(
+                name   => 'Co-factors' . $suffix,
                 rows   => $matrixLabelset,
                 cols   => $matrixLabelset,
                 custom => [
@@ -418,8 +418,8 @@ sub modelG {
                 arguments => {
                     B14 => $derivatives,
                     D14 => $derivatives,
-                    B19 => $codeterminants,
-                    D19 => $codeterminants,
+                    B19 => $cofactors,
+                    D19 => $cofactors,
                 },
                 wsPrepare => sub {
                     my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
@@ -439,8 +439,8 @@ sub modelG {
               );
         }
         map {
-            my $offset         = $_;
-            my $codeterminants = $determinant->{arguments}{B19};
+            my $offset    = $_;
+            my $cofactors = $determinant->{arguments}{B19};
             SpreadsheetModel::Custom->new(
                 name      => $bestEstimate->[0][$offset]->objectShortName,
                 custom    => ['=B1-1e-6*(B11*B19+C11*C19+D11*D19)/B24'],
@@ -450,9 +450,9 @@ sub modelG {
                     B11 => $bestEstimate->[1][0],
                     C11 => $bestEstimate->[1][1],
                     D11 => $bestEstimate->[1][2],
-                    B19 => $codeterminants,
-                    C19 => $codeterminants,
-                    D19 => $codeterminants,
+                    B19 => $cofactors,
+                    C19 => $cofactors,
+                    D19 => $cofactors,
                 },
                 wsPrepare => sub {
                     my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
