@@ -228,7 +228,7 @@ sub modelG {
         my $suffix = " (run $runid)";
 
         my $ppu = Arithmetic(
-            name       => 'Average p/kWh' . $suffix,
+            name       => Label( 'Average p/kWh', 'Average p/kWh' . $suffix ),
             arithmetic => '=IF(A91,('
               . join( '+',
                 map { $_ == 1 ? 'A1' : "A$_*A93$_" }
@@ -248,7 +248,10 @@ sub modelG {
             },
         );
         my $chargeablePercentage = Arithmetic(
-            name          => 'Chargeable percentage' . $suffix,
+            name => Label(
+                'Chargeable percentage',
+                'Chargeable percentage' . $suffix
+            ),
             defaultFormat => '%soft',
             arithmetic    => '=IF(A21,1-A1/A22,0)',
             arguments     => {
@@ -503,71 +506,51 @@ sub modelG {
 
     if ( $model->{unroundedTariffAnalysis} =~ /summary/i ) {
         foreach my $e ( 0, 1, 5 ) {
-            push @{ $model->{modelgSummary} }, Columnset(
-                name => 'Run summary: '
-                  . (
-                      $e == 0 ? 'scaling factors'
-                    : $e == 1 ? 'errors'
-                    :           'revenue analysis'
-                  ),
-                singleRowName => '',
-                noHeaders     => 1,
-                noSpaceBelow  => 1,
-                columns       => [
-                    map {
-                        Constant(
-                            defaultFormat => 'thc',
-                            data          => [
-                                defined $_->[2]
-                                  && $_->[2] < @runs ? "Run $_->[2]" : 'Final'
-                            ]
-                        );
-                    } grep { $_->[$e]; } @runs
-                ]
-            );
             for ( my $i = 0 ; $i < @{ $runs[0][$e] } ; ++$i ) {
-                push @{ $model->{modelgSummary} },
-                  Columnset(
-                    name          => '',
-                    noHeaders     => 1,
+                push @{ $model->{modelgSummary} }, Columnset(
+                    $i
+                    ? (
+                        name      => '',
+                        noHeaders => 1,
+                      )
+                    : (
+                        name => 'Run summary: '
+                          . (
+                              $e == 0 ? 'scaling factors'
+                            : $e == 1 ? 'errors'
+                            :           'revenue analysis'
+                          ),
+                    ),
                     noSpaceBelow  => $i < $#{ $runs[0][$e] },
                     singleRowName => $runs[0][$e][$i]->objectShortName,
                     columns       => [
-                        map { Stack( sources => [ $_->[$e][$i] ] ); }
-                        grep { $_->[$e]; } @runs
+                        map {
+                            Stack(
+                                name => defined $_->[2]
+                                  && $_->[2] < @runs ? "Run $_->[2]" : 'Final',
+                                sources => [ $_->[$e][$i] ]
+                            );
+                          }
+                          grep { $_->[$e]; } @runs
                     ],
-                  );
+                );
             }
         }
         foreach my $e ( 3, 4 ) {
-            my $name = $runs[0][$e]->objectShortName;
             push @{ $model->{modelgSummary} }, Columnset(
-                name          => 'Run summary: ' . lcfirst($name),
-                singleRowName => '',
-                noHeaders     => 1,
-                noSpaceBelow  => 1,
-                columns       => [
+                name => 'Run summary: '
+                  . lcfirst( $runs[0][$e]->objectShortName ),
+                columns => [
                     map {
-                        Constant(
-                            defaultFormat => 'thc',
-                            data          => [
-                                defined $_->[2]
-                                  && $_->[2] < @runs ? "Run $_->[2]" : 'Final'
-                            ]
+                        Stack(
+                            name => defined $_->[2]
+                              && $_->[2] < @runs ? "Run $_->[2]" : 'Final',
+                            sources => [ $_->[$e] ]
                         );
-                    } grep { $_->[$e]; } @runs
-                ]
-            );
-            push @{ $model->{modelgSummary} },
-              Columnset(
-                name          => '',
-                noHeaders     => 1,
-                singleRowName => $name,
-                columns       => [
-                    map { Stack( sources => [ $_->[$e] ] ); }
-                    grep { $_->[$e]; } @runs
+                      }
+                      grep { $_->[$e]; } @runs
                 ],
-              );
+            );
         }
     }
 

@@ -771,8 +771,6 @@ EOL
     push @wsheetsAndClosures,
       'G(Summary)' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 42
-          unless $wbook->{lastSheetNumber} > 42;
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   56 );
         $wsheet->set_column( 1, 250, 14 );
