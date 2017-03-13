@@ -804,7 +804,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         return $model->modelG( $nonExcludedComponents, $daysAfter,
             $volumeData, $allEndUsers, @utaTables )
           if $model->{unroundedTariffAnalysis} =~ /modelg/i;
-        push @{ $model->{modelgTables} }, map { values %$_; } @utaTables;
+        push @{ $model->{utaTables} },
+          grep { ref $_; } map { values %$_; } @utaTables;
     }
 
     push @{ $model->{tariffSummary} },

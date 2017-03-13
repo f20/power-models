@@ -755,6 +755,19 @@ EOL
       if $model->{edcmTables};
 
     push @wsheetsAndClosures,
+      'UTA' => sub {
+        my ($wsheet) = @_;
+        $wbook->{lastSheetNumber} = 42
+          unless $wbook->{lastSheetNumber} > 42;
+        $wsheet->fit_to_pages( 1, 0 );
+        $wsheet->set_column( 0, 0,   48 );
+        $wsheet->set_column( 1, 250, 16 );
+        my $notes = Notes( name => 'Unrounded tariff analysis', );
+        $_->wsWrite( $wbook, $wsheet ) foreach $notes, @{ $model->{utaTables} };
+      }
+      if $model->{utaTables} && !$model->{modelgTables};
+
+    push @wsheetsAndClosures,
       'G(Details)' => sub {
         my ($wsheet) = @_;
         $wbook->{lastSheetNumber} = 42
