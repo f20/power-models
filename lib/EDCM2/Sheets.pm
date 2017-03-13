@@ -531,7 +531,7 @@ sub worksheetsAndClosures {
 
       (
 
-        'LDNORev' => sub {
+        ( $model->{ldnoRev} =~ /qno/i ? 'QNORev' : 'LDNORev' ) => sub {
             my ($wsheet) = @_;
             $wsheet->{sheetNumber} = 60;
             $wsheet->freeze_panes( 1, 0 );
