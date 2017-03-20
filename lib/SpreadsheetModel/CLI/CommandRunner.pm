@@ -63,7 +63,9 @@ sub log {
 }
 
 sub makeFolder {
+
     my ( $self, $folder ) = @_;
+
     if ( $self->[C_DESTINATION] ) {    # Close out previous folder
         return if $folder && $folder eq $self->[C_DESTINATION];
         if ( $self->[C_LOG] ) {
@@ -85,22 +87,46 @@ sub makeFolder {
         system 'open', $self->[C_DESTINATION] if -d '/System/Library';   # macOS
         delete $self->[C_DESTINATION];
     }
+
     if ($folder) {    # Create temporary folder and go there
+
         if ( -d '/System/Library' ) {    # macOS: use a memory disk
             my $ramDiskBlocks = 12_000_000;    # About 6G, in 512-byte blocks.
-            my $ramDiskName       = 'Temporary volume (power-models)';
-            my $ramDiskMountPoint = "/Volumes/$ramDiskName";
-            unless ( -d $ramDiskMountPoint ) {
+            my $ramDiskName = 'power-models workings';
+            my $ramDiskMountPoint = 1 ? "/Volumes/$ramDiskName" : $ramDiskName;
+            unless ( -e "$ramDiskMountPoint/.VolumeIcon.icns" ) {
+
                 my $device = `hdiutil attach -nomount ram://$ramDiskBlocks`;
                 $device =~ s/\s*$//s;
-                system qw(diskutil erasevolume HFS+), $ramDiskName, $device;
+
+                if ( $ramDiskMountPoint =~ m#^/Volumes/#s ) {
+                    system qw(diskutil erasevolume HFS+), $ramDiskName, $device;
+                }
+                else {
+                    system qw(newfs_hfs -v), $ramDiskName, $device;
+                    mkdir $ramDiskMountPoint;
+                    system qw(mount -o nobrowse -t hfs), $device,
+                      $ramDiskMountPoint;
+                }
+
+                my $ramDiskIcns =
+                  "$self->[C_HOMEDIR]/Miscellaneous/RAM disk icon.icns";
+                if ( -e $ramDiskIcns ) {
+                    system qw(cp), $ramDiskIcns,
+                      "$ramDiskMountPoint/.VolumeIcon.icns";
+                    system qw(SetFile -a C), $ramDiskMountPoint;
+                }
+
             }
             chdir $ramDiskMountPoint if -d $ramDiskMountPoint && -w _;
         }
+
         my $tmp = '~$tmp-' . $$ . ' ' . ( $self->[C_DESTINATION] = $folder );
         mkdir $tmp;
         chdir $tmp;
+
     }
+
 }
 
 sub R {
