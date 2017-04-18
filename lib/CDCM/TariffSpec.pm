@@ -129,7 +129,7 @@ __DATA__
 ---
 - LV half hourly domestic
 - Name: LV Network Domestic
-  Name268: LV Domestic Aggregated
+  Name268: Domestic Aggregated
   Portfolio: 1
 - Fixed charge p/MPAN/day
 - PC0
@@ -137,14 +137,14 @@ __DATA__
 ---
 - LV half hourly domestic (related MPAN)
 - Name: LV Network Domestic (related MPAN)
-  Name268: LV Domestic (Related MPAN)
+  Name268: Domestic Aggregated (Related MPAN)
   Portfolio: 1
 - PC0
 - Unit rates p/kWh
 ---
 - LV half hourly WC
 - Name: LV Network Non-Domestic Non-CT
-  Name268: LV Non Domestic Aggregated
+  Name268: Non-Domestic Aggregated
   Portfolio: 1
 - Fixed charge p/MPAN/day
 - PC0
@@ -152,7 +152,7 @@ __DATA__
 ---
 - LV half hourly WC (related MPAN)
 - Name: LV Network Non-Domestic Non-CT (related MPAN)
-  Name268: LV Non Domestic (Related MPAN)
+  Name268: Non-Domestic Aggregated (Related MPAN)
   Portfolio: 1
 - PC0
 - Unit rates p/kWh
@@ -217,7 +217,7 @@ __DATA__
 ---
 - LV unmetered pseudo half hourly
 - Name: LV UMS (Pseudo HH Metered)
-  Name268: LV UMS
+  Name268: Unmetered Supplies
   Portfolio: 1
 - PC0
 - Unit rates p/kWh
