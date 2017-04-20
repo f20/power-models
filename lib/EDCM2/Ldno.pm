@@ -286,7 +286,8 @@ EOF
     );
 
     my $discountsByTariff = new SpreadsheetModel::Custom(
-        name => 'Applicable discount for each tariff',
+        name => 'Applicable discount for each tariff'
+          . ( $ppu ? ' p/kWh' : '' ),
         rows => $allTariffsByEndUser,
         $ppu ? () : ( defaultFormat => '%copy' ),
         arithmetic => '= A1',
@@ -338,6 +339,17 @@ EOF
         }
     );
 
+    $discountsByTariff = Arithmetic(
+        name          => 'Applicable discount for each tariff',
+        defaultFormat => '%soft',
+        arithmetic    => '=IF(A2,A1/A3,0)',
+        arguments     => {
+            A1 => $discountsByTariff,
+            A2 => $ppu,
+            A3 => $ppu,
+        },
+    ) if $ppu;
+
     my @explodedData = map {
         my $unexploded = $endUserTariffs[$_]{data};
         [ map { defined $_ ? $unexploded->[$_] : undef; }
@@ -345,31 +357,9 @@ EOF
     } 0 .. $#tariffComponents;
 
     my @allTariffs = map {
-        $ppu
-          ? Arithmetic(
+        Arithmetic(
             name          => $tariffComponents[$_],
-            defaultFormat => $tariffComponents[$_] =~ /day/
-            ? '0.00softnz'
-            : '0.000softnz',
-            arithmetic => '=IF(A31,ROUND(A2*(1-A1/A3),'
-              . ( $tariffComponents[$_] =~ /day/ ? 2 : 3 )
-              . '),A21)',
-            arguments => {
-                A1  => $discountsByTariff,
-                A2  => $endUserTariffs[$_],
-                A21 => $endUserTariffs[$_],
-                A3  => $ppu,
-                A31 => $ppu,
-            },
-            rowFormats => [
-                map { defined $_ ? undef : 'unavailable' }
-                  @{ $explodedData[$_] }
-            ],
-          )
-          : Arithmetic(
-            name          => $tariffComponents[$_],
-            defaultFormat => $tariffComponents[$_] =~ /day/
-            ? '0.00softnz'
+            defaultFormat => $tariffComponents[$_] =~ /day/ ? '0.00softnz'
             : '0.000softnz',
             arithmetic => $model->{ldnoRev} !~ /round/i ? '=A2*(1-A1)'
             : '=ROUND(A2*(1-A1),'
@@ -382,7 +372,7 @@ EOF
                 map { defined $_ ? undef : 'unavailable' }
                   @{ $explodedData[$_] }
             ],
-          );
+        );
     } 0 .. $#tariffComponents;
 
     return Notes( lines => "$ldnoWord discounted tariffs" ), undef,
