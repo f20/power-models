@@ -1,5 +1,5 @@
 ---
-.: DCP 216 LRIC
+.: 'EDCM ugly after DCP 216, LRIC'
 PerlModule: EDCM2
 alignText: general
 conditionalFormatting: 0

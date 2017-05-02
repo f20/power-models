@@ -1,10 +1,9 @@
 ---
-.: 'EDCM ugly after DCP 216, FCP'
+.: 'EDCM ugly after DCP 268, LRIC'
 PerlModule: EDCM2
 alignText: general
 conditionalFormatting: 0
-dcp130: 1
-dcp179: 1
+dcp268: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
 gridlines: 1
@@ -12,7 +11,7 @@ layout: matrix
 ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
 mergedRanges: 1
-method: FCP
+method: LRIC
 noLinks: 2
 noNegative: 1
 numLocationsDefault: 1200

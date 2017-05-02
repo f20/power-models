@@ -1,10 +1,9 @@
 ---
-.: 'EDCM ugly after DCP 216, FCP'
+.: 'EDCM ugly after DCP 268, FCP'
 PerlModule: EDCM2
 alignText: general
 conditionalFormatting: 0
-dcp130: 1
-dcp179: 1
+dcp268: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
 gridlines: 1

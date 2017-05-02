@@ -39,8 +39,26 @@ sub ldnoRev {
 
     my ( @endUsers, @tariffComponentMatrix );
 
-    my @tariffData = $model->{dcp179}
+    my @tariffData = $model->{dcp268}
       ? split /\n/, <<EOL
+yyyynn	Domestic Aggregated
+yyynnn	Domestic Aggregated (Related MPAN)
+yyyynn	Non-Domestic Aggregated
+yyynnn	Non-Domestic Aggregated (Related MPAN)
+yyyyyy	LV Site Specific
+yyyyyy	LV Sub Site Specific
+yyyyyy	HV Site Specific
+yyynnn	Unmetered Supplies
+yyyynn	LV Generation Aggregated
+yyyynn	LV Sub Generation Aggregated
+yyyyny	LV Generation Site Specific
+yyyynn	LV Generation Site Specific no RP charge
+yyyyny	LV Sub Generation Site Specific
+yyyynn	LV Sub Generation Site Specific no RP charge
+yyyyny	HV Generation Site Specific
+yyyynn	HV Generation Site Specific no RP charge
+EOL
+      : $model->{dcp179} ? split /\n/, <<EOL
 ynnynn	Domestic Unrestricted
 yynynn	Domestic Two Rate
 ynnnnn	Domestic Off Peak (related MPAN)
