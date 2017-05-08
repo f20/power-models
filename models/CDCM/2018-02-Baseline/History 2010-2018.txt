@@ -3,7 +3,6 @@ makeModels
 	-stats
 	-checksums
 	-edcm
-	-extend=2018-2022
 	-template=%%
 	CDCM/201?-02-Baseline/%-micro*.yml
 	CDCM/201?-02/*.yml
