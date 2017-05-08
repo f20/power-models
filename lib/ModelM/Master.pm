@@ -61,7 +61,7 @@ sub requiredModulesForRuleset {
 
         $ruleset->{checksums} ? 'SpreadsheetModel::Checksum' : (),
 
-        $ruleset->{ppuCalc} ? 'ModelM::PPU' : (),
+        $ruleset->{ppuCalc} ? 'ModelM::Ppu' : (),
 
     );
 

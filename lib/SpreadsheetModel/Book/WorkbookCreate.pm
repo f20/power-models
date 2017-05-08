@@ -205,18 +205,18 @@ Method 1:
     and look under "Show additional options".
 
 Method 2:
-    Use the pmod.pl command line tool, either with the option
-    -extraNotice and provide the notice text through STDIN, or with the option
+    Use the pmod.pl command line tool, either through STDIN
+    with the option -extraNotice, or with the option
     -extraNotice='Put your additional notice text here'.
 
 Method 3:
     Put something like this in your rules file:
-
 extraNotice:
-  - The first line of your disclaimer goes here.
-  - The second line of your disclaimer goes here.
+  - The first line of your notice goes here.
+  - The second line of your notice goes here.
   - And so on.
-  - Please do not exceed 140 characters per line.
+
+Please do not exceed 140 characters per line.
 
 EOW
         die "$options->{PerlModule}->new(...) has failed" unless $model;

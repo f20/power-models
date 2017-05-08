@@ -1,0 +1,8 @@
+makeModels
+	-pickbest
+	-stats
+	-checksums
+	-template=%%
+	CDCM/2018-02-Baseline/%-micro*.yml
+	CDCM/2018-02/*SEPD*.yml
+	-extend=2018-2022
