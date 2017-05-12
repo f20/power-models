@@ -1118,7 +1118,7 @@ EOT
           . ' (£/year)',
         defaultFormat => '0softnz',
         arithmetic    => '=A1-A2-A3-A4-A5'
-          . ( $model->{tableGrouping} ? '-A9' : '' )
+          . ( $model->{table1101} ? '-A9' : '' )
           . (
             !$totalDcp189DiscountedAssets
               || $model->{dcp189} =~ /preservePot/i ? ''
@@ -1126,7 +1126,7 @@ EOT
           ),
         arguments => {
             A1 => $allowedRevenue,
-            $model->{tableGrouping} ? ( A9 => $chargeExit ) : (),
+            $model->{table1101} ? ( A9 => $chargeExit ) : (),
             A2 => $chargeDirect,
             A3 => $chargeIndirect,
             A4 => $chargeRates,
