@@ -1,5 +1,5 @@
 ---
-.: 'EDCM clean after DCP 161 (traditional inputs), no charge 1'
+.: 'EDCM clean after DCP 161 (normal input tables), FCP'
 PerlModule: EDCM2
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1
@@ -10,12 +10,13 @@ dcp189: proportionsplitShortfall
 layout: auto
 ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
-method: none
+method: FCP
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
+table1101: 1
 transparency: 1
 validation: lenientnomsg
 voltageRulesTransparency: 1

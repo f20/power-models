@@ -1,5 +1,5 @@
 ---
-.: 'EDCM clean after DCP 161 (traditional inputs), LRIC'
+.: 'EDCM clean after DCP 161 (normal input tables), LRIC'
 PerlModule: EDCM2
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1
@@ -16,6 +16,7 @@ numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
+table1101: 1
 transparency: 1
 validation: lenientnomsg
 voltageRulesTransparency: 1

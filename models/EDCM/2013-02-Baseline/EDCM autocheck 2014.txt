@@ -1,1 +1,0 @@
--autocheck EDCM/*/%-*.yml EDCM/2014-11/*.yml

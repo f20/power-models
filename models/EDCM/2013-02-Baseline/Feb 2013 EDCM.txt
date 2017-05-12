@@ -1,2 +1,0 @@
--sqlite EDCM/2013-02-Baseline/%-*.yml EDCM/2013-02/*
-all 11 45 46 47 48

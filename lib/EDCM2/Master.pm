@@ -383,7 +383,7 @@ EOT
                 maximum  => 366,
             },
         );
-        $model->{ldnoRevTables} = [ $model->ldnoRev ];
+        $model->ldnoRev;
         return $model;
     }
 
@@ -400,7 +400,7 @@ EOT
         $genPotCdcmCapPost2010, $hoursInPurple,
     ) = $model->generalInputs;
 
-    $model->{ldnoRevTables} = [ $model->ldnoRev() ] if $model->{ldnoRev};
+    $model->ldnoRev if $model->{ldnoRev};
 
     my $exportEligible = Arithmetic(
         name          => 'Has export charges?',
@@ -2227,7 +2227,7 @@ EOT
         defaultFormat => '0softnz'
     );
 
-    if (   $model->{ldnoRevTables}
+    if (   $model->{ldnoRevTotal}
         || $model->{summaries} && $model->{summaries} =~ /total/i )
     {
 
@@ -2267,11 +2267,11 @@ EOT
                     arguments     => {
                         A1 => $totalForDemandAllTariffs,
                         A2 => $totalForGenerationAllTariffs,
-                        A3 => $model->{ldnoRevTables}[1],
+                        A3 => $model->{ldnoRevTotal},
                     }
                 )
             ]
-          ) if $model->{ldnoRevTables} && $model->{ldnoRevTables}[1];
+          ) if $model->{ldnoRevTotal};
 
     }
 

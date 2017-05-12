@@ -393,11 +393,15 @@ EOF
         );
     } 0 .. $#tariffComponents;
 
-    return Notes( lines => "$ldnoWord discounted tariffs" ), undef,
-      Columnset(
-        name    => "Discounted $ldnoWord tariffs",
-        columns => \@allTariffs
-      ) if $model->{ldnoRev} =~ /tar/i;
+    return $model->{ldnoRevTables} = [
+        Notes( lines => "$ldnoWord discounted tariffs" ),
+        undef,
+        Columnset(
+            name    => "Discounted $ldnoWord tariffs",
+            columns => \@allTariffs
+        ),
+      ]
+      if $model->{ldnoRev} =~ /tar/i;
 
     my @volumeData = map {
         Dataset(
@@ -457,24 +461,23 @@ EOF
                 : ('0'),
               ),
             arguments     => \%args,
-            defaultFormat => '0softnz'
-          )
+            defaultFormat => '0softnz',
+        );
     }
 
-    Columnset(
-        name    => "$ldnoWord discounted CDCM tariffs",
-        columns => \@allTariffs,
-    );
-
-    my @result = (
+    $model->{ldnoRevTables} = [
         Notes( lines => "$ldnoWord revenue model" ),
-        GroupBy(
+        Columnset(
+            name    => "$ldnoWord discounted CDCM tariffs",
+            columns => \@allTariffs,
+        ),
+        $model->{ldnoRevTotal} = GroupBy(
             name =>
               "Total net revenue from discounted $ldnoWord tariffs (£/year)",
             defaultFormat => '0softnz',
             source        => $revenueByTariff
-        )
-    );
+        ),
+    ];
 
     if ( $model->{ldnoRev} =~ /5/ )
     {    # reorder tariffs only if using five discounts; how weird is that?
@@ -502,7 +505,7 @@ EOF
                 ),
             ]
         );
-        push @result, Columnset(
+        push @{ $model->{ldnoRevTables} }, Columnset(
             name    => "$ldnoWord discounted CDCM tariffs (reordered)",
             columns => [
                 map {
@@ -525,8 +528,6 @@ EOF
             ]
         );
     }
-
-    @result;
 
 }
 

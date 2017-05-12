@@ -1,10 +1,10 @@
 ---
-.: EDCM cleaned-up (no discounted CDCM tariffs) FCP
+.: 'EDCM demand and generation, cleaned-up, FCP'
 PerlModule: EDCM2
-activeSheets: Results
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1
 layout: auto
+ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
 method: FCP
 noNegative: 1
@@ -12,6 +12,7 @@ numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
 summaries: 1
+table1101: 1
 transparency: 1
 validation: lenientnomsg
 voltageRulesTransparency: 1

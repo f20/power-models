@@ -1,15 +1,12 @@
 ---
-.: 'EDCM clean after DCP 189 (normal input tables), LRIC'
+.: 'EDCM demand and generation, cleaned-up, no charge 1'
 PerlModule: EDCM2
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1
-dcp179: 1
-dcp185: 2
-dcp189: proportionsplitShortfall
 layout: auto
-ldnoRev: ldnorev5rounding
+ldnoRev: ldnorev5tariffrounding
 lowerIntermittentCredit: 1
-method: LRIC
+method: none
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
