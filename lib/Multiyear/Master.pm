@@ -30,6 +30,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use Multiyear::DataDerivative;
 use Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
 
@@ -142,9 +143,9 @@ sub sheetsForFirstModel {
     my ( $me, $model, $wbook ) = @_;
 
     push @{ $me->{finishClosures} }, sub {
-        delete $wbook->{logger};
         delete $wbook->{titleAppend};
         delete $wbook->{noLinks};
+        delete $wbook->{logger};
     };
 
     'Index$' => sub {
@@ -412,11 +413,12 @@ sub assumptionsClosure {
                     );
                 } @table1001Overridable
             };
-            Notes( name => 'Schedule 15 input data in £ million' )
+            Notes( name => '100. Schedule 15 input data in £ million' )
               ->wsWrite( $wbook, $wsheet );
             $table1001headerRowForLater = ++$wsheet->{nextFree};
             Columnset(
                 name            => '',
+                number          => 100,
                 noHeaders       => 1,
                 ignoreDatasheet => 1,
                 columns         => [
@@ -426,16 +428,17 @@ sub assumptionsClosure {
             )->wsWrite( $wbook, $wsheet );
         }
 
-        Notes( name => 'Assumed rates of change in costs and volumes' )
+        Notes( name => '120. Assumed rates of change in costs and volumes' )
           ->wsWrite( $wbook, $wsheet );
         my $headerRowForLater = ++$wsheet->{nextFree};
         ++$wsheet->{nextFree};
-        $_->wsWrite( $wbook, $wsheet ) foreach Columnset(
+        Columnset(
             name            => '',
+            number          => 120,
             noHeaders       => 1,
             ignoreDatasheet => 1,
             columns         => $me->{assumptionColumns},
-        );
+        )->wsWrite( $wbook, $wsheet );
         push @{ $me->{finishClosures} }, sub {
             my $thc = $wbook->getFormat('thc');
             for ( my $i = 0 ; $i < @{ $me->{assumptionColumns} } ; ++$i ) {
@@ -458,6 +461,9 @@ sub assumptionsClosure {
         $wbook->{titleAppend} = $titleAppend;
         $wbook->{noLinks}     = $noLinks;
     };
+}
+
+sub worksheetsAndClosures {
 }
 
 sub worksheetsAndClosuresMulti {
@@ -488,6 +494,7 @@ sub worksheetsAndClosuresMulti {
     push @{ $me->{assumptionColumns} },
       $me->{assumptionsByModel}{ 0 + $model } = Dataset(
         name          => 'Assumptions',
+        number        => 120,
         model         => $model,
         rows          => $me->{assumptionRowset},
         defaultFormat => '%hardpm',

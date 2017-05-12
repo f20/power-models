@@ -75,7 +75,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
         $wsheet->{nextFree} ||= $model->{noSingleInputSheet} ? 1 : 2;
-        my ( $sh, $ro, $co ) = (
+        unless ( $model->{table1000} ) {
             $model->{table1000} = Dataset(
                 number        => 1000,
                 dataset       => $model->{dataset},
@@ -85,8 +85,15 @@ sub worksheetsAndClosures {
                 data          => [ 'no company', 'no year', 'no data version' ],
                 usePlaceholderData => 1,
                 forwardLinks       => {},
-            )
-        )->wsWrite( $wbook, $wsheet );
+            );
+            push @{ $model->{edcmTables} },
+              Stack(
+                name =>
+                  'EDCM input data ⇒1100. Company, charging year, data version',
+                sources => [ $model->{table1000} ],
+              ) if $model->{edcmTables};
+        }
+        my ( $sh, $ro, $co ) = $model->{table1000}->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
         $wbook->{titleAppend} =
             qq%" for "&'$sh'!%

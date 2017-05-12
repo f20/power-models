@@ -145,7 +145,6 @@ sub revenueShortfall {
             );
         }
     }
-
     else {
         $allowedRevenue = Arithmetic(
             name => 'Target net income from all use of system charges (£/year)',
@@ -154,7 +153,11 @@ sub revenueShortfall {
             arguments =>
               { map { ( "A$_" => $allowedRevenueItems[ $_ - 1 ] ) } 1 .. 3 }
         );
-
+        $model->{edcmTables}[0][4] = Stack(
+            name => 'The amount of money that the DNO wants to raise from use'
+              . ' of system charges (£/year)',
+            sources => [$allowedRevenue],
+        ) if $model->{edcmTables};
         $revenueFromElsewhere = Dataset(
             name          => 'Revenue raised outside this model (£/year)',
             defaultFormat => '0hard',

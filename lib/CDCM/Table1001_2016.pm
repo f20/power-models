@@ -260,14 +260,13 @@ EOL
 
     $model->{edcmTables}[0][4] = new SpreadsheetModel::Custom(
         name => 'The amount of money that the DNO wants to raise from use'
-          . ' of system charges, less transmission exit (£/year)',
-        custom        => ['=A1+A2-A3'],
-        arithmetic    => '=A1+A2-A3',
+          . ' of system charges (£/year)',
+        custom        => ['=A1+A2'],
+        arithmetic    => '=A1+A2',
         defaultFormat => '0soft',
         arguments     => {
             A1 => $target,
             A2 => $inputs,
-            A3 => $model->{edcmTables}[0][5]{sources}[0],
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -276,9 +275,7 @@ EOL
                 '', $format, $formula->[0],
                   qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
                   qr/\bA2\b/ =>
-                  xl_rowcol_to_cell( $rowh->{A2} + 33, $colh->{A2} ),
-                  qr/\bA3\b/ => xl_rowcol_to_cell( $rowh->{A3}, $colh->{A3} );
-            };
+                  xl_rowcol_to_cell( $rowh->{A2} + 33, $colh->{A2} );            };
         },
     ) if $model->{edcmTables};
 

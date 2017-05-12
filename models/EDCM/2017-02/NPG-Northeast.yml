@@ -1,0 +1,263 @@
+---
+1100:
+  - _table: '4301. EDCM input data ⇒1100. Company, charging year, data version'
+  - EDCM input data 1100 Company charging year data version: Northern Powergrid (Northeast)
+    _column: Company
+  - EDCM input data 1100 Company charging year data version: 2017/2018
+    _column: Year
+  - EDCM input data 1100 Company charging year data version: December 2015
+    _column: Version
+1101:
+  - _table: 4302. EDCM input data ⇒1101. Financial information
+  - Financial information: 0.2
+    _column: Generation O&M charging rate (£/kW/year)
+  - Financial information: 19230344.0921837
+    _column: Direct cost (£/year)
+  - Financial information: 78609304.381897
+    _column: Indirect cost (£/year)
+  - Financial information: 12429710.0669437
+    _column: Network rates (£/year)
+  - Financial information: 278988461.056986
+    _column: The amount of money that the DNO wants to raise from use of system charges (£/year)
+  - Financial information: 11560506.825566
+    _column: Transmission exit charges (£/year)
+1105:
+  - _table: 4303. EDCM input data ⇒1105. Diversity allowance between level exit and GSP Group
+  - Diversity allowance: 0.085617127601294
+    _column: GSPs
+  - Diversity allowance: 0.288414801099991
+    _column: 132kV
+  - Diversity allowance: 0.288414801099991
+    _column: 132kV/EHV
+  - Diversity allowance: 0.599951583322747
+    _column: EHV
+  - Diversity allowance: 0.599951583322747
+    _column: EHV/HV
+  - Diversity allowance: 0.288414801099991
+    _column: 132kV/HV
+1110:
+  - _table: 4304. EDCM input data ⇒1110. Calendar and timeband information
+  - Calendar and timeband information: 365
+    _column: Days in the charging year
+1122:
+  - _table: 4305. EDCM input data ⇒1122. Forecast system simultaneous maximum load (kW) from CDCM users
+  - Forecast system simultaneous maximum load: 2380956.35845419
+    _column: GSPs
+  - Forecast system simultaneous maximum load: 2313233.88950249
+    _column: 132kV
+  - Forecast system simultaneous maximum load: 2308639.58187687
+    _column: 132kV/EHV
+  - Forecast system simultaneous maximum load: 2309410.21005326
+    _column: EHV
+  - Forecast system simultaneous maximum load: 2298022.58574333
+    _column: EHV/HV
+  - Forecast system simultaneous maximum load: 0
+    _column: 132kV/HV
+1131:
+  - _table: 4306. EDCM input data ⇒1131. Assets in CDCM model (£)
+  - Assets in CDCM model: 0
+    _column: GSPs
+  - Assets in CDCM model: 213187959.857924
+    _column: "Assets\n132kV"
+  - Assets in CDCM model: 90033517.8719734
+    _column: "Assets\n132kV/EHV"
+  - Assets in CDCM model: 407768387.293392
+    _column: "Assets\nEHV"
+  - Assets in CDCM model: 177783409.310415
+    _column: "Assets\nEHV/HV"
+  - Assets in CDCM model: 0
+    _column: "Assets\n132kV/HV"
+  - Assets in CDCM model: 668119476.018188
+    _column: "Assets\nHV"
+  - Assets in CDCM model: 347846190.469135
+    _column: "Assets\nHV/LV"
+  - Assets in CDCM model: 378554837.610473
+    _column: "Assets\nLV circuits"
+  - Assets in CDCM model: 967870219.597283
+    _column: "Assets\nLV customer"
+  - Assets in CDCM model: 20246219.2456632
+    _column: "Assets\nHV customer"
+1135:
+  - _table: 4307. EDCM input data ⇒1135. Loss adjustment factor to transmission
+  - Loss adjustment factor: 1
+    _column: GSPs
+  - Loss adjustment factor: 1.005
+    _column: 132kV
+  - Loss adjustment factor: 1.007
+    _column: 132kV/EHV
+  - Loss adjustment factor: 1.009
+    _column: EHV
+  - Loss adjustment factor: 1.014
+    _column: EHV/HV
+  - Loss adjustment factor: 1.014
+    _column: 132kV/HV
+1182:
+  - _table: 4308. EDCM input data ⇒1182. CDCM end user tariffs
+  - Domestic Off Peak related MPAN: 0.285
+    Domestic Two Rate: 2.906
+    Domestic Unrestricted: 2.348
+    HV Generation Intermittent: -0.36
+    HV Generation Non-Intermittent: -2.284
+    HV HH Metered: 7.556
+    HV Medium Non-Domestic: 1.192
+    LV Generation Intermittent: -0.625
+    LV Generation NHH or Aggregate HH: -0.625
+    LV Generation Non-Intermittent: -3.928
+    LV HH Metered: 10.494
+    LV Medium Non-Domestic: 2.327
+    LV Network Domestic: 13.214
+    LV Network Non-Domestic Non-CT: 14.832
+    LV Sub Generation Intermittent: -0.537
+    LV Sub Generation NHH: -0.537
+    LV Sub Generation Non-Intermittent: -3.377
+    LV Sub HH Metered: 9.293
+    LV Sub Medium Non-Domestic: 1.549
+    LV UMS Pseudo HH Metered: 34.526
+    NHH UMS category A: 1.568
+    NHH UMS category B: 2.329
+    NHH UMS category C: 4.31
+    NHH UMS category D: 1.032
+    Small Non Domestic Off Peak related MPAN: 0.358
+    Small Non Domestic Two Rate: 2.91
+    Small Non Domestic Unrestricted: 2.391
+    _column: Unit rate 1 p/kWh
+  - Domestic Off Peak related MPAN: 0
+    Domestic Two Rate: 0.096
+    Domestic Unrestricted: 0
+    HV Generation Intermittent: 0
+    HV Generation Non-Intermittent: -0.354
+    HV HH Metered: 0.364
+    HV Medium Non-Domestic: 0.047
+    LV Generation Intermittent: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: -0.619
+    LV HH Metered: 0.696
+    LV Medium Non-Domestic: 0.092
+    LV Network Domestic: 0.954
+    LV Network Non-Domestic Non-CT: 1.071
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: -0.531
+    LV Sub HH Metered: 0.528
+    LV Sub Medium Non-Domestic: 0.077
+    LV UMS Pseudo HH Metered: 0.913
+    NHH UMS category A: 0
+    NHH UMS category B: 0
+    NHH UMS category C: 0
+    NHH UMS category D: 0
+    Small Non Domestic Off Peak related MPAN: 0
+    Small Non Domestic Two Rate: 0.175
+    Small Non Domestic Unrestricted: 0
+    _column: Unit rate 2 p/kWh
+  - Domestic Off Peak related MPAN: 0
+    Domestic Two Rate: 0
+    Domestic Unrestricted: 0
+    HV Generation Intermittent: 0
+    HV Generation Non-Intermittent: -0.022
+    HV HH Metered: 0.036
+    HV Medium Non-Domestic: 0
+    LV Generation Intermittent: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: -0.041
+    LV HH Metered: 0.062
+    LV Medium Non-Domestic: 0
+    LV Network Domestic: 0.083
+    LV Network Non-Domestic Non-CT: 0.093
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: -0.035
+    LV Sub HH Metered: 0.05
+    LV Sub Medium Non-Domestic: 0
+    LV UMS Pseudo HH Metered: 0.078
+    NHH UMS category A: 0
+    NHH UMS category B: 0
+    NHH UMS category C: 0
+    NHH UMS category D: 0
+    Small Non Domestic Off Peak related MPAN: 0
+    Small Non Domestic Two Rate: 0
+    Small Non Domestic Unrestricted: 0
+    _column: Unit rate 3 p/kWh
+  - Domestic Off Peak related MPAN: 0
+    Domestic Two Rate: 4.89
+    Domestic Unrestricted: 4.89
+    HV Generation Intermittent: 58.34
+    HV Generation Non-Intermittent: 58.34
+    HV HH Metered: 150.38
+    HV Medium Non-Domestic: 150.38
+    LV Generation Intermittent: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV HH Metered: 14.13
+    LV Medium Non-Domestic: 45.46
+    LV Network Domestic: 4.89
+    LV Network Non-Domestic Non-CT: 5.29
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub HH Metered: 14.42
+    LV Sub Medium Non-Domestic: 14.42
+    LV UMS Pseudo HH Metered: 0
+    NHH UMS category A: 0
+    NHH UMS category B: 0
+    NHH UMS category C: 0
+    NHH UMS category D: 0
+    Small Non Domestic Off Peak related MPAN: 0
+    Small Non Domestic Two Rate: 5.29
+    Small Non Domestic Unrestricted: 5.29
+    _column: Fixed charge p/MPAN/day
+  - Domestic Off Peak related MPAN: 0
+    Domestic Two Rate: 0
+    Domestic Unrestricted: 0
+    HV Generation Intermittent: 0
+    HV Generation Non-Intermittent: 0
+    HV HH Metered: 2.12
+    HV Medium Non-Domestic: 0
+    LV Generation Intermittent: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV HH Metered: 1.76
+    LV Medium Non-Domestic: 0
+    LV Network Domestic: 0
+    LV Network Non-Domestic Non-CT: 0
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub HH Metered: 2.25
+    LV Sub Medium Non-Domestic: 0
+    LV UMS Pseudo HH Metered: 0
+    NHH UMS category A: 0
+    NHH UMS category B: 0
+    NHH UMS category C: 0
+    NHH UMS category D: 0
+    Small Non Domestic Off Peak related MPAN: 0
+    Small Non Domestic Two Rate: 0
+    Small Non Domestic Unrestricted: 0
+    _column: Capacity charge p/kVA/day
+  - Domestic Off Peak related MPAN: 0
+    Domestic Two Rate: 0
+    Domestic Unrestricted: 0
+    HV Generation Intermittent: 0.084
+    HV Generation Non-Intermittent: 0.084
+    HV HH Metered: 0.132
+    HV Medium Non-Domestic: 0
+    LV Generation Intermittent: 0.121
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0.121
+    LV HH Metered: 0.237
+    LV Medium Non-Domestic: 0
+    LV Network Domestic: 0
+    LV Network Non-Domestic Non-CT: 0
+    LV Sub Generation Intermittent: 0.115
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0.115
+    LV Sub HH Metered: 0.175
+    LV Sub Medium Non-Domestic: 0
+    LV UMS Pseudo HH Metered: 0
+    NHH UMS category A: 0
+    NHH UMS category B: 0
+    NHH UMS category C: 0
+    NHH UMS category D: 0
+    Small Non Domestic Off Peak related MPAN: 0
+    Small Non Domestic Two Rate: 0
+    Small Non Domestic Unrestricted: 0
+    _column: Reactive power charge p/kVArh

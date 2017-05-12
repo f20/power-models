@@ -199,13 +199,13 @@ sub setFormats {
     my @num_million =
       $rightpad
       ? (
-        num_format => qq'${black}_(#,##0.0,, "m"_)$rightpad;'
-          . qq'[Red](#,##0.0,, "m")$rightpad;;$cyan@',
+        num_format => qq'${black}_(#,##0.0,,"m"_)$rightpad;'
+          . qq'[Red](#,##0.0,,"m")$rightpad;;$cyan@',
         align => 'right'
       )
       : (
         num_format =>
-          qq'${black} _(?,??0.0,, "m"_);[Red] (?,??0.0,, "m");;$cyan@',
+          qq'${black} _(?,??0.0,,"m"_);[Red] (?,??0.0,,"m");;$cyan@',
         align => 'center'
       );
     my @num_date =

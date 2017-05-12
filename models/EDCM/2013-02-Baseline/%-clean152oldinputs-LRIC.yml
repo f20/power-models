@@ -1,12 +1,12 @@
 ---
-.: 'EDCM demand and generation, cleaned-up, FCP'
+.: 'EDCM demand and generation (old input tables), LRIC'
 PerlModule: EDCM2
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1
 layout: auto
 ldnoRev: ldnorev5rounding
 lowerIntermittentCredit: 1
-method: FCP
+method: LRIC
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600

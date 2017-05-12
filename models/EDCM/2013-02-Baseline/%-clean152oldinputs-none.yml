@@ -1,5 +1,5 @@
 ---
-.: 'EDCM demand and generation, cleaned-up, no charge 1'
+.: 'EDCM demand and generation (old input tables), no charge 1'
 PerlModule: EDCM2
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1

@@ -1,0 +1,1423 @@
+---
+1100:
+  - _table: '1100. Company, charging year, data version'
+  - Company charging year data version: WPD East Midlands
+    _column: Company
+  - Company charging year data version: 2013/2014
+    _column: Year
+  - Company charging year data version: Generic statistics with DNO-wide data
+    _column: Version
+1105:
+  - _table: 1105. Diversity allowance between level exit and GSP Group (from CDCM table 2611)
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.0247137424361561
+    _column: GSP
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.070839672179422
+    _column: 132kV circuits
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.070839672179422
+    _column: 132kV/EHV
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.155454898769058
+    _column: EHV circuits
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.155454898769058
+    _column: EHV/HV
+  - Diversity allowance between level exit and GSP Group from CDCM table 2611: 0.070839672179422
+    _column: 132kV/HV
+1113:
+  - _table: 1113. General inputs
+  - General inputs: 365
+    _column: Days in year
+  - General inputs: 0.2
+    _column: O&M charging rate based on FBPQ data (£/kW/year)
+  - General inputs: 258
+    _column: Annual hours in super red
+  - General inputs: 400607989.897491
+    _column: 'The amount of money that the DNO wants to raise from use of system charges, less transmission exit (£/year)'
+  - General inputs: 11221332.92546
+    _column: Transmission exit charges (£/year)
+  - General inputs: 28191422.5524879
+    _column: Direct cost (£/year)
+  - General inputs: 135140908.678254
+    _column: Indirect cost (£/year)
+  - General inputs: 34967727
+    _column: Network rates (£/year)
+  - General inputs: 6776.02381837007
+    _column: Average adjusted GP (£/year)
+  - General inputs: 669286.28180556
+    _column: GL term from the DG incentive revenue calculation (£/year)
+  - General inputs: 49985
+    _column: Total CDCM generation capacity 2005-2010 (kVA)
+  - General inputs: 103491
+    _column: Total CDCM generation capacity post-2010 (kVA)
+1122:
+  - _table: 1122. Forecast system simultaneous maximum load (kW) from CDCM users (from CDCM table 2506)
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 4938726.94931722
+    _column: GSP
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 4923377.77188079
+    _column: 132kV circuits
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 4544825.55253593
+    _column: 132kV/EHV
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 4512032.10815996
+    _column: EHV circuits
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 4411180.0785315
+    _column: EHV/HV
+  - Forecast system simultaneous maximum load kW from CDCM users from CDCM table 2506: 359417.998502551
+    _column: 132kV/HV
+1131:
+  - _table: 1131. Assets in CDCM model (£) (from CDCM table 2705 or 2706)
+  - Assets in CDCM model from CDCM table 2705 or 2706: ''
+    _column: GSP
+  - Assets in CDCM model from CDCM table 2705 or 2706: 1173530280.84785
+    _column: 132kV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 325628601.816623
+    _column: 132kV/EHV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 340973243.105139
+    _column: EHV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 748046245.776201
+    _column: EHV/HV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 68929864.1921686
+    _column: 132kV/HV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 1190163591.70648
+    _column: HV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 645742021.392676
+    _column: HV/LV
+  - Assets in CDCM model from CDCM table 2705 or 2706: 589943863.637447
+    _column: LV circuits
+  - Assets in CDCM model from CDCM table 2705 or 2706: 1418140623.26498
+    _column: LV customer
+  - Assets in CDCM model from CDCM table 2705 or 2706: 52160414.5642204
+    _column: HV customer
+1132:
+  - _table: 1132. Override notional asset rate for 132kV/HV (£/kW)
+  - Override notional asset rate for 132kV HV kW: No override
+    _column: 132kV/HV
+1133:
+  - _table: 1133. Maximum network use factor
+  - Maximum network use factor: ''
+    _column: GSP
+  - Maximum network use factor: 2.246
+    _column: 132kV circuits
+  - Maximum network use factor: 1.558
+    _column: 132kV/EHV
+  - Maximum network use factor: 3.29
+    _column: EHV circuits
+  - Maximum network use factor: 2.38
+    _column: EHV/HV
+  - Maximum network use factor: 2.768
+    _column: 132kV/HV
+1134:
+  - _table: 1134. Minimum network use factor
+  - Minimum network use factor: ''
+    _column: GSP
+  - Minimum network use factor: 0.273
+    _column: 132kV circuits
+  - Minimum network use factor: 0.677
+    _column: 132kV/EHV
+  - Minimum network use factor: 0.332
+    _column: EHV circuits
+  - Minimum network use factor: 0.631
+    _column: EHV/HV
+  - Minimum network use factor: 0.697
+    _column: 132kV/HV
+1135:
+  - _table: 1135. Loss adjustment factor to transmission for each network level (from CDCM table 2004)
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: ''
+    _column: GSP
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.001
+    _column: 132kV circuits
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.003
+    _column: 132kV/EHV
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.006
+    _column: EHV circuits
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.029
+    _column: EHV/HV
+  - Loss adjustment factor to transmission for each network level from CDCM table 2004: 1.029
+    _column: 132kV/HV
+1190:
+  - _table: 1190. Is this the master model containing all the tariff data?
+  - Enter TRUE or FALSE: FALSE
+    _column: Is this the master model containing all the tariff data?
+1191:
+  - _table: 1191. Baseline EDCM demand volumes
+  - Baseline EDCM demand volumes: 152628.870471028
+    _column: Baseline total EDCM peak time consumption (kW)
+  - Baseline EDCM demand volumes: 530782.359816699
+    _column: Baseline total marginal effect of indirect cost adder (kVA)
+  - Baseline EDCM demand volumes: 530782.3598167
+    _column: Baseline total marginal effect of demand adder (kVA)
+1192:
+  - _table: 1192. Baseline EDCM generation volumes
+  - Baseline EDCM generation volumes: 799639.726027397
+    _column: Baseline total chargeable export capacity (kVA)
+  - Baseline EDCM generation volumes: 54300
+    _column: Baseline total non-exempt 2005-2010 export capacity (kVA)
+  - Baseline EDCM generation volumes: 320339.726027397
+    _column: Baseline total non-exempt post-2010 export capacity (kVA)
+1193:
+  - _table: 1193. Baseline EDCM assets and notional assets
+  - Baseline EDCM assets and notional assets: 61494075.1958604
+    _column: Baseline total sole use assets for demand (£)
+  - Baseline EDCM assets and notional assets: 14230494.3129297
+    _column: Baseline total sole use assets for generation (£)
+  - Baseline EDCM assets and notional assets: 100849268.780383
+    _column: Baseline total notional capacity assets (£)
+  - Baseline EDCM assets and notional assets: 34886801.3690033
+    _column: Baseline total notional consumption assets (£)
+  - Baseline EDCM assets and notional assets: 107231095.639082
+    _column: Baseline total non sole use notional assets subject to matching (£)
+  - Baseline EDCM notional asset aggregates: 0
+    _column: Baseline total demand sole use assets qualifying for DCP 189 discount (£)
+1194:
+  - _table: 1194. Baseline EDCM pots
+  - Baseline EDCM pots: 441327.210222056
+    _column: Baseline net forecast EDCM generation revenue (£/year)
+  - Baseline EDCM pots: 10352973.4038289
+    _column: Baseline EDCM demand pot (£/year)
+  - Baseline EDCM pots: 437642.576987723
+    _column: Baseline revenue from demand charge 1 (£/year)
+911:
+  - _table: 911. FCP power flow modelling data
+935:
+  - _table: 935. Tariff data
+  - 1: Continuous demand category 0000
+    10: Continuous demand category 0101
+    11: Continuous demand category 1101
+    12: Continuous demand category 0011
+    13: Continuous demand category 0111
+    14: Continuous demand category 1111
+    15: Continuous demand category 0002
+    16: Zero consumption category 0000
+    17: Zero consumption category 1000
+    18: Zero consumption category 0100
+    19: Zero consumption category 1100
+    2: Continuous demand category 1000
+    20: Zero consumption category 0010
+    21: Zero consumption category 0110
+    22: Zero consumption category 1110
+    23: Zero consumption category 0001
+    24: Zero consumption category 1001
+    25: Zero consumption category 0101
+    26: Zero consumption category 1101
+    27: Zero consumption category 0011
+    28: Zero consumption category 0111
+    29: Zero consumption category 1111
+    3: Continuous demand category 0100
+    30: Zero consumption category 0002
+    31: Generation dominated category 0000
+    32: Generation dominated category 1000
+    33: Generation dominated category 0100
+    34: Generation dominated category 1100
+    35: Generation dominated category 0010
+    36: Generation dominated category 0110
+    37: Generation dominated category 1110
+    38: Generation dominated category 0001
+    39: Generation dominated category 1001
+    4: Continuous demand category 1100
+    40: Generation dominated category 0101
+    41: Generation dominated category 1101
+    42: Generation dominated category 0011
+    43: Generation dominated category 0111
+    44: Generation dominated category 1111
+    45: Generation dominated category 0002
+    5: Continuous demand category 0010
+    6: Continuous demand category 0110
+    7: Continuous demand category 1110
+    8: Continuous demand category 0001
+    9: Continuous demand category 1001
+    _column: Name
+  - 1: 5000
+    10: 5000
+    11: 5000
+    12: 5000
+    13: 5000
+    14: 5000
+    15: 5000
+    16: 5000
+    17: 5000
+    18: 5000
+    19: 5000
+    2: 5000
+    20: 5000
+    21: 5000
+    22: 5000
+    23: 5000
+    24: 5000
+    25: 5000
+    26: 5000
+    27: 5000
+    28: 5000
+    29: 5000
+    3: 5000
+    30: 5000
+    31: 500
+    32: 500
+    33: 500
+    34: 500
+    35: 500
+    36: 500
+    37: 500
+    38: 500
+    39: 500
+    4: 5000
+    40: 500
+    41: 500
+    42: 500
+    43: 500
+    44: 500
+    45: 500
+    5: 5000
+    6: 5000
+    7: 5000
+    8: 5000
+    9: 5000
+    _column: Maximum import capacity (kVA)
+  - 1: VOID
+    10: VOID
+    11: VOID
+    12: VOID
+    13: VOID
+    14: VOID
+    15: VOID
+    16: VOID
+    17: VOID
+    18: VOID
+    19: VOID
+    2: VOID
+    20: VOID
+    21: VOID
+    22: VOID
+    23: VOID
+    24: VOID
+    25: VOID
+    26: VOID
+    27: VOID
+    28: VOID
+    29: VOID
+    3: VOID
+    30: VOID
+    31: VOID
+    32: VOID
+    33: VOID
+    34: VOID
+    35: VOID
+    36: VOID
+    37: VOID
+    38: VOID
+    39: VOID
+    4: VOID
+    40: VOID
+    41: VOID
+    42: VOID
+    43: VOID
+    44: VOID
+    45: VOID
+    5: VOID
+    6: VOID
+    7: VOID
+    8: VOID
+    9: VOID
+    _column: Exempt export capacity (kVA)
+  - 1: VOID
+    10: VOID
+    11: VOID
+    12: VOID
+    13: VOID
+    14: VOID
+    15: VOID
+    16: VOID
+    17: VOID
+    18: VOID
+    19: VOID
+    2: VOID
+    20: VOID
+    21: VOID
+    22: VOID
+    23: VOID
+    24: VOID
+    25: VOID
+    26: VOID
+    27: VOID
+    28: VOID
+    29: VOID
+    3: VOID
+    30: VOID
+    31: VOID
+    32: VOID
+    33: VOID
+    34: VOID
+    35: VOID
+    36: VOID
+    37: VOID
+    38: VOID
+    39: VOID
+    4: VOID
+    40: VOID
+    41: VOID
+    42: VOID
+    43: VOID
+    44: VOID
+    45: VOID
+    5: VOID
+    6: VOID
+    7: VOID
+    8: VOID
+    9: VOID
+    _column: Non-exempt pre-2005 export capacity (kVA)
+  - 1: VOID
+    10: VOID
+    11: VOID
+    12: VOID
+    13: VOID
+    14: VOID
+    15: VOID
+    16: VOID
+    17: VOID
+    18: VOID
+    19: VOID
+    2: VOID
+    20: VOID
+    21: VOID
+    22: VOID
+    23: VOID
+    24: VOID
+    25: VOID
+    26: VOID
+    27: VOID
+    28: VOID
+    29: VOID
+    3: VOID
+    30: VOID
+    31: VOID
+    32: VOID
+    33: VOID
+    34: VOID
+    35: VOID
+    36: VOID
+    37: VOID
+    38: VOID
+    39: VOID
+    4: VOID
+    40: VOID
+    41: VOID
+    42: VOID
+    43: VOID
+    44: VOID
+    45: VOID
+    5: VOID
+    6: VOID
+    7: VOID
+    8: VOID
+    9: VOID
+    _column: Non-exempt 2005-2010 export capacity (kVA)
+  - 1: VOID
+    10: VOID
+    11: VOID
+    12: VOID
+    13: VOID
+    14: VOID
+    15: VOID
+    16: VOID
+    17: VOID
+    18: VOID
+    19: VOID
+    2: VOID
+    20: VOID
+    21: VOID
+    22: VOID
+    23: VOID
+    24: VOID
+    25: VOID
+    26: VOID
+    27: VOID
+    28: VOID
+    29: VOID
+    3: VOID
+    30: VOID
+    31: 10000
+    32: 10000
+    33: 10000
+    34: 10000
+    35: 10000
+    36: 10000
+    37: 10000
+    38: 10000
+    39: 10000
+    4: VOID
+    40: 10000
+    41: 10000
+    42: 10000
+    43: 10000
+    44: 10000
+    45: 10000
+    5: VOID
+    6: VOID
+    7: VOID
+    8: VOID
+    9: VOID
+    _column: Non-exempt post-2010 export capacity (kVA)
+  - 1: 16968
+    10: 16968
+    11: 16968
+    12: 16968
+    13: 16968
+    14: 16968
+    15: 16968
+    16: 16968
+    17: 16968
+    18: 16968
+    19: 16968
+    2: 16968
+    20: 16968
+    21: 16968
+    22: 16968
+    23: 16968
+    24: 16968
+    25: 16968
+    26: 16968
+    27: 16968
+    28: 16968
+    29: 16968
+    3: 16968
+    30: 16968
+    31: 19881
+    32: 19881
+    33: 19881
+    34: 19881
+    35: 19881
+    36: 19881
+    37: 19881
+    38: 19881
+    39: 19881
+    4: 16968
+    40: 19881
+    41: 19881
+    42: 19881
+    43: 19881
+    44: 19881
+    45: 19881
+    5: 16968
+    6: 16968
+    7: 16968
+    8: 16968
+    9: 16968
+    _column: Sole use asset MEAV (£)
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: LRIC location
+  - 1: 0
+    10: 101
+    11: 1101
+    12: 11
+    13: 111
+    14: 1111
+    15: 2
+    16: 0
+    17: 1000
+    18: 100
+    19: 1100
+    2: 1000
+    20: 10
+    21: 110
+    22: 1110
+    23: 1
+    24: 1001
+    25: 101
+    26: 1101
+    27: 11
+    28: 111
+    29: 1111
+    3: 100
+    30: 2
+    31: 0
+    32: 1000
+    33: 100
+    34: 1100
+    35: 10
+    36: 110
+    37: 1110
+    38: 1
+    39: 1001
+    4: 1100
+    40: 101
+    41: 1101
+    42: 11
+    43: 111
+    44: 1111
+    45: 2
+    5: 10
+    6: 110
+    7: 1110
+    8: 1
+    9: 1001
+    _column: Customer category for demand scaling
+  - 1: 1
+    10: 1
+    11: 1
+    12: 1
+    13: 1
+    14: 1
+    15: 1
+    16: 1
+    17: 1
+    18: 1
+    19: 1
+    2: 1
+    20: 1
+    21: 1
+    22: 1
+    23: 1
+    24: 1
+    25: 1
+    26: 1
+    27: 1
+    28: 1
+    29: 1
+    3: 1
+    30: 1
+    31: 0.273
+    32: 0.273
+    33: 0.273
+    34: 0.273
+    35: 0.273
+    36: 0.273
+    37: 0.273
+    38: 0.273
+    39: 0.273
+    4: 1
+    40: 0.273
+    41: 0.273
+    42: 0.273
+    43: 0.273
+    44: 0.273
+    45: 0.273
+    5: 1
+    6: 1
+    7: 1
+    8: 1
+    9: 1
+    _column: 132kV circuits
+  - 1: 1
+    10: 1
+    11: 1
+    12: 1
+    13: 1
+    14: 1
+    15: 1
+    16: 1
+    17: 1
+    18: 1
+    19: 1
+    2: 1
+    20: 1
+    21: 1
+    22: 1
+    23: 1
+    24: 1
+    25: 1
+    26: 1
+    27: 1
+    28: 1
+    29: 1
+    3: 1
+    30: 1
+    31: 0.677
+    32: 0.677
+    33: 0.677
+    34: 0.677
+    35: 0.677
+    36: 0.677
+    37: 0.677
+    38: 0.677
+    39: 0.677
+    4: 1
+    40: 0.677
+    41: 0.677
+    42: 0.677
+    43: 0.677
+    44: 0.677
+    45: 0.677
+    5: 1
+    6: 1
+    7: 1
+    8: 1
+    9: 1
+    _column: 132kV/EHV
+  - 1: 1
+    10: 1
+    11: 1
+    12: 1
+    13: 1
+    14: 1
+    15: 1
+    16: 1
+    17: 1
+    18: 1
+    19: 1
+    2: 1
+    20: 1
+    21: 1
+    22: 1
+    23: 1
+    24: 1
+    25: 1
+    26: 1
+    27: 1
+    28: 1
+    29: 1
+    3: 1
+    30: 1
+    31: 0.332
+    32: 0.332
+    33: 0.332
+    34: 0.332
+    35: 0.332
+    36: 0.332
+    37: 0.332
+    38: 0.332
+    39: 0.332
+    4: 1
+    40: 0.332
+    41: 0.332
+    42: 0.332
+    43: 0.332
+    44: 0.332
+    45: 0.332
+    5: 1
+    6: 1
+    7: 1
+    8: 1
+    9: 1
+    _column: EHV circuits
+  - 1: 1
+    10: 1
+    11: 1
+    12: 1
+    13: 1
+    14: 1
+    15: 1
+    16: 1
+    17: 1
+    18: 1
+    19: 1
+    2: 1
+    20: 1
+    21: 1
+    22: 1
+    23: 1
+    24: 1
+    25: 1
+    26: 1
+    27: 1
+    28: 1
+    29: 1
+    3: 1
+    30: 1
+    31: 0.631
+    32: 0.631
+    33: 0.631
+    34: 0.631
+    35: 0.631
+    36: 0.631
+    37: 0.631
+    38: 0.631
+    39: 0.631
+    4: 1
+    40: 0.631
+    41: 0.631
+    42: 0.631
+    43: 0.631
+    44: 0.631
+    45: 0.631
+    5: 1
+    6: 1
+    7: 1
+    8: 1
+    9: 1
+    _column: EHV/HV
+  - 1: 1
+    10: 1
+    11: 1
+    12: 1
+    13: 1
+    14: 1
+    15: 1
+    16: 1
+    17: 1
+    18: 1
+    19: 1
+    2: 1
+    20: 1
+    21: 1
+    22: 1
+    23: 1
+    24: 1
+    25: 1
+    26: 1
+    27: 1
+    28: 1
+    29: 1
+    3: 1
+    30: 1
+    31: 0.697
+    32: 0.697
+    33: 0.697
+    34: 0.697
+    35: 0.697
+    36: 0.697
+    37: 0.697
+    38: 0.697
+    39: 0.697
+    4: 1
+    40: 0.697
+    41: 0.697
+    42: 0.697
+    43: 0.697
+    44: 0.697
+    45: 0.697
+    5: 1
+    6: 1
+    7: 1
+    8: 1
+    9: 1
+    _column: 132kV/HV
+  - 1: 0.9
+    10: 0.9
+    11: 0.9
+    12: 0.9
+    13: 0.9
+    14: 0.9
+    15: 0.9
+    16: 0.001
+    17: 0.001
+    18: 0.001
+    19: 0.001
+    2: 0.9
+    20: 0.001
+    21: 0.001
+    22: 0.001
+    23: 0.001
+    24: 0.001
+    25: 0.001
+    26: 0.001
+    27: 0.001
+    28: 0.001
+    29: 0.001
+    3: 0.9
+    30: 0.001
+    31: 0.001
+    32: 0.001
+    33: 0.001
+    34: 0.001
+    35: 0.001
+    36: 0.001
+    37: 0.001
+    38: 0.001
+    39: 0.001
+    4: 0.9
+    40: 0.001
+    41: 0.001
+    42: 0.001
+    43: 0.001
+    44: 0.001
+    45: 0.001
+    5: 0.9
+    6: 0.9
+    7: 0.9
+    8: 0.9
+    9: 0.9
+    _column: Super red kW import divided by kVA capacity
+  - 1: 0.3
+    10: 0.3
+    11: 0.3
+    12: 0.3
+    13: 0.3
+    14: 0.3
+    15: 0.3
+    16: 0.3
+    17: 0.3
+    18: 0.3
+    19: 0.3
+    2: 0.3
+    20: 0.3
+    21: 0.3
+    22: 0.3
+    23: 0.3
+    24: 0.3
+    25: 0.3
+    26: 0.3
+    27: 0.3
+    28: 0.3
+    29: 0.3
+    3: 0.3
+    30: 0.3
+    31: 0
+    32: 0
+    33: 0
+    34: 0
+    35: 0
+    36: 0
+    37: 0
+    38: 0
+    39: 0
+    4: 0.3
+    40: 0
+    41: 0
+    42: 0
+    43: 0
+    44: 0
+    45: 0
+    5: 0.3
+    6: 0.3
+    7: 0.3
+    8: 0.3
+    9: 0.3
+    _column: Super red kVAr import divided by kVA capacity
+  - 1: 1
+    10: 1
+    11: 1
+    12: 1
+    13: 1
+    14: 1
+    15: 1
+    16: 1
+    17: 1
+    18: 1
+    19: 1
+    2: 1
+    20: 1
+    21: 1
+    22: 1
+    23: 1
+    24: 1
+    25: 1
+    26: 1
+    27: 1
+    28: 1
+    29: 1
+    3: 1
+    30: 1
+    31: 1
+    32: 1
+    33: 1
+    34: 1
+    35: 1
+    36: 1
+    37: 1
+    38: 1
+    39: 1
+    4: 1
+    40: 1
+    41: 1
+    42: 1
+    43: 1
+    44: 1
+    45: 1
+    5: 1
+    6: 1
+    7: 1
+    8: 1
+    9: 1
+    _column: Proportion exposed to indirect cost allocation
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: Capacity subject to DSM (kVA)
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: Super red units exported (kWh)
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: Capacity eligible for GSP generation credits (kW)
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: Proportion eligible for charge 1 credits
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: Days for which not a customer
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: Hours in super-red for which not a customer
+  - 1: 0
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: 0
+    17: 0
+    18: 0
+    19: 0
+    2: 0
+    20: 0
+    21: 0
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: 0
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: 0
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: 0
+    6: 0
+    7: ''
+    8: ''
+    9: ''
+    _column: Import charge in previous charging year (£/year)
+  - 1: 0
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: 0
+    17: 0
+    18: 0
+    19: 0
+    2: 0
+    20: 0
+    21: 0
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: 0
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: 0
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: 0
+    6: 0
+    7: ''
+    8: ''
+    9: ''
+    _column: Export charge in previous charging year (£/year)
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: LLFC import
+  - 1: ''
+    10: ''
+    11: ''
+    12: ''
+    13: ''
+    14: ''
+    15: ''
+    16: ''
+    17: ''
+    18: ''
+    19: ''
+    2: ''
+    20: ''
+    21: ''
+    22: ''
+    23: ''
+    24: ''
+    25: ''
+    26: ''
+    27: ''
+    28: ''
+    29: ''
+    3: ''
+    30: ''
+    31: ''
+    32: ''
+    33: ''
+    34: ''
+    35: ''
+    36: ''
+    37: ''
+    38: ''
+    39: ''
+    4: ''
+    40: ''
+    41: ''
+    42: ''
+    43: ''
+    44: ''
+    45: ''
+    5: ''
+    6: ''
+    7: ''
+    8: ''
+    9: ''
+    _column: LLFC export
+numLocations: 127
+numTariffs: 45

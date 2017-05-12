@@ -149,8 +149,7 @@ sub new {
     $model->{timebands} = 10 if $model->{timebands} > 10;
     $model->{drm} = 'top500gsp' unless $model->{drm};
 
-    # Keep CDCM::DataPreprocess and CDCM::DataDerivative
-    # out of the scope of revision number construction.
+   # Keep CDCM::DataPreprocess out of the scope of revision number construction.
 
     if ( $model->{dataset}
         && keys %{ $model->{dataset} } )
@@ -164,12 +163,7 @@ sub new {
     }
 
     if ( my $sm = $model->{sourceModel} ) {
-        if ( eval { require CDCM::DataDerivative; } ) {
-            $model->derivativeDataset($sm);
-        }
-        else {
-            warn $@;
-        }
+        $model->derivativeDataset($sm);
     }
 
     $model->timebandDetails if $model->{timebandDetails};

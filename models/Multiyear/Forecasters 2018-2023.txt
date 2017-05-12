@@ -3,6 +3,8 @@ makeModels
 	-stats
 	-checksums
 	-template=%%
+	Multiyear/%.yml
+	Multiyear/2018-05/*.yml
 	CDCM/2018-02-Baseline/%-micro*.yml
-	CDCM/2018-02/*SEPD*.yml
+	CDCM/2018-02/*.yml
 	-extend=2018-2022
