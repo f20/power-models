@@ -730,26 +730,23 @@ EOL
         if ( ref $model->{edcmTables}[0] eq 'ARRAY' ) {
             my $col = shift @{ $model->{edcmTables} };
             push @{ $model->{edcmTables} }, Columnset(
-                name          => 'EDCM input data ⇒1113. General inputs',
-                singleRowName => 'EDCM input data',
+                name          => 'EDCM input data ⇒1101. Financial information',
+                singleRowName => 'Financial information',
                 columns       => [
                     map {
                         $col->[$_]
                           || Constant( name => 'Placeholder', data => [], );
-                    } 1 .. 12
+                    } 0 .. 5
                 ],
             );
         }
-
         my $notes = Notes(
             name  => 'Data for EDCM model',
             lines => ['This sheet is for information only.']
         );
-
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,
           sort { $a->{name} cmp $b->{name} } @{ $model->{edcmTables} };
-
       }
 
       if $model->{edcmTables};

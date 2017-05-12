@@ -95,8 +95,17 @@ EOL
         defaultFormat => '0hard'
     );
 
-    $model->{edcmTables}[0][1] = Stack( sources => [$daysInYear] )
-      if $model->{edcmTables};
+    push @{ $model->{edcmTables} },
+      Columnset(
+        name => 'EDCM input data ⇒1110. Calendar and timeband information',
+        singleRowName => 'Calendar and timeband information',
+        ,
+        columns => [
+            Stack(
+                sources => [$daysInYear]
+            ),
+        ],
+      ) if $model->{edcmTables};
 
     my ($daysInBefore);
     my $daysInAfter = $daysInYear;

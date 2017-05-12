@@ -309,6 +309,14 @@ sub pcdApplyDiscounts {
         columns => $model->{allTariffColumns},
       );
 
+    push @{ $model->{edcmTables} },
+      Columnset(
+        name          => 'EDCM input data ⇒1182. CDCM end user tariffs',
+        singleRowName => 'CDCM end user tariffs',
+        columns =>
+          [ map { Stack( sources => [$_] ); } @{ $model->{allTariffColumns} } ]
+      ) if $model->{edcmTables};
+
     my $unitsInYear = Arithmetic(
         noCopy     => 1,
         name       => 'All units (MWh)',

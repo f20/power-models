@@ -52,8 +52,8 @@ sub tariffs {
 
     my $method = $model->{tariffSpec} ? 'tariffSpec' : 'tariffList';
     my @tariffSpec = $model->$method;
-    push @{ $model->{tariffSpecification} }, @tariffSpec
-      if $model->{tariffSpecification};
+    push @{ $model->{exporterObject}{tariffSpecification} }, @tariffSpec
+      if exists $model->{exporterObject};
 
     foreach (@tariffSpec) {
 

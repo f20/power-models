@@ -1,4 +1,4 @@
-﻿package CDCM::MultiModel;
+﻿package Multiyear;
 
 =head Copyright licence and disclaimer
 
@@ -34,7 +34,8 @@ use Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    bless {
+    my $class = shift;
+    my $model = bless {
         historical       => [],
         scenario         => [],
         statsAssumptions => [],
@@ -54,8 +55,10 @@ Revenue by tariff
 Units distributed by tariff
 MPANs by tariff
 EOL
-      },
-      shift;
+        @_,
+    }, $class;
+    ${ $model->{sharingObjectRef} } = $model if $model->{sharingObjectRef};
+    $model;
 }
 
 sub modelIdentifier {
@@ -228,9 +231,12 @@ sub sheetsForFirstModel {
                                                     $colMe - 1,
                                                     'Note 1: '
                                                       . 'Cost categories associated '
-                                                      . 'with excluded services should only be populated '
-                                                      . 'if the Company recovers the costs of providing '
-                                                      . 'these services from Use of System Charges.',
+                                                      . 'with excluded services should '
+                                                      . 'only be populated '
+                                                      . 'if the Company recovers the '
+                                                      . 'costs of providing '
+                                                      . 'these services from '
+                                                      . 'Use of System Charges.',
                                                     $wb->getFormat('text')
                                                 );
                                                   };

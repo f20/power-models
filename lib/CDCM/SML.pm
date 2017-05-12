@@ -190,7 +190,7 @@ sub networkUse {
       Stack(
         name => 'EDCM input data ⇒1122. Forecast system '
           . 'simultaneous maximum load (kW) from CDCM users',
-        singleRowName => 'EDCM input data',
+        singleRowName => 'Forecast system simultaneous maximum load',
         cols =>
           Labelset( list => [ @{ $forecastSml->{cols}{list} }[ 0 .. 5 ] ] ),
         sources => [$forecastSml]

@@ -189,12 +189,8 @@ sub create {
     foreach my $optionNumber ( 0 .. $#optionArray ) {
         my $options = $optionArray[$optionNumber];
         my $modelCount = @optionArray > 1 ? '.' . ( 1 + $optionNumber ) : '';
-        $options->{PerlModule}
-          ->setUpMultiModelSharing( \$multiModelSharing, $options,
-            \@optionArray )
-          if $#optionArray
-          && UNIVERSAL::can( $options->{PerlModule}, 'setUpMultiModelSharing' );
-        $options->{tariffSpecification} = [] if $exporter;
+        $options->{exporterObject} = undef if $exporter;
+        $options->{sharingObjectRef} = \$multiModelSharing if $#optionArray;
         my $model = eval { $options->{PerlModule}->new(%$options) };
         die "\n" . $@ . ( $@ =~ /suitable disclaimer/ ? <<'EOW': '' ) if $@;
 

@@ -740,7 +740,7 @@ EOL
           Stack(
             name => 'EDCM input data ⇒1105. Diversity allowance'
               . ' between level exit and GSP Group',
-            singleRowName => 'EDCM input data',
+            singleRowName => 'Diversity allowance',
             rows          => 0,
             cols          => Labelset(
                 list => [

@@ -83,6 +83,14 @@ sub new {
         @_,
     }, $class;
 
+    if ( $model->{sharingObjectRef} ) {
+        unless ( defined ${ $model->{sharingObjectRef} } ) {
+            require ModelM::MultiModel;
+            ${ $model->{sharingObjectRef} } = ModelM::MultiModel->new;
+        }
+        $model->{multiModelSharing} = ${ $model->{sharingObjectRef} };
+    }
+
     die 'This system will not build an orange '
       . 'Model M without a suitable disclaimer.' . "\n--"
       if $model->{colour}
@@ -112,12 +120,6 @@ sub new {
         )->run;
     }
     $model;
-}
-
-sub setUpMultiModelSharing {
-    my ( $module, $mmsRef, $options, $oaRef ) = @_;
-    require ModelM::MultiModel;
-    $options->{multiModelSharing} = $$mmsRef ||= ModelM::MultiModel->new;
 }
 
 sub run {

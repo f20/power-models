@@ -210,7 +210,7 @@ sub operating {
             )
         );
 
-        @{ $model->{edcmTables}[0] }[ 6 .. 8 ] =
+        @{ $model->{edcmTables}[0] }[ 1 .. 3 ] =
           map { Stack( sources => [$_] ); } @otex[ 0, 1, 3 ]
           if $model->{edcmTables};
 
@@ -425,7 +425,7 @@ sub operating {
     push @{ $model->{edcmTables} },
       Stack(
         name          => 'EDCM input data ⇒1131. Assets in CDCM model (£)',
-        singleRowName => 'EDCM input data',
+        singleRowName => 'Assets in CDCM model',
         sources       => [$modelAssetsByLevelPossiblyScaled]
       ) if $model->{edcmTables};
 

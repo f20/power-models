@@ -80,7 +80,9 @@ sub writeText {
     $_->htmlWrite( \%writer, $writer{Calculations} ) foreach @objects;
     $_->() foreach @end;
 
-    if ( my $tariffSpecification = $options->{tariffSpecification} ) {
+    if ( my $tariffSpecification =
+        $options->{exporterObject}{tariffSpecification} )
+    {
         if (@$tariffSpecification) {
             open my $fh, '>', $pathPrefix . $$ . '.Tariffs.txt';
             binmode $fh, ':utf8';

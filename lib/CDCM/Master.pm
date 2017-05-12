@@ -117,17 +117,14 @@ sub requiredModulesForRuleset {
 
 }
 
-sub setUpMultiModelSharing {
-    my ( $module, $mmsRef, $options, $oaRef ) = @_;
-    require CDCM::MultiModel;
-    $options->{sharedData} = $$mmsRef ||= CDCM::MultiModel->new;
-}
-
 sub new {
 
     my $class = shift;
     my $model = {@_};
     bless $model, $class;
+
+    $model->{sharedData} = ${ $model->{sharingObjectRef} }
+      if $model->{sharingObjectRef};
 
     die 'This system will not build an orange '
       . 'CDCM model without a suitable disclaimer.' . "\n--"
@@ -138,7 +135,15 @@ sub new {
         && $model->{extraNotice} =~ /DCUSA/ );
 
     $model->{inputTables} = [];
-    $model->{edcmTables} = [ [] ] if $model->{edcmTables};
+    $model->{edcmTables}  = [
+        [
+            Constant(
+                name => 'Generation O&M charging rate (£/kW/year)',
+                data => [0.2],
+            ),
+        ],
+      ]
+      if $model->{edcmTables};
 
     $model->{timebands} = 3 unless $model->{timebands};
     $model->{timebands} = 10 if $model->{timebands} > 10;
