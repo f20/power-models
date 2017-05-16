@@ -261,3 +261,7 @@
     Small Non Domestic Two Rate: 0
     Small Non Domestic Unrestricted: 0
     _column: Reactive power charge p/kVArh
+913:
+  - _table: 913. LRIC power flow modelling data
+numLocations: 6
+numTariffs: 12

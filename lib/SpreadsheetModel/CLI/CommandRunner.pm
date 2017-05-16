@@ -110,7 +110,7 @@ sub makeFolder {
                 }
 
                 my $ramDiskIcns =
-                  "$self->[C_HOMEDIR]/Miscellaneous/RAM disk icon.icns";
+                  "$ENV{HOME}/Pictures/Images/power-models RAM disk icon.icns";
                 if ( -e $ramDiskIcns ) {
                     system qw(cp), $ramDiskIcns,
                       "$ramDiskMountPoint/.VolumeIcon.icns";
