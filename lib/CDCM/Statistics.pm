@@ -94,6 +94,7 @@ sub makeStatisticsAssumptions {
         $model->{sharedData}
         ? (
             appendTo        => $model->{sharedData}{statsAssumptions},
+            dataset         => $model->{sharedData}{dataset},
             ignoreDatasheet => 1,
           )
         : (

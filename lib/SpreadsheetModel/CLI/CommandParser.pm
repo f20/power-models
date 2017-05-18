@@ -104,18 +104,16 @@ sub acceptScript {
     my $indent = qr(\s+);
     while (@buffer) {
         local $_ = shift @buffer;
-        if (/^[;#]/s) {
+        if (/^\s*[;#]/s) {
             push @$self, [ comment => $_ ];
-            next;
         }
-        elsif (s/^($indent)//s) {
-            $indent = $1;
+        elsif (s/^($indent)//s) {    # $indent = $1;
             push @current, $_;
-            next;
         }
-        $self->acceptCommand(@current) if @current;
-        $indent = qr(\s+);
-        @current = /\S\s\S/ ? split /\s+/s : $_;
+        else {                       # $indent = qr(\s+);
+            $self->acceptCommand(@current) if @current;
+            @current = /\S\s\S/ ? split /\s+/s : $_;
+        }
     }
     $self->acceptCommand(@current) if @current;
 }

@@ -3,6 +3,5 @@ makeModels
 	-stats
 	-checksums
 	-template=%%
-	Multiyear/%.yml
 	CDCM/201?-02-Baseline/%-micro*.yml
 	CDCM/201?-02/*.yml

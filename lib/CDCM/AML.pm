@@ -971,7 +971,8 @@ sub impliedLoadFactorsInputBased {
     my $inputOnly = $model->{impliedLoadFactors} =~ /inputonly/i;
 
     Arithmetic(
-        name => 'Deemed site-specific load factor for fixed charge calculation',
+        name => 'Deemed site-specific customer load factor'
+          . ' for fixed charge calculation',
         arguments => {
             A1 => $inputLoadFactors,
             A4 => $inputCapacityFactors,

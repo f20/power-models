@@ -2,14 +2,12 @@ makeModels
 	-pickbest
 	-stats
 	-checksums
-	-edcm
 	-template=%%
-	Multiyear/%.yml
+	Multiyear/Rules/%-default.yml
 	CDCM/201?-02-Baseline/%-micro*.yml
-	CDCM/2012-02/*.yml
-	CDCM/2013-02/*.yml
-	CDCM/2014-02/*.yml
+	Multiyear/2017-05/*.yml
 	CDCM/2015-02/*.yml
 	CDCM/2016-02/*.yml
 	CDCM/2017-02/*.yml
 	CDCM/2018-02/*.yml
+	-extend=2018-2022

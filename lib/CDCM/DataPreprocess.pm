@@ -497,9 +497,6 @@ sub _infill {
                   if defined $col->{$old}
                   && !defined $col->{$new};
             }
-            else {
-                $col->{$new} = $old if !defined $col->{$new};
-            }
         }
     }
 }

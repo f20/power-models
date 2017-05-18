@@ -275,7 +275,8 @@ EOL
                 '', $format, $formula->[0],
                   qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
                   qr/\bA2\b/ =>
-                  xl_rowcol_to_cell( $rowh->{A2} + 33, $colh->{A2} );            };
+                  xl_rowcol_to_cell( $rowh->{A2} + 33, $colh->{A2} );
+            };
         },
     ) if $model->{edcmTables};
 

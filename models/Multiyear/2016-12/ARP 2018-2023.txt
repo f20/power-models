@@ -1,10 +1,11 @@
 makeModels
-	-pickbest
+	-carp
+    -pickbest
 	-stats
 	-checksums
 	-template=%%
-	Multiyear/%.yml
-	Multiyear/2018-05/*.yml
+	Multiyear/Rules/%-default.yml
+	Multiyear/2016-12/*.yml
 	CDCM/2018-02-Baseline/%-micro*.yml
 	CDCM/2018-02/*.yml
-	-extend=2018-2022
+    -extend=2018-2022

@@ -42,9 +42,8 @@ sub sheetPriority {
         'Assumptions$'  => 7,
         'Schedule 15$'  => 6,
         'Tariffs$'      => 5,
-        'Illustrative$' => 4,
-        'Other$'        => 3,
-        'Changes$'      => 2,
+        'Aggregates$'   => 4,
+        'Illustrative$' => 3,
     }->{$sheet};
     $score = 8 if !$score && $sheet =~ /\$$/;
     $score ||=
@@ -74,7 +73,8 @@ sub worksheetsAndClosures {
           && $model->{targetRevenue} =~ /dcp132/i;
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
-        $wsheet->{nextFree} ||= $model->{noSingleInputSheet} ? 1 : 2;
+        $wsheet->{nextFree} ||=
+          $model->{noSingleInputSheet} || $model->{noLLFCs} ? 1 : 2;
         unless ( $model->{table1000} ) {
             $model->{table1000} = Dataset(
                 number        => 1000,
@@ -853,10 +853,12 @@ EOL
         }
     }
 
-    $model->{sharedData}
-      ? $model->{sharedData}
-      ->worksheetsAndClosuresMulti( $model, $wbook, @wsheetsAndClosures )
-      : @wsheetsAndClosures;
+    if ( $model->{extraModelsToProcessFirst} ) {
+        unshift @wsheetsAndClosures, $_->worksheetsAndClosures($wbook)
+          foreach @{ $model->{extraModelsToProcessFirst} };
+    }
+
+    @wsheetsAndClosures;
 
 }
 
@@ -895,8 +897,8 @@ EOL
 sub inputDataNotes {
     my ($model) = @_;
     Notes(
-        lines => $model->{noSingleInputSheet}
-        ? 'Input data (part)'
+          lines => $model->{noSingleInputSheet} ? 'Input data (part)'
+        : $model->{noLLFCs} ? 'Input data'
         : <<'EOL'
 Input data
 

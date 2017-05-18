@@ -73,7 +73,7 @@ sub makeModels {
 
     my $executor;
 
-    foreach ( map { decode_utf8 $_} @_ ) {
+    foreach ( map { decode_utf8 $_; } @_ ) {
         if (/^-/s) {
             if ( $_ eq '-' ) {
                 $maker->{processStream}->( \*STDIN );
@@ -158,6 +158,7 @@ sub makeModels {
                 $maker->{setting}->( dataMerge => 1 );
             }
             elsif (/^-+extend=(20[0-9]{2})-(20[0-9]{2})/is) {
+                $maker->{setRule}->( assumptionsSheet => 1 );
                 $maker->{setting}->(
                     extraDataYears => [
                         map {

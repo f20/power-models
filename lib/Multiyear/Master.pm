@@ -34,6 +34,19 @@ use Multiyear::DataDerivative;
 use Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
 
+sub sheetPriority {
+    my ( $model, $sheet ) = @_;
+    my $score = {
+        'Index$'        => 9,
+        'Assumptions$'  => 7,
+        'Schedule 15$'  => 6,
+        'Tariffs$'      => 5,
+        'Aggregates$'   => 4,
+        'Illustrative$' => 3,
+    }->{$sheet};
+    $score;
+}
+
 sub new {
     my $class = shift;
     my $model = bless {
@@ -93,14 +106,14 @@ sub modelIdentifier {
 }
 
 sub indexFinishClosure {
-    my ( $me, $wbook, $wsheet, $model ) = @_;
+    my ( $me, $wbook, $wsheet ) = @_;
     sub {
         my $noLinks = delete $wbook->{noLinks};
         $wsheet->set_column( 0, 0,   70 );
         $wsheet->set_column( 1, 255, 14 );
         require SpreadsheetModel::Book::FrontSheet;
         my $noticeMaker =
-          SpreadsheetModel::Book::FrontSheet->new( model => $model );
+          SpreadsheetModel::Book::FrontSheet->new( model => $me );
         $_->wsWrite( $wbook, $wsheet ) foreach Notes(
             name      => 'Multiple CDCM models',
             copyright => 'Copyright 2009-2011 Energy Networks '
@@ -138,9 +151,9 @@ sub indexFinishClosure {
     };
 }
 
-sub sheetsForFirstModel {
+sub worksheetsAndClosures {
 
-    my ( $me, $model, $wbook ) = @_;
+    my ( $me, $wbook ) = @_;
 
     push @{ $me->{finishClosures} }, sub {
         delete $wbook->{titleAppend};
@@ -151,8 +164,104 @@ sub sheetsForFirstModel {
     'Index$' => sub {
         my ($wsheet) = @_;
         push @{ $me->{finishClosures} },
-          $me->indexFinishClosure( $wbook, $wsheet, $model );
+          $me->indexFinishClosure( $wbook, $wsheet );
       },
+
+      $me->{assumptionsSheet}
+      ? (
+        'Assumptions$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->set_column( 0, 255, 50 );
+            $wsheet->set_column( 1, 255, 20 );
+            $wsheet->freeze_panes( 0, 1 );
+            my $logger      = delete $wbook->{logger};
+            my $titleAppend = delete $wbook->{titleAppend};
+            my $noLinks     = $wbook->{noLinks};
+            $wbook->{noLinks} = 1;
+            Notes( name => 'Assumptions' )->wsWrite( $wbook, $wsheet );
+
+            my $table1001headerRowForLater;
+            if (
+                my @table1001Overridable =
+                map {
+                    !$_->{table1001_2016}
+                      ? ()
+                      : [ $_, $_->{table1001_2016}{columns}[3] ];
+                } @{ $me->{scenario} }
+              )
+            {
+                my $rows = $table1001Overridable[0][1]{rows};
+                $me->{table1001Overrides} = {
+                    map {
+                        (
+                            0 + $_->[0] => Dataset(
+                                name          => '',
+                                rows          => $rows,
+                                defaultFormat => '0.0hard',
+                                rowFormats    => [
+                                    map {
+                                        /RPI|\bIndex\b/i ? '0.000hard' : undef;
+                                    } @{ $rows->{list} }
+                                ],
+                                data => [
+                                    map { defined $_ ? '#N/A' : undef; }
+                                      @{ $_->[1]{data} }
+                                ],
+                            )
+                        );
+                    } @table1001Overridable
+                };
+                Notes( name => '151. Schedule 15 input data in £ million' )
+                  ->wsWrite( $wbook, $wsheet );
+                $table1001headerRowForLater = ++$wsheet->{nextFree};
+                Columnset(
+                    name            => '',
+                    number          => 151,
+                    dataset         => $me->{dataset},
+                    noHeaders       => 1,
+                    ignoreDatasheet => 1,
+                    columns         => [
+                        map { $me->{table1001Overrides}{ 0 + $_->[0] } }
+                          @table1001Overridable
+                    ],
+                )->wsWrite( $wbook, $wsheet );
+            }
+
+            Notes( name => '160. Assumed changes in costs and volumes' )
+              ->wsWrite( $wbook, $wsheet );
+            my $headerRowForLater = ++$wsheet->{nextFree};
+            ++$wsheet->{nextFree};
+            Columnset(
+                name            => '',
+                number          => 160,
+                dataset         => $me->{dataset},
+                noHeaders       => 1,
+                ignoreDatasheet => 1,
+                columns         => $me->{assumptionColumns},
+            )->wsWrite( $wbook, $wsheet );
+            push @{ $me->{finishClosures} }, sub {
+                my $thc = $wbook->getFormat('thc');
+                for ( my $i = 0 ; $i < @{ $me->{assumptionColumns} } ; ++$i ) {
+                    my $model = $me->{assumptionColumns}[$i]{model};
+                    my $id = $me->modelIdentifier( $model, $wbook, $wsheet );
+                    $wsheet->write( $table1001headerRowForLater,
+                        $i + 1, $id, $thc )
+                      if defined $table1001headerRowForLater;
+                    $id =~ s/^=/="To "&/;
+                    $wsheet->write( $headerRowForLater + 1, $i + 1, $id, $thc );
+                    $id =
+                      $me->modelIdentifier( $model->{sourceModel}, $wbook,
+                        $wsheet );
+                    $id =~ s/^=/="From "&/;
+                    $wsheet->write( $headerRowForLater, $i + 1, $id, $thc );
+                }
+            };
+            $wbook->{logger}      = $logger;
+            $wbook->{titleAppend} = $titleAppend;
+            $wbook->{noLinks}     = $noLinks;
+        }
+      )
+      : (),
 
       'Schedule 15$' => sub {
         my ($wsheet) = @_;
@@ -289,7 +398,6 @@ sub sheetsForFirstModel {
 
       'Illustrative$' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 12;
         $wsheet->set_column( 0, 255, 64 );
         $wsheet->set_column( 1, 255, 16 );
         $wsheet->freeze_panes( 0, 1 );
@@ -300,11 +408,16 @@ sub sheetsForFirstModel {
             $wbook->{noLinks} = 1;
             $_->wsWrite( $wbook, $wsheet )
               foreach $me->statisticsColumnsets( $wbook, $wsheet,
-                sub { $_[0] =~ /illustrative/i; } );
+                sub { $_[0] =~ /illustrative/i; } ),
+              $me->changeColumnsets(
+                sub {
+                    $_[0] =~ /illustrative/i || $_[0] !~ m¢£/year¢;
+                }
+              );
         };
       },
 
-      'Other$' => sub {
+      'Aggregates$' => sub {
         my ($wsheet) = @_;
         $wsheet->set_column( 0, 255, 50 );
         $wsheet->set_column( 1, 255, 16 );
@@ -315,35 +428,22 @@ sub sheetsForFirstModel {
             $wbook->{noLinks} = 1;
             $_->wsWrite( $wbook, $wsheet )
               foreach $me->statisticsColumnsets( $wbook, $wsheet,
-                sub { $_[0] !~ /input|illustrative/i; } );
-        };
-      },
-
-      'Changes$' => sub {
-        my ($wsheet) = @_;
-        $wsheet->set_column( 0, 255, 50 );
-        $wsheet->set_column( 1, 255, 16 );
-        $wsheet->freeze_panes( 0, 1 );
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Changes', );
-        push @{ $me->{finishClosures} }, sub {
-            $wbook->{noLinks} = 1;
-            $_->wsWrite( $wbook, $wsheet ) foreach $me->changeColumnsets(
+                sub { $_[0] !~ /input|illustrative/i; } ),
+              $me->changeColumnsets(
                 sub {
-                    # $_[0] =~ /input/i ||
-                    $_[0] =~ /illustrative/i && $_[0] !~ m¢£/year¢;
+                    $_[0] !~ /illustrative/i;
                 }
-            );
+              );
         };
       };
 
 }
 
-sub assumptionsClosure {
-    my ( $me, $wbook ) = @_;
+sub setUpAssumptions {
+    my ($me) = @_;
     $me->{assumptionColumns} = [];
     $me->{assumptionRowset}  = Labelset(
         list => [
-            'Change in the price control index (RPI)',              #  0
             'MEAV change: 132kV',                                   #  1
             'MEAV change: 132kV/EHV',                               #  2
             'MEAV change: EHV',                                     #  3
@@ -370,106 +470,10 @@ sub assumptionsClosure {
             'Volume change: generation excess reactive',            # 24
         ]
     );
-    sub {
-        my ($wsheet) = @_;
-        $wsheet->set_column( 0, 255, 50 );
-        $wsheet->set_column( 1, 255, 20 );
-        $wsheet->freeze_panes( 0, 1 );
-        my $logger      = delete $wbook->{logger};
-        my $titleAppend = delete $wbook->{titleAppend};
-        my $noLinks     = $wbook->{noLinks};
-        $wbook->{noLinks} = 1;
-        $_->wsWrite( $wbook, $wsheet )
-          foreach $me->{assumptions} = Notes( name => 'Assumptions' );
-
-        my $table1001headerRowForLater;
-        if (
-            my @table1001Overridable =
-            map {
-                !$_->{table1001_2016}
-                  ? ()
-                  : [ $_, $_->{table1001_2016}{columns}[3] ];
-            } @{ $me->{scenario} }
-          )
-        {
-            my $rows = $table1001Overridable[0][1]{rows};
-            $me->{table1001Overrides} = {
-                map {
-                    (
-                        0 + $_->[0] => Dataset(
-                            name          => '',
-                            rows          => $rows,
-                            defaultFormat => '0.0hard',
-                            rowFormats    => [
-                                map { /RPI|\bIndex\b/i ? '0.000hard' : undef; }
-                                  @{ $rows->{list} }
-                            ],
-                            data => [
-                                map { defined $_ ? '#N/A' : undef; }
-                                  @{ $_->[1]{data} }
-                            ],
-                            usePlaceholderData => 1,
-                        )
-                    );
-                } @table1001Overridable
-            };
-            Notes( name => '100. Schedule 15 input data in £ million' )
-              ->wsWrite( $wbook, $wsheet );
-            $table1001headerRowForLater = ++$wsheet->{nextFree};
-            Columnset(
-                name            => '',
-                number          => 100,
-                noHeaders       => 1,
-                ignoreDatasheet => 1,
-                columns         => [
-                    map { $me->{table1001Overrides}{ 0 + $_->[0] } }
-                      @table1001Overridable
-                ],
-            )->wsWrite( $wbook, $wsheet );
-        }
-
-        Notes( name => '120. Assumed rates of change in costs and volumes' )
-          ->wsWrite( $wbook, $wsheet );
-        my $headerRowForLater = ++$wsheet->{nextFree};
-        ++$wsheet->{nextFree};
-        Columnset(
-            name            => '',
-            number          => 120,
-            noHeaders       => 1,
-            ignoreDatasheet => 1,
-            columns         => $me->{assumptionColumns},
-        )->wsWrite( $wbook, $wsheet );
-        push @{ $me->{finishClosures} }, sub {
-            my $thc = $wbook->getFormat('thc');
-            for ( my $i = 0 ; $i < @{ $me->{assumptionColumns} } ; ++$i ) {
-                my $model = $me->{assumptionColumns}[$i]{model};
-                my $id = $me->modelIdentifier( $model, $wbook, $wsheet );
-                $wsheet->write( $headerRowForLater + 1, $i + 1, $id, $thc );
-                $wsheet->write( $table1001headerRowForLater, $i + 1, $id, $thc )
-                  if defined $table1001headerRowForLater;
-                $wsheet->write(
-                    $headerRowForLater,
-                    $i + 1,
-                    $me->modelIdentifier(
-                        $model->{sourceModel}, $wbook, $wsheet
-                    ),
-                    $thc
-                );
-            }
-        };
-        $wbook->{logger}      = $logger;
-        $wbook->{titleAppend} = $titleAppend;
-        $wbook->{noLinks}     = $noLinks;
-    };
 }
 
-sub worksheetsAndClosures {
-}
-
-sub worksheetsAndClosuresMulti {
-    my ( $me, $model, $wbook, @pairs ) = @_;
-    unshift @pairs, $me->sheetsForFirstModel( $model, $wbook )
-      unless @{ $me->{historical} } || @{ $me->{scenario} };
+sub registerModel {
+    my ( $me, $model ) = @_;
     push @{ $me->{models} }, $model;
     my $assumptionZero;
     if ( ref $model->{dataset} eq 'HASH' ) {
@@ -481,20 +485,18 @@ sub worksheetsAndClosuresMulti {
         elsif ( !$model->{sourceModel} ) {
             $me->{modelByDataset}{ 0 + $model->{dataset} } = $model;
             push @{ $me->{historical} }, $model;
-            return @pairs;
+            return;
         }
     }
     else {
         push @{ $me->{historical} }, $model;
-        return @pairs;
+        return;
     }
-    unshift @pairs, 'Assumptions$' => $me->assumptionsClosure($wbook)
-      unless $me->{assumptionColumns};
     push @{ $me->{scenario} }, $model;
+    $me->setUpAssumptions unless $me->{assumptionColumns};
     push @{ $me->{assumptionColumns} },
       $me->{assumptionsByModel}{ 0 + $model } = Dataset(
         name          => 'Assumptions',
-        number        => 120,
         model         => $model,
         rows          => $me->{assumptionRowset},
         defaultFormat => '%hardpm',
@@ -503,21 +505,17 @@ sub worksheetsAndClosuresMulti {
                 $assumptionZero
                 ? ( map { '' } @{ $me->{assumptionRowset}{list} } )
                 : (
-                    0.03,
-                    qw(0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02 0.02
-                      0.02 0.02 0.02 0.02),
-                    1
-                    ? qw(0 0 0 0 0 0 0 0 0 0)
-                    : qw(-0.01 0
-                      0.01 0.01 0.01 0.01
-                      0
-                      0.03 0.03 0.03)
+                    qw(0.02 0.02 0.02 0.02 0.02 0.02),    # MEAV EHV network
+                    qw(0.02 0.02 0.02 0.02),    # MEAV HV/LV network/service
+                    qw(0.02 0.02 0.02 0.02),    # direct etc.
+                    qw(-0.01 0),                # super-customer
+                    qw(0 0 0 0),                # site-specific
+                    qw(0),                      # un-metered
+                    qw(0.03 0.03 0.03),         # generation
                 )
             ]
         ],
-        usePlaceholderData => 1,
       );
-    @pairs;
 }
 
 sub table1001Overrides {
@@ -537,10 +535,14 @@ sub assumptionsLocator {
     my @assumptionsColumnLocationArray;
     sub {
         my ( $wb, $ws, $row ) = @_;
-        unless ( $row =~ /^[0-9]+$/s ) {
+        if ( $row =~ /^[0-9]+$/s ) {
+            --$row;
+        }
+        else {
             my $q = qr/$row/;
             ($row) = grep { $me->{assumptionRowset}{list}[$_] =~ /$q/; }
               0 .. $#{ $me->{assumptionRowset}{list} };
+            die "$q not found in assumptions table" unless defined $row;
         }
         unless (@assumptionsColumnLocationArray) {
             @assumptionsColumnLocationArray =

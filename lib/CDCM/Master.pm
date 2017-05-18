@@ -123,9 +123,6 @@ sub new {
     my $model = {@_};
     bless $model, $class;
 
-    $model->{sharedData} = ${ $model->{sharingObjectRef} }
-      if $model->{sharingObjectRef};
-
     die 'This system will not build an orange '
       . 'CDCM model without a suitable disclaimer.' . "\n--"
       if $model->{colour}
@@ -160,6 +157,18 @@ sub new {
         else {
             warn $@;
         }
+    }
+
+    if ( $model->{sharingObjectRef} ) {
+        $model->{sharedData} = ${ $model->{sharingObjectRef} } ||= eval {
+            require Multiyear::Master;
+            my $multi =
+              Multiyear->new( assumptionsSheet => $model->{assumptionsSheet} );
+            push @{ $model->{extraModelsToProcessFirst} }, $multi;
+            $multi;
+        };
+        $model->{sharedData}->registerModel($model)
+          if UNIVERSAL::can( $model->{sharedData}, 'registerModel' );
     }
 
     if ( my $sm = $model->{sourceModel} ) {
@@ -867,15 +876,15 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
       if $model->{inYear} && $model->{inYear} =~ /target/;
 
     (
-        $allTariffs, $allTariffsByEndUser, $volumeData,
-        $unitsInYear, $tariffTable,
+        $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,
+        $tariffTable,
       )
       = $model->pcdApplyDiscounts( $allComponents, $tariffTable, $daysInYear, )
       if $model->{pcd};
 
     (
-        $allTariffs, $allTariffsByEndUser, $volumeData,
-        $unitsInYear, $tariffTable,
+        $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,
+        $tariffTable,
       )
       = $model->degroupTariffs( $allComponents, $tariffTable )
       if $model->{tariffGrouping};

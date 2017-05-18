@@ -59,25 +59,14 @@ sub derivativeDataset {
                   if $table1001data
                   && $table1001data->[$col]
                   && defined $table1001data->[$col]{$irow};
-                return defined $hardData ? $hardData : "=$cell"
+                return $hardData if defined $hardData;
+                return "=$cell"
                   unless $col == 4;
-                my $isIndexRow = $row =~ /RPI Index/i;
-                my $preOverride =
-                  defined $hardData ? $hardData
-                  : $isIndexRow     ? ( "(1+"
-                      . $getAssumptionCell->( $wb, $ws, 'RPI' )
-                      . ")*$cell" )
-                  : $cell;
-                if ( my $override =
-                    $model->{sharedData}
-                    ->table1001Overrides( $model, $wb, $ws, $row ) )
-                {
-                    return
-                        qq%=IF(ISERROR(0+$override),$preOverride,%
-                      . ( $isIndexRow ? '' : '1e6*' )
-                      . qq%$override)%;
-                }
-                "=$preOverride";
+                my $isIndexRow  = $row =~ /Price index|RPI index/i;
+                my $preOverride = defined $hardData ? $hardData : $cell;
+                my $override    = $model->{sharedData}
+                  ->table1001Overrides( $model, $wb, $ws, $row );
+                "=$override" . ( $isIndexRow ? '' : '*1e6' );
             }
         );
 
@@ -131,9 +120,9 @@ sub derivativeDataset {
                     $wb, $ws,
                     $col < 4
                     ? ( /unmet/i ? 21 : /gener/i ? 22 : /half[ -]hourly/i
-                          && !/aggreg/i ? 17 : 15 )
+                          && !/aggreg|network domestic|non[ -]ct|wc/i ? 17 : 15 )
                     : $col == 4 ? ( /gener/i ? 23 : /half[ -]hourly/i
-                          && !/aggreg/i ? 18 : 16 )
+                          && !/aggreg|network domestic|non[ -]ct|wc/i ? 18 : 16 )
                     : $col == 5 || $unauthInSource && $col == 6 ? 19
                     : ( /gener/i ? 24 : 20 ),
                 );

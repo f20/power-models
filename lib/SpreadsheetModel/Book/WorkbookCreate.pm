@@ -186,9 +186,19 @@ sub create {
     }
 
     my @loggers;
+    if ($#optionArray) {
+        my @toNumber = grep { !defined $_->{modelNumberSuffix}; } @optionArray;
+        if ( @toNumber > 9 ) {
+            $toNumber[ $_ - 1 ]{modelNumberSuffix} = $_ > 9 ? ".$_" : ".0$_"
+              foreach 1 .. @toNumber;
+        }
+        elsif ( @toNumber > 1 ) {
+            $toNumber[ $_ - 1 ]{modelNumberSuffix} = ".$_"
+              foreach 1 .. @toNumber;
+        }
+    }
     foreach my $optionNumber ( 0 .. $#optionArray ) {
         my $options = $optionArray[$optionNumber];
-        my $modelCount = @optionArray > 1 ? '.' . ( 1 + $optionNumber ) : '';
         $options->{exporterObject} = undef if $exporter;
         $options->{sharingObjectRef} = \$multiModelSharing if $#optionArray;
         my $model = eval { $options->{PerlModule}->new(%$options) };
@@ -221,7 +231,8 @@ EOW
           if $options->{requestsToSeeModel};
         $forwardLinkFindingRun[$optionNumber] = $model
           if $options->{forwardLinks};
-        $options->{revisionText} ||= '';
+        $options->{revisionText}      ||= '';
+        $options->{modelNumberSuffix} ||= '';
         $wbook->{titlePrefix} =
             $options->{titlePrefix} eq 'revision'
           ? $options->{revisionText}
@@ -236,11 +247,11 @@ EOW
         while ( ( local $_, my $closure ) = splice @pairs, 0, 2 ) {
             my $priority = $canPriority ? $model->sheetPriority($_)
               || 0 : /^(?:Index|Overview)$/is ? 1 : 0;
-            my $fullName = $_ . $modelCount;
+            my $fullName = $_ . $options->{modelNumberSuffix};
             $sheetDisplayName{$fullName} =
-                m#(.*)/#  ? $1 . $modelCount
+                m#(.*)/#  ? $1 . $options->{modelNumberSuffix}
               : /(.*)\$$/ ? $1
-              :             $_ . $modelCount;
+              :             $_ . $options->{modelNumberSuffix};
             push @{ $options->{wsheetRunOrder} }, $fullName;
             push @{ $wsheetShowOrder[$priority] }, $fullName;
             $allClosures{$fullName} = $closure;
@@ -277,9 +288,8 @@ EOW
     $wbook->{$_} = $wsheet{$_} foreach keys %wsheet;
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
-        my $modelCount = $_ ? ".$_" : '';
-        $modelCount = '.' . ( 1 + $_ ) if @optionArray > 1;
-        $wbook->{dataSheet} = $wsheet{ 'Input' . $modelCount };
+        $wbook->{dataSheet} =
+          $wsheet{ 'Input' . $options->{modelNumberSuffix} };
         delete $wbook->{highestAutoTableNumber};
 
         if ( $forwardLinkFindingRun[$_] ) {
@@ -330,7 +340,7 @@ EOW
         }
 
         if ($exporter) {
-            $exporter->setModel( $modelCount, $options );
+            $exporter->setModel( $options->{modelNumberSuffix}, $options );
             $exporter->$_() foreach @exports;
         }
 

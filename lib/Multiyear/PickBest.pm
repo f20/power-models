@@ -33,7 +33,7 @@ use utf8;
 
 sub wantTables {
     my ( $class, $rule ) = @_;
-    100;
+    151;
 }
 
 sub score {
