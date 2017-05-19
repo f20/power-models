@@ -31,7 +31,9 @@ use warnings;
 use strict;
 use utf8;
 use Multiyear::DataDerivative;
-use Spreadsheet::WriteExcel::Utility;
+use Multiyear::Assumptions;
+use Multiyear::Schedule15;
+use Multiyear::Statistics;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub sheetPriority {
@@ -140,7 +142,7 @@ sub indexFinishClosure {
                 map {
                     [
                         $me->{scenario}[$_]{nickName} || 'Scenario model',
-                        $me->{assumptionColumns}[$_],
+                        $me->{percentageAssumptionColumns}[$_],
                         @{ $me->{scenario}[$_]{sheetLinks} },
                     ];
                 } 0 .. $#{ $me->{scenario} }
@@ -211,6 +213,7 @@ sub worksheetsAndClosures {
                         );
                     } @table1001Overridable
                 };
+
                 Notes( name => '151. Schedule 15 input data in £ million' )
                   ->wsWrite( $wbook, $wsheet );
                 $table1001headerRowForLater = ++$wsheet->{nextFree};
@@ -225,9 +228,10 @@ sub worksheetsAndClosures {
                           @table1001Overridable
                     ],
                 )->wsWrite( $wbook, $wsheet );
+
             }
 
-            Notes( name => '160. Assumed changes in costs and volumes' )
+            Notes( name => '160. Percentage changes in costs and volumes' )
               ->wsWrite( $wbook, $wsheet );
             my $headerRowForLater = ++$wsheet->{nextFree};
             ++$wsheet->{nextFree};
@@ -237,16 +241,37 @@ sub worksheetsAndClosures {
                 dataset         => $me->{dataset},
                 noHeaders       => 1,
                 ignoreDatasheet => 1,
-                columns         => $me->{assumptionColumns},
+                columns         => $me->{percentageAssumptionColumns},
             )->wsWrite( $wbook, $wsheet );
+
+            my $headerRow165;
+            if ( $me->{overrideAssumptionColumns} ) {
+                Notes( name => '165. Other input data changes' )
+                  ->wsWrite( $wbook, $wsheet );
+                $headerRow165 = ++$wsheet->{nextFree};
+                Columnset(
+                    name            => '',
+                    number          => 165,
+                    dataset         => $me->{dataset},
+                    noHeaders       => 1,
+                    ignoreDatasheet => 1,
+                    columns         => $me->{overrideAssumptionColumns},
+                )->wsWrite( $wbook, $wsheet );
+            }
+
             push @{ $me->{finishClosures} }, sub {
                 my $thc = $wbook->getFormat('thc');
-                for ( my $i = 0 ; $i < @{ $me->{assumptionColumns} } ; ++$i ) {
-                    my $model = $me->{assumptionColumns}[$i]{model};
+                for (
+                    my $i = 0 ;
+                    $i < @{ $me->{percentageAssumptionColumns} } ;
+                    ++$i
+                  )
+                {
+                    my $model = $me->{percentageAssumptionColumns}[$i]{model};
                     my $id = $me->modelIdentifier( $model, $wbook, $wsheet );
-                    $wsheet->write( $table1001headerRowForLater,
-                        $i + 1, $id, $thc )
-                      if defined $table1001headerRowForLater;
+                    $wsheet->write( $_, $i + 1, $id, $thc )
+                      foreach grep { defined $_; } $table1001headerRowForLater,
+                      $headerRow165;
                     $id =~ s/^=/="To "&/;
                     $wsheet->write( $headerRowForLater + 1, $i + 1, $id, $thc );
                     $id =
@@ -256,9 +281,11 @@ sub worksheetsAndClosures {
                     $wsheet->write( $headerRowForLater, $i + 1, $id, $thc );
                 }
             };
+
             $wbook->{logger}      = $logger;
             $wbook->{titleAppend} = $titleAppend;
             $wbook->{noLinks}     = $noLinks;
+
         }
       )
       : (),
@@ -268,132 +295,10 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 254, 16 );
         $wsheet->freeze_panes( 0, 1 );
-        foreach my $t1001version (qw(2016 2012)) {
-            push @{ $me->{finishClosures} }, sub {
-
-                my @t1001 = map {
-                        $_->{"table1001_$t1001version"}
-                      ? $_->{"table1001_$t1001version"}
-                      : undef;
-                } @{ $me->{models} };
-
-                my ($first1001) = grep { $_ } @t1001 or return;
-                my $rowset     = $first1001->{columns}[0]{rows};
-                my $rowformats = $first1001->{columns}[3]{rowFormats};
-                $wbook->{noLinks} = 1;
-                my $needNote1 = 1;
-                Columnset(
-                    name => 'Allowed revenue summary (Schedule 15 table 1, '
-                      . $t1001version
-                      . ' version)',
-                    columns => [
-                        (
-                            map {
-                                Stack(
-                                    name    => $_->{name},
-                                    rows    => $rowset,
-                                    sources => [
-                                        $_,
-                                        Constant(
-                                            rows => $rowset,
-                                            data => [
-                                                [
-                                                    map { '' }
-                                                      @{ $rowset->{list} }
-                                                ]
-                                            ]
-                                        )
-                                    ],
-                                    defaultFormat => 'textnocolour',
-                                );
-                            } @{ $first1001->{columns} }[ 0 .. 2 ]
-                        ),
-                        (
-                            map {
-                                my $t1001 = $t1001[ $_ - 1 ];
-                                $t1001
-                                  ? SpreadsheetModel::Custom->new(
-                                    name          => "Model $_",
-                                    rows          => $rowset,
-                                    custom        => [ '=A1', '=A2' ],
-                                    defaultFormat => 'millioncopy',
-                                    arguments     => {
-                                        A1 => $t1001->{columns}[3],
-                                        A2 => $t1001->{columns}[4],
-                                    },
-                                    model     => $me->{models}[ $_ - 1 ],
-                                    wsPrepare => sub {
-                                        my ( $self, $wb, $ws, $format, $formula,
-                                            $pha, $rowh, $colh )
-                                          = @_;
-                                        $self->{name} =
-                                          $me->modelIdentifier( $self->{model},
-                                            $wb, $ws );
-                                        if ($needNote1) {
-                                            undef $needNote1;
-                                            push @{ $self->{location}
-                                                  {postWriteCalls}{$wb} }, sub {
-                                                my ( $me, $wbMe,
-                                                    $wsMe, $rowrefMe, $colMe )
-                                                  = @_;
-                                                $wsMe->write_string(
-                                                    $$rowrefMe += 2,
-                                                    $colMe - 1,
-                                                    'Note 1: '
-                                                      . 'Cost categories associated '
-                                                      . 'with excluded services should '
-                                                      . 'only be populated '
-                                                      . 'if the Company recovers the '
-                                                      . 'costs of providing '
-                                                      . 'these services from '
-                                                      . 'Use of System Charges.',
-                                                    $wb->getFormat('text')
-                                                );
-                                                  };
-                                        }
-                                        my $boldFormat = $wb->getFormat(
-                                            [
-                                                base => 'millioncopy',
-                                                bold => 1
-                                            ]
-                                        );
-
-                                        sub {
-                                            my ( $x, $y ) = @_;
-                                            local $_ = $rowformats->[$y];
-                                            $_ && /hard/
-                                              ? (
-                                                '',
-                                                /(0\.0+)hard/
-                                                ? $wb->getFormat( $1 . 'copy' )
-                                                : $format,
-                                                $formula->[0],
-                                                qr/\bA1\b/ => xl_rowcol_to_cell(
-                                                    $rowh->{A1} + $y,
-                                                    $colh->{A1},
-                                                    1
-                                                )
-                                              )
-                                              : (
-                                                '',
-                                                $boldFormat,
-                                                $formula->[1],
-                                                qr/\bA2\b/ => xl_rowcol_to_cell(
-                                                    $rowh->{A2} + $y,
-                                                    $colh->{A2},
-                                                    1
-                                                )
-                                              );
-                                        };
-                                    },
-                                  )
-                                  : ();
-                            } 1 .. @t1001,
-                        )
-                    ]
-                )->wsWrite( $wbook, $wsheet );
-            };
-        }
+        push @{ $me->{finishClosures} }, sub {
+            $_->wsWrite( $wbook, $wsheet )
+              foreach map { $me->schedule15($_); } qw(2016 2012);
+        };
       },
 
       'Illustrative$' => sub {
@@ -437,382 +342,6 @@ sub worksheetsAndClosures {
         };
       };
 
-}
-
-sub setUpAssumptions {
-    my ($me) = @_;
-    $me->{assumptionColumns} = [];
-    $me->{assumptionRowset}  = Labelset(
-        list => [
-            'MEAV change: 132kV',                                   #  1
-            'MEAV change: 132kV/EHV',                               #  2
-            'MEAV change: EHV',                                     #  3
-            'MEAV change: EHV/HV',                                  #  4
-            'MEAV change: 132kV/HV',                                #  5
-            'MEAV change: HV network',                              #  6
-            'MEAV change: HV service',                              #  7
-            'MEAV change: HV/LV',                                   #  8
-            'MEAV change: LV network',                              #  9
-            'MEAV change: LV service',                              # 10
-            'Cost change: direct costs',                            # 11
-            'Cost change: indirect costs',                          # 12
-            'Cost change: network rates',                           # 13
-            'Cost change: transmission exit',                       # 14
-            'Volume change: supercustomer metered demand units',    # 15
-            'Volume change: supercustomer metered demand MPANs',    # 16
-            'Volume change: site-specific metered demand units',    # 17
-            'Volume change: site-specific metered demand MPANs',    # 18
-            'Volume change: demand capacity',                       # 19
-            'Volume change: demand excess reactive',                # 20
-            'Volume change: unmetered demand units',                # 21
-            'Volume change: generation units',                      # 22
-            'Volume change: generation MPANs',                      # 23
-            'Volume change: generation excess reactive',            # 24
-        ]
-    );
-}
-
-sub registerModel {
-    my ( $me, $model ) = @_;
-    push @{ $me->{models} }, $model;
-    my $assumptionZero;
-    if ( ref $model->{dataset} eq 'HASH' ) {
-        if ( my $sourceModel = $me->{modelByDataset}{ 0 + $model->{dataset} } )
-        {
-            $model->{sourceModel} = $sourceModel;
-            $assumptionZero = 1;
-        }
-        elsif ( !$model->{sourceModel} ) {
-            $me->{modelByDataset}{ 0 + $model->{dataset} } = $model;
-            push @{ $me->{historical} }, $model;
-            return;
-        }
-    }
-    else {
-        push @{ $me->{historical} }, $model;
-        return;
-    }
-    push @{ $me->{scenario} }, $model;
-    $me->setUpAssumptions unless $me->{assumptionColumns};
-    push @{ $me->{assumptionColumns} },
-      $me->{assumptionsByModel}{ 0 + $model } = Dataset(
-        name          => 'Assumptions',
-        model         => $model,
-        rows          => $me->{assumptionRowset},
-        defaultFormat => '%hardpm',
-        data          => [
-            [
-                $assumptionZero
-                ? ( map { '' } @{ $me->{assumptionRowset}{list} } )
-                : (
-                    qw(0.02 0.02 0.02 0.02 0.02 0.02),    # MEAV EHV network
-                    qw(0.02 0.02 0.02 0.02),    # MEAV HV/LV network/service
-                    qw(0.02 0.02 0.02 0.02),    # direct etc.
-                    qw(-0.01 0),                # super-customer
-                    qw(0 0 0 0),                # site-specific
-                    qw(0),                      # un-metered
-                    qw(0.03 0.03 0.03),         # generation
-                )
-            ]
-        ],
-      );
-}
-
-sub table1001Overrides {
-    my ( $me, $model, $wb, $ws, $rowName ) = @_;
-    my $dataset = $me->{table1001Overrides}{ 0 + $model };
-    return unless $dataset;
-    my ($row) = grep { $rowName eq $dataset->{rows}{list}[$_]; }
-      0 .. $#{ $dataset->{rows}{list} };
-    return unless defined $row;
-    my ( $wsheet, $ro, $co ) = $dataset->wsWrite( $wb, $ws );
-    return unless $wsheet;
-    q%'% . $wsheet->get_name . q%'!% . xl_rowcol_to_cell( $ro + $row, $co );
-}
-
-sub assumptionsLocator {
-    my ( $me, $model, $sourceModel ) = @_;
-    my @assumptionsColumnLocationArray;
-    sub {
-        my ( $wb, $ws, $row ) = @_;
-        if ( $row =~ /^[0-9]+$/s ) {
-            --$row;
-        }
-        else {
-            my $q = qr/$row/;
-            ($row) = grep { $me->{assumptionRowset}{list}[$_] =~ /$q/; }
-              0 .. $#{ $me->{assumptionRowset}{list} };
-            die "$q not found in assumptions table" unless defined $row;
-        }
-        unless (@assumptionsColumnLocationArray) {
-            @assumptionsColumnLocationArray =
-              $me->{assumptionsByModel}{ 0 + $model }->wsWrite( $wb, $ws );
-            $assumptionsColumnLocationArray[0] =
-              q%'% . $assumptionsColumnLocationArray[0]->get_name . q%'!%;
-        }
-        $assumptionsColumnLocationArray[0]
-          . xl_rowcol_to_cell(
-            $assumptionsColumnLocationArray[1] + $row,
-            $assumptionsColumnLocationArray[2],
-            1, 1
-          );
-    };
-}
-
-sub statisticsColumnsets {
-    my ( $me, $wbook, $wsheet, $filter ) = @_;
-    map {
-        my $rows = Labelset( list => $me->{statsRows}[$_] );
-        my $statsMaps = $me->{statsMap}[$_];
-        $rows->{groups} = 'fake';
-        for ( my $r = 0 ; $r < @{ $rows->{list} } ; ++$r ) {
-            $rows->{groupid}[$r] = 'fake'
-              if grep { $_->[$r] } values %$statsMaps;
-        }
-        my @columns =
-          map {
-            if ( my $relevantMap = $statsMaps->{ 0 + $_ } ) {
-                SpreadsheetModel::Custom->new(
-                    name => $me->modelIdentifier( $_, $wbook, $wsheet ),
-                    rows => $rows,
-                    custom    => [ map { "=A1$_"; } 0 .. $#$relevantMap ],
-                    arguments => {
-                        map {
-                            my $t;
-                            $t = $relevantMap->[$_][0]
-                              if $relevantMap->[$_];
-                            $t ? ( "A1$_" => $t ) : ();
-                        } 0 .. $#$relevantMap
-                    },
-                    defaultFormat => '0.000copy',
-                    rowFormats    => [
-                        map {
-                            if ( $_ && $_->[0] ) {
-                                local $_ = $_->[0]{rowFormats}[ $_->[2] ]
-                                  || $_->[0]{defaultFormat};
-                                s/(?:soft|hard|con)/copy/ if $_ && !ref $_;
-                                $_;
-                            }
-                            else { 'unavailable'; }
-                        } @$relevantMap
-                    ],
-                    wsPrepare => sub {
-                        my ( $self, $wb, $ws, $format, $formula,
-                            $pha, $rowh, $colh )
-                          = @_;
-                        sub {
-                            my ( $x, $y ) = @_;
-                            my $cellFormat =
-                                $self->{rowFormats}[$y]
-                              ? $wb->getFormat( $self->{rowFormats}[$y] )
-                              : $format;
-                            return '', $cellFormat
-                              unless $relevantMap->[$y];
-                            my ( $table, $offx, $offy ) =
-                              @{ $relevantMap->[$y] };
-                            my $ph = "A1$y";
-                            '', $cellFormat, $formula->[$y],
-                              qr/\b$ph\b/ => xl_rowcol_to_cell(
-                                $rowh->{$ph} + $offy,
-                                $colh->{$ph} + $offx,
-                                1, 1,
-                              );
-                        };
-                    },
-                );
-            }
-            else {
-                ();
-            }
-          } @{ $me->{models} };
-        $me->{statsColumnsets}[$_] = Columnset(
-            name    => $me->{statsSections}[$_],
-            columns => \@columns,
-        );
-      } grep {
-        $me->{statsRows}[$_]
-          && @{ $me->{statsRows}[$_] }
-          && $filter->( $me->{statsSections}[$_] );
-      } 0 .. $#{ $me->{statsSections} };
-}
-
-sub changeColumnsets {
-    my ( $me, $filter ) = @_;
-    my %modelMap =
-      map { ( 0 + $me->{models}[$_], $_ ) } 0 .. $#{ $me->{models} };
-    my @modelNumbers;
-    foreach ( 1 .. $#{ $me->{historical} } ) {
-        my $old = $me->{historical}[ $_ - 1 ]{dataset}{1000}[2]
-          {'Company charging year data version'};
-        my $new = $me->{historical}[$_]{dataset}{1000}[2]
-          {'Company charging year data version'};
-        next unless $old && $new && $old ne $new;
-        push @modelNumbers,
-          [
-            $modelMap{ 0 + $me->{historical}[ $_ - 1 ] },
-            $modelMap{ 0 + $me->{historical}[$_] },
-          ];
-    }
-    foreach ( @{ $me->{assumptionColumns} } ) {
-        my $model = $_->{model};
-        push @modelNumbers,
-          [ $modelMap{ 0 + $model->{sourceModel} }, $modelMap{ 0 + $model }, ];
-    }
-    map {
-        my $cols = $me->{statsColumnsets}[$_]{columns};
-        my ( @cola, @colb );
-        foreach (@modelNumbers) {
-            my ( $before, $after ) = @{$cols}[@$_];
-            next unless $before && $after;
-            push @cola, Arithmetic(
-                name          => $after->{name},
-                defaultFormat => '0.000softpm',
-                rowFormats    => [
-                    map {
-                             !defined $before->{rowFormats}[$_]
-                          || !defined $after->{rowFormats}[$_] ? undef
-                          : $before->{rowFormats}[$_] eq 'unavailable'
-                          || $after->{rowFormats}[$_] eq 'unavailable'
-                          ? 'unavailable'
-                          : eval {
-                            local $_ = $after->{rowFormats}[$_];
-                            s/copy|soft/softpm/;
-                            $_;
-                          };
-                    } 0 .. $#{ $after->{rows}{list} }
-                ],
-                arithmetic => '=A1-A2',
-                arguments  => { A1 => $after, A2 => $before, },
-            );
-            push @colb, Arithmetic(
-                name          => $after->{name},
-                defaultFormat => '%softpm',
-                rowFormats    => [
-                    map {
-                             !defined $before->{rowFormats}[$_]
-                          || !defined $after->{rowFormats}[$_] ? undef
-                          : $before->{rowFormats}[$_] eq 'unavailable'
-                          || $after->{rowFormats}[$_] eq 'unavailable'
-                          ? 'unavailable'
-                          : undef;
-                    } 0 .. $#{ $after->{rows}{list} }
-                ],
-                arithmetic => '=IF(A2,A1/A3-1,"")',
-                arguments  => { A1 => $after, A2 => $before, A3 => $before, },
-            );
-        }
-        (
-            @cola ? Columnset(
-                name    => "Change: $me->{statsColumnsets}[$_]{name}",
-                columns => \@cola,
-              )
-            : (),
-            @colb ? Columnset(
-                name    => "Relative change: $me->{statsColumnsets}[$_]{name}",
-                columns => \@colb,
-              )
-            : ()
-        );
-      } grep {
-        $me->{statsColumnsets}[$_] && $filter->( $me->{statsSections}[$_] );
-      } 0 .. $#{ $me->{statsSections} };
-
-}
-
-sub addStats {
-    my ( $me, $section, $model, @tables ) = @_;
-    my ($sectionNumber) = grep { $section eq $me->{statsSections}[$_]; }
-      0 .. $#{ $me->{statsSections} };
-    unless ( defined $sectionNumber ) {
-        push @{ $me->{statsSections} }, $section;
-        $sectionNumber = $#{ $me->{statsSections} };
-    }
-    foreach my $table (@tables) {
-        my $lastCol = $table->lastCol;
-        if ( my $lastRow = $table->lastRow ) {
-            for ( my $row = 0 ; $row <= $lastRow ; ++$row ) {
-                my $groupid;
-                $groupid = $table->{rows}{groupid}[$row]
-                  if $table->{rows}{groupid};
-                for ( my $col = 0 ; $col <= $lastCol ; ++$col ) {
-                    my $name = "$table->{rows}{list}[$row]";
-                    $name .= " — $table->{cols}{list}[$col]"
-                      if $lastCol
-                      and !$table->{rows}{groups} || defined $groupid;
-                    my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
-                    unless ( defined $rowNumber ) {
-                        if ( defined $groupid ) {
-                            my $group = "$table->{rows}{groups}[$groupid]";
-                            my $groupRowNumber =
-                              $me->{statsRowMap}[$sectionNumber]{$group};
-                            if ( defined $groupRowNumber ) {
-                                for (
-                                    my $i = $groupRowNumber + 1 ;
-                                    $i <=
-                                    $#{ $me->{statsRows}[$sectionNumber] } ;
-                                    ++$i
-                                  )
-                                {
-                                    if ( $me->{statsRows}[$sectionNumber][$i] !~
-                                        /^$group \(/ )
-                                    {
-                                        $rowNumber = $i;
-                                        last;
-                                    }
-                                }
-                            }
-                            if ( defined $rowNumber ) {
-                                splice @{ $me->{statsRows}[$sectionNumber] },
-                                  $rowNumber, 0, $name;
-                                foreach my $ma (
-                                    values %{ $me->{statsMap}[$sectionNumber] }
-                                  )
-                                {
-                                    for ( my $i = @$ma ;
-                                        $i > $rowNumber ; --$i )
-                                    {
-                                        $ma->[$i] = $ma->[ $i - 1 ];
-                                    }
-                                }
-                                map    { ++$_ }
-                                  grep { $_ >= $rowNumber }
-                                  values %{ $me->{statsRowMap}[$sectionNumber]
-                                  };
-                                $me->{statsRowMap}[$sectionNumber]{$name} =
-                                  $rowNumber;
-                            }
-                        }
-                        unless ( defined $rowNumber ) {
-                            push @{ $me->{statsRows}[$sectionNumber] }, $name;
-                            $rowNumber =
-                              $me->{statsRowMap}[$sectionNumber]{$name} =
-                              $#{ $me->{statsRows}[$sectionNumber] };
-                        }
-                    }
-                    $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
-                      [ $table, $col, $row ]
-                      unless $table->{rows}{groupid} && !defined $groupid;
-                }
-            }
-        }
-        else {
-            for ( my $col = 0 ; $col <= $lastCol ; ++$col ) {
-                my $name =
-                  UNIVERSAL::can( $table->{name}, 'shortName' )
-                  ? $table->{name}->shortName
-                  : "$table->{name}";
-                $name .= " $table->{cols}{list}[$col]" if $lastCol;
-                my $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name};
-                unless ( defined $rowNumber ) {
-                    push @{ $me->{statsRows}[$sectionNumber] }, $name;
-                    $rowNumber = $me->{statsRowMap}[$sectionNumber]{$name} =
-                      $#{ $me->{statsRows}[$sectionNumber] };
-                }
-                $me->{statsMap}[$sectionNumber]{ 0 + $model }[$rowNumber] =
-                  [ $table, $col, 0 ];
-            }
-        }
-    }
 }
 
 sub finish {

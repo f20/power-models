@@ -46,7 +46,8 @@ sub derivativeDataset {
     if (
         $model->{sharedData}
         && ( my $getAssumptionCell =
-            $model->{sharedData}->assumptionsLocator( $model, $sourceModel ) )
+            $model->{sharedData}
+            ->percentageAssumptionsLocator( $model, $sourceModel ) )
       )
     {
 
@@ -67,6 +68,20 @@ sub derivativeDataset {
                 my $override    = $model->{sharedData}
                   ->table1001Overrides( $model, $wb, $ws, $row );
                 "=$override" . ( $isIndexRow ? '' : '*1e6' );
+            }
+        );
+
+        $addSourceDatasetAdjuster->(
+            1010 => sub {
+                my ( $cell, undef, $col, $wb, $ws ) = @_;
+                my $override;
+                $override =
+                  $model->{sharedData}
+                  ->generalOverride( $model, $wb, $ws, 'Days in year' )
+                  if $col == 5;
+                $override
+                  ? "=IF(IF(ISNUMBER($override),$override,0),$override,$cell)"
+                  : "=$cell";
             }
         );
 
@@ -119,10 +134,20 @@ sub derivativeDataset {
                 my $ac = $getAssumptionCell->(
                     $wb, $ws,
                     $col < 4
-                    ? ( /unmet/i ? 21 : /gener/i ? 22 : /half[ -]hourly/i
-                          && !/aggreg|network domestic|non[ -]ct|wc/i ? 17 : 15 )
-                    : $col == 4 ? ( /gener/i ? 23 : /half[ -]hourly/i
-                          && !/aggreg|network domestic|non[ -]ct|wc/i ? 18 : 16 )
+                    ? (
+                          /unmet/i ? 21
+                        : /gener/i ? 22
+                        : /half[ -]hourly/i
+                          && !/aggreg|network domestic|non[ -]ct|wc/i ? 17
+                        : 15
+                      )
+                    : $col == 4 ? (
+                        /gener/i
+                        ? 23
+                        : /half[ -]hourly/i
+                          && !/aggreg|network domestic|non[ -]ct|wc/i ? 18
+                        : 16
+                      )
                     : $col == 5 || $unauthInSource && $col == 6 ? 19
                     : ( /gener/i ? 24 : 20 ),
                 );
