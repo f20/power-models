@@ -56,12 +56,13 @@ sub setUpAssumptions {
             'Volume change: supercustomer metered demand MPANs',    # 16
             'Volume change: site-specific metered demand units',    # 17
             'Volume change: site-specific metered demand MPANs',    # 18
-            'Volume change: demand capacity',                       # 19
-            'Volume change: demand excess reactive',                # 20
-            'Volume change: unmetered demand units',                # 21
-            'Volume change: generation units',                      # 22
-            'Volume change: generation MPANs',                      # 23
-            'Volume change: generation excess reactive',            # 24
+            'Volume change: demand agreed capacity',                # 19
+            'Volume change: demand exceeded capacity',              # 20
+            'Volume change: demand excess reactive',                # 21
+            'Volume change: unmetered demand units',                # 22
+            'Volume change: generation units',                      # 23
+            'Volume change: generation MPANs',                      # 24
+            'Volume change: generation excess reactive',            # 25
         ]
     );
     $me->{overrideAssumptionColumns} = [];
@@ -71,12 +72,10 @@ sub setUpAssumptions {
 sub registerModel {
     my ( $me, $model ) = @_;
     push @{ $me->{models} }, $model;
-    my $assumptionZero;
     if ( ref $model->{dataset} eq 'HASH' ) {
         if ( my $sourceModel = $me->{modelByDataset}{ 0 + $model->{dataset} } )
         {
             $model->{sourceModel} = $sourceModel;
-            $assumptionZero = 1;
         }
         elsif ( !$model->{sourceModel} ) {
             $me->{modelByDataset}{ 0 + $model->{dataset} } = $model;
@@ -95,21 +94,7 @@ sub registerModel {
         model         => $model,
         rows          => $me->{percentageAssumptionRowset},
         defaultFormat => '%hardpm',
-        data          => [
-            [
-                $assumptionZero
-                ? ( map { '' } @{ $me->{percentageAssumptionRowset}{list} } )
-                : (
-                    qw(0.02 0.02 0.02 0.02 0.02 0.02),    # MEAV EHV network
-                    qw(0.02 0.02 0.02 0.02),    # MEAV HV/LV network/service
-                    qw(0.02 0.02 0.02 0.02),    # direct etc.
-                    qw(-0.01 0),                # super-customer
-                    qw(0 0 0 0),                # site-specific
-                    qw(0),                      # un-metered
-                    qw(0.03 0.03 0.03),         # generation
-                )
-            ]
-        ],
+        data => [ [ map { '' } @{ $me->{percentageAssumptionRowset}{list} } ] ],
       );
 
     push @{ $me->{overrideAssumptionColumns} },

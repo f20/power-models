@@ -61,8 +61,7 @@ sub derivativeDataset {
                   && $table1001data->[$col]
                   && defined $table1001data->[$col]{$irow};
                 return $hardData if defined $hardData;
-                return "=$cell"
-                  unless $col == 4;
+                return "=$cell" unless $col == 4;
                 my $isIndexRow  = $row =~ /Price index|RPI index/i;
                 my $preOverride = defined $hardData ? $hardData : $cell;
                 my $override    = $model->{sharedData}
@@ -79,9 +78,9 @@ sub derivativeDataset {
                   $model->{sharedData}
                   ->generalOverride( $model, $wb, $ws, 'Days in year' )
                   if $col == 5;
-                $override
-                  ? "=IF(IF(ISNUMBER($override),$override,0),$override,$cell)"
-                  : "=$cell";
+                0 ? "=IF(IF(ISNUMBER($override),$override,0),$override,$cell)"
+                  : $override ? "=$override"
+                  :             "=$cell";
             }
         );
 
@@ -135,21 +134,22 @@ sub derivativeDataset {
                     $wb, $ws,
                     $col < 4
                     ? (
-                          /unmet/i ? 21
-                        : /gener/i ? 22
+                          /unmet/i ? 22
+                        : /gener/i ? 23
                         : /half[ -]hourly/i
                           && !/aggreg|network domestic|non[ -]ct|wc/i ? 17
                         : 15
                       )
                     : $col == 4 ? (
                         /gener/i
-                        ? 23
+                        ? 24
                         : /half[ -]hourly/i
                           && !/aggreg|network domestic|non[ -]ct|wc/i ? 18
                         : 16
                       )
-                    : $col == 5 || $unauthInSource && $col == 6 ? 19
-                    : ( /gener/i ? 24 : 20 ),
+                    : $col == 5 ? 19
+                    : $unauthInSource && $col == 6 ? 20
+                    : ( /gener/i ? 25 : 21 ),
                 );
                 "=(1+$ac)*$cell";
             }

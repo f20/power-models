@@ -1,39 +1,39 @@
 ---
 151:
   - _table: 151. Schedule 15 input data in £ million
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 10.6599312564843
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 6.47144539840873
     2 Revenue raised outside CDCM Voluntary under-recovery: 0
     3 Revenue raised outside CDCM Please describe if used: 0
     4 Revenue raised outside CDCM Please describe if used: 0
     Allowed Pass-Through Items: ''
-    Annual Iteration adjustment before inflation: -3.03998390233517
-    Base Demand Revenue before inflation: 322
+    Annual Iteration adjustment before inflation: -2.2891547797291
+    Base Demand Revenue before inflation: 246.5
     Base demand revenue: ''
-    Broad Measure of Customer Service incentive: 3.0604738660468
+    Broad Measure of Customer Service incentive: 2.3638793781547
     Connection Guaranteed Standards Systems Processes penalty: 0
     Connections Engagement incentive: 0
-    Correction Factor: -0.21791200768247
+    Correction Factor: -2.97697258199743
     Incentive Revenue and Other Adjustments: ''
     Latest forecast of CDCM Revenue: ''
     Losses Discretionary Reward incentive: 0
     Low Carbon Network Fund Tier 1 unrecoverable: 0
-    Low Carbon Network Fund Tier 2 Discretionary Funding: 0.519115982839512
-    Network Innovation Allowance: 2.25951677628534
+    Low Carbon Network Fund Tier 2 Discretionary Funding: 0.362455904428817
+    Network Innovation Allowance: 1.62601949251223
     Other 1 Excluded services Top-up standby and enhanced system security: 0
     Other 2 Excluded services Revenue protection services: 0
     Other 3 Excluded services Miscellaneous: 0
     Other 4 Please describe if used: 0
     Other 5 Please describe if used: 0
-    Pass-Through Business Rates: -7.9632276644019
-    Pass-Through Licence Fees: 0.165605474344674
+    Pass-Through Business Rates: 2.89797764127705
+    Pass-Through Licence Fees: 0.160699321743644
     Pass-Through Others: 0
-    Pass-Through Transmission Connection Point Charges: 1.18250369059426
-    Pass-through Ring Fence Costs: 0.0298255407972566
-    Pass-through Smart Meter Communication Licence Costs: 0.829442795183832
-    Pass-through Smart Meter IT Costs: 0.292841090051223
+    Pass-Through Transmission Connection Point Charges: 2.08582617418774
+    Pass-through Ring Fence Costs: 0.034063253986535
+    Pass-through Smart Meter Communication Licence Costs: 0.532654189267869
+    Pass-through Smart Meter IT Costs: 0.203650899970849
     Price index adjustment RPI index: 1.18410135894554
-    Quality of Service incentive: 10.939895785058
-    RPI True-up before inflation: -0.0749817407665323
+    Quality of Service incentive: 4.0429744831027
+    RPI True-up before inflation: -0.0567204717000083
     Residual Losses and Growth Incentive Growth: 0
     Residual Losses and Growth Incentive Losses: 0
     Time to Connect incentive: 0
@@ -42,39 +42,39 @@
     Total allowed Revenue: ''
     Total other revenue recovered by Use of System Charges: ''
     _column: 2019/2020
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 10.7858013836917
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 6.64789365942473
     2 Revenue raised outside CDCM Voluntary under-recovery: 0
     3 Revenue raised outside CDCM Please describe if used: 0
     4 Revenue raised outside CDCM Please describe if used: 0
     Allowed Pass-Through Items: ''
-    Annual Iteration adjustment before inflation: -6.58762790637303
-    Base Demand Revenue before inflation: 322
+    Annual Iteration adjustment before inflation: -4.57066121062195
+    Base Demand Revenue before inflation: 246.5
     Base demand revenue: ''
-    Broad Measure of Customer Service incentive: 3.30364678246654
+    Broad Measure of Customer Service incentive: 2.54668741391642
     Connection Guaranteed Standards Systems Processes penalty: 0
     Connections Engagement incentive: 0
-    Correction Factor: -1.76290768649778e-13
+    Correction Factor: 5.87635895499261e-14
     Incentive Revenue and Other Adjustments: ''
     Latest forecast of CDCM Revenue: ''
     Losses Discretionary Reward incentive: 0
     Low Carbon Network Fund Tier 1 unrecoverable: 0
-    Low Carbon Network Fund Tier 2 Discretionary Funding: 0.043478485358358
-    Network Innovation Allowance: 2.26537257939748
+    Low Carbon Network Fund Tier 2 Discretionary Funding: 0.0303574427578944
+    Network Innovation Allowance: 1.66385107677691
     Other 1 Excluded services Top-up standby and enhanced system security: 0
     Other 2 Excluded services Revenue protection services: 0
     Other 3 Excluded services Miscellaneous: 0
     Other 4 Please describe if used: 0
     Other 5 Please describe if used: 0
-    Pass-Through Business Rates: -10.0141420584699
-    Pass-Through Licence Fees: 0.159838909360821
+    Pass-Through Business Rates: 5.5600038491909
+    Pass-Through Licence Fees: 0.157744388683789
     Pass-Through Others: 0
-    Pass-Through Transmission Connection Point Charges: 1.46351877259124
-    Pass-through Ring Fence Costs: 0.0302541900847668
-    Pass-through Smart Meter Communication Licence Costs: 0.857982294759209
-    Pass-through Smart Meter IT Costs: 0.116356729048644
+    Pass-Through Transmission Connection Point Charges: 2.40187984294859
+    Pass-through Ring Fence Costs: 0.0345528072070736
+    Pass-through Smart Meter Communication Licence Costs: 0.538176337711578
+    Pass-through Smart Meter IT Costs: 0.0435608576722403
     Price index adjustment RPI index: 1.21370389291918
-    Quality of Service incentive: 10.4719698169128
-    RPI True-up before inflation: 0.067671078917719
+    Quality of Service incentive: 4.15731386316197
+    RPI True-up before inflation: 0.0516693753591587
     Residual Losses and Growth Incentive Growth: 0
     Residual Losses and Growth Incentive Losses: 0
     Time to Connect incentive: 0
@@ -83,38 +83,38 @@
     Total allowed Revenue: ''
     Total other revenue recovered by Use of System Charges: ''
     _column: 2020/2021
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 11.078074176372
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 6.76866870489972
     2 Revenue raised outside CDCM Voluntary under-recovery: 0
     3 Revenue raised outside CDCM Please describe if used: 0
     4 Revenue raised outside CDCM Please describe if used: 0
     Allowed Pass-Through Items: ''
-    Annual Iteration adjustment before inflation: -6.6351103522249
-    Base Demand Revenue before inflation: 322
+    Annual Iteration adjustment before inflation: -6.35731084990977
+    Base Demand Revenue before inflation: 246.5
     Base demand revenue: ''
-    Broad Measure of Customer Service incentive: 3.54395616225606
+    Broad Measure of Customer Service incentive: 2.72343312557474
     Connection Guaranteed Standards Systems Processes penalty: 0
     Connections Engagement incentive: 0
-    Correction Factor: 2.3540138727185e-13
+    Correction Factor: -5.88503468179624e-14
     Incentive Revenue and Other Adjustments: ''
     Latest forecast of CDCM Revenue: ''
     Losses Discretionary Reward incentive: 0
     Low Carbon Network Fund Tier 1 unrecoverable: 0
-    Low Carbon Network Fund Tier 2 Discretionary Funding: 0.0425923299958969
-    Network Innovation Allowance: 2.23056606051199
+    Low Carbon Network Fund Tier 2 Discretionary Funding: 0.029738713506662
+    Network Innovation Allowance: 1.73741950444602
     Other 1 Excluded services Top-up standby and enhanced system security: 0
     Other 2 Excluded services Revenue protection services: 0
     Other 3 Excluded services Miscellaneous: 0
     Other 4 Please describe if used: 0
     Other 5 Please describe if used: 0
-    Pass-Through Business Rates: -9.22395490911304
-    Pass-Through Licence Fees: 0.163412150484448
+    Pass-Through Business Rates: 5.76806153627991
+    Pass-Through Licence Fees: 0.161335366160506
     Pass-Through Others: 0
-    Pass-Through Transmission Connection Point Charges: 1.94999952566916
-    Pass-through Ring Fence Costs: 0.0309338209294699
-    Pass-through Smart Meter Communication Licence Costs: 1.02672996527357
-    Pass-through Smart Meter IT Costs: -0.0746542227072316
+    Pass-Through Transmission Connection Point Charges: 2.22505385840385
+    Pass-through Ring Fence Costs: 0.0353290022889189
+    Pass-through Smart Meter Communication Licence Costs: 0.631941874118647
+    Pass-through Smart Meter IT Costs: -0.0165781512500878
     Price index adjustment RPI index: 1.24404618371309
-    Quality of Service incentive: 10.0061519754854
+    Quality of Service incentive: 4.2926315191477
     RPI True-up before inflation: 0
     Residual Losses and Growth Incentive Growth: 0
     Residual Losses and Growth Incentive Losses: 0
@@ -124,38 +124,38 @@
     Total allowed Revenue: ''
     Total other revenue recovered by Use of System Charges: ''
     _column: 2021/2022
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 11.4038208731604
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 6.90803329663069
     2 Revenue raised outside CDCM Voluntary under-recovery: 0
     3 Revenue raised outside CDCM Please describe if used: 0
     4 Revenue raised outside CDCM Please describe if used: 0
     Allowed Pass-Through Items: ''
-    Annual Iteration adjustment before inflation: -5.48131905166576
-    Base Demand Revenue before inflation: 322
+    Annual Iteration adjustment before inflation: -7.59640013432585
+    Base Demand Revenue before inflation: 246.5
     Base demand revenue: ''
-    Broad Measure of Customer Service incentive: 3.76248206804945
+    Broad Measure of Customer Service incentive: 2.79151895371411
     Connection Guaranteed Standards Systems Processes penalty: 0
     Connections Engagement incentive: 0
-    Correction Factor: -5.88503468179624e-14
+    Correction Factor: 9.41605549087399e-13
     Incentive Revenue and Other Adjustments: ''
     Latest forecast of CDCM Revenue: ''
     Losses Discretionary Reward incentive: 0
     Low Carbon Network Fund Tier 1 unrecoverable: 0
-    Low Carbon Network Fund Tier 2 Discretionary Funding: 0.893032884653987
-    Network Innovation Allowance: 2.27717485270236
+    Low Carbon Network Fund Tier 2 Discretionary Funding: 0.623531258123497
+    Network Innovation Allowance: 1.77303170939373
     Other 1 Excluded services Top-up standby and enhanced system security: 0
     Other 2 Excluded services Revenue protection services: 0
     Other 3 Excluded services Miscellaneous: 0
     Other 4 Please describe if used: 0
     Other 5 Please describe if used: 0
-    Pass-Through Business Rates: -9.31051999341594
-    Pass-Through Licence Fees: 0.167620946971535
+    Pass-Through Business Rates: 6.01242044386895
+    Pass-Through Licence Fees: 0.165403742500805
     Pass-Through Others: 0
-    Pass-Through Transmission Connection Point Charges: 2.33947385332112
-    Pass-through Ring Fence Costs: 0.0316196299185309
-    Pass-through Smart Meter Communication Licence Costs: 0.853671708100561
-    Pass-through Smart Meter IT Costs: -0.138983696744491
+    Pass-Through Transmission Connection Point Charges: 2.43515234707874
+    Pass-through Ring Fence Costs: 0.0361122533266598
+    Pass-through Smart Meter Communication Licence Costs: 0.539194461567118
+    Pass-through Smart Meter IT Costs: -0.22810887803445
     Price index adjustment RPI index: 1.27514866659855
-    Quality of Service incentive: 9.42116272803579
+    Quality of Service incentive: 4.38464809337232
     RPI True-up before inflation: 0
     Residual Losses and Growth Incentive Growth: 0
     Residual Losses and Growth Incentive Losses: 0
@@ -187,10 +187,10 @@
     Volume change generation MPANs: 0
     Volume change generation excess reactive: 0
     Volume change generation units: 0
-    Volume change site-specific metered demand MPANs: 0.00873245630159135
-    Volume change site-specific metered demand units: 0.007
-    Volume change supercustomer metered demand MPANs: 0.006
-    Volume change supercustomer metered demand units: 0.007
+    Volume change site-specific metered demand MPANs: 0.0128845141830079
+    Volume change site-specific metered demand units: 0.008
+    Volume change supercustomer metered demand MPANs: 0.009
+    Volume change supercustomer metered demand units: 0.008
     Volume change unmetered demand units: 0
     _column: To 2019/2020
   - Cost change direct costs: 0
@@ -213,10 +213,10 @@
     Volume change generation MPANs: 0
     Volume change generation excess reactive: 0
     Volume change generation units: 0
-    Volume change site-specific metered demand MPANs: 0.00873245630159135
-    Volume change site-specific metered demand units: -0.009
-    Volume change supercustomer metered demand MPANs: 0.006
-    Volume change supercustomer metered demand units: -0.002
+    Volume change site-specific metered demand MPANs: 0.0128845141830079
+    Volume change site-specific metered demand units: -0.01
+    Volume change supercustomer metered demand MPANs: 0.009
+    Volume change supercustomer metered demand units: -0.003
     Volume change unmetered demand units: 0
     _column: To 2020/2021
   - Cost change direct costs: 0
@@ -239,9 +239,9 @@
     Volume change generation MPANs: 0
     Volume change generation excess reactive: 0
     Volume change generation units: 0
-    Volume change site-specific metered demand MPANs: 0.00873245630159135
+    Volume change site-specific metered demand MPANs: 0.0128845141830079
     Volume change site-specific metered demand units: 0
-    Volume change supercustomer metered demand MPANs: 0.006
+    Volume change supercustomer metered demand MPANs: 0.009
     Volume change supercustomer metered demand units: 0
     Volume change unmetered demand units: 0
     _column: To 2021/2022
@@ -265,9 +265,9 @@
     Volume change generation MPANs: 0
     Volume change generation excess reactive: 0
     Volume change generation units: 0
-    Volume change site-specific metered demand MPANs: 0.00873245630159135
-    Volume change site-specific metered demand units: -0.001
-    Volume change supercustomer metered demand MPANs: 0.006
+    Volume change site-specific metered demand MPANs: 0.0128845141830079
+    Volume change site-specific metered demand units: -0.002
+    Volume change supercustomer metered demand MPANs: 0.009
     Volume change supercustomer metered demand units: 0
     Volume change unmetered demand units: 0
     _column: To 2022/2023

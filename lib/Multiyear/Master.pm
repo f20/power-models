@@ -130,7 +130,6 @@ sub indexFinishClosure {
                 map {
                     [
                         $_->{nickName} || 'Historical model',
-                        undef,
                         @{ $_->{sheetLinks} },
                     ];
                 } @{ $me->{historical} }
@@ -142,7 +141,6 @@ sub indexFinishClosure {
                 map {
                     [
                         $me->{scenario}[$_]{nickName} || 'Scenario model',
-                        $me->{percentageAssumptionColumns}[$_],
                         @{ $me->{scenario}[$_]{sheetLinks} },
                     ];
                 } 0 .. $#{ $me->{scenario} }
@@ -159,7 +157,7 @@ sub worksheetsAndClosures {
 
     push @{ $me->{finishClosures} }, sub {
         delete $wbook->{titleAppend};
-        delete $wbook->{noLinks};
+        $wbook->{noLinks} = 1;
         delete $wbook->{logger};
     };
 
@@ -202,7 +200,9 @@ sub worksheetsAndClosures {
                                 defaultFormat => '0.0hard',
                                 rowFormats    => [
                                     map {
-                                        /RPI|\bIndex\b/i ? '0.000hard' : undef;
+                                            /Price index|RPI index/i
+                                          ? '0.000hard'
+                                          : undef;
                                     } @{ $rows->{list} }
                                 ],
                                 data => [
@@ -246,7 +246,7 @@ sub worksheetsAndClosures {
 
             my $headerRow165;
             if ( $me->{overrideAssumptionColumns} ) {
-                Notes( name => '165. Other input data changes' )
+                Notes( name => '165. Other input data' )
                   ->wsWrite( $wbook, $wsheet );
                 $headerRow165 = ++$wsheet->{nextFree};
                 Columnset(
