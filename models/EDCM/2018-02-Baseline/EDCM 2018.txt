@@ -1,4 +1,4 @@
 makeModels
 	EDCM/2018-02-Baseline/%-clean161-FCP.yml
 	EDCM/2018-02-Baseline/%-clean161-LRIC.yml
-	EDCM/2018-02/*
+	EDCM/2018-02/*.yml

@@ -274,8 +274,10 @@ EOL
                 my ( $x, $y ) = @_;
                 '', $format, $formula->[0],
                   qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
-                  qr/\bA2\b/ =>
-                  xl_rowcol_to_cell( $rowh->{A2} + 33, $colh->{A2} );
+                  qr/\bA2\b/ => xl_rowcol_to_cell(
+                    $rowh->{A2} + 34,    # hard-coded reference to EDCM revenue
+                    $colh->{A2}
+                  );
             };
         },
     ) if $model->{edcmTables};

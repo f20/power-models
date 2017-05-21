@@ -108,7 +108,7 @@ textbox <- function (x, y, textlist, justify = c("l", "c", "r"), cex = 1,
         margin <- rep(margin, 2);
     }
     saveAdj <- par(adj = 0);
-    textstr <- sub ('-', '\U{AD}', paste(textlist, collapse = " "));
+    textstr <- sub ('-', '\U{AD}', paste(textlist, collapse=" "));
     words <- strsplit(textstr, " ")[[1]];
     line.height <- strheight("hy", cex = cex, font = font, vfont = vfont) * (1 + leading);
     if (margin[2] > 0) x[1] <- x[1] + margin[2];
@@ -333,16 +333,18 @@ plot.dno.map <- function (
         bot<-textbox(xr, bot, box, fill="white", margin=c(4, 4, 8, 4), cex=1.0);
 
     if (legend.show) {
-        if (maxcol-mincol>70) { quantum <- 50; }
-        else if (maxcol-mincol>19) { quantum <- 10; }
-        else if (maxcol-mincol>7) { quantum <- 5; }
-        else if (maxcol-mincol>1) { quantum <- 1; }
-        else if (maxcol-mincol>0.2) { quantum <- 0.2; }
+        if (abs(maxcol-mincol)>70) { quantum <- 50; }
+        else if (abs(maxcol-mincol)>19) { quantum <- 10; }
+        else if (abs(maxcol-mincol)>7) { quantum <- 5; }
+        else if (abs(maxcol-mincol)>1) { quantum <- 1; }
+        else if (abs(maxcol-mincol)>0.2) { quantum <- 0.2; }
         else { quantum <- 0.1; }
         if (quantum < 0.5) {
             legend.digit <- 2;
         }
-        minmax <- c(trunc(mincol/quantum), ceiling(maxcol/quantum))*quantum;
+        if (mincol<maxcol)
+            minmax <- c(floor(mincol/quantum), ceiling(maxcol/quantum))*quantum
+            else minmax <- c(ceiling(mincol/quantum), floor(maxcol/quantum))*quantum;
         colorlegend(
             col=sapply(0.01*(minmax[1]*(100:0)+minmax[2]*(0:100)), getcol),
             minmax, zlevels=4,

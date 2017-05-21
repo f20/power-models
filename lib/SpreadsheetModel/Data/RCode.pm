@@ -52,7 +52,8 @@ Installing treemap might require GNU Fortran to be setup first.
 sub rCode {
     my $self      = shift;
     my $rIncluded = {};
-    map { $self->$_($rIncluded); } @_;
+    'ignore <- Sys.setlocale("LC_CTYPE", "UTF-8");',
+      map { $self->$_($rIncluded); } @_;
 }
 
 sub areaMaps {

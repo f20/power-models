@@ -46,6 +46,24 @@ plot.dno.map(
 EOR
 }
 
+sub highlightEachArea {
+    my ( $self, $rIncluded ) = @_;
+    SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+for (i in 1:14) {
+    f<-rep(NA, 14);
+    names(f)<-dno.areas;
+    f[i]<-1;
+    plot.dno.map(
+        f,
+        file.name=i,
+        file.type="640",
+        number.show=FALSE,
+        legend.show=FALSE
+    );
+}
+EOR
+}
+
 sub edcmOpacity {
     my ( $self, $rIncluded ) = @_;
     SpreadsheetModel::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';

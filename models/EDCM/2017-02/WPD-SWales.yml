@@ -77,6 +77,30 @@
     _column: "Assets\nLV customer"
   - Assets in CDCM model: 6408891.95921748
     _column: "Assets\nHV customer"
+1133:
+  - _table: 1133. Maximum network use factor
+  - Maximum network use factor: 1.859
+    _column: 132kV circuits
+  - Maximum network use factor: 1.551
+    _column: 132kV/EHV
+  - Maximum network use factor: 2.366
+    _column: EHV circuits
+  - Maximum network use factor: 1.616
+    _column: EHV/HV
+  - Maximum network use factor: 1.652
+    _column: 132kV/HV
+1134:
+  - _table: 1134. Minimum network use factor
+  - Minimum network use factor: 0.192
+    _column: 132kV circuits
+  - Minimum network use factor: 0.674
+    _column: 132kV/EHV
+  - Minimum network use factor: 0.367
+    _column: EHV circuits
+  - Minimum network use factor: 0.635
+    _column: EHV/HV
+  - Minimum network use factor: 0.808
+    _column: 132kV/HV
 1135:
   - _table: 4307. EDCM input data ⇒1135. Loss adjustment factor to transmission
   - Loss adjustment factor: 1
@@ -91,6 +115,38 @@
     _column: EHV/HV
   - Loss adjustment factor: 1.033
     _column: 132kV/HV
+1181:
+  - _table: 1602. LDNO discounts (EDCM) ⇒1181. For EDCM model
+  - Boundary 0000: 0.971965448313459
+    Boundary 132kV: 0.90322578422161
+    Boundary 132kV EHV: 0.828781351228956
+    Boundary EHV: 0.79564462635807
+    Boundary HVplus: 0.743717192006721
+    _column: LV demand
+  - Boundary 0000: 0.95796578558902
+    Boundary 132kV: 0.854899476154771
+    Boundary 132kV EHV: 0.74327959747416
+    Boundary EHV: 0.6935953288019
+    Boundary HVplus: 0.61573680144815
+    _column: LV Sub demand or LV generation
+  - Boundary 0000: 0.950025362807747
+    Boundary 132kV: 0.827489435994381
+    Boundary 132kV EHV: 0.694784138210825
+    Boundary EHV: 0.635714322446406
+    Boundary HVplus: 0.543148023507549
+    _column: HV demand or LV Sub generation
+  - Boundary 0000: 0.890610876687147
+    Boundary 132kV: 0.622392869283188
+    Boundary 132kV EHV: 0.331915199026795
+    Boundary EHV: 0.202617704862631
+    Boundary HVplus: 0
+    _column: HV generation
+  - Boundary 0000: 5239084
+    Boundary 132kV: 297966
+    Boundary 132kV EHV: 9628498
+    Boundary EHV: 2900803
+    Boundary HVplus: 6230533
+    _column: Table checksum 7
 1182:
   - _table: 4308. EDCM input data ⇒1182. CDCM end user tariffs
   - Domestic Off Peak related MPAN: 0.332

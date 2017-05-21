@@ -1,0 +1,6 @@
+makeModels
+	EDCM/2015-02-Baseline/%-clean189-FCP.yml
+	EDCM/2015-02-Baseline/%-clean189-LRIC.yml
+	EDCM/2015-02/*.yml
+	EDCM/2016-02/*.yml
+	EDCM/2017-02/*.yml
