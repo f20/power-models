@@ -52,11 +52,8 @@ yyynnn	Unmetered Supplies
 yyyynn	LV Generation Aggregated
 yyyynn	LV Sub Generation Aggregated
 yyyyny	LV Generation Site Specific
-yyyynn	LV Generation Site Specific no RP charge
 yyyyny	LV Sub Generation Site Specific
-yyyynn	LV Sub Generation Site Specific no RP charge
 yyyyny	HV Generation Site Specific
-yyyynn	HV Generation Site Specific no RP charge
 EOL
       : $model->{dcp179} ? split /\n/, <<EOL
 ynnynn	Domestic Unrestricted
