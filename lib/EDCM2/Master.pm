@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -302,7 +302,7 @@ EOT
                     '0hard'
                 ],
                 [ 'Baseline revenue from demand charge 1 (£/year)', '0hard' ],
-                'Baseline EDCM demand aggregates'
+                'EDCM demand aggregates'
             ],
             [
                 1192,
@@ -319,7 +319,7 @@ EOT
                     'Baseline net forecast EDCM generation revenue (£/year)',
                     '0hard'
                 ],
-                'Baseline EDCM generation aggregates'
+                'EDCM generation aggregates'
             ],
             [
                 1193,
@@ -337,11 +337,12 @@ EOT
                 ],
                 $model->{dcp189} && $model->{dcp189} =~ /preservePot|split/i
                 ? [
-                        'Baseline total demand sole use assets '
-                      . 'qualifying for DCP 189 discount (£)', '0hard'
+                    'Baseline total demand sole use assets '
+                      . 'qualifying for DCP 189 discount (£)',
+                    '0hard'
                   ]
                 : (),
-                'Baseline EDCM notional asset aggregates'
+                'EDCM notional asset aggregates'
             ],
           )
         {
@@ -355,11 +356,12 @@ EOT
                   );
             }
             Columnset(
-                name     => $set->[$#$set],
-                number   => $set->[0],
-                dataset  => $model->{dataset},
-                appendTo => $model->{inputTables},
-                columns  => \@cols,
+                name          => "Baseline $set->[$#$set]",
+                singleRowName => $set->[$#$set],
+                number        => $set->[0],
+                dataset       => $model->{dataset},
+                appendTo      => $model->{inputTables},
+                columns       => \@cols,
             );
         }
 
@@ -2291,9 +2293,10 @@ EOT
             (
                 map {
                     Columnset(
-                        name    => "⇒$_->[0]. $_->[1]",
-                        number  => 3600 + $_->[0],
-                        columns => [
+                        name          => "⇒$_->[0]. $_->[1]",
+                        singleRowName => $_->[1],
+                        number        => 3600 + $_->[0],
+                        columns       => [
                             map { Stack( sources => [$_] ) }
                               @{ $olTabCol{ $_->[0] } }
                         ]

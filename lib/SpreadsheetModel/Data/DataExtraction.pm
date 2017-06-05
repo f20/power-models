@@ -200,7 +200,8 @@ sub _extractYaml {
 
 sub _extractInputData {
     my ( $workbook, $tree, $options ) = @_;
-    my ( %byWorksheet, %used, $conflicting );
+    my ( %byWorksheet, %used );
+    my $conflictStatus = 0;
     for my $worksheet ( $workbook->worksheets() ) {
         my ( $row_min, $row_max ) = $worksheet->row_range();
         my ( $col_min, $col_max ) = $worksheet->col_range();
@@ -228,20 +229,16 @@ sub _extractInputData {
                         {
                             $tableNumber = $1;
                             undef $columnHeadingsRow;
-                            $to1 = $tree->{$tableNumber};
-                            $to2 = [
-                                $options->{minimum}
-                                ? undef
-                                : { '_table' => $v }
-                            ];
-                            $to1 = [
-                                $options->{minimum}
-                                ? undef
-                                : { '_table' => $v }
-                              ]
-                              unless $to1->[0];
-                            $conflicting ||= $used{$tableNumber};
+                            $to2 = [];
+                            $conflictStatus = defined $evenIfLocked ? 1 : 2
+                              if $used{$tableNumber} && $conflictStatus < 2;
+                            $to1 =
+                              $used{$tableNumber}
+                              ? [ map { +{%$_}; } @{ $tree->{$tableNumber} } ]
+                              : $to2;
                             $used{$tableNumber} = 1;
+                            $to1->[0]{_table} = $to2->[0]{_table} = $v
+                              unless $options->{minimum};
                         }
                         elsif ($v) {
                             $v =~ s/[^A-Za-z0-9-]/ /g;
@@ -287,18 +284,21 @@ sub _extractInputData {
                         and $v
                         || $to1->[$col] )
                     {
-                        $to1->[$col]{$rowName} = $to2->[$col]{$rowName} =
-                          $v;
-                        $tree->{$tableNumber} ||= $to1;
-                        $byWorksheet{' combined'}{$tableNumber} =
-                          $byWorksheet{" $worksheet->{Name}"}{$tableNumber} =
+                        $to1->[$col]{$rowName} = $to2->[$col]{$rowName} = $v;
+                        $tree->{$tableNumber} ||= $to2;
+                        $byWorksheet{' combined'}{$tableNumber} = $to1
+                          if $evenIfLocked;
+                        $byWorksheet{" $worksheet->{Name}"}{$tableNumber} =
                           $to2;
                     }
                 }
             }
         }
     }
-    '', $tree, $conflicting ? %byWorksheet : ();
+    '', $tree,
+       !$conflictStatus ? ()
+      : $conflictStatus == 1 ? ( ' combined' => $byWorksheet{' combined'} )
+      :                        %byWorksheet;
 }
 
 sub databaseWriter {
