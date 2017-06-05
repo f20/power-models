@@ -164,15 +164,15 @@ sub factory {
                             ? (
                                 '~datasetSource' => {
                                     file => scalar(
-                                        $fileName =~ s#.*/models/#…/models#,
+                                        $fileName =~ s#.*/models/#…/models/#,
                                         $fileName
                                     ),
                                     validation => eval {
                                         require Encode;
                                         require
                                           SpreadsheetModel::Book::Validation;
-                                        SpreadsheetModel::Book::Validation::digestMachine
-                                          ->add( Encode::encode_utf8($blob) )
+                                        SpreadsheetModel::Book::Validation::digestMachine(
+                                          )->add( Encode::encode_utf8($blob) )
                                           ->hexdigest;
                                     }
                                       || 'Digest not working',
