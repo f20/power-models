@@ -1,7 +1,0 @@
-makeModels
-	-pickbest
-	-stats
-	-checksums
-	-template=%%
-	CDCM/201?-02-Baseline/%-micro*.yml
-	CDCM/201?-02/*.yml

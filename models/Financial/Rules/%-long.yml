@@ -1,8 +1,0 @@
----
-.: Financial model (long term no tax)
-PerlModule: Financial
-illustrative: 1
-numYears: 45
-quarterly: 1
-startMonth: 4
-startYear: 2016
