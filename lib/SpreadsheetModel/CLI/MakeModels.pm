@@ -35,7 +35,7 @@ use File::Spec::Functions qw(abs2rel catdir catfile);
 use Encode qw(decode_utf8);
 
 use constant {
-    C_HOMEDIR       => 0,
+    C_HOMES         => 0,
     C_VALIDATEDLIBS => 1,
 };
 
@@ -47,7 +47,8 @@ sub makeModels {
     my $maker = SpreadsheetModel::Book::Manufacturing->factory(
         validate => [
             $self->[C_VALIDATEDLIBS],
-            grep { -d $_ } catdir( $self->[C_HOMEDIR], 'X_Revisions' )
+            grep { -d $_ }
+              map { catdir( $_, 'X_Revisions' ); } @{ $self->[C_HOMES] }
         ]
     );
 
@@ -91,7 +92,7 @@ sub makeModels {
                         PostProcessing => makePostProcessor(
                             $1 ? "convert$1" : 'calc',
                             SpreadsheetModel::Data::Autocheck->new(
-                                $self->[C_HOMEDIR]
+                                $self->[C_HOMES]
                             )->makeWriterAndParserOptions,
                         )
                     );
@@ -300,16 +301,19 @@ sub makeModels {
                 $maker->{addFile}->( abs2rel($_) ) foreach @list;
             }
             else {
-                my $file = catfile( $self->[C_HOMEDIR], 'models', $_ );
-                if ( -f $file ) {
-                    $maker->{addFile}->( abs2rel($file) );
+                my $processed;
+                foreach my $home ( @{ $self->[C_HOMES] } ) {
+                    my $file = catfile( $home, 'models', $_ );
+                    if ( -f $file ) {
+                        $maker->{addFile}->( abs2rel($file) );
+                        $processed = 1;
+                    }
+                    elsif ( my @list = grep { -f $_; } bsd_glob($file) ) {
+                        $maker->{addFile}->( abs2rel($_) ) foreach @list;
+                        $processed = 1;
+                    }
                 }
-                elsif ( my @list = grep { -f $_; } bsd_glob($file) ) {
-                    $maker->{addFile}->( abs2rel($_) ) foreach @list;
-                }
-                else {
-                    warn "Ignored argument: $_";
-                }
+                warn "Ignored argument: $_" unless $processed;
             }
         }
     }

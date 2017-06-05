@@ -33,7 +33,7 @@ use utf8;
 use File::Glob qw(bsd_glob);
 use File::Spec::Functions qw(abs2rel rel2abs);
 
-use constant { C_HOMEDIR => 0, };
+use constant { C_HOMES => 0, };
 
 sub useModels {
 
@@ -89,7 +89,7 @@ sub useModels {
         if (/^-+(?:auto|model)check/i) {
             require SpreadsheetModel::Data::Autocheck;
             @writerAndParserOptions =
-              SpreadsheetModel::Data::Autocheck->new( $self->[C_HOMEDIR] )
+              SpreadsheetModel::Data::Autocheck->new( $self->[C_HOMES] )
               ->makeWriterAndParserOptions;
             next;
         }

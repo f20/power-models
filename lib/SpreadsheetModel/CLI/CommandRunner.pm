@@ -38,7 +38,7 @@ use SpreadsheetModel::Data::DataTools;
 use SpreadsheetModel::Rules::RulesTools;
 
 use constant {
-    C_HOMEDIR       => 0,
+    C_HOMES         => 0,
     C_VALIDATEDLIBS => 1,
     C_DESTINATION   => 2,
     C_LOG           => 3,

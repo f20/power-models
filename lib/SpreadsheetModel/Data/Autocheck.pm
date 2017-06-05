@@ -37,8 +37,11 @@ use Fcntl qw(:flock :seek);
 use constant { AC_CSV => 0, };
 
 sub new {
-    my ( $class, $homeFolder ) = @_;
-    bless [ File::Spec->catfile( $homeFolder, 't', 'Checksums.csv' ), ], $class;
+    my ( $class, $homes ) = @_;
+    my ($tFolder) =
+      grep { -e $_; } ( map { File::Spec->catdir( $_, 't' ); } @$homes ),
+      @$homes;
+    bless [ File::Spec->catfile( $tFolder, 'Checksums.csv' ), ], $class;
 }
 
 sub processChecksum {

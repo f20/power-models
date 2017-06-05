@@ -37,14 +37,14 @@ use File::Spec::Functions qw(rel2abs catdir);
 use File::Basename qw(dirname);
 use Cwd qw(getcwd);
 
-my ( $home, @validatedLibs, @otherLibs );
+my ( @homes, @validatedLibs, @otherLibs );
 
 BEGIN {
     my @scriptPaths = ( getcwd(), dirname( rel2abs($0) ) );
     push @scriptPaths, dirname( rel2abs( readlink $0, dirname $0) ) if -l $0;
     foreach my $folder (@scriptPaths) {
         while (1) {
-            $home ||= $folder if -e catdir( $folder, 'models' );
+            push @homes, $folder if -e catdir( $folder, 'models' );
             my $lib = catdir( $folder, 'lib' );
             if ( -d $lib ) {
                 push @validatedLibs, $lib;
@@ -66,6 +66,6 @@ my $parser = SpreadsheetModel::CLI::CommandParser->new;
 
 use SpreadsheetModel::CLI::CommandRunner;
 my $runner =
-  SpreadsheetModel::CLI::CommandRunner->new( $home, \@validatedLibs );
+  SpreadsheetModel::CLI::CommandRunner->new( \@homes, \@validatedLibs );
 $parser->run($runner);
 $runner->finish;
