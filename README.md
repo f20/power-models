@@ -6,7 +6,7 @@ Microsoft Excel spreadsheet models that address business problems.
 
 This project's first task was to implement the methods used by the regional
 electricity distribution companies in England, Scotland and Wales to set
-their use of system charges.  It has subsequently expanded to explore other
+their use of system charges. It has subsequently expanded to explore other
 areas to which the Perl-managed spreadsheet model methodology pioneered for
 distribution charging models can make a useful contribution.
 
@@ -21,14 +21,14 @@ using this code, go to http://dcmf.co.uk/models/.
 To get started with building spreadsheet models on your own computer using
 this code, follow the instructions below.
 
-Step 1.  Check or set-up Perl 5.
+Step 1. Check or set-up Perl 5.
 --------------------------------
 
 You need Perl 5, v5.8.8 or later.
 
 A suitable version of Perl is pre-installed on Apple macOS systems. For
 Microsoft Windows systems, Strawberry Perl (strawberryperl.com) is usually
-a good choice.  For FreeBSD, Linux and similar systems, Perl is either
+a good choice. For FreeBSD, Linux and similar systems, Perl is either
 pre-installed or readily available from the ports/packages system.
 
 To test whether you have a suitable version of Perl, try this at the
@@ -36,42 +36,41 @@ Terminal or command line:
 
     perl --version
 
-Step 2.  Download the code.
+Step 2. Download the code.
 ---------------------------
 
 Either download https://github.com/f20/power-models/archive/master.zip and
 extract all the files from it, or use a git client to clone this repository.
 
-Step 3.  Install any missing modules.
+Step 3. Install any missing modules.
 -------------------------------------
 
 Change to the root of the repository and try this sample command:
 
-    perl pmod.pl CDCM/2017-02-Baseline/%-extras227.yml CDCM/2017-02/SPEN-SPM.yml
+    perl pmod.pl Sampler/%.yml Blank.yml
 
-If this fails, examine the error messages.  Often the problem is a missing
-module, which can be installed from CPAN (www.cpan.org).  Once you have
+If this fails, examine the error messages. Often the problem is a missing
+module, which can be installed from CPAN (www.cpan.org). Once you have
 solved the problem, re-run the test command and repeat until it works.
 
-Step 4.  Start using the code.
+Step 4. Start using the code.
 ------------------------------
 
 Once everything seems to be working, you can try any of the following
 sample commands to explore some of the functionality of this code:
 
+    perl pmod.pl CDCM/2017-02-Baseline/%-extras227.yml CDCM/2017-02/SPEN-SPM.yml
     perl pmod.pl ModelM/2014-02-Baseline/%-cleancombo118.yml ModelM/2015-02/SSEPD-SEPD.yml
     perl pmod.pl -rtf -text -html CDCM/2017-02-Baseline/%-clean227.yml Blank.yml
 
-Non-Perl code in the repository
--------------------------------
+Other code in the repository
+----------------------------
 
-There is some VBA code (Excel macros) in the VBA folder, and some Stata
-code in the Stata folder.
+The Stata folder contains Stata tools to test workbooks implementing aspects of the
+EDCM charging methodology. See "How to use.txt" in the "Stata" folder for details.
 
-See "How to use.txt" in the "Stata" folder for information on Stata tools
-to test workbooks implementing aspects of the EDCM charging methodology.
-
-The VBA code is currently undocumented.
+The VBA folder contains VBA code and an Excel add-in with some spreadsheet analysis
+tools. These are currently undocumented.
 
 Licensing
 ---------
@@ -90,4 +89,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 21 January 2017.
+Franck Latrémolière, 6 June 2017.
