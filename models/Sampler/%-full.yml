@@ -1,0 +1,5 @@
+---
+PerlModule: Sampler
+showColourCode: 1
+showNumFormatColours: 1
+template: Full format sampler
