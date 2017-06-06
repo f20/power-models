@@ -29,7 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 use warnings;
 use strict;
-use JSON;
+use Data::Dumper;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
@@ -46,7 +46,6 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
 
         $wsheet->set_column( 0, 5, 20 );
-        $wsheet->set_column( 6, 6, 120 ) if $model->{includeJsonColumn};
 
         my $row = $wsheet->{nextFree} || -1;
         $wsheet->write_string(
@@ -63,8 +62,6 @@ sub worksheetsAndClosures {
         $wsheet->write_string( $row, 3, 'Zero',     $thcFormat );
         $wsheet->write_string( $row, 4, 'Text',     $thcFormat );
         $wsheet->write_string( $row, 5, 'Error',    $thcFormat );
-        $wsheet->write_string( $row, 6, 'JSON',     $thcFormat )
-          if $model->{includeJsonColumn};
         ++$row;
 
         foreach ( sort keys %{ $wbook->{formatspec} } ) {
@@ -75,9 +72,6 @@ sub worksheetsAndClosures {
             $wsheet->write( $row, 3, 0,   $format );
             $wsheet->write_string( $row, 4, $_, $format );
             $wsheet->write( $row, 5, '=1/0', $format );
-            $wsheet->write_string( $row, 6,
-                to_json( $wbook->{formatspec}{$_} ) )
-              if $model->{includeJsonColumn};
             ++$row;
         }
 
