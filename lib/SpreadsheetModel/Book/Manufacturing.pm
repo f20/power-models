@@ -94,9 +94,9 @@ sub factory {
         my ( $blob, $fileName ) = @_;
 
         if ( ref $blob eq 'GLOB' ) {    # file handle
-            if ( $fileName =~ /\.(?:csv|dta)$/is ) {
+            if ( $fileName =~ /\.[ct]sv$/is ) {
                 require SpreadsheetModel::Data::ParseInputData;
-                SpreadsheetModel::Data::ParseInputData::parseCsvDtaInputData(
+                SpreadsheetModel::Data::ParseInputData::parseCsvInputData(
                     \%dataByDatasetName, $blob, $fileName );
                 return;
             }
