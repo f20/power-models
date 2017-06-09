@@ -38,7 +38,9 @@
 1110:
   - _table: 4304. EDCM input data ⇒1110. Calendar and timeband information
   - Calendar and timeband information: 365
-    _column: Days in the charging year
+    _column: Days in year
+  - Calendar and timeband information: 301
+    _column: Annual hours in super-red
 1122:
   - _table: 4305. EDCM input data ⇒1122. Forecast system simultaneous maximum load (kW) from CDCM users
   - Forecast system simultaneous maximum load: 3717485.11873264
