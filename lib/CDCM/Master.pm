@@ -160,15 +160,10 @@ sub new {
     }
 
     if ( $model->{sharingObjectRef} ) {
-        $model->{sharedData} = ${ $model->{sharingObjectRef} } ||= eval {
-            require Multiyear::Master;
-            my $multi =
-              Multiyear->new( assumptionsSheet => $model->{assumptionsSheet} );
-            push @{ $model->{extraModelsToProcessFirst} }, $multi;
-            $multi;
-        };
-        $model->{sharedData}->registerModel($model)
-          if UNIVERSAL::can( $model->{sharedData}, 'registerModel' );
+        ${ $model->{sharingObjectRef} }->registerModel($model)
+          if UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'registerModel' );
+        $model->{sharedData} = ${ $model->{sharingObjectRef} }
+          if UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'addStats' );
     }
 
     if ( my $sm = $model->{sourceModel} ) {
