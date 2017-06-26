@@ -348,7 +348,7 @@ EOW
 
     }
 
-    $multiModelSharing->finish
+    $multiModelSharing->finish($wbook)
       if UNIVERSAL::can( $multiModelSharing, 'finish' );
 
     $wbook->close;

@@ -159,7 +159,7 @@ sub new {
         }
     }
 
-    if ( $model->{sharingObjectRef} ) {
+    if ( ref $model->{sharingObjectRef} ) {
         ${ $model->{sharingObjectRef} }->registerModel($model)
           if UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'registerModel' );
         $model->{sharedData} = ${ $model->{sharingObjectRef} }
@@ -850,6 +850,12 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $chargingLevels,
         @matchingTables,
       );
+
+    ${ $model->{sharingObjectRef} }
+      ->tariffAnalysis( $model, $allTariffs, $allComponents,
+        $componentLabelset, $tariffTable, $componentMap, $sourceMap, )
+      if ref $model->{sharingObjectRef}
+      && UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'tariffAnalysis' );
 
     $model->makeMatrixClosure(
         $lossesAdjTable,

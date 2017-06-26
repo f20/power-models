@@ -397,7 +397,7 @@ sub factory {
             my ( $data, $rule ) = @_;
             my $spreadsheetFile = $rule->{template};
             $spreadsheetFile =~ s/^%-/%-$rule->{PerlModule}-/
-              unless $spreadsheetFile =~ /$rule->{PerlModule}/;
+              unless $spreadsheetFile =~ /-$rule->{PerlModule}-/;
             if ( $rule->{revisionText} ) {
                 $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
                 $spreadsheetFile .= $rule->{revisionText};
