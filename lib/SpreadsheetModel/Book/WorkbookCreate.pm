@@ -186,6 +186,7 @@ sub create {
     }
 
     my @loggers;
+    my @modelArray;
     if ($#optionArray) {
         my @toNumber = grep { !defined $_->{modelNumberSuffix}; } @optionArray;
         if ( @toNumber > 9 ) {
@@ -229,15 +230,11 @@ EOW
 
         map { $_->($model); } @{ $options->{requestsToSeeModel} }
           if $options->{requestsToSeeModel};
+        $modelArray[$optionNumber]            = $model;
         $forwardLinkFindingRun[$optionNumber] = $model
           if $options->{forwardLinks};
         $options->{revisionText}      ||= '';
         $options->{modelNumberSuffix} ||= '';
-        $wbook->{titlePrefix} =
-            $options->{titlePrefix} eq 'revision'
-          ? $options->{revisionText}
-          : $options->{titlePrefix}
-          if $options->{titlePrefix};
         $model->{localTime} = \@localTime;
         $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
           if $options->{showDimensions};
@@ -288,6 +285,7 @@ EOW
     $wbook->{$_} = $wsheet{$_} foreach keys %wsheet;
     foreach ( 0 .. $#optionArray ) {
         my $options = $optionArray[$_];
+        my $model   = $modelArray[$_];
         $wbook->{dataSheet} =
           $wsheet{ 'Input' . $options->{modelNumberSuffix} };
         delete $wbook->{highestAutoTableNumber};
@@ -338,6 +336,9 @@ EOW
             $ws->insert_image( 0, 0, $options->{watermarkFile} )
               if $options->{watermarkFile};
         }
+
+        $model->finishWorkbook($wbook)
+          if UNIVERSAL::can( $model, 'finishWorkbook' );
 
         if ($exporter) {
             $exporter->setModel( $options->{modelNumberSuffix}, $options );

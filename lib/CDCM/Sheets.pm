@@ -33,7 +33,18 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::Book::FrontSheet;
-require Spreadsheet::WriteExcel::Utility;
+
+sub finishWorkbook {
+    my ( $model, $wbook ) = @_;
+    my $append = ( $model->{idAppend}{$wbook} || '' )
+      . ( $model->{checksumAppend}{$wbook} || '' );
+    foreach ( @{ $model->{titleWrites}{$wbook} } ) {
+        my ( $ws, $row, $col, $n, $fmt ) = @$_;
+        $ws->write( $row, $col, qq%="$n"$append%, $fmt,
+                'Not calculated: '
+              . 'open in spreadsheet app and allow calculations' );
+    }
+}
 
 sub sheetPriority {
     my ( $model, $sheet ) = @_;
@@ -56,6 +67,7 @@ sub sheetPriority {
 }
 
 sub worksheetsAndClosures {
+
     my ( $model, $wbook ) = @_;
 
     my @wsheetsAndClosures;
@@ -64,17 +76,17 @@ sub worksheetsAndClosures {
 
       'Input' => sub {
         my ($wsheet) = @_;
-
         $wsheet->{sheetNumber}    = 11;
         $wbook->{lastSheetNumber} = 19;
-
         $wsheet->freeze_panes( 1, 1 );
         my $t1001width = $model->{targetRevenue}
           && $model->{targetRevenue} =~ /dcp132/i;
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
-        $wsheet->{nextFree} ||=
-          $model->{noSingleInputSheet} || $model->{noLLFCs} ? 1 : 2;
+        $model->{titleWrites}{$wbook} = [];
+        $wbook->{titleWriter} =
+          sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
+
         unless ( $model->{table1000} ) {
             $model->{table1000} = Dataset(
                 number        => 1000,
@@ -93,36 +105,26 @@ sub worksheetsAndClosures {
                 sources => [ $model->{table1000} ],
               ) if $model->{edcmTables};
         }
+        my $inputDataNotes = $model->inputDataNotes;
+        push @{ $model->{sheetLinks}{$wbook} }, $inputDataNotes;
+        $_->wsWrite( $wbook, $wsheet )
+          foreach $inputDataNotes, $model->{table1000},
+          sort { ( $a->{number} || 9999 ) <=> ( $b->{number} || 9999 ) }
+          @{ $model->{inputTables} };
+        require Spreadsheet::WriteExcel::Utility;
         my ( $sh, $ro, $co ) = $model->{table1000}->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
-        $wbook->{titleAppend} =
-            qq%" for "&'$sh'!%
+        $model->{idAppend}{$wbook} =
+            qq%&" for "&'$sh'!%
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
           . qq%&" in "&'$sh'!%
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 1 )
           . qq%&" ("&'$sh'!%
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
-
-        $model->{nickName} = qq%="$model->{nickName}"&$wbook->{titleAppend}%
+        $model->{nickNames}{$wbook} =
+          qq%="$model->{nickName}"$model->{idAppend}{$wbook}%
           if $model->{nickName};
-
-        $_->wsWrite( $wbook, $wsheet )
-          foreach sort { ( $a->{number} || 9999 ) <=> ( $b->{number} || 9999 ) }
-          @{ $model->{inputTables} };
-        push @{ $model->{sheetLinks} },
-          my $inputDataNotes = $model->inputDataNotes;
-        my $nextFree = delete $wsheet->{nextFree};
-        my $width    = 1;
-        foreach ( @{ $model->{inputTables} } ) {
-            my $w = 0;
-            $w += 1 + $_->lastCol
-              foreach $_->{columns} ? @{ $_->{columns} } : $_;
-            $width = $w if $w > $width;
-        }
-        $wsheet->print_area( 0, 0, $nextFree - 1, $width );
-        $inputDataNotes->wsWrite( $wbook, $wsheet );
-        $wsheet->{nextFree} = $nextFree;
       };
 
     if ( $model->{embeddedModelM}
@@ -382,11 +384,22 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
         $wbook->{lastSheetNumber} = 36 if $wbook->{lastSheetNumber} < 36;
-        push @{ $model->{sheetLinks} }, my $notes = Notes( name => 'Tariffs' );
+        push @{ $model->{sheetLinks}{$wbook} },
+          my $notes = Notes( name => 'Tariffs' );
         $_->wsWrite( $wbook, $wsheet )
           foreach $notes,
           @{ $model->{tariffSummary} };
-
+        if ( $model->{checksum_1_7} ) {
+            require Spreadsheet::WriteExcel::Utility;
+            my ( $sh, $ro, $co ) =
+              $model->{checksum_1_7}->wsWrite( $wbook, $wsheet );
+            $sh = $sh->get_name;
+            my $cell = qq%'$sh'!%
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
+            my $checksumText = qq%" [checksum "&TEXT($cell,"000 0000")&"]"%;
+            $model->{checksumAppend}{$wbook} =
+              qq%&IF(ISNUMBER($cell),$checksumText,"")%;
+        }
       }
 
       unless $model->{unroundedTariffAnalysis}
@@ -897,13 +910,12 @@ EOL
 sub inputDataNotes {
     my ($model) = @_;
     Notes(
-          lines => $model->{noSingleInputSheet} ? 'Input data (part)'
-        : $model->{noLLFCs} ? 'Input data'
-        : <<'EOL'
-Input data
-
-This sheet contains all the input data, except LLFCs which are entered directly into the Tariff sheet.
-EOL
+        name => $model->{noSingleInputSheet} ? 'Input data (part)'
+        : 'Input data',
+        $model->{noSingleInputSheet} || $model->{noLLFCs} ? ()
+        : ( lines => 'This sheet contains all the input data, '
+              . 'except LLFCs which are entered directly into the Tariff sheet.'
+        )
     );
 }
 

@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,18 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::Book::FrontSheet;
-require Spreadsheet::WriteExcel::Utility;
+
+sub finishWorkbook {
+    my ( $model, $wbook ) = @_;
+    my $append = ( $model->{idAppend}{$wbook} || '' )
+      . ( $model->{checksumAppend}{$wbook} || '' );
+    foreach ( @{ $model->{titleWrites}{$wbook} } ) {
+        my ( $ws, $row, $col, $n, $fmt ) = @$_;
+        $ws->write( $row, $col, qq%="$n"$append%, $fmt,
+                'Not calculated: '
+              . 'open in spreadsheet app and allow calculations' );
+    }
+}
 
 sub worksheetsAndClosures {
 
@@ -47,9 +58,11 @@ sub worksheetsAndClosures {
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
-        $wsheet->{nextFree} = 2;
+        $model->{titleWrites}{$wbook} = [];
+        $wbook->{titleWriter} =
+          sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{inputTables} ||= [];
-        my ( $sh, $ro, $co ) = Dataset(
+        my $idTable = Dataset(
             number        => 1100,
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
@@ -58,19 +71,10 @@ sub worksheetsAndClosures {
             data          => [ 'no company', 'no year', 'no data version' ],
             usePlaceholderData => 1,
             forwardLinks       => {},
-        )->wsWrite( $wbook, $wsheet );
-        $sh = $sh->get_name;
-        require Spreadsheet::WriteExcel::Utility;
-        $wbook->{titleAppend} =
-            qq%" for "&'$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
-          . qq%&" in "&'$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 1 )
-          . qq%&" ("&'$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
-          . '&")"';
+        );
         $_->wsWrite( $wbook, $wsheet )
-          foreach !$model->{ldnoRev} || $model->{ldnoRev} !~ /only/i
+          foreach Notes( name => 'General input data' ), $idTable,
+          !$model->{ldnoRev} || $model->{ldnoRev} !~ /only/i
           ? (
             $model->{method} eq 'none' ? () : Notes(
                 lines    => 'Power flow input data',
@@ -83,9 +87,17 @@ sub worksheetsAndClosures {
           : (),
           sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
           @{ $model->{inputTables} };
-        my $nextFree = delete $wsheet->{nextFree};
-        Notes( lines => 'General input data' )->wsWrite( $wbook, $wsheet );
-        $wsheet->{nextFree} = $nextFree;
+        require Spreadsheet::WriteExcel::Utility;
+        my ( $sh, $ro, $co ) = $idTable->wsWrite( $wbook, $wsheet );
+        $sh = $sh->get_name;
+        $model->{idAppend}{$wbook} =
+            qq%&" for "&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
+          . qq%&" in "&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 1 )
+          . qq%&" ("&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
+          . '&")"';
       }
 
       ,
@@ -321,14 +333,23 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 0, 0,   16 );
             $wsheet->set_column( 1, 1,   50 );
             $wsheet->set_column( 2, 250, 20 );
-
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( lines => 'Results' ), @{ $model->{tariffTables} };
-
+            if ( $model->{checksum_1_7} ) {
+                require Spreadsheet::WriteExcel::Utility;
+                my ( $sh, $ro, $co ) =
+                  $model->{checksum_1_7}->wsWrite( $wbook, $wsheet );
+                $sh = $sh->get_name;
+                my $cell = qq%'$sh'!%
+                  . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
+                    $co );
+                my $checksumText = qq%" [checksum "&TEXT($cell,"000 0000")&"]"%;
+                $model->{checksumAppend}{$wbook} =
+                  qq%&IF(ISNUMBER($cell),$checksumText,"")%;
+            }
             if ( $model->{tariff1Row} ) {
                 $wsheet->set_row( $model->{tariff1Row} - 2, 42 );
             }
-
         }
 
         ,

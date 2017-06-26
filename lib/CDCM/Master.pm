@@ -988,12 +988,14 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             ? (
                 map {
                     my $digits = /([0-9])/ ? $1 : 6;
-                    SpreadsheetModel::Checksum->new(
-                        name => $_,
-                        /table|recursive|model/i ? ( recursive => 1 ) : (),
-                        digits  => $digits,
-                        columns => \@allTariffColumns,
-                        factors => [
+                    my $recursive = /table|recursive|model/i ? 1 : 0;
+                    $model->{"checksum_${recursive}_$digits"} =
+                      SpreadsheetModel::Checksum->new(
+                        name      => $_,
+                        recursive => $recursive,
+                        digits    => $digits,
+                        columns   => \@allTariffColumns,
+                        factors   => [
                             map {
                                      $_->{defaultFormat}
                                   && $_->{defaultFormat} !~ /000/
@@ -1001,7 +1003,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                                   : 1000;
                             } @allTariffColumns
                         ]
-                    );
+                      );
                   } split /;\s*/,
                 $model->{checksums}
               )

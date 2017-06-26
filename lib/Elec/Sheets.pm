@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,18 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::Book::FrontSheet;
-use Spreadsheet::WriteExcel::Utility;
+
+sub finishWorkbook {
+    my ( $model, $wbook ) = @_;
+    my $append = ( $model->{idAppend}{$wbook} || '' )
+      . ( $model->{checksumAppend}{$wbook} || '' );
+    foreach ( @{ $model->{titleWrites}{$wbook} } ) {
+        my ( $ws, $row, $col, $n, $fmt ) = @$_;
+        $ws->write( $row, $col, qq%="$n"$append%, $fmt,
+                'Not calculated: '
+              . 'open in spreadsheet app and allow calculations' );
+    }
+}
 
 sub worksheetsAndClosures {
 
@@ -52,9 +63,11 @@ sub worksheetsAndClosures {
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
-        $wsheet->{nextFree} = 2;
+        $model->{titleWrites}{$wbook} = [];
+        $wbook->{titleWriter} =
+          sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{inputTables} ||= [];
-        my ( $sh, $ro, $co ) = Dataset(
+        my $idTable = Dataset(
             number        => 1500,
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
@@ -63,31 +76,28 @@ sub worksheetsAndClosures {
             data          => [ 'no company', 'no year', 'no data version' ],
             usePlaceholderData => 1,
             forwardLinks       => {},
-        )->wsWrite( $wbook, $wsheet );
-        $sh = $sh->get_name;
-        {
-            $wbook->{titleAppend} =
-                qq%" for "&'$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
-              . qq%&" in "&'$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
-                $co + 1 )
-              . qq%&" ("&'$sh'!%
-              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
-                $co + 2 )
-              . '&")"';
-        }
-        $_->wsWrite( $wbook, $wsheet )
-          foreach $model->{table1653}
+        );
+        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+            name  => 'Input data',
+            lines => 'This sheet contains the input data.'
+          ),
+          $idTable,
+          $model->{table1653}
           ? Notes( lines => 'Individual user data', location => 'Customers', )
           : (),
           sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
           @{ $model->{inputTables} };
-        my $nextFree = delete $wsheet->{nextFree};
-        Notes( lines =>
-              [ 'Input data', '', 'This sheet contains the input data.' ] )
-          ->wsWrite( $wbook, $wsheet );
-        $wsheet->{nextFree} = $nextFree;
+        require Spreadsheet::WriteExcel::Utility;
+        my ( $sh, $ro, $co ) = $idTable->wsWrite( $wbook, $wsheet );
+        $sh = $sh->get_name;
+        $model->{idAppend}{$wbook} =
+            qq%&" for "&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
+          . qq%&" in "&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 1 )
+          . qq%&" ("&'$sh'!%
+          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
+          . '&")"';
       }
 
       ,

@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,18 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::Book::FrontSheet;
-use Spreadsheet::WriteExcel::Utility;
+
+sub finishWorkbook {
+    my ( $model, $wbook ) = @_;
+    my $append = ( $model->{idAppend}{$wbook} || '' )
+      . ( $model->{checksumAppend}{$wbook} || '' );
+    foreach ( @{ $model->{titleWrites}{$wbook} } ) {
+        my ( $ws, $row, $col, $n, $fmt ) = @$_;
+        $ws->write( $row, $col, qq%="$n"$append%, $fmt,
+                'Not calculated: '
+              . 'open in spreadsheet app and allow calculations' );
+    }
+}
 
 sub worksheetsAndClosures {
 
@@ -50,11 +61,13 @@ sub worksheetsAndClosures {
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   60 );
         $wsheet->set_column( 1, 250, 20 );
-        $wsheet->{nextFree} ||= $model->{noSingleInputSheet} ? 1 : 2;
         my $dataSheet;
         $dataSheet = delete $wbook->{dataSheet} if $model->{noSingleInputSheet};
+        $model->{titleWrites}{$wbook} = [];
+        $wbook->{titleWriter} =
+          sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{objects}{inputTables} ||= [];
-        my ( $sh, $ro, $co ) = Dataset(
+        my $idTable = Dataset(
             number        => 1300,
             dataset       => $model->{dataset},
             name          => 'Company, charging year, data version',
@@ -63,45 +76,38 @@ sub worksheetsAndClosures {
             data          => [ 'no company', 'no year', 'no data version' ],
             usePlaceholderData => 1,
             forwardLinks       => {},
-        )->wsWrite( $wbook, $wsheet );
-        $sh = $sh->get_name;
-        $wbook->{titleAppend} =
-            qq%" for "&'$sh'!%
-          . xl_rowcol_to_cell( $ro, $co )
-          . qq%&" in "&'$sh'!%
-          . xl_rowcol_to_cell( $ro, $co + 1 )
-          . qq%&" ("&'$sh'!%
-          . xl_rowcol_to_cell( $ro, $co + 2 ) . '&")"';
-        $model->{multiModelSharing}->addModelName( qq%='$sh'!%
-              . xl_rowcol_to_cell( $ro, $co )
-              . qq%&" "&'$sh'!%
-              . xl_rowcol_to_cell( $ro, $co + 1 )
-              . qq%&" "&'$sh'!%
-              . xl_rowcol_to_cell( $ro, $co + 2 ) )
-          if $model->{multiModelSharing} && !$wbook->{findForwardLinks};
-        my $nextFree;
+            appendTo           => $model->{objects}{inputTables},
+        );
 
         if ( $model->{noSingleInputSheet} ) {
             $_->wsWrite( $wbook, $wsheet )
               foreach
               sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
               @{ $model->{objects}{inputTables} };
-            $nextFree = delete $wsheet->{nextFree};
             Notes( name => 'Input data (part)' )->wsWrite( $wbook, $wsheet );
             $wbook->{dataSheet} = $dataSheet;
         }
         else {
             $_->wsWrite( $wbook, $wsheet )
-              foreach
+              foreach Notes( lines =>
+                  [ 'Input data', '', 'This sheet contains the input data.' ] ),
               sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
               @{ $model->{objects}{inputTables} };
-            my $nextFree = delete $wsheet->{nextFree};
-            Notes( lines =>
-                  [ 'Input data', '', 'This sheet contains the input data.' ] )
-              ->wsWrite( $wbook, $wsheet );
+            require Spreadsheet::WriteExcel::Utility;
+            my ( $sh, $ro, $co ) = $idTable->wsWrite( $wbook, $wsheet );
+            $sh = $sh->get_name;
+            my @cells = map {
+                Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
+                    $co + $_ );
+            } 0 .. 2;
+            $model->{idAppend}{$wbook} =
+                qq%&" for "&'$sh'!$cells[0]&" in "&'$sh'!$cells[1]%
+              . qq%&" ("&'$sh'!$cells[2]&")"%;
+            $model->{multiModelSharing}->addModelName(
+                qq%='$sh'!$cells[0]&" "&'$sh'!$cells[1]&" "&'$sh'!$cells[2]%)
+              if $model->{multiModelSharing} && !$wbook->{findForwardLinks};
         }
         $wbook->{dataSheet} = $dataSheet if defined $dataSheet;
-        $wsheet->{nextFree} = $nextFree;
     };
 
     my %tablesBySheet;

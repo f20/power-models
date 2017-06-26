@@ -1840,13 +1840,15 @@ EOT
         @tariffColumns,
         map {
             my $digits = /([0-9])/ ? $1 : 6;
-            SpreadsheetModel::Checksum->new(
+            my $recursive = /table|recursive|model/i ? 1 : 0;
+            $model->{"checksum_${recursive}_$digits"} =
+              SpreadsheetModel::Checksum->new(
                 name => $_,
                 /table|recursive|model/i ? ( recursive => 1 ) : (),
                 digits  => $digits,
                 columns => [ @tariffColumns[ 1 .. 8 ] ],
                 factors => [qw(1000 100 100 100 1000 100 100 100)]
-            );
+              );
           } split /;\s*/,
         $model->{checksums}
       ]

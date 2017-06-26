@@ -140,7 +140,11 @@ sub check {
             ? ( '=IF(A7,RANK(A1,A2:A3,1),' . ( 1 + @values ) . ')' )
             : '=RANK(A1,A2:A3,1)'
         ],
-        arguments => { A1 => $kx, $cd ? ( A7 => $cd ) : () },
+        arguments => {
+            A1    => $kx,
+            A2_A3 => $kx,
+            $cd ? ( A7 => $cd ) : (),
+        },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
@@ -176,8 +180,11 @@ sub check {
         defaultFormat => '0softnz',
         rows          => $valueSet,
         custom        => ['=RANK(A1,A2:A3,1)'],
-        arguments     => { A1 => $kr2 },
-        wsPrepare     => sub {
+        arguments     => {
+            A1    => $kr2,
+            A2_A3 => $kr2,
+        },
+        wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
             sub {
@@ -198,8 +205,13 @@ sub check {
         defaultFormat => '0softnz',
         rows          => $valueSet,
         custom        => ['=MATCH(A1,A2:A3,0)'],
-        arguments     => { A1 => $counter, A2 => $kr },
-        wsPrepare     => sub {
+        arguments     => {
+            A1    => $counter,
+            A2_A3 => $kr,
+            A2    => $kr,
+            A3    => $kr,
+        },
+        wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }
             sub {
@@ -209,8 +221,8 @@ sub check {
                   xl_rowcol_to_cell( $rowh->{A1} + $y, $colh->{A1} ),
                   qr/\bA2\b/ =>
                   xl_rowcol_to_cell( $rowh->{A2}, $colh->{A2}, 1, 0 ),
-                  qr/\bA3\b/ => xl_rowcol_to_cell( $rowh->{A2} + $#values,
-                    $colh->{A2}, 1, 0 );
+                  qr/\bA3\b/ => xl_rowcol_to_cell( $rowh->{A3} + $#values,
+                    $colh->{A3}, 1, 0 );
             };
         }
     );
@@ -219,7 +231,11 @@ sub check {
         name      => 'Ordered values',
         rows      => $valueSet,
         custom    => [ '=INDEX(A2:A3,A1,1)', '=A2' ],
-        arguments => { A2 => $kx, A1 => $ror },
+        arguments => {
+            A2_A3 => $kx,
+            A1    => $ror,
+            A2    => $kx,
+        },
         wsPrepare => sub {
             my ( $me, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             foreach (@$formula) { s/_ref2d/_ref2dV/ foreach @$_; }

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -90,20 +90,14 @@ sub wsWrite {
 
     my $lastRow = $self->lastRow;
 
-    if ( $self->{name} ) {
-        my $n = $self->{name};
-        $n = "$wb->{titlePrefix}: $n" if $wb->{titlePrefix};
-        if ( local $_ = $wb->{titleAppend} ) {
-            s/^"/="$n/s or s/^/="$n"&/s;
-            $n = $_;
+    if ( my $n = $self->{name} ) {
+        my $fmt = $wb->getFormat('notes');
+        if ( my $tw = $wb->{titleWriter} ) {
+            $tw->( $ws, $row, $col, $n, $fmt );
         }
-
-        # 'Not calculated' thing not working with .xlsx
-        $ws->write( $row, $col, $n, $wb->getFormat('notes'),
-            1
-            ? ()
-            : 'Not calculated'
-              . ' (need to open in spreadsheet app and/or calculate now)' );
+        else {
+            $ws->write( $row, $col, $n, $fmt );
+        }
         $ws->set_row( $row, 21 );
         ++$row;
     }
