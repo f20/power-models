@@ -2,7 +2,7 @@ package SpreadsheetModel::Export::Controller;
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,8 @@ use constant {
     WE_BASELOC => 0,
     WE_WBOOK   => 1,
     WE_LOC     => 2,
-    WE_MODEL   => 3,
+    WE_OPTIONS => 3,
+    WE_LOGGER  => 4,
 };
 
 sub new {
@@ -44,33 +45,35 @@ sub new {
 }
 
 sub setModel {
-    $_[0][WE_LOC]   = $_[0][WE_BASELOC] . $_[1];
-    $_[0][WE_MODEL] = $_[2];
+    $_[0][WE_LOC]     = $_[0][WE_BASELOC] . $_[1];
+    $_[0][WE_OPTIONS] = $_[2];
+    $_[0][WE_LOGGER]  = $_[3];
 }
 
 sub ExportHtml {
     require SpreadsheetModel::Export::Html;
     mkdir $_[0][WE_LOC];
     chmod 0770, $_[0][WE_LOC];
-    SpreadsheetModel::Export::Html::writeHtml( $_[0][WE_MODEL]{logger},
+    SpreadsheetModel::Export::Html::writeHtml( $_[0][WE_LOGGER],
         $_[0][WE_LOC] . '/' );
 }
 
 sub ExportText {
     require SpreadsheetModel::Export::Text;
-    SpreadsheetModel::Export::Text::writeText( $_[0][WE_MODEL],
-        $_[0][WE_LOC] . '-' );
+    SpreadsheetModel::Export::Text::writeText( $_[0][WE_OPTIONS],
+        $_[0][WE_LOGGER], $_[0][WE_LOC] . '-' );
 }
 
 sub ExportTablemap {
     require SpreadsheetModel::Export::TableMap;
-    SpreadsheetModel::Export::TableMap::updateTableMap( $_[0][WE_MODEL],
+    SpreadsheetModel::Export::TableMap::updateTableMap( $_[0][WE_LOGGER],
         $_[0][WE_LOC] );
 }
 
 sub ExportRtf {
     require SpreadsheetModel::Export::Rtf;
-    SpreadsheetModel::Export::Rtf::write( $_[0][WE_MODEL], $_[0][WE_LOC] );
+    SpreadsheetModel::Export::Rtf::write( $_[0][WE_OPTIONS], $_[0][WE_LOGGER],
+        $_[0][WE_LOC] );
 }
 
 sub ExportGraphviz {
@@ -85,16 +88,15 @@ sub ExportGraphviz {
         mkdir $dir;
     }
     chmod 0770, $dir;
-    SpreadsheetModel::Export::Graphviz::writeGraphs(
-        $_[0][WE_MODEL]{logger}{objects},
+    SpreadsheetModel::Export::Graphviz::writeGraphs( $_[0][WE_LOGGER]{objects},
         $_[0][WE_WBOOK], $dir . '/' );
 }
 
 sub ExportObjects {
-    my @objects = grep { defined $_ } @{ $_[0][WE_MODEL]{logger}{objects} };
+    my @objects = grep { defined $_ } @{ $_[0][WE_LOGGER]{objects} };
     my $objNames = join( "\n",
-        $_[0][WE_MODEL]{logger}{realRows}
-        ? @{ $_[0][WE_MODEL]{logger}{realRows} }
+        $_[0][WE_LOGGER]{realRows}
+        ? @{ $_[0][WE_LOGGER]{realRows} }
         : map { "$_->{name}" } @objects );
     (
         $objNames,

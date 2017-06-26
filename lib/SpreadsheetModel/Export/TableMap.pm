@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@ use utf8;
 use Fcntl qw(:flock);
 
 sub updateTableMap {
-    my ( $model, $modelName ) = @_;
+    my ( $logger, $modelName ) = @_;
     $modelName =~ s#.*/##s;
     my ( %list, @columns, $fh );
     open $fh,      '+<', '~$tablemap.tsv'
@@ -54,7 +54,7 @@ sub updateTableMap {
         $list{$k} = \@a;
     }
     push @columns, $modelName;
-    foreach my $obj ( $model->{logger}->loggableObjects ) {
+    foreach my $obj ( $logger->loggableObjects ) {
         my $name   = "$obj->{name}";
         my $number = '';
         $number = $1 if $name =~ s/^([0-9]+)\.\s*//s;

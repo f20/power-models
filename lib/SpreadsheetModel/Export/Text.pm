@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@ use utf8;
 
 sub writeText {
 
-    my ( $options, $pathPrefix ) = @_;
+    my ( $options, $logger, $pathPrefix ) = @_;
 
     if ( my $yaml = $options->{yaml} ) {
         my $file  = "${pathPrefix}Rules.txt";
@@ -45,7 +45,6 @@ sub writeText {
         rename $tfile, $file;
     }
 
-    my $logger = $options->{logger};
     $pathPrefix = '' unless defined $pathPrefix;
     my %writer;
     my @end;

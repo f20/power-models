@@ -341,7 +341,8 @@ EOW
           if UNIVERSAL::can( $model, 'finishWorkbook' );
 
         if ($exporter) {
-            $exporter->setModel( $options->{modelNumberSuffix}, $options );
+            $exporter->setModel( $options->{modelNumberSuffix},
+                $options, $wbook->{logger} );
             $exporter->$_() foreach @exports;
         }
 

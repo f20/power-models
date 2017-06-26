@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -33,7 +33,7 @@ use utf8;
 use Encode qw(encode);
 
 sub write {
-    my ( $options, $name ) = @_;
+    my ( $options, $logger, $name ) = @_;
     my ( %blob, %writer );
     foreach my $pot (qw(Calculations Inputs Ancillary)) {
         $blob{$pot}   = '';
@@ -41,7 +41,7 @@ sub write {
             $blob{$pot} .= _flatten(@$_) foreach @_;
         };
     }
-    my @objects = grep { defined $_ } @{ $options->{logger}{objects} };
+    my @objects = grep { defined $_ } @{ $logger->{objects} };
     $_->htmlWrite( \%writer, $writer{Calculations} ) foreach @objects;
     my $tfile = $name . $$ . '.doc';
     open my $fh, '>', $tfile;
@@ -58,8 +58,8 @@ EORTFH
     print $fh _rtfCode( '' => $options->{yaml} );
     print $fh _rtfCode(
         Tables => join "\n",
-        $options->{logger}{realRows}
-        ? @{ $options->{logger}{realRows} }
+        $logger->{realRows}
+        ? @{ $logger->{realRows} }
         : map { "$_->{name}\n" } @objects
     );
     print $fh _rtfCode( Inputs       => $blob{Inputs} );

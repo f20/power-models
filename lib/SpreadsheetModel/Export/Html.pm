@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,7 @@ use warnings;
 use strict;
 use utf8;
 
-sub writeHtml {    # $logger->{objects} is a good $objectList
+sub writeHtml {
     my ( $logger, $pathPrefix ) = @_;
     $pathPrefix = '' unless defined $pathPrefix;
     my %htmlWriter;
