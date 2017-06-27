@@ -178,6 +178,7 @@ sub addTableNumber {
     my ( $self, $wb, $ws, $intrusive ) = @_;
     return '' if $self->{name} =~ /^[0-9]+[a-z]*\.\s/;
     if (    $ws->{sheetNumber}
+        and $ws->{sheetNumber} < 90
         and $wb->{highestAutoTableNumber}
         && $wb->{highestAutoTableNumber} - 100 * $ws->{sheetNumber} > 99
         || $ws->{lastTableNumber}
