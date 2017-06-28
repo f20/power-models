@@ -323,8 +323,12 @@ sub preprocessDataset {
 
     if ( my @tables = grep { $_ } @{$d}{qw(1133 1134 1136)} ) {
         if ( $model->{tableGrouping} || $model->{transparency} ) {
-            foreach ( grep { !$_->[1]{_column} || $_->[1]{_column} =~ /GSP/ }
-                @tables )
+            foreach (
+                grep {
+                        !$_->[1]{_column} && $_->[6]
+                      || $_->[1]{_column} =~ /GSP/
+                } @tables
+              )
             {
                 splice @$_, 1, 1;
             }
