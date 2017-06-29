@@ -40,7 +40,7 @@ sub writeColourMatrix {
 
     my ( $model, $wbook, $wsheet ) = @_;
 
-    Notes( name => 'Colour matrix, 20 per cent saturation, full value' )
+    Notes( name => 'Colour matrix, full value, 20 per cent saturation pastels' )
       ->wsWrite( $wbook, $wsheet );
     my $row = $wsheet->{nextFree} || -1;
     ++$row;
@@ -55,7 +55,7 @@ sub writeColourMatrix {
     my @pastel = map {
         [ map { 0.8 + 0.2 * $_; } @$_ ];
     } @saturated;
-    my @hex = map { hexrgb($_) } @pastel;
+    my @hex = map { hexrgb($_) } @pastel, @saturated;
 
     for ( my $x = 0 ; $x < @pastel ; ++$x ) {
         $wsheet->write_string(
@@ -64,8 +64,10 @@ sub writeColourMatrix {
             $hex[$x],
             $wbook->getFormat(
                 [
-                    base     => 'puretextcon',
-                    bg_color => $hex[$x],
+                    base       => 'thc',
+                    num_format => '@',
+                    color      => $hex[ 6 + ( 3 + $x ) % 6 ],
+                    bg_color   => $hex[ 6 + $x ],
                 ]
             )
         );
