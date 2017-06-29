@@ -307,10 +307,12 @@ sub makeModels {
                     if ( -f $file ) {
                         $maker->{addFile}->( abs2rel($file) );
                         $processed = 1;
+                        last;
                     }
                     elsif ( my @list = grep { -f $_; } bsd_glob($file) ) {
                         $maker->{addFile}->( abs2rel($_) ) foreach @list;
                         $processed = 1;
+                        last;
                     }
                 }
                 warn "Ignored argument: $_" unless $processed;
