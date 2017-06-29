@@ -223,7 +223,7 @@ sub supersetIndex {
         }
         if ( $self->{accepts} ) {
             foreach my $a ( @{ $self->{accepts} } ) {
-                $name = $a->{list}[$_];
+                $name = $a->{list}[ $_ % @{ $a->{list} } ];
                 last
                   if ( $id[$_] ) =
                   grep { $name eq $superset->{list}[$_] } @sind;
