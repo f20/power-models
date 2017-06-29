@@ -1,5 +1,6 @@
 ---
 PerlModule: Sampler
 showColourCode: 1
+showColourMatrix: 1
 showNumFormatColours: 1
 template: Full format sampler

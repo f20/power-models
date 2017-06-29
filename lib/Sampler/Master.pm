@@ -37,11 +37,18 @@ sub new {
     bless {@_}, $class;
 }
 
+sub requiredModulesForRuleset {
+    my ( $class, $model ) = @_;
+    $model->{showColourCode}
+      || $model->{showNumFormatColours} ? 'Sampler::ColoursList'  : (),
+      $model->{showColourMatrix}        ? 'Sampler::ColoursArray' : ();
+}
+
 sub worksheetsAndClosures {
     my ( $model, $wbook ) = @_;
     Sampler => sub {
         my ($wsheet) = @_;
-        $wsheet->set_column( 0, 5, 20 );
+        $wsheet->set_column( 0, 255, 20 );
         Notes( name => 'Spreadsheet format sampler' )
           ->wsWrite( $wbook, $wsheet );
         $model->writeFormatList( $wbook, $wsheet ) unless $model->{omitFormats};
@@ -51,6 +58,8 @@ sub worksheetsAndClosures {
           if $model->{showNumFormatColours};
         $model->writeMpanFormats( $wbook, $wsheet )
           unless $model->{omitMpanFormats};
+        $model->writeColourMatrix( $wbook, $wsheet )
+          if $model->{showColourMatrix};
     };
 }
 
@@ -109,127 +118,6 @@ sub writeMpanFormats {
             ),
         ]
     )->wsWrite( $wbook, $wsheet );
-}
-
-sub writeColourCode {
-
-    my ( $model, $wbook, $wsheet ) = @_;
-
-    Notes( name => 'Colour coding and options' )->wsWrite( $wbook, $wsheet );
-    my $row = $wsheet->{nextFree} || -1;
-
-    $wsheet->write_string( ++$row, 0, 'Header', $wbook->getFormat('th') );
-    $wsheet->write_string( $row, 1, '#eeddff',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#eeddff' ] )
-    );
-    $wsheet->write_string( $row, 2, '#cc99ff',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#cc99ff' ] )
-    );
-    $wsheet->write_string( $row, 3, '#ffcc99',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#ffcc99' ] )
-    );
-    $wsheet->write_string( $row, 4, '#ffd700',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#ffd700' ] )
-    );
-
-    $wsheet->write_string( ++$row, 0, 'Input data',
-        $wbook->getFormat('texthard') );
-    $wsheet->write_string( $row, 1, '#ccffff',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#ccffff' ] )
-    );
-
-    $wsheet->write_string(
-        ++$row, 0,
-        'Constant value',
-        $wbook->getFormat('textcon')
-    );
-    $wsheet->write_string( $row, 1, '#e9e9e9',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#e9e9e9' ] )
-    );
-    $wsheet->write_string( $row, 2, '#c0c0c0',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#c0c0c0' ] )
-    );
-
-    $wsheet->write_string(
-        ++$row, 0,
-        'Formula: calculation',
-        $wbook->getFormat('textsoft')
-    );
-    $wsheet->write_string( $row, 1, '#ffffcc',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#ffffcc' ] )
-    );
-    $wsheet->write_string( $row, 2, '#ffff99',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#ffff99' ] )
-    );
-
-    $wsheet->write_string(
-        ++$row, 0,
-        'Formula: copy',
-        $wbook->getFormat('textcopy')
-    );
-    $wsheet->write_string( $row, 1, '#ccffcc',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#ccffcc' ] )
-    );
-
-    $wsheet->write_string(
-        ++$row, 0,
-        'Unlocked cell for notes',
-        $wbook->getFormat('scribbles')
-    );
-    $wsheet->write_string( $row, 1, '#fbf8ff',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#fbf8ff' ] )
-    );
-    $wsheet->write_string(
-        $row, 2,
-        '#800080',
-        $wbook->getFormat(
-            [
-                base     => 'puretexthard',
-                color    => '#99b3cc',
-                bg_color => '#800080'
-            ]
-        )
-    );
-    $wsheet->write_string( $row, 3, '#99ccff',
-        $wbook->getFormat( [ base => 'puretexthard', bg_color => '#99ccff' ] )
-    );
-
-    $wsheet->{nextFree} = $row + 1;
-
-}
-
-sub writeNumFormatColours {
-    my ( $model, $wbook, $wsheet ) = @_;
-    Notes( name => 'Excel number format colours' )->wsWrite( $wbook, $wsheet );
-    my $row = $wsheet->{nextFree} || -1;
-    foreach (
-        [ '[red]',     '#dd0806' ],
-        [ '[cyan]',    '#00abea' ],
-        [ '[blue]',    '#0000d4' ],
-        [ '[green]',   '#17b715' ],
-        [ '[magenta]', '#f20784' ],
-        [ '[yellow]',  '#fcf304' ],
-        [ '',          '#ff00ff' ]
-      )
-    {
-        $wsheet->write_string(
-            ++$row,
-            0,
-            'invisible text',
-            $wbook->getFormat(
-                [
-                    base       => 'texthard',
-                    bg_color   => $_->[1],
-                    num_format => "$_->[0]\@"
-                ]
-            )
-        );
-        $wsheet->write_string( $row, 1, $_->[0],
-            $wbook->getFormat('puretextcon') );
-        $wsheet->write_string( $row, 2, $_->[1],
-            $wbook->getFormat('puretextcon') );
-    }
-    $wsheet->{nextFree} = $row + 1;
 }
 
 1;
