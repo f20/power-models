@@ -61,14 +61,6 @@ sub preprocessDataset {
         $d->{1113}[4]{$key} += $model->{revenueAdj};
     }
 
-    my ( $daysInYearKey, $hoursInPurpleKey );
-    if ( $d->{1113} && ref $d->{1113}[1] eq 'HASH' ) {
-        ($daysInYearKey) =
-          grep { !/^_/ } keys %{ $d->{1113}[1] };
-        ($hoursInPurpleKey) =
-          grep { !/^_/ } keys %{ $d->{1113}[3] };
-    }
-
     if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) {
         delete $d->{$_} foreach qw(1181 1182 1183);
     }
@@ -194,18 +186,6 @@ sub preprocessDataset {
                           foreach 2 .. 6;
                         exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
                           foreach 7 .. $#$ds;
-                        $_
-                          && /^[0-9.]+$/s
-                          && $daysInYearKey
-                          && $_ > $d->{1113}[1]{$daysInYearKey}
-                          && ( $d->{1113}[1]{$daysInYearKey} = $_ )
-                          foreach $ds->[22]{$k};
-                        $_
-                          && /^[0-9.]+$/s
-                          && $hoursInPurpleKey
-                          && $_ > $d->{1113}[3]{$hoursInPurpleKey}
-                          && ( $d->{1113}[3]{$hoursInPurpleKey} = $_ )
-                          foreach $ds->[23]{$k};
                     }
                     else {
                         $ds->[1]{$k} = ' ';
@@ -294,18 +274,6 @@ sub preprocessDataset {
                           foreach 2 .. 6;
                         exists $ds->[$_][$k] || ( $ds->[$_][$k] = '' )
                           foreach 7 .. $#$ds;
-                        $_
-                          && /^[0-9.]+$/s
-                          && $daysInYearKey
-                          && $_ > $d->{1113}[1]{$daysInYearKey}
-                          && ( $d->{1113}[1]{$daysInYearKey} = $_ )
-                          foreach $ds->[22][$k];
-                        $_
-                          && /^[0-9.]+$/s
-                          && $hoursInPurpleKey
-                          && $_ > $d->{1113}[3]{$hoursInPurpleKey}
-                          && ( $d->{1113}[3]{$hoursInPurpleKey} = $_ )
-                          foreach $ds->[23][$k];
                     }
                     else {
                         $ds->[1][$k] = ' ';
