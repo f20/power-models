@@ -66,8 +66,3 @@ Public Sub PasswordBreakerAllSheets()
         Call GuessBookPassword(ActiveWorkbook)
     End If
 End Sub
-
-
-
-
-

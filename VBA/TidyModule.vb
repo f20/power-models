@@ -1,5 +1,5 @@
 '
-' Copyright 2016 Franck Latremoliere, Reckon LLP and others.
+' Copyright 2016-2017 Franck Latremoliere, Reckon LLP and others.
 '
 ' Redistribution and use in source and binary forms, with or without
 ' modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,9 @@ Sub TidySave()
     For Each ws In ActiveWorkbook.Worksheets
         ws.Visible = True
         ws.Select
+        For Each sh In ws.Shapes
+            If sh.Connector = msoFalse Then sh.IncrementTop 0
+        Next sh
         ActiveWindow.ScrollColumn = 1
         ActiveWindow.ScrollRow = 1
         Range("A1").Select
