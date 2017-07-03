@@ -76,33 +76,36 @@ sub worksheetsAndClosures {
             data          => [ 'no company', 'no year', 'no data version' ],
             usePlaceholderData => 1,
             forwardLinks       => {},
-            appendTo           => $model->{objects}{inputTables},
         );
+        Notes(
+            $model->{noSingleInputSheet}
+            ? ( name => 'Input data (part)' )
+            : ( lines =>
+                  [ 'Input data', '', 'This sheet contains the input data.' ] )
+        )->wsWrite( $wbook, $wsheet );
+        require Spreadsheet::WriteExcel::Utility;
+        my ( $sh, $ro, $co ) = $idTable->wsWrite( $wbook, $wsheet );
+        $sh = $sh->get_name;
+        my @cells = map {
+            Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
+                $co + $_ );
+        } 0 .. 2;
+        $model->{idAppend}{$wbook} =
+            qq%&" for "&'$sh'!$cells[0]&" in "&'$sh'!$cells[1]%
+          . qq%&" ("&'$sh'!$cells[2]&")"%;
 
         if ( $model->{noSingleInputSheet} ) {
             $_->wsWrite( $wbook, $wsheet )
               foreach
               sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
               @{ $model->{objects}{inputTables} };
-            Notes( name => 'Input data (part)' )->wsWrite( $wbook, $wsheet );
             $wbook->{dataSheet} = $dataSheet;
         }
         else {
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines =>
-                  [ 'Input data', '', 'This sheet contains the input data.' ] ),
+              foreach
               sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
               @{ $model->{objects}{inputTables} };
-            require Spreadsheet::WriteExcel::Utility;
-            my ( $sh, $ro, $co ) = $idTable->wsWrite( $wbook, $wsheet );
-            $sh = $sh->get_name;
-            my @cells = map {
-                Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
-                    $co + $_ );
-            } 0 .. 2;
-            $model->{idAppend}{$wbook} =
-                qq%&" for "&'$sh'!$cells[0]&" in "&'$sh'!$cells[1]%
-              . qq%&" ("&'$sh'!$cells[2]&")"%;
             $model->{multiModelSharing}->addModelName(
                 qq%='$sh'!$cells[0]&" "&'$sh'!$cells[1]&" "&'$sh'!$cells[2]%)
               if $model->{multiModelSharing} && !$wbook->{findForwardLinks};
