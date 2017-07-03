@@ -1,16 +1,11 @@
-github.com/f20/power-models
-
-Help for Stata EDCM code
-========================
+Help for Stata EDCM code in github.com/f20/power-models
+=======================================================
 
 This file contains information on how to use the Stata do files included under
 EDCM/Stata in the github.com/f20/power-models code repository.
 
 These files are designed to be used with Stata, a commercial software package
 for statistical analysis (www.stata.com).
-
-This software is licensed under open source licences. Check the source code for
-details.
 
 THIS SOFTWARE AND DATA ARE PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -28,7 +23,7 @@ OF SUCH DAMAGE.
 Part A.  Creating random data in CSV format to test EDCM models
 -------
 
-To create a set of random data for EDCM testing purposes using Stata:
+To create a set of random data for EDCM testing purposes, using Stata:
 
 Step A1.  In Stata, change directory to the "Random generator" subfolder within
 the "Stata" folder.
@@ -44,16 +39,15 @@ Step A4.  Give the following command to Stata:
 
     simulatedata
 
-This will create a new folder containing a set of CSV files with the random
-data.
+This will create a new folder containing a set of CSV files with the random data.
 
 --
 
-Part B.  Using CSV data to create EDCM models
+Part B.  Using CSV data to create EDCM models, and collating the results
 -------
 
 To create EDCM models populated by the random data from Part A, using a shell
-interpreter such as sh, bash, or cmd.exe, and Perl 5:
+interpreter such as sh, bash, or cmd.exe, Perl 5, and spreadsheet software:
 
 Step B1.  Set the current directory to the folder containing the CSV files
 generated in Step A4.
@@ -62,32 +56,36 @@ Step B2.  Determine the path to the pmod.pl file on your system.  The pmod.pl
 file is in the root folder of the power-models repository.  The code below
 assumes that pmod.pl is in the current working directory, amend as necessary.
 
-Step B3.  Give the following command to the shell interpreter:
+Step B3.  If you do not use a Windows or Mac computer with Microsoft Excel 2010
+or later, skip to step B4.
 
-    perl pmod.pl *.csv EDCM/Current/%-clean*.yml
+If you use a Windows or Mac computer with Microsoft Excel 2010 or later, give
+the following command to the shell interpreter:
 
-This will generate for each company, a YML file containing the input data
-extracted from the CSV files, and a Microsoft Excel workbook.  The Microsoft
-Excel workbooks are usually saved in a newly created subfolder.
+    perl pmod.pl -sqlite *.csv EDCM/2018-02-Baseline/%-clean*.yml
 
---
+This will generate a Microsoft Excel workbook for each company, use Microsoft Excel
+to calculate the workbooks, and extract results from the workbooks into a database.
 
-Part C.  Collating the results of a set of EDCM models
--------
+If step B3 is successful, skip to step B7.
 
-To collate the results of a set of Microsoft Excel EDCM models, using Microsoft
-Excel and Perl:
+Step B4.  Give the following command to the shell interpreter:
 
-Step C1.  Open and save each Microsoft Excel file using Microsoft Excel or
+    perl pmod.pl *.csv EDCM/2018-02-Baseline/%-clean*.yml
+
+This will generate a Microsoft Excel workbook for each company.  The workbooks are
+usually saved in a newly created subfolder.
+
+Step B5.  Open and save each Microsoft Excel file using Microsoft Excel or
 compatible software. This is necessary to perform and record the calculations
 specified in the spreadsheets.
 
-Step C2.  Follow the same procedure as in steps B1 and B2 if necessary, then
+Step B6.  Follow the same procedure as in steps B1 and B2 if necessary, then
 give the following command to the shell interpreter:
 
     perl pmod.pl -sqlite subfolder_name/*.xls*
 
-Step C3.  Give the following command to the shell interpreter:
+Step B7.  Give the following command to the shell interpreter:
 
     perl pmod.pl csv
 
@@ -95,25 +93,22 @@ This will create a series of folders with a name starting "CSV-", each
 containing a compilation of the options, input data and results of the models in
 comma separated variables (CSV) files.
 
---
-
-Part D.  Checking the results of a set of EDCM models
+Part C.  Checking the results of a set of EDCM models
 -------
 
-To check that the results are consistent with the input data in a collation from
-Microsoft Excel EDCM models, using Stata:
+To check that the Stata code gives the same results as the workbooks, using Stata:
 
-Step D1.  In Stata, change directory to the "Stata" folder.
+Step C1.  In Stata, change directory to the "Stata" folder.
 
-Step D2.  Run the Model.do file from the do file editor or give the following
+Step C2.  Run the Model.do file from the do file editor or give the following
 command to Stata:
 
     run "Model.do"
 
-Step D3.  In Stata, change directory to a folder containing CSV files as created
+Step C3.  In Stata, change directory to a folder containing CSV files as created
 in Part C.
 
-Step D4.  Give the following command to Stata:
+Step C4.  Give the following command to Stata:
 
     EDCMCombined
 
@@ -121,7 +116,7 @@ This will create two Stata log files, "Res4501.smcl" and "Res4601.smcl", which
 list any tariffs/charges for which the Stata model does not agree with the
 results from tables 4501 and 4601 of the spreadsheet models.
 
-Step D5.  To view the results, give either of the following commands to Stata:
+Step C5.  To view the results, give either of the following commands to Stata:
 
     view "Res4501.smcl"
 
