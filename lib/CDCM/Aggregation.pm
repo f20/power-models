@@ -646,7 +646,7 @@ sub makeMatrixClosure {
                       );
 
                     $averageUnitRate = Arithmetic(
-                        name       => Label('Average unit rate (p/kWh)'),
+                        name       => Label('Average unit rate p/kWh'),
                         rows       => $revenuePots,
                         arithmetic => '=IF(A903<>0,('
                           . ( '(' . join( '+', @termsNoDays ) . ')' )
@@ -732,7 +732,7 @@ sub makeMatrixClosure {
 
             push @columnsets,
               $model->matrixCharts( $tariffShort,
-                grep { $_->objectShortName !~ /£/; } @columns )
+                grep { $_->objectShortName !~ /£|Average.*kVA/i; } @columns )
               if $model->{matrices} =~ /charts/i;
 
             @columnsets;
