@@ -730,6 +730,11 @@ sub makeMatrixClosure {
                 ],
             );
 
+            push @columnsets,
+              $model->matrixCharts( $tariffShort,
+                grep { $_->objectShortName !~ /£/; } @columns )
+              if $model->{matrices} =~ /charts/i;
+
             @columnsets;
 
           }

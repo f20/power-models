@@ -95,6 +95,9 @@ sub requiredModulesForRuleset {
       : $ruleset->{summary} =~ /consul/i ? 'CDCM::SummaryDeprecated'
       : (),
 
+      $ruleset->{matrices}
+      && $ruleset->{matrices} =~ /charts/i ? 'CDCM::MatrixCharts' : (),
+
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : (),
 
       $ruleset->{timebandDetails} ? qw(CDCM::Timebands) : (),

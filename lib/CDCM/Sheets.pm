@@ -502,14 +502,15 @@ EOL
 
         my $count = 0;
         foreach (@pairs) {
-            push @tables, $_ if $_->{name};
+            push @tables, $_ if UNIVERSAL::isa( $_, 'SpreadsheetModel::Notes' );
         }
 
         $wsheet->{nextFree} = 4 + @tables unless $model->{compact};
         $count = 0;
         my @breaks;
         foreach (@pairs) {
-            push @breaks, $wsheet->{nextFree} if $_->{name};
+            push @breaks, $wsheet->{nextFree}
+              if UNIVERSAL::isa( $_, 'SpreadsheetModel::Notes' );
             $_->wsWrite( $wbook, $wsheet );
         }
         $wsheet->set_h_pagebreaks(@breaks);
