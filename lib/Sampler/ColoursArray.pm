@@ -61,7 +61,7 @@ sub writeColourMatrix {
         $wsheet->write_string(
             $row,
             $x + 1,
-            $hex[$x],
+            $hex[ 6 + $x ],
             $wbook->getFormat(
                 [
                     base       => 'thc',
