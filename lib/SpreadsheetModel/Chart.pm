@@ -58,7 +58,6 @@ sub check {
 
 sub wsWrite {
     my ( $self, $wb, $ws, $row, $col ) = @_;
-    my $chart = $self->wsCreate( $wb, $ws, $row, $col );
     $self->applyInstructions( $self->wsCreate( $wb, $ws, $row, $col ),
         $wb, $ws, $self->{instructions} );
 }
@@ -103,7 +102,7 @@ sub applyInstructions {
                 $args = [];
             }
             if ( UNIVERSAL::isa( $series, 'SpreadsheetModel::Dataset' )
-                and $series->{cols} || $series->{rows} )
+                and $series->lastCol || $series->lastRow )
             {
                 push @{ $self->{sourceLines} }, $series
                   unless $self->{sourceLines} && grep { $_ == $series }
@@ -113,7 +112,7 @@ sub applyInstructions {
                 $w2 = "'" . $w2->get_name . "'!";
                 my $r3 = $r2;
                 my $c3 = $c2;
-                if ( $series->{cols} ) {
+                if ( $series->lastCol ) {
                     if (
                         UNIVERSAL::isa(
                             $series->{location}, 'SpreadsheetModel::CalcBlock'
