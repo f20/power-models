@@ -534,7 +534,6 @@ EOL
         $logger->log($notes) if $logger;
         $wbook->{logger} = $logger if $logger;
         $wbook->{noLinks} = $noLinks;
-
       }
 
       if $model->{matrices};
@@ -562,14 +561,14 @@ EOL
 
         my $count = 0;
         foreach (@pairs) {
-            push @tables, $_ if $_->{name};
+            push @tables, $_ if $_->{columns} && $_->{name};
         }
 
         $wsheet->{nextFree} = 4 + @tables unless $model->{compact};
         $count = 0;
         my @breaks;
         foreach (@pairs) {
-            push @breaks, $wsheet->{nextFree} if $_->{name};
+            push @breaks, $wsheet->{nextFree} if $_->{columns} && $_->{name};
             $_->wsWrite( $wbook, $wsheet );
         }
         $wsheet->set_h_pagebreaks(@breaks);
@@ -590,7 +589,6 @@ EOL
         $logger->log($notes) if $logger;
         $wbook->{logger} = $logger if $logger;
         $wbook->{noLinks} = $noLinks;
-
       }
 
       if $model->{matrices} and $model->{portfolio} || $model->{boundary};
