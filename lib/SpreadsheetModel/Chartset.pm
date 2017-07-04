@@ -64,6 +64,8 @@ sub wsWrite {
         ++$row;
     }
 
+    $ws->{nextFree} = $row + 1 unless $ws->{nextFree} > $row + 1;
+
     for ( my $c = 0 ; $c < @{ $self->{charts} } ; ++$c ) {
         my $chart = $wb->add_chart(
             %{ $self->{charts}[$c] },
@@ -86,15 +88,14 @@ sub wsWrite {
             $col,
             "$self->{rows}{list}[$r]",
             $wb->getFormat(
-                $self->{rowFormats}
-                ?  $self->{rowFormats}[$r]
-                                  : 'th'
+                  $self->{rowFormats}
+                ? $self->{rowFormats}[$r]
+                : 'th'
             )
         );
     }
 
-    $row += 2;
-    $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
+    $ws->{nextFree} = $row + 1 unless $ws->{nextFree} > $row + 1;
     $self->{$wb} = $ws;
 }
 

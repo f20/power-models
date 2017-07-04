@@ -91,7 +91,7 @@ sub colourListSaturated {
     );
 }
 
-sub colourList {
+sub colourListAdjusted {
     (
         '#009999',    # Assets 132kV
         '#00994d',    # Assets 132kV/EHV
@@ -119,21 +119,61 @@ sub colourList {
     );
 }
 
+sub colourList {
+    (
+        '#66cccc',    # Assets 132kV
+        '#66cc99',    # Assets 132kV/EHV
+        '#66cc66',    # Assets EHV
+        '#b3b366',    # Assets EHV/HV
+        '#b3b3b3',    # Assets 132kV/HV
+        '#ff6666',    # Assets HV
+        '#e6b366',    # Assets HV/LV
+        '#cccc66',    # Assets LV circuits
+        '#e699b3',    # Assets LV customer
+        '#ff66b3',    # Assets HV customer
+        '#0000ff',    # Transmission exit
+        '#009999',    # Operating 132kV
+        '#00994d',    # Operating 132kV/EHV
+        '#009900',    # Operating EHV
+        '#808000',    # Operating EHV/HV
+        '#804d4d',    # Operating 132kV/HV
+        '#ff0000',    # Operating HV
+        '#cc8000',    # Operating HV/LV
+        '#999900',    # Operating LV circuits
+        '#cc4d80',    # Operating LV customer
+        '#ff0080',    # Operating HV customer
+        '#ff00ff',    # Matching
+        '#000000',    # Rounding
+    );
+}
+
 sub matrixCharts {
     my ( $model, $title, @columns, ) = @_;
-    my @colourList = $model->colourList;
-    my @colours =
-      ( 'points' => [ map { +{ fill => { color => $_ } }; } @colourList ] );
+    my @colourList      = $model->colourList;
+    my @nameFormulaCols = map {
+        my $name  = $_->objectShortName;
+        my $units = '';
+        $units = $1 if $name =~ s/(\S+\/\S+)$//;
+        my $format = $units =~ /\/day/i ? '0.00' : '0.000';
+        $_->{nameFormula} = Arithmetic(
+            name       => '',
+            arithmetic => qq%="$name\n"&TEXT(SUM(A1_A2),"$format")&"$units"%,
+            arguments  => { A1_A2 => $_ }
+        );
+    } @columns;
+    Columnset( name => '', columns => \@nameFormulaCols, );
     SpreadsheetModel::Chartset->new(
-        name => "$title: pie charts (hover over each slice to view details)",
+        name => "$title: pie charts (hover over each slice to see details)",
         rows => $columns[0]{rows},
         rowFormats => [
             map {
                 [
-                    base       => 'th',
-                    bg_color   => 1 ? 'white' : 'black',
-                    num_format => '@',
-                    color      => $_
+                    base         => 'th',
+                    bg_color     => 1 ? 'white' : 'black',
+                    num_format   => '@',
+                    color        => $_,
+                    border       => 7,
+                    border_color => '#999999',
                 ];
             } @colourList,
         ],
@@ -143,7 +183,7 @@ sub matrixCharts {
                     type         => 'pie',
                     instructions => [
                         set_title => [
-                            name => $_->objectShortName,
+                            name_formula => $_->{nameFormula},
                             1 ? ()
                             : (
                                 name_font => {
@@ -155,7 +195,14 @@ sub matrixCharts {
                         1 ? ()
                         : ( set_chartarea => [ fill => { color => 'black' } ] ),
                         set_legend => [ position => 'none' ],
-                        add_series => [ $_, @colours, ],
+                        add_series => [
+                            $_,
+                            line   => { none => 1 },
+                            points => [
+                                map { +{ fill => { color => $_, } }; }
+                                  @colourList
+                            ],
+                        ],
                     ],
                   )
             } @columns,
