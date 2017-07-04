@@ -168,12 +168,16 @@ sub matrixCharts {
         rowFormats => [
             map {
                 [
-                    base         => 'th',
-                    bg_color     => 1 ? 'white' : 'black',
-                    num_format   => '@',
-                    color        => $_,
-                    border       => 7,
-                    border_color => '#999999',
+                    base       => 'th',
+                    bg_color   => 1 ? 'white' : 'black',
+                    num_format => '@',
+                    color      => $_,
+                    0
+                    ? ()
+                    : (
+                        border       => 7,
+                        border_color => '#999999'
+                    ),
                 ];
             } @colourList,
         ],
@@ -192,7 +196,16 @@ sub matrixCharts {
                                 }
                             ),
                         ],
-                        1 ? ()
+                        0 ? ( set_chartarea => [ border => { none => 1 } ] )
+                        : 1 ? (
+                            set_chartarea => [
+                                border => {
+                                    dash_type => 'round_dot',
+                                    color     => '#999999',
+                                    width     => 0.25,
+                                }
+                            ]
+                          )
                         : ( set_chartarea => [ fill => { color => 'black' } ] ),
                         set_legend => [ position => 'none' ],
                         add_series => [
