@@ -106,9 +106,12 @@ sub rebuildWriter {
             binmode $h, ':utf8';
             print $h YAML::Dump($value);
         }
-        $runner->makeModels( '-single', lc $ext eq '.xls' ? '-xls' : '-xlsx',
-            "-folder=$tempFolder", "-template=%",
-            $rulesFile, "$tempFolder/$core.yml" );
+        $runner->makeModels(
+            '-pickall', '-single',
+            lc $ext eq '.xls' ? '-xls' : '-xlsx', "-folder=$tempFolder",
+            "-template=%", $rulesFile,
+            "$tempFolder/$core.yml"
+        );
         if ( -s "$tempFolder/$core$ext" ) {
             rename "$path$core$ext", "$tempFolder/$core-old$ext"
               unless defined $sidecar;

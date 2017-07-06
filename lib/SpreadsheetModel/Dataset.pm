@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -561,16 +561,11 @@ sub wsWrite {
         foreach my $y ( $self->rowIndices ) {
             my ( $value, $format, $formula, @more ) = $cell->( $x, $y );
             if (@more) {
-
-                # 'Not calculated' not working with .xlsx
                 $ws->repeat_formula( $row + $y, $col + $x, $formula, $format,
-                    @more, 1 ? () : ( result => 'Not calculated' ) );
+                    @more );
             }
             elsif ($formula) {
-
-                # 'Not calculated' not working with .xlsx
-                $ws->write_formula( $row + $y, $col + $x, $formula, $format,
-                    1 ? () : 'Not calculated' );
+                $ws->write_formula( $row + $y, $col + $x, $formula, $format );
             }
             else {
                 $value = "=$value"
@@ -612,10 +607,13 @@ sub wsWrite {
     $row += $lastRow;
     $_->( $self, $wb, $ws, \$row, $col )
       foreach map { @{ $self->{postWriteCalls}{$_} }; }
-      grep { $self->{postWriteCalls}{$_} } 'obj', $wb;
-    $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
+      grep        { $self->{postWriteCalls}{$_} } 'obj',
+      $wb;
+    $self->requestForwardLinks( $wb, $ws, \$row, $col )
+      if $wb->{forwardLinks};
     ++$row;
-    $dataAreHere[0]{nextFree} = $row unless $dataAreHere[0]{nextFree} > $row;
+    $dataAreHere[0]{nextFree} = $row
+      unless $dataAreHere[0]{nextFree} > $row;
     @dataAreHere;
 
 }

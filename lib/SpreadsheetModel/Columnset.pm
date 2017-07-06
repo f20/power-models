@@ -109,7 +109,7 @@ sub wsWrite {
         return if !$wb->{copy} || $noCopy || $self->{$wb}{$ws};
         return (
             $self->{$wb}{$ws} = new SpreadsheetModel::Columnset(
-                name    => "$self->{name} (copy)",
+                name    => Label( $self->{name}, "$self->{name} (copy)" ),
                 columns => [
                     map {
                         $_->{$wb}{$ws} =
@@ -446,19 +446,11 @@ sub wsWrite {
     }
 
     elsif ( !exists $self->{singleRowName} ) {
-        my $srn = _shortNameRow $self->{name};
-        $srn =~ s/^[0-9]+[a-z]*\.\s+//i;
-        $srn =~ s/\s*\(copy\)$//i;
-
-=head comment
-
-Perhaps whoever auto-creates table numbers and names of Stacks
-that are just copies should use SpreadsheetModel::Label and then we could
-use ->shortName here.
-
-=cut
-
-        $ws->write( $row, $col - 1, $srn, $wb->getFormat('th') ) if $srn;
+        $ws->write(
+            $row, $col - 1,
+            _shortNameRow( $self->{name} ),
+            $wb->getFormat('th')
+        );
     }
 
     elsif ( $self->{singleRowName} ) {

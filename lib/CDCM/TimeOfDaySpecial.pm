@@ -960,7 +960,7 @@ sub timeOfDaySpecialRunner {
 
             push @{ $model->{timeOfDayGroupRedSources} },
               Arithmetic(
-                name       => "$red->{name} (copy)",
+                name => Label( $red->{name}, "$red->{name} (copy)" ),
                 arguments  => { A1 => $red },
                 cols       => 0,
                 arithmetic => '=A1',
