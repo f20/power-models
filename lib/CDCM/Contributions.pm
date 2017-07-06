@@ -67,8 +67,8 @@ EOL
             input_title   => 'Customer contribution:',
             input_message => 'Percentage',
             error_title   => 'Invalid customer contribution',
-            error_message => 'The customer contribution must be'
-              . ' a non-negative percentage value.'
+            error_message => 'Invalid customer contribution'
+              . ' (negative number or unused cell).'
         },
         lines => [
 'Source: analysis of expenditure data and/or survey of capital expenditure schemes.',

@@ -152,6 +152,9 @@ sub makeModels {
             elsif (/^-+gold/is) {
                 $maker->{setRule}->( colour => 'gold' );
             }
+            elsif (/^-+striped/is) {
+                $maker->{setRule}->( colour => 'striped' );
+            }
             elsif (/^-+illustrative/is) {
                 $maker->{setRule}->( illustrative => 1 );
             }

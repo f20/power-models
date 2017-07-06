@@ -61,12 +61,12 @@ sub inYearAdjustUsingBefore {
                         $volumeData->{$_}{name}
                     ),
                     validation => {
-                        validate    => 'decimal',
-                        criteria    => '>=',
-                        value       => 0,
-                        error_title => 'Volume data error',
-                        error_message =>
-                          'The volume must be a non-negative number.'
+                        validate      => 'decimal',
+                        criteria      => '>=',
+                        value         => 0,
+                        error_title   => 'Invalid volume data',
+                        error_message => 'Invalid volume data'
+                          . ' (negative number or unused cell).'
                     },
                     defaultFormat => $volumeData->{$_}{defaultFormat},
                     rows          => $volumeData->{$_}{rows},
@@ -98,12 +98,12 @@ sub inYearAdjustUsingBefore {
                         $volumeData->{$_}{name}
                     ),
                     validation => {
-                        validate    => 'decimal',
-                        criteria    => '>=',
-                        value       => 0,
-                        error_title => 'Volume data error',
-                        error_message =>
-                          'The volume must be a non-negative number.'
+                        validate      => 'decimal',
+                        criteria      => '>=',
+                        value         => 0,
+                        error_title   => 'Invalid volume data',
+                        error_message => 'Invalid volume data'
+                          . ' (negative number or unused cell).'
                     },
                     defaultFormat => $volumeData->{$_}{defaultFormat},
                     rows          => $volumeData->{$_}{rows},
@@ -288,9 +288,7 @@ sub inYearAdjustUsingBefore {
                       . join(
                         '+',
                         @termsWithDays1
-                        ? ( '0.01*A400*('
-                              . join( '+', @termsWithDays1 )
-                              . ')' )
+                        ? ( '0.01*A400*(' . join( '+', @termsWithDays1 ) . ')' )
                         : ('0'),
                         @termsNoDays1
                         ? ( '10*(' . join( '+', @termsNoDays1 ) . ')' )
@@ -307,9 +305,7 @@ sub inYearAdjustUsingBefore {
                       . join(
                         '+',
                         @termsWithDays2
-                        ? ( '0.01*A700*('
-                              . join( '+', @termsWithDays2 )
-                              . ')' )
+                        ? ( '0.01*A700*(' . join( '+', @termsWithDays2 ) . ')' )
                         : ('0'),
                         @termsNoDays2
                         ? ( '10*(' . join( '+', @termsNoDays2 ) . ')' )
@@ -424,12 +420,12 @@ sub inYearAdjustUsingBefore {
                 $_ => Dataset(
                     name       => $volumeData->{$_}{name},
                     validation => {
-                        validate    => 'decimal',
-                        criteria    => '>=',
-                        value       => 0,
-                        error_title => 'Volume data error',
-                        error_message =>
-                          'The volume must be a non-negative number.'
+                        validate      => 'decimal',
+                        criteria      => '>=',
+                        value         => 0,
+                        error_title   => 'Invalid volume data',
+                        error_message => 'Invalid volume data'
+                          . ' (negative number or unused cell).'
                     },
                     defaultFormat => $volumeData->{$_}{defaultFormat},
                     rows          => $volumeData->{$_}{rows},
@@ -673,8 +669,9 @@ sub inYearAdjustUsingAfter {
                     validate      => 'decimal',
                     criteria      => '>=',
                     value         => 0,
-                    error_title   => 'Volume data error',
-                    error_message => 'The volume must be a non-negative number.'
+                    error_title   => 'Invalid volume data',
+                    error_message => 'Invalid volume data'
+                      . ' (negative number or unused cell).'
                 },
                 defaultFormat => $volumeData->{$_}{defaultFormat},
                 rows          => $volumeData->{$_}{rows},

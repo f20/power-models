@@ -169,8 +169,9 @@ sub modelG {
             value         => 0,
             input_title   => 'Discount:',
             input_message => 'p/kWh',
-            error_title   => 'Invalid discount',
-            error_message => 'The discount must be' . ' a non-negative value.',
+            error_title   => "Invalid $model->{ldnoWord} discount",
+            error_message => "Invalid $model->{ldnoWord} discount"
+              . ' (negative number or unused cell).',
         },
         data => [
             map { /gener/i ? undef : /^(?:LD|Q)NO/ ? 1 : 0; }
@@ -204,9 +205,9 @@ sub modelG {
                 value         => 0,
                 input_title   => 'Discount:',
                 input_message => 'p/kWh',
-                error_title   => 'Invalid discount',
-                error_message => 'The discount must be'
-                  . ' a non-negative value.',
+                error_title   => "Invalid $model->{ldnoWord} discount",
+                error_message => "Invalid $model->{ldnoWord} discount"
+                  . ' (negative number or unused cell).',
             },
             data => [
                 map {

@@ -96,7 +96,7 @@ sub wsWrite {
     ( $row, $col ) = ( ( $ws->{nextFree} ||= -1 ) + 1, 0 )
       unless defined $row && defined $col;
     if ( $logger->{name} ) {
-        $ws->set_row( $row, 21 );
+        $ws->set_row( $row, $wb->{captionRowHeight} );
         $ws->write( $row++, $col, "$logger->{name}",
             $wb->getFormat('caption') );
         ++$row;

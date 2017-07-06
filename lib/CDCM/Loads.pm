@@ -68,8 +68,9 @@ sub volumeData {
                 input_title   => 'Volume data:',
                 input_message => $componentVolumeNameMap->{$_}
                   . ( /kVA/ ? ' (except where excluded revenue)' : '' ),
-                error_title   => 'Volume data error',
-                error_message => 'The volume must be a non-negative number.'
+                error_title => 'Invalid volume data',
+                error_message =>
+                  'Invalid volume data (negative number or unused cell).'
             },
             data          => $componentVolumeData{$_},
             defaultFormat => $model->{summary}
@@ -303,8 +304,9 @@ sub loadProfiles {
             maximum       => 1,
             input_title   => 'Coincidence:',
             input_message => 'Percentage',
-            error_message => 'The coincidence factor'
-              . ' must be between 0% and 100%.'
+            error_title   => 'Invalid coincidence factor',
+            error_message => 'Invalid coincidence factor'
+              . ' (unused cell or not between 0% and 100%).'
         },
         data => [
             map {
@@ -340,6 +342,7 @@ sub loadProfiles {
                 maximum       => 1,
                 input_title   => 'Load factor:',
                 input_message => 'Percentage',
+                error_title   => 'Invalid load factor',
                 error_message => 'The load factor'
                   . ' must be between 0% and 100%.'
             },

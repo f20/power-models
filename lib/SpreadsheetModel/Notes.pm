@@ -98,7 +98,7 @@ sub wsWrite {
         else {
             $ws->write( $row, $col, $n, $fmt );
         }
-        $ws->set_row( $row, 21 );
+        $ws->set_row( $row, $wb->{captionRowHeight} );
         ++$row;
     }
 

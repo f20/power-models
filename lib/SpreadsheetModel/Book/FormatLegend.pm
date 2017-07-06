@@ -40,7 +40,7 @@ sub wsWrite {
     my $row = $wsheet->{nextFree} || 0;
     $row -= $colourCode->[0] ? 6 : 9;
     $row = 1 if $row < 1;
-    $wsheet->write_string( ++$row, 2, 'Colour coding',
+    $wsheet->write_string( ++$row, 2, 'Cell formatting',
         $wbook->getFormat('th') );
     $wsheet->write_string( ++$row, 2, 'Input data',
         $wbook->getFormat( [ base => 'texthard', locked => 1 ] ) );
@@ -59,15 +59,13 @@ sub wsWrite {
         $colourCode->[0] ? 'Data from tariff model' : 'Formula: copy',
         $wbook->getFormat('textcopy')
     );
-    $wsheet->write_string(
-        ++$row, 2,
-        'Unused cell in input data table',
-        $wbook->getFormat( [ base => 'unused', locked => 1 ] )
+    $wsheet->write_string( ++$row, 2, 'Unused cell in input data table',
+        $wbook->getFormat( [ base => 'unused', locked => 1, align => 'left' ] )
     ) unless $colourCode->[0];
     $wsheet->write_string(
         ++$row, 2,
         'Unused cell in other table',
-        $wbook->getFormat('unavailable')
+        $wbook->getFormat( [ base => 'unavailable', align => 'left' ] )
     ) unless $colourCode->[0];
     $wsheet->write_string(
         ++$row, 2,

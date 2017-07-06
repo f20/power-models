@@ -405,7 +405,7 @@ sub wsWrite {
 
     my @dataAreHere = ($ws);
 
-    $ws->set_row( $row, 21 );
+    $ws->set_row( $row, $wb->{captionRowHeight} );
     $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
 
     my $dataset;
@@ -479,7 +479,12 @@ sub wsWrite {
       || !exists $self->{singleRowName}
       || $self->{singleRowName};
 
+    my @dataDecorationsByColumn;
     if ( $self->{cols} ) {
+        my @decos;
+        if ( my $columnDecorationsClosure = $wb->{columnDecorations} ) {
+            @decos = $columnDecorationsClosure->( @{ $self->{cols}{list} } );
+        }
         $ws->write(
             $row - 1,
             $col + $_,
@@ -487,23 +492,24 @@ sub wsWrite {
             $wb->getFormat(
                 !$self->{cols}{groups} || defined $self->{cols}{groupid}[$_]
                 ? ( $self->{cols}{defaultFormat} || 'thc' )
-                : 'thg'
+                : 'thg',
+                @decos && $decos[$_]
+                ? scalar( $dataDecorationsByColumn[$_] = $decos[$_][1],
+                    $decos[$_][0] )
+                : ()
             )
         ) for 0 .. $lastCol;
     }
-    elsif ( !exists $self->{singleColName} ) {
-        $ws->write(
-            $row - 1, $col,
-            _shortNameRow( $self->{name} ),
-            $wb->getFormat('thc')
-        );
-    }
-    elsif ( $self->{singleColName} ) {
-        $ws->write(
-            $row - 1, $col,
-            _shortNameRow( $self->{singleColName} ),
-            $wb->getFormat('th')
-        );
+    else {
+        my $n = _shortNameRow( $self->{name} );
+        my @thcDeco;
+        if ( my $columnDecorationsClosure = $wb->{columnDecorations} ) {
+            if ( my ($deco) = $columnDecorationsClosure->($n) ) {
+                @thcDeco                 = $deco->[0];
+                @dataDecorationsByColumn = $deco->[1];
+            }
+        }
+        $ws->write( $row - 1, $col, $n, $wb->getFormat( 'thc', @thcDeco ) );
     }
 
     if ( $self->{rows} ) {
@@ -560,6 +566,11 @@ sub wsWrite {
     foreach my $x ( $self->colIndices ) {
         foreach my $y ( $self->rowIndices ) {
             my ( $value, $format, $formula, @more ) = $cell->( $x, $y );
+            if (@dataDecorationsByColumn) {
+                if ( my $dd = $dataDecorationsByColumn[$x] ) {
+                    $format = $wb->getFormat( $format, $dd );
+                }
+            }
             if (@more) {
                 $ws->repeat_formula( $row + $y, $col + $x, $formula, $format,
                     @more );
@@ -670,7 +681,7 @@ sub dataValidation {
                     validate      => 'length',
                     criteria      => '=',
                     value         => '0',
-                    error_message => 'This cell should remain blank.'
+                    error_message => 'This cell is not in use.'
                 }
             );
 

@@ -142,12 +142,21 @@ sub setFormats {
     $workbook->{_window_height} = 800 * 20;
     $workbook->{_tab_ratio}     = 0.88 * 1000;
 
-    my $defaultColours = $options->{colour} && $options->{colour} =~ /default/i;
-    my $orangeColours  = $options->{colour} && $options->{colour} =~ /orange/i;
-    my $goldColours    = $options->{colour} && $options->{colour} =~ /gold/i;
-    my $borderColour   = $options->{colour} && $options->{colour} =~ /border/i;
-    my $textColour     = $options->{colour} && $options->{colour} =~ /text/i;
+    my $noColour =
+      $options->{colour} && $options->{colour} =~ /nocolour|striped/i;
+    my $defaultColours =
+      $noColour || $options->{colour} && $options->{colour} =~ /default/i;
+    my $orangeColours = $options->{colour} && $options->{colour} =~ /orange/i;
+    my $goldColours   = $options->{colour} && $options->{colour} =~ /gold/i;
+    my $borderColour  = $options->{colour} && $options->{colour} =~ /border/i;
+    my $textColour    = $options->{colour} && $options->{colour} =~ /text/i;
     my $backgroundColour = !$borderColour && !$textColour;
+
+    my $boldHeadings =
+      $options->{colour} && $options->{colour} =~ /bold|orange/i;
+
+    my $luridFonts = $options->{colour} && $options->{colour} =~ /striped/i;
+    $workbook->{captionRowHeight} = $luridFonts ? 35 : 21;
 
     unless ($defaultColours) {
         if ($goldColours) {
@@ -307,77 +316,98 @@ sub setFormats {
         align => 'center'
       );
 
-    my @defaultColour = (
+    my @defaultColour =
+      $noColour
+      ? ( bottom => 1 )
+      : (
         $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour && !$options->{noCyanText} ? ( color => MAGENTA ) : ()
-    );
-    my @colourCon = (
+      );
+    my @colourCon =
+      $noColour ? ( bottom => 1, border_color => GREY )
+      : (
         $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour
-        ? ( bg_color => SILVER, @defaultColour, )
+        $backgroundColour ? ( bg_color => SILVER, @defaultColour, )
         : (
             $borderColour ? ( border => 1, border_color => GREY ) : (),
             $textColour ? ( color => GREY ) : (),
         )
-    );
-    my @colourCopy = (
+      );
+    my @colourCopy =
+      $noColour ? ( bottom => 3 )
+      : (
         $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour
-        ? ( bg_color => BGGREEN, @defaultColour, )
+        $backgroundColour ? ( bg_color => BGGREEN, @defaultColour, )
         : (
             $borderColour ? ( border => 1, border_color => GREEN ) : (),
             $textColour ? ( color => GREEN ) : (),
         )
-    );
-    my @colourHard = (
+      );
+    my @colourHard =
+      $noColour ? ( bottom => 2 )
+      : (
         $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour
-        ? ( bg_color => BGBLUE, @defaultColour, )
+        $backgroundColour ? ( bg_color => BGBLUE, @defaultColour, )
         : (
             $borderColour ? ( border => 1, border_color => BLUE ) : (),
             $textColour ? ( color => BLUE ) : (),
         )
-    );
-    my @colourSoft = (
+      );
+    my @colourSoft =
+      $noColour ? ( bottom => 1 )
+      : (
         $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour
-        ? ( bg_color => BGYELLOW, @defaultColour, )
+        $backgroundColour ? ( bg_color => BGYELLOW, @defaultColour, )
         : (
             $borderColour ? ( border => 1, border_color => EXCELCOL11 ) : (),
             $textColour ? ( color => EXCELCOL11 ) : (),
         )
-    );
-    my @colourScribbles = (
+      );
+    my @colourScribbles =
+      $noColour ? ( bottom => 4, border_color => SILVER, )
+      : (
         color => PURPLE,
         !$backgroundColour ? ()
         : $orangeColours ? ( bottom => 3, top => 3, border_color => PURPLE, )
         :                  ( bg_color => LTPURPLE )
-    );
-    my @colourHeader = (
+      );
+    my @colourHeader =
+      $noColour
+      ? ( bottom => 1, border_color => GREY )
+      : (
         $goldColours
         ? ( bg_color => SILVER, fg_color => BGGOLD, pattern => 6 )
         : $backgroundColour
         ? ( bg_color => $orangeColours ? BGORANGE : BGPURPLE )
         : ()
-    );
-    my @colourUnavailable = (
+      );
+    my @colourUnavailable =
+      $noColour ? ( bottom => 9, border_color => GREY )
+      : (
         $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
         ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
         : ( right => 4, border_color => GREY )
-    );
-    my @colourUnused = (
+      );
+    my @colourUnused =
+      $noColour ? ( bottom => 11, border_color => GREY )
+      : (
         $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour
         ? ( fg_color => SILVER, bg_color => WHITE, pattern => 15, )
         : ( right => 4, border_color => GREY )
-    );
-    my @colourCaption = $backgroundColour ? () : ( color => BLUE );
-    my @colourTitle   = $backgroundColour ? () : ( color => ORANGE );
+      );
+    my @colourCaption = $noColour || $backgroundColour ? () : ( color => BLUE );
+    my @colourTitle = $noColour || $backgroundColour ? () : ( color => ORANGE );
     my @sizeExtras =
       $goldColours ? ( top => 1, bottom => 1, border_color => BGGOLD ) : ();
-    my @sizeCaption    = ( size   => 15, );
-    my @sizeHeading    = ( valign => 'vbottom', size => 15, );
+    my @sizeCaption =
+      $luridFonts
+      ? ( font => 'Baskerville', size => 25, )
+      : ( size => 15, bold => 1, );
+    my @sizeHeading = (
+        @sizeCaption,    # valign => 'vbottom'
+    );
     my @sizeLabel      = ( valign => 1 ? 'vbottom' : 'vcenter', @sizeExtras );
     my @sizeLabelGroup = ( valign => 1 ? 'vbottom' : 'vcenter', );
     my @sizeNumber     = ( valign => 1 ? 'vbottom' : 'vcenter', @sizeExtras );
@@ -569,7 +599,6 @@ sub setFormats {
             @sizeCaption,
             num_format => '@',
             align      => 'left',
-            bold       => 1,
             @colourCaption,
         ],
         captionca => [
@@ -578,7 +607,6 @@ sub setFormats {
             num_format => '@',
             text_wrap  => 1,
             align      => 'center_across',
-            bold       => 1,
             @colourCaption,
         ],
         link => [
@@ -618,7 +646,6 @@ sub setFormats {
             @sizeHeading,
             num_format => '@',
             align      => 'left',
-            bold       => 1,
             @colourTitle,
         ],
         scribbles => [
@@ -755,8 +782,8 @@ sub setFormats {
             @sizeLabel,
             num_format => $num_textonly,
             align      => 'left',
-            bold       => 1,
-            text_wrap  => 1,
+            $boldHeadings ? ( bold => 1 ) : (),
+            text_wrap => 1,
             @colourHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
@@ -764,9 +791,9 @@ sub setFormats {
             locked => 1,
             @sizeLabel,
             num_format => $num_textonly,
-            bold       => 1,
-            text_wrap  => 1,
-            align      => 'center',
+            $boldHeadings ? ( bold => 1 ) : (),
+            text_wrap => 1,
+            align     => 'center',
             @colourHeader,
             $options->{gridlines} ? ( right => 7, bottom => 1 ) : (),
         ],
@@ -826,7 +853,7 @@ sub setFormats {
             @sizeLabel,
             num_format => '\I\t\e\m\ \#0',
             align      => 'left',
-            bold       => 1,
+            $boldHeadings ? ( bold => 1 ) : (),
             @colourHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
@@ -835,7 +862,7 @@ sub setFormats {
             @sizeLabel,
             num_format => '\L\o\c\a\t\i\o\n\ 0',
             align      => 'left',
-            bold       => 1,
+            $boldHeadings ? ( bold => 1 ) : (),
             @colourHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
@@ -844,7 +871,7 @@ sub setFormats {
             @sizeLabel,
             num_format => '\T\a\r\i\f\f\ 0',
             align      => 'left',
-            bold       => 1,
+            $boldHeadings ? ( bold => 1 ) : (),
             @colourHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
@@ -925,6 +952,55 @@ sub setFormats {
             bg_color => EXCELCOL11,
         ],
     };
+
+    if ( $options->{colour} && $options->{colour} =~ /striped/i ) {
+        my @stripes;
+        foreach (
+            [ 'checksum',              '#ffff99' ],
+            [ 'GSP|Transmission exit', '#ccccff' ],
+            [ '132.*EHV',              '#ccffe6' ],
+            [ '132.*HV',               '#e6e6e6' ],
+            [ 'EHV.*HV',               '#e6e6cc' ],
+            [ 'HV.*LV',                '#ffe6cc' ],
+            [ '132',                   '#ccffff' ],
+            [ 'EHV',                   '#ccffcc' ],
+            [ 'HV',                    '#ffcccc' ],
+            [ 'LV',                    '#ffffcc' ],
+            [ 'Red'                   => '#ffcccc' ],
+            [ 'Amber'                 => '#ffe6cc' ],
+            [ 'Green'                 => '#ccffcc' ],
+            [ 'Yellow'                => '#ffffcc' ],
+            [ 'Black'                 => '#cccccc' ],
+            [ 'adder|scaler|matching' => '#ffccff' ],
+            [ 'rate 1'                => '#e6cccc' ],
+            [ 'rate 2'                => '#ffeacc' ],
+            [ 'rate 3'                => '#ccffcc' ],
+            [ 'capacity'              => '#ccffff' ],
+            [ 'reactive'              => '#ccccff' ],
+            [ '.'                     => '#e6e6e6' ],
+          )
+        {
+            push @stripes, [ $_->[0], "inv$_->[1]", $_->[1] ];
+            $workbook->{decospec}{ $_->[1] } ||= [ bg_color => $_->[1] ];
+            $workbook->{decospec}{ 'inv' . $_->[1] } ||=
+              [ bg_color => 'black', color => $_->[1], num_format => '@', ];
+        }
+        $workbook->{columnDecorations} = sub {
+            my @decos;
+            foreach (@_) {
+                my $colFormatSpec;
+                foreach my $pattern (@stripes) {
+                    if (/$pattern->[0]/i) {
+                        $colFormatSpec = [ $pattern->[1], $pattern->[2] ];
+                        last;
+                    }
+                }
+                push @decos, $colFormatSpec;
+            }
+            return unless grep { $_; } @decos;
+            @decos;
+        };
+    }
 
 }
 

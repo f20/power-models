@@ -46,7 +46,7 @@ sub wsWrite {
       && $self->{name} ? $self->addTableNumber( $wb, $ws ) : undef;
 
     if ( $self->{name} ) {
-        $ws->set_row( $row, 21 );
+        $ws->set_row( $row, $wb->{captionRowHeight} );
         $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
         ++$row;
     }

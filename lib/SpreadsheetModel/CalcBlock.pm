@@ -215,7 +215,7 @@ sub wsWrite {
         }
     }
 
-    $ws->set_row( $row, 21 );
+    $ws->set_row( $row, $wb->{captionRowHeight} );
     $ws->write( $row++, $col, "$self->{name}", $wb->getFormat('caption') );
 
     ++$row;    # Blank line

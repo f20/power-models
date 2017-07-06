@@ -87,14 +87,16 @@ sub drmSizer {
             criteria      => 'between',
             minimum       => 0,
             maximum       => 4,
-            error_message => 'Must be' . ' a non-negative percentage value.',
+            error_title   => 'Invalid diversity allowance',
+            error_message => 'Invalid diversity allowance'
+              . ' (negative number or unused cell).',
         },
         lines => <<'EOL',
 Source: operational data analysis and/or network model.
 The diversity figure against GSP is the diversity between GSP Group (the whole system) and individual GSPs.
-The diversity figure against 132kV is the diversity between GSPs (the top of the 132kV network) and 132kV/EHV bulk supply points (the bottom of the 132kV network). 
-The diversity figure against EHV is the diversity between 132kV/EHV bulk supply points (the top of the EHV network) and EHV/HV primary substations (the bottom of the EHV network). 
-The diversity figure against HV is the diversity between EHV/HV primary substations (the top of the HV network) and HV/LV substations (the bottom of the HV network). 
+The diversity figure against 132kV is the diversity between GSPs (the top of the 132kV network) and 132kV/EHV bulk supply points (the bottom of the 132kV network).
+The diversity figure against EHV is the diversity between 132kV/EHV bulk supply points (the top of the EHV network) and EHV/HV primary substations (the bottom of the EHV network).
+The diversity figure against HV is the diversity between EHV/HV primary substations (the top of the HV network) and HV/LV substations (the bottom of the HV network).
 EOL
         number        => 1017,
         appendTo      => $model->{inputTables},

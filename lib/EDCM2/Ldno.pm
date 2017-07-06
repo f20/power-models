@@ -277,7 +277,9 @@ EOF
             value         => 0,
             input_title   => "$ldnoWord discount:",
             input_message => 'At least zero',
-            error_message => "The $ldnoWord discount must not be negative",
+            error_title   => "Invalid $ldnoWord discount",
+            error_message => "Invalid $ldnoWord discount"
+              . ' (negative number or unused cell).',
         },
     );
 
@@ -415,7 +417,9 @@ EOF
                 value         => 0,
                 input_title   => 'Volume:',
                 input_message => 'At least 0',
-                error_message => 'The volume must not be negative.'
+                error_title   => 'Invalid volume data',
+                error_message =>
+                  'Invalid volume data (negative number or unused cell).'
             },
         );
     } 0 .. $#tariffComponents;

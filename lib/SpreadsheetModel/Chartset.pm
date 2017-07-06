@@ -60,7 +60,7 @@ sub wsWrite {
 
     if ( $self->{name} ) {
         $ws->write( $row, $col, "$self->{name}", $wb->getFormat('notes') );
-        $ws->set_row( $row, 21 );
+        $ws->set_row( $row, $wb->{captionRowHeight} );
         ++$row;
     }
 

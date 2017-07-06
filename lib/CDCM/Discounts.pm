@@ -106,8 +106,9 @@ sub pcdPreprocessedVolumes {
             value         => 0,
             input_title   => "$model->{ldnoWord} discount:",
             input_message => 'At least 0%',
-            error_message => "The $model->{ldnoWord} discount"
-              . ' must not be negative.'
+            error_title   => "Invalid $model->{ldnoWord} discount",
+            error_message => "Invalid $model->{ldnoWord} discount"
+              . ' (negative number or unused cell).'
         },
         rows => $model->{pcd}{allTariffsByEndUser},
         data => [ map { 0 } @{ $model->{pcd}{allTariffsByEndUser}{list} } ],
@@ -132,8 +133,9 @@ sub pcdPreprocessedVolumes {
             maximum       => 1,
             input_title   => "$model->{ldnoWord} discount:",
             input_message => 'Between 0% and 100%',
-            error_message => "The $model->{ldnoWord} discount"
-              . ' must be between 0% and 100%.'
+            error_title   => "Invalid $model->{ldnoWord} discount",
+            error_message => "Invalid $model->{ldnoWord} discount"
+              . ' (negative number or unused cell).'
         },
         lines => [ 'Source: separate price control disaggregation model.', ],
         defaultFormat => '%hardnz',

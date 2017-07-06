@@ -283,7 +283,7 @@ sub wsWrite {
     return if $self->{rows} && !@{ $self->{rows}{list} };
 
     if ( $self->{name} ) {
-        $ws->set_row( $row, 21 );
+        $ws->set_row( $row, $wb->{captionRowHeight} );
         $ws->write_string( $row++, $col, "$self->{name}",
             $wb->getFormat('caption') );
     }
@@ -370,6 +370,41 @@ sub wsWrite {
     # Blank line
     ++$row if $self->{name} || $self->{lines} || @sourceLines;
 
+    my ( @dataDecorationsByColumn, @headerDecorationsByColumn );
+    if ( my $columnDecorationsClosure = $wb->{columnDecorations} ) {
+        my $c = 0;
+        foreach ( 0 .. $lastCol ) {
+            if ( $self->{columns}[$_]->lastCol ) {
+                if (
+                    my @decos = $columnDecorationsClosure->(
+                        @{ $self->{columns}[$_]{cols}{list} }
+                    )
+                  )
+                {
+                    foreach ( 0 .. $#decos ) {
+                        if ( my $deco = $decos[$_] ) {
+                            $headerDecorationsByColumn[ $c + $_ ] = $deco->[0];
+                            $dataDecorationsByColumn[ $c + $_ ]   = $deco->[1];
+                        }
+                    }
+                }
+                $c += @{ $self->{columns}[$_]{cols}{list} };
+            }
+            else {
+                if (
+                    my ($deco) = $columnDecorationsClosure->(
+                        $self->{columns}[$_]->objectShortName
+                    )
+                  )
+                {
+                    $headerDecorationsByColumn[$c] = $deco->[0];
+                    $dataDecorationsByColumn[$c]   = $deco->[1];
+                }
+                ++$c;
+            }
+        }
+    }
+
     unless ( $self->{noHeaders} ) {
 
         my $c4 = $col + $headerCols;
@@ -408,14 +443,35 @@ sub wsWrite {
                     $c4 + $_,
                     _shortNameCol( $co->{list}[$_] ),
                     $wb->getFormat(
-                        !$co->{groups}
-                          || defined $co->{groupid}[$_] ? 'thc' : 'thg'
+                        !$co->{groups} || defined $co->{groupid}[$_]
+                        ? (
+                            'thc',
+                            @headerDecorationsByColumn
+                              && $headerDecorationsByColumn[ $c4 + $_ - $col -
+                              $headerCols ]
+                            ? $headerDecorationsByColumn[ $c4 + $_ - $col -
+                              $headerCols ]
+                            : ()
+                          )
+                        : 'thg'
                     )
                 ) foreach 0 .. $#{ $co->{list} };
                 $c4 += @{ $co->{list} };
             }
             else {
-                $ws->write( $row, $c4++, $colShortName, $wb->getFormat('thc') );
+                $ws->write(
+                    $row, $c4,
+                    $colShortName,
+                    $wb->getFormat(
+                        'thc',
+                        @headerDecorationsByColumn
+                          && $headerDecorationsByColumn[ $c4 - $col -
+                          $headerCols ]
+                        ? $headerDecorationsByColumn[ $c4 - $col - $headerCols ]
+                        : ()
+                    )
+                );
+                ++$c4;
             }
 
         }
@@ -483,6 +539,13 @@ sub wsWrite {
                 foreach my $x ( $self->{columns}[$c]->colIndices ) {
                     my ( $value, $format, $formula, @more ) =
                       $cell[$c]->( $x, $y );
+                    if (@dataDecorationsByColumn) {
+                        if ( my $dd =
+                            $dataDecorationsByColumn[ $c2 + $x - $col ] )
+                        {
+                            $format = $wb->getFormat( $format, $dd );
+                        }
+                    }
                     if (@more) {
                         $ws->repeat_formula( $row + $y, $c2 + $x,
                             $formula, $format, @more );
@@ -537,13 +600,18 @@ sub wsWrite {
 
             foreach my $y ( $self->{columns}[$c]->rowIndices ) {
                 my ( $value, $format, $formula, @more ) = $cell[$c]->( 0, $y );
+                if (@dataDecorationsByColumn) {
+                    if ( my $dd = $dataDecorationsByColumn[ $c2 - $col ] ) {
+                        $format = $wb->getFormat( $format, $dd );
+                    }
+                }
                 if (@more) {
-                    $ws->repeat_formula( $row + $y,
-                        $c2, $formula, $format, @more );
+                    $ws->repeat_formula( $row + $y, $c2, $formula, $format,
+                        @more );
                 }
                 elsif ($formula) {
-                    $ws->write_formula( $row + $y,
-                        $c2, $formula, $format, $value );
+                    $ws->write_formula( $row + $y, $c2, $formula, $format,
+                        $value );
                 }
                 else {
                     $value = "=$value"
