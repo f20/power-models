@@ -951,7 +951,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
     my @allTariffColumns = @{$tariffTableReordered}{@$allComponents};
     $model->{allTariffColumns} = \@allTariffColumns;
 
-    unshift @{ $model->{tariffSummary} }, Columnset(
+    unshift @{ $model->{tariffSummary} },
+      $model->{tariffColumnset3701} = Columnset(
         $model->{noLLFCs}
         ? ( name => '' )
         : (
@@ -1013,7 +1014,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
               )
             : (),
         ]
-    );
+      );
 
     if ( $model->{summary} ) {
 

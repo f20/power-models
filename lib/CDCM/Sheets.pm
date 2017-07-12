@@ -48,21 +48,13 @@ sub finishWorkbook {
 
 sub sheetPriority {
     my ( $model, $sheet ) = @_;
-    my $score = {
-        'Index$'        => 9,
-        'Assumptions$'  => 7,
-        'Schedule 15$'  => 6,
-        'Tariffs$'      => 5,
-        'Aggregates$'   => 4,
-        'Illustrative$' => 3,
-    }->{$sheet};
-    $score = 8 if !$score && $sheet =~ /\$$/;
-    $score ||=
-      $sheet =~ /^(?:Overview|Index)$/is ? 2
-      : 1
-      if grep { $sheet eq $_ }
-      $model->{frontSheets} ? @{ $model->{frontSheets} }
-      : qw(Index Overview);
+    my $score = 0;
+    $score = 5 if !$score && $sheet =~ /Tariffs\$$/;
+    $score ||= 2
+      if $sheet =~ /(?:Overview|Index)$/is || $sheet =~ /\//;
+    $score ||= 1
+      if $model->{frontSheets} && grep { $sheet eq $_ }
+      @{ $model->{frontSheets} };
     $score;
 }
 
@@ -509,7 +501,8 @@ EOL
         $count = 0;
         my @breaks;
         foreach (@pairs) {
-            push @breaks, $wsheet->{nextFree} if $_->{columns} && $_->{name};
+            push @breaks, $wsheet->{nextFree}
+              if $_->{columns} && $_->{name} && $wsheet->{nextFree};
             $_->wsWrite( $wbook, $wsheet );
         }
         $wsheet->set_h_pagebreaks(@breaks);
@@ -568,7 +561,8 @@ EOL
         $count = 0;
         my @breaks;
         foreach (@pairs) {
-            push @breaks, $wsheet->{nextFree} if $_->{columns} && $_->{name};
+            push @breaks, $wsheet->{nextFree}
+              if $_->{columns} && $_->{name} && $wsheet->{nextFree};
             $_->wsWrite( $wbook, $wsheet );
         }
         $wsheet->set_h_pagebreaks(@breaks);
@@ -853,12 +847,13 @@ EOL
               )
             : ( Tariffs => '$', ),
         );
+        my $reallyCompact = $model->{compact} !~ /not/i;
         for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {
             my $suffix = $suffixes{ $wsheetsAndClosures[$i] };
             if ( defined $suffix ) {
                 $wsheetsAndClosures[$i] .= $suffix;
             }
-            else {
+            elsif ($reallyCompact) {
                 $wsheetsAndClosures[$i] = "CDCM/$wsheetsAndClosures[$i]";
             }
         }

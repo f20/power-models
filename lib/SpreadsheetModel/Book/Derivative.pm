@@ -94,9 +94,7 @@ sub setupDerivativeDataset {
                             $rows[$i], $col, $wb, $ws, $row
                         );
                     }
-
                 }
-
             }
 
             map {
