@@ -1,6 +1,6 @@
 * Copyright licence and disclaimer
 *
-* Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
+* Copyright 2012-2017 Reckon LLP, Pedro Fernandes and others. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -30,6 +30,9 @@ quietly {
 
 clear
 use ResultsToAudit.dta
+*26Jun2017: shorten company name to first name of company (dropping model specification)
+	replace company=substr(company,1,strpos(company,"-")-1)
+	save ResultsToAudit_modified.dta, replace
 local current_data = c(filename)
 
 *Defining set of variables in each table
@@ -58,11 +61,17 @@ forvalues j =1/`m' {
     local CSVTable: word `j' of `TableGrp'
 
     *Merging the Stata with the CSV file
-
     clear
-    insheet using "`CSVTable'.csv"
+*26Jun2017
+*    insheet using "`CSVTable'.csv"
+
+	insheet using "_/`CSVTable'.csv"
 
 *Dealing with blanks within company names (to make it consistent with program in model)
+
+
+*26Jun2017: shorten company name to first name of company (dropping model specification)
+	replace company=substr(company,1,strpos(company,"-")-1)
 
     sort company line
     save TempAll.dta, replace
@@ -88,7 +97,7 @@ forvalues j =1/`m' {
     log using Res`CSVTable', replace
     noisily: list company if company[_n-1]!=company
 
-* (19Jan2016) Define level of tolerance when checking values match 
+* (19Jan2016) Define level of tolerance when checking values match
 * Allow more lenient tolerance for t4601; only way of numbers agreeing.
 * This may, or may not, be related to error in Excel model commented on in Seg13 file.
 
@@ -117,7 +126,7 @@ forvalues j =1/`m' {
         replace diff`ExcelVar'=1 if `ExcelVar'==.&`StataVar'==0
 
         gen Match`ExcelVar'="OK" if diff`ExcelVar'> (1- `tolerance') & diff`ExcelVar'<(1+ `tolerance')
-	  
+
 	  sort company line
 
         display as error "``StataVar' `ExcelVar'"

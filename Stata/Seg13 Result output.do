@@ -1,6 +1,6 @@
 * Copyright licence and disclaimer
 *
-* Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
+* Copyright 2012-2016 Reckon LLP, Pedro Fernandes and others. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:

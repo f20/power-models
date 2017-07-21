@@ -1,6 +1,6 @@
 * Copyright licence and disclaimer
 *
-* Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
+* Copyright 2012-2017 Reckon LLP, Pedro Fernandes and others. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -126,12 +126,16 @@ replace company= subinstr(company," ","-",.)
 
 if "$Optiondcp189"=="proportionsplitShortfall" {
 
-    ren t935c8 t935dcp189
+*Revised 26JUne2017
 
-    forvalues i = 9/28{
-        local j = `i'-1
-        rename t935c`i' t935c`j'
-        }
+
+*    ren t935c8 t935dcp189
+
+*    forvalues i = 9/28{
+*        local j = `i'-1
+*        rename t935c`i' t935c`j'
+*
+*       }
 }
 
 *(a) Transform missing values into 0
@@ -144,10 +148,14 @@ BlankToZero  t935c7 t935c9 t935c10 t935c11 t935c12 t935c13 t935c14 t935c15 t935c
 *Pick-up "VOID" in import capacity (t935c2) and in non-exempt export capacity (t935c5, t935c6, t935c7)
 
 gen ImportCapNA=0
-replace ImportCapNA= 1 if t935c2=="VOID"
+*26Jun217
+*replace ImportCapNA= 1 if t935c2=="VOID"
+replace ImportCapNA= 1 if t935c2==.
 
 gen ExportCapNA=0
-replace ExportCapNA= 1 if t935c4=="VOID"&t935c5=="VOID"&t935c6=="VOID"
+*26Jun2017
+*replace ExportCapNA= 1 if t935c4=="VOID"&t935c5=="VOID"&t935c6=="VOID"
+replace ExportCapNA= 1 if t935c4==.&t935c5==.&t935c6==.
 
 HashValueToMissing t935c2 t935c3 t935c4 t935c5 t935c6
 BlankToZero t935c2 t935c3 t935c4 t935c5  t935c6

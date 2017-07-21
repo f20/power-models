@@ -7,6 +7,9 @@ EDCM/Stata in the github.com/f20/power-models code repository.
 These files are designed to be used with Stata, a commercial software package
 for statistical analysis (www.stata.com).
 
+This software is licensed under open source licences. Check the source code for
+details.
+
 THIS SOFTWARE AND DATA ARE PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
 MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT
@@ -54,7 +57,7 @@ generated in Step A4.
 
 Step B2.  Determine the path to the pmod.pl file on your system.  The pmod.pl
 file is in the root folder of the power-models repository.  The code below
-assumes that pmod.pl is in the current working directory, amend as necessary.
+assumes that pmod.pl is in the current working directory: amend as necessary.
 
 Step B3.  If you do not use a Windows or Mac computer with Microsoft Excel 2010
 or later, skip to step B4.

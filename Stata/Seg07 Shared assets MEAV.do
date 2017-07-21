@@ -1,6 +1,6 @@
 * Copyright licence and disclaimer
 *
-* Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
+* Copyright 2012-2017 Reckon LLP, Pedro Fernandes and others. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -104,8 +104,8 @@ NetworkAssetValue
 gen tempvar5=(t1113c1-t935c22)
 CheckZero t1113c3 tempvar5
 
-gen RawTotSSAssets=RawSSValCapAllL + (RawSSValDemAllL* (1-(t935c23/t1113c3))*(t1113c1/(t1113c1-t935c22)))
-gen CCTotSSAssets=CCSSValCapAllL + (CCSSValDemAllL* (1-(t935c23/t1113c3))*(t1113c1/(t1113c1-t935c22)))
+gen RawTotSSAssetsCCSSValCapAllL=RawSSValCapAllL + (RawSSValDemAllL* (1-(t935c23/t1113c3))*(t1113c1/(t1113c1-t935c22)))
+gen CCTotSSAssets= + (CCSSValDemAllL* (1-(t935c23/t1113c3))*(t1113c1/(t1113c1-t935c22)))
 
 *Line below commented out on 18Dec2015. Deemed unnecessary given revision in "Seg13 Results output.do", also dated 18Dec2015.
 *replace CCTotSSAssets = 1e-100 if CCTotSSAssets==0

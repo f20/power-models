@@ -1,6 +1,6 @@
 * Copyright licence and disclaimer
 *
-* Copyright 2012-2014 Reckon LLP, Pedro Fernandes and others. All rights reserved.
+* Copyright 2012-2017 Reckon LLP, Pedro Fernandes and others. All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
@@ -97,7 +97,8 @@ quietly{
         local k = `i'+9
 
         gen AdjNetworkUseFactor`i'= t935c`k' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1)
-*        replace AdjNetworkUseFactor`i'= t1134c`j' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & t953c25=="TRUE"
+
+		*        replace AdjNetworkUseFactor`i'= t1134c`j' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & t953c25=="TRUE"
 
 *Defining site-specific assets for demand users, (a)using raw network use-factors and (b) using capped-and-collared use factors
 
@@ -108,11 +109,13 @@ quietly{
 
 *(b) Using cap and collared network-use factors
 
-        gen CCNetworkUseFactor`i'= AdjNetworkUseFactor`i' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & (AdjNetworkUseFactor`i'>=t1134c`i' & AdjNetworkUseFactor`i'<=t1133c`i' )
+*Three lines below revise 21Jul2017
 
-        replace CCNetworkUseFactor`i'= t1134c`i' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & AdjNetworkUseFactor`i'<t1134c`i'
+        gen CCNetworkUseFactor`i'= AdjNetworkUseFactor`i'
 
-        replace CCNetworkUseFactor`i'= t1133c`i' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & AdjNetworkUseFactor`i'>t1133c`i'
+        replace CCNetworkUseFactor`i'= t1134c`j' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & AdjNetworkUseFactor`i'<t1134c`j'
+
+        replace CCNetworkUseFactor`i'= t1133c`j' if (CapacityFlagLevel`i'==1|DemandFlagLevel`i'==1) & AdjNetworkUseFactor`i'>t1133c`j'
 
         gen CCSSValCapL`i' = CCNetworkUseFactor`i' * AvNetAssetValueCapacityLevel`i' if CapacityFlagLevel`i'==1
         gen CCSSValDemL`i' = CCNetworkUseFactor`i' * AvNetAssetValueDemandLevel`i' if DemandFlagLevel`i'==1
