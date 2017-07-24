@@ -169,9 +169,8 @@ sub new {
           if UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'addStats' );
     }
 
-    if ( my $sm = $model->{sourceModel} ) {
-        $model->derivativeDataset($sm);
-    }
+    $model->useSourceModels( $model->{sourceModels} )
+      if $model->{sourceModels} && $model->can('useSourceModels');
 
     $model->timebandDetails if $model->{timebandDetails};
 

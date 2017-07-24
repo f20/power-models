@@ -31,11 +31,9 @@ use warnings;
 use strict;
 use Spreadsheet::WriteExcel::Utility;
 
-sub setupDerivativeDataset {
+sub registerSourceModel {
 
     my ( $model, $sourceModel ) = @_;
-
-    my $sourceTableHashref;
 
     my @backupDatasets;
     {
@@ -46,7 +44,8 @@ sub setupDerivativeDataset {
         }
     }
 
-    my $addSourceDatasetAdjuster = sub {
+    my $sourceTableHashref;
+    sub {
 
         my ( $theTable, $formulaMaker ) = @_;
         my $hardData = $model->{dataset} ? $model->{dataset}{$theTable} : undef;
@@ -128,11 +127,6 @@ sub setupDerivativeDataset {
         };
 
     };
-
-    $addSourceDatasetAdjuster->(
-        defaultClosure => sub { my ($cell) = @_; "=$cell"; } );
-
-    $addSourceDatasetAdjuster;
 
 }
 

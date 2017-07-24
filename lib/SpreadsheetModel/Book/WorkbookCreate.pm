@@ -119,12 +119,18 @@ sub create {
                     %$dataset = %{ $parsed[0] };
                 }
             }
-            if ( my $prev = $optionArray[$i]{dataset}{baseDataset} ) {
-                unless ( $prev > $i ) {
-                    push @{ $optionArray[ $i - $prev ]{requestsToSeeModel} },
-                      sub {
-                        $optionArray[$i]{sourceModel} = $_[0];
-                      };
+            if ( my $sourceNames =
+                $optionArray[$i]{dataset}{sourceModelsDatasetNames} )
+            {
+                my $target = $optionArray[$i];
+                while ( my ( $key, $sourceName ) = each %$sourceNames ) {
+                    foreach my $potentialSource (@optionArray) {
+                        push @{ $potentialSource->{requestsToSeeModel} }, sub {
+                            $target->{sourceModels}{$key} = $_[0];
+                          }
+                          if $potentialSource->{'~datasetName'}
+                          && $sourceName eq $potentialSource->{'~datasetName'};
+                    }
                 }
             }
             else {

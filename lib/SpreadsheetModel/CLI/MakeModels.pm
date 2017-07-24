@@ -161,32 +161,9 @@ sub makeModels {
             elsif (/^-+datamerge/is) {
                 $maker->{setting}->( dataMerge => 1 );
             }
-            elsif (/^-+extend=(20[0-9]{2})-(20[0-9]{2})/is) {
-                $maker->{setRule}->( assumptionsSheet => 1 );
-                $maker->{setting}->(
-                    extraDataYears => [
-                        map {
-                            [
-                                "-$1-02", "-$_-02",
-                                {
-                                    1000 => [
-                                        {},
-                                        {},
-                                        {
-                                            'Company charging year data version'
-                                              => join( '/', $_, $_ + 1 ),
-                                        },
-                                        {
-                                            'Company charging year data version'
-                                              => 'Scenario',
-                                        }
-                                    ],
-                                    baseDataset => 1,
-                                }
-                            ]
-                        } $1 + 1 .. $2
-                    ]
-                );
+            elsif (/^-+ext(?:ension)?=?([a-z0-9_:]+)(.*)/is) {
+                eval "require $1" and eval { $1->process( $maker, $2 ); };
+                warn $@ if $@;
             }
             elsif (/^-+pickall/is) {
                 $maker->{setting}->( allowInconsistentRules => 1 );

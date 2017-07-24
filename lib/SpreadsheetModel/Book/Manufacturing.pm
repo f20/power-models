@@ -213,10 +213,9 @@ sub factory {
         $processStream->( $dh, $_ );
     };
 
-    # This applies rules overrides, loads relevant code,
-    # and, where configured to do so,
-    # attributes a revision number to the resulting rules.
-    # Returns an array of rulesets, or nothing if there is a problem.
+    # This applies rules overrides, loads relevant code, and, if so
+    # configured, attributes a revision number to the resulting rules.
+    # Returns an array of rulesets (or nothing if there is a problem).
     my $validate = $self->{validate} = sub {
         my ( $validatedLibs, $dbString ) = @_;
         $validatedLibs = [ grep { -d $_; } $validatedLibs ]
@@ -363,22 +362,6 @@ sub factory {
             }
         }
 
-        if ( $settings->{extraDataYears} ) {
-            foreach ( @{ $settings->{extraDataYears} } ) {
-                my ( $sourceYear, $targetYear, $dataset ) = @$_;
-                foreach (@datasets) {
-                    my $name = $_->{'~datasetName'} or next;
-                    $name =~ s/$sourceYear/$targetYear/ or next;
-                    push @datasets,
-                      {
-                        '~datasetName'   => $name,
-                        '~datasetSource' => "Additional data year $targetYear",
-                        dataset          => $dataset,
-                      };
-                }
-            }
-        }
-
         if (%dataOverrides) {
             my $overrides = {%dataOverrides};
             my $suffix    = '-' . delete $overrides->{hash};
@@ -388,6 +371,9 @@ sub factory {
                   if defined $_->{'~datasetName'};
             }
         }
+
+        $settings->{adjustDatasets}->( \@datasets )
+          if $settings->{adjustDatasets};
 
         $validate->( @{ $settings->{validate} } ) if $settings->{validate};
 
@@ -428,7 +414,10 @@ sub factory {
             }
         };
 
-        if ( $settings->{pickBestRules} ) {
+        if ( $settings->{customPicker} ) {
+            $settings->{customPicker}->( $addToList, \@datasets, \@rulesets );
+        }
+        elsif ( $settings->{pickBestRules} ) {
             foreach my $data (@datasets) {
                 my @scored;
                 foreach my $rule (@rulesets) {
