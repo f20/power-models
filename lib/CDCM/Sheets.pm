@@ -89,6 +89,7 @@ sub worksheetsAndClosures {
                 data          => [ 'no company', 'no year', 'no data version' ],
                 usePlaceholderData => 1,
                 forwardLinks       => {},
+                appendTo           => $model->{inputTables},
             );
             push @{ $model->{edcmTables} },
               Stack(
@@ -100,7 +101,7 @@ sub worksheetsAndClosures {
         my $inputDataNotes = $model->inputDataNotes;
         push @{ $model->{sheetLinks}{$wbook} }, $inputDataNotes;
         $_->wsWrite( $wbook, $wsheet )
-          foreach $inputDataNotes, $model->{table1000},
+          foreach $inputDataNotes,
           sort { ( $a->{number} || 9999 ) <=> ( $b->{number} || 9999 ) }
           @{ $model->{inputTables} };
         require Spreadsheet::WriteExcel::Utility;

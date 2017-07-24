@@ -119,17 +119,25 @@ sub create {
                     %$dataset = %{ $parsed[0] };
                 }
             }
-            if ( my $sourceNames =
-                $optionArray[$i]{dataset}{sourceModelsDatasetNames} )
+            if ( my $sourceNameMatches =
+                $optionArray[$i]{dataset}{sourceModelsDatasetNameMatches} )
             {
                 my $target = $optionArray[$i];
-                while ( my ( $key, $sourceName ) = each %$sourceNames ) {
+                while ( my ( $key, $sourceNameMatch ) =
+                    each %$sourceNameMatches )
+                {
                     foreach my $potentialSource (@optionArray) {
-                        push @{ $potentialSource->{requestsToSeeModel} }, sub {
-                            $target->{sourceModels}{$key} = $_[0];
-                          }
-                          if $potentialSource->{'~datasetName'}
-                          && $sourceName eq $potentialSource->{'~datasetName'};
+                        if (   $potentialSource != $target
+                            && $potentialSource->{'~datasetName'}
+                            && $potentialSource->{'~datasetName'} =~
+                            /$sourceNameMatch/ )
+                        {
+                            push @{ $potentialSource->{requestsToSeeModel} },
+                              sub {
+                                $target->{sourceModels}{$key} = $_[0];
+                              };
+                            last;
+                        }
                     }
                 }
             }

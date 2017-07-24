@@ -67,26 +67,28 @@ sub preprocessDataset {
           qw(1018 1020);
     }
 
-    if ( !$model->{unauth} ) {
-        splice @{ $d->{1053} }, 6, 1
-          if $d->{1053}
-          && $d->{1053}[6]
-          && $d->{1053}[6]{_column}
-          && $d->{1053}[6]{_column} =~ /exceed/i;
-    }
-    elsif ( $model->{unauth} =~ /day/ ) {
-        my $vd = $d->{1053};
-        if (   $vd
-            && $vd->[6]
-            && $vd->[6]{_column}
-            && $vd->[6]{_column} =~ /reactive/i )
-        {
-            splice @$vd, 6, 0, { map { ( $_ => '' ); } keys %{ $vd->[5] } };
-            my $add = $model->{unauth} =~ /add/i;
-            while ( my ( $t, $p ) = each %{ $vd->[5] } ) {
-                next unless $t =~ s/ exceedprop$//s;
-                $vd->[6]{$t} = $vd->[5]{$t} * $p;
-                $vd->[5]{$t} -= $vd->[6]{$t} unless $add;
+    if ( $d->{1053} ) {
+        if ( !$model->{unauth} ) {
+            splice @{ $d->{1053} }, 6, 1
+              if $d->{1053}
+              && $d->{1053}[6]
+              && $d->{1053}[6]{_column}
+              && $d->{1053}[6]{_column} =~ /exceed/i;
+        }
+        elsif ( $model->{unauth} =~ /day/ ) {
+            my $vd = $d->{1053};
+            if (   $vd
+                && $vd->[6]
+                && $vd->[6]{_column}
+                && $vd->[6]{_column} =~ /reactive/i )
+            {
+                splice @$vd, 6, 0, { map { ( $_ => '' ); } keys %{ $vd->[5] } };
+                my $add = $model->{unauth} =~ /add/i;
+                while ( my ( $t, $p ) = each %{ $vd->[5] } ) {
+                    next unless $t =~ s/ exceedprop$//s;
+                    $vd->[6]{$t} = $vd->[5]{$t} * $p;
+                    $vd->[5]{$t} -= $vd->[6]{$t} unless $add;
+                }
             }
         }
     }

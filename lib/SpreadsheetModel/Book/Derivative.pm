@@ -2,7 +2,7 @@ package SpreadsheetModel::Book::Derivative;
 
 =head Copyright licence and disclaimer
 
-Copyright 2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,32 +31,45 @@ use warnings;
 use strict;
 use Spreadsheet::WriteExcel::Utility;
 
-sub registerSourceModel {
+sub registerSourceModels {
 
-    my ( $model, $sourceModel ) = @_;
+    my ( $model, $sourceModelsMap, $customActionMap ) = @_;
 
-    my @backupDatasets;
-    {
+    my %backupDatasets;
+    foreach my $sourceModel ( values %$sourceModelsMap ) {
+        next if $backupDatasets{ 0 + $sourceModel };
         my $m = $sourceModel;
+        my @backupDatasets;
         while ( my $d = $m->{dataset} ) {
             push @backupDatasets, $d;
             $m = $m->{sourceModel};
         }
+        $backupDatasets{ 0 + $sourceModel } = \@backupDatasets;
     }
 
-    my $sourceTableHashref;
-    sub {
+    $customActionMap->{defaultClosure} ||= sub {
+        my ($cell) = @_;
+        "=$cell";
+    };
 
-        my ( $theTable, $formulaMaker ) = @_;
-        my $hardData = $model->{dataset} ? $model->{dataset}{$theTable} : undef;
-        return if ref $hardData eq 'CODE';
+    while ( my ( $theTable, $formulaMaker ) = each %$customActionMap ) {
 
+        my $theHardData = $model->{dataset}{$theTable};
         $model->{dataset}{$theTable} = sub {
 
             my ( $table, $wb, $ws ) = @_;
-            $sourceTableHashref ||=
+
+            my $hardData =
+              $table eq $theTable ? $theHardData : $model->{dataset}{$table};
+            return if ref $hardData eq 'CODE';
+
+            my $sourceModel =
+                 $sourceModelsMap->{$table}
+              || $sourceModelsMap->{baseline}
+              || $sourceModelsMap->{previous};
+            my $sourceTableHashref =
               { map { $_->{number} => $_ } @{ $sourceModel->{inputTables} } };
-            my @columns;
+            my ( @rows, @columns );
 
             if ( my $d = $sourceTableHashref->{$table} ) {
                 my ( $s, $r, $c ) =
@@ -70,7 +83,7 @@ sub registerSourceModel {
                 else {
                     $width = 1 + $d->lastCol;
                 }
-                my @rows =
+                @rows =
                   $d->{rows}
                   ? @{ $d->{rows}{list} }
                   : 'MAGICAL SINGLE ROW NAME';
@@ -99,12 +112,12 @@ sub registerSourceModel {
             map {
                 for ( my $icolumn = 1 ; $icolumn < @$_ ; ++$icolumn ) {
                     foreach my $irow ( keys %{ $_->[$icolumn] } ) {
-                        $columns[$icolumn]{$irow} =
+                        $columns[$icolumn]{ @rows == 1 ? $rows[0] : $irow } =
                           $_->[$icolumn]{$irow};
                     }
                 }
               } grep { $_ } $hardData,
-              map    { $_->{$theTable} }
+              map    { $_->{$table} }
               ref $model->{dataOverride} eq 'ARRAY'
               ? @{ $model->{dataOverride} }
               : $model->{dataOverride};
@@ -120,13 +133,13 @@ sub registerSourceModel {
                 }
               }
               grep { ref $_ eq 'ARRAY' }
-              map  { $_->{$theTable} } @backupDatasets;
+              map  { $_->{$theTable} } @{ $backupDatasets{ 0 + $sourceModel } };
 
             \@columns;
 
         };
 
-    };
+    }
 
 }
 
