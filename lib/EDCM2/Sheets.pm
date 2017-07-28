@@ -59,7 +59,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
         $model->{titleWrites}{$wbook} = [];
-        $wbook->{titleWriter} =
+        $wbook->{titleWriter} ||=
           sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{inputTables} ||= [];
         my $idTable = Dataset(
@@ -466,7 +466,7 @@ sub worksheetsAndClosures {
 
       $model->{transparency}
       ? (
-        'Aggregates' => sub {
+        'DNO totals' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 250, 30 );

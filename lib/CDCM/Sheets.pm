@@ -76,7 +76,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   $t1001width ? 64 : 50 );
         $wsheet->set_column( 1, 250, $t1001width ? 24 : 20 );
         $model->{titleWrites}{$wbook} = [];
-        $wbook->{titleWriter} =
+        $wbook->{titleWriter} ||=
           sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
 
         unless ( $model->{table1000} ) {

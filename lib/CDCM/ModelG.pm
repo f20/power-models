@@ -248,13 +248,17 @@ sub modelG {
                 ),
             },
         );
+        my $chargeablePercentageArithmetic = 'IF(A21,1-A1/A22,0)';
+        $chargeablePercentageArithmetic =
+          "MAX(0,$chargeablePercentageArithmetic)"
+          if $model->{unroundedTariffAnalysis} =~ /cap100/i;
         my $chargeablePercentage = Arithmetic(
             name => Label(
                 'Chargeable percentage',
                 'Chargeable percentage' . $suffix
             ),
             defaultFormat => '%soft',
-            arithmetic    => '=IF(A21,1-A1/A22,0)',
+            arithmetic    => "=$chargeablePercentageArithmetic",
             arguments     => {
                 A1  => $ppuDiscounts,
                 A21 => $ppu,
@@ -574,7 +578,8 @@ sub modelG {
                         map {
                             Stack(
                                 name => defined $_->[2]
-                                  && $_->[2] < @runs ? "Run $_->[2]" : 'Final',
+                                  && $_->[2] < @runs ? "Run $_->[2]"
+                                : 'Final',
                                 sources => [ $_->[$e][$i] ]
                             );
                           }
@@ -626,8 +631,10 @@ sub modelG {
       my $discounts = Arithmetic(
         name          => "$model->{ldnoWord} discounts",
         defaultFormat => '%soft',
-        arithmetic    => '=IF(A21,A1/A22,0)',
-        arguments     => {
+        arithmetic    => $model->{unroundedTariffAnalysis} =~ /cap100/i
+        ? '=IF(A21,MIN(1,A1/A22),1)'
+        : '=IF(A21,A1/A22,0)',
+        arguments => {
             A1  => $ppuDiscounts,
             A21 => $ppu,
             A22 => $ppu,

@@ -356,16 +356,40 @@ EOF
         }
     );
 
-    $discountsByTariff = Arithmetic(
-        name          => 'Applicable discount for each tariff',
-        defaultFormat => '%soft',
-        arithmetic    => '=IF(A2,A1/A3,0)',
-        arguments     => {
-            A1 => $discountsByTariff,
-            A2 => $ppu,
-            A3 => $ppu,
-        },
-    ) if $ppu;
+    if ($ppu) {
+
+        my ( @extraArgs, $arithmetic );
+        if ( $model->{ldnoRev} =~ /genneg/i ) {
+            $arithmetic = 'IF(A2,A4*A1/A3,0)';
+            @extraArgs  = (
+                A4 => Constant(
+                    name          => 'Discount scaling factor',
+                    defaultFormat => '0con',
+                    rows          => $endUsers,
+                    data =>
+                      [ map { /gener/i ? -1 : 1; } @{ $endUsers->{list} } ],
+                )
+            );
+        }
+        else {
+            $arithmetic = 'IF(A2,A1/A3,0)';
+        }
+
+        $arithmetic = "MIN(1,$arithmetic)"
+          if $model->{ldnoRev} =~ /cap100/i;
+
+        $discountsByTariff = Arithmetic(
+            name          => 'Applicable discount for each tariff',
+            defaultFormat => '%soft',
+            arithmetic    => "=$arithmetic",
+            arguments     => {
+                A1 => $discountsByTariff,
+                A2 => $ppu,
+                A3 => $ppu,
+                @extraArgs,
+            },
+        );
+    }
 
     my @explodedData = map {
         my $unexploded = $endUserTariffs[$_]{data};
