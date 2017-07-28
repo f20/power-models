@@ -628,7 +628,9 @@ sub modelG {
       );
 
     push @{ $model->{modelgTables} },
-      my $discounts = Arithmetic(
+      my $discounts =
+      $model->{unroundedTariffAnalysis} =~ /legacy/i
+      ? Arithmetic(
         name          => "$model->{ldnoWord} discounts",
         defaultFormat => '%soft',
         arithmetic    => $model->{unroundedTariffAnalysis} =~ /cap100/i
@@ -637,6 +639,18 @@ sub modelG {
         arguments => {
             A1  => $ppuDiscounts,
             A21 => $ppu,
+            A22 => $ppu,
+        },
+      )
+      : Arithmetic(
+        name          => "$model->{ldnoWord} discounts",
+        defaultFormat => '%soft',
+        arithmetic    => $model->{unroundedTariffAnalysis} =~ /cap100/i
+        ? '=IF(A21,MIN(1,A1/A22),0)'
+        : '=IF(A21,A1/A22,0)',
+        arguments => {
+            A1  => $ppuDiscounts,
+            A21 => $ppuDiscounts,
             A22 => $ppu,
         },
       );
