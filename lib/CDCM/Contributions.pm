@@ -148,8 +148,15 @@ EOT
 
 =cut
 
+    my $relevantTariffs =
+      !$model->{generationCreditsContrib} ? $allTariffsByEndUser
+      : $allTariffsByEndUser->{groups}    ? Labelset(
+        groups => [ grep { !/gener/i; } @{ $allTariffsByEndUser->{groups} } ] )
+      : Labelset(
+        list => [ grep { !/gener/i; } @{ $allTariffsByEndUser->{list} } ] );
+
     my $customerTypeMatrixForContributions = Constant(
-        rows => $allTariffsByEndUser,
+        rows => $relevantTariffs,
         cols => $customerTypesForContributions,
 
         # hard-coded customer types
@@ -175,7 +182,7 @@ EOT
                   : /^((?:LD|Q)NO )?132/i      ? [qw(0 0 0 0 0 0 1 0)]
                   : /^GSP/i                    ? [qw(0 0 0 0 0 0 0 1)]
                   : []
-            } @{ $allTariffsByEndUser->{list} }
+            } @{ $relevantTariffs->{list} }
         ],
         defaultFormat => '%connz',
         name =>
@@ -190,16 +197,15 @@ EOT
     my $lvTariffset = Labelset(
         name => 'LV tariffs',
         list => [
-            grep  { /^((?:LD|Q)NO )?LV/i }
-              map { $allTariffsByEndUser->{list}[$_] }
-              $allTariffsByEndUser->indices
+            grep { /^((?:LD|Q)NO )?LV/i }
+            map  { $relevantTariffs->{list}[$_] } $relevantTariffs->indices
         ]
     );
 
     0 and $customerTypeMatrixForContributions = Stack
       name => 'Mapping of network level of supply '
       . '(for customer contributions) to each LV tariff',
-      rows          => $allTariffsByEndUser,
+      rows          => $relevantTariffs,
       cols          => $customerTypesForContributions,
       defaultFormat => '%copynz',
       sources       => [
