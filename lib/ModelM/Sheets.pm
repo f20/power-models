@@ -64,7 +64,7 @@ sub worksheetsAndClosures {
         my $dataSheet;
         $dataSheet = delete $wbook->{dataSheet} if $model->{noSingleInputSheet};
         $model->{titleWrites}{$wbook} = [];
-        $wbook->{titleWriter} ||=
+        $wbook->{titleWriter} =
           sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{objects}{inputTables} ||= [];
         my $idTable = Dataset(

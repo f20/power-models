@@ -64,7 +64,7 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   36 );
         $wsheet->set_column( 1, 250, 20 );
         $model->{titleWrites}{$wbook} = [];
-        $wbook->{titleWriter} ||=
+        $wbook->{titleWriter} =
           sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{inputTables} ||= [];
         my $idTable = Dataset(
