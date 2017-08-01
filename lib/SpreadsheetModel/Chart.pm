@@ -101,7 +101,11 @@ sub applyInstructions {
             else {
                 $args = [];
             }
-            if ( UNIVERSAL::isa( $series, 'SpreadsheetModel::Dataset' )
+            if ( ref $series eq 'CODE' ) {
+                $chart->$verb( $series->( $wb, $ws ), @$args );
+                next;
+            }
+            elsif ( UNIVERSAL::isa( $series, 'SpreadsheetModel::Dataset' )
                 and $series->lastCol || $series->lastRow )
             {
                 push @{ $self->{sourceLines} }, $series
@@ -206,7 +210,7 @@ sub applyInstructions {
                 && $series->[0]{rows}
                 && $series->[1]{rows}
                 && $series->[0]{rows} == $series->[1]{rows} )
-            {
+            {    # Scatter plot
                 foreach my $d (@$series) {
                     push @{ $self->{sourceLines} }, $d
                       unless $self->{sourceLines} && grep { $_ == $d }
