@@ -193,14 +193,9 @@ sub pcdPreprocessedVolumes {
 
     if ( $model->{portfolio} && $model->{portfolio} =~ /ehv/i ) {
 
-        # Supplement table 1037 with table 1181 or replace everything
-        # with a new table which might, for each level pair,
-        # separate discounts for demand unit changes, demand standing charges,
-        # generation credits and generation fixed charges.
-
+        # To do: supplement table 1037 with table 1181.
         die
           "EDCM discounted $model->{ldnoWord} tariffs are not implemented here";
-
     }
 
     ( $model->{pcd}{volumeData} ) =
