@@ -108,7 +108,10 @@ sub aggregation {
                           ? undef
                           : 'unavailable';
                     } @{ $allTariffsByEndUser->{list} }
-                ]
+                ],
+                $tariffComponent =~ m#/day#
+                ? ( defaultFormat => '0.00soft' )
+                : (),
             );
             0 and Columnset(
                 name    => $tariffComponent . ' aggregation',
