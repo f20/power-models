@@ -67,8 +67,8 @@ sub new {
     $model->{inputTables} = [];
     $model->{method} ||= 'none';
 
-    # The EDCM timeband is called purple in this code,
-    # but its display name defaults to super-red.
+    # The EDCM timeband is called purple in this code;
+    # its display name defaults to super-red.
     $model->{TimebandName} ||=
       ucfirst( $model->{timebandName} ||= 'super-red' );
 
@@ -302,7 +302,11 @@ EOT
                     '0hard'
                 ],
                 [ 'Baseline revenue from demand charge 1 (£/year)', '0hard' ],
-                'EDCM demand aggregates'
+                [
+                    'Baseline net forecast EDCM generation revenue (£/year)',
+                    '0hard'
+                ],
+                'EDCM demand and revenue aggregates'
             ],
             [
                 1192,
@@ -313,10 +317,6 @@ EOT
                 ],
                 [
                     'Baseline total non-exempt post-2010 export capacity (kVA)',
-                    '0hard'
-                ],
-                [
-                    'Baseline net forecast EDCM generation revenue (£/year)',
                     '0hard'
                 ],
                 'EDCM generation aggregates'
@@ -1096,7 +1096,7 @@ EOT
           . '+SUMPRODUCT(A31_A32,A71_A72,A73_A74)*A75/100+SUMPRODUCT(A41_A42,A83_A84)*A85/100',
         arguments => {
             A123    => $model->{transparencyMasterFlag},
-            A1      => $model->{transparency}{ol119204},
+            A1      => $model->{transparency}{ol119105},
             A21_A22 => $model->{transparency},
             A31_A32 => $model->{transparency},
             A41_A42 => $model->{transparency},
@@ -1125,7 +1125,7 @@ EOT
         }
       );
 
-    $model->{transparency}{olTabCol}{119204} = $generationRevenue
+    $model->{transparency}{olTabCol}{119105} = $generationRevenue
       if $model->{transparency};
 
 ### Marker

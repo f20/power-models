@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -121,8 +121,8 @@ sub preprocessDataset {
               }
               if $model->{dcp189}
               and !$ds->[8]
-              || !$ds->[8]{'_column'}
-              || $ds->[8]{'_column'} !~ /reduction/i;
+              || !$ds->[8]{_column}
+              || $ds->[8]{_column} !~ /reduction/i;
 
             my $max = 0;
             $ds->[1]{$_} ||= "Tariff $_" foreach grep {
@@ -456,6 +456,20 @@ sub preprocessDataset {
           $d->{1194}[3]{$key1194};
         $d->{1192}[4]{$key1192} =
           $d->{1194}[1]{$key1194};
+    }
+
+    if (   $d->{1192} && $d->{1192}[5]
+        || $d->{1192}[4] && $d->{1192}[4]{_column} )
+    {
+        my ( $key1191, $key1192 ) = map {
+            ( grep { !/^_/ } keys %{ $d->{$_}[1] } )[0]
+        } qw(1191 1192);
+        my ($genRev) = splice @{ $d->{1192} }, 4, 1;
+        splice @{ $d->{1191} }, 5, 0,
+          {
+            $key1191 => $genRev->{$key1192},
+            $genRev->{_column} ? ( '_column' => $genRev->{_column} ) : ()
+          };
     }
 
 }
