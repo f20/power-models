@@ -372,15 +372,12 @@ sub factory {
 
         my $extension = $workbookModule->( $settings->{xls} )->fileExtension;
 
+        my %tmpRulesDataSettings;
         my $addToList = sub {
             my ( $data, $rule ) = @_;
             my $spreadsheetFile = $rule->{template};
             $spreadsheetFile =~ s/^%-/%-$rule->{PerlModule}-/
               unless $spreadsheetFile =~ /-$rule->{PerlModule}-/;
-            if ( $rule->{revisionText} ) {
-                $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
-                $spreadsheetFile .= $rule->{revisionText};
-            }
             $spreadsheetFile =~ s/%%/
                 require SpreadsheetModel::Data::DnoAreas;
                 SpreadsheetModel::Data::DnoAreas::normaliseDnoName(
@@ -388,21 +385,20 @@ sub factory {
                 );
               /eg;
             $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
-            $spreadsheetFile .= $extension;
-            if ( $rulesDataSettings{$spreadsheetFile} ) {
-                $rulesDataSettings{$spreadsheetFile} = [
+            if ( $tmpRulesDataSettings{$spreadsheetFile} ) {
+                $tmpRulesDataSettings{$spreadsheetFile} = [
                     undef,
                     [
-                          $rulesDataSettings{$spreadsheetFile}[0]
-                        ? $rulesDataSettings{$spreadsheetFile}
-                        : @{ $rulesDataSettings{$spreadsheetFile}[1] },
+                          $tmpRulesDataSettings{$spreadsheetFile}[0]
+                        ? $tmpRulesDataSettings{$spreadsheetFile}
+                        : @{ $tmpRulesDataSettings{$spreadsheetFile}[1] },
                         [ $rule, $data, $settings ]
                     ],
                     $settings
                 ];
             }
             else {
-                $rulesDataSettings{$spreadsheetFile} =
+                $tmpRulesDataSettings{$spreadsheetFile} =
                   [ $rule, $data, $settings ];
             }
         };
@@ -430,6 +426,20 @@ sub factory {
                       || $scorer->( $rule, $data ) >= 0;
                 }
             }
+        }
+        while ( my ( $file, $instructions ) = each %tmpRulesDataSettings ) {
+            my $spreadsheetFile = $file;
+            if (
+                my @revisionTexts =
+                grep { $_; } map { $_->{revisionText}; } $instructions->[0]
+                || map { $_->[0]; } @{ $instructions->[1] }
+              )
+            {
+                $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
+                $spreadsheetFile .= join '', @revisionTexts;
+            }
+            $spreadsheetFile .= $extension;
+            $rulesDataSettings{$spreadsheetFile} = $tmpRulesDataSettings{$file};
         }
         return keys %rulesDataSettings if wantarray;
 
