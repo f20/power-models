@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::CLI::CommandRunner;
+﻿package SpreadsheetModel::Data::UseDatabase;
 
 =head Copyright licence and disclaimer
 

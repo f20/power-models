@@ -110,7 +110,7 @@ sub factory {
             @objects = $blob;
         }
         elsif ( $blob =~ /^---/s ) {
-            @objects = length($blob) < 4_196 && $fileName !~ /^\+/s
+            @objects = length($blob) < 4_096
               || defined $fileName
               && $fileName =~ /%/ ? Load($blob) : { yaml => $blob };
         }
@@ -119,9 +119,9 @@ sub factory {
             warn "$fileName: $@" if $@;
         }
 
-        my @remainingObjects = grep { ref $_ eq 'HASH' } @objects;
-        while (@remainingObjects) {
-            local $_ = shift @remainingObjects;
+        while (@objects) {
+            local $_ = shift @objects;
+            next unless ref $_ eq 'HASH';
             if ( exists $_->{template} ) {
                 push @rulesets, $_;
             }
@@ -129,19 +129,11 @@ sub factory {
                 && $fileName =~ /([^\\\/]*%[^\\\/]*)\.(?:yml|yaml|json)$/is )
             {
                 $_->{template} = $1;
-                if (@remainingObjects) {
-                    $_->{'~datasetIllustrative'} = [@remainingObjects];
-                    @remainingObjects = ();
+                if (@objects) {
+                    $_->{'~datasetIllustrative'} = [@objects];
+                    @objects = ();
                 }
                 push @rulesets, $_;
-            }
-            elsif (
-                defined $fileName
-                && $fileName =~ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?
-                        [/\\]*\+\.(?:yml|yaml|json)$#six
-              )
-            {
-                $dataByDatasetName{'+'}{ $1 ? "-$1" : '' } = [ $_, $fileName ];
             }
             else {
                 my $datasetName;
@@ -192,6 +184,7 @@ sub factory {
 
     $self->{addFile} = sub {
         ( local $_ ) = @_;
+        return if $settings->{fileFilter} && !$settings->{fileFilter}->($_);
         my $dh;
         if (/\.(ygz|ybz|bz2|gz)$/si) {
             local $_ = $_;

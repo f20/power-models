@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::CLI::CommandRunner;
+﻿package SpreadsheetModel::CLI::MakeModels;
 
 =head Copyright licence and disclaimer
 
@@ -98,6 +98,10 @@ sub makeModels {
                     );
                 }
             }
+            elsif (/^-+datafilter=(.+)/is) {
+                my $regex = qr^/%|$1^;
+                $maker->{setting}->( fileFilter => sub { $_[0] =~ /$regex/; } );
+            }
             elsif (/^-+debug/is)   { $maker->{setRule}->( debug        => 1 ); }
             elsif (/^-+edcm/is)    { $maker->{setRule}->( edcmTables   => 1 ); }
             elsif (/^-+forward/is) { $maker->{setRule}->( forwardLinks => 1 ); }
@@ -163,7 +167,7 @@ sub makeModels {
             }
             elsif (/^-+ext(?:ension)?=?([a-z0-9_:]+)(.*)/is) {
                 eval "require $1" and eval { $1->process( $maker, $2 ); };
-                warn $@ if $@;
+                warn "$1$2 failed: $@" if $@;
             }
             elsif (/^-+pickall/is) {
                 $maker->{setting}->( allowInconsistentRules => 1 );
@@ -274,7 +278,7 @@ sub makeModels {
             if ( -f $_ ) {
                 $maker->{addFile}->( abs2rel($_) );
             }
-            elsif (   # Windows cmd.exe does not expand globs, so we try it here
+            elsif (    # Windows cmd.exe does not expand globs, so we do it here
                 my @list = grep { -f $_; } bsd_glob($_)
               )
             {

@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::CLI::CommandRunner;
+﻿package SpreadsheetModel::Rules::RulesTool;
 
 =head Copyright licence and disclaimer
 

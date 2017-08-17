@@ -32,10 +32,18 @@ use strict;
 use utf8;
 
 use SpreadsheetModel::CLI::MakeModels;
-use SpreadsheetModel::CLI::UseDatabase;
-use SpreadsheetModel::CLI::UseModels;
 use SpreadsheetModel::Data::DataTools;
+use SpreadsheetModel::Data::UseDatabase;
+use SpreadsheetModel::Data::UseModels;
 use SpreadsheetModel::Rules::RulesTools;
+
+our @ISA = qw(
+  SpreadsheetModel::CLI::MakeModels
+  SpreadsheetModel::Data::DataTools
+  SpreadsheetModel::Data::UseDatabase
+  SpreadsheetModel::Data::UseModels
+  SpreadsheetModel::Rules::RulesTools
+);
 
 use constant {
     C_HOMES         => 0,

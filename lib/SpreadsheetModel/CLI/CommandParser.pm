@@ -81,18 +81,18 @@ sub acceptCommand {
 }
 
 sub acceptScript {
-    my ( $self, $file ) = @_;
+    my ( $self, $fileOrFilehandle ) = @_;
     my $fh;
-    if ( ref $file ) {
-        $fh = $file;
+    if ( ref $fileOrFilehandle ) {
+        $fh = $fileOrFilehandle;
     }
-    elsif ( -f $file && -r _ ) {
-        open $fh, '<', $file;
+    elsif ( -f $fileOrFilehandle && -r _ ) {
+        open $fh, '<', $fileOrFilehandle;
         unless ($fh) {
-            warn "Cannot open $file";
+            warn "Cannot open $fileOrFilehandle";
             return;
         }
-        ( undef, undef, local $_ ) = File::Spec->splitpath($file);
+        ( undef, undef, local $_ ) = File::Spec->splitpath($fileOrFilehandle);
         s/\.te?xt$//i;
         push @$self, [ makeFolder => $_ ];
     }
@@ -101,16 +101,15 @@ sub acceptScript {
     my @buffer = grep { chomp; $_; } <$fh>;
     undef $fh;
     my @current;
-    my $indent = qr(\s+);
     while (@buffer) {
         local $_ = shift @buffer;
         if (/^\s*[;#]/s) {
             push @$self, [ comment => $_ ];
         }
-        elsif (s/^($indent)//s) {    # $indent = $1;
+        elsif (s/^\s+//s) {
             push @current, $_;
         }
-        else {                       # $indent = qr(\s+);
+        else {
             $self->acceptCommand(@current) if @current;
             @current = /\S\s\S/ ? split /\s+/s : $_;
         }
