@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::Rules::RulesTool;
+﻿package SpreadsheetModel::Rules::RulesTools;
 
 =head Copyright licence and disclaimer
 

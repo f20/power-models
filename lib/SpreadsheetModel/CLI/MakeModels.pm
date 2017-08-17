@@ -89,7 +89,7 @@ sub makeModels {
                 if (/^-+autocheck(.*)/is) {
                     require SpreadsheetModel::Data::Autocheck;
                     $maker->{setting}->(
-                        PostProcessing => makePostProcessor(
+                        PostProcessing => $self->makePostProcessor(
                             $1 ? "convert$1" : 'calc',
                             SpreadsheetModel::Data::Autocheck->new(
                                 $self->[C_HOMES]
@@ -203,7 +203,7 @@ sub makeModels {
             elsif (/^-+sqlite(.*)/is) {
                 require SpreadsheetModel::Data::DataExtraction;
                 $maker->{setting}->(
-                    PostProcessing => makePostProcessor(
+                    PostProcessing => $self->makePostProcessor(
                         $1 ? "convert$1" : 'calc',
                         SpreadsheetModel::Data::DataExtraction::databaseWriter(
                         ),

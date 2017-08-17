@@ -181,7 +181,7 @@ sub useModels {
     }
 
     ( $postProcessor ||=
-          makePostProcessor( $fillSettings, @writerAndParserOptions ) )
+          $self->makePostProcessor( $fillSettings, @writerAndParserOptions ) )
       ->( $_, $executor )
       foreach @files;
 
@@ -202,7 +202,7 @@ sub useModels {
 
 sub makePostProcessor {
 
-    my ( $processSettings, @writerAndParserOptions, ) = @_;
+    my ( $self, $processSettings, @writerAndParserOptions, ) = @_;
 
     my ( $calc_mainprocess, $calc_ownthread, $calc_worker );
     if ( $processSettings && $processSettings =~ /calc|convert/i ) {
