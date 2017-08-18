@@ -436,7 +436,19 @@ sub factory {
               )
             {
                 $spreadsheetFile .= '-' unless $spreadsheetFile =~ /[+-]$/s;
-                $spreadsheetFile .= join '', @revisionTexts;
+                my $prev = '';
+                my $count;
+                foreach ( @revisionTexts, '' ) {
+                    if ( $_ eq $prev ) {
+                        ++$count;
+                    }
+                    else {
+                        $spreadsheetFile .= $prev;
+                        $spreadsheetFile .= 'x' . $count if $count > 1;
+                        $prev  = $_;
+                        $count = 1;
+                    }
+                }
             }
             $spreadsheetFile .= $extension;
             $rulesDataSettings{$spreadsheetFile} = $tmpRulesDataSettings{$file};
