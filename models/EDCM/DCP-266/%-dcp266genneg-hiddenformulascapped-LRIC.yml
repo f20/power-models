@@ -1,5 +1,5 @@
 ---
-.: DCP 266 capping negative signs hidden formulas, LRIC
+.: 'DCP 266 capping negative signs, hidden formulas, LRIC'
 PerlModule: EDCM2
 alignText: general
 conditionalFormatting: 0

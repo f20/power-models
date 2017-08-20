@@ -1,5 +1,5 @@
 ---
-.: DCP 266 capping negative signs visible formulas, LRIC
+.: 'DCP 266 capping negative signs, FCP'
 PerlModule: EDCM2
 alignText: general
 conditionalFormatting: 0
@@ -12,7 +12,7 @@ layout: matrix
 ldnoRev: ldnorev5roundingppu_cap100_genneg
 lowerIntermittentCredit: 1
 mergedRanges: 1
-method: LRIC
+method: FCP
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
