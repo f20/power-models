@@ -360,7 +360,7 @@ EOF
 
         my ( @extraArgs, $arithmetic );
         if ( $model->{ldnoRev} =~ /genneg/i ) {
-            $arithmetic = 'IF(A2,A4*A1/A3,0)';
+            $arithmetic = 'A4*A1/A3';
             @extraArgs  = (
                 A4 => Constant(
                     name          => 'Discount scaling factor',
@@ -372,8 +372,10 @@ EOF
             );
         }
         else {
-            $arithmetic = 'IF(A2,A1/A3,0)';
+            $arithmetic = 'A1/A3';
         }
+
+        $arithmetic = "IF(A2,A1/A3,0)" unless $model->{ldnoRev} =~ /nodef/i;
 
         $arithmetic = "MIN(1,$arithmetic)"
           if $model->{ldnoRev} =~ /cap100/i;
@@ -384,7 +386,7 @@ EOF
             arithmetic    => "=$arithmetic",
             arguments     => {
                 A1 => $discountsByTariff,
-                A2 => $ppu,
+                $model->{ldnoRev} =~ /nodef/i ? () : ( A2 => $ppu ),
                 A3 => $ppu,
                 @extraArgs,
             },

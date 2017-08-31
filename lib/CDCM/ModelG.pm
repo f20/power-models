@@ -228,15 +228,18 @@ sub modelG {
         my $runid  = 1 + @runs;
         my $suffix = " (run $runid)";
 
+        my $eq = '('
+          . join( '+',
+            map { $_ == 1 ? 'A1' : "A$_*A93$_" } 1 .. @groupedRevenueElements )
+          . ')/A92*0.1';
         my $ppu = Arithmetic(
-            name       => Label( 'Average p/kWh', 'Average p/kWh' . $suffix ),
-            arithmetic => '=IF(A91,('
-              . join( '+',
-                map { $_ == 1 ? 'A1' : "A$_*A93$_" }
-                  1 .. @groupedRevenueElements )
-              . ')/A92*0.1,0)',
+            name => Label( 'Average p/kWh', 'Average p/kWh' . $suffix ),
+            arithmetic => $model->{unroundedTariffAnalysis} =~ /nodef/i
+            ? "=$eq"
+            : "=IF(A91,$eq,0)",
             arguments => {
-                A91 => $groupedUnits,
+                $model->{unroundedTariffAnalysis} =~ /nodef/i ? ()
+                : ( A91 => $groupedUnits ),
                 A92 => $groupedUnits,
                 (
                     map { ( "A$_" => $groupedRevenueElements[ $_ - 1 ] ); }
@@ -248,7 +251,10 @@ sub modelG {
                 ),
             },
         );
-        my $chargeablePercentageArithmetic = 'IF(A21,1-A1/A22,0)';
+        my $chargeablePercentageArithmetic = '1-A1/A22';
+        $chargeablePercentageArithmetic =
+          "IF(A21,$chargeablePercentageArithmetic,0)"
+          unless $model->{unroundedTariffAnalysis} =~ /nodef/i;
         $chargeablePercentageArithmetic =
           "MAX(0,$chargeablePercentageArithmetic)"
           if $model->{unroundedTariffAnalysis} =~ /cap100/i;
@@ -260,8 +266,10 @@ sub modelG {
             defaultFormat => '%soft',
             arithmetic    => "=$chargeablePercentageArithmetic",
             arguments     => {
-                A1  => $ppuDiscounts,
-                A21 => $ppu,
+                A1 => $ppuDiscounts,
+                $model->{unroundedTariffAnalysis} =~ /nodef/i
+                ? ()
+                : ( A21 => $ppu ),
                 A22 => $ppu,
             },
         );
@@ -606,15 +614,18 @@ sub modelG {
         }
     }
 
+    my $eq1 = '('
+      . join( '+',
+        map { $_ == 1 ? 'A1' : "A$_*A93$_" } 1 .. @groupedRevenueElements )
+      . ')/A92*0.1';
     push @{ $model->{modelgTables} },
       my $ppu = Arithmetic(
         name       => 'All-the-way p/kWh',
-        arithmetic => '=IF(A91,('
-          . join( '+',
-            map { $_ == 1 ? 'A1' : "A$_*A93$_" } 1 .. @groupedRevenueElements )
-          . ')/A92*0.1,0)',
+        arithmetic => $model->{unroundedTariffAnalysis} =~ /nodef/i ? "=$eq1"
+        : "=IF(A91,$eq1,0)",
         arguments => {
-            A91 => $groupedUnits,
+            $model->{unroundedTariffAnalysis} =~ /nodef/i ? ()
+            : ( A91 => $groupedUnits ),
             A92 => $groupedUnits,
             (
                 map { ( "A$_" => $groupedRevenueElements[ $_ - 1 ] ); }
@@ -627,30 +638,22 @@ sub modelG {
         },
       );
 
+    my $eq2 =
+      $model->{unroundedTariffAnalysis} =~ /cap100/i
+      ? 'MIN(1,A1/A22)'
+      : 'A1/A22';
     push @{ $model->{modelgTables} },
-      my $discounts =
-      $model->{unroundedTariffAnalysis} =~ /legacy/i
-      ? Arithmetic(
+      my $discounts = Arithmetic(
         name          => "$model->{ldnoWord} discounts",
         defaultFormat => '%soft',
-        arithmetic    => $model->{unroundedTariffAnalysis} =~ /cap100/i
-        ? '=IF(A21,MIN(1,A1/A22),1)'
-        : '=IF(A21,A1/A22,0)',
+        arithmetic    => $model->{unroundedTariffAnalysis} =~ /nodef/i ? "=$eq2"
+        : "=IF(A21,$eq2,1)",
         arguments => {
-            A1  => $ppuDiscounts,
-            A21 => $ppu,
-            A22 => $ppu,
-        },
-      )
-      : Arithmetic(
-        name          => "$model->{ldnoWord} discounts",
-        defaultFormat => '%soft',
-        arithmetic    => $model->{unroundedTariffAnalysis} =~ /cap100/i
-        ? '=IF(A21,MIN(1,A1/A22),0)'
-        : '=IF(A21,A1/A22,0)',
-        arguments => {
-            A1  => $ppuDiscounts,
-            A21 => $ppuDiscounts,
+            A1 => $ppuDiscounts,
+            $model->{unroundedTariffAnalysis} =~ /nodef/i ? ()
+            : $model->{unroundedTariffAnalysis} =~ /legacy/i
+            ? ( A21 => $ppuDiscounts )
+            : ( A21 => $ppu ),
             A22 => $ppu,
         },
       );
