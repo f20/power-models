@@ -357,7 +357,8 @@ sub factory {
 
         if (%dataOverrides) {
             my $overrides = {%dataOverrides};
-            my $suffix    = '-' . delete $overrides->{hash};
+            my $suffix =
+              defined $overrides->{hash} ? delete $overrides->{hash} : '';
             foreach (@datasets) {
                 $_->{'~datasetOverride'} = $overrides;
                 $_->{'~datasetName'} .= $suffix

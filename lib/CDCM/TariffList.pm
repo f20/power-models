@@ -316,7 +316,7 @@ HV half hourly HV netting:
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
   - Reactive power charge p/kVArh
-  - Included: nettingehv|portfolio
+  - Included: nettinghv|portfolio
 ---
 HV half hourly EHV netting:
   - PC0

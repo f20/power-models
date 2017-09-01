@@ -1,10 +1,10 @@
 ---
-.: 'Local sourcing tariffs with residual credits, after DCP 227 and DCP 161'
+.: 'EHV-local sourcing tariffs with residual credits for 2017/2018, with DCP 161'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
 checksums: Line checksum 5; Table checksum 7
-coincidenceAdj: grouphhcaplevel
+coincidenceAdj: grouphhcaplevelgroupums
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4

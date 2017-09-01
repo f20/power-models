@@ -1,5 +1,5 @@
 ---
-.: 'Local sourcing tariffs (unequalised), after DCP 227 and DCP 161'
+.: 'EHV-local sourcing tariffs unequalised for 2017/2018, with DCP 161'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1

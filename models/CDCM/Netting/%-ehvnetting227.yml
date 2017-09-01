@@ -1,5 +1,5 @@
 ---
-.: 'EHV-local sourcing tariffs for 2017/2018, with DCP 161'
+.: 'EHV-local sourcing tariffs for 2017/2018'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -18,4 +18,3 @@ summary: yes
 targetRevenue: dcp132
 tariffs: commongensubdcp130dcp163pc12hhpc34hhnettingehv
 timeOfDay: timeOfDay179
-unauth: dayotex

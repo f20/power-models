@@ -2,8 +2,8 @@ makeModels
 	-sqlite
 	-template=%-baseline
 	-stats
-	CDCM/Netting/%-ehvnetting227.yml
-	CDCM/2017-02/*
+	CDCM/Netting/%-ehvnetting228.yml
+	CDCM/2018-02/*
 	-newrules
 	-newdata
 	-xdata=1053|1|LV HH Metered nettedprop|0.1
@@ -17,8 +17,8 @@ makeModels
 	-xdata=1053|3|HV HH Metered nettedprop|0.1
 	-template=%-withCDCMgen
 	-stats
-	CDCM/Netting/%-ehvnetting227.yml
-	CDCM/2017-02/*
+	CDCM/Netting/%-ehvnetting228.yml
+	CDCM/2018-02/*
 	-newrules
 	-newdata
 	-xdata=1053|1|LV HH Metered nettedprop|0.1
@@ -60,8 +60,8 @@ makeModels
 	-xdata=1053|3|LDNO HV HV Generation Non-Intermittent|0
 	-template=%-noCDCMgen
 	-stats
-	CDCM/Netting/%-ehvnetting227.yml
-	CDCM/2017-02/*
+	CDCM/Netting/%-ehvnetting228.yml
+	CDCM/2018-02/*
 
 useDatabase
 	tscs

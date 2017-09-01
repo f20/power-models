@@ -1,5 +1,5 @@
 ---
-.: 'HV netting on 2017 CDCM after DCP 227, with extras'
+.: 'HV-local sourcing tariffs for 2017/2018, with extras'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
