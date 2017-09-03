@@ -109,6 +109,10 @@ sub requiredModulesForRuleset {
       )
       : (),
 
+      $ruleset->{embeddedModelG}
+      ? eval { CDCM->requiredModulesForRuleset( $ruleset->{embeddedModelG} ); }
+      : (),
+
       $ruleset->{embeddedModelM}
       ? eval {
         require ModelM::Master;
@@ -134,7 +138,7 @@ sub new {
         && length( $model->{extraNotice} ) > 299
         && $model->{extraNotice} =~ /DCUSA/ );
 
-    $model->{inputTables} = [];
+    $model->{inputTables} ||= [];
     $model->{edcmTables}  = [
         [
             Constant(

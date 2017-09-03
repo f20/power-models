@@ -44,6 +44,8 @@ sub finishWorkbook {
                 'Not calculated: '
               . 'open in spreadsheet app and allow calculations' );
     }
+    $_->finishWorkbook($wbook)
+      foreach grep { $_; } @{$model}{qw(embeddedModelG embeddedModelM)};
 }
 
 sub sheetPriority {
@@ -67,6 +69,7 @@ sub worksheetsAndClosures {
     push @wsheetsAndClosures,
 
       'Input' => sub {
+
         my ($wsheet) = @_;
         $wsheet->{sheetNumber}    = 11;
         $wbook->{lastSheetNumber} = 19;
@@ -80,6 +83,9 @@ sub worksheetsAndClosures {
             push @{ $model->{titleWrites}{$wbook} }, [@_];
         };
 
+        my $dataSheetSaved;
+        $dataSheetSaved = delete $wbook->{dataSheet}
+          if $model->{noSingleInputSheet};
         unless ( $model->{table1000} ) {
             $model->{table1000} = Dataset(
                 number        => 1000,
@@ -99,12 +105,15 @@ sub worksheetsAndClosures {
                 sources => [ $model->{table1000} ],
               ) if $model->{edcmTables};
         }
+
         my $inputDataNotes = $model->inputDataNotes;
         push @{ $model->{sheetLinks}{$wbook} }, $inputDataNotes;
         $_->wsWrite( $wbook, $wsheet )
           foreach $inputDataNotes,
           sort { ( $a->{number} || 9999 ) <=> ( $b->{number} || 9999 ) }
           @{ $model->{inputTables} };
+        $wbook->{dataSheet} = $dataSheetSaved if defined $dataSheetSaved;
+
         require Spreadsheet::WriteExcel::Utility;
         my ( $sh, $ro, $co ) = $model->{table1000}->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
@@ -119,6 +128,7 @@ sub worksheetsAndClosures {
         $model->{nickNames}{$wbook} =
           qq%="$model->{nickName}"$model->{idAppend}{$wbook}%
           if $model->{nickName};
+
       };
 
     if ( $model->{embeddedModelM}
@@ -131,6 +141,19 @@ sub worksheetsAndClosures {
             next if $sheet =~ /^(?:Index|Result)/;
             next if $sheet =~ /^Input/ && !$model->{noSingleInputSheet};
             push @wsheetsAndClosures, "M($sheet)", $closure;
+        }
+    }
+
+    if ( $model->{embeddedModelG}
+        && UNIVERSAL::can( $model->{embeddedModelG}, 'worksheetsAndClosures' ) )
+    {
+        my @gwac = $model->{embeddedModelG}->worksheetsAndClosures($wbook);
+        while (@gwac) {
+            my $sheet   = shift @gwac;
+            my $closure = shift @gwac;
+            next if $sheet =~ /^(?:Index|Result)/;
+            next if $sheet =~ /^Input/ && !$model->{noSingleInputSheet};
+            push @wsheetsAndClosures, "G($sheet)", $closure;
         }
     }
 
@@ -859,11 +882,6 @@ EOL
                 $wsheetsAndClosures[$i] = "CDCM/$wsheetsAndClosures[$i]";
             }
         }
-    }
-
-    if ( $model->{extraModelsToProcessFirst} ) {
-        unshift @wsheetsAndClosures, $_->worksheetsAndClosures($wbook)
-          foreach @{ $model->{extraModelsToProcessFirst} };
     }
 
     @wsheetsAndClosures;

@@ -1,8 +1,9 @@
 ---
-.: 'DCP 266 CDCM after DCP 227, clean'
+.: 'DCP 266 CDCM after DCP 228, clean'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
+blackPeakingProbabilityRequired: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
@@ -13,9 +14,10 @@ noReplacement: blanket
 pcd: 1
 pcdByTariff: 1
 portfolio: 1
-scaler: levelledpickexitnogenminzero
+scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: yes
-targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163pc12hhpc34hh
+targetRevenue: dcp249
+tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179
+unauth: dayotex

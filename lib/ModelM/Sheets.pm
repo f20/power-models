@@ -99,7 +99,6 @@ sub worksheetsAndClosures {
               foreach
               sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
               @{ $model->{objects}{inputTables} };
-            $wbook->{dataSheet} = $dataSheet;
         }
         else {
             $_->wsWrite( $wbook, $wsheet )

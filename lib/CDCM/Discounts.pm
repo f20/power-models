@@ -93,35 +93,56 @@ sub pcdPreprocessedVolumes {
         %{ $model->{embeddedModelM} },
     ) if $model->{embeddedModelM};
 
+    $model->{embeddedModelG} = CDCM->new(
+        dataset     => $model->{dataset},
+        inputTables => $model->{noSingleInputSheet}
+        ? []
+        : $model->{inputTables},
+        table1038sources => [],
+        %{ $model->{embeddedModelG} },
+    ) if $model->{embeddedModelG};
+
     my $rawDiscount =
-      $model->{pcdByTariff} ? Dataset(
-        name          => "Embedded network ($model->{ldnoWord}) discounts",
-        defaultFormat => '%hard',
-        number        => 1038,
-        appendTo      => $model->{inputTables},
-        dataset       => $model->{dataset},
-        validation    => {
-            validate      => 'decimal',
-            criteria      => '>=',
-            value         => 0,
-            input_title   => "$model->{ldnoWord} discount:",
-            input_message => 'At least 0%',
-            error_title   => "Invalid $model->{ldnoWord} discount",
-            error_message => "Invalid $model->{ldnoWord} discount"
-              . ' (negative number or unused cell).'
-        },
-        rows => $model->{pcd}{allTariffsByEndUser},
-        data => [ map { 0 } @{ $model->{pcd}{allTariffsByEndUser}{list} } ],
+      $model->{pcdByTariff}
+      ? (
+        $model->{embeddedModelG}
+        ? Stack(
+            name =>
+              "Embedded network ($model->{ldnoWord}) discount percentages",
+            defaultFormat => '%copy',
+            rows          => $model->{pcd}{allTariffsByEndUser},
+            sources       => $model->{embeddedModelG}{table1038sources},
+          )
+        : Dataset(
+            name =>
+              "Embedded network ($model->{ldnoWord}) discount percentages",
+            defaultFormat => '%hard',
+            number        => 1038,
+            appendTo      => $model->{inputTables},
+            dataset       => $model->{dataset},
+            validation    => {
+                validate      => 'decimal',
+                criteria      => '>=',
+                value         => 0,
+                input_title   => "$model->{ldnoWord} discount:",
+                input_message => 'At least 0%',
+                error_title   => "Invalid $model->{ldnoWord} discount",
+                error_message => "Invalid $model->{ldnoWord} discount"
+                  . ' (negative number or unused cell).'
+            },
+            rows => $model->{pcd}{allTariffsByEndUser},
+            data => [ map { 0 } @{ $model->{pcd}{allTariffsByEndUser}{list} } ],
+        )
       )
       : $model->{embeddedModelM} ? Stack(
-        name          => "Embedded network ($model->{ldnoWord}) discounts",
+        name => "Embedded network ($model->{ldnoWord}) discount percentages",
         singleRowName => "$model->{ldnoWord} discount",
         defaultFormat => '%copy',
         cols          => $combinations,
         sources       => $model->{embeddedModelM}{objects}{table1037sources},
       )
       : Dataset(
-        name          => "Embedded network ($model->{ldnoWord}) discounts",
+        name => "Embedded network ($model->{ldnoWord}) discount percentages",
         singleRowName => "$model->{ldnoWord} discount",
         number        => 1037,
         appendTo      => $model->{inputTables},

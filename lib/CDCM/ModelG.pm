@@ -658,12 +658,17 @@ sub modelG {
         },
       );
 
-    push @{ $model->{modelgResults} },
-      Stack(
-        name    => "$model->{ldnoWord} discounts ⇒1038. For CDCM",
-        rows    => $model->{pcd}{allTariffsByEndUser},
-        sources => [$discounts],
-      );
+    if ( $model->{table1038sources} ) {
+        push @{ $model->{table1038sources} }, $discounts;
+    }
+    else {
+        push @{ $model->{modelgResults} },
+          Stack(
+            name    => "$model->{ldnoWord} discounts ⇒1038. For CDCM",
+            rows    => $model->{pcd}{allTariffsByEndUser},
+            sources => [$discounts],
+          );
+    }
 
     push @{ $model->{modelgTables} }, my $ppuReference = Arithmetic(
         name       => 'All-the-way reference p/kWh values',
