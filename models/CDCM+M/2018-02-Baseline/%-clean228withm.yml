@@ -1,23 +1,14 @@
 ---
-.: 'DCP 266 model GM (legacy version, after DCP 228)'
+.: '2018/2019 CDCMwith embedded model M, clean'
+.Style: Clean model with embedded model M
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
 blackPeakingProbabilityRequired: 1
+checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
 embeddedModelM:
-  AdditionalRules:
-    - calcUnits: 1
-      dcp071: 1
-      dcp096: 1
-      dcp117: 2014
-      edcm: only
-      meav: 1
-      netCapex: 1
-      ppuCalc: 1
-      suffix: EDCM
-  PerlModule: ModelM
   calcUnits: 1
   dcp071: 1
   dcp095: 1
@@ -26,21 +17,17 @@ embeddedModelM:
   dcp118: 1
   meav: 1
   netCapex: 1
-  noSingleInputSheet: 1
-  not2007incentives: 1
-  not2007units: 1
-  ppuCalc: 1
   suffix: CDCM
 extraLevels: 1
 fixedCap: 1-4
+matrices: big
 noReplacement: blanket
-noSingleInputSheet: 1
 pcd: 1
 portfolio: 1
 scaler: adderppugeneralminzeronogen
 standing: sub132
+summary: yes
 targetRevenue: dcp249
 tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179
 unauth: dayotex
-unroundedTariffAnalysis: modelg_legacy

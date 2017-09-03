@@ -72,7 +72,8 @@ sub worksheetsAndClosures {
 
         my ($wsheet) = @_;
         $wsheet->{sheetNumber}    = 11;
-        $wbook->{lastSheetNumber} = 19;
+        $wbook->{lastSheetNumber} = $model->{embeddedModelM}
+          && !$model->{embeddedModelM}{noSingleInputSheet} ? 18 : 19;
         $wsheet->freeze_panes( 1, 1 );
         my $t1001width = $model->{targetRevenue}
           && $model->{targetRevenue} =~ /dcp132/i;
@@ -139,7 +140,9 @@ sub worksheetsAndClosures {
             my $sheet   = shift @mwac;
             my $closure = shift @mwac;
             next if $sheet =~ /^(?:Index|Result)/;
-            next if $sheet =~ /^Input/ && !$model->{noSingleInputSheet};
+            next
+              if $sheet =~ /^Input/
+              && !$model->{embeddedModelM}{noSingleInputSheet};
             push @wsheetsAndClosures, "M($sheet)", $closure;
         }
     }
@@ -152,7 +155,9 @@ sub worksheetsAndClosures {
             my $sheet   = shift @gwac;
             my $closure = shift @gwac;
             next if $sheet =~ /^(?:Index|Result)/;
-            next if $sheet =~ /^Input/ && !$model->{noSingleInputSheet};
+            next
+              if $sheet =~ /^Input/
+              && !$model->{embeddedModelG}{noSingleInputSheet};
             push @wsheetsAndClosures, "G($sheet)", $closure;
         }
     }
@@ -922,10 +927,15 @@ EOL
 
 sub inputDataNotes {
     my ($model) = @_;
+    my $partInput = $model->{noSingleInputSheet}
+      || $model->{embeddedModelM}
+      && $model->{embeddedModelM}{noSingleInputSheet}
+      || $model->{embeddedModelG}
+      && $model->{embeddedModelG}{noSingleInputSheet};
     Notes(
-        name => $model->{noSingleInputSheet} ? 'Input data (part)'
+        name => $partInput ? 'Input data (part)'
         : 'Input data',
-        $model->{noSingleInputSheet} || $model->{noLLFCs} ? ()
+        $partInput || $model->{noLLFCs} ? ()
         : ( lines => 'This sheet contains all the input data, '
               . 'except LLFCs which are entered directly into the Tariff sheet.'
         )

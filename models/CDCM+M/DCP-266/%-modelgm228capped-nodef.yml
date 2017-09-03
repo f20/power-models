@@ -1,0 +1,45 @@
+---
+.: DCP 266 model GM (after DCP 228 with 100% cap and no defaulting)
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+blackPeakingProbabilityRequired: 1
+coincidenceAdj: groupums
+drm: top500gsp
+embeddedModelM:
+  AdditionalRules:
+    - calcUnits: 1
+      dcp071: 1
+      dcp096: 1
+      dcp117: 2014
+      edcm: only
+      meav: 1
+      netCapex: 1
+      ppuCalc: 1
+      suffix: EDCM
+  PerlModule: ModelM
+  calcUnits: 1
+  dcp071: 1
+  dcp095: 1
+  dcp096: 1
+  dcp117: 2014
+  dcp118: 1
+  meav: 1
+  netCapex: 1
+  noSingleInputSheet: 1
+  not2007incentives: 1
+  not2007units: 1
+  ppuCalc: 1
+  suffix: CDCM
+extraLevels: 1
+fixedCap: 1-4
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: adderppugeneralminzeronogen
+standing: sub132
+targetRevenue: dcp249
+tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
+timeOfDay: timeOfDay179
+unauth: dayotex
+unroundedTariffAnalysis: modelg_cap100_nodef

@@ -84,7 +84,7 @@ sub pcdPreprocessedVolumes {
     $model->{embeddedModelM} = ModelM->new(
         dataset => $model->{dataset},
         objects => {
-            inputTables => $model->{noSingleInputSheet}
+            inputTables => $model->{embeddedModelM}{noSingleInputSheet}
             ? []
             : $model->{inputTables},
             table1037sources => [],
@@ -95,7 +95,7 @@ sub pcdPreprocessedVolumes {
 
     $model->{embeddedModelG} = CDCM->new(
         dataset     => $model->{dataset},
-        inputTables => $model->{noSingleInputSheet}
+        inputTables => $model->{embeddedModelG}{noSingleInputSheet}
         ? []
         : $model->{inputTables},
         table1038sources => [],

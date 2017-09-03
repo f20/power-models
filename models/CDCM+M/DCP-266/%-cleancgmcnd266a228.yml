@@ -56,7 +56,6 @@ fixedCap: 1-4
 matrices: big
 noLinks: 1
 noReplacement: blanket
-noSingleInputSheet: 1
 pcd: 1
 pcdByTariff: 1
 portfolio: 1

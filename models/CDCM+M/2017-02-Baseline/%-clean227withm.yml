@@ -1,0 +1,33 @@
+---
+.: '2017/2018 CDCM with embedded model M, clean'
+.Style: Clean model with embedded model M
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupums
+drm: top500gsp
+embeddedModelM:
+  calcUnits: 1
+  dcp071: 1
+  dcp095: 1
+  dcp096: 1
+  dcp117: 2014
+  dcp117dcp118interaction: 1
+  dcp117weirdness: 1
+  dcp118: 1
+  forwardLinks: 1
+  meav: 1
+  netCapex: 1
+extraLevels: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: yes
+targetRevenue: dcp132
+tariffs: commongensubdcp130dcp163pc12hhpc34hh
+timeOfDay: timeOfDay179

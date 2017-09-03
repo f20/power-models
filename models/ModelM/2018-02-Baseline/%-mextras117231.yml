@@ -1,5 +1,5 @@
 ---
-.: Enhanced Method M after DCP 117 and DCP 231
+.: Method M after DCP 117 and DCP 231 with forward links
 AdditionalRules:
   - calcUnits: 1
     checksums: Table checksum 7

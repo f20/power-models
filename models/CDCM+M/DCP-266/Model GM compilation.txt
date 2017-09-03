@@ -1,13 +1,13 @@
 makeModels
     Blank.yml
-    CDCM/DCP-266/%-modelgm228.yml
+    CDCM+M/DCP-266/%-modelgm228.yml
 
 makeModels
     -sqlitexls
     -datamerge
     CDCM/2018-02/*.yml
     ModelM/2018-02/*.yml
-    CDCM/DCP-266/%-modelgm228.yml
+    CDCM+M/DCP-266/%-modelgm228.yml
     -xdata=rules|unroundedTariffAnalysis|modelg_summary_spuriouscalcs
     -template=%-modelgm228_summary_spuriouscalcs
 

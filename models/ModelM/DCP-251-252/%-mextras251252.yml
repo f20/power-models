@@ -1,5 +1,5 @@
 ---
-.: DCP 251 and DCP 252 relabelling on 2018 enhanced
+.: DCP 251 and DCP 252 relabelling on 2018 with forward links
 AdditionalRules:
   - calcUnits: 1
     checksums: Table checksum 7

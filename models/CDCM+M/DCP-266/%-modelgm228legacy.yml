@@ -1,5 +1,5 @@
 ---
-.: DCP 266 model GM (after DCP 228 with 100% cap)
+.: 'DCP 266 model GM (legacy version, after DCP 228)'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -34,7 +34,6 @@ embeddedModelM:
 extraLevels: 1
 fixedCap: 1-4
 noReplacement: blanket
-noSingleInputSheet: 1
 pcd: 1
 portfolio: 1
 scaler: adderppugeneralminzeronogen
@@ -43,4 +42,4 @@ targetRevenue: dcp249
 tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179
 unauth: dayotex
-unroundedTariffAnalysis: modelg_cap100
+unroundedTariffAnalysis: modelg_legacy
