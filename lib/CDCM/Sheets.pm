@@ -106,17 +106,60 @@ sub worksheetsAndClosures {
                 sources => [ $model->{table1000} ],
               ) if $model->{edcmTables};
         }
-
-        my $inputDataNotes = $model->inputDataNotes;
-        push @{ $model->{sheetLinks}{$wbook} }, $inputDataNotes;
-        $_->wsWrite( $wbook, $wsheet )
-          foreach $inputDataNotes,
-          sort { ( $a->{number} || 9999 ) <=> ( $b->{number} || 9999 ) }
-          @{ $model->{inputTables} };
+        if ( @{ $model->{inputTables} } ) {
+            my $inputDataNotes = $model->inputDataNotes;
+            push @{ $model->{sheetLinks}{$wbook} }, $inputDataNotes;
+            $_->wsWrite( $wbook, $wsheet )
+              foreach $inputDataNotes,
+              sort { ( $a->{number} || 9999 ) <=> ( $b->{number} || 9999 ) }
+              @{ $model->{inputTables} };
+        }
         $wbook->{dataSheet} = $dataSheetSaved if defined $dataSheetSaved;
 
+        if ( $model->{embeddedModelG} ) {
+            $model->{embeddedModelG}{table1000} = $model->{table1000};
+            my %map =
+              map { ( $_->{number} => $_ ); } @{ $model->{inputTables} };
+            my $gInputTables = delete $model->{embeddedModelG}{inputTables};
+            $model->{embeddedModelG}{inputTables} = [];
+            foreach (@$gInputTables) {
+                my $leader = $map{ $_->{number} } or next;
+                if (   $_->isa('SpreadsheetModel::Dataset')
+                    && $leader->isa('SpreadsheetModel::Dataset') )
+                {
+                    $_->{$wbook}{seeOther} = $leader
+                      if $_->lastCol == $leader->lastCol
+                      && $_->lastRow == $leader->lastRow;
+                    next;
+                }
+                if (   $_->isa('SpreadsheetModel::Columnset')
+                    && $leader->isa('SpreadsheetModel::Columnset')
+                    && @{ $_->{columns} } == @{ $leader->{columns} } )
+                {
+                    my $mismatch;
+                    for ( my $c = 0 ; $c < @{ $_->{columns} } ; ++$c ) {
+                        $mismatch = 1
+                          unless $_->{columns}[$c]->lastCol ==
+                          $leader->{columns}[$c]->lastCol
+                          && $_->{columns}[$c]->lastRow ==
+                          $leader->{columns}[$c]->lastRow;
+                    }
+                    unless ($mismatch) {
+                        for ( my $c = 0 ; $c < @{ $_->{columns} } ; ++$c ) {
+                            $_->{columns}[$c]{$wbook}{seeOther} =
+                              $leader->{columns}[$c];
+                        }
+                        undef $_->{$wbook}{$wsheet};
+                        next;
+                    }
+                }
+                push @{ $model->{embeddedModelG}{inputTables} }, $_;
+            }
+        }
+
         require Spreadsheet::WriteExcel::Utility;
-        my ( $sh, $ro, $co ) = $model->{table1000}->wsWrite( $wbook, $wsheet );
+        my ( $sh, $ro, $co ) =
+          $model->{table1000}->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
         $model->{idAppend}{$wbook} =
             qq%&" for "&'$sh'!%

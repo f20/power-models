@@ -79,7 +79,7 @@ sub worksheetsAndClosures {
         );
         Notes(
             $model->{noSingleInputSheet}
-            ? ( name => 'Input data (part)' )
+            ? ( name => 'Method M input data' )
             : ( lines =>
                   [ 'Input data', '', 'This sheet contains the input data.' ] )
         )->wsWrite( $wbook, $wsheet );
@@ -134,8 +134,8 @@ sub worksheetsAndClosures {
                 $wsheet->set_column( 1, 250, 20 );
                 $_->wsWrite( $wbook, $wsheet ) foreach Notes(
                     name => $sheetName eq 'Calculations'
-                    ? 'Calculations'
-                    : "Calculations ($sheetName)"
+                    ? 'Method M calculations'
+                    : "Method M calculations ($sheetName)"
                   ),
                   @{ $tablesBySheet{$sheetName} };
             };
