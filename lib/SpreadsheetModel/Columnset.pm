@@ -101,6 +101,19 @@ sub objectType {
     $ty;
 }
 
+sub wsAdopt {
+    my ( $self, $wbook, $wsheet, $source ) = @_;
+    return unless UNIVERSAL::isa( $source, __PACKAGE__ );
+    my $lastColumn = $#{ $self->{columns} };
+    return unless $lastColumn == $#{ $source->{columns} };
+    return
+      if grep {
+        !$self->{columns}[$_]
+          ->wsAdopt( $wbook, $wsheet, $source->{columns}[$_] );
+      } 0 .. $lastColumn;
+    $self->{$wbook}{$wsheet} = 1;
+}
+
 sub wsWrite {
 
     my ( $self, $wb, $ws, $row, $col, $noCopy ) = @_;

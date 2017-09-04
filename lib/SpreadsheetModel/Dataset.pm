@@ -320,6 +320,15 @@ sub wsPrepare {
     }
 }
 
+sub wsAdopt {
+    my ( $self, $wbook, $wsheet, $source ) = @_;
+    return unless UNIVERSAL::isa( $source, __PACKAGE__ );
+    next
+      unless $self->lastCol == $source->lastCol
+      && $self->lastRow == $source->lastRow;
+    $self->{$wbook}{seeOther} = $source;
+}
+
 sub wsWrite {
 
     my ( $self, $wb, $ws, $row, $col, $noCopy ) = @_;

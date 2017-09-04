@@ -118,43 +118,14 @@ sub worksheetsAndClosures {
 
         if ( $model->{embeddedModelG} ) {
             $model->{embeddedModelG}{table1000} = $model->{table1000};
-            my %map =
+            my %motherInputTables =
               map { ( $_->{number} => $_ ); } @{ $model->{inputTables} };
-            my $gInputTables = delete $model->{embeddedModelG}{inputTables};
-            $model->{embeddedModelG}{inputTables} = [];
-            foreach (@$gInputTables) {
-                my $leader = $map{ $_->{number} } or next;
-                if (   $_->isa('SpreadsheetModel::Dataset')
-                    && $leader->isa('SpreadsheetModel::Dataset') )
-                {
-                    $_->{$wbook}{seeOther} = $leader
-                      if $_->lastCol == $leader->lastCol
-                      && $_->lastRow == $leader->lastRow;
-                    next;
-                }
-                if (   $_->isa('SpreadsheetModel::Columnset')
-                    && $leader->isa('SpreadsheetModel::Columnset')
-                    && @{ $_->{columns} } == @{ $leader->{columns} } )
-                {
-                    my $mismatch;
-                    for ( my $c = 0 ; $c < @{ $_->{columns} } ; ++$c ) {
-                        $mismatch = 1
-                          unless $_->{columns}[$c]->lastCol ==
-                          $leader->{columns}[$c]->lastCol
-                          && $_->{columns}[$c]->lastRow ==
-                          $leader->{columns}[$c]->lastRow;
-                    }
-                    unless ($mismatch) {
-                        for ( my $c = 0 ; $c < @{ $_->{columns} } ; ++$c ) {
-                            $_->{columns}[$c]{$wbook}{seeOther} =
-                              $leader->{columns}[$c];
-                        }
-                        undef $_->{$wbook}{$wsheet};
-                        next;
-                    }
-                }
-                push @{ $model->{embeddedModelG}{inputTables} }, $_;
-            }
+            $model->{embeddedModelG}{inputTables} = [
+                grep {
+                    !$_->wsAdopt( $wbook, $wsheet,
+                        $motherInputTables{ $_->{number} } );
+                } @{ $model->{embeddedModelG}{inputTables} }
+            ];
         }
 
         require Spreadsheet::WriteExcel::Utility;
