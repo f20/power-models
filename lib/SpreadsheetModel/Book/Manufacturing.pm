@@ -71,7 +71,7 @@ sub factory {
         require SpreadsheetModel::Data::XdataParser;
         $xdataParser =
           SpreadsheetModel::Data::XdataParser->new( \%dataOverrides,
-            $self->{setRule} );
+            $self->{setRule}, \&jsonMachineMaker );
     };
 
     $self->{xdataKey} = sub {
@@ -115,7 +115,7 @@ sub factory {
               && $fileName =~ /%/ ? Load($blob) : { yaml => $blob };
         }
         else {
-            eval { @objects = _jsonMachine()->decode($blob); };
+            eval { @objects = jsonMachineMaker()->decode($blob); };
             warn "$fileName: $@" if $@;
         }
 
@@ -503,15 +503,15 @@ sub factory {
 
 sub parseXdata {
     my $self = shift;
-    $self->{xdataParser}->()->parseXdata(@_);
+    $self->{xdataParser}->()->doParseXdata(@_);
 }
 
-my $_jsonMachine;
+my $jsonMachine;
 
-sub _jsonMachine {
-    return $_jsonMachine if $_jsonMachine;
+sub jsonMachineMaker {
+    return $jsonMachine if $jsonMachine;
     foreach (qw(JSON JSON::PP)) {
-        return $_jsonMachine = $_->new
+        return $jsonMachine = $_->new
           if eval "require $_";
     }
     die 'No JSON module';

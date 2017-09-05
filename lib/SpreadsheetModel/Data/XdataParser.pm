@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -35,10 +35,11 @@ use constant {
     XDP_dataOverrides      => 0,
     XDP_setRule            => 1,
     XDP_applyDataOverrides => 2,
+    XDP_jsonMachineMaker   => 3,
 };
 
 sub new {
-    my ( $class, $dataOverrides, $setRule ) = @_;
+    my ( $class, $dataOverrides, $setRule, $jsonMachineMaker ) = @_;
     my $applyDataOverrides = sub {
         foreach ( grep { ref $_ eq 'HASH' } @_ ) {
             while ( my ( $tab, $dat ) = each %$_ ) {
@@ -63,22 +64,14 @@ sub new {
             }
         }
     };
-    my $self = bless [ $dataOverrides, $setRule, $applyDataOverrides, ], $class;
+    my $self =
+      bless [ $dataOverrides, $setRule, $applyDataOverrides,
+        $jsonMachineMaker, ],
+      $class;
     $self;
 }
 
-my $_jsonMachine;
-
-sub _jsonMachine {
-    return $_jsonMachine if $_jsonMachine;
-    foreach (qw(JSON JSON::PP)) {
-        return $_jsonMachine = $_->new
-          if eval "require $_";
-    }
-    die 'No JSON module';
-}
-
-sub parseXdata {
+sub doParseXdata {
 
     my $self = shift;
 
@@ -92,7 +85,8 @@ sub parseXdata {
         local $_ = $_;
         if (s/\{(.*)\}//s) {
             foreach ( grep { $_ } split /\}\s*\{/s, $1 ) {
-                my $d = _jsonMachine()->decode( '{' . $_ . '}' );
+                my $d =
+                  $self->[XDP_jsonMachineMaker]->()->decode( '{' . $_ . '}' );
                 next unless ref $d eq 'HASH';
                 $self->[XDP_setRule]->(
                     map { %$_; } grep { $_; }

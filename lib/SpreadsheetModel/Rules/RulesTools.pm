@@ -404,15 +404,9 @@ qq^<textarea style="width:11em;height:6.8em;display:block;float:left" id="rfrag$
                         style => 'margin:0;padding:0',
                     },
                     xmlEscape(
-                        0
-                        ? do {
-                            require JSON;
-                            local $_ = JSON->new->canonical->pretty->encode();
-                            s/\s*\n\s*/ /sg;
-                            $_;
-                          }
-                        : keys %$frag ? substr( YAML::Dump($frag), 4 )
-                        :               ''
+                        keys %$frag
+                        ? substr( YAML::Dump($frag), 4 )
+                        : ''
                     )
                 )
             );

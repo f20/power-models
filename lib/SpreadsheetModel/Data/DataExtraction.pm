@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -134,8 +134,20 @@ sub rebuildWriter {
       }
 }
 
+my $jsonMachine;
+
+sub jsonMachineMaker {
+    return $jsonMachine if $jsonMachine;
+    foreach (qw(JSON JSON::PP)) {
+        return $jsonMachine = $_->new
+          if eval "require $_";
+    }
+    die 'No JSON module';
+}
+
 sub jsonWriter {
     my ($arg) = @_;
+    my $jsonMachine = jsonMachineMaker()->canonical(1)->pretty->utf8;
     my $options = { $arg =~ /min/i ? ( minimum => 1 ) : (), };
     sub {
         my ( $book, $workbook ) = @_;
@@ -143,24 +155,17 @@ sub jsonWriter {
         my $file = $book;
         $file =~ s/\.xl[a-z]+?$//is;
         my $tree;
-        my $jsonpp = !eval 'require JSON';
-        require JSON::PP if $jsonpp;
         if ( -e $file ) {
             open my $h, '<', "$file.json";
             binmode $h;
             local undef $/;
-            $tree =
-              $jsonpp
-              ? JSON::PP::decode_json(<$h>)
-              : JSON::decode_json(<$h>);
+            $tree = $jsonMachine->decode(<$h>);
         }
         my %trees = _extractInputData( $workbook, $tree, $options );
         while ( my ( $key, $value ) = each %trees ) {
             open my $h, '>', "$file$key.json";
             binmode $h;
-            print {$h}
-              ( $jsonpp ? 'JSON::PP' : 'JSON' )->new->canonical(1)
-              ->pretty->utf8->encode($value);
+            print {$h} $jsonMachine->encode($value);
         }
     };
 }
