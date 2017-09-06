@@ -1,5 +1,5 @@
 ---
-.: DCP 266 clean CDCM+G+M after DCP 228
+.: DCP 266 CDCM+G+M after DCP 228, no defaulting, clean
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -54,7 +54,6 @@ embeddedModelG:
 extraLevels: 1
 fixedCap: 1-4
 matrices: big
-noLinks: 1
 noReplacement: blanket
 pcd: 1
 pcdByTariff: 1

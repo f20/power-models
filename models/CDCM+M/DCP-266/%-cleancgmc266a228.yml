@@ -1,12 +1,11 @@
 ---
-.: DCP 266 CDCM+G+M after DCP 228, no defaulting, ARP micromodel
+.: DCP 266 CDCM+G+M after DCP 228, with defaulting, clean
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
 blackPeakingProbabilityRequired: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
-compact: 1
 drm: top500gsp
 embeddedModelG:
   agghhequalisation: rag
@@ -51,16 +50,14 @@ embeddedModelG:
   tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
   timeOfDay: timeOfDay179
   unauth: dayotex
-  unroundedTariffAnalysis: modelg_cap100_nodef
+  unroundedTariffAnalysis: modelg_cap100
 extraLevels: 1
 fixedCap: 1-4
 matrices: big
-noLinks: 1
 noReplacement: blanket
 pcd: 1
 pcdByTariff: 1
 portfolio: 1
-protection: 0
 scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: arp

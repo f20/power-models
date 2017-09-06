@@ -358,39 +358,55 @@ EOF
 
     if ($ppu) {
 
-        my ( @extraArgs, $arithmetic );
-        if ( $model->{ldnoRev} =~ /genneg/i ) {
-            $arithmetic = 'A4*A1/A3';
-            @extraArgs  = (
-                A4 => Constant(
-                    name          => 'Discount scaling factor',
-                    defaultFormat => '0con',
-                    rows          => $endUsers,
-                    data =>
-                      [ map { /gener/i ? -1 : 1; } @{ $endUsers->{list} } ],
-                )
+        my $arithmetic = 'A1/A3';
+        my @args       = (
+            A1 => $discountsByTariff,
+            A3 => $ppu,
+        );
+
+        if ( $model->{ldnoRev} =~ /gen/i ) {
+            my $scalingFactor = Constant(
+                name          => 'Discount scaling factor',
+                defaultFormat => '0con',
+                rows          => $endUsers,
+                data => [ map { /gener/i ? -1 : 1; } @{ $endUsers->{list} } ],
             );
+            if ( $model->{ldnoRev} =~ /genneg/i ) {
+                $arithmetic = 'A4*A1/A3';
+                push @args, A4 => $scalingFactor;
+            }
+            else {
+                $arithmetic = 'IF(A41*A31>A11,A1/(A4*A3),1)';
+                push @args,
+                  A4  => $scalingFactor,
+                  A11 => $discountsByTariff,
+                  A31 => $ppu,
+                  A41 => $scalingFactor;
+            }
         }
-        else {
-            $arithmetic = 'A1/A3';
+        elsif ( $model->{ldnoRev} =~ /abs/i ) {
+            $arithmetic = 'IF(ABS(A31)>A11,A1/ABS(A3),1)';
+            push @args,
+              A11 => $discountsByTariff,
+              A31 => $ppu;
         }
 
-        $arithmetic = "IF(A2,A1/A3,0)" unless $model->{ldnoRev} =~ /nodef/i;
+        unless ( $model->{ldnoRev} =~ /nodef|gencap|abs/i ) {
+            $arithmetic = "IF(A2,$arithmetic,1)";
+            push @args, A2 => $ppu;
+        }
 
-        $arithmetic = "MIN(1,$arithmetic)"
-          if $model->{ldnoRev} =~ /cap100/i;
+        if ( $model->{ldnoRev} =~ /cap100/i ) {
+            $arithmetic = "MIN(1,$arithmetic)";
+        }
 
         $discountsByTariff = Arithmetic(
             name          => 'Applicable discount for each tariff',
             defaultFormat => '%soft',
             arithmetic    => "=$arithmetic",
-            arguments     => {
-                A1 => $discountsByTariff,
-                $model->{ldnoRev} =~ /nodef/i ? () : ( A2 => $ppu ),
-                A3 => $ppu,
-                @extraArgs,
-            },
+            arguments     => { @args, },
         );
+
     }
 
     my @explodedData = map {

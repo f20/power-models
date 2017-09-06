@@ -1,0 +1,26 @@
+---
+.: 'DCP 266 with absolute value rule, hidden formulas, FCP'
+PerlModule: EDCM2
+alignText: general
+conditionalFormatting: 0
+dcp130: 1
+dcp179: 1
+dcp185: 2
+dcp189: proportionsplitShortfall
+gridlines: 1
+layout: matrix
+ldnoRev: ldnorev5roundingppu_abs
+lowerIntermittentCredit: 1
+mergedRanges: 1
+method: FCP
+noLinks: 2
+noNegative: 1
+numLocationsDefault: 1200
+numTariffsDefault: 600
+protect: 1
+summaries: 1
+table1101: 1
+tableGrouping: 1
+tariff1Row: 100
+tolerateMisordering: 1
+validation: lenientnomsg
