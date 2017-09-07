@@ -641,22 +641,25 @@ sub modelG {
         },
       );
 
-    my $eq2 =
-      $model->{unroundedTariffAnalysis} =~ /cap100/i
-      ? 'MIN(1,A1/A22)'
-      : 'A1/A22';
+    my $discountPercentageArithmetic = 'A1/A22';
+    $discountPercentageArithmetic =
+      "IF(A21,$discountPercentageArithmetic,"
+      . (
+        $model->{unroundedTariffAnalysis} =~ /legacy/i ? '0)' : 'IF(A11,1,0))' )
+      unless $model->{unroundedTariffAnalysis} =~ /nodef/i;
+    $discountPercentageArithmetic = "MIN(1,$discountPercentageArithmetic)"
+      if $model->{unroundedTariffAnalysis} =~ /cap100/i;
     push @{ $model->{modelgTables} },
       my $discounts = Arithmetic(
         name          => "$model->{ldnoWord} discounts",
         defaultFormat => '%soft',
-        arithmetic    => $model->{unroundedTariffAnalysis} =~ /nodef/i ? "=$eq2"
-        : "=IF(A21,$eq2,1)",
-        arguments => {
+        arithmetic    => "=$discountPercentageArithmetic",
+        arguments     => {
             A1 => $ppuDiscounts,
             $model->{unroundedTariffAnalysis} =~ /nodef/i ? ()
             : $model->{unroundedTariffAnalysis} =~ /legacy/i
             ? ( A21 => $ppuDiscounts )
-            : ( A21 => $ppu ),
+            : ( A11 => $ppuDiscounts, A21 => $ppu, ),
             A22 => $ppu,
         },
       );
