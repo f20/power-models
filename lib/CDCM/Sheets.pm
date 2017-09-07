@@ -71,9 +71,6 @@ sub worksheetsAndClosures {
       'Input' => sub {
 
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber}    = 11;
-        $wbook->{lastSheetNumber} = $model->{embeddedModelM}
-          && !$model->{embeddedModelM}{noSingleInputSheet} ? 18 : 19;
         $wsheet->freeze_panes( 1, 1 );
         my $t1001width = $model->{targetRevenue}
           && $model->{targetRevenue} =~ /dcp132/i;
@@ -143,6 +140,13 @@ sub worksheetsAndClosures {
         $model->{nickNames}{$wbook} =
           qq%="$model->{nickName}"$model->{idAppend}{$wbook}%
           if $model->{nickName};
+
+        $wbook->{lastSheetNumber} = $model->{noSingleInputSheet}
+          ? 199   # we are embedded in another CDCM, calculations start at 20001
+          : $model->{embeddedModelM}
+          && !$model->{embeddedModelM}{noSingleInputSheet}
+          ? 18     # we use the 1900 range for Method M calculations
+          : 19;    # otherwise calculations start at 2001
 
       };
 
@@ -419,7 +423,8 @@ sub worksheetsAndClosures {
         }
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
-        $wbook->{lastSheetNumber} = 36 if $wbook->{lastSheetNumber} < 36;
+        $wbook->{lastSheetNumber} = 36
+          if $wbook->{lastSheetNumber} < 36 || $wbook->{lastSheetNumber} > 100;
         push @{ $model->{sheetLinks}{$wbook} },
           my $notes = Notes( name => 'Tariffs' );
         $_->wsWrite( $wbook, $wsheet )
@@ -639,6 +644,7 @@ EOL
         $wsheet->set_landscape;
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
+        $wbook->{lastSheetNumber} = 38 if $wbook->{lastSheetNumber} < 38;
 
         my $noLinks = $wbook->{noLinks};
         $wbook->{noLinks} = 1;
@@ -661,7 +667,7 @@ EOL
 
       'Comp' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 41 unless $wbook->{lastSheetNumber} > 40;
+        $wsheet->{sheetNumber} = 41 if $wbook->{lastSheetNumber} < 41;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 0 );
@@ -725,7 +731,7 @@ EOL
 
       'Stats' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 42 unless $wbook->{lastSheetNumber} > 41;
+        $wsheet->{sheetNumber} = 42 if $wbook->{lastSheetNumber} > 42;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 0 );
@@ -776,8 +782,7 @@ EOL
 
       '⇒EDCM' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 42
-          unless $wbook->{lastSheetNumber} > 42;
+        $wbook->{lastSheetNumber} = 42 if $wbook->{lastSheetNumber} < 42;
         $wsheet->set_landscape;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->fit_to_pages( 1, 1 );
@@ -810,8 +815,7 @@ EOL
     push @wsheetsAndClosures,
       'UTA' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 42
-          unless $wbook->{lastSheetNumber} > 42;
+        $wbook->{lastSheetNumber} = 42 if $wbook->{lastSheetNumber} < 42;
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 16 );
@@ -823,8 +827,7 @@ EOL
     push @wsheetsAndClosures,
       'G(Details)' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 42
-          unless $wbook->{lastSheetNumber} > 42;
+        $wbook->{lastSheetNumber} = 42 if $wbook->{lastSheetNumber} < 42;
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 16 );
@@ -852,8 +855,7 @@ EOL
     push @wsheetsAndClosures,
       'G(Results)' => sub {
         my ($wsheet) = @_;
-        $wbook->{lastSheetNumber} = 43
-          unless $wbook->{lastSheetNumber} > 43;
+        $wbook->{lastSheetNumber} = 43 if $wbook->{lastSheetNumber} < 43;
         $wsheet->fit_to_pages( 1, 0 );
         $wsheet->set_column( 0, 0,   48 );
         $wsheet->set_column( 1, 250, 16 );

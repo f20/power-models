@@ -119,14 +119,9 @@ sub wsWrite {
     $ws->write( $row, $col + $_, "$h[$_]", $headerFormat ) for 0 .. $#h;
     $row++;
 
-    my @objectList = sort {
-        (        $a->{number}
-              || $a->{numbered}
-              || 100 * ( $a->{$wb}{worksheet}{sheetNumber} || 666 ) )
-          <=> (  $b->{number}
-              || $b->{numbered}
-              || 100 * ( $b->{$wb}{worksheet}{sheetNumber} || 666 ) );
-    } grep { $_->{$wb}{worksheet} && $_->{name} } @{ $logger->{objects} };
+    my @objectList =
+      sort { "$a->{name}" cmp "$b->{name}"; }
+      grep { $_->{$wb}{worksheet} && $_->{name} } @{ $logger->{objects} };
 
     my $r = 0;
     my %columnsetDone;

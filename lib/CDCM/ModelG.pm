@@ -253,7 +253,7 @@ sub modelG {
         );
         my $chargeablePercentageArithmetic = '1-A1/A22';
         $chargeablePercentageArithmetic =
-          "IF(A21,$chargeablePercentageArithmetic,0)"
+          "IF(A21,$chargeablePercentageArithmetic,IF(A11,0,1))"
           unless $model->{unroundedTariffAnalysis} =~ /nodef/i;
         $chargeablePercentageArithmetic =
           "MAX(0,$chargeablePercentageArithmetic)"
@@ -269,7 +269,10 @@ sub modelG {
                 A1 => $ppuDiscounts,
                 $model->{unroundedTariffAnalysis} =~ /nodef/i
                 ? ()
-                : ( A21 => $ppu ),
+                : (
+                    A11 => $ppuDiscounts,
+                    A21 => $ppu,
+                ),
                 A22 => $ppu,
             },
         );

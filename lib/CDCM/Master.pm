@@ -139,7 +139,7 @@ sub new {
         && $model->{extraNotice} =~ /DCUSA/ );
 
     $model->{inputTables} ||= [];
-    $model->{edcmTables}  = [
+    $model->{edcmTables} = [
         [
             Constant(
                 name => 'Generation O&M charging rate (£/kW/year)',
@@ -962,7 +962,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             name                  => 'Tariffs',
             dataset               => $model->{dataset},
             doNotCopyInputColumns => 1,
-            number                => 3701,
+            number => 3701,    # this is an input data table (for LLFCs)
         ),
         columns => [
             $model->{noLLFCs} ? () : (

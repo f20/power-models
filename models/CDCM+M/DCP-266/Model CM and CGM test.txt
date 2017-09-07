@@ -1,0 +1,6 @@
+makeModels
+    -datamerge
+    CDCM+M/2018-02-Baseline/%-*.yml
+    CDCM+M/DCP-266/%-*cgm*.yml
+    CDCM/2018-02/NPG-Northeast.yml
+    ModelM/2018-02/NPG-Northeast.yml

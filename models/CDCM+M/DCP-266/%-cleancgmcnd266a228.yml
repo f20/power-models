@@ -1,5 +1,5 @@
 ---
-.: DCP 266 CDCM+G+M after DCP 228, no defaulting, clean
+.: 'DCP 266 CDCM+G+M after DCP 228, no defaulting, clean'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -33,7 +33,6 @@ embeddedModelG:
     dcp118: 1
     meav: 1
     netCapex: 1
-    noSingleInputSheet: 1
     not2007incentives: 1
     not2007units: 1
     ppuCalc: 1
