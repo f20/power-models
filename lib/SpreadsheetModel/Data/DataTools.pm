@@ -31,23 +31,9 @@ use warnings;
 use strict;
 use utf8;
 use Encode qw(decode_utf8);
-
-sub _ymlDump {
-    my ( $file, $tag, $data ) = @_;
-    my $path = '';
-    my $ext  = '';
-    $path = $1 if $file =~ s#(.*/)##s;
-    $ext  = $1 if $file =~ s/(\.[a-zA-Z][a-zA-Z0-9_+-]+)$//s;
-    my $tmp = $path . '~$' . $file . $tag . $$ . '.tmp';
-    YAML::DumpFile( $tmp, $data );
-    my $final = $path . $file . $tag . $ext;
-    rename $tmp, $final;
-    warn "$final\n";
-}
+use YAML;
 
 sub ymlDiff {
-
-    require YAML;
 
     my ( @names, @src, %stream );
     foreach my $fileName ( map { decode_utf8 $_} @_ ) {
@@ -130,7 +116,6 @@ sub ymlDiff {
 }
 
 sub ymlMerge {
-    require YAML;
     my (%results);
     foreach my $fileName ( sort map { decode_utf8 $_} @_ ) {
         $fileName = './' . $fileName unless $fileName =~ m#/#;
@@ -151,7 +136,6 @@ sub ymlMerge {
 }
 
 sub ymlSplit {
-    require YAML;
     foreach my $fileName ( map { decode_utf8 $_} @_ ) {
         $fileName = './' . $fileName unless $fileName =~ m#/#;
         next unless -f $fileName;
@@ -165,6 +149,19 @@ sub ymlSplit {
             --$counter;
         }
     }
+}
+
+sub _ymlDump {
+    my ( $file, $tag, $data ) = @_;
+    my $path = '';
+    my $ext  = '';
+    $path = $1 if $file =~ s#(.*/)##s;
+    $ext  = $1 if $file =~ s/(\.[a-zA-Z][a-zA-Z0-9_+-]+)$//s;
+    my $tmp = $path . '~$' . $file . $tag . $$ . '.tmp';
+    YAML::DumpFile( $tmp, $data );
+    my $final = $path . $file . $tag . $ext;
+    rename $tmp, $final;
+    warn "$final\n";
 }
 
 1;

@@ -31,19 +31,16 @@ use warnings;
 use strict;
 use utf8;
 
-use SpreadsheetModel::CLI::MakeModels;
-use SpreadsheetModel::Data::DataTools;
-use SpreadsheetModel::Data::UseDatabase;
-use SpreadsheetModel::Data::UseModels;
-use SpreadsheetModel::Rules::RulesTools;
-
 our @ISA = qw(
   SpreadsheetModel::CLI::MakeModels
+  SpreadsheetModel::CLI::RHarness
   SpreadsheetModel::Data::DataTools
   SpreadsheetModel::Data::UseDatabase
   SpreadsheetModel::Data::UseModels
   SpreadsheetModel::Rules::RulesTools
 );
+
+eval "require $_" foreach @ISA;
 
 use constant {
     C_HOMES         => 0,
@@ -60,6 +57,19 @@ sub new {
 sub finish {
     my ($self) = @_;
     $self->makeFolder;
+}
+
+sub comment { }
+
+sub DESTROY { }
+
+our $AUTOLOAD;
+
+sub AUTOLOAD {
+    no strict 'refs';
+    warn "$AUTOLOAD not implemented";
+    *{$AUTOLOAD} = sub { };
+    return;
 }
 
 sub log {
@@ -135,42 +145,6 @@ sub makeFolder {
 
     }
 
-}
-
-sub R {
-    my ( $self, @commands ) = @_;
-    open my $r, '| R --vanilla --slave';
-    binmode $r, ':utf8';
-    require SpreadsheetModel::Data::RCode;
-    print {$r} SpreadsheetModel::Data::RCode->rCode(@commands);
-}
-
-sub Rcode {
-    my ( $self, @commands ) = @_;
-    open my $r, '>', "$$.R";
-    binmode $r, ':utf8';
-    print $r "# R code from power-models\n\n";
-    require SpreadsheetModel::Data::RCode;
-    print {$r} SpreadsheetModel::Data::RCode->rCode(@commands);
-    close $r;
-    rename "$$.R", 'power-models.R';
-    warn <<EOW
-To use this R code, say:
-    source("power-models.R");
-EOW
-}
-
-our $AUTOLOAD;
-
-sub comment { }
-
-sub DESTROY { }
-
-sub AUTOLOAD {
-    no strict 'refs';
-    warn "$AUTOLOAD not implemented";
-    *{$AUTOLOAD} = sub { };
-    return;
 }
 
 1;
