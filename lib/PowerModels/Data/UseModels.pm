@@ -64,8 +64,7 @@ sub useModels {
         if (/^-+(re-?build.*)/i) {
             require PowerModels::Data::DataExtraction;
             @writerAndParserOptions =
-              PowerModels::Data::DataExtraction::rebuildWriter( $1,
-                $self );
+              PowerModels::Data::DataExtraction::rebuildWriter( $1, $self );
             next;
         }
         if (/^-+(ya?ml.*)/i) {
@@ -107,8 +106,7 @@ sub useModels {
             }
             require PowerModels::Data::DataExtraction;
             @writerAndParserOptions =
-              PowerModels::Data::DataExtraction::databaseWriter(
-                \%settings );
+              PowerModels::Data::DataExtraction::databaseWriter( \%settings );
             next;
         }
         if (/^-+prune=(.*)$/i) {
@@ -122,8 +120,7 @@ sub useModels {
         }
         if (/^-+xls$/i) {
             require PowerModels::Data::Dumpers;
-            @writerAndParserOptions =
-              PowerModels::Data::Dumpers::xlsWriter();
+            @writerAndParserOptions = PowerModels::Data::Dumpers::xlsWriter();
             next;
         }
         if (/^-+flat/i) {
@@ -134,8 +131,7 @@ sub useModels {
         }
         if (/^-+(tsv|txt|csv)$/i) {
             require PowerModels::Data::Dumpers;
-            @writerAndParserOptions =
-              PowerModels::Data::Dumpers::tsvDumper($1);
+            @writerAndParserOptions = PowerModels::Data::Dumpers::tsvDumper($1);
             next;
         }
         if (/^-+tall(csv)?$/i) {
@@ -153,8 +149,7 @@ sub useModels {
         }
         if (/^-+split$/i) {
             require PowerModels::Data::Dumpers;
-            @writerAndParserOptions =
-              PowerModels::Data::Dumpers::xlsSplitter();
+            @writerAndParserOptions = PowerModels::Data::Dumpers::xlsSplitter();
             next;
         }
         if (/^-+(calc|convert.*)/i) {

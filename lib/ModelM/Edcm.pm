@@ -295,7 +295,7 @@ EOT
     );
 
     my $discounts = Arithmetic(
-        name          => $model->{qno}.' discounts (EDCM)',
+        name          => $model->{qno} . ' discounts (EDCM)',
         defaultFormat => '%soft',
         arithmetic    => '=1-MAX(0,(1-A1)/(1-A2))',
         arguments     => {
@@ -308,7 +308,7 @@ EOT
         push @{ $model->{objects}{calcSheets} },
           [ $model->{suffix}, $atwBypassed, $dnoBypassed ];
         $discounts = Columnset(
-            name    => $model->{qno}.' discounts (EDCM)',
+            name    => $model->{qno} . ' discounts (EDCM)',
             columns => [
                 $discounts,
                 map {
@@ -381,7 +381,7 @@ EOL
             );
         } split /;\s*/, $model->{checksums} if $model->{checksums};
         $discounts = Columnset(
-            name    => $model->{qno}.' discounts (EDCM) ⇒1181. For EDCM model',
+            name => $model->{qno} . ' discounts (EDCM) ⇒1181. For EDCM model',
             columns => \@columns,
         );
     }

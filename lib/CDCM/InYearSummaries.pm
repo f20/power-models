@@ -135,8 +135,7 @@ sub summaryOfRevenuesHybrid {
                     name       => 'Net revenues (£)',
                     rows       => $allTariffs,
                     arithmetic => '='
-                      . join(
-                        '+',
+                      . join( '+',
                         @termsWithDays
                         ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
                         : ('0'),

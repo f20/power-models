@@ -133,7 +133,7 @@ sub matchingdcp123 {
                 'Revenues from demand fixed charges before matching (£/year)'
             ),
             rows       => $allTariffsByEndUser,
-            arithmetic => '=0.01*A6*A1*A2', # '=IF(A5<0,0,0.01*A6*A1*A2)'
+            arithmetic => '=0.01*A6*A1*A2',       # '=IF(A5<0,0,0.01*A6*A1*A2)'
             arguments  => {
                 A5 => $loadCoefficients,
                 A6 => $daysFullYear,
@@ -366,9 +366,9 @@ sub matchingdcp123 {
 
             my @slope = map {
                 Arithmetic(
-                    name       => "Effect through $_",
-                    arithmetic => '=IF(A9>0,A1*A2*0.01,0)'
-                    ,    # '=IF(A3>0,A1*A2*0.01,0)',
+                    name => "Effect through $_",
+                    arithmetic =>
+                      '=IF(A9>0,A1*A2*0.01,0)',    # '=IF(A3>0,A1*A2*0.01,0)',
                     arguments => {
                         A3 => $loadCoefficients,
                         A2 => $daysAfter,
@@ -386,8 +386,8 @@ sub matchingdcp123 {
             my %minAdder = map {
                 my $tariffComponent = $_;
                 $_ => Arithmetic(
-                    name => "Adder threshold for $_",
-                    arithmetic => '=0-A1',    # '=IF(A4<0,0,0-A1)',
+                    name       => "Adder threshold for $_",
+                    arithmetic => '=0-A1',                 # '=IF(A4<0,0,0-A1)',
                     arguments  => {
                         A4 => $loadCoefficients,
                         A1 => $tariffsExMatching->{$_},
@@ -417,11 +417,11 @@ sub matchingdcp123 {
             foreach (@columns) {
                 my $tariffComponent = $_;
                 $adderTable->{$_} = Arithmetic(
-                    name       => "Adder on $_",
-                    rows       => $allTariffsByEndUser,
-                    cols       => Labelset( list => ['Adder'] ),
-                    arithmetic => '=IF(A9>0,MAX(A6,A1),0)'
-                    ,    # '=IF(A3<0,0,MAX(A6,A1))',
+                    name => "Adder on $_",
+                    rows => $allTariffsByEndUser,
+                    cols => Labelset( list => ['Adder'] ),
+                    arithmetic =>
+                      '=IF(A9>0,MAX(A6,A1),0)',    # '=IF(A3<0,0,MAX(A6,A1))',
                     arguments => {
                         A1 => $adderRate,
                         A3 => $loadCoefficients,
@@ -525,7 +525,7 @@ sub matchingdcp123 {
         my @slope = map {
             Arithmetic(
                 name       => "Effect through $_",
-                arithmetic => '=A1*10',             # '=IF(A3<0,0,A1*10)',
+                arithmetic => '=A1*10',              # '=IF(A3<0,0,A1*10)',
                 arguments  => {
                     A3 => $loadCoefficients,
                     A1 => $volumeAfter->{$_},
@@ -542,7 +542,7 @@ sub matchingdcp123 {
             my $tariffComponent = $_;
             $_ => Arithmetic(
                 name       => "Adder threshold for $_",
-                arithmetic => '=0-A1',                  # '=IF(A4<0,0,0-A1)',
+                arithmetic => '=0-A1',                    # '=IF(A4<0,0,0-A1)',
                 arguments  => {
                     A4 => $loadCoefficients,
                     A1 => $tariffsExMatching->{$_},

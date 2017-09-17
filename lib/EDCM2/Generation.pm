@@ -1,4 +1,4 @@
-package EDCM2;
+﻿package EDCM2;
 
 =head Copyright licence and disclaimer
 
@@ -50,8 +50,8 @@ sub gCharge {
             defaultFormat => '0softnz',
             arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5)',
             arguments     => {
-                A123   => $model->{transparencyMasterFlag},
-                A1     => $model->{transparency}{"ol$_->[1]"},
+                A123  => $model->{transparencyMasterFlag},
+                A1    => $model->{transparency}{"ol$_->[1]"},
                 A2_A3 => ${ $_->[0] },
                 A4_A5 => $model->{transparency},
             }

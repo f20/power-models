@@ -102,7 +102,6 @@ sub findLines {
         )
       };
 
-
     my @before = map { $_->[0] } @{
         $self->selectall_arrayref(
             'select v from data as d1 inner join books using (bid)'

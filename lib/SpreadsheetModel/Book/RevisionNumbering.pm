@@ -73,7 +73,8 @@ sub connect {
 
         if (@importRev) {
             warn 'Importing data for ' . @importRev . ' revision(s)';
-            my $digestMachine = SpreadsheetModel::Book::Validation::digestMachine();
+            my $digestMachine =
+              SpreadsheetModel::Book::Validation::digestMachine();
             my $i = $dbh->prepare('insert into l (i, h) values (?, ?)');
             $i->execute( $_,
                 $digestMachine->addfile( new IO::File "< $path/r$_.yml" )

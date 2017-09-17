@@ -352,7 +352,7 @@ EOL
                 A23 => $customerCategory,
               )
             : $model->{voltageRulesTransparency} ? (
-                A1     => $customerCategory,
+                A1    => $customerCategory,
                 A5_A6 => $lossFactorMap,
               )
             : (
@@ -617,9 +617,7 @@ EOL
                               qr/\bA6\b/ =>
                               Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                                 $rowh->{A5_A6} + $classificationMap->lastRow,
-                                $colh->{A5_A6} + $x,
-                                1
-                              );
+                                $colh->{A5_A6} + $x, 1 );
                         };
                     },
                     rows      => $useProportions->{rows},
@@ -730,9 +728,8 @@ EOL
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-                  qq@=IF(MOD(A1,1000)=100,A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
+                arithmetic => qq@=IF(MOD(A1,1000)=100,A4*A8/(1+A3)$starIV5,0)@,
+                arguments  => {
                     A1 => $tariffCategory,
                     A4 => $accretion,
                     A3 => $diversity,
@@ -762,9 +759,8 @@ EOL
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-                  qq@=IF(MOD(A1,100)=10,A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
+                arithmetic => qq@=IF(MOD(A1,100)=10,A4*A8/(1+A3)$starIV5,0)@,
+                arguments  => {
                     A1 => $tariffCategory,
                     A4 => $accretion,
                     A3 => $diversity,
@@ -828,9 +824,8 @@ qq@=IF(AND(MOD(A1,10)>0,MOD(A2,1000)>1),A4*A8/(1+A3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic =>
-                  qq@=IF(MOD(A1,1000)=1,A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
+                arithmetic => qq@=IF(MOD(A1,1000)=1,A4*A8/(1+A3)$starIV5,0)@,
+                arguments  => {
                     A1 => $tariffCategory,
                     A4 => $accretion,
                     A3 => $diversity,
@@ -905,9 +900,8 @@ qq@=IF(AND(MOD(A1,10)>0,MOD(A2,1000)>1),A4*A8/(1+A3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-                  qq@=IF(MOD(A1,1000)>100,A4*A9$starIV5Cooked,0)@,
-                arguments => {
+                arithmetic => qq@=IF(MOD(A1,1000)>100,A4*A9$starIV5Cooked,0)@,
+                arguments  => {
                     A1 => $tariffCategory,
                     A4 => $accretion,
                     A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
@@ -969,9 +963,8 @@ qq@=IF(AND(MOD(A1,10)>0,MOD(A2,1000)>1),A4*A8/(1+A3)$starIV5Cooked,0)@,
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic =>
-                  qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
+                arithmetic => qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5Cooked,0)@,
+                arguments  => {
                     A1 => $customerCategory,
                     A4 => $accretion,
                     A3 => $diversity,
@@ -987,7 +980,7 @@ qq@=IF(AND(MOD(A1,10)>0,MOD(A2,1000)>1),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5,0)@,
+                  qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
                     A1 => $customerCategory,
                     A4 => $accretion,
@@ -1019,7 +1012,7 @@ qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5,0)@,
+                  qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
                     A1 => $customerCategory,
                     A4 => $accretion,
@@ -1087,7 +1080,7 @@ qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5,0)@,
+                  qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
                     A1 => $customerCategory,
                     A4 => $accretion,
@@ -1238,9 +1231,8 @@ qq@=IF(ISNUMBER(SEARCH("D??10",A1)),0,IF(ISNUMBER(SEARCH("D??1?",A2)),A4*A9$star
               Arithmetic(
                 name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic =>
-                  qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
+                arithmetic => qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5Cooked,0)@,
+                arguments  => {
                     A1 => $customerCategory,
                     A4 => $accretion,
                     A3 => $diversity,
@@ -1300,7 +1292,7 @@ qq@=IF(OR(A1="D1000",ISNUMBER(SEARCH("G????",A20))),0,IF(ISNUMBER(SEARCH("D1???"
                 name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5,0)@,
+                  qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
                     A1 => $customerCategory,
                     A4 => $accretion,
@@ -1367,7 +1359,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?100",A1))),0,IF(ISNUM
                 name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5,0)@,
+                  qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
                     A1  => $customerCategory,
                     A20 => $customerCategory,
@@ -1513,7 +1505,7 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),A22="D0002",ISNUMBER(SEARCH("D?1?1",A1))
                 name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
                 cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
                 arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5,0)@,
+                  qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5,0)@,
                 arguments => {
                     A1 => $customerCategory,
                     A4 => $accretion,
@@ -1581,9 +1573,8 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A6*A4*A9
             name       => 'Total notional capacity assets (£/kVA)',
             groupName  => 'First set of notional capacity assets',
             cols       => 0,
-            arithmetic => '='
-              . join( '+', map { "A$_" } 1 .. @assetsCapacity ),
-            arguments => {
+            arithmetic => '=' . join( '+', map { "A$_" } 1 .. @assetsCapacity ),
+            arguments  => {
                 map { ( "A$_" => $assetsCapacity[ $_ - 1 ] ) }
                   1 .. @assetsCapacity
             },
@@ -1638,8 +1629,8 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A6*A4*A9
         defaultFormat => '0softnz',
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
         arguments     => {
-            A123     => $model->{transparencyMasterFlag},
-            A1       => $model->{transparency}{ol119301},
+            A123    => $model->{transparencyMasterFlag},
+            A1      => $model->{transparency}{ol119301},
             A11_A12 => $tariffSUimport,
             A15_A16 => $model->{transparency},
         },
@@ -1667,8 +1658,8 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A6*A4*A9
                 arithmetic =>
                   '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A13_A14,A15_A16)',
                 arguments => {
-                    A123     => $model->{transparencyMasterFlag},
-                    A1       => $model->{transparency}{"ol$_->[1]"},
+                    A123    => $model->{transparencyMasterFlag},
+                    A1      => $model->{transparency}{"ol$_->[1]"},
                     A11_A12 => $_->[0],
                     A13_A14 => $agreedCapacity,
                     A15_A16 => $model->{transparency},
@@ -1702,8 +1693,8 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A6*A4*A9
         defaultFormat => '0softnz',
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
         arguments     => {
-            A123     => $model->{transparencyMasterFlag},
-            A1       => $model->{transparency}{ol119302},
+            A123    => $model->{transparencyMasterFlag},
+            A1      => $model->{transparency}{ol119302},
             A11_A12 => $tariffSUexport,
             A15_A16 => $model->{transparency},
         },

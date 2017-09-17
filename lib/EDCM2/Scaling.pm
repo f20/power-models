@@ -135,8 +135,8 @@ sub fudge41 {
         defaultFormat => '0soft',
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5,A6_A7)',
         arguments     => {
-            A123   => $model->{transparencyMasterFlag},
-            A1     => $model->{transparency}{ol119102},
+            A123  => $model->{transparencyMasterFlag},
+            A1    => $model->{transparency}{ol119102},
             A2_A3 => $model->{transparency},
             A4_A5 => $fudgeIndirect,
             A6_A7 => $agreedCapacity,
@@ -159,8 +159,8 @@ sub fudge41 {
         groupName  => 'EDCM demand adders',
         arithmetic => '=IF(A2,A3/SUMPRODUCT(A4_A5,A64_A65),0)',
         arguments  => {
-            A2       => $indirect,
-            A3       => $indirect,
+            A2      => $indirect,
+            A3      => $indirect,
             A4_A5   => $fudgeIndirect,
             A64_A65 => $agreedCapacity,
         },
@@ -235,8 +235,8 @@ sub fudge41 {
         defaultFormat => '0soft',
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5)',
         arguments     => {
-            A123   => $model->{transparencyMasterFlag},
-            A1     => $model->{transparency}{ol119103},
+            A123  => $model->{transparencyMasterFlag},
+            A1    => $model->{transparency}{ol119103},
             A2_A3 => $model->{transparency},
             A4_A5 => $slope,
         },
@@ -257,9 +257,9 @@ sub fudge41 {
         groupName  => 'EDCM demand adders',
         arithmetic => '=IF(A9,A1*A2/SUM(A4_A5),0)',
         arguments  => {
-            A1     => $ynonFudge41,
-            A2     => $adderAmount,
-            A9     => $adderAmount,
+            A1    => $ynonFudge41,
+            A2    => $adderAmount,
+            A9    => $adderAmount,
             A4_A5 => $slope,
         },
         location => 'Charging rates',
@@ -313,8 +313,7 @@ sub fudge41 {
           );
         push @{ $model->{matricesData}[1] },
           Arithmetic(
-            arithmetic => '=A3*A4*100/A9'
-              . ( $model->{dcp185} ? '*A8' : '' ),
+            arithmetic => '=A3*A4*100/A9' . ( $model->{dcp185} ? '*A8' : '' ),
             rows      => $$capacityChargeRef->{rows},
             name      => 'Notional fixed adder p/kVA/day',
             arguments => {
@@ -432,8 +431,8 @@ sub demandScaling41 {
         defaultFormat => '0softnz',
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52)',
         arguments     => {
-            A123     => $model->{transparencyMasterFlag},
-            A1       => $model->{transparency}{ol119305},
+            A123    => $model->{transparencyMasterFlag},
+            A1      => $model->{transparency}{ol119305},
             A21_A22 => $model->{transparency},
             A51_A52 => $slopeCapacity,
         }

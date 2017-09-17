@@ -41,7 +41,7 @@ sub transmissionExit {
     Arithmetic(
         name       => 'Average transmission exit cost £/kVA/year',
         arithmetic => '=A1/A2',
-        arguments => { A1 => $transmissionExitCharges, A2 => $systemPeakLoad }
+        arguments  => { A1 => $transmissionExitCharges, A2 => $systemPeakLoad }
     );
 
 }
@@ -124,7 +124,7 @@ sub charge1 {
         defaultFormat => 'locsoft',
         arithmetic    => '=MATCH(A1,A5_A6,0)',
         arguments     => {
-            A1     => $tariffLoc,
+            A1    => $tariffLoc,
             A5_A6 => $locations,
         }
     ) if $tariffLoc;
@@ -140,7 +140,7 @@ sub charge1 {
             defaultFormat => 'locsoft',
             arithmetic    => '=MATCH(INDEX(A7_A8,A1),A5_A6,0)',
             arguments     => {
-                A1     => $locMatch[ $_ - 1 ],
+                A1    => $locMatch[ $_ - 1 ],
                 A5_A6 => $locations,
                 A7_A8 => $locParent,
             }
@@ -156,8 +156,8 @@ sub charge1 {
                 ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
                 : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
                 arguments => {
-                    A1       => $_,
-                    A52      => $_,
+                    A1      => $_,
+                    A52     => $_,
                     A53_A54 => $c1->[0],
                 }
             );
@@ -174,8 +174,8 @@ sub charge1 {
                 ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
                 : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
                 arguments => {
-                    A1       => $_,
-                    A52      => $_,
+                    A1      => $_,
+                    A52     => $_,
                     A53_A54 => $c1->[1],
                 }
             );
@@ -192,8 +192,8 @@ sub charge1 {
                 defaultFormat => '0soft',
                 arithmetic    => '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
                 arguments     => {
-                    A1       => $_,
-                    A52      => $_,
+                    A1      => $_,
+                    A52     => $_,
                     A53_A54 => $maxkVA,
                 }
               )
@@ -204,10 +204,10 @@ sub charge1 {
                 arithmetic    => '=IF(ISNUMBER(A1),SQRT('
                   . 'INDEX(A53_A54,A52)^2+INDEX(A63_A64,A62)^2),0)',
                 arguments => {
-                    A1       => $_,
-                    A52      => $_,
+                    A1      => $_,
+                    A52     => $_,
                     A53_A54 => $maxkVA->[0],
-                    A62      => $_,
+                    A62     => $_,
                     A63_A64 => $maxkVA->[1],
                 }
               );
@@ -280,7 +280,7 @@ sub charge1 {
                 map {
                     'A' . ( $_ ? "5$_" : 1 ) => $locMatch[$_],
                       "A6${_}_A2$_" => $a1d,
-                      "A3$_"         => $locMatch[$_],
+                      "A3$_"        => $locMatch[$_],
                 } 0 .. $last
             }
         );
@@ -298,8 +298,8 @@ sub charge1 {
                 A9 => $active1,
                 map {
                     (
-                        "A2$_"         => $locMatch[$_],
-                        "A3$_"         => $locMatch[$_],
+                        "A2$_"        => $locMatch[$_],
+                        "A3$_"        => $locMatch[$_],
                         "A4${_}_A5$_" => $r1d,
                       )
                 } 0 .. $last
@@ -315,7 +315,7 @@ sub charge1 {
         defaultFormat => 'locsoft',
         arithmetic    => '=MATCH(INDEX(A7_A8,A1),A5_A6,0)',
         arguments     => {
-            A1     => $locMatchA,
+            A1    => $locMatchA,
             A5_A6 => $locations,
             A7_A8 => $locParent,
         }
@@ -326,7 +326,7 @@ sub charge1 {
         defaultFormat => 'locsoft',
         arithmetic    => '=MATCH(INDEX(A7_A8,A1),A5_A6,0)',
         arguments     => {
-            A1     => $locMatchB,
+            A1    => $locMatchB,
             A5_A6 => $locations,
             A7_A8 => $locParent,
         }
@@ -338,8 +338,8 @@ sub charge1 {
         ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
         : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
         arguments => {
-            A1       => $locMatchA,
-            A52      => $locMatchA,
+            A1      => $locMatchA,
+            A52     => $locMatchA,
             A53_A54 => $c1,
         }
     ) if $tariffLoc;
@@ -354,8 +354,8 @@ sub charge1 {
         ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
         : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
         arguments => {
-            A1       => $locMatchB,
-            A52      => $locMatchB,
+            A1      => $locMatchB,
+            A52     => $locMatchB,
             A53_A54 => $c1,
         }
     ) if $tariffLoc;
@@ -366,8 +366,8 @@ sub charge1 {
         ? '=IF(ISNUMBER(A1),MAX(0,INDEX(A53_A54,A52)),0)'
         : '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
         arguments => {
-            A1       => $locMatchC,
-            A52      => $locMatchC,
+            A1      => $locMatchC,
+            A52     => $locMatchC,
             A53_A54 => $c1,
         }
     );
@@ -379,8 +379,8 @@ sub charge1 {
             name => 'Network group reactive factor, maximum demand (kVAr/kVA)',
             arithmetic => '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
             arguments  => {
-                A1       => $locMatchA,
-                A52      => $locMatchA,
+                A1      => $locMatchA,
+                A52     => $locMatchA,
                 A53_A54 => $rf1,
             }
         );
@@ -393,14 +393,14 @@ sub charge1 {
               . 'SQRT((INDEX(A53_A54,A52)+INDEX(A73_A74,A72))^2+'
               . '(INDEX(A63_A64,A62)+INDEX(A83_A84,A82))^2)' . ',0)',
             arguments => {
-                A1       => $locMatchA,
-                A52      => $locMatchA,
+                A1      => $locMatchA,
+                A52     => $locMatchA,
                 A53_A54 => $rf1->[0],
-                A62      => $locMatchA,
+                A62     => $locMatchA,
                 A63_A64 => $rf1->[1],
-                A72      => $locMatchA,
+                A72     => $locMatchA,
                 A73_A74 => $rf1->[2],
-                A82      => $locMatchA,
+                A82     => $locMatchA,
                 A83_A84 => $rf1->[3],
             },
         );
@@ -409,11 +409,11 @@ sub charge1 {
             arithmetic =>
               '=IF(A1,0-(INDEX(A23_A24,A22)+INDEX(A33_A34,A32))/A4,0)',
             arguments => {
-                A1       => $kVA,
-                A4       => $kVA,
-                A22      => $locMatchA,
+                A1      => $kVA,
+                A4      => $kVA,
+                A22     => $locMatchA,
                 A23_A24 => $rf1->[1],
-                A32      => $locMatchA,
+                A32     => $locMatchA,
                 A33_A34 => $rf1->[3],
             }
         );
@@ -424,8 +424,8 @@ sub charge1 {
             name => 'Parent group reactive factor, maximum demand (kVAr/kVA)',
             arithmetic => '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
             arguments  => {
-                A1       => $locMatchB,
-                A52      => $locMatchB,
+                A1      => $locMatchB,
+                A52     => $locMatchB,
                 A53_A54 => $rf1,
             }
         );
@@ -438,14 +438,14 @@ sub charge1 {
               . 'SQRT((INDEX(A53_A54,A52)+INDEX(A73_A74,A72))^2+'
               . '(INDEX(A63_A64,A62)+INDEX(A83_A84,A82))^2)' . ',0)',
             arguments => {
-                A1       => $locMatchB,
-                A52      => $locMatchB,
+                A1      => $locMatchB,
+                A52     => $locMatchB,
                 A53_A54 => $rf1->[0],
-                A62      => $locMatchB,
+                A62     => $locMatchB,
                 A63_A64 => $rf1->[1],
-                A72      => $locMatchB,
+                A72     => $locMatchB,
                 A73_A74 => $rf1->[2],
-                A82      => $locMatchB,
+                A82     => $locMatchB,
                 A83_A84 => $rf1->[3],
             },
         );
@@ -454,11 +454,11 @@ sub charge1 {
             arithmetic =>
               '=IF(A1,0-(INDEX(A23_A24,A22)+INDEX(A33_A34,A32))/A4,0)',
             arguments => {
-                A1       => $kVA,
-                A4       => $kVA,
-                A22      => $locMatchB,
+                A1      => $kVA,
+                A4      => $kVA,
+                A22     => $locMatchB,
                 A23_A24 => $rf1->[1],
-                A32      => $locMatchB,
+                A32     => $locMatchB,
                 A33_A34 => $rf1->[3],
             }
         );
@@ -470,8 +470,8 @@ sub charge1 {
               'Grandparent group reactive factor, maximum demand (kVAr/kVA)',
             arithmetic => '=IF(ISNUMBER(A1),INDEX(A53_A54,A52),0)',
             arguments  => {
-                A1       => $locMatchC,
-                A52      => $locMatchC,
+                A1      => $locMatchC,
+                A52     => $locMatchC,
                 A53_A54 => $rf1,
             }
         );
@@ -484,14 +484,14 @@ sub charge1 {
               . 'SQRT((INDEX(A53_A54,A52)+INDEX(A73_A74,A72))^2+'
               . '(INDEX(A63_A64,A62)+INDEX(A83_A84,A82))^2)' . ',0)',
             arguments => {
-                A1       => $locMatchC,
-                A52      => $locMatchC,
+                A1      => $locMatchC,
+                A52     => $locMatchC,
                 A53_A54 => $rf1->[0],
-                A62      => $locMatchC,
+                A62     => $locMatchC,
                 A63_A64 => $rf1->[1],
-                A72      => $locMatchC,
+                A72     => $locMatchC,
                 A73_A74 => $rf1->[2],
-                A82      => $locMatchC,
+                A82     => $locMatchC,
                 A83_A84 => $rf1->[3],
             },
         );
@@ -501,11 +501,11 @@ sub charge1 {
             arithmetic =>
               '=IF(A1,0-(INDEX(A23_A24,A22)+INDEX(A33_A34,A32))/A4,0)',
             arguments => {
-                A1       => $kVA,
-                A4       => $kVA,
-                A22      => $locMatchC,
+                A1      => $kVA,
+                A4      => $kVA,
+                A22     => $locMatchC,
                 A23_A24 => $rf1->[1],
-                A32      => $locMatchC,
+                A32     => $locMatchC,
                 A33_A34 => $rf1->[3],
             }
         );

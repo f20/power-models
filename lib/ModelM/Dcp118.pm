@@ -98,7 +98,7 @@ EOT
           Labelset( list => [ $theCols->{list}[ $#{ $theCols->{list} } ] ] ),
         arithmetic => '=1/(1+A1/SUMPRODUCT(A2_A3,A4_A5))',
         arguments  => {
-            A1     => $edcmAssets,
+            A1    => $edcmAssets,
             A2_A3 => Constant(
                 name  => 'EHV asset levels',
                 cols  => $assetLevelset,
@@ -129,8 +129,8 @@ EOT
             name       => "$_->{name} after DCP 118 exclusions",
             arithmetic => '=A1*A2/SUMPRODUCT(A3_A4,A5_A6)',
             arguments  => {
-                A1     => $_,
-                A2     => $propKept,
+                A1    => $_,
+                A2    => $propKept,
                 A3_A4 => $_,
                 A5_A6 => $propKept,
             },

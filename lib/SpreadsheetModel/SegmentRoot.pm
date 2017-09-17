@@ -362,9 +362,9 @@ sub check {
     );
 
     my $kvs = new SpreadsheetModel::Custom(
-        name       => 'Value',
-        rows       => $kinkSet,
-        custom     => [ '=A7+IF(ISNUMBER(A41),(A4-A3)*A2,0)', '=SUM(A5:A6)-A9' ],
+        name   => 'Value',
+        rows   => $kinkSet,
+        custom => [ '=A7+IF(ISNUMBER(A41),(A4-A3)*A2,0)', '=SUM(A5:A6)-A9' ],
         arithmetic => 'Special calculation',
         arguments  => {
             A4  => $kxs,

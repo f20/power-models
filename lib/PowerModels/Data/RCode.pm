@@ -71,15 +71,13 @@ sub exportGraph {
 sub maps3701rate3ts {
     my ( $self, $rIncluded ) = @_;
     require PowerModels::Data::RCode::MapsFromDatabase;
-    PowerModels::Data::RCode::MapsFromDatabase->maps3701rate3ts(
-        $rIncluded);
+    PowerModels::Data::RCode::MapsFromDatabase->maps3701rate3ts($rIncluded);
 }
 
 sub maps3701reactivets {
     my ( $self, $rIncluded ) = @_;
     require PowerModels::Data::RCode::MapsFromDatabase;
-    PowerModels::Data::RCode::MapsFromDatabase->maps3701reactivets(
-        $rIncluded);
+    PowerModels::Data::RCode::MapsFromDatabase->maps3701reactivets($rIncluded);
 }
 
 sub maps4202cs {

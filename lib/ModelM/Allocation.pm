@@ -245,7 +245,7 @@ sub allocation {
         arguments     => { A1 => $ppu, A2_A3 => $ppu, A4 => $ppuNotSplit, }
     );
 
-    $alloc,$ppu,$ppuNotSplit;
+    $alloc, $ppu, $ppuNotSplit;
 
 }
 

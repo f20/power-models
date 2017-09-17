@@ -205,8 +205,7 @@ sub makeModels {
                 $maker->{setting}->(
                     PostProcessing => $self->makePostProcessor(
                         $1 ? "convert$1" : 'calc',
-                        PowerModels::Data::DataExtraction::databaseWriter(
-                        ),
+                        PowerModels::Data::DataExtraction::databaseWriter(),
                     )
                 );
             }

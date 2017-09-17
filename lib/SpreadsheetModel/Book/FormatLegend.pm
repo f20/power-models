@@ -1,4 +1,4 @@
-package SpreadsheetModel::Book::FormatLegend;
+﻿package SpreadsheetModel::Book::FormatLegend;
 
 =head Copyright licence and disclaimer
 
@@ -40,8 +40,11 @@ sub wsWrite {
     my $row = $wsheet->{nextFree} || 0;
     $row -= $colourCode->[0] ? 6 : 9;
     $row = 1 if $row < 1;
-    $wsheet->write_string( ++$row, 2, 'Cell formatting',
-        $wbook->getFormat('th') );
+    $wsheet->write_string(
+        ++$row, 2,
+        'Cell formatting',
+        $wbook->getFormat('th')
+    );
     $wsheet->write_string( ++$row, 2, 'Input data',
         $wbook->getFormat( [ base => 'texthard', locked => 1 ] ) );
     $wsheet->write_string(

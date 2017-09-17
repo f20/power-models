@@ -507,8 +507,7 @@ EOT
                                     (
                                         "A1$pad" => $volumeByEndUser->{
                                             "Unit rate $_ p/kWh"},
-                                        "A2$pad" =>
-                                          $timebandUseByRate[ $_ - 1 ]
+                                        "A2$pad" => $timebandUseByRate[ $_ - 1 ]
                                       )
                                 } 1 .. $r
                             },
@@ -565,7 +564,7 @@ EOT
             Arithmetic(
                 name => "Unit rate $r pseudo load coefficient at system level",
                 arithmetic =>
-'=IF(A6>0,A1*IF(A7<>0,A3/A2,IF(A9<0,-1,1))*24*A4/A5,0)',
+                  '=IF(A6>0,A1*IF(A7<>0,A3/A2,IF(A9<0,-1,1))*24*A4/A5,0)',
                 cols      => $peakBand,
                 arguments => {
                     A1 => $timebandUseByRate[$_],
@@ -586,8 +585,7 @@ EOT
           Arithmetic
           name => 'Load coefficient correction factor'
           . ' (kW at peak in band / band average kW)',
-          arithmetic => $timebandLoadCoefficient
-          ? '=IF(A5<>0,A4/A2/A1,A6)'
+          arithmetic => $timebandLoadCoefficient ? '=IF(A5<>0,A4/A2/A1,A6)'
           : '=IF(A5<>0,A4/A2,IF(A8<0,-1,1))',
           rows => $relevantEndUsersByRate[0],
           $model->{timebandCoef} && $model->{timebandCoef} =~ /detail/i
