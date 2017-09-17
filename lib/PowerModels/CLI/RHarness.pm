@@ -1,8 +1,8 @@
-﻿package SpreadsheetModels::Data::DnoAreas;
+﻿package PowerModels::CLI::RHarness;
 
 =head Copyright licence and disclaimer
 
-Copyright 2010-2014 Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -31,21 +31,27 @@ use warnings;
 use strict;
 use utf8;
 
-sub normaliseDnoName {
-    local @_ = @_ if defined wantarray;
-    foreach (@_) {
-        s/^CE-NEDL/NPG-Northeast/;
-        s/^CE-YEDL/NPG-Yorkshire/;
-        s/^CN-East/WPD-EastM/;
-        s/^CN-West/WPD-WestM/;
-        s/^EDFEN-/UKPN-/;
-        s/^NP-/NPG-/;
-        s/^SP-/SPEN-/;
-        s/^SSE(PD)?-/SSEN-/;
-        s/^WPD-Wales/WPD-SWales/;
-        s/^WPD-West\b/WPD-SWest/;
-    }
-    wantarray ? @_ : $_[0];
+sub R {
+    my ( $self, @commands ) = @_;
+    open my $r, '| R --vanilla --slave';
+    binmode $r, ':utf8';
+    require PowerModels::Data::RCode;
+    print {$r} PowerModels::Data::RCode->rCode(@commands);
+}
+
+sub Rcode {
+    my ( $self, @commands ) = @_;
+    open my $r, '>', "$$.R";
+    binmode $r, ':utf8';
+    print $r "# R code from power-models\n\n";
+    require PowerModels::Data::RCode;
+    print {$r} PowerModels::Data::RCode->rCode(@commands);
+    close $r;
+    rename "$$.R", 'power-models.R';
+    warn <<EOW
+To use this R code, say:
+    source("power-models.R");
+EOW
 }
 
 1;

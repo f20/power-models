@@ -60,12 +60,12 @@ BEGIN {
 }
 use lib @validatedLibs, @otherLibs;
 
-use SpreadsheetModel::CLI::CommandParser;
-my $parser = SpreadsheetModel::CLI::CommandParser->new;
+use PowerModels::CLI::CommandParser;
+my $parser = PowerModels::CLI::CommandParser->new;
 @ARGV ? $parser->acceptCommand(@ARGV) : $parser->acceptScript( \*STDIN );
 
-use SpreadsheetModel::CLI::CommandRunner;
+use PowerModels::CLI::CommandRunner;
 my $runner =
-  SpreadsheetModel::CLI::CommandRunner->new( \@homes, \@validatedLibs );
+  PowerModels::CLI::CommandRunner->new( \@homes, \@validatedLibs );
 $parser->run($runner);
 $runner->finish;

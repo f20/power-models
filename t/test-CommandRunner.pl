@@ -60,9 +60,9 @@ BEGIN {
 }
 use lib @validatedLibs, @otherLibs;
 
-use SpreadsheetModel::CLI::CommandRunner;
+use PowerModels::CLI::CommandRunner;
 my $runner =
-  SpreadsheetModel::CLI::CommandRunner->new( $home, \@validatedLibs );
+  PowerModels::CLI::CommandRunner->new( $home, \@validatedLibs );
 $runner->makeModels(
     '-xls',                  'ModelM/2016-02-Baseline/%*.yml',
     'ModelM/2016-02/N*.yml', '-newdata',
