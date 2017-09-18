@@ -45,20 +45,26 @@ sub run {
     }
 }
 
+my %normalisedVerb;
+$normalisedVerb{ lc $_ } = $_ foreach qw(
+  R
+  Rcode
+  combineRulesets
+  makeFolder
+  makeModels
+  useDatabase
+  useModels
+  ymlDiff
+  ymlMerge
+  ymlSplit
+);
+
 sub acceptCommand {
     my $self = shift;
-    if ( local $_ = $_[0] ) {
-        return push @$self, [@_] if /^R/i;
-        return push @$self, [ combineRulesets => @_[ 1 .. $#_ ] ]
-          if /combineRulesets$/i;
-        return push @$self, [ makeFolder => @_[ 1 .. $#_ ] ] if /folder$/i;
-        return push @$self, [ makeModels => @_[ 1 .. $#_ ] ] if /models$/i;
-        return push @$self, [ useModels  => @_[ 1 .. $#_ ] ] if /useModels$/i;
-        return push @$self, [ useDatabase => @_[ 1 .. $#_ ] ]
-          if /useDatabase$/i;
-        return push @$self, [ ymlDiff  => @_[ 1 .. $#_ ] ] if /ya?mldiff$/si;
-        return push @$self, [ ymlMerge => @_[ 1 .. $#_ ] ] if /ya?mlmerge$/si;
-        return push @$self, [ ymlSplit => @_[ 1 .. $#_ ] ] if /ya?mlsplit$/si;
+    if ( my $verb = $_[0] ) {
+        if ( $verb = $normalisedVerb{ lc $verb } ) {
+            return push @$self, [ $verb => @_[ 1 .. $#_ ] ];
+        }
     }
     if ( grep { /\.txt$/i } @_ ) {
         $self->acceptScript($_) foreach grep { -s $_; } @_;
