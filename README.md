@@ -47,7 +47,7 @@ Step 3. Install any missing modules.
 
 Change to the root of the repository and try this sample command:
 
-    perl pmod.pl Sampler/%.yml Blank.yml
+    perl pmod.pl Sampler/%-short.yml Blank.yml
 
 If this fails, examine the error messages. Often the problem is a missing
 module, which can be installed from CPAN (www.cpan.org). Once you have
@@ -89,4 +89,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 6 June 2017.
+Franck Latrémolière, 19 September 2017.
