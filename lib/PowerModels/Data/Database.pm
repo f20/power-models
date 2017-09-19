@@ -106,8 +106,8 @@ sub addModel {
     local $_ = $filename;
     s#.*[/\\]##s;
     s/\.xlsx?$//is;
-    require SpreadsheetModels::Data::DnoAreas;
-    SpreadsheetModels::Data::DnoAreas::normaliseDnoName($_);
+    require SpreadsheetModel::Data::DnoAreas;
+    SpreadsheetModel::Data::DnoAreas::normaliseDnoName($_);
 
     my @a = /^(.+?)(-20[0-9]{2}-[0-9][^+-]*)([+-].*)$/s;
     @a = /^(.+?)(-20[0-9]{2}-[0-9][^+-]*)?(-[^-]*)?$/s unless @a;

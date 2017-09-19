@@ -1,4 +1,4 @@
-﻿package SpreadsheetModels::Data::ParseXdata;
+﻿package SpreadsheetModel::Data::ParseXdata;
 
 =head Copyright licence and disclaimer
 

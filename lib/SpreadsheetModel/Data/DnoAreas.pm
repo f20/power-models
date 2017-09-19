@@ -1,4 +1,4 @@
-﻿package SpreadsheetModels::Data::DnoAreas;
+﻿package SpreadsheetModel::Data::DnoAreas;
 
 =head Copyright licence and disclaimer
 

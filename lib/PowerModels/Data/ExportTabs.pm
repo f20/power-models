@@ -59,11 +59,11 @@ sub tableCompilations {
 
         while ( my ( $bid, $co ) = $findCo->fetchrow_array ) {
             next unless $co =~ s/\.xlsx?$//is;
-            require SpreadsheetModels::Data::DnoAreas;
+            require SpreadsheetModel::Data::DnoAreas;
             push @models,
               [
                 $bid, $co,
-                SpreadsheetModels::Data::DnoAreas::normaliseDnoName($co)
+                SpreadsheetModel::Data::DnoAreas::normaliseDnoName($co)
               ];
             ++$numCo;
         }

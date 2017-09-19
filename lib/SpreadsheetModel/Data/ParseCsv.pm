@@ -1,4 +1,4 @@
-﻿package SpreadsheetModels::Data::ParseCsv;
+﻿package SpreadsheetModel::Data::ParseCsv;
 
 =head Copyright licence and disclaimer
 

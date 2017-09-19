@@ -68,9 +68,9 @@ sub factory {
     my $xdataParser;
     $self->{xdataParser} = sub {
         return $xdataParser if $xdataParser;
-        require SpreadsheetModels::Data::ParseXdata;
+        require SpreadsheetModel::Data::ParseXdata;
         $xdataParser =
-          SpreadsheetModels::Data::ParseXdata->new( \%dataOverrides,
+          SpreadsheetModel::Data::ParseXdata->new( \%dataOverrides,
             $self->{setRule}, \&jsonMachineMaker );
     };
 
@@ -95,8 +95,8 @@ sub factory {
 
         if ( ref $blob eq 'GLOB' ) {    # file handle
             if ( $fileName =~ /\.[ct]sv$/is ) {
-                require SpreadsheetModels::Data::ParseCsv;
-                SpreadsheetModels::Data::ParseCsv::parseCsvInputData(
+                require SpreadsheetModel::Data::ParseCsv;
+                SpreadsheetModel::Data::ParseCsv::parseCsvInputData(
                     \%dataByDatasetName, $blob, $fileName );
                 return;
             }
@@ -380,8 +380,8 @@ sub factory {
             $spreadsheetFile =~ s/^%-/%-$rule->{PerlModule}-/
               unless $spreadsheetFile =~ /-$rule->{PerlModule}-/;
             $spreadsheetFile =~ s/%%/
-                require SpreadsheetModels::Data::DnoAreas;
-                SpreadsheetModels::Data::DnoAreas::normaliseDnoName(
+                require SpreadsheetModel::Data::DnoAreas;
+                SpreadsheetModel::Data::DnoAreas::normaliseDnoName(
                     $data->{'~datasetName'}=~m#(.*)-20[0-9]{2}-[0-9]+#
                 );
               /eg;
