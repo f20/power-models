@@ -1,5 +1,5 @@
 ---
-.: DCP 266 CDCM+G+M after DCP 228, no defaulting, ARP micromodel
+.: 'DCP 266 CDCM+G+M after DCP 228, no defaulting, ARP micromodel'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -59,7 +59,7 @@ noReplacement: blanket
 pcd: 1
 pcdByTariff: 1
 portfolio: 1
-protection: 0
+protect: 0
 scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: arp
