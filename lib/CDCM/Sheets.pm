@@ -886,12 +886,10 @@ EOL
     if ( $model->{compact} ) {
         my %suffixes = (
             '⇒EDCM' => '',
+            Tariffs => '$',
             $model->{summary} && $model->{summary} =~ /arp/i
-            ? (
-                Tariffs => ' (2)$',
-                Summary => '$',
-              )
-            : ( Tariffs => '$', ),
+            ? ( Summary => '$', )
+            : (),
         );
         my $reallyCompact = $model->{compact} !~ /not/i;
         for ( my $i = 0 ; $i < @wsheetsAndClosures ; $i += 2 ) {

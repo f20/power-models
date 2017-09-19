@@ -54,7 +54,6 @@ embeddedModelG:
   unroundedTariffAnalysis: modelg_cap100_nodef
 extraLevels: 1
 fixedCap: 1-4
-matrices: big
 noLinks: 1
 noReplacement: blanket
 pcd: 1
