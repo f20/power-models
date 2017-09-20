@@ -139,7 +139,7 @@ sub worksheetsAndClosuresWithController {
 
 }
 
-sub finish {
+sub finishMultiModelSharing {
     $_[0]->{finish}->();
 }
 

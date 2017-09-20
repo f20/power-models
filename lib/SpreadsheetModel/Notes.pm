@@ -92,8 +92,8 @@ sub wsWrite {
 
     if ( my $n = $self->{name} ) {
         my $fmt = $wb->getFormat('notes');
-        if ( my $tw = $wb->{titleWriter} ) {
-            $tw->( $ws, $row, $col, $n, $fmt );
+        if ( my $titleWriter = $wb->{titleWriter} ) {
+            $titleWriter->( $ws, $row, $col, $n, $fmt );
         }
         else {
             $ws->write( $row, $col, $n, $fmt );

@@ -34,7 +34,7 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::Book::FrontSheet;
 
-sub finishWorkbook {
+sub finishModel {
     my ( $model, $wbook ) = @_;
     my $append = ( $model->{idAppend}{$wbook} || '' )
       . ( $model->{checksumAppend}{$wbook} || '' );
@@ -44,7 +44,7 @@ sub finishWorkbook {
                 'Not calculated: '
               . 'open in spreadsheet app and allow calculations' );
     }
-    $_->finishWorkbook($wbook)
+    $_->finishModel($wbook)
       foreach grep { $_; } @{$model}{qw(embeddedModelG embeddedModelM)};
 }
 

@@ -351,8 +351,7 @@ EOW
               if $options->{watermarkFile};
         }
 
-        $model->finishWorkbook($wbook)
-          if UNIVERSAL::can( $model, 'finishWorkbook' );
+        $model->finishModel($wbook) if UNIVERSAL::can( $model, 'finishModel' );
 
         if ($exporter) {
             $exporter->setModel( $options->{modelNumberSuffix},
@@ -362,8 +361,8 @@ EOW
 
     }
 
-    $multiModelSharing->finish($wbook)
-      if UNIVERSAL::can( $multiModelSharing, 'finish' );
+    $multiModelSharing->finishMultiModelSharing($wbook)
+      if UNIVERSAL::can( $multiModelSharing, 'finishMultiModelSharing' );
 
     $wbook->close;
     close $fileOrHandle if ref $fileOrHandle;

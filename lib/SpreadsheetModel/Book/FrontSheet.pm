@@ -134,7 +134,7 @@ sub licenceNotes {
     my $notice = $_[0]{copyright}
       || 'Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.';
     Notes( name => '', lines => [ $notice, <<'EOL'] );
-The code that generated this workbook includes open-source material from https://github.com/f20/power-models.
+The code that generated this workbook includes open-source material from https://github.com/f20/power-models/.
 Use and distribution of the source code is subject to the conditions stated therein.
 Any redistribution of this software must retain the following disclaimer:
 THIS SOFTWARE IS PROVIDED BY AUTHORS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
