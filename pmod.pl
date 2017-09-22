@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2016 Franck Latrémolière and others. All rights reserved.
+Copyright 2011-2017 Franck Latrémolière and others. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -40,9 +40,15 @@ use Cwd qw(getcwd);
 my ( @homes, @validatedLibs, @otherLibs );
 
 BEGIN {
-    my @scriptPaths = ( getcwd(), dirname( rel2abs($0) ) );
-    push @scriptPaths, dirname( rel2abs( readlink $0, dirname $0) ) if -l $0;
-    foreach my $folder (@scriptPaths) {
+    my $thisScript  = rel2abs($0);
+    my $thisFolder  = dirname($thisScript);
+    my @paths = ( getcwd(), $thisFolder );
+    while ( -l $thisScript ) {
+        $thisScript = rel2abs( readlink $thisScript, $thisFolder );
+        $thisFolder = dirname $thisScript;
+        push @paths, $thisFolder;
+    }
+    foreach my $folder (@paths) {
         while (1) {
             push @homes, $folder if -e catdir( $folder, 'models' );
             my $lib = catdir( $folder, 'lib' );
@@ -65,7 +71,6 @@ my $parser = PowerModels::CLI::CommandParser->new;
 @ARGV ? $parser->acceptCommand(@ARGV) : $parser->acceptScript( \*STDIN );
 
 use PowerModels::CLI::CommandRunner;
-my $runner =
-  PowerModels::CLI::CommandRunner->new( \@homes, \@validatedLibs );
+my $runner = PowerModels::CLI::CommandRunner->new( \@homes, \@validatedLibs );
 $parser->run($runner);
 $runner->finish;
