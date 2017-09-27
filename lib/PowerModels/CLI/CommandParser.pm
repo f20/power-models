@@ -62,6 +62,15 @@ $normalisedVerb{ lc $_ } = $_ foreach qw(
 sub acceptCommand {
     my $self = shift;
     if ( my $verb = $_[0] ) {
+        if ( $verb =~ /(\S+)::\S/ ) {
+            eval "require $1";
+            if ($@) {
+                warn "require $1: $@";
+            }
+            else {
+                return push @$self, [@_];
+            }
+        }
         if ( $verb = $normalisedVerb{ lc $verb } ) {
             return push @$self, [ $verb => @_[ 1 .. $#_ ] ];
         }

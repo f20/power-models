@@ -406,7 +406,7 @@ sub parseModel {
     my $workbook;
     eval {
         my $parserModule;
-        my $formatter = 'NOOP_CLASS';
+        my $formatter = 'PowerModels::Data::UseModels::NoOp';
         if ( $fileToParse =~ /\.xls[xm]$/is ) {
             require Spreadsheet::ParseXLSX;
             $parserModule = 'Spreadsheet::ParseXLSX';
@@ -414,7 +414,7 @@ sub parseModel {
         else {
             require Spreadsheet::ParseExcel;
             eval
-            { # The NOOP_CLASS produces warnings, the Japanese formatter does not
+            { # NoOp produces warnings, the Japanese formatter does not
                 require Spreadsheet::ParseExcel::FmtJapan;
                 $formatter = Spreadsheet::ParseExcel::FmtJapan->new;
             };
@@ -440,7 +440,7 @@ sub parseModel {
 }
 
 # Do-nothing cell content formatter for Spreadsheet::ParseExcel
-package NOOP_CLASS;
+package PowerModels::Data::UseModels::NoOp;
 
 our $AUTOLOAD;
 
