@@ -396,9 +396,11 @@ sub infillNewTariffs {
         map {
             (
                 "$_ HH Metered EHV Local Source" => "$_ HH Metered",
+                "$_ HH Metered HV Local Source"  => "$_ HH Metered",
                 "$_ Generation EHV Local Supply" =>
                   "$_ Generation Non-Intermittent",
-                "$_ Generation HV Netting" => "$_ Generation Non-Intermittent"
+                "$_ Generation HV Local Supply" =>
+                  "$_ Generation Non-Intermittent"
 
             );
         } ( 'LV', 'LV Sub', 'HV', )

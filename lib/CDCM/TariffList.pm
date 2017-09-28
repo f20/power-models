@@ -197,10 +197,10 @@ LV half hourly domestic:
 ---
 LV half hourly domestic HV netting:
   - PC0
-  - Name: LV Network Domestic HV Netting
+  - Name: LV Network Domestic HV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
-  - Included: nettinghv|portfolio
+  - Included: nettinghvnonct|portfolio
 ---
 LV half hourly non-domestic aggregated:
   - PC0
@@ -211,10 +211,10 @@ LV half hourly non-domestic aggregated:
 ---
 LV half hourly non-domestic aggregated HV netting:
   - PC0
-  - Name: LV Network Non-Domestic Non-CT HV Netting
+  - Name: LV Network Non-Domestic Non-CT HV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
-  - Included: nettinghv|portfolio
+  - Included: nettinghvnonct|portfolio
 ---
 LV half hourly CT:
   - PC0
@@ -255,7 +255,7 @@ LV half hourly:
 ---
 LV half hourly HV netting:
   - PC0
-  - Name: LV HH Metered HV Netting
+  - Name: LV HH Metered HV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
@@ -283,7 +283,7 @@ LV substation half hourly:
 ---
 LV substation half hourly HV netting:
   - PC0
-  - Name: LV Sub HH Metered HV Netting
+  - Name: LV Sub HH Metered HV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
@@ -311,7 +311,7 @@ HV half hourly:
 ---
 HV half hourly HV netting:
   - PC0
-  - Name: HV HH Metered HV Netting
+  - Name: HV HH Metered HV Local Source
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Capacity charge p/kVA/day
@@ -604,7 +604,7 @@ LV generation half hourly:
 ---
 LV generation half hourly HV netting:
   - PC0
-  - Name: LV Generation HV Netting
+  - Name: LV Generation HV Local Supply
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
@@ -682,7 +682,7 @@ LV substation generation half hourly:
 ---
 LV substation generation half hourly HV netting:
   - PC0
-  - Name: LV Sub Generation HV Netting
+  - Name: LV Sub Generation HV Local Supply
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
@@ -784,7 +784,7 @@ HV generation half hourly:
 ---
 HV generation half hourly HV netting:
   - PC0
-  - Name: HV Generation HV Netting
+  - Name: HV Generation HV Local Supply
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
