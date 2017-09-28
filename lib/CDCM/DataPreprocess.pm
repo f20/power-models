@@ -427,7 +427,8 @@ sub infillNewTariffs {
     );
 
     for my $level ( 'LV', 'LV Sub', 'HV' ) {
-        if (  !exists $d->{1053}[1]{ $level . ' HH Metered EHV Local Source' }
+        if (   !exists $d->{1053}[1]{ $level . ' HH Metered EHV Local Source' }
+            && !exists $d->{1053}[1]{ $level . ' HH Metered HV Local Source' }
             && exists $d->{1053}[1]{ $level . ' HH Metered' } )
         {
             foreach ( 1 .. 7 ) {
@@ -437,13 +438,19 @@ sub infillNewTariffs {
                 $col->{"LDNO $_ $level HH Metered EHV Local Source"} =
                   $col->{"LDNO $_ $level Generation EHV Local Supply"} =
                   $col->{"QNO $_ $level HH Metered EHV Local Source"} =
-                  $col->{"QNO $_ $level Generation EHV Local Supply"} = 0
+                  $col->{"QNO $_ $level Generation EHV Local Supply"} =
+                  $col->{"LDNO $_ $level HH Metered HV Local Source"} =
+                  $col->{"LDNO $_ $level Generation HV Local Supply"} =
+                  $col->{"QNO $_ $level HH Metered HV Local Source"} =
+                  $col->{"QNO $_ $level Generation HV Local Supply"} = 0
                   foreach $level eq 'LV' ? qw(HV LV) : qw(HV);
                 $col->{ $level . ' HH Metered EHV Local Source' } =
+                  $col->{ $level . ' HH Metered HV Local Source' } =
                   $prop * $col->{ $level . ' HH Metered' };
                 $col->{ $level . ' HH Metered' } =
                   ( 1 - $prop ) * $col->{ $level . ' HH Metered' };
-                $col->{ $level . ' Generation EHV Local Supply' } = 0;
+                $col->{ $level . ' Generation EHV Local Supply' } =
+                  $col->{ $level . ' Generation HV Local Supply' } = 0;
             }
         }
     }
