@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -608,7 +608,7 @@ LV generation half hourly HV netting:
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: nettinghv|portfolio
+  - Included: nettinghvgen|portfolio
 ---
 LV generation half hourly EHV netting:
   - PC0
@@ -686,7 +686,7 @@ LV substation generation half hourly HV netting:
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: nettinghv|portfolio
+  - Included: nettinghvgen|portfolio
 ---
 LV substation generation half hourly EHV netting:
   - PC0
@@ -788,7 +788,7 @@ HV generation half hourly HV netting:
   - Fixed charge p/MPAN/day
   - Unit rates p/kWh
   - Reactive power charge p/kVArh
-  - Included: nettinghv|portfolio
+  - Included: nettinghvgen|portfolio
 ---
 HV generation half hourly EHV netting:
   - PC0

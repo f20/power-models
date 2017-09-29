@@ -1,5 +1,5 @@
 ---
-.: 'HV-local sourcing tariffs for 2018/2019'
+.: 'EHV-local sourcing tariffs for 2018/2019 with lower generation credits'
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -17,6 +17,6 @@ scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: yes
 targetRevenue: dcp249
-tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreactnettinghv
+tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreactnettingehvgen
 timeOfDay: timeOfDay179
 unauth: dayotex
