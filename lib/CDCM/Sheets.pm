@@ -731,7 +731,7 @@ EOL
 
       'Stats' => sub {
         my ($wsheet) = @_;
-        $wsheet->{sheetNumber} = 42 if $wbook->{lastSheetNumber} > 42;
+        $wsheet->{sheetNumber} = 42 if $wbook->{lastSheetNumber} < 42;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->fit_to_pages( 1, 0 );
