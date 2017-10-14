@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -160,16 +160,16 @@ EOT
 sub notionalAssets {
 
     my (
-        $model,          $activeCoincidence,  $reactiveCoincidence,
-        $agreedCapacity, $powerFactorInModel, $tariffCategory,
-        $tariffSUimport, $tariffSUexport,     $cdcmAssets,
-        $useProportions, $ehvAssetLevelset,   $cdcmUse,
+        $model,          $activeCoincidence,      $reactiveCoincidence,
+        $agreedCapacity, $powerFactorInModel,     $tariffCategory,
+        $tariffSUimport, $tariffSUexport,         $totalCdcmAssets,
+        $useProportions, $gspAndEhvAssetLevelset, $totalCdcmUse,
     ) = @_;
 
     my $lossFactors = $model->{cdcmComboTable} ? Stack(
         name => 'Loss adjustment factor to transmission'
           . ' for each network level',
-        cols    => $ehvAssetLevelset,
+        cols    => $gspAndEhvAssetLevelset,
         rows    => 0,
         rowName => 'Loss adjustment factor to transmission',
         sources => [ $model->{cdcmComboTable} ],
@@ -177,7 +177,7 @@ sub notionalAssets {
         name => 'Loss adjustment factor to transmission'
           . ' for each network level'
           . ( $model->{transparency} ? '' : ' (from CDCM table 2004)' ),
-        cols       => $ehvAssetLevelset,
+        cols       => $gspAndEhvAssetLevelset,
         data       => [qw(1 1.01 1.02 1.03 1.04 1.04)],
         number     => 1135,
         dataset    => $model->{dataset},
@@ -192,7 +192,7 @@ sub notionalAssets {
     my $diversity = $model->{cdcmComboTable} ? Stack(
         name          => 'Diversity allowance between level exit and GSP Group',
         defaultFormat => '%copy',
-        cols          => $ehvAssetLevelset,
+        cols          => $gspAndEhvAssetLevelset,
         rows          => 0,
         rowName       => 'Diversity allowance between level exit and GSP Group',
         sources       => [ $model->{cdcmComboTable} ],
@@ -201,7 +201,7 @@ sub notionalAssets {
           . 'and GSP Group'
           . ( $model->{transparency} ? '' : ' (from CDCM table 2611)' ),
         defaultFormat => '%hard',
-        cols          => $ehvAssetLevelset,
+        cols          => $gspAndEhvAssetLevelset,
         data          => [qw(0.1 0.1 0.3 0.3 0.3 0.7)],
         number        => 1105,
         dataset       => $model->{dataset},
@@ -264,69 +264,6 @@ EOL
             ]
         ],
     );
-
-    my $classificationMap = Constant(
-        name => 'Network level classification '
-          . '(0: not used; 1: same as customer; 2+: higher)',
-        defaultFormat => '0con',
-        rows          => $tariffCategoryset,
-        cols          => $useProportions->{cols},
-        data          => [
-            [
-                map { $_ eq '.' ? undef : $_ }
-                  qw(0 1 0 2 0 . 0 3 0 3 0 3 0 . 0 4 0)
-            ],
-            [
-                map { $_ eq '.' ? undef : $_ }
-                  qw(0 0 1 1 0 . 2 2 0 0 2 2 0 . 3 3 0)
-            ],
-            [
-                map { $_ eq '.' ? undef : $_ }
-                  qw(0 0 0 0 1 . 1 1 0 0 0 0 2 . 2 2 0)
-            ],
-            [
-                map { $_ eq '.' ? undef : $_ }
-                  qw(0 0 0 0 0 . 0 0 0 0 1 1 1 . 1 1 1)
-            ],
-            [
-                map { $_ eq '.' ? undef : $_ }
-                  qw(0 0 0 0 0 . 0 0 1 1 0 0 0 . 0 0 0)
-            ],
-        ],
-    );
-
-    my $capacityAssetMap = Constant(
-        name => 'Network levels treated as capacity assets',
-        rows => $tariffCategoryset,
-        cols => $useProportions->{cols},
-        data => [
-            map {
-                [ map { !defined $_ ? undef : $_ == 1 ? 1 : 0 } @$_ ]
-            } @{ $classificationMap->{data} }
-        ],
-    );
-
-    my $consumptionAssetMap = Constant(
-        name => 'Network levels treated as consumption assets',
-        rows => $tariffCategoryset,
-        cols => $useProportions->{cols},
-        data => [
-            map {
-                [ map { !defined $_ ? undef : $_ > 1 ? 1 : 0 } @$_ ]
-            } @{ $classificationMap->{data} }
-        ],
-    );
-
-    push @{ $model->{generalTables} },
-      Columnset(
-        name    => 'Rules applicable to customer categories',
-        columns => [
-            $lossFactorMap,
-            $model->{voltageRulesTransparency} =~ /old/
-            ? $classificationMap
-            : ( $capacityAssetMap, $consumptionAssetMap, ),
-        ],
-      ) if 0 && $model->{voltageRulesTransparency};
 
     my $tariffLossFactor = Arithmetic(
         name       => 'Loss factor to transmission',
@@ -398,1225 +335,48 @@ EOL
         name => 'Active power equivalent of capacity'
           . ' adjusted to transmission (kW/kVA)',
         arithmetic => '=A1*A9',
-        newBlock   => 1,
-        arguments  => {
+        $model->{layout}
+          && $model->{layout} =~ /matrix/ ? ( newBlock => 1 ) : (),
+        arguments => {
             A9 => $powerFactorInModel,
             A1 => $tariffLossFactor,
         }
     );
 
-    my $gspGapInCapCollar = !$model->{tableGrouping} && !$model->{transparency};
+    my ( $usePropCap, $usePropCollar ) =
+      $model->nufCapCollar( $gspAndEhvAssetLevelset, $useProportions->{cols} );
 
-    my $usePropCap = Dataset(
-        name => 'Maximum network use factor',
-        data => [
-            $gspGapInCapCollar ? undef : (),
-            map { 2 } 2 .. @{ $ehvAssetLevelset->{list} }
-        ],
-        cols => $gspGapInCapCollar
-        ? $ehvAssetLevelset
-        : $useProportions->{cols},
-        number  => 1133,
-        dataset => $model->{dataset},
+    my $accretion = $model->notionalAssetRates(
+        $useTextMatching,
+        $model->{voltageRulesTransparency}
+        ? $useProportions->{cols}
+        : $gspAndEhvAssetLevelset,
+        $totalCdcmUse,
+        $totalCdcmAssets,
+        $lossFactors,
     );
 
-    my $usePropCollar = Dataset(
-        name => 'Minimum network use factor',
-        data => [
-            $gspGapInCapCollar ? undef : (),
-            map { 0.25 } 2 .. @{ $ehvAssetLevelset->{list} }
-        ],
-        cols => $gspGapInCapCollar
-        ? $ehvAssetLevelset
-        : $useProportions->{cols},
-        number  => 1134,
-        dataset => $model->{dataset},
-    );
-
-    if ( $model->{tableGrouping} ) {
-        my $group = Dataset(
-            name => 'Maximum and minimum network use factors',
-            rows => Labelset(
-                list => [ map { $_->{name} } $usePropCap, $usePropCollar, ]
-            ),
-            cols     => $useProportions->{cols},
-            number   => 1136,
-            byrow    => 1,
-            data     => [ map { $_->{data} } $usePropCap, $usePropCollar, ],
-            dataset  => $model->{dataset},
-            appendTo => $model->{inputTables},
-        );
-        $_ = Stack(
-            name    => $_->{name},
-            rows    => Labelset( list => [ $_->{name} ] ),
-            cols    => $useProportions->{cols},
-            sources => [$group],
-        ) foreach $usePropCap, $usePropCollar;
-    }
-    else {
-        push @{ $model->{inputTables} }, $usePropCap, $usePropCollar;
-    }
-
-    push @{ $model->{calc1Tables} },
-      my $accretion =
-      $useTextMatching
-      ? Arithmetic(
-        name       => 'Notional asset rate (£/kW)',
-        newBlock   => 1,
-        arithmetic => '=IF(A1,A2/A3/A4,0)',
+    my $useProportionsCooked = Arithmetic(
+        name       => 'Network use factors (second set)',
+        groupName  => 'Second set of network use factors',
+        arithmetic => '=MAX(A3+0,MIN(A1+0,A2+0))',
         arguments  => {
-            A1 => $cdcmUse,
-            A2 => $cdcmAssets,
-            A3 => $cdcmUse,
-            A4 => $lossFactors
-        },
-        location => 'Charging rates',
-      )
-      : Arithmetic(
-        name       => 'Notional asset rate (£/kW)',
-        newBlock   => 1,
-        arithmetic => '=A2/A1/A4',
-        arguments  => {
-            A1 => $cdcmUse,
-            A2 => $cdcmAssets,
-            A4 => $lossFactors
-        },
-        location => 'Charging rates',
-      );
-
-    my $accretion132hvHard = Dataset(
-        name => 'Override notional asset rate for 132kV/HV (£/kW)',
-        $useTextMatching
-        ? ()
-        : (
-            lines => [
-                'This value only affects tariffs if there are'
-                  . ' 132kV/HV non-sole-use assets in the EDCM model. '
-                  . 'It will not be used if set to zero or blank.',
-                'If the forecast system simultaneous maximum load (kW)'
-                  . ' from CDCM users at the 132kV/HV network level is zero,'
-                  . ' then a non-zero non-blank value must be entered here.',
-                'An arbitrary non-zero non-blank value should be entered here'
-                  . ' if there are no 132kV/HV assets in the EDCM or in the 500 MW model.',
-            ]
-        ),
-        data => ['#VALUE!'],
-        cols => Labelset(
-            list =>
-              [ $ehvAssetLevelset->{list}[ $#{ $ehvAssetLevelset->{list} } ] ]
-        ),
-        number   => 1132,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
+            A1 => $useProportions,
+            A2 => $usePropCap,
+            A3 => $usePropCollar,
+        }
     );
 
-    my $accretion132hvcombined = Arithmetic(
-        name => 'Notional asset rate for 132kV/HV (£/kW)',
-        $useTextMatching
-        ? (
-            arithmetic => '=IF(ISNUMBER(A1),A2,A3)',
-            arguments  => {
-                A1 => $accretion132hvHard,
-                A2 => $accretion132hvHard,
-                A3 => $accretion,
-            }
-          )
-        : (
-            arithmetic => '=IF(ISNUMBER(A1),IF(A2,A3,A4),A5)',
-            arguments  => {
-                A1 => $accretion132hvHard,
-                A2 => $accretion132hvHard,
-                A3 => $accretion132hvHard,
-                A4 => $accretion,
-                A5 => $accretion,
-            }
-        ),
-        location => 'Charging rates',
-    );
-
+    my $notionalAssetCalculatorMethod = 'notionalAssetCalculator'
+      . ( $model->{voltageRulesTransparency} ? '' : 'Hardcoded' );
     my (
         $assetsCapacity,       $assetsConsumption,
         $assetsCapacityCooked, $assetsConsumptionCooked
-    );
-
-    my $useProportionsCooked = sub {
-        Arithmetic(
-            name       => 'Network use factors (second set)',
-            groupName  => 'Second set of network use factors',
-            arithmetic => '=MAX(A3+0,MIN(A1+0,A2+0))',
-            arguments  => {
-                A1 => $useProportions,
-                A2 => $usePropCap,
-                A3 => $usePropCollar,
-            }
-        );
-    };
-
-    if ( $model->{voltageRulesTransparency} ) {
-
-        $accretion = Stack(
-            name      => 'Notional asset rate adjusted (£/kW)',
-            groupName => 'Notional asset rate',
-            cols      => $useProportions->{cols},
-            sources   => [ $accretion132hvcombined, $accretion ],
-            location  => 'Charging rates',
-        );
-
-        my $machine = sub {
-            my ( $name1, $name2, $useProportions, $useRate, $diversity,
-                @extras, )
-              = @_;
-
-            SumProduct(
-                name      => $name1,
-                groupName => $name2,
-                matrix    => SpreadsheetModel::Custom->new(
-                    name      => $name2,
-                    groupName => $name2,
-                    @extras,
-                    custom => [
-                        $model->{voltageRulesTransparency} =~ /old/
-                        ? '=IF(INDEX(A5:A6,A4)'
-                          . ( $diversity ? '=1' : '>1' )
-                          . ',A1*A8'
-                          . ( $diversity ? '/(1+A3)' : '' ) . ',0)'
-                        : '=INDEX(A5:A6,A4)*A1*A8'
-                          . ( $diversity ? '/(1+A3)' : '' )
-                    ],
-                    wsPrepare => sub {
-                        my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
-                            $colh )
-                          = @_;
-                        sub {
-                            my ( $x, $y ) = @_;
-                            '', $format, $formula->[0],
-                              qr/\bA1\b/ =>
-                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{A1} + $y,
-                                $colh->{A1} + $x
-                              ),
-                              qr/\bA4\b/ =>
-                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{A4} + $y,
-                                $colh->{A4}, 0, 1 ),
-                              $diversity
-                              ? ( # NB: shifted by one to the right because of the GSP entry
-                                qr/\bA3\b/ =>
-                                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                    $rowh->{A3}, $colh->{A3} + 1 + $x, 1
-                                  )
-                              )
-                              : (),
-                              qr/\bA8\b/ =>
-                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{A8} + $y,
-                                $colh->{A8}, 0, 1 ),
-                              qr/\bA5\b/ =>
-                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{A5_A6}, $colh->{A5_A6} + $x, 1 ),
-                              qr/\bA6\b/ =>
-                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $rowh->{A5_A6} + $classificationMap->lastRow,
-                                $colh->{A5_A6} + $x, 1 );
-                        };
-                    },
-                    rows      => $useProportions->{rows},
-                    cols      => $useProportions->{cols},
-                    arguments => {
-                        A1 => $useProportions,
-                        A5 => $model->{voltageRulesTransparency} =~ /old/
-                        ? $classificationMap
-                        : $diversity ? $capacityAssetMap
-                        : $consumptionAssetMap,
-                        A5_A6 => $model->{voltageRulesTransparency} =~ /old/
-                        ? $classificationMap
-                        : $diversity ? $capacityAssetMap
-                        : $consumptionAssetMap,
-                        A4 => $customerCategory,
-                        $diversity ? ( A3 => $diversity ) : (),
-                        A8 => ref $useRate eq 'ARRAY' ? $useRate->[1]
-                        : $useRate,
-                    },
-                ),
-                vector => $accretion,
-            );
-        };
-
-        $assetsCapacity = $machine->(
-            'Capacity assets (£/kVA)',
-            'Adjusted network use by capacity',
-            $useProportions, $capUseRate, $diversity, newBlock => 1,
-        );
-        $assetsConsumption = $machine->(
-            'Consumption assets (£/kVA)',
-            'Adjusted network use by consumption',
-            $useProportions, $purpleUseRate,    # undef, newBlock => 1,
-        );
-
-        $useProportionsCooked = $useProportionsCooked->();
-        $assetsCapacityCooked = $machine->(
-            'Second set of capacity assets (£/kVA)',
-            'Second set of adjusted network use by capacity',
-            $useProportionsCooked,
-            $capUseRate,
-            $diversity,
-            newBlock => 1,
-        );
-        $assetsConsumptionCooked = $machine->(
-            'Second set of consumption assets (£/kVA)',
-            'Second set of adjusted network use by consumption',
-            $useProportionsCooked,
-            $purpleUseRate,    # undef, newBlock => 1,
-        );
-
-    }
-
-    else {
-
-        $accretion = Stack(
-            name      => 'Notional asset rate adjusted (£/kW)',
-            groupName => 'Notional asset rate',
-            cols      => $ehvAssetLevelset,
-            sources   => [ $accretion132hvcombined, $accretion ],
-            location  => 'Charging rates',
-        );
-
-        $useProportionsCooked = $useProportionsCooked->();
-
-        my (
-            @assetsCapacity,       @assetsConsumption,
-            @assetsCapacityCooked, @assetsConsumptionCooked,
-        );
-
-        my $starIV5       = $useProportions       ? '*A5' : '';
-        my $starIV5Cooked = $useProportionsCooked ? '*A5' : '';
-
-        if ( !$useTextMatching ) {    # does not support allowInvalid
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(A1=1000,A4*A8/(1+A3)$starIV5,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(A1=1000,A4*A8/(1+A3)$starIV5Cooked,0)@,
-                newBlock   => 1,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic => qq@=IF(MOD(A1,1000)=100,A4*A8/(1+A3)$starIV5,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-                  qq@=IF(MOD(A1,1000)=100,A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic => qq@=IF(MOD(A1,100)=10,A4*A8/(1+A3)$starIV5,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-                  qq@=IF(MOD(A1,100)=10,A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
-                arithmetic =>
-qq@=IF(AND(MOD(A1,10)>0,MOD(A2,1000)>1),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1 => $tariffCategory,
-                    A2 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
-                arithmetic =>
-qq@=IF(AND(MOD(A1,10)>0,MOD(A2,1000)>1),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $tariffCategory,
-                    A2 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic => qq@=IF(MOD(A1,1000)=1,A4*A8/(1+A3)$starIV5,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic =>
-                  qq@=IF(MOD(A1,1000)=1,A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(A1>1000,A4*A9$starIV5,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(A1>1000,A4*A9$starIV5Cooked,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic => qq@=IF(MOD(A1,1000)>100,A4*A9$starIV5,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic => qq@=IF(MOD(A1,1000)>100,A4*A9$starIV5Cooked,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic => qq@=IF(MOD(A1,100)>10,A4*A9$starIV5,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic => qq@=IF(MOD(A1,100)>10,A4*A9$starIV5Cooked,0)@,
-                arguments  => {
-                    A1 => $tariffCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-        }
-
-        elsif ( !$model->{allowInvalid} ) {    # legacy, without allowInvalid
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5,0)@,
-                arguments  => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments  => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-                  qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-                  qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
-                arithmetic =>
-qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A6 => $customerCategory,
-                    A7 => $customerCategory,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
-                arithmetic =>
-qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A7 => $customerCategory,
-                    A4 => $accretion,
-                    A6 => $customerCategory,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic =>
-                  qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportionsCooked
-                    ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic =>
-qq@=IF(A1="D1000",0,IF(ISNUMBER(SEARCH("D1???",A2)),A4*A9$starIV5,0))@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A2 => $customerCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic =>
-qq@=IF(A1="D1000",0,IF(ISNUMBER(SEARCH("D1???",A2)),A4*A9$starIV5Cooked,0))@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A2 => $customerCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",A1)),0,IF(ISNUMBER(SEARCH("D?1??",A2)),A4*A9$starIV5,0))@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A2 => $customerCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",A1)),0,IF(ISNUMBER(SEARCH("D?1??",A2)),A4*A9$starIV5Cooked,0))@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A2 => $customerCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",A1)),0,IF(ISNUMBER(SEARCH("D??1?",A2)),A4*A9$starIV5,0))@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A2 => $customerCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",A1)),0,IF(ISNUMBER(SEARCH("D??1?",A2)),A4*A9$starIV5Cooked,0))@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A2 => $customerCategory,
-                    A4 => $accretion,
-                    A9 => ref $purpleUseRate eq 'ARRAY' ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportionsCooked ? ( A5 => $useProportionsCooked )
-                    : (),
-                },
-              );
-
-        }
-
-        else {    # legacy, if allowInvalid
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5,0)@,
-                arguments  => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic => qq@=IF(A1="D1000",A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments  => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    A5 => $useProportionsCooked,
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic =>
-qq@=IF(OR(A1="D1000",ISNUMBER(SEARCH("G????",A20))),0,A4*A9$starIV5)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            my $useProportionsCapped = Arithmetic(
-                name       => 'Network use factors (capped only)',
-                arithmetic => '=MIN(A1+0,A2+0)',
-                arguments  => {
-                    A1 => $useProportions,
-                    A2 => $usePropCap,
-                }
-            );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[1] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[1] ] ),
-                arithmetic =>
-qq@=IF(OR(A1="D1000",ISNUMBER(SEARCH("G????",A20))),0,IF(ISNUMBER(SEARCH("D1???",A21)),A5,A6)*A4*A9)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    A5 => $useProportionsCooked,
-                    A6 => $useProportionsCapped,
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-                  qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?100",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    A5 => $useProportionsCooked,
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?100",A1))),0,A4*A9$starIV5)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[2] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[2] ] ),
-                arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?100",A1))),0,IF(ISNUMBER(SEARCH("D?1??",A21)),A5,A6)*A4*A9)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    A5 => $useProportionsCooked,
-                    A6 => $useProportionsCapped,
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-                  qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A3  => $diversity,
-                    A8  => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D??10",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A3  => $diversity,
-                    A8  => $capUseRate,
-                    A5  => $useProportionsCooked,
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D??10",A1))),0,A4*A9$starIV5)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[3] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[3] ] ),
-                arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D??10",A1))),0,IF(ISNUMBER(SEARCH("D??1?",A21)),A5,A6)*A4*A9)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    A5 => $useProportionsCooked,
-                    A6 => $useProportionsCapped,
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
-                arithmetic =>
-qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A6 => $customerCategory,
-                    A7 => $customerCategory,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[4] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
-                arithmetic =>
-qq@=IF(OR(A6="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A7 => $customerCategory,
-                    A4 => $accretion,
-                    A6 => $customerCategory,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    A5 => $useProportionsCooked,
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[4] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
-                arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),A22="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),0,A4*A9$starIV5)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A22 => $customerCategory,
-                    A7  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[4] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[4] ] ),
-                arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),A22="D0002",ISNUMBER(SEARCH("D?1?1",A1)),ISNUMBER(SEARCH("D??11",A7))),0,A6*A4*A9)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A22 => $customerCategory,
-                    A7  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    A5 => $useProportionsCooked,
-                    A6 => $useProportionsCapped,
-                },
-              );
-
-            push @assetsCapacity,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic =>
-                  qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsCapacityCooked,
-              Arithmetic(
-                name => "Capacity $accretion->{cols}{list}[5] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic =>
-qq@=IF(ISNUMBER(SEARCH("D?001",A1)),A4*A8/(1+A3)$starIV5Cooked,0)@,
-                arguments => {
-                    A1 => $customerCategory,
-                    A4 => $accretion,
-                    A3 => $diversity,
-                    A8 => $capUseRate,
-                    A5 => $useProportionsCooked,
-                },
-              );
-
-            push @assetsConsumption,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[5] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A4*A9$starIV5)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    $useProportions ? ( A5 => $useProportions ) : (),
-                },
-              );
-
-            push @assetsConsumptionCooked,
-              Arithmetic(
-                name => "Consumption $accretion->{cols}{list}[5] (£/kVA)",
-                cols => Labelset( list => [ $accretion->{cols}{list}[5] ] ),
-                arithmetic =>
-qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A6*A4*A9)@,
-                arguments => {
-                    A1  => $customerCategory,
-                    A20 => $customerCategory,
-                    A21 => $customerCategory,
-                    A4  => $accretion,
-                    A9  => ref $purpleUseRate eq 'ARRAY'
-                    ? $purpleUseRate->[1]
-                    : $purpleUseRate,
-                    A5 => $useProportionsCooked,
-                    A6 => $useProportionsCapped,
-                },
-              );
-
-        }
-
-        $assetsCapacity = Arithmetic(
-            name       => 'Total notional capacity assets (£/kVA)',
-            groupName  => 'First set of notional capacity assets',
-            cols       => 0,
-            arithmetic => '=' . join( '+', map { "A$_" } 1 .. @assetsCapacity ),
-            arguments  => {
-                map { ( "A$_" => $assetsCapacity[ $_ - 1 ] ) }
-                  1 .. @assetsCapacity
-            },
-        );
-
-        $assetsCapacityCooked = Arithmetic(
-            name       => 'Second set of capacity assets (£/kVA)',
-            groupName  => 'Second set of notional capacity assets',
-            cols       => 0,
-            arithmetic => '='
-              . join( '+', map { "A$_" } 1 .. @assetsCapacityCooked ),
-            arguments => {
-                map { ( "A$_" => $assetsCapacityCooked[ $_ - 1 ] ) }
-                  1 .. @assetsCapacityCooked
-            },
-        );
-
-        $assetsConsumption = Arithmetic(
-            name       => 'Total notional consumption assets (£/kVA)',
-            groupName  => 'First set of notional consumption assets',
-            cols       => 0,
-            arithmetic => '='
-              . join( '+', map { "A$_" } 1 .. @assetsConsumption ),
-            arguments => {
-                map { ( "A$_" => $assetsConsumption[ $_ - 1 ] ) }
-                  1 .. @assetsConsumption
-            },
-        );
-
-        $assetsConsumptionCooked = Arithmetic(
-            name       => 'Second set of consumption assets (£/kVA)',
-            groupName  => 'Second set of notional consumption assets',
-            cols       => 0,
-            arithmetic => '='
-              . join( '+', map { "A$_" } 1 .. @assetsConsumptionCooked ),
-            arguments => {
-                map { ( "A$_" => $assetsConsumptionCooked[ $_ - 1 ] ) }
-                  1 .. @assetsConsumptionCooked
-            },
-        );
-
-    }
+      )
+      = $model->$notionalAssetCalculatorMethod( $tariffCategoryset,
+        $useProportions, $useProportionsCooked,
+        $customerCategory, $accretion, $diversity, $capUseRate, $purpleUseRate,
+      );
 
     $model->{transparency}{olFYI}{1225} = $accretion
       if $model->{transparency};
@@ -1731,6 +491,380 @@ qq@=IF(OR(ISNUMBER(SEARCH("G????",A20)),ISNUMBER(SEARCH("D?001",A1))),0,A6*A4*A9
       $totalAssetsGenerationSoleUse, $totalAssets,
       $assetsCapacityCooked,
       $assetsConsumptionCooked;
+
+}
+
+sub nufCapCollar {
+
+    my ( $model, $gspAndEhvAssetLevelset, $nufLevelset ) = @_;
+
+    my $gspGapInCapCollar = !$model->{tableGrouping} && !$model->{transparency};
+    my $levelset = $gspGapInCapCollar ? $gspAndEhvAssetLevelset : $nufLevelset;
+
+    my $usePropCap = Dataset(
+        name => 'Maximum network use factor',
+        data => [
+            $gspGapInCapCollar ? undef : (),
+            map { 2 } 2 .. @{ $gspAndEhvAssetLevelset->{list} }
+        ],
+        cols    => $levelset,
+        number  => 1133,
+        dataset => $model->{dataset},
+    );
+
+    my $usePropCollar = Dataset(
+        name => 'Minimum network use factor',
+        data => [
+            $gspGapInCapCollar ? undef : (),
+            map { 0.25 } 2 .. @{ $gspAndEhvAssetLevelset->{list} }
+        ],
+        cols    => $levelset,
+        number  => 1134,
+        dataset => $model->{dataset},
+    );
+
+    if ( $model->{tableGrouping} ) {
+        my $group = Dataset(
+            name => 'Maximum and minimum network use factors',
+            rows => Labelset(
+                list => [ map { $_->{name} } $usePropCap, $usePropCollar, ]
+            ),
+            cols     => $levelset,
+            number   => 1136,
+            byrow    => 1,
+            data     => [ map { $_->{data} } $usePropCap, $usePropCollar, ],
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+        );
+        $_ = Stack(
+            name    => $_->{name},
+            rows    => Labelset( list => [ $_->{name} ] ),
+            cols    => $levelset,
+            sources => [$group],
+        ) foreach $usePropCap, $usePropCollar;
+    }
+    else {
+        push @{ $model->{inputTables} }, $usePropCap, $usePropCollar;
+    }
+
+    $usePropCap, $usePropCollar;
+
+}
+
+sub notionalAssetRates {
+
+    my ( $model, $useTextMatching, $ehvAssetLevelset, $totalCdcmUse,
+        $totalCdcmAssets, $lossFactors, )
+      = @_;
+
+    push @{ $model->{calc1Tables} },
+      my $accretion =
+      $useTextMatching
+      ? Arithmetic(
+        name       => 'Notional asset rate (£/kW)',
+        newBlock   => 1,
+        arithmetic => '=IF(A1,A2/A3/A4,0)',
+        arguments  => {
+            A1 => $totalCdcmUse,
+            A2 => $totalCdcmAssets,
+            A3 => $totalCdcmUse,
+            A4 => $lossFactors
+        },
+        location => 'Charging rates',
+      )
+      : Arithmetic(
+        name       => 'Notional asset rate (£/kW)',
+        newBlock   => 1,
+        arithmetic => '=A2/A1/A4',
+        arguments  => {
+            A1 => $totalCdcmUse,
+            A2 => $totalCdcmAssets,
+            A4 => $lossFactors
+        },
+        location => 'Charging rates',
+      );
+
+    my $accretion132hvcombined;
+    if ( $model->{default132kVHVto132kVEHV} ) {
+        my $accretion132hvHard = Dataset(
+            name  => 'Override notional asset rate for 132kV/HV (£/kW)',
+            lines => 'If there is no non-zero value in this cell '
+              . 'and no 132kV/HV in the CDCM then '
+              . 'the 132kV/EHV notional asset rate will be used for 132kV/HV.',
+            data => [''],
+            cols => Labelset(
+                list => [
+                    $ehvAssetLevelset->{list}[ $#{ $ehvAssetLevelset->{list} } ]
+                ]
+            ),
+            number   => 1132,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+        );
+        my $accretion132ehv = Stack(
+            name => 'Notional asset rate for 132kV/EHV (£/kW)',
+            cols => Labelset(
+                list => [
+                    $ehvAssetLevelset->{list}
+                      [ $#{ $ehvAssetLevelset->{list} } - 3 ]
+                ]
+            ),
+            sources => [$accretion],
+        );
+        my $accretion132hv = Stack(
+            name => 'Calculated notional asset rate for 132kV/HV (£/kW)',
+            cols => Labelset(
+                list => [
+                    $ehvAssetLevelset->{list}[ $#{ $ehvAssetLevelset->{list} } ]
+                ]
+            ),
+            sources => [$accretion],
+        );
+        my $accretion = Arithmetic(
+            name       => 'Default notional asset rate for 132kV/HV (£/kW)',
+            arithmetic => '=IF(ISNUMBER(A2),A3,A4)',
+            arguments  => {
+                A2 => $accretion132hv,
+                A3 => $accretion132hv,
+                A4 => $accretion132ehv,
+            },
+        );
+        $accretion132hvcombined = Arithmetic(
+            name       => 'Notional asset rate for 132kV/HV (£/kW)',
+            arithmetic => '=IF(ISNUMBER(A1),IF(A2,A3,A4),A5)',
+            arguments  => {
+                A1 => $accretion132hvHard,
+                A2 => $accretion132hvHard,
+                A3 => $accretion132hvHard,
+                A4 => $accretion,
+                A5 => $accretion,
+            },
+            location => 'Charging rates',
+        );
+    }
+    else {
+        my $accretion132hvHard = Dataset(
+            name => 'Override notional asset rate for 132kV/HV (£/kW)',
+            $useTextMatching
+            ? ()
+            : (
+                lines => [
+                    'This value only affects tariffs if there are'
+                      . ' 132kV/HV non-sole-use assets in the EDCM model. '
+                      . 'It will not be used if set to zero or blank.',
+                    'If the forecast system simultaneous maximum load (kW)'
+                      . ' from CDCM users at the 132kV/HV network level is zero,'
+                      . ' then a non-zero non-blank value must be entered here.',
+                    'An arbitrary non-zero non-blank value should be entered'
+                      . ' here if there are no 132kV/HV assets in the EDCM or in the 500 MW model.',
+                ]
+            ),
+            data => ['#VALUE!'],
+            cols => Labelset(
+                list => [
+                    $ehvAssetLevelset->{list}[ $#{ $ehvAssetLevelset->{list} } ]
+                ]
+            ),
+            number   => 1132,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+        );
+        $accretion132hvcombined = Arithmetic(
+            name => 'Notional asset rate for 132kV/HV (£/kW)',
+            $useTextMatching
+            ? (
+                arithmetic => '=IF(ISNUMBER(A1),A2,A3)',
+                arguments  => {
+                    A1 => $accretion132hvHard,
+                    A2 => $accretion132hvHard,
+                    A3 => $accretion,
+                }
+              )
+            : (
+                arithmetic => '=IF(ISNUMBER(A1),IF(A2,A3,A4),A5)',
+                arguments  => {
+                    A1 => $accretion132hvHard,
+                    A2 => $accretion132hvHard,
+                    A3 => $accretion132hvHard,
+                    A4 => $accretion,
+                    A5 => $accretion,
+                }
+            ),
+            location => 'Charging rates',
+        );
+    }
+
+    Stack(
+        name      => 'Notional asset rate adjusted (£/kW)',
+        groupName => 'Notional asset rate',
+        cols      => $ehvAssetLevelset,
+        sources   => [ $accretion132hvcombined, $accretion ],
+        location  => 'Charging rates',
+    );
+
+}
+
+sub notionalAssetCalculator {
+
+    my (
+        $model,                $tariffCategoryset, $useProportions,
+        $useProportionsCooked, $customerCategory,  $accretion,
+        $diversity,            $capUseRate,        $purpleUseRate,
+    ) = @_;
+
+    my $classificationMap = Constant(
+        name => 'Network level classification '
+          . '(0: not used; 1: same as customer; 2+: higher)',
+        defaultFormat => '0con',
+        rows          => $tariffCategoryset,
+        cols          => $useProportions->{cols},
+        data          => [
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 1 0 2 0 . 0 3 0 3 0 3 0 . 0 4 0)
+            ],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 0 1 1 0 . 2 2 0 0 2 2 0 . 3 3 0)
+            ],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 0 0 0 1 . 1 1 0 0 0 0 2 . 2 2 0)
+            ],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 0 0 0 0 . 0 0 0 0 1 1 1 . 1 1 1)
+            ],
+            [
+                map { $_ eq '.' ? undef : $_ }
+                  qw(0 0 0 0 0 . 0 0 1 1 0 0 0 . 0 0 0)
+            ],
+        ],
+    );
+
+    my $capacityAssetMap = Constant(
+        name => 'Network levels treated as capacity assets',
+        rows => $tariffCategoryset,
+        cols => $useProportions->{cols},
+        data => [
+            map {
+                [ map { !defined $_ ? undef : $_ == 1 ? 1 : 0 } @$_ ]
+            } @{ $classificationMap->{data} }
+        ],
+    );
+
+    my $consumptionAssetMap = Constant(
+        name => 'Network levels treated as consumption assets',
+        rows => $tariffCategoryset,
+        cols => $useProportions->{cols},
+        data => [
+            map {
+                [ map { !defined $_ ? undef : $_ > 1 ? 1 : 0 } @$_ ]
+            } @{ $classificationMap->{data} }
+        ],
+    );
+
+    my $machine = sub {
+        my ( $name1, $name2, $useProportions, $useRate, $diversity, @extras, )
+          = @_;
+
+        SumProduct(
+            name      => $name1,
+            groupName => $name2,
+            matrix    => SpreadsheetModel::Custom->new(
+                name      => $name2,
+                groupName => $name2,
+                @extras,
+                custom => [
+                    $model->{voltageRulesTransparency} =~ /old/
+                    ? '=IF(INDEX(A5:A6,A4)'
+                      . ( $diversity ? '=1' : '>1' )
+                      . ',A1*A8'
+                      . ( $diversity ? '/(1+A3)' : '' ) . ',0)'
+                    : '=INDEX(A5:A6,A4)*A1*A8' . ( $diversity ? '/(1+A3)' : '' )
+                ],
+                wsPrepare => sub {
+                    my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
+                        $colh ) = @_;
+                    sub {
+                        my ( $x, $y ) = @_;
+                        '', $format, $formula->[0],
+                          qr/\bA1\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A1} + $y,
+                            $colh->{A1} + $x
+                          ),
+                          qr/\bA4\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A4} + $y,
+                            $colh->{A4}, 0, 1 ),
+                          $diversity
+                          ? ( # NB: shifted by one to the right because of the GSP entry
+                            qr/\bA3\b/ =>
+                              Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                                $rowh->{A3}, $colh->{A3} + 1 + $x, 1
+                              )
+                          )
+                          : (),
+                          qr/\bA8\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A8} + $y,
+                            $colh->{A8}, 0, 1 ),
+                          qr/\bA5\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A5_A6}, $colh->{A5_A6} + $x, 1 ),
+                          qr/\bA6\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{A5_A6} + $classificationMap->lastRow,
+                            $colh->{A5_A6} + $x, 1 );
+                    };
+                },
+                rows      => $useProportions->{rows},
+                cols      => $useProportions->{cols},
+                arguments => {
+                    A1 => $useProportions,
+                    A5 => $model->{voltageRulesTransparency} =~ /old/
+                    ? $classificationMap
+                    : $diversity ? $capacityAssetMap
+                    : $consumptionAssetMap,
+                    A5_A6 => $model->{voltageRulesTransparency} =~ /old/
+                    ? $classificationMap
+                    : $diversity ? $capacityAssetMap
+                    : $consumptionAssetMap,
+                    A4 => $customerCategory,
+                    $diversity ? ( A3 => $diversity ) : (),
+                    A8 => ref $useRate eq 'ARRAY' ? $useRate->[1]
+                    : $useRate,
+                },
+            ),
+            vector => $accretion,
+        );
+    };
+
+    $machine->(
+        'Capacity assets (£/kVA)',
+        'Adjusted network use by capacity',
+        $useProportions, $capUseRate, $diversity, newBlock => 1,
+      ),
+      $machine->(
+        'Consumption assets (£/kVA)',
+        'Adjusted network use by consumption',
+        $useProportions, $purpleUseRate,    # undef, newBlock => 1,
+      ),
+      $machine->(
+        'Second set of capacity assets (£/kVA)',
+        'Second set of adjusted network use by capacity',
+        $useProportionsCooked,
+        $capUseRate,
+        $diversity,
+        newBlock => 1,
+      ),
+      $machine->(
+        'Second set of consumption assets (£/kVA)',
+        'Second set of adjusted network use by consumption',
+        $useProportionsCooked,
+        $purpleUseRate,    # undef, newBlock => 1,
+      );
 
 }
 

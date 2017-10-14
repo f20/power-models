@@ -1,0 +1,24 @@
+---
+.: 'EDCM after DCP 161 if the DNO takes you for an idiot, FCP'
+PerlModule: EDCM2
+checksums: Line checksum 5; Table checksum 7
+dcp130: 1
+dcp161: 1
+dcp179: 1
+dcp185: 2
+dcp189: proportionsplitShortfall
+default132kVHVto132kVEHV: 1
+layout: auto
+ldnoRev: ldnorev5roundingtar
+lowerIntermittentCredit: 1
+method: FCP
+noNegative: 1
+numLocationsDefault: 1200
+numTariffsDefault: 600
+protect: 1
+summaries: 1
+table1101: 1
+takenForAnIdiot: 1
+transparency: 1
+validation: lenientnomsg
+voltageRulesTransparency: 1

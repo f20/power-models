@@ -32,21 +32,23 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use EDCM2::Ldno;
-use EDCM2::Inputs;
+use EDCM2::Adjust;
 use EDCM2::Assets;
-use EDCM2::Locations;
 use EDCM2::Charges;
 use EDCM2::Generation;
+use EDCM2::Inputs;
+use EDCM2::Ldno;
+use EDCM2::Locations;
 use EDCM2::Scaling;
 use EDCM2::Sheets;
-use EDCM2::DataPreprocess;
 
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
     $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
       $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
+      $ruleset->{takenForAnIdiot} ? qw(EDCM2::IdiotMitigation) : (),
+      $ruleset->{voltageRulesTransparency} ? () : qw(EDCM2::AssetCalcHard),
       $ruleset->{layout} ? qw(SpreadsheetModel::MatrixSheet EDCM2::Layout) : (),
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
 }
@@ -72,8 +74,17 @@ sub new {
     $model->{TimebandName} ||=
       ucfirst( $model->{timebandName} ||= 'super-red' );
 
-    $model->preprocessDataset
-      if $model->{dataset} && keys %{ $model->{dataset} };
+  # Keep EDCM2::DataPreprocess out of the scope of revision number construction.
+    if ( $model->{dataset}
+        && keys %{ $model->{dataset} } )
+    {
+        if ( eval { require EDCM2::DataPreprocess; } ) {
+            $model->preprocessDataset;
+        }
+        else {
+            warn $@;
+        }
+    }
 
     $model->{numLocations} ||= $model->{numLocationsDefault};
     $model->{numTariffs}   ||= $model->{numTariffsDefault};
@@ -90,39 +101,51 @@ EHV/HV
 EOT
 
     my (
-        $tariffs,                          $importCapacity,
-        $exportCapacityExempt,             $exportCapacityChargeablePre2005,
-        $exportCapacityChargeable20052010, $exportCapacityChargeablePost2010,
-        $tariffSoleUseMeav,                $dcp189Input,
-        $tariffLoc,                        $tariffCategory,
-        $useProportions,                   $activeCoincidence,
-        $reactiveCoincidence,              $indirectExposure,
-        $nonChargeableCapacity,            $activeUnits,
-        $creditableCapacity,               $tariffNetworkSupportFactor,
-        $tariffDaysInYearNot,              $tariffHoursInPurpleNot,
-        $previousChargeImport,             $previousChargeExport,
-        $llfcImport,                       $llfcExport,
+        $tariffs,
+        $importCapacity935,
+        $exportCapacity935Exempt,
+        $exportCapacity935ChargeablePre2005,
+        $exportCapacity935Chargeable20052010,
+        $exportCapacity935ChargeablePost2010,
+        $tariffSoleUseMeav,
+        $dcp189Input,
+        $tariffLoc,
+        $tariffCategory,
+        $useProportions,
+        $activeCoincidence935,
+        $reactiveCoincidence935,
+        $indirectExposure,
+        $nonChargeableCapacity935,
+        $activeUnits,
+        $creditableCapacity935,
+        $tariffNetworkSupportFactor,
+        $tariffDaysInYearNot,
+        $tariffHoursInPurpleNot,
+        $previousChargeImport,
+        $previousChargeExport,
+        $llfcImport,
+        $llfcExport,
         $actualRedDemandRate,
     );
     if ( $model->{dcp189} ) {
         (
             $tariffs,
-            $importCapacity,
-            $exportCapacityExempt,
-            $exportCapacityChargeablePre2005,
-            $exportCapacityChargeable20052010,
-            $exportCapacityChargeablePost2010,
+            $importCapacity935,
+            $exportCapacity935Exempt,
+            $exportCapacity935ChargeablePre2005,
+            $exportCapacity935Chargeable20052010,
+            $exportCapacity935ChargeablePost2010,
             $tariffSoleUseMeav,
             $dcp189Input,
             $tariffLoc,
             $tariffCategory,
             $useProportions,
-            $activeCoincidence,
-            $reactiveCoincidence,
+            $activeCoincidence935,
+            $reactiveCoincidence935,
             $indirectExposure,
-            $nonChargeableCapacity,
+            $nonChargeableCapacity935,
             $activeUnits,
-            $creditableCapacity,
+            $creditableCapacity935,
             $tariffNetworkSupportFactor,
             $tariffDaysInYearNot,
             $tariffHoursInPurpleNot,
@@ -136,21 +159,21 @@ EOT
     else {
         (
             $tariffs,
-            $importCapacity,
-            $exportCapacityExempt,
-            $exportCapacityChargeablePre2005,
-            $exportCapacityChargeable20052010,
-            $exportCapacityChargeablePost2010,
+            $importCapacity935,
+            $exportCapacity935Exempt,
+            $exportCapacity935ChargeablePre2005,
+            $exportCapacity935Chargeable20052010,
+            $exportCapacity935ChargeablePost2010,
             $tariffSoleUseMeav,
             $tariffLoc,
             $tariffCategory,
             $useProportions,
-            $activeCoincidence,
-            $reactiveCoincidence,
+            $activeCoincidence935,
+            $reactiveCoincidence935,
             $indirectExposure,
-            $nonChargeableCapacity,
+            $nonChargeableCapacity935,
             $activeUnits,
-            $creditableCapacity,
+            $creditableCapacity935,
             $tariffNetworkSupportFactor,
             $tariffDaysInYearNot,
             $tariffHoursInPurpleNot,
@@ -165,22 +188,35 @@ EOT
     my ( $locations, $locParent, $c1, $a1d, $r1d, $a1g, $r1g ) =
       $model->loadFlowInputs;
 
-    $model->{transparencyMasterFlag} = Dataset(
-        name => 'Is this the master model containing all the tariff data?',
-        defaultFormat => 'boolhard',
-        singleRowName => 'Enter TRUE or FALSE',
-        validation    => {
-            validate => 'list',
-            value    => [ 'TRUE', 'FALSE' ],
-        },
-        data     => ['TRUE'],
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
-        number   => 1190,
-      )
-      if $model->{transparency}
-      && $model->{transparency} !~ /outputonly/i
-      && !$model->{legacy201};
+    if (   $model->{transparency}
+        && $model->{transparency} !~ /outputonly/i
+        && !$model->{legacy201} )
+    {
+        my $flagInput = Dataset(
+            name => 'Is this the master model containing all the tariff data?',
+            defaultFormat => 'boolhard',
+            singleRowName => 'Enter TRUE or FALSE',
+            validation    => {
+                validate => 'list',
+                value    => [ 'TRUE', 'FALSE' ],
+            },
+            data     => ['TRUE'],
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+            number   => 1190,
+        );
+        $model->{transparencyMasterFlag} = Arithmetic(
+            name          => 'Is this the master model?',
+            defaultFormat => 'boolsoft',
+            arithmetic    => '=IF(ISERROR(A5),TRUE,'
+              . 'IF(A4="FALSE",FALSE,IF(A3=FALSE,FALSE,TRUE)))',
+            arguments => {
+                A3 => $flagInput,
+                A4 => $flagInput,
+                A5 => $flagInput,
+            },
+        );
+    }
 
     if ( $model->{transparency} ) {
 
@@ -194,21 +230,21 @@ EOT
 
             (
                 $tariffs,
-                $importCapacity,
-                $exportCapacityExempt,
-                $exportCapacityChargeablePre2005,
-                $exportCapacityChargeable20052010,
-                $exportCapacityChargeablePost2010,
+                $importCapacity935,
+                $exportCapacity935Exempt,
+                $exportCapacity935ChargeablePre2005,
+                $exportCapacity935Chargeable20052010,
+                $exportCapacity935ChargeablePost2010,
                 $tariffSoleUseMeav,
                 $tariffLoc,
                 $tariffCategory,
                 $useProportions,
-                $activeCoincidence,
-                $reactiveCoincidence,
+                $activeCoincidence935,
+                $reactiveCoincidence935,
                 $indirectExposure,
-                $nonChargeableCapacity,
+                $nonChargeableCapacity935,
                 $activeUnits,
-                $creditableCapacity,
+                $creditableCapacity935,
                 $tariffNetworkSupportFactor,
                 $tariffDaysInYearNot,
                 $tariffHoursInPurpleNot,
@@ -221,21 +257,21 @@ EOT
               )
               = $model->mangleTariffInputs(
                 $tariffs,
-                $importCapacity,
-                $exportCapacityExempt,
-                $exportCapacityChargeablePre2005,
-                $exportCapacityChargeable20052010,
-                $exportCapacityChargeablePost2010,
+                $importCapacity935,
+                $exportCapacity935Exempt,
+                $exportCapacity935ChargeablePre2005,
+                $exportCapacity935Chargeable20052010,
+                $exportCapacity935ChargeablePost2010,
                 $tariffSoleUseMeav,
                 $tariffLoc,
                 $tariffCategory,
                 $useProportions,
-                $activeCoincidence,
-                $reactiveCoincidence,
+                $activeCoincidence935,
+                $reactiveCoincidence935,
                 $indirectExposure,
-                $nonChargeableCapacity,
+                $nonChargeableCapacity935,
                 $activeUnits,
-                $creditableCapacity,
+                $creditableCapacity935,
                 $tariffNetworkSupportFactor,
                 $tariffDaysInYearNot,
                 $tariffHoursInPurpleNot,
@@ -256,18 +292,6 @@ EOT
         }
 
     }
-
-    $model->{transparencyMasterFlag} = Arithmetic(
-        name          => 'Is this the master model?',
-        defaultFormat => 'boolsoft',
-        arithmetic    => '=IF(ISERROR(A5),TRUE,'
-          . 'IF(A4="FALSE",FALSE,IF(A3=FALSE,FALSE,TRUE)))',
-        arguments => {
-            A3 => $model->{transparencyMasterFlag},
-            A4 => $model->{transparencyMasterFlag},
-            A5 => $model->{transparencyMasterFlag},
-        },
-    ) if $model->{transparencyMasterFlag};
 
     $model->{transparency} = Arithmetic(
         name  => 'Weighting of each tariff for reconciliation of totals',
@@ -367,6 +391,9 @@ EOT
 
     }
 
+    $model->{takenForAnIdiot} = EDCM2::IdiotMitigation->new($model)
+      if $model->{takenForAnIdiot};
+
     my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
       $model->cdcmAssets;
 
@@ -409,9 +436,9 @@ EOT
         defaultFormat => 'boolsoft',
         arithmetic    => '=OR(A1<>"VOID",A2<>"VOID",A3<>"VOID")',
         arguments     => {
-            A1 => $exportCapacityChargeablePre2005,
-            A2 => $exportCapacityChargeable20052010,
-            A3 => $exportCapacityChargeablePost2010,
+            A1 => $exportCapacity935ChargeablePre2005,
+            A2 => $exportCapacity935Chargeable20052010,
+            A3 => $exportCapacity935ChargeablePost2010,
         }
     );
 
@@ -420,169 +447,35 @@ EOT
         defaultFormat => 'boolsoft',
         arithmetic    => '=A1<>"VOID"',
         arguments     => {
-            A1 => $importCapacity,
+            A1 => $importCapacity935,
         }
     );
 
-### Marker
-
-    my $importCapacityUnscaled = $importCapacity;
-    my $chargeableCapacity     = Arithmetic(
-        name          => 'Import capacity not subject to DSM (kVA)',
-        defaultFormat => '0soft',
-        arguments  => { A1 => $importCapacity, A2 => $nonChargeableCapacity, },
-        arithmetic => '=A1-A2',
-    );
-    my $chargeableCapacity935  = $chargeableCapacity;
-    my $activeCoincidence935   = $activeCoincidence;
-    my $reactiveCoincidence935 = $reactiveCoincidence;
-
-    $importCapacity = Arithmetic(
-        name          => 'Maximum import capacity adjusted for part-year (kVA)',
-        defaultFormat => '0soft',
-        arithmetic    => '=IF(A12="VOID",0,(A1*(1-A2/A3)))',
-        arguments     => {
-            A1  => $importCapacity,
-            A12 => $importCapacity,
-            A2  => $tariffDaysInYearNot,
-            A3  => $daysInYear,
-        },
-    );
-
-    $chargeableCapacity = Arithmetic(
-        name          => 'Non-DSM import capacity adjusted for part-year (kVA)',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1-(A11*(1-A2/A3))',
-        arguments     => {
-            A1  => $importCapacity,
-            A11 => $nonChargeableCapacity,
-            A2  => $tariffDaysInYearNot,
-            A3  => $daysInYear,
-        },
-    );
-
-    my $exportCapacityChargeableUnscaled = Arithmetic(
-        name          => 'Chargeable export capacity (kVA)',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1+A4+A5',
-        arguments     => {
-            A1 => $exportCapacityChargeablePre2005,
-            A4 => $exportCapacityChargeable20052010,
-            A5 => $exportCapacityChargeablePost2010,
-        }
-    );
-
-    my $creditableCapacityUnscaled = $creditableCapacity;
-
-    $_ = Arithmetic(
-        name          => $_->objectShortName . ' adjusted for part-year',
-        defaultFormat => '0soft',
-        arithmetic    => '=IF(A12="VOID",0,A1*(1-A2/A3))',
-        arguments     => {
-            A1  => $_,
-            A12 => $_,
-            A2  => $tariffDaysInYearNot,
-            A3  => $daysInYear,
-        }
+    my (
+        $chargeableCapacity,               $exportCapacityChargeable,
+        $importCapacity,                   $activeCoincidence,
+        $reactiveCoincidence,              $creditableCapacity,
+        $exportCapacityChargeable20052010, $exportCapacityChargeablePost2010,
+        $exportCapacityChargeablePre2005,  $exportCapacityExempt,
+        $demandSoleUseAsset,               $generationSoleUseAsset,
+        $demandSoleUseAssetUnscaled,       $generationSoleUseAssetUnscaled
       )
-      foreach $creditableCapacity, $exportCapacityExempt,
-      $exportCapacityChargeablePre2005, $exportCapacityChargeable20052010,
-      $exportCapacityChargeablePost2010;
-
-    my $exportCapacityChargeable = Arithmetic(
-        name      => 'Chargeable export capacity adjusted for part-year (kVA)',
-        groupName => 'Export capacities',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1+A4+A5',
-        arguments     => {
-            A1 => $exportCapacityChargeablePre2005,
-            A4 => $exportCapacityChargeable20052010,
-            A5 => $exportCapacityChargeablePost2010,
-        },
-    );
-
-    $activeCoincidence = Arithmetic(
-        name =>
-          "$model->{TimebandName} kW divided by kVA adjusted for part-year",
-        arithmetic => '=A1*(1-A2/A3)/(1-A4/A5)',
-        arguments  => {
-            A1 => $activeCoincidence,
-            A2 => $tariffHoursInPurpleNot,
-            A3 => $hoursInPurple,
-            A4 => $tariffDaysInYearNot,
-            A5 => $daysInYear,
-        }
-    );
-
-    $reactiveCoincidence = Arithmetic(
-        name =>
-          "$model->{TimebandName} kVAr divided by kVA adjusted for part-year",
-        arithmetic => '=A1*(1-A2/A3)/(1-A4/A5)',
-        arguments  => {
-            A1 => $reactiveCoincidence,
-            A2 => $tariffHoursInPurpleNot,
-            A3 => $hoursInPurple,
-            A4 => $tariffDaysInYearNot,
-            A5 => $daysInYear,
-        }
-    ) if $reactiveCoincidence;
-
-    my $demandSoleUseAssetUnscaled = Arithmetic(
-        name          => 'Sole use asset MEAV for demand (£)',
-        defaultFormat => '0soft',
-        arithmetic    => '=IF(A9,A1*A2/(A3+A4+A5),0)',
-        arguments     => {
-            A1 => $tariffSoleUseMeav,
-            A9 => $model->{legacy201}
-            ? $tariffSoleUseMeav
-            : $importCapacity,
-            A2 => $importCapacity,
-            A3 => $importCapacity,
-            A4 => $exportCapacityExempt,
-            A5 => $exportCapacityChargeable,
-        }
-    );
-
-    my $generationSoleUseAssetUnscaled = Arithmetic(
-        name          => 'Sole use asset MEAV for non-exempt generation (£)',
-        defaultFormat => '0soft',
-        arithmetic    => '=IF(A9,A1*A21/(A3+A4+A5),0)',
-        arguments     => {
-            A1 => $tariffSoleUseMeav,
-            A9 => $model->{legacy201}
-            ? $tariffSoleUseMeav
-            : $exportCapacityChargeable,
-            A3  => $importCapacity,
-            A4  => $exportCapacityExempt,
-            A5  => $exportCapacityChargeable,
-            A21 => $exportCapacityChargeable,
-        }
-    );
-
-    my $demandSoleUseAsset = Arithmetic(
-        name      => 'Demand sole use asset MEAV adjusted for part-year (£)',
-        groupName => 'Sole use assets',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1*(1-A2/A3)',
-        arguments     => {
-            A1 => $demandSoleUseAssetUnscaled,
-            A2 => $tariffDaysInYearNot,
-            A3 => $daysInYear,
-        },
-    );
-
-    my $generationSoleUseAsset = Arithmetic(
-        name => 'Generation sole use asset MEAV adjusted for part-year (£)',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1*(1-A2/A3)',
-        arguments     => {
-            A1 => $generationSoleUseAssetUnscaled,
-            A2 => $tariffDaysInYearNot,
-            A3 => $daysInYear,
-        }
-    );
-
-### Marker
+      = $model->preliminaryAdjustments(
+        $daysInYear,
+        $hoursInPurple,
+        $tariffDaysInYearNot,
+        $tariffHoursInPurpleNot,
+        $importCapacity935,
+        $nonChargeableCapacity935,
+        $activeCoincidence935,
+        $reactiveCoincidence935,
+        $creditableCapacity935,
+        $exportCapacity935Chargeable20052010,
+        $exportCapacity935ChargeablePost2010,
+        $exportCapacity935ChargeablePre2005,
+        $exportCapacity935Exempt,
+        $tariffSoleUseMeav,
+      );
 
     my $cdcmUse = $model->{cdcmComboTable} ? Stack(
         name => 'Forecast system simultaneous maximum load (kW)'
@@ -628,7 +521,7 @@ EOT
         $cdcmUse,
       );
 
-### Marker
+    # Refactoring marker: start of charging rate calculations
 
     my $rateDirect = Arithmetic(
         name          => 'Direct cost charging rate',
@@ -836,7 +729,7 @@ EOT
         arguments     => { A1 => $fixedGchargeUnround, }
     );
 
-### Marker
+    # Refactoring marker: end of charging rate calculations
 
     my $totalDcp189DiscountedAssets;
 
@@ -900,7 +793,7 @@ EOT
     $model->{transparency}{olTabCol}{119306} = $totalDcp189DiscountedAssets
       if $model->{transparency} && $totalDcp189DiscountedAssets;
 
-### Marker
+    # Refactoring marker: start of transmission exit rate calculations
 
     my $cdcmPurpleUse = Stack(
         cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
@@ -959,7 +852,7 @@ EOT
     );
     $model->{transparency}{olFYI}{1239} = $rateExit if $model->{transparency};
 
-### Marker
+    # Refactoring marker: end of transmission exit rate calculations
 
     $reactiveCoincidence = Arithmetic(
         name       => "$model->{TimebandName} kVAr/agreed kVA (capped)",
@@ -1021,7 +914,7 @@ EOT
         },
     );
 
-### Marker
+# Refactoring marker: start of export capacity charge and net export revenue calculation
 
     my $gCharge = $model->gCharge(
         $genPot20p,                        $genPotGP,
@@ -1128,7 +1021,9 @@ EOT
     $model->{transparency}{olTabCol}{119105} = $generationRevenue
       if $model->{transparency};
 
-### Marker
+# Refactoring marker: end of export capacity charge and net export revenue calculation
+
+    # Refactoring marker: start of demand revenue pot calculation
 
     my $chargeOther = Arithmetic(
         name => 'Revenue less costs and '
@@ -1269,6 +1164,10 @@ EOT
             },
         );
 
+        $totalRevenue3 =
+          $model->{takenForAnIdiot}->demandRevenuePot($totalRevenue3)
+          if $model->{takenForAnIdiot};
+
     }
 
     $model->{transparency}{olFYI}{1201} = $totalRevenue3
@@ -1276,7 +1175,7 @@ EOT
 
     push @{ $model->{calc3Tables} }, $totalRevenue3;
 
-### Marker
+    # Refactoring marker: end of demand revenue pot calculation
 
     my ( $scalingChargeCapacity, $scalingChargeUnits );
 
@@ -1365,7 +1264,7 @@ EOT
       Stack( sources => [$unitRateFcpLricDSM] )
       if $model->{matricesData};
 
-### Marker
+    # Refactoring marker: start of demand adders calculations
 
     my (
         $importCapacityScaledRound, $purpleRateFcpLricRound,
@@ -1439,7 +1338,7 @@ EOT
                 A21_A22 => $fixedDcharge,
                 A41_A42 => $unitRateFcpLricDSM,
                 A43_A44 => $activeCoincidence935,
-                A35_A36 => $importCapacityUnscaled,
+                A35_A36 => $importCapacity935,
                 A51_A52 => $tariffHoursInPurple,
                 A54     => $daysInYear,
             }
@@ -1543,7 +1442,7 @@ EOT
                             A9      => $daysInYear,
                             A41_A42 => $unitRateFcpLricDSM,
                             A43_A44 => $activeCoincidence935,
-                            A35_A36 => $importCapacityUnscaled,
+                            A35_A36 => $importCapacity935,
                             A51_A52 => $tariffHoursInPurple,
                             A54     => $daysInYear,
                             A64_A65 => $model->{transparency},
@@ -1563,7 +1462,7 @@ EOT
                             A9      => $daysInYear,
                             A41_A42 => $unitRateFcpLricDSM,
                             A43_A44 => $activeCoincidence935,
-                            A35_A36 => $importCapacityUnscaled,
+                            A35_A36 => $importCapacity935,
                             A51_A52 => $tariffHoursInPurple,
                             A54     => $daysInYear,
                         },
@@ -1580,8 +1479,6 @@ EOT
           && $demandScalingShortfall->{arguments}{A9};
 
     }
-
-### Marker
 
     $model->fudge41(
         $activeCoincidence, $importCapacity,
@@ -1600,6 +1497,10 @@ EOT
         $assetsCapacityCooked, $assetsConsumptionCooked,
         $capacityChargeT,      $fixedDcharge,
     );
+
+    # Refactoring marker: end of demand adders calculations
+
+    # Refactoring marker: start of final tariff and HSummary calculations
 
     $model->{summaryInformationColumns}[2] = Arithmetic(
         name          => 'Direct cost allocation (£/year)',
@@ -1681,8 +1582,6 @@ EOT
             A32 => $daysInYear,
         },
     );
-
-### Marker
 
     $importCapacityScaled =
       $scalingChargeCapacity
@@ -1775,8 +1674,6 @@ EOT
         },
     );
 
-### Marker
-
     push @{ $model->{tablesG} }, $genCredit, $genCreditCapacity,
       $exportCapacityCharge;
 
@@ -1821,7 +1718,7 @@ EOT
       $exportCapacityChargeRound,
       $fixedGchargeTrue;
 
-### Marker
+    # Refactoring marker: end of final tariff and HSummary calculations
 
     my @tariffColumns = (
         Stack( sources => [$tariffs] ),
@@ -1927,8 +1824,6 @@ EOT
             columns => $allTariffColumns,
           );
     }
-
-### Marker
 
     return $model unless $model->{summaries};
 
@@ -2085,7 +1980,7 @@ EOT
             A3 => $hoursInPurple,
             A7 => $tariffHoursInPurpleNot,
             A1 => $activeCoincidence935,
-            A5 => $importCapacityUnscaled,
+            A5 => $importCapacity935,
         }
     );
 
@@ -2331,16 +2226,14 @@ EOT
         ];
     }
 
-### Marker
-
     $model->templates(
-        $tariffs,                          $importCapacityUnscaled,
+        $tariffs,                          $importCapacity935,
         $exportCapacityExempt,             $exportCapacityChargeablePre2005,
         $exportCapacityChargeable20052010, $exportCapacityChargeablePost2010,
         $tariffSoleUseMeav,                $tariffLoc,
         $tariffCategory,                   $useProportions,
         $activeCoincidence935,             $reactiveCoincidence,
-        $indirectExposure,                 $nonChargeableCapacity,
+        $indirectExposure,                 $nonChargeableCapacity935,
         $activeUnits,                      $creditableCapacity,
         $tariffNetworkSupportFactor,       $tariffDaysInYearNot,
         $tariffHoursInPurpleNot,           $previousChargeImport,

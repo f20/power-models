@@ -473,6 +473,9 @@ sub worksheetsAndClosures {
             $wsheet->{sheetNumber} = 47;
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Aggregates' ),
+              $model->{takenForAnIdiot}
+              ? $model->{takenForAnIdiot}->feedbackTables
+              : (),
               @{ $model->{aggregateTables} };
             $wsheet->{sheetNumber} = 48;
         }

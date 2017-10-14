@@ -1,0 +1,5 @@
+makeModels
+    -template=%%
+	EDCM/2018-02-Baseline/%+idiotmit161-FCP.yml
+	EDCM/2018-02-Baseline/%+idiotmit161-LRIC.yml
+	EDCM/2018-02/*.yml

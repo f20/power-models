@@ -45,7 +45,6 @@ sub chargesFcpLric {
         $demandCapacity,              $chargeableGenerationCapacity,
         $creditableCapacity,          $rateExit,
         $activeCoincidenceUndoctored, $reactiveCoincidenceUndoctored,
-        $reactiveCoincidence935
     ) = @_;
 
     $model->{demandConsumptionFcpLric} = my $demandConsumptionFcpLric =
