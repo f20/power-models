@@ -374,9 +374,12 @@ EOL
         $assetsCapacity,       $assetsConsumption,
         $assetsCapacityCooked, $assetsConsumptionCooked
       )
-      = $model->$notionalAssetCalculatorMethod( $tariffCategoryset,
-        $useProportions, $useProportionsCooked,
-        $customerCategory, $accretion, $diversity, $capUseRate, $purpleUseRate,
+      = $model->$notionalAssetCalculatorMethod(
+        $tariffCategoryset,    $useProportions,
+        $useProportionsCooked, $customerCategory,
+        $accretion,            $diversity,
+        $capUseRate,           $purpleUseRate,
+        $useTextMatching ? undef : $tariffCategory, $usePropCap,
       );
 
     $model->{transparency}{dnoTotalItem}{1225} = $accretion
@@ -708,9 +711,12 @@ sub notionalAssetRates {
 sub notionalAssetCalculator {
 
     my (
-        $model,                $tariffCategoryset, $useProportions,
-        $useProportionsCooked, $customerCategory,  $accretion,
-        $diversity,            $capUseRate,        $purpleUseRate,
+        $model,            $tariffCategoryset,
+        $useProportions,   $useProportionsCooked,
+        $customerCategory, $accretion,
+        $diversity,        $capUseRate,
+        $purpleUseRate,    $optionalRawTariffCategoryNotUsed,
+        $usePropCapNotUsed,
     ) = @_;
 
     my $classificationMap = Constant(

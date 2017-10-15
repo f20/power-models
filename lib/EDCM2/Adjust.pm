@@ -185,6 +185,18 @@ sub preliminaryAdjustments {
         }
     );
 
+    $reactiveCoincidence = Arithmetic(
+        name       => "$model->{TimebandName} kVAr/agreed kVA (capped)",
+        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
+          . ( $model->{legacy201} ? '' : '0+' )
+          . 'A1),0-SQRT(1-MIN(1,A3)^2))',
+        arguments => {
+            A1 => $reactiveCoincidence,
+            A2 => $activeCoincidence,
+            A3 => $activeCoincidence,
+        }
+    );
+
     $chargeableCapacity,  $exportCapacityChargeable, $importCapacity,
       $activeCoincidence, $reactiveCoincidence,      $creditableCapacity,
       $exportCapacityChargeable20052010, $exportCapacityChargeablePost2010,

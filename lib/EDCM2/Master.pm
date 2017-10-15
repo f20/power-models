@@ -427,6 +427,18 @@ EOT
         $tariffSoleUseMeav,
       );
 
+    $reactiveCoincidence935 = Arithmetic(
+        name       => 'Unadjusted but capped red kVAr/agreed kVA',
+        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
+          . ( $model->{legacy201} ? '' : '0+' )
+          . 'A1),0-SQRT(1-MIN(1,A3)^2))',
+        arguments => {
+            A1 => $reactiveCoincidence935,
+            A2 => $activeCoincidence935,
+            A3 => $activeCoincidence935,
+        }
+    );
+
     my $cdcmUse = $model->{cdcmComboTable} ? Stack(
         name => 'Forecast system simultaneous maximum load (kW)'
           . ' from CDCM users',
@@ -555,29 +567,6 @@ EOT
     $model->{transparency}{dnoTotalItem}{119306} = $totalDcp189DiscountedAssets
       if $model->{transparency} && $totalDcp189DiscountedAssets;
 
-    $reactiveCoincidence = Arithmetic(
-        name       => "$model->{TimebandName} kVAr/agreed kVA (capped)",
-        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
-          . ( $model->{legacy201} ? '' : '0+' )
-          . 'A1),0-SQRT(1-MIN(1,A3)^2))',
-        arguments => {
-            A1 => $reactiveCoincidence,
-            A2 => $activeCoincidence,
-            A3 => $activeCoincidence,
-        }
-    );
-
-    $reactiveCoincidence935 = Arithmetic(
-        name       => 'Unadjusted but capped red kVAr/agreed kVA',
-        arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
-          . ( $model->{legacy201} ? '' : '0+' )
-          . 'A1),0-SQRT(1-MIN(1,A3)^2))',
-        arguments => {
-            A1 => $reactiveCoincidence935,
-            A2 => $activeCoincidence935,
-            A3 => $activeCoincidence935,
-        }
-    );
     my ( $rateExit, $edcmPurpleUse ) =
       $model->exitChargingRate( $cdcmUse, $purpleUseRate, $importCapacity,
         $chargeExit, );
