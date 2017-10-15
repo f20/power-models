@@ -34,6 +34,107 @@ use utf8;
 
 use SpreadsheetModel::Shortcuts ':all';
 
+sub exportCharges {
+
+    my (
+        $model,                    $gCharge,
+        $daysInYear,               $exportEligible,
+        $genCredit,                $genCreditCapacity,
+        $exportCapacityChargeable, $activeUnits,
+        $fixedGcharge,
+    ) = @_;
+
+    my $exportCapacityCharge = Arithmetic(
+        name          => 'Export capacity charge (unrounded) p/kVA/day',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=IF(A1,A4,0)',
+        arguments     => {
+            A1 => $exportEligible,
+            A4 => $gCharge,
+        },
+    );
+
+    my $genCreditRound = Arithmetic(
+        name          => "Export $model->{timebandName} unit rate (p/kWh)",
+        defaultFormat => '0.000softnz',
+        arithmetic    => '=ROUND(A1,3)',
+        arguments     => { A1 => $genCredit }
+    );
+
+    my $exportCapacityChargeRound = Arithmetic(
+        name          => 'Export capacity charge (p/kVA/day)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=ROUND(A1,2)',
+        arguments     => { A1 => $exportCapacityCharge }
+    );
+
+    my $netexportCapacityChargeUnRound = Arithmetic(
+        name =>
+          'Net export capacity charge (or credit) (unrounded) (p/kVA/day)',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=IF(A21,(A1+A2),0)',
+        arguments     => {
+            A1  => $exportCapacityCharge,
+            A2  => $genCreditCapacity,
+            A21 => $exportEligible
+        }
+    );
+
+    my $netexportCapacityChargeRound = Arithmetic(
+        name          => 'Export capacity rate (p/kVA/day)',
+        groupName     => 'Export capacity rate',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=ROUND(A1,2)',
+        arguments     => { A1 => $netexportCapacityChargeUnRound, }
+    );
+
+    my $generationRevenue =
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name          => 'Net forecast EDCM generation revenue (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=IF(A123,0,A1)'
+          . '+SUMPRODUCT(A21_A22,A51_A52,A53_A54)/100'
+          . '+SUMPRODUCT(A31_A32,A71_A72,A73_A74)*A75/100+SUMPRODUCT(A41_A42,A83_A84)*A85/100',
+        arguments => {
+            A123    => $model->{transparencyMasterFlag},
+            A1      => $model->{transparency}{baselineItem}{119105},
+            A21_A22 => $model->{transparency},
+            A31_A32 => $model->{transparency},
+            A41_A42 => $model->{transparency},
+            A51_A52 => $genCreditRound,
+            A53_A54 => $activeUnits,
+            A71_A72 => $netexportCapacityChargeRound,
+            A73_A74 => $exportCapacityChargeable,
+            A75     => $daysInYear,
+            A83_A84 => $fixedGcharge,
+            A85     => $daysInYear,
+        }
+      )
+      : Arithmetic(
+        name          => 'Net forecast EDCM generation revenue (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=SUMPRODUCT(A51_A52,A53_A54)/100+'
+          . 'SUMPRODUCT(A71_A72,A73_A74)*A75/100+SUM(A83_A84)*A85/100',
+        arguments => {
+            A51_A52 => $genCreditRound,
+            A53_A54 => $activeUnits,
+            A71_A72 => $netexportCapacityChargeRound,
+            A73_A74 => $exportCapacityChargeable,
+            A75     => $daysInYear,
+            A83_A84 => $fixedGcharge,
+            A85     => $daysInYear,
+        }
+      );
+
+    $model->{transparency}{dnoTotalItem}{119105} = $generationRevenue
+      if $model->{transparency};
+
+    $exportCapacityCharge, $genCreditRound, $exportCapacityChargeRound,
+      $netexportCapacityChargeRound, $generationRevenue;
+
+}
+
 sub gCharge {
 
     my (
@@ -103,6 +204,7 @@ sub gCharge {
     );
     $model->{transparency}{dnoTotalItem}{1243} = $exportCapacityCharge
       if $model->{transparency};
+
     $exportCapacityCharge;
 
 }
