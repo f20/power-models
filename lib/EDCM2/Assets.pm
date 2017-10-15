@@ -834,7 +834,9 @@ sub notionalAssetCalculator {
                     : $consumptionAssetMap,
                     A4 => $customerCategory,
                     $diversity ? ( A3 => $diversity ) : (),
-                    A8 => ref $useRate eq 'ARRAY' ? $useRate->[1]
+                    A8 => ref $useRate eq 'ARRAY'
+                    ? $useRate
+                      ->[1]  # version adjusted for reactive power under DCP 183
                     : $useRate,
                 },
             ),

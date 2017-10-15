@@ -39,7 +39,7 @@ sub requiredModulesForRuleset {
       EDCM2::Adjust
       EDCM2::Assets
       EDCM2::Charge1
-      EDCM2::Demand
+      EDCM2::Charging
       EDCM2::Generation
       EDCM2::Inputs
       EDCM2::Ldno
@@ -471,219 +471,27 @@ EOT
         $cdcmUse,
       );
 
-    # Refactoring marker: start of charging rate calculations
-
-    my $rateDirect = Arithmetic(
-        name          => 'Direct cost charging rate',
-        groupName     => 'Expenditure charging rates',
-        arithmetic    => '=A1/(A2+A3+(A4+A5)/A6)',
-        defaultFormat => '%soft',
-        arguments     => {
-            A1 => $chargeDirect,
-            A2 => $totalEdcmAssets,
-            A3 => $cdcmEhvAssets,
-            A4 => $cdcmHvLvShared,
-            A5 => $cdcmHvLvService,
-            A6 => $ehvIntensity,
-        },
-        location => 'Charging rates',
+    my ( $rateDirect, $rateRates, $rateIndirect, ) = $model->chargingRates(
+        $chargeDirect,    $chargeRates,   $chargeIndirect,
+        $totalEdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared,
+        $cdcmHvLvService, $ehvIntensity,
     );
-    $model->{transparency}{dnoTotalItem}{1245} = $rateDirect
-      if $model->{transparency};
 
-    my $rateRates = Arithmetic(
-        name          => 'Network rates charging rate',
-        groupName     => 'Expenditure charging rates',
-        arithmetic    => '=A1/(A2+A3+A4+A5)',
-        defaultFormat => '%soft',
-        arguments     => {
-            A1 => $chargeRates,
-            A2 => $totalEdcmAssets,
-            A3 => $cdcmEhvAssets,
-            A4 => $cdcmHvLvShared,
-            A5 => $cdcmHvLvService,
-        },
-        location => 'Charging rates',
-    );
-    $model->{transparency}{dnoTotalItem}{1246} = $rateRates
-      if $model->{transparency};
+    push @{ $model->{calc3Tables} }, $cdcmHvLvService, $cdcmEhvAssets,
+      $cdcmHvLvShared
+      if $model->{legacy201};
 
-    my $rateIndirect = Arithmetic(
-        name          => 'Indirect cost charging rate',
-        groupName     => 'Expenditure charging rates',
-        arithmetic    => '=A1/(A20+A3+(A4+A5)/A6)',
-        defaultFormat => '%soft',
-        arguments     => {
-            A1  => $chargeIndirect,
-            A21 => $totalAssetsCapacity,
-            A22 => $totalAssetsConsumption,
-            A3  => $cdcmEhvAssets,
-            A4  => $cdcmHvLvShared,
-            A6  => $ehvIntensity,
-            A20 => $totalEdcmAssets,
-            A5  => $cdcmHvLvService,
-        },
-        location => 'Charging rates',
-    );
-    $model->{transparency}{dnoTotalItem}{1250} = $rateIndirect
-      if $model->{transparency};
-
-    my $edcmIndirect = Arithmetic(
-        name          => 'Indirect costs on EDCM demand (£/year)',
-        defaultFormat => '0softnz',
-        arithmetic    => '=A1*(A20-A23)',
-        arguments     => {
-            A1  => $rateIndirect,
-            A21 => $totalAssetsCapacity,
-            A22 => $totalAssetsConsumption,
-            A20 => $totalEdcmAssets,
-            A23 => $totalAssetsGenerationSoleUse,
-        },
-    );
-    $model->{transparency}{dnoTotalItem}{1253} = $edcmIndirect
-      if $model->{transparency};
-
-    my $edcmDirect = Arithmetic(
-        name => 'Direct costs on EDCM demand except'
-          . ' through sole use asset charges (£/year)',
-        groupName     => 'Expenditure allocated to EDCM demand',
-        defaultFormat => '0softnz',
-        arithmetic    => '=A1*(A20+A23)',
-        arguments     => {
-            A1  => $rateDirect,
-            A20 => $totalAssetsCapacity,
-            A23 => $totalAssetsConsumption,
-        },
-    );
-    $model->{transparency}{dnoTotalItem}{1252} = $edcmDirect
-      if $model->{transparency};
-
-    my $edcmRates = Arithmetic(
-        name => 'Network rates on EDCM demand except '
-          . 'through sole use asset charges (£/year)',
-        defaultFormat => '0softnz',
-        arithmetic    => '=A1*(A20+A23)',
-        arguments     => {
-            A1  => $rateRates,
-            A20 => $totalAssetsCapacity,
-            A23 => $totalAssetsConsumption,
-        },
-    );
-    $model->{transparency}{dnoTotalItem}{1255} = $edcmRates
-      if $model->{transparency};
-
-    my $fixedDcharge =
-      !$model->{dcp189} ? Arithmetic(
-        name          => 'Demand fixed charge p/day (scaled for part year)',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100/A2*A1*(A6+A88)',
-        arguments     => {
-            A1  => $demandSoleUseAsset,
-            A6  => $rateDirect,
-            A88 => $rateRates,
-            A2  => $daysInYear,
-        }
+    my (
+        $fixedDcharge,        $fixedDchargeTrue, $fixedGcharge,
+        $fixedGchargeUnround, $fixedGchargeTrue,
       )
-      : $model->{dcp189} =~ /proportion/i ? Arithmetic(
-        name          => 'Demand fixed charge p/day (scaled for part year)',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100/A2*A1*((1-A4)*A6+A88)',
-        arguments     => {
-            A1  => $demandSoleUseAsset,
-            A4  => $dcp189Input,
-            A6  => $rateDirect,
-            A88 => $rateRates,
-            A2  => $daysInYear,
-        }
-      )
-      : Arithmetic(
-        name          => 'Demand fixed charge p/day (scaled for part year)',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100/A2*A1*(IF(A4="Y",0,A6)+A88)',
-        arguments     => {
-            A1  => $demandSoleUseAsset,
-            A4  => $dcp189Input,
-            A6  => $rateDirect,
-            A88 => $rateRates,
-            A2  => $daysInYear,
-        }
+      = $model->fixedCharges(
+        $rateDirect,     $rateRates,
+        $daysInYear,     $demandSoleUseAsset,
+        $dcp189Input,    $demandSoleUseAssetUnscaled,
+        $importEligible, $generationSoleUseAsset,
+        $generationSoleUseAssetUnscaled,
       );
-
-    my $fixedDchargeTrue =
-      !$model->{dcp189} ? Arithmetic(
-        name          => 'Demand fixed charge p/day',
-        groupName     => 'Fixed charges',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(A3,(100/A2*A1*(A6+A88)),0)',
-        arguments     => {
-            A1  => $demandSoleUseAssetUnscaled,
-            A6  => $rateDirect,
-            A88 => $rateRates,
-            A2  => $daysInYear,
-            A3  => $importEligible,
-        }
-      )
-      : $model->{dcp189} =~ /proportion/i ? Arithmetic(
-        name          => 'Demand fixed charge p/day',
-        groupName     => 'Fixed charges',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(A3,(100/A2*A1*((1-A4)*A6+A88)),0)',
-        arguments     => {
-            A1  => $demandSoleUseAssetUnscaled,
-            A4  => $dcp189Input,
-            A6  => $rateDirect,
-            A88 => $rateRates,
-            A2  => $daysInYear,
-            A3  => $importEligible,
-        }
-      )
-      : Arithmetic(
-        name          => 'Demand fixed charge p/day',
-        groupName     => 'Fixed charges',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(A3,(100/A2*A1*(IF(A4="Y",0,A6)+A88)),0)',
-        arguments     => {
-            A1  => $demandSoleUseAssetUnscaled,
-            A4  => $dcp189Input,
-            A6  => $rateDirect,
-            A88 => $rateRates,
-            A2  => $daysInYear,
-            A3  => $importEligible,
-        }
-      );
-
-    my $fixedGcharge = Arithmetic(
-        name          => 'Generation fixed charge p/day (scaled for part year)',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100/A2*A1*(A6+A88)',
-        arguments     => {
-            A1  => $generationSoleUseAsset,
-            A6  => $rateDirect,
-            A88 => $rateRates,
-            A2  => $daysInYear,
-        }
-    );
-
-    my $fixedGchargeUnround = Arithmetic(
-        name          => 'Export fixed charge (unrounded) p/day',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=100/A2*A1*(A6+A88)',
-        arguments     => {
-            A1  => $generationSoleUseAssetUnscaled,
-            A6  => $rateDirect,
-            A88 => $rateRates,
-            A2  => $daysInYear,
-        }
-    );
-
-    my $fixedGchargeTrue = Arithmetic(
-        name          => 'Export fixed charge p/day',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=ROUND(A1,2)',
-        arguments     => { A1 => $fixedGchargeUnround, }
-    );
-
-    # Refactoring marker: end of charging rate calculations
 
     my $totalDcp189DiscountedAssets;
 
@@ -747,68 +555,6 @@ EOT
     $model->{transparency}{dnoTotalItem}{119306} = $totalDcp189DiscountedAssets
       if $model->{transparency} && $totalDcp189DiscountedAssets;
 
-    # Refactoring marker: start of transmission exit rate calculations
-
-    my $cdcmPurpleUse = Stack(
-        cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
-        name    => 'Total CDCM peak time consumption (kW)',
-        sources => [$cdcmUse]
-    );
-    $model->{transparency}{dnoTotalItem}{1237} = $cdcmPurpleUse
-      if $model->{transparency};
-
-    push @{ $model->{calc3Tables} }, $cdcmHvLvService, $cdcmEhvAssets,
-      $cdcmHvLvShared
-      if $model->{legacy201};
-
-    my $edcmPurpleUse =
-      $model->{transparencyMasterFlag}
-      ? Arithmetic(
-        name          => 'Total EDCM peak time consumption (kW)',
-        defaultFormat => '0softnz',
-        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52,A53_A54)',
-        arguments     => {
-            A123    => $model->{transparencyMasterFlag},
-            A1      => $model->{transparency}{baselineItem}{119101},
-            A21_A22 => $model->{transparency},
-            A51_A52 => ref $purpleUseRate eq 'ARRAY'
-            ? $purpleUseRate->[0]
-            : $purpleUseRate,
-            A53_A54 => $importCapacity,
-        }
-      )
-      : SumProduct(
-        name   => 'Total EDCM peak time consumption (kW)',
-        vector => ref $purpleUseRate eq 'ARRAY'
-        ? $purpleUseRate->[0]
-        : $purpleUseRate,
-        matrix        => $importCapacity,
-        defaultFormat => '0softnz'
-      );
-
-    $model->{transparency}{dnoTotalItem}{119101} = $edcmPurpleUse
-      if $model->{transparency};
-
-    my $overallPurpleUse = Arithmetic(
-        name          => 'Estimated total peak-time consumption (kW)',
-        defaultFormat => '0softnz',
-        arithmetic    => '=A1+A2',
-        arguments     => { A1 => $cdcmPurpleUse, A2 => $edcmPurpleUse }
-    );
-    $model->{transparency}{dnoTotalItem}{1238} = $overallPurpleUse
-      if $model->{transparency};
-
-    my $rateExit = Arithmetic(
-        name       => 'Transmission exit charging rate (£/kW/year)',
-        arithmetic => '=A1/A2',
-        arguments  => { A1 => $chargeExit, A2 => $overallPurpleUse },
-        location   => 'Charging rates',
-    );
-    $model->{transparency}{dnoTotalItem}{1239} = $rateExit
-      if $model->{transparency};
-
-    # Refactoring marker: end of transmission exit rate calculations
-
     $reactiveCoincidence = Arithmetic(
         name       => "$model->{TimebandName} kVAr/agreed kVA (capped)",
         arithmetic => '=MAX(MIN(SQRT(1-MIN(1,A2)^2),'
@@ -832,6 +578,9 @@ EOT
             A3 => $activeCoincidence935,
         }
     );
+    my ( $rateExit, $edcmPurpleUse ) =
+      $model->exitChargingRate( $cdcmUse, $purpleUseRate, $importCapacity,
+        $chargeExit, );
 
     my ( $charges1, $acCoef, $reCoef ) =
       $model->charge1( $tariffLoc, $locations, $locParent, $c1, $a1d, $r1d,
@@ -960,8 +709,8 @@ EOT
       : Arithmetic(
         name          => 'Net forecast EDCM generation revenue (£/year)',
         defaultFormat => '0softnz',
-        arithmetic =>
-'=SUMPRODUCT(A51_A52,A53_A54)/100+SUMPRODUCT(A71_A72,A73_A74)*A75/100+SUM(A83_A84)*A85/100',
+        arithmetic    => '=SUMPRODUCT(A51_A52,A53_A54)/100+'
+          . 'SUMPRODUCT(A71_A72,A73_A74)*A75/100+SUM(A83_A84)*A85/100',
         arguments => {
             A51_A52 => $genCreditRound,
             A53_A54 => $activeUnits,
@@ -1434,6 +1183,48 @@ EOT
           && $demandScalingShortfall->{arguments}{A9};
 
     }
+
+    my $edcmIndirect = Arithmetic(
+        name          => 'Indirect costs on EDCM demand (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=A1*(A20-A23)',
+        arguments     => {
+            A1  => $rateIndirect,
+            A20 => $totalEdcmAssets,
+            A23 => $totalAssetsGenerationSoleUse,
+        },
+    );
+    $model->{transparency}{dnoTotalItem}{1253} = $edcmIndirect
+      if $model->{transparency};
+
+    my $edcmDirect = Arithmetic(
+        name => 'Direct costs on EDCM demand except'
+          . ' through sole use asset charges (£/year)',
+        groupName     => 'Expenditure allocated to EDCM demand',
+        defaultFormat => '0softnz',
+        arithmetic    => '=A1*(A20+A23)',
+        arguments     => {
+            A1  => $rateDirect,
+            A20 => $totalAssetsCapacity,
+            A23 => $totalAssetsConsumption,
+        },
+    );
+    $model->{transparency}{dnoTotalItem}{1252} = $edcmDirect
+      if $model->{transparency};
+
+    my $edcmRates = Arithmetic(
+        name => 'Network rates on EDCM demand except '
+          . 'through sole use asset charges (£/year)',
+        defaultFormat => '0softnz',
+        arithmetic    => '=A1*(A20+A23)',
+        arguments     => {
+            A1  => $rateRates,
+            A20 => $totalAssetsCapacity,
+            A23 => $totalAssetsConsumption,
+        },
+    );
+    $model->{transparency}{dnoTotalItem}{1255} = $edcmRates
+      if $model->{transparency};
 
     $model->fudge41(
         $activeCoincidence, $importCapacity,
