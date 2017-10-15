@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2014 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -512,7 +512,8 @@ sub tariffInputs {
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
-        !$model->{dcp189} ? () : $model->{dcp189} =~ /proportion/i ? Dataset(
+        !$model->{dcp189}                   ? undef
+        : $model->{dcp189} =~ /proportion/i ? Dataset(
             name => 'Percentage of sole use assets where '
               . 'Customer is entitled to reduction for capitalised O&M',
             defaultFormat => '%hard',
@@ -525,7 +526,8 @@ sub tariffInputs {
                 minimum  => 0,
                 maximum  => 1,
             },
-          ) : Dataset(
+          )
+        : Dataset(
             name => 'Customer entitled to reduction for capitalised O&M',
             defaultFormat => 'puretexthard',
             data          => [ map { 'N' } 1 .. $model->{numTariffs} ],
@@ -535,7 +537,7 @@ sub tariffInputs {
                 validate => 'list',
                 value    => [qw(N Y)],
             },
-          ),
+        ),
         $model->{method} =~ /LRIC/i ? Dataset(
             name          => 'LRIC location',
             defaultFormat => 'texthard',
@@ -550,7 +552,12 @@ sub tariffInputs {
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
           )
-        : undef,
+        : Constant(
+            rows          => $model->{tariffSet},
+            name          => 'Not used',
+            defaultFormat => 'unused',
+            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+        ),
         Dataset(
             name          => 'Customer category for demand scaling',
             rows          => $model->{tariffSet},
@@ -633,7 +640,6 @@ EOL
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
-
         Dataset(
             name          => "$model->{TimebandName} units exported (kWh)",
             defaultFormat => '0hard',
@@ -707,16 +713,7 @@ EOL
         $model->{tariff1Row} && $model->{tariff1Row} > 6
         ? ( sourceLines => [ map { undef; } 7 .. $model->{tariff1Row} ] )
         : (),
-        columns => [
-            map {
-                $_ ? $_ : Constant(
-                    rows          => $model->{tariffSet},
-                    name          => 'Not used',
-                    defaultFormat => 'unused',
-                    data          => [ map { '' } 1 .. $model->{numTariffs} ],
-                  )
-            } @columns
-        ],
+        columns               => [ grep { $_; } @columns ],
         number                => 935,
         location              => 935,
         doNotCopyInputColumns => 1,

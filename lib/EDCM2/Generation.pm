@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -51,7 +51,7 @@ sub gCharge {
             arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5)',
             arguments     => {
                 A123  => $model->{transparencyMasterFlag},
-                A1    => $model->{transparency}{"ol$_->[1]"},
+                A1    => $model->{transparency}{baselineItem}{ $_->[1] },
                 A2_A3 => ${ $_->[0] },
                 A4_A5 => $model->{transparency},
             }
@@ -71,7 +71,7 @@ sub gCharge {
     }
 
     if ( $model->{transparency} ) {
-        $model->{transparency}{olTabCol}{ $_->[1] } = $_->[0]
+        $model->{transparency}{dnoTotalItem}{ $_->[1] } = $_->[0]
           foreach [ $exportCapacityChargeable, 119201 ],
           [ $exportCapacityChargeable20052010, 119202 ],
           [ $exportCapacityChargeablePost2010, 119203 ];
@@ -101,7 +101,7 @@ sub gCharge {
             A9   => $daysInYear,
         }
     );
-    $model->{transparency}{olFYI}{1243} = $exportCapacityCharge
+    $model->{transparency}{dnoTotalItem}{1243} = $exportCapacityCharge
       if $model->{transparency};
     $exportCapacityCharge;
 

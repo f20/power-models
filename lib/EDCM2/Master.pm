@@ -129,64 +129,7 @@ EOT
         $llfcImport,
         $llfcExport,
         $actualRedDemandRate,
-    );
-    if ( $model->{dcp189} ) {
-        (
-            $tariffs,
-            $importCapacity935,
-            $exportCapacity935Exempt,
-            $exportCapacity935ChargeablePre2005,
-            $exportCapacity935Chargeable20052010,
-            $exportCapacity935ChargeablePost2010,
-            $tariffSoleUseMeav,
-            $dcp189Input,
-            $tariffLoc,
-            $tariffCategory,
-            $useProportions,
-            $activeCoincidence935,
-            $reactiveCoincidence935,
-            $indirectExposure,
-            $nonChargeableCapacity935,
-            $activeUnits,
-            $creditableCapacity935,
-            $tariffNetworkSupportFactor,
-            $tariffDaysInYearNot,
-            $tariffHoursInPurpleNot,
-            $previousChargeImport,
-            $previousChargeExport,
-            $llfcImport,
-            $llfcExport,
-            $actualRedDemandRate,
-        ) = $model->tariffInputs($ehvAssetLevelset);
-    }
-    else {
-        (
-            $tariffs,
-            $importCapacity935,
-            $exportCapacity935Exempt,
-            $exportCapacity935ChargeablePre2005,
-            $exportCapacity935Chargeable20052010,
-            $exportCapacity935ChargeablePost2010,
-            $tariffSoleUseMeav,
-            $tariffLoc,
-            $tariffCategory,
-            $useProportions,
-            $activeCoincidence935,
-            $reactiveCoincidence935,
-            $indirectExposure,
-            $nonChargeableCapacity935,
-            $activeUnits,
-            $creditableCapacity935,
-            $tariffNetworkSupportFactor,
-            $tariffDaysInYearNot,
-            $tariffHoursInPurpleNot,
-            $previousChargeImport,
-            $previousChargeExport,
-            $llfcImport,
-            $llfcExport,
-            $actualRedDemandRate,
-        ) = $model->tariffInputs($ehvAssetLevelset);
-    }
+    ) = $model->tariffInputs($ehvAssetLevelset);
 
     my ( $locations, $locParent, $c1, $a1d, $r1d, $a1g, $r1g ) =
       $model->loadFlowInputs;
@@ -379,7 +322,8 @@ EOT
             my @cols;
             foreach my $col ( 1 .. ( $#$set - 1 ) ) {
                 push @cols,
-                  $model->{transparency}{"ol$set->[0]0$col"} = Dataset(
+                  $model->{transparency}{baselineItem}{ 100 * $set->[0] + $col }
+                  = Dataset(
                     name          => $set->[$col][0],
                     defaultFormat => $set->[$col][1],
                     data          => [ [''] ],
@@ -544,7 +488,8 @@ EOT
         },
         location => 'Charging rates',
     );
-    $model->{transparency}{olFYI}{1245} = $rateDirect if $model->{transparency};
+    $model->{transparency}{dnoTotalItem}{1245} = $rateDirect
+      if $model->{transparency};
 
     my $rateRates = Arithmetic(
         name          => 'Network rates charging rate',
@@ -560,7 +505,8 @@ EOT
         },
         location => 'Charging rates',
     );
-    $model->{transparency}{olFYI}{1246} = $rateRates if $model->{transparency};
+    $model->{transparency}{dnoTotalItem}{1246} = $rateRates
+      if $model->{transparency};
 
     my $rateIndirect = Arithmetic(
         name          => 'Indirect cost charging rate',
@@ -579,7 +525,7 @@ EOT
         },
         location => 'Charging rates',
     );
-    $model->{transparency}{olFYI}{1250} = $rateIndirect
+    $model->{transparency}{dnoTotalItem}{1250} = $rateIndirect
       if $model->{transparency};
 
     my $edcmIndirect = Arithmetic(
@@ -594,7 +540,7 @@ EOT
             A23 => $totalAssetsGenerationSoleUse,
         },
     );
-    $model->{transparency}{olFYI}{1253} = $edcmIndirect
+    $model->{transparency}{dnoTotalItem}{1253} = $edcmIndirect
       if $model->{transparency};
 
     my $edcmDirect = Arithmetic(
@@ -609,7 +555,8 @@ EOT
             A23 => $totalAssetsConsumption,
         },
     );
-    $model->{transparency}{olFYI}{1252} = $edcmDirect if $model->{transparency};
+    $model->{transparency}{dnoTotalItem}{1252} = $edcmDirect
+      if $model->{transparency};
 
     my $edcmRates = Arithmetic(
         name => 'Network rates on EDCM demand except '
@@ -622,7 +569,8 @@ EOT
             A23 => $totalAssetsConsumption,
         },
     );
-    $model->{transparency}{olFYI}{1255} = $edcmRates if $model->{transparency};
+    $model->{transparency}{dnoTotalItem}{1255} = $edcmRates
+      if $model->{transparency};
 
     my $fixedDcharge =
       !$model->{dcp189} ? Arithmetic(
@@ -750,7 +698,7 @@ EOT
             arithmetic => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A13_A14,A15_A16)',
             arguments  => {
                 A123    => $model->{transparencyMasterFlag},
-                A1      => $model->{transparency}{ol119306},
+                A1      => $model->{transparency}{baselineItem}{119306},
                 A11_A12 => $demandSoleUseAsset,
                 A13_A14 => $dcp189Input,
                 A15_A16 => $model->{transparency},
@@ -763,7 +711,7 @@ EOT
             arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
             arguments     => {
                 A123    => $model->{transparencyMasterFlag},
-                A1      => $model->{transparency}{ol119306},
+                A1      => $model->{transparency}{baselineItem}{119306},
                 A11_A12 => Arithmetic(
                     name => 'Demand sole use assets '
                       . 'qualifying for DCP 189 discount (£)',
@@ -796,7 +744,7 @@ EOT
         }
       ) if $model->{dcp189} && $model->{dcp189} =~ /preservePot|split/i;
 
-    $model->{transparency}{olTabCol}{119306} = $totalDcp189DiscountedAssets
+    $model->{transparency}{dnoTotalItem}{119306} = $totalDcp189DiscountedAssets
       if $model->{transparency} && $totalDcp189DiscountedAssets;
 
     # Refactoring marker: start of transmission exit rate calculations
@@ -806,7 +754,7 @@ EOT
         name    => 'Total CDCM peak time consumption (kW)',
         sources => [$cdcmUse]
     );
-    $model->{transparency}{olFYI}{1237} = $cdcmPurpleUse
+    $model->{transparency}{dnoTotalItem}{1237} = $cdcmPurpleUse
       if $model->{transparency};
 
     push @{ $model->{calc3Tables} }, $cdcmHvLvService, $cdcmEhvAssets,
@@ -821,7 +769,7 @@ EOT
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52,A53_A54)',
         arguments     => {
             A123    => $model->{transparencyMasterFlag},
-            A1      => $model->{transparency}{ol119101},
+            A1      => $model->{transparency}{baselineItem}{119101},
             A21_A22 => $model->{transparency},
             A51_A52 => ref $purpleUseRate eq 'ARRAY'
             ? $purpleUseRate->[0]
@@ -838,7 +786,7 @@ EOT
         defaultFormat => '0softnz'
       );
 
-    $model->{transparency}{olTabCol}{119101} = $edcmPurpleUse
+    $model->{transparency}{dnoTotalItem}{119101} = $edcmPurpleUse
       if $model->{transparency};
 
     my $overallPurpleUse = Arithmetic(
@@ -847,7 +795,7 @@ EOT
         arithmetic    => '=A1+A2',
         arguments     => { A1 => $cdcmPurpleUse, A2 => $edcmPurpleUse }
     );
-    $model->{transparency}{olFYI}{1238} = $overallPurpleUse
+    $model->{transparency}{dnoTotalItem}{1238} = $overallPurpleUse
       if $model->{transparency};
 
     my $rateExit = Arithmetic(
@@ -856,7 +804,8 @@ EOT
         arguments  => { A1 => $chargeExit, A2 => $overallPurpleUse },
         location   => 'Charging rates',
     );
-    $model->{transparency}{olFYI}{1239} = $rateExit if $model->{transparency};
+    $model->{transparency}{dnoTotalItem}{1239} = $rateExit
+      if $model->{transparency};
 
     # Refactoring marker: end of transmission exit rate calculations
 
@@ -995,7 +944,7 @@ EOT
           . '+SUMPRODUCT(A31_A32,A71_A72,A73_A74)*A75/100+SUMPRODUCT(A41_A42,A83_A84)*A85/100',
         arguments => {
             A123    => $model->{transparencyMasterFlag},
-            A1      => $model->{transparency}{ol119105},
+            A1      => $model->{transparency}{baselineItem}{119105},
             A21_A22 => $model->{transparency},
             A31_A32 => $model->{transparency},
             A41_A42 => $model->{transparency},
@@ -1024,7 +973,7 @@ EOT
         }
       );
 
-    $model->{transparency}{olTabCol}{119105} = $generationRevenue
+    $model->{transparency}{dnoTotalItem}{119105} = $generationRevenue
       if $model->{transparency};
 
 # Refactoring marker: end of export capacity charge and net export revenue calculation
@@ -1063,7 +1012,7 @@ EOT
             : (),
         }
     );
-    $model->{transparency}{olFYI}{1248} = $chargeOther
+    $model->{transparency}{dnoTotalItem}{1248} = $chargeOther
       if $model->{transparency};
 
     my $rateOther = Arithmetic(
@@ -1080,7 +1029,7 @@ EOT
         },
         location => 'Charging rates',
     );
-    $model->{transparency}{olFYI}{1249} = $rateOther
+    $model->{transparency}{dnoTotalItem}{1249} = $rateOther
       if $model->{transparency};
 
     my $totalRevenue3;
@@ -1176,7 +1125,7 @@ EOT
 
     }
 
-    $model->{transparency}{olFYI}{1201} = $totalRevenue3
+    $model->{transparency}{dnoTotalItem}{1201} = $totalRevenue3
       if $model->{transparency};
 
     push @{ $model->{calc3Tables} }, $totalRevenue3;
@@ -1441,8 +1390,8 @@ EOT
                           . 'SUMPRODUCT(A66_A67,A41_A42,A43_A44,A35_A36,A51_A52)/A54'
                           . ')*A9/100',
                         arguments => {
-                            A123    => $model->{transparencyMasterFlag},
-                            A1      => $model->{transparency}{ol119104},
+                            A123 => $model->{transparencyMasterFlag},
+                            A1 => $model->{transparency}{baselineItem}{119104},
                             A31_A32 => $capacityChargeT1,
                             A33_A34 => $importCapacity,
                             A9      => $daysInYear,
@@ -1477,9 +1426,9 @@ EOT
             },
         );
 
-        $model->{transparency}{olFYI}{1254} = $demandScalingShortfall
+        $model->{transparency}{dnoTotalItem}{1254} = $demandScalingShortfall
           if $model->{transparency};
-        $model->{transparency}{olTabCol}{119104} =
+        $model->{transparency}{dnoTotalItem}{119104} =
           $demandScalingShortfall->{arguments}{A9}
           if $model->{transparency}
           && $demandScalingShortfall->{arguments}{A9};
@@ -2186,11 +2135,15 @@ EOT
       if $model->{transparencyImpact};
 
     if ( $model->{transparency} ) {
-        my %olTabCol;
-        while ( my ( $num, $obj ) = each %{ $model->{transparency}{olTabCol} } )
+        my %dnoTotalItem;
+        foreach (
+            grep { $_ > 99_999; }
+            keys %{ $model->{transparency}{dnoTotalItem} }
+          )
         {
-            my $number = int( $num / 100 );
-            $olTabCol{$number}[ $num - $number * 100 - 1 ] = $obj;
+            my $number = int( $_ / 100 );
+            $dnoTotalItem{$number}[ $_ - $number * 100 - 1 ] =
+              $model->{transparency}{dnoTotalItem}{$_};
         }
         $model->{aggregateTables} = [
             (
@@ -2201,7 +2154,7 @@ EOT
                         number        => 3600 + $_->[0],
                         columns       => [
                             map { Stack( sources => [$_] ) }
-                              @{ $olTabCol{ $_->[0] } }
+                              @{ $dnoTotalItem{ $_->[0] } }
                         ]
                       )
                   }[ 1191 => 'EDCM demand aggregates' ],
@@ -2210,7 +2163,7 @@ EOT
             ),
             (
                 map {
-                    my $obj  = $model->{transparency}{olFYI}{$_};
+                    my $obj  = $model->{transparency}{dnoTotalItem}{$_};
                     my $name = 'Copy of ' . $obj->{name};
                     $obj->isa('SpreadsheetModel::Columnset')
                       ? Columnset(
@@ -2226,8 +2179,9 @@ EOT
                         number  => 3600 + $_,
                         sources => [$obj]
                       );
-                  } sort { $a <=> $b }
-                  keys %{ $model->{transparency}{olFYI} }
+                  } sort { $a <=> $b; }
+                  grep   { $_ < 100_000; }
+                  keys %{ $model->{transparency}{dnoTotalItem} }
             )
         ];
     }

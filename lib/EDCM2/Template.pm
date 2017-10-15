@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2013-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -436,9 +436,11 @@ sub vbaWrite {
 
     my $populate119x = '';
 
-    while ( my ( $num, $obj ) = each %{ $model->{transparency}{olTabCol} } ) {
+    while ( my ( $num, $obj ) = each %{ $model->{transparency}{dnoTotalItem} } )
+    {
         my @src = $obj->wsWrite( $wb, $ws );
-        my @dst = $model->{transparency}{"ol$num"}->wsWrite( $wb, $ws );
+        my @dst =
+          $model->{transparency}{baselineItem}{$num}->wsWrite( $wb, $ws );
         $populate119x .=
             '    Sheets("'
           . $dst[0]->get_name

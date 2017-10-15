@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -54,7 +54,7 @@ sub fudge41 {
             A92 => $rates,
         },
     );
-    $model->{transparency}{olFYI}{1259} = $adderAmount
+    $model->{transparency}{dnoTotalItem}{1259} = $adderAmount
       if $model->{transparency};
 
     my $ynonFudge = Constant(
@@ -136,7 +136,7 @@ sub fudge41 {
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5,A6_A7)',
         arguments     => {
             A123  => $model->{transparencyMasterFlag},
-            A1    => $model->{transparency}{ol119102},
+            A1    => $model->{transparency}{baselineItem}{119102},
             A2_A3 => $model->{transparency},
             A4_A5 => $fudgeIndirect,
             A6_A7 => $agreedCapacity,
@@ -149,7 +149,7 @@ sub fudge41 {
         vector        => $agreedCapacity
       );
 
-    $model->{transparency}{olTabCol}{119102} = $totalIndirectFudge
+    $model->{transparency}{dnoTotalItem}{119102} = $totalIndirectFudge
       if $model->{transparency};
 
     my $indirectAppRate =
@@ -177,7 +177,7 @@ sub fudge41 {
         },
         location => 'Charging rates',
       );
-    $model->{transparency}{olFYI}{1262} = $indirectAppRate
+    $model->{transparency}{dnoTotalItem}{1262} = $indirectAppRate
       if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
@@ -236,7 +236,7 @@ sub fudge41 {
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5)',
         arguments     => {
             A123  => $model->{transparencyMasterFlag},
-            A1    => $model->{transparency}{ol119103},
+            A1    => $model->{transparency}{baselineItem}{119103},
             A2_A3 => $model->{transparency},
             A4_A5 => $slope,
         },
@@ -247,7 +247,7 @@ sub fudge41 {
         source        => $slope
       );
 
-    $model->{transparency}{olTabCol}{119103} = $totalSlope
+    $model->{transparency}{dnoTotalItem}{119103} = $totalSlope
       if $model->{transparency};
 
     my $fixedAdderRate =
@@ -276,7 +276,7 @@ sub fudge41 {
         },
         location => 'Charging rates',
       );
-    $model->{transparency}{olFYI}{1261} = $fixedAdderRate
+    $model->{transparency}{dnoTotalItem}{1261} = $fixedAdderRate
       if $model->{transparency};
 
     $$capacityChargeRef = Arithmetic(
@@ -374,7 +374,7 @@ sub fudge41 {
             A82 => $rates,
         },
     );
-    $model->{transparency}{olFYI}{1257} = $$shortfallRef
+    $model->{transparency}{dnoTotalItem}{1257} = $$shortfallRef
       if $model->{transparency};
 
     0 and Columnset(
@@ -432,7 +432,7 @@ sub demandScaling41 {
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52)',
         arguments     => {
             A123    => $model->{transparencyMasterFlag},
-            A1      => $model->{transparency}{ol119305},
+            A1      => $model->{transparency}{baselineItem}{119305},
             A21_A22 => $model->{transparency},
             A51_A52 => $slopeCapacity,
         }
@@ -443,7 +443,7 @@ sub demandScaling41 {
         source        => $slopeCapacity,
       );
 
-    $model->{transparency}{olTabCol}{119305} = $totalSlopeCapacity
+    $model->{transparency}{dnoTotalItem}{119305} = $totalSlopeCapacity
       if $model->{transparency};
 
     my $minCapacity = Arithmetic(
@@ -478,7 +478,7 @@ sub demandScaling41 {
           { A1 => $shortfall, A4 => $shortfall, A2 => $totalSlopeCapacity, },
         location => 'Charging rates',
       );
-    $model->{transparency}{olFYI}{1258} = $demandScaling
+    $model->{transparency}{dnoTotalItem}{1258} = $demandScaling
       if $model->{transparency};
 
     my $scalingChargeCapacity = Arithmetic(

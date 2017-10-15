@@ -123,7 +123,8 @@ EOT
         ),
         vector => $allAssets
     );
-    $model->{transparency}{olFYI}{1233} = $ehvAssets if $model->{transparency};
+    $model->{transparency}{dnoTotalItem}{1233} = $ehvAssets
+      if $model->{transparency};
 
     my $hvLvNetAssets = SumProduct(
         name          => 'HV and LV network assets in CDCM model (£)',
@@ -136,7 +137,7 @@ EOT
         ),
         vector => $allAssets
     );
-    $model->{transparency}{olFYI}{1235} = $hvLvNetAssets
+    $model->{transparency}{dnoTotalItem}{1235} = $hvLvNetAssets
       if $model->{transparency};
 
     my $hvLvServAssets = SumProduct(
@@ -150,7 +151,7 @@ EOT
         ),
         vector => $allAssets
     );
-    $model->{transparency}{olFYI}{1231} = $hvLvServAssets
+    $model->{transparency}{dnoTotalItem}{1231} = $hvLvServAssets
       if $model->{transparency};
 
     $allAssets, $ehvAssets, $hvLvNetAssets, $hvLvServAssets;
@@ -378,7 +379,7 @@ EOL
         $customerCategory, $accretion, $diversity, $capUseRate, $purpleUseRate,
       );
 
-    $model->{transparency}{olFYI}{1225} = $accretion
+    $model->{transparency}{dnoTotalItem}{1225} = $accretion
       if $model->{transparency};
 
     my $totalAssetsFixed =
@@ -390,7 +391,7 @@ EOL
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
         arguments     => {
             A123    => $model->{transparencyMasterFlag},
-            A1      => $model->{transparency}{ol119301},
+            A1      => $model->{transparency}{baselineItem}{119301},
             A11_A12 => $tariffSUimport,
             A15_A16 => $model->{transparency},
         },
@@ -402,7 +403,7 @@ EOL
         defaultFormat => '0softnz'
       );
 
-    $model->{transparency}{olTabCol}{119301} = $totalAssetsFixed
+    $model->{transparency}{dnoTotalItem}{119301} = $totalAssetsFixed
       if $model->{transparency};
 
     my ( $totalAssetsCapacity, $totalAssetsConsumption ) =
@@ -419,7 +420,7 @@ EOL
                   '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A13_A14,A15_A16)',
                 arguments => {
                     A123    => $model->{transparencyMasterFlag},
-                    A1      => $model->{transparency}{"ol$_->[1]"},
+                    A1      => $model->{transparency}{baselineItem}{ $_->[1] },
                     A11_A12 => $_->[0],
                     A13_A14 => $agreedCapacity,
                     A15_A16 => $model->{transparency},
@@ -442,8 +443,8 @@ EOL
       );
 
     if ( $model->{transparency} ) {
-        $model->{transparency}{olTabCol}{119303} = $totalAssetsCapacity;
-        $model->{transparency}{olTabCol}{119304} = $totalAssetsConsumption;
+        $model->{transparency}{dnoTotalItem}{119303} = $totalAssetsCapacity;
+        $model->{transparency}{dnoTotalItem}{119304} = $totalAssetsConsumption;
     }
 
     my $totalAssetsGenerationSoleUse =
@@ -454,7 +455,7 @@ EOL
         arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A11_A12,A15_A16)',
         arguments     => {
             A123    => $model->{transparencyMasterFlag},
-            A1      => $model->{transparency}{ol119302},
+            A1      => $model->{transparency}{baselineItem}{119302},
             A11_A12 => $tariffSUexport,
             A15_A16 => $model->{transparency},
         },
@@ -465,7 +466,7 @@ EOL
         defaultFormat => $tariffSUexport->{defaultFormat}
       );
 
-    $model->{transparency}{olTabCol}{119302} = $totalAssetsGenerationSoleUse
+    $model->{transparency}{dnoTotalItem}{119302} = $totalAssetsGenerationSoleUse
       if $model->{transparency};
 
     push @{ $model->{calc1Tables} },
@@ -480,7 +481,7 @@ EOL
             A8 => $totalAssetsGenerationSoleUse,
         }
       );
-    $model->{transparency}{olFYI}{1229} = $totalAssets
+    $model->{transparency}{dnoTotalItem}{1229} = $totalAssets
       if $model->{transparency};
 
     $lossFactors, $diversity, $accretion, $purpleUseRate, $capUseRate,
