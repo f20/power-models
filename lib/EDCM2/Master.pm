@@ -32,19 +32,22 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use EDCM2::Adjust;
-use EDCM2::Assets;
-use EDCM2::Charges;
-use EDCM2::Generation;
-use EDCM2::Inputs;
-use EDCM2::Ldno;
-use EDCM2::Locations;
-use EDCM2::Scaling;
-use EDCM2::Sheets;
 
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
-    $ruleset->{transparency}
+    qw(
+      EDCM2::Adjust
+      EDCM2::Assets
+      EDCM2::Charge1
+      EDCM2::Demand
+      EDCM2::Generation
+      EDCM2::Inputs
+      EDCM2::Ldno
+      EDCM2::Locations
+      EDCM2::Scaling
+      EDCM2::Sheets
+      EDCM2::Summaries
+      ), $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
       $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
       $ruleset->{takenForAnIdiot} ? qw(EDCM2::IdiotMitigation) : (),
@@ -296,9 +299,12 @@ EOT
     $model->{transparency} = Arithmetic(
         name  => 'Weighting of each tariff for reconciliation of totals',
         lines => [
-'0 means that the tariff is active and is included in the table 119x aggregates.',
-'-1 means that the tariff is included in the table 119x aggregates but should be removed.',
-'1 means that the tariff is active and is not included in the table 119x aggregates.',
+            '0 means that the tariff is active and'
+              . ' is included in the table 119x aggregates.',
+            '-1 means that the tariff is included in'
+              . ' the table 119x aggregates but should be removed.',
+            '1 means that the tariff is active and'
+              . ' is not included in the table 119x aggregates.',
         ],
         arithmetic => '=IF(OR(A3,'
           . 'NOT(ISERROR(SEARCH("[ADDED]",A2))))' . ',1,'
