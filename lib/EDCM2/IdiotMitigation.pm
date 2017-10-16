@@ -53,49 +53,13 @@ sub demandRevenuePotAdj {
         appendTo      => $self->{model}{inputTables},
         number        => 11951,
     );
-    $self->{demandSoleUseAssetAdjuster} = sub {
-        my ($sharedAssetsAdj) = @_;
-        if ($sharedAssetsAdj) {
-            $self->{demandSoleUseAssetAdjustment} = Arithmetic(
-                name => 'Adjustment to EDCM demand sole use assets (£)',
-                defaultFormat => '0softpm',
-                arithmetic    => '=(A1-A2'
-                  . '-A41*(A61-A51*(A71+A72))/(A62/A52/(A73+A74)+A42)'
-                  . ')/(A21+A22+A23)',
-                arguments => {
-                    A1  => $demandRevenuePot,
-                    A2  => $totalRevenue3,
-                    A21 => $rateDirect,
-                    A22 => $rateRates,
-                    A23 => $rateIndirect,
-                    A41 => $sharedAssetsAdj,
-                    A42 => $sharedAssetsAdj,
-                    A51 => $rateOther,
-                    A52 => $rateOther,
-                    A61 => $chargeOther,
-                    A62 => $chargeOther,
-                    A71 => $totalAssetsCapacity,
-                    A72 => $totalAssetsConsumption,
-                    A73 => $totalAssetsCapacity,
-                    A74 => $totalAssetsConsumption,
-                },
-            );
-        }
-        else {
-            $self->{demandSoleUseAssetAdjustment} = Arithmetic(
-                name => 'Adjustment to EDCM demand sole use assets (£)',
-                defaultFormat => '0softpm',
-                arithmetic    => '=(A1-A2)/(A21+A22+A23)',
-                arguments     => {
-                    A1  => $demandRevenuePot,
-                    A2  => $totalRevenue3,
-                    A21 => $rateDirect,
-                    A22 => $rateRates,
-                    A23 => $rateIndirect,
-                },
-            );
-        }
-    };
+    $self->{constraintDemandRevenuePot} = [
+        $demandRevenuePot, $totalRevenue3,
+        $rateDirect,       $rateRates,
+        $rateIndirect,     $rateOther,
+        $chargeOther,      $totalAssetsCapacity,
+        $totalAssetsConsumption,
+    ];
     $demandRevenuePot;
 }
 
@@ -109,7 +73,7 @@ sub gChargeAdj {
         appendTo      => $self->{model}{inputTables},
         number        => 11954,
     );
-    $self->{exportCapacityChargeable20052010adj} = Arithmetic(
+    $self->{adjustmentExportCapacityChargeablePost2010} = Arithmetic(
         name => 'Adjustment to EDCM post-2010 non-exempt export capacity (kVA)',
         defaultFormat => '0softpm',
         arithmetic    => '=1/(1/A4-A7*0.01*(A1-A2)/A3/A6)-A5',
@@ -127,7 +91,9 @@ sub gChargeAdj {
 }
 
 sub exitChargeAdj {
-    my ( $self, ) = @_;
+    my ( $self, $rateExit, $edcmPurpleUse, $chargeExit, $purpleUseRate,
+        $importCapacity, )
+      = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
@@ -139,12 +105,33 @@ sub exitChargeAdj {
         data          => [1e4],
     );
     Columnset(
-        name     => 'Demand transmission exit charge for a site',
+        name => 'Demand transmission exit charge for a non-pathological site',
         columns  => [ $tariffIndex, $charge, ],
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11960,
     );
+    my $rateExitAdjusted = Arithmetic(
+        name       => 'Adjusted transmission exit charging rate (£/kW/year)',
+        arithmetic => '=A1/INDEX(A2_A21,A22)/INDEX(A3_A31,A32)',
+        arguments  => {
+            A1     => $charge,
+            A2_A21 => $purpleUseRate,
+            A3_A31 => $importCapacity,
+            A22    => $tariffIndex,
+            A32    => $tariffIndex,
+        }
+    );
+    $rateExitAdjusted,
+      $self->{adjustedEdcmPurpleUse} = Arithmetic(
+        name          => 'Adjusted total EDCM peak-time consumption (kW)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1/A2',
+        arguments     => {
+            A1 => $chargeExit,
+            A2 => $rateExitAdjusted,
+        },
+      );
 }
 
 sub fixedChargeAdj {
@@ -252,8 +239,10 @@ sub fixedChargeAdj {
     $rateDirectAdjusted, $rateRatesAdjusted, $rateIndirectAdjusted;
 }
 
-sub indirectChargeAdj {# does nothing at present
-    my ( $self, $indirectChargingRate,$denominator ) = @_;
+sub indirectChargeAdj {
+    my ( $self, $indirectChargingRate, $fudgeIndirect, $agreedCapacity,
+        $indirect, )
+      = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
@@ -270,11 +259,29 @@ sub indirectChargeAdj {# does nothing at present
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11962,
-    );$indirectChargingRate,$denominator;
+    );
+    my $indirectChargingRateAdjusted = Arithmetic(
+        name       => 'Adjusted indirect costs application rate',
+        arithmetic => '=A1/INDEX(A2_A3,A4)/INDEX(A5_A6,A7)',
+        arguments  => {
+            A1    => $charge,
+            A2_A3 => $fudgeIndirect,
+            A4    => $tariffIndex,
+            A5_A6 => $agreedCapacity,
+            A7    => $tariffIndex,
+        },
+    );
+    $self->{constraintIndirectChargingRate} = [
+        $indirectChargingRateAdjusted, $indirectChargingRate,
+        $fudgeIndirect,                $agreedCapacity,
+        $indirect,
+    ];
+    $indirectChargingRateAdjusted;
 }
 
-sub fixedAdderAdj {# does nothing at present
-    my ( $self, ) = @_;
+sub fixedAdderAdj {
+    my ( $self, $fixedAdderChargingRate, $slope, $ynonFudge41, $adderAmount, )
+      = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
@@ -292,6 +299,7 @@ sub fixedAdderAdj {# does nothing at present
         appendTo => $self->{model}{inputTables},
         number   => 11963,
     );
+    $fixedAdderChargingRate;
 }
 
 sub assetAdderAdj {
@@ -341,8 +349,8 @@ sub assetAdderAdj {
     );
 }
 
-sub directCostAdj { # does nothing at present
-    my ( $self, $direct,$rates,) = @_;
+sub directCostAdj {
+    my ( $self, $direct, $rates, ) = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
@@ -359,42 +367,47 @@ sub directCostAdj { # does nothing at present
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11965,
-    );$direct,$rates;
+    );
+    $direct, $rates;
 }
 
 sub calcTables {
+
     my ($self) = @_;
+
+  # do the calculations here, except the final adjustment step where applicable.
+
     [
         grep { $_; } @{$self}{
             qw(
-              edcmPurpleUseAdjustment
-              edcmAssetAdjustment
-              demandSoleUseAssetAdjustment
-              cookedSharedAssetAdjustment
-              demandSharedAssetAdjustment
-              adjustedShortfall adjustedDirectCharge adjustedRatesCharge
-              exportCapacityChargeable20052010adj
+              adjustedEdcmPurpleUse
+              adjustmentExportCapacityChargeablePost2010
               )
         }
     ];
+
 }
 
 sub adjustDnoTotals {
 
     my ( $self, $model, $hashedArrays, ) = @_;
 
-    $self->{demandSoleUseAssetAdjuster}->( $self->{sharedAssetsAdj} )
-      if $self->{demandSoleUseAssetAdjuster};
+    if ( $self->{adjustedEdcmPurpleUse} ) {
+        $hashedArrays->{1191}[0] = Stack(
+            name    => 'Adjusted total EDCM peak time consumption (kW)',
+            sources => [ $self->{adjustedEdcmPurpleUse} ]
+        );
+    }
 
-    if ( $self->{exportCapacityChargeable20052010adj} ) {
+    if ( $self->{adjustmentExportCapacityChargeablePost2010} ) {
         $hashedArrays->{1192}[0] = Arithmetic(
             name => 'Adjusted chargeable export capacity baseline (kVA)',
             defaultFormat => '0soft',
             arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
             arguments     => {
                 A1 => $hashedArrays->{1192}[0]{sources}[0],
-                A2 => $self->{exportCapacityChargeable20052010adj},
-                A3 => $self->{exportCapacityChargeable20052010adj},
+                A2 => $self->{adjustmentExportCapacityChargeablePost2010},
+                A3 => $self->{adjustmentExportCapacityChargeablePost2010},
             },
         );
         $hashedArrays->{1192}[2] = Arithmetic(
@@ -404,107 +417,8 @@ sub adjustDnoTotals {
             arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
             arguments     => {
                 A1 => $hashedArrays->{1192}[2]{sources}[0],
-                A2 => $self->{exportCapacityChargeable20052010adj},
-                A3 => $self->{exportCapacityChargeable20052010adj},
-            },
-        );
-    }
-
-    if ( $self->{demandSoleUseAssetAdjustment} ) {
-
-        $hashedArrays->{1193}[0] = Arithmetic(
-            name          => 'Adjusted demand sole use assets baseline (£)',
-            defaultFormat => '0soft',
-            arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
-            arguments     => {
-                A1 => $hashedArrays->{1193}[0]{sources}[0],
-                A2 => $self->{demandSoleUseAssetAdjustment},
-                A3 => $self->{demandSoleUseAssetAdjustment},
-            },
-        );
-
-        if ( $self->{demandSharedAssetAdjustment} ) {
-            $hashedArrays->{1193}[1] = Arithmetic(
-                name => 'Adjusted generation sole use assets baseline (£)',
-                defaultFormat => '0soft',
-                arithmetic => '=A1+IF(ISNUMBER(A2),A3,0)-IF(ISNUMBER(A4),A5,0)'
-                  . '-IF(ISNUMBER(A61),A6,0)*(A7+A8)',
-                arguments => {
-                    A1  => $hashedArrays->{1193}[1]{sources}[0],
-                    A2  => $self->{edcmAssetAdjustment},
-                    A3  => $self->{edcmAssetAdjustment},
-                    A4  => $self->{demandSoleUseAssetAdjustment},
-                    A5  => $self->{demandSoleUseAssetAdjustment},
-                    A6  => $self->{demandSharedAssetAdjustment},
-                    A61 => $self->{demandSharedAssetAdjustment},
-                    A7  => $hashedArrays->{1193}[2]{sources}[0],
-                    A8  => $hashedArrays->{1193}[3]{sources}[0],
-                },
-            ) if $self->{edcmAssetAdjustment};
-            $hashedArrays->{1193}[2] = Arithmetic(
-                name          => 'Adjusted demand capacity assets baseline (£)',
-                defaultFormat => '0soft',
-                arithmetic    => '=A1*(1+IF(ISNUMBER(A2),A3,0))',
-                arguments     => {
-                    A1 => $hashedArrays->{1193}[2]{sources}[0],
-                    A2 => $self->{demandSharedAssetAdjustment},
-                    A3 => $self->{demandSharedAssetAdjustment},
-                },
-            );
-            $hashedArrays->{1193}[3] = Arithmetic(
-                name => 'Adjusted demand consumption assets baseline (£)',
-                defaultFormat => '0soft',
-                arithmetic    => '=A1*(1+IF(ISNUMBER(A2),A3,0))',
-                arguments     => {
-                    A1 => $hashedArrays->{1193}[3]{sources}[0],
-                    A2 => $self->{demandSharedAssetAdjustment},
-                    A3 => $self->{demandSharedAssetAdjustment},
-                },
-            );
-
-        }
-        else {
-
-            $hashedArrays->{1193}[1] = Arithmetic(
-                name => 'Adjusted generation sole use assets baseline (£)',
-                defaultFormat => '0soft',
-                arithmetic => '=A1+IF(ISNUMBER(A2),A3,0)-IF(ISNUMBER(A4),A5,0)',
-                arguments  => {
-                    A1 => $hashedArrays->{1193}[1]{sources}[0],
-                    A2 => $self->{edcmAssetAdjustment},
-                    A3 => $self->{edcmAssetAdjustment},
-                    A4 => $self->{demandSoleUseAssetAdjustment},
-                    A5 => $self->{demandSoleUseAssetAdjustment},
-                },
-            ) if $self->{edcmAssetAdjustment};
-
-        }
-
-    }
-
-    elsif ( $self->{edcmAssetAdjustment} )
-    { # No pot data: put the whole EDCM asset adjustment on generation sole use assets
-        $hashedArrays->{1193}[1] = Arithmetic(
-            name          => 'Adjusted generation sole use assets baseline (£)',
-            defaultFormat => '0soft',
-            arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
-            arguments     => {
-                A1 => $hashedArrays->{1193}[1]{sources}[0],
-                A2 => $self->{edcmAssetAdjustment},
-                A3 => $self->{edcmAssetAdjustment},
-            },
-        );
-    }
-
-    if ( $self->{cookedSharedAssetAdjustment} ) {
-        $hashedArrays->{1193}[4] = Arithmetic(
-            name => 'Adjusted chargeable export capacity baseline (kVA)',
-            defaultFormat => '0soft',
-            arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
-            arguments     => {
-                A1 => $hashedArrays->{1193}[4]{sources}[0],
-                A2 => $self->{cookedSharedAssetAdjustment},
-                A3 => $self->{cookedSharedAssetAdjustment},
+                A2 => $self->{adjustmentExportCapacityChargeablePost2010},
+                A3 => $self->{adjustmentExportCapacityChargeablePost2010},
             },
         );
     }

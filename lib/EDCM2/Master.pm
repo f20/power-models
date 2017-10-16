@@ -579,6 +579,11 @@ EOT
       $model->exitChargingRate( $cdcmUse, $purpleUseRate, $importCapacity,
         $chargeExit, );
 
+    ( $rateExit, $edcmPurpleUse ) = $model->{takenForAnIdiot}->exitChargeAdj(
+        $rateExit,      $edcmPurpleUse, $chargeExit,
+        $purpleUseRate, $importCapacity,
+    ) if $model->{takenForAnIdiot};
+
     my ( $charges1, $acCoef, $reCoef ) =
       $model->charge1( $tariffLoc, $locations, $locParent, $c1, $a1d, $r1d,
         $a1g, $r1g,

@@ -180,9 +180,10 @@ sub fudge41 {
     $model->{transparency}{dnoTotalItem}{1262} = $indirectAppRate
       if $model->{transparency};
 
-    ( $indirect, $indirectAppRate ) =
+    ($indirectAppRate) =
       $model->{takenForAnIdiot}
-      ->indirectChargeAdj( $indirect, $indirectAppRate )
+      ->indirectChargeAdj( $indirectAppRate, $fudgeIndirect, $agreedCapacity,
+        $indirect, )
       if $model->{takenForAnIdiot};
 
     $$capacityChargeRef = Arithmetic(
@@ -283,6 +284,11 @@ sub fudge41 {
       );
     $model->{transparency}{dnoTotalItem}{1261} = $fixedAdderRate
       if $model->{transparency};
+
+    ($fixedAdderRate) =
+      $model->{takenForAnIdiot}
+      ->fixedAdderAdj( $fixedAdderRate, $slope, $ynonFudge41, $adderAmount, )
+      if $model->{takenForAnIdiot};
 
     $$capacityChargeRef = Arithmetic(
         arithmetic => '=A1+A3*(A7+A4)*100/A9'
