@@ -377,39 +377,15 @@ sub fudge41 {
     $model->{transparency}{dnoTotalItem}{1257} = $$shortfallRef
       if $model->{transparency};
 
-    0 and Columnset(
-        name    => 'Calculation of revenue shortfall',
-        columns => [$$shortfallRef]
-    );
-
-    $model->{directShareOfAssetBasedAllocation} = Arithmetic(
-        name          => 'Direct cost share of asset-based allocation',
-        defaultFormat => '%soft',
-        arithmetic    => '=A1/A2',
-        arguments     => {
-            A1 => $direct,
-            A2 => $$shortfallRef,
-        }
-    );
-
-    $model->{ratesShareOfAssetBasedAllocation} = Arithmetic(
-        name          => 'Network rates share of asset-based allocation',
-        defaultFormat => '%soft',
-        arithmetic    => '=A1/A2',
-        arguments     => {
-            A1 => $rates,
-            A2 => $$shortfallRef,
-        }
-    );
-
 }
 
 sub demandScaling41 {
 
     my (
-        $model,             $agreedCapacity, $shortfall,
-        $daysInYear,        $assetsFixed,    $assetsCapacity,
-        $assetsConsumption, $capacityCharge, $fixedCharge,
+        $model,          $agreedCapacity, $shortfall,
+        $edcmDirect,     $edcmRates,      $daysInYear,
+        $assetsFixed,    $assetsCapacity, $assetsConsumption,
+        $capacityCharge, $fixedCharge,
     ) = @_;
 
     my $slopeCapacity = Arithmetic(
@@ -478,8 +454,15 @@ sub demandScaling41 {
           { A1 => $shortfall, A4 => $shortfall, A2 => $totalSlopeCapacity, },
         location => 'Charging rates',
       );
+
     $model->{transparency}{dnoTotalItem}{1258} = $demandScaling
       if $model->{transparency};
+
+    $demandScaling =
+      $model->{takenForAnIdiot}
+      ->assetAdderAdj( $demandScaling, $totalSlopeCapacity,
+        $slopeCapacity, $shortfall, $edcmDirect, $edcmRates, )
+      if $model->{takenForAnIdiot};
 
     my $scalingChargeCapacity = Arithmetic(
         arithmetic => '=A3*(A62+A63)*100/A9',

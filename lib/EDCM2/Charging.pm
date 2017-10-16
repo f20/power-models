@@ -415,6 +415,7 @@ sub tariffCalculation {
 
     ( $scalingChargeCapacity, $scalingChargeUnits ) = $model->demandScaling41(
         $importCapacity,       $demandScalingShortfall,
+        $edcmDirect,           $edcmRates,
         $daysInYear,           $assetsFixed,
         $assetsCapacityCooked, $assetsConsumptionCooked,
         $capacityChargeT,      $fixedDcharge,

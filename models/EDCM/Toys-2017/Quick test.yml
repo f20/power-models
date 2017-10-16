@@ -369,15 +369,15 @@
     _column: Baseline total marginal effect of demand adder (kVA)
   - EDCM demand and revenue aggregates: 1000000
     _column: Baseline revenue from demand charge 1 (£/year)
-  - EDCM demand and revenue aggregates: 1000000
+  - EDCM demand and revenue aggregates: 0
     _column: Baseline net forecast EDCM generation revenue (£/year)
 1192:
   - _table: 1192. Baseline EDCM generation aggregates
-  - EDCM generation aggregates: 1000000
+  - EDCM generation aggregates: 150000
     _column: Baseline total chargeable export capacity (kVA)
-  - EDCM generation aggregates: 1000000
+  - EDCM generation aggregates: 50000
     _column: Baseline total non-exempt 2005-2010 export capacity (kVA)
-  - EDCM generation aggregates: 1000000
+  - EDCM generation aggregates: 50000
     _column: Baseline total non-exempt post-2010 export capacity (kVA)
 1193:
   - _table: 1193. Baseline EDCM notional asset aggregates
@@ -389,24 +389,38 @@
     _column: Baseline total notional capacity assets (£)
   - EDCM notional asset aggregates: 20000000
     _column: Baseline total notional consumption assets (£)
-  - EDCM notional asset aggregates: 1000000
+  - EDCM notional asset aggregates: 40000000
     _column: Baseline total non sole use notional assets subject to matching (£)
-  - EDCM notional asset aggregates: 1000000
+  - EDCM notional asset aggregates: 0
     _column: Baseline total demand sole use assets qualifying for DCP 189 discount (£)
-11953:
-  - _table: 11953. Demand fixed charge for one tariff
-  - Demand fixed charge for one tariff: 1
-    _column: Tariff index (avoiding DCP 189 sites)
-  - Demand fixed charge for one tariff: 3400
+11951:
+  - _table: 11951. Demand revenue pot (£/year)
+  - Demand revenue pot year: 9000000
+    _column: Demand revenue pot (£/year)
+11954:
+  - _table: 11954. Export capacity charge (p/kVA/day)
+  - Export capacity charge p kVA day: 0.04
+    _column: Export capacity charge (p/kVA/day)
+11961:
+  - _table: 11961. Demand fixed charge for a site not affected by DCP 189
+  - Demand fixed charge for a site not affected by DCP 189: 1
+    _column: Tariff index
+  - Demand fixed charge for a site not affected by DCP 189: 3400
     _column: Demand fixed charge (£/year)
+11964:
+  - _table: 11964. Demand asset adder charge for a non-pathological site
+  - Demand asset adder charge for a non-pathological site: 1
+    _column: Tariff index
+  - Demand asset adder charge for a non-pathological site: 25000
+    _column: Asset adder charge (£/year)
 913:
   - _table: 913. LRIC power flow modelling data
-  - 1: '#VALUE!'
-    2: '#VALUE!'
-    3: '#VALUE!'
-    4: '#VALUE!'
-    5: '#VALUE!'
-    6: '#VALUE!'
+  - 1: Not used
+    2: Not used
+    3: Not used
+    4: Not used
+    5: Not used
+    6: Not used
     _column: Location name/ID
   - 1: '#VALUE!'
     2: '#VALUE!'
@@ -481,366 +495,226 @@
 935:
   - _table: 935. Tariff data
   - 1: Test tariff
-    10: ''
-    11: ''
-    12: ''
-    2: ''
-    3: ''
-    4: ''
-    5: ''
-    6: ''
-    7: ''
-    8: ''
-    9: ''
+    2: ' '
+    3: ' '
+    4: ' '
+    5: ' '
+    6: ' '
+    7: ' '
     _column: Name
   - 1: 10000
-    10: ''
-    11: ''
-    12: ''
-    2: ''
-    3: ''
-    4: ''
-    5: ''
-    6: ''
-    7: ''
-    8: ''
-    9: ''
+    2: VOID
+    3: VOID
+    4: VOID
+    5: VOID
+    6: VOID
+    7: VOID
     _column: Maximum import capacity (kVA)
-  - 1: ''
-    10: ''
-    11: ''
-    12: ''
-    2: ''
-    3: ''
-    4: ''
-    5: ''
-    6: ''
-    7: ''
-    8: ''
-    9: ''
+  - 1: VOID
+    2: VOID
+    3: VOID
+    4: VOID
+    5: VOID
+    6: VOID
+    7: VOID
     _column: Exempt export capacity (kVA)
-  - 1: ''
-    10: ''
-    11: ''
-    12: ''
-    2: ''
-    3: ''
-    4: ''
-    5: ''
-    6: ''
-    7: ''
-    8: ''
-    9: ''
+  - 1: VOID
+    2: VOID
+    3: VOID
+    4: VOID
+    5: VOID
+    6: VOID
+    7: VOID
     _column: Non-exempt pre-2005 export capacity (kVA)
-  - 1: ''
-    10: ''
-    11: ''
-    12: ''
-    2: ''
-    3: ''
-    4: ''
-    5: ''
-    6: ''
-    7: ''
-    8: ''
-    9: ''
+  - 1: VOID
+    2: VOID
+    3: VOID
+    4: VOID
+    5: VOID
+    6: VOID
+    7: VOID
     _column: Non-exempt 2005-2010 export capacity (kVA)
   - 1: 10000
-    10: ''
-    11: ''
-    12: ''
-    2: ''
-    3: ''
-    4: ''
-    5: ''
-    6: ''
-    7: ''
-    8: ''
-    9: ''
+    2: VOID
+    3: VOID
+    4: VOID
+    5: VOID
+    6: VOID
+    7: VOID
     _column: Non-exempt post-2010 export capacity (kVA)
   - 1: 1000000
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Sole use asset MEAV (£)
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Percentage of sole use assets where Customer is entitled to reduction for capitalised O&M
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: LRIC location
   - 1: 1111
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Customer category for demand scaling
   - 1: 1
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: 132kV circuits
   - 1: 1
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: 132kV/EHV
   - 1: 1
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: EHV circuits
   - 1: 1
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: EHV/HV
   - 1: 1
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: 132kV/HV
   - 1: 0.5
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Super-red kW import divided by kVA capacity
   - 1: 0.5
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Super-red kVAr import divided by kVA capacity
   - 1: 1
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Proportion exposed to indirect cost allocation and fixed adder
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Capacity subject to DSM (kVA)
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Super-red units exported (kWh)
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Capacity eligible for GSP generation credits (kW)
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Proportion eligible for charge 1 credits
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Days for which not a customer
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Hours in super-red for which not a customer
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Import charge in previous charging year (£/year)
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: Export charge in previous charging year (£/year)
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: LLFC import
   - 1: ''
-    10: ''
-    11: ''
-    12: ''
     2: ''
     3: ''
     4: ''
     5: ''
     6: ''
     7: ''
-    8: ''
-    9: ''
     _column: LLFC export

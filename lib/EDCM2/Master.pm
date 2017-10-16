@@ -495,10 +495,10 @@ EOT
       $cdcmHvLvShared
       if $model->{legacy201};
 
-    ( $rateDirect, $rateRates ) =
+    ( $rateDirect, $rateRates, $rateIndirect ) =
       $model->{takenForAnIdiot}
-      ->fixedChargeAdj( $rateDirect, $rateRates, $demandSoleUseAsset,
-        $chargeDirect, $chargeRates, )
+      ->fixedChargeAdj( $rateDirect, $rateRates, $rateIndirect,
+        $demandSoleUseAsset, $chargeDirect, $chargeRates, $chargeIndirect, )
       if $model->{takenForAnIdiot};
 
     my (
@@ -623,6 +623,9 @@ EOT
         $daysInYear,
     );
 
+    $gCharge = $model->{takenForAnIdiot}->gChargeAdj($gCharge)
+      if $model->{takenForAnIdiot};
+
     my ( $exportCapacityCharge, $genCreditRound, $exportCapacityChargeRound,
         $netexportCapacityChargeRound, $generationRevenue, )
       = $model->exportCharges( $gCharge, $daysInYear, $exportEligible,
@@ -735,7 +738,9 @@ EOT
                 @{ $tariffColumns[1]{sourceLines} },
                 @{ $tariffColumns[3]{sourceLines} },
                 @{ $tariffColumns[4]{sourceLines} },
-            ]
+            ],
+            $model->{takenForAnIdiot} ? $model->{takenForAnIdiot}->calcTables
+            : (),
         );
 
     }
@@ -790,7 +795,7 @@ EOT
               Stack( sources => [ $model->{transparency}{dnoTotalItem}{$_} ] );
         }
 
-        $model->{takenForAnIdiot}->adjustDnoTotals( \%dnoTotalItem )
+        $model->{takenForAnIdiot}->adjustDnoTotals( $model, \%dnoTotalItem )
           if $model->{takenForAnIdiot};
 
         $model->{aggregateTables} = [

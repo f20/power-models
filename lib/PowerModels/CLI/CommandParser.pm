@@ -75,8 +75,8 @@ sub acceptCommand {
             return push @$self, [ $verb => @_[ 1 .. $#_ ] ];
         }
     }
-    if ( grep { /\.txt$/i } @_ ) {
-        $self->acceptScript($_) foreach grep { -s $_; } @_;
+    if ( my @scripts = grep { /\.txt$/i } @_ ) {
+        $self->acceptScript($_) foreach @scripts;
         return;
     }
     return push @$self, [ makeModels => @_ ]
@@ -101,9 +101,8 @@ sub acceptScript {
     if ( ref $fileOrFilehandle ) {
         $fh = $fileOrFilehandle;
     }
-    elsif ( -f $fileOrFilehandle && -r _ ) {
-        open $fh, '<', $fileOrFilehandle;
-        unless ($fh) {
+    else {
+        unless ( open $fh, '<', $fileOrFilehandle ) {
             warn "Cannot open $fileOrFilehandle";
             return;
         }
