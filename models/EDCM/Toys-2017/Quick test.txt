@@ -1,3 +1,4 @@
 makeModels
-	EDCM/2018-02-Baseline/%-clean161-none.yml
-	EDCM/2018-02/UKPN-EPN.yml
+    -template=%
+	EDCM/2018-02-Baseline/%+idiotmit161-LRIC.yml
+	EDCM/Toys-2017/Quick test.yml

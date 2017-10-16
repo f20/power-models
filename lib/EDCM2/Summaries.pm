@@ -401,58 +401,6 @@ sub summaries {
         $actualRedDemandRate, \@revenueBitsD, @revenueBitsG, $rev2g )
       if $model->{transparencyImpact};
 
-    if ( $model->{transparency} ) {
-        my %dnoTotalItem;
-        foreach (
-            grep { $_ > 99_999; }
-            keys %{ $model->{transparency}{dnoTotalItem} }
-          )
-        {
-            my $number = int( $_ / 100 );
-            $dnoTotalItem{$number}[ $_ - $number * 100 - 1 ] =
-              $model->{transparency}{dnoTotalItem}{$_};
-        }
-        $model->{aggregateTables} = [
-            (
-                map {
-                    Columnset(
-                        name          => "⇒$_->[0]. $_->[1]",
-                        singleRowName => $_->[1],
-                        number        => 3600 + $_->[0],
-                        columns       => [
-                            map { Stack( sources => [$_] ) }
-                              @{ $dnoTotalItem{ $_->[0] } }
-                        ]
-                      )
-                  }[ 1191 => 'EDCM demand aggregates' ],
-                [ 1192 => 'EDCM generation aggregates' ],
-                [ 1193 => 'EDCM notional asset aggregates' ],
-            ),
-            (
-                map {
-                    my $obj  = $model->{transparency}{dnoTotalItem}{$_};
-                    my $name = 'Copy of ' . $obj->{name};
-                    $obj->isa('SpreadsheetModel::Columnset')
-                      ? Columnset(
-                        name    => $name,
-                        number  => 3600 + $_,
-                        columns => [
-                            map { Stack( sources => [$_] ) }
-                              @{ $obj->{columns} }
-                        ]
-                      )
-                      : Stack(
-                        name    => $name,
-                        number  => 3600 + $_,
-                        sources => [$obj]
-                      );
-                  } sort { $a <=> $b; }
-                  grep   { $_ < 100_000; }
-                  keys %{ $model->{transparency}{dnoTotalItem} }
-            )
-        ];
-    }
-
 }
 
 1;

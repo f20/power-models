@@ -76,7 +76,7 @@ sub templateImport {
     $model->{importTariffIndex} = my $index = Dataset(
         name          => 'Number',
         data          => [ [1] ],
-        defaultFormat => [ base => 'thtar', locked => 0 ],
+        defaultFormat => '0hard',
     );
 
     my @tariffComponents = map {
