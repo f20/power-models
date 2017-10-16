@@ -192,7 +192,8 @@ sub demandPot {
         $totalRevenue3 =
           $model->{takenForAnIdiot}
           ->demandRevenuePotAdj( $totalRevenue3, $rateDirect, $rateRates,
-            $rateIndirect, )
+            $rateIndirect, $rateOther, $chargeOther, $totalAssetsCapacity,
+            $totalAssetsConsumption, )
           if $model->{takenForAnIdiot};
 
     }

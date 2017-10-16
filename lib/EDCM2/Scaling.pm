@@ -180,6 +180,11 @@ sub fudge41 {
     $model->{transparency}{dnoTotalItem}{1262} = $indirectAppRate
       if $model->{transparency};
 
+    ( $indirect, $indirectAppRate ) =
+      $model->{takenForAnIdiot}
+      ->indirectChargeAdj( $indirect, $indirectAppRate )
+      if $model->{takenForAnIdiot};
+
     $$capacityChargeRef = Arithmetic(
         arithmetic => '=A1+A3*A4*100/A9',
         name => 'Capacity charge after applying indirect cost charge p/kVA/day',
@@ -344,21 +349,6 @@ sub fudge41 {
         },
     );
 
-    $model->{indirectShareOfCapacityBasedAllocation} = Arithmetic(
-        name          => 'Indirect cost share of capacity-based allocation',
-        defaultFormat => '%soft',
-        arithmetic    => '=A4/(A1*(A2-A7-A91-A92)+A3)',
-        arguments     => {
-            A4  => $indirect,
-            A1  => $ynonFudge41,
-            A2  => $$shortfallRef,
-            A3  => $indirect,
-            A7  => $indirect,
-            A91 => $direct,
-            A92 => $rates,
-        }
-    );
-
     $$shortfallRef = Arithmetic(
         name          => 'Residual residual (£/year)',
         groupName     => 'Residual EDCM demand revenue',
@@ -377,15 +367,16 @@ sub fudge41 {
     $model->{transparency}{dnoTotalItem}{1257} = $$shortfallRef
       if $model->{transparency};
 
+    $ynonFudge41;
+
 }
 
 sub demandScaling41 {
 
     my (
-        $model,          $agreedCapacity, $shortfall,
-        $edcmDirect,     $edcmRates,      $daysInYear,
-        $assetsFixed,    $assetsCapacity, $assetsConsumption,
-        $capacityCharge, $fixedCharge,
+        $model,             $agreedCapacity, $shortfall,
+        $daysInYear,        $assetsFixed,    $assetsCapacity,
+        $assetsConsumption, $capacityCharge, $fixedCharge,
     ) = @_;
 
     my $slopeCapacity = Arithmetic(
@@ -458,10 +449,10 @@ sub demandScaling41 {
     $model->{transparency}{dnoTotalItem}{1258} = $demandScaling
       if $model->{transparency};
 
-    $demandScaling =
+    ( $demandScaling, ) =
       $model->{takenForAnIdiot}
-      ->assetAdderAdj( $demandScaling, $totalSlopeCapacity,
-        $slopeCapacity, $shortfall, $edcmDirect, $edcmRates, )
+      ->assetAdderAdj( $demandScaling, $totalSlopeCapacity, $slopeCapacity,
+        $shortfall, )
       if $model->{takenForAnIdiot};
 
     my $scalingChargeCapacity = Arithmetic(

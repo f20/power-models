@@ -38,7 +38,13 @@ sub new {
 }
 
 sub demandRevenuePotAdj {
-    my ( $self, $totalRevenue3, $rateDirect, $rateRates, $rateIndirect, ) = @_;
+    my (
+        $self,         $totalRevenue3,
+        $rateDirect,   $rateRates,
+        $rateIndirect, $rateOther,
+        $chargeOther,  $totalAssetsCapacity,
+        $totalAssetsConsumption,
+    ) = @_;
     my $demandRevenuePot = Dataset(
         name          => 'Demand revenue pot (£/year)',
         defaultFormat => '0hard',
@@ -47,18 +53,49 @@ sub demandRevenuePotAdj {
         appendTo      => $self->{model}{inputTables},
         number        => 11951,
     );
-    $self->{demandAssetAdjustment} = Arithmetic(
-        name          => 'Adjustment to EDCM demand assets (£)',
-        defaultFormat => '0softpm',
-        arithmetic    => '=(A1-A2)/(A21+A22+A23)',
-        arguments     => {
-            A1  => $demandRevenuePot,
-            A2  => $totalRevenue3,
-            A21 => $rateDirect,
-            A22 => $rateRates,
-            A23 => $rateIndirect,
-        },
-    );
+    $self->{demandSoleUseAssetAdjuster} = sub {
+        my ($sharedAssetsAdj) = @_;
+        if ($sharedAssetsAdj) {
+            $self->{demandSoleUseAssetAdjustment} = Arithmetic(
+                name => 'Adjustment to EDCM demand sole use assets (£)',
+                defaultFormat => '0softpm',
+                arithmetic    => '=(A1-A2'
+                  . '-A41*(A61-A51*(A71+A72))/(A62/A52/(A73+A74)+A42)'
+                  . ')/(A21+A22+A23)',
+                arguments => {
+                    A1  => $demandRevenuePot,
+                    A2  => $totalRevenue3,
+                    A21 => $rateDirect,
+                    A22 => $rateRates,
+                    A23 => $rateIndirect,
+                    A41 => $sharedAssetsAdj,
+                    A42 => $sharedAssetsAdj,
+                    A51 => $rateOther,
+                    A52 => $rateOther,
+                    A61 => $chargeOther,
+                    A62 => $chargeOther,
+                    A71 => $totalAssetsCapacity,
+                    A72 => $totalAssetsConsumption,
+                    A73 => $totalAssetsCapacity,
+                    A74 => $totalAssetsConsumption,
+                },
+            );
+        }
+        else {
+            $self->{demandSoleUseAssetAdjustment} = Arithmetic(
+                name => 'Adjustment to EDCM demand sole use assets (£)',
+                defaultFormat => '0softpm',
+                arithmetic    => '=(A1-A2)/(A21+A22+A23)',
+                arguments     => {
+                    A1  => $demandRevenuePot,
+                    A2  => $totalRevenue3,
+                    A21 => $rateDirect,
+                    A22 => $rateRates,
+                    A23 => $rateIndirect,
+                },
+            );
+        }
+    };
     $demandRevenuePot;
 }
 
@@ -215,8 +252,8 @@ sub fixedChargeAdj {
     $rateDirectAdjusted, $rateRatesAdjusted, $rateIndirectAdjusted;
 }
 
-sub indirectChargeAdj {
-    my ( $self, ) = @_;
+sub indirectChargeAdj {# does nothing at present
+    my ( $self, $indirectChargingRate,$denominator ) = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
@@ -233,10 +270,10 @@ sub indirectChargeAdj {
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11962,
-    );
+    );$indirectChargingRate,$denominator;
 }
 
-sub fixedAdderAdj {
+sub fixedAdderAdj {# does nothing at present
     my ( $self, ) = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
@@ -259,21 +296,21 @@ sub fixedAdderAdj {
 
 sub assetAdderAdj {
     my ( $self, $demandScaling, $totalSlopeCapacity,
-        $slopeCapacity, $shortfall, $direct, $rates )
+        $slopeCapacity, $shortfall, )
       = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
         data          => [1],
     );
-    my $charge = Dataset(
+    my $adderCharge = Dataset(
         name          => 'Asset adder charge (£/year)',
         defaultFormat => '0hard',
         data          => [1e4],
     );
     Columnset(
-        name     => 'Demand asset adder charge for a non-pathological site',
-        columns  => [ $tariffIndex, $charge, ],
+        name     => 'Demand asset adder for a non-pathological site',
+        columns  => [ $tariffIndex, $adderCharge, ],
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11964,
@@ -281,19 +318,17 @@ sub assetAdderAdj {
     $self->{cookedSharedAssetAdjustment} = Arithmetic(
         name          => 'Adjustment to shared assets subject to adder (£)',
         defaultFormat => '0softpm',
-        arithmetic    => '=(A1-A12-A13)/A2*INDEX(A3_A4,A5)-A6',
+        arithmetic    => '=A1/(A2/INDEX(A3_A4,A5))-A6',
         arguments     => {
             A1    => $shortfall,
-            A12   => $direct,
-            A13   => $rates,
-            A2    => $charge,
+            A2    => $adderCharge,
             A3_A4 => $slopeCapacity,
             A5    => $tariffIndex,
             A6    => $totalSlopeCapacity,
         },
     );
     Arithmetic(
-        name          => 'Adjusted asset adder rate',
+        name          => 'Adjusted annual charge on assets',
         defaultFormat => '%soft',
         arithmetic    => '=IF(ISNUMBER(A11),1/(1/A2+A1/A3),A21)',
         arguments     => {
@@ -306,8 +341,8 @@ sub assetAdderAdj {
     );
 }
 
-sub directChargeAdj {
-    my ( $self, ) = @_;
+sub directCostAdj { # does nothing at present
+    my ( $self, $direct,$rates,) = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
@@ -324,7 +359,7 @@ sub directChargeAdj {
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11965,
-    );
+    );$direct,$rates;
 }
 
 sub calcTables {
@@ -334,8 +369,10 @@ sub calcTables {
             qw(
               edcmPurpleUseAdjustment
               edcmAssetAdjustment
-              demandAssetAdjustment
+              demandSoleUseAssetAdjustment
+              cookedSharedAssetAdjustment
               demandSharedAssetAdjustment
+              adjustedShortfall adjustedDirectCharge adjustedRatesCharge
               exportCapacityChargeable20052010adj
               )
         }
@@ -345,6 +382,9 @@ sub calcTables {
 sub adjustDnoTotals {
 
     my ( $self, $model, $hashedArrays, ) = @_;
+
+    $self->{demandSoleUseAssetAdjuster}->( $self->{sharedAssetsAdj} )
+      if $self->{demandSoleUseAssetAdjuster};
 
     if ( $self->{exportCapacityChargeable20052010adj} ) {
         $hashedArrays->{1192}[0] = Arithmetic(
@@ -370,66 +410,78 @@ sub adjustDnoTotals {
         );
     }
 
-    if ( $self->{demandAssetAdjustment} && $self->{edcmAssetAdjustment} ) {
+    if ( $self->{demandSoleUseAssetAdjustment} ) {
+
+        $hashedArrays->{1193}[0] = Arithmetic(
+            name          => 'Adjusted demand sole use assets baseline (£)',
+            defaultFormat => '0soft',
+            arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
+            arguments     => {
+                A1 => $hashedArrays->{1193}[0]{sources}[0],
+                A2 => $self->{demandSoleUseAssetAdjustment},
+                A3 => $self->{demandSoleUseAssetAdjustment},
+            },
+        );
+
         if ( $self->{demandSharedAssetAdjustment} ) {
-            $hashedArrays->{1193}[2] = Arithmetic(
-                name          => 'Adjusted demand sole use assets baseline (£)',
+            $hashedArrays->{1193}[1] = Arithmetic(
+                name => 'Adjusted generation sole use assets baseline (£)',
                 defaultFormat => '0soft',
-                arithmetic    => '=A1+0.5*IF(ISNUMBER(A2),A3,0)',
+                arithmetic => '=A1+IF(ISNUMBER(A2),A3,0)-IF(ISNUMBER(A4),A5,0)'
+                  . '-IF(ISNUMBER(A61),A6,0)*(A7+A8)',
+                arguments => {
+                    A1  => $hashedArrays->{1193}[1]{sources}[0],
+                    A2  => $self->{edcmAssetAdjustment},
+                    A3  => $self->{edcmAssetAdjustment},
+                    A4  => $self->{demandSoleUseAssetAdjustment},
+                    A5  => $self->{demandSoleUseAssetAdjustment},
+                    A6  => $self->{demandSharedAssetAdjustment},
+                    A61 => $self->{demandSharedAssetAdjustment},
+                    A7  => $hashedArrays->{1193}[2]{sources}[0],
+                    A8  => $hashedArrays->{1193}[3]{sources}[0],
+                },
+            ) if $self->{edcmAssetAdjustment};
+            $hashedArrays->{1193}[2] = Arithmetic(
+                name          => 'Adjusted demand capacity assets baseline (£)',
+                defaultFormat => '0soft',
+                arithmetic    => '=A1*(1+IF(ISNUMBER(A2),A3,0))',
                 arguments     => {
-                    A1 => $hashedArrays->{1193}[0]{sources}[0],
+                    A1 => $hashedArrays->{1193}[2]{sources}[0],
                     A2 => $self->{demandSharedAssetAdjustment},
                     A3 => $self->{demandSharedAssetAdjustment},
                 },
             );
             $hashedArrays->{1193}[3] = Arithmetic(
-                name          => 'Adjusted demand sole use assets baseline (£)',
+                name => 'Adjusted demand consumption assets baseline (£)',
                 defaultFormat => '0soft',
-                arithmetic    => '=A1+0.5*IF(ISNUMBER(A2),A3,0)',
+                arithmetic    => '=A1*(1+IF(ISNUMBER(A2),A3,0))',
                 arguments     => {
-                    A1 => $hashedArrays->{1193}[0]{sources}[0],
+                    A1 => $hashedArrays->{1193}[3]{sources}[0],
                     A2 => $self->{demandSharedAssetAdjustment},
                     A3 => $self->{demandSharedAssetAdjustment},
                 },
             );
-            $hashedArrays->{1193}[0] = Arithmetic(
-                name          => 'Adjusted demand sole use assets baseline (£)',
+
+        }
+        else {
+
+            $hashedArrays->{1193}[1] = Arithmetic(
+                name => 'Adjusted generation sole use assets baseline (£)',
                 defaultFormat => '0soft',
                 arithmetic => '=A1+IF(ISNUMBER(A2),A3,0)-IF(ISNUMBER(A4),A5,0)',
                 arguments  => {
-                    A1 => $hashedArrays->{1193}[0]{sources}[0],
-                    A2 => $self->{demandAssetAdjustment},
-                    A3 => $self->{demandAssetAdjustment},
-                    A4 => $self->{demandSharedAssetAdjustment},
-                    A5 => $self->{demandSharedAssetAdjustment},
+                    A1 => $hashedArrays->{1193}[1]{sources}[0],
+                    A2 => $self->{edcmAssetAdjustment},
+                    A3 => $self->{edcmAssetAdjustment},
+                    A4 => $self->{demandSoleUseAssetAdjustment},
+                    A5 => $self->{demandSoleUseAssetAdjustment},
                 },
-            );
+            ) if $self->{edcmAssetAdjustment};
+
         }
-        else {
-            $hashedArrays->{1193}[0] = Arithmetic(
-                name          => 'Adjusted demand sole use assets baseline (£)',
-                defaultFormat => '0soft',
-                arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
-                arguments     => {
-                    A1 => $hashedArrays->{1193}[0]{sources}[0],
-                    A2 => $self->{demandAssetAdjustment},
-                    A3 => $self->{demandAssetAdjustment},
-                },
-            );
-        }
-        $hashedArrays->{1193}[1] = Arithmetic(
-            name          => 'Adjusted generation sole use assets baseline (£)',
-            defaultFormat => '0soft',
-            arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)-IF(ISNUMBER(A4),A5,0)',
-            arguments     => {
-                A1 => $hashedArrays->{1193}[1]{sources}[0],
-                A2 => $self->{edcmAssetAdjustment},
-                A3 => $self->{edcmAssetAdjustment},
-                A4 => $self->{demandAssetAdjustment},
-                A5 => $self->{demandAssetAdjustment},
-            },
-        ) if $self->{edcmAssetAdjustment};
+
     }
+
     elsif ( $self->{edcmAssetAdjustment} )
     { # No pot data: put the whole EDCM asset adjustment on generation sole use assets
         $hashedArrays->{1193}[1] = Arithmetic(

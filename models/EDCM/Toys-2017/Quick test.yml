@@ -401,6 +401,7 @@
   - _table: 11954. Export capacity charge (p/kVA/day)
   - Export capacity charge p kVA day: 0.04
     _column: Export capacity charge (p/kVA/day)
+  - Export capacity charge p kVA day: fun
 11961:
   - _table: 11961. Demand fixed charge for a site not affected by DCP 189
   - Demand fixed charge for a site not affected by DCP 189: 1
@@ -408,10 +409,10 @@
   - Demand fixed charge for a site not affected by DCP 189: 3400
     _column: Demand fixed charge (£/year)
 11964:
-  - _table: 11964. Demand asset adder charge for a non-pathological site
-  - Demand asset adder charge for a non-pathological site: 1
+  - _table: 11964. Demand asset adder for a non-pathological site
+  - Demand asset adder for a non-pathological site: 1
     _column: Tariff index
-  - Demand asset adder charge for a non-pathological site: 25000
+  - Demand asset adder for a non-pathological site: 25000
     _column: Asset adder charge (£/year)
 913:
   - _table: 913. LRIC power flow modelling data

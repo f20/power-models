@@ -402,7 +402,7 @@ sub tariffCalculation {
     $model->{transparency}{dnoTotalItem}{1255} = $edcmRates
       if $model->{transparency};
 
-    $model->fudge41(
+    my ($ynonFudge41) = $model->fudge41(
         $activeCoincidence, $importCapacity,
         $edcmIndirect,      $edcmDirect,
         $edcmRates,         $daysInYear,
@@ -415,11 +415,14 @@ sub tariffCalculation {
 
     ( $scalingChargeCapacity, $scalingChargeUnits ) = $model->demandScaling41(
         $importCapacity,       $demandScalingShortfall,
-        $edcmDirect,           $edcmRates,
         $daysInYear,           $assetsFixed,
         $assetsCapacityCooked, $assetsConsumptionCooked,
         $capacityChargeT,      $fixedDcharge,
     );
+
+    ( $edcmDirect, $edcmRates ) =
+      $model->{takenForAnIdiot}->directCostAdj( $edcmDirect, $edcmRates )
+      if $model->{takenForAnIdiot};
 
     $model->{summaryInformationColumns}[2] = Arithmetic(
         name          => 'Direct cost allocation (£/year)',
