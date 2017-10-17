@@ -46,11 +46,52 @@ sub finishModel {
     }
 }
 
+sub notesTransparency {
+    my ($model) = @_;
+    return $model->{takenForAnIdiot}->notes if $model->{takenForAnIdiot};
+    Notes(
+        name  => 'DNO totals data',
+        lines => [
+            'If table 1090 is set to "FALSE", so that the model can be used for'
+              . ' third-party validation and forecasting of DNO charges, then'
+              . ' the DNO aggregates in tables 1091-1093 need to be taken for the'
+              . ' non-confidential summary sheets from the DNO\'s charging model.',
+            'Some DNOs might think they can'
+              . ' take you for an idiot and refuse to disclose this information,'
+              . ' giving some version of an excuse which sounds like it was agreed'
+              . ' in some DNO smoke-filled room, along the following lines:',
+            '• "It is the belief of [DNO] that either by direct'
+              . ' calculationor iterative methods the use of this data in isolation or'
+              . ' in combination with information currently in the public domain it'
+              . ' would be possible to derive customer confidential information."',
+            '• "We are concerned that by combining this information with'
+              . ' other data already in the public domain, it would be possible'
+              . ' to determine some confidential details for our customers'
+              . ' which you will appreciate is not a situation we cannot allow."',
+            '• "We are concerned to ensure we do not release data which could'
+              . ' damage or infringe the commercial confidentiality of our customers or'
+              . ' which could be misinterpreted and lead to erroneous assumptions."',
+            '• "I am nervous about supplying data from the models'
+              . ' in case customer confidential data is identified."',
+            'Whilst the logic of these excuses is rather lacking,'
+              . ' the fact is that, with ineffective regulation,'
+              . ' DNOs who want to be secretive will probably get away with it.',
+            1
+            ? 'I am working on possible ways of mitigating the'
+              . ' consequences of being taken for an idiot by DNOs.'
+            : 'Special versions of the EDCM models'
+              . ' are available from dcmf.co.uk/models to help'
+              . ' mitigate the consequences of being taken for an idiot by DNOs.'
+        ],
+    );
+}
+
 sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
 
     '11' => sub {
+
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 11;
         $wbook->{lastSheetNumber} =
@@ -62,6 +103,7 @@ sub worksheetsAndClosures {
         $wbook->{titleWriter} =
           sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{inputTables} ||= [];
+
         my $idTable = Dataset(
             number        => 1100,
             dataset       => $model->{dataset},
@@ -73,20 +115,18 @@ sub worksheetsAndClosures {
             forwardLinks       => {},
         );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'General input data' ), $idTable,
-          !$model->{ldnoRev} || $model->{ldnoRev} !~ /only/i
-          ? (
-            $model->{method} eq 'none' ? () : Notes(
-                lines    => 'Power flow input data',
-                location => $model->{method} =~ /LRIC/i
-                ? 913
-                : 911,
-            ),
-            Notes( lines => 'Tariff input data', location => 935, )
+          foreach Notes( name => 'General input data' ), $idTable;
+
+        foreach (
+            sort { ( $a->{number} || 999_999 ) <=> ( $b->{number} || 999_999 ) }
+            @{ $model->{inputTables} }
           )
-          : (),
-          sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
-          @{ $model->{inputTables} };
+        {
+            map { $_->wsWrite( $wbook, $wsheet ); } $model->notesTransparency
+              if $_->{number} && $_->{number} == 1190;
+            $_->wsWrite( $wbook, $wsheet );
+        }
+
         require Spreadsheet::WriteExcel::Utility;
         my ( $sh, $ro, $co ) = $idTable->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
@@ -98,6 +138,7 @@ sub worksheetsAndClosures {
           . qq%&" ("&'$sh'!%
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
+
       }
 
       ,
@@ -140,7 +181,9 @@ sub worksheetsAndClosures {
                 $wsheet->set_column( 2, 2,   20 );
                 $wsheet->set_column( 3, 3,   35 );
                 $wsheet->set_column( 4, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet ) foreach $model->{table911};
+                $_->wsWrite( $wbook, $wsheet )
+                  foreach Notes( name => 'Power flow input data' ),
+                  $model->{table911};
             }
           )
 
@@ -163,7 +206,8 @@ sub worksheetsAndClosures {
             $wsheet->set_column( $locationColumn,     $locationColumn,     50 );
             $wsheet->set_column( $locationColumn + 1, 250,                 20 );
 
-            $_->wsWrite( $wbook, $wsheet ) foreach $model->{table935};
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Tariff input data' ), $model->{table935};
 
             if ( $model->{tariff1Row} ) {
                 $wsheet->set_row( $model->{tariff1Row} - 2, 22 );

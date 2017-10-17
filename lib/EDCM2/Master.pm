@@ -575,13 +575,19 @@ EOT
     $model->{transparency}{dnoTotalItem}{119306} = $totalDcp189DiscountedAssets
       if $model->{transparency} && $totalDcp189DiscountedAssets;
 
+    my $cdcmPurpleUse = Stack(
+        cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
+        name    => 'Total CDCM peak time consumption (kW)',
+        sources => [$cdcmUse]
+    );
+
     my ( $rateExit, $edcmPurpleUse ) =
-      $model->exitChargingRate( $cdcmUse, $purpleUseRate, $importCapacity,
+      $model->exitChargingRate( $cdcmPurpleUse, $purpleUseRate, $importCapacity,
         $chargeExit, );
 
     ( $rateExit, $edcmPurpleUse ) = $model->{takenForAnIdiot}->exitChargeAdj(
-        $rateExit,      $edcmPurpleUse, $chargeExit,
-        $purpleUseRate, $importCapacity,
+        $rateExit,   $cdcmPurpleUse, $edcmPurpleUse,
+        $chargeExit, $purpleUseRate, $importCapacity,
     ) if $model->{takenForAnIdiot};
 
     my ( $charges1, $acCoef, $reCoef ) =

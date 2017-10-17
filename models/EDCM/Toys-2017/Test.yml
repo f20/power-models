@@ -361,13 +361,13 @@
     _column: Is this the master model containing all the tariff data?
 1191:
   - _table: 1191. Baseline EDCM demand and revenue aggregates
-  - EDCM demand and revenue aggregates: 1000000
+  - EDCM demand and revenue aggregates: 500000
     _column: Baseline total EDCM peak time consumption (kW)
   - EDCM demand and revenue aggregates: 1000000
     _column: Baseline total marginal effect of indirect cost adder (kVA)
   - EDCM demand and revenue aggregates: 1000000
     _column: Baseline total marginal effect of demand adder (kVA)
-  - EDCM demand and revenue aggregates: 1000000
+  - EDCM demand and revenue aggregates: 0
     _column: Baseline revenue from demand charge 1 (£/year)
   - EDCM demand and revenue aggregates: 0
     _column: Baseline net forecast EDCM generation revenue (£/year)
@@ -399,21 +399,44 @@
     _column: Demand revenue pot (£/year)
 11954:
   - _table: 11954. Export capacity charge (p/kVA/day)
-  - Export capacity charge p kVA day: 0.04
+  - Export capacity charge p kVA day: 0.05
     _column: Export capacity charge (p/kVA/day)
-  - Export capacity charge p kVA day: fun
+11960:
+  - _table: 11960. Demand transmission exit charge for a non-pathological site
+  - Demand transmission exit charge for a non-pathological site: 1
+    _column: Tariff index
+  - Demand transmission exit charge for a non-pathological site: 32500
+    _column: Transmission exit charge (£/year)
 11961:
   - _table: 11961. Demand fixed charge for a site not affected by DCP 189
   - Demand fixed charge for a site not affected by DCP 189: 1
     _column: Tariff index
   - Demand fixed charge for a site not affected by DCP 189: 3400
     _column: Demand fixed charge (£/year)
+11962:
+  - _table: 11962. Demand indirect cost charge for a site
+  - Demand indirect cost charge for a site: 1
+    _column: Tariff index
+  - Demand indirect cost charge for a site: 10000
+    _column: Indirect cost charge (£/year)
+11963:
+  - _table: 11963. Demand fixed adder charge for a non-pathological site
+  - Demand fixed adder charge for a non-pathological site: 1
+    _column: Tariff index
+  - Demand fixed adder charge for a non-pathological site: 10000
+    _column: Fixed adder charge (£/year)
 11964:
   - _table: 11964. Demand asset adder for a non-pathological site
   - Demand asset adder for a non-pathological site: 1
     _column: Tariff index
   - Demand asset adder for a non-pathological site: 25000
     _column: Asset adder charge (£/year)
+11965:
+  - _table: 11965. Demand direct cost charge for a non-pathological site
+  - Demand direct cost charge for a non-pathological site: 1
+    _column: Tariff index
+  - Demand direct cost charge for a non-pathological site: 10000
+    _column: Direct cost charge (£/year)
 913:
   - _table: 913. LRIC power flow modelling data
   - 1: Not used
@@ -623,7 +646,7 @@
     6: ''
     7: ''
     _column: Super-red kW import divided by kVA capacity
-  - 1: 0.5
+  - 1: 0.25
     2: ''
     3: ''
     4: ''

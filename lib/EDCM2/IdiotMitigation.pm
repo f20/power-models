@@ -37,6 +37,22 @@ sub new {
     bless { model => $model }, $class;
 }
 
+sub notes {
+    my ($self) = @_;
+    Notes(
+        name => 'DNO totals data (special version to migitate'
+          . ' the consequences of being taken for an idiot)',
+        lines => [
+            'This version of the model contains adjustments fed from data in'
+              . ' tables 119xx to mitigate the impact of the DNO taking you for an'
+              . ' idiot by refusing, on some spurious excuse, to provide data from'
+              . ' the non-confidential summary sheets in its EDCM charging model.',
+            'Documentation of these features does not exist yet.'
+              . ' I plan to add a document to dcmf.co.uk/models at some point.',
+        ],
+    );
+}
+
 sub demandRevenuePotAdj {
     my (
         $self,         $totalRevenue3,
@@ -54,11 +70,20 @@ sub demandRevenuePotAdj {
         number        => 11951,
     );
     $self->{constraintDemandRevenuePot} = [
-        $demandRevenuePot, $totalRevenue3,
-        $rateDirect,       $rateRates,
-        $rateIndirect,     $rateOther,
-        $chargeOther,      $totalAssetsCapacity,
+        'not implemented: '
+          . 'link between edcmDemandSharedAssets and edcmDemandAssets',
+        'edcmDemandSharedAssets/(cdcmSharedAssets+edcmDemandSharedAssets)'
+          . '*A1 + edcmDemandAssets*A2 + A3 = 0',
+        $demandRevenuePot,
+        $totalRevenue3,
+        $rateDirect,
+        $rateRates,
+        $rateIndirect,
+        $rateOther,
+        $chargeOther,
+        $totalAssetsCapacity,
         $totalAssetsConsumption,
+        'need more variables, like tranmsission exit',
     ];
     $demandRevenuePot;
 }
@@ -91,8 +116,8 @@ sub gChargeAdj {
 }
 
 sub exitChargeAdj {
-    my ( $self, $rateExit, $edcmPurpleUse, $chargeExit, $purpleUseRate,
-        $importCapacity, )
+    my ( $self, $rateExit, $cdcmPurpleUse, $edcmPurpleUse, $chargeExit,
+        $purpleUseRate, $importCapacity, )
       = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
@@ -120,16 +145,17 @@ sub exitChargeAdj {
             A3_A31 => $importCapacity,
             A22    => $tariffIndex,
             A32    => $tariffIndex,
-        }
+        },
     );
     $rateExitAdjusted,
       $self->{adjustedEdcmPurpleUse} = Arithmetic(
         name          => 'Adjusted total EDCM peak-time consumption (kW)',
         defaultFormat => '0soft',
-        arithmetic    => '=A1/A2',
+        arithmetic    => '=A1/A2-A3',
         arguments     => {
             A1 => $chargeExit,
             A2 => $rateExitAdjusted,
+            A3 => $cdcmPurpleUse,
         },
       );
 }
@@ -175,7 +201,7 @@ sub fixedChargeAdj {
         },
     );
     my $thing = Arithmetic(
-        name       => 'Thing',
+        name       => 'Intermediate step in solving for total EDCM assets',
         arithmetic => '=0.5*(1+A1-(A2*A3+A4)/A5)',
         arguments  => {
             A1 => $f,
@@ -272,6 +298,8 @@ sub indirectChargeAdj {
         },
     );
     $self->{constraintIndirectChargingRate} = [
+        'not implemented: '
+          . 'link between edcmDemandAssets and indirectDenominator',
         $indirectChargingRateAdjusted, $indirectChargingRate,
         $fudgeIndirect,                $agreedCapacity,
         $indirect,
@@ -299,6 +327,10 @@ sub fixedAdderAdj {
         appendTo => $self->{model}{inputTables},
         number   => 11963,
     );
+    $self->{constraintFixedAdderRate} = [
+            'not implemented: '
+          . 'link between residualResidual and indirectDenominator',
+    ];
     $fixedAdderChargingRate;
 }
 
@@ -335,6 +367,10 @@ sub assetAdderAdj {
             A6    => $totalSlopeCapacity,
         },
     );
+    $self->{constraintAssetAdderRate} = [
+            'not implemented: '
+          . 'link between residualResidual and assetDenominator',
+    ];
     Arithmetic(
         name          => 'Adjusted annual charge on assets',
         defaultFormat => '%soft',
@@ -368,6 +404,10 @@ sub directCostAdj {
         appendTo => $self->{model}{inputTables},
         number   => 11965,
     );
+    $self->{constraintDirectCost} = [
+            'not implemented: '
+          . 'link between edcmDemandSharedAssets and assetDenominator',
+    ];
     $direct, $rates;
 }
 
@@ -375,7 +415,13 @@ sub calcTables {
 
     my ($self) = @_;
 
-  # do the calculations here, except the final adjustment step where applicable.
+    # do the calculations here, except the final DNO total adjustment step
+    # use:
+    # $self->{constraintAssetAdderRate}
+    # $self->{constraintDemandRevenuePot}
+    # $self->{constraintDirectCost}
+    # $self->{constraintFixedAdderRate}
+    # $self->{constraintIndirectChargingRate}
 
     [
         grep { $_; } @{$self}{

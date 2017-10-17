@@ -400,13 +400,9 @@ sub fixedCharges {
 
 sub exitChargingRate {
 
-    my ( $model, $cdcmUse, $purpleUseRate, $importCapacity, $chargeExit, ) = @_;
+    my ( $model, $cdcmPurpleUse, $purpleUseRate, $importCapacity, $chargeExit, )
+      = @_;
 
-    my $cdcmPurpleUse = Stack(
-        cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
-        name    => 'Total CDCM peak time consumption (kW)',
-        sources => [$cdcmUse]
-    );
     $model->{transparency}{dnoTotalItem}{1237} = $cdcmPurpleUse
       if $model->{transparency};
 

@@ -1,4 +1,4 @@
 makeModels
-    -template=%
+    -template=Test
 	EDCM/2018-02-Baseline/%+idiotmit161-LRIC.yml
-	EDCM/Toys-2017/Quick test.yml
+	EDCM/Toys-2017/Test.yml
