@@ -68,6 +68,16 @@ sub demandRevenuePotAdj {
         dataset       => $self->{model}{dataset},
         appendTo      => $self->{model}{inputTables},
         number        => 11951,
+        lines         => [
+            'Enter your estimate of the demand revenue pot here'
+              . ' if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'The DNO\'s Schedule 15 published on dcusa.co.uk'
+              . ' might help you guess this number.',
+            'This number is used in conjunction with data in tables 11962-11965'
+              . ' to calculate the DNO\'s total demand EDCM shared assets'
+              . ' and total demand EDCM sole use assets.'
+        ],
     );
     $self->{constraintDemandRevenuePot} = [
         'not implemented: '
@@ -97,6 +107,15 @@ sub gChargeAdj {
         dataset       => $self->{model}{dataset},
         appendTo      => $self->{model}{inputTables},
         number        => 11954,
+        lines         => [
+            'Enter the DNO\'s standard EDCM export capacity charge here,'
+              . ' in p/kVA/day,'
+              . ' if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for table 1192.',
+            'The DNO\'s charging statement published on the DNO\'s website'
+              . ' might help you guess this number.',
+            'This number is used to adjust the figures in table 1192 to fit.',
+        ],
     );
     $self->{adjustmentExportCapacityChargeablePost2010} = Arithmetic(
         name => 'Adjustment to EDCM post-2010 non-exempt export capacity (kVA)',
@@ -135,6 +154,15 @@ sub exitChargeAdj {
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11960,
+        lines    => [
+            'Enter the transmission exit charge for a non-pathological site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used to adjust the figure in the'
+              . ' first column of table 1191.',
+        ],
     );
     my $rateExitAdjusted = Arithmetic(
         name       => 'Adjusted transmission exit charging rate (£/kW/year)',
@@ -180,6 +208,15 @@ sub fixedChargeAdj {
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11961,
+        lines    => [
+            'Enter the demand fixed charge for a non-pathological site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for table 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used to adjust figures in table 1193'
+              . ' to fit the total value of EDCM notional assets.',
+        ],
     );
     my $actualRate = Arithmetic(
         name       => 'Actual charging rate for fixed charges',
@@ -285,6 +322,15 @@ sub indirectChargeAdj {
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11962,
+        lines    => [
+            'Enter the indirect cost charge for a non-pathological site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used in conjunction with data from tables'
+              . ' 11951, 11963, 11964 and 11965 to adjust the DNO totals to fit.',
+        ],
     );
     my $indirectChargingRateAdjusted = Arithmetic(
         name       => 'Adjusted indirect costs application rate',
@@ -326,6 +372,15 @@ sub fixedAdderAdj {
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11963,
+        lines    => [
+            'Enter the fixed adder charge for a non-pathological site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used in conjunction with data from tables'
+              . ' 11951, 11962, 11964 and 11965 to adjust the DNO totals to fit.',
+        ],
     );
     $self->{constraintFixedAdderRate} = [
             'not implemented: '
@@ -349,11 +404,20 @@ sub assetAdderAdj {
         data          => [1e4],
     );
     Columnset(
-        name     => 'Demand asset adder for a non-pathological site',
+        name     => 'Demand asset adder for a non-pathological non-0000 site',
         columns  => [ $tariffIndex, $adderCharge, ],
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11964,
+        lines    => [
+            'Enter the asset adder charge for a non-pathological non-0000 site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used in conjunction with data from tables'
+              . ' 11951, 11962, 11963 and 11965 to adjust the DNO totals to fit.',
+        ],
     );
     $self->{cookedSharedAssetAdjustment} = Arithmetic(
         name          => 'Adjustment to shared assets subject to adder (£)',
@@ -398,11 +462,21 @@ sub directCostAdj {
         data          => [1e4],
     );
     Columnset(
-        name     => 'Demand direct cost charge for a non-pathological site',
+        name =>
+          'Demand direct cost charge for a non-pathological non-0000 site',
         columns  => [ $tariffIndex, $charge, ],
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11965,
+        lines    => [
+            'Enter the direct cost charge for a non-pathological non-0000 site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used in conjunction with data from tables'
+              . ' 11951, 11962, 11963 and 11964 to adjust the DNO totals to fit.',
+        ],
     );
     $self->{constraintDirectCost} = [
             'not implemented: '
