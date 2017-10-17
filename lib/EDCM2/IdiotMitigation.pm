@@ -41,7 +41,7 @@ sub notes {
     my ($self) = @_;
     Notes(
         name => 'DNO totals data (special version to migitate'
-          . ' the consequences of being taken for an idiot)',
+          . ' the consequences of being taken for an idiot by the DNO)',
         lines => [
             'This version of the model contains adjustments fed from data in'
               . ' tables 119xx to mitigate the impact of the DNO taking you for an'
@@ -95,7 +95,16 @@ sub demandRevenuePotAdj {
         $totalAssetsConsumption,
         'need more variables, like tranmsission exit',
     ];
-    $demandRevenuePot;
+    Arithmetic(
+        name          => 'Adjusted demand revenue pot (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+        arguments     => {
+            A1 => $demandRevenuePot,
+            A2 => $totalRevenue3,
+            A3 => $demandRevenuePot,
+        },
+    );
 }
 
 sub gChargeAdj {
@@ -131,7 +140,12 @@ sub gChargeAdj {
             A7 => $gCharge->{arguments}{A9},
         },
     );
-    $gChargeHard;
+    Arithmetic(
+        name       => 'Adjusted export capacity charge (p/kVA/day)',
+        arithmetic => '=IF(ISERROR(A1),A2,A3)',
+        arguments =>
+          { A1 => $gChargeHard, A2 => $gCharge, A3 => $gChargeHard, },
+    );
 }
 
 sub exitChargeAdj {
@@ -164,8 +178,8 @@ sub exitChargeAdj {
               . ' first column of table 1191.',
         ],
     );
-    my $rateExitAdjusted = Arithmetic(
-        name       => 'Adjusted transmission exit charging rate (£/kW/year)',
+    my $rateExitCalculated = Arithmetic(
+        name       => 'Calculated transmission exit charging rate (£/kW/year)',
         arithmetic => '=A1/INDEX(A2_A21,A22)/INDEX(A3_A31,A32)',
         arguments  => {
             A1     => $charge,
@@ -175,14 +189,22 @@ sub exitChargeAdj {
             A32    => $tariffIndex,
         },
     );
-    $rateExitAdjusted,
+    Arithmetic(
+        name       => 'Adjusted transmission exit charging rate (£/kW/year)',
+        arithmetic => '=IF(ISERROR(A1),A2,A3)',
+        arguments  => {
+            A1 => $rateExitCalculated,
+            A2 => $rateExit,
+            A3 => $rateExitCalculated,
+        },
+      ),
       $self->{adjustedEdcmPurpleUse} = Arithmetic(
         name          => 'Adjusted total EDCM peak-time consumption (kW)',
         defaultFormat => '0soft',
         arithmetic    => '=A1/A2-A3',
         arguments     => {
             A1 => $chargeExit,
-            A2 => $rateExitAdjusted,
+            A2 => $rateExitCalculated,
             A3 => $cdcmPurpleUse,
         },
       );
@@ -266,7 +288,7 @@ sub fixedChargeAdj {
     my $rateDirectAdjusted = Arithmetic(
         name          => 'Adjusted direct charging rate',
         defaultFormat => '%soft',
-        arithmetic    => '=IF(ISNUMBER(A11),1/(1/A2+A1/A3),A21)',
+        arithmetic    => '=IF(ISERROR(A11),A21,1/(1/A2+A1/A3))',
         arguments     => {
             A1  => $self->{edcmAssetAdjustment},
             A11 => $self->{edcmAssetAdjustment},
@@ -278,7 +300,7 @@ sub fixedChargeAdj {
     my $rateRatesAdjusted = Arithmetic(
         name          => 'Adjusted rates charging rate',
         defaultFormat => '%soft',
-        arithmetic    => '=IF(ISNUMBER(A11),1/(1/A2+A1/A3),A21)',
+        arithmetic    => '=IF(ISERROR(A11),A21,1/(1/A2+A1/A3))',
         arguments     => {
             A1  => $self->{edcmAssetAdjustment},
             A11 => $self->{edcmAssetAdjustment},
@@ -290,7 +312,7 @@ sub fixedChargeAdj {
     my $rateIndirectAdjusted = Arithmetic(
         name          => 'Adjusted indirect charging rate',
         defaultFormat => '%soft',
-        arithmetic    => '=IF(ISNUMBER(A11),1/(1/A2+A1/A3),A21)',
+        arithmetic    => '=IF(ISERROR(A11),A21,1/(1/A2+A1/A3))',
         arguments     => {
             A1  => $self->{edcmAssetAdjustment},
             A11 => $self->{edcmAssetAdjustment},
@@ -332,8 +354,8 @@ sub indirectChargeAdj {
               . ' 11951, 11963, 11964 and 11965 to adjust the DNO totals to fit.',
         ],
     );
-    my $indirectChargingRateAdjusted = Arithmetic(
-        name       => 'Adjusted indirect costs application rate',
+    my $indirectChargingRateCalculated = Arithmetic(
+        name       => 'Calculated indirect costs application rate',
         arithmetic => '=A1/INDEX(A2_A3,A4)/INDEX(A5_A6,A7)',
         arguments  => {
             A1    => $charge,
@@ -346,11 +368,19 @@ sub indirectChargeAdj {
     $self->{constraintIndirectChargingRate} = [
         'not implemented: '
           . 'link between edcmDemandAssets and indirectDenominator',
-        $indirectChargingRateAdjusted, $indirectChargingRate,
-        $fudgeIndirect,                $agreedCapacity,
+        $indirectChargingRateCalculated, $indirectChargingRate,
+        $fudgeIndirect,                  $agreedCapacity,
         $indirect,
     ];
-    $indirectChargingRateAdjusted;
+    Arithmetic(
+        name       => 'Adjusted indirect costs application rate',
+        arithmetic => '=IF(ISERROR(A1),A2,A3)',
+        arguments  => {
+            A1 => $indirectChargingRateCalculated,
+            A2 => $indirectChargingRate,
+            A3 => $indirectChargingRateCalculated,
+        },
+    );
 }
 
 sub fixedAdderAdj {
@@ -438,7 +468,7 @@ sub assetAdderAdj {
     Arithmetic(
         name          => 'Adjusted annual charge on assets',
         defaultFormat => '%soft',
-        arithmetic    => '=IF(ISNUMBER(A11),1/(1/A2+A1/A3),A21)',
+        arithmetic    => '=IF(ISERROR(A11),A21,1/(1/A2+A1/A3))',
         arguments     => {
             A1  => $self->{cookedSharedAssetAdjustment},
             A11 => $self->{cookedSharedAssetAdjustment},
@@ -513,9 +543,15 @@ sub adjustDnoTotals {
     my ( $self, $model, $hashedArrays, ) = @_;
 
     if ( $self->{adjustedEdcmPurpleUse} ) {
-        $hashedArrays->{1191}[0] = Stack(
-            name    => 'Adjusted total EDCM peak time consumption (kW)',
-            sources => [ $self->{adjustedEdcmPurpleUse} ]
+        $hashedArrays->{1191}[0] = Arithmetic(
+            name          => 'Adjusted total EDCM peak time consumption (kW)',
+            defaultFormat => '0soft',
+            arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+            arguments     => {
+                A1 => $self->{adjustedEdcmPurpleUse},
+                A2 => $hashedArrays->{1191}[0]{sources}[0],
+                A3 => $self->{adjustedEdcmPurpleUse},
+            },
         );
     }
 
@@ -523,7 +559,7 @@ sub adjustDnoTotals {
         $hashedArrays->{1192}[0] = Arithmetic(
             name => 'Adjusted chargeable export capacity baseline (kVA)',
             defaultFormat => '0soft',
-            arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
+            arithmetic    => '=A1+IF(ISERROR(A2),0,A3)',
             arguments     => {
                 A1 => $hashedArrays->{1192}[0]{sources}[0],
                 A2 => $self->{adjustmentExportCapacityChargeablePost2010},
@@ -534,7 +570,7 @@ sub adjustDnoTotals {
             name =>
               'Adjusted non-exempt post-2010 export capacity baseline (kVA)',
             defaultFormat => '0soft',
-            arithmetic    => '=A1+IF(ISNUMBER(A2),A3,0)',
+            arithmetic    => '=A1+IF(ISERROR(A2),0,A3)',
             arguments     => {
                 A1 => $hashedArrays->{1192}[2]{sources}[0],
                 A2 => $self->{adjustmentExportCapacityChargeablePost2010},
