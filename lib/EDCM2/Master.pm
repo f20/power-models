@@ -52,7 +52,7 @@ sub requiredModulesForRuleset {
       $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
       $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
-      $ruleset->{takenForAnIdiot} ? qw(EDCM2::IdiotMitigation) : (),
+      $ruleset->{mitigateUndueSecrecy} ? qw(EDCM2::SecrecyMitigation) : (),
       $ruleset->{voltageRulesTransparency} ? () : qw(EDCM2::AssetCalcHard),
       $ruleset->{layout} ? qw(SpreadsheetModel::MatrixSheet EDCM2::Layout) : (),
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
@@ -343,8 +343,8 @@ EOT
 
     }
 
-    $model->{takenForAnIdiot} = EDCM2::IdiotMitigation->new($model)
-      if $model->{takenForAnIdiot};
+    $model->{mitigateUndueSecrecy} = EDCM2::SecrecyMitigation->new($model)
+      if $model->{mitigateUndueSecrecy};
 
     my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
       $model->cdcmAssets;
@@ -496,10 +496,10 @@ EOT
       if $model->{legacy201};
 
     ( $rateDirect, $rateRates, $rateIndirect ) =
-      $model->{takenForAnIdiot}
+      $model->{mitigateUndueSecrecy}
       ->fixedChargeAdj( $rateDirect, $rateRates, $rateIndirect,
         $demandSoleUseAsset, $chargeDirect, $chargeRates, $chargeIndirect, )
-      if $model->{takenForAnIdiot};
+      if $model->{mitigateUndueSecrecy};
 
     my (
         $fixedDcharge,        $fixedDchargeTrue, $fixedGcharge,
@@ -585,10 +585,11 @@ EOT
       $model->exitChargingRate( $cdcmPurpleUse, $purpleUseRate, $importCapacity,
         $chargeExit, );
 
-    ( $rateExit, $edcmPurpleUse ) = $model->{takenForAnIdiot}->exitChargeAdj(
+    ( $rateExit, $edcmPurpleUse ) =
+      $model->{mitigateUndueSecrecy}->exitChargeAdj(
         $rateExit,   $cdcmPurpleUse, $edcmPurpleUse,
         $chargeExit, $purpleUseRate, $importCapacity,
-    ) if $model->{takenForAnIdiot};
+      ) if $model->{mitigateUndueSecrecy};
 
     my ( $charges1, $acCoef, $reCoef ) =
       $model->charge1( $tariffLoc, $locations, $locParent, $c1, $a1d, $r1d,
@@ -634,8 +635,8 @@ EOT
         $daysInYear,
     );
 
-    $gCharge = $model->{takenForAnIdiot}->gChargeAdj($gCharge)
-      if $model->{takenForAnIdiot};
+    $gCharge = $model->{mitigateUndueSecrecy}->gChargeAdj($gCharge)
+      if $model->{mitigateUndueSecrecy};
 
     my ( $exportCapacityCharge, $genCreditRound, $exportCapacityChargeRound,
         $netexportCapacityChargeRound, $generationRevenue, )
@@ -750,7 +751,8 @@ EOT
                 @{ $tariffColumns[3]{sourceLines} },
                 @{ $tariffColumns[4]{sourceLines} },
             ],
-            $model->{takenForAnIdiot} ? $model->{takenForAnIdiot}->calcTables
+            $model->{mitigateUndueSecrecy}
+            ? $model->{mitigateUndueSecrecy}->calcTables
             : (),
         );
 
@@ -806,8 +808,9 @@ EOT
               Stack( sources => [ $model->{transparency}{dnoTotalItem}{$_} ] );
         }
 
-        $model->{takenForAnIdiot}->adjustDnoTotals( $model, \%dnoTotalItem )
-          if $model->{takenForAnIdiot};
+        $model->{mitigateUndueSecrecy}
+          ->adjustDnoTotals( $model, \%dnoTotalItem )
+          if $model->{mitigateUndueSecrecy};
 
         $model->{aggregateTables} = [
             (
@@ -822,7 +825,7 @@ EOT
                 [ 1192 => 'EDCM generation aggregates' ],
                 [ 1193 => 'EDCM notional asset aggregates' ],
             ),
-            $model->{takenForAnIdiot} ? () : (
+            $model->{mitigateUndueSecrecy} ? () : (
                 map {
                     my $obj  = $model->{transparency}{dnoTotalItem}{$_};
                     my $name = 'Copy of ' . $obj->{name};

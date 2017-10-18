@@ -48,7 +48,8 @@ sub finishModel {
 
 sub notesTransparency {
     my ($model) = @_;
-    return $model->{takenForAnIdiot}->notes if $model->{takenForAnIdiot};
+    return $model->{mitigateUndueSecrecy}->notes
+      if $model->{mitigateUndueSecrecy};
     Notes(
         name  => 'DNO totals data',
         lines => [
@@ -56,9 +57,8 @@ sub notesTransparency {
               . ' third-party validation and forecasting of DNO charges, then'
               . ' the DNO aggregates in tables 1091-1093 need to be taken for the'
               . ' non-confidential summary sheets from the DNO\'s charging model.',
-            'Some DNOs might think they can'
-              . ' take you for an idiot and refuse to disclose this information,'
-              . ' giving some version of an excuse which sounds like it was agreed'
+            'Some DNOs seem to think they can refuse to disclose these data'
+              . ' by giving some version of an excuse which sounds like it was agreed'
               . ' in some DNO smoke-filled room, along the following lines:',
             '• "It is the belief of [DNO] that either by direct'
               . ' calculationor iterative methods the use of this data in isolation or'
@@ -73,15 +73,13 @@ sub notesTransparency {
               . ' which could be misinterpreted and lead to erroneous assumptions."',
             '• "I am nervous about supplying data from the models'
               . ' in case customer confidential data is identified."',
-            'Whilst the logic of these excuses is rather lacking,'
-              . ' the fact is that, with ineffective regulation,'
+            'These excuses are wrong, and'
+              . ' DNOs using them are taking you for an idiot.',
+            'But the fact is that, with ineffective regulation,'
               . ' DNOs who want to be secretive will probably get away with it.',
-            1
-            ? 'I am working on possible ways of mitigating the'
-              . ' consequences of being taken for an idiot by DNOs.'
-            : 'Special versions of the EDCM models'
+            'Special versions of the EDCM models'
               . ' are available from dcmf.co.uk/models to help'
-              . ' mitigate the consequences of being taken for an idiot by DNOs.'
+              . ' mitigate undue DNO secrecy.'
         ],
     );
 }

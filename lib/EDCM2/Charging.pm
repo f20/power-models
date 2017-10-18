@@ -421,9 +421,9 @@ sub tariffCalculation {
     );
 
     ( $edcmDirect, $edcmRates ) =
-      $model->{takenForAnIdiot}
+      $model->{mitigateUndueSecrecy}
       ->interimRecookTotals( $demandScalingShortfall, $edcmDirect, $edcmRates, )
-      if $model->{takenForAnIdiot};
+      if $model->{mitigateUndueSecrecy};
 
     $model->{summaryInformationColumns}[2] = Arithmetic(
         name          => 'Direct cost allocation (£/year)',

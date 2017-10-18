@@ -189,15 +189,16 @@ sub demandPot {
             },
         );
 
-        if ( $model->{takenForAnIdiot} ) {
-            $totalRevenue3 = $model->{takenForAnIdiot}->demandRevenuePotAdj(
+        if ( $model->{mitigateUndueSecrecy} ) {
+            $totalRevenue3 =
+              $model->{mitigateUndueSecrecy}->demandRevenuePotAdj(
                 $totalRevenue3,    $rateDirect,
                 $rateRates,        $rateIndirect,
                 $rateOther,        $chargeOther,
                 $totalAssetsFixed, $totalAssetsCapacity,
                 $totalAssetsConsumption,
-            );
-            $model->{takenForAnIdiot}->directChargeAdj(
+              );
+            $model->{mitigateUndueSecrecy}->directChargeAdj(
                 $rateDirect,        $rateRates, $assetsCapacity,
                 $assetsConsumption, $importCapacity,
             );

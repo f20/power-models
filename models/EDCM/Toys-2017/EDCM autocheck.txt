@@ -1,5 +1,0 @@
-makeModels
-    -autocheck
-    -pickbest
-    EDCM/20??-??-Baseline/%-*.yml
-    EDCM/20??-??/*.yml

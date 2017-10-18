@@ -1,4 +1,4 @@
-﻿package EDCM2::IdiotMitigation;
+﻿package EDCM2::SecrecyMitigation;
 
 =head Copyright licence and disclaimer
 
@@ -40,13 +40,27 @@ sub new {
 sub notes {
     my ($self) = @_;
     Notes(
-        name => 'DNO totals data (special version to migitate'
-          . ' the consequences of being taken for an idiot by the DNO)',
+        name =>
+          'DNO totals data — special version to migitate undue DNO secrecy',
         lines => [
-            'This version of the model contains adjustments fed from data in'
-              . ' tables 119xx to mitigate the impact of the DNO taking you for an'
-              . ' idiot by refusing, on some spurious excuse, to provide data from'
-              . ' the non-confidential summary sheets in its EDCM charging model.',
+            'This version of the model contains tables 1191 to 1193,'
+              . ' which can be populated with DNO totals data if available.',
+            'You might find that some DNOs impose undue secrecy by refusing to'
+              . ' provide the aggregate data for tables 1191 to 1193.'
+              . ' They might even take you for an idiot by providing'
+              . ' a lame invalid reason for their refusal.',
+            'Even if you are facing an unduly secretive DNO,'
+              . ' you might still be able to use this model to produce estimates,'
+              . ' as follows:',
+            '• Enter some rough estimates in tables 1191 to 1193.',
+            '• Populate tables 119xx with whatever information you can glean.',
+            'Data from tables 119xx will be used within this model to adjust'
+              . ' the figures in tables 1191 to 1193 to fit the DNO\'s calculations.',
+            'If all cells in tables 119xx are populated with accurate data,'
+              . ' the only remaining inaccuracies relate to the total net revenue'
+              . ' from EDCM generation, the total cost of the DCP 189 discount, '
+              . ' any pathological cases, and any non-compliance by the DNO'
+              . ' with the EDCM; the first two are likely to have a very small impact.',
             'Documentation of these features does not exist yet.'
               . ' I plan to add a document to dcmf.co.uk/models at some point.',
         ],
@@ -435,8 +449,7 @@ sub demandRevenuePotAdj {
         number        => 11951,
         lines         => [
             'Enter your estimate of the demand revenue pot here'
-              . ' if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
+              . ' if the DNO refuses to provide the data for tables 1191 and 1193.',
             'The DNO\'s Schedule 15 published on dcusa.co.uk'
               . ' might help you guess this number.',
             'This number is used in conjunction with data in tables 11962-11965'
@@ -487,11 +500,11 @@ sub directChargeAdj {
         appendTo => $self->{model}{inputTables},
         number   => 11965,
         lines    => [
-            'Enter the direct cost charge for a non-pathological non-0000 site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
+            'Enter the direct cost charge (£/year) for a'
+              . ' non-pathological non-0000 site, if the DNO refuses'
+              . ' to provide the DNO totals data for tables 1191 and 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
+              . ' for the table 935 input data and the HSummary charge breakdown.',
             'This number is used in conjunction with data from tables'
               . ' 11951, 11962, 11963 and 11964 to adjust the DNO totals to fit.',
         ],
@@ -551,11 +564,11 @@ sub assetAdderAdj {
         appendTo => $self->{model}{inputTables},
         number   => 11964,
         lines    => [
-            'Enter the asset adder charge for a non-pathological non-0000 site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
+            'Enter the asset adder charge (£/year) for a'
+              . ' non-pathological non-0000 site, if the DNO refuses'
+              . ' to provide the DNO totals data for tables 1191 and 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
+              . ' for the table 935 input data and the HSummary charge breakdown.',
             'This number is used in conjunction with data from tables'
               . ' 11951, 11962, 11963 and 11965 to adjust the DNO totals to fit.',
         ],
@@ -611,11 +624,11 @@ sub fixedAdderAdj {
         appendTo => $self->{model}{inputTables},
         number   => 11963,
         lines    => [
-            'Enter the fixed adder charge for a non-pathological site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
+            'Enter the fixed adder charge (£/year) for a'
+              . ' non-pathological site, if the DNO refuses'
+              . ' to provide the DNO totals data for tables 1191 and 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
+              . ' for the table 935 input data and the HSummary charge breakdown.',
             'This number is used in conjunction with data from tables'
               . ' 11951, 11962, 11964 and 11965 to adjust the DNO totals to fit.',
         ],
@@ -662,11 +675,11 @@ sub indirectChargeAdj {
         appendTo => $self->{model}{inputTables},
         number   => 11962,
         lines    => [
-            'Enter the indirect cost charge for a non-pathological site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
+            'Enter the indirect cost charge (£/year) for a'
+              . ' non-pathological site, if the DNO refuses'
+              . ' to provide the DNO totals data for tables 1191 and 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
+              . ' for the table 935 input data and the HSummary charge breakdown.',
             'This number is used in conjunction with data from tables'
               . ' 11951, 11963, 11964 and 11965 to adjust the DNO totals to fit.',
         ],
@@ -706,10 +719,9 @@ sub gChargeAdj {
         lines         => [
             'Enter the DNO\'s standard EDCM export capacity charge here,'
               . ' in p/kVA/day,'
-              . ' if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for table 1192.',
+              . ' if the DNO refuses to provide the data for table 1192.',
             'The DNO\'s charging statement published on the DNO\'s website'
-              . ' might help you guess this number.',
+              . ' might help you find this number.',
             'This number is used to adjust the figures in table 1192 to fit.',
         ],
     );
@@ -756,11 +768,11 @@ sub exitChargeAdj {
         appendTo => $self->{model}{inputTables},
         number   => 11960,
         lines    => [
-            'Enter the transmission exit charge for a non-pathological site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
+            'Enter the transmission exit charge (£/year) for a'
+              . ' non-pathological site, if the DNO refuses'
+              . ' to provide the DNO totals data for table 1191.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
+              . ' for the table 935 input data and the HSummary charge breakdown.',
             'This number is used to adjust the figure in the'
               . ' first column of table 1191.',
         ],
@@ -818,11 +830,11 @@ sub fixedChargeAdj {
         appendTo => $self->{model}{inputTables},
         number   => 11961,
         lines    => [
-            'Enter the demand fixed charge for a non-pathological site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for table 1193.',
+            'Enter the demand fixed charge (£/year) for a'
+              . ' non-pathological site, if the DNO refuses'
+              . ' to provide the DNO totals data for table 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
+              . ' for the table 935 input data and the HSummary charge breakdown.',
             'This number is used to adjust figures in table 1193'
               . ' to fit the total value of EDCM notional assets.',
         ],

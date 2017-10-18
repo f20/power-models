@@ -64,44 +64,6 @@ for (i in 1:14) {
 EOR
 }
 
-sub edcmOpacity {
-    my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
-csv <- textConnection('
-    Opacity 2013,Opacity 2014,DNO
-    0.25,0.25,ENWL
-    0.25,10,NPG Northeast
-    0.25,10,NPG Yorkshire
-    0.25,10,SPEN SPD
-    0.25,10,SPEN SPM
-    0.25,0.5,SSEPD SEPD
-    0.25,0.5,SSEPD SHEPD
-    0,0,UKPN EPN
-    0.25,0,UKPN LPN
-    0.25,0,UKPN SPN
-    0.25,10,WPD EastM
-    0.25,10,WPD SWales
-    0.25,10,WPD SWest
-    0.25,10,WPD WestM
-');
-v <- read.csv(csv);
-names(v)[1:2] <- paste('Opacity', 2013:2014);
-for (t in c('pdf', 'Word')) {
-    plot.dno.map(
-        v[,1:2],
-        file.name='EDCM opacity ratings', file.type=t, number.show=F, legend.show=F,
-        title='EDCM opacity ratings',
-        box=paste(
-            "Green is good, red is bad.",
-            "Ratings reflect Franck's experience in seeking non-confidential",
-            "aggregate data that would help understand how each",
-            "DNO's EDCM charging model works in practice."
-        )
-    );
-}
-EOR
-}
-
 sub mapCdcmEdcm2013 {
     my ( $self, $rIncluded ) = @_;
     PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
