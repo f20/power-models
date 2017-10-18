@@ -69,26 +69,15 @@ sub calcTables {
     }
     [
         grep { $_; } @{$self}{
-            qw(
-              adjustedEdcmPurpleUse
-              adjustmentExportCapacityChargeablePost2010
-              )
+            qw(adjustedEdcmPurpleUse adjustmentExportCapacityChargeablePost2010)
         }
     ],
+      [ grep { $_; } @{$self}{qw(adjustmentTotalEdcmAssets)} ],
+      [ grep { $_; }
+          @{$self}{qw(interimRecookEdcmDirect interimRecookEdcmRates)} ],
       [
         grep { $_; } @{$self}{
-            qw(
-              adjustmentTotalEdcmAssets
-              )
-        }
-      ],
-      [
-        grep { $_; } @{$self}{
-            qw(
-              assetCookingRatio
-              adjustmentTotalDemandAssets
-              scalerSharedDemandAssets
-              )
+            qw(assetCookingRatio adjustmentTotalDemandAssets scalerSharedDemandAssets)
         }
       ];
 }
@@ -205,7 +194,39 @@ sub adjustDnoTotals {
 
 sub interimRecookTotals {
     my ( $self, $demandScalingShortfall, $edcmDirect, $edcmRates, ) = @_;
-    $edcmDirect, $edcmRates;
+    $self->{interimRecookEdcmDirect} = Arithmetic(
+        name => 'Interim re-estimate of direct costs'
+          . ' charged on EDCM demand shared assets (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(ISERROR(A1/A2),A3,A4*A5/A6)',
+        arguments     => {
+            A1 => $self->{directCostChargingRate},
+            A2 => $self->{overallAssetChargingRate},
+            A3 => $edcmDirect,
+            A4 => $demandScalingShortfall,
+            A5 => $self->{directCostChargingRate},
+            A6 => $self->{overallAssetChargingRate},
+        },
+      ),
+      $self->{interimRecookEdcmRates} = Arithmetic(
+        name => 'Interim re-estimate of rates'
+          . ' charged on EDCM demand shared assets (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(ISERROR(A1/A2),A3,A4*A5/A6)',
+        arguments     => {
+            A1 => $self->{ratesChargingRate},
+            A2 => $self->{overallAssetChargingRate},
+            A3 => $edcmRates,
+            A4 => $demandScalingShortfall,
+            A5 => $self->{ratesChargingRate},
+            A6 => $self->{overallAssetChargingRate},
+        },
+      );
+}
+
+sub fudge41param {
+    my ( $self, $fudge41param ) = @_;
+    $self->{fudge41param} = $fudge41param;
 }
 
 sub demandRevenuePotAdj {
@@ -298,7 +319,8 @@ sub directChargeAdj {
         ],
     );
     $self->{directCostChargingRate} = Arithmetic(
-        name => 'Charging rate for direct cost element of asset adder',
+        name          => 'Charging rate for direct cost element of asset adder',
+        defaultFormat => '%soft',
         arithmetic =>
           '=A1/((INDEX(A2_A22,A92)+INDEX(A3_A33,A93))*INDEX(A4_A44,A94))',
         arguments => {
@@ -312,9 +334,10 @@ sub directChargeAdj {
         },
     );
     $self->{ratesChargingRate} = Arithmetic(
-        name       => 'Charging rate for rates element of asset adder',
-        arithmetic => '=A1/A2*A3',
-        arguments  => {
+        name          => 'Charging rate for rates element of asset adder',
+        defaultFormat => '%soft',
+        arithmetic    => '=A1/A2*A3',
+        arguments     => {
             A1 => $self->{directCostChargingRate},
             A2 => $rateDirect,
             A3 => $rateRates,
@@ -332,20 +355,20 @@ sub directChargeAdj {
 }
 
 sub assetAdderAdj {
-    my ( $self, $demandScaling, ) = @_;
+    my ( $self, $demandScaling, $slope, ) = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
         data          => [1],
     );
-    my $adderCharge = Dataset(
+    my $charge = Dataset(
         name          => 'Asset adder charge (£/year)',
         defaultFormat => '0hard',
         data          => [1e4],
     );
     Columnset(
         name     => 'Demand asset adder for a non-pathological non-0000 site',
-        columns  => [ $tariffIndex, $adderCharge, ],
+        columns  => [ $tariffIndex, $charge, ],
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
         number   => 11964,
@@ -359,11 +382,40 @@ sub assetAdderAdj {
               . ' 11951, 11962, 11963 and 11965 to adjust the DNO totals to fit.',
         ],
     );
-    $demandScaling;
+    $self->{assetAdderChargingRate} = Arithmetic(
+        name          => 'Charging rate for asset adder',
+        defaultFormat => '%soft',
+        arithmetic    => '=A1/INDEX(A2_A3,A4)',
+        arguments     => {
+            A1    => $charge,
+            A2_A3 => $slope,
+            A4    => $tariffIndex,
+        },
+    );
+    $self->{overallAssetChargingRate} = Arithmetic(
+        name          => 'Overall charge on (cooked) assets',
+        defaultFormat => '%soft',
+        arithmetic    => '=A1+A2+A3',
+        arguments     => {
+            A1 => $self->{assetAdderChargingRate},
+            A2 => $self->{directCostChargingRate},
+            A3 => $self->{ratesChargingRate},
+        },
+    );
+    Arithmetic(
+        name          => 'Adjusted charge on assets',
+        defaultFormat => '%soft',
+        arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+        arguments     => {
+            A1 => $self->{overallAssetChargingRate},
+            A2 => $demandScaling,
+            A3 => $self->{overallAssetChargingRate},
+        },
+    );
 }
 
 sub fixedAdderAdj {
-    my ( $self, $fixedAdderChargingRate, ) = @_;
+    my ( $self, $fixedAdderChargingRate, $slope ) = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
@@ -390,11 +442,25 @@ sub fixedAdderAdj {
               . ' 11951, 11962, 11964 and 11965 to adjust the DNO totals to fit.',
         ],
     );
-    $self->{constraintFixedAdderRate} = [
-            'not implemented: '
-          . 'link between residualResidual and indirectDenominator',
-    ];
-    $fixedAdderChargingRate;
+    $self->{fixedAdderChargingRate} = Arithmetic(
+        name       => 'Charging rate for fixed adder',
+        arithmetic => '=A1/INDEX(A2_A3,A4)',
+        arguments  => {
+            A1    => $charge,
+            A2_A3 => $slope,
+            A4    => $tariffIndex,
+        },
+    );
+    Arithmetic(
+        name          => 'Adjusted fixed adder charging rate',
+        defaultFormat => '%soft',
+        arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+        arguments     => {
+            A1 => $self->{fixedAdderChargingRate},
+            A2 => $fixedAdderChargingRate,
+            A3 => $self->{fixedAdderChargingRate},
+        },
+    );
 }
 
 sub indirectChargeAdj {
@@ -425,7 +491,27 @@ sub indirectChargeAdj {
               . ' 11951, 11963, 11964 and 11965 to adjust the DNO totals to fit.',
         ],
     );
-    $indirectChargingRate;
+    $self->{indirectChargingRate} = Arithmetic(
+        name       => 'Charging rate for indirect costs',
+        arithmetic => '=A1/INDEX(A2_A3,A4)/INDEX(A5_A6,A7)',
+        arguments  => {
+            A1    => $charge,
+            A2_A3 => $fudgeIndirect,
+            A4    => $tariffIndex,
+            A5_A6 => $agreedCapacity,
+            A7    => $tariffIndex,
+        },
+    );
+    Arithmetic(
+        name          => 'Adjusted indirect costs charging rate',
+        defaultFormat => '%soft',
+        arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+        arguments     => {
+            A1 => $self->{indirectChargingRate},
+            A2 => $indirectChargingRate,
+            A3 => $self->{indirectChargingRate},
+        },
+    );
 }
 
 sub gChargeAdj {

@@ -67,6 +67,9 @@ sub fudge41 {
         data => [0.2],
     );
 
+    $model->{takenForAnIdiot}->fudge41param($ynonFudge41)
+      if $model->{takenForAnIdiot};
+
     $activeCoincidence = Arithmetic(
         name       => 'Peak-time capacity use per kVA of agreed capacity',
         arithmetic => '=SQRT(A1*A2+A3*A4)',
@@ -285,8 +288,7 @@ sub fudge41 {
       if $model->{transparency};
 
     ($fixedAdderRate) =
-      $model->{takenForAnIdiot}
-      ->fixedAdderAdj( $fixedAdderRate, $slope, $ynonFudge41, $adderAmount, )
+      $model->{takenForAnIdiot}->fixedAdderAdj( $fixedAdderRate, $slope )
       if $model->{takenForAnIdiot};
 
     $$capacityChargeRef = Arithmetic(
@@ -372,7 +374,6 @@ sub fudge41 {
     $model->{transparency}{dnoTotalItem}{1257} = $$shortfallRef
       if $model->{transparency};
 
-
 }
 
 sub demandScaling41 {
@@ -455,8 +456,7 @@ sub demandScaling41 {
 
     ( $demandScaling, ) =
       $model->{takenForAnIdiot}
-      ->assetAdderAdj( $demandScaling, $totalSlopeCapacity, $slopeCapacity,
-        $shortfall, )
+      ->assetAdderAdj( $demandScaling, $slopeCapacity, )
       if $model->{takenForAnIdiot};
 
     my $scalingChargeCapacity = Arithmetic(
