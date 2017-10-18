@@ -294,8 +294,7 @@ sub _extractInputData {
                     {
                         $to1->[$col]{$rowName} = $to2->[$col]{$rowName} = $v;
                         $tree->{$tableNumber} ||= $to2;
-                        $byWorksheet{' combined'}{$tableNumber} = $to1
-                          if $evenIfLocked;
+                        $byWorksheet{' combined'}{$tableNumber} = $to1;
                         $byWorksheet{" $worksheet->{Name}"}{$tableNumber} =
                           $to2;
                     }

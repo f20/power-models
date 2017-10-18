@@ -1,6 +1,7 @@
 makeModels
-    -template=Test
+    -template=%
 	EDCM/Toys-2017/Test.yml
+	EDCM/Toys-2017/Test combined.yml
     EDCM/2018-02-Baseline/%+idiotmit161-LRIC.yml
 	-newrules
 	EDCM/2018-02-Baseline/%-clean161-LRIC.yml

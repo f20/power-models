@@ -818,7 +818,7 @@ EOT
                         number        => 3600 + $_->[0],
                         columns       => $dnoTotalItem{ $_->[0] },
                       )
-                  }[ 1191 => 'EDCM demand aggregates' ],
+                  }[ 1191 => 'EDCM demand and revenue aggregates' ],
                 [ 1192 => 'EDCM generation aggregates' ],
                 [ 1193 => 'EDCM notional asset aggregates' ],
             ),
