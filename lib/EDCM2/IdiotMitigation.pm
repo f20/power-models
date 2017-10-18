@@ -53,20 +53,173 @@ sub notes {
     );
 }
 
+sub fitTotalAssets {
+    my ($self) = @_;
+    my $proportionDemandAssetsWhichAreShared = Arithmetic(
+        name => 'Proportion of EDCM demand assets which are not sole use',
+        defaultFormat => '%soft',
+        arithmetic    => '=A1/A2*A3/A41*(1-A42)/A5/A6',
+        arguments     => {
+            A1  => $self->{rateIndirect},
+            A2  => $self->{indirectChargingRate},
+            A3  => $self->{fixedAdderChargingRate},
+            A41 => $self->{fudge41param},
+            A42 => $self->{fudge41param},
+            A5  => $self->{assetAdderChargingRate},
+            A6  => $self->{assetCookingRatio},
+        },
+    );
+    my $D = Arithmetic(
+        name =>
+          'Pot correction required if no change to shared demand assets (£)',
+        defaultFormat => '0softpm',
+        arithmetic    => '=A1-A2+(A3+A4+A5)*(A71+A81+A91-(A7+A8)/A6)',
+        arguments     => {
+            A1  => $self->{demandRevenuePot},
+            A2  => $self->{totalRevenue3},
+            A3  => $self->{rateDirect},
+            A4  => $self->{rateRates},
+            A5  => $self->{rateIndirect},
+            A6  => $proportionDemandAssetsWhichAreShared,
+            A7  => $self->{totalAssetsCapacity},
+            A71 => $self->{totalAssetsCapacity},
+            A8  => $self->{totalAssetsConsumption},
+            A81 => $self->{totalAssetsConsumption},
+            A91 => $self->{totalAssetsDemandSoleUse},
+        },
+    );
+    my $F = Arithmetic(
+        name          => 'Intermediate step F',
+        defaultFormat => '0soft',
+        arithmetic    => '=(A3+A4+A5)*(A7+A8)/A6',
+        arguments     => {
+            A3  => $self->{rateDirect},
+            A4  => $self->{rateRates},
+            A5  => $self->{rateIndirect},
+            A6  => $proportionDemandAssetsWhichAreShared,
+            A7  => $self->{totalAssetsCapacity},
+            A71 => $self->{totalAssetsCapacity},
+            A8  => $self->{totalAssetsConsumption},
+            A81 => $self->{totalAssetsConsumption},
+            A91 => $self->{totalAssetsDemandSoleUse},
+        },
+    );
+    my $e = Arithmetic(
+        name => 'Intermediate step e',
+        arithmetic =>
+          '=0.5*(A11/A12/(A13+A14)+A15/A16-A17*(A18+A19)/A20-A21/A22)',
+        arguments => {
+            A11 => $self->{chargeOther},
+            A12 => $self->{rateOther},
+            A13 => $self->{totalAssetsCapacity},
+            A14 => $self->{totalAssetsConsumption},
+            A15 => $self->{chargeOther},
+            A16 => $F,
+            A17 => $self->{rateOther},
+            A18 => $self->{totalAssetsCapacity},
+            A19 => $self->{totalAssetsConsumption},
+            A20 => $F,
+            A21 => $D,
+            A22 => $F,
+        },
+    );
+    $self->{scalerSharedDemandAssets} = Arithmetic(
+        name          => 'Percentage adjustment to EDCM demand shared assets',
+        defaultFormat => '%softpm',
+        arithmetic    => '=SQRT(A1*A2+A4/A5/(A7+A8)*A6/A9)-A3',
+        arguments     => {
+            A1 => $e,
+            A2 => $e,
+            A3 => $e,
+            A4 => $self->{chargeOther},
+            A5 => $self->{rateOther},
+            A6 => $D,
+            A9 => $F,
+            A7 => $self->{totalAssetsCapacity},
+            A8 => $self->{totalAssetsConsumption},
+        },
+    );
+    $self->{adjustmentTotalDemandAssets} = Arithmetic(
+        name          => 'Adjustment to total EDCM demand assets (£)',
+        defaultFormat => '0softpm',
+        arithmetic    => '=(1+A2)*(A4+A5)/A1-A3-A41-A51',
+        arguments     => {
+            A1  => $proportionDemandAssetsWhichAreShared,
+            A2  => $self->{scalerSharedDemandAssets},
+            A3  => $self->{totalAssetsDemandSoleUse},
+            A4  => $self->{totalAssetsCapacity},
+            A41 => $self->{totalAssetsCapacity},
+            A5  => $self->{totalAssetsConsumption},
+            A51 => $self->{totalAssetsConsumption},
+        },
+    );
+    $self->{adjustedFixedIndirectDenominator} = Arithmetic(
+        name => 'Fitted charging base for fixed adder and indirects (kVA)',
+        defaultFormat => '0soft',
+        arithmetic    => '=(A1+A2+A3+A4)*A5/A6',
+        arguments     => {
+            A1 => $self->{adjustmentTotalDemandAssets},
+            A2 => $self->{totalAssetsDemandSoleUse},
+            A3 => $self->{totalAssetsCapacity},
+            A4 => $self->{totalAssetsConsumption},
+            A5 => $self->{rateIndirect},
+            A6 => $self->{indirectChargingRate},
+        },
+    );
+    my $costBasedRevenue = Arithmetic(
+        name          => 'Revenue from cost charges on EDCM demand (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=(A1+A2+A3+A4)*(A5+A6+A7)+A8*A9',
+        arguments     => {
+            A1 => $self->{adjustmentTotalDemandAssets},
+            A2 => $self->{totalAssetsDemandSoleUse},
+            A3 => $self->{totalAssetsCapacity},
+            A4 => $self->{totalAssetsConsumption},
+            A5 => $self->{rateDirect},
+            A6 => $self->{rateRates},
+            A7 => $self->{rateIndirect},
+            A8 => $self->{rateExitCalculated},
+            A9 => $self->{adjustedEdcmPurpleUse},
+        },
+    );
+    my $fixedAdderRevenue = Arithmetic(
+        name          => 'Revenue from fixed adder (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1*A2',
+        arguments     => {
+            A1 => $self->{adjustedFixedIndirectDenominator},
+            A2 => $self->{fixedAdderChargingRate},
+        },
+    );
+    my $assetAdderRevenue = Arithmetic(
+        name          => 'Revenue from asset adder (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1*(1+A2)*(A3+A4)*A5',
+        arguments     => {
+            A1 => $self->{assetCookingRatio},
+            A2 => $self->{scalerSharedDemandAssets},
+            A3 => $self->{totalAssetsCapacity},
+            A4 => $self->{totalAssetsConsumption},
+            A5 => $self->{assetAdderChargingRate},
+        },
+    );
+    $self->{adjustedRevenueFromCharge1} = Arithmetic(
+        name          => 'Fitted revenue from charge 1 (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1-A2-A3-A4',
+        arguments     => {
+            A1 => $self->{demandRevenuePot},
+            A2 => $costBasedRevenue,
+            A3 => $assetAdderRevenue,
+            A4 => $fixedAdderRevenue,
+        },
+    );
+}
+
 sub calcTables {
     my ($self) = @_;
-    if (1) {
-        $self->{adjustmentTotalDemandAssets} = Constant(
-            name          => '£ adjustment to total EDCM demand assets',
-            defaultFormat => '0softpm',
-            data          => ['=#N/A'],
-        );
-        $self->{scalerSharedDemandAssets} = Constant(
-            name => 'Percentage adjustment to EDCM demand shared assets',
-            defaultFormat => '%softpm',
-            data          => ['=#N/A'],
-        );
-    }
+    eval { $self->fitTotalAssets; };
+    warn "Could not fit total DNO assets: $@" if $@;
     [
         grep { $_; } @{$self}{
             qw(adjustedEdcmPurpleUse adjustmentExportCapacityChargeablePost2010)
@@ -74,12 +227,14 @@ sub calcTables {
     ],
       [ grep { $_; } @{$self}{qw(adjustmentTotalEdcmAssets)} ],
       [ grep { $_; }
-          @{$self}{qw(interimRecookEdcmDirect interimRecookEdcmRates)} ],
-      [
+          @{$self}{qw(interimRecookEdcmDirect interimRecookEdcmRates)} ], [
         grep { $_; } @{$self}{
-            qw(assetCookingRatio adjustmentTotalDemandAssets scalerSharedDemandAssets)
+            qw(adjustmentTotalDemandAssets scalerSharedDemandAssets
+              adjustedFixedIndirectDenominator
+              adjustedRevenueFromCharge1
+              assetCookingRatio)
         }
-      ];
+          ];
 }
 
 sub adjustDnoTotals {
@@ -120,6 +275,42 @@ sub adjustDnoTotals {
             },
         );
     }
+
+    if ( $self->{adjustedFixedIndirectDenominator} ) {
+        $hashedArrays->{1191}[1] = Arithmetic(
+            name =>
+              'Adjusted total marginal effect of indirect cost adder (kVA)',
+            defaultFormat => '0soft',
+            arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+            arguments     => {
+                A1 => $self->{adjustedFixedIndirectDenominator},
+                A2 => $hashedArrays->{1191}[1]{sources}[0],
+                A3 => $self->{adjustedFixedIndirectDenominator},
+            },
+        );
+        $hashedArrays->{1191}[2] = Arithmetic(
+            name =>
+              'Adjusted total marginal effect of demand fixed adder (kVA)',
+            defaultFormat => '0soft',
+            arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+            arguments     => {
+                A1 => $self->{adjustedFixedIndirectDenominator},
+                A2 => $hashedArrays->{1191}[2]{sources}[0],
+                A3 => $self->{adjustedFixedIndirectDenominator},
+            },
+        );
+    }
+
+    $hashedArrays->{1191}[3] = Arithmetic(
+        name          => 'Adjusted total revenue from charge 1 (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+        arguments     => {
+            A1 => $self->{adjustedRevenueFromCharge1},
+            A2 => $hashedArrays->{1191}[3]{sources}[0],
+            A3 => $self->{adjustedRevenueFromCharge1},
+        },
+    ) if $self->{adjustedRevenueFromCharge1};
 
     $hashedArrays->{1193}[0] = Arithmetic(
         name          => 'Adjusted demand sole use assets (£)',
@@ -188,8 +379,6 @@ sub adjustDnoTotals {
         },
     ) if $self->{assetCookingRatio};
 
-    # still need to adjust 1191c23 and 1191c4
-
 }
 
 sub interimRecookTotals {
@@ -231,13 +420,13 @@ sub fudge41param {
 
 sub demandRevenuePotAdj {
     my (
-        $self,         $totalRevenue3,
-        $rateDirect,   $rateRates,
-        $rateIndirect, $rateOther,
-        $chargeOther,  $totalAssetsCapacity,
-        $totalAssetsConsumption,
+        $self,                $totalRevenue3,
+        $rateDirect,          $rateRates,
+        $rateIndirect,        $rateOther,
+        $chargeOther,         $totalAssetsDemandSoleUse,
+        $totalAssetsCapacity, $totalAssetsConsumption,
     ) = @_;
-    my $demandRevenuePot = Dataset(
+    $self->{demandRevenuePot} = Dataset(
         name          => 'Demand revenue pot (£/year)',
         defaultFormat => '0hard',
         data          => [1e7],
@@ -255,34 +444,23 @@ sub demandRevenuePotAdj {
               . ' and total demand EDCM sole use assets.'
         ],
     );
-    $self->{constraintDemandRevenuePot} = {
-        let_x     => '£ adjustment to total EDCM demand assets',
-        let_y     => 'Percentage adjustment to EDCM demand shared assets',
-        assert    => 'a*x + b*y/(c+y) + d = 0',
-        a         => 'A11+A12+A13',
-        b         => 'A15-A14*(A16+A17)',
-        c         => 'A15/A14/(A16+A17)',
-        d         => 'A18-A19',
-        arguments => {
-            A11 => $rateDirect,
-            A12 => $rateRates,
-            A13 => $rateIndirect,
-            A14 => $rateOther,
-            A15 => $chargeOther,
-            A16 => $totalAssetsCapacity,
-            A17 => $totalAssetsConsumption,
-            A18 => $totalRevenue3,
-            A19 => $demandRevenuePot,
-        },
-    };
+    $self->{rateDirect}               = $rateDirect;
+    $self->{rateRates}                = $rateRates;
+    $self->{rateIndirect}             = $rateIndirect;
+    $self->{rateOther}                = $rateOther;
+    $self->{chargeOther}              = $chargeOther;
+    $self->{totalAssetsDemandSoleUse} = $totalAssetsDemandSoleUse;
+    $self->{totalAssetsCapacity}      = $totalAssetsCapacity;
+    $self->{totalAssetsConsumption}   = $totalAssetsConsumption;
+    $self->{totalRevenue3}            = $totalRevenue3;
     Arithmetic(
         name          => 'Adjusted demand revenue pot (£/year)',
         defaultFormat => '0soft',
         arithmetic    => '=IF(ISERROR(A1),A2,A3)',
         arguments     => {
-            A1 => $demandRevenuePot,
+            A1 => $self->{demandRevenuePot},
             A2 => $totalRevenue3,
-            A3 => $demandRevenuePot,
+            A3 => $self->{demandRevenuePot},
         },
     );
 }
@@ -344,8 +522,8 @@ sub directChargeAdj {
         },
     );
     $self->{assetCookingRatio} = Arithmetic(
-        name => 'Asset cooking ratio (ratio of asset adder'
-          . ' denominator to total EDCM demand shared assets)',
+        name => 'Ratio of asset adder denominator'
+          . ' to total EDCM demand shared assets',
         arithmetic => '=A5/A1',
         arguments  => {
             A1 => $self->{directCostChargingRate},
@@ -464,7 +642,9 @@ sub fixedAdderAdj {
 }
 
 sub indirectChargeAdj {
-    my ( $self, $indirectChargingRate, $fudgeIndirect, $agreedCapacity, ) = @_;
+    my ( $self, $indirectChargingRate, $fudgeIndirect, $agreedCapacity,
+        $edcmIndirect )
+      = @_;
     my $tariffIndex = Dataset(
         name          => 'Tariff index',
         defaultFormat => '0hard',
@@ -491,6 +671,7 @@ sub indirectChargeAdj {
               . ' 11951, 11963, 11964 and 11965 to adjust the DNO totals to fit.',
         ],
     );
+    $self->{edcmIndirect}         = $edcmIndirect;
     $self->{indirectChargingRate} = Arithmetic(
         name       => 'Charging rate for indirect costs',
         arithmetic => '=A1/INDEX(A2_A3,A4)/INDEX(A5_A6,A7)',
@@ -503,10 +684,9 @@ sub indirectChargeAdj {
         },
     );
     Arithmetic(
-        name          => 'Adjusted indirect costs charging rate',
-        defaultFormat => '%soft',
-        arithmetic    => '=IF(ISERROR(A1),A2,A3)',
-        arguments     => {
+        name       => 'Adjusted indirect costs charging rate',
+        arithmetic => '=IF(ISERROR(A1),A2,A3)',
+        arguments  => {
             A1 => $self->{indirectChargingRate},
             A2 => $indirectChargingRate,
             A3 => $self->{indirectChargingRate},
@@ -585,7 +765,7 @@ sub exitChargeAdj {
               . ' first column of table 1191.',
         ],
     );
-    my $rateExitCalculated = Arithmetic(
+    $self->{rateExitCalculated} = Arithmetic(
         name       => 'Calculated transmission exit charging rate (£/kW/year)',
         arithmetic => '=A1/INDEX(A2_A21,A22)/INDEX(A3_A31,A32)',
         arguments  => {
@@ -600,9 +780,9 @@ sub exitChargeAdj {
         name       => 'Adjusted transmission exit charging rate (£/kW/year)',
         arithmetic => '=IF(ISERROR(A1),A2,A3)',
         arguments  => {
-            A1 => $rateExitCalculated,
+            A1 => $self->{rateExitCalculated},
             A2 => $rateExit,
-            A3 => $rateExitCalculated,
+            A3 => $self->{rateExitCalculated},
         },
       ),
       $self->{adjustedEdcmPurpleUse} = Arithmetic(
@@ -611,7 +791,7 @@ sub exitChargeAdj {
         arithmetic    => '=A1/A2-A3',
         arguments     => {
             A1 => $chargeExit,
-            A2 => $rateExitCalculated,
+            A2 => $self->{rateExitCalculated},
             A3 => $cdcmPurpleUse,
         },
       );

@@ -395,7 +395,7 @@
     _column: Baseline total demand sole use assets qualifying for DCP 189 discount (£)
 11951:
   - _table: 11951. Demand revenue pot (£/year)
-  - Demand revenue pot year: 9000000
+  - Demand revenue pot year: 6300000
     _column: Demand revenue pot (£/year)
 11954:
   - _table: 11954. Export capacity charge (p/kVA/day)
@@ -405,7 +405,7 @@
   - _table: 11960. Demand transmission exit charge for a non-pathological site
   - Demand transmission exit charge for a non-pathological site: 1
     _column: Tariff index
-  - Demand transmission exit charge for a non-pathological site: 32500
+  - Demand transmission exit charge for a non-pathological site: 32365
     _column: Transmission exit charge (£/year)
 11961:
   - _table: 11961. Demand fixed charge for a site not affected by DCP 189
@@ -417,25 +417,25 @@
   - _table: 11962. Demand indirect cost charge for a site
   - Demand indirect cost charge for a site: 1
     _column: Tariff index
-  - Demand indirect cost charge for a site: 10000
+  - Demand indirect cost charge for a site: 10780
     _column: Indirect cost charge (£/year)
 11963:
   - _table: 11963. Demand fixed adder charge for a non-pathological site
   - Demand fixed adder charge for a non-pathological site: 1
     _column: Tariff index
-  - Demand fixed adder charge for a non-pathological site: 10000
+  - Demand fixed adder charge for a non-pathological site: 2580
     _column: Fixed adder charge (£/year)
 11964:
-  - _table: 11964. Demand asset adder for a non-pathological site
-  - Demand asset adder for a non-pathological site: 1
+  - _table: 11964. Demand asset adder for a non-pathological non-0000 site
+  - Demand asset adder for a non-pathological non-0000 site: 1
     _column: Tariff index
-  - Demand asset adder for a non-pathological site: 25000
+  - Demand asset adder for a non-pathological non-0000 site: 94215
     _column: Asset adder charge (£/year)
 11965:
-  - _table: 11965. Demand direct cost charge for a non-pathological site
-  - Demand direct cost charge for a non-pathological site: 1
+  - _table: 11965. Demand direct cost charge for a non-pathological non-0000 site
+  - Demand direct cost charge for a non-pathological non-0000 site: 1
     _column: Tariff index
-  - Demand direct cost charge for a non-pathological site: 10000
+  - Demand direct cost charge for a non-pathological non-0000 site: 10800
     _column: Direct cost charge (£/year)
 913:
   - _table: 913. LRIC power flow modelling data

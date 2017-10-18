@@ -191,13 +191,14 @@ sub demandPot {
 
         if ( $model->{takenForAnIdiot} ) {
             $totalRevenue3 = $model->{takenForAnIdiot}->demandRevenuePotAdj(
-                $totalRevenue3,       $rateDirect,
-                $rateRates,           $rateIndirect,
-                $rateOther,           $chargeOther,
-                $totalAssetsCapacity, $totalAssetsConsumption,
+                $totalRevenue3,    $rateDirect,
+                $rateRates,        $rateIndirect,
+                $rateOther,        $chargeOther,
+                $totalAssetsFixed, $totalAssetsCapacity,
+                $totalAssetsConsumption,
             );
             $model->{takenForAnIdiot}->directChargeAdj(
-                $rateDirect,     $rateRates,   $assetsCapacity,
+                $rateDirect,        $rateRates, $assetsCapacity,
                 $assetsConsumption, $importCapacity,
             );
         }

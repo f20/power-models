@@ -185,7 +185,8 @@ sub fudge41 {
 
     ($indirectAppRate) =
       $model->{takenForAnIdiot}
-      ->indirectChargeAdj( $indirectAppRate, $fudgeIndirect, $agreedCapacity, )
+      ->indirectChargeAdj( $indirectAppRate, $fudgeIndirect, $agreedCapacity,
+        $indirect, )
       if $model->{takenForAnIdiot};
 
     $$capacityChargeRef = Arithmetic(
