@@ -182,8 +182,7 @@ sub fudge41 {
 
     ($indirectAppRate) =
       $model->{takenForAnIdiot}
-      ->indirectChargeAdj( $indirectAppRate, $fudgeIndirect, $agreedCapacity,
-        $indirect, )
+      ->indirectChargeAdj( $indirectAppRate, $fudgeIndirect, $agreedCapacity, )
       if $model->{takenForAnIdiot};
 
     $$capacityChargeRef = Arithmetic(
@@ -373,7 +372,6 @@ sub fudge41 {
     $model->{transparency}{dnoTotalItem}{1257} = $$shortfallRef
       if $model->{transparency};
 
-    $ynonFudge41;
 
 }
 

@@ -402,7 +402,7 @@ sub tariffCalculation {
     $model->{transparency}{dnoTotalItem}{1255} = $edcmRates
       if $model->{transparency};
 
-    my ($ynonFudge41) = $model->fudge41(
+    $model->fudge41(
         $activeCoincidence, $importCapacity,
         $edcmIndirect,      $edcmDirect,
         $edcmRates,         $daysInYear,
@@ -421,7 +421,8 @@ sub tariffCalculation {
     );
 
     ( $edcmDirect, $edcmRates ) =
-      $model->{takenForAnIdiot}->directCostAdj( $edcmDirect, $edcmRates )
+      $model->{takenForAnIdiot}
+      ->interimRecookTotals( $demandScalingShortfall, $edcmDirect, $edcmRates, )
       if $model->{takenForAnIdiot};
 
     $model->{summaryInformationColumns}[2] = Arithmetic(

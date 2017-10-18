@@ -53,6 +53,161 @@ sub notes {
     );
 }
 
+sub calcTables {
+    my ($self) = @_;
+    if (1) {
+        $self->{adjustmentTotalDemandAssets} = Constant(
+            name          => '£ adjustment to total EDCM demand assets',
+            defaultFormat => '0softpm',
+            data          => ['=#N/A'],
+        );
+        $self->{scalerSharedDemandAssets} = Constant(
+            name => 'Percentage adjustment to EDCM demand shared assets',
+            defaultFormat => '%softpm',
+            data          => ['=#N/A'],
+        );
+    }
+    [
+        grep { $_; } @{$self}{
+            qw(
+              adjustedEdcmPurpleUse
+              adjustmentExportCapacityChargeablePost2010
+              )
+        }
+    ],
+      [
+        grep { $_; } @{$self}{
+            qw(
+              adjustmentTotalEdcmAssets
+              )
+        }
+      ],
+      [
+        grep { $_; } @{$self}{
+            qw(
+              assetCookingRatio
+              adjustmentTotalDemandAssets
+              scalerSharedDemandAssets
+              )
+        }
+      ];
+}
+
+sub adjustDnoTotals {
+
+    my ( $self, $model, $hashedArrays, ) = @_;
+
+    $hashedArrays->{1191}[0] = Arithmetic(
+        name          => 'Adjusted total EDCM peak time consumption (kW)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(ISERROR(A1),A2,A3)',
+        arguments     => {
+            A1 => $self->{adjustedEdcmPurpleUse},
+            A2 => $hashedArrays->{1191}[0]{sources}[0],
+            A3 => $self->{adjustedEdcmPurpleUse},
+        },
+    ) if $self->{adjustedEdcmPurpleUse};
+
+    if ( $self->{adjustmentExportCapacityChargeablePost2010} ) {
+        $hashedArrays->{1192}[0] = Arithmetic(
+            name => 'Adjusted chargeable export capacity baseline (kVA)',
+            defaultFormat => '0soft',
+            arithmetic    => '=A1+IF(ISERROR(A2),0,A3)',
+            arguments     => {
+                A1 => $hashedArrays->{1192}[0]{sources}[0],
+                A2 => $self->{adjustmentExportCapacityChargeablePost2010},
+                A3 => $self->{adjustmentExportCapacityChargeablePost2010},
+            },
+        );
+        $hashedArrays->{1192}[2] = Arithmetic(
+            name =>
+              'Adjusted non-exempt post-2010 export capacity baseline (kVA)',
+            defaultFormat => '0soft',
+            arithmetic    => '=A1+IF(ISERROR(A2),0,A3)',
+            arguments     => {
+                A1 => $hashedArrays->{1192}[2]{sources}[0],
+                A2 => $self->{adjustmentExportCapacityChargeablePost2010},
+                A3 => $self->{adjustmentExportCapacityChargeablePost2010},
+            },
+        );
+    }
+
+    $hashedArrays->{1193}[0] = Arithmetic(
+        name          => 'Adjusted demand sole use assets (£)',
+        defaultFormat => '0soft',
+        arithmetic => '=A1+IF(ISERROR(A2),0,A3)-IF(ISERROR(A4),0,A5*(A6+A7))',
+        arguments  => {
+            A1 => $hashedArrays->{1193}[0]{sources}[0],
+            A2 => $self->{adjustmentTotalDemandAssets},
+            A3 => $self->{adjustmentTotalDemandAssets},
+            A4 => $self->{scalerSharedDemandAssets},
+            A5 => $self->{scalerSharedDemandAssets},
+            A6 => $hashedArrays->{1193}[2]{sources}[0],
+            A7 => $hashedArrays->{1193}[3]{sources}[0],
+        },
+      )
+      if $self->{adjustmentTotalDemandAssets}
+      && $self->{scalerSharedDemandAssets};
+
+    $hashedArrays->{1193}[1] = Arithmetic(
+        name          => 'Adjusted generation sole use assets (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1+IF(ISERROR(A2),0,A3)-IF(ISERROR(A4),0,A5)',
+        arguments     => {
+            A1 => $hashedArrays->{1193}[1]{sources}[0],
+            A2 => $self->{adjustmentTotalEdcmAssets},
+            A3 => $self->{adjustmentTotalEdcmAssets},
+            A4 => $self->{adjustmentTotalDemandAssets},
+            A5 => $self->{adjustmentTotalDemandAssets},
+        },
+      )
+      if $self->{adjustmentTotalEdcmAssets}
+      && $self->{adjustmentTotalDemandAssets};
+
+    $hashedArrays->{1193}[2] = Arithmetic(
+        name          => 'Adjusted demand capacity assets (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1*(1+IF(ISERROR(A2),0,A3))',
+        arguments     => {
+            A1 => $hashedArrays->{1193}[2]{sources}[0],
+            A2 => $self->{scalerSharedDemandAssets},
+            A3 => $self->{scalerSharedDemandAssets},
+        },
+    ) if $self->{scalerSharedDemandAssets};
+
+    $hashedArrays->{1193}[3] = Arithmetic(
+        name          => 'Adjusted demand consumption assets (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1*(1+IF(ISERROR(A2),0,A3))',
+        arguments     => {
+            A1 => $hashedArrays->{1193}[3]{sources}[0],
+            A2 => $self->{scalerSharedDemandAssets},
+            A3 => $self->{scalerSharedDemandAssets},
+        },
+    ) if $self->{scalerSharedDemandAssets};
+
+    $hashedArrays->{1193}[4] = Arithmetic(
+        name          => 'Adjusted total assets subject to asset adder (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(ISERROR(A1),A2,A3*(A4+A5))',
+        arguments     => {
+            A1 => $self->{assetCookingRatio},
+            A2 => $hashedArrays->{1193}[4]{sources}[0],
+            A3 => $self->{assetCookingRatio},
+            A4 => $hashedArrays->{1193}[2],
+            A5 => $hashedArrays->{1193}[3],
+        },
+    ) if $self->{assetCookingRatio};
+
+    # still need to adjust 1191c23 and 1191c4
+
+}
+
+sub interimRecookTotals {
+    my ( $self, $demandScalingShortfall, $edcmDirect, $edcmRates, ) = @_;
+    $edcmDirect, $edcmRates;
+}
+
 sub demandRevenuePotAdj {
     my (
         $self,         $totalRevenue3,
@@ -79,22 +234,26 @@ sub demandRevenuePotAdj {
               . ' and total demand EDCM sole use assets.'
         ],
     );
-    $self->{constraintDemandRevenuePot} = [
-        'not implemented: '
-          . 'link between edcmDemandSharedAssets and edcmDemandAssets',
-        'edcmDemandSharedAssets/(cdcmSharedAssets+edcmDemandSharedAssets)'
-          . '*A1 + edcmDemandAssets*A2 + A3 = 0',
-        $demandRevenuePot,
-        $totalRevenue3,
-        $rateDirect,
-        $rateRates,
-        $rateIndirect,
-        $rateOther,
-        $chargeOther,
-        $totalAssetsCapacity,
-        $totalAssetsConsumption,
-        'need more variables, like tranmsission exit',
-    ];
+    $self->{constraintDemandRevenuePot} = {
+        let_x     => '£ adjustment to total EDCM demand assets',
+        let_y     => 'Percentage adjustment to EDCM demand shared assets',
+        assert    => 'a*x + b*y/(c+y) + d = 0',
+        a         => 'A11+A12+A13',
+        b         => 'A15-A14*(A16+A17)',
+        c         => 'A15/A14/(A16+A17)',
+        d         => 'A18-A19',
+        arguments => {
+            A11 => $rateDirect,
+            A12 => $rateRates,
+            A13 => $rateIndirect,
+            A14 => $rateOther,
+            A15 => $chargeOther,
+            A16 => $totalAssetsCapacity,
+            A17 => $totalAssetsConsumption,
+            A18 => $totalRevenue3,
+            A19 => $demandRevenuePot,
+        },
+    };
     Arithmetic(
         name          => 'Adjusted demand revenue pot (£/year)',
         defaultFormat => '0soft',
@@ -105,6 +264,168 @@ sub demandRevenuePotAdj {
             A3 => $demandRevenuePot,
         },
     );
+}
+
+sub directChargeAdj {
+    my ( $self, $rateDirect, $rateRates, $assetsCapacity, $assetsConsumption,
+        $importCapacity, )
+      = @_;
+    my $tariffIndex = Dataset(
+        name          => 'Tariff index',
+        defaultFormat => '0hard',
+        data          => [1],
+    );
+    my $charge = Dataset(
+        name          => 'Direct cost charge (£/year)',
+        defaultFormat => '0hard',
+        data          => [1e4],
+    );
+    Columnset(
+        name =>
+          'Demand direct cost charge for a non-pathological non-0000 site',
+        columns  => [ $tariffIndex, $charge, ],
+        dataset  => $self->{model}{dataset},
+        appendTo => $self->{model}{inputTables},
+        number   => 11965,
+        lines    => [
+            'Enter the direct cost charge for a non-pathological non-0000 site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used in conjunction with data from tables'
+              . ' 11951, 11962, 11963 and 11964 to adjust the DNO totals to fit.',
+        ],
+    );
+    $self->{directCostChargingRate} = Arithmetic(
+        name => 'Charging rate for direct cost element of asset adder',
+        arithmetic =>
+          '=A1/((INDEX(A2_A22,A92)+INDEX(A3_A33,A93))*INDEX(A4_A44,A94))',
+        arguments => {
+            A1     => $charge,
+            A2_A22 => $assetsCapacity,
+            A3_A33 => $assetsConsumption,
+            A4_A44 => $importCapacity,
+            A92    => $tariffIndex,
+            A93    => $tariffIndex,
+            A94    => $tariffIndex,
+        },
+    );
+    $self->{ratesChargingRate} = Arithmetic(
+        name       => 'Charging rate for rates element of asset adder',
+        arithmetic => '=A1/A2*A3',
+        arguments  => {
+            A1 => $self->{directCostChargingRate},
+            A2 => $rateDirect,
+            A3 => $rateRates,
+        },
+    );
+    $self->{assetCookingRatio} = Arithmetic(
+        name => 'Asset cooking ratio (ratio of asset adder'
+          . ' denominator to total EDCM demand shared assets)',
+        arithmetic => '=A5/A1',
+        arguments  => {
+            A1 => $self->{directCostChargingRate},
+            A5 => $rateDirect,
+        },
+    );
+}
+
+sub assetAdderAdj {
+    my ( $self, $demandScaling, ) = @_;
+    my $tariffIndex = Dataset(
+        name          => 'Tariff index',
+        defaultFormat => '0hard',
+        data          => [1],
+    );
+    my $adderCharge = Dataset(
+        name          => 'Asset adder charge (£/year)',
+        defaultFormat => '0hard',
+        data          => [1e4],
+    );
+    Columnset(
+        name     => 'Demand asset adder for a non-pathological non-0000 site',
+        columns  => [ $tariffIndex, $adderCharge, ],
+        dataset  => $self->{model}{dataset},
+        appendTo => $self->{model}{inputTables},
+        number   => 11964,
+        lines    => [
+            'Enter the asset adder charge for a non-pathological non-0000 site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used in conjunction with data from tables'
+              . ' 11951, 11962, 11963 and 11965 to adjust the DNO totals to fit.',
+        ],
+    );
+    $demandScaling;
+}
+
+sub fixedAdderAdj {
+    my ( $self, $fixedAdderChargingRate, ) = @_;
+    my $tariffIndex = Dataset(
+        name          => 'Tariff index',
+        defaultFormat => '0hard',
+        data          => [1],
+    );
+    my $charge = Dataset(
+        name          => 'Fixed adder charge (£/year)',
+        defaultFormat => '0hard',
+        data          => [1e4],
+    );
+    Columnset(
+        name     => 'Demand fixed adder charge for a non-pathological site',
+        columns  => [ $tariffIndex, $charge, ],
+        dataset  => $self->{model}{dataset},
+        appendTo => $self->{model}{inputTables},
+        number   => 11963,
+        lines    => [
+            'Enter the fixed adder charge for a non-pathological site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used in conjunction with data from tables'
+              . ' 11951, 11962, 11964 and 11965 to adjust the DNO totals to fit.',
+        ],
+    );
+    $self->{constraintFixedAdderRate} = [
+            'not implemented: '
+          . 'link between residualResidual and indirectDenominator',
+    ];
+    $fixedAdderChargingRate;
+}
+
+sub indirectChargeAdj {
+    my ( $self, $indirectChargingRate, $fudgeIndirect, $agreedCapacity, ) = @_;
+    my $tariffIndex = Dataset(
+        name          => 'Tariff index',
+        defaultFormat => '0hard',
+        data          => [1],
+    );
+    my $charge = Dataset(
+        name          => 'Indirect cost charge (£/year)',
+        defaultFormat => '0hard',
+        data          => [1e4],
+    );
+    Columnset(
+        name     => 'Demand indirect cost charge for a site',
+        columns  => [ $tariffIndex, $charge, ],
+        dataset  => $self->{model}{dataset},
+        appendTo => $self->{model}{inputTables},
+        number   => 11962,
+        lines    => [
+            'Enter the indirect cost charge for a non-pathological site,'
+              . ' in £/year, if your DNO takes you for an idiot and'
+              . ' refuses to provide the data for tables 1191 and 1193.',
+            'You will need to show authority for the site and to ask the DNO'
+              . ' for the HSummary charge breakdown.',
+            'This number is used in conjunction with data from tables'
+              . ' 11951, 11963, 11964 and 11965 to adjust the DNO totals to fit.',
+        ],
+    );
+    $indirectChargingRate;
 }
 
 sub gChargeAdj {
@@ -241,9 +562,10 @@ sub fixedChargeAdj {
         ],
     );
     my $actualRate = Arithmetic(
-        name       => 'Actual charging rate for fixed charges',
-        arithmetic => '=A1/INDEX(A2_A3,A4)',
-        arguments  => {
+        name          => 'Actual charging rate for fixed charges',
+        defaultFormat => '%soft',
+        arithmetic    => '=A1/INDEX(A2_A3,A4)',
+        arguments     => {
             A1    => $fixedCharge,
             A2_A3 => $demandSoleUseAsset,
             A4    => $tariffIndex,
@@ -270,7 +592,7 @@ sub fixedChargeAdj {
             A5 => $actualRate,
         },
     );
-    $self->{edcmAssetAdjustment} = Arithmetic(
+    $self->{adjustmentTotalEdcmAssets} = Arithmetic(
         name          => 'Adjustment to total EDCM assets',
         defaultFormat => '0softpm',
         arithmetic    => '=A1/A2*(SQRT(A3^2+A4*((A5+A6)/A7-1))-A8)',
@@ -290,8 +612,8 @@ sub fixedChargeAdj {
         defaultFormat => '%soft',
         arithmetic    => '=IF(ISERROR(A11),A21,1/(1/A2+A1/A3))',
         arguments     => {
-            A1  => $self->{edcmAssetAdjustment},
-            A11 => $self->{edcmAssetAdjustment},
+            A1  => $self->{adjustmentTotalEdcmAssets},
+            A11 => $self->{adjustmentTotalEdcmAssets},
             A2  => $rateDirect,
             A3  => $chargeDirect,
             A21 => $rateDirect,
@@ -302,8 +624,8 @@ sub fixedChargeAdj {
         defaultFormat => '%soft',
         arithmetic    => '=IF(ISERROR(A11),A21,1/(1/A2+A1/A3))',
         arguments     => {
-            A1  => $self->{edcmAssetAdjustment},
-            A11 => $self->{edcmAssetAdjustment},
+            A1  => $self->{adjustmentTotalEdcmAssets},
+            A11 => $self->{adjustmentTotalEdcmAssets},
             A2  => $rateRates,
             A3  => $chargeRates,
             A21 => $rateRates,
@@ -314,271 +636,14 @@ sub fixedChargeAdj {
         defaultFormat => '%soft',
         arithmetic    => '=IF(ISERROR(A11),A21,1/(1/A2+A1/A3))',
         arguments     => {
-            A1  => $self->{edcmAssetAdjustment},
-            A11 => $self->{edcmAssetAdjustment},
+            A1  => $self->{adjustmentTotalEdcmAssets},
+            A11 => $self->{adjustmentTotalEdcmAssets},
             A2  => $rateIndirect,
             A3  => $chargeIndirect,
             A21 => $rateIndirect,
         },
     );
     $rateDirectAdjusted, $rateRatesAdjusted, $rateIndirectAdjusted;
-}
-
-sub indirectChargeAdj {
-    my ( $self, $indirectChargingRate, $fudgeIndirect, $agreedCapacity,
-        $indirect, )
-      = @_;
-    my $tariffIndex = Dataset(
-        name          => 'Tariff index',
-        defaultFormat => '0hard',
-        data          => [1],
-    );
-    my $charge = Dataset(
-        name          => 'Indirect cost charge (£/year)',
-        defaultFormat => '0hard',
-        data          => [1e4],
-    );
-    Columnset(
-        name     => 'Demand indirect cost charge for a site',
-        columns  => [ $tariffIndex, $charge, ],
-        dataset  => $self->{model}{dataset},
-        appendTo => $self->{model}{inputTables},
-        number   => 11962,
-        lines    => [
-            'Enter the indirect cost charge for a non-pathological site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
-            'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
-            'This number is used in conjunction with data from tables'
-              . ' 11951, 11963, 11964 and 11965 to adjust the DNO totals to fit.',
-        ],
-    );
-    my $indirectChargingRateCalculated = Arithmetic(
-        name       => 'Calculated indirect costs application rate',
-        arithmetic => '=A1/INDEX(A2_A3,A4)/INDEX(A5_A6,A7)',
-        arguments  => {
-            A1    => $charge,
-            A2_A3 => $fudgeIndirect,
-            A4    => $tariffIndex,
-            A5_A6 => $agreedCapacity,
-            A7    => $tariffIndex,
-        },
-    );
-    $self->{constraintIndirectChargingRate} = [
-        'not implemented: '
-          . 'link between edcmDemandAssets and indirectDenominator',
-        $indirectChargingRateCalculated, $indirectChargingRate,
-        $fudgeIndirect,                  $agreedCapacity,
-        $indirect,
-    ];
-    Arithmetic(
-        name       => 'Adjusted indirect costs application rate',
-        arithmetic => '=IF(ISERROR(A1),A2,A3)',
-        arguments  => {
-            A1 => $indirectChargingRateCalculated,
-            A2 => $indirectChargingRate,
-            A3 => $indirectChargingRateCalculated,
-        },
-    );
-}
-
-sub fixedAdderAdj {
-    my ( $self, $fixedAdderChargingRate, $slope, $ynonFudge41, $adderAmount, )
-      = @_;
-    my $tariffIndex = Dataset(
-        name          => 'Tariff index',
-        defaultFormat => '0hard',
-        data          => [1],
-    );
-    my $charge = Dataset(
-        name          => 'Fixed adder charge (£/year)',
-        defaultFormat => '0hard',
-        data          => [1e4],
-    );
-    Columnset(
-        name     => 'Demand fixed adder charge for a non-pathological site',
-        columns  => [ $tariffIndex, $charge, ],
-        dataset  => $self->{model}{dataset},
-        appendTo => $self->{model}{inputTables},
-        number   => 11963,
-        lines    => [
-            'Enter the fixed adder charge for a non-pathological site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
-            'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
-            'This number is used in conjunction with data from tables'
-              . ' 11951, 11962, 11964 and 11965 to adjust the DNO totals to fit.',
-        ],
-    );
-    $self->{constraintFixedAdderRate} = [
-            'not implemented: '
-          . 'link between residualResidual and indirectDenominator',
-    ];
-    $fixedAdderChargingRate;
-}
-
-sub assetAdderAdj {
-    my ( $self, $demandScaling, $totalSlopeCapacity,
-        $slopeCapacity, $shortfall, )
-      = @_;
-    my $tariffIndex = Dataset(
-        name          => 'Tariff index',
-        defaultFormat => '0hard',
-        data          => [1],
-    );
-    my $adderCharge = Dataset(
-        name          => 'Asset adder charge (£/year)',
-        defaultFormat => '0hard',
-        data          => [1e4],
-    );
-    Columnset(
-        name     => 'Demand asset adder for a non-pathological non-0000 site',
-        columns  => [ $tariffIndex, $adderCharge, ],
-        dataset  => $self->{model}{dataset},
-        appendTo => $self->{model}{inputTables},
-        number   => 11964,
-        lines    => [
-            'Enter the asset adder charge for a non-pathological non-0000 site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
-            'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
-            'This number is used in conjunction with data from tables'
-              . ' 11951, 11962, 11963 and 11965 to adjust the DNO totals to fit.',
-        ],
-    );
-    $self->{cookedSharedAssetAdjustment} = Arithmetic(
-        name          => 'Adjustment to shared assets subject to adder (£)',
-        defaultFormat => '0softpm',
-        arithmetic    => '=A1/(A2/INDEX(A3_A4,A5))-A6',
-        arguments     => {
-            A1    => $shortfall,
-            A2    => $adderCharge,
-            A3_A4 => $slopeCapacity,
-            A5    => $tariffIndex,
-            A6    => $totalSlopeCapacity,
-        },
-    );
-    $self->{constraintAssetAdderRate} = [
-            'not implemented: '
-          . 'link between residualResidual and assetDenominator',
-    ];
-    Arithmetic(
-        name          => 'Adjusted annual charge on assets',
-        defaultFormat => '%soft',
-        arithmetic    => '=IF(ISERROR(A11),A21,1/(1/A2+A1/A3))',
-        arguments     => {
-            A1  => $self->{cookedSharedAssetAdjustment},
-            A11 => $self->{cookedSharedAssetAdjustment},
-            A2  => $demandScaling,
-            A3  => $shortfall,
-            A21 => $demandScaling,
-        },
-    );
-}
-
-sub directCostAdj {
-    my ( $self, $direct, $rates, ) = @_;
-    my $tariffIndex = Dataset(
-        name          => 'Tariff index',
-        defaultFormat => '0hard',
-        data          => [1],
-    );
-    my $charge = Dataset(
-        name          => 'Direct cost charge (£/year)',
-        defaultFormat => '0hard',
-        data          => [1e4],
-    );
-    Columnset(
-        name =>
-          'Demand direct cost charge for a non-pathological non-0000 site',
-        columns  => [ $tariffIndex, $charge, ],
-        dataset  => $self->{model}{dataset},
-        appendTo => $self->{model}{inputTables},
-        number   => 11965,
-        lines    => [
-            'Enter the direct cost charge for a non-pathological non-0000 site,'
-              . ' in £/year, if your DNO takes you for an idiot and'
-              . ' refuses to provide the data for tables 1191 and 1193.',
-            'You will need to show authority for the site and to ask the DNO'
-              . ' for the HSummary charge breakdown.',
-            'This number is used in conjunction with data from tables'
-              . ' 11951, 11962, 11963 and 11964 to adjust the DNO totals to fit.',
-        ],
-    );
-    $self->{constraintDirectCost} = [
-            'not implemented: '
-          . 'link between edcmDemandSharedAssets and assetDenominator',
-    ];
-    $direct, $rates;
-}
-
-sub calcTables {
-
-    my ($self) = @_;
-
-    # do the calculations here, except the final DNO total adjustment step
-    # use:
-    # $self->{constraintAssetAdderRate}
-    # $self->{constraintDemandRevenuePot}
-    # $self->{constraintDirectCost}
-    # $self->{constraintFixedAdderRate}
-    # $self->{constraintIndirectChargingRate}
-
-    [
-        grep { $_; } @{$self}{
-            qw(
-              adjustedEdcmPurpleUse
-              adjustmentExportCapacityChargeablePost2010
-              )
-        }
-    ];
-
-}
-
-sub adjustDnoTotals {
-
-    my ( $self, $model, $hashedArrays, ) = @_;
-
-    if ( $self->{adjustedEdcmPurpleUse} ) {
-        $hashedArrays->{1191}[0] = Arithmetic(
-            name          => 'Adjusted total EDCM peak time consumption (kW)',
-            defaultFormat => '0soft',
-            arithmetic    => '=IF(ISERROR(A1),A2,A3)',
-            arguments     => {
-                A1 => $self->{adjustedEdcmPurpleUse},
-                A2 => $hashedArrays->{1191}[0]{sources}[0],
-                A3 => $self->{adjustedEdcmPurpleUse},
-            },
-        );
-    }
-
-    if ( $self->{adjustmentExportCapacityChargeablePost2010} ) {
-        $hashedArrays->{1192}[0] = Arithmetic(
-            name => 'Adjusted chargeable export capacity baseline (kVA)',
-            defaultFormat => '0soft',
-            arithmetic    => '=A1+IF(ISERROR(A2),0,A3)',
-            arguments     => {
-                A1 => $hashedArrays->{1192}[0]{sources}[0],
-                A2 => $self->{adjustmentExportCapacityChargeablePost2010},
-                A3 => $self->{adjustmentExportCapacityChargeablePost2010},
-            },
-        );
-        $hashedArrays->{1192}[2] = Arithmetic(
-            name =>
-              'Adjusted non-exempt post-2010 export capacity baseline (kVA)',
-            defaultFormat => '0soft',
-            arithmetic    => '=A1+IF(ISERROR(A2),0,A3)',
-            arguments     => {
-                A1 => $hashedArrays->{1192}[2]{sources}[0],
-                A2 => $self->{adjustmentExportCapacityChargeablePost2010},
-                A3 => $self->{adjustmentExportCapacityChargeablePost2010},
-            },
-        );
-    }
-
 }
 
 1;

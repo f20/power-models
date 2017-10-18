@@ -189,12 +189,18 @@ sub demandPot {
             },
         );
 
-        $totalRevenue3 =
-          $model->{takenForAnIdiot}
-          ->demandRevenuePotAdj( $totalRevenue3, $rateDirect, $rateRates,
-            $rateIndirect, $rateOther, $chargeOther, $totalAssetsCapacity,
-            $totalAssetsConsumption, )
-          if $model->{takenForAnIdiot};
+        if ( $model->{takenForAnIdiot} ) {
+            $totalRevenue3 = $model->{takenForAnIdiot}->demandRevenuePotAdj(
+                $totalRevenue3,       $rateDirect,
+                $rateRates,           $rateIndirect,
+                $rateOther,           $chargeOther,
+                $totalAssetsCapacity, $totalAssetsConsumption,
+            );
+            $model->{takenForAnIdiot}->directChargeAdj(
+                $rateDirect,     $rateRates,   $assetsCapacity,
+                $assetsConsumption, $importCapacity,
+            );
+        }
 
     }
 
