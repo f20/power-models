@@ -18,5 +18,6 @@ numSampleTariffs: 3
 numTariffs: 0
 protect: 1
 summaries: 1
+tolerateMisordering: 1
 transparency: impact
 validation: lenientnomsg

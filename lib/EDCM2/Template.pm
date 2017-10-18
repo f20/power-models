@@ -438,6 +438,7 @@ sub vbaWrite {
 
     while ( my ( $num, $obj ) = each %{ $model->{transparency}{dnoTotalItem} } )
     {
+        next unless $model->{transparency}{baselineItem}{$num};
         my @src = $obj->wsWrite( $wb, $ws );
         my @dst =
           $model->{transparency}{baselineItem}{$num}->wsWrite( $wb, $ws );

@@ -808,6 +808,10 @@ EOT
               Stack( sources => [ $model->{transparency}{dnoTotalItem}{$_} ] );
         }
 
+        foreach ( values %dnoTotalItem ) {
+            $_ ||= Constant( name => 'Not used', data => [], ) foreach @$_;
+        }
+
         $model->{mitigateUndueSecrecy}
           ->adjustDnoTotals( $model, \%dnoTotalItem )
           if $model->{mitigateUndueSecrecy};
