@@ -157,9 +157,9 @@ sub preprocessDataset {
                 }
                 else {
                     $tariffs = [
-                        sort { $a <=> $b } keys %tariffs,
-                        defined $model->{numTariffs}
-                        ? ()
+                        $max > 2 * keys %tariffs ? ( 1 .. $max )
+                        : ( sort { $a <=> $b } keys %tariffs ),
+                        defined $model->{numTariffs} ? ()
                         : ( $max + 1 .. $max + 6 )
                     ];
                     push @$tariffs, $max + 1
