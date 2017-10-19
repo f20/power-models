@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -41,17 +41,28 @@ sub orderedLayout {
     my ( %calcTables, %dependencies, $addCalcTable );
     my $serialUplift = 0;
     $addCalcTable = sub {
-        my ( $ob, $destination ) = @_;
+        my ( $sourceTable, $dependentTable ) = @_;
         return
-             if !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Dataset' )
-          || ref $ob->{location}
-          || !UNIVERSAL::isa( $ob, 'SpreadsheetModel::Constant' )
-          && !$ob->{sourceLines};
-        $calcTables{ 0 + ( $ob->{rows} || 0 ) }{ 0 + $ob } = $ob;
-        undef $dependencies{ 0 + $destination }{ 0 + $ob }
-          if $destination;
-        $addCalcTable->( $_, $ob ) foreach @{ $ob->{sourceLines} };
-        $ob->{serialUplifted} ||= $serialUplift + $ob->{serial};
+             if !UNIVERSAL::isa( $sourceTable, 'SpreadsheetModel::Dataset' )
+          || ref $sourceTable->{location}
+          || !UNIVERSAL::isa( $sourceTable, 'SpreadsheetModel::Constant' )
+          && !$sourceTable->{sourceLines};
+        $calcTables{ 0 + ( $sourceTable->{rows} || 0 ) }{ 0 + $sourceTable } =
+          $sourceTable;
+        undef $dependencies{ 0 + $dependentTable }{ 0 + $sourceTable }
+          if $dependentTable;
+        if ( my $sourceSet = $dependencies{ 0 + $sourceTable } ) {
+            if ($dependentTable) {
+                undef $dependencies{ 0 + $dependentTable }{$_}
+                  foreach keys %$sourceSet;
+            }
+        }
+        else {
+            $addCalcTable->( $_, $sourceTable )
+              foreach @{ $sourceTable->{sourceLines} };
+        }
+        $sourceTable->{serialUplifted} ||=
+          $serialUplift + $sourceTable->{serial};
     };
 
     foreach ( grep { $_ } @finalCalcTableList ) {
