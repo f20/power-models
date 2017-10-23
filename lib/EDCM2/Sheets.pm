@@ -48,38 +48,28 @@ sub finishModel {
 
 sub notesTransparency {
     my ($model) = @_;
-    return $model->{mitigateUndueSecrecy}->notes
-      if $model->{mitigateUndueSecrecy};
     Notes(
         name  => 'DNO totals data',
         lines => [
-            'If table 1090 is set to "FALSE", so that the model can be used for'
-              . ' third-party validation and forecasting of DNO charges, then'
-              . ' the DNO aggregates in tables 1091-1093 need to be taken for the'
-              . ' non-confidential summary sheets from the DNO\'s charging model.',
-            'Some DNOs seem to think they can refuse to disclose these data'
-              . ' by giving some version of an excuse which sounds like it was agreed'
-              . ' in some DNO smoke-filled room, along the following lines:',
-            '• "It is the belief of [DNO] that either by direct'
-              . ' calculationor iterative methods the use of this data in isolation or'
-              . ' in combination with information currently in the public domain it'
-              . ' would be possible to derive customer confidential information."',
-            '• "We are concerned that by combining this information with'
-              . ' other data already in the public domain, it would be possible'
-              . ' to determine some confidential details for our customers'
-              . ' which you will appreciate is not a situation we cannot allow."',
-            '• "We are concerned to ensure we do not release data which could'
-              . ' damage or infringe the commercial confidentiality of our customers or'
-              . ' which could be misinterpreted and lead to erroneous assumptions."',
-            '• "I am nervous about supplying data from the models'
-              . ' in case customer confidential data is identified."',
-            'These excuses are wrong, and'
-              . ' DNOs using them are taking you for an idiot.',
-            'But the fact is that, with ineffective regulation,'
-              . ' DNOs who want to be secretive will probably get away with it.',
-            'Special versions of the EDCM models'
-              . ' are available from dcmf.co.uk/models to help'
-              . ' mitigate undue DNO secrecy.'
+            'If table 1190 is set to "TRUE",'
+              . ' then tables 1191-1193 are not used. '
+              . 'In this configuration, the model only works when populated'
+              . ' with data for all customers, including'
+              . ' data that are commercially confidential.',
+            'If table 1190 is set to "FALSE", so that the model can be used for'
+              . ' validation and forecasting of DNO charges, then'
+              . ' the DNO totals in tables 1191-1193 need to be mirror'
+              . ' thee totals in the DNO\'s charging model.',
+            'There is a growing trend among DNOs of refusing to disclose'
+              . ' these DNO totals, giving some version of a'
+              . ' manifestly invalid excuse which sounds like it might'
+              . ' have been cooked up in a DNO smoked-filled room. ',
+            1 ? ()
+            : 'Previous attempts at seeking assistance from Ofgem have failed. ',
+            $model->{mitigateUndueSecrecy}
+            ? $model->{mitigateUndueSecrecy}->additionalLines
+            : (     'There are tools on dcmf.co.uk/models which might'
+                  . ' in some cases help mitigate undue DNO secrecy.' ),
         ],
     );
 }
@@ -515,7 +505,7 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 0, 250, 30 );
             $wsheet->{sheetNumber} = 47;
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Aggregates' ),
+              foreach Notes( name => 'DNO totals' ),
               @{ $model->{aggregateTables} };
             $wsheet->{sheetNumber} = 48;
         }

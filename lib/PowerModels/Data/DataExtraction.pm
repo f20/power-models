@@ -66,7 +66,9 @@ sub rebuildWriter {
         $path = '' unless defined $path;
         my $tempFolder = $path . $core . '-' . $$ . '.tmp';
         my $sidecar    = $path . $core;
+        mkdir $sidecar unless -e $sidecar;
         undef $sidecar unless -d $sidecar && -w _;
+
         unless ( defined $sidecar ) {
             $sidecar = $path . '~$' . $core;
             undef $sidecar unless -d $sidecar && -w _;

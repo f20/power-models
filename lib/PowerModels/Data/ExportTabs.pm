@@ -45,13 +45,12 @@ sub tableCompilations {
     my $spacing;
     my $numCo = 0;
     {
-        $self->do(
-'create temporary table models ( cid integer primary key, bid int, model char)'
-        );
+        $self->do( 'create temporary table models'
+              . ' (cid integer primary key, bid int, model char)' );
         my $findCo =
           $self->prepare(
-'select bid, filename from books where filename regexp ? order by filename'
-          );
+                'select bid, filename from books where filename regexp ?'
+              . ' order by filename' );
         my $addCo =
           $self->prepare('insert into models (bid, model) values (?, ?)');
         $findCo->execute($fileSearch);
@@ -134,7 +133,8 @@ sub tableCompilations {
 
         {
             my $tableName = $self->selectrow_array(
-'select v from data where bid=? and tab=? and col=0 order by row limit 1',
+                'select v from data where bid=? and tab=? and col=0'
+                  . ' order by row limit 1',
                 undef, $leadBid, $tabNumber
             );
             1 and _preventOverwriting $wsc, 0, 0;

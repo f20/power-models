@@ -125,14 +125,6 @@ sub preprocessDataset {
               || $ds->[8]{_column} !~ /reduction/i;
 
             my $max = 0;
-            $ds->[1]{$_} ||= "Tariff $_" foreach grep {
-                my $t = $_;
-                grep {
-                         defined $ds->[$_]{$t}
-                      && $ds->[$_]{$t} ne 'VOID'
-                      && $ds->[$_]{$t} ne '#VALUE!';
-                } 2 .. 6;
-            } keys %{ $ds->[2] };
             while ( my ( $k, $v ) = each %{ $ds->[1] } ) {
                 next
                   unless $k =~ /^[0-9]+$/
@@ -157,7 +149,7 @@ sub preprocessDataset {
                 }
                 else {
                     $tariffs = [
-                        $max > 2 * keys %tariffs ? ( 1 .. $max )
+                        2 * keys %tariffs >$max ? ( 1 .. $max )
                         : ( sort { $a <=> $b } keys %tariffs ),
                         defined $model->{numTariffs} ? ()
                         : ( $max + 1 .. $max + 6 )
@@ -200,7 +192,7 @@ sub preprocessDataset {
             }
         }
 
-        else {
+        else { # Array data format, probably deprecated
 
             my %tariffs;
 
@@ -213,14 +205,6 @@ sub preprocessDataset {
               and !$ds->[8] || !$ds->[8][0] || $ds->[8][0] !~ /reduction/i;
 
             my $max = 0;
-            $ds->[1][$_] ||= "Tariff $_" foreach grep {
-                my $t = $_;
-                grep {
-                         defined $ds->[$_][$t]
-                      && $ds->[$_][$t] ne 'VOID'
-                      && $ds->[$_][$t] ne '#VALUE!';
-                } 2 .. 6;
-            } 1 .. $#{ $ds->[2] };
             for ( my $k = 1 ; $k < @{ $ds->[1] } ; ++$k ) {
                 my $v = $ds->[1][$k];
                 next

@@ -42,12 +42,12 @@ sub requiredModulesForRuleset {
       EDCM2::Charging
       EDCM2::Generation
       EDCM2::Inputs
-      EDCM2::Ldno
       EDCM2::Locations
       EDCM2::PotsAndRates
       EDCM2::Scaling
       EDCM2::Sheets
       ),
+      $ruleset->{ldnoRev}   ? qw(EDCM2::Ldno)      : (),
       $ruleset->{summaries} ? qw(EDCM2::Summaries) : (),
       $ruleset->{transparency}
       && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),

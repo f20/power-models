@@ -69,6 +69,7 @@ sub useDatabase {
     foreach
       my $modelsMatching ( map { /^all$/i ? '.' : m#^/(.+)/$# ? $1 : (); } @_ )
     {
+        # Works badly if the models do not have identical table structures.
         require PowerModels::Data::ExportTabs;
         my $tablesMatching = join '|', map { /^([0-9]+)$/ ? "^$1" : (); } @_;
         $tablesMatching ||= '.';

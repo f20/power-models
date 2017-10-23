@@ -37,34 +37,14 @@ sub new {
     bless { model => $model }, $class;
 }
 
-sub notes {
+sub additionalLines {
     my ($self) = @_;
-    Notes(
-        name =>
-          'DNO totals data — special version to migitate undue DNO secrecy',
-        lines => [
-            'This version of the model contains tables 1191 to 1193,'
-              . ' which can be populated with DNO totals data if available.',
-            'You might find that some DNOs impose undue secrecy by refusing to'
-              . ' provide the aggregate data for tables 1191 to 1193.'
-              . ' They might even take you for an idiot by providing'
-              . ' a lame invalid reason for their refusal.',
-            'Even if you are facing an unduly secretive DNO,'
-              . ' you might still be able to use this model to produce estimates,'
-              . ' as follows:',
-            '• Enter some rough estimates in tables 1191 to 1193.',
-            '• Populate tables 119xx with whatever information you can glean.',
-            'Data from tables 119xx will be used within this model to adjust'
-              . ' the figures in tables 1191 to 1193 to fit the DNO\'s calculations.',
-            'If all cells in tables 119xx are populated with accurate data,'
-              . ' the only remaining inaccuracies relate to the total net revenue'
-              . ' from EDCM generation, the total cost of the DCP 189 discount, '
-              . ' any pathological cases, and any non-compliance by the DNO'
-              . ' with the EDCM; the first two are likely to have a very small impact.',
-            'Documentation of these features does not exist yet.'
-              . ' I plan to add a document to dcmf.co.uk/models at some point.',
-        ],
-    );
+    'This workbook contains experimental features that use'
+      . ' data provided in tables 119xx to replace the data'
+      . ' in tables 1191-1193 with improved estimates. '
+      . 'To get a good fit, you need to get from'
+      . ' the DNO the contents of tables 935 and'
+      . ' HSummary for a non-pathological EDCM tariff.';
 }
 
 sub fitTotalAssets {
@@ -87,39 +67,36 @@ sub fitTotalAssets {
         name =>
           'Pot correction required if no change to shared demand assets (£)',
         defaultFormat => '0softpm',
-        arithmetic    => '=A1-A2+(A3+A4+A5)*(A71+A81+A91-(A7+A8)/A6)',
+        arithmetic    => '=A1-A2+(A3+A4+A5)*(A9-(A7+A8)*(1/A6-1))',
         arguments     => {
-            A1  => $self->{demandRevenuePot},
-            A2  => $self->{totalRevenue3},
-            A3  => $self->{rateDirect},
-            A4  => $self->{rateRates},
-            A5  => $self->{rateIndirect},
-            A6  => $proportionDemandAssetsWhichAreShared,
-            A7  => $self->{totalAssetsCapacity},
-            A71 => $self->{totalAssetsCapacity},
-            A8  => $self->{totalAssetsConsumption},
-            A81 => $self->{totalAssetsConsumption},
-            A91 => $self->{totalAssetsDemandSoleUse},
+            A1 => $self->{demandRevenuePot},
+            A2 => $self->{totalRevenue3},
+            A3 => $self->{rateDirect},
+            A4 => $self->{rateRates},
+            A5 => $self->{rateIndirect},
+            A6 => $proportionDemandAssetsWhichAreShared,
+            A7 => $self->{totalAssetsCapacity},
+            A8 => $self->{totalAssetsConsumption},
+            A9 => $self->{totalAssetsDemandSoleUse},
         },
     );
     my $F = Arithmetic(
-        name          => 'Intermediate step F',
+        name => 'Cost-based pot contribution of demand assets'
+          . ' if no change to shared demand assets (£)',
         defaultFormat => '0soft',
         arithmetic    => '=(A3+A4+A5)*(A7+A8)/A6',
         arguments     => {
-            A3  => $self->{rateDirect},
-            A4  => $self->{rateRates},
-            A5  => $self->{rateIndirect},
-            A6  => $proportionDemandAssetsWhichAreShared,
-            A7  => $self->{totalAssetsCapacity},
-            A71 => $self->{totalAssetsCapacity},
-            A8  => $self->{totalAssetsConsumption},
-            A81 => $self->{totalAssetsConsumption},
-            A91 => $self->{totalAssetsDemandSoleUse},
+            A3 => $self->{rateDirect},
+            A4 => $self->{rateRates},
+            A5 => $self->{rateIndirect},
+            A6 => $proportionDemandAssetsWhichAreShared,
+            A7 => $self->{totalAssetsCapacity},
+            A8 => $self->{totalAssetsConsumption},
         },
     );
     my $e = Arithmetic(
-        name => 'Intermediate step e',
+        name => 'Intermediate step in solving quadratic equation'
+          . ' for EDCM demand shared assets',
         arithmetic =>
           '=0.5*(A11/A12/(A13+A14)+A15/A16-A17*(A18+A19)/A20-A21/A22)',
         arguments => {
@@ -860,7 +837,8 @@ sub fixedChargeAdj {
         },
     );
     my $thing = Arithmetic(
-        name       => 'Intermediate step in solving for total EDCM assets',
+        name => 'Intermediate step in solving quadratic'
+          . ' equation for total EDCM assets',
         arithmetic => '=0.5*(1+A1-(A2*A3+A4)/A5)',
         arguments  => {
             A1 => $f,
