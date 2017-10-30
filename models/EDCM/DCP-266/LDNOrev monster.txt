@@ -1,0 +1,11 @@
+makeModels
+	-datamerge
+	-template=Monster
+	EDCM/2018-02-Baseline/%-clean161-LDNOrev7.yml
+	CDCM/2018-02/*.yml
+	EDCM/2018-02/*.yml
+	-newrules
+	-newdata
+	-template=Monster
+	EDCM/DCP-266/%-dcp266-LDNOrev7.yml
+    CDCM+M/DCP-266/2018-02/*.yml

@@ -74,6 +74,17 @@ sub notesTransparency {
     );
 }
 
+sub sheetPriority {
+    my ( $model, $sheet ) = @_;
+    my $score = 0;
+    $score = 5 if $sheet =~ /Volumes\$/;
+    $score = 4 if $sheet =~ /Base\$/;
+    $score = 3 if $sheet =~ /266\$/;
+    $score ||= 2
+      if $sheet =~ /(?:Overview|Index)$/is;
+    $score;
+}
+
 sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
@@ -128,9 +139,21 @@ sub worksheetsAndClosures {
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
 
-      }
+      },
 
-      ,
+      $model->{volumeTables}
+      ? (
+        'Volumes$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 0,   50 );
+            $wsheet->set_column( 1, 250, 20 );
+            $wsheet->{sheetNumber} = 14;
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} };
+        }
+      )
+      : (),
 
       $model->{impactInputTables}
       ? (
@@ -534,9 +557,7 @@ sub worksheetsAndClosures {
                   );
                 } grep { $_->lastRow == 0 } @{ $wbook->{logger}{objects} };
         }
-      )
-
-      ,
+      ),
 
       $model->{customerTemplates}
       ? (
@@ -601,6 +622,23 @@ sub worksheetsAndClosures {
       : ()
 
       ,
+
+      $model->{ldnoMarginColumns}
+      ? (
+        $model->{ldnoRev} =~ /ppu/i ? '266$' : 'Base$' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 0,   50 );
+            $wsheet->set_column( 1, 250, 20 );
+            $wsheet->{sheetNumber} = 62;
+            $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Margins' ),
+              Columnset(
+                name    => 'Revenues and margins',
+                columns => $model->{ldnoMarginColumns},
+              );
+        }
+      )
+      : (),
 
       $model->{TotalsTables}
       ? (

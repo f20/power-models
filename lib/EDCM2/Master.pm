@@ -356,7 +356,7 @@ EOT
             data          => [365],
             dataset       => $model->{dataset},
             appendTo      => $model->{inputTables},
-            number        => 1111,
+            number        => $model->{table1101} ? 1110 : 1111,
             validation    => {
                 validate => 'decimal',
                 criteria => 'between',

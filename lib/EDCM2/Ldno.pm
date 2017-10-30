@@ -531,38 +531,59 @@ EOF
       ]
       if $model->{ldnoRev} =~ /tar/i;
 
-    my @volumeData = map {
-        Dataset(
-            name          => $volnames[$_],
-            rows          => $allTariffsByEndUser,
-            data          => $explodedData[$_],
-            dataset       => $model->{dataset},
-            defaultFormat => $volnames[$_] =~ /M(?:W|VAr)h/
-            ? '0.000hardnz'
-            : '0hardnz',
-            validation => {
-                validate      => 'decimal',
-                criteria      => '>=',
-                value         => 0,
-                input_title   => 'Volume:',
-                input_message => 'At least 0',
-                error_title   => 'Invalid volume data',
-                error_message =>
-                  'Invalid volume data (negative number or unused cell).'
-            },
-        );
-    } 0 .. $#tariffComponents;
+    my @volumeData;
 
-    Columnset(
-        number   => 1183,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
-        name     => "$ldnoWord volume data",
-        columns  => \@volumeData
-    );
+    @volumeData =
+      @{ ${ $model->{sharingObjectRef} }->{ $model->{'~datasetName'} } }
+      if $model->{'~datasetName'}
+      && $model->{sharingObjectRef}
+      && ${ $model->{sharingObjectRef} }
+      && ${ $model->{sharingObjectRef} }->{ $model->{'~datasetName'} };
+
+    unless (@volumeData) {
+
+        @volumeData = map {
+            Dataset(
+                name          => $volnames[$_],
+                rows          => $allTariffsByEndUser,
+                data          => $explodedData[$_],
+                dataset       => $model->{dataset},
+                defaultFormat => $volnames[$_] =~ /M(?:W|VAr)h/
+                ? '0.000hardnz'
+                : '0hardnz',
+                validation => {
+                    validate      => 'decimal',
+                    criteria      => '>=',
+                    value         => 0,
+                    input_title   => 'Volume:',
+                    input_message => 'At least 0',
+                    error_title   => 'Invalid volume data',
+                    error_message =>
+                      'Invalid volume data (negative number or unused cell).'
+                },
+                $model->{ldnoMargins} ? ( usePlaceholderData => 1 ) : (),
+            );
+        } 0 .. $#tariffComponents;
+
+        ${ $model->{sharingObjectRef} }->{ $model->{'~datasetName'} } =
+          \@volumeData
+          if $model->{'~datasetName'} && $model->{sharingObjectRef};
+
+        $model->{volumeTables} ||= [] if $model->{ldnoVolumeSheet};
+
+        Columnset(
+            name => "$ldnoWord volume data",
+            $model->{sharingObjectRef}
+            ? ()
+            : ( number => 1183, ),
+            dataset  => $model->{dataset},
+            appendTo => $model->{volumeTables} || $model->{inputTables},
+            columns  => \@volumeData
+        );
+
+    }
 
     my $revenueByTariff;
-
     {
         my @termsNoDays;
         my @termsWithDays;
@@ -593,6 +614,12 @@ EOF
             arguments     => \%args,
             defaultFormat => '0softnz',
         );
+        $model->{ldnoRevTotal} = GroupBy(
+            name =>
+              "Total net revenue from discounted $ldnoWord tariffs (£/year)",
+            defaultFormat => '0softnz',
+            source        => $revenueByTariff
+        );
     }
 
     $model->{ldnoRevTables} = [
@@ -601,13 +628,68 @@ EOF
             name    => "$ldnoWord discounted CDCM tariffs",
             columns => \@allTariffs,
         ),
-        $model->{ldnoRevTotal} = GroupBy(
-            name =>
-              "Total net revenue from discounted $ldnoWord tariffs (£/year)",
-            defaultFormat => '0softnz',
-            source        => $revenueByTariff
-        ),
+        $model->{ldnoRevTotal},
     ];
+
+    if ( $model->{ldnoMargins} ) {
+        my @termsNoDays;
+        my @termsWithDays;
+        my %args = ( A400 => $model->{daysInYear} );
+        foreach ( 0 .. $#tariffComponents ) {
+            my $pad = $_ + 1;
+            $pad = "0$pad" while length $pad < 3;
+            if ( $tariffComponents[$_] =~ m#/day# ) {
+                push @termsWithDays, "A2$pad*A3$pad";
+            }
+            else {
+                push @termsNoDays, "A2$pad*A3$pad";
+            }
+            $args{"A2$pad"} = $endUserTariffs[$_];
+            $args{"A3$pad"} = $volumeData[$_];
+        }
+        my $atwRevenueByTariff = Arithmetic(
+            name       => "Net revenue from all-the-way tariffs (£/year)",
+            rows       => $allTariffsByEndUser,
+            arithmetic => '='
+              . join( '+',
+                @termsWithDays
+                ? ( '0.01*A400*(' . join( '+', @termsWithDays ) . ')' )
+                : (),
+                @termsNoDays ? ( '10*(' . join( '+', @termsNoDays ) . ')' )
+                : ('0'),
+              ),
+            arguments     => \%args,
+            defaultFormat => '0softnz',
+        );
+        my $marginByTariff = Arithmetic(
+            name       => "Gross margin by tariff (£/year)",
+            rows       => $allTariffsByEndUser,
+            arithmetic => '=A1-A2',
+            arguments => { A1 => $atwRevenueByTariff, A2 => $revenueByTariff, },
+            defaultFormat => '0softnz',
+        );
+        $model->{ldnoRevTables} = [
+            Notes( lines => "$ldnoWord tariffs and margins" ),
+            Columnset(
+                name => "$ldnoWord revenue and margins",
+                columns =>
+                  [ $revenueByTariff, $atwRevenueByTariff, $marginByTariff, ]
+            )
+        ];
+        $model->{ldnoMarginColumns} = [
+            $model->{ldnoRevTotal},
+            GroupBy(
+                name => "Total net revenue from all-the-way tariffs (£/year)",
+                defaultFormat => '0softnz',
+                source        => $atwRevenueByTariff
+            ),
+            GroupBy(
+                name          => "Total gross margin (£/year)",
+                defaultFormat => '0softnz',
+                source        => $marginByTariff
+            ),
+        ];
+    }
 
     if ( $model->{ldnoRev} =~ /5/ )
     {    # reorder tariffs only if using five discounts; how weird is that?

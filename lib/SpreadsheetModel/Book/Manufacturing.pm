@@ -38,9 +38,9 @@ sub factory {
     my ( $class, @factorySettings ) = @_;
     my $self = bless {}, $class;
     my $settings = {@factorySettings};
-    my ( %ruleOverrides, %dataOverrides );
-    my ( @rulesets, @datasets, %dataByDatasetName );
-    my %rulesDataSettings;
+    my ( %ruleOverrides,     %dataOverrides );
+    my ( @rulesets,          @datasets, %dataByDatasetName );
+    my ( %rulesDataSettings, %finalRulesDataSettings );
 
     $self->{resetSettings} = sub {
         $settings = {@factorySettings};
@@ -340,7 +340,8 @@ sub factory {
                 push @{ $byDatasetName{ $_->{'~datasetName'} || $_ } }, $_;
             }
             @datasets = ();
-            while ( my ( $name, $heap ) = each %byDatasetName ) {
+            foreach my $name ( sort keys %byDatasetName ) {
+                my $heap = $byDatasetName{$name};
                 push @datasets,
                   {
                     '~datasetName' => $name,
@@ -373,7 +374,6 @@ sub factory {
 
         my $extension = $workbookModule->( $settings->{xls} )->fileExtension;
 
-        my %tmpRulesDataSettings;
         my $addToList = sub {
             my ( $data, $rule ) = @_;
             my $spreadsheetFile = $rule->{template};
@@ -386,20 +386,20 @@ sub factory {
                 );
               /eg;
             $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;
-            if ( $tmpRulesDataSettings{$spreadsheetFile} ) {
-                $tmpRulesDataSettings{$spreadsheetFile} = [
+            if ( $rulesDataSettings{$spreadsheetFile} ) {
+                $rulesDataSettings{$spreadsheetFile} = [
                     undef,
                     [
-                          $tmpRulesDataSettings{$spreadsheetFile}[0]
-                        ? $tmpRulesDataSettings{$spreadsheetFile}
-                        : @{ $tmpRulesDataSettings{$spreadsheetFile}[1] },
+                          $rulesDataSettings{$spreadsheetFile}[0]
+                        ? $rulesDataSettings{$spreadsheetFile}
+                        : @{ $rulesDataSettings{$spreadsheetFile}[1] },
                         [ $rule, $data, $settings ]
                     ],
                     $settings
                 ];
             }
             else {
-                $tmpRulesDataSettings{$spreadsheetFile} =
+                $rulesDataSettings{$spreadsheetFile} =
                   [ $rule, $data, $settings ];
             }
         };
@@ -428,7 +428,10 @@ sub factory {
                 }
             }
         }
-        while ( my ( $file, $instructions ) = each %tmpRulesDataSettings ) {
+
+        return unless wantarray;
+
+        while ( my ( $file, $instructions ) = each %rulesDataSettings ) {
             my $spreadsheetFile = $file;
             if (
                 my @revisionTexts =
@@ -452,19 +455,21 @@ sub factory {
                 }
             }
             $spreadsheetFile .= $extension;
-            $rulesDataSettings{$spreadsheetFile} = $tmpRulesDataSettings{$file};
+            $finalRulesDataSettings{$spreadsheetFile} =
+              $rulesDataSettings{$file};
         }
-        return keys %rulesDataSettings if wantarray;
+        keys %finalRulesDataSettings;
 
     };
 
     $self->{run} = sub {
         my ( $executor, $progressReporter ) = @_;
-        $progressReporter->( 0 + keys %rulesDataSettings )
+        $progressReporter->( 0 + keys %finalRulesDataSettings )
           if $progressReporter;
-        my $increment = %rulesDataSettings ? 1.0 / keys %rulesDataSettings : 0;
+        my $increment =
+          %finalRulesDataSettings ? 1.0 / keys %finalRulesDataSettings : 0;
         my $progress = 0;
-        while ( my ( $fileName, $rds ) = each %rulesDataSettings ) {
+        while ( my ( $fileName, $rds ) = each %finalRulesDataSettings ) {
             $fileName = catfile( $rds->[2]{folder}, $fileName )
               if $rds->[2]{folder};
             my $rulesData    = _mergeRulesData( @{$rds}[ 0, 1 ] );
