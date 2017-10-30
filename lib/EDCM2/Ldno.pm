@@ -155,8 +155,17 @@ EOL
 
     my $endUsers = Labelset( list => \@endUsers );
 
-    my $ldnoLevels = $model->{ldnoRev} =~ /5/
+    my $ldnoLevels = $model->{ldnoRev} =~ /7/
       ? Labelset( list => [ split /\n/, <<EOL] )
+Boundary 0000
+Boundary 132kV
+Boundary 132kV/EHV
+Boundary EHV
+Boundary HVplus
+Boundary HV
+Boundary LV
+EOL
+      : $model->{ldnoRev} =~ /5/ ? Labelset( list => [ split /\n/, <<EOL] )
 Boundary 0000
 Boundary 132kV
 Boundary 132kV/EHV
@@ -214,20 +223,6 @@ EOF
 
     my $ldnoWord = $model->{ldnoRev} =~ /qno/i ? 'QNO' : 'LDNO';
 
-    my $allTariffsByBoundaryLevelNotUsed = Labelset(
-        groups => [
-            map {
-                my $b = $_;
-                $b =~ s/\s*boundary\s*//i;
-                Labelset(
-                    name => "$ldnoWord $b tariffs",
-                    list =>
-                      [ map { "$ldnoWord $b: $_" } @{ $endUsers->{list} } ]
-                  )
-            } @{ $ldnoLevels->{list} }
-        ]
-    );
-
     my $allTariffsByEndUser = Labelset(
         groups => [
             map {
@@ -237,8 +232,10 @@ EOF
                     list => [
                         map {
                             local $_ = $_;
-                            s/\s*boundary\s*//i;
-                            "$ldnoWord $_: $e"
+                            s/\s*Boundary\s*//i;
+                            /LV/i && $e =~ /^(?:LV Sub|HV)/is
+                              ? ()
+                              : "$ldnoWord $_: $e";
                         } @{ $ldnoLevels->{list} }
                     ]
                   )
@@ -261,7 +258,9 @@ EOF
     my $discounts = Dataset(
         name => "$ldnoWord discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
         cols => $cdcmLevels,
-        rows => $ldnoLevels,
+        rows => $model->{ldnoRev} =~ /7/
+        ? Labelset( list => [ @{ $ldnoLevels->{list} }[ 0 .. 4 ] ] )
+        : $ldnoLevels,
         $ppu ? () : ( defaultFormat => '%hardnz' ),
         data => [
             map {
@@ -282,6 +281,35 @@ EOF
               . ' (negative number or unused cell).',
         },
     );
+
+    my $discountsCdcm;
+    $discountsCdcm = Dataset(
+        name => "$ldnoWord discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
+        cols => Labelset(
+            list => [
+                'Not used',
+                "$ldnoWord LV: LV user",
+                "$ldnoWord HV: LV user",
+                "$ldnoWord HV: LV Sub user",
+                "$ldnoWord HV: HV user",
+            ]
+        ),
+        $ppu ? () : ( defaultFormat => '%hardnz' ),
+        data => [ undef, map { '' } 2 .. @{ $ldnoLevels->{list} } ],
+        number => $ppu ? 1039 : 1037,
+        dataset    => $model->{dataset},
+        appendTo   => $model->{inputTables},
+        validation => {
+            validate      => 'decimal',
+            criteria      => '>=',
+            value         => 0,
+            input_title   => "$ldnoWord discount:",
+            input_message => 'At least zero',
+            error_title   => "Invalid $ldnoWord discount",
+            error_message => "Invalid $ldnoWord discount"
+              . ' (negative number or unused cell).',
+        },
+    ) if $model->{ldnoRev} =~ /7/;
 
     my @endUserTariffs = map {
         my $regexp = '^' . ( '.' x $_ ) . 'y';
@@ -307,15 +335,31 @@ EOF
           . ( $ppu ? ' p/kWh' : '' ),
         rows => $allTariffsByEndUser,
         $ppu ? () : ( defaultFormat => '%copy' ),
-        arithmetic => '= A1',
-        custom     => ['=A1'],
+        arithmetic => $discountsCdcm ? '= A1 or A2' : '=A1',
+        custom => [ '=A1', $discountsCdcm ? '=A2' : (), ],
         objectType => 'Special copy',
-        arguments  => { A1 => $discounts },
-        wsPrepare  => sub {
+        arguments  => {
+            A1 => $discounts,
+            $discountsCdcm ? ( A2 => $discountsCdcm ) : (),
+        },
+        wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
                 my ( $x, $y ) = @_;
                 local $_ = $allTariffsByEndUser->{list}[$y];
+                return '', $format, $formula->[1],
+                  qr/\bA2\b/ =>
+                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $rowh->{A2},
+                    $colh->{A2} + ( /^HV/i ? 4 : /^LV Sub/i ? 3 : 2 ),
+                    1, 1, )
+                  if s/^$ldnoWord HV: //;
+                return '', $format, $formula->[1],
+                  qr/\bA2\b/ =>
+                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $rowh->{A2}, $colh->{A2} + 1,
+                    1, 1, )
+                  if s/^$ldnoWord LV: //;
                 $y = 0  if s/^$ldnoWord 0000: //;
                 $y = 2  if s/^$ldnoWord 132kV\/EHV: //;
                 $y = 1  if s/^$ldnoWord 132kV: //;
@@ -350,10 +394,10 @@ EOF
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $rowh->{A1} + $y,
                     $colh->{A1} + $x,
-                    1, 1
+                    1, 1,
                   );
             };
-        }
+        },
     );
 
     if ($ppu) {
@@ -416,22 +460,65 @@ EOF
     } 0 .. $#tariffComponents;
 
     my @allTariffs = map {
-        Arithmetic(
+
+        my @base = (
             name          => $tariffComponents[$_],
-            defaultFormat => $tariffComponents[$_] =~ /day/ ? '0.00softnz'
+            defaultFormat => $tariffComponents[$_] =~ /day/
+            ? '0.00softnz'
             : '0.000softnz',
-            arithmetic => $model->{ldnoRev} !~ /round/i ? '=A2*(1-A1)'
-            : '=ROUND(A2*(1-A1),'
-              . ( $tariffComponents[$_] =~ /day/ ? 2 : 3 ) . ')',
-            arguments => {
-                A2 => $endUserTariffs[$_],
-                A1 => $discountsByTariff,
-            },
             rowFormats => [
                 map { defined $_ ? undef : 'unavailable' }
                   @{ $explodedData[$_] }
             ],
+            arguments => {
+                A1 => $discountsByTariff,
+                A2 => $endUserTariffs[$_],
+            },
         );
+
+        my $arithmetic =
+          $model->{ldnoRev} !~ /round/i
+          ? '=A2*(1-A1)'
+          : '=ROUND(A2*(1-A1),'
+          . ( $tariffComponents[$_] =~ /day/ ? 2 : 3 ) . ')';
+
+        $discountsCdcm
+          ? new SpreadsheetModel::Custom(
+            @base,
+            arithmetic => "$arithmetic (except for generation)",
+            rows       => $discountsByTariff->{rows},
+            custom =>
+              [ $arithmetic, $tariffComponents[$_] =~ /MPAN/i ? '=0' : '=A2', ],
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    local $_ = $allTariffsByEndUser->{list}[$y];
+                    my $yg = $allTariffsByEndUser->{groupid}[$y];
+                    return '', $format, $formula->[1],
+                      qr/\bA2\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A2} + $yg,
+                        $colh->{A2}, 1, 0, )
+                      if /gener/i;
+                    '', $format, $formula->[0],
+                      qr/\bA1\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A1} + $y,
+                        $colh->{A1},
+                      ),
+                      qr/\bA2\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A2} + $yg,
+                        $colh->{A2}, 1, 0, );
+                };
+            },
+          )
+          : Arithmetic(
+            @base,
+            arithmetic => $arithmetic,
+          );
     } 0 .. $#tariffComponents;
 
     return $model->{ldnoRevTables} = [

@@ -497,8 +497,9 @@ sub worksheetsAndClosures {
 
       : (),
 
-      $model->{transparency}
-      ? (
+      $model->{omitDnoTotals}
+      ? ()
+      : $model->{transparency} ? (
         'DNO totals' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
