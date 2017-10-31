@@ -112,7 +112,7 @@ sub makeFolder {
             my $ramDiskBlocks = 9_765_625;      # 5G in 512-byte blocks.
             my $ramDiskName   = 'pmworkings';
             my $ramDiskMountPoint = 1 ? "/Volumes/$ramDiskName" : $ramDiskName;
-            unless ( -e "$ramDiskMountPoint/.VolumeIcon.icns" ) {
+            unless ( -d $ramDiskMountPoint ) {
 
                 my $device = `hdiutil attach -nomount ram://$ramDiskBlocks`;
                 $device =~ s/\s*$//s;
@@ -127,10 +127,10 @@ sub makeFolder {
                       $ramDiskMountPoint;
                 }
 
-                my $ramDiskIcns =
-                  "$ENV{HOME}/Pictures/Images/power-models RAM disk icon.icns";
-                if ( -e $ramDiskIcns ) {
-                    system qw(cp), $ramDiskIcns,
+                my $ramDiskIcnsSource =
+                  "$ENV{HOME}/Pictures/Images/pmworkings.icns";
+                if ( -e $ramDiskIcnsSource ) {
+                    system qw(cp), $ramDiskIcnsSource,
                       "$ramDiskMountPoint/.VolumeIcon.icns";
                     system qw(SetFile -a C), $ramDiskMountPoint;
                 }
