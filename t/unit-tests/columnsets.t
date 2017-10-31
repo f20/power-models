@@ -29,10 +29,41 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use strict;
 use warnings;
 use lib qw(cpan lib t/lib);
-use SpreadsheetModel::Tests::PowerModelTesting qw(newTestArea);
+use SpreadsheetModel::TestArea qw(newTestArea);
 
 use SpreadsheetModel::Shortcuts ':all';
 
-use Test::More tests => 2;
-ok( newTestArea('test.xls') );
-ok( newTestArea('test.xlsx') );
+sub mustCrash20121201_1 {
+    my ( $wbook, $wsheet ) = @_;
+    my $c1 = Dataset( name => 'c1', data => [ [1] ] );
+    my $c2 = Stack( name => 'c2', sources => [$c1] );
+    my $c3 = Stack( name => 'c3', sources => [$c2] );
+    Columnset( columns => [ $c1, $c3 ] )->wsWrite( $wbook, $wsheet );
+}
+
+sub mustCrash20130223_1 {
+    my ( $wbook, $wsheet ) = @_;
+    my $c1 = Dataset( name => 'c1', data => [ [1] ] );
+    my $c2 = Dataset(
+        name => 'c2',
+        rows => Labelset( list => ['The row'] ),
+        data => [ [1] ]
+    );
+    Columnset( columns => [ $c1, $c2 ] )->wsWrite( $wbook, $wsheet );
+}
+
+sub mustCrash20130223_2 {
+    my ( $wbook, $wsheet ) = @_;
+    my $c1 = Dataset( name => 'c1', data => [ [1] ] );
+    my $c2 = Dataset(
+        name => 'c2',
+        rows => Labelset( list => [ 'Row A', 'Row B' ] ),
+        data => [ [ 2, 3 ] ]
+    );
+    Columnset( columns => [ $c1, $c2 ] )->wsWrite( $wbook, $wsheet );
+}
+
+use Test::More tests => 3;
+ok( !eval { mustCrash20121201_1( newTestArea('test-mustcrash.xls') ); } && $@ );
+ok( !eval { mustCrash20130223_1( newTestArea('test-mustcrash.xls') ); } && $@ );
+ok( !eval { mustCrash20130223_2( newTestArea('test-mustcrash.xls') ); } && $@ );

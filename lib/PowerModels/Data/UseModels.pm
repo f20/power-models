@@ -181,15 +181,15 @@ sub useModels {
       foreach @files;
 
     if ($executor) {
-        if ( my $errorCount = $executor->complete ) {
-            die(
-                (
-                    $errorCount > 1
-                    ? "$errorCount things have"
-                    : 'Something has'
-                )
-                . ' gone wrong'
-            );
+        if ( my @errors = $executor->complete ) {
+            my $wrong = (
+                  @errors > 1
+                ? @errors . " things have"
+                : 'Something has'
+            ) . ' gone wrong.';
+            warn "$wrong\n";
+            warn sprintf( "%3d❗️ %s\n", $_ + 1, $errors[$_][0] )
+              foreach 0 .. $#errors;
         }
     }
 
@@ -413,8 +413,7 @@ sub parseModel {
         }
         else {
             require Spreadsheet::ParseExcel;
-            eval
-            { # NoOp produces warnings, the Japanese formatter does not
+            eval {    # NoOp produces warnings, the Japanese formatter does not
                 require Spreadsheet::ParseExcel::FmtJapan;
                 $formatter = Spreadsheet::ParseExcel::FmtJapan->new;
             };

@@ -29,41 +29,34 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use strict;
 use warnings;
 use lib qw(cpan lib t/lib);
-use SpreadsheetModel::Tests::PowerModelTesting qw(newTestArea);
+use SpreadsheetModel::TestArea qw(newTestArea);
 
 use SpreadsheetModel::Shortcuts ':all';
 
-sub mustCrash20121201_1 {
-    my ( $wbook, $wsheet ) = @_;
-    my $c1 = Dataset( name => 'c1', data => [ [1] ] );
-    my $c2 = Stack( name => 'c2', sources => [$c1] );
-    my $c3 = Stack( name => 'c3', sources => [$c2] );
-    Columnset( columns => [ $c1, $c3 ] )->wsWrite( $wbook, $wsheet );
-}
-
-sub mustCrash20130223_1 {
-    my ( $wbook, $wsheet ) = @_;
-    my $c1 = Dataset( name => 'c1', data => [ [1] ] );
+sub test_sumif {
+    my ( $wbook, $wsheet, $arg ) = @_;
+    $wsheet->set_column( 0, 5, 20 );
+    my $rows = Labelset( list => [qw(A B C D)] );
+    my $c1 = Dataset(
+        name => 'c1',
+        rows => $rows,
+        data => [ [ 41, 42, 'forty one', 'forty two', ] ],
+    );
     my $c2 = Dataset(
         name => 'c2',
-        rows => Labelset( list => ['The row'] ),
-        data => [ [1] ]
+        rows => $rows,
+        data => [ [ 43, 44, 45, 46, ] ],
     );
-    Columnset( columns => [ $c1, $c2 ] )->wsWrite( $wbook, $wsheet );
+    Arithmetic(
+        name       => 'sumif',
+        arithmetic => '=SUMIF(IV1_IV2,' . $arg . ',IV3_IV4)',
+        arguments  => { IV1_IV2 => $c1, IV3_IV4 => $c2, },
+    )->wsWrite( $wbook, $wsheet );
+    1;
 }
 
-sub mustCrash20130223_2 {
-    my ( $wbook, $wsheet ) = @_;
-    my $c1 = Dataset( name => 'c1', data => [ [1] ] );
-    my $c2 = Dataset(
-        name => 'c2',
-        rows => Labelset( list => [ 'Row A', 'Row B' ] ),
-        data => [ [ 2, 3 ] ]
-    );
-    Columnset( columns => [ $c1, $c2 ] )->wsWrite( $wbook, $wsheet );
-}
-
-use Test::More tests => 3;
-ok( !eval { mustCrash20121201_1( newTestArea('test-mustcrash.xls') ); } && $@ );
-ok( !eval { mustCrash20130223_1( newTestArea('test-mustcrash.xls') ); } && $@ );
-ok( !eval { mustCrash20130223_2( newTestArea('test-mustcrash.xls') ); } && $@ );
+use Test::More tests => 4;
+ok( test_sumif( newTestArea('test-sumif_1.xls'),  42 ) );
+ok( test_sumif( newTestArea('test-sumif_1.xlsx'), 42 ) );
+ok( test_sumif( newTestArea('test-sumif_2.xls'),  '"forty two"' ) );
+ok( test_sumif( newTestArea('test-sumif_2.xlsx'), '"forty two"' ) );

@@ -765,7 +765,7 @@ sub exitChargeAdj {
             A32    => $tariffIndex,
         },
     );
-    Arithmetic(
+    my $rateExitToUse = Arithmetic(
         name       => 'Adjusted transmission exit charging rate (£/kW/year)',
         arithmetic => '=IF(ISERROR(A1),A2,A3)',
         arguments  => {
@@ -773,14 +773,15 @@ sub exitChargeAdj {
             A2 => $rateExit,
             A3 => $self->{rateExitCalculated},
         },
-      ),
+    );
+    $rateExitToUse,
       $self->{adjustedEdcmPurpleUse} = Arithmetic(
         name          => 'Adjusted total EDCM peak-time consumption (kW)',
         defaultFormat => '0soft',
         arithmetic    => '=A1/A2-A3',
         arguments     => {
             A1 => $chargeExit,
-            A2 => $self->{rateExitCalculated},
+            A2 => $rateExitToUse,
             A3 => $cdcmPurpleUse,
         },
       );

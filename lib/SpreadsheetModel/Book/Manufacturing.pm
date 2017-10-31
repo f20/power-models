@@ -1,4 +1,4 @@
-package SpreadsheetModel::Book::Manufacturing;
+﻿package SpreadsheetModel::Book::Manufacturing;
 
 =head Copyright licence and disclaimer
 
@@ -489,15 +489,15 @@ sub factory {
             $progressReporter->() if $progressReporter;
         }
         if ($executor) {
-            if ( my $errorCount = $executor->complete ) {
-                die(
-                    (
-                        $errorCount > 1
-                        ? "$errorCount things have"
-                        : 'Something has'
-                    )
-                    . ' gone wrong'
-                );
+            if ( my @errors = $executor->complete ) {
+                my $wrong = (
+                      @errors > 1
+                    ? @errors . " things have"
+                    : 'Something has'
+                ) . ' gone wrong.';
+                warn "$wrong\n";
+                warn sprintf( "%3d❗️ %s\n", $_ + 1, $errors[$_][0] )
+                  foreach 0 .. $#errors;
             }
         }
     };

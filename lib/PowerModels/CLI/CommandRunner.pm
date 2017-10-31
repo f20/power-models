@@ -109,8 +109,8 @@ sub makeFolder {
     if ($folder) {    # Create temporary folder and go there
 
         if ( -d '/System/Library' ) {    # macOS: use a memory disk
-            my $ramDiskBlocks = 12_000_000;    # About 6G, in 512-byte blocks.
-            my $ramDiskName = 'power-models workings';
+            my $ramDiskBlocks = 12_000_000;     # About 6G, in 512-byte blocks.
+            my $ramDiskName   = 'pmworkings';
             my $ramDiskMountPoint = 1 ? "/Volumes/$ramDiskName" : $ramDiskName;
             unless ( -e "$ramDiskMountPoint/.VolumeIcon.icns" ) {
 

@@ -6,7 +6,7 @@ dcp130: 1
 dcp161: 1
 dcp179: 1
 ldnoMargins: 1
-ldnoRev: ldnorev7roundingppu_cap100_genneg_only
+ldnoRev: ldnorev7roundingppu_cap100_genneg_nodef_only
 ldnoVolumeSheet: 1
 omitDnoTotals: 1
 summaries: 1

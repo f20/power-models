@@ -1,0 +1,4 @@
+makeModels
+    Blank.yml
+    */%*.yml
+    */*/%*.yml

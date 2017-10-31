@@ -79,10 +79,6 @@ sub makeModels {
             if ( $_ eq '-' ) {
                 $maker->{processStream}->( \*STDIN );
             }
-            elsif (/^-+(?:carp|confess)/is) {
-                require Carp;
-                $SIG{__DIE__} = \&Carp::confess;
-            }
             elsif (/^-+(auto)?check/is) {
                 $maker->{setRule}
                   ->( checksums => 'Line checksum 5; Table checksum 7' );

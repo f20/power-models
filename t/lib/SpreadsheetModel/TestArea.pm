@@ -1,4 +1,4 @@
-package SpreadsheetModel::Tests::PowerModelTesting;
+package SpreadsheetModel::TestArea;
 
 =head Copyright licence and disclaimer
 

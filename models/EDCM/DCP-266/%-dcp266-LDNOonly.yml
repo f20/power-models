@@ -1,5 +1,5 @@
 ---
-.: 'DCP 266 capping negative signs no defaulting, FCP'
+.: DCP 266, LDNO discounts only
 PerlModule: EDCM2
 alignText: general
 conditionalFormatting: 0
@@ -8,16 +8,12 @@ dcp161: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
-gridlines: 1
-layout: matrix
-ldnoRev: ldnorev5roundingppu_cap100_genneg_nodef
+ldnoRev: ldnorev5roundingppu_onlytar
 lowerIntermittentCredit: 1
 mergedRanges: 1
-method: FCP
+method: none
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
-protect: 1
 summaries: 1
 table1101: 1
-tableGrouping: 1

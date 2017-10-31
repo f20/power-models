@@ -8,8 +8,6 @@ dcp161: 1
 dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
-gridlines: 1
-layout: matrix
 ldnoRev: ldnorev5roundingppu_gencap_onlytar
 lowerIntermittentCredit: 1
 mergedRanges: 1
@@ -17,7 +15,5 @@ method: none
 noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
-protect: 1
 summaries: 1
 table1101: 1
-tableGrouping: 1

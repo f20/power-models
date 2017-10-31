@@ -34,14 +34,20 @@ use Encode;
 use File::Spec;
 use Fcntl qw(:flock :seek);
 
-use constant { AC_CSV => 0, };
+use constant {
+    AC_CSV_KNOWN_GOOD_AND_LOCK => 0,
+    AC_CSV_UPDATED             => 1,
+};
 
 sub new {
     my ( $class, $homes ) = @_;
     my ($tFolder) =
       grep { -e $_; } ( map { File::Spec->catdir( $_, 't' ); } @$homes ),
       @$homes;
-    bless [ File::Spec->catfile( $tFolder, 'Checksums.csv' ), ], $class;
+    bless [
+        File::Spec->catfile( $tFolder, 'Checksums.csv' ),
+        File::Spec->catfile( $tFolder, 'Checksums-new.csv' ),
+    ], $class;
 }
 
 sub processChecksum {
@@ -59,17 +65,20 @@ sub processChecksum {
       if $file =~ s/^(.+)-(20[0-9]{2}-[0-9]{2})-//s;
 
     my @records;
-    my $fh;
-         open $fh, '+<', $autocheck->[AC_CSV]
-      or open $fh, '<',  $autocheck->[AC_CSV]
-      or open $fh, '+>', $autocheck->[AC_CSV]
-      or warn "Could not open $autocheck->[AC_CSV]";
-    flock $fh, LOCK_EX or die 'flock failed';
-    local $/ = "\n";
-    @records = <$fh>;
-    chomp foreach @records;
+    if ( open my $fh, '<', $autocheck->[AC_CSV_KNOWN_GOOD_AND_LOCK] ) {
+        flock $fh, LOCK_EX or die 'flock failed';
+        local $/ = "\n";
+        @records = <$fh>;
+    }
+    else {
+        warn "Could not open $autocheck->[AC_CSV_KNOWN_GOOD_AND_LOCK]";
+    }
+    if ( open my $fh, '<', $autocheck->[AC_CSV_UPDATED] ) {
+        push @records, <$fh>;
+    }
 
     foreach (@records) {
+        chomp;
         my @a = split /[\t,]/;
         next unless @a > 4;
         if (   $a[0] eq $file
@@ -78,14 +87,27 @@ sub processChecksum {
             && $a[3] == $tableNumber )
         {
             return if $a[4] eq $checksum;
-            die "\n\n*** Expected $a[4], got $checksum"
-              . " for $book table $tableNumber\n\n";
+            die "** Checksum error **\nExpected $a[4], got $checksum for"
+              . " $book table $tableNumber\n\n";
         }
     }
-    push @records, join ',', $file, $year, $company, $tableNumber, $checksum,
-      $revision ? $revision : ();
-    seek $fh, 0, SEEK_SET;
-    print {$fh} map { "$_\n"; } sort @records;
+
+    my $fh;
+    if ( !open $fh, '+>>', $autocheck->[AC_CSV_UPDATED] and open $fh,
+        '<', $autocheck->[AC_CSV_UPDATED] )
+    {
+        my @new = <$fh>;
+        push @records, @new;
+        close $fh;
+        unlink $autocheck->[AC_CSV_UPDATED];
+        open $fh, '>>', $autocheck->[AC_CSV_UPDATED];
+        print $fh @new;
+    }
+
+    print {$fh} join( ',',
+        $file, $year, $company, $tableNumber, $checksum,
+        $revision ? $revision : () )
+      . "\n";
 
 }
 
