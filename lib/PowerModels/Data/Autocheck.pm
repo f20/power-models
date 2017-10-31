@@ -64,10 +64,10 @@ sub processChecksum {
     ( $company, $year ) = ( $1, $2 )
       if $file =~ s/^(.+)-(20[0-9]{2}-[0-9]{2})-//s;
 
+    local $/ = "\n";
     my @records;
     if ( open my $fh, '<', $autocheck->[AC_CSV_KNOWN_GOOD_AND_LOCK] ) {
         flock $fh, LOCK_EX or die 'flock failed';
-        local $/ = "\n";
         @records = <$fh>;
     }
     else {

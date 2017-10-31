@@ -432,7 +432,7 @@ sub parseModel {
             die "$@ for $fileToParse" if $@;
         }
         else {
-            die "Cannot parse $fileToParse in " . `pwd`;
+            die "Cannot parse $fileToParse";
         }
     }
     0;
