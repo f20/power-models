@@ -90,6 +90,12 @@ sub loggableObjects {
     @list;
 }
 
+sub _normaliseForSorting {
+    local $_ = "$_[0]";
+    $_ = "0$_" while /^[0-9]{1,3}\./s;
+    $_;
+}
+
 sub wsWrite {
 
     my ( $logger, $wb, $ws, $row, $col ) = @_;
@@ -120,7 +126,10 @@ sub wsWrite {
     $row++;
 
     my @objectList =
-      sort { "$a->{name}" cmp "$b->{name}"; }
+      sort {
+        _normaliseForSorting( $a->{name} )
+          cmp _normaliseForSorting( $b->{name} );
+      }
       grep { $_->{$wb}{worksheet} && $_->{name} } @{ $logger->{objects} };
 
     my $r = 0;
