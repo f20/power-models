@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -328,7 +328,7 @@ EOT
     else {
         push @{ $model->{objects}{calcSheets} },
           [ $model->{suffix}, $discounts ];
-        my $ldnoLevels = Labelset( list => [ split /\n/, <<EOL] );
+        my $ldnoLevelset = Labelset( list => [ split /\n/, <<EOL] );
 Boundary 0000
 Boundary 132kV
 Boundary 132kV/EHV
@@ -347,7 +347,7 @@ EOL
             my $iForClosure = $i;
             $columns[$i] = SpreadsheetModel::Custom->new(
                 name          => $cdcmLevels[$i],
-                rows          => $ldnoLevels,
+                rows          => $ldnoLevelset,
                 defaultFormat => '%copy',
                 arithmetic    => '=A1',
                 custom        => ['=A1'],
@@ -384,6 +384,7 @@ EOL
             name => $model->{qno} . ' discounts (EDCM) ⇒1181. For EDCM model',
             columns => \@columns,
         );
+        push @{ $model->{objects}{table1181sources} }, @columns;
     }
     push @{ $model->{objects}{resultsTables} },
       $model->{objects}{table1181columnset} = $discounts;

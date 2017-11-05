@@ -246,16 +246,42 @@ EOF
     $endUsers = Labelset( list => $allTariffsByEndUser->{groups} );
 
     my $ppu;
-    $ppu = Dataset(
-        name     => 'All-the-way reference p/kWh values',
-        rows     => $endUsers,
-        data     => [ map { 1 } @{ $endUsers->{list} } ],
-        number   => 1185,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
-    ) if $model->{ldnoRev} =~ /ppu/i;
+    if ( $model->{ldnoRev} =~ /ppu/i ) {
+        $ppu =
+          $model->{embeddedModelG2}
+          ? Stack(
+            name    => 'All-the-way reference p/kWh values (table 1185)',
+            rows    => $endUsers,
+            sources => $model->{embeddedModelG2}{table1185sources},
+          )
+          : Dataset(
+            name     => 'All-the-way reference p/kWh values',
+            rows     => $endUsers,
+            data     => [ map { 1 } @{ $endUsers->{list} } ],
+            number   => 1185,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+          );
+    }
 
-    my $discounts = Dataset(
+    my $discounts =
+      $model->{embeddedModelM2}
+      ? Stack(
+        name => "$ldnoWord discount "
+          . ( $ppu ? 'p/kWh (table 1184)' : 'percentage (table 1181)' ),
+        cols => $cdcmLevels,
+        rows => $model->{ldnoRev} =~ /7/
+        ? Labelset( list => [ @{ $ldnoLevels->{list} }[ 0 .. 4 ] ] )
+        : $ldnoLevels,
+        $ppu
+        ? ( sources =>
+              $model->{embeddedModelM2}{objects}{table1184columnset}{columns} )
+        : (
+            sources => $model->{embeddedModelM2}{objects}{table1181sources},
+            defaultFormat => '%copy',
+        ),
+      )
+      : Dataset(
         name => "$ldnoWord discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
         cols => $cdcmLevels,
         rows => $model->{ldnoRev} =~ /7/
@@ -280,11 +306,31 @@ EOF
             error_message => "Invalid $ldnoWord discount"
               . ' (negative number or unused cell).',
         },
-    );
+      );
 
     my $discountsCdcm;
-    $discountsCdcm = Dataset(
-        name => "$ldnoWord discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
+    $discountsCdcm =
+      $model->{embeddedModelM2}
+      ? Stack(
+        name => "$ldnoWord CDCM discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
+        cols => Labelset(
+            list => [
+                'Not used',
+                "$ldnoWord LV: LV user",
+                "$ldnoWord HV: LV user",
+                "$ldnoWord HV: LV Sub user",
+                "$ldnoWord HV: HV user",
+            ]
+        ),
+        $ppu
+        ? ( sources => $model->{embeddedModelM2}{objects}{table1039sources} )
+        : (
+            sources => $model->{embeddedModelM2}{objects}{table1037sources},
+            defaultFormat => '%copy',
+        ),
+      )
+      : Dataset(
+        name => "$ldnoWord CDCM discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
         cols => Labelset(
             list => [
                 'Not used',
@@ -309,25 +355,38 @@ EOF
             error_message => "Invalid $ldnoWord discount"
               . ' (negative number or unused cell).',
         },
-    ) if $model->{ldnoRev} =~ /7/;
+      ) if $model->{ldnoRev} =~ /7/;
 
     my @endUserTariffs = map {
         my $regexp = '^' . ( '.' x $_ ) . 'y';
-        Dataset(
+        $model->{embeddedCdcm}
+          ? Stack(
+            name          => $tariffComponents[$_],
+            defaultFormat => /day/ ? '0.00copy' : '0.000copy',
+            rows          => $endUsers,
+            sources       => [ $model->{embeddedCdcm}{allTariffColumns}[$_] ],
+            data    # not part of Stack, but used below
+              => [ map { /$regexp/ ? '' : undef } @tariffComponentMatrix ],
+          )
+          : Dataset(
             name          => $tariffComponents[$_],
             defaultFormat => /day/ ? '0.00hard' : '0.000hard',
             rows          => $endUsers,
             data => [ map { /$regexp/ ? '' : undef } @tariffComponentMatrix ],
             dataset => $model->{dataset},
-        );
+          );
     } 0 .. $#tariffComponents;
 
     Columnset(
-        number   => 1182,
-        dataset  => $model->{dataset},
-        appendTo => $model->{inputTables},
-        name     => 'CDCM end user tariffs',
-        columns  => \@endUserTariffs,
+        $model->{embeddedCdcm}
+        ? ()
+        : (
+            number   => 1182,
+            dataset  => $model->{dataset},
+            appendTo => $model->{inputTables},
+        ),
+        name    => 'CDCM end user tariffs',
+        columns => \@endUserTariffs,
     );
 
     my $discountsByTariff = new SpreadsheetModel::Custom(

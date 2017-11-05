@@ -962,7 +962,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             name                  => 'Tariffs',
             dataset               => $model->{dataset},
             doNotCopyInputColumns => 1,
-            number => 3701,    # this is an input data table (for LLFCs)
+            number => 3701,    # needed as this is an input data table for LLFCs
         ),
         columns => [
             $model->{noLLFCs} ? () : (

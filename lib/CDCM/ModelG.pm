@@ -692,6 +692,8 @@ sub modelG {
         ),
     );
 
+    push @{ $model->{table1185sources} }, $ppuReference;
+
     push @{ $model->{modelgResults} },
       Stack(
         name    => 'All-the-way reference p/kWh values ⇒1185. For EDCM model',

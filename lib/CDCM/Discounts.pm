@@ -87,8 +87,6 @@ sub pcdPreprocessedVolumes {
             inputTables => $model->{embeddedModelM}{noSingleInputSheet}
             ? []
             : $model->{inputTables},
-            table1037sources => [],
-            table1039sources => [],
         },
         %{ $model->{embeddedModelM} },
     ) if $model->{embeddedModelM};

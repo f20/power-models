@@ -44,6 +44,8 @@ sub finishModel {
                 'Not calculated: '
               . 'open in spreadsheet app and allow calculations' );
     }
+    $_->finishModel($wbook)
+      foreach grep { $_; } @{$model}{qw(embeddedCdcm embeddedModelM)};
 }
 
 sub notesTransparency {
@@ -78,8 +80,8 @@ sub sheetPriority {
     my ( $model, $sheet ) = @_;
     my $score = 0;
     $score = 5 if $sheet =~ /Volumes\$/;
-    $score = 4 if $sheet =~ /Base\$/;
-    $score = 3 if $sheet =~ /266\$/;
+    $score = 4 if $sheet =~ /Baseline\$/;
+    $score = 3 if $sheet =~ /Scenario\$/;
     $score ||= 2
       if $sheet =~ /(?:Overview|Index)$/is;
     $score;
@@ -89,13 +91,16 @@ sub worksheetsAndClosures {
 
     my ( $model, $wbook ) = @_;
 
-    '11' => sub {
+    my @wsheetsAndClosures;
+
+    push @wsheetsAndClosures, '11' => sub {
 
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 11;
         $wbook->{lastSheetNumber} =
              $model->{layout} && $model->{layout} =~ /matrix/
-          || $model->{impactInputTables} ? 19 : 40;
+          || $model->{impactInputTables}
+          || $model->{embeddedCdcm} ? 19 : 40;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
@@ -139,386 +144,404 @@ sub worksheetsAndClosures {
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
 
-      },
+    };
 
-      $model->{volumeTables}
-      ? (
-        'Volumes$' => sub {
+    push @wsheetsAndClosures, 'Volumes$' => sub {
+        my ($wsheet) = @_;
+        $wsheet->freeze_panes( 1, 1 );
+        $wsheet->set_column( 0, 0,   50 );
+        $wsheet->set_column( 1, 250, 20 );
+        $wsheet->{sheetNumber} = 14;
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} };
+      }
+      if $model->{volumeTables};
+
+    push @wsheetsAndClosures,
+      Impact => sub {
+        my ($wsheet) = @_;
+        $wsheet->freeze_panes( 1, 0 );
+        $wsheet->set_column( 0,  0,   16 );
+        $wsheet->set_column( 1,  1,   40 );
+        $wsheet->set_column( 2,  8,   16 );
+        $wsheet->set_column( 9,  9,   40 );
+        $wsheet->set_column( 10, 250, 16 );
+        my $noLinks = delete $wbook->{noLinks};
+        $wbook->{noLinks} = 1;
+        $_->wsWrite( $wbook, $wsheet ) foreach @{ $model->{impactInputTables} };
+        $wbook->{noLinks} = $noLinks;
+      }
+      if $model->{impactInputTables};
+
+    push @wsheetsAndClosures,
+
+      $model->{method} eq 'none' ? () : (
+        (
+            $model->{method} =~ /LRIC/i
+            ? 913
+            : 911
+        ) => sub {
             my ($wsheet) = @_;
-            $wsheet->freeze_panes( 1, 1 );
-            $wsheet->set_column( 0, 0,   50 );
-            $wsheet->set_column( 1, 250, 20 );
-            $wsheet->{sheetNumber} = 14;
+            $wsheet->{sheetNumber} = 9;
+            $wsheet->freeze_panes( 5, 2 );
+            $wsheet->set_column( 0, 0,   20 );
+            $wsheet->set_column( 1, 1,   35 );
+            $wsheet->set_column( 2, 2,   20 );
+            $wsheet->set_column( 3, 3,   35 );
+            $wsheet->set_column( 4, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} };
+              foreach Notes( name => 'Power flow input data' ),
+              $model->{table911};
         }
       )
-      : (),
-
-      $model->{impactInputTables}
-      ? (
-        Impact => sub {
-            my ($wsheet) = @_;
-            $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0,  0,   16 );
-            $wsheet->set_column( 1,  1,   40 );
-            $wsheet->set_column( 2,  8,   16 );
-            $wsheet->set_column( 9,  9,   40 );
-            $wsheet->set_column( 10, 250, 16 );
-            my $noLinks = delete $wbook->{noLinks};
-            $wbook->{noLinks} = 1;
-            $_->wsWrite( $wbook, $wsheet )
-              foreach @{ $model->{impactInputTables} };
-            $wbook->{noLinks} = $noLinks;
-        }
-      )
-      : (),
 
       ,
 
-      !$model->{ldnoRev} || $model->{ldnoRev} !~ /only/i
-      ? (
+      '935' => sub {
+        my ($wsheet) = @_;
+        $wsheet->{sheetNumber} = 9;
+        $wsheet->freeze_panes(
+            $model->{table935}{sourceLines}
+            ? 6 + @{ $model->{table935}{sourceLines} }
+            : 6,
+            2
+        );
+        $wsheet->set_landscape;
+        my $locationColumn = $model->{dcp189} ? 9 : 8;
+        $wsheet->set_column( 0,                   0,                   16 );
+        $wsheet->set_column( 1,                   1,                   50 );
+        $wsheet->set_column( 2,                   $locationColumn - 1, 20 );
+        $wsheet->set_column( $locationColumn,     $locationColumn,     50 );
+        $wsheet->set_column( $locationColumn + 1, 250,                 20 );
 
-        $model->{method} eq 'none' ? () : (
-            (
-                $model->{method} =~ /LRIC/i
-                ? 913
-                : 911
-            ) => sub {
-                my ($wsheet) = @_;
-                $wsheet->{sheetNumber} = 9;
-                $wsheet->freeze_panes( 5, 2 );
-                $wsheet->set_column( 0, 0,   20 );
-                $wsheet->set_column( 1, 1,   35 );
-                $wsheet->set_column( 2, 2,   20 );
-                $wsheet->set_column( 3, 3,   35 );
-                $wsheet->set_column( 4, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( name => 'Power flow input data' ),
-                  $model->{table911};
-            }
-          )
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => 'Tariff input data' ), $model->{table935};
 
-        ,
-
-        '935' => sub {
-            my ($wsheet) = @_;
-            $wsheet->{sheetNumber} = 9;
-            $wsheet->freeze_panes(
-                $model->{table935}{sourceLines}
-                ? 6 + @{ $model->{table935}{sourceLines} }
-                : 6,
-                2
-            );
-            $wsheet->set_landscape;
-            my $locationColumn = $model->{dcp189} ? 9 : 8;
-            $wsheet->set_column( 0,                   0,                   16 );
-            $wsheet->set_column( 1,                   1,                   50 );
-            $wsheet->set_column( 2,                   $locationColumn - 1, 20 );
-            $wsheet->set_column( $locationColumn,     $locationColumn,     50 );
-            $wsheet->set_column( $locationColumn + 1, 250,                 20 );
-
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Tariff input data' ), $model->{table935};
-
-            if ( $model->{tariff1Row} ) {
-                $wsheet->set_row( $model->{tariff1Row} - 2, 22 );
-            }
-
+        if ( $model->{tariff1Row} ) {
+            $wsheet->set_row( $model->{tariff1Row} - 2, 22 );
         }
 
-        ,
+      }
 
-        $model->{legacy201} || !$model->{locationTables} ? () : (
-            Loc => sub {
-                my ($wsheet) = @_;
-                $wsheet->{sheetNumber} = 39;
-                $wsheet->freeze_panes( 1, 2 );
-                $wsheet->set_column( 0, 0,   16 );
-                $wsheet->set_column( 1, 1,   50 );
-                $wsheet->set_column( 2, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Preprocessing of location data' ),
-                  @{ $model->{locationTables} };
-            }
-        ),
+      ,
 
-        ,
-
-        $model->{layout} && $model->{layout} =~ /matrix/i
-        ? (
-            'Parameters' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 28 );
-                $wsheet->set_landscape
-                  if $model->{layout} && $model->{layout} =~ /wide/i;
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Constant parameters' ),
-                  @{ $model->{generalTables} };
-            },
-            'DNO totals' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 28 );
-                $wsheet->set_landscape
-                  if $model->{layout} && $model->{layout} =~ /wide/i;
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'DNO-wide aggregates' );
-            },
-            'Charging rates' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 28 );
-                $wsheet->set_landscape
-                  if $model->{layout} && $model->{layout} =~ /wide/i;
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Charging rates' );
-            },
-            'Matrix' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $_->{tableNumberIncrement}      = 2
-                  foreach grep { $_ }
-                  @{$wbook}{ 'DNO totals', 'Charging rates' };
-                $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
-                $wsheet->set_landscape;
-                $wsheet->set_column( 0, 0,   16 );
-                $wsheet->set_column( 1, 1,   50 );
-                $wsheet->set_column( 2, 250, 20 );
-
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Matrix' ),
-                  @{ $model->{matrixTables} };
-
-                if ( my $ws = $wbook->{'DNO totals'} ) {
-                    $_->wsWrite( $wbook, $ws ) foreach @{ $model->{tableList} };
-                }
-            },
-          )
-
-        : ref $model->{tableList} eq 'ARRAY' ? (
-            Calc => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
-                $wsheet->set_landscape
-                  if $model->{layout} && $model->{layout} =~ /wide/i;
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Calculations' ),
-                  @{ $model->{generalTables} }, @{ $model->{tableList} };
-            },
-          )
-
-        : (
-            'Calc1' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Calculations part 1' ),
-                  @{ $model->{calc1Tables} };
-            }
-
-            ,
-
-            'Calc2' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Calculations part 2' ),
-                  @{ $model->{calc2Tables} };
-            }
-
-            ,
-
-            'Calc3' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Calculations part 3' ),
-                  @{ $model->{calc3Tables} };
-            }
-
-            ,
-
-            'Calc4' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{firstTableNumber} =
-                  $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
-                $wsheet->{tableNumberIncrement} = 2;
-                $wsheet->freeze_panes( 1, 1 );
-                $wsheet->set_column( 0, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Calculations part 4' ),
-                  @{ $model->{calc4Tables} };
-            }
-
-          )
-
-        ,
-
-        'Results' => sub {
+      $model->{legacy201} || !$model->{locationTables} ? () : (
+        Loc => sub {
             my ($wsheet) = @_;
-            $wsheet->{sheetNumber} = 45;
-            $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
+            $wsheet->{sheetNumber} = 39;
+            $wsheet->freeze_panes( 1, 2 );
             $wsheet->set_column( 0, 0,   16 );
             $wsheet->set_column( 1, 1,   50 );
             $wsheet->set_column( 2, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( lines => 'Results' ), @{ $model->{tariffTables} };
-            if ( $model->{checksum_1_7} ) {
-                require Spreadsheet::WriteExcel::Utility;
-                my ( $sh, $ro, $co ) =
-                  $model->{checksum_1_7}->wsWrite( $wbook, $wsheet );
-                $sh = $sh->get_name;
-                my $cell = qq%'$sh'!%
-                  . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro,
-                    $co );
-                my $checksumText = qq%" [checksum "&TEXT($cell,"000 0000")&"]"%;
-                $model->{checksumAppend}{$wbook} =
-                  qq%&IF(ISNUMBER($cell),$checksumText,"")%;
+              foreach Notes( lines => 'Preprocessing of location data' ),
+              @{ $model->{locationTables} };
+        }
+      )
+
+      if !$model->{ldnoRev} || $model->{ldnoRev} !~ /only/i;
+
+    if ( $model->{embeddedModelM}
+        && UNIVERSAL::can( $model->{embeddedModelM}, 'worksheetsAndClosures' ) )
+    {
+        my @mwac = $model->{embeddedModelM}->worksheetsAndClosures($wbook);
+        while (@mwac) {
+            my $sheet   = shift @mwac;
+            my $closure = shift @mwac;
+            next if $sheet =~ /^(?:Index|Result)/;
+            next
+              if $sheet =~ /^Input/
+              && !$model->{embeddedModelM}{noSingleInputSheet};
+            push @wsheetsAndClosures, "M($sheet)", $closure;
+        }
+    }
+
+    if ( $model->{embeddedCdcm}
+        && UNIVERSAL::can( $model->{embeddedCdcm}, 'worksheetsAndClosures' ) )
+    {
+        my @cwac = $model->{embeddedCdcm}->worksheetsAndClosures($wbook);
+        while (@cwac) {
+            my $sheet   = shift @cwac;
+            my $closure = shift @cwac;
+            next if $sheet =~ /^(?:Index|Result)/;
+            next
+              if $sheet =~ /^Input/
+              && !$model->{embeddedCdcm}{noSingleInputSheet};
+            push @wsheetsAndClosures, "C($sheet)", $closure;
+        }
+    }
+
+    push @wsheetsAndClosures,
+
+      $model->{layout} && $model->{layout} =~ /matrix/i
+      ? (
+        'Parameters' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->{tableNumberIncrement} = 2;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 28 );
+            $wsheet->set_landscape
+              if $model->{layout} && $model->{layout} =~ /wide/i;
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Constant parameters' ),
+              @{ $model->{generalTables} };
+        },
+        'DNO totals' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->{tableNumberIncrement} = 2;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 28 );
+            $wsheet->set_landscape
+              if $model->{layout} && $model->{layout} =~ /wide/i;
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'DNO-wide aggregates' );
+        },
+        'Charging rates' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 28 );
+            $wsheet->set_landscape
+              if $model->{layout} && $model->{layout} =~ /wide/i;
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Charging rates' );
+        },
+        'Matrix' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->{tableNumberIncrement} = 2;
+            $_->{tableNumberIncrement}      = 2
+              foreach grep { $_ } @{$wbook}{ 'DNO totals', 'Charging rates' };
+            $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
+            $wsheet->set_landscape;
+            $wsheet->set_column( 0, 0,   16 );
+            $wsheet->set_column( 1, 1,   50 );
+            $wsheet->set_column( 2, 250, 20 );
+
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Matrix' ),
+              @{ $model->{matrixTables} };
+
+            if ( my $ws = $wbook->{'DNO totals'} ) {
+                $_->wsWrite( $wbook, $ws ) foreach @{ $model->{tableList} };
             }
-            if ( $model->{tariff1Row} ) {
-                $wsheet->set_row( $model->{tariff1Row} - 2, 42 );
-            }
+        },
+      )
+
+      : ref $model->{tableList} eq 'ARRAY' ? (
+        Calc => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->{tableNumberIncrement} = 2;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 20 );
+            $wsheet->set_landscape
+              if $model->{layout} && $model->{layout} =~ /wide/i;
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Calculations' ),
+              @{ $model->{generalTables} }, @{ $model->{tableList} };
+        },
+      )
+
+      : (
+        'Calc1' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->{tableNumberIncrement} = 2;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Calculations part 1' ),
+              @{ $model->{calc1Tables} };
         }
 
         ,
 
-        $model->{summaries} && $model->{summaries} =~ /matri/i
-        ?
-
-          (
-            'Mat' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{sheetNumber} = 46;
-                $wsheet->freeze_panes( 1, 2 );
-                $wsheet->set_column( 0, 0,   20 );
-                $wsheet->set_column( 1, 1,   50 );
-                $wsheet->set_column( 2, 250, 20 );
-                my ( @matrices, @total, @diff );
-                foreach my $col ( 0, 1 ) {
-                    my $name =
-                      $col
-                      ? 'capacity charge p/kVA/day'
-                      : "$model->{timebandName} rate p/kWh";
-                    push @{ $model->{matricesData}[$col] },
-                      $total[$col] = Arithmetic(
-                        name          => 'Total notional ' . $name,
-                        defaultFormat => $col ? '0.00soft' : '0.000soft',
-                        arithmetic    => '='
-                          . join( '+',
-                            map { "A$_" }
-                              1 .. @{ $model->{matricesData}[$col] } ),
-                        arguments => {
-                            map {
-                                ( "A$_" =>
-                                      $model->{matricesData}[$col][ $_ - 1 ] );
-                            } 1 .. @{ $model->{matricesData}[$col] }
-                        },
-                      );
-
-                    # push @{ $model->{matricesData}[$col] },
-                    $diff[$col] = Arithmetic(
-                        name          => "Difference $name",
-                        arithmetic    => '=A1-A2',
-                        defaultFormat => $total[$col]{defaultFormat},
-                        arguments     => {
-                            A1 => $total[$col],
-                            A2 => $model->{tariffTables}[0]{columns}
-                              [ 1 + 2 * $col ],
-                        }
-                    );
-                    unshift @{ $model->{matricesData}[$col] },
-                      Stack(
-                        sources => [ $model->{tariffTables}[0]{columns}[0] ] );
-                    push @matrices,
-                      Columnset(
-                        name    => "Total $name",
-                        columns => $model->{matricesData}[$col]
-                      );
-                }
-
-                my $purpleUse =
-                  Stack( sources => [ $model->{matricesData}[2] ] );
-
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Matrices and revenue summary' ),
-                  @matrices,
-                  Columnset(
-                    name    => 'Consistency check',
-                    columns => [
-                        Stack(
-                            sources => [ $model->{tariffTables}[0]{columns}[0] ]
-                        ),
-                        $diff[0],
-                        $purpleUse,
-                        $diff[1],
-                        Arithmetic(
-                            name          => 'This should be zero (p/kVA/day)',
-                            defaultFormat => '0.00soft',
-                            arithmetic    => '=A1*A3*A4/A5+A6',
-                            arguments     => {
-                                A1 => $diff[0],
-                                A3 => $purpleUse,
-                                A4 => $model->{matricesData}[3],
-                                A5 => $model->{matricesData}[4],
-                                A6 => $diff[1],
-                            }
-                        ),
-                    ]
-                  ),
-                  @{ $model->{revenueTables} };
-            },
-          )
-
-        :
-
-          (
-            $model->{vertical} ? 'Summary' : 'HSummary' => sub {
-                my ($wsheet) = @_;
-                $wsheet->{sheetNumber} = 46;
-                $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
-                $wsheet->set_landscape unless $model->{vertical};
-                $wsheet->set_column( 0, 0,   20 );
-                $wsheet->set_column( 1, 1,   50 );
-                $wsheet->set_column( 2, 250, 20 );
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach Notes( lines => 'Revenue summary' ),
-                  @{ $model->{revenueTables} };
-            },
-          )
+        'Calc2' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->{tableNumberIncrement} = 2;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Calculations part 2' ),
+              @{ $model->{calc2Tables} };
+        }
 
         ,
 
+        'Calc3' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->{tableNumberIncrement} = 2;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Calculations part 3' ),
+              @{ $model->{calc3Tables} };
+        }
+
+        ,
+
+        'Calc4' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{firstTableNumber} =
+              $model->{method} && $model->{method} =~ /LRIC/i ? 2 : 1;
+            $wsheet->{tableNumberIncrement} = 2;
+            $wsheet->freeze_panes( 1, 1 );
+            $wsheet->set_column( 0, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Calculations part 4' ),
+              @{ $model->{calc4Tables} };
+        }
+
       )
 
-      : (),
+      ,
+
+      'Results' => sub {
+        my ($wsheet) = @_;
+        $wsheet->{sheetNumber} = 45;
+        $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
+        $wsheet->set_column( 0, 0,   16 );
+        $wsheet->set_column( 1, 1,   50 );
+        $wsheet->set_column( 2, 250, 20 );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( lines => 'Results' ),
+          @{ $model->{tariffTables} };
+        if ( $model->{checksum_1_7} ) {
+            require Spreadsheet::WriteExcel::Utility;
+            my ( $sh, $ro, $co ) =
+              $model->{checksum_1_7}->wsWrite( $wbook, $wsheet );
+            $sh = $sh->get_name;
+            my $cell =
+              qq%'$sh'!%
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
+            my $checksumText = qq%" [checksum "&TEXT($cell,"000 0000")&"]"%;
+            $model->{checksumAppend}{$wbook} =
+              qq%&IF(ISNUMBER($cell),$checksumText,"")%;
+        }
+        if ( $model->{tariff1Row} ) {
+            $wsheet->set_row( $model->{tariff1Row} - 2, 42 );
+        }
+      }
+
+      ,
+
+      $model->{summaries} && $model->{summaries} =~ /matri/i
+      ?
+
+      (
+        'Mat' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{sheetNumber} = 46;
+            $wsheet->freeze_panes( 1, 2 );
+            $wsheet->set_column( 0, 0,   20 );
+            $wsheet->set_column( 1, 1,   50 );
+            $wsheet->set_column( 2, 250, 20 );
+            my ( @matrices, @total, @diff );
+            foreach my $col ( 0, 1 ) {
+                my $name =
+                  $col
+                  ? 'capacity charge p/kVA/day'
+                  : "$model->{timebandName} rate p/kWh";
+                push @{ $model->{matricesData}[$col] },
+                  $total[$col] = Arithmetic(
+                    name          => 'Total notional ' . $name,
+                    defaultFormat => $col ? '0.00soft' : '0.000soft',
+                    arithmetic    => '='
+                      . join( '+',
+                        map { "A$_" } 1 .. @{ $model->{matricesData}[$col] } ),
+                    arguments => {
+                        map {
+                            ( "A$_" => $model->{matricesData}[$col][ $_ - 1 ] );
+                        } 1 .. @{ $model->{matricesData}[$col] }
+                    },
+                  );
+
+                # push @{ $model->{matricesData}[$col] },
+                $diff[$col] = Arithmetic(
+                    name          => "Difference $name",
+                    arithmetic    => '=A1-A2',
+                    defaultFormat => $total[$col]{defaultFormat},
+                    arguments     => {
+                        A1 => $total[$col],
+                        A2 =>
+                          $model->{tariffTables}[0]{columns}[ 1 + 2 * $col ],
+                    }
+                );
+                unshift @{ $model->{matricesData}[$col] },
+                  Stack( sources => [ $model->{tariffTables}[0]{columns}[0] ] );
+                push @matrices,
+                  Columnset(
+                    name    => "Total $name",
+                    columns => $model->{matricesData}[$col]
+                  );
+            }
+
+            my $purpleUse =
+              Stack( sources => [ $model->{matricesData}[2] ] );
+
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Matrices and revenue summary' ),
+              @matrices,
+              Columnset(
+                name    => 'Consistency check',
+                columns => [
+                    Stack(
+                        sources => [ $model->{tariffTables}[0]{columns}[0] ]
+                    ),
+                    $diff[0],
+                    $purpleUse,
+                    $diff[1],
+                    Arithmetic(
+                        name          => 'This should be zero (p/kVA/day)',
+                        defaultFormat => '0.00soft',
+                        arithmetic    => '=A1*A3*A4/A5+A6',
+                        arguments     => {
+                            A1 => $diff[0],
+                            A3 => $purpleUse,
+                            A4 => $model->{matricesData}[3],
+                            A5 => $model->{matricesData}[4],
+                            A6 => $diff[1],
+                        }
+                    ),
+                ]
+              ),
+              @{ $model->{revenueTables} };
+        },
+      )
+
+      :
+
+      (
+        $model->{vertical} ? 'Summary' : 'HSummary' => sub {
+            my ($wsheet) = @_;
+            $wsheet->{sheetNumber} = 46;
+            $wsheet->freeze_panes( $model->{tariff1Row} || 1, 2 );
+            $wsheet->set_landscape unless $model->{vertical};
+            $wsheet->set_column( 0, 0,   20 );
+            $wsheet->set_column( 1, 1,   50 );
+            $wsheet->set_column( 2, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( lines => 'Revenue summary' ),
+              @{ $model->{revenueTables} };
+        },
+      )
+
+      if !$model->{ldnoRev} || $model->{ldnoRev} !~ /only/i;
+
+    push @wsheetsAndClosures,
 
       $model->{omitDnoTotals}
       ? ()
@@ -596,11 +619,9 @@ sub worksheetsAndClosures {
         VBACode => sub {
             my ($wsheet) = @_;
             $model->vbaWrite( $wbook, $wsheet );
-        },
+        }
       )
-      : ()
-
-      ,
+      : (),
 
       $model->{ldnoRev}
       ?
@@ -625,13 +646,16 @@ sub worksheetsAndClosures {
 
       $model->{ldnoMarginColumns}
       ? (
-        $model->{ldnoRev} =~ /ppu/i ? '266$' : 'Base$' => sub {
+        $model->{scenario}
+          || !defined $model->{scenario}
+          && $model->{ldnoRev} =~ /ppu/i ? 'Scenario$' : 'Baseline$' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->set_column( 0, 0,   50 );
             $wsheet->set_column( 1, 250, 20 );
             $wsheet->{sheetNumber} = 62;
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Margins' ),
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Margins' ),
               Columnset(
                 name    => 'Revenues and margins',
                 columns => $model->{ldnoMarginColumns},
@@ -664,6 +688,8 @@ sub worksheetsAndClosures {
           'Copyright 2009-2012 Energy Networks Association Limited and others. '
           . 'Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.'
       )->closure($wbook);
+
+    @wsheetsAndClosures;
 
 }
 

@@ -34,7 +34,9 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub requiredModulesForRuleset {
+
     my ( $class, $ruleset ) = @_;
+
     qw(
       EDCM2::Adjust
       EDCM2::Assets
@@ -47,15 +49,39 @@ sub requiredModulesForRuleset {
       EDCM2::Scaling
       EDCM2::Sheets
       ),
-      $ruleset->{ldnoRev}   ? qw(EDCM2::Ldno)      : (),
+
+      $ruleset->{ldnoRev} ? qw(EDCM2::Ldno) : (),
+
       $ruleset->{summaries} ? qw(EDCM2::Summaries) : (),
+
       $ruleset->{transparency}
-      && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact)   : (),
-      $ruleset->{customerTemplates}            ? qw(EDCM2::Template) : (),
+      && $ruleset->{transparency} =~ /impact/i ? qw(EDCM2::Impact) : (),
+
+      $ruleset->{customerTemplates} ? qw(EDCM2::Template) : (),
+
       $ruleset->{mitigateUndueSecrecy} ? qw(EDCM2::SecrecyMitigation) : (),
+
       $ruleset->{voltageRulesTransparency} ? () : qw(EDCM2::AssetCalcHard),
+
       $ruleset->{layout} ? qw(SpreadsheetModel::MatrixSheet EDCM2::Layout) : (),
-      $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : ();
+
+      $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : (),
+
+      $ruleset->{embeddedCdcm}
+      ? eval {
+        require CDCM::Master;
+        CDCM->requiredModulesForRuleset( $ruleset->{embeddedCdcm} );
+      }
+      : (),
+
+      $ruleset->{embeddedModelM}
+      ? eval {
+        require ModelM::Master;
+        ModelM->requiredModulesForRuleset( $ruleset->{embeddedModelM} );
+      }
+      : (),
+
+      ;
 }
 
 sub new {
@@ -73,6 +99,30 @@ sub new {
 
     $model->{inputTables} = [];
     $model->{method} ||= 'none';
+
+    $model->{embeddedModelM2} = $model->{embeddedModelM} = ModelM->new(
+        dataset => $model->{dataset},
+        objects => {
+            inputTables => $model->{embeddedModelM}{noSingleInputSheet}
+            ? []
+            : $model->{inputTables},
+        },
+        %{ $model->{embeddedModelM} },
+    ) if $model->{embeddedModelM};
+
+    if ( $model->{embeddedCdcm} ) {
+        $model->{embeddedCdcm} = CDCM->new(
+            dataset     => $model->{dataset},
+            inputTables => $model->{embeddedCdcm}{noSingleInputSheet}
+            ? []
+            : $model->{inputTables},
+            %{ $model->{embeddedCdcm} },
+        );
+        $model->{embeddedModelM2} ||= $model->{embeddedCdcm}{embeddedModelM}
+          if $model->{embeddedCdcm}{embeddedModelM};
+        $model->{embeddedModelG2} ||= $model->{embeddedCdcm}{embeddedModelG}
+          if $model->{embeddedCdcm}{embeddedModelG};
+    }
 
     # The EDCM timeband is called purple in this code;
     # its display name defaults to super-red.
