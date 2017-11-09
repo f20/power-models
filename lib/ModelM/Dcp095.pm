@@ -73,7 +73,7 @@ END_OF_LIST
         arithmetic    => '=IF(A1="60%MEAV",0.4+0.6*A51,'
           . 'IF(A45="MEAV",A52,'
           . 'IF(A46="EHV only",0,'
-          . 'IF(A47="LV only",1,'
+          . 'IF(A47="LV services",1,'
           . ( $networkLengthLvServProp ? 'IF(A48="Network length",A8,0)' : '0' )
           . '))))',
         arguments => {

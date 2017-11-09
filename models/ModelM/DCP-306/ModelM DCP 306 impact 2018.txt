@@ -1,0 +1,8 @@
+makeModels
+	-sqlitexls
+	ModelM/DCP-306/%-modelm306.yml
+	ModelM/2018-02-Baseline/%-modelm117231.yml
+	ModelM/2018-02/*
+
+useDatabase
+    tscs

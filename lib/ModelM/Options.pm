@@ -44,8 +44,9 @@ sub allocationRules {
 
     return $model->{objects}{$key}{columns} if $model->{objects}{$key};
 
-    my $expenditureSet = $model->{objects}{expenditureSet} ||=
-      Labelset( list => [ split /\n/, <<END_OF_LIST] );
+    my $expenditureSet = $model->{objects}{expenditureSet} ||= Labelset(
+        list => [
+            split( /\n/, <<END_OF_LIST ),
 Load related new connections & reinforcement (net of contributions)
 Non-load new & replacement assets (net of contributions)
 Non-operational capex
@@ -80,23 +81,28 @@ Transmission Exit Charges
 Pension deficit repair payments by related parties (note 2)
 Non activity costs and reconciling amounts (note 3)
 END_OF_LIST
+            $model->{dcp306} ? 'Ofgem licence fees' : (),
+        ]
+    );
 
     my @rules = (
         $model->{dcp094}                ? 'Kill'            : $model->{dcp117}
           && $model->{dcp117} =~ /2014/ ? 'Do not allocate' : 'MEAV',
         ( map { 'MEAV' } 1 .. 11 ),
-        $model->{dcp097A} || $model->{dcp097} ? ( 'LV only', 'MEAV', 'MEAV' )
+        $model->{dcp097A}
+          || $model->{dcp097} ? ( 'LV services', 'MEAV', 'MEAV' )
         : ( map { 'MEAV' } 1 .. 3 ),
-        $model->{dcp097A} ? ( map { 'LV only' } 1 .. 2 )
+        $model->{dcp097A} ? ( map { 'LV services' } 1 .. 2 )
         : $model->{dcp097}
           || $model->{includeTelecoms} ? ( map { 'MEAV' } 1 .. 2 )
         : ( map { 'Do not allocate' } 1 .. 2 ),
-        $model->{dcp097A}
-          || $model->{dcp097} ? ( 'LV only', 'MEAV', 'LV only', 'LV only' )
+        $model->{dcp097A} || $model->{dcp097}
+        ? ( 'LV services', 'MEAV', 'LV services', 'LV services' )
         : ( map { 'MEAV' } 1 .. 4 ),
         ( map   { 'Do not allocate' } 1 .. 9 ),
         $model->{dcp096} ? 'Deduct from revenue' : 'EHV only',
         ( map { 'Do not allocate' } 1 .. 2 ),
+        $model->{dcp306} ? 'LV services' : (),
     );
 
     @rules[ 6 .. $#rules ] =
@@ -126,9 +132,10 @@ END_OF_LIST
                   .577
                   0 0 0 0 0 0 0 0 0 0)
             ],
-            defaultFormat => $model->{multiModelSharing} ? '%hardnz' : '%connz',
-            rows          => $expenditureSet,
-            validation    => {
+            defaultFormat => $model->{multiModelSharing} ? '%hardnz'
+            : '%connz',
+            rows       => $expenditureSet,
+            validation => {
                 validate => 'decimal',
                 criteria => '>=',
                 value    => 0,
@@ -137,8 +144,9 @@ END_OF_LIST
         Constant(
             rows          => $expenditureSet,
             name          => 'Direct cost indicator',
-            defaultFormat => $model->{multiModelSharing} ? '0hardnz' : '0connz',
-            data          => [
+            defaultFormat => $model->{multiModelSharing} ? '0hardnz'
+            : '0connz',
+            data => [
                 [
                     ( map { 1 } 1 .. 6 ),
                     ( map { 0 } 1 .. 15 ),

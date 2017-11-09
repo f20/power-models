@@ -1,0 +1,54 @@
+---
+.: Integrated LDNO revenues CDCM and EDCM after DCP 161
+PerlModule: EDCM2
+checksums: Line checksum 5; Table checksum 7
+dcp130: 1
+dcp161: 1
+dcp179: 1
+embeddedCdcm:
+  agghhequalisation: rag
+  alwaysUseRAG: 1
+  blackPeakingProbabilityRequired: 1
+  checksums: Line checksum 5; Table checksum 7
+  coincidenceAdj: groupums
+  drm: top500gsp
+  embeddedModelM:
+    AdditionalRules:
+      - calcUnits: 1
+        dcp071: 1
+        dcp096: 1
+        dcp117: 2014
+        dcp306: 1
+        edcm: only
+        meav: 1
+        netCapex: 1
+        suffix: EDCM
+    calcUnits: 1
+    dcp071: 1
+    dcp095: 1
+    dcp096: 1
+    dcp117: 2014
+    dcp118: 1
+    dcp306: 1
+    meav: 1
+    netCapex: 1
+    suffix: CDCM
+  extraLevels: 1
+  fixedCap: 1-4
+  matrices: big
+  noReplacement: blanket
+  pcd: 1
+  portfolio: 1
+  scaler: adderppugeneralminzeronogen
+  standing: sub132
+  summary: yes
+  targetRevenue: dcp249
+  tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
+  timeOfDay: timeOfDay179
+  unauth: dayotex
+ldnoMargins: 1
+ldnoRev: ldnorev7roundingonly
+ldnoVolumeSheet: 1
+omitDnoTotals: 1
+summaries: 1
+table1101: 1

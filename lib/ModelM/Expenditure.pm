@@ -91,7 +91,8 @@ sub expenditureAlloc {
                             name =>
                               'Net new connections and reinforcement costs (£)',
                             lines => [
-'These data are derived from a combination of the'
+                                'These data are derived from '
+                                  . 'a combination of the'
                                   . ' 2007/2008 regulatory reporting pack (table 2.4)'
                                   . ' and 10-year averages from the FBPQ.',
                                 'In a post-DCP 117 legacy Method M workbook,'
@@ -160,6 +161,8 @@ sub expenditureAlloc {
 
     }
 
+    # At this stage in the calculations LV service and LV network
+    # are always aggregated together.
     my $lvOnly =
       $model->{objects}{ 'lvOnly?cols=' . ( 0 + $preAllocated->{cols} ) } ||=
       Constant(
@@ -188,7 +191,7 @@ sub expenditureAlloc {
         arithmetic    => '=IF(A44="60%MEAV",0.4*A71+A51,'
           . 'IF(A45="MEAV",A52,'
           . 'IF(A46="EHV only",A6,'
-          . 'IF(A47="LV only",A72,'
+          . 'IF(A47="LV services",A72,'
           . $ar . '))))',
         arguments => {
             A44 => $allocationRules,
