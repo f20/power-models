@@ -223,12 +223,22 @@ EOF
 
     my $ldnoWord = $model->{ldnoRev} =~ /qno/i ? 'QNO' : 'LDNO';
 
+    my $fullEndUserNameFinder = sub { $_[0]; };
+    if ( $model->{embeddedCdcm} ) {
+        my $cdcmTariffListRef =
+          $model->{embeddedCdcm}{allTariffColumns}[0]{rows}{list};
+        $fullEndUserNameFinder = sub {
+            my ($result) = grep { -1 < index $_, $_[0]; } @$cdcmTariffListRef;
+            $result;
+        };
+    }
+
     my $allTariffsByEndUser = Labelset(
         groups => [
             map {
                 my $e = $_;
                 Labelset(
-                    name => "> $e",
+                    name => $fullEndUserNameFinder->($e),
                     list => [
                         map {
                             local $_ = $_;
@@ -264,24 +274,8 @@ EOF
           );
     }
 
-    my $discounts =
-      $model->{embeddedModelM2}
-      ? Stack(
-        name => "$ldnoWord discount "
-          . ( $ppu ? 'p/kWh (table 1184)' : 'percentage (table 1181)' ),
-        cols => $cdcmLevels,
-        rows => $model->{ldnoRev} =~ /7/
-        ? Labelset( list => [ @{ $ldnoLevels->{list} }[ 0 .. 4 ] ] )
-        : $ldnoLevels,
-        $ppu
-        ? ( sources =>
-              $model->{embeddedModelM2}{objects}{table1184columnset}{columns} )
-        : (
-            sources => $model->{embeddedModelM2}{objects}{table1181sources},
-            defaultFormat => '%copy',
-        ),
-      )
-      : Dataset(
+    my $discounts = !$model->{embeddedModelM2}
+      ? Dataset(
         name => "$ldnoWord discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
         cols => $cdcmLevels,
         rows => $model->{ldnoRev} =~ /7/
@@ -306,7 +300,10 @@ EOF
             error_message => "Invalid $ldnoWord discount"
               . ' (negative number or unused cell).',
         },
-      );
+      )
+      : $ppu
+      ? $model->{embeddedModelM2}{objects}{table1184columnset}{columns}
+      : $model->{embeddedModelM2}{objects}{table1181sources};
 
     my $discountsCdcm;
     $discountsCdcm =
@@ -391,15 +388,32 @@ EOF
 
     my $discountsByTariff = new SpreadsheetModel::Custom(
         name => 'Applicable discount for each tariff'
-          . ( $ppu ? ' p/kWh' : '' ),
+          . ( $ppu ? ' p/kWh' : '' )
+          . (
+            $discountsCdcm
+            ? ' (except for LDNO HV and LDNO LV generation)'
+            : ''
+          ),
         rows => $allTariffsByEndUser,
         $ppu ? () : ( defaultFormat => '%copy' ),
-        arithmetic => $discountsCdcm ? '= A1 or A2' : '=A1',
-        custom => [ '=A1', $discountsCdcm ? '=A2' : (), ],
+        arithmetic => $discountsCdcm || ref $discounts eq 'ARRAY'
+        ? '= '
+          . join(
+            ' or ',
+            (
+                map { "A$_"; }
+                  1 .. ( ref $discounts eq 'ARRAY' ? @$discounts : 1 )
+            ),
+            $discountsCdcm ? 'A9' : ()
+          )
+        : '=A1',
+        custom => [ '=A1', $discountsCdcm ? '=A9' : (), ],
         objectType => 'Special copy',
         arguments  => {
-            A1 => $discounts,
-            $discountsCdcm ? ( A2 => $discountsCdcm ) : (),
+            ref $discounts eq 'ARRAY'
+            ? ( map { ( "A$_" => $discounts->[ $_ - 1 ] ); } 1 .. @$discounts )
+            : ( A1 => $discounts ),
+            $discountsCdcm ? ( A9 => $discountsCdcm ) : (),
         },
         wsPrepare => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
@@ -407,16 +421,16 @@ EOF
                 my ( $x, $y ) = @_;
                 local $_ = $allTariffsByEndUser->{list}[$y];
                 return '', $format, $formula->[1],
-                  qr/\bA2\b/ =>
+                  qr/\bA9\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{A2},
-                    $colh->{A2} + ( /^HV/i ? 4 : /^LV Sub/i ? 3 : 2 ),
+                    $rowh->{A9},
+                    $colh->{A9} + ( /^HV/i ? 4 : /^LV Sub/i ? 3 : 2 ),
                     1, 1, )
                   if s/^$ldnoWord HV: //;
                 return '', $format, $formula->[1],
-                  qr/\bA2\b/ =>
+                  qr/\bA9\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                    $rowh->{A2}, $colh->{A2} + 1,
+                    $rowh->{A9}, $colh->{A9} + 1,
                     1, 1, )
                   if s/^$ldnoWord LV: //;
                 $y = 0  if s/^$ldnoWord 0000: //;

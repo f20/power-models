@@ -82,7 +82,7 @@ sub sheetPriority {
     $score = 5 if $sheet =~ /Volumes\$/;
     $score = 4 if $sheet =~ /Baseline\$/;
     $score = 3 if $sheet =~ /Scenario\$/;
-    $score ||= 2
+    $score ||= 6
       if $sheet =~ /(?:Overview|Index)$/is;
     $score;
 }

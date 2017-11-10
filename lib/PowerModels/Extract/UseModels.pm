@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::UseModels;
+﻿package PowerModels::Extract::UseModels;
 
 =head Copyright licence and disclaimer
 
@@ -62,40 +62,40 @@ sub useModels {
             next;
         }
         if (/^-+(re-?build.*)/i) {
-            require PowerModels::Data::DataExtraction;
+            require PowerModels::Extract::DataExtraction;
             @writerAndParserOptions =
-              PowerModels::Data::DataExtraction::rebuildWriter( $1, $self );
+              PowerModels::Extract::DataExtraction::rebuildWriter( $1, $self );
             next;
         }
         if (/^-+(ya?ml.*)/i) {
-            require PowerModels::Data::DataExtraction;
+            require PowerModels::Extract::DataExtraction;
             @writerAndParserOptions =
-              PowerModels::Data::DataExtraction::ymlWriter($1);
+              PowerModels::Extract::DataExtraction::ymlWriter($1);
             next;
         }
         if (/^-+rules/i) {
-            require PowerModels::Data::DataExtraction;
+            require PowerModels::Extract::DataExtraction;
             @writerAndParserOptions =
-              PowerModels::Data::DataExtraction::rulesWriter();
+              PowerModels::Extract::DataExtraction::rulesWriter();
             next;
         }
         if (/^-+jbz/i) {
-            require PowerModels::Data::DataExtraction;
+            require PowerModels::Extract::DataExtraction;
             @writerAndParserOptions =
-              PowerModels::Data::DataExtraction::jbzWriter();
+              PowerModels::Extract::DataExtraction::jbzWriter();
             next;
         }
         if (/^-+(?:auto|model)check/i) {
-            require PowerModels::Data::Autocheck;
+            require PowerModels::Extract::Autocheck;
             @writerAndParserOptions =
-              PowerModels::Data::Autocheck->new( $self->[C_HOMES] )
+              PowerModels::Extract::Autocheck->new( $self->[C_HOMES] )
               ->makeWriterAndParserOptions;
             next;
         }
         if (/^-+(json.*)/i) {
-            require PowerModels::Data::DataExtraction;
+            require PowerModels::Extract::DataExtraction;
             @writerAndParserOptions =
-              PowerModels::Data::DataExtraction::jsonWriter($1);
+              PowerModels::Extract::DataExtraction::jsonWriter($1);
             next;
         }
         if (/^-+sqlite3?(=.*)?$/i) {
@@ -104,52 +104,56 @@ sub useModels {
                 $wantedSheet =~ s/^=//;
                 $settings{sheetFilter} = sub { $_[0]{Name} eq $wantedSheet; };
             }
-            require PowerModels::Data::DataExtraction;
+            require PowerModels::Extract::DataExtraction;
             @writerAndParserOptions =
-              PowerModels::Data::DataExtraction::databaseWriter( \%settings );
+              PowerModels::Extract::DataExtraction::databaseWriter(
+                \%settings );
             next;
         }
         if (/^-+prune=(.*)$/i) {
             unless (@writerAndParserOptions) {
-                require PowerModels::Data::DataExtraction;
+                require PowerModels::Extract::DataExtraction;
                 @writerAndParserOptions =
-                  PowerModels::Data::DataExtraction::databaseWriter( {} );
+                  PowerModels::Extract::DataExtraction::databaseWriter( {} );
             }
             @writerAndParserOptions->( undef, $1 );
             next;
         }
         if (/^-+xls$/i) {
-            require PowerModels::Data::Dumpers;
-            @writerAndParserOptions = PowerModels::Data::Dumpers::xlsWriter();
+            require PowerModels::Extract::Dumpers;
+            @writerAndParserOptions =
+              PowerModels::Extract::Dumpers::xlsWriter();
             next;
         }
         if (/^-+flat/i) {
-            require PowerModels::Data::Dumpers;
+            require PowerModels::Extract::Dumpers;
             @writerAndParserOptions =
-              PowerModels::Data::Dumpers::xlsFlattener();
+              PowerModels::Extract::Dumpers::xlsFlattener();
             next;
         }
         if (/^-+(tsv|txt|csv)$/i) {
-            require PowerModels::Data::Dumpers;
-            @writerAndParserOptions = PowerModels::Data::Dumpers::tsvDumper($1);
+            require PowerModels::Extract::Dumpers;
+            @writerAndParserOptions =
+              PowerModels::Extract::Dumpers::tsvDumper($1);
             next;
         }
         if (/^-+tall(csv)?$/i) {
-            require PowerModels::Data::Dumpers;
+            require PowerModels::Extract::Dumpers;
             @writerAndParserOptions =
-              PowerModels::Data::Dumpers::tallDumper( $1 || 'xls' );
+              PowerModels::Extract::Dumpers::tallDumper( $1 || 'xls' );
             next;
         }
         if (/^-+cat$/i) {
             $executor = 0;
-            require PowerModels::Data::Dumpers;
+            require PowerModels::Extract::Dumpers;
             @writerAndParserOptions =
-              PowerModels::Data::Dumpers::tsvDumper( \*STDOUT );
+              PowerModels::Extract::Dumpers::tsvDumper( \*STDOUT );
             next;
         }
         if (/^-+split$/i) {
-            require PowerModels::Data::Dumpers;
-            @writerAndParserOptions = PowerModels::Data::Dumpers::xlsSplitter();
+            require PowerModels::Extract::Dumpers;
+            @writerAndParserOptions =
+              PowerModels::Extract::Dumpers::xlsSplitter();
             next;
         }
         if (/^-+(calc|convert.*)/i) {
@@ -406,7 +410,7 @@ sub parseModel {
     my $workbook;
     eval {
         my $parserModule;
-        my $formatter = 'PowerModels::Data::UseModels::NoOp';
+        my $formatter = 'PowerModels::Extract::UseModels::NoOp';
         if ( $fileToParse =~ /\.xls[xm]$/is ) {
             require Spreadsheet::ParseXLSX;
             $parserModule = 'Spreadsheet::ParseXLSX';
@@ -439,7 +443,7 @@ sub parseModel {
 }
 
 # Do-nothing cell content formatter for Spreadsheet::ParseExcel
-package PowerModels::Data::UseModels::NoOp;
+package PowerModels::Extract::UseModels::NoOp;
 
 our $AUTOLOAD;
 

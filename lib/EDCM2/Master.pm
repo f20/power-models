@@ -68,14 +68,14 @@ sub requiredModulesForRuleset {
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : (),
 
       $ruleset->{embeddedCdcm}
-      ? eval {
+      ? do {
         require CDCM::Master;
         CDCM->requiredModulesForRuleset( $ruleset->{embeddedCdcm} );
       }
       : (),
 
       $ruleset->{embeddedModelM}
-      ? eval {
+      ? do {
         require ModelM::Master;
         ModelM->requiredModulesForRuleset( $ruleset->{embeddedModelM} );
       }
@@ -122,6 +122,28 @@ sub new {
           if $model->{embeddedCdcm}{embeddedModelM};
         $model->{embeddedModelG2} ||= $model->{embeddedCdcm}{embeddedModelG}
           if $model->{embeddedCdcm}{embeddedModelG};
+        $model->{embeddedModelM2} ||= $model->{embeddedModelG2}{embeddedModelM}
+          if $model->{embeddedModelG2}
+          && $model->{embeddedModelG2}{embeddedModelM};
+    }
+
+    if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /only/i ) {
+        $model->{daysInYear} = Dataset(
+            name          => 'Days in year',
+            defaultFormat => '0hard',
+            data          => [365],
+            dataset       => $model->{dataset},
+            appendTo      => $model->{inputTables},
+            number        => $model->{table1101} ? 1110 : 1111,
+            validation    => {
+                validate => 'decimal',
+                criteria => 'between',
+                minimum  => 365,
+                maximum  => 366,
+            },
+        );
+        $model->ldnoRev;
+        return $model;
     }
 
     # The EDCM timeband is called purple in this code;
@@ -398,25 +420,6 @@ EOT
 
     my ( $cdcmAssets, $cdcmEhvAssets, $cdcmHvLvShared, $cdcmHvLvService, ) =
       $model->cdcmAssets;
-
-    if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /only/i ) {
-        $model->{daysInYear} = Dataset(
-            name          => 'Days in year',
-            defaultFormat => '0hard',
-            data          => [365],
-            dataset       => $model->{dataset},
-            appendTo      => $model->{inputTables},
-            number        => $model->{table1101} ? 1110 : 1111,
-            validation    => {
-                validate => 'decimal',
-                criteria => 'between',
-                minimum  => 365,
-                maximum  => 366,
-            },
-        );
-        $model->ldnoRev;
-        return $model;
-    }
 
     $model->{matricesData} = [ [], [] ]
       if $model->{summaries} && $model->{summaries} =~ /matri/i;

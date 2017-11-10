@@ -45,7 +45,7 @@ embeddedCdcm:
   timeOfDay: timeOfDay179
   unauth: dayotex
 ldnoMargins: 1
-ldnoRev: ldnorev7roundingonly
+ldnoRev: ldnorev7roundingtaronly
 ldnoVolumeSheet: 1
 omitDnoTotals: 1
 summaries: 1

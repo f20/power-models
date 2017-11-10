@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::Autocheck;
+﻿package PowerModels::Extract::Autocheck;
 
 =head Copyright licence and disclaimer
 

@@ -35,7 +35,7 @@ embeddedCdcm:
     suffix: CDCM
   extraLevels: 1
   fixedCap: 1-4
-  matrices: big
+  noLLFCs: 1
   noReplacement: blanket
   pcd: 1
   portfolio: 1

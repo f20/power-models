@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::DataTools;
+﻿package PowerModels::Extract::DataTools;
 
 =head Copyright licence and disclaimer
 

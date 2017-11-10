@@ -83,11 +83,11 @@ sub makeModels {
                 $maker->{setRule}
                   ->( checksums => 'Line checksum 5; Table checksum 7' );
                 if (/^-+autocheck(.*)/is) {
-                    require PowerModels::Data::Autocheck;
+                    require PowerModels::Extract::Autocheck;
                     $maker->{setting}->(
                         PostProcessing => $self->makePostProcessor(
                             $1 ? "convert$1" : 'calc',
-                            PowerModels::Data::Autocheck->new(
+                            PowerModels::Extract::Autocheck->new(
                                 $self->[C_HOMES]
                             )->makeWriterAndParserOptions,
                         )
@@ -197,11 +197,11 @@ sub makeModels {
                 $executor->setThreads($1) if $1;
             }
             elsif (/^-+sqlite(.*)/is) {
-                require PowerModels::Data::DataExtraction;
+                require PowerModels::Extract::DataExtraction;
                 $maker->{setting}->(
                     PostProcessing => $self->makePostProcessor(
                         $1 ? "convert$1" : 'calc',
-                        PowerModels::Data::DataExtraction::databaseWriter(),
+                        PowerModels::Extract::DataExtraction::databaseWriter(),
                     )
                 );
             }

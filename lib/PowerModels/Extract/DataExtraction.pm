@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::DataExtraction;
+﻿package PowerModels::Extract::DataExtraction;
 
 =head Copyright licence and disclaimer
 

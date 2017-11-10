@@ -18,6 +18,7 @@ embeddedCdcm:
         dcp071: 1
         dcp096: 1
         dcp117: 2014
+        dcp306: 1
         edcm: only
         meav: 1
         netCapex: 1
@@ -28,6 +29,7 @@ embeddedCdcm:
     dcp096: 1
     dcp117: 2014
     dcp118: 1
+    dcp306: 1
     meav: 1
     netCapex: 1
     suffix: CDCM

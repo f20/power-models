@@ -564,11 +564,10 @@ sub _loadModules {
               defined $ruleset->{template}
               ? " for $ruleset->{template}"
               : '';
-            warn <<EOW;
+            die <<EOW;
 Cannot load $_$for:
 $@
 EOW
-            return;
         }
     }
     1;

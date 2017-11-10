@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::Dumpers;
+﻿package PowerModels::Extract::Dumpers;
 
 =head Copyright licence and disclaimer
 

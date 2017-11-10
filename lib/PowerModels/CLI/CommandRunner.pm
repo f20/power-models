@@ -34,9 +34,9 @@ use utf8;
 our @ISA = qw(
   PowerModels::CLI::MakeModels
   PowerModels::CLI::RHarness
-  PowerModels::Data::DataTools
+  PowerModels::Extract::DataTools
   PowerModels::Data::UseDatabase
-  PowerModels::Data::UseModels
+  PowerModels::Extract::UseModels
   PowerModels::Rules::RulesTools
 );
 
