@@ -35,12 +35,12 @@ our @ISA = qw(
   PowerModels::CLI::MakeModels
   PowerModels::CLI::RHarness
   PowerModels::Extract::DataTools
-  PowerModels::Data::UseDatabase
+  PowerModels::CLI::UseDatabase
   PowerModels::Extract::UseModels
   PowerModels::Rules::RulesTools
 );
 
-eval "require $_" foreach @ISA;
+eval "require $_" || die $@ foreach @ISA;
 
 use constant {
     C_HOMES         => 0,

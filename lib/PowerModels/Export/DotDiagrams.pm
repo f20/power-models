@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::DotDiagrams;
+﻿package PowerModels::Export::DotDiagrams;
 
 =head Copyright licence and disclaimer
 

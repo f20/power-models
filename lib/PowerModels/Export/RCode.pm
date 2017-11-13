@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::RCode;
+﻿package PowerModels::Export::RCode;
 
 =head Copyright licence and disclaimer
 
@@ -58,105 +58,105 @@ sub rCode {
 
 sub areaMaps {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::AreaMaps;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded);
+    require PowerModels::Export::RCode::AreaMaps;
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded);
 }
 
 sub exportGraph {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::ExportGraph;
-    PowerModels::Data::RCode::ExportGraph->rCode($rIncluded);
+    require PowerModels::Export::RCode::ExportGraph;
+    PowerModels::Export::RCode::ExportGraph->rCode($rIncluded);
 }
 
 sub maps3701rate3ts {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::MapsFromDatabase;
-    PowerModels::Data::RCode::MapsFromDatabase->maps3701rate3ts($rIncluded);
+    require PowerModels::Export::RCode::MapsFromDatabase;
+    PowerModels::Export::RCode::MapsFromDatabase->maps3701rate3ts($rIncluded);
 }
 
 sub maps3701reactivets {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::MapsFromDatabase;
-    PowerModels::Data::RCode::MapsFromDatabase->maps3701reactivets($rIncluded);
+    require PowerModels::Export::RCode::MapsFromDatabase;
+    PowerModels::Export::RCode::MapsFromDatabase->maps3701reactivets($rIncluded);
 }
 
 sub maps4202cs {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::MapsFromDatabase;
-    PowerModels::Data::RCode::MapsFromDatabase->maps4202cs($rIncluded);
+    require PowerModels::Export::RCode::MapsFromDatabase;
+    PowerModels::Export::RCode::MapsFromDatabase->maps4202cs($rIncluded);
 }
 
 sub maps4202ts {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::MapsFromDatabase;
-    PowerModels::Data::RCode::MapsFromDatabase->maps4202ts($rIncluded);
+    require PowerModels::Export::RCode::MapsFromDatabase;
+    PowerModels::Export::RCode::MapsFromDatabase->maps4202ts($rIncluded);
 }
 
 sub margins4203 {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::MapsFromDatabase;
-    PowerModels::Data::RCode::MapsFromDatabase->margins4203($rIncluded);
+    require PowerModels::Export::RCode::MapsFromDatabase;
+    PowerModels::Export::RCode::MapsFromDatabase->margins4203($rIncluded);
 }
 
 *margins = \&margins4203;
 
 sub mapCdcmEdcm {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::MapsFromDatabase;
-    PowerModels::Data::RCode::MapsFromDatabase->mapCdcmEdcm($rIncluded);
+    require PowerModels::Export::RCode::MapsFromDatabase;
+    PowerModels::Export::RCode::MapsFromDatabase->mapCdcmEdcm($rIncluded);
 }
 
 sub treemapWithCategories {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::Treemap;
-    PowerModels::Data::RCode::Treemap->treemapWithCategories;
+    require PowerModels::Export::RCode::Treemap;
+    PowerModels::Export::RCode::Treemap->treemapWithCategories;
 }
 
 *treemap = \&treemapWithCategories;
 
 sub treemapByCategory {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::Treemap;
-    PowerModels::Data::RCode::Treemap->treemapWithCategories(1);
+    require PowerModels::Export::RCode::Treemap;
+    PowerModels::Export::RCode::Treemap->treemapWithCategories(1);
 }
 
 sub treemapWithComponents {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::Treemap;
-    PowerModels::Data::RCode::Treemap->treemapWithComponents;
+    require PowerModels::Export::RCode::Treemap;
+    PowerModels::Export::RCode::Treemap->treemapWithComponents;
 }
 
 sub treemapByComponent {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::Treemap;
-    PowerModels::Data::RCode::Treemap->treemapWithComponents(1);
+    require PowerModels::Export::RCode::Treemap;
+    PowerModels::Export::RCode::Treemap->treemapWithComponents(1);
 }
 
 sub treemap1020ByLevel {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::Treemap;
-    PowerModels::Data::RCode::Treemap->treemap1020;
+    require PowerModels::Export::RCode::Treemap;
+    PowerModels::Export::RCode::Treemap->treemap1020;
 }
 
 sub treemap1020ByCompany {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::Treemap;
-    PowerModels::Data::RCode::Treemap->treemap1020(1);
+    require PowerModels::Export::RCode::Treemap;
+    PowerModels::Export::RCode::Treemap->treemap1020(1);
 }
 
 sub treemap2706ByLevel {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::Treemap;
-    PowerModels::Data::RCode::Treemap->treemap2706;
+    require PowerModels::Export::RCode::Treemap;
+    PowerModels::Export::RCode::Treemap->treemap2706;
 }
 
 sub treemap2706ByCompany {
     my ( $self, $rIncluded ) = @_;
-    require PowerModels::Data::RCode::Treemap;
-    PowerModels::Data::RCode::Treemap->treemap2706(1);
+    require PowerModels::Export::RCode::Treemap;
+    PowerModels::Export::RCode::Treemap->treemap2706(1);
 }
 
-eval "require PowerModels::Data::RCode::MapsOther";
-eval "require PowerModels::Data::RCode::MultiHard";
+eval "require PowerModels::Export::RCode::MapsOther";
+eval "require PowerModels::Export::RCode::MultiHard";
 
 1;

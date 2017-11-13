@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::RCode::AreaMaps;
+﻿package PowerModels::Export::RCode::AreaMaps;
 
 =head Copyright licence and disclaimer
 

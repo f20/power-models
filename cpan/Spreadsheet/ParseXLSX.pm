@@ -27,6 +27,11 @@ classes, please see L<Spreadsheet::ParseExcel>,
 L<Spreadsheet::ParseExcel::Workbook>, L<Spreadsheet::ParseExcel::Worksheet>,
 and L<Spreadsheet::ParseExcel::Cell>.
 
+Module amended by Franck Latrémolière from the CPAN version, to:
+* Remove crypto dependencies which are not needed for non-password-protected files.
+* Support CellHandler and NotSetCell (similar to L<Spreadsheet::ParseExcel>).
+* Abort parsing of current sheet if the cell handler returns true.
+
 =cut
 
 =method new(%opts)
@@ -173,8 +178,8 @@ sub _parse_workbook {
     # $workbook->{PrintArea} = ...;
     # $workbook->{PrintTitle} = ...;
 
-    my $sheetCounter    = -1;
-    my @sheets = map {
+    my $sheetCounter = -1;
+    my @sheets       = map {
         my $idx = $_->att('rels:id');
         if ( $files->{sheets}{$idx} ) {
             my $sheet = Spreadsheet::ParseExcel::Worksheet->new(
@@ -462,15 +467,15 @@ sub _parse_sheet {
                     );
                     $cell->{_Value} = $sheet->{_Book}{FmtClass}
                       ->ValFmt( $cell, $sheet->{_Book} );
-                    $cells{"$row;$col"} = $cell;
-                    if ( my $cellHandler = $self->{CellHandler} ) {
+                    if ( my $cellHandler = $self->{CellHandler} )
+                    { # abort parsing of the sheet if the handler returns a true value
                         return $twig->finish_now
                           if $cellHandler->(
                             $sheet->{_Book}, $sheet->{_SheetNo}, $row, $col,
                             $cell
                           );
                     }
-                    $sheet->{Cells}[$row][$col] = $cell
+                    $cells{"$row;$col"} = $sheet->{Cells}[$row][$col] = $cell
                       unless $self->{NotSetCell};
                     $col_idx++;
                 }
@@ -483,7 +488,7 @@ sub _parse_sheet {
 
     $sheet_xml->parse($sheet_file);
 
-    for my $key ( keys %merged_cells ) {
+    for my $key ( keys %merged_cells ) {    # ineffective if $self->{NotSetCell}
         $cells{$key}{Merged} = 1 if $cells{$key};
     }
 

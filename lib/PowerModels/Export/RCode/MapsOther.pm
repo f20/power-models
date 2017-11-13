@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::RCode;
+﻿package PowerModels::Export::RCode;
 
 =head Copyright licence and disclaimer
 
@@ -31,11 +31,11 @@ use warnings;
 use strict;
 use utf8;
 
-use PowerModels::Data::RCode::AreaMaps;
+use PowerModels::Export::RCode::AreaMaps;
 
 sub svgNoText {
     my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 plot.dno.map(
     data.frame(1:14),
     file.name='Map without text',
@@ -48,7 +48,7 @@ EOR
 
 sub highlightEachArea {
     my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 for (i in 1:14) {
     f<-rep(NA, 14);
     names(f)<-dno.areas;
@@ -66,7 +66,7 @@ EOR
 
 sub mapCdcmEdcm2013 {
     my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 v <- read.csv(textConnection('
 CDCM,EDCM Zero,EDCM Avg,DNO
 9.230136098,4.697991667,5.961880556,ENWL

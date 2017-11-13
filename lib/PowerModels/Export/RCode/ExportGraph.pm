@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::RCode::ExportGraph;
+﻿package PowerModels::Export::RCode::ExportGraph;
 
 =head Copyright licence and disclaimer
 

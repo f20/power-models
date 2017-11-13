@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::Chedam;
+﻿package PowerModels::Export::Chedam;
 
 =head Copyright licence and disclaimer
 

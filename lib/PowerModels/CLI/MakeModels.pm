@@ -88,11 +88,22 @@ sub makeModels {
                         PostProcessing => $self->makePostProcessor(
                             $1 ? "convert$1" : 'calc',
                             PowerModels::Extract::Autocheck->new(
-                                $self->[C_HOMES]
-                            )->makeWriterAndParserOptions,
+                                $self->[C_HOMES], qr/^(?:15|16|37|45)/, )
+                              ->writerAndParserOptions,
                         )
                     );
                 }
+            }
+            elsif (/^-+outputs=?(.+)?/i) {
+                require PowerModels::Extract::OutputTables;
+                $maker->{setting}->(
+                    PostProcessing => $self->makePostProcessor(
+                        'calc',
+                        PowerModels::Extract::OutputTables->new($1)
+                          ->writerAndParserOptions
+                    )
+                );
+                next;
             }
             elsif (/^-+datafilter=(.+)/is) {
                 my $regex = qr^/%|$1^;
@@ -197,11 +208,11 @@ sub makeModels {
                 $executor->setThreads($1) if $1;
             }
             elsif (/^-+sqlite(.*)/is) {
-                require PowerModels::Extract::DataExtraction;
+                require PowerModels::Database::Importer;
                 $maker->{setting}->(
                     PostProcessing => $self->makePostProcessor(
                         $1 ? "convert$1" : 'calc',
-                        PowerModels::Extract::DataExtraction::databaseWriter(),
+                        PowerModels::Database::Importer::databaseWriter(),
                     )
                 );
             }

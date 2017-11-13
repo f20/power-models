@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::Database;
+﻿package PowerModels::Database;
 
 =head Copyright licence and disclaimer
 
@@ -30,8 +30,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use PowerModels::Data::ExportImpactGeneric;
-use PowerModels::Data::ExportImpactSpecialist;
+use PowerModels::Database::ImpactGeneric;
+use PowerModels::Database::ImpactSpecialist;
 
 sub cdcmRevenueMatrixImpact {
     my ( $self, $wbmodule, %options ) = @_;

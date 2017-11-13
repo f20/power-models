@@ -1,8 +1,8 @@
-﻿package PowerModels::CLI::RHarness;
+﻿package PowerModels::Extract::Yaml;
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2017 Franck Latrémolière and others. All rights reserved.
+Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,28 +30,35 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use Encode;
 
-sub R {
-    my ( $self, @commands ) = @_;
-    open my $r, '| R --vanilla --slave';
-    binmode $r, ':utf8';
-    require PowerModels::Export::RCode;
-    print {$r} PowerModels::Export::RCode->rCode(@commands);
-}
-
-sub Rcode {
-    my ( $self, @commands ) = @_;
-    open my $r, '>', "$$.R";
-    binmode $r, ':utf8';
-    print $r "# R code from power-models\n\n";
-    require PowerModels::Export::RCode;
-    print {$r} PowerModels::Export::RCode->rCode(@commands);
-    close $r;
-    rename "$$.R", 'power-models.R';
-    warn <<EOW
-To use this R code, say:
-    source("power-models.R");
-EOW
+sub ymlWriter {
+    my ($arg) = @_;
+    my $options = { $arg =~ /min/i ? ( minimum => 1 ) : (), };
+    sub {
+        my ( $book, $workbook ) = @_;
+        die unless $book;
+        my $file = $book;
+        $file =~ s/\.xl[a-z]+?$//is;
+        my $tree;
+        require YAML;
+        if ( my ($oldYaml) = grep { -f $_; } "$file.yml", "$file.yaml" ) {
+            open my $h, '<', $oldYaml;
+            binmode $h, ':utf8';
+            local undef $/;
+            $tree = YAML::Load(<$h>);
+        }
+        require PowerModels::Extract::InputTables;
+        my %trees =
+          PowerModels::Extract::InputTables::extractInputData( $workbook,
+            $tree, $options );
+        while ( my ( $key, $value ) = each %trees ) {
+            open my $h, '>', "$file$key.yml";
+            binmode $h, ':utf8';
+            print $h YAML::Dump($value);
+        }
+    };
 }
 
 1;
+

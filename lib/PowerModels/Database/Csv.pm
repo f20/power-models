@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::Database;
+﻿package PowerModels::Database;
 
 =head Copyright licence and disclaimer
 

@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::RCode::Treemap;
+﻿package PowerModels::Export::RCode::Treemap;
 
 =head Copyright licence and disclaimer
 

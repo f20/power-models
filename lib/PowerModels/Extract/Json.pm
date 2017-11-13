@@ -1,4 +1,4 @@
-﻿package PowerModels::CLI::RHarness;
+﻿package PowerModels::Extract::Json;
 
 =head Copyright licence and disclaimer
 
@@ -30,28 +30,46 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
+use Encode qw(decode_utf8);
+use YAML;
 
-sub R {
-    my ( $self, @commands ) = @_;
-    open my $r, '| R --vanilla --slave';
-    binmode $r, ':utf8';
-    require PowerModels::Export::RCode;
-    print {$r} PowerModels::Export::RCode->rCode(@commands);
+my $jsonMachine;
+
+sub jsonMachineMaker {
+    return $jsonMachine if $jsonMachine;
+    foreach (qw(JSON JSON::PP)) {
+        return $jsonMachine = $_->new
+          if eval "require $_";
+    }
+    die 'No JSON module';
 }
 
-sub Rcode {
-    my ( $self, @commands ) = @_;
-    open my $r, '>', "$$.R";
-    binmode $r, ':utf8';
-    print $r "# R code from power-models\n\n";
-    require PowerModels::Export::RCode;
-    print {$r} PowerModels::Export::RCode->rCode(@commands);
-    close $r;
-    rename "$$.R", 'power-models.R';
-    warn <<EOW
-To use this R code, say:
-    source("power-models.R");
-EOW
+sub jsonWriter {
+    my ($arg) = @_;
+    my $jsonMachine = jsonMachineMaker()->canonical(1)->utf8;
+    my $options = { $arg =~ /min/i ? ( minimum => 1 ) : (), };
+    sub {
+        my ( $book, $workbook ) = @_;
+        die unless $book;
+        my $file = $book;
+        $file =~ s/\.xl[a-z]+?$//is;
+        my $tree;
+        if ( -e $file ) {
+            open my $h, '<', "$file.json";
+            binmode $h;
+            local undef $/;
+            $tree = $jsonMachine->decode(<$h>);
+        }
+        require PowerModels::Extract::InputTables;
+        my %trees =
+          PowerModels::Extract::InputTables::extractInputData( $workbook,
+            $tree, $options );
+        while ( my ( $key, $value ) = each %trees ) {
+            open my $h, '>', "$file$key.json";
+            binmode $h;
+            print {$h} $jsonMachine->encode($value);
+        }
+    };
 }
 
 1;

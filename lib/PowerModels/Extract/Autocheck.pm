@@ -35,18 +35,20 @@ use File::Spec;
 use Fcntl qw(:flock :seek);
 
 use constant {
-    AC_CSV_KNOWN_GOOD_AND_LOCK => 0,
-    AC_CSV_UPDATED             => 1,
+    AC_CSV_MASTER_AND_LOCK => 0,
+    AC_CSV_NEW_CHECKSUMS   => 1,
+    AC_REGEX_VALID_SHEETS  => 2,
 };
 
 sub new {
-    my ( $class, $homes ) = @_;
+    my ( $class, $homes, $validSheetsRegex ) = @_;
     my ($tFolder) =
       grep { -e $_; } ( map { File::Spec->catdir( $_, 't' ); } @$homes ),
       @$homes;
     bless [
         File::Spec->catfile( $tFolder, 'Checksums.csv' ),
         File::Spec->catfile( $tFolder, 'Checksums-new.csv' ),
+        $validSheetsRegex,
     ], $class;
 }
 
@@ -66,14 +68,14 @@ sub processChecksum {
 
     local $/ = "\n";
     my @records;
-    if ( open my $fh, '<', $autocheck->[AC_CSV_KNOWN_GOOD_AND_LOCK] ) {
+    if ( open my $fh, '<', $autocheck->[AC_CSV_MASTER_AND_LOCK] ) {
         flock $fh, LOCK_EX or die 'flock failed';
         @records = <$fh>;
     }
     else {
-        warn "Could not open $autocheck->[AC_CSV_KNOWN_GOOD_AND_LOCK]";
+        warn "Could not open $autocheck->[AC_CSV_MASTER_AND_LOCK]";
     }
-    if ( open my $fh, '<', $autocheck->[AC_CSV_UPDATED] ) {
+    if ( open my $fh, '<', $autocheck->[AC_CSV_NEW_CHECKSUMS] ) {
         push @records, <$fh>;
     }
 
@@ -93,14 +95,14 @@ sub processChecksum {
     }
 
     my $fh;
-    if ( !open $fh, '+>>', $autocheck->[AC_CSV_UPDATED] and open $fh,
-        '<', $autocheck->[AC_CSV_UPDATED] )
+    if ( !open $fh, '+>>', $autocheck->[AC_CSV_NEW_CHECKSUMS] and open $fh,
+        '<', $autocheck->[AC_CSV_NEW_CHECKSUMS] )
     {
         my @new = <$fh>;
         push @records, @new;
         close $fh;
-        unlink $autocheck->[AC_CSV_UPDATED];
-        open $fh, '>>', $autocheck->[AC_CSV_UPDATED];
+        unlink $autocheck->[AC_CSV_NEW_CHECKSUMS];
+        open $fh, '>>', $autocheck->[AC_CSV_NEW_CHECKSUMS];
         print $fh @new;
     }
 
@@ -111,45 +113,14 @@ sub processChecksum {
 
 }
 
-sub makeWriterAndParserOptions_slow {
-    my ($autocheck) = @_;
-    sub {
-        my ( $book, $workbook ) = @_;
-        for my $worksheet ( $workbook->worksheets() ) {
-            my ( $row_min, $row_max ) = $worksheet->row_range();
-            my ( $col_min, $col_max ) = $worksheet->col_range();
-            my $tableNumber = 0;
-            for my $row ( $row_min .. $row_max ) {
-                my $rowName;
-                for my $col ( $col_min .. $col_max ) {
-                    my $cell = $worksheet->get_cell( $row, $col );
-                    my $v;
-                    $v = $cell->unformatted if $cell;
-                    next unless defined $v;
-                    eval { $v = Encode::decode( 'UTF-16BE', $v ); }
-                      if $v =~ m/\x{0}/;
-                    if ( !$col && $v =~ /^([0-9]+)\. /s ) {
-                        $tableNumber = $1;
-                    }
-                    elsif ( $v =~ /^Table checksum ([0-9]{1,2})$/si ) {
-                        my $checksumType = $1;
-                        my $checksumCell =
-                          $worksheet->get_cell( $row + 1, $col );
-                        $autocheck->processChecksum( $book, $tableNumber,
-                            $checksumType, $checksumCell->unformatted )
-                          if $checksumCell;
-                    }
-                }
-            }
-        }
-    };
-}
-
-sub makeWriterAndParserOptions {
+sub writerAndParserOptions {
     my ($autocheck) = @_;
     my @tableNumber;
     my @checksumLocation;
     my $book;
+    my $validSheetsRegex = $autocheck->[AC_REGEX_VALID_SHEETS] || qr/./;
+    study $validSheetsRegex;
+
     (
         sub { },
         Setup => sub { $book = $_[0]; },
@@ -163,7 +134,7 @@ sub makeWriterAndParserOptions {
               if $v =~ m/\x{0}/;
             if ( !$col && $v =~ /^([0-9]+)\. /s ) {
                 local $_ = $1;
-                return 1 unless /^(?:15|16|37|45)/;
+                return 1 unless /$validSheetsRegex/;
                 $tableNumber[$sheetIdx] = $_;
             }
             elsif ($checksumLocation[$sheetIdx]

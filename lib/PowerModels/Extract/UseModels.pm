@@ -62,40 +62,46 @@ sub useModels {
             next;
         }
         if (/^-+(re-?build.*)/i) {
-            require PowerModels::Extract::DataExtraction;
+            require PowerModels::Extract::Rebuild;
             @writerAndParserOptions =
-              PowerModels::Extract::DataExtraction::rebuildWriter( $1, $self );
+              PowerModels::Extract::Rebuild::rebuildWriter( $1, $self );
             next;
         }
         if (/^-+(ya?ml.*)/i) {
-            require PowerModels::Extract::DataExtraction;
-            @writerAndParserOptions =
-              PowerModels::Extract::DataExtraction::ymlWriter($1);
+            require PowerModels::Extract::Yaml;
+            @writerAndParserOptions = PowerModels::Extract::Yaml::ymlWriter($1);
             next;
         }
         if (/^-+rules/i) {
-            require PowerModels::Extract::DataExtraction;
+            require PowerModels::Rules::FromWorkbook;
             @writerAndParserOptions =
-              PowerModels::Extract::DataExtraction::rulesWriter();
+              PowerModels::Rules::FromWorkbook::rulesWriter();
             next;
         }
         if (/^-+jbz/i) {
-            require PowerModels::Extract::DataExtraction;
+            require PowerModels::Rules::FromWorkbook;
             @writerAndParserOptions =
-              PowerModels::Extract::DataExtraction::jbzWriter();
+              PowerModels::Rules::FromWorkbook::jbzWriter();
             next;
         }
-        if (/^-+(?:auto|model)check/i) {
+        if (/^-+autocheck=?(.+)?/i) {
             require PowerModels::Extract::Autocheck;
             @writerAndParserOptions =
-              PowerModels::Extract::Autocheck->new( $self->[C_HOMES] )
-              ->makeWriterAndParserOptions;
+              PowerModels::Extract::Autocheck->new( $self->[C_HOMES], $1 )
+              ->writerAndParserOptions;
+            next;
+        }
+        if (/^-+outputs=?(.+)?/i) {
+            require PowerModels::Extract::OutputTables;
+            @writerAndParserOptions =
+              PowerModels::Extract::OutputTables->new($1)
+              ->writerAndParserOptions;
             next;
         }
         if (/^-+(json.*)/i) {
-            require PowerModels::Extract::DataExtraction;
+            require PowerModels::Extract::Json;
             @writerAndParserOptions =
-              PowerModels::Extract::DataExtraction::jsonWriter($1);
+              PowerModels::Extract::Json::jsonWriter($1);
             next;
         }
         if (/^-+sqlite3?(=.*)?$/i) {
@@ -104,17 +110,16 @@ sub useModels {
                 $wantedSheet =~ s/^=//;
                 $settings{sheetFilter} = sub { $_[0]{Name} eq $wantedSheet; };
             }
-            require PowerModels::Extract::DataExtraction;
+            require PowerModels::Database::Importer;
             @writerAndParserOptions =
-              PowerModels::Extract::DataExtraction::databaseWriter(
-                \%settings );
+              PowerModels::Database::Importer::databaseWriter( \%settings );
             next;
         }
         if (/^-+prune=(.*)$/i) {
             unless (@writerAndParserOptions) {
-                require PowerModels::Extract::DataExtraction;
+                require PowerModels::Database::Importer;
                 @writerAndParserOptions =
-                  PowerModels::Extract::DataExtraction::databaseWriter( {} );
+                  PowerModels::Database::Importer::databaseWriter( {} );
             }
             @writerAndParserOptions->( undef, $1 );
             next;
@@ -203,7 +208,7 @@ sub makePostProcessor {
 
     my ( $self, $processSettings, @writerAndParserOptions, ) = @_;
 
-    my ( $calc_mainprocess, $calc_ownthread, $calc_worker );
+    my ( $calc_mainprocess, $calc_ownthread, $calcWorker );
     if ( $processSettings && $processSettings =~ /calc|convert/i ) {
 
         if ( $^O =~ /win32/i ) {
@@ -353,7 +358,7 @@ EOS
             # Try to calculate workbooks using ssconvert
 
             warn 'Using ssconvert';
-            $calc_worker = sub {
+            $calcWorker = sub {
                 my ($inname) = @_;
                 my $inpath   = $inname;
                 my $outpath  = $inpath;
@@ -394,10 +399,10 @@ EOS
           if $calc_ownthread;
         if ($executor) {
             $executor->run( __PACKAGE__, 'parseModel', $absFile,
-                [ $calc_worker, @writerAndParserOptions ] );
+                [ $calcWorker, @writerAndParserOptions ] );
         }
         else {
-            __PACKAGE__->parseModel( $absFile, $calc_worker,
+            __PACKAGE__->parseModel( $absFile, $calcWorker,
                 @writerAndParserOptions );
         }
     };
@@ -405,13 +410,13 @@ EOS
 }
 
 sub parseModel {
-    my ( undef, $fileToParse, $calc_worker, $writer, %parserOptions ) = @_;
-    $fileToParse = $calc_worker->($fileToParse) if $calc_worker;
-    my $workbook;
+    my ( undef, $workbookFile, $calcWorker, $writer, %parserOptions ) = @_;
+    $workbookFile = $calcWorker->($workbookFile) if $calcWorker;
+    my $workbookParseResults;
     eval {
         my $parserModule;
         my $formatter = 'PowerModels::Extract::UseModels::NoOp';
-        if ( $fileToParse =~ /\.xls[xm]$/is ) {
+        if ( $workbookFile =~ /\.xls[xm]$/is ) {
             require Spreadsheet::ParseXLSX;
             $parserModule = 'Spreadsheet::ParseXLSX';
         }
@@ -424,19 +429,19 @@ sub parseModel {
             $parserModule = 'Spreadsheet::ParseExcel';
         }
         if ( my $setup = delete $parserOptions{Setup} ) {
-            $setup->($fileToParse);
+            $setup->($workbookFile);
         }
         my $parser = $parserModule->new(%parserOptions);
-        $workbook = $parser->parse( $fileToParse, $formatter );
+        $workbookParseResults = $parser->parse( $workbookFile, $formatter );
     };
-    warn "$@ for $fileToParse" if $@;
+    warn "$@ for $workbookFile" if $@;
     if ($writer) {
-        if ($workbook) {
-            eval { $writer->( $fileToParse, $workbook ); };
-            die "$@ for $fileToParse" if $@;
+        if ($workbookParseResults) {
+            eval { $writer->( $workbookFile, $workbookParseResults ); };
+            die "$@ for $workbookFile" if $@;
         }
         else {
-            die "Cannot parse $fileToParse";
+            die "Cannot parse $workbookFile";
         }
     }
     0;

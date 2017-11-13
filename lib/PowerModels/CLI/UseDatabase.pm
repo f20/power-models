@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::UseDatabase;
+﻿package PowerModels::CLI::UseDatabase;
 
 =head Copyright licence and disclaimer
 
@@ -36,20 +36,20 @@ sub useDatabase {
     my $self = shift;
 
     if ( grep { /extract1076from1001/i } @_ ) {
-        require PowerModels::Data::Database;
-        PowerModels::Data::Database->extract1076from1001;
+        require PowerModels::Database::Database;
+        PowerModels::Database->extract1076from1001;
     }
 
     if ( grep { /chedam/i } @_ ) {
-        require PowerModels::Data::ChedamMaster;
-        PowerModels::Data::ChedamMaster->runFromDatabase;
+        require PowerModels::Export::ChedamMaster;
+        PowerModels::Export::ChedamMaster->runFromDatabase;
     }
 
-    require PowerModels::Data::Database;
-    my $db = PowerModels::Data::Database->new;
+    require PowerModels::Database::Database;
+    my $db = PowerModels::Database->new;
 
     if ( grep { /\bcsv\b/i } @_ ) {
-        require PowerModels::Data::ExportCsv;
+        require PowerModels::Database::Csv;
         if ( grep { /^tall$/i } @_ ) {
             $db->dumpTallCsv(@_);
             return;
@@ -70,7 +70,7 @@ sub useDatabase {
       my $modelsMatching ( map { /^all$/i ? '.' : m#^/(.+)/$# ? $1 : (); } @_ )
     {
         # Works badly if the models do not have identical table structures.
-        require PowerModels::Data::ExportTabs;
+        require PowerModels::Database::Tabs;
         my $tablesMatching = join '|', map { /^([0-9]+)$/ ? "^$1" : (); } @_;
         $tablesMatching ||= '.';
         local $_ = "Compilation $modelsMatching$tablesMatching";
@@ -81,7 +81,7 @@ sub useDatabase {
     }
 
     if ( grep { /\btscs/i } @_ ) {
-        require PowerModels::Data::ExportTscs;
+        require PowerModels::Database::Tscs;
         my @tablesMatching = map { /^([0-9]+)$/ ? "^$1" : (); } @_;
         @tablesMatching = ('.') unless @tablesMatching;
         $options->{tablesMatching} = \@tablesMatching;
@@ -112,7 +112,7 @@ sub useDatabase {
             $name ||= $change;
             $base = qr/original|clean|after|master|mini|F201|L201|F600|L600/i;
         }
-        require PowerModels::Data::ExportImpact;
+        require PowerModels::Database::Impact;
         my @arguments = (
             $workbookModule,
             name      => $name,

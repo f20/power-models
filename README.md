@@ -21,15 +21,23 @@ using this code, go to http://dcmf.co.uk/models/.
 To get started with building spreadsheet models on your own computer using
 this code, follow the instructions below.
 
-Step 1. Check or set-up Perl 5.
---------------------------------
+Step 1. Set-up a Perl 5 development environment.
+------------------------------------------------
 
-You need Perl 5, v5.8.8 or later.
+You need a terminal or console interface, and Perl 5 (v5.8.8 or later).
 
-A suitable version of Perl is pre-installed on Apple macOS systems. For
-Microsoft Windows systems, Strawberry Perl (strawberryperl.com) is usually
-a good choice. For FreeBSD, Linux and similar systems, Perl is either
-pre-installed or readily available from the ports/packages system.
+This is normally easy to set-up on desktop and server computing platforms.
+
+On Apple macOS, the built-in Terminal.app and Perl 5 installations are good.
+
+On Microsoft Windows 7-10, the built-in Command Prompt and the Strawberry
+Perl package available from strawberryperl.com are good.
+
+On FreeBSD and many Linux distributions, console applications and Perl 5 are
+either pre-installed or available from the ports/packages system.
+
+On mobile operating systems, setting up a suitable environment is much more
+troublesome; the dcmf.co.uk/models website might better meet your needs.
 
 To test whether you have a suitable version of Perl, try this at the
 Terminal or command line:
@@ -89,4 +97,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 19 September 2017.
+Franck Latrémolière, 13 November 2017.

@@ -1,4 +1,4 @@
-﻿package PowerModels::Data::RCode::MapsFromDatabase;
+﻿package PowerModels::Export::RCode::MapsFromDatabase;
 
 =head Copyright licence and disclaimer
 
@@ -31,11 +31,11 @@ use warnings;
 use strict;
 use utf8;
 
-use PowerModels::Data::RCode::AreaMaps;
+use PowerModels::Export::RCode::AreaMaps;
 
 sub maps3701rate3ts {
     my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -106,7 +106,7 @@ EOR
 
 sub maps3701reactivets {
     my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -177,7 +177,7 @@ EOR
 
 sub maps4202ts {
     my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -281,7 +281,7 @@ EOR
 
 sub maps4202cs {
     my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
@@ -328,7 +328,7 @@ EOR
 
 sub margins4203 {
     my ( $self, $rIncluded ) = @_;
-    PowerModels::Data::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
+    PowerModels::Export::RCode::AreaMaps->rCode($rIncluded) . <<'EOR';
 library(DBI);
 library(RSQLite);
 drv <- dbDriver('SQLite');
