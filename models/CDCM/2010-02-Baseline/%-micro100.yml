@@ -2,6 +2,7 @@
 .: '2010 CDCM, micro-model'
 .Style: Micro model for forecasters
 PerlModule: CDCM
+checksums: Line checksum 5; Table checksum 7
 compact: permpan
 drm: top500gsp
 extraLevels: 1

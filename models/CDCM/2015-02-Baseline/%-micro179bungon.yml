@@ -4,6 +4,7 @@
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
+checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 compact: 1
 drm: top500gsp

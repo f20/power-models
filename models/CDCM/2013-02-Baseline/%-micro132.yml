@@ -2,6 +2,7 @@
 .: '2013 CDCM after DCP 130 and DCP 132, micro-model'
 .Style: Micro model for forecasters
 PerlModule: CDCM
+checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 compact: 1
 drm: top500gsp
