@@ -1,0 +1,8 @@
+---
+.title: impact of 1 April 2018
+PerlModule: Impact
+baselinePattern: '[-+]clean227\b'
+scenarioPattern: '[-+]clean228\b'
+table3701: 1
+template: CDCM tariff impact
+wantDatasetArray: 1

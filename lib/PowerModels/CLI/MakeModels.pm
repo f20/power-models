@@ -94,7 +94,7 @@ sub makeModels {
                     );
                 }
             }
-            elsif (/^-+outputs=?(.+)?/i) {
+            elsif (/^-+outputs?=?(.+)?/i) {
                 require PowerModels::Extract::OutputTables;
                 $maker->{setting}->(
                     PostProcessing => $self->makePostProcessor(
@@ -171,6 +171,9 @@ sub makeModels {
             }
             elsif (/^-+datamerge/is) {
                 $maker->{setting}->( dataMerge => 1 );
+            }
+            elsif (/^-+data(?:set)?array/is) {
+                $maker->{setting}->( datasetArray => 1 );
             }
             elsif (/^-+ext(?:ension)?=?([a-z0-9_:]+)(.*)/is) {
                 eval "require $1" and eval { $1->process( $maker, $2 ); };

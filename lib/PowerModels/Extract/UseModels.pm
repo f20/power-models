@@ -98,12 +98,6 @@ sub useModels {
               ->writerAndParserOptions;
             next;
         }
-        if (/^-+(json.*)/i) {
-            require PowerModels::Extract::Json;
-            @writerAndParserOptions =
-              PowerModels::Extract::Json::jsonWriter($1);
-            next;
-        }
         if (/^-+sqlite3?(=.*)?$/i) {
             my %settings;
             if ( my $wantedSheet = $1 ) {

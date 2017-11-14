@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2010-2014 Reckon LLP and others.
+Copyright 2010-2017 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -46,6 +46,44 @@ sub normaliseDnoName {
         s/^WPD-West\b/WPD-SWest/;
     }
     wantarray ? @_ : $_[0];
+}
+
+sub dnoShortNames {
+    (
+        'ENWL',
+        'NPG Northeast',
+        'NPG Yorkshire',
+        'SPEN SPD',
+        'SPEN SPM',
+        'SSEN SEPD',
+        'SSEN SHEPD',
+        'UKPN EPN',
+        'UKPN LPN',
+        'UKPN SPN',
+        'WPD EastM',
+        'WPD SWales',
+        'WPD SWest',
+        'WPD WestM',
+    );
+}
+
+sub dnoLongNames {
+    (
+        'Electricity North West Limited',
+        'Northern Powergrid Northeast',
+        'Northern Powergrid Yorkshire',
+        'SP Distribution',
+        'SP Manweb',
+        'Southern Electric Power Distribution',
+        'Scottish Hydro Electric Power Distribution',
+        'Eastern Power Networks',
+        'London Power Networks',
+        'South Eastern Power Networks',
+        'WPD East Midlands',
+        'WPD South Wales',
+        'WPD South West',
+        'WPD West Midlands',
+    );
 }
 
 1;

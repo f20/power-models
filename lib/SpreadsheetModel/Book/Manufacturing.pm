@@ -38,9 +38,8 @@ sub factory {
     my ( $class, @factorySettings ) = @_;
     my $self = bless {}, $class;
     my $settings = {@factorySettings};
-    my ( %ruleOverrides,     %dataOverrides );
-    my ( @rulesets,          @datasets, %dataByDatasetName );
-    my ( %rulesDataSettings, %finalRulesDataSettings );
+    my ( @rulesets, @datasets, %dataByDatasetName, %ruleOverrides,
+        %dataOverrides, %rulesDataSettings, %finalRulesDataSettings );
 
     $self->{resetSettings} = sub {
         $settings = {@factorySettings};
@@ -334,7 +333,16 @@ sub factory {
 
         return unless @rulesets && @datasets;
 
-        if ( $settings->{dataMerge} ) {
+        $settings->{datasetArray} ||=
+          !grep { !$_->{wantDatasetArray}; } @rulesets;
+
+        if ( $settings->{datasetArray} ) {
+            @datasets = {
+                '~datasetName' => 'Single dataset',
+                datasetArray   => [@datasets],
+            };
+        }
+        elsif ( $settings->{dataMerge} ) {
             my %byDatasetName;
             foreach (@datasets) {
                 push @{ $byDatasetName{ $_->{'~datasetName'} || $_ } }, $_;
@@ -382,7 +390,7 @@ sub factory {
             $spreadsheetFile =~ s/%%/
                 require SpreadsheetModel::Data::DnoAreas;
                 SpreadsheetModel::Data::DnoAreas::normaliseDnoName(
-                    $data->{'~datasetName'}=~m#(.*)-20[0-9]{2}-[0-9]+#
+                    $data->{'~datasetName'} =~ m#(.*)-20[0-9]{2}-[0-9]+#
                 );
               /eg;
             $spreadsheetFile =~ s/%/$data->{'~datasetName'}/g;

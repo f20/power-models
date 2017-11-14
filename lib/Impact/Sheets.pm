@@ -1,8 +1,8 @@
-﻿package PowerModels::Extract::Json;
+﻿package Impact;
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2017 Franck Latrémolière and others. All rights reserved.
+Copyright 2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,46 +30,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use Encode qw(decode_utf8);
-use YAML;
 
-my $jsonMachine;
+sub worksheetsAndClosures {
 
-sub jsonMachineMaker {
-    return $jsonMachine if $jsonMachine;
-    foreach (qw(JSON JSON::PP)) {
-        return $jsonMachine = $_->new
-          if eval "require $_";
+    my ( $model, $wbook ) = @_;
+
+    my @wsheetAndClosures;
+
+    for ( my $i = 0 ; $i < @{ $model->{sheetNames} } ; ++$i ) {
+        my $tables = $model->{sheetTables}[$i];
+        push @wsheetAndClosures, $model->{sheetNames}[$i], sub {
+            my ($wsheet) = @_;
+            delete $wbook->{logger};
+            $wsheet->set_column( 0, 0,   48 );
+            $wsheet->set_column( 1, 254, 16 );
+            $wsheet->hide_gridlines(2);
+            $wsheet->freeze_panes( 1, 1 );
+            $_->wsWrite( $wbook, $wsheet ) foreach @$tables;
+        };
     }
-    die 'No JSON module';
-}
 
-sub jsonWriter {
-    my ($arg) = @_;
-    my $jsonMachine = jsonMachineMaker()->canonical(1)->utf8;
-    my $options = { $arg =~ /min/i ? ( minimum => 1 ) : (), };
-    sub {
-        my ( $book, $workbook ) = @_;
-        die unless $book;
-        my $file = $book;
-        $file =~ s/\.xl[a-z]+?$//is;
-        my $tree;
-        if ( -e $file ) {
-            open my $h, '<', "$file.json";
-            binmode $h;
-            local undef $/;
-            $tree = $jsonMachine->decode(<$h>);
-        }
-        require PowerModels::Extract::InputTables;
-        my %trees =
-          PowerModels::Extract::InputTables::extractInputData( $workbook,
-            $tree, $options );
-        while ( my ( $key, $value ) = each %trees ) {
-            open my $h, '>', "$file$key.json";
-            binmode $h;
-            print {$h} $jsonMachine->encode($value);
-        }
-    };
+    @wsheetAndClosures;
+
 }
 
 1;

@@ -38,7 +38,8 @@ sub new {
     my ( $class, %pairs ) = @_;
     bless {
         titlesRow => defined $pairs{titlesRow} ? $pairs{titlesRow} : 2,
-        dataRow => $pairs{dataRow},
+        verticalSpace      => $pairs{verticalSpace}      || 5,
+        dataRow            => $pairs{dataRow},
         captionDecorations => $pairs{captionDecorations} || [undef],
     }, $class;
 }
@@ -54,11 +55,11 @@ sub positionNextGroup {
     my $dataRow   = $self->{$wb}{dataRow};
     unless ( defined $dataRow ) {
         $dataRow = $self->{dataRow};
-        my $minDataRow = $titlesRow + 5 + $self->maxLines;
+        my $minDataRow = $titlesRow + $self->{verticalSpace} + $self->maxLines;
         $dataRow = $minDataRow unless $dataRow && $dataRow > $minDataRow;
         $self->{$wb}{dataRow} = $dataRow;
     }
-    my $docRow = $dataRow - 5 - $self->maxLines;
+    my $docRow = $dataRow - $self->{verticalSpace} - $self->maxLines;
     if ( $self->{$wb}{worksheet} ) {
         $ws = $self->{$wb}{worksheet};
     }
@@ -337,12 +338,10 @@ sub wsWrite {
         }
         else {
             my @decorations = $c4 == $col + $ncol - 1 ? 'tlttr' : ();
-            $ws->write(
-                $dataRow - 2,
-                $c4,
-                $column->{number} || $column->{numbered},
-                $wb->getFormat( 'thca', @decorations )
-            );
+            if ( my $number = $column->{number} || $column->{numbered} ) {
+                $ws->write( $dataRow - 2,
+                    $c4, $number, $wb->getFormat( 'thca', @decorations ) );
+            }
             $ws->write(
                 $dataRow - 1,
                 $c4,
