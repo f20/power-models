@@ -31,11 +31,10 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::MatrixSheet;
 
 sub processTable3701 {
 
-    my ( $model, $dno, $title, $baselineData, $scenarioData, ) = @_;
+    my ( $model, $baselineData, $scenarioData, $sheetName, $title, ) = @_;
     my $bd = $baselineData->{3701} or return;
     my $sd = $scenarioData->{3701} or return;
     my @tariffs = @{ $sd->[0] };
@@ -71,7 +70,11 @@ sub processTable3701 {
       } grep { defined $sd->[$_][0] && $sd->[$_][0] !~ /LLFC|PC|checksum/; }
       1 .. $#$sd;
 
-    SpreadsheetModel::MatrixSheet->new( verticalSpace => 2 )->addDatasetGroup(
+    SpreadsheetModel::MatrixSheet->new(
+        noLines   => 1,
+        noNames   => 1,
+        noNumbers => 1,
+      )->addDatasetGroup(
         name    => 'Baseline tariffs',
         columns => \@baselineTariffs,
       )->addDatasetGroup(
@@ -79,9 +82,15 @@ sub processTable3701 {
         columns => \@scenarioTariffs,
       );
 
-    push @{ $model->{sheetNames} }, $dno;
-    push @{ $model->{sheetTables} },
-      [ Notes( name => $title ), @baselineTariffs, @scenarioTariffs ];
+    push @{ $model->{worksheetsAndClosures} }, $sheetName => sub {
+        my ( $wsheet, $wbook ) = @_;
+        $wsheet->set_column( 0, 0,   48 );
+        $wsheet->set_column( 1, 254, 16 );
+        $wsheet->freeze_panes( 5, 1 );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => $sheetTitle ), @baselineTariffs,
+          @scenarioTariffs;
+    };
 
 }
 

@@ -42,7 +42,7 @@ our $SERIAL;
 
 sub new {
     my $className = shift;
-    die join ' ', 'Not an even number:', @_ if @_ % 2;
+    die join ' ', 'Need an even number of arguments:', @_ if @_ % 2;
     my ( $file, $line ) = (caller)[ 1, 2 ];
     $file = $1 if $file =~ m^\blib[/\\](.+)^s;
     my $self = {
@@ -210,10 +210,6 @@ sub addTableNumber {
           && $numlet < $wb->{highestAutoTableNumber};
         $wb->{highestAutoTableNumber} = $numlet;
     }
-    $_->{numbered} = $numlet
-      foreach $self,
-      ref $self->{columns} eq 'ARRAY' ? @{ $self->{columns} } : (),
-      ref $self->{items} eq 'ARRAY'   ? @{ $self->{items} }   : ();
     $numlet .= '. ';
     if ($intrusive) {
         $self->{name} = $numlet . _shortName( $self->{name} );

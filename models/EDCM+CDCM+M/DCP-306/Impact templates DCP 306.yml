@@ -1,9 +1,17 @@
 ---
-.title: impact of DCP 306 on discount percentages
 PerlModule: Impact
 baselinePattern: -mce161\b
 byDno: 1
 impact: Tables6001and6002
 scenarioPattern: -mce306\b
-template: DCP 306 impact on discount percentages
+template: DCP 306 impact on discount percentages (by DNO)
+title: impact of DCP 306 on discount percentages
+wantDatasetArray: 1
+---
+PerlModule: Impact
+baselinePattern: -mce161\b
+impact: Tables6001and6002
+scenarioPattern: -mce306\b
+template: DCP 306 impact on discount percentages (single sheet)
+title: impact of DCP 306 on discount percentages
 wantDatasetArray: 1

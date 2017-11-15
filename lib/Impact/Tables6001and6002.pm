@@ -31,40 +31,24 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::MatrixSheet;
 
 sub processTables6001and6002 {
 
-    my ( $model, $dno, $title, $baselineData, $scenarioData, ) = @_;
+    my ( $model, $baselineData, $scenarioData, $areaName, $sheetTitle, ) = @_;
+
+    $model->{endUserLevelset} ||= Labelset(
+        list => [
+            "LV demand\t",
+            "LV Sub demand\t(LV gen EDCM)",
+            "HV demand\t(LVS gen EDCM)",
+            "\t(HV gen EDCM)",
+        ]
+    );
+
     my $bd_edcm = $baselineData->{6001} or die;
     my $bd_cdcm = $baselineData->{6002} or die;
     my $sd_edcm = $scenarioData->{6001} or die;
     my $sd_cdcm = $scenarioData->{6002} or die;
-
-    my $discountsetNotUsed = Labelset(
-        list => [
-            ( map { $_->[0]; } @$sd_cdcm[ 2 .. 5 ] ),
-            (
-                map {
-                    my $row = 5 - $_;
-                    map {
-                        local $_ = "$sd_edcm->[0][$row]: $sd_edcm->[$_][0]";
-                        s/^Boundary/LDNO/;
-                        $_;
-                    } 1 .. ( $_ ? 4 : 3 );
-                } 0 .. 4
-            )
-        ]
-    );
-
-    my $endUserLevelset = Labelset(
-        list => [
-            'LV demand',
-            'LV Sub demand and LV generation EDCM',
-            'HV demand and LV Sub generation EDCM',
-            'HV generation EDCM',
-        ]
-    );
 
     my $boundaryLevelset = Labelset(
         list => [
@@ -76,7 +60,7 @@ sub processTables6001and6002 {
     my $baseline = Constant(
         name          => '',
         defaultFormat => '%copy',
-        cols          => $endUserLevelset,
+        cols          => $model->{endUserLevelset},
         rows          => $boundaryLevelset,
         data          => [
             [
@@ -98,7 +82,7 @@ sub processTables6001and6002 {
     my $scenario = Constant(
         name          => '',
         defaultFormat => '%copy',
-        cols          => $endUserLevelset,
+        cols          => $model->{endUserLevelset},
         rows          => $boundaryLevelset,
         data          => [
             [
@@ -124,7 +108,11 @@ sub processTables6001and6002 {
         arguments     => { A1 => $baseline, A2 => $scenario, },
     );
 
-    SpreadsheetModel::MatrixSheet->new( verticalSpace => 2 )->addDatasetGroup(
+    SpreadsheetModel::MatrixSheet->new(
+        noLines   => 1,
+        noNames   => 1,
+        noNumbers => 1,
+      )->addDatasetGroup(
         name    => 'Baseline LDNO discount percentages',
         columns => [$baseline],
       )->addDatasetGroup(
@@ -135,9 +123,20 @@ sub processTables6001and6002 {
         columns => [$change],
       );
 
-    push @{ $model->{sheetNames} }, $dno;
-    push @{ $model->{sheetTables} },
-      [ Notes( name => $title ), $baseline, $scenario, $change, ];
+    if ($sheetTitle) {
+        push @{ $model->{worksheetsAndClosures} }, $areaName => sub {
+            my ( $wsheet, $wbook ) = @_;
+            $wsheet->set_column( 0, 0,   48 );
+            $wsheet->set_column( 1, 254, 16 );
+            $wsheet->freeze_panes( 5, 1 );
+            $_->wsWrite( $wbook, $wsheet ),
+              foreach Notes( name => $sheetTitle ), $baseline, $scenario,
+              $change;
+        };
+    }
+    else {
+        push @{ $model->{columnsetFilterFood} }, [ $areaName, $change, ];
+    }
 
 }
 

@@ -480,17 +480,15 @@ sub factory {
         while ( my ( $fileName, $rds ) = each %finalRulesDataSettings ) {
             $fileName = catfile( $rds->[2]{folder}, $fileName )
               if $rds->[2]{folder};
-            my $rulesData    = _mergeRulesData( @{$rds}[ 0, 1 ] );
             my $module       = $workbookModule->( $rds->[2]{xls} );
             my $continuation = $rds->[2]{PostProcessing};
             if ($executor) {
-                $executor->run( $module, 'create', $fileName,
-                    [ $rulesData, $rds->[2] ],
+                $executor->run( $module, 'create', $fileName, $rds,
                     $continuation, 1 );
             }
             else {
                 warn "create $fileName\n";
-                $module->create( $fileName, $rulesData, $rds->[2] );
+                $module->create( $fileName, @$rds );
                 $continuation->($fileName) if $continuation;
                 warn "finished $fileName\n";
             }
@@ -528,36 +526,6 @@ sub jsonMachineMaker {
           if eval "require $_";
     }
     die 'No JSON module';
-}
-
-sub _mergeRulesData {
-    return [ map { _mergeRulesData(@$_); } @{ $_[1] } ]
-      if !$_[0] && ref $_[1] eq 'ARRAY';
-    my %options = map { %$_ } @_;
-    my $extraNotice = delete $options{extraNotice};
-    my @keys =
-      grep { exists $options{$_}; }
-      qw(
-      password
-      template
-      dataset
-      ~datasetOverride
-    );
-    my @removed = map { delete $options{$_}; } @keys;
-    $options{$_} = '***'
-      foreach grep { /^(?:password|\~datasetOverride)$/s; } @keys;
-    $options{yaml} = Dump( \%options );
-
-    if ( defined $extraNotice ) {
-        $options{extraNotice} =
-          'ARRAY' eq ref $extraNotice
-          ? join( "\n", @$extraNotice )
-          : $extraNotice;
-    }
-    for ( my $i = 0 ; $i < @keys ; ++$i ) {
-        $options{ $keys[$i] } = $removed[$i];
-    }
-    \%options;
 }
 
 sub _loadModules {

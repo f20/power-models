@@ -34,8 +34,15 @@ use utf8;
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
     my $impact = $ruleset->{impact} or die 'No impact specification';
-    'Impact::Sheets', "Impact::$impact",
-      $ruleset->{byDno} ? 'SpreadsheetModel::Data::DnoAreas' : ();
+    "Impact::$impact", $ruleset->{byDno}
+      ? qw(SpreadsheetModel::Data::DnoAreas
+      SpreadsheetModel::MatrixSheet)
+      : qw(SpreadsheetModel::ColumnsetFilter);
+}
+
+sub worksheetsAndClosures {
+    my ($model) = @_;
+    @{ $model->{worksheetsAndClosures} };
 }
 
 sub new {
@@ -45,16 +52,28 @@ sub new {
     study $model->{scenarioPattern};
     my $method = 'process' . $model->{impact};
     if ( $model->{byDno} ) {
-        my $titleSuffix = $model->{'.title'} ? ": $model->{'.title'}" : '';
+        my $titleSuffix = $model->{title} ? ": $model->{title}" : '';
         my @short       = SpreadsheetModel::Data::DnoAreas::dnoShortNames();
         my @long        = SpreadsheetModel::Data::DnoAreas::dnoLongNames();
         for ( my $i = 0 ; $i < @short ; ++$i ) {
             my ( $baselineData, $scenarioData ) =
               $model->selectDatasets( $short[$i] )
               or next;
-            $model->$method( $short[$i], $long[$i] . $titleSuffix,
-                $baselineData, $scenarioData );
+            $model->$method( $baselineData, $scenarioData, $short[$i],
+                $long[$i] . $titleSuffix,
+            );
         }
+    }
+    else {
+        my %areas;
+        foreach ( @{ $model->{datasetArray} } ) {
+            local $_ = $_->{'~datasetName'};
+            s/-20.*//;
+            undef $areas{$_};
+        }
+        $model->$method( $model->selectDatasets($_), $_ )
+          foreach sort keys %areas;
+        $model->consolidate;
     }
     $model;
 }
@@ -81,6 +100,75 @@ sub selectDatasets {
     warn "No dataset for $area scenario" unless $scenarioData;
     return unless $baselineData && $scenarioData;
     $baselineData, $scenarioData;
+}
+
+sub consolidate {
+    my ($model) = @_;
+    my ( $rowset, $areaLabels, $rowLabels, @dataColumns, @calcColumns );
+    foreach ( @{ $model->{columnsetFilterFood} } ) {
+        my ( $area, @calculations ) = @$_;
+        my $rowslist = $calculations[0]{rows}{list};
+        my @datasets;
+        foreach my $d (
+            map {
+                my $args = $_->{arguments};
+                map { $args->{$_}; } sort keys %$args;
+            } @calculations
+          )
+        {
+            push @datasets, $d unless grep { $d == $_; } @datasets;
+        }
+        unless ($rowset) {
+            $rowset = Labelset(
+                defaultFormat => 'thitem',
+                list          => [ 1 .. @$rowslist ],
+            );
+            $areaLabels = Constant(
+                name          => 'Area',
+                defaultFormat => 'th',
+                rows          => $rowset,
+                data          => [ map { $area; } @$rowslist ],
+            );
+            $rowLabels = Constant(
+                name          => 'Row',
+                defaultFormat => 'th',
+                rows          => $rowset,
+                data          => $rowslist,
+            );
+            @dataColumns = @datasets;
+            @calcColumns = @calculations;
+            $_->{rows} = $rowset foreach @dataColumns, @calculations;
+            next;
+        }
+        push @{ $rowset->{list} },
+          ( 1 + @{ $rowset->{list} } ) .. ( @{ $rowset->{list} } + @$rowslist );
+        push @{ $areaLabels->{data} }, map { $area; } @$rowslist;
+        push @{ $rowLabels->{data} }, @$rowslist;
+        for ( my $i = 0 ; $i < @datasets ; ++$i ) {
+            my $acc = $dataColumns[$i]{data};
+            my $add = $datasets[$i]{data};
+            if ( ref $acc->[0] ) {
+                for ( my $j = 0 ; $j < @$acc ; ++$j ) {
+                    push @{ $acc->[$j] }, @{ $add->[$j] };
+                }
+            }
+            else {
+                push @$acc, @$add;
+            }
+        }
+    }
+    push @{ $model->{worksheetsAndClosures} }, All => sub {
+        my ( $wsheet, $wbook ) = @_;
+        $wsheet->set_column( 0, 0,   16 );
+        $wsheet->set_column( 1, 1,   48 );
+        $wsheet->set_column( 2, 254, 16 );
+        $wsheet->freeze_panes( 3, 2 );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach SpreadsheetModel::ColumnsetFilter->new(
+            name    => ucfirst( $model->{title} ),
+            columns => [ $areaLabels, $rowLabels, @dataColumns, @calcColumns, ],
+          );
+    };
 }
 
 1;

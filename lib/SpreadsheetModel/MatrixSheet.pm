@@ -36,35 +36,45 @@ use SpreadsheetModel::Object ':_util';
 
 sub new {
     my ( $class, %pairs ) = @_;
-    bless {
-        titlesRow => defined $pairs{titlesRow} ? $pairs{titlesRow} : 2,
-        verticalSpace      => $pairs{verticalSpace}      || 5,
-        dataRow            => $pairs{dataRow},
+    my $matrixSheet = bless {
         captionDecorations => $pairs{captionDecorations} || [undef],
+        dataRow            => $pairs{dataRow},
+        noLines            => $pairs{noLines},
+        noNames            => $pairs{noNames},
+        noNumbers          => $pairs{noNumbers},
+        titlesRow => defined $pairs{titlesRow} ? $pairs{titlesRow} : 2,
+        verticalSpace => 3 +
+          ( $pairs{noNames}   ? 0 : 1 ) +
+          ( $pairs{noNumbers} ? 0 : 1 ),
     }, $class;
+    $matrixSheet;
 }
 
 sub maxLines {
-    $_[0]{maxLines};
+    my ($matrixSheet) = @_;
+    $matrixSheet->{noLines} ? 0 : $matrixSheet->{maxLines};
 }
 
 sub positionNextGroup {
-    my ( $self, $wb, $ws, $ncol ) = @_;
-    my $col       = $self->{$wb}{nextColumn};
-    my $titlesRow = $self->{$wb}{titlesRow} ||= $self->{titlesRow};
-    my $dataRow   = $self->{$wb}{dataRow};
+    my ( $matrixSheet, $wb, $ws, $ncol ) = @_;
+    my $col       = $matrixSheet->{$wb}{nextColumn};
+    my $titlesRow = $matrixSheet->{$wb}{titlesRow} ||=
+      $matrixSheet->{titlesRow};
+    my $dataRow = $matrixSheet->{$wb}{dataRow};
     unless ( defined $dataRow ) {
-        $dataRow = $self->{dataRow};
-        my $minDataRow = $titlesRow + $self->{verticalSpace} + $self->maxLines;
+        $dataRow = $matrixSheet->{dataRow};
+        my $minDataRow =
+          $titlesRow + $matrixSheet->{verticalSpace} + $matrixSheet->maxLines;
         $dataRow = $minDataRow unless $dataRow && $dataRow > $minDataRow;
-        $self->{$wb}{dataRow} = $dataRow;
+        $matrixSheet->{$wb}{dataRow} = $dataRow;
     }
-    my $docRow = $dataRow - $self->{verticalSpace} - $self->maxLines;
-    if ( $self->{$wb}{worksheet} ) {
-        $ws = $self->{$wb}{worksheet};
+    my $docRow =
+      $dataRow - $matrixSheet->{verticalSpace} - $matrixSheet->maxLines;
+    if ( $matrixSheet->{$wb}{worksheet} ) {
+        $ws = $matrixSheet->{$wb}{worksheet};
     }
     else {
-        $self->{$wb}{worksheet} = $ws;
+        $matrixSheet->{$wb}{worksheet} = $ws;
         $col = 0;
         my $row = $dataRow;
         if (   $wb->{noLinks}
@@ -80,15 +90,19 @@ sub positionNextGroup {
               foreach $docRow .. $dataRow - 3;
             $ws->set_row( $dataRow - 2, undef, undef, undef, 0, 0, 1 );
         }
-        if ( $self->{rows} ) {
+        if ( $matrixSheet->{rows} ) {
             my $thFormat =
-              $wb->getFormat( $self->{rows}{defaultFormat} || 'th' );
+              $wb->getFormat( $matrixSheet->{rows}{defaultFormat} || 'th' );
             my $thgFormat = $wb->getFormat('thg');
-            $ws->write( $row++, $col, _shortNameRow( $self->{rows}{list}[$_] ),
-                 !$self->{rows}{groups} || defined $self->{rows}{groupid}[$_]
+            $ws->write(
+                $row++,
+                $col,
+                _shortNameRow( $matrixSheet->{rows}{list}[$_] ),
+                !$matrixSheet->{rows}{groups}
+                  || defined $matrixSheet->{rows}{groupid}[$_]
                 ? $thFormat
-                : $thgFormat )
-              foreach 0 .. $#{ $self->{rows}{list} };
+                : $thgFormat
+            ) foreach 0 .. $#{ $matrixSheet->{rows}{list} };
         }
         else {
             ++$row;
@@ -96,38 +110,42 @@ sub positionNextGroup {
         $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
         ++$col;
     }
-    $self->{$wb}{nextColumn} = $col + $ncol;
+    $matrixSheet->{$wb}{nextColumn} = $col + $ncol;
     my $deco =
-      $self->{captionDecorations}[ $self->{$wb}{nextDecoration} ||= 0 ];
-    ++$self->{$wb}{nextDecoration} if $ncol;
-    $self->{$wb}{nextDecoration} %= @{ $self->{captionDecorations} };
+      $matrixSheet->{captionDecorations}
+      [ $matrixSheet->{$wb}{nextDecoration} ||= 0 ];
+    ++$matrixSheet->{$wb}{nextDecoration} if $ncol;
+    $matrixSheet->{$wb}{nextDecoration} %=
+      @{ $matrixSheet->{captionDecorations} };
     $ws, $col, $deco, $titlesRow, $docRow, $dataRow;
 }
 
 sub nextColumn {
-    my ( $self, $wb ) = @_;
-    $self->{$wb}{nextColumn} || 1;
+    my ( $matrixSheet, $wb ) = @_;
+    $matrixSheet->{$wb}{nextColumn} || 1;
 }
 
 sub addDatasetGroup {
-    my $self = shift;
+    my $matrixSheet = shift;
     my $group =
-      SpreadsheetModel::MatrixSheet::DatasetGroup->new( @_, location => $self );
+      SpreadsheetModel::MatrixSheet::DatasetGroup->new( @_,
+        location => $matrixSheet );
     return unless @{ $group->{columns} };
-    if ( defined $self->{rows} ) {
+    if ( defined $matrixSheet->{rows} ) {
         die <<ERR
-Mismatch in DatasetGroup $self->{name} $self->{debug}
-Rows in DatasetGroup: $self->{rows}
+Mismatch in MatrixSheet $matrixSheet->{name} $matrixSheet->{debug}
+Rows in MatrixSheet: $matrixSheet->{rows}
 Rows in $_->{name} $_->{debug}: $_->{rows}
 ERR
-          unless $self->{rows} == $group->{rows};
+          unless $matrixSheet->{rows} == $group->{rows};
     }
     else {
-        $self->{rows} = $group->{rows};
+        $matrixSheet->{rows} = $group->{rows};
     }
-    $self->{maxLines} = $group->{maxLines}
-      unless $self->{maxLines} && $self->{maxLines} > $group->{maxLines};
-    $self;
+    $matrixSheet->{maxLines} = $group->{maxLines}
+      unless $matrixSheet->{maxLines}
+      && $matrixSheet->{maxLines} > $group->{maxLines};
+    $matrixSheet;
 }
 
 package SpreadsheetModel::MatrixSheet::DatasetGroup;
@@ -135,25 +153,25 @@ use SpreadsheetModel::Object ':_util';
 our @ISA = qw(SpreadsheetModel::Object);
 
 sub check {
-    my ($self) = @_;
-    return "Broken DatasetGroup in $self->{name}"
-      unless 'ARRAY' eq ref $self->{columns};
-    foreach ( @{ $self->{columns} } ) {
-        if ( defined $self->{rows} ) {
-            unless ( !$_->{rows} && !$self->{rows}
-                || $_->{rows} == $self->{rows} )
+    my ($dsGroup) = @_;
+    return "Broken DatasetGroup in $dsGroup->{name}"
+      unless 'ARRAY' eq ref $dsGroup->{columns};
+    foreach ( @{ $dsGroup->{columns} } ) {
+        if ( defined $dsGroup->{rows} ) {
+            unless ( !$_->{rows} && !$dsGroup->{rows}
+                || $_->{rows} == $dsGroup->{rows} )
             {
                 return <<ERR ;
-Mismatch in DatasetGroup $self->{name} $self->{debug}
-Rows in DatasetGroup: $self->{rows}
+Mismatch in DatasetGroup $dsGroup->{name} $dsGroup->{debug}
+Rows in DatasetGroup: $dsGroup->{rows}
 Rows in $_->{name} $_->{debug}: $_->{rows}
 ERR
             }
         }
         else {
-            $self->{rows} = $_->{rows} || 0;
+            $dsGroup->{rows} = $_->{rows} || 0;
         }
-        $_->{location} = $self;
+        $_->{location} = $dsGroup;
         if ( $_->{arithmetic} && $_->{arguments} ) {
             my @formula = $_->{arithmetic};
             $_->{sourceLines} =
@@ -164,63 +182,82 @@ ERR
           ( $_->{lines}        ? @{ $_->{lines} }        : 0 ) +
           ( $_->{sourceLines}  ? @{ $_->{sourceLines} }  : 0 ) +
           ( $_->{formulaLines} ? @{ $_->{formulaLines} } : 0 );
-        $self->{maxLines} = $lines
-          unless $self->{maxLines} && $self->{maxLines} > $lines;
+        $dsGroup->{maxLines} = $lines
+          unless $dsGroup->{maxLines} && $dsGroup->{maxLines} > $lines;
     }
     return;
 }
 
 sub wsWrite {
-    my ( $self, $wb, $wsheet ) = @_;
-    return if $self->{$wb};
+    my ( $dsGroup, $wb, $wsheet ) = @_;
+    return if $dsGroup->{$wb};
 
     while (1) {
-        $self->{rows}->wsPrepare( $wb, $wsheet ) if $self->{rows};
-        my $col = $self->{location}->nextColumn($wb);
-        foreach ( @{ $self->{columns} } ) {
+        $dsGroup->{rows}->wsPrepare( $wb, $wsheet ) if $dsGroup->{rows};
+        my $col = $dsGroup->{location}->nextColumn($wb);
+        foreach ( @{ $dsGroup->{columns} } ) {
             $_->{cols}->wsPrepare( $wb, $wsheet ) if $_->{cols};
             die "$_->{name} $_->{debug}"
               . ' is already in the workbook and'
               . ' cannot be written again as part of '
-              . "$self->{name} $self->{debug}"
+              . "$dsGroup->{name} $dsGroup->{debug}"
               if $_->{$wb};
             $_->wsPrepare( $wb, $wsheet );
             $_->{$wb} ||= {};    # Placeholder
         }
-        last if $col == $self->{location}->nextColumn($wb);
-        delete $_->{$wb} foreach @{ $self->{columns} };
+        last if $col == $dsGroup->{location}->nextColumn($wb);
+        delete $_->{$wb} foreach @{ $dsGroup->{columns} };
     }
-    my $ncol = $self->nCol;
+
+    my $ncol = 0;
+    $ncol +=
+      $_->{cols}
+      ? @{ $_->{cols}{list} }
+      : 1
+      foreach @{ $dsGroup->{columns} };
+
     my ( $ws, $col, $deco, $titlesRow, $docRow, $dataRow ) =
-      $self->{location}->positionNextGroup( $wb, $wsheet, $ncol );
+      $dsGroup->{location}->positionNextGroup( $wb, $wsheet, $ncol );
 
     if ( $wb->{logger} ) {
-        foreach ( @{ $self->{columns} } ) {
+        foreach ( @{ $dsGroup->{columns} } ) {
             $_->addTableNumber( $wb, $ws );
             $wb->{logger}->log($_);
         }
     }
+    my $showNumbers;
+    unless ( $dsGroup->{location}->{noNumbers} ) {
+        foreach ( @{ $dsGroup->{columns} } ) {
+            if ( $_->{number}
+                || UNIVERSAL::isa( $_->{location}, 'SpreadsheetModel::Object' )
+                && $_->{location}{number} )
+            {
+                $showNumbers = 1;
+                last;
+            }
+        }
+    }
 
     if ( $ncol == 1 ) {
-        $ws->write_string( $titlesRow, $col, "$self->{name}",
+        $ws->write_string( $titlesRow, $col, "$dsGroup->{name}",
             $wb->getFormat( 'captionca', $deco || (), 'tlttr' ) );
     }
     elsif ( $wb->{mergedRanges} ) {    # merged cell range
         $ws->merge_range( $titlesRow, $col, $titlesRow, $col + $ncol - 1,
-            "$self->{name}",
+            "$dsGroup->{name}",
             $wb->getFormat( 'captionca', $deco || (), 'tlttr' ) );
     }
     else {    # center-across formatting; might be buggy in Microsoft Excel 2013
         my $captionFormat = $wb->getFormat( 'captionca', $deco || () );
-        $ws->write( $titlesRow, $col,      "$self->{name}", $captionFormat );
-        $ws->write( $titlesRow, $col + $_, undef,           $captionFormat )
+        $ws->write( $titlesRow, $col, "$dsGroup->{name}", $captionFormat );
+        $ws->write( $titlesRow, $col + $_, undef, $captionFormat )
           foreach 1 .. $ncol - 2;
         $ws->write( $titlesRow, $col + $ncol - 1,
             undef, $wb->getFormat( 'captionca', $deco || (), 'tlttr' ) );
     }
 
     my $c4 = $col;
-    foreach my $column ( @{ $self->{columns} } ) {
+    foreach my $column ( @{ $dsGroup->{columns} } ) {
 
         @{ $column->{$wb} }{qw(worksheet row col)} = ( $ws, $dataRow, $c4 );
 
@@ -245,7 +282,7 @@ sub wsWrite {
                 : ()
             );
             my $row = $docRow;
-            foreach (@allLines) {
+            foreach ( $dsGroup->{location}{noLines} ? () : @allLines ) {
 
                 if ( UNIVERSAL::isa( $_, 'SpreadsheetModel::Object' ) ) {
                     my $na = 'x' . ( ++$xc ) . " = $_->{name}";
@@ -305,7 +342,10 @@ sub wsWrite {
         if ( $co and $#{ $co->{list} } || -1 == index lc $column->{name},
             lc _shortNameCol( $co->{list}[0] ) )
         {
-            if ( $#{ $co->{list} } && $wb->{mergedRanges} ) {
+            if (  !$dsGroup->{location}{noNames}
+                && $#{ $co->{list} }
+                && $wb->{mergedRanges} )
+            {
                 my @decorations =
                   $c4 + $#{ $co->{list} } == $col + $ncol - 1 ? 'tlttr' : ();
                 $ws->merge_range(
@@ -324,7 +364,9 @@ sub wsWrite {
                     $c4 + $_,
                     $_ ? undef : "$column->{name}",
                     $wb->getFormat( 'thca', @decorations )
-                ) unless $#{ $co->{list} } && $wb->{mergedRanges};
+                  )
+                  unless $dsGroup->{location}{noNames}
+                  || $#{ $co->{list} } && $wb->{mergedRanges};
                 $ws->write(
                     $dataRow - 1,
                     $c4 + $_,
@@ -340,16 +382,26 @@ sub wsWrite {
         }
         else {
             my @decorations = $c4 == $col + $ncol - 1 ? 'tlttr' : ();
-            if ( my $number = $column->{number} || $column->{numbered} ) {
-                $ws->write( $dataRow - 2,
-                    $c4, $number, $wb->getFormat( 'thca', @decorations ) );
+            if ($showNumbers) {
+                if (
+                    my $number =
+                    $column->{number} ? $column->{number}
+                    : UNIVERSAL::isa( $column->{location},
+                        'SpreadsheetModel::Object' )
+                    ? $column->{location}{number}
+                    : undef
+                  )
+                {
+                    $ws->write( $dataRow - 2,
+                        $c4, $number, $wb->getFormat( 'thca', @decorations ) );
+                }
             }
             $ws->write(
                 $dataRow - 1,
                 $c4,
                 _shortName( $column->{name} ),
                 $wb->getFormat( 'thc', @decorations )
-            );
+            ) unless $dsGroup->{location}{noNames};
             ++$c4;
         }
 
@@ -359,17 +411,6 @@ sub wsWrite {
 
     }
 
-}
-
-sub nCol {
-    my ($self) = @_;
-    my $c = 0;
-    $c +=
-      $_->{cols}
-      ? @{ $_->{cols}{list} }
-      : 1
-      foreach @{ $self->{columns} };
-    $c;
 }
 
 1;

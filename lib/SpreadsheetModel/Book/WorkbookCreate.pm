@@ -31,12 +31,14 @@ use warnings;
 use strict;
 use SpreadsheetModel::Logger;
 use File::Spec::Functions qw(catdir catfile splitpath);
+require YAML;
 
 sub create {
 
-    my ( $module, $fileName, $instructions, $settings ) = @_;
-
+    my ( $module, $fileName, $rules, $data, $settings ) = @_;
     my @hazardousWaste;
+
+    my $instructions = _mergeRulesData( $rules, $data );
     my @optionArray =
       ref $instructions eq 'ARRAY' ? @$instructions : $instructions;
     my @localTime   = localtime;
@@ -121,8 +123,8 @@ sub create {
 
         foreach my $i ( 0 .. $#optionArray ) {
             if ( my $dataset = $optionArray[$i]{dataset} ) {
-                if ( my $yaml = $dataset->{yaml} ) {
-                    require YAML;    # deferred parsing of YAML data
+                if ( my $yaml = $dataset->{yaml} )
+                {    # deferred parsing of YAML data
                     my @parsed = YAML::Load($yaml);
                     if ( @parsed > 1 ) {
                         foreach my $section (@parsed) {
@@ -368,7 +370,7 @@ EOW
                 my $ws = $wsheet{$_};
                 delete $ws->{sheetNumber};
                 delete $ws->{lastTableNumber};
-                $allClosures{$_}->($ws);
+                $allClosures{$_}->( $ws, $wbook );
                 $ws->activate if exists $wsheetActive{$_};
                 $ws->fit_to_pages( 1, 0 ) unless /^(?:Index|Overview)/;
                 $ws->hide_gridlines(2);
@@ -419,6 +421,36 @@ EOW
       )
       : $status;
 
+}
+
+sub _mergeRulesData {
+    return [ map { _mergeRulesData(@$_); } @{ $_[1] } ]
+      if !$_[0] && ref $_[1] eq 'ARRAY';
+    my %options = map { %$_ } @_;
+    my $extraNotice = delete $options{extraNotice};
+    my @keys =
+      grep { exists $options{$_}; }
+      qw(
+      password
+      template
+      dataset
+      ~datasetOverride
+    );
+    my @removed = map { delete $options{$_}; } @keys;
+    $options{$_} = '***'
+      foreach grep { /^(?:password|\~datasetOverride)$/s; } @keys;
+    $options{yaml} = YAML::Dump( \%options );
+
+    if ( defined $extraNotice ) {
+        $options{extraNotice} =
+          'ARRAY' eq ref $extraNotice
+          ? join( "\n", @$extraNotice )
+          : $extraNotice;
+    }
+    for ( my $i = 0 ; $i < @keys ; ++$i ) {
+        $options{ $keys[$i] } = $removed[$i];
+    }
+    \%options;
 }
 
 1;
