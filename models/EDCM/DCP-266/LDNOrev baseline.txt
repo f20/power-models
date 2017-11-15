@@ -1,5 +1,5 @@
 makeModels
 	-datamerge
-	EDCM/2018-02-Baseline/%-clean161-LDNOrev7.yml
+	EDCM/2018-02-Baseline/%-clean161-onlyldnorev7.yml
 	CDCM/2018-02/*.yml
 	EDCM/2018-02/*.yml

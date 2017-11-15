@@ -634,8 +634,7 @@ sub worksheetsAndClosures {
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 0,   50 );
             $wsheet->set_column( 1, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach grep { $_; } @{ $model->{ldnoRevTables} };
+            $_->wsWrite( $wbook, $wsheet ) foreach @{ $model->{ldnoRevTables} };
         }
 
       )

@@ -2,4 +2,4 @@ makeModels
     -datamerge
     CDCM/2018-02/*.yml
     ModelM/2018-02/*.yml
-    EDCM+CDCM+M/2018-02-Baseline/%-mce161-LDNOtar7multiDNO.yml
+    EDCM+CDCM+M/2018-02-Baseline/%-mce161-onlyldnotar7.yml

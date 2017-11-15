@@ -37,9 +37,25 @@ use constant { OT_IGNORE_FILTER => 0, };
 sub new {
     my ( $class, $ignoreFilter ) = @_;
     if ( $ignoreFilter && !ref $ignoreFilter ) {
-        my $re = qr/$ignoreFilter/;
-        study $re;
-        $ignoreFilter = sub { $_[1] =~ /$re/s ? undef : 0; };
+        my @tableStems = $ignoreFilter =~ /([0-9]+)/g;
+        my $tableRe = '^(?:' . join( '|', @tableStems ) . ')';
+        study $tableRe;
+        if ( grep { $_ == 0; } @tableStems ) {
+            $ignoreFilter = sub {
+                $_[1] =~ /$tableRe/s ? undef : 0;
+            };
+        }
+        else {
+            my %sheetStems;
+            foreach (@tableStems) {
+                undef $sheetStems{$1} if /^([0-9]{2})/;
+            }
+            my $sheetRe = '^(?:' . join( '|', keys %sheetStems ) . ')';
+            study $sheetRe;
+            $ignoreFilter = sub {
+                $_[1] !~ /$sheetRe/s ? 1 : $_[1] !~ /$tableRe/s ? 0 : undef;
+            };
+        }
     }
     bless [$ignoreFilter], $class;
 }
@@ -79,6 +95,7 @@ sub writerAndParserOptions {
                   if $self->[OT_IGNORE_FILTER];
                 return $ignoreTable if defined $ignoreTable;
                 $data{ $tableNumber[$sheetIdx] = $tn }[0][0] = $v;
+                undef $rowZero[$sheetIdx];
                 $notRowZero[$sheetIdx] = $row;
             }
             elsif ( $tableNumber[$sheetIdx] && $v ne '' ) {

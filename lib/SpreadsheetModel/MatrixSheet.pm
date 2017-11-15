@@ -67,7 +67,9 @@ sub positionNextGroup {
         $self->{$wb}{worksheet} = $ws;
         $col = 0;
         my $row = $dataRow;
-        if ( $wb->{noLinks} && $dataRow - $titlesRow > 3 )
+        if (   $wb->{noLinks}
+            && $wb->{noLinks} == 2
+            && $dataRow - $titlesRow > 3 )
         {    # Hide documentation
             if ( $docRow - $titlesRow > 1 ) {
                 $ws->set_row( $_, undef, undef, 1, 2 )

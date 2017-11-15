@@ -42,6 +42,7 @@ sub worksheetsAndClosures {
         push @wsheetAndClosures, $model->{sheetNames}[$i], sub {
             my ($wsheet) = @_;
             delete $wbook->{logger};
+            $wbook->{noLinks} = 1;
             $wsheet->set_column( 0, 0,   48 );
             $wsheet->set_column( 1, 254, 16 );
             $wsheet->hide_gridlines(2);

@@ -305,8 +305,12 @@ EOF
       ? $model->{embeddedModelM2}{objects}{table1184columnset}{columns}
       : $model->{embeddedModelM2}{objects}{table1181sources};
 
+    push @{ $model->{ldnoRevTables} },
+      ref $discounts eq 'ARRAY' ? @$discounts : $discounts;
+
     my $discountsCdcm;
-    $discountsCdcm =
+    push @{ $model->{ldnoRevTables} },
+      $discountsCdcm =
       $model->{embeddedModelM2}
       ? Stack(
         name => "$ldnoWord CDCM discount " . ( $ppu ? 'p/kWh' : 'percentage' ),
@@ -354,7 +358,7 @@ EOF
         },
       ) if $model->{ldnoRev} =~ /7/;
 
-    my @endUserTariffs = map {
+    push @{ $model->{ldnoRevTables} }, my @endUserTariffs = map {
         my $regexp = '^' . ( '.' x $_ ) . 'y';
         $model->{embeddedCdcm}
           ? Stack(
@@ -594,15 +598,16 @@ EOF
           );
     } 0 .. $#tariffComponents;
 
-    return $model->{ldnoRevTables} = [
-        Notes( lines => "$ldnoWord discounted tariffs" ),
-        undef,
-        Columnset(
+    if ( $model->{ldnoRev} =~ /tar/i ) {
+        unshift @{ $model->{ldnoRevTables} },
+          Notes( lines => "$ldnoWord discounted tariffs" );
+        push @{ $model->{ldnoRevTables} },
+          Columnset(
             name    => "Discounted $ldnoWord tariffs",
             columns => \@allTariffs
-        ),
-      ]
-      if $model->{ldnoRev} =~ /tar/i;
+          );
+        return;
+    }
 
     my @volumeData;
 
@@ -695,15 +700,6 @@ EOF
         );
     }
 
-    $model->{ldnoRevTables} = [
-        Notes( lines => "$ldnoWord revenue model" ),
-        Columnset(
-            name    => "$ldnoWord discounted CDCM tariffs",
-            columns => \@allTariffs,
-        ),
-        $model->{ldnoRevTotal},
-    ];
-
     if ( $model->{ldnoMargins} ) {
         my @termsNoDays;
         my @termsWithDays;
@@ -741,14 +737,14 @@ EOF
             arguments => { A1 => $atwRevenueByTariff, A2 => $revenueByTariff, },
             defaultFormat => '0softnz',
         );
-        $model->{ldnoRevTables} = [
-            Notes( lines => "$ldnoWord tariffs and margins" ),
-            Columnset(
-                name => "$ldnoWord revenue and margins",
-                columns =>
-                  [ $revenueByTariff, $atwRevenueByTariff, $marginByTariff, ]
-            )
-        ];
+        unshift @{ $model->{ldnoRevTables} },
+          Notes( lines => "$ldnoWord tariffs and margins" );
+        push @{ $model->{ldnoRevTables} },
+          Columnset(
+            name => "$ldnoWord revenue and margins",
+            columns =>
+              [ $revenueByTariff, $atwRevenueByTariff, $marginByTariff, ]
+          );
         $model->{ldnoMarginColumns} = [
             $model->{ldnoRevTotal},
             GroupBy(
@@ -762,6 +758,16 @@ EOF
                 source        => $marginByTariff
             ),
         ];
+    }
+    else {
+        unshift @{ $model->{ldnoRevTables} },
+          Notes( lines => "$ldnoWord revenue model" );
+        push @{ $model->{ldnoRevTables} },
+          Columnset(
+            name    => "$ldnoWord discounted CDCM tariffs",
+            columns => \@allTariffs,
+          ),
+          $model->{ldnoRevTotal};
     }
 
     if ( $model->{ldnoRev} =~ /5/ )

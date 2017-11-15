@@ -1,6 +1,0 @@
-makeModels
-    -datamerge
-    CDCM/2018-02/*.yml
-    ModelM/2018-02/*.yml
-    EDCM+CDCM+M/2018-02-Baseline/%-mce161-LDNOrev7multiDNO.yml
-    EDCM+CDCM+M/DCP-306/%-mce306rev.yml

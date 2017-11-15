@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -30,85 +30,30 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 use warnings;
 use strict;
 use utf8;
-use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::Data::DnoAreas;
-use SpreadsheetModel::MatrixSheet;
 
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
-    qw(
-      Impact::Sheets
-    );
+    my $impact = $ruleset->{impact} or die 'No impact specification';
+    'Impact::Sheets', "Impact::$impact",
+      $ruleset->{byDno} ? 'SpreadsheetModel::Data::DnoAreas' : ();
 }
 
 sub new {
-    my $class       = shift;
-    my $model       = bless {@_}, $class;
-    my $titleSuffix = $model->{'.title'} ? ": $model->{'.title'}" : '';
-    my @short       = SpreadsheetModel::Data::DnoAreas::dnoShortNames;
-    my @long        = SpreadsheetModel::Data::DnoAreas::dnoLongNames;
+    my $class = shift;
+    my $model = bless {@_}, $class;
     study $model->{baselinePattern};
     study $model->{scenarioPattern};
-    for ( my $i = 0 ; $i < @short ; ++$i ) {
-
-        if ( my ( $baselineData, $scenarioData ) =
-            $model->selectDatasets( $short[$i] ) )
-        {
-            my @tables;
-            foreach ( grep { $model->{"table$_"}; } qw(3701) ) {
-
-                my $bd = $baselineData->{3701} or next;
-                my $sd = $scenarioData->{3701} or next;
-                my @tariffs = @{ $sd->[0] };
-                shift @tariffs;
-                my $tariffSet = Labelset( list => \@tariffs );
-                my %bTariffNo = map { $bd->[0][$_] => $_; } 0 .. $#{ $bd->[0] };
-                my @bTariffMap = map { $bTariffNo{$_}; } @tariffs;
-
-                my @baselineTariffs = map {
-                    my $col = $_;
-                    Constant(
-                        name          => $bd->[$col][0],
-                        defaultFormat => $bd->[$col][0] =~ /day/
-                        ? '0.00copy'
-                        : '0.000copy',
-                        rows => $tariffSet,
-                        data =>
-                          [ map { $_ ? $bd->[$col][$_] : undef; } @bTariffMap ],
-                    );
-                  } grep {
-                    defined $bd->[$_][0] && $bd->[$_][0] !~ /LLFC|PC|checksum/;
-                  } 1 .. $#$bd;
-
-                my @scenarioTariffs = map {
-                    my $col = $_;
-                    Constant(
-                        name          => $sd->[$col][0],
-                        defaultFormat => $sd->[$col][0] =~ /day/
-                        ? '0.00copy'
-                        : '0.000copy',
-                        rows => $tariffSet,
-                        data => [ map { $sd->[$col][$_]; } 1 .. @tariffs ],
-                    );
-                  } grep {
-                    defined $sd->[$_][0] && $sd->[$_][0] !~ /LLFC|PC|checksum/;
-                  } 1 .. $#$sd;
-
-                SpreadsheetModel::MatrixSheet->new( verticalSpace => 2 )
-                  ->addDatasetGroup(
-                    name    => 'Baseline tariffs',
-                    columns => \@baselineTariffs,
-                  )->addDatasetGroup(
-                    name    => 'Scenario tariffs',
-                    columns => \@scenarioTariffs,
-                  );
-
-                push @tables, @baselineTariffs, @scenarioTariffs;
-
-            }
-            push @{ $model->{sheetNames} }, $short[$i];
-            push @{ $model->{sheetTables} },
-              [ Notes( name => $long[$i] . $titleSuffix ), @tables ];
+    my $method = 'process' . $model->{impact};
+    if ( $model->{byDno} ) {
+        my $titleSuffix = $model->{'.title'} ? ": $model->{'.title'}" : '';
+        my @short       = SpreadsheetModel::Data::DnoAreas::dnoShortNames();
+        my @long        = SpreadsheetModel::Data::DnoAreas::dnoLongNames();
+        for ( my $i = 0 ; $i < @short ; ++$i ) {
+            my ( $baselineData, $scenarioData ) =
+              $model->selectDatasets( $short[$i] )
+              or next;
+            $model->$method( $short[$i], $long[$i] . $titleSuffix,
+                $baselineData, $scenarioData );
         }
     }
     $model;

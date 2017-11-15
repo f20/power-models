@@ -91,7 +91,7 @@ sub useModels {
               ->writerAndParserOptions;
             next;
         }
-        if (/^-+outputs=?(.+)?/i) {
+        if (/^-+outputs?=?(.+)?/i) {
             require PowerModels::Extract::OutputTables;
             @writerAndParserOptions =
               PowerModels::Extract::OutputTables->new($1)
