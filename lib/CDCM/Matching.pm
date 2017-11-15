@@ -101,7 +101,7 @@ sub matching {
         my $dontScaleGeneration =
           $model->{scaler} && $model->{scaler} =~ /nogen/i;
         my ( $scalerWeightsConsumption, $scalerWeightsStanding );
-        if ( $model->{scaler} =~ /gen([0-9.]+)/ ) {
+        if ( $model->{scaler} && $model->{scaler} =~ /gen([0-9.]+)/ ) {
             my $generationWeight   = $1;
             my @scalerWeightsItems = (
                 rows => $allTariffsByEndUser,

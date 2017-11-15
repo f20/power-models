@@ -434,6 +434,7 @@ sub _mergeRulesData {
       password
       template
       dataset
+      datasetArray
       ~datasetOverride
     );
     my @removed = map { delete $options{$_}; } @keys;
