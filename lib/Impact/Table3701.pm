@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,7 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub processTable3701 {
 
-    my ( $model, $baselineData, $scenarioData, $sheetName, $title, ) = @_;
+    my ( $model, $baselineData, $scenarioData, $sheetName, $sheetTitle, ) = @_;
     my $bd = $baselineData->{3701} or return;
     my $sd = $scenarioData->{3701} or return;
     my @tariffs = @{ $sd->[0] };
@@ -71,9 +71,9 @@ sub processTable3701 {
       1 .. $#$sd;
 
     SpreadsheetModel::MatrixSheet->new(
-        noLines   => 1,
-        noNames   => 1,
-        noNumbers => 1,
+        noLines       => 1,
+        noDoubleNames => 1,
+        noNumbers     => 1,
       )->addDatasetGroup(
         name    => 'Baseline tariffs',
         columns => \@baselineTariffs,

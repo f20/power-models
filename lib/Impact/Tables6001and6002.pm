@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2017 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -58,7 +58,7 @@ sub processTables6001and6002 {
     );
 
     my $baseline = Constant(
-        name          => '',
+        name          => 'Baseline discount',
         defaultFormat => '%copy',
         cols          => $model->{endUserLevelset},
         rows          => $boundaryLevelset,
@@ -80,7 +80,7 @@ sub processTables6001and6002 {
     );
 
     my $scenario = Constant(
-        name          => '',
+        name          => 'Scenario discount',
         defaultFormat => '%copy',
         cols          => $model->{endUserLevelset},
         rows          => $boundaryLevelset,
@@ -109,9 +109,9 @@ sub processTables6001and6002 {
     );
 
     SpreadsheetModel::MatrixSheet->new(
-        noLines   => 1,
-        noNames   => 1,
-        noNumbers => 1,
+        noLines       => 1,
+        noDoubleNames => 1,
+        noNumbers     => 1,
       )->addDatasetGroup(
         name    => 'Baseline LDNO discount percentages',
         columns => [$baseline],
@@ -135,7 +135,8 @@ sub processTables6001and6002 {
         };
     }
     else {
-        push @{ $model->{columnsetFilterFood} }, [ $areaName, $change, ];
+        push @{ $model->{columnsetFilterFood} },
+          [ $areaName, $baseline, $scenario, $change, ];
     }
 
 }

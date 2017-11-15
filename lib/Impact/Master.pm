@@ -106,18 +106,8 @@ sub consolidate {
     my ($model) = @_;
     my ( $rowset, $areaLabels, $rowLabels, @dataColumns, @calcColumns );
     foreach ( @{ $model->{columnsetFilterFood} } ) {
-        my ( $area, @calculations ) = @$_;
-        my $rowslist = $calculations[0]{rows}{list};
-        my @datasets;
-        foreach my $d (
-            map {
-                my $args = $_->{arguments};
-                map { $args->{$_}; } sort keys %$args;
-            } @calculations
-          )
-        {
-            push @datasets, $d unless grep { $d == $_; } @datasets;
-        }
+        my ( $area, @datasets ) = @$_;
+        my $rowslist = $datasets[0]{rows}{list};
         unless ($rowset) {
             $rowset = Labelset(
                 defaultFormat => 'thitem',
@@ -135,15 +125,17 @@ sub consolidate {
                 rows          => $rowset,
                 data          => $rowslist,
             );
-            @dataColumns = @datasets;
-            @calcColumns = @calculations;
-            $_->{rows} = $rowset foreach @dataColumns, @calculations;
+            $_->{rows} = $rowset foreach @datasets;
+            @dataColumns = grep { $_->{data}; } @datasets;
+            @calcColumns = grep { !$_->{data}; } @datasets;
+            delete $_->{rowFormats} foreach @calcColumns;
             next;
         }
         push @{ $rowset->{list} },
           ( 1 + @{ $rowset->{list} } ) .. ( @{ $rowset->{list} } + @$rowslist );
         push @{ $areaLabels->{data} }, map { $area; } @$rowslist;
         push @{ $rowLabels->{data} }, @$rowslist;
+        @datasets = grep { $_->{data}; } @datasets;
         for ( my $i = 0 ; $i < @datasets ; ++$i ) {
             my $acc = $dataColumns[$i]{data};
             my $add = $datasets[$i]{data};

@@ -40,12 +40,12 @@ sub new {
         captionDecorations => $pairs{captionDecorations} || [undef],
         dataRow            => $pairs{dataRow},
         noLines            => $pairs{noLines},
-        noNames            => $pairs{noNames},
+        noDoubleNames      => $pairs{noDoubleNames},
         noNumbers          => $pairs{noNumbers},
         titlesRow => defined $pairs{titlesRow} ? $pairs{titlesRow} : 2,
         verticalSpace => 3 +
-          ( $pairs{noNames}   ? 0 : 1 ) +
-          ( $pairs{noNumbers} ? 0 : 1 ),
+          ( $pairs{noDoubleNames} ? 0 : 1 ) +
+          ( $pairs{noNumbers}     ? 0 : 1 ),
     }, $class;
     $matrixSheet;
 }
@@ -342,8 +342,7 @@ sub wsWrite {
         if ( $co and $#{ $co->{list} } || -1 == index lc $column->{name},
             lc _shortNameCol( $co->{list}[0] ) )
         {
-            if (  !$dsGroup->{location}{noNames}
-                && $#{ $co->{list} }
+            if (   $#{ $co->{list} }
                 && $wb->{mergedRanges} )
             {
                 my @decorations =
@@ -355,7 +354,7 @@ sub wsWrite {
                     $c4 + $#{ $co->{list} },
                     "$column->{name}",
                     $wb->getFormat( 'thca', @decorations )
-                );
+                ) unless $dsGroup->{location}{noDoubleNames};
             }
             foreach ( 0 .. $#{ $co->{list} } ) {
                 my @decorations = $c4 + $_ == $col + $ncol - 1 ? 'tlttr' : ();
@@ -365,7 +364,7 @@ sub wsWrite {
                     $_ ? undef : "$column->{name}",
                     $wb->getFormat( 'thca', @decorations )
                   )
-                  unless $dsGroup->{location}{noNames}
+                  unless $dsGroup->{location}{noDoubleNames}
                   || $#{ $co->{list} } && $wb->{mergedRanges};
                 $ws->write(
                     $dataRow - 1,

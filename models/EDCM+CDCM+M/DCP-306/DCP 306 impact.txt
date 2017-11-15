@@ -1,6 +1,6 @@
 makeModels
     -datamerge
-    -outputs=6001,6002,6004,6005
+    -outputs=6001,6002,6003,6005
     CDCM/2018-02/*.yml
     ModelM/2018-02/*.yml
     EDCM+CDCM+M/2018-02-Baseline/%-mce161-onlyldnotar7.yml
