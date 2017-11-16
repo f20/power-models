@@ -366,14 +366,18 @@ EOF
             defaultFormat => /day/ ? '0.00copy' : '0.000copy',
             rows          => $endUsers,
             sources       => [ $model->{embeddedCdcm}{allTariffColumns}[$_] ],
+            rowFormats    => [
+                map { /$regexp/ ? undef : 'unavailable'; }
+                  @tariffComponentMatrix
+            ],
             data    # not part of Stack, but used below
-              => [ map { /$regexp/ ? '' : undef } @tariffComponentMatrix ],
+              => [ map { /$regexp/ ? '' : undef; } @tariffComponentMatrix ],
           )
           : Dataset(
             name          => $tariffComponents[$_],
             defaultFormat => /day/ ? '0.00hard' : '0.000hard',
             rows          => $endUsers,
-            data => [ map { /$regexp/ ? '' : undef } @tariffComponentMatrix ],
+            data => [ map { /$regexp/ ? '' : undef; } @tariffComponentMatrix ],
             dataset => $model->{dataset},
           );
     } 0 .. $#tariffComponents;
@@ -571,6 +575,10 @@ EOF
                   @_;
                 sub {
                     my ( $x, $y ) = @_;
+                    return '', $wb->getFormat('unavailable')
+                      if $self->{rowFormats}
+                      && defined $self->{rowFormats}[$y]
+                      && $self->{rowFormats}[$y] eq 'unavailable';
                     local $_ = $allTariffsByEndUser->{list}[$y];
                     my $yg = $allTariffsByEndUser->{groupid}[$y];
                     return '', $format, $formula->[1],
@@ -598,14 +606,15 @@ EOF
           );
     } 0 .. $#tariffComponents;
 
+    push @{ $model->{ldnoRevTables} },
+      Columnset(
+        name    => "$ldnoWord discounted CDCM tariffs",
+        columns => \@allTariffs,
+      );
+
     if ( $model->{ldnoRev} =~ /tar/i ) {
         unshift @{ $model->{ldnoRevTables} },
           Notes( lines => "$ldnoWord discounted tariffs" );
-        push @{ $model->{ldnoRevTables} },
-          Columnset(
-            name    => "Discounted $ldnoWord tariffs",
-            columns => \@allTariffs
-          );
         return;
     }
 
@@ -762,12 +771,7 @@ EOF
     else {
         unshift @{ $model->{ldnoRevTables} },
           Notes( lines => "$ldnoWord revenue model" );
-        push @{ $model->{ldnoRevTables} },
-          Columnset(
-            name    => "$ldnoWord discounted CDCM tariffs",
-            columns => \@allTariffs,
-          ),
-          $model->{ldnoRevTotal};
+        push @{ $model->{ldnoRevTables} }, $model->{ldnoRevTotal};
     }
 
     if ( $model->{ldnoRev} =~ /5/ )

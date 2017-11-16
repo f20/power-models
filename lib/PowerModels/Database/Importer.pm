@@ -31,7 +31,6 @@ use warnings;
 use strict;
 use utf8;
 
-
 sub databaseWriter {
 
     my ($settings) = @_;
@@ -145,7 +144,8 @@ sub databaseWriter {
                                 my $offset = $#_;
                                 --$offset
                                   while !$_[$offset]
-                                  || @{ $_[$offset] } < 2;
+                                  || @{ $_[$offset] } <
+                                  2;    # slightly risky/broken heuristics here?
                                 --$offset
                                   while $offset && defined $_[$offset][0];
 
