@@ -84,25 +84,6 @@ sub worksheetsAndClosures {
         my $dataSheetSaved;
         $dataSheetSaved = delete $wbook->{dataSheet}
           if $model->{noSingleInputSheet};
-        unless ( $model->{table1000} ) {
-            $model->{table1000} = Dataset(
-                number        => 1000,
-                dataset       => $model->{dataset},
-                name          => 'Company, charging year, data version',
-                cols          => Labelset( list => [qw(Company Year Version)] ),
-                defaultFormat => 'puretexthard',
-                data          => [ 'no company', 'no year', 'no data version' ],
-                usePlaceholderData => 1,
-                forwardLinks       => {},
-                appendTo           => $model->{inputTables},
-            );
-            push @{ $model->{edcmTables} },
-              Stack(
-                name =>
-                  'EDCM input data ⇒1100. Company, charging year, data version',
-                sources => [ $model->{table1000} ],
-              ) if $model->{edcmTables};
-        }
         if ( @{ $model->{inputTables} } ) {
             my $inputDataNotes = $model->inputDataNotes;
             push @{ $model->{sheetLinks}{$wbook} }, $inputDataNotes;

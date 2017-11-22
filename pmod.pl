@@ -40,13 +40,14 @@ use Cwd qw(getcwd);
 my ( @homes, @validatedLibs, @otherLibs );
 
 BEGIN {
-    my $thisScript  = rel2abs($0);
-    my $thisFolder  = dirname($thisScript);
-    my @paths = ( getcwd(), $thisFolder );
+    my @paths      = ( getcwd() );
+    my $thisScript = rel2abs($0);
+    my $thisFolder = dirname($thisScript);
+    push @paths, $thisFolder unless grep { $_ eq $thisFolder; } @paths;
     while ( -l $thisScript ) {
         $thisScript = rel2abs( readlink $thisScript, $thisFolder );
         $thisFolder = dirname $thisScript;
-        push @paths, $thisFolder;
+        push @paths, $thisFolder unless grep { $_ eq $thisFolder; } @paths;
     }
     foreach my $folder (@paths) {
         while (1) {

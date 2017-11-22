@@ -153,6 +153,8 @@ sub create {
                     {
                         foreach my $potentialSource (@optionArray) {
                             if (   $potentialSource != $target
+                                && $potentialSource->{PerlModule} eq
+                                $target->{PerlModule}
                                 && $potentialSource->{'~datasetName'}
                                 && $potentialSource->{'~datasetName'} =~
                                 /$sourceNameMatch/ )

@@ -63,6 +63,8 @@ sub requiredModulesForRuleset {
 
         $ruleset->{ppuCalc} ? 'ModelM::Ppu' : (),
 
+        $ruleset->{waterfalls} ? 'ModelM::Waterfall' : (),
+
     );
 
     push @modules, $class->requiredModulesForRuleset($_)
@@ -86,9 +88,19 @@ sub new {
     if ( $model->{sharingObjectRef} ) {
         unless ( defined ${ $model->{sharingObjectRef} } ) {
             require ModelM::MultiModel;
-            ${ $model->{sharingObjectRef} } = ModelM::MultiModel->new;
+            ${ $model->{sharingObjectRef} } = ModelM::MultiModel->new(
+                $model->{waterfalls}
+                ? ( waterfalls => $model->{waterfalls} )
+                : (),
+            );
         }
         $model->{multiModelSharing} = ${ $model->{sharingObjectRef} };
+    }
+
+    if ( my $scenarioised = $model->{dataset}{scenarioised} ) {
+        require ModelM::Hybridise;
+        ModelM::Hybridise::apply( $model, $model->{sourceModels},
+            $scenarioised );
     }
 
     die 'This system will not build an orange '
@@ -111,9 +123,10 @@ sub new {
     {
         (
             bless {
-                objects => $model->{objects},
-                dataset => $model->{dataset},
-                qno     => $model->{qno},
+                objects           => $model->{objects},
+                dataset           => $model->{dataset},
+                qno               => $model->{qno},
+                multiModelSharing => $model->{multiModelSharing},
                 %$_,
             },
             $class
@@ -134,7 +147,7 @@ sub run {
     my ( $units, ) = $model->units($allocLevelset);
     my ( $allocationRules, $capitalised, $directIndicator, ) = @{
         $model->{multiModelSharing}
-        ? ( $model->{multiModelSharing}{optionsColumns} ||=
+        ? ( $model->{multiModelSharing}{commonAllocationRules} ||=
               $model->allocationRules )
         : $model->allocationRules
     };

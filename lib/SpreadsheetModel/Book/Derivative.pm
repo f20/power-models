@@ -58,7 +58,6 @@ sub registerSourceModels {
         $model->{dataset}{$theTable} = sub {
 
             my ( $table, $wb, $ws ) = @_;
-
             my $hardData =
               $table eq $theTable ? $theHardData : $model->{dataset}{$table};
             return if ref $hardData eq 'CODE';
@@ -67,8 +66,9 @@ sub registerSourceModels {
                  $sourceModelsMap->{$table}
               || $sourceModelsMap->{baseline}
               || $sourceModelsMap->{previous};
+
             my $sourceTableHashref =
-              { map { $_->{number} => $_ } @{ $sourceModel->{inputTables} } };
+              { map { $_->{number} => $_; } @{ $sourceModel->{inputTables} } };
             my ( @rows, @columns );
 
             if ( my $d = $sourceTableHashref->{$table} ) {

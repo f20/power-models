@@ -38,13 +38,12 @@ sub score {
     my $score = 0;
 
     # DCP 130
-    $score -= 100 unless $rule->{tariffs} =~ /dcp130/i xor $month lt '2012-03';
+    $score += 10 if $rule->{tariffs} =~ /dcp130/i xor $month lt '2012-03';
 
-    # DCP 132
-    $score -= 100
-      unless $rule->{targetRevenue}
-      && $rule->{targetRevenue} =~ /dcp132/i xor $month lt '2012-03'
-      || $month ge '2017-10';
+    # DCP 132 and DCP 249
+    $score += 10
+      if $rule->{targetRevenue}
+      && $rule->{targetRevenue} =~ /dcp132|dcp249/i xor $month lt '2012-03';
 
     # DCP 163
     $score += 10 if $rule->{tariffs} =~ /dcp163/i xor $month lt '2013-03';
@@ -54,7 +53,7 @@ sub score {
       if $rule->{electionBung} && $month gt '2013-03' && $month le '2016-03';
 
     # DCP 179
-    $score -= 100 unless $rule->{tariffs} =~ /pc34hh/i xor $month lt '2014-03';
+    $score += 10 if $rule->{tariffs} =~ /pc34hh/i xor $month lt '2014-03';
 
     # DCP 227
     $score += 10
@@ -62,20 +61,15 @@ sub score {
       && $rule->{agghhequalisation} =~ /rag/i xor $month lt '2016-03';
 
     # DCP 161
-    $score -= 100
-      unless $rule->{unauth}
+    $score += 10
+      if $rule->{unauth}
       && $rule->{unauth} =~ /dayotex/i xor $month lt '2017-03';
 
-    # DCP 249
-    $score -= 100
-      unless $rule->{targetRevenue}
-      && $rule->{targetRevenue} =~ /dcp249/i xor $month lt '2017-10';
-
     # DCP 268 avoidance
-    $score *= 0.1 if !$rule->{tariffGrouping};
+    $score *= 0.1 if $rule->{tariffGrouping};
 
     # Fun
-    $score += 1 if !$rule->{pcd} xor $month lt '2020-03';
+    $score += 1 if !$rule->{pcd} && $month lt '2020-03';
 
     0
       and warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month,

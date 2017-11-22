@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2014-2016 Franck Latrémolière and others.
+Copyright 2014-2017 Franck Latrémolière and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -35,11 +35,16 @@ require Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    bless { virgin => 1 }, shift;
+    my ( $class, @content, ) = @_;
+    bless { @content, controlSheetNotGeneratedYet => 1 }, $class;
 }
 
-sub addModelName {
-    push @{ $_[0]{modelNames} }, $_[1];
+sub addModelIdentificationCells {
+    my ( $mms, @cells ) = @_;
+    push @{ $mms->{modelNames} }, $mms->{waterfalls}
+      ? qq%=$cells[2]%
+      : qq%=$cells[0]&" "&$cells[1]&" "&$cells[2]%;
+    $mms->{waterfallIdentificationCells} ||= [ @cells[ 0, 1 ] ];
 }
 
 sub addImpactTableSet {
@@ -50,9 +55,9 @@ sub worksheetsAndClosuresWithController {
 
     my ( $mms, $model, $wbook, @pairs ) = @_;
 
-    return @pairs unless delete $mms->{virgin};
+    return @pairs unless delete $mms->{controlSheetNotGeneratedYet};
 
-    'Control$' => sub {
+    unshift @pairs, 'Control$' => sub {
 
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 14;
@@ -70,12 +75,17 @@ sub worksheetsAndClosuresWithController {
           foreach Notes( name => 'Controller' ), $noticeMaker->extraNotes,
           $noticeMaker->dataNotes,
           $noticeMaker->licenceNotes,
-          @{ $mms->{optionsColumns} };
+          @{ $mms->{commonAllocationRules} };
 
-        $mms->{finish} = sub {
-            delete $wbook->{logger};
-            my $modelNameset = Labelset( list => $mms->{modelNames} );
-            $_->wsWrite( $wbook, $wsheet ) foreach map {
+        push @{ $mms->{finishClosures} }, sub {
+            my @modelOrder =
+              $mms->{waterfalls}
+              ? ( 0, 2 .. $#{ $mms->{modelNames} }, 1 )
+              : ( 0 .. $#{ $mms->{modelNames} } );
+            my $modelNameset =
+              Labelset( list => [ @{ $mms->{modelNames} }[@modelOrder] ] );
+
+            my @summaryTables = map {
                 my $tableNo    = $_;
                 my $leadTable  = $mms->{impactTableSets}[0][$tableNo];
                 my $leadColumn = $leadTable->{columns}[0];
@@ -86,9 +96,7 @@ sub worksheetsAndClosuresWithController {
                         map {
                             $leadTable->{columns}[$_]{name} =~ /checksum/i
                               ? ()
-                              : qq%='$sh'!%
-                              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                                $ro - 1, $co + $_ )
+                              : $leadTable->{columns}[$_]->objectShortName;
                         } 0 .. $#{ $leadTable->{columns} }
                     ]
                 );
@@ -96,7 +104,7 @@ sub worksheetsAndClosuresWithController {
                     $leadTable->{columns}
                   ? $leadTable->{columns}[0]{defaultFormat}
                   : $leadTable->{defaultFormat};
-                $defaultFormat =~ s/soft/copy/
+                $defaultFormat =~ s/(con|soft)/copy/
                   unless $defaultFormat =~ /pm$/;
                 my $lastRow =
                   $leadColumn->{rows} ? $#{ $leadColumn->{rows}{list} } : 0;
@@ -125,22 +133,55 @@ sub worksheetsAndClosuresWithController {
                                             $ro + $row, $co + $_ );
                                     } 0 .. $#{ $colset->{list} }
                                 ];
-                            } @{ $mms->{impactTableSets} }
+                            } @{ $mms->{impactTableSets} }[@modelOrder]
                         ]
                     );
                 } 0 .. $lastRow;
               } grep { $mms->{impactTableSets}[0][$_]{columns}; }
               0 .. $#{ $mms->{impactTableSets}[0] };
+
+            delete $wbook->{logger};
+            $_->wsWrite( $wbook, $wsheet ) foreach @summaryTables;
+            if ( $mms->{waterfalls} )
+            {    # Useful charts should perhaps be standalone as it is
+                    #  difficult to copy charts embedded in locked worksheets.
+                my ( $t, $c ) = $mms->waterfallCharts( '', @summaryTables );
+                $_->wsWrite( $wbook, $wsheet ) foreach @$t;
+                $_->wsWrite( $wbook, $mms->{sheetForCharts} ) foreach @$c;
+            }
+
         };
 
-      },
+    };
 
-      @pairs;
+    unshift @pairs, 'Charts$' => sub {
+        my ($wsheet) = @_;
+        $wsheet->{sheetNumber} = 14;
+        $wsheet->freeze_panes( 1, 0 );
+        $wsheet->set_column( 0, 0,   6 );
+        $wsheet->set_column( 1, 250, 20 );
+        $mms->{sheetForCharts} = $wsheet;
+        unshift @{ $mms->{finishClosures} }, sub {
+            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+                name => $mms->{waterfallIdentificationCells}
+                ? '="Waterfall charts for "&'
+                  . $mms->{waterfallIdentificationCells}[0]
+                  . '&" ("&'
+                  . $mms->{waterfallIdentificationCells}[1] . '&")"'
+                : 'Waterfall charts'
+            );
+        };
+      }
+      if $mms->{waterfalls} && !$mms->{waterfalls} !~ /standalone/i;
+
+    @pairs;
 
 }
 
 sub finishMultiModelSharing {
-    $_[0]->{finish}->();
+    my ($mms) = @_;
+    return unless $mms->{finishClosures};
+    $_->() foreach @{ $mms->{finishClosures} };
 }
 
 1;

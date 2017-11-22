@@ -36,6 +36,7 @@ use SpreadsheetModel::Book::FrontSheet;
 
 sub finishModel {
     my ( $model, $wbook ) = @_;
+    delete $wbook->{titleWriter};
     my $append = ( $model->{idAppend}{$wbook} || '' )
       . ( $model->{checksumAppend}{$wbook} || '' );
     foreach ( @{ $model->{titleWrites}{$wbook} } ) {
@@ -105,8 +106,9 @@ sub worksheetsAndClosures {
               foreach
               sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
               @{ $model->{objects}{inputTables} };
-            $model->{multiModelSharing}->addModelName(
-                qq%='$sh'!$cells[0]&" "&'$sh'!$cells[1]&" "&'$sh'!$cells[2]%)
+            $model->{multiModelSharing}
+              ->addModelIdentificationCells( map { "'$sh'!$cells[$_]"; }
+                  0 .. 2 )
               if $model->{multiModelSharing} && !$wbook->{findForwardLinks};
         }
         $wbook->{dataSheet} = $dataSheet if defined $dataSheet;
