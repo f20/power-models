@@ -85,7 +85,12 @@ sub registerSourceModels {
                 }
                 @rows =
                   $d->{rows}
-                  ? @{ $d->{rows}{list} }
+                  ? (
+                    @{ $d->{rows}{list} },
+                    $d->{rows}{fakeExtraList}
+                    ? @{ $d->{rows}{fakeExtraList} }
+                    : ()
+                  )
                   : 'MAGICAL SINGLE ROW NAME';
 
                 for ( my $i = 0 ; $i < @rows ; ++$i ) {

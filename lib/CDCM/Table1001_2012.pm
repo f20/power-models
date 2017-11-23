@@ -111,7 +111,51 @@ sub table1001_2012 {
       qw(3 3 3 3 4 4 4 4 4 3 7 7 7 7 8 9 10 11 12 13 13 13 0 3 3 0 15 15 15),
       -20 .. -10;
 
-    my $labelset = Labelset( list => \@labels );
+    my @fakeLines = split /\n/, <<EOL;
+Base Demand Revenue before inflation
+Annual Iteration adjustment before inflation
+RPI True-up before inflation
+Price index adjustment (RPI index)
+Base demand revenue
+Pass-Through Licence Fees
+Pass-Through Business Rates
+Pass-Through Transmission Connection Point Charges
+Pass-through Smart Meter Communication Licence Costs
+Pass-through Smart Meter IT Costs
+Pass-through Ring Fence Costs
+Pass-Through Others
+Allowed Pass-Through Items
+Broad Measure of Customer Service incentive
+Quality of Service incentive
+Connections Engagement incentive
+Time to Connect incentive
+Losses Discretionary Reward incentive
+Network Innovation Allowance
+Low Carbon Network Fund - Tier 1 unrecoverable
+Low Carbon Network Fund - Tier 2 & Discretionary Funding
+Connection Guaranteed Standards Systems & Processes penalty
+Residual Losses and Growth Incentive - Losses
+Residual Losses and Growth Incentive - Growth
+Incentive Revenue and Other Adjustments
+Correction Factor
+Total allowed Revenue
+Other 1. Excluded services - Top-up, standby, and enhanced system security
+Other 2. Excluded services - Revenue protection services
+Other 3. Excluded services - Miscellaneous
+Other 4. Please describe if used
+Other 5. Please describe if used
+Total other revenue recovered by Use of System Charges
+Total Revenue for Use of System Charges
+1. Revenue raised outside CDCM - EDCM and Certain Interconnector Revenue
+2. Revenue raised outside CDCM - Voluntary under-recovery
+3. Revenue raised outside CDCM - Please describe if used
+4. Revenue raised outside CDCM - Please describe if used
+Total Revenue to be raised outside the CDCM
+Latest forecast of CDCM Revenue
+EOL
+
+    my $labelset = Labelset( list => \@labels, fakeExtraList => \@fakeLines, );
+
     my $textnocolourc = [ base => 'textnocolour', align => 'center' ];
     my $textnocolourb = [ base => 'textnocolour', bold  => 1, ];
     my $textnocolourbc =

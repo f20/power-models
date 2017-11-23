@@ -65,6 +65,11 @@ sub score {
       if $rule->{unauth}
       && $rule->{unauth} =~ /dayotex/i xor $month lt '2017-03';
 
+    # DCP 249
+    $score += 1
+      if $rule->{targetRevenue}
+      && $rule->{targetRevenue} =~ /dcp249/i xor $month lt '2017-10';
+
     # DCP 268 avoidance
     $score *= 0.1 if $rule->{tariffGrouping};
 
