@@ -49,7 +49,7 @@ sub registerSourceModels {
 
     $customActionMap->{defaultClosure} ||= sub {
         my ($cell) = @_;
-        "=$cell";
+        defined $cell ? "=$cell" : undef;
     };
 
     while ( my ( $theTable, $formulaMaker ) = each %$customActionMap ) {
@@ -83,18 +83,32 @@ sub registerSourceModels {
                 else {
                     $width = 1 + $d->lastCol;
                 }
-                @rows =
-                  $d->{rows}
-                  ? (
-                    @{ $d->{rows}{list} },
-                    $d->{rows}{fakeExtraList}
+
+                foreach my $row (
+                    $d->{rows} && $d->{rows}{fakeExtraList}
                     ? @{ $d->{rows}{fakeExtraList} }
                     : ()
                   )
+                {
+                    local $_ = $row;
+                    s/.*\n//s;
+                    s/[^A-Za-z0-9 -]/ /g;
+                    s/- / /g;
+                    s/ +/ /g;
+                    s/^ //;
+                    s/ $//;
+                    foreach my $col ( 1 .. $width ) {
+                        $columns[$col]{$_} =
+                          $formulaMaker->( undef, $row, $col, $wb, $ws, $_ );
+                    }
+                }
+
+                @rows =
+                  $d->{rows}
+                  ? @{ $d->{rows}{list} }
                   : 'MAGICAL SINGLE ROW NAME';
 
                 for ( my $i = 0 ; $i < @rows ; ++$i ) {
-
                     local $_ = $rows[$i];
                     s/.*\n//s;
                     s/[^A-Za-z0-9 -]/ /g;
@@ -112,6 +126,7 @@ sub registerSourceModels {
                         );
                     }
                 }
+
             }
 
             map {
