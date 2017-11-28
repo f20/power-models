@@ -372,10 +372,10 @@ sub makeStatisticsTables {
         my $filter;
         {
             my $regex = $assumptions->{regex}{$user};
-            if ( $regex eq 'All-the-way demand' ) {
+            if ( $regex eq 'All-the-way metered demand' ) {
                 $filter = sub {
                     $_[0] !~ /^(?:LD|Q)NO /i
-                      && $_[0] !~ /\bunmeter|\bums\b|\bgener/i;
+                      && $_[0] !~ /\bunmeter|\bums\b|\bgener|off.?peak/i;
                 };
             }
             elsif ( $regex eq 'All-the-way generation' ) {

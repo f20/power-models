@@ -79,11 +79,11 @@ __DATA__
     Large housing standard: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
     Large intermittent: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
     Large off-peak: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Medium business: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
-    Medium continuous: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
-    Medium intermittent: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
-    Medium off-peak: '^(?:Small|LV).*(?:Non[- ]Domestic(?: [UTN]|$)|HH Metered)'
-    Other demand: All-the-way demand
+    Medium business: '^(?:Small|LV) (?:Network )?(?:Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?HH Metered)'
+    Medium continuous: '^(?:Small|LV) (?:Network )?(?:Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?HH Metered)'
+    Medium intermittent: '^(?:Small|LV) (?:Network )?(?:Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?HH Metered)'
+    Medium off-peak: '^(?:Small|LV) (?:Network )?(?:Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?HH Metered)'
+    Other demand: All-the-way metered demand
     Other generation: All-the-way generation
     Small business: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
     XL business: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
