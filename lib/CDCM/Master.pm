@@ -87,11 +87,8 @@ sub requiredModulesForRuleset {
 
       !$ruleset->{summary}
       ? ()
-      : $ruleset->{summary} =~ /stat(?:istic)?s/i ? (
-        $ruleset->{summary} =~ /1203/
-        ? 'CDCM::Statistics1203'
-        : 'CDCM::Statistics'
-      )
+      : $ruleset->{summary} =~ /stat(?:istic)?s/i
+      ? 'CDCM::Statistics' . ( $ruleset->{summary} =~ /(1203|1204)/ ? $1 : '' )
       : $ruleset->{summary} =~ /consul/i ? 'CDCM::SummaryDeprecated'
       : (),
 
@@ -1104,10 +1101,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         ) if $model->{summary} =~ /1201/;
 
         if ( $model->{summary} =~ /stat(?:istic)?s/i ) {
-            my $statsMethod =
-              $model->{summary} =~ /1203/
-              ? 'makeStatisticsTables1203'
-              : 'makeStatisticsTables';
+            my $statsMethod = 'makeStatisticsTables'
+              . ( $model->{summary} =~ /(1203|1204)/ ? $1 : '' );
             $model->$statsMethod(
                 $tariffTableReordered,  $daysInYear,
                 $nonExcludedComponents, $componentMap,
