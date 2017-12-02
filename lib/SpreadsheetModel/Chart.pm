@@ -52,7 +52,7 @@ sub check {
       . ' but must be ARRAY'
       unless ref $self->{instructions} eq 'ARRAY';
     $self->{height} ||= 360;
-    $self->{width}  ||= 640;
+    $self->{width}  ||= 528;    # about 6.25 inches
     return;
 }
 
@@ -103,6 +103,11 @@ sub applyInstructions {
             }
             if ( ref $series eq 'CODE' ) {
                 $chart->$verb( $series->( $wb, $ws ), @$args );
+                next;
+            }
+            elsif ( UNIVERSAL::can( $series, 'valuesNameCategories' ) ) {
+                $chart->$verb( $series->valuesNameCategories( $wb, $ws ),
+                    @$args );
                 next;
             }
             elsif ( UNIVERSAL::isa( $series, 'SpreadsheetModel::Dataset' )

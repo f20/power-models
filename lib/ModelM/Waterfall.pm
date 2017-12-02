@@ -31,7 +31,7 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::Chart;
+use SpreadsheetModel::WaterfallChart;
 use SpreadsheetModel::Custom;
 
 sub waterfallCharts {
@@ -173,55 +173,42 @@ sub waterfallCharts {
               );
 
             push @charts,
-              SpreadsheetModel::Chart->new(
+              SpreadsheetModel::WaterfallChart->new(
                 name => $me->{waterfalls} =~ /standalone/i
                 ? 'Chart ' . ( 1 + @charts )
                 : $titlePrefix . $itemName,
-                type         => 'bar',
-                subtype      => 'stacked',
-                width        => 1200,
+                value        => $value,
+                padding      => $padding,
+                increase     => $increase,
+                decrease     => $decrease,
                 instructions => [
-                    $me->{waterfalls} =~ /standalone/i
-                    ? ( set_title => [ name => $titlePrefix . $itemName, ] )
-                    : (),
-                    add_series => [
-                        $value,
-                        overlap  => 100,
-                        gap      => 8,
-                        gradient => {
-                            colors => [ '#FFFFFF', '#999999' ],
-                            angle  => 0,
-                        }
-                    ],
-                    add_series => [ $padding, fill => { none => 1 }, ],
-                    add_series => [
-                        $increase,
-                        gradient => {
-                            colors => [ '#FFFFFF', '#0066CC' ],
-                            angle  => 0,
-                        },
-                    ],
-                    add_series => [
-                        $decrease,
-                        gradient => {
-                            colors => [ '#FF6633', '#FFFFFF' ],
-                            angle  => 0,
-                        },
-                    ],
                     set_x_axis => [
                         num_format => '0%',
                         num_font   => { size => 16 },
                         min        => 0,
                         max        => 1,
-                        major_unit => .1,
+                        major_unit => .25,
+                        minor_unit => .05,
+                        ,
+                        major_gridlines => {
+                            visible => 1,
+                            line    => {
+                                color => '#666666',
+                                width => 0.5,
+                            }
+                        },
+                        minor_gridlines => {
+                            visible => 1,
+                            line    => {
+                                color     => '#cccccc',
+                                width     => 0.1,
+                                dash_type => 'round_dot',
+                            }
+                        }
                     ],
-                    set_y_axis => [
-                        reverse  => 1,
-                        num_font => { size => 16 },
-                    ],
-                    set_legend => [ position => 'none' ],
                 ],
               );
+
         }
 
     }

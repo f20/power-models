@@ -40,6 +40,12 @@ sub process {
 
     my ( $self, $maker, $arg ) = @_;
 
+    my @hybridisationRules = ( [1315], [ 1321, 1322 ], [1335], );
+    if ( $arg =~ /,/ ) {
+        $arg =~ s/^,+//s;
+        @hybridisationRules = map { [/([0-9]+)/g]; } split /,/, $arg;
+    }
+
     $maker->{setting}->(
         customPicker => sub {
 
@@ -69,7 +75,7 @@ sub process {
                 );
                 my @tables;
 
-                foreach ( [1315], [ 1321, 1322 ], [1335], ) {
+                foreach (@hybridisationRules) {
                     push @tables, @$_;
                     $addToList->(
                         {
@@ -82,7 +88,9 @@ sub process {
                                     {},
                                     {
                                         'Company charging year data version' =>
-                                          "Tables @$_"
+                                          @$_ > 1
+                                        ? 'Tables ' . join( '&', @$_ )
+                                        : "Table @$_"
                                     }
                                 ],
                                 scenarioised => [@tables],
