@@ -31,6 +31,7 @@ use warnings;
 use strict;
 use Data::Dumper;
 use SpreadsheetModel::Shortcuts ':all';
+use SpreadsheetModel::Book::FrontSheet;
 
 sub new {
     my $class = shift;
@@ -60,6 +61,11 @@ sub worksheetsAndClosures {
           unless $model->{omitMpanFormats};
         $model->writeColourMatrix( $wbook, $wsheet )
           if $model->{showColourMatrix};
+        SpreadsheetModel::Book::FrontSheet->new(
+            model => $model,
+            copyright =>
+              'Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.'
+        )->technicalNotes->wsWrite( $wbook, $wsheet );
     };
 }
 
