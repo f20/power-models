@@ -40,11 +40,12 @@ sub process {
 
     my ( $self, $maker, $arg ) = @_;
 
-    my @hybridisationRules = ( [1315], [ 1321, 1322 ], [1335], );
-    if ( $arg =~ /,/ ) {
-        $arg =~ s/^,+//s;
-        @hybridisationRules = map { [/([0-9]+)/g]; } split /,/, $arg;
-    }
+    $arg =
+        '1301+1302,1310,1315,1321+1322,1328,1329'
+      . ',1330,1331+1332,1335,1355,1369,1380'
+      unless $arg =~ /[0-9]/;
+    $arg =~ s/^,+//s;
+    my @hybridisationRules = map { [/([0-9]+)/g]; } split /,/, $arg;
 
     $maker->{setting}->(
         customPicker => sub {
