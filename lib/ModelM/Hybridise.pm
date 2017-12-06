@@ -94,7 +94,8 @@ sub process {
                                         : "Table @$_"
                                     }
                                 ],
-                                scenarioised => [@tables],
+                                datasetCallback =>
+                                  _makeDatasetCallback(@tables),
                                 sourceModelsDatasetNameMatches =>
                                   \%sourceModelsDatasetNameMatches,
                             }
@@ -110,26 +111,25 @@ sub process {
 
 }
 
-sub apply {
+sub _makeDatasetCallback {
+    my (@scenarioTables) = @_;
+    sub {
+        my ($model) = @_;
+        my %actions;
+        my %sources = %{ $model->{sourceModels} };
+        my $copy = sub { my ($cell) = @_; "=$cell"; };
+        foreach (@scenarioTables) {
+            $sources{$_} = $model->{sourceModels}{scenario};
+            $actions{$_} = $copy;
+        }
+        require SpreadsheetModel::Book::DerivativeTables;
 
-    my ( $model, $sourceModels, $tableList ) = @_;
-
-    my %actions;
-    my %sources = %$sourceModels;
-    my $copy = sub { my ($cell) = @_; "=$cell"; };
-    foreach (@$tableList) {
-        $sources{$_} = $sourceModels->{scenario};
-        $actions{$_} = $copy;
-    }
-
-    require SpreadsheetModel::Book::Derivative;
-
-    # Adaptation bodge for CDCM-style API
-    $_->{inputTables} = $_->{objects}{inputTables}
-      foreach values %$sourceModels;
-    SpreadsheetModel::Book::Derivative::registerSourceModels( $model,
-        \%sources, \%actions );
-
+        # Adaptation bodge for CDCM-style API
+        $_->{inputTables} = $_->{objects}{inputTables}
+          foreach values %{ $model->{sourceModels} };
+        SpreadsheetModel::Book::DerivativeTables::registerSourceModels( $model,
+            \%sources, \%actions );
+    };
 }
 
 1;

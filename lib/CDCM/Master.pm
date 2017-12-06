@@ -1104,8 +1104,13 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             my $statsMethod = 'makeStatisticsTables'
               . ( $model->{summary} =~ /(1203|1204)/ ? $1 : '' );
             $model->$statsMethod(
-                $tariffTableReordered,  $daysInYear,
-                $nonExcludedComponents, $componentMap,
+                $tariffTableReordered,
+                $daysInYear,
+                $nonExcludedComponents,
+                $componentMap,
+                $model->{summary} =~ /partyear/i
+                ? $volumeDataAfter
+                : $volumeData,
             );
         }
         elsif ( $model->{summary} =~ /consul/i ) {

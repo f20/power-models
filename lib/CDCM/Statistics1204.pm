@@ -34,8 +34,8 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub makeStatisticsTables1204 {
 
-    my ( $model, $tariffTable, $daysInYear, $nonExcludedComponents,
-        $componentMap, )
+    my ( $model, $tariffTable, $daysInYear, $tariffComponents, $componentMap,
+        $volumeData, )
       = @_;
 
     my ($allTariffs) = values %$tariffTable;
@@ -68,13 +68,22 @@ Reactive power units (MVArh)
 EOL
 
     my $counter = 10;
-    foreach (@$nonExcludedComponents) {
+    foreach (@$tariffComponents) {
         push @columns,
-          my $vol = Dataset(
+          my $vol =
+          $model->{dataset}
+          && ( $model->{dataset}{1204} || $model->{dataset}{defaultClosure} )
+          ? Dataset(
             name          => $componentVolumeNameMap{$_},
             rows          => $allTariffs,
             defaultFormat => '0hard',
             data          => [ map { ''; } @{ $allTariffs->{list} } ],
+          )
+          : Stack(
+            name          => $componentVolumeNameMap{$_},
+            rows          => $allTariffs,
+            defaultFormat => '0hard',
+            sources       => [ $volumeData->{$_} ],
           );
         if (/kWh/) {
             ++$counter;

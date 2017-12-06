@@ -660,7 +660,7 @@ EOF
 
         Columnset(
             name => "$ldnoWord volume data",
-            $model->{sharingObjectRef}
+            $model->{ldnoVolumeSheet}
             ? ()
             : ( number => 1183, ),
             dataset  => $model->{dataset},

@@ -335,7 +335,7 @@ sub loadFlowInputs {
         dataset       => $model->{dataset}
     ) unless $model->{method} =~ /LRIC/i;
 
-    $model->{table911} = Columnset(
+    $model->{table911913} = Columnset(
         columns => [
             $model->{locations},
             $model->{method} =~ /LRIC/i ? $model->{locDorG} : $model->{level},

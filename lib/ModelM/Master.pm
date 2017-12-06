@@ -97,11 +97,8 @@ sub new {
         $model->{multiModelSharing} = ${ $model->{sharingObjectRef} };
     }
 
-    if ( my $scenarioised = $model->{dataset}{scenarioised} ) {
-        require ModelM::Hybridise;
-        ModelM::Hybridise::apply( $model, $model->{sourceModels},
-            $scenarioised );
-    }
+    $model->{dataset}{datasetCallback}->($model)
+      if $model->{dataset}{datasetCallback};
 
     die 'This system will not build an orange '
       . 'Model M without a suitable disclaimer.' . "\n--"

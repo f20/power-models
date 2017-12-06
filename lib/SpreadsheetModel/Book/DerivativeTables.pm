@@ -1,4 +1,4 @@
-package SpreadsheetModel::Book::Derivative;
+package SpreadsheetModel::Book::DerivativeTables;
 
 =head Copyright licence and disclaimer
 

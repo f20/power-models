@@ -74,6 +74,31 @@ sub check {
             angle  => 0,
         },
       ],
+      $self->{value_neg}
+      ? (
+        add_series => [
+            $self->{value_neg},
+            gradient => {
+                colors => [ '#CCCCCC', '#666666' ],
+                angle  => 180,
+            },
+        ],
+        add_series => [
+            $self->{increase_neg},
+            gradient => {
+                colors => [ '#C0E0FF', '#0066CC' ],
+                angle  => 0,
+            },
+        ],
+        add_series => [
+            $self->{decrease_neg},
+            gradient => {
+                colors => [ '#FF6633', '#FFCFBF' ],
+                angle  => 0,
+            },
+        ],
+      )
+      : (),
       set_y_axis => [
         reverse  => 1,
         num_font => { size => 16 },

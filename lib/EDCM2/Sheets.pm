@@ -191,7 +191,7 @@ sub worksheetsAndClosures {
             $wsheet->set_column( 4, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Power flow input data' ),
-              $model->{table911};
+              $model->{table911913};
         }
       )
 
