@@ -181,14 +181,12 @@ sub new {
     }
 
     if ( ref $model->{sharingObjectRef} ) {
-        ${ $model->{sharingObjectRef} }->registerModel($model)
-          if UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'registerModel' );
+        ${ $model->{sharingObjectRef} }->registerCdcmModel($model)
+          if UNIVERSAL::can( ${ $model->{sharingObjectRef} },
+            'registerCdcmModel' );
         $model->{sharedData} = ${ $model->{sharingObjectRef} }
           if UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'addStats' );
     }
-
-    $model->useSourceModels( $model->{sourceModels} )
-      if $model->{sourceModels} && $model->can('useSourceModels');
 
     $model->timebandDetails if $model->{timebandDetails};
 
