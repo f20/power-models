@@ -90,10 +90,10 @@ sub rebuildWriter {
             print $h YAML::Dump($value);
         }
         $runner->makeModels(
-            '-pickall', '-single',
-            lc $ext eq '.xls' ? '-xls' : '-xlsx', "-folder=$tempFolder",
-            "-template=%", $rulesFile,
-            "$tempFolder/$core.yml"
+            '-pickall',    '-single',
+            '-purple',     "-folder=$tempFolder",
+            "-template=%", lc $ext eq '.xls' ? '-xls' : '-xlsx',
+            $rulesFile,    "$tempFolder/$core.yml"
         );
         if ( -s "$tempFolder/$core$ext" ) {
             rename "$path$core$ext", "$tempFolder/$core-old$ext"

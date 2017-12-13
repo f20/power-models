@@ -157,6 +157,9 @@ sub makeModels {
                     ldnoRev => 0,
                 );
             }
+            elsif (/^-+purple/is) {
+                $maker->{setRule}->( colour => undef );
+            }
             elsif (/^-+orange/is) {
                 $maker->{setRule}->( colour => 'orange' );
             }

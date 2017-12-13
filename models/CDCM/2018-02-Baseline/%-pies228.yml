@@ -1,6 +1,6 @@
 ---
 .: '2018 CDCM after DCP 228, with matrix charts'
-.Style: Model with checksums and matrix charts
+.Style: Model with additional features and matrix charts
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
@@ -8,6 +8,7 @@ blackPeakingProbabilityRequired: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
+edcmTables: 1
 extraLevels: 1
 fixedCap: 1-4
 matrices: bigcharts
@@ -16,7 +17,7 @@ pcd: 1
 portfolio: 1
 scaler: adderppugeneralminzeronogen
 standing: sub132
-summary: yes
+summary: statistics1201
 targetRevenue: dcp249
 tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179
