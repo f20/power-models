@@ -234,11 +234,6 @@ sub discounts95 {
     );
 
     my @columns = (
-        Constant(
-            name          => 'No discount',
-            defaultFormat => '%con',
-            data          => [ [] ],
-        ),
         Arithmetic(
             name => $model->{qno} . ' LV: LV user',
             cols => Labelset( list => [ $model->{qno} . ' LV: LV user' ] ),
