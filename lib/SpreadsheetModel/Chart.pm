@@ -93,14 +93,16 @@ sub applyInstructions {
                   . xl_rowcol_to_cell( $r2, $c2 ) ];
         }
         if ( $verb eq 'add_series' ) {
-            my $series = $args;
+            my $series;
             if ( ref $args eq 'ARRAY' ) {
                 ( $series, my @newArgs ) = @$args;
                 $args = \@newArgs;
             }
             else {
-                $args = [];
+                $series = $args;
+                $args   = [];
             }
+            next unless $series;
             if ( ref $series eq 'CODE' ) {
                 $chart->$verb( $series->( $wb, $ws ), @$args );
                 next;

@@ -144,7 +144,28 @@ sub create {
                         %$dataset = %{ $parsed[0] };
                     }
                 }
-                if ( my $sourceNameMatches =
+                if ( my $sourceModelsIds =
+                    $optionArray[$i]{dataset}{sourceModelsIds} )
+                {
+                    my $target = $optionArray[$i];
+                    while ( my ( $key, $id ) = each %$sourceModelsIds ) {
+                        foreach my $potentialSource (@optionArray) {
+                            if (   $potentialSource != $target
+                                && $potentialSource->{PerlModule} eq
+                                $target->{PerlModule}
+                                && $potentialSource->{'~datasetId'}
+                                && $potentialSource->{'~datasetId'} eq $id )
+                            {
+                                push @{ $potentialSource->{requestsToSeeModel}
+                                  }, sub {
+                                    $target->{sourceModels}{$key} = $_[0];
+                                  };
+                                last;
+                            }
+                        }
+                    }
+                }
+                elsif ( my $sourceNameMatches =
                     $optionArray[$i]{dataset}{sourceModelsDatasetNameMatches} )
                 {
                     my $target = $optionArray[$i];

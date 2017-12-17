@@ -74,23 +74,7 @@ sub tablesAndCharts {
             arguments  => { A1 => $cols->[1] },
         )
     );
-    my @increase_neg = (
-        Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[1] },
-        )
-    );
     my @decrease = (
-        Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[1] },
-        )
-    );
-    my @decrease_neg = (
         Arithmetic(
             name       => $n,
             rows       => $rows,
@@ -135,31 +119,29 @@ sub tablesAndCharts {
           );
         push @increase,
           Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=MAX(0,MAX(A2,0)-MAX(A1,0))',
-            arguments  => { A1 => $cols->[ $i - 1 ], A2 => $cols->[$j], },
-          );
-        push @increase_neg,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=MIN(0,MIN(A1,0)-MIN(A2,0))',
-            arguments  => { A1 => $cols->[ $i - 1 ], A2 => $cols->[$j], },
+            name => $n,
+            rows => $rows,
+            arithmetic =>
+              '=MAX(0,MAX(A2,0)-MAX(A1,0))+MIN(0,MIN(A11,0)-MIN(A21,0))',
+            arguments => {
+                A1  => $cols->[ $i - 1 ],
+                A11 => $cols->[ $i - 1 ],
+                A21 => $cols->[$j],
+                A2  => $cols->[$j],
+            },
           );
         push @decrease,
           Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=MAX(0,MAX(A1,0)-MAX(A2,0))',
-            arguments  => { A1 => $cols->[ $i - 1 ], A2 => $cols->[$j], },
-          );
-        push @decrease_neg,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=MIN(0,MIN(A2,0)-MIN(A1,0))',
-            arguments  => { A1 => $cols->[ $i - 1 ], A2 => $cols->[$j], },
+            name => $n,
+            rows => $rows,
+            arithmetic =>
+              '=MAX(0,MAX(A1,0)-MAX(A2,0))+MIN(0,MIN(A21,0)-MIN(A11,0))',
+            arguments => {
+                A1  => $cols->[ $i - 1 ],
+                A11 => $cols->[ $i - 1 ],
+                A21 => $cols->[$j],
+                A2  => $cols->[$j],
+            },
           );
     }
 
@@ -193,21 +175,7 @@ sub tablesAndCharts {
             arithmetic => '=NA()',
             arguments  => { A1 => $cols->[0] },
           );
-        push @increase_neg,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[0] },
-          );
         push @decrease,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[0] },
-          );
-        push @decrease_neg,
           Arithmetic(
             name       => $n,
             rows       => $rows,
@@ -233,23 +201,13 @@ sub tablesAndCharts {
       );
     push @tables,
       my $increaseColumnset = Columnset(
-        name    => "$csetName: positive increases",
+        name    => "$csetName: increases",
         columns => \@increase,
       );
     push @tables,
-      my $increaseNegColumnset = Columnset(
-        name    => "$csetName: negative increases",
-        columns => \@increase_neg,
-      );
-    push @tables,
       my $decreaseColumnset = Columnset(
-        name    => "$csetName: positive decreases",
+        name    => "$csetName: decreases",
         columns => \@decrease,
-      );
-    push @tables,
-      my $decreaseNegColumnset = Columnset(
-        name    => "$csetName: negative decreases",
-        columns => \@decrease_neg,
       );
 
     for my $r ( $rows->indices ) {
@@ -262,19 +220,16 @@ sub tablesAndCharts {
             $settings->{instructions}
             ? ( instructions => [ @{ $settings->{instructions} } ] )
             : (),
-            value => SpreadsheetModel::ChartSeries->new( $valueColumnset, $r ),
-            value_neg =>
+            grey_rightwards =>
+              SpreadsheetModel::ChartSeries->new( $valueColumnset, $r ),
+            grey_leftwards =>
               SpreadsheetModel::ChartSeries->new( $valueNegColumnset, $r ),
             padding =>
               SpreadsheetModel::ChartSeries->new( $paddingColumnset, $r ),
-            increase =>
+            orange_rightwards =>
               SpreadsheetModel::ChartSeries->new( $increaseColumnset, $r ),
-            increase_neg =>
-              SpreadsheetModel::ChartSeries->new( $increaseNegColumnset, $r ),
-            decrease =>
+            blue_leftwards =>
               SpreadsheetModel::ChartSeries->new( $decreaseColumnset, $r ),
-            decrease_neg =>
-              SpreadsheetModel::ChartSeries->new( $decreaseNegColumnset, $r ),
           );
     }
 

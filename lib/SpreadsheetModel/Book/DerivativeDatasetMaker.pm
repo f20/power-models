@@ -1,4 +1,4 @@
-package SpreadsheetModel::Book::DerivativeTables;
+package SpreadsheetModel::Book::DerivativeDatasetMaker;
 
 =head Copyright licence and disclaimer
 
@@ -31,9 +31,9 @@ use warnings;
 use strict;
 use Spreadsheet::WriteExcel::Utility;
 
-sub registerSourceModels {
+sub applySourceModelsToDataset {
 
-    my ( $model, $sourceModelsMap, $customActionMap ) = @_;
+    my ( $self, $model, $sourceModelsMap, $customActionMap ) = @_;
 
     my %backupDatasets;
     foreach my $sourceModel ( values %$sourceModelsMap ) {
@@ -47,10 +47,13 @@ sub registerSourceModels {
         $backupDatasets{ 0 + $sourceModel } = \@backupDatasets;
     }
 
-    $customActionMap->{defaultClosure} ||= sub {
+    my $copyClosure = sub {
         my ($cell) = @_;
         defined $cell ? "=$cell" : undef;
     };
+
+    $customActionMap->{$_} ||= $copyClosure
+      foreach 'defaultClosure', keys %$sourceModelsMap;
 
     while ( my ( $theTable, $formulaMaker ) = each %$customActionMap ) {
 
@@ -62,10 +65,8 @@ sub registerSourceModels {
               $table eq $theTable ? $theHardData : $model->{dataset}{$table};
             return if ref $hardData eq 'CODE';
 
-            my $sourceModel =
-                 $sourceModelsMap->{$table}
-              || $sourceModelsMap->{baseline}
-              || $sourceModelsMap->{previous};
+            my $sourceModel = $sourceModelsMap->{$table}
+              || $sourceModelsMap->{baseline};
 
             my $sourceTableHashref =
               { map { $_->{number} => $_; } @{ $sourceModel->{inputTables} } };

@@ -177,11 +177,11 @@ sub waterfallCharts {
                 name => $me->{waterfalls} =~ /standalone/i
                 ? 'Chart ' . ( 1 + @charts )
                 : $titlePrefix . $itemName,
-                value        => $value,
-                padding      => $padding,
-                increase     => $increase,
-                decrease     => $decrease,
-                instructions => [
+                grey_rightwards  => $value,
+                padding          => $padding,
+                blue_rightwards  => $increase,
+                orange_leftwards => $decrease,
+                instructions     => [
                     set_x_axis => [
                         num_format => '0%',
                         num_font   => { size => 16 },

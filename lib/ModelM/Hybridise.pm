@@ -35,6 +35,7 @@ This hybridises some of the input data, on a single set of rules.
 
 use warnings;
 use strict;
+use SpreadsheetModel::Book::DerivativeDatasetMaker;
 
 sub process {
 
@@ -66,22 +67,33 @@ sub process {
 
             foreach my $dno ( keys %datasetsByDno ) {
 
+                my %sourceModelsIds = (
+                    baseline => (
+                        $datasetsByDno{$dno}[0]{'~datasetId'} = "Baseline $dno"
+                    ),
+                    scenario => (
+                        $datasetsByDno{$dno}[1]{'~datasetId'} = "Scenario $dno"
+                    ),
+                );
+
                 $addToList->( $datasetsByDno{$dno}[0], $rulesetsRef->[0] );
 
                 $addToList->( $datasetsByDno{$dno}[1], $rulesetsRef->[0] );
 
-                my %sourceModelsDatasetNameMatches = (
-                    baseline => $datasetsByDno{$dno}[0]{'~datasetName'},
-                    scenario => $datasetsByDno{$dno}[1]{'~datasetName'},
-                );
-                my @tables;
+                my @tableAccumulator;
 
                 foreach (@hybridisationRules) {
-                    push @tables, @$_;
+                    my $hybridNickname =
+                      @$_ > 1
+                      ? 'Tables ' . join( '&', @$_ )
+                      : "Table @$_";
+                    push @tableAccumulator, @$_;
+                    my @tablesForClosure = @tableAccumulator;
                     $addToList->(
                         {
                             '~datasetName' =>
-                              $datasetsByDno{$dno}[1]{'~datasetName'} . ' blah',
+                              $datasetsByDno{$dno}[1]{'~datasetName'}
+                              . " ($hybridNickname)",
                             dataset => {
                                 1300 => [
                                     {},
@@ -89,15 +101,25 @@ sub process {
                                     {},
                                     {
                                         'Company charging year data version' =>
-                                          @$_ > 1
-                                        ? 'Tables ' . join( '&', @$_ )
-                                        : "Table @$_"
+                                          $hybridNickname
                                     }
                                 ],
-                                datasetCallback =>
-                                  _makeDatasetCallback(@tables),
-                                sourceModelsDatasetNameMatches =>
-                                  \%sourceModelsDatasetNameMatches,
+                                sourceModelsIds => \%sourceModelsIds,
+                                datasetCallback => sub {
+                                    my ($model) = @_;
+                                    SpreadsheetModel::Book::DerivativeDatasetMaker
+                                      ->applySourceModelsToDataset(
+                                        $model,
+                                        {
+                                            baseline =>
+                                              $model->{sourceModels}{baseline},
+                                            map {
+                                                ( $_ => $model->{sourceModels}
+                                                      {scenario} );
+                                            } @tablesForClosure
+                                        }
+                                      );
+                                },
                             }
                         },
                         $rulesetsRef->[0],
@@ -109,27 +131,6 @@ sub process {
         }
     );
 
-}
-
-sub _makeDatasetCallback {
-    my (@scenarioTables) = @_;
-    sub {
-        my ($model) = @_;
-        my %actions;
-        my %sources = %{ $model->{sourceModels} };
-        my $copy = sub { my ($cell) = @_; "=$cell"; };
-        foreach (@scenarioTables) {
-            $sources{$_} = $model->{sourceModels}{scenario};
-            $actions{$_} = $copy;
-        }
-        require SpreadsheetModel::Book::DerivativeTables;
-
-        # Adaptation bodge for CDCM-style API
-        $_->{inputTables} = $_->{objects}{inputTables}
-          foreach values %{ $model->{sourceModels} };
-        SpreadsheetModel::Book::DerivativeTables::registerSourceModels( $model,
-            \%sources, \%actions );
-    };
 }
 
 1;

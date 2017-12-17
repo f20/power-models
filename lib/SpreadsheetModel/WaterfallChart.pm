@@ -36,11 +36,8 @@ use base 'SpreadsheetModel::Chart';
 sub check {
 
     my ($self) = @_;
-    return 'Broken waterfall chart'
-      unless ref $self->{value}
-      && ref $self->{padding}
-      && ref $self->{increase}
-      && ref $self->{decrease};
+    return 'No padding in waterfall chart'
+      unless ref $self->{padding};
 
     $self->{type}    = 'bar';
     $self->{subtype} = 'stacked';
@@ -51,7 +48,7 @@ sub check {
     $self->{height} ||= 192 + 24 * $lastId;
     push @{ $self->{instructions} },
       add_series => [
-        $self->{value},
+        $self->{grey_rightwards},
         overlap  => 100,
         gap      => 8,
         gradient => {
@@ -59,46 +56,42 @@ sub check {
             angle  => 0,
         },
       ],
+      add_series => [
+        $self->{grey_leftwards},
+        gradient => {
+            colors => [ '#CCCCCC', '#666666' ],
+            angle  => 180,
+        },
+      ],
       add_series => [ $self->{padding}, fill => { none => 1 }, ],
       add_series => [
-        $self->{increase},
+        $self->{blue_rightwards},
         gradient => {
             colors => [ '#C0E0FF', '#0066CC' ],
             angle  => 0,
         },
       ],
       add_series => [
-        $self->{decrease},
+        $self->{blue_leftwards},
         gradient => {
-            colors => [ '#FF6633', '#FFCFBF' ],
+            colors => [ '#C0E0FF', '#0066CC' ],
+            angle  => 180,
+        },
+      ],
+      add_series => [
+        $self->{orange_rightwards},
+        gradient => {
+            colors => [ '#FFCFBF', '#FF6633' ],
             angle  => 0,
         },
       ],
-      $self->{value_neg}
-      ? (
-        add_series => [
-            $self->{value_neg},
-            gradient => {
-                colors => [ '#CCCCCC', '#666666' ],
-                angle  => 180,
-            },
-        ],
-        add_series => [
-            $self->{increase_neg},
-            gradient => {
-                colors => [ '#C0E0FF', '#0066CC' ],
-                angle  => 0,
-            },
-        ],
-        add_series => [
-            $self->{decrease_neg},
-            gradient => {
-                colors => [ '#FF6633', '#FFCFBF' ],
-                angle  => 0,
-            },
-        ],
-      )
-      : (),
+      add_series => [
+        $self->{orange_leftwards},
+        gradient => {
+            colors => [ '#FFCFBF', '#FF6633' ],
+            angle  => 180,
+        },
+      ],
       set_y_axis => [
         reverse  => 1,
         num_font => { size => 16 },
