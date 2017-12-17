@@ -234,7 +234,6 @@ sub discounts95 {
     );
 
     my @columns = (
-        Constant( name => 'No discount', data => [ [] ], ),
         Arithmetic(
             name       => 'LDNO LV: LV user',
             arithmetic => $model->{fixedIndirectPercentage}
