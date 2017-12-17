@@ -1,5 +1,5 @@
 ---
-.: '2018/2019 CDCM with embedded model M, clean'
+.: 'CDCM after DCP 228 with embedded model M, clean'
 .Style: Clean model with embedded model M
 PerlModule: CDCM
 agghhequalisation: rag

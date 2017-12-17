@@ -1,5 +1,5 @@
 ---
-.: '2018 CDCM after DCP 228, clean'
+.: 'CDCM after DCP 228, clean'
 .Style: Clean model with checksums
 PerlModule: CDCM
 agghhequalisation: rag

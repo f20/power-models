@@ -1,5 +1,5 @@
 ---
-.: '2018 CDCM after DCP 228, with matrix charts'
+.: 'CDCM after DCP 228, with matrix charts'
 .Style: Model with additional features and matrix charts
 PerlModule: CDCM
 agghhequalisation: rag
