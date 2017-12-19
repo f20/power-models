@@ -1,5 +1,5 @@
 ---
-.: Model M with checksums
+.: Method M after DCP 117 and DCP 231 with checksums
 AdditionalRules:
   - calcUnits: 1
     checksums: Table checksum 7

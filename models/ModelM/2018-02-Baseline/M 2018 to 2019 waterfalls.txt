@@ -1,6 +1,6 @@
 makeModels
     -ext=ModelM::Hybridise,1301,1302,1331+1332,1335
     -template=%%-ModelM-Waterfalls-April-2019
-	ModelM/2018-02-Baseline/%-mwaterfalls.yml
+	ModelM/2018-02-Baseline/%+mwaterfalls.yml
 	ModelM/2018-02/W*.yml
 	ModelM/2019-02/W*.yml
