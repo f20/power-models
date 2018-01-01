@@ -1,9 +1,0 @@
-makeModels
-	-sqlite
-	CDCM/ExtEHV-2015/%-extehv-1.yml
-	CDCM/2015-06/*
-
-useDatabase
-	all
-	37
-	42

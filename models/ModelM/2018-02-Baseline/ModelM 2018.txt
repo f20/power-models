@@ -1,7 +1,0 @@
-makeModels
-	-sqlitexls
-	ModelM/2018-02-Baseline/%-mextras117231.yml
-	ModelM/2018-02/*
-
-useDatabase
-	all
