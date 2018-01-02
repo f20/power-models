@@ -23,7 +23,7 @@ byDno: 1
 impact: Table6003
 scenarioPattern: -mce306\b
 template: DCP 306 impact on end user tariffs (by DNO)
-title: impact of DCP 306 on discount percentages
+title: impact of DCP 306 on end user tariffs
 wantDatasetArray: 1
 ---
 PerlModule: Impact
@@ -32,7 +32,7 @@ impact: Table6003
 protect: 0
 scenarioPattern: -mce306\b
 template: DCP 306 impact on end user tariffs (single sheet)
-title: impact of DCP 306 on discount percentages
+title: impact of DCP 306 on end user tariffs
 wantDatasetArray: 1
 ---
 PerlModule: Impact
@@ -41,7 +41,7 @@ byDno: 1
 impact: Table6005
 scenarioPattern: -mce306\b
 template: DCP 306 impact on LDNO tariffs (by DNO)
-title: impact of DCP 306 on discount percentages
+title: impact of DCP 306 on LDNO tariffs
 wantDatasetArray: 1
 ---
 PerlModule: Impact
@@ -50,5 +50,5 @@ impact: Table6005
 protect: 0
 scenarioPattern: -mce306\b
 template: DCP 306 impact on LDNO tariffs (single sheet)
-title: impact of DCP 306 on discount percentages
+title: impact of DCP 306 on LDNO tariffs
 wantDatasetArray: 1
