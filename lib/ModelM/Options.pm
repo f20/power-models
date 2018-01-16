@@ -148,10 +148,12 @@ END_OF_LIST
             : '0connz',
             data => [
                 [
-                    ( map { 1 } 1 .. 6 ),
-                    ( map { 0 } 1 .. 15 ),
-                    ( map { 1 } 1 .. 12 ),
-                    $model->{dcp306} ? 0 : (),
+                    ( map { 1 } 1 .. 6 ),    # direct cost categories
+                    ( map { 0 } 1 .. 15 ),   # indirect cost categories
+                    ( map { 1 } 1 .. 9 ),    # other costs weirdly marked direct
+                    1,                       # transmission exit
+                    ( map { 1 } 1 .. 2 ),    # other costs weirdly marked direct
+                    $model->{dcp306} ? 0 : (),    # Ofgem licence fees
                 ]
             ]
         )
