@@ -135,7 +135,7 @@
     Total allowed Revenue: CRC2A
     Total other revenue recovered by Use of System Charges: ''
     _column: CRC
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 21173938.6921732
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 21396990.666706
     2 Revenue raised outside CDCM Voluntary under-recovery: 0
     3 Revenue raised outside CDCM Please describe if used: 0
     4 Revenue raised outside CDCM Please describe if used: 0
@@ -493,13 +493,13 @@
   - _table: 1037. Embedded network (LDNO) discounts
   - LDNO discount: ''
     _column: No discount
-  - LDNO discount: 0.357283726674961
+  - LDNO discount: 0.35735787095018
     _column: 'LDNO LV: LV user'
-  - LDNO discount: 0.573281385863987
+  - LDNO discount: 0.573411624841968
     _column: 'LDNO HV: LV user'
-  - LDNO discount: 0.327768853085247
+  - LDNO discount: 0.327894462037275
     _column: 'LDNO HV: LV sub user'
-  - LDNO discount: 0.204146789456998
+  - LDNO discount: 0.20424557221786
     _column: 'LDNO HV: HV user'
 1041:
   - _table: 1041. Load profile data for demand users
@@ -1090,9 +1090,9 @@
     _column: "Transmission\nexit"
 1059:
   - _table: 1059. Other expenditure
-  - Other expenditure: 35053124.3350328
+  - Other expenditure: 31791545.4594395
     _column: Direct cost (£/year)
-  - Other expenditure: 107506702.984304
+  - Other expenditure: 109223705.982677
     _column: Indirect cost (£/year)
   - Other expenditure: 0.6
     _column: Indirect cost proportion
