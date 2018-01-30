@@ -621,7 +621,6 @@ sub fixedAdderAdj {
     );
     Arithmetic(
         name          => 'Adjusted fixed adder charging rate',
-        defaultFormat => '%soft',
         arithmetic    => '=IF(ISERROR(A1),A2,A3)',
         arguments     => {
             A1 => $self->{fixedAdderChargingRate},
