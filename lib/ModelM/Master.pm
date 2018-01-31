@@ -79,12 +79,10 @@ sub requiredModulesForRuleset {
 
 sub new {
     my $class = shift;
-    my $model = bless {
-        inputTables => [],
-        dataset     => {},
-        @_,
-    }, $class;
+    my $model = bless {@_}, $class;
+    $model->{inputTables} ||= $model->{objects}{inputTables} || [];
     $model->{objects}{inputTables} = $model->{inputTables};
+    $model->{dataset} ||= {};
 
     if ( $model->{sharingObjectRef} ) {
         unless ( defined ${ $model->{sharingObjectRef} } ) {
