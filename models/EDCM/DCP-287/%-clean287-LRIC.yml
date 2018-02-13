@@ -1,0 +1,23 @@
+---
+.: 'EDCM after DCP 161 (clean), LRIC'
+PerlModule: EDCM2
+checksums: Line checksum 5; Table checksum 7
+dcp130: 1
+dcp161: 1
+dcp179: 1
+dcp185: 2
+dcp189: proportionsplitShortfall
+dcp287: 1
+layout: auto
+ldnoRev: ldnorev5rounding
+lowerIntermittentCredit: 1
+method: LRIC
+noNegative: 1
+numLocationsDefault: 1200
+numTariffsDefault: 600
+protect: 1
+summaries: 1
+table1101: 1
+transparency: 1
+validation: lenientnomsg
+voltageRulesTransparency: 1
