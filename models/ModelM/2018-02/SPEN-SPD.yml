@@ -9,25 +9,23 @@
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset fails to reproduce the December 2016 price notice for 2018/2019.
+      This dataset tries to approximate the December 2016 price notice for 2018/2019 when used with a suitable model.
 1301:
   - _table: 1301. DNO LV mains usage
-  - DNO LV mains usage: 0.009
+  - DNO LV mains usage: 0.01
     _column: DNO LV mains usage
-  - DNO LV mains usage: Reverse engineered
 1302:
   - _table: 1302. DNO HV mains usage
   - DNO HV mains usage: 0.63
     _column: DNO HV mains usage
 1310:
   - _table: 1310. DPCR4 aggregate allowances (£)
-  - DPCR4 aggregate allowances: 514200000
+  - DPCR4 aggregate allowances: 515902504.745599
     _column: Aggregate return
-  - DPCR4 aggregate allowances: 568400000
+  - DPCR4 aggregate allowances: 566100000
     _column: Aggregate depreciation
-  - DPCR4 aggregate allowances: 390600000
+  - DPCR4 aggregate allowances: 391352000
     _column: Aggregate operating
-  - DPCR4 aggregate allowances: Aggregated from annual data
 1315:
   - _table: 1315. Analysis of allowed revenue for 2007/2008 (£/year)
   - Analysis of allowed revenue for 2007 2008 year: 342856400
@@ -60,145 +58,145 @@
     _column: EHV&132
 1330:
   - _table: 1330. Allocated costs (£/year)
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
-    Faults: 9500000
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
-    Inspections Maintenance: 500000
-    Load related new connections reinforcement net of contributions: -2800000
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
-    Non-load new replacement assets net of contributions: 21000000
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 9480000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 520000
+    Load related new connections reinforcement net of contributions: -2770000
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 20975000
     Non-operational capex: 0
     Ofgem licence fees: ''
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
-    Tree Cutting: 900000
-    Vehicles Transport: ''
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 890000
+    Vehicles Transport: 0
     _column: LV
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
-    Faults: 100000
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 90000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
     Inspections Maintenance: 3200000
     Load related new connections reinforcement net of contributions: 0
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
-    Non-load new replacement assets net of contributions: 11700000
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 11695000
     Non-operational capex: 0
     Ofgem licence fees: ''
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
     Tree Cutting: 0
-    Vehicles Transport: ''
+    Vehicles Transport: 0
     _column: HV/LV
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
-    Faults: 4200000
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
-    Inspections Maintenance: 500000
-    Load related new connections reinforcement net of contributions: 3800000
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
-    Non-load new replacement assets net of contributions: 22800000
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 4220000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 460000
+    Load related new connections reinforcement net of contributions: 3760000
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 22760000
     Non-operational capex: 0
     Ofgem licence fees: ''
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
-    Tree Cutting: 2100000
-    Vehicles Transport: ''
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 2070000
+    Vehicles Transport: 0
     _column: HV
-  - Atypical cash costs: ''
-    CEO etc: ''
-    Control Centre: ''
-    Customer Call Centre: ''
-    Disallowed Related Party Margins: ''
-    Engineering Mgt Clerical Support: ''
-    Excluded services de minimis: ''
-    Faults: 500000
-    Finance Regulation: ''
-    HR Non-operational Training: ''
-    Health Safety Operational Training: ''
-    IFI: ''
-    IT Telecoms: ''
-    Inspections Maintenance: 1000000
-    Load related new connections reinforcement net of contributions: 6500000
-    Metering: ''
-    Network Design Engineering: ''
-    Network Policy: ''
-    Network Rates: ''
-    Non activity costs and reconciling amounts note 3: ''
-    Non-load new replacement assets net of contributions: 12800000
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 530000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 1020000
+    Load related new connections reinforcement net of contributions: 6530000
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 12780000
     Non-operational capex: 0
     Ofgem licence fees: ''
-    Pension deficit payments: ''
-    Pension deficit repair payments by related parties note 2: ''
-    Project Management: ''
-    Property Mgt: ''
-    Relevant distributed generation less contributions: ''
-    Statutory Depreciation: ''
-    Stores: ''
-    System Mapping Cartographical: ''
-    Transmission Exit Charges: ''
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
     Tree Cutting: 500000
-    Vehicles Transport: ''
+    Vehicles Transport: 0
     _column: EHV&132
 1331:
   - _table: 1331. Assets in CDCM model (£)
@@ -227,45 +225,44 @@
   - Assets in CDCM model: From CDCM model
 1332:
   - _table: 1332. All notional assets in EDCM (£)
-  - All notional assets in EDCM: 260000000
+  - All notional assets in EDCM: 259355024.553803
     _column: All notional assets in EDCM (£)
-  - All notional assets in EDCM: Reverse engineered
 1335:
   - _table: 1335. Total costs (£/year)
   - Atypical cash costs: 1600000
-    CEO etc: 3000000
-    Control Centre: 2400000
-    Customer Call Centre: 1000000
-    Disallowed Related Party Margins: 9800000
-    Engineering Mgt Clerical Support: 12500000
-    Excluded services de minimis: 11800000
-    Faults: 13600000
-    Finance Regulation: 5900000
-    HR Non-operational Training: 1900000
-    Health Safety Operational Training: 2100000
+    CEO etc: 2962605.11029694
+    Control Centre: 2448554.82458935
+    Customer Call Centre: 1027869.19764177
+    Disallowed Related Party Margins: 9782374.4778638
+    Engineering Mgt Clerical Support: 12468659.049673
+    Excluded services de minimis: 11848819.4900597
+    Faults: 13633462.4218344
+    Finance Regulation: 5948869.66254644
+    HR Non-operational Training: 1857950.33186254
+    Health Safety Operational Training: 2065739.67958918
     IFI: 0
-    IT Telecoms: 7100000
-    Inspections Maintenance: 6500000
-    Load related new connections reinforcement net of contributions: 6200000
-    Metering: 15600000
-    Network Design Engineering: 6600000
-    Network Policy: 1400000
-    Network Rates: 27200000
-    Non activity costs and reconciling amounts note 3: 2800000
-    Non-load new replacement assets net of contributions: 63700000
-    Non-operational capex: 2600000
+    IT Telecoms: 7088996.01428847
+    Inspections Maintenance: 6517643.9503156
+    Load related new connections reinforcement net of contributions: 6218892.53451607
+    Metering: 15642924.0029774
+    Network Design Engineering: 6610298.48555548
+    Network Policy: 1413318.90930765
+    Network Rates: 27248560.63
+    Non activity costs and reconciling amounts note 3: 2824534.24833824
+    Non-load new replacement assets net of contributions: 63667131.6841994
+    Non-operational capex: 2629652.44946761
     Ofgem licence fees: 888900
     Pension deficit payments: 1900000
     Pension deficit repair payments by related parties note 2: -1900000
-    Project Management: 5000000
-    Property Mgt: 4000000
-    Relevant distributed generation less contributions: -1200000
-    Statutory Depreciation: 48000000
-    Stores: 1300000
-    System Mapping Cartographical: 800000
+    Project Management: 5024428.09736806
+    Property Mgt: 3986895.2944496
+    Relevant distributed generation less contributions: -1190501.27784843
+    Statutory Depreciation: 47963990.1271456
+    Stores: 1306991.75570622
+    System Mapping Cartographical: 782806.167401694
     Transmission Exit Charges: 11600000
-    Tree Cutting: 2700000
-    Vehicles Transport: 5800000
+    Tree Cutting: 2719927.33021262
+    Vehicles Transport: 5846978.17064147
     _column: Total costs (£/year)
 1355:
   - _table: 1355. MEAV data
@@ -451,6 +448,5 @@
     _column: Net capex analysis pre-DCP 118 (£)
 1380:
   - _table: '1380. Net capex: ratio of LV services to LV total'
-  - LV services: 0.2
+  - LV services: 0.201227445583705
     _column: LV
-  - LV services: Approximate guess that gives a good approximation of the result in table 1037.

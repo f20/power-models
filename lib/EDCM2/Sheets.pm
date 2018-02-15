@@ -79,11 +79,9 @@ sub notesTransparency {
 sub sheetPriority {
     my ( $model, $sheet ) = @_;
     my $score = 0;
-    $score = 5 if $sheet =~ /Volumes\$/;
-    $score = 4 if $sheet =~ /Baseline\$/;
-    $score = 3 if $sheet =~ /Scenario\$/;
-    $score ||= 6
-      if $sheet =~ /(?:Overview|Index)$/is;
+    $score = 15 if $sheet =~ /Volumes\$/;
+    $score = 12 if $sheet =~ /\$$/;
+    $score ||= 6 if $sheet =~ /(?:Overview|Index)$/is;
     $score;
 }
 
@@ -645,9 +643,7 @@ sub worksheetsAndClosures {
 
       $model->{ldnoMarginColumns}
       ? (
-        $model->{scenario}
-          || !defined $model->{scenario}
-          && $model->{ldnoRev} =~ /ppu/i ? 'Scenario$' : 'Baseline$' => sub {
+        ( ( $model->{scenario} || 'Baseline' ) . '$' ) => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 1 );
             $wsheet->set_column( 0, 0,   50 );

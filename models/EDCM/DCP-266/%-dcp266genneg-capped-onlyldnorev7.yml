@@ -1,0 +1,13 @@
+---
+.: LDNO revenues CDCM and EDCM with DCP 266 (defaulting)
+PerlModule: EDCM2
+checksums: Line checksum 5; Table checksum 7
+dcp130: 1
+dcp161: 1
+dcp179: 1
+ldnoMargins: 1
+ldnoRev: ldnorev7roundingppu_cap100_genneg_only
+ldnoVolumeSheet: 1
+omitDnoTotals: 1
+summaries: 1
+table1101: 1

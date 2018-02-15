@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -127,6 +127,18 @@ sub new {
           && $model->{embeddedModelG2}{embeddedModelM};
     }
 
+  # Keep EDCM2::DataPreprocess out of the scope of revision number construction.
+    if ( $model->{dataset}
+        && keys %{ $model->{dataset} } )
+    {
+        if ( eval { require EDCM2::DataPreprocess; } ) {
+            $model->preprocessDataset;
+        }
+        else {
+            warn $@;
+        }
+    }
+
     if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /only/i ) {
         $model->{daysInYear} = Dataset(
             name          => 'Days in year',
@@ -150,18 +162,6 @@ sub new {
     # its display name defaults to super-red.
     $model->{TimebandName} ||=
       ucfirst( $model->{timebandName} ||= 'super-red' );
-
-  # Keep EDCM2::DataPreprocess out of the scope of revision number construction.
-    if ( $model->{dataset}
-        && keys %{ $model->{dataset} } )
-    {
-        if ( eval { require EDCM2::DataPreprocess; } ) {
-            $model->preprocessDataset;
-        }
-        else {
-            warn $@;
-        }
-    }
 
     $model->{numLocations} ||= $model->{numLocationsDefault};
     $model->{numTariffs}   ||= $model->{numTariffsDefault};

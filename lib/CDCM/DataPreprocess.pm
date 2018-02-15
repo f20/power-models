@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -65,6 +65,11 @@ sub preprocessDataset {
         _override( $d->{$_}, $d->{ $_ . 'dcp133' } )
           foreach $model->{dcp133} =~ /nodivers/i ? () : qw(1017),
           qw(1018 1020);
+    }
+
+    foreach ( 1037, 1039 ) {
+        splice @{ $d->{$_} }, 1, 0, $d->{$_}[1]
+          if $d->{$_} && $d->{$_}[1]{_column} && $d->{$_}[1]{_column} =~ /LV/;
     }
 
     if ( $d->{1053} ) {

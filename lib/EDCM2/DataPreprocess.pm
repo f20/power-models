@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -59,6 +59,11 @@ sub preprocessDataset {
         my ($key) =
           grep { !/^_/ } keys %{ $d->{1113}[4] };
         $d->{1113}[4]{$key} += $model->{revenueAdj};
+    }
+
+    foreach ( 1037, 1039 ) {
+        splice @{ $d->{$_} }, 1, 0, $d->{$_}[1]
+          if $d->{$_} && $d->{$_}[1]{_column} && $d->{$_}[1]{_column} =~ /LV/;
     }
 
     if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) {
@@ -149,7 +154,7 @@ sub preprocessDataset {
                 }
                 else {
                     $tariffs = [
-                        2 * keys %tariffs >$max ? ( 1 .. $max )
+                        2 * keys %tariffs > $max ? ( 1 .. $max )
                         : ( sort { $a <=> $b } keys %tariffs ),
                         defined $model->{numTariffs} ? ()
                         : ( $max + 1 .. $max + 6 )
@@ -192,7 +197,7 @@ sub preprocessDataset {
             }
         }
 
-        else { # Array data format, probably deprecated
+        else {    # Array data format, probably deprecated
 
             my %tariffs;
 

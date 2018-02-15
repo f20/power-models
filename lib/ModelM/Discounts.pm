@@ -77,11 +77,6 @@ sub discounts {    # Not used if DCP 095
     ) unless $model->{fixedIndirectPercentage};
 
     my @columns = (
-        Constant(
-            name          => 'No discount',
-            defaultFormat => '%con',
-            data          => [ [] ],
-        ),
         Arithmetic(
             name => $model->{qno} . ' LV: LV user',
             cols => Labelset( list => [ $model->{qno} . ' LV: LV user' ] ),
