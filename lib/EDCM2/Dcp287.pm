@@ -34,8 +34,8 @@ use utf8;
 sub dcp287ExtraCredits {
 
     my ( $model, $genCredit, $rateDirect, $rateRates,
-        $rateIndirect, $rateExit, $hoursInPurple, $tariffNetworkSupportFactor, )
-      = @_;
+        $rateIndirect, $rateExit, $purpleHoursGen, $tariffNetworkSupportFactor,
+    ) = @_;
 
     $genCredit = Arithmetic(
         name       => 'Generation credit before exempt adjustment p/kWh',
