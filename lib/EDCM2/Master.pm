@@ -50,6 +50,8 @@ sub requiredModulesForRuleset {
       EDCM2::Sheets
       ),
 
+      $ruleset->{dcp287} ? qw(EDCM2::Dcp287) : (),
+
       $ruleset->{ldnoRev} ? qw(EDCM2::Ldno) : (),
 
       $ruleset->{summaries} ? qw(EDCM2::Summaries) : (),
@@ -660,6 +662,11 @@ EOT
         $hoursInPurple,              $model->{tariffSet},
         $activeCoincidence935,       $reactiveCoincidence935,
       );
+
+    $genCredit =
+      $model->dcp287ExtraCredits( $genCredit, $rateDirect, $rateRates,
+        $rateIndirect, $rateExit, $hoursInPurple, $tariffNetworkSupportFactor, )
+      if $model->{dcp287};
 
     $genCredit = Arithmetic(
         name       => 'Generation credit (unrounded) p/kWh',
