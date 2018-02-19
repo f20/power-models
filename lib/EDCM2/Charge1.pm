@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -37,14 +37,13 @@ use SpreadsheetModel::Shortcuts ':all';
 sub chargesFcpLric {
 
     my (
-        $model,                       $acCoef,
-        $activeCoincidence,           $charges1,
-        $daysInYear,                  $reactiveCoincidence,
-        $reCoef,                      $sFactor,
-        $purpleHours,                 $purpleHoursGen,
-        $demandCapacity,              $chargeableGenerationCapacity,
-        $creditableCapacity,          $rateExit,
-        $activeCoincidenceUndoctored, $reactiveCoincidenceUndoctored,
+        $model,             $acCoef,
+        $activeCoincidence, $charges1,
+        $daysInYear,        $reactiveCoincidence,
+        $reCoef,            $sFactor,
+        $purpleHours,       $purpleHoursGen,
+        $tariffSet,         $activeCoincidenceUndoctored,
+        $reactiveCoincidenceUndoctored,
     ) = @_;
 
     $model->{demandConsumptionFcpLric} = my $demandConsumptionFcpLric =
@@ -55,7 +54,7 @@ sub chargesFcpLric {
         name          => 'Import demand charge p/kVA/day',
         newBlock      => 1,
         defaultFormat => '0.00softnz',
-        rows          => $demandCapacity->{rows},
+        rows          => $tariffSet,
         arithmetic    => '=100*(' . join(
             '+',
             map {
@@ -87,9 +86,9 @@ sub chargesFcpLric {
       )
       : Constant(
         isZero => 1,
-        rows   => $demandCapacity->{rows},
+        rows   => $tariffSet,
         name   => 'Import demand charge before matching p/kVA/day',
-        data   => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
+        data   => [ map { 0 } @{ $tariffSet->{list} } ],
       );
 
     $model->{demandCapacityFcpLric} = my $demandCapacityFcpLric =
@@ -112,9 +111,9 @@ sub chargesFcpLric {
       )
       : Constant(
         isZero => 1,
-        rows   => $demandCapacity->{rows},
+        rows   => $tariffSet,
         name   => 'Import capacity charge p/kVA/day',
-        data   => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
+        data   => [ map { 0 } @{ $tariffSet->{list} } ],
       );
 
     push @{ $model->{matricesData}[1] },
@@ -129,7 +128,7 @@ sub chargesFcpLric {
       && ( grep { $charges1->[$_] } 1 .. $#$charges1 )
       ? Arithmetic(
         name       => "$model->{TimebandName} rate p/kWh",
-        rows       => $demandCapacity->{rows},
+        rows       => $tariffSet,
         arithmetic => '=100*(' . join(
             '+',
             map {
@@ -163,9 +162,9 @@ sub chargesFcpLric {
       )
       : Constant(
         isZero => 1,
-        rows   => $demandCapacity->{rows},
+        rows   => $tariffSet,
         name   => "$model->{TimebandName} rate p/kWh",
-        data   => [ map { 0 } @{ $demandCapacity->{rows}{list} } ],
+        data   => [ map { 0 } @{ $tariffSet->{list} } ],
       );
 
     $demandCapacityFcpLric = Arithmetic(
@@ -205,9 +204,8 @@ sub chargesFcpLric {
 
     if ( @$charges1 && $model->{lowerIntermittentCredit} ) {
         $genCredit = Arithmetic(
-            name => 'Generation credit (before exempt adjustment) p/kWh',
-            defaultFormat => '0.00softnz',
-            arithmetic    => '=-100*A1*('
+            name       => 'Charge 1 credit before exempt adjustment p/kWh',
+            arithmetic => '=-100*A1*('
               . join( '+',
                 $charges1->[0] ? "A90" : (),
                 map { $charges1->[$_] ? "A9$_" : () } 1 .. $#$charges1 )
@@ -221,21 +219,8 @@ sub chargesFcpLric {
         );
     }
 
-    my $genCreditCapacity = Arithmetic(
-        name          => 'Generation credit (unrounded) p/kVA/day',
-        defaultFormat => '0.00softnz',
-        arithmetic    => '=IF(A1,-100*A91/A2*A6/A52,0)',
-        arguments     => {
-            A2  => $daysInYear,
-            A1  => $chargeableGenerationCapacity,
-            A52 => $chargeableGenerationCapacity,
-            A6  => $creditableCapacity,
-            A91 => $rateExit,
-        }
-    );
-
     $demandCapacityFcpLric, $genCredit, $unitRateFcpLric,
-      $genCreditCapacity, $demandConsumptionFcpLric;
+      $demandConsumptionFcpLric;
 
 }
 

@@ -316,12 +316,12 @@ EOT
     $model->{transparency} = Arithmetic(
         name  => 'Weighting of each tariff for reconciliation of totals',
         lines => [
-            '0 means that the tariff is active and'
-              . ' is included in the table 119x aggregates.',
-            '-1 means that the tariff is included in'
-              . ' the table 119x aggregates but should be removed.',
             '1 means that the tariff is active and'
               . ' is not included in the table 119x aggregates.',
+            '0 means that no adjustment is needed'
+              . ' to the table 119x aggregates.',
+            '-1 means that the tariff is included in'
+              . ' the table 119x aggregates but should be removed.',
         ],
         arithmetic => '=IF(OR(A3,'
           . 'NOT(ISERROR(SEARCH("[ADDED]",A2))))' . ',1,'
@@ -651,23 +651,20 @@ EOT
       ) if $locations;
 
     my ( $fcpLricDemandCapacityChargeBig,
-        $genCredit, $unitRateFcpLricNonDSM, $genCreditCapacity,
-        $demandConsumptionFcpLric, )
+        $genCredit, $unitRateFcpLricNonDSM, $demandConsumptionFcpLric, )
       = $model->chargesFcpLric(
         $acCoef,                     $activeCoincidence,
         $charges1,                   $daysInYear,
         $reactiveCoincidence,        $reCoef,
         $tariffNetworkSupportFactor, $hoursInPurple,
-        $hoursInPurple,              $importCapacity,
-        $exportCapacityChargeable,   $creditableCapacity,
-        $rateExit,                   $activeCoincidence935,
-        $reactiveCoincidence935,
+        $hoursInPurple,              $model->{tariffSet},
+        $activeCoincidence935,       $reactiveCoincidence935,
       );
 
     $genCredit = Arithmetic(
         name       => 'Generation credit (unrounded) p/kWh',
         groupName  => 'Generation unit rate credit',
-        arithmetic => '=IF(A41,(A2*A3/(A4+A5)),0)',
+        arithmetic => '=IF(A41,A2*A3/(A4+A5),0)',
         arguments  => {
             A1  => $exportCapacityChargeable,
             A2  => $genCredit,
@@ -678,6 +675,19 @@ EOT
             A41 => $exportCapacityChargeable,
             A51 => $exportCapacityExempt,
         },
+    );
+
+    my $genCreditCapacity = Arithmetic(
+        name          => 'Generation capacity credit (unrounded) p/kVA/day',
+        defaultFormat => '0.00softnz',
+        arithmetic    => '=IF(A1,-100*A91/A2*A6/A52,0)',
+        arguments     => {
+            A2  => $daysInYear,
+            A1  => $exportCapacityChargeable,
+            A52 => $exportCapacityChargeable,
+            A6  => $creditableCapacity,
+            A91 => $rateExit,
+        }
     );
 
     my $gCharge = $model->gCharge(
