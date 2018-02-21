@@ -40,8 +40,9 @@ sub updateTableMap {
       or open $fh, '+>', '~$tablemap.tsv'
       or die 'Cannot use ~$tablemap.tsv: ' . $!;
     flock $fh, LOCK_EX;
-    binmode $fh;
+    binmode $fh, ':utf8';
     local $/ = "\n";
+
     if ( defined( local $_ = <$fh> ) ) {
         chomp;
         @columns = split /\t/;

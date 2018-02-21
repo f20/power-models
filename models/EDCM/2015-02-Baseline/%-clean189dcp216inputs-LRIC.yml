@@ -7,7 +7,7 @@ dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
 layout: auto
-ldnoRev: ldnorev5rounding
+ldnoRev: ldnorev5roundingtar
 lowerIntermittentCredit: 1
 method: LRIC
 noNegative: 1

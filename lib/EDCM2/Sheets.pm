@@ -55,23 +55,19 @@ sub notesTransparency {
         lines => [
             'If table 1190 is set to "TRUE",'
               . ' then tables 1191-1193 are not used. '
-              . 'In this configuration, the model only works when populated'
+              . 'This is for a model populated'
               . ' with data for all customers, including'
               . ' data that are commercially confidential.',
             'If table 1190 is set to "FALSE", so that the model can be used for'
               . ' validation and forecasting of DNO charges, then'
-              . ' the DNO totals in tables 1191-1193 need to be mirror'
-              . ' thee totals in the DNO\'s charging model.',
-            'There is a growing trend among DNOs of refusing to disclose'
-              . ' these DNO totals, giving some version of a'
-              . ' manifestly invalid excuse which sounds like it might'
-              . ' have been cooked up in a DNO smoked-filled room. ',
-            1 ? ()
-            : 'Previous attempts at seeking assistance from Ofgem have failed. ',
+              . ' the DNO totals in tables 1191-1193 need to match'
+              . ' the DNO totals in the DNO\'s charging model.',
+            'DNOs are now refusing to disclose DNO totals, citing an'
+              . ' invalid excuse which sounds cooked up in a DNO smoke-filled room.',
             $model->{mitigateUndueSecrecy}
             ? $model->{mitigateUndueSecrecy}->additionalLines
             : (     'There are tools on dcmf.co.uk/models which might'
-                  . ' in some cases help mitigate undue DNO secrecy.' ),
+                  . ' help mitigate some aspects of undue DNO secrecy.' ),
         ],
     );
 }

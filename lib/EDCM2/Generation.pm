@@ -183,20 +183,25 @@ sub gCharge {
         groupName     => 'Generic export capacity charge',
         defaultFormat => '0.00softnz',
         arithmetic    => '=('
-          . 'A1*(1-A21/A23)'
-          . '+(A3*A22/(A24+A52)+A4*A25/(A26+A51))/A231'
+          . 'A1*(1-IF(A211,A21/A23,0))'
+          . '+IF(A31,A3*A22/(A24+A52)/A231,0)'
+          . '+IF(A41,A4*A25/(A26+A51)/A232,0)'
           . ')*100/A9',
         arguments => {
             A1   => $genPot20p,
             A21  => $exportCapacityChargeable20052010,
+            A211 => $exportCapacityChargeable20052010,
             A22  => $exportCapacityChargeablePost2010,
             A23  => $exportCapacityChargeable,
             A231 => $exportCapacityChargeable,
+            A232 => $exportCapacityChargeable,
             A24  => $exportCapacityChargeablePost2010,
             A25  => $exportCapacityChargeable20052010,
             A26  => $exportCapacityChargeable20052010,
             A3   => $genPotGP,
+            A31  => $genPotGP,
             A4   => $genPotGL,
+            A41  => $genPotGL,
             A51  => $genPotCdcmCap20052010,
             A52  => $genPotCdcmCapPost2010,
             A9   => $daysInYear,

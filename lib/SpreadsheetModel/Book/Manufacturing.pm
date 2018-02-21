@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -138,8 +138,8 @@ sub factory {
                 my $datasetName;
                 if (
                     defined $fileName
-                    && $fileName =~ m#([0-9]+-[0-9]+[a-zA-Z0-9-]*)?
-                        [/\\+]*([^/\\+]+)\.(?:yml|yaml|json)$#six
+                    && $fileName =~ m#([0-9]+-[0-9]+[a-zA-Z0-9+-]*)?
+                        [/\\]*([^/\\]+)\.(?:yml|yaml|json)$#six
                   )
                 {
                     $datasetName = $2;

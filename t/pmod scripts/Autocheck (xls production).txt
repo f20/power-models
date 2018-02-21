@@ -3,7 +3,7 @@ makeModels
     -xls
     -pickbest
     CDCM/20??-??-Baseline/%-*.yml
-    CDCM/20??-02/*.yml
+    CDCM/20??-??/*.yml
     -newrules
     -newdata
     ModelM/20??-??-Baseline/%-*.yml
@@ -11,8 +11,7 @@ makeModels
     -newrules
     -newdata
     EDCM/20??-??-Baseline/%-*.yml
-    EDCM/2014-11/*.yml
-    EDCM/2015-04/*.yml
+    EDCM/20??-??/*.yml
     -newrules
     -newdata
     -datamerge
