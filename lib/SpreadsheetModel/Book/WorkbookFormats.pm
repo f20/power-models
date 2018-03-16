@@ -604,7 +604,7 @@ sub setFormats {
         indices => [
             locked => 1,
             @sLabel,
-            num_format => $black . '\I\n\d\e\x\ 0',
+            num_format => $black . '\I\n\d\e\x\ 0;' . $black . '\I\n\d\e\x\ -0',
             align      => 'center',
             @sExtras,
             $options->{gridlines} ? ( border => 7 ) : (),
