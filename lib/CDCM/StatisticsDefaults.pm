@@ -153,7 +153,7 @@ __DATA__
     Medium intermittent: 27.6
     Medium off-peak: 0
     Other demand: 450
-    Other generation: 450
+    Other generation: 10000
     Small business: 4.83
     XL business: 3500
     XL continuous: 4500
@@ -176,7 +176,7 @@ __DATA__
     Medium intermittent: 27.6
     Medium off-peak: 62.1
     Other demand: 450
-    Other generation: 450
+    Other generation: 10000
     Small business: 1.5525
     XL business: 1125
     XL continuous: 4500
@@ -199,7 +199,7 @@ __DATA__
     Medium intermittent: 27.6
     Medium off-peak: 62.1
     Other demand: 450
-    Other generation: 450
+    Other generation: 10000
     Small business: 1.5525
     XL business: 1125
     XL continuous: 4500
@@ -222,7 +222,7 @@ __DATA__
     Medium intermittent: 69
     Medium off-peak: 69
     Other demand: 500
-    Other generation: 500
+    Other generation: 10000
     Small business: 23
     XL business: 5000
     XL continuous: 5000
