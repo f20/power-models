@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2016-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2016-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -42,22 +42,19 @@ sub ppuCalcCdcm {
         singleRowName => 'LDNO discount p/kWh',
         columns       => [
             map {
-                if (/No discount/) {
+                my $name = SpreadsheetModel::Object::_shortName( $_->{name} );
+                if ( $name =~ /No discount/ ) {
                     Constant( name => 'No discount', data => [ [] ], );
                 }
                 else {
-                    my $offset = /: HV/i ? 2 : /: LV Sub/i ? 1 : 0;
+                    my $offset =
+                      $name =~ /: HV/i ? 2 : $name =~ /: LV Sub/i ? 1 : 0;
                     ++$offset if $offset && $model->{dcp095};
                     push @{ $model->{objects}{table1039sources} },
                       my $col = SpreadsheetModel::Custom->new(
-                        name =>
-                          SpreadsheetModel::Object::_shortName( $_->{name} ),
+                        name => $name,
                         cols => Labelset(
-                            list => [
-                                SpreadsheetModel::Object::_shortName(
-                                    $_->{name}
-                                )
-                            ]
+                            list => [$name]
                         ),
                         custom     => ['=A1*SUM(A2:A3,A4)'],
                         arithmetic => 'Special calculation',
@@ -82,6 +79,7 @@ sub ppuCalcCdcm {
                                             : /A2/ ? $offset
                                             : 0
                                         ),
+                                        /A1/ ? () : ( 1, 1 ),
                                       )
                                 } @$pha;
                             };
@@ -103,14 +101,15 @@ sub ppuCalcEdcm {
         name    => 'Discount p/kWh ⇒1184. For EDCM model',
         columns => [
             map {
+                my $name = SpreadsheetModel::Object::_shortName( $_->{name} );
                 my $offset =
-                    /^HV (?:sub|gen)/i ? 3
-                  : /^HV/i             ? 2
-                  : /LV (?:sub|gen)/i  ? 1
-                  :                      0;
+                    $name =~ /^HV (?:sub|gen)/i ? 3
+                  : $name =~ /^HV/i             ? 2
+                  : $name =~ /LV (?:sub|gen)/i  ? 1
+                  :                               0;
                 ++$offset if $offset && $model->{dcp095};
                 SpreadsheetModel::Custom->new(
-                    name       => $_->{name},
+                    name       => $name,
                     custom     => ['=A1*SUM(A2:A3,A4)'],
                     arithmetic => 'Special calculation',
                     rows       => $_->{rows},
@@ -135,6 +134,7 @@ sub ppuCalcEdcm {
                                         : /A2/ ? $offset
                                         : 0
                                     ),
+                                    /A1/ ? () : ( 1, 1 ),
                                   )
                             } @$pha;
                         };
