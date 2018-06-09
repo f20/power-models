@@ -7,7 +7,7 @@ package Excel::Writer::XLSX::Workbook;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2017, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2018, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -33,7 +33,7 @@ use Excel::Writer::XLSX::Package::XMLwriter;
 use Excel::Writer::XLSX::Utility qw(xl_cell_to_rowcol xl_rowcol_to_cell);
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '0.95';
+our $VERSION = '0.98';
 
 
 ###############################################################################
@@ -141,6 +141,9 @@ sub new {
     else {
         $self->add_format( xf_index => 0 );
     }
+
+    # Add a default URL format.
+    $self->{_default_url_format} = $self->add_format( hyperlink => 1 );
 
     # Check for a filename unless it is an existing filehandle
     if ( not ref $self->{_filename} and $self->{_filename} eq '' ) {
@@ -269,7 +272,6 @@ sub DESTROY {
     local ( $@, $!, $^E, $? );
 
     $self->close() if not $self->{_fileclosed};
-    delete $self->{_tempdir_object};
 }
 
 
@@ -370,7 +372,7 @@ sub add_worksheet {
         $self->{_optimization},
         $self->{_tempdir},
         $self->{_excel2003_style},
-
+        $self->{_default_url_format},
     );
 
     my $worksheet = Excel::Writer::XLSX::Worksheet->new( @init_data );
@@ -1024,6 +1026,22 @@ sub set_calc_mode {
 
 ###############################################################################
 #
+# get_default_url_format()
+#
+# Get the default url format used when a user defined format isn't specified
+# with write_url(). The format is the hyperlink style defined by Excel for the
+# default theme.
+#
+sub get_default_url_format {
+
+    my $self    = shift;
+
+    return $self->{_default_url_format};
+}
+
+
+###############################################################################
+#
 # _store_workbook()
 #
 # Assemble worksheets into a workbook.
@@ -1084,7 +1102,6 @@ sub _store_workbook {
     # Add the files to the zip archive. Due to issues with Archive::Zip in
     # taint mode we can't use addTree() so we have to build the file list
     # with File::Find and pass each one to addFile().
-    # The no_chdir option to File::Find::find is for thread safety.
     my @xlsx_files;
 
     my $wanted = sub { push @xlsx_files, $File::Find::name if -f };
@@ -1103,9 +1120,14 @@ sub _store_workbook {
     for my $filename ( @xlsx_files ) {
         my $short_name = $filename;
         $short_name =~ s{^\Q$tempdir\E/?}{};
-        $zip->addFile( $filename, $short_name );
-    }
+        my $member = $zip->addFile( $filename, $short_name );
 
+        # Set the file member datetime to 1980-01-01 00:00:00 like Excel so
+        # that apps can produce a consistent binary file. Note, we don't use
+        # the Archive::Zip::setLastModFileDateTimeFromUnix() function directly
+        # since it doesn't allow the time 00:00:00 for this date.
+        $member->{'lastModFileDateTime'} = 2162688;
+    }
 
     if ( $self->{_internal_fh} ) {
 
@@ -1225,6 +1247,9 @@ sub _prepare_formats {
 sub _set_default_xf_indices {
 
     my $self = shift;
+
+    # Delete the default url format.
+    splice @{ $self->{_formats} }, 1, 1;
 
     for my $format ( @{ $self->{_formats} } ) {
         $format->get_xf_index();
@@ -2284,18 +2309,23 @@ sub _process_jpg {
     my $offset      = 2;
     my $data_length = length $data;
 
-    # Search through the image data to read the height and width in the
-    # 0xFFC0/C2 element. Also read the DPI in the 0xFFE0 element.
+    # Search through the image data to read the JPEG markers.
     while ( $offset < $data_length ) {
 
         my $marker = unpack "n", substr $data, $offset + 0, 2;
         my $length = unpack "n", substr $data, $offset + 2, 2;
 
-        if ( $marker == 0xFFC0 || $marker == 0xFFC2 ) {
+        # Read the height and width in the 0xFFCn elements (except C4, C8 and
+        # CC which aren't SOF markers).
+        if (   ( $marker & 0xFFF0 ) == 0xFFC0
+            && $marker != 0xFFC4
+            && $marker != 0xFFCC )
+        {
             $height = unpack "n", substr $data, $offset + 5, 2;
             $width  = unpack "n", substr $data, $offset + 7, 2;
         }
 
+        # Read the DPI in the 0xFFE0 element.
         if ( $marker == 0xFFE0 ) {
             my $units     = unpack "C", substr $data, $offset + 11, 1;
             my $x_density = unpack "n", substr $data, $offset + 12, 2;
@@ -2716,6 +2746,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-(c) MM-MMXVI, John McNamara.
+(c) MM-MMXVIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
