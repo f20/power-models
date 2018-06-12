@@ -325,9 +325,8 @@ EOT
             '-1 means that the tariff is included in'
               . ' the table 119x aggregates but should be removed.',
         ],
-        arithmetic => '=IF(OR(A3,'
-          . 'NOT(ISERROR(SEARCH("[ADDED]",A2))))' . ',1,'
-          . 'IF(ISERROR(SEARCH("[REMOVED]",A1)),0,-1)' . ')',
+        arithmetic => '=IF(OR(A3,NOT(ISERROR(SEARCH("[ADDED]",A2)))),1,0)'
+          . '-IF(ISERROR(SEARCH("[REMOVED]",A1)),0,1)',
         arguments => {
             A1 => $tariffs,
             A2 => $tariffs,
