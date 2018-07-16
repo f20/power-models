@@ -4,11 +4,11 @@
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
+bung: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 drm: top500gsp
 edcmTables: 1
-electionBung: 1
 extraLevels: 1
 fixedCap: 1-4
 forwardLinks: 1

@@ -1,9 +1,10 @@
 ---
-.: '2015 CDCM after DCP 179, clean with election bung'
+.: 'CDCM after DCP 228, clean, with supplier default bung'
 .Style: Clean model with checksums
 PerlModule: CDCM
-agghhequalisation: 1
+agghhequalisation: rag
 alwaysUseRAG: 1
+blackPeakingProbabilityRequired: 1
 bung: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
@@ -14,9 +15,10 @@ matrices: big
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: levelledpickexitnogenminzero
+scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: yes
-targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163pc12hhpc34hh
+targetRevenue: dcp249
+tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179
+unauth: dayotex

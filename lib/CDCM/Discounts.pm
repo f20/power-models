@@ -345,10 +345,10 @@ sub pcdApplyDiscounts {
         defaultFormat => '0softnz'
     );
 
-    my $electionBung;
-    if ( $model->{electionBung} ) {
-        $electionBung = Dataset(
-            name               => 'Election bung (p/MPAN/day)',
+    my $bung;
+    if ( $model->{bung} || $model->{electionBung} ) {
+        $bung = Dataset(
+            name               => 'Bung (p/MPAN/day)',
             rows               => $allTariffs,
             number             => 1098,
             appendTo           => $model->{inputTables},
@@ -364,18 +364,18 @@ sub pcdApplyDiscounts {
               },
         );
         push @{ $model->{otherTotalRevenues} },
-          my $totalImpactOfElectionBung = Arithmetic(
-            name => 'Revenue impact of election bung (£, not accounted for)',
+          my $totalImpactOfBung = Arithmetic(
+            name          => 'Revenue impact of bung (£, not accounted for)',
             defaultFormat => '0soft',
             arithmetic    => '=0.01*A1*SUMPRODUCT(A2_A3,A4_A5)',
             arguments     => {
                 A1    => $daysInYear,
-                A2_A3 => $electionBung,
+                A2_A3 => $bung,
                 A4_A5 => $volumeData->{'Fixed charge p/MPAN/day'}
             }
           );
-        $model->{sharedData}->addStats( 'DNO-wide aggregates',
-            $model, $totalImpactOfElectionBung )
+        $model->{sharedData}
+          ->addStats( 'DNO-wide aggregates', $model, $totalImpactOfBung )
           if $model->{sharedData};
     }
 
@@ -385,7 +385,7 @@ sub pcdApplyDiscounts {
                 name          => $_,
                 defaultFormat => $tariffTable->{$_}{defaultFormat},
                 arithmetic    => $model->{model100} ? '=A2*(1-A1)'
-                : (   ( $electionBung && /MPAN/ ? '=A3+' : '=' )
+                : (   ( $bung && /MPAN/ ? '=A3+' : '=' )
                     . 'ROUND('
                       . 'A2*(1-A1),'
                       . ( /kWh|kVArh/ ? 3 : 2 )
@@ -396,7 +396,7 @@ sub pcdApplyDiscounts {
                     A2 => $tariffTable->{$_},
                     A1 => /fix/i ? $model->{pcd}{discountFixed}
                     : $model->{pcd}{discount},
-                    $electionBung && /MPAN/ ? ( A3 => $electionBung ) : (),
+                    $bung && /MPAN/ ? ( A3 => $bung ) : (),
                 },
             );
         } @$allComponents

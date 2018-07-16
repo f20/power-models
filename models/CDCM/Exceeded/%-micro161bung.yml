@@ -3,10 +3,10 @@
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
+bung: 1
 coincidenceAdj: groupums
 compact: 1
 drm: top500gsp
-electionBung: 1
 extraLevels: 1
 fixedCap: 1-4
 nickName: After DCP 161 with bung

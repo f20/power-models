@@ -48,9 +48,11 @@ sub score {
     # DCP 163
     $score += 10 if $rule->{tariffs} =~ /dcp163/i xor $month lt '2013-03';
 
-    # 2015 election bung
+    # Bungs
     $score += 10
-      if $rule->{electionBung} && $month gt '2013-03' && $month le '2016-03';
+      if $rule->{bung}
+      and $month gt '2013-03' && $month le '2016-03'
+      || $month ge '2018-02'  && $month le '2018-03';
 
     # DCP 179
     $score += 10 if $rule->{tariffs} =~ /pc34hh/i xor $month lt '2014-03';

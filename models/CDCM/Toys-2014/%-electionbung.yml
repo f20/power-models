@@ -1,9 +1,9 @@
 ---
 .: Model with pre-election bung adjustments
 PerlModule: CDCM
+bung: 1
 coincidenceAdj: groupums
 drm: top500gsp
-electionBung: 1
 extraLevels: 1
 matrices: big
 noReplacement: blanket

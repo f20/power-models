@@ -1,9 +1,10 @@
 ---
-.: '2015 CDCM after DCP 179, micro with election bung'
+.: 'CDCM after DCP 228, micro-model with bung'
 .Style: Micro model for forecasters
 PerlModule: CDCM
-agghhequalisation: 1
+agghhequalisation: rag
 alwaysUseRAG: 1
+blackPeakingProbabilityRequired: 1
 bung: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
@@ -11,15 +12,16 @@ compact: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
-nickName: After DCP 179 with bung
+nickName: After DCP 228 with bung
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
 pcd: 1
 portfolio: 1
-scaler: levelledpickexitnogenminzero
+scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: statisticsbrief
-targetRevenue: dcp132
-tariffs: commongensubdcp130dcp163pc12hhpc34hh
+targetRevenue: dcp249
+tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
 timeOfDay: timeOfDay179
+unauth: dayotex

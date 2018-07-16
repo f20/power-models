@@ -2,11 +2,11 @@
 .: '2014 CDCM after DCP 163, micro with election bung'
 .Style: Micro model for forecasters
 PerlModule: CDCM
+bung: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 compact: permpan
 drm: top500gsp
-electionBung: 1
 extraLevels: 1
 nickName: After DCP 163 with bung
 noLLFCs: 1

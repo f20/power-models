@@ -3,6 +3,7 @@
 PerlModule: CDCM
 agghhequalisation: 1
 alwaysUseRAG: 1
+bung: 1
 checksums: Line checksum 5; Table checksum 7
 coincidenceAdj: groupums
 dataOverride:
@@ -10,7 +11,6 @@ dataOverride:
     - ~
     - Financial and general assumptions: 0.0428
 drm: top500gsp
-electionBung: 1
 extraLevels: 1
 fixedCap: 1-4
 matrices: big
