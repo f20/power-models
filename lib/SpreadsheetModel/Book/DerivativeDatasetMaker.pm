@@ -2,7 +2,7 @@ package SpreadsheetModel::Book::DerivativeDatasetMaker;
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -65,8 +65,10 @@ sub applySourceModelsToDataset {
               $table eq $theTable ? $theHardData : $model->{dataset}{$table};
             return if ref $hardData eq 'CODE';
 
-            my $sourceModel = $sourceModelsMap->{$table}
-              || $sourceModelsMap->{baseline};
+            my $sourceModel =
+                 $sourceModelsMap->{$table}
+              || $sourceModelsMap->{baseline}
+              || $sourceModelsMap->{previous};
 
             my $sourceTableHashref =
               { map { $_->{number} => $_; } @{ $sourceModel->{inputTables} } };
