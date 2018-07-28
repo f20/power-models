@@ -139,15 +139,18 @@ sub tsvDumper {
         for my $worksheet ( $workbook->worksheets() ) {
             my ( $row_min, $row_max ) = $worksheet->row_range();
             my ( $col_min, $col_max ) = $worksheet->col_range();
-            $col_min = 0;    # Use completely blank columns
+            $col_min = 0;    # Show all columns to the left of the data
             print {$fh} join(
                 $joinChar,
                 $infile,
                 $worksheet->{Name},
                 0,
                 map {
-                    my $aa = int( $_ / 26 );
-                    ( $aa ? chr( 64 + $aa ) : '' ) . chr( 65 + ( $_ % 26 ) );
+                    my $aa  = int( $_ / 26 );
+                    my $aaa = int( $aa / 26 );
+                    ( $aaa ? chr( 64 + $aaa ) : '' )
+                      . ( $aa ? chr( 64 + ( $aa % 26 ) ) : '' )
+                      . chr( 65 + ( $_ % 26 ) );
                 } $col_min .. $col_max
             ) . "\n";
             for my $row ( $row_min .. $row_max ) {

@@ -47,11 +47,11 @@ sub run {
 
 my %normalisedVerb;
 $normalisedVerb{ lc $_ } = $_ foreach qw(
-  R
-  Rcode
   combineRulesets
   makeFolder
   makeModels
+  R
+  Rcode
   useDatabase
   useModels
   ymlDiff

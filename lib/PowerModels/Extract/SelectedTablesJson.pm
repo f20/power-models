@@ -1,4 +1,4 @@
-﻿package PowerModels::Extract::OutputTables;
+﻿package PowerModels::Extract::SelectedTablesJson;
 
 =head Copyright licence and disclaimer
 
@@ -39,7 +39,6 @@ sub new {
     if ( $ignoreFilter && !ref $ignoreFilter ) {
         my @tableStems = $ignoreFilter =~ /([0-9]+)/g;
         my $tableRe = '^(?:' . join( '|', @tableStems ) . ')';
-        study $tableRe;
         if ( grep { $_ == 0; } @tableStems ) {
             $ignoreFilter = sub {
                 $_[1] =~ /$tableRe/s ? undef : 0;
@@ -51,7 +50,6 @@ sub new {
                 undef $sheetStems{$1} if /^([0-9]{2})/;
             }
             my $sheetRe = '^(?:' . join( '|', keys %sheetStems ) . ')';
-            study $sheetRe;
             $ignoreFilter = sub {
                 $_[1] !~ /$sheetRe/s ? 1 : $_[1] !~ /$tableRe/s ? 0 : undef;
             };

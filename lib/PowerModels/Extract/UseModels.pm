@@ -92,9 +92,9 @@ sub useModels {
             next;
         }
         if (/^-+outputs?=?(.+)?/i) {
-            require PowerModels::Extract::OutputTables;
+            require PowerModels::Extract::SelectedTablesJson;
             @writerAndParserOptions =
-              PowerModels::Extract::OutputTables->new($1)
+              PowerModels::Extract::SelectedTablesJson->new($1)
               ->writerAndParserOptions;
             next;
         }

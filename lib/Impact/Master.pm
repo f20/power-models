@@ -48,8 +48,6 @@ sub worksheetsAndClosures {
 sub new {
     my $class = shift;
     my $model = bless {@_}, $class;
-    study $model->{baselinePattern};
-    study $model->{scenarioPattern};
     my $method = 'process' . $model->{impact};
     if ( $model->{byDno} ) {
         my $titleSuffix = $model->{title} ? ": $model->{title}" : '';

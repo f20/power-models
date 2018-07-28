@@ -95,11 +95,11 @@ sub makeModels {
                 }
             }
             elsif (/^-+outputs?=?(.+)?/i) {
-                require PowerModels::Extract::OutputTables;
+                require PowerModels::Extract::SelectedTablesJson;
                 $maker->{setting}->(
                     PostProcessing => $self->makePostProcessor(
                         'calc',
-                        PowerModels::Extract::OutputTables->new($1)
+                        PowerModels::Extract::SelectedTablesJson->new($1)
                           ->writerAndParserOptions
                     )
                 );

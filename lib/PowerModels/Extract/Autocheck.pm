@@ -119,7 +119,6 @@ sub writerAndParserOptions {
     my @checksumLocation;
     my $book;
     my $validSheetsRegex = $autocheck->[AC_REGEX_VALID_SHEETS] || qr/./;
-    study $validSheetsRegex;
 
     (
         sub { },
