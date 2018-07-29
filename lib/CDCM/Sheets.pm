@@ -51,6 +51,7 @@ sub finishModel {
 sub sheetPriority {
     my ( $model, $sheet ) = @_;
     my $score = 0;
+    $score = 6 if !$score && $sheet =~ /TCDB\$$/;
     $score = 5 if !$score && $sheet =~ /Tariffs\$$/;
     $score ||= 2
       if $sheet =~ /(?:Overview|Index)$/is || $sheet =~ /\//;
@@ -426,6 +427,50 @@ sub worksheetsAndClosures {
 
       unless $model->{unroundedTariffAnalysis}
       && $model->{unroundedTariffAnalysis} =~ /modelg/i;
+
+    push @wsheetsAndClosures, 'TCDB' => sub {
+        my ($wsheet) = @_;
+        $wsheet->set_column( 0, 0, 96 );
+        $wsheet->set_column( 1, 1, 48 );
+        $wsheet->set_column( 2, 2, 32 );
+        $wsheet->set_column( 3, 3, 16 );
+        my $wsRow = $wsheet->{nextFree} || 0;
+        my @cols = map { $_->objectShortName; } @{ $model->{allTariffColumns} };
+        my @tableLocs = map {
+            my ( $s, $r, $c ) = $_->wsWrite( $wbook, $wsheet );
+            [ q%='% . $s->get_name . q%'!%, $r, $c ];
+        } @{ $model->{allTariffColumns} };
+        my $formatth = $wbook->getFormat('th');
+        my @formats =
+          map { $wbook->getFormat( $_->{defaultFormat} || '0.000copy' ); }
+          @{ $model->{allTariffColumns} };
+        my $rowsar = $model->{allTariffColumns}[0]{rows}{list};
+        for ( my $y = 0 ; $y < @$rowsar ; ++$y ) {
+            my $row = $rowsar->[$y];
+            $row =~ s/^.*\n//s;
+            next if $row =~ /LDNO|QNO/;
+            for ( my $x = 0 ; $x < @cols ; ++$x ) {
+                next
+                  unless $model->{componentMap}{ $rowsar->[$y] }{ $cols[$x] };
+                $wsheet->write( $wsRow, 0, $model->{nickNames}{$wbook},
+                    $formatth );
+                $wsheet->write( $wsRow, 1, $row,      $formatth );
+                $wsheet->write( $wsRow, 2, $cols[$x], $formatth );
+                $wsheet->write(
+                    $wsRow, 3,
+                    $tableLocs[$x][0]
+                      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $tableLocs[$x][1] + $y,
+                        $tableLocs[$x][2]
+                      ),
+                    $formats[$x]
+                );
+                ++$wsRow;
+            }
+        }
+        $wsheet->{nextFree} = $wsRow;
+      }
+      if $model->{tcdb};
 
     push @wsheetsAndClosures,
 
@@ -868,6 +913,7 @@ EOL
         my %suffixes = (
             '⇒EDCM' => '',
             Tariffs => '$',
+            TCDB    => '$',
             $model->{summary} && $model->{summary} =~ /arp/i
             ? ( Summary => '$', )
             : (),
