@@ -179,7 +179,9 @@ sub _parse_workbook {
     # $workbook->{PrintTitle} = ...;
 
     my $sheetCounter = -1;
-    my @sheets       = map {
+    my @sheets;
+    $workbook->{Worksheet} = \@sheets;    # So that CellHandler can use it
+    foreach ( $files->{workbook}->find_nodes('//s:sheets/s:sheet') ) {
         my $idx = $_->att('rels:id');
         if ( $files->{sheets}{$idx} ) {
             my $sheet = Spreadsheet::ParseExcel::Worksheet->new(
@@ -190,15 +192,11 @@ sub _parse_workbook {
             $sheet->{SheetHidden} = 1
               if defined $_->att('state')
               and $_->att('state') eq 'hidden';
+            push @sheets, $sheet;
             $self->_parse_sheet( $sheet, $files->{sheets}{$idx} );
-            ($sheet);
         }
-        else {
-            ();
-        }
-    } $files->{workbook}->find_nodes('//s:sheets/s:sheet');
+    }
 
-    $workbook->{Worksheet}  = \@sheets;
     $workbook->{SheetCount} = scalar(@sheets);
 
     my ($node) = $files->{workbook}->find_nodes('//s:workbookView');
@@ -918,8 +916,8 @@ sub _parse_styles {
 
         $opts{FmtIdx} = 0 + ( $xml_fmt->att('numFmtId') || 0 );
         $opts{FontNo} = 0 + ( $xml_fmt->att('fontId')   || 0 );
-        $opts{Font}     = $font[ $opts{FontNo} ];
-        $opts{Fill}     = $fills[ $xml_fmt->att('fillId') || 0 ];
+        $opts{Font}   = $font[ $opts{FontNo} ];
+        $opts{Fill}     = $fills[ $xml_fmt->att('fillId')     || 0 ];
         $opts{BdrStyle} = $borders[ $xml_fmt->att('borderId') || 0 ]{styles};
         $opts{BdrColor} = $borders[ $xml_fmt->att('borderId') || 0 ]{colors};
         $opts{BdrDiag}  = $borders[ $xml_fmt->att('borderId') || 0 ]{diagonal};
@@ -999,14 +997,14 @@ sub _extract_files {
     my %worksheet_xml = map {
         ( $_->att('Id') =>
               $self->_zip_file_member( $zip, $get_path->( $_->att('Target') ) )
-          )
-      } $wb_rels->find_nodes(
+        )
+    } $wb_rels->find_nodes(
         qq<//packagerels:Relationship[\@Type="$type_base/worksheet"]>);
 
     my %themes_xml = map {
         $_->att('Id') =>
           $self->_parse_xml( $zip, $get_path->( $_->att('Target') ) )
-      } $wb_rels->find_nodes(
+    } $wb_rels->find_nodes(
         qq<//packagerels:Relationship[\@Type="$type_base/theme"]>);
 
     return {

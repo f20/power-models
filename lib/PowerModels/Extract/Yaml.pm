@@ -35,6 +35,8 @@ use Encode;
 sub ymlWriter {
     my ($arg) = @_;
     my $options = { $arg =~ /min/i ? ( minimum => 1 ) : (), };
+    my $sheetFilter;
+    $sheetFilter = $1 if $arg =~ /sheet(.+)/;
     sub {
         my ( $book, $workbook ) = @_;
         die unless $book;
@@ -57,7 +59,14 @@ sub ymlWriter {
             binmode $h, ':utf8';
             print $h YAML::Dump($value);
         }
-    };
+      }, $sheetFilter
+      ? (
+        CellHandler => sub {
+            my ( $workbook, $sheetIdx, $row, $col, $cell ) = @_;
+            $workbook->worksheet($sheetIdx)->get_name ne $sheetFilter;
+        }
+      )
+      : ();
 }
 
 1;
