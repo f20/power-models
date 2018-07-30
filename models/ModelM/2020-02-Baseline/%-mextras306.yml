@@ -1,23 +1,27 @@
 ---
-.: Model M after DCP 306 without checksums
+.: Method M after DCP 306 with extra features
 AdditionalRules:
   - calcUnits: 1
+    checksums: Table checksum 7
     dcp071: 1
     dcp096: 1
     dcp117: 2014
     dcp306: 1
     edcm: only
+    forwardLinks: 1
     meav: 1
     netCapex: 1
     suffix: EDCM
 PerlModule: ModelM
 calcUnits: 1
+checksums: Table checksum 7
 dcp071: 1
 dcp095: 1
 dcp096: 1
 dcp117: 2014
 dcp118: 1
 dcp306: 1
+forwardLinks: 1
 meav: 1
 netCapex: 1
 suffix: CDCM

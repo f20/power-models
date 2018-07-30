@@ -1,7 +1,8 @@
 ---
-.: Model M after DCP 306 without checksums
+.: Method M after DCP 306
 AdditionalRules:
   - calcUnits: 1
+    checksums: Table checksum 7
     dcp071: 1
     dcp096: 1
     dcp117: 2014
@@ -12,6 +13,7 @@ AdditionalRules:
     suffix: EDCM
 PerlModule: ModelM
 calcUnits: 1
+checksums: Table checksum 7
 dcp071: 1
 dcp095: 1
 dcp096: 1
