@@ -2,7 +2,7 @@ package SpreadsheetModel::Book::WorkbookCreate;
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -77,16 +77,16 @@ sub create {
             push @warnings,
               "Detailed warnings and error log for $fileName\n\n", @longMessages
               if @longMessages;
-            $fileName =~ s/\.[a-zA-Z0-9]+$/ (warnings and errors)/s;
+            $fileName =~ s/\.[a-zA-Z0-9]+$/ (warnings and errors).txt/s;
             if (@warnings) {
                 open my $fh, '>', $tempFile;
                 binmode $fh, ':utf8';
                 print $fh @warnings;
                 close $fh;
-                rename $tempFile, "$fileName.log";
+                rename $tempFile, $fileName;
             }
             else {
-                unlink "$fileName.log";
+                unlink $fileName;
             }
             if ( defined $tmpDir ) {
                 rmdir $tmpDir or warn "rmdir $tmpDir: $!";
