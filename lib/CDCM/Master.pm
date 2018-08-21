@@ -85,11 +85,9 @@ sub requiredModulesForRuleset {
       : $ruleset->{scaler} =~ /dcp123/i  ? 'CDCM::Matching123'
       : (),
 
-      !$ruleset->{summary}
-      ? ()
-      : $ruleset->{summary} =~ /stat(?:istic)?s/i
-      ? 'CDCM::Statistics' . ( $ruleset->{summary} =~ /(1203|1204)/ ? $1 : '' )
-      : $ruleset->{summary} =~ /consul/i ? 'CDCM::SummaryDeprecated'
+       !$ruleset->{summary}                       ? ()
+      : $ruleset->{summary} =~ /stat(?:istic)?s/i ? 'CDCM::Statistics'
+      : $ruleset->{summary} =~ /consul/i          ? 'CDCM::SummaryDeprecated'
       : (),
 
       $ruleset->{matrices}
@@ -370,8 +368,7 @@ sub new {
         $allTariffsByEndUser
       );
 
-    push @{ $model->{contributions} },
-      $replacementShare = Stack(
+    push @{ $model->{contributions} }, $replacementShare = Stack(
         name => 'Share of amount that relates'
           . ' to replacement of customer contributed assets',
         defaultFormat => '%connz',
@@ -402,7 +399,7 @@ sub new {
             ),
             $replacementShare
         ]
-      ) if $model->{noReplacement} && $model->{noReplacement} =~ /hybrid/i;
+    ) if $model->{noReplacement} && $model->{noReplacement} =~ /hybrid/i;
 
     Columnset(
         name     => 'Financial and general assumptions',
@@ -689,7 +686,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                         ],
                         "PAYG $_ kWh" => [ $paygUnitRates->[ $_ - 1 ] ],
                     }
-                )
+                  )
             } 2 .. $model->{maxUnitRates}
         ),
         $fFactors
@@ -701,7 +698,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             $model->{unauth} && $model->{unauth} =~ /day/
             ? 'Exceeded capacity charge p/kVA/day'
             : 'Unauthorised demand charge p/kVAh'
-        ) => { 'Capacity' => [$unauthorisedDemandCharges] },
+          ) => { 'Capacity' => [$unauthorisedDemandCharges] },
         'Fixed charge p/MPAN/day' => {
             'Fixed from network'            => [$capacityUser],
             'Fixed from network & customer' => [
@@ -1025,7 +1022,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                             } @allTariffColumns
                         ]
                       );
-                } split /;\s*/,
+                  } split /;\s*/,
                 $model->{checksums}
               )
             : (),
@@ -1102,9 +1099,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         ) if $model->{summary} =~ /1201/;
 
         if ( $model->{summary} =~ /stat(?:istic)?s/i ) {
-            my $statsMethod = 'makeStatisticsTables'
-              . ( $model->{summary} =~ /(1203|1204)/ ? $1 : '' );
-            $model->$statsMethod(
+            $model->makeStatisticsTables(
                 $tariffTableReordered,
                 $daysInYear,
                 $nonExcludedComponents,

@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2014-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -89,7 +89,7 @@ sub makeStatisticsAssumptions {
     }
 
     my $assumptions = Columnset(
-        name   => 'Consumption assumptions for illustrative customers',
+        name   => 'Illustrative customer usage assumptions',
         number => 1202,
         $model->{sharedData}
         ? (
@@ -358,7 +358,7 @@ sub makeStatisticsTables {
       );
 
     Columnset(
-        name    => 'Consumption calculations for illustrative customers',
+        name    => 'Illustrative customer usage calculations',
         columns => \@columns,
     );
 
@@ -405,13 +405,196 @@ sub makeStatisticsTables {
     }
 
     my $fullRowset = Labelset( groups => \@groupList );
-    my %ppyrow =
+    my %rowNumberByRowLabel =
       map { ( $fullRowset->{list}[$_] => $_ ); } 0 .. $#{ $fullRowset->{list} };
     my @mapping = @mapping{ @{ $fullRowset->{list} } };
 
-    my $ppy = SpreadsheetModel::Custom->new(
+    my $annualChargeUnits = SpreadsheetModel::Custom->new(
         name => Label(
-            '£/year', 'Annual charges for illustrative customers (£/year)',
+            'Units £/year',
+            'Illustrative customer annual usage charge (£/year)',
+        ),
+        defaultFormat => '0softnz',
+        rows          => $fullRowset,
+        custom        => [
+            '=0.01*A11*A91',
+            '=0.01*(A11*A91+A12*A13/7*A78*(A92-A911))',
+            '=0.01*(A31*A91+A32*A92+A33*A93)',
+            '=A81-A82',
+        ],
+        arithmetic => 'Special calculation',
+        arguments  => {
+            A11  => $totalUnits,
+            A12  => $offPeakLoad,
+            A13  => $offPeakHours,
+            A31  => $red,
+            A32  => $amber,
+            A33  => $green,
+            A78  => $daysInYear,
+            A91  => $tariffTable->{'Unit rate 1 p/kWh'},
+            A911 => $tariffTable->{'Unit rate 1 p/kWh'},
+            A92  => $tariffTable->{'Unit rate 2 p/kWh'},
+            A93  => $tariffTable->{'Unit rate 3 p/kWh'},
+        },
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                my $cellFormat =
+                    $self->{rowFormats}[$y]
+                  ? $wb->getFormat( $self->{rowFormats}[$y] )
+                  : $format;
+                return '', $wb->getFormat('unavailable') unless $mapping[$y];
+                my ( $uid, $tid, $eid ) = @{ $mapping[$y] };
+                unless ( defined $uid ) {
+                    return '', $cellFormat, $formula->[3],
+                      qr/\bA81\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $self->{$wb}{row} + $y + $tid,
+                        $self->{$wb}{col}
+                      ),
+                      qr/\bA82\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $self->{$wb}{row} + $y + $eid,
+                        $self->{$wb}{col} );
+                }
+                my $tariff = $allTariffs->{list}[$tid];
+                '', $cellFormat,
+                  $formula->[
+                    $componentMap->{$tariff}{'Capacity charge p/kVA/day'} ? 2
+                  : $componentMap->{$tariff}{'Unit rate 2 p/kWh'}         ? 1
+                  : 0
+                  ],
+                  map {
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{$_} + (
+                              /^A9/         ? $tid
+                            : /^A(?:[2-5])/ ? $uid
+                            : /^A1/         ? $fullRowset->{groupid}[$y]
+                            : 0
+                        ),
+                        $colh->{$_} + ( /^A62/ ? 1 : /^A63/ ? 2 : 0 ),
+                        1, 1,
+                      )
+                  } @$pha;
+            };
+        },
+    );
+
+    my $annualChargeFixed = SpreadsheetModel::Custom->new(
+        name => Label(
+            'Fixed £/year',
+            'Illustrative customer annual fixed charge (£/year)',
+        ),
+        defaultFormat => '0softnz',
+        rows          => $fullRowset,
+        custom        => [ '=0.01*A71*A94', '=A81-A82', ],
+        arithmetic    => 'Special calculation',
+        arguments     => {
+            A11 => $totalUnits,
+            A71 => $daysInYear,
+            A94 => $tariffTable->{'Fixed charge p/MPAN/day'},
+        },
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                my $cellFormat =
+                    $self->{rowFormats}[$y]
+                  ? $wb->getFormat( $self->{rowFormats}[$y] )
+                  : $format;
+                return '', $wb->getFormat('unavailable') unless $mapping[$y];
+                my ( $uid, $tid, $eid ) = @{ $mapping[$y] };
+                unless ( defined $uid ) {
+                    return '', $cellFormat, $formula->[1],
+                      qr/\bA81\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $self->{$wb}{row} + $y + $tid,
+                        $self->{$wb}{col}
+                      ),
+                      qr/\bA82\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $self->{$wb}{row} + $y + $eid,
+                        $self->{$wb}{col} );
+                }
+                my $tariff = $allTariffs->{list}[$tid];
+                '', $cellFormat, $formula->[0], map {
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{$_} + (
+                              /^A9/         ? $tid
+                            : /^A(?:[2-5])/ ? $uid
+                            : /^A1/         ? $fullRowset->{groupid}[$y]
+                            : 0
+                        ),
+                        $colh->{$_} + ( /^A62/ ? 1 : /^A63/ ? 2 : 0 ),
+                        1, 1,
+                      )
+                } @$pha;
+            };
+        },
+    );
+
+    my $annualChargeCapacity = SpreadsheetModel::Custom->new(
+        name => Label(
+            'Capacity £/year',
+            'Illustrative customer annual capacity charge (£/year)',
+        ),
+        defaultFormat => '0softnz',
+        rows          => $fullRowset,
+        custom        => [ '=0.01*A2*A95', '=A81-A82', ],
+        arithmetic    => 'Special calculation',
+        arguments     => {
+            A2  => $capacity,
+            A71 => $daysInYear,
+            A95 => $tariffTable->{'Capacity charge p/kVA/day'},
+        },
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                my $cellFormat =
+                    $self->{rowFormats}[$y]
+                  ? $wb->getFormat( $self->{rowFormats}[$y] )
+                  : $format;
+                return '', $wb->getFormat('unavailable') unless $mapping[$y];
+                my ( $uid, $tid, $eid ) = @{ $mapping[$y] };
+                unless ( defined $uid ) {
+                    return '', $cellFormat, $formula->[3],
+                      qr/\bA81\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $self->{$wb}{row} + $y + $tid,
+                        $self->{$wb}{col}
+                      ),
+                      qr/\bA82\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $self->{$wb}{row} + $y + $eid,
+                        $self->{$wb}{col} );
+                }
+                my $tariff = $allTariffs->{list}[$tid];
+                return '', $wb->getFormat('unavailable')
+                  unless $componentMap->{$tariff}{'Capacity charge p/kVA/day'};
+                '', $cellFormat, $formula->[0], map {
+                    qr/\b$_\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{$_} + (
+                              /^A9/         ? $tid
+                            : /^A(?:[2-5])/ ? $uid
+                            : /^A1/         ? $fullRowset->{groupid}[$y]
+                            : 0
+                        ),
+                        $colh->{$_} + ( /^A62/ ? 1 : /^A63/ ? 2 : 0 ),
+                        1, 1,
+                      )
+                } @$pha;
+            };
+        },
+    );
+
+    my $annualCharge = SpreadsheetModel::Custom->new(
+        name => Label(
+            'Total £/year', 'Illustrative customer annual charge (£/year)',
         ),
         defaultFormat => '0softnz',
         rows          => $fullRowset,
@@ -464,8 +647,8 @@ sub makeStatisticsTables {
                 my $tariff = $allTariffs->{list}[$tid];
                 '', $cellFormat,
                   $formula->[
-                    $componentMap->{$tariff}{'Unit rates p/kWh'}  ? 2
-                  : $componentMap->{$tariff}{'Unit rate 2 p/kWh'} ? 1
+                    $componentMap->{$tariff}{'Capacity charge p/kVA/day'} ? 2
+                  : $componentMap->{$tariff}{'Unit rate 2 p/kWh'}         ? 1
                   : 0
                   ],
                   map {
@@ -487,19 +670,27 @@ sub makeStatisticsTables {
 
     my $ppu = Arithmetic(
         name => Label(
-            '£/MWh', 'Average charges for illustrative customers (£/MWh)'
+            'Average £/MWh',
+            'Illustrative customer average charges (£/MWh)'
         ),
         defaultFormat => '0.0soft',
         arithmetic    => '=A1/A2*1000',
         arguments     => {
-            A1 => $ppy,
+            A1 => $annualCharge,
             A2 => $totalUnits,
         }
     );
 
     if ( $model->{sharedData} ) {
+        $model->{sharedData}->addStats( 'Illustrative usage charges (£/year)',
+            $model, $annualChargeUnits );
+        $model->{sharedData}->addStats( 'Illustrative fixed charges (£/year)',
+            $model, $annualChargeFixed );
         $model->{sharedData}
-          ->addStats( 'Illustrative charges (£/year)', $model, $ppy );
+          ->addStats( 'Illustrative capacity charges (£/year)',
+            $model, $annualChargeCapacity );
+        $model->{sharedData}
+          ->addStats( 'Illustrative charges (£/year)', $model, $annualCharge );
         $model->{sharedData}
           ->addStats( 'Illustrative charges (£/MWh)', $model, $ppu );
     }
@@ -507,7 +698,10 @@ sub makeStatisticsTables {
     push @{ $model->{statisticsTables} },
       Columnset(
         name    => 'Charges for illustrative customers',
-        columns => [ $ppy, $ppu, ],
+        columns => [
+            $annualCharge,      $ppu, $annualChargeUnits,
+            $annualChargeFixed, $annualChargeCapacity,
+        ],
       );
 
     if ( my @boundaries = sort keys %margins ) {
@@ -529,16 +723,16 @@ sub makeStatisticsTables {
             custom        => [ '=A1', ],
             arithmetic    => '=A1',
             arguments     => {
-                A1 => $ppy,
+                A1 => $annualCharge,
             },
             wsPrepare => sub {
                 my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
                   @_;
                 sub {
                     my ( $x, $y ) = @_;
-                    my $ppyrow = $ppyrow{ $atwRowset->{list}[$y] };
+                    my $row = $rowNumberByRowLabel{ $atwRowset->{list}[$y] };
                     return '', $wb->getFormat('unavailable')
-                      unless defined $ppyrow;
+                      unless defined $row;
                     my $cellFormat =
                         $self->{rowFormats}[$y]
                       ? $wb->getFormat( $self->{rowFormats}[$y] )
@@ -546,7 +740,7 @@ sub makeStatisticsTables {
                     '', $cellFormat, $formula->[0],
                       qr/\bA1\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{A1} + $ppyrow,
+                        $rowh->{A1} + $row,
                         $colh->{A1} );
                 };
             },
@@ -559,7 +753,7 @@ sub makeStatisticsTables {
             custom => [ '=A2-A1', ],
             arithmetic => '=A2-A1',
             arguments  => {
-                A1 => $ppy,
+                A1 => $annualCharge,
                 A2 => $atwTable,
             },
             wsPrepare => sub {
@@ -567,11 +761,11 @@ sub makeStatisticsTables {
                   @_;
                 sub {
                     my ( $x, $y ) = @_;
-                    my $ppyrow =
+                    my $row =
                       $margins{ $boundaries[$x] }{ $atwRowset->{list}[$y] };
-                    $ppyrow = $ppyrow{$ppyrow} if $ppyrow;
+                    $row = $rowNumberByRowLabel{$row} if $row;
                     return ' ', $wb->getFormat('unavailable')
-                      unless defined $ppyrow;
+                      unless defined $row;
                     my $cellFormat =
                         $self->{rowFormats}[$y]
                       ? $wb->getFormat( $self->{rowFormats}[$y] )
@@ -579,7 +773,7 @@ sub makeStatisticsTables {
                     '', $cellFormat, $formula->[0],
                       qr/\bA1\b/ =>
                       Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{A1} + $ppyrow,
+                        $rowh->{A1} + $row,
                         $colh->{A1}
                       ),
                       qr/\bA2\b/ =>
