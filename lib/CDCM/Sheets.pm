@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -428,48 +428,7 @@ sub worksheetsAndClosures {
       unless $model->{unroundedTariffAnalysis}
       && $model->{unroundedTariffAnalysis} =~ /modelg/i;
 
-    push @wsheetsAndClosures, 'TCDB' => sub {
-        my ($wsheet) = @_;
-        $wsheet->set_column( 0, 0, 96 );
-        $wsheet->set_column( 1, 1, 48 );
-        $wsheet->set_column( 2, 2, 32 );
-        $wsheet->set_column( 3, 3, 16 );
-        my $wsRow = $wsheet->{nextFree} || 0;
-        my @cols = map { $_->objectShortName; } @{ $model->{allTariffColumns} };
-        my @tableLocs = map {
-            my ( $s, $r, $c ) = $_->wsWrite( $wbook, $wsheet );
-            [ q%='% . $s->get_name . q%'!%, $r, $c ];
-        } @{ $model->{allTariffColumns} };
-        my $formatth = $wbook->getFormat('th');
-        my @formats =
-          map { $wbook->getFormat( $_->{defaultFormat} || '0.000copy' ); }
-          @{ $model->{allTariffColumns} };
-        my $rowsar = $model->{allTariffColumns}[0]{rows}{list};
-        for ( my $y = 0 ; $y < @$rowsar ; ++$y ) {
-            my $row = $rowsar->[$y];
-            $row =~ s/^.*\n//s;
-            next if $row =~ /LDNO|QNO/;
-            for ( my $x = 0 ; $x < @cols ; ++$x ) {
-                next
-                  unless $model->{componentMap}{ $rowsar->[$y] }{ $cols[$x] };
-                $wsheet->write( $wsRow, 0, $model->{nickNames}{$wbook},
-                    $formatth );
-                $wsheet->write( $wsRow, 1, $row,      $formatth );
-                $wsheet->write( $wsRow, 2, $cols[$x], $formatth );
-                $wsheet->write(
-                    $wsRow, 3,
-                    $tableLocs[$x][0]
-                      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $tableLocs[$x][1] + $y,
-                        $tableLocs[$x][2]
-                      ),
-                    $formats[$x]
-                );
-                ++$wsRow;
-            }
-        }
-        $wsheet->{nextFree} = $wsRow;
-      }
+    push @wsheetsAndClosures, 'TCDB' => $model->tcdbClosure($wbook)
       if $model->{tcdb};
 
     push @wsheetsAndClosures,

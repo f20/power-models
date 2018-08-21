@@ -671,7 +671,7 @@ sub makeStatisticsTables {
     my $ppu = Arithmetic(
         name => Label(
             'Average £/MWh',
-            'Illustrative customer average charges (£/MWh)'
+            'Illustrative customer average charge (£/MWh)'
         ),
         defaultFormat => '0.0soft',
         arithmetic    => '=A1/A2*1000',
@@ -681,7 +681,28 @@ sub makeStatisticsTables {
         }
     );
 
+    my $averageUnitRate = Arithmetic(
+        name => Label(
+            'Average £/MWh',
+            'Illustrative customer average unit rate (p/kWh)'
+        ),
+        arithmetic => '=A1/A2*100',
+        arguments  => {
+            A1 => $annualChargeUnits,
+            A2 => $totalUnits,
+        }
+    );
+
     if ( $model->{sharedData} ) {
+        $model->{sharedData}
+          ->addStats( 'Illustrative customer annual charge (£/year)',
+            $model, $annualCharge );
+        $model->{sharedData}
+          ->addStats( 'Illustrative customer average charge (£/MWh)',
+            $model, $ppu );
+        $model->{sharedData}
+          ->addStats( 'Illustrative customer usage (kWh/year)',
+            $model, $totalUnits );
         $model->{sharedData}->addStats( 'Illustrative usage charges (£/year)',
             $model, $annualChargeUnits );
         $model->{sharedData}->addStats( 'Illustrative fixed charges (£/year)',
@@ -689,18 +710,16 @@ sub makeStatisticsTables {
         $model->{sharedData}
           ->addStats( 'Illustrative capacity charges (£/year)',
             $model, $annualChargeCapacity );
-        $model->{sharedData}
-          ->addStats( 'Illustrative charges (£/year)', $model, $annualCharge );
-        $model->{sharedData}
-          ->addStats( 'Illustrative charges (£/MWh)', $model, $ppu );
+        $model->{sharedData}->addStats( 'Illustrative average unit rate p/kWh)',
+            $model, $averageUnitRate );
     }
 
     push @{ $model->{statisticsTables} },
       Columnset(
         name    => 'Charges for illustrative customers',
         columns => [
-            $annualCharge,      $ppu, $annualChargeUnits,
-            $annualChargeFixed, $annualChargeCapacity,
+            $annualCharge,      $ppu,                  $annualChargeUnits,
+            $annualChargeFixed, $annualChargeCapacity, $averageUnitRate,
         ],
       );
 
@@ -756,16 +775,26 @@ sub makeStatisticsTables {
                 A1 => $annualCharge,
                 A2 => $atwTable,
             },
+            cellFormats => [
+                map {
+                    my $map = $_;
+                    [
+                        map {
+                            $map && defined $map->{$_} ? undef : 'unavailable';
+                        } @{ $atwRowset->{list} }
+                    ]
+                } @margins{@boundaries}
+            ],
             wsPrepare => sub {
                 my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
                   @_;
+                my $unavailableFormat = $wb->getFormat('unavailable');
                 sub {
                     my ( $x, $y ) = @_;
                     my $row =
                       $margins{ $boundaries[$x] }{ $atwRowset->{list}[$y] };
                     $row = $rowNumberByRowLabel{$row} if $row;
-                    return ' ', $wb->getFormat('unavailable')
-                      unless defined $row;
+                    return '', $unavailableFormat unless defined $row;
                     my $cellFormat =
                         $self->{rowFormats}[$y]
                       ? $wb->getFormat( $self->{rowFormats}[$y] )

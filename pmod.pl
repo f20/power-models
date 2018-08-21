@@ -39,7 +39,7 @@ use Cwd qw(getcwd);
 my ( @homes, @libsSubjectToCodeValidation, @libsWithoutValidation );
 
 BEGIN {
-    my @paths      = ( getcwd() );
+    my @paths      = grep { defined $_; } getcwd();
     my $thisScript = rel2abs($0);
     my $thisFolder = dirname($thisScript);
     push @paths, $thisFolder unless grep { $_ eq $thisFolder; } @paths;

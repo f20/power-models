@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2009-2014 Reckon LLP and others.
+Copyright 2009-2018 Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -131,7 +131,7 @@ sub tscsCompilation {
     my @topLine =
       map { $_->[0]; }
       @{ $self->selectall_arrayref('select p from periods order by per') };
-    push @topLine, 'Changes';
+    push @topLine, 'Changes' if @topLine > 1;
 
     if ( $options->{singleSheet} ) {
         $wb = $newWorkbook->( 'TSCS' . $workbookModule->fileExtension );
@@ -234,7 +234,7 @@ sub tscsCompilation {
                         } 1 .. $#columns
                     ),
                     $bigNumberFormat
-                );
+                ) if @columns > 1;
             }
             $ws->write(
                 $row, 2 + $per + ( $options->{singleSheet} ? 1 : 0 ),

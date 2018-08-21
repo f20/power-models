@@ -93,6 +93,8 @@ sub requiredModulesForRuleset {
       $ruleset->{matrices}
       && $ruleset->{matrices} =~ /charts/i ? 'CDCM::MatrixCharts' : (),
 
+      $ruleset->{tcdb} ? qw(CDCM::TCDB) : (),
+
       $ruleset->{checksums} ? qw(SpreadsheetModel::Checksum) : (),
 
       $ruleset->{timebandDetails} ? qw(CDCM::Timebands) : (),
@@ -1029,7 +1031,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         ]
       );
 
-    $model->{componentMap} = $componentMap if $model->{tcdb};
+    $model->{componentMapForTcdb} = $componentMap if $model->{tcdb};
 
     if ( $model->{summary} ) {
 
