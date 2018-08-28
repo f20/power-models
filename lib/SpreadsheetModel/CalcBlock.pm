@@ -47,7 +47,7 @@ sub check {
 
     my ($self) = @_;
     return 'No item list for CalcBlock' unless 'ARRAY' eq ref $self->{items};
-    my $defaultFormat = $self->{defaultFormat} || '0boldsoft';
+    my $defaultFormat = $self->{defaultFormat} || '0soft';
     my %inBlock;
     my @items;
     my $add;
