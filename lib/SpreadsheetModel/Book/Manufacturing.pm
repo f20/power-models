@@ -331,7 +331,13 @@ sub factory {
             %dataByDatasetName = ();
         }
 
-        return unless @rulesets && @datasets;
+        return unless @rulesets;
+        push @datasets,
+          {
+            dataset        => {},
+            '~datasetName' => 'Blank',
+          }
+          unless @datasets;
 
         $settings->{datasetArray} ||=
           !grep { !$_->{wantDatasetArray}; } @rulesets;
