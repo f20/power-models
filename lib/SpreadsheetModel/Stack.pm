@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -197,8 +197,12 @@ sub wsPrepare {
 
     sub {
 
-        return ( '', $unavailable )
-          unless $self->{map}[ $_[0] ] && $self->{map}[ $_[0] ][ $_[1] ];
+        return '', $unavailable
+          if !$self->{map}[ $_[0] ]
+          || !$self->{map}[ $_[0] ][ $_[1] ]
+          || $self->{rowFormats}
+          && $self->{rowFormats}[ $_[1] ]
+          && $self->{rowFormats}[ $_[1] ] eq 'unavailable';
 
         my ( $source, $sx, $sy, $xabs, $yabs ) =
           @{ $self->{map}[ $_[0] ][ $_[1] ] };

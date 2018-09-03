@@ -898,7 +898,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,
         $tariffTable,
       )
-      = $model->pcdApplyDiscounts( $allComponents, $tariffTable, $daysInYear, )
+      = $model->pcdApplyDiscounts( $allComponents, $tariffTable, $daysInYear,
+        $componentMap, )
       if $model->{pcd};
 
     (
@@ -945,18 +946,28 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
 
         $tariffTableReordered = {
             map {
-                $_ => Stack(
-                    name          => $tariffTable->{$_}{name},
-                    defaultFormat => (
-                        map {
-                            local $_ = $_;
-                            s/soft/copy/ if defined $_;
-                            $_;
-                        } $tariffTable->{$_}{defaultFormat}
-                    ),
-                    rows    => $allTariffsReordered,
-                    cols    => $tariffTable->{$_}{cols},
-                    sources => [ $tariffTable->{$_} ]
+                my $component = $_;
+                (
+                    $component => Stack(
+                        name          => $tariffTable->{$component}{name},
+                        defaultFormat => (
+                            map {
+                                local $_ = $_;
+                                s/soft/copy/ if defined $_;
+                                $_;
+                            } $tariffTable->{$component}{defaultFormat}
+                        ),
+                        rows       => $allTariffsReordered,
+                        rowFormats => [
+                            map {
+                                $componentMap->{$_}{$component}
+                                  ? undef
+                                  : 'unavailable';
+                            } @{ $allTariffsReordered->{list} }
+                        ],
+                        cols    => $tariffTable->{$component}{cols},
+                        sources => [ $tariffTable->{$component} ],
+                    )
                 );
             } @$allComponents
         };
@@ -981,8 +992,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                 Dataset(
                     rows          => $allTariffsReordered,
                     defaultFormat => 'puretexthard',
-                    data          => [ map { '' } @{ $allTariffs->{list} } ],
-                    name          => 'Open LLFCs',
+                    data => [ map { '' } @{ $allTariffsReordered->{list} } ],
+                    name => 'Open LLFCs',
                 ),
                 $model->{noPCs} ? () : Constant(
                     rows          => $allTariffsReordered,
@@ -1001,8 +1012,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             $model->{noLLFCs} ? () : Dataset(
                 rows          => $allTariffsReordered,
                 defaultFormat => 'puretexthard',
-                data          => [ map { '' } @{ $allTariffs->{list} } ],
-                name          => 'Closed LLFCs',
+                data => [ map { '' } @{ $allTariffsReordered->{list} } ],
+                name => 'Closed LLFCs',
             ),
             $model->{checksums}
             ? (

@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -314,10 +314,18 @@ sub pcdPreprocessedVolumes {
 
 sub pcdApplyDiscounts {
 
-    my ( $model, $allComponents, $tariffTable, $daysInYear, ) = @_;
+    my ( $model, $allComponents, $tariffTable, $daysInYear, $componentMap ) =
+      @_;
 
     my $allTariffs = $model->{pcd}{allTariffsByEndUser};
     my $volumeData = $model->{pcd}{volumeData};
+
+    my %rowFormats;
+    foreach my $component (@$allComponents) {
+        $rowFormats{$component} =
+          [ map { $componentMap->{$_}{$component} ? undef : 'unavailable'; }
+              @{ $allTariffs->{list} } ];
+    }
 
     push @{ $model->{roundingResults} },
       Columnset(
@@ -351,6 +359,7 @@ sub pcdApplyDiscounts {
             name               => 'Bung (p/MPAN/day)',
             defaultFormat      => '0.00hardpm',
             rows               => $allTariffs,
+            rowFormats         => $rowFormats{'Fixed charge p/MPAN/day'},
             number             => 1098,
             appendTo           => $model->{inputTables},
             dataset            => $model->{dataset},
@@ -385,6 +394,7 @@ sub pcdApplyDiscounts {
             Dataset(
                 name          => $_,
                 rows          => $allTariffs,
+                rowFormats    => $rowFormats{$_},
                 cols          => $tariffTable->{$_}{cols},
                 defaultFormat => /day/ ? '0.00hardpm' : '0.000hardpm',
                 data               => [ map { 0; } @{ $allTariffs->{list} } ],
@@ -419,9 +429,10 @@ sub pcdApplyDiscounts {
                       . 'A2*(1-A1),'
                       . ( /kWh|kVArh/ ? 3 : 2 )
                       . ')' ),
-                rows      => $allTariffs,
-                cols      => $tariffTable->{$_}{cols},
-                arguments => {
+                rows       => $allTariffs,
+                rowFormats => $rowFormats{$_},
+                cols       => $tariffTable->{$_}{cols},
+                arguments  => {
                     A2 => $tariffTable->{$_},
                     A1 => /fix/i ? $model->{pcd}{discountFixed}
                     : $model->{pcd}{discount},
