@@ -1,5 +1,5 @@
 ---
-.: 'CDCM after DCP 228, clean, with supplier default bung'
+.: 'CDCM after DCP 228, with 2018/2019 supplier default bung'
 .Style: Clean model with checksums
 PerlModule: CDCM
 agghhequalisation: rag
