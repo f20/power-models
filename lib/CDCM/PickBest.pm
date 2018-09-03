@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -54,6 +54,9 @@ sub score {
       and $month gt '2013-03' && $month le '2016-03'
       || $month ge '2018-02'  && $month le '2018-03';
 
+    # Fiddle
+    $score += 10 if $rule->{fiddle} and $month eq '2019-02';
+
     # DCP 179
     $score += 10 if $rule->{tariffs} =~ /pc34hh/i xor $month lt '2014-03';
 
@@ -74,13 +77,6 @@ sub score {
 
     # DCP 268 avoidance
     $score *= 0.1 if $rule->{tariffGrouping};
-
-    # Fun
-    $score += 1 if !$rule->{pcd} && $month lt '2020-03';
-
-    0
-      and warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month,
-      $score;
 
     $score;
 

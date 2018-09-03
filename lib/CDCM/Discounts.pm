@@ -345,10 +345,11 @@ sub pcdApplyDiscounts {
         defaultFormat => '0softnz'
     );
 
-    my $bung;
+    my %fiddleTerm;
     if ( $model->{bung} || $model->{electionBung} ) {
-        $bung = Dataset(
+        my $bung = Dataset(
             name               => 'Bung (p/MPAN/day)',
+            defaultFormat      => '0.00hardpm',
             rows               => $allTariffs,
             number             => 1098,
             appendTo           => $model->{inputTables},
@@ -359,8 +360,8 @@ sub pcdApplyDiscounts {
               {    # some validation is needed to enable lenient locking
                 validate => 'decimal',
                 criteria => 'between',
-                minimum  => -999_999.999,
-                maximum  => 999_999.999,
+                minimum  => -666_666_666.666,
+                maximum  => 666_666_666.666,
               },
         );
         push @{ $model->{otherTotalRevenues} },
@@ -377,6 +378,34 @@ sub pcdApplyDiscounts {
         $model->{sharedData}
           ->addStats( 'DNO-wide aggregates', $model, $totalImpactOfBung )
           if $model->{sharedData};
+        $fiddleTerm{'Fixed charge p/MPAN/day'} = $bung;
+    }
+    elsif ( $model->{fiddle} ) {
+        my @fiddles = map {
+            Dataset(
+                name          => $_,
+                rows          => $allTariffs,
+                cols          => $tariffTable->{$_}{cols},
+                defaultFormat => /day/ ? '0.00hardpm' : '0.000hardpm',
+                data               => [ map { 0; } @{ $allTariffs->{list} } ],
+                usePlaceholderData => 1,
+                validation =>
+                  {    # some validation is needed to enable lenient locking
+                    validate => 'decimal',
+                    criteria => 'between',
+                    minimum  => -666_666_666.666,
+                    maximum  => 666_666_666.666,
+                  },
+            );
+        } @$allComponents;
+        Columnset(
+            name     => 'Fiddle terms',
+            number   => 1099,
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
+            columns  => \@fiddles,
+        );
+        @fiddleTerm{@$allComponents} = @fiddles;
     }
 
     my $newTariffTable = {
@@ -385,7 +414,7 @@ sub pcdApplyDiscounts {
                 name          => $_,
                 defaultFormat => $tariffTable->{$_}{defaultFormat},
                 arithmetic    => $model->{model100} ? '=A2*(1-A1)'
-                : (   ( $bung && /MPAN/ ? '=A3+' : '=' )
+                : (   ( $fiddleTerm{$_} ? '=A3+' : '=' )
                     . 'ROUND('
                       . 'A2*(1-A1),'
                       . ( /kWh|kVArh/ ? 3 : 2 )
@@ -396,7 +425,7 @@ sub pcdApplyDiscounts {
                     A2 => $tariffTable->{$_},
                     A1 => /fix/i ? $model->{pcd}{discountFixed}
                     : $model->{pcd}{discount},
-                    $bung && /MPAN/ ? ( A3 => $bung ) : (),
+                    $fiddleTerm{$_} ? ( A3 => $fiddleTerm{$_} ) : (),
                 },
             );
         } @$allComponents

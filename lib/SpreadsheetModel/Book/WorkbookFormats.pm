@@ -2,7 +2,7 @@
 
 =head Copyright licence and disclaimer
 
-Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2008-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -388,79 +388,95 @@ sub setFormats {
         align      => 'center'
       );
 
-    my @defaultColour =
+    my @cDefault =
       $noColour
       ? ( bottom => 1 )
       : (
         $options->{gridlines} ? ( border => 7 ) : (),
         $backgroundColour && !$options->{noCyanText} ? ( color => MAGENTA ) : ()
       );
-    my @cCon =
-      $noColour ? ( bottom => 1, border_color => GREY )
-      : (
-        $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour ? ( bg_color => SILVER, @defaultColour, )
+    my @cCon = (
+        locked => 1,
+        $noColour ? ( bottom => 1, border_color => GREY )
         : (
-            $borderColour ? ( border => 1, border_color => GREY ) : (),
-            $textColour ? ( color => GREY ) : (),
+            $options->{gridlines} ? ( border => 7 ) : (),
+            $backgroundColour ? ( bg_color => SILVER, @cDefault, )
+            : (
+                $borderColour ? ( border => 1, border_color => GREY ) : (),
+                $textColour ? ( color => GREY ) : (),
+            )
         )
-      );
-    my @cCopy =
-      $noColour ? ( bottom => 3 )
-      : (
-        $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour ? ( bg_color => BGGREEN, @defaultColour, )
+    );
+    my @cCopy = (
+        locked => 1,
+        $noColour ? ( bottom => 3 )
         : (
-            $borderColour ? ( border => 1, border_color => GREEN ) : (),
-            $textColour ? ( color => GREEN ) : (),
+            $options->{gridlines} ? ( border => 7 ) : (),
+            $backgroundColour ? ( bg_color => BGGREEN, @cDefault, )
+            : (
+                $borderColour ? ( border => 1, border_color => GREEN ) : (),
+                $textColour ? ( color => GREEN ) : (),
+            )
         )
-      );
-    my @cHard =
-      $noColour ? ( bottom => 2 )
-      : (
-        $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour ? ( bg_color => BGBLUE, @defaultColour, )
+    );
+    my @cHard = (
+        locked => 0,
+        $noColour ? ( bottom => 2 )
         : (
-            $borderColour ? ( border => 1, border_color => BLUE ) : (),
-            $textColour ? ( color => BLUE ) : (),
+            $options->{gridlines} ? ( border => 7 ) : (),
+            $backgroundColour ? ( bg_color => BGBLUE, @cDefault, )
+            : (
+                $borderColour ? ( border => 1, border_color => BLUE ) : (),
+                $textColour ? ( color => BLUE ) : (),
+            )
         )
-      );
-    my @cSoft =
-      $noColour ? ( bottom => 1 )
-      : (
-        $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour ? ( bg_color => BGYELLOW, @defaultColour, )
+    );
+    my @cSoft = (
+        locked => 1,
+        $noColour ? ( bottom => 1 )
         : (
-            $borderColour ? ( border => 1, border_color => EXCELCOL11 ) : (),
-            $textColour ? ( color => EXCELCOL11 ) : (),
+            $options->{gridlines} ? ( border => 7 ) : (),
+            $backgroundColour ? ( bg_color => BGYELLOW, @cDefault, )
+            : (
+                $borderColour ? ( border => 1, border_color => EXCELCOL11 )
+                : (),
+                $textColour ? ( color => EXCELCOL11 ) : (),
+            )
         )
-      );
-    my @cScribbles =
-      $noColour ? ( bottom => 4, border_color => SILVER, )
-      : (
-        color => PURPLE,
-        !$backgroundColour ? ()
-        : $orangeColours ? ( bottom => 3, top => 3, border_color => PURPLE, )
-        :                  ( bg_color => LTPURPLE )
-      );
-    my @cHeader =
-      $noColour
-      ? ( bottom => 1, border_color => GREY )
-      : (
-        $goldColours
-        ? ( bg_color => SILVER, fg_color => BGGOLD, pattern => 6 )
-        : $backgroundColour
-        ? ( bg_color => $orangeColours ? BGORANGE : BGPURPLE )
-        : ()
-      );
-    my @cUnavailable =
-      $noColour ? ( bottom => 9, border_color => GREY )
-      : (
-        $options->{gridlines} ? ( border => 7 ) : (),
-        $backgroundColour
-        ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
-        : ( right => 4, border_color => GREY )
-      );
+    );
+    my @cScribbles = (
+        locked => 0,
+        $noColour ? ( bottom => 4, border_color => SILVER, )
+        : (
+            color => PURPLE,
+            !$backgroundColour ? ()
+            : $orangeColours
+            ? ( bottom => 3, top => 3, border_color => PURPLE, )
+            : ( bg_color => LTPURPLE )
+        )
+    );
+    my @cHeader = (
+        locked => 1,
+        $noColour
+        ? ( bottom => 1, border_color => GREY )
+        : (
+            $goldColours
+            ? ( bg_color => SILVER, fg_color => BGGOLD, pattern => 6 )
+            : $backgroundColour
+            ? ( bg_color => $orangeColours ? BGORANGE : BGPURPLE )
+            : ()
+        )
+    );
+    my @cUnavailable = (
+        locked => 1,
+        $noColour ? ( bottom => 9, border_color => GREY )
+        : (
+            $options->{gridlines} ? ( border => 7 ) : (),
+            $backgroundColour
+            ? ( fg_color => SILVER, bg_color => WHITE, pattern => 14, )
+            : ( right => 4, border_color => GREY )
+        )
+    );
     my @cUnused =
       $noColour ? ( bottom => 11, border_color => GREY )
       : (
@@ -469,8 +485,12 @@ sub setFormats {
         ? ( fg_color => SILVER, bg_color => WHITE, pattern => 15, )
         : ( right => 4, border_color => GREY )
       );
-    my @cCaption = $noColour || $backgroundColour ? () : ( color => BLUE );
-    my @cTitle   = $noColour || $backgroundColour ? () : ( color => ORANGE );
+    my @cCaption =
+      ( locked => 1, $noColour || $backgroundColour ? () : ( color => BLUE ) );
+    my @cTitle = (
+        locked => 1,
+        $noColour || $backgroundColour ? () : ( color => ORANGE )
+    );
     my @sExtras =
       $goldColours ? ( top => 1, bottom => 1, border_color => BGGOLD ) : ();
     my @sCaption =
@@ -485,152 +505,145 @@ sub setFormats {
     my @sNumber     = ( valign => 1 ? 'vbottom' : 'vcenter', @sExtras );
     my @sText       = ( valign => 1 ? 'vbottom' : 'vcenter', );
     my %specs       = (
-        '%con'         => [ locked => 1, @sNumber, @num_percent,   @cCon, ],
-        '%copy'        => [ locked => 1, @sNumber, @num_percent,   @cCopy, ],
-        '%copypm'      => [ locked => 1, @sNumber, @num_percentpm, @cCopy, ],
-        '%hard'        => [ locked => 0, @sNumber, @num_percent,   @cHard, ],
-        '%hardpm'      => [ locked => 0, @sNumber, @num_percentpm, @cHard, ],
-        '%soft'        => [ locked => 1, @sNumber, @num_percent,   @cSoft, ],
-        '%softpm'      => [ locked => 1, @sNumber, @num_percentpm, @cSoft, ],
-        '0.00000con'   => [ locked => 1, @sNumber, @num_00000,     @cCon, ],
-        '0.00000copy'  => [ locked => 1, @sNumber, @num_00000,     @cCopy, ],
-        '0.00000soft'  => [ locked => 1, @sNumber, @num_00000,     @cSoft, ],
-        '0.000con'     => [ locked => 1, @sNumber, @num_000,       @cCon, ],
-        '0.000copy'    => [ locked => 1, @sNumber, @num_000,       @cCopy, ],
-        '0.000hard'    => [ locked => 0, @sNumber, @num_000,       @cHard, ],
-        '0.000soft'    => [ locked => 1, @sNumber, @num_000,       @cSoft, ],
-        '0.000softpm'  => [ locked => 1, @sNumber, @num_000pm,     @cSoft, ],
-        '0.00con'      => [ locked => 1, @sNumber, @num_00,        @cCon, ],
-        '0.00copy'     => [ locked => 1, @sNumber, @num_00,        @cCopy, ],
-        '0.00hard'     => [ locked => 0, @sNumber, @num_00,        @cHard, ],
-        '0.00soft'     => [ locked => 1, @sNumber, @num_00,        @cSoft, ],
-        '0.00softpm'   => [ locked => 1, @sNumber, @num_00pm,      @cSoft, ],
-        '0.0con'       => [ locked => 1, @sNumber, @num_0,         @cCon, ],
-        '0.0copy'      => [ locked => 1, @sNumber, @num_0,         @cCopy, ],
-        '0.0hard'      => [ locked => 0, @sNumber, @num_0,         @cHard, ],
-        '0.0soft'      => [ locked => 1, @sNumber, @num_0,         @cSoft, ],
-        '0.0softpm'    => [ locked => 1, @sNumber, @num_0pm,       @cSoft, ],
-        '0000con'      => [ locked => 1, @sNumber, @num_quad,      @cCon, ],
-        '0000copy'     => [ locked => 1, @sNumber, @num_quad,      @cCopy, ],
-        '0000hard'     => [ locked => 0, @sNumber, @num_quad,      @cHard, ],
-        '0000soft'     => [ locked => 1, @sNumber, @num_quad,      @cSoft, ],
-        '0con'         => [ locked => 1, @sNumber, @num_,          @cCon, ],
-        '0copy'        => [ locked => 1, @sNumber, @num_,          @cCopy, ],
-        '0copypm'      => [ locked => 1, @sNumber, @num_pm,        @cCopy, ],
-        '0hard'        => [ locked => 0, @sNumber, @num_,          @cHard, ],
-        '0soft'        => [ locked => 1, @sNumber, @num_,          @cSoft, ],
-        '0softpm'      => [ locked => 1, @sNumber, @num_pm,        @cSoft, ],
-        'datecon'      => [ locked => 1, @sNumber, @num_date,      @cCon, ],
-        'datecopy'     => [ locked => 1, @sNumber, @num_date,      @cCopy, ],
-        'datehard'     => [ locked => 0, @sNumber, @num_date,      @cHard, ],
-        'datesoft'     => [ locked => 1, @sNumber, @num_date,      @cSoft, ],
-        'datetimecon'  => [ locked => 1, @sNumber, @num_datetime,  @cCon, ],
-        'datetimecopy' => [ locked => 1, @sNumber, @num_datetime,  @cCopy, ],
-        'datetimehard' => [ locked => 0, @sNumber, @num_datetime,  @cHard, ],
-        'datetimesoft' => [ locked => 1, @sNumber, @num_datetime,  @cSoft, ],
-        'millioncon'   => [ locked => 1, @sNumber, @num_million,   @cCon, ],
-        'millioncopy'  => [ locked => 1, @sNumber, @num_million,   @cCopy, ],
-        'millionhard'  => [ locked => 0, @sNumber, @num_million,   @cHard, ],
-        'millionsoft'  => [ locked => 1, @sNumber, @num_million,   @cSoft, ],
-        'monthdaycon'  => [ locked => 1, @sNumber, @num_monthday,  @cCon, ],
-        'monthdaycopy' => [ locked => 1, @sNumber, @num_monthday,  @cCopy, ],
-        'monthdayhard' => [ locked => 0, @sNumber, @num_monthday,  @cHard, ],
-        'monthdaysoft' => [ locked => 1, @sNumber, @num_monthday,  @cSoft, ],
-        'timecon'      => [ locked => 1, @sNumber, @num_time,      @cCon, ],
-        'timecopy'     => [ locked => 1, @sNumber, @num_time,      @cCopy, ],
-        'timehard'     => [ locked => 0, @sNumber, @num_time,      @cHard, ],
-        'timesoft'     => [ locked => 1, @sNumber, @num_time,      @cSoft, ],
-        boolhard       => [
-            locked => 0,
+        '%con'         => [ @sNumber, @num_percent,   @cCon, ],
+        '%copy'        => [ @sNumber, @num_percent,   @cCopy, ],
+        '%copypm'      => [ @sNumber, @num_percentpm, @cCopy, ],
+        '%hard'        => [ @sNumber, @num_percent,   @cHard, ],
+        '%hardpm'      => [ @sNumber, @num_percentpm, @cHard, ],
+        '%soft'        => [ @sNumber, @num_percent,   @cSoft, ],
+        '%softpm'      => [ @sNumber, @num_percentpm, @cSoft, ],
+        '0.00000con'   => [ @sNumber, @num_00000,     @cCon, ],
+        '0.00000copy'  => [ @sNumber, @num_00000,     @cCopy, ],
+        '0.00000soft'  => [ @sNumber, @num_00000,     @cSoft, ],
+        '0.000con'     => [ @sNumber, @num_000,       @cCon, ],
+        '0.000copy'    => [ @sNumber, @num_000,       @cCopy, ],
+        '0.000hard'    => [ @sNumber, @num_000,       @cHard, ],
+        '0.000hardpm'  => [ @sNumber, @num_000pm,     @cHard, ],
+        '0.000soft'    => [ @sNumber, @num_000,       @cSoft, ],
+        '0.000softpm'  => [ @sNumber, @num_000pm,     @cSoft, ],
+        '0.00con'      => [ @sNumber, @num_00,        @cCon, ],
+        '0.00copy'     => [ @sNumber, @num_00,        @cCopy, ],
+        '0.00hard'     => [ @sNumber, @num_00,        @cHard, ],
+        '0.00hardpm'   => [ @sNumber, @num_00pm,      @cHard, ],
+        '0.00soft'     => [ @sNumber, @num_00,        @cSoft, ],
+        '0.00softpm'   => [ @sNumber, @num_00pm,      @cSoft, ],
+        '0.0con'       => [ @sNumber, @num_0,         @cCon, ],
+        '0.0copy'      => [ @sNumber, @num_0,         @cCopy, ],
+        '0.0hard'      => [ @sNumber, @num_0,         @cHard, ],
+        '0.0soft'      => [ @sNumber, @num_0,         @cSoft, ],
+        '0.0softpm'    => [ @sNumber, @num_0pm,       @cSoft, ],
+        '0000con'      => [ @sNumber, @num_quad,      @cCon, ],
+        '0000copy'     => [ @sNumber, @num_quad,      @cCopy, ],
+        '0000hard'     => [ @sNumber, @num_quad,      @cHard, ],
+        '0000soft'     => [ @sNumber, @num_quad,      @cSoft, ],
+        '0con'         => [ @sNumber, @num_,          @cCon, ],
+        '0copy'        => [ @sNumber, @num_,          @cCopy, ],
+        '0copypm'      => [ @sNumber, @num_pm,        @cCopy, ],
+        '0hard'        => [ @sNumber, @num_,          @cHard, ],
+        '0hardpm'      => [ @sNumber, @num_pm,        @cHard, ],
+        '0soft'        => [ @sNumber, @num_,          @cSoft, ],
+        '0softpm'      => [ @sNumber, @num_pm,        @cSoft, ],
+        'datecon'      => [ @sNumber, @num_date,      @cCon, ],
+        'datecopy'     => [ @sNumber, @num_date,      @cCopy, ],
+        'datehard'     => [ @sNumber, @num_date,      @cHard, ],
+        'datesoft'     => [ @sNumber, @num_date,      @cSoft, ],
+        'datetimecon'  => [ @sNumber, @num_datetime,  @cCon, ],
+        'datetimecopy' => [ @sNumber, @num_datetime,  @cCopy, ],
+        'datetimehard' => [ @sNumber, @num_datetime,  @cHard, ],
+        'datetimesoft' => [ @sNumber, @num_datetime,  @cSoft, ],
+        'millioncon'   => [ @sNumber, @num_million,   @cCon, ],
+        'millioncopy'  => [ @sNumber, @num_million,   @cCopy, ],
+        'millionhard'  => [ @sNumber, @num_million,   @cHard, ],
+        'millionsoft'  => [ @sNumber, @num_million,   @cSoft, ],
+        'monthdaycon'  => [ @sNumber, @num_monthday,  @cCon, ],
+        'monthdaycopy' => [ @sNumber, @num_monthday,  @cCopy, ],
+        'monthdayhard' => [ @sNumber, @num_monthday,  @cHard, ],
+        'monthdaysoft' => [ @sNumber, @num_monthday,  @cSoft, ],
+        'timecon'      => [ @sNumber, @num_time,      @cCon, ],
+        'timecopy'     => [ @sNumber, @num_time,      @cCopy, ],
+        'timehard'     => [ @sNumber, @num_time,      @cHard, ],
+        'timesoft'     => [ @sNumber, @num_time,      @cSoft, ],
+        'boolhard'     => [
             @sNumber,
             align => 'center',
             @num_,
             @cHard,
         ],
-        boolsoft => [
-            locked => 1,
+        'boolsoft' => [
             @sNumber,
             align => 'center',
             @num_,
             @cSoft,
         ],
-        boolcopy => [
-            locked => 1,
+        'boolcopy' => [
             @sNumber,
             align => 'center',
             @num_,
             @cCopy,
         ],
-        caption => [
-            locked => 1,
+        'caption' => [
             @sCaption,
             num_format => '@',
             align      => 'left',
             @cCaption,
         ],
-        captionca => [
-            locked => 1,
+        'captionca' => [
             @sCaption,
             num_format => '@',
             text_wrap  => 1,
             align      => 'center_across',
             @cCaption,
         ],
-        link => [
+        'link' => [
             locked => 1,
             @sText,
             num_format => '@',
             underline  => 1,
             color      => BLUE,
         ],
-        loccopy => [
-            locked => 1,
+        'loccopy' => [
             @sLabel,
             num_format => $black . '\L\o\c\a\t\i\o\n\ 0',
             align      => 'center',
             @sExtras,
             @cCopy,
         ],
-        locsoft => [
-            locked => 1,
+        'locsoft' => [
             @sLabel,
             num_format => $black . '\L\o\c\a\t\i\o\n\ 0',
             align      => 'center',
             @sExtras,
             @cSoft,
         ],
-        indices => [
+        'indices' => [
             locked => 1,
             @sLabel,
             num_format => $black . '\I\n\d\e\x\ 0;' . $black . '\I\n\d\e\x\ -0',
             align      => 'center',
             @sExtras,
             $options->{gridlines} ? ( border => 7 ) : (),
-            @defaultColour,
+            @cDefault,
         ],
-        notes => [
-            locked => 1,
+        'notes' => [
             @sHeading,
             num_format => '@',
             align      => 'left',
             @cTitle,
         ],
-        scribbles => [
-            locked => 0,
+        'scribbles' => [
             @sText,
             text_wrap => 0,
             @cScribbles,
         ],
-        code => [
+        'code' => [
             locked => 1,
             @sText,
             num_format => $num_textonly,
             align      => 'left',
             0 ? ( font => 'Consolas' ) : 0 ? ( font => 'Courier New' ) : (),
-            @defaultColour,
+            @cDefault,
         ],
-        mpanhard => [
-            locked => 0,
+        'mpanhard' => [
             @sText,
             num_format => $num_mpan,
             align      => 'center',
@@ -638,8 +651,7 @@ sub setFormats {
             text_wrap => 1,
             @cHard,
         ],
-        mpancopy => [
-            locked => 1,
+        'mpancopy' => [
             @sText,
             num_format => $num_mpan,
             align      => 'center',
@@ -647,8 +659,7 @@ sub setFormats {
             text_wrap => 1,
             @cCopy,
         ],
-        puretextcon => [
-            locked => 1,
+        'puretextcon' => [
             @sText,
             num_format => $num_textonlycopy,
             align      => 'center',
@@ -656,8 +667,7 @@ sub setFormats {
             text_wrap => 1,
             @cCon,
         ],
-        puretextcopy => [
-            locked => 1,
+        'puretextcopy' => [
             @sText,
             num_format => $num_textonlycopy,
             align      => 'center',
@@ -665,8 +675,7 @@ sub setFormats {
             text_wrap => 1,
             @cCopy,
         ],
-        puretexthard => [
-            locked => 0,
+        'puretexthard' => [
             @sText,
             num_format => $num_textonly,
             align      => 'center',
@@ -674,7 +683,7 @@ sub setFormats {
             text_wrap => 1,
             @cHard,
         ],
-        puretextsoft => [
+        'puretextsoft' => [
             @sText,
             num_format => $num_textonly,
             align      => 'center',
@@ -682,13 +691,12 @@ sub setFormats {
             text_wrap => 1,
             @cSoft,
         ],
-        text => [
+        'text' => [
             locked => 1,
             @sText,
             num_format => '@',
         ],
-        textcon => [
-            locked => 1,
+        'textcon' => [
             @sText,
             num_format => $num_text,
             @alignText,
@@ -696,16 +704,14 @@ sub setFormats {
             @sExtras,
             @cCon,
         ],
-        textcopy => [
-            locked => 1,
+        'textcopy' => [
             @sText,
             num_format => $num_text,
             @alignText, @sExtras,
             text_wrap => 1,
             @cCopy,
         ],
-        textcopycentered => [
-            locked => 1,
+        'textcopycentered' => [
             @sText,
             num_format => $num_text,
             align      => 'center',
@@ -713,39 +719,35 @@ sub setFormats {
             text_wrap => 1,
             @cCopy,
         ],
-        texthard => [
-            locked => 0,
+        'texthard' => [
             @sText,
             num_format => $num_text,
             @alignText, @sExtras,
             text_wrap => 1,
             @cHard,
         ],
-        texthardnowrap => [
-            locked => 0,
+        'texthardnowrap' => [
             @sText,
             num_format => $num_text,
             @alignText, @sExtras,
             @cHard,
         ],
-        textsoft => [
-            locked => 1,
+        'textsoft' => [
             @sText,
             num_format => $num_text,
             @alignText, @sExtras,
             text_wrap => 1,
             @cSoft,
         ],
-        textnocolour => [
+        'textnocolour' => [
             locked => 0,
             @sText,
             num_format => $num_text,
             @alignText, @sExtras,
             text_wrap => 1,
-            @defaultColour,
+            @cDefault,
         ],
-        th => [
-            locked => 1,
+        'th' => [
             @sLabel,
             num_format => $num_textonly,
             align      => 'left',
@@ -754,8 +756,7 @@ sub setFormats {
             @cHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
-        thc => [
-            locked => 1,
+        'thc' => [
             @sLabel,
             num_format => $num_textonly,
             $boldHeadings ? ( bold => 1 ) : (),
@@ -764,8 +765,7 @@ sub setFormats {
             @cHeader,
             $options->{gridlines} ? ( right => 7, bottom => 1 ) : (),
         ],
-        thca => [
-            locked => 1,
+        'thca' => [
             @sLabelGroup,
             num_format => $num_textonly,
             italic     => 1,
@@ -776,16 +776,14 @@ sub setFormats {
             ? ( right => 7, bottom => 1, )
             : ( left => 1, right => 1, ),
         ],
-        thcaleft => [
-            locked => 1,
+        'thcaleft' => [
             @sLabelGroup,
             num_format => $num_textonly,
             align      => 'left',
             italic     => 1,
             @cHeader,
         ],
-        thg => [
-            locked => 1,
+        'thg' => [
             @sLabelGroup,
             num_format => $num_textonly,
             align      => 'left',
@@ -793,20 +791,20 @@ sub setFormats {
             text_wrap  => 1,
             @cHeader,
         ],
-        colnoteleft => [
+        'colnoteleft' => [
             locked => 1,
             @sText,
             num_format => '@',
             align      => 'left',
         ],
-        colnoteleftwrap => [
+        'colnoteleftwrap' => [
             locked => 1,
             @sText,
             num_format => '@',
             text_wrap  => 1,
             align      => 'left',
         ],
-        colnotecenter => [
+        'colnotecenter' => [
             locked => 1,
             @sText,
             num_format => '@',
@@ -815,8 +813,7 @@ sub setFormats {
             left       => 1,
             right      => 1,
         ],
-        thitem => [
-            locked => 1,
+        'thitem' => [
             @sLabel,
             num_format => '\I\t\e\m\ \#0',
             align      => 'left',
@@ -824,8 +821,7 @@ sub setFormats {
             @cHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
-        thloc => [
-            locked => 1,
+        'thloc' => [
             @sLabel,
             num_format => '\L\o\c\a\t\i\o\n\ 0',
             align      => 'left',
@@ -833,8 +829,7 @@ sub setFormats {
             @cHeader,
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
-        thtar => [
-            locked => 1,
+        'thtar' => [
             @sLabel,
             num_format => '\T\a\r\i\f\f\ 0',
             align      => 'left',
@@ -843,20 +838,18 @@ sub setFormats {
             $options->{gridlines} ? ( bottom => 7, right => 1 ) : (),
         ],
         'tarhard' => [
-            locked => 0,
             @sNumber,
             align      => 'left',
             num_format => '[Black]\T\a\r\i\f\f\ 0;[Red]-0;;[Cyan]@',
             @cHard,
         ],
-        unavailable => [
-            locked => 1,
+        'unavailable' => [
             @sNumber,
             num_format => $num_text,
             align      => 'center',
             @cUnavailable,
         ],
-        unused => [
+        'unused' => [
             locked => !$options->{validation}
               || $options->{validation} !~ /lenient/i ? 1 : 0,
             @sNumber,
