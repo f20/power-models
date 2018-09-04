@@ -2,7 +2,7 @@ package Sampler;
 
 =head Copyright licence and disclaimer
 
-Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2015-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -41,17 +41,20 @@ sub new {
 sub requiredModulesForRuleset {
     my ( $class, $model ) = @_;
     $model->{showColourCode}
-      || $model->{showNumFormatColours} ? 'Sampler::ColoursList'  : (),
-      $model->{showColourMatrix}        ? 'Sampler::ColoursArray' : ();
+      || $model->{showNumFormatColours} ? 'Sampler::ColoursList' : (),
+      $model->{showColourMatrix} ? 'Sampler::ColoursArray' : (),
+      $model->{omitLegend} ? () : 'SpreadsheetModel::Book::FormatLegend';
 }
 
 sub worksheetsAndClosures {
     my ( $model, $wbook ) = @_;
     Sampler => sub {
         my ($wsheet) = @_;
-        $wsheet->set_column( 0, 255, 20 );
+        $wsheet->set_column( 0, 255, $model->{omitLegend} ? 18 : 24 );
         Notes( name => 'Spreadsheet format sampler' )
           ->wsWrite( $wbook, $wsheet );
+        SpreadsheetModel::Book::FormatLegend->new->wsWrite( $wbook, $wsheet )
+          unless $model->{omitLegend};
         $model->writeFormatList( $wbook, $wsheet ) unless $model->{omitFormats};
         $model->writeColourCode( $wbook, $wsheet )
           if $model->{showColourCode};
