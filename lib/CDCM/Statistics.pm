@@ -394,7 +394,7 @@ sub makeStatisticsTables {
             my $tariff = $allTariffs->{list}[$tid];
             next unless $filter->($tariff);
             $tariff =~ s/^.*\n//s;
-            my $row = "$short ($tariff)";
+            my $row = "$short @ $tariff";
             push @tariffList, $row;
             $mapping{$row} = [ $uid, $tid, $#tariffList ];
             if ( $tariff =~ /^(?:LD|Q)NO ([^:]+): (.+)/ ) {
