@@ -384,7 +384,7 @@ sub factory {
         $settings->{adjustDatasets}->( \@datasets )
           if $settings->{adjustDatasets};
 
-        $validate->( @{ $settings->{validate} } ) if $settings->{validate};
+        $validate->( $settings->{validate} ? @{ $settings->{validate} } : [] );
 
         my $extension = $workbookModule->( $settings->{xls} )->fileExtension;
 
@@ -443,8 +443,6 @@ sub factory {
             }
         }
 
-        return unless wantarray;
-
         while ( my ( $file, $instructions ) = each %rulesDataSettings ) {
             my $spreadsheetFile = $file;
             if (
@@ -472,6 +470,7 @@ sub factory {
             $finalRulesDataSettings{$spreadsheetFile} =
               $rulesDataSettings{$file};
         }
+
         keys %finalRulesDataSettings;
 
     };
@@ -516,6 +515,13 @@ sub factory {
 
     $self;
 
+}
+
+sub runAllWithFiles {
+    my ( $self, @files ) = @_;
+    $self->{addFile}->($_) foreach @files;
+    $self->{fileList}->();
+    $self->{run}->();
 }
 
 sub parseXdata {

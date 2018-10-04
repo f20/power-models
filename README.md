@@ -53,32 +53,20 @@ extract all the files from it, or use a git client to clone this repository.
 Step 3. Install any missing modules.
 -------------------------------------
 
-Change to the root of the repository and try this sample command:
+Change to the root of the repository and try these sample scripts:
 
-    perl pmod.pl Sampler/%-short.yml Blank.yml
+    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e 'SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles(q^models/Sampler/%-short.yml^)'
 
-If this fails, examine the error messages. Often the problem is a missing
-module, which can be installed from CPAN (www.cpan.org). Once you have
-solved the problem, re-run the test command and repeat until it works.
+    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e 'SpreadsheetModel::Book::Manufacturing->factory(validate=>[q^lib^])->runAllWithFiles(q^models/CDCM/2017-02-Baseline/%-extras227.yml^,q^models/CDCM/2017-02/SPEN-SPM.yml^)'
 
-Step 4. Start using the code.
-------------------------------
-
-Once everything seems to be working, you can try any of the following
-sample commands to explore some of the functionality of this code:
-
-    perl pmod.pl CDCM/2017-02-Baseline/%-extras227.yml CDCM/2017-02/SPEN-SPM.yml
-    perl pmod.pl ModelM/2014-02-Baseline/%-cleancombo118.yml ModelM/2015-02/SSEPD-SEPD.yml
-    perl pmod.pl -rtf -text -html CDCM/2017-02-Baseline/%-clean227.yml Blank.yml
+If this fails, examine the error messages. Sometimes the problem is a missing
+module which can be installed from CPAN (www.cpan.org).
 
 Other code in the repository
 ----------------------------
 
 The Stata folder contains Stata tools to test workbooks implementing aspects of the
 EDCM charging methodology. See "How to use.txt" in the "Stata" folder for details.
-
-The VBA folder contains VBA code and an Excel add-in with some spreadsheet analysis
-tools. These are currently undocumented.
 
 Licensing
 ---------
@@ -97,4 +85,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 13 November 2017.
+Franck Latrémolière, 4 October 2018.
