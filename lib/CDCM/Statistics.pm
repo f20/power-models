@@ -710,7 +710,7 @@ sub makeStatisticsTables {
         $model->{sharedData}
           ->addStats( 'Illustrative capacity charges (£/year)',
             $model, $annualChargeCapacity );
-        $model->{sharedData}->addStats( 'Illustrative average unit rate p/kWh)',
+        $model->{sharedData}->addStats( 'Illustrative average unit rate (p/kWh)',
             $model, $averageUnitRate );
     }
 

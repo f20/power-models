@@ -318,19 +318,16 @@ EOT
     $model->{transparency} = Arithmetic(
         name  => 'Weighting of each tariff for reconciliation of totals',
         lines => [
-            '1 means that the tariff is active and'
-              . ' is not included in the table 119x aggregates.',
-            '0 means that no adjustment is needed'
-              . ' to the table 119x aggregates.',
-            '-1 means that the tariff is included in'
-              . ' the table 119x aggregates but should be removed.',
+            '1 means that the tariff should be included in aggregates.',
+            '0 means that the tariff should not be included in aggregates.',
+            '-1 means that the tariff should be deducted from aggregates.',
         ],
-        arithmetic => '=IF(OR(A3,NOT(ISERROR(SEARCH("[ADDED]",A2)))),1,0)'
-          . '-IF(ISERROR(SEARCH("[REMOVED]",A1)),0,1)',
+        arithmetic => '=IF(OR(A9,NOT(ISERROR(SEARCH("[ADDED]",A1)))),1,0)'
+          . '-IF(AND(ISERROR(SEARCH("[REMOVED]",A2)),ISERROR(SEARCH("[EXCLUDED]",A3))),0,1)',
         arguments => {
             A1 => $tariffs,
             A2 => $tariffs,
-            A3 => $model->{transparencyMasterFlag},
+            A9 => $model->{transparencyMasterFlag},
         },
     ) if $model->{transparencyMasterFlag} && !defined $model->{transparency};
 
