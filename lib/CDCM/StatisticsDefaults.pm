@@ -54,11 +54,11 @@ __DATA__
     'Continuous 5MVA': 420
     Continuous 690kVA: 320
     Continuous 69kVA: 225
-    Demand 500kVA: 810
+    Demand 500kVA: 815
     'Domestic 1,550kWh': 710
     'Domestic 3,100kWh': 720
     'Domestic 8,400kWh': 740
-    'Generation 10MVA': 830
+    'Generation 1MVA': 830
     'LivingElecHeat 5MVA': 455
     LivingElecHeat 690kVA: 355
     'LivingFuelHeat 5MVA': 465
@@ -78,7 +78,7 @@ __DATA__
     'Domestic 1,550kWh': '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
     'Domestic 3,100kWh': '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
     'Domestic 8,400kWh': '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
-    'Generation 10MVA': All-the-way generation
+    'Generation 1MVA': All-the-way generation
     'LivingElecHeat 5MVA': '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
     LivingElecHeat 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
     'LivingFuelHeat 5MVA': '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
@@ -98,7 +98,7 @@ __DATA__
     'Domestic 1,550kWh': 35
     'Domestic 3,100kWh': 35
     'Domestic 8,400kWh': 35
-    'Generation 10MVA': 0
+    'Generation 1MVA': 0
     'LivingElecHeat 5MVA': 35
     LivingElecHeat 690kVA: 35
     'LivingFuelHeat 5MVA': 35
@@ -118,7 +118,7 @@ __DATA__
     'Domestic 1,550kWh': 49
     'Domestic 3,100kWh': 49
     'Domestic 8,400kWh': 49
-    'Generation 10MVA': 49
+    'Generation 1MVA': 49
     'LivingElecHeat 5MVA': 49
     LivingElecHeat 690kVA: 49
     'LivingFuelHeat 5MVA': 49
@@ -138,7 +138,7 @@ __DATA__
     'Domestic 1,550kWh': 0.3245
     'Domestic 3,100kWh': 0.649
     'Domestic 8,400kWh': 1.2
-    'Generation 10MVA': 10000
+    'Generation 1MVA': 1000
     'LivingElecHeat 5MVA': 1200
     LivingElecHeat 690kVA: 120
     'LivingFuelHeat 5MVA': 1622.5
@@ -158,7 +158,7 @@ __DATA__
     'Domestic 1,550kWh': 0.089
     'Domestic 3,100kWh': 0.178
     'Domestic 8,400kWh': 1.4
-    'Generation 10MVA': 10000
+    'Generation 1MVA': 1000
     'LivingElecHeat 5MVA': 1400
     LivingElecHeat 690kVA: 140
     'LivingFuelHeat 5MVA': 445
@@ -178,7 +178,7 @@ __DATA__
     'Domestic 1,550kWh': 0.1665
     'Domestic 3,100kWh': 0.333
     'Domestic 8,400kWh': 0.6
-    'Generation 10MVA': 10000
+    'Generation 1MVA': 1000
     'LivingElecHeat 5MVA': 600
     LivingElecHeat 690kVA: 60
     'LivingFuelHeat 5MVA': 832.5
@@ -198,7 +198,7 @@ __DATA__
     'Domestic 1,550kWh': 6
     'Domestic 3,100kWh': 9
     'Domestic 8,400kWh': 18
-    'Generation 10MVA': 10000
+    'Generation 1MVA': 1000
     'LivingElecHeat 5MVA': 5000
     LivingElecHeat 690kVA: 690
     'LivingFuelHeat 5MVA': 5000
