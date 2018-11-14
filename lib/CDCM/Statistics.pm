@@ -543,7 +543,7 @@ sub makeStatisticsTables {
         ),
         defaultFormat => '0softnz',
         rows          => $fullRowset,
-        custom        => [ '=0.01*A2*A95', '=A81-A82', ],
+        custom        => [ '=0.01*A2*A71*A95', '=A81-A82', ],
         arithmetic    => 'Special calculation',
         arguments     => {
             A2  => $capacity,
