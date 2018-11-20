@@ -75,6 +75,9 @@ sub score {
       if $rule->{targetRevenue}
       && $rule->{targetRevenue} =~ /dcp249/i xor $month lt '2017-10';
 
+    # Otnei
+    $score += 1 if $rule->{lvDiversityWrong} xor $month lt '2019-10';
+
     # DCP 268 avoidance
     $score *= 0.1 if $rule->{tariffGrouping};
 

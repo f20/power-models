@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2011-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -718,22 +718,69 @@ EOL
 
         }
 
+        my $calculatedLvDiversity = Arithmetic(
+            name          => 'Calculated LV diversity allowance',
+            arithmetic    => '=A1/A2-1',
+            cols          => $lvCircuitLevel,
+            defaultFormat => '%softnz',
+            arguments     => { A1 => $chargeableAml, A2 => $chargeableSml }
+        );
+
+        if ( $model->{lvDiversityWrong} ) {
+            my $unmetered = Labelset(
+                list => [
+                    grep { /unmet|UMS/i; } @{ $demandTariffsByEndUser->{list} }
+                ]
+            );
+            my $unmeteredSml = Arithmetic(
+                name => 'Contribution of unmetered users to '
+                  . 'LV simultaneous maximum load (kW)',
+                defaultFormat => '0copy',
+                rows          => $unmetered,
+                cols          => $lvCircuitLevel,
+                arithmetic    => '=A1',
+                arguments     => {
+                    A1 => $forecastSml->{source},
+                },
+            );
+            my $unmeteredAml = Arithmetic(
+                name => 'Contribution of unmetered users to '
+                  . 'LV aggregate maximum load (kW)',
+                defaultFormat => '0soft',
+                rows          => $unmetered,
+                cols          => $lvCircuitLevel,
+                arithmetic    => '=A2/A1/(24*A9)*1000',
+                arguments     => {
+                    A2 => $unitsInYear,
+                    A1 => $loadFactors,
+                    A9 => $daysInYear,
+                },
+            );
+            Columnset(
+                name    => 'Spurious unmetered data',
+                columns => [ $unmeteredSml, $unmeteredAml, ],
+            );
+            $calculatedLvDiversity = Arithmetic(
+                name          => 'Calculated LV diversity allowance',
+                arithmetic    => '=(A1+SUM(A911_A912))/(A2+SUM(A921_A922))-1',
+                cols          => $lvCircuitLevel,
+                defaultFormat => '%softnz',
+                arguments     => {
+                    A1      => $chargeableAml,
+                    A2      => $chargeableSml,
+                    A911_A912 => $unmeteredAml,
+                    A921_A922 => $unmeteredSml,
+                }
+            );
+        }
+
         push @{ $model->{forecastAml} },
           $diversityAllowances = Stack(
             name => 'Diversity allowances (including calculated LV value)',
             defaultFormat => '%copynz',
             cols          => $drmExitLevels,
             rows          => 0,
-            sources       => [
-                Arithmetic(
-                    name          => 'Calculated LV diversity allowance',
-                    arithmetic    => '=A1/A2-1',
-                    cols          => $lvCircuitLevel,
-                    defaultFormat => '%softnz',
-                    arguments => { A1 => $chargeableAml, A2 => $chargeableSml }
-                ),
-                $diversityAllowances
-            ]
+            sources       => [ $calculatedLvDiversity, $diversityAllowances ]
           ) unless $model->{useLvAml};
 
         push @{ $model->{edcmTables} },
