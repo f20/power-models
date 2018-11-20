@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2011 Energy Networks Association Limited and others.
-Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -112,23 +112,6 @@ sub routeing {
 
     my $customerTypesForLosses = $coreLevels;
 
-=head Old classification
-
-Labelset(
-        name => 'Supply levels to classify users for loss adjustment factors',
-        list => [ split /\n/, <<'EOL' ]
-LV
-LV substation
-HV
-HV substation
-33kV
-132kV
-Transmission
-EOL
-    );
-
-=cut
-
     my $lineLossFactorsData = Dataset(
         data => [ reverse qw(1.08 1.05 1.04 1.02 1.015 1 1) ],
         name => Label(
@@ -170,17 +153,24 @@ EOL
     );
 
     my $customerTypeMatrixForLosses = Constant(
-        rows => $allTariffsByEndUser,
-        cols => $customerTypesForLosses,
-
-        # hard-coded customer type = network type
-
+        rows  => $allTariffsByEndUser,
+        cols  => $customerTypesForLosses,
         byrow => 1,
         data  => [
             map {
                 local $_ = $_;
                 s/^(?:LD|Q)NO.*?:\s*//;
-                    /^LV sub/i   ? [ reverse qw(0 1 0 0 0 0 0) ]
+                $model->{lowerGenerationLossFactors} && /gener/i
+                  ? (
+                      /^LV sub/i   ? [ reverse qw(0 0 1 0 0 0 0) ]
+                    : /^LV/i       ? [ reverse qw(0 1 0 0 0 0 0) ]
+                    : /^HV sub/i   ? [ reverse qw(0 0 0 0 1 0 0) ]
+                    : /^HV/i       ? [ reverse qw(0 0 0 1 0 0 0) ]
+                    : /^33kV sub/i ? [ reverse qw(0 0 0 0 0 0 1) ]
+                    : /^33/i       ? [ reverse qw(0 0 0 0 0 1 0) ]
+                    :                []
+                  )
+                  : /^LV sub/i   ? [ reverse qw(0 1 0 0 0 0 0) ]
                   : /^LV/i       ? [ reverse qw(1 0 0 0 0 0 0) ]
                   : /^HV sub/i   ? [ reverse qw(0 0 0 1 0 0 0) ]
                   : /^HV/i       ? [ reverse qw(0 0 1 0 0 0 0) ]
