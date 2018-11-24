@@ -12,7 +12,7 @@ drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
 lvDiversityWrong: 1
-nickName: After DCP 228
+nickName: After 2020
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
