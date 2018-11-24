@@ -209,7 +209,8 @@ sub factory {
     # configured, attributes a revision number to the resulting rules.
     # Returns an array of rulesets (or nothing if there is a problem).
     my $validate = $self->{validate} = sub {
-        my ( $validatedLibs, $dbString ) = @_;
+        my ( $validatedLibs, $revisionsDatabasePath ) =
+          $settings->{validate} ? @{ $settings->{validate} } : [];
         $validatedLibs = [ grep { -d $_; } $validatedLibs ]
           unless 'ARRAY' eq ref $validatedLibs;
 
@@ -240,9 +241,12 @@ sub factory {
           SpreadsheetModel::Book::Validation::sourceCodeDigest($validatedLibs);
 
         my ($db);
-        if ( $dbString && require SpreadsheetModel::Book::RevisionNumbering ) {
-            $db = SpreadsheetModel::Book::RevisionNumbering->connect($dbString)
-              or warn "Cannot connect to $dbString";
+        if ( $revisionsDatabasePath
+            && require SpreadsheetModel::Book::RevisionNumbering )
+        {
+            $db = SpreadsheetModel::Book::RevisionNumbering->connect(
+                $revisionsDatabasePath)
+              or warn "Cannot connect to $revisionsDatabasePath";
         }
 
         foreach (@rulesets) {
@@ -384,7 +388,7 @@ sub factory {
         $settings->{adjustDatasets}->( \@datasets )
           if $settings->{adjustDatasets};
 
-        $validate->( $settings->{validate} ? @{ $settings->{validate} } : [] );
+        $validate->();
 
         my $extension = $workbookModule->( $settings->{xls} )->fileExtension;
 
