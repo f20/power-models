@@ -562,9 +562,7 @@ sub notionalAssetRates {
       = @_;
 
     push @{ $model->{calc1Tables} },
-      my $accretion =
-      $useTextMatching
-      ? Arithmetic(
+      my $accretion = Arithmetic(
         name       => 'Notional asset rate (£/kW)',
         newBlock   => 1,
         arithmetic => '=IF(A1,A2/A3/A4,0)',
@@ -572,17 +570,6 @@ sub notionalAssetRates {
             A1 => $totalCdcmUse,
             A2 => $totalCdcmAssets,
             A3 => $totalCdcmUse,
-            A4 => $lossFactors
-        },
-        location => 'Charging rates',
-      )
-      : Arithmetic(
-        name       => 'Notional asset rate (£/kW)',
-        newBlock   => 1,
-        arithmetic => '=A2/A1/A4',
-        arguments  => {
-            A1 => $totalCdcmUse,
-            A2 => $totalCdcmAssets,
             A4 => $lossFactors
         },
         location => 'Charging rates',
