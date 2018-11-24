@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -81,7 +81,7 @@ Transmission Exit Charges
 Pension deficit repair payments by related parties (note 2)
 Non activity costs and reconciling amounts (note 3)
 END_OF_LIST
-            $model->{dcp306} ? 'Ofgem licence fees' : (),
+            $model->{dcp306} ? 'Non activity costs and reconciling amounts - Ofgem licence fees' : (),
         ]
     );
 
