@@ -285,7 +285,8 @@ sub preprocessDataset {
             foreach (
                 grep {
                         !$_->[1]{_column} && $_->[6]
-                      || $_->[1]{_column} =~ /GSP/
+                      || $_->[1]{_column}
+                      && $_->[1]{_column} =~ /GSP/
                 } @tables
               )
             {
