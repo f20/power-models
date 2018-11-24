@@ -327,6 +327,7 @@ EOT
         arguments => {
             A1 => $tariffs,
             A2 => $tariffs,
+            A3 => $tariffs,
             A9 => $model->{transparencyMasterFlag},
         },
     ) if $model->{transparencyMasterFlag} && !defined $model->{transparency};
