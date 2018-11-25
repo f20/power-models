@@ -128,7 +128,7 @@ EOL
 
 sub licenceNotes {
     my $notice = $_[0]{copyright}
-      || 'Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.';
+      || 'Copyright 2008-2018 Franck Latrémolière, Reckon LLP and others.';
     Notes( name => '', lines => [ $notice, <<'EOL'] );
 The code that generated this workbook includes open-source material from https://github.com/f20/power-models/.
 Use and distribution of the source code is subject to the conditions stated therein.

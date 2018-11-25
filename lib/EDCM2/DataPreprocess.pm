@@ -36,17 +36,7 @@ sub preprocessDataset {
 
     my ($model) = @_;
     my $d = $model->{dataset} or return;
-
-    if (
-            $model->{version}
-        and $d->{1100}
-        and ref $d->{1100}[3] eq 'HASH'
-        and my ($key) =
-        grep { !/^_/ } keys %{ $d->{1100}[3] }
-      )
-    {
-        $d->{1100}[3]{$key} = $model->{version};
-    }
+    $d->{datasetCallback}->($model) if $d->{datasetCallback};
 
     foreach (
         qw(numTariffs numLocations numExtraTariffs numSampleTariffs numExtraLocations)
@@ -55,32 +45,21 @@ sub preprocessDataset {
         $model->{$_} = $d->{$_} if exists $d->{$_};
     }
 
-    if ( $d->{1113} && $model->{revenueAdj} ) {
-        my ($key) =
-          grep { !/^_/ } keys %{ $d->{1113}[4] };
-        $d->{1113}[4]{$key} += $model->{revenueAdj};
-    }
-
-    foreach ( 1037, 1039 ) {
-        splice @{ $d->{$_} }, 1, 0, $d->{$_}[1]
-          if $d->{$_} && $d->{$_}[1]{_column} && $d->{$_}[1]{_column} =~ /LV/;
-    }
-
-    if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) {
-        delete $d->{$_} foreach qw(1181 1182 1183);
-    }
-
     if (   $model->{method}
         && $model->{method} !~ /none/i )
     {
         if (
-            my $h = $d->{
-                $model->{method} =~ /FCP/i
-                ? 911
+            my $ds = $d->{
+                $model->{method} =~ /FCP/i ? 'sizing911'
+                : 'sizing913'
+            }
+            || $d->{
+                $model->{method} =~ /FCP/i ? 911
                 : 913
-            }[1]
+            }
           )
         {
+            my $h = $ds->[1];
             if ( ref $h eq 'HASH' ) {
                 my $max = $model->{numLocations} || 0;
                 foreach ( keys %$h ) {
@@ -100,11 +79,6 @@ sub preprocessDataset {
                       || $model->{small}
                       || defined $model->{numLocations} ? 0 : 6 ) +
                   $max;
-                my $ds = $d->{
-                    $model->{method} =~ /FCP/i
-                    ? 911
-                    : 913
-                };
                 foreach my $k ( 1 .. $model->{numLocations} ) {
                     exists $ds->[$_]{$k} || ( $ds->[$_]{$k} = '' )
                       foreach 0 .. $#$ds;
@@ -113,7 +87,7 @@ sub preprocessDataset {
         }
     }
 
-    if ( my $ds = $d->{935} ) {
+    if ( my $ds = $d->{sizing935} || $d->{935} ) {
         if ( ref $ds->[1] eq 'HASH' ) {
             my %tariffs;
 
@@ -199,85 +173,34 @@ sub preprocessDataset {
             }
         }
 
-        else {    # Array data format, probably deprecated
+    }
 
-            my %tariffs;
+    return if $d->{datasetCallback};
 
-            splice @$ds, 8, 0,
-              {
-                map { ( $_ => $model->{dcp189default} || '' ); }
-                  keys %{ $ds->[1] }
-              }
-              if $model->{dcp189}
-              and !$ds->[8] || !$ds->[8][0] || $ds->[8][0] !~ /reduction/i;
+    if (
+            $model->{version}
+        and $d->{1100}
+        and ref $d->{1100}[3] eq 'HASH'
+        and my ($key) =
+        grep { !/^_/ } keys %{ $d->{1100}[3] }
+      )
+    {
+        $d->{1100}[3]{$key} = $model->{version};
+    }
 
-            my $max = 0;
-            for ( my $k = 1 ; $k < @{ $ds->[1] } ; ++$k ) {
-                my $v = $ds->[1][$k];
-                next
-                  unless $k =~ /^[0-9]+$/
-                  && $v
-                  && lc $v ne 'not used'
-                  && $v ne '#VALUE!'
-                  && $v !~ /^\s*$/s;
-                undef $tariffs{$k};
-                $max = $k
-                  if $k > $max;
-            }
+    if ( $d->{1113} && $model->{revenueAdj} ) {
+        my ($key) =
+          grep { !/^_/ } keys %{ $d->{1113}[4] };
+        $d->{1113}[4]{$key} += $model->{revenueAdj};
+    }
 
-            if ($max) {
-                my @tariffs;
-                if (   $model->{numTariffs}
-                    && $max <= $model->{numTariffs} )
-                {
-                    $model->{numTariffs} = 2
-                      unless $model->{transparency}
-                      && $model->{transparency} =~ /impact/i
-                      || $model->{numTariffs} > 1;
-                    @tariffs = ( 1 .. $model->{numTariffs} );
-                }
-                else {
-                    @tariffs =
-                      sort { $a <=> $b } keys %tariffs,
-                      defined $model->{numTariffs}
-                      ? ()
-                      : ( $max + 1 .. $max + 6 );
-                    push @tariffs, $max + 1
-                      unless $model->{transparency}
-                      && $model->{transparency} =~ /impact/i
-                      || @tariffs > 1;
-                    $model->{numTariffs} = @tariffs;
-                }
-                $model->{tariffSet} = Labelset(
-                    name          => 'Tariffs',
-                    list          => \@tariffs,
-                    defaultFormat => 'thtar',
-                );
-                foreach my $k (@tariffs) {
-                    my $v = $ds->[1][$k];
-                    if (    $v && lc $v ne 'not used'
-                        and $v ne '#VALUE!'
-                        and $v ne '#N/A'
-                        and $v ne 'VOID'
-                        and $v !~ /^\s*$/s )
-                    {
-                        $ds->[$_][$k] || ( $ds->[$_][$k] = 'VOID' )
-                          foreach 2 .. 6;
-                        exists $ds->[$_][$k] || ( $ds->[$_][$k] = '' )
-                          foreach 7 .. $#$ds;
-                    }
-                    else {
-                        $ds->[1][$k] = ' ';
-                        $ds->[$_][$k] = 'VOID' foreach 2 .. 6;
-                        $ds->[$_][$k] = ''     foreach 7 .. $#$ds;
-                    }
-                }
-            }
+    foreach ( 1037, 1039 ) {
+        splice @{ $d->{$_} }, 1, 0, $d->{$_}[1]
+          if $d->{$_} && $d->{$_}[1]{_column} && $d->{$_}[1]{_column} =~ /LV/;
+    }
 
-            if ( $model->{nonames} ) {
-                $ds->[1][$_] = "Tariff $_" foreach 1 .. $#{ $ds->[1] };
-            }
-        }
+    if ( $model->{ldnoRev} && $model->{ldnoRev} =~ /nopop/i ) {
+        delete $d->{$_} foreach qw(1181 1182 1183);
     }
 
     if ( my @tables = grep { $_ } @{$d}{qw(1133 1134 1136)} ) {

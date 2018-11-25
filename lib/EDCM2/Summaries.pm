@@ -153,6 +153,10 @@ sub summaries {
           { map { ( "A$_" => $revenueBitsG[ $_ - 1 ] ) } 1 .. @revenueBitsG },
     );
 
+    ${ $model->{sharingObjectRef} }->addTotals( $model, $rev2d, $rev2g )
+      if $model->{sharingObjectRef}
+      && UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'addTotals' );
+
     my $change1d = Arithmetic(
         name          => 'Change (demand) (£/year)',
         arithmetic    => '=A1-A4',
@@ -239,32 +243,32 @@ sub summaries {
                 captionDecorations => [qw(algae purple slime)],
               )
             : (),
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Tariff name',
             columns => [ $copyTariffs[0] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Import tariff',
             columns => [ @copyTariffs[ 1 .. 4 ] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Export tariff',
             columns => [ @copyTariffs[ 5 .. 8 ] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Import charges',
             columns => \@revenueBitsD,
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Export charges',
             columns => \@revenueBitsG,
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Change in import charges',
             columns => [ $rev2d, $rev1d, $change1d, $change2d, ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Change in export charges',
             columns => [ $rev2g, $rev1g, $change1g, $change2g, ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name => 'Analysis of import charges',
             columns =>
               [ grep { $_ } @{ $model->{summaryInformationColumns} }, $check, ],
-          );
+        );
         push @{ $model->{revenueTables} }, @copyTariffs, @revenueBitsD,
           @revenueBitsG, $change2d, $change2g, $check;
     }

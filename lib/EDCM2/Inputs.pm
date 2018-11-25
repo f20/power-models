@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2009-2012 Energy Networks Association Limited and others.
-Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
+Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -425,6 +425,8 @@ sub loadFlowInputs {
             location => 911
         ),
         doNotCopyInputColumns => 1,
+        appendTo              => $model->{inputTables},
+        ,
     );
 
     @{$model}{qw(locations parent MCpeak kWpeakD kVArpeakD kWpeakG kVArpeakG)};
@@ -717,6 +719,7 @@ EOL
         number                => 935,
         location              => 935,
         doNotCopyInputColumns => 1,
+        appendTo              => $model->{inputTables},
     );
 
     @columns;

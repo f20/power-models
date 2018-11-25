@@ -31,16 +31,16 @@ sub applySourceModelsToDataset {
 
     my ( $self, $model, $sourceModelsMap, $customActionMap ) = @_;
 
-    my %backupDatasets;
+    my %lastResortDatasets;
     foreach my $sourceModel ( values %$sourceModelsMap ) {
-        next if $backupDatasets{ 0 + $sourceModel };
+        next if $lastResortDatasets{ 0 + $sourceModel };
         my $m = $sourceModel;
-        my @backupDatasets;
+        my @lastResortDatasets;
         while ( my $d = $m->{dataset} ) {
-            push @backupDatasets, $d;
+            push @lastResortDatasets, $d;
             $m = $m->{sourceModel};
         }
-        $backupDatasets{ 0 + $sourceModel } = \@backupDatasets;
+        $lastResortDatasets{ 0 + $sourceModel } = \@lastResortDatasets;
     }
 
     my $copyClosure = sub {
@@ -49,7 +49,8 @@ sub applySourceModelsToDataset {
     };
 
     $customActionMap->{$_} ||= $copyClosure
-      foreach 'defaultClosure', keys %$sourceModelsMap;
+      foreach 'defaultClosure',
+      map { /^([0-9]+)/ ? $1 : (); } keys %$sourceModelsMap;
 
     while ( my ( $theTable, $formulaMaker ) = each %$customActionMap ) {
 
@@ -61,26 +62,23 @@ sub applySourceModelsToDataset {
               $table eq $theTable ? $theHardData : $model->{dataset}{$table};
             return if ref $hardData eq 'CODE';
 
-            my $sourceModel =
-                 $sourceModelsMap->{$table}
-              || $sourceModelsMap->{baseline}
-              || $sourceModelsMap->{previous};
-
-            my $sourceTableHashref =
-              { map { $_->{number} => $_; } @{ $sourceModel->{inputTables} } };
             my ( @rows, @columns );
 
-            if ( my $d = $sourceTableHashref->{$table} ) {
+            my $applySourceTable = sub {
+                my ( $d, @columnsToApply ) = @_;
                 my ( $s, $r, $c ) =
                   ( $d->{columns} ? $d->{columns}[0] : $d )
                   ->wsWrite( $wb, $ws );
                 $s = $s->get_name;
-                my $width = 0;
-                if ( $d->{columns} ) {
-                    $width += $_->lastCol + 1 foreach @{ $d->{columns} };
-                }
-                else {
-                    $width = 1 + $d->lastCol;
+                unless (@columnsToApply) {
+                    my $width = 0;
+                    if ( $d->{columns} ) {
+                        $width += $_->lastCol + 1 foreach @{ $d->{columns} };
+                    }
+                    else {
+                        $width = 1 + $d->lastCol;
+                    }
+                    @columnsToApply = 1 .. $width;
                 }
 
                 foreach my $row (
@@ -96,7 +94,7 @@ sub applySourceModelsToDataset {
                     s/ +/ /g;
                     s/^ //;
                     s/ $//;
-                    foreach my $col ( 1 .. $width ) {
+                    foreach my $col (@columnsToApply) {
                         $columns[$col]{$_} =
                           $formulaMaker->( undef, $row, $col, $wb, $ws, $_ );
                     }
@@ -117,7 +115,7 @@ sub applySourceModelsToDataset {
                     s/ $//;
                     my $row = $_;
 
-                    foreach my $col ( 1 .. $width ) {
+                    foreach my $col (@columnsToApply) {
                         $columns[$col]{$row} = $formulaMaker->(
                             "'$s'!"
                               . xl_rowcol_to_cell( $r + $i, $c + $col - 1 ),
@@ -126,6 +124,30 @@ sub applySourceModelsToDataset {
                     }
                 }
 
+            };
+
+            my $sourceModel =
+                 $sourceModelsMap->{$table}
+              || $sourceModelsMap->{baseline}
+              || $sourceModelsMap->{previous};
+            my $sourceTable =
+              { map { $_->{number} => $_; } @{ $sourceModel->{inputTables} } }
+              ->{$table};
+            $applySourceTable->($sourceTable) if $sourceTable;
+
+            if (
+                my @columnSpecificRules =
+                grep { /^${table}c[0-9]+_?[0-9]*$/ } keys %$sourceModelsMap
+              )
+            {
+                foreach (@columnSpecificRules) {
+                    /^${table}c([0-9]+)_?([0-9]*)$/;
+                    my ($sourceTable) =
+                      grep { $_->{number} == $table; }
+                      @{ $sourceModelsMap->{$_}{inputTables} };
+                    $applySourceTable->( $sourceTable, $1 .. ( $2 || $1 ) )
+                      if $sourceTable;
+                }
             }
 
             map {
@@ -152,11 +174,12 @@ sub applySourceModelsToDataset {
                 }
               }
               grep { ref $_ eq 'ARRAY' }
-              map  { $_->{$theTable} } @{ $backupDatasets{ 0 + $sourceModel } };
+              map  { $_->{$theTable} }
+              @{ $lastResortDatasets{ 0 + $sourceModel } };
 
             \@columns;
 
-        };
+          }
 
     }
 
