@@ -2,7 +2,7 @@ Help for Stata EDCM code in github.com/f20/power-models
 =======================================================
 
 This file contains information on how to use the Stata do files included under
-EDCM/Stata in the github.com/f20/power-models code repository.
+EDCM/Stata in the github.com/f20/power-models code repository.  It is out of date.
 
 These files are designed to be used with Stata, a commercial software package
 for statistical analysis (www.stata.com).

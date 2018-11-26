@@ -107,7 +107,8 @@ sub preprocessDataset {
             while ( my ( $k, $v ) = each %{ $ds->[1] } ) {
                 next
                   unless $k =~ /^[0-9]+$/
-                  && $v
+                  && grep { $ds->[$_]{$k} && $ds->[$_]{$k} ne 'VOID'; } 2 .. 6
+                  || $v
                   && lc $v ne 'not used'
                   && $v ne '#VALUE!'
                   && $v !~ /^\s*$/s;
@@ -148,12 +149,14 @@ sub preprocessDataset {
                 );
                 foreach my $k (@$tariffs) {
                     my $v = $ds->[1]{$k};
-                    if (    $v
-                        and lc $v ne 'not used'
-                        and $v ne '#VALUE!'
-                        and $v ne '#N/A'
-                        and $v ne 'VOID'
-                        and $v !~ /^\s*$/s )
+                    if ( grep { $ds->[$_]{$k} && $ds->[$_]{$k} ne 'VOID'; }
+                        2 .. 6
+                        || $v
+                        && lc $v ne 'not used'
+                        && $v ne '#VALUE!'
+                        && $v ne '#N/A'
+                        && $v ne 'VOID'
+                        && $v !~ /^\s*$/s )
                     {
                         $ds->[$_]{$k} || ( $ds->[$_]{$k} = 'VOID' )
                           foreach 2 .. 6;

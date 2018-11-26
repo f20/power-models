@@ -275,9 +275,9 @@ Method 1:
     and look under "Show additional options".
 
 Method 2:
-    Use the pmod.pl command line tool, either through STDIN
-    with the option -extraNotice, or with the option
-    -extraNotice='Put your additional notice text here'.
+    If using the pmod.pl command line tool, pipe your disclaimer
+    through STDIN and give the option -extraNotice to pmod.pl, or
+    use the option -extraNotice='Put your additional notice text here'.
 
 Method 3:
     Put something like this in your rules file:
@@ -315,7 +315,7 @@ EOW
                 push @{ $options->{wsheetRunOrder} }, $fullName;
                 push @{ $wsheetShowOrder[$priority] }, $fullName;
                 $allClosures{$fullName} = $closure;
-                undef $wsheetActive{$_}
+                undef $wsheetActive{$fullName}
                   if $options->{activeSheets} && /$options->{activeSheets}/;
                 $wsheetPassword{$fullName} = $options->{password}
                   if $options->{protect};

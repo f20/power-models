@@ -179,13 +179,12 @@ sub waterfallCharts {
                 orange_leftwards => $decrease,
                 instructions     => [
                     set_x_axis => [
-                        num_format => '0%',
-                        num_font   => { size => 16 },
-                        min        => 0,
-                        max        => 1,
-                        major_unit => .25,
-                        minor_unit => .05,
-                        ,
+                        num_format      => '0%',
+                        num_font        => { size => 16 },
+                        min             => 0,
+                        max             => 1,
+                        major_unit      => .25,
+                        minor_unit      => .05,
                         major_gridlines => {
                             visible => 1,
                             line    => {
