@@ -50,11 +50,10 @@ sub waterfallCharts {
                 name          => 'Baseline value',
                 defaultFormat => '%soft',
                 rows          => $d->{rows},
-                custom        => [ '=A1', '=MIN(A1,A2)' ]
-                ,    # =NA() as a formula does not work
-                arithmetic => '=A3 or N/A or MIN(previous A1, A2)',
-                arguments  => { A1 => $d, A2 => $d, A3 => $d, },
-                wsPrepare  => sub {
+                custom     => [ '=A1', ],     # =NA() as a formula does not work
+                arithmetic => '=A3 or N/A',
+                arguments => { A1 => $d, A2 => $d, A3 => $d, },
+                wsPrepare => sub {
                     my ( $self, $wb, $ws, $format, $formula, $pha, $rowh,
                         $colh ) = @_;
                     sub {
@@ -62,19 +61,9 @@ sub waterfallCharts {
                         return '', $format, $formula->[0],
                           qr/\bA1\b/ =>
                           Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                            $rowh->{A1}, $colh->{A1} + $col )
-                          unless $y;
-                        return '', $format, $formula->[1],
-                          qr/\bA1\b/ =>
-                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                            $rowh->{A1} + $y - 1,
-                            $colh->{A1} + $col
-                          ),
-                          qr/\bA2\b/ =>
-                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                            $rowh->{A2} + $y,
-                            $colh->{A2} + $col )
-                          if $y == $#{ $d->{rows}{list} };
+                            $rowh->{A1} + $y,
+                            $colh->{A1} + $col )
+                          if $y == 0 || $y == $#{ $d->{rows}{list} };
                         '=NA()', $format;
                     };
                 },
@@ -93,7 +82,7 @@ sub waterfallCharts {
                     sub {
                         my ( $x, $y ) = @_;
                         return '=NA()', $format
-                          if !$y || $y == $#{ $d->{rows}{list} };
+                          if !$y;
                         '', $format, $formula->[0],
                           qr/\bA1\b/ =>
                           Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
@@ -180,7 +169,7 @@ sub waterfallCharts {
                 instructions     => [
                     set_x_axis => [
                         num_format      => '0%',
-                        num_font        => { size => 16 },
+                        num_font        => { size => 14 },
                         min             => 0,
                         max             => 1,
                         major_unit      => .25,
@@ -188,8 +177,8 @@ sub waterfallCharts {
                         major_gridlines => {
                             visible => 1,
                             line    => {
-                                color => '#666666',
-                                width => 0.5,
+                                color => '#999999',
+                                width => 0.3,
                             }
                         },
                         minor_gridlines => {

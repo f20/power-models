@@ -1,4 +1,4 @@
-﻿package SpreadsheetModel::WaterfallCharts;
+﻿package SpreadsheetModel::WaterfallChartset;
 
 # Copyright 2017 Franck Latrémolière, Reckon LLP and others.
 #
@@ -34,11 +34,18 @@ sub tablesAndCharts {
 
     my ( $class, $settings, $cols ) = @_;
     my ( @tables, @charts );
-    my $rows = $settings->{rows} || $cols->[1]{rows};
-    my $csetName = $cols->[1]{location}->objectShortName;
+    my $rows = $settings->{rows} || $cols->[0]{rows};
+    my $csetName = ( $cols->[0]{location} || $cols->[0] )->objectShortName;
 
-    my $n     = $cols->[1]->objectShortName;
-    my @value = (
+    # Column order:
+    # 0 = final position
+    # 1 = starting point
+    # 2 = first step
+    # 3 = second step
+    # etc
+
+    my $n         = $cols->[1]->objectShortName;
+    my @value_pos = (
         Arithmetic(
             name       => $n,
             rows       => $rows,
@@ -79,23 +86,22 @@ sub tablesAndCharts {
         )
     );
 
-    my $limit = @$cols + ( $settings->{secondBar} ? 0 : 1 );
-    for ( my $i = 2 ; $i < $limit ; ++$i ) {
+    for ( my $i = 2 ; $i <= @$cols ; ++$i ) {
         my $j = $i % @$cols;
         $n = $cols->[$j]->objectShortName;
-        push @value,
+        push @value_pos,
           Arithmetic(
             name       => $n,
             rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[$j] },
+            arithmetic => $j ? '=NA()' : '=MAX(A1,0)',
+            arguments => { A1 => $cols->[$j] },
           );
         push @value_neg,
           Arithmetic(
             name       => $n,
             rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[$j] },
+            arithmetic => $j ? '=NA()' : '=MIN(A1,0)',
+            arguments => { A1 => $cols->[$j] },
           );
         push @padding,
           Arithmetic(
@@ -141,49 +147,10 @@ sub tablesAndCharts {
           );
     }
 
-    if ( $settings->{secondBar} ) {
-        $n = $cols->[0]->objectShortName;
-        push @value,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=MAX(A1,0)',
-            arguments  => { A1 => $cols->[0] },
-          );
-        push @value_neg,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=MIN(A1,0)',
-            arguments  => { A1 => $cols->[0] },
-          );
-        push @padding,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[0] },
-          );
-        push @increase,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[0] },
-          );
-        push @decrease,
-          Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[0] },
-          );
-    }
-
     push @tables,
       my $valueColumnset = Columnset(
         name    => "$csetName: baseline positive values",
-        columns => \@value,
+        columns => \@value_pos,
       );
     push @tables,
       my $valueNegColumnset = Columnset(
@@ -222,9 +189,9 @@ sub tablesAndCharts {
               SpreadsheetModel::ChartSeries->new( $valueNegColumnset, $r ),
             padding =>
               SpreadsheetModel::ChartSeries->new( $paddingColumnset, $r ),
-            orange_rightwards =>
+            blue_rightwards =>
               SpreadsheetModel::ChartSeries->new( $increaseColumnset, $r ),
-            blue_leftwards =>
+            orange_leftwards =>
               SpreadsheetModel::ChartSeries->new( $decreaseColumnset, $r ),
           );
     }

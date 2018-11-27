@@ -32,7 +32,7 @@ use base 'SpreadsheetModel::Chart';
 sub check {
 
     my ($self) = @_;
-    return 'No padding in waterfall chart'
+    return 'No waterfall chart without padding data!'
       unless ref $self->{padding};
 
     $self->{type}    = 'bar';
@@ -42,57 +42,51 @@ sub check {
     my $lc     = $self->{padding}->lastCol;
     $lastId = $lc if $lc > $lastId;
     $self->{height} ||= 192 + 24 * $lastId;
+
+    my @greyBarSeriesSettings = (
+        gradient => {
+            colors =>
+              [ '#FFFFFF', '#FFFFFF', '#999999', '#FFFFFF', '#FFFFFF', ],
+            transparency => [ 100, 100, 0,  100, 100, ],
+            positions    => [ 0,   35,  50, 65,  100, ],
+            angle        => 90,
+        },
+    );
+    my @orangeColours = (
+        colors       => [ '#FF6633', '#FF6633', ],
+        transparency => [ 80,        0, ],
+    );
+    my @blueColours = (
+        colors       => [ '#0066CC', '#0066CC', ],
+        transparency => [ 80,        0, ],
+    );
+    my @overlapGap = ( overlap => 100, gap => 8, );
     push @{ $self->{instructions} },
-      add_series => [
-        $self->{grey_rightwards},
-        overlap  => 100,
-        gap      => 8,
-        gradient => {
-            colors => [ '#FFFFFF', '#999999', '#FFFFFF', ],
-            angle  => 90,
-        },
-      ],
-      add_series => [
-        $self->{grey_leftwards},
-        gradient => {
-            colors => [ '#FFFFFF', '#999999', '#FFFFFF', ],
-            angle  => 90,
-        },
-      ],
-      add_series => [ $self->{padding}, fill => { none => 1 }, ],
-      add_series => [
-        $self->{blue_rightwards},
-        gradient => {
-            colors => [ '#C0E0FF', '#0066CC' ],
-            angle  => 0,
-        },
-      ],
-      add_series => [
-        $self->{blue_leftwards},
-        gradient => {
-            colors => [ '#C0E0FF', '#0066CC' ],
-            angle  => 180,
-        },
-      ],
+      add_series => [ $self->{padding}, @overlapGap, fill => { none => 1, }, ],
+      add_series =>
+      [ $self->{blue_rightwards}, gradient => { @blueColours, angle => 0, }, ],
+      add_series =>
+      [ $self->{blue_leftwards}, gradient => { @blueColours, angle => 180, }, ],
       add_series => [
         $self->{orange_rightwards},
-        gradient => {
-            colors => [ '#FFCFBF', '#FF6633' ],
-            angle  => 0,
-        },
+        gradient => { @orangeColours, angle => 0, },
       ],
       add_series => [
         $self->{orange_leftwards},
-        gradient => {
-            colors => [ '#FFCFBF', '#FF6633' ],
-            angle  => 180,
-        },
+        gradient => { @orangeColours, angle => 180, },
       ],
-      set_y_axis => [
-        reverse  => 1,
-        num_font => { size => 16 },
-      ],
-      set_legend => [ position => 'none' ];
+      set_y_axis => [ reverse  => 1, num_font => { size => 14 }, ],
+      set_legend => [ position => 'none' ],
+      combine    => [
+        type         => 'bar',
+        instructions => [
+            add_series => [
+                $self->{grey_rightwards}, @overlapGap, @greyBarSeriesSettings,
+            ],
+            add_series =>
+              [ $self->{grey_leftwards}, @overlapGap, @greyBarSeriesSettings, ],
+        ],
+      ];
 
     return $self->SUPER::check;
 

@@ -63,7 +63,7 @@ sub requiredModulesForRuleset {
 
         $ruleset->{ppuCalc} ? 'ModelM::Ppu' : (),
 
-        $ruleset->{waterfalls} ? 'ModelM::Waterfall' : (),
+        $ruleset->{waterfalls} ? 'ModelM::WaterfallM' : (),
 
     );
 

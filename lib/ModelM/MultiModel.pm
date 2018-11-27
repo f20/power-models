@@ -40,11 +40,11 @@ sub new {
 }
 
 sub addModelIdentificationCells {
-    my ( $mms, @cells ) = @_;
-    push @{ $mms->{modelNames} }, $mms->{waterfalls}
+    my ( $me, @cells ) = @_;
+    push @{ $me->{modelNames} }, $me->{waterfalls}
       ? qq%=$cells[2]%
       : qq%=$cells[0]&" "&$cells[1]&" "&$cells[2]%;
-    $mms->{waterfallIdentificationCells} ||= [ @cells[ 0, 1 ] ];
+    $me->{waterfallIdentificationCells} ||= [ @cells[ 0, 1 ] ];
 }
 
 sub addImpactTableSet {
@@ -53,9 +53,9 @@ sub addImpactTableSet {
 
 sub worksheetsAndClosuresWithController {
 
-    my ( $mms, $model, $wbook, @pairs ) = @_;
+    my ( $me, $model, $wbook, @pairs ) = @_;
 
-    return @pairs unless delete $mms->{controlSheetNotGeneratedYet};
+    return @pairs unless delete $me->{controlSheetNotGeneratedYet};
 
     unshift @pairs, 'Control$' => sub {
 
@@ -75,19 +75,19 @@ sub worksheetsAndClosuresWithController {
           foreach Notes( name => 'Controller' ), $noticeMaker->extraNotes,
           $noticeMaker->dataNotes,
           $noticeMaker->licenceNotes,
-          @{ $mms->{commonAllocationRules} };
+          @{ $me->{commonAllocationRules} };
 
-        push @{ $mms->{finishClosures} }, sub {
+        push @{ $me->{finishClosures} }, sub {
             my @modelOrder =
-              $mms->{waterfalls}
-              ? ( 0, 2 .. $#{ $mms->{modelNames} }, 1 )
-              : ( 0 .. $#{ $mms->{modelNames} } );
+              $me->{waterfalls}
+              ? ( 0, 2 .. $#{ $me->{modelNames} }, 1 )
+              : ( 0 .. $#{ $me->{modelNames} } );
             my $modelNameset =
-              Labelset( list => [ @{ $mms->{modelNames} }[@modelOrder] ] );
+              Labelset( list => [ @{ $me->{modelNames} }[@modelOrder] ] );
 
             my @summaryTables = map {
                 my $tableNo    = $_;
-                my $leadTable  = $mms->{impactTableSets}[0][$tableNo];
+                my $leadTable  = $me->{impactTableSets}[0][$tableNo];
                 my $leadColumn = $leadTable->{columns}[0];
                 my ( $sh, $ro, $co ) = $leadColumn->wsWrite( $wbook, $wsheet );
                 $sh = $sh->get_name;
@@ -133,21 +133,21 @@ sub worksheetsAndClosuresWithController {
                                             $ro + $row, $co + $_ );
                                     } 0 .. $#{ $colset->{list} }
                                 ];
-                            } @{ $mms->{impactTableSets} }[@modelOrder]
+                            } @{ $me->{impactTableSets} }[@modelOrder]
                         ]
                     );
                 } 0 .. $lastRow;
-              } grep { $mms->{impactTableSets}[0][$_]{columns}; }
-              0 .. $#{ $mms->{impactTableSets}[0] };
+            } grep { $me->{impactTableSets}[0][$_]{columns}; }
+              0 .. $#{ $me->{impactTableSets}[0] };
 
             delete $wbook->{logger};
             $_->wsWrite( $wbook, $wsheet ) foreach @summaryTables;
-            if ( $mms->{waterfalls} )
+            if ( $me->{waterfalls} )
             {    # Useful charts should perhaps be standalone as it is
                     #  difficult to copy charts embedded in locked worksheets.
-                my ( $t, $c ) = $mms->waterfallCharts( '', @summaryTables );
+                my ( $t, $c ) = $me->waterfallCharts( '', @summaryTables );
                 $_->wsWrite( $wbook, $wsheet ) foreach @$t;
-                $_->wsWrite( $wbook, $mms->{sheetForCharts} ) foreach @$c;
+                $_->wsWrite( $wbook, $me->{sheetForCharts} ) foreach @$c;
             }
 
         };
@@ -160,28 +160,28 @@ sub worksheetsAndClosuresWithController {
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   6 );
         $wsheet->set_column( 1, 250, 20 );
-        $mms->{sheetForCharts} = $wsheet;
-        unshift @{ $mms->{finishClosures} }, sub {
+        $me->{sheetForCharts} = $wsheet;
+        unshift @{ $me->{finishClosures} }, sub {
             $_->wsWrite( $wbook, $wsheet ) foreach Notes(
-                name => $mms->{waterfallIdentificationCells}
+                name => $me->{waterfallIdentificationCells}
                 ? '="Waterfall charts for "&'
-                  . $mms->{waterfallIdentificationCells}[0]
+                  . $me->{waterfallIdentificationCells}[0]
                   . '&" ("&'
-                  . $mms->{waterfallIdentificationCells}[1] . '&")"'
+                  . $me->{waterfallIdentificationCells}[1] . '&")"'
                 : 'Waterfall charts'
             );
         };
       }
-      if $mms->{waterfalls} && !$mms->{waterfalls} !~ /standalone/i;
+      if $me->{waterfalls} && !$me->{waterfalls} !~ /standalone/i;
 
     @pairs;
 
 }
 
 sub finishMultiModelSharing {
-    my ($mms) = @_;
-    return unless $mms->{finishClosures};
-    $_->() foreach @{ $mms->{finishClosures} };
+    my ($me) = @_;
+    return unless $me->{finishClosures};
+    $_->() foreach @{ $me->{finishClosures} };
 }
 
 1;
