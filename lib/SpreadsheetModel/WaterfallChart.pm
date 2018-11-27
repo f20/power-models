@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::WaterfallChart;
 
-# Copyright 2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2017-2018 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -48,15 +48,15 @@ sub check {
         overlap  => 100,
         gap      => 8,
         gradient => {
-            colors => [ '#CCCCCC', '#666666' ],
-            angle  => 0,
+            colors => [ '#FFFFFF', '#999999', '#FFFFFF', ],
+            angle  => 90,
         },
       ],
       add_series => [
         $self->{grey_leftwards},
         gradient => {
-            colors => [ '#CCCCCC', '#666666' ],
-            angle  => 180,
+            colors => [ '#FFFFFF', '#999999', '#FFFFFF', ],
+            angle  => 90,
         },
       ],
       add_series => [ $self->{padding}, fill => { none => 1 }, ],
