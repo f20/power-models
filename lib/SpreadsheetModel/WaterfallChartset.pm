@@ -179,7 +179,8 @@ sub tablesAndCharts {
         s/.*\n//s;
         push @charts,
           SpreadsheetModel::WaterfallChart->new(
-            name => "$csetName for $_",
+            name           => "$csetName for $_",
+            scaling_factor => $settings->{scaling_factor},
             $settings->{instructions}
             ? ( instructions => [ @{ $settings->{instructions} } ] )
             : (),

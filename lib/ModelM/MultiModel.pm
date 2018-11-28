@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2014-2017 Franck Latrémolière and others.
+Copyright 2014-2018 Franck Latrémolière and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -137,14 +137,12 @@ sub worksheetsAndClosuresWithController {
                         ]
                     );
                 } 0 .. $lastRow;
-            } grep { $me->{impactTableSets}[0][$_]{columns}; }
+              } grep { $me->{impactTableSets}[0][$_]{columns}; }
               0 .. $#{ $me->{impactTableSets}[0] };
 
             delete $wbook->{logger};
             $_->wsWrite( $wbook, $wsheet ) foreach @summaryTables;
-            if ( $me->{waterfalls} )
-            {    # Useful charts should perhaps be standalone as it is
-                    #  difficult to copy charts embedded in locked worksheets.
+            if ( $me->{waterfalls} ) {
                 my ( $t, $c ) = $me->waterfallCharts( '', @summaryTables );
                 $_->wsWrite( $wbook, $wsheet ) foreach @$t;
                 $_->wsWrite( $wbook, $me->{sheetForCharts} ) foreach @$c;
@@ -158,8 +156,7 @@ sub worksheetsAndClosuresWithController {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 14;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   6 );
-        $wsheet->set_column( 1, 250, 20 );
+        $wsheet->set_column( 0, 0, 86 * ( $me->{scaling_factor} || 1 ) );
         $me->{sheetForCharts} = $wsheet;
         unshift @{ $me->{finishClosures} }, sub {
             $_->wsWrite( $wbook, $wsheet ) foreach Notes(

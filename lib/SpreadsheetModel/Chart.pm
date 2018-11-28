@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Chart;
 
-# Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2015-2018 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -47,8 +47,11 @@ sub check {
       . ( ref $self->{instructions} )
       . ' but must be ARRAY'
       unless ref $self->{instructions} eq 'ARRAY';
-    $self->{height} ||= 360;
-    $self->{width}  ||= 528;    # about 6.25 inches
+
+    $self->{scaling_factor} ||= 1;
+    $self->{width}          ||= 600 * $self->{scaling_factor};
+    $self->{height}         ||= 400 * $self->{scaling_factor};
+
     return;
 }
 
@@ -60,6 +63,7 @@ sub wsWrite {
 
 sub applyInstructions {
     my ( $self, $chart, $wb, $ws, $instructions ) = @_;
+    $chart->set_plotarea( border => { none => 1 } );
     my @instructions = @$instructions;
     while (@instructions) {
         my ( $verb, $args ) = splice @instructions, 0, 2;
@@ -353,7 +357,7 @@ sub wsCreate {
     ++$row;
     $ws->set_row( $row, $self->{height} * 0.75 );
     $ws->insert_chart(
-        $row, $col + 1, $chart, 0, 0,
+        $row, $col, $chart, 0, 0,
         $self->{width} / 480.0,
         $self->{height} / 288.0
     );

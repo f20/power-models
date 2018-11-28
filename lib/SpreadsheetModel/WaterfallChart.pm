@@ -37,18 +37,19 @@ sub check {
 
     $self->{type}    = 'bar';
     $self->{subtype} = 'stacked';
+    $self->{scaling_factor} ||= 1;
 
     my $lastId = $self->{padding}->lastRow;
     my $lc     = $self->{padding}->lastCol;
     $lastId = $lc if $lc > $lastId;
-    $self->{height} ||= 192 + 24 * $lastId;
+    $self->{height} ||= $self->{scaling_factor} * ( 180 + 24 * $lastId );
 
     my @greyBarSeriesSettings = (
         gradient => {
             colors =>
-              [ '#FFFFFF', '#FFFFFF', '#999999', '#FFFFFF', '#FFFFFF', ],
-            transparency => [ 100, 100, 0,  100, 100, ],
-            positions    => [ 0,   35,  50, 65,  100, ],
+              [ '#999999', '#999999', '#999999', '#999999', '#999999', ],
+            transparency => [ 80, 80, 0,  80, 80, ],
+            positions    => [ 0,  35, 50, 65, 100, ],
             angle        => 90,
         },
     );
@@ -60,7 +61,7 @@ sub check {
         colors       => [ '#0066CC', '#0066CC', ],
         transparency => [ 80,        0, ],
     );
-    my @overlapGap = ( overlap => 100, gap => 8, );
+    my @overlapGap = ( overlap => 100, gap => 5, );
     push @{ $self->{instructions} },
       add_series => [ $self->{padding}, @overlapGap, fill => { none => 1, }, ],
       add_series =>
@@ -75,7 +76,10 @@ sub check {
         $self->{orange_leftwards},
         gradient => { @orangeColours, angle => 180, },
       ],
-      set_y_axis => [ reverse  => 1, num_font => { size => 14 }, ],
+      set_y_axis => [
+        reverse  => 1,
+        num_font => { size => $self->{scaling_factor} * 12, },
+      ],
       set_legend => [ position => 'none' ],
       combine    => [
         type         => 'bar',

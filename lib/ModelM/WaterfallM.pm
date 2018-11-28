@@ -157,23 +157,26 @@ sub waterfallCharts {
                 columns => [ $value, $padding, $increase, $decrease, ],
               );
 
+            $me->{scaling_factor} ||= 1.5;
+
             push @charts,
               SpreadsheetModel::WaterfallChart->new(
                 name => $me->{waterfalls} =~ /standalone/i
                 ? 'Chart ' . ( 1 + @charts )
                 : $titlePrefix . $itemName,
+                scaling_factor   => $me->{scaling_factor},
                 grey_rightwards  => $value,
                 padding          => $padding,
                 blue_rightwards  => $increase,
                 orange_leftwards => $decrease,
                 instructions     => [
                     set_x_axis => [
-                        num_format      => '0%',
-                        num_font        => { size => 14 },
-                        min             => 0,
-                        max             => 1,
-                        major_unit      => .25,
-                        minor_unit      => .05,
+                        num_format => '0%',
+                        num_font   => { size => 12 * $me->{scaling_factor}, },
+                        min        => 0,
+                        max        => 1,
+                        major_unit => .25,
+                        minor_unit => .05,
                         major_gridlines => {
                             visible => 1,
                             line    => {

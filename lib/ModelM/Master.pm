@@ -88,10 +88,8 @@ sub new {
         unless ( defined ${ $model->{sharingObjectRef} } ) {
             require ModelM::MultiModel;
             ${ $model->{sharingObjectRef} } = ModelM::MultiModel->new(
-                $model->{waterfalls}
-                ? ( waterfalls => $model->{waterfalls} )
-                : (),
-            );
+                map { $model->{$_} ? ( $_ => $model->{$_} ) : (); }
+                  qw(waterfalls scaling_factor) );
         }
         $model->{multiModelSharing} = ${ $model->{sharingObjectRef} };
     }

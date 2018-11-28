@@ -21,5 +21,6 @@ dcp118: 1
 dcp306: 1
 meav: 1
 netCapex: 1
+scaling_factor: 2
 suffix: CDCM
 waterfalls: 1
