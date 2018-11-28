@@ -1,6 +1,6 @@
 ﻿package ModelM::Hybridise;
 
-# Copyright 2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2017-2018 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -42,7 +42,16 @@ sub process {
       . ',1330,1331+1332,1335,1355,1369,1380'
       unless $arg =~ /[0-9]/;
     $arg =~ s/^,+//s;
-    my @hybridisationRules = map { [/([0-9]+)/g]; } split /,/, $arg;
+    my @hybridisationRules = map {
+        my $hybridNickname;
+        $hybridNickname = $1 if s/\[(.*)\]//s;
+        my @tables = /([0-9]+)/g;
+        $hybridNickname ||=
+          @tables > 1
+          ? 'Tables ' . join( '&', @tables )
+          : "Table @tables";
+        [ $hybridNickname, @tables ];
+    } split /,/, $arg;
 
     $maker->{setting}->(
         customPicker => sub {
@@ -79,12 +88,9 @@ sub process {
                 my @tableAccumulator;
 
                 foreach (@hybridisationRules) {
-                    my $hybridNickname =
-                      @$_ > 1
-                      ? 'Tables ' . join( '&', @$_ )
-                      : "Table @$_";
-                    push @tableAccumulator, @$_;
-                    my @tablesForClosure = @tableAccumulator;
+                    my ( $hybridNickname, @tables ) = @$_;
+                    push @tableAccumulator, @tables;
+                    my @tableAccumulatorForClosure = @tableAccumulator;
                     $addToList->(
                         {
                             '~datasetName' =>
@@ -112,7 +118,7 @@ sub process {
                                             map {
                                                 ( $_ => $model->{sourceModels}
                                                       {scenario} );
-                                            } @tablesForClosure
+                                            } @tableAccumulatorForClosure
                                         }
                                       );
                                 },

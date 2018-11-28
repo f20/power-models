@@ -233,8 +233,10 @@ sub preprocessDataset {
             $d->{1133} ||= [
                 map {
                     my %a;
-                    while ( my ( $k, $v ) = each %$_ ) {
-                        $a{$k} = $v if $k eq '_column' || $k =~ /maximum/i;
+                    if ($_) {
+                        while ( my ( $k, $v ) = each %$_ ) {
+                            $a{$k} = $v if $k eq '_column' || $k =~ /maximum/i;
+                        }
                     }
                     \%a;
                 } @{ $d->{1136} }
@@ -242,8 +244,10 @@ sub preprocessDataset {
             $d->{1134} ||= [
                 map {
                     my %a;
-                    while ( my ( $k, $v ) = each %$_ ) {
-                        $a{$k} = $v if $k eq '_column' || $k =~ /minimum/i;
+                    if ($_) {
+                        while ( my ( $k, $v ) = each %$_ ) {
+                            $a{$k} = $v if $k eq '_column' || $k =~ /minimum/i;
+                        }
                     }
                     \%a;
                 } @{ $d->{1136} }
@@ -297,8 +301,10 @@ sub preprocessDataset {
         $d->{1105} ||= [
             map {
                 my %a;
-                while ( my ( $k, $v ) = each %$_ ) {
-                    $a{$k} = $v if $k eq '_column' || $k =~ /diversity/i;
+                if ($_) {
+                    while ( my ( $k, $v ) = each %$_ ) {
+                        $a{$k} = $v if $k eq '_column' || $k =~ /diversity/i;
+                    }
                 }
                 \%a;
             } @{ $d->{1140} }
@@ -306,8 +312,10 @@ sub preprocessDataset {
         $d->{1122} ||= [
             map {
                 my %a;
-                while ( my ( $k, $v ) = each %$_ ) {
-                    $a{$k} = $v if $k eq '_column' || $k =~ /simultaneous/i;
+                if ($_) {
+                    while ( my ( $k, $v ) = each %$_ ) {
+                        $a{$k} = $v if $k eq '_column' || $k =~ /simultaneous/i;
+                    }
                 }
                 \%a;
             } @{ $d->{1140} }
@@ -315,8 +323,10 @@ sub preprocessDataset {
         $d->{1131} ||= [
             map {
                 my %a;
-                while ( my ( $k, $v ) = each %$_ ) {
-                    $a{$k} = $v if $k eq '_column' || $k =~ /asset/i;
+                if ($_) {
+                    while ( my ( $k, $v ) = each %$_ ) {
+                        $a{$k} = $v if $k eq '_column' || $k =~ /asset/i;
+                    }
                 }
                 \%a;
             } @{ $d->{1140} }
@@ -324,8 +334,10 @@ sub preprocessDataset {
         $d->{1135} ||= [
             map {
                 my %a;
-                while ( my ( $k, $v ) = each %$_ ) {
-                    $a{$k} = $v if $k eq '_column' || $k =~ /loss/i;
+                if ($_) {
+                    while ( my ( $k, $v ) = each %$_ ) {
+                        $a{$k} = $v if $k eq '_column' || $k =~ /loss/i;
+                    }
                 }
                 \%a;
             } @{ $d->{1140} }
