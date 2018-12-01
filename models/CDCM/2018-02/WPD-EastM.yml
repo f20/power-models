@@ -9,7 +9,7 @@
     _column: Version
   - Company charging year data version: |-
       Input data compiled by Franck from public sources. E&OE.
-      This dataset tries to reproduce the February 2018 price notice for 2018/2019 when used with a suitable model.
+      This dataset tries to reproduce the February 2018 price notice for 2018/2019 when used with a suitable bung-supporting model.
 1001:
   - _table: 1001. CDCM target revenue (£ unless otherwise stated)
   - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: H1

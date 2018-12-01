@@ -1,6 +1,6 @@
 ---
 .: 'CDCM after DCP 228, with matrix charts'
-.Style: Model with additional features and matrix charts
+.Style: Model with matrix charts
 PerlModule: CDCM
 agghhequalisation: rag
 alwaysUseRAG: 1
