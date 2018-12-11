@@ -113,8 +113,7 @@ sub preprocessDataset {
                   && $v ne '#VALUE!'
                   && $v !~ /^\s*$/s;
                 undef $tariffs{$k};
-                $max = $k
-                  if $k > $max;
+                $max = $k if $k > $max;
             }
 
             if ($max) {
@@ -129,8 +128,9 @@ sub preprocessDataset {
                 }
                 else {
                     $tariffs = [
-                        2 * keys %tariffs > $max ? ( 1 .. $max )
-                        : ( sort { $a <=> $b } keys %tariffs ),
+                        $model->{randomise} || $model->{small}
+                        ? ( sort { $a <=> $b } keys %tariffs )
+                        : ( 1 .. $max ),
                         $model->{randomise}
                           || $model->{small}
                           || defined $model->{numTariffs} ? ()
