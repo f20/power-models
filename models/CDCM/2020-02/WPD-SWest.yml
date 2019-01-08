@@ -1,15 +1,12 @@
 ---
 1000:
   - _table: '1000. Company, charging year, data version'
-  - Company charging year data version: Scottish Hydro Electric Power Distribution
+  - Company charging year data version: WPD South West
     _column: Company
-  - Company charging year data version: 2019/2020
+  - Company charging year data version: 2020/2021
     _column: Year
-  - Company charging year data version: December 2017
+  - Company charging year data version: December 2018
     _column: Version
-  - Company charging year data version: |-
-      Input data compiled by Franck from public sources. E&OE.
-      This dataset tries to reproduce the December 2017 price notice for 2019/2020 when used with a suitable model.
 1001:
   - _table: 1001. CDCM target revenue (£ unless otherwise stated)
   - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: H1
@@ -135,42 +132,42 @@
     Total allowed Revenue: CRC2A
     Total other revenue recovered by Use of System Charges: ''
     _column: CRC
-  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 5069111.335977
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 5034365.16026
     2 Revenue raised outside CDCM Voluntary under-recovery: ''
     3 Revenue raised outside CDCM Please describe if used: ''
     4 Revenue raised outside CDCM Please describe if used: ''
     Allowed Pass-Through Items: ''
-    Annual Iteration adjustment before inflation: 15700000
-    Base Demand Revenue before inflation: 257100000
+    Annual Iteration adjustment before inflation: -15088148.1117478
+    Base Demand Revenue before inflation: 305500000
     Base demand revenue: ''
-    Broad Measure of Customer Service incentive: 2309134.73383059
+    Broad Measure of Customer Service incentive: 4431992.57926685
     Connection Guaranteed Standards Systems Processes penalty: 0
     Connections Engagement incentive: 0
-    Correction Factor: -3906174.90974036
+    Correction Factor: -15705790.0422887
     Incentive Revenue and Other Adjustments: ''
     Latest forecast of CDCM Revenue: ''
-    Losses Discretionary Reward incentive: 495925
+    Losses Discretionary Reward incentive: 0
     Low Carbon Network Fund Tier 1 unrecoverable: 0
-    Low Carbon Network Fund Tier 2 Discretionary Funding: 377386.336415553
-    Network Innovation Allowance: 896250
+    Low Carbon Network Fund Tier 2 Discretionary Funding: 135395.315119189
+    Network Innovation Allowance: 1384059.348
     Other 1 Excluded services Top-up standby and enhanced system security: ''
     Other 2 Excluded services Revenue protection services: ''
     Other 3 Excluded services Miscellaneous: ''
     Other 4 Please describe if used: ''
     Other 5 Please describe if used: ''
-    Pass-Through Business Rates: -6482074.72970033
-    Pass-Through Licence Fees: 80336.5027118323
-    Pass-Through Others: -70977715.3442724
-    Pass-Through Transmission Connection Point Charges: -2561604.53920035
-    Pass-through Ring Fence Costs: -128147.45976
-    Pass-through Smart Meter Communication Licence Costs: 372168.152292503
-    Pass-through Smart Meter IT Costs: 559903.463978412
-    Price index adjustment RPI index: 1.195
-    Quality of Service incentive: 2943438.69828868
-    RPI True-up before inflation: 114940.605639862
+    Pass-Through Business Rates: -2984538.96129126
+    Pass-Through Licence Fees: 194074.972571717
+    Pass-Through Others: ''
+    Pass-Through Transmission Connection Point Charges: -3052244.93971695
+    Pass-through Ring Fence Costs: 43260.6244516983
+    Pass-through Smart Meter Communication Licence Costs: 658914.299968729
+    Pass-through Smart Meter IT Costs: -128614.83259007
+    Price index adjustment RPI index: 1.236
+    Quality of Service incentive: 3637786.64185043
+    RPI True-up before inflation: 593829.684189128
     Residual Losses and Growth Incentive Growth: 0
     Residual Losses and Growth Incentive Losses: 0
-    Time to Connect incentive: 763579.524839015
+    Time to Connect incentive: 1393443.96280781
     Total Revenue for Use of System Charges: ''
     Total Revenue to be raised outside the CDCM: ''
     Total allowed Revenue: ''
@@ -179,29 +176,29 @@
   - _column: Calculations (£/year)
 1010:
   - _table: 1010. Financial and general assumptions
-  - Financial and general assumptions: 0.0402
+  - Financial and general assumptions: 0.0373
     _column: Rate of return
   - Financial and general assumptions: 40
     _column: Annualisation period (years)
   - _column: Annuity proportion for customer-contributed assets
   - Financial and general assumptions: 0.95
     _column: Power factor
-  - Financial and general assumptions: 366
+  - Financial and general assumptions: 365
     _column: Days in the charging year
 1017:
   - _table: 1017. Diversity allowance between top and bottom of network level
-  - 132kV: ''
+  - 132kV: 0.031
     132kV EHV: ''
-    EHV: 0.0912
+    EHV: 0.075
     EHV HV: ''
-    GSPs: 0.081
-    HV: 0.4435
+    GSPs: 0.022
+    HV: 0.37
     HV LV: ''
     LV circuits: ''
     _column: Diversity allowance between top and bottom of network level
 1018:
   - _table: 1018. Proportion of relevant load going through 132kV/HV direct transformation
-  - EHV HV: ''
+  - EHV HV: 0
     _column: 132kV/HV
 1019:
   - _table: 1019. Network model GSP peak demand (MW)
@@ -209,126 +206,126 @@
     _column: Network model GSP peak demand (MW)
 1020:
   - _table: 1020. Gross asset cost by network level (£)
-  - 132kV: ''
-    132kV EHV: ''
-    132kV HV: ''
-    EHV: 79127399.0228805
-    EHV HV: 73851945.3644111
-    HV: 295425963.385382
-    HV LV: 71537859.7409868
-    LV circuits: 166007576.632066
+  - 132kV: 121273777.367231
+    132kV EHV: 18115588.7609326
+    132kV HV: 0
+    EHV: 43860616.2156272
+    EHV HV: 38862683.8129236
+    HV: 167101340.764931
+    HV LV: 69977888.1157573
+    LV circuits: 163069226.232015
     _column: Gross assets £
 1022:
   - _table: 1022. LV service model asset cost (£)
-  - LV service model asset cost: 2354
+  - LV service model asset cost: 10000
     _column: LV service model 1
-  - LV service model asset cost: 6640
+  - LV service model asset cost: 0
     _column: LV service model 2
-  - LV service model asset cost: 548
+  - LV service model asset cost: 0
     _column: LV service model 3
-  - LV service model asset cost: 2247
+  - LV service model asset cost: 0
     _column: LV service model 4
-  - LV service model asset cost: 2540
+  - LV service model asset cost: 0
     _column: LV service model 5
-  - LV service model asset cost: 4188
+  - LV service model asset cost: 0
     _column: LV service model 6
-  - LV service model asset cost: 161.58
+  - LV service model asset cost: 0
     _column: LV service model 7
-  - LV service model asset cost: ''
+  - LV service model asset cost: 0
     _column: LV service model 8
 1023:
   - _table: 1023. HV service model asset cost (£)
-  - HV service model asset cost: 26345
+  - HV service model asset cost: 10000
     _column: HV service model 1
-  - HV service model asset cost: ''
+  - HV service model asset cost: 0
     _column: HV service model 2
-  - HV service model asset cost: 39140
+  - HV service model asset cost: 0
     _column: HV service model 3
-  - HV service model asset cost: ''
+  - HV service model asset cost: 0
     _column: HV service model 4
-  - HV service model asset cost: ''
+  - HV service model asset cost: 0
     _column: HV service model 5
 1025:
   - _table: 1025. Matrix of applicability of LV service models to tariffs with fixed charges
-  - Domestic Two Rate: 0.041666667
-    Domestic Unrestricted: 0.041666667
-    LV Generation Intermittent: ''
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: ''
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 0
-    LV Medium Non-Domestic: 0
-    LV Network Domestic: 0.041666667
-    LV Network Non-Domestic Non-CT: 0
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation Intermittent no RP charge: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 0
-    LV Sub Medium Non-Domestic: 0
-    Small Non Domestic Two Rate: 0
-    Small Non Domestic Unrestricted: 0
+  - Domestic Two Rate: 0.0233259876186368
+    Domestic Unrestricted: 0.0233259876186368
+    LV Generation Intermittent: 0
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 0.136457390163934
+    LV Medium Non-Domestic: 0.079192323986195
+    LV Network Domestic: 0.0233259876186368
+    LV Network Non-Domestic Non-CT: 0.0683949745470233
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent no RP charge: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 0.106519657247627
+    LV Sub Medium Non-Domestic: 0.0570924745470233
+    Small Non Domestic Two Rate: 0.0683949745470233
+    Small Non Domestic Unrestricted: 0.0683949745470233
     _column: LV service model 1
-  - Domestic Two Rate: 0.0333333333333333
-    Domestic Unrestricted: 0.0333333333333333
-    LV Generation Intermittent: ''
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: ''
-    LV Generation Non-Intermittent no RP charge: ''
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: 0
+    LV Generation Intermittent: 0
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV Generation Non-Intermittent no RP charge: 0
     LV HH Metered: 0
-    LV Medium Non-Domestic: 0
-    LV Network Domestic: 0.0333333333333333
+    LV Medium Non-Domestic: 0.5
+    LV Network Domestic: 0
     LV Network Non-Domestic Non-CT: 0
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation Intermittent no RP charge: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub Generation Non-Intermittent no RP charge: ''
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent no RP charge: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent no RP charge: 0
     LV Sub HH Metered: 0
-    LV Sub Medium Non-Domestic: 0
-    Small Non Domestic Two Rate: 0
-    Small Non Domestic Unrestricted: 0
+    LV Sub Medium Non-Domestic: 0.5
+    Small Non Domestic Two Rate: 1
+    Small Non Domestic Unrestricted: 1
     _column: LV service model 2
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
-    LV Generation Intermittent: ''
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: ''
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 0
-    LV Medium Non-Domestic: 0
+    LV Generation Intermittent: 0
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 1
+    LV Medium Non-Domestic: 0.5
     LV Network Domestic: 0
     LV Network Non-Domestic Non-CT: 1
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation Intermittent no RP charge: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 0
-    LV Sub Medium Non-Domestic: 0
-    Small Non Domestic Two Rate: 1
-    Small Non Domestic Unrestricted: 1
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent no RP charge: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 1
+    LV Sub Medium Non-Domestic: 0.5
+    Small Non Domestic Two Rate: 0
+    Small Non Domestic Unrestricted: 0
     _column: LV service model 3
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
-    LV Generation Intermittent: ''
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: ''
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 0.1
-    LV Medium Non-Domestic: 1
+    LV Generation Intermittent: 0
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 0
+    LV Medium Non-Domestic: 0
     LV Network Domestic: 0
     LV Network Non-Domestic Non-CT: 0
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation Intermittent no RP charge: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub Generation Non-Intermittent no RP charge: ''
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent no RP charge: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent no RP charge: 0
     LV Sub HH Metered: 0
     LV Sub Medium Non-Domestic: 0
     Small Non Domestic Two Rate: 0
@@ -336,20 +333,20 @@
     _column: LV service model 4
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
-    LV Generation Intermittent: ''
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: ''
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 0.9
+    LV Generation Intermittent: 0
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 0
     LV Medium Non-Domestic: 0
     LV Network Domestic: 0
     LV Network Non-Domestic Non-CT: 0
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation Intermittent no RP charge: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub Generation Non-Intermittent no RP charge: ''
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent no RP charge: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent no RP charge: 0
     LV Sub HH Metered: 0
     LV Sub Medium Non-Domestic: 0
     Small Non Domestic Two Rate: 0
@@ -357,314 +354,314 @@
     _column: LV service model 5
   - Domestic Two Rate: 0
     Domestic Unrestricted: 0
-    LV Generation Intermittent: ''
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: ''
-    LV Generation Non-Intermittent no RP charge: ''
+    LV Generation Intermittent: 0
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV Generation Non-Intermittent no RP charge: 0
     LV HH Metered: 0
     LV Medium Non-Domestic: 0
     LV Network Domestic: 0
     LV Network Non-Domestic Non-CT: 0
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation Intermittent no RP charge: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 1
-    LV Sub Medium Non-Domestic: 1
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent no RP charge: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 0
+    LV Sub Medium Non-Domestic: 0
     Small Non Domestic Two Rate: 0
     Small Non Domestic Unrestricted: 0
     _column: LV service model 6
-  - Domestic Two Rate: ''
-    Domestic Unrestricted: ''
-    LV Generation Intermittent: ''
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: ''
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: ''
-    LV Medium Non-Domestic: ''
-    LV Network Domestic: ''
-    LV Network Non-Domestic Non-CT: ''
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation Intermittent no RP charge: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: ''
-    LV Sub Medium Non-Domestic: ''
-    Small Non Domestic Two Rate: ''
-    Small Non Domestic Unrestricted: ''
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: 0
+    LV Generation Intermittent: 0
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 0
+    LV Medium Non-Domestic: 0
+    LV Network Domestic: 0
+    LV Network Non-Domestic Non-CT: 0
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent no RP charge: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 0
+    LV Sub Medium Non-Domestic: 0
+    Small Non Domestic Two Rate: 0
+    Small Non Domestic Unrestricted: 0
     _column: LV service model 7
-  - Domestic Two Rate: ''
-    Domestic Unrestricted: ''
-    LV Generation Intermittent: ''
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: ''
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: ''
-    LV Medium Non-Domestic: ''
-    LV Network Domestic: ''
-    LV Network Non-Domestic Non-CT: ''
-    LV Sub Generation Intermittent: ''
-    LV Sub Generation Intermittent no RP charge: ''
-    LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: ''
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: ''
-    LV Sub Medium Non-Domestic: ''
-    Small Non Domestic Two Rate: ''
-    Small Non Domestic Unrestricted: ''
+  - Domestic Two Rate: 0
+    Domestic Unrestricted: 0
+    LV Generation Intermittent: 0
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 0
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 0
+    LV Medium Non-Domestic: 0
+    LV Network Domestic: 0
+    LV Network Non-Domestic Non-CT: 0
+    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent no RP charge: 0
+    LV Sub Generation NHH: 0
+    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 0
+    LV Sub Medium Non-Domestic: 0
+    Small Non Domestic Two Rate: 0
+    Small Non Domestic Unrestricted: 0
     _column: LV service model 8
 1026:
   - _table: 1026. Matrix of applicability of LV service models to unmetered tariffs
-  - All LV unmetered tariffs: ''
+  - All LV unmetered tariffs: 0.026368548631579
     _column: LV service model 1
-  - All LV unmetered tariffs: ''
+  - All LV unmetered tariffs: 0
     _column: LV service model 2
-  - All LV unmetered tariffs: ''
+  - All LV unmetered tariffs: 0
     _column: LV service model 3
-  - All LV unmetered tariffs: ''
+  - All LV unmetered tariffs: 0.12
     _column: LV service model 4
-  - All LV unmetered tariffs: ''
+  - All LV unmetered tariffs: 0
     _column: LV service model 5
-  - All LV unmetered tariffs: ''
+  - All LV unmetered tariffs: 0
     _column: LV service model 6
-  - All LV unmetered tariffs: 2.915
+  - All LV unmetered tariffs: 0
     _column: LV service model 7
-  - All LV unmetered tariffs: ''
+  - All LV unmetered tariffs: 0
     _column: LV service model 8
 1028:
   - _table: 1028. Matrix of applicability of HV service models to tariffs with fixed charges
-  - HV Generation Intermittent: 0
-    HV Generation Intermittent no RP charge: 0
-    HV Generation Non-Intermittent: ''
-    HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 1
-    HV Medium Non-Domestic: 1
+  - HV Generation Intermittent: 0.615436151855048
+    HV Generation Intermittent no RP charge: 0.615436151855048
+    HV Generation Non-Intermittent: 0.615436151855048
+    HV Generation Non-Intermittent no RP charge: 0.615436151855048
+    HV HH Metered: 0.983371969025022
+    HV Medium Non-Domestic: 0.983371969025022
     _column: HV service model 1
   - HV Generation Intermittent: 0
     HV Generation Intermittent no RP charge: 0
-    HV Generation Non-Intermittent: ''
-    HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 0
+    HV Generation Non-Intermittent: 0
+    HV Generation Non-Intermittent no RP charge: 0
+    HV HH Metered: 0.5
     HV Medium Non-Domestic: 0
     _column: HV service model 2
-  - HV Generation Intermittent: 1
-    HV Generation Intermittent no RP charge: 1
-    HV Generation Non-Intermittent: 1
-    HV Generation Non-Intermittent no RP charge: 1
+  - HV Generation Intermittent: 0
+    HV Generation Intermittent no RP charge: 0
+    HV Generation Non-Intermittent: 0
+    HV Generation Non-Intermittent no RP charge: 0
     HV HH Metered: 0
     HV Medium Non-Domestic: 0
     _column: HV service model 3
   - HV Generation Intermittent: 0
     HV Generation Intermittent no RP charge: 0
-    HV Generation Non-Intermittent: ''
-    HV Generation Non-Intermittent no RP charge: ''
+    HV Generation Non-Intermittent: 0
+    HV Generation Non-Intermittent no RP charge: 0
     HV HH Metered: 0
     HV Medium Non-Domestic: 0
     _column: HV service model 4
   - HV Generation Intermittent: 0
     HV Generation Intermittent no RP charge: 0
-    HV Generation Non-Intermittent: ''
-    HV Generation Non-Intermittent no RP charge: ''
+    HV Generation Non-Intermittent: 0
+    HV Generation Non-Intermittent no RP charge: 0
     HV HH Metered: 0
     HV Medium Non-Domestic: 0
     _column: HV service model 5
 1032:
   - _table: 1032. Loss adjustment factors to transmission
-  - Loss adjustment factor: 1
+  - Loss adjustment factor: 1.002
     _column: 132kV
-  - Loss adjustment factor: 1
+  - Loss adjustment factor: 1.005
     _column: 132kV/EHV
-  - Loss adjustment factor: 1.016
+  - Loss adjustment factor: 1.014
     _column: EHV
-  - Loss adjustment factor: 1.026
+  - Loss adjustment factor: 1.02
     _column: EHV/HV
-  - Loss adjustment factor: 1.036
+  - Loss adjustment factor: 1.038
     _column: HV
-  - Loss adjustment factor: 1.059
+  - Loss adjustment factor: 1.052
     _column: HV/LV
-  - Loss adjustment factor: 1.096
+  - Loss adjustment factor: 1.067
     _column: LV circuits
 1037:
-  - _table: 1037. Embedded network (LDNO) discounts
+  - _table: 1037. Embedded network (LDNO) discount percentages
   - LDNO discount: ''
     _column: No discount
-  - LDNO discount: 0.286739121287006
+  - LDNO discount: 0.380475999723088
     _column: 'LDNO LV: LV user'
-  - LDNO discount: 0.587798466754472
+  - LDNO discount: 0.607477639570347
     _column: 'LDNO HV: LV user'
-  - LDNO discount: 0.407634444788377
-    _column: 'LDNO HV: LV sub user'
-  - LDNO discount: 0.352690666173509
+  - LDNO discount: 0.353025634619975
+    _column: 'LDNO HV: LV Sub user'
+  - LDNO discount: 0.232663191973359
     _column: 'LDNO HV: HV user'
 1041:
   - _table: 1041. Load profile data for demand users
   - Domestic Off Peak related MPAN: ''
-    Domestic Two Rate: 0.477447300552156
-    Domestic Unrestricted: 0.832301484950588
-    HV HH Metered: 0.828314180368605
-    HV Medium Non-Domestic: 0.721427085972888
-    LV HH Metered: 0.799392946405348
-    LV Medium Non-Domestic: 0.695919827539358
-    LV Network Domestic: 0.832301484950588
-    LV Network Non-Domestic Non-CT: 0.578304297233925
-    LV Sub HH Metered: 0.739443150776957
-    LV Sub Medium Non-Domestic: 0.695919827539358
-    LV UMS Pseudo HH Metered: 0.850417017575581
+    Domestic Two Rate: 0.360542201214923
+    Domestic Unrestricted: 0.928862120916484
+    HV HH Metered: 0.773760048700199
+    HV Medium Non-Domestic: 0.612313098420505
+    LV HH Metered: 0.740313970675246
+    LV Medium Non-Domestic: 0.820694472206426
+    LV Network Domestic: 0.839562808400731
+    LV Network Non-Domestic Non-CT: 0.683676298390165
+    LV Sub HH Metered: 0.722298853503533
+    LV Sub Medium Non-Domestic: 0.80428386992798
+    LV UMS Pseudo HH Metered: 0.95049006861661
     NHH UMS category A: 1
-    NHH UMS category B: 0.883891666666667
-    NHH UMS category C: 0.897775
-    NHH UMS category D: 0.173108333333333
+    NHH UMS category B: 0.949691711682218
+    NHH UMS category C: 0.999763593380615
+    NHH UMS category D: 0
     Small Non Domestic Off Peak related MPAN: ''
-    Small Non Domestic Two Rate: 0.577296697982305
-    Small Non Domestic Unrestricted: 0.671617397981451
+    Small Non Domestic Two Rate: 0.656369282306781
+    Small Non Domestic Unrestricted: 0.613456623880954
     _column: Coincidence factor
-  - Domestic Off Peak related MPAN: 0.192773667263186
-    Domestic Two Rate: 0.328893242531424
-    Domestic Unrestricted: 0.412625370949702
-    HV HH Metered: 0.684660520239098
-    HV Medium Non-Domestic: 0.47596906058306
-    LV HH Metered: 0.580648105083434
-    LV Medium Non-Domestic: 0.467256171269314
-    LV Network Domestic: 0.412625370949702
-    LV Network Non-Domestic Non-CT: 0.3444358275256
-    LV Sub HH Metered: 0.577357011491404
-    LV Sub Medium Non-Domestic: 0.467256171269314
-    LV UMS Pseudo HH Metered: 0.463140931909003
-    NHH UMS category A: 0.99992400046577
-    NHH UMS category B: 0.471250246629405
-    NHH UMS category C: 0.258655101783234
-    NHH UMS category D: 0.541822003289501
-    Small Non Domestic Off Peak related MPAN: 0.218723139993762
-    Small Non Domestic Two Rate: 0.41168038628974
-    Small Non Domestic Unrestricted: 0.38239164240509
+  - Domestic Off Peak related MPAN: 0.139778719197667
+    Domestic Two Rate: 0.249562561976417
+    Domestic Unrestricted: 0.40379496445436
+    HV HH Metered: 0.73146705536811
+    HV Medium Non-Domestic: 0.460816514352821
+    LV HH Metered: 0.577331941327445
+    LV Medium Non-Domestic: 0.577362379366061
+    LV Network Domestic: 0.376858201484828
+    LV Network Non-Domestic Non-CT: 0.424539231855122
+    LV Sub HH Metered: 0.614030077634491
+    LV Sub Medium Non-Domestic: 0.58536057814906
+    LV UMS Pseudo HH Metered: 0.467982612711401
+    NHH UMS category A: 0.9999999999999
+    NHH UMS category B: 0.473028866974529
+    NHH UMS category C: 0.265368744397485
+    NHH UMS category D: 0.51531174707369
+    Small Non Domestic Off Peak related MPAN: 0.15285198057509
+    Small Non Domestic Two Rate: 0.433655613852561
+    Small Non Domestic Unrestricted: 0.358327688390614
     _column: Load factor
 1053:
   - _table: 1053. Volume forecasts for the charging year
-  - Domestic Off Peak related MPAN: 426053.610191225
-    Domestic Two Rate: 214821.614406903
-    Domestic Unrestricted: 2261848.56434993
-    HV Generation Intermittent: 684794.41811428
-    HV Generation Intermittent no RP charge: ''
-    HV Generation Non-Intermittent: 97970.142822979
-    HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 91336.0643816641
-    HV Medium Non-Domestic: 803.839655323492
+  - Domestic Off Peak related MPAN: 47190.6015895627
+    Domestic Two Rate: 604178.079557566
+    Domestic Unrestricted: 4260152.86945634
+    HV Generation Intermittent: 387931.445236125
+    HV Generation Intermittent no RP charge: 0
+    HV Generation Non-Intermittent: 14970.1517794708
+    HV Generation Non-Intermittent no RP charge: 0
+    HV HH Metered: 159808.906701851
+    HV Medium Non-Domestic: 328.984783197068
     LDNO HV Domestic Off Peak related MPAN: 0
-    LDNO HV Domestic Two Rate: 128.812203050791
-    LDNO HV Domestic Unrestricted: 7605.59604748649
-    LDNO HV HV Generation Intermittent: ''
-    LDNO HV HV Generation Non-Intermittent: ''
-    LDNO HV HV HH Metered: 0
-    LDNO HV LV Generation Intermittent: ''
-    LDNO HV LV Generation NHH or Aggregate HH: ''
-    LDNO HV LV Generation Non-Intermittent: ''
-    LDNO HV LV HH Metered: 24.1394458921075
-    LDNO HV LV Medium Non-Domestic: 0
-    LDNO HV LV Network Domestic: 0
-    LDNO HV LV Network Non-Domestic Non-CT: 0
-    LDNO HV LV Sub Generation Intermittent: ''
-    LDNO HV LV Sub Generation NHH: ''
-    LDNO HV LV Sub Generation Non-Intermittent: ''
-    LDNO HV LV Sub HH Metered: 19.5205674156915
-    LDNO HV LV UMS Pseudo HH Metered: 0
-    LDNO HV NHH UMS category A: 0
-    LDNO HV NHH UMS category B: 2.08141408785087
-    LDNO HV NHH UMS category C: 0
+    LDNO HV Domestic Two Rate: 2772.72917279559
+    LDNO HV Domestic Unrestricted: 59172.5769405481
+    LDNO HV HV Generation Intermittent: 5.2721152
+    LDNO HV HV Generation Non-Intermittent: 0.0652549682539683
+    LDNO HV HV HH Metered: 1362.46179753204
+    LDNO HV LV Generation Intermittent: 449.31183495
+    LDNO HV LV Generation NHH or Aggregate HH: 0
+    LDNO HV LV Generation Non-Intermittent: 0
+    LDNO HV LV HH Metered: 4222.80825920771
+    LDNO HV LV Medium Non-Domestic: 779.643339134632
+    LDNO HV LV Network Domestic: 0.700237264493576
+    LDNO HV LV Network Non-Domestic Non-CT: 94.0972442582565
+    LDNO HV LV Sub Generation Intermittent: 0
+    LDNO HV LV Sub Generation NHH: 0
+    LDNO HV LV Sub Generation Non-Intermittent: 0
+    LDNO HV LV Sub HH Metered: 489.476278911466
+    LDNO HV LV UMS Pseudo HH Metered: 1.73057085404147
+    LDNO HV NHH UMS category A: 172.70455019486
+    LDNO HV NHH UMS category B: 463.981006073758
+    LDNO HV NHH UMS category C: 3.48496256455706
     LDNO HV NHH UMS category D: 0
     LDNO HV Small Non Domestic Off Peak related MPAN: 0
-    LDNO HV Small Non Domestic Two Rate: 0
-    LDNO HV Small Non Domestic Unrestricted: 328.827924914085
+    LDNO HV Small Non Domestic Two Rate: 792.254797687431
+    LDNO HV Small Non Domestic Unrestricted: 10051.1855578229
     LDNO LV Domestic Off Peak related MPAN: 0
-    LDNO LV Domestic Two Rate: 30.6353427845434
-    LDNO LV Domestic Unrestricted: 6784.1680602575
-    LDNO LV LV Generation Intermittent: ''
-    LDNO LV LV Generation NHH or Aggregate HH: ''
-    LDNO LV LV Generation Non-Intermittent: ''
-    LDNO LV LV HH Metered: 129.006649898139
-    LDNO LV LV Medium Non-Domestic: 153.898271172602
-    LDNO LV LV Network Domestic: 0
+    LDNO LV Domestic Two Rate: 1605.00744726314
+    LDNO LV Domestic Unrestricted: 23141.7745142769
+    LDNO LV LV Generation Intermittent: 0
+    LDNO LV LV Generation NHH or Aggregate HH: 59.888103
+    LDNO LV LV Generation Non-Intermittent: 0
+    LDNO LV LV HH Metered: 134.828857365712
+    LDNO LV LV Medium Non-Domestic: 55.5128169993408
+    LDNO LV LV Network Domestic: 0.165217617627832
     LDNO LV LV Network Non-Domestic Non-CT: 0
     LDNO LV LV UMS Pseudo HH Metered: 0
-    LDNO LV NHH UMS category A: 0
-    LDNO LV NHH UMS category B: 0
+    LDNO LV NHH UMS category A: 120.228627679749
+    LDNO LV NHH UMS category B: 90.8945164974458
     LDNO LV NHH UMS category C: 0
     LDNO LV NHH UMS category D: 0
     LDNO LV Small Non Domestic Off Peak related MPAN: 0
-    LDNO LV Small Non Domestic Two Rate: 0
-    LDNO LV Small Non Domestic Unrestricted: 118.280311134855
-    LV Generation Intermittent: 346095.898384654
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: 6257.40025554624
-    LV Generation Non-Intermittent: 4914.35291667455
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 163818.807429934
-    LV Medium Non-Domestic: 4770.00307898233
-    LV Network Domestic: 41.5746171246777
-    LV Network Non-Domestic Non-CT: 11069.4636261909
-    LV Sub Generation Intermittent: 4249.6521
-    LV Sub Generation Intermittent no RP charge: ''
+    LDNO LV Small Non Domestic Two Rate: 65.3472519438549
+    LDNO LV Small Non Domestic Unrestricted: 1029.55290705867
+    LV Generation Intermittent: 64687.096443375
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 2832.426
+    LV Generation Non-Intermittent: 283.737340941923
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 94559.1509841389
+    LV Medium Non-Domestic: 45205.7808633766
+    LV Network Domestic: 279.774219417936
+    LV Network Non-Domestic Non-CT: 24201.3332037757
+    LV Sub Generation Intermittent: 13011.830469
+    LV Sub Generation Intermittent no RP charge: 0
     LV Sub Generation NHH: 0
-    LV Sub Generation Non-Intermittent: 0
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 11965.1988113516
-    LV Sub Medium Non-Domestic: 0
-    LV UMS Pseudo HH Metered: 5033.79343107835
-    NHH UMS category A: 13138.3760744713
-    NHH UMS category B: 9033.44929789303
-    NHH UMS category C: 3677.58799198995
-    NHH UMS category D: 48.1183488391753
-    Small Non Domestic Off Peak related MPAN: 27505.5984117371
-    Small Non Domestic Two Rate: 143543.234102408
-    Small Non Domestic Unrestricted: 802979.86839737
+    LV Sub Generation Non-Intermittent: 402.335388838727
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 49119.5819617036
+    LV Sub Medium Non-Domestic: 4511.15511020314
+    LV UMS Pseudo HH Metered: 3686.83429111369
+    NHH UMS category A: 4011.34542297728
+    NHH UMS category B: 4994.40987911091
+    NHH UMS category C: 630.541067638016
+    NHH UMS category D: 0.00493027968
+    Small Non Domestic Off Peak related MPAN: 19538.5092517081
+    Small Non Domestic Two Rate: 402576.640214296
+    Small Non Domestic Unrestricted: 1207879.32451361
     _column: Rate 1 units (MWh)
   - Domestic Off Peak related MPAN: ''
-    Domestic Two Rate: 203642.184498087
+    Domestic Two Rate: 549833.079710467
     Domestic Unrestricted: ''
     HV Generation Intermittent: ''
     HV Generation Intermittent no RP charge: ''
-    HV Generation Non-Intermittent: 397543.330376251
-    HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 443158.762172546
-    HV Medium Non-Domestic: 417.478731471123
+    HV Generation Non-Intermittent: 73843.2648166329
+    HV Generation Non-Intermittent no RP charge: 0
+    HV HH Metered: 1116391.06616955
+    HV Medium Non-Domestic: 137.90706916282
     LDNO HV Domestic Off Peak related MPAN: ''
-    LDNO HV Domestic Two Rate: 89.9086459471688
+    LDNO HV Domestic Two Rate: 1407.77765538546
     LDNO HV Domestic Unrestricted: ''
     LDNO HV HV Generation Intermittent: ''
-    LDNO HV HV Generation Non-Intermittent: ''
-    LDNO HV HV HH Metered: 0
+    LDNO HV HV Generation Non-Intermittent: 0.453809166109568
+    LDNO HV HV HH Metered: 8888.42040128598
     LDNO HV LV Generation Intermittent: ''
     LDNO HV LV Generation NHH or Aggregate HH: ''
-    LDNO HV LV Generation Non-Intermittent: ''
-    LDNO HV LV HH Metered: 24.1394458921075
-    LDNO HV LV Medium Non-Domestic: 0
-    LDNO HV LV Network Domestic: 0
-    LDNO HV LV Network Non-Domestic Non-CT: 0
+    LDNO HV LV Generation Non-Intermittent: 0
+    LDNO HV LV HH Metered: 27261.3966733255
+    LDNO HV LV Medium Non-Domestic: 145.762953745917
+    LDNO HV LV Network Domestic: 3.9987599919632
+    LDNO HV LV Network Non-Domestic Non-CT: 18.7250279070279
     LDNO HV LV Sub Generation Intermittent: ''
     LDNO HV LV Sub Generation NHH: ''
-    LDNO HV LV Sub Generation Non-Intermittent: ''
-    LDNO HV LV Sub HH Metered: 19.5205674156915
-    LDNO HV LV UMS Pseudo HH Metered: 0
+    LDNO HV LV Sub Generation Non-Intermittent: 0
+    LDNO HV LV Sub HH Metered: 2863.74672118224
+    LDNO HV LV UMS Pseudo HH Metered: 7.08795722515835
     LDNO HV NHH UMS category A: ''
     LDNO HV NHH UMS category B: ''
     LDNO HV NHH UMS category C: ''
     LDNO HV NHH UMS category D: ''
     LDNO HV Small Non Domestic Off Peak related MPAN: ''
-    LDNO HV Small Non Domestic Two Rate: 0
+    LDNO HV Small Non Domestic Two Rate: 291.070359603022
     LDNO HV Small Non Domestic Unrestricted: ''
     LDNO LV Domestic Off Peak related MPAN: ''
-    LDNO LV Domestic Two Rate: 40.8161348315357
+    LDNO LV Domestic Two Rate: 920.883822899986
     LDNO LV Domestic Unrestricted: ''
     LDNO LV LV Generation Intermittent: ''
     LDNO LV LV Generation NHH or Aggregate HH: ''
-    LDNO LV LV Generation Non-Intermittent: ''
-    LDNO LV LV HH Metered: 566.358292566895
-    LDNO LV LV Medium Non-Domestic: 0
-    LDNO LV LV Network Domestic: 0
+    LDNO LV LV Generation Non-Intermittent: 0
+    LDNO LV LV HH Metered: 915.679503114824
+    LDNO LV LV Medium Non-Domestic: 45.2805012852544
+    LDNO LV LV Network Domestic: 1.09325238965814
     LDNO LV LV Network Non-Domestic Non-CT: 0
     LDNO LV LV UMS Pseudo HH Metered: 0
     LDNO LV NHH UMS category A: ''
@@ -672,31 +669,31 @@
     LDNO LV NHH UMS category C: ''
     LDNO LV NHH UMS category D: ''
     LDNO LV Small Non Domestic Off Peak related MPAN: ''
-    LDNO LV Small Non Domestic Two Rate: 0
+    LDNO LV Small Non Domestic Two Rate: 18.5285141480342
     LDNO LV Small Non Domestic Unrestricted: ''
     LV Generation Intermittent: ''
     LV Generation Intermittent no RP charge: ''
     LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: 21860.8622595963
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 817167.062518347
-    LV Medium Non-Domestic: 1563.75159730006
-    LV Network Domestic: 179.738790370293
-    LV Network Non-Domestic Non-CT: 50737.5132505502
+    LV Generation Non-Intermittent: 1808.94634474841
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 679250.52897253
+    LV Medium Non-Domestic: 11465.9337168464
+    LV Network Domestic: 1672.15582788597
+    LV Network Non-Domestic Non-CT: 173296.79121955
     LV Sub Generation Intermittent: ''
     LV Sub Generation Intermittent no RP charge: ''
     LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: 0
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 57875.9142562897
-    LV Sub Medium Non-Domestic: 0
-    LV UMS Pseudo HH Metered: 16948.5848747858
+    LV Sub Generation Non-Intermittent: 2298.52936318498
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 360894.640246566
+    LV Sub Medium Non-Domestic: 1224.96541248987
+    LV UMS Pseudo HH Metered: 29513.2385500589
     NHH UMS category A: ''
     NHH UMS category B: ''
     NHH UMS category C: ''
     NHH UMS category D: ''
     Small Non Domestic Off Peak related MPAN: ''
-    Small Non Domestic Two Rate: 82660.4327730407
+    Small Non Domestic Two Rate: 168530.653553722
     Small Non Domestic Unrestricted: ''
     _column: Rate 2 units (MWh)
   - Domestic Off Peak related MPAN: ''
@@ -704,28 +701,28 @@
     Domestic Unrestricted: ''
     HV Generation Intermittent: ''
     HV Generation Intermittent no RP charge: ''
-    HV Generation Non-Intermittent: 331829.855726422
-    HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 414398.614826655
+    HV Generation Non-Intermittent: 101208.6912398
+    HV Generation Non-Intermittent no RP charge: 0
+    HV HH Metered: 1247406.33257304
     HV Medium Non-Domestic: ''
     LDNO HV Domestic Off Peak related MPAN: ''
     LDNO HV Domestic Two Rate: ''
     LDNO HV Domestic Unrestricted: ''
     LDNO HV HV Generation Intermittent: ''
-    LDNO HV HV Generation Non-Intermittent: ''
-    LDNO HV HV HH Metered: 0
+    LDNO HV HV Generation Non-Intermittent: 2.53486457249485
+    LDNO HV HV HH Metered: 11234.6200566619
     LDNO HV LV Generation Intermittent: ''
     LDNO HV LV Generation NHH or Aggregate HH: ''
-    LDNO HV LV Generation Non-Intermittent: ''
-    LDNO HV LV HH Metered: 24.1394458921075
+    LDNO HV LV Generation Non-Intermittent: 0
+    LDNO HV LV HH Metered: 23698.3899448292
     LDNO HV LV Medium Non-Domestic: ''
-    LDNO HV LV Network Domestic: 0
-    LDNO HV LV Network Non-Domestic Non-CT: 0
+    LDNO HV LV Network Domestic: 5.42643299763999
+    LDNO HV LV Network Non-Domestic Non-CT: 6.84129702039526
     LDNO HV LV Sub Generation Intermittent: ''
     LDNO HV LV Sub Generation NHH: ''
-    LDNO HV LV Sub Generation Non-Intermittent: ''
-    LDNO HV LV Sub HH Metered: 19.5205674156915
-    LDNO HV LV UMS Pseudo HH Metered: 0
+    LDNO HV LV Sub Generation Non-Intermittent: 0
+    LDNO HV LV Sub HH Metered: 3193.44173456427
+    LDNO HV LV UMS Pseudo HH Metered: 39.422062045057
     LDNO HV NHH UMS category A: ''
     LDNO HV NHH UMS category B: ''
     LDNO HV NHH UMS category C: ''
@@ -738,10 +735,10 @@
     LDNO LV Domestic Unrestricted: ''
     LDNO LV LV Generation Intermittent: ''
     LDNO LV LV Generation NHH or Aggregate HH: ''
-    LDNO LV LV Generation Non-Intermittent: ''
-    LDNO LV LV HH Metered: 257.07064217739
+    LDNO LV LV Generation Non-Intermittent: 0
+    LDNO LV LV HH Metered: 972.528815243554
     LDNO LV LV Medium Non-Domestic: ''
-    LDNO LV LV Network Domestic: 0
+    LDNO LV LV Network Domestic: 0.918477150350845
     LDNO LV LV Network Non-Domestic Non-CT: 0
     LDNO LV LV UMS Pseudo HH Metered: 0
     LDNO LV NHH UMS category A: ''
@@ -754,20 +751,20 @@
     LV Generation Intermittent: ''
     LV Generation Intermittent no RP charge: ''
     LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: 24849.4960881325
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 621330.191839598
+    LV Generation Non-Intermittent: 2395.49043450155
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 578814.688033204
     LV Medium Non-Domestic: ''
-    LV Network Domestic: 149.629761189039
-    LV Network Non-Domestic Non-CT: 38586.2058631699
+    LV Network Domestic: 2017.53841824552
+    LV Network Non-Domestic Non-CT: 151821.405977286
     LV Sub Generation Intermittent: ''
     LV Sub Generation Intermittent no RP charge: ''
     LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: 0
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 56531.6059221401
+    LV Sub Generation Non-Intermittent: 3664.2336302376
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 336501.089717379
     LV Sub Medium Non-Domestic: ''
-    LV UMS Pseudo HH Metered: 71638.4267240835
+    LV UMS Pseudo HH Metered: 82481.659138959
     NHH UMS category A: ''
     NHH UMS category B: ''
     NHH UMS category C: ''
@@ -776,49 +773,49 @@
     Small Non Domestic Two Rate: ''
     Small Non Domestic Unrestricted: ''
     _column: Rate 3 units (MWh)
-  - Domestic Off Peak related MPAN: 76276.3450330639
-    Domestic Two Rate: 61196.2104757413
-    Domestic Unrestricted: 642885.888888889
-    HV Generation Intermittent: 288.23363682831
-    HV Generation Intermittent no RP charge: ''
-    HV Generation Non-Intermittent: 101
-    HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 742.475276625424
-    HV Medium Non-Domestic: 2
+  - Domestic Off Peak related MPAN: 0
+    Domestic Two Rate: 197752.084280762
+    Domestic Unrestricted: 1279292.70774904
+    HV Generation Intermittent: 235.829280821918
+    HV Generation Intermittent no RP charge: 0
+    HV Generation Non-Intermittent: 69.5469657534247
+    HV Generation Non-Intermittent no RP charge: 0
+    HV HH Metered: 1212.23444489976
+    HV Medium Non-Domestic: 6.14240758356164
     LDNO HV Domestic Off Peak related MPAN: 0
-    LDNO HV Domestic Two Rate: 58.4881820052717
-    LDNO HV Domestic Unrestricted: 2696.94317853437
-    LDNO HV HV Generation Intermittent: ''
-    LDNO HV HV Generation Non-Intermittent: ''
-    LDNO HV HV HH Metered: 0
-    LDNO HV LV Generation Intermittent: ''
-    LDNO HV LV Generation NHH or Aggregate HH: ''
-    LDNO HV LV Generation Non-Intermittent: ''
-    LDNO HV LV HH Metered: 7.7342690403071
-    LDNO HV LV Medium Non-Domestic: 0
-    LDNO HV LV Network Domestic: 0
-    LDNO HV LV Network Non-Domestic Non-CT: 0
-    LDNO HV LV Sub Generation Intermittent: ''
-    LDNO HV LV Sub Generation NHH: ''
-    LDNO HV LV Sub Generation Non-Intermittent: ''
-    LDNO HV LV Sub HH Metered: 1.11042005507266
-    LDNO HV LV UMS Pseudo HH Metered: 0
+    LDNO HV Domestic Two Rate: 1063.35777945205
+    LDNO HV Domestic Unrestricted: 23307.3198479452
+    LDNO HV HV Generation Intermittent: 1.15977671232877
+    LDNO HV HV Generation Non-Intermittent: 0.854127397260274
+    LDNO HV HV HH Metered: 10.4200890410959
+    LDNO HV LV Generation Intermittent: 3.85061780821918
+    LDNO HV LV Generation NHH or Aggregate HH: 0
+    LDNO HV LV Generation Non-Intermittent: 0
+    LDNO HV LV HH Metered: 218.183553424658
+    LDNO HV LV Medium Non-Domestic: 11.3315671232877
+    LDNO HV LV Network Domestic: 4.06874931506849
+    LDNO HV LV Network Non-Domestic Non-CT: 17.8708712328767
+    LDNO HV LV Sub Generation Intermittent: 0
+    LDNO HV LV Sub Generation NHH: 0
+    LDNO HV LV Sub Generation Non-Intermittent: 0
+    LDNO HV LV Sub HH Metered: 5.71534383561644
+    LDNO HV LV UMS Pseudo HH Metered: 1.31541917808219
     LDNO HV NHH UMS category A: 0
-    LDNO HV NHH UMS category B: 2.20979115437346
+    LDNO HV NHH UMS category B: 0
     LDNO HV NHH UMS category C: 0
     LDNO HV NHH UMS category D: 0
     LDNO HV Small Non Domestic Off Peak related MPAN: 0
-    LDNO HV Small Non Domestic Two Rate: 0
-    LDNO HV Small Non Domestic Unrestricted: 26.0897923387318
+    LDNO HV Small Non Domestic Two Rate: 26.0832904109589
+    LDNO HV Small Non Domestic Unrestricted: 740.28512739726
     LDNO LV Domestic Off Peak related MPAN: 0
-    LDNO LV Domestic Two Rate: 7.7342690403071
-    LDNO LV Domestic Unrestricted: 2172.50983909161
-    LDNO LV LV Generation Intermittent: ''
-    LDNO LV LV Generation NHH or Aggregate HH: ''
-    LDNO LV LV Generation Non-Intermittent: ''
-    LDNO LV LV HH Metered: 4.44168022029065
-    LDNO LV LV Medium Non-Domestic: 1.10489557718673
-    LDNO LV LV Network Domestic: 0
+    LDNO LV Domestic Two Rate: 685.905075342466
+    LDNO LV Domestic Unrestricted: 8791.15670821918
+    LDNO LV LV Generation Intermittent: 0
+    LDNO LV LV Generation NHH or Aggregate HH: 0
+    LDNO LV LV Generation Non-Intermittent: 0
+    LDNO LV LV HH Metered: 21.1645575342466
+    LDNO LV LV Medium Non-Domestic: 1.31541917808219
+    LDNO LV LV Network Domestic: 1.19342465753425
     LDNO LV LV Network Non-Domestic Non-CT: 0
     LDNO LV LV UMS Pseudo HH Metered: 0
     LDNO LV NHH UMS category A: 0
@@ -826,32 +823,32 @@
     LDNO LV NHH UMS category C: 0
     LDNO LV NHH UMS category D: 0
     LDNO LV Small Non Domestic Off Peak related MPAN: 0
-    LDNO LV Small Non Domestic Two Rate: 0
-    LDNO LV Small Non Domestic Unrestricted: 22.0979115437346
-    LV Generation Intermittent: 815.991092446089
-    LV Generation Intermittent no RP charge: ''
-    LV Generation NHH or Aggregate HH: 414.5
-    LV Generation Non-Intermittent: 44.0009082176029
-    LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 6605.5
-    LV Medium Non-Domestic: 58.4000756952427
-    LV Network Domestic: 51.5
-    LV Network Non-Domestic Non-CT: 1123.46784131476
-    LV Sub Generation Intermittent: 2
-    LV Sub Generation Intermittent no RP charge: ''
+    LDNO LV Small Non Domestic Two Rate: 2.63083835616438
+    LDNO LV Small Non Domestic Unrestricted: 170.405626027397
+    LV Generation Intermittent: 882.101792465754
+    LV Generation Intermittent no RP charge: 0
+    LV Generation NHH or Aggregate HH: 0
+    LV Generation Non-Intermittent: 17.1509732876712
+    LV Generation Non-Intermittent no RP charge: 0
+    LV HH Metered: 7781.71983700455
+    LV Medium Non-Domestic: 727.310783784728
+    LV Network Domestic: 986.320977139726
+    LV Network Non-Domestic Non-CT: 5404.79252572704
+    LV Sub Generation Intermittent: 117.211607876712
+    LV Sub Generation Intermittent no RP charge: 0
     LV Sub Generation NHH: 0
-    LV Sub Generation Non-Intermittent: 0
-    LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 81.2148791466219
-    LV Sub Medium Non-Domestic: 0
-    LV UMS Pseudo HH Metered: 14
-    NHH UMS category A: 255.666666666667
-    NHH UMS category B: 2357.88888888889
-    NHH UMS category C: 1415
-    NHH UMS category D: 6.66666666666667
-    Small Non Domestic Off Peak related MPAN: 2586.8395040789
-    Small Non Domestic Two Rate: 9981.3965903126
-    Small Non Domestic Unrestricted: 61886.9525794919
+    LV Sub Generation Non-Intermittent: 12.6140745205479
+    LV Sub Generation Non-Intermittent no RP charge: 0
+    LV Sub HH Metered: 1603.2825295883
+    LV Sub Medium Non-Domestic: 62.4041493377366
+    LV UMS Pseudo HH Metered: 23.3397260273973
+    NHH UMS category A: 884
+    NHH UMS category B: 815
+    NHH UMS category C: 194
+    NHH UMS category D: 0
+    Small Non Domestic Off Peak related MPAN: 0
+    Small Non Domestic Two Rate: 30247.5341628213
+    Small Non Domestic Unrestricted: 110243.40557194
     _column: MPANs
   - Domestic Off Peak related MPAN: ''
     Domestic Two Rate: ''
@@ -860,25 +857,25 @@
     HV Generation Intermittent no RP charge: ''
     HV Generation Non-Intermittent: ''
     HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 438738.744428233
+    HV HH Metered: 938211.0124482
     HV Medium Non-Domestic: ''
     LDNO HV Domestic Off Peak related MPAN: ''
     LDNO HV Domestic Two Rate: ''
     LDNO HV Domestic Unrestricted: ''
     LDNO HV HV Generation Intermittent: ''
     LDNO HV HV Generation Non-Intermittent: ''
-    LDNO HV HV HH Metered: 0
+    LDNO HV HV HH Metered: 12036.6947890411
     LDNO HV LV Generation Intermittent: ''
     LDNO HV LV Generation NHH or Aggregate HH: ''
     LDNO HV LV Generation Non-Intermittent: ''
-    LDNO HV LV HH Metered: 1175.95398826352
+    LDNO HV LV HH Metered: 38426.8529684932
     LDNO HV LV Medium Non-Domestic: ''
     LDNO HV LV Network Domestic: ''
     LDNO HV LV Network Non-Domestic Non-CT: ''
     LDNO HV LV Sub Generation Intermittent: ''
     LDNO HV LV Sub Generation NHH: ''
     LDNO HV LV Sub Generation Non-Intermittent: ''
-    LDNO HV LV Sub HH Metered: 246.361688567501
+    LDNO HV LV Sub HH Metered: 3134.40190136986
     LDNO HV LV UMS Pseudo HH Metered: ''
     LDNO HV NHH UMS category A: ''
     LDNO HV NHH UMS category B: ''
@@ -893,7 +890,7 @@
     LDNO LV LV Generation Intermittent: ''
     LDNO LV LV Generation NHH or Aggregate HH: ''
     LDNO LV LV Generation Non-Intermittent: ''
-    LDNO LV LV HH Metered: 677.494643560627
+    LDNO LV LV HH Metered: 2693.16578767123
     LDNO LV LV Medium Non-Domestic: ''
     LDNO LV LV Network Domestic: ''
     LDNO LV LV Network Non-Domestic Non-CT: ''
@@ -910,7 +907,7 @@
     LV Generation NHH or Aggregate HH: ''
     LV Generation Non-Intermittent: ''
     LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 830059.434352214
+    LV HH Metered: 722829.818558251
     LV Medium Non-Domestic: ''
     LV Network Domestic: ''
     LV Network Non-Domestic Non-CT: ''
@@ -919,7 +916,7 @@
     LV Sub Generation NHH: ''
     LV Sub Generation Non-Intermittent: ''
     LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 33477.0645638011
+    LV Sub HH Metered: 365004.697098447
     LV Sub Medium Non-Domestic: ''
     LV UMS Pseudo HH Metered: ''
     NHH UMS category A: ''
@@ -937,18 +934,18 @@
     HV Generation Intermittent no RP charge: ''
     HV Generation Non-Intermittent: ''
     HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 12128.7456409474
+    HV HH Metered: 7208.15384139057
     HV Medium Non-Domestic: ''
     LDNO HV Domestic Off Peak related MPAN: ''
     LDNO HV Domestic Two Rate: ''
     LDNO HV Domestic Unrestricted: ''
     LDNO HV HV Generation Intermittent: ''
     LDNO HV HV Generation Non-Intermittent: ''
-    LDNO HV HV HH Metered: 0
+    LDNO HV HV HH Metered: 0.308301369863014
     LDNO HV LV Generation Intermittent: ''
     LDNO HV LV Generation NHH or Aggregate HH: ''
     LDNO HV LV Generation Non-Intermittent: ''
-    LDNO HV LV HH Metered: 0
+    LDNO HV LV HH Metered: 181.98151369863
     LDNO HV LV Medium Non-Domestic: ''
     LDNO HV LV Network Domestic: ''
     LDNO HV LV Network Non-Domestic Non-CT: ''
@@ -987,7 +984,7 @@
     LV Generation NHH or Aggregate HH: ''
     LV Generation Non-Intermittent: ''
     LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 26153.4691160414
+    LV HH Metered: 24572.8503864986
     LV Medium Non-Domestic: ''
     LV Network Domestic: ''
     LV Network Non-Domestic Non-CT: ''
@@ -996,7 +993,7 @@
     LV Sub Generation NHH: ''
     LV Sub Generation Non-Intermittent: ''
     LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 1038.96025036175
+    LV Sub HH Metered: 6680.32675942961
     LV Sub Medium Non-Domestic: ''
     LV UMS Pseudo HH Metered: ''
     NHH UMS category A: ''
@@ -1010,29 +1007,29 @@
   - Domestic Off Peak related MPAN: ''
     Domestic Two Rate: ''
     Domestic Unrestricted: ''
-    HV Generation Intermittent: 35886.6293104514
+    HV Generation Intermittent: 4363.259733
     HV Generation Intermittent no RP charge: ''
-    HV Generation Non-Intermittent: 4277.3507451869
+    HV Generation Non-Intermittent: 4644.861
     HV Generation Non-Intermittent no RP charge: ''
-    HV HH Metered: 157555.683481509
+    HV HH Metered: 158791.972043739
     HV Medium Non-Domestic: ''
     LDNO HV Domestic Off Peak related MPAN: ''
     LDNO HV Domestic Two Rate: ''
     LDNO HV Domestic Unrestricted: ''
-    LDNO HV HV Generation Intermittent: ''
-    LDNO HV HV Generation Non-Intermittent: ''
-    LDNO HV HV HH Metered: 0
-    LDNO HV LV Generation Intermittent: ''
+    LDNO HV HV Generation Intermittent: 0
+    LDNO HV HV Generation Non-Intermittent: 0.27857225
+    LDNO HV HV HH Metered: 515.4688572
+    LDNO HV LV Generation Intermittent: 1.69940265
     LDNO HV LV Generation NHH or Aggregate HH: ''
-    LDNO HV LV Generation Non-Intermittent: ''
-    LDNO HV LV HH Metered: 95.5672405655619
+    LDNO HV LV Generation Non-Intermittent: 0
+    LDNO HV LV HH Metered: 2608.22014035
     LDNO HV LV Medium Non-Domestic: ''
     LDNO HV LV Network Domestic: ''
     LDNO HV LV Network Non-Domestic Non-CT: ''
-    LDNO HV LV Sub Generation Intermittent: ''
+    LDNO HV LV Sub Generation Intermittent: 0
     LDNO HV LV Sub Generation NHH: ''
-    LDNO HV LV Sub Generation Non-Intermittent: ''
-    LDNO HV LV Sub HH Metered: 0
+    LDNO HV LV Sub Generation Non-Intermittent: 0
+    LDNO HV LV Sub HH Metered: 693.30561245
     LDNO HV LV UMS Pseudo HH Metered: ''
     LDNO HV NHH UMS category A: ''
     LDNO HV NHH UMS category B: ''
@@ -1044,10 +1041,10 @@
     LDNO LV Domestic Off Peak related MPAN: ''
     LDNO LV Domestic Two Rate: ''
     LDNO LV Domestic Unrestricted: ''
-    LDNO LV LV Generation Intermittent: ''
+    LDNO LV LV Generation Intermittent: 0
     LDNO LV LV Generation NHH or Aggregate HH: ''
-    LDNO LV LV Generation Non-Intermittent: ''
-    LDNO LV LV HH Metered: 27.6391881763413
+    LDNO LV LV Generation Non-Intermittent: 0
+    LDNO LV LV HH Metered: 193.9064567
     LDNO LV LV Medium Non-Domestic: ''
     LDNO LV LV Network Domestic: ''
     LDNO LV LV Network Non-Domestic Non-CT: ''
@@ -1059,21 +1056,21 @@
     LDNO LV Small Non Domestic Off Peak related MPAN: ''
     LDNO LV Small Non Domestic Two Rate: ''
     LDNO LV Small Non Domestic Unrestricted: ''
-    LV Generation Intermittent: 22272.7316976941
+    LV Generation Intermittent: 5661.552983625
     LV Generation Intermittent no RP charge: ''
     LV Generation NHH or Aggregate HH: ''
-    LV Generation Non-Intermittent: 1671.00641044241
+    LV Generation Non-Intermittent: 746.198959
     LV Generation Non-Intermittent no RP charge: ''
-    LV HH Metered: 210203.937091954
+    LV HH Metered: 113947.420013928
     LV Medium Non-Domestic: ''
     LV Network Domestic: ''
     LV Network Non-Domestic Non-CT: ''
-    LV Sub Generation Intermittent: 0
+    LV Sub Generation Intermittent: 1306.465072
     LV Sub Generation Intermittent no RP charge: ''
     LV Sub Generation NHH: ''
-    LV Sub Generation Non-Intermittent: 0
+    LV Sub Generation Non-Intermittent: 1060.237992
     LV Sub Generation Non-Intermittent no RP charge: ''
-    LV Sub HH Metered: 9215.42798008602
+    LV Sub HH Metered: 65468.7671219937
     LV Sub Medium Non-Domestic: ''
     LV UMS Pseudo HH Metered: ''
     NHH UMS category A: ''
@@ -1086,457 +1083,210 @@
     _column: Reactive power units (MVArh)
 1055:
   - _table: 1055. Transmission exit charges (£/year)
-  - Transmission exit charges year: 17099421.1741751
+  - Transmission exit charges year: 8459206.0047272
     _column: "Transmission\nexit"
 1059:
   - _table: 1059. Other expenditure
-  - Other expenditure: 26439396.2037706
+  - Other expenditure: 36399068.3850607
     _column: Direct cost (£/year)
-  - Other expenditure: 62761857.5704375
+  - Other expenditure: 98499004.1188728
     _column: Indirect cost (£/year)
   - Other expenditure: 0.6
     _column: Indirect cost proportion
-  - Other expenditure: 23488326
+  - Other expenditure: 20723051.92344
     _column: Network rates (£/year)
 1060:
   - _table: 1060. Customer contributions under current connection charging policy
-  - HV network: ''
-    HV substation: ''
-    LV network: ''
-    LV substation: ''
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
     _column: "Assets\n132kV"
-  - HV network: ''
-    HV substation: ''
-    LV network: ''
-    LV substation: ''
+  - HV network: 0.67
+    HV substation: 0.67
+    LV network: 0
+    LV substation: 0
     _column: "Assets\n132kV/EHV"
-  - HV network: 0.0116978609625668
-    HV substation: 0.0116978609625668
-    LV network: 0.00643382352941177
-    LV substation: 0.00643382352941177
+  - HV network: 0.67
+    HV substation: 0.67
+    LV network: 0
+    LV substation: 0
     _column: "Assets\nEHV"
-  - HV network: 0.00756674954059021
-    HV substation: 0.00756674954059021
-    LV network: 0.00416171224732461
-    LV substation: 0.00416171224732461
+  - HV network: 1
+    HV substation: 1
+    LV network: 0.81
+    LV substation: 0.81
     _column: "Assets\nEHV/HV"
-  - HV network: ''
+  - HV network: 0.2
     HV substation: ''
-    LV network: ''
-    LV substation: ''
+    LV network: 0.1
+    LV substation: 0.1
     _column: "Assets\n132kV/HV"
-  - HV network: 0.388968842196157
+  - HV network: 1
     HV substation: ''
-    LV network: 0.42522380337704
-    LV substation: 0.42522380337704
+    LV network: 0.81
+    LV substation: 0.81
     _column: "Assets\nHV"
   - HV network: ''
     HV substation: ''
-    LV network: 0.782608695652174
-    LV substation: 0.782608695652174
+    LV network: 0.95
+    LV substation: 0.95
     _column: "Assets\nHV/LV"
   - HV network: ''
     HV substation: ''
-    LV network: 0.966742252456538
+    LV network: 0.95
     LV substation: ''
     _column: "Assets\nLV circuits"
 1061:
   - _table: 1061. Average split of rate 1 units by distribution time band
-  - Domestic Off Peak related MPAN: 0.0231398508197531
-    Domestic Two Rate: 0.166444990552432
-    Domestic Unrestricted: 0.126389971593935
-    HV Medium Non-Domestic: 0.138824169787899
-    LV Medium Non-Domestic: 0.139887349268074
-    LV Sub Medium Non-Domestic: 0.139887349268074
-    Small Non Domestic Off Peak related MPAN: 0.0166470249628601
-    Small Non Domestic Two Rate: 0.140521685883885
-    Small Non Domestic Unrestricted: 0.104719349100715
+  - Domestic Off Peak related MPAN: 0.00132042600123185
+    Domestic Two Rate: 0.107074012125785
+    Domestic Unrestricted: 0.0882019714906549
+    HV Medium Non-Domestic: 0.0796826992013046
+    LV Medium Non-Domestic: 0.0827088680354106
+    LV Sub Medium Non-Domestic: 0.0819939146011613
+    Small Non Domestic Off Peak related MPAN: 0.0021213078546142
+    Small Non Domestic Two Rate: 0.0834167146403905
+    Small Non Domestic Unrestricted: 0.063027742972011
     _column: Red
-  - Domestic Off Peak related MPAN: 0.396754895007132
-    Domestic Two Rate: 0.567946643264792
-    Domestic Unrestricted: 0.488199483738694
-    HV Medium Non-Domestic: 0.650511609385861
-    LV Medium Non-Domestic: 0.644936733210749
-    LV Sub Medium Non-Domestic: 0.644936733210749
-    Small Non Domestic Off Peak related MPAN: 0.327522995438665
-    Small Non Domestic Two Rate: 0.663917785704703
-    Small Non Domestic Unrestricted: 0.567746513800143
+  - Domestic Off Peak related MPAN: 0.109432154020495
+    Domestic Two Rate: 0.541602781927093
+    Domestic Unrestricted: 0.4601636017328
+    HV Medium Non-Domestic: 0.653446220590758
+    LV Medium Non-Domestic: 0.620295958534016
+    LV Sub Medium Non-Domestic: 0.618978453556093
+    Small Non Domestic Off Peak related MPAN: 0.119661657445947
+    Small Non Domestic Two Rate: 0.624239353530729
+    Small Non Domestic Unrestricted: 0.563514315357908
     _column: Amber
-  - Domestic Off Peak related MPAN: 0.580105254173114
-    Domestic Two Rate: 0.265608366182775
-    Domestic Unrestricted: 0.385410544667371
-    HV Medium Non-Domestic: 0.210664220826239
-    LV Medium Non-Domestic: 0.215175917521178
-    LV Sub Medium Non-Domestic: 0.215175917521178
-    Small Non Domestic Off Peak related MPAN: 0.655829979598475
-    Small Non Domestic Two Rate: 0.195560528411413
-    Small Non Domestic Unrestricted: 0.327534137099142
+  - Domestic Off Peak related MPAN: 0.889247419978273
+    Domestic Two Rate: 0.351323205947122
+    Domestic Unrestricted: 0.451634426776545
+    HV Medium Non-Domestic: 0.266871080207938
+    LV Medium Non-Domestic: 0.296995173430573
+    LV Sub Medium Non-Domestic: 0.299027631842745
+    Small Non Domestic Off Peak related MPAN: 0.878217034699439
+    Small Non Domestic Two Rate: 0.292343931828881
+    Small Non Domestic Unrestricted: 0.373457941670082
     _column: Green
 1062:
   - _table: 1062. Average split of rate 2 units by distribution time band
-  - Domestic Two Rate: 0.010187570019015
+  - Domestic Two Rate: 0
     HV Medium Non-Domestic: 0
     LV Medium Non-Domestic: 0
     LV Sub Medium Non-Domestic: 0
-    Small Non Domestic Two Rate: 4.22843020133561e-06
+    Small Non Domestic Two Rate: 0
     _column: Red
-  - Domestic Two Rate: 0.145819609659406
-    HV Medium Non-Domestic: 0.139037406236432
-    LV Medium Non-Domestic: 0.143522898467959
-    LV Sub Medium Non-Domestic: 0.143522898467959
-    Small Non Domestic Two Rate: 0.0760666533088451
+  - Domestic Two Rate: 0.021034333393154
+    HV Medium Non-Domestic: 0
+    LV Medium Non-Domestic: 0
+    LV Sub Medium Non-Domestic: 0
+    Small Non Domestic Two Rate: 0.0279165627361365
     _column: Amber
-  - Domestic Two Rate: 0.84399282032158
-    HV Medium Non-Domestic: 0.860962593763568
-    LV Medium Non-Domestic: 0.856477101532041
-    LV Sub Medium Non-Domestic: 0.856477101532041
-    Small Non Domestic Two Rate: 0.923929118260954
+  - Domestic Two Rate: 0.978965666606846
+    HV Medium Non-Domestic: 1
+    LV Medium Non-Domestic: 1
+    LV Sub Medium Non-Domestic: 1
+    Small Non Domestic Two Rate: 0.972083437263863
     _column: Green
 1064:
   - _table: 1064. Average split of rate 1 units by special distribution time band
-  - NHH UMS category A: 0.0293133117219928
-    NHH UMS category B: 0.0524067648581637
-    NHH UMS category C: 0.0990933536520361
-    NHH UMS category D: 0.0131693085882884
+  - NHH UMS category A: 0.0173357952607896
+    NHH UMS category B: 0.0331949702428359
+    NHH UMS category C: 0.0589829964120216
+    NHH UMS category D: 0.00241810972789773
     _column: Black
-  - NHH UMS category A: 0.482890951234337
-    NHH UMS category B: 0.144551502367806
-    NHH UMS category C: 0.281638843412945
-    NHH UMS category D: 0.7744845957902
+  - NHH UMS category A: 0.435104299223994
+    NHH UMS category B: 0.147263685978381
+    NHH UMS category C: 0.268100372123463
+    NHH UMS category D: 0.699863248796665
     _column: Yellow
-  - NHH UMS category A: 0.487795737043671
-    NHH UMS category B: 0.80304173277403
-    NHH UMS category C: 0.619267802935018
-    NHH UMS category D: 0.212346095621512
+  - NHH UMS category A: 0.547559905515217
+    NHH UMS category B: 0.819541343778783
+    NHH UMS category C: 0.672916631464515
+    NHH UMS category D: 0.297718641475438
     _column: Green
 1066:
   - _table: 1066. Typical annual hours by special distribution time band
-  - Annual hours: 258
+  - Annual hours: 150
     _column: Black
-  - Annual hours: 4242
+  - Annual hours: 3816
     _column: Yellow
-  - Annual hours: 4284
+  - Annual hours: 4794
     _column: Green
 1068:
   - _table: 1068. Typical annual hours by distribution time band
-  - Annual hours: 786
+  - Annual hours: 522
     _column: Red
-  - Annual hours: 3714
+  - Annual hours: 3444
     _column: Amber
-  - Annual hours: 4284
+  - Annual hours: 4794
     _column: Green
 1069:
   - _table: 1069. Peaking probabilities by network level
-  - 132kV: ''
-    132kV EHV: ''
-    132kV HV: ''
-    EHV: 0.409
-    EHV HV: 0.409
-    GSPs: 0.476333333333333
-    HV: 0.409
-    HV LV: 0.409
-    LV circuits: 0.409
+  - 132kV: 0.835679106538806
+    132kV EHV: 0.835679106538806
+    132kV HV: 0.835679106538806
+    EHV: 0.596021275354734
+    EHV HV: 0.596021275354734
+    GSPs: 0.922693971933745
+    HV: 0.596021275354734
+    HV LV: 0.596021275354734
+    LV circuits: 0.596021275354734
     _column: Red
-  - 132kV: ''
-    132kV EHV: ''
-    132kV HV: ''
-    EHV: 0.424069392812887
-    EHV HV: 0.424069392812887
-    GSPs: 0.379958974358974
-    HV: 0.424069392812887
-    HV LV: 0.424069392812887
-    LV circuits: 0.424069392812887
+  - 132kV: 0.13000190541479
+    132kV EHV: 0.13000190541479
+    132kV HV: 0.13000190541479
+    EHV: 0.333755033748891
+    EHV HV: 0.333755033748891
+    GSPs: 0.0773060280662549
+    HV: 0.333755033748891
+    HV LV: 0.333755033748891
+    LV circuits: 0.333755033748891
     _column: Amber
-  - 132kV: ''
-    132kV EHV: ''
-    132kV HV: ''
-    EHV: 0.167080545229244
-    EHV HV: 0.167080545229244
-    GSPs: 0.143530769230769
-    HV: 0.167080545229244
-    HV LV: 0.167080545229244
-    LV circuits: 0.167080545229244
+  - 132kV: 0.0343189880464039
+    132kV EHV: 0.0343189880464039
+    132kV HV: 0.0343189880464039
+    EHV: 0.0702236908963751
+    EHV HV: 0.0702236908963751
+    GSPs: 0
+    HV: 0.0702236908963751
+    HV LV: 0.0702236908963751
+    LV circuits: 0.0702236908963751
     _column: Green
-  - 132kV: ''
-    132kV EHV: ''
-    132kV HV: ''
-    EHV: 0.316333333333333
-    EHV HV: 0.316333333333333
-    GSPs: 0.377666666666667
-    HV: 0.316333333333333
-    HV LV: 0.316333333333333
-    LV circuits: 0.316333333333333
+  - 132kV: 0.661842882759309
+    132kV EHV: 0.661842882759309
+    132kV HV: 0.661842882759309
+    EHV: 0.423723508606436
+    EHV HV: 0.423723508606436
+    GSPs: 0.620551592168946
+    HV: 0.423723508606436
+    HV LV: 0.423723508606436
+    LV circuits: 0.423723508606436
     _column: Black peaking probabilities
 1092:
   - _table: '1092. Average kVAr by kVA, by network level'
-  - Average kVAr by kVA by network level: 0.2
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: GSPs
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: 132kV
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: 132kV/EHV
-  - Average kVAr by kVA by network level: 0.2
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: EHV
-  - Average kVAr by kVA by network level: 0.2
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: EHV/HV
-  - Average kVAr by kVA by network level: ''
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: 132kV/HV
-  - Average kVAr by kVA by network level: 0.2
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: HV
-  - Average kVAr by kVA by network level: 0.2
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: HV/LV
-  - Average kVAr by kVA by network level: 0.2
+  - Average kVAr by kVA by network level: 0.183185011838942
     _column: LV circuits
-1201:
-  - _table: 1201. Current tariff information
-  - Domestic Off Peak related MPAN: ''
-    Domestic Two Rate: ''
-    Domestic Unrestricted: ''
-    HV HH Metered: ''
-    HV Medium Non-Domestic: ''
-    LV HH Metered: ''
-    LV Medium Non-Domestic: ''
-    LV Network Domestic: ''
-    LV Network Non-Domestic Non-CT: ''
-    LV Sub HH Metered: ''
-    LV Sub Medium Non-Domestic: ''
-    LV UMS Pseudo HH Metered: ''
-    NHH UMS category A: ''
-    NHH UMS category B: ''
-    NHH UMS category C: ''
-    NHH UMS category D: ''
-    Small Non Domestic Off Peak related MPAN: ''
-    Small Non Domestic Two Rate: ''
-    Small Non Domestic Unrestricted: ''
-    _column: Current revenues if known (£)
-  - Domestic Off Peak related MPAN: 1.936
-    Domestic Two Rate: 3.485
-    Domestic Unrestricted: 3.132
-    HV HH Metered: 2.517
-    HV Medium Non-Domestic: 1.672
-    LV HH Metered: 5.397
-    LV Medium Non-Domestic: 2.888
-    LV Network Domestic: 7.64
-    LV Network Non-Domestic Non-CT: 7.598
-    LV Sub HH Metered: 3.436
-    LV Sub Medium Non-Domestic: 2.649
-    LV UMS Pseudo HH Metered: 16.26
-    NHH UMS category A: 3.438
-    NHH UMS category B: 3.321
-    NHH UMS category C: 4.143
-    NHH UMS category D: 3.57
-    Small Non Domestic Off Peak related MPAN: 1.835
-    Small Non Domestic Two Rate: 3.362
-    Small Non Domestic Unrestricted: 3.054
-    _column: Current Unit rate 1 p/kWh
-  - Domestic Off Peak related MPAN: 0
-    Domestic Two Rate: 1.878
-    Domestic Unrestricted: 0
-    HV HH Metered: 1.446
-    HV Medium Non-Domestic: 1.233
-    LV HH Metered: 2.349
-    LV Medium Non-Domestic: 1.633
-    LV Network Domestic: 3.042
-    LV Network Non-Domestic Non-CT: 3.03
-    LV Sub HH Metered: 1.734
-    LV Sub Medium Non-Domestic: 1.554
-    LV UMS Pseudo HH Metered: 3.7
-    NHH UMS category A: 0
-    NHH UMS category B: 0
-    NHH UMS category C: 0
-    NHH UMS category D: 0
-    Small Non Domestic Off Peak related MPAN: 0
-    Small Non Domestic Two Rate: 1.693
-    Small Non Domestic Unrestricted: 0
-    _column: Current Unit rate 2 p/kWh
-  - Domestic Off Peak related MPAN: 0
-    Domestic Two Rate: 0
-    Domestic Unrestricted: 0
-    HV HH Metered: 1.147
-    HV Medium Non-Domestic: 0
-    LV HH Metered: 1.402
-    LV Medium Non-Domestic: 0
-    LV Network Domestic: 1.598
-    LV Network Non-Domestic Non-CT: 1.594
-    LV Sub HH Metered: 1.228
-    LV Sub Medium Non-Domestic: 0
-    LV UMS Pseudo HH Metered: 2.409
-    NHH UMS category A: 0
-    NHH UMS category B: 0
-    NHH UMS category C: 0
-    NHH UMS category D: 0
-    Small Non Domestic Off Peak related MPAN: 0
-    Small Non Domestic Two Rate: 0
-    Small Non Domestic Unrestricted: 0
-    _column: Current Unit rate 3 p/kWh
-  - Domestic Off Peak related MPAN: 0
-    Domestic Two Rate: 7.94
-    Domestic Unrestricted: 7.94
-    HV HH Metered: 224.06
-    HV Medium Non-Domestic: 857.48
-    LV HH Metered: 23.35
-    LV Medium Non-Domestic: 138.75
-    LV Network Domestic: 7.94
-    LV Network Non-Domestic Non-CT: 12.13
-    LV Sub HH Metered: 9.2
-    LV Sub Medium Non-Domestic: 91.28
-    LV UMS Pseudo HH Metered: 0
-    NHH UMS category A: 0
-    NHH UMS category B: 0
-    NHH UMS category C: 0
-    NHH UMS category D: 0
-    Small Non Domestic Off Peak related MPAN: 0
-    Small Non Domestic Two Rate: 12.13
-    Small Non Domestic Unrestricted: 12.13
-    _column: Current Fixed charge p/MPAN/day
-  - Domestic Off Peak related MPAN: 0
-    Domestic Two Rate: 0
-    Domestic Unrestricted: 0
-    HV HH Metered: 11.11
-    HV Medium Non-Domestic: 0
-    LV HH Metered: 5.4
-    LV Medium Non-Domestic: 0
-    LV Network Domestic: 0
-    LV Network Non-Domestic Non-CT: 0
-    LV Sub HH Metered: 8.64
-    LV Sub Medium Non-Domestic: 0
-    LV UMS Pseudo HH Metered: 0
-    NHH UMS category A: 0
-    NHH UMS category B: 0
-    NHH UMS category C: 0
-    NHH UMS category D: 0
-    Small Non Domestic Off Peak related MPAN: 0
-    Small Non Domestic Two Rate: 0
-    Small Non Domestic Unrestricted: 0
-    _column: Current Capacity charge p/kVA/day
-  - Domestic Off Peak related MPAN: 0
-    Domestic Two Rate: 0
-    Domestic Unrestricted: 0
-    HV HH Metered: 12.83
-    HV Medium Non-Domestic: 0
-    LV HH Metered: 9.02
-    LV Medium Non-Domestic: 0
-    LV Network Domestic: 0
-    LV Network Non-Domestic Non-CT: 0
-    LV Sub HH Metered: 11.59
-    LV Sub Medium Non-Domestic: 0
-    LV UMS Pseudo HH Metered: 0
-    NHH UMS category A: 0
-    NHH UMS category B: 0
-    NHH UMS category C: 0
-    NHH UMS category D: 0
-    Small Non Domestic Off Peak related MPAN: 0
-    Small Non Domestic Two Rate: 0
-    Small Non Domestic Unrestricted: 0
-    _column: Current Exceeded capacity charge p/kVA/day
-  - Domestic Off Peak related MPAN: 0
-    Domestic Two Rate: 0
-    Domestic Unrestricted: 0
-    HV HH Metered: 0.074
-    HV Medium Non-Domestic: 0
-    LV HH Metered: 0.235
-    LV Medium Non-Domestic: 0
-    LV Network Domestic: 0
-    LV Network Non-Domestic Non-CT: 0
-    LV Sub HH Metered: 0.127
-    LV Sub Medium Non-Domestic: 0
-    LV UMS Pseudo HH Metered: 0
-    NHH UMS category A: 0
-    NHH UMS category B: 0
-    NHH UMS category C: 0
-    NHH UMS category D: 0
-    Small Non Domestic Off Peak related MPAN: 0
-    Small Non Domestic Two Rate: 0
-    Small Non Domestic Unrestricted: 0
-    _column: Current Reactive power charge p/kVArh
 3701:
   - _table: 3701. Tariffs
-  - Domestic Off Peak related MPAN: '102, 122, 302, 322'
-    Domestic Two Rate: '101, 111, 121, 127, 128, 301, 321'
-    Domestic Unrestricted: '100, 105, 106, 110, 120, 125, 126, 300, 305, 320, 325'
-    HV Generation Intermittent: '5, 910'
-    HV Generation Intermittent no RP charge: 13
-    HV Generation Non-Intermittent: 6
-    HV Generation Non-Intermittent no RP charge: 14
-    HV HH Metered: 600
-    HV Medium Non-Domestic: ''
-    LDNO HV Domestic Off Peak related MPAN: ''
-    LDNO HV Domestic Two Rate: ''
-    LDNO HV Domestic Unrestricted: ''
-    LDNO HV HV Generation Intermittent: ''
-    LDNO HV HV Generation Non-Intermittent: ''
-    LDNO HV HV HH Metered: ''
-    LDNO HV LV Generation Intermittent: ''
-    LDNO HV LV Generation NHH or Aggregate HH: ''
-    LDNO HV LV Generation Non-Intermittent: ''
-    LDNO HV LV HH Metered: ''
-    LDNO HV LV Medium Non-Domestic: ''
-    LDNO HV LV Network Domestic: ''
-    LDNO HV LV Network Non-Domestic Non-CT: ''
-    LDNO HV LV Sub Generation Intermittent: ''
-    LDNO HV LV Sub Generation NHH: ''
-    LDNO HV LV Sub Generation Non-Intermittent: ''
-    LDNO HV LV Sub HH Metered: ''
-    LDNO HV LV UMS Pseudo HH Metered: ''
-    LDNO HV NHH UMS category A: ''
-    LDNO HV NHH UMS category B: ''
-    LDNO HV NHH UMS category C: ''
-    LDNO HV NHH UMS category D: ''
-    LDNO HV Small Non Domestic Off Peak related MPAN: ''
-    LDNO HV Small Non Domestic Two Rate: ''
-    LDNO HV Small Non Domestic Unrestricted: ''
-    LDNO LV Domestic Off Peak related MPAN: ''
-    LDNO LV Domestic Two Rate: ''
-    LDNO LV Domestic Unrestricted: ''
-    LDNO LV LV Generation Intermittent: ''
-    LDNO LV LV Generation NHH or Aggregate HH: ''
-    LDNO LV LV Generation Non-Intermittent: ''
-    LDNO LV LV HH Metered: ''
-    LDNO LV LV Medium Non-Domestic: ''
-    LDNO LV LV Network Domestic: ''
-    LDNO LV LV Network Non-Domestic Non-CT: ''
-    LDNO LV LV UMS Pseudo HH Metered: ''
-    LDNO LV NHH UMS category A: ''
-    LDNO LV NHH UMS category B: ''
-    LDNO LV NHH UMS category C: ''
-    LDNO LV NHH UMS category D: ''
-    LDNO LV Small Non Domestic Off Peak related MPAN: ''
-    LDNO LV Small Non Domestic Two Rate: ''
-    LDNO LV Small Non Domestic Unrestricted: ''
-    LV Generation Intermittent: '1, 909'
-    LV Generation Intermittent no RP charge: 9
-    LV Generation NHH or Aggregate HH: 951
-    LV Generation Non-Intermittent: 2
-    LV Generation Non-Intermittent no RP charge: 10
-    LV HH Metered: 500
-    LV Medium Non-Domestic: '114, 501'
-    LV Network Domestic: 506
-    LV Network Non-Domestic Non-CT: 507
-    LV Sub Generation Intermittent: 3
-    LV Sub Generation Intermittent no RP charge: 11
-    LV Sub Generation NHH: 952
-    LV Sub Generation Non-Intermittent: 4
-    LV Sub Generation Non-Intermittent no RP charge: 12
-    LV Sub HH Metered: 505
-    LV Sub Medium Non-Domestic: 504
-    LV UMS Pseudo HH Metered: 804
-    NHH UMS category A: '803, 805'
-    NHH UMS category B: 800
-    NHH UMS category C: 801
-    NHH UMS category D: 802
-    Small Non Domestic Off Peak related MPAN: '152, 172, 352, 372'
-    Small Non Domestic Two Rate: '113, 151, 171, 178, 351, 371'
-    Small Non Domestic Unrestricted: '112, 150, 153, 154, 156, 170, 173, 174, 176, 177, 350, 353, 354, 356, 370, 373, 374, 376'
-    _column: Open LLFCs
-  - _column: PCs
-  - _column: Unit rate 1 p/kWh
-  - _column: Unit rate 2 p/kWh
-  - _column: Unit rate 3 p/kWh
-  - _column: Fixed charge p/MPAN/day
-  - _column: Capacity charge p/kVA/day
-  - _column: Exceeded capacity charge p/kVA/day
-  - _column: Reactive power charge p/kVArh
-  - Domestic Off Peak related MPAN: '104, 124, 304, 324'
+  - Domestic Off Peak related MPAN: ''
     Domestic Two Rate: ''
     Domestic Unrestricted: ''
     HV Generation Intermittent: ''
@@ -1544,7 +1294,7 @@
     HV Generation Non-Intermittent: ''
     HV Generation Non-Intermittent no RP charge: ''
     HV HH Metered: ''
-    HV Medium Non-Domestic: 601-602
+    HV Medium Non-Domestic: ''
     LDNO HV Domestic Off Peak related MPAN: ''
     LDNO HV Domestic Two Rate: ''
     LDNO HV Domestic Unrestricted: ''
@@ -1594,7 +1344,7 @@
     LV Generation Non-Intermittent: ''
     LV Generation Non-Intermittent no RP charge: ''
     LV HH Metered: ''
-    LV Medium Non-Domestic: 502
+    LV Medium Non-Domestic: ''
     LV Network Domestic: ''
     LV Network Non-Domestic Non-CT: ''
     LV Sub Generation Intermittent: ''
@@ -1609,7 +1359,94 @@
     NHH UMS category B: ''
     NHH UMS category C: ''
     NHH UMS category D: ''
-    Small Non Domestic Off Peak related MPAN: '155, 175, 355, 375'
+    Small Non Domestic Off Peak related MPAN: ''
+    Small Non Domestic Two Rate: ''
+    Small Non Domestic Unrestricted: ''
+    _column: Open LLFCs
+  - _column: PCs
+  - _column: Unit rate 1 p/kWh
+  - _column: Unit rate 2 p/kWh
+  - _column: Unit rate 3 p/kWh
+  - _column: Fixed charge p/MPAN/day
+  - _column: Capacity charge p/kVA/day
+  - _column: Exceeded capacity charge p/kVA/day
+  - _column: Reactive power charge p/kVArh
+  - Domestic Off Peak related MPAN: ''
+    Domestic Two Rate: ''
+    Domestic Unrestricted: ''
+    HV Generation Intermittent: ''
+    HV Generation Intermittent no RP charge: ''
+    HV Generation Non-Intermittent: ''
+    HV Generation Non-Intermittent no RP charge: ''
+    HV HH Metered: ''
+    HV Medium Non-Domestic: ''
+    LDNO HV Domestic Off Peak related MPAN: ''
+    LDNO HV Domestic Two Rate: ''
+    LDNO HV Domestic Unrestricted: ''
+    LDNO HV HV Generation Intermittent: ''
+    LDNO HV HV Generation Non-Intermittent: ''
+    LDNO HV HV HH Metered: ''
+    LDNO HV LV Generation Intermittent: ''
+    LDNO HV LV Generation NHH or Aggregate HH: ''
+    LDNO HV LV Generation Non-Intermittent: ''
+    LDNO HV LV HH Metered: ''
+    LDNO HV LV Medium Non-Domestic: ''
+    LDNO HV LV Network Domestic: ''
+    LDNO HV LV Network Non-Domestic Non-CT: ''
+    LDNO HV LV Sub Generation Intermittent: ''
+    LDNO HV LV Sub Generation NHH: ''
+    LDNO HV LV Sub Generation Non-Intermittent: ''
+    LDNO HV LV Sub HH Metered: ''
+    LDNO HV LV UMS Pseudo HH Metered: ''
+    LDNO HV NHH UMS category A: ''
+    LDNO HV NHH UMS category B: ''
+    LDNO HV NHH UMS category C: ''
+    LDNO HV NHH UMS category D: ''
+    LDNO HV Small Non Domestic Off Peak related MPAN: ''
+    LDNO HV Small Non Domestic Two Rate: ''
+    LDNO HV Small Non Domestic Unrestricted: ''
+    LDNO LV Domestic Off Peak related MPAN: ''
+    LDNO LV Domestic Two Rate: ''
+    LDNO LV Domestic Unrestricted: ''
+    LDNO LV LV Generation Intermittent: ''
+    LDNO LV LV Generation NHH or Aggregate HH: ''
+    LDNO LV LV Generation Non-Intermittent: ''
+    LDNO LV LV HH Metered: ''
+    LDNO LV LV Medium Non-Domestic: ''
+    LDNO LV LV Network Domestic: ''
+    LDNO LV LV Network Non-Domestic Non-CT: ''
+    LDNO LV LV UMS Pseudo HH Metered: ''
+    LDNO LV NHH UMS category A: ''
+    LDNO LV NHH UMS category B: ''
+    LDNO LV NHH UMS category C: ''
+    LDNO LV NHH UMS category D: ''
+    LDNO LV Small Non Domestic Off Peak related MPAN: ''
+    LDNO LV Small Non Domestic Two Rate: ''
+    LDNO LV Small Non Domestic Unrestricted: ''
+    LV Generation Intermittent: ''
+    LV Generation Intermittent no RP charge: ''
+    LV Generation NHH or Aggregate HH: ''
+    LV Generation Non-Intermittent: ''
+    LV Generation Non-Intermittent no RP charge: ''
+    LV HH Metered: ''
+    LV Medium Non-Domestic: ''
+    LV Network Domestic: ''
+    LV Network Non-Domestic Non-CT: ''
+    LV Sub Generation Intermittent: ''
+    LV Sub Generation Intermittent no RP charge: ''
+    LV Sub Generation NHH: ''
+    LV Sub Generation Non-Intermittent: ''
+    LV Sub Generation Non-Intermittent no RP charge: ''
+    LV Sub HH Metered: ''
+    LV Sub Medium Non-Domestic: ''
+    LV UMS Pseudo HH Metered: ''
+    NHH UMS category A: ''
+    NHH UMS category B: ''
+    NHH UMS category C: ''
+    NHH UMS category D: ''
+    Small Non Domestic Off Peak related MPAN: ''
     Small Non Domestic Two Rate: ''
     Small Non Domestic Unrestricted: ''
     _column: Closed LLFCs
+  - _column: Line checksum 5
+  - _column: Table checksum 7

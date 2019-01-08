@@ -62,7 +62,7 @@ EOT
         ],
         defaultFormat => '0hard',
         cols          => $assetLevelset,
-        data          => [ map { 5e8 } @{ $assetLevelset->{list} } ],
+        data          => [ '', ( map { 5e8 } 1 .. 5 ), ( map { '' } 1 .. 5 ), ],
         number        => 1331,
         dataset       => $model->{dataset},
         appendTo      => $model->{objects}{inputTables},

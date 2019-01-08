@@ -1,0 +1,448 @@
+---
+1300:
+  - _table: '1300. Company, charging year, data version'
+  - Company charging year data version: WPD South Wales
+    _column: Company
+  - Company charging year data version: 2020/2021
+    _column: Year
+  - Company charging year data version: December 2018
+    _column: Version
+1301:
+  - _table: 1301. DNO LV mains usage
+  - DNO LV mains usage: 0.216587836365107
+    _column: DNO LV mains usage
+1302:
+  - _table: 1302. DNO HV mains usage
+  - DNO HV mains usage: 0.707464307417267
+    _column: DNO HV mains usage
+1310:
+  - _table: 1310. DPCR4 aggregate allowances (£)
+  - DPCR4 aggregate allowances: 216578688.76116
+    _column: Aggregate return
+  - DPCR4 aggregate allowances: 253200000
+    _column: Aggregate depreciation
+  - DPCR4 aggregate allowances: 251473000
+    _column: Aggregate operating
+1315:
+  - _table: 1315. Analysis of allowed revenue for 2007/2008 (£/year)
+  - Analysis of allowed revenue for 2007 2008 year: 174333196
+    _column: Total revenue
+  - Analysis of allowed revenue for 2007 2008 year: 2502889
+    _column: Net incentive revenue
+1321:
+  - _table: 1321. Units distributed (GWh)
+  - EHV Includes 132kV: 2954.8379383
+    HV: 2482.108353
+    LV: 7216.2041945
+    _column: Units distributed (GWh)
+1322:
+  - _table: 1322. Losses (GWh)
+  - Losses GWh: 675.237
+    _column: Losses (GWh)
+1328:
+  - _table: 1328. DCP 117/DCP 231 additional annual income (£)
+  - DCP 117 DCP 231 additional annual income: 4350000
+    _column: DCP 117/DCP 231 additional annual income (£)
+1329:
+  - _table: 1329. Net new connections and reinforcement costs (£)
+  - Load related new connections reinforcement net of contributions: 609999.999999999
+    _column: LV
+  - Load related new connections reinforcement net of contributions: 0
+    _column: HV/LV
+  - Load related new connections reinforcement net of contributions: 1020000
+    _column: HV
+  - Load related new connections reinforcement net of contributions: 2655000
+    _column: EHV&132
+1330:
+  - _table: 1330. Allocated costs (£/year)
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 4900000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 700000
+    Load related new connections reinforcement net of contributions: 0
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts Ofgem licence fees: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 5200000
+    Non-operational capex: 0
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 1165518.11705667
+    Vehicles Transport: 0
+    _column: LV
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 200000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 1600000
+    Load related new connections reinforcement net of contributions: 0
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts Ofgem licence fees: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 4200000
+    Non-operational capex: 0
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 0
+    Vehicles Transport: 0
+    _column: HV/LV
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 2300000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 600000
+    Load related new connections reinforcement net of contributions: 0
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts Ofgem licence fees: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 14300000
+    Non-operational capex: 0
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 2363069.33637506
+    Vehicles Transport: 0
+    _column: HV
+  - Atypical cash costs: 0
+    CEO etc: 0
+    Control Centre: 0
+    Customer Call Centre: 0
+    Disallowed Related Party Margins: 0
+    Engineering Mgt Clerical Support: 0
+    Excluded services de minimis: 0
+    Faults: 600000
+    Finance Regulation: 0
+    HR Non-operational Training: 0
+    Health Safety Operational Training: 0
+    IFI: 0
+    IT Telecoms: 0
+    Inspections Maintenance: 2300000
+    Load related new connections reinforcement net of contributions: 0
+    Metering: 0
+    Network Design Engineering: 0
+    Network Policy: 0
+    Network Rates: 0
+    Non activity costs and reconciling amounts Ofgem licence fees: 0
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 8500000
+    Non-operational capex: 0
+    Pension deficit payments: 0
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 0
+    Property Mgt: 0
+    Relevant distributed generation less contributions: 0
+    Statutory Depreciation: 0
+    Stores: 0
+    System Mapping Cartographical: 0
+    Transmission Exit Charges: 0
+    Tree Cutting: 629777.089160976
+    Vehicles Transport: 0
+    _column: EHV&132
+1331:
+  - _table: 1331. Assets in CDCM model (£)
+  - Assets in CDCM model: ''
+    _column: GSP
+  - Assets in CDCM model: 419487420.066991
+    _column: 132kV circuits
+  - Assets in CDCM model: 38426768.0710407
+    _column: 132kV/EHV
+  - Assets in CDCM model: 118456509.133313
+    _column: EHV circuits
+  - Assets in CDCM model: 105767769.109397
+    _column: EHV/HV
+  - Assets in CDCM model: 43542164.5223074
+    _column: 132kV/HV
+  - Assets in CDCM model: ''
+    _column: HV circuits
+  - Assets in CDCM model: ''
+    _column: HV/LV
+  - Assets in CDCM model: ''
+    _column: LV circuits
+  - Assets in CDCM model: ''
+    _column: LV customer
+  - Assets in CDCM model: ''
+    _column: HV customer
+1332:
+  - _table: 1332. All notional assets in EDCM (£)
+  - All notional assets in EDCM: 193960947.796401
+    _column: All notional assets in EDCM (£)
+1335:
+  - _table: 1335. Total costs (£/year)
+  - Atypical cash costs: 4300000
+    CEO etc: 1800000
+    Control Centre: 1900000
+    Customer Call Centre: 700000
+    Disallowed Related Party Margins: -2.77555756156289e-11
+    Engineering Mgt Clerical Support: 7200000
+    Excluded services de minimis: 8900000
+    Faults: 8300000
+    Finance Regulation: 5800000
+    HR Non-operational Training: 900000
+    Health Safety Operational Training: 1100000
+    IFI: 100000
+    IT Telecoms: 6800000
+    Inspections Maintenance: 5500000
+    Load related new connections reinforcement net of contributions: 0
+    Metering: 1800000
+    Network Design Engineering: 3500000
+    Network Policy: 600000
+    Network Rates: 15100000
+    Non activity costs and reconciling amounts Ofgem licence fees: 500000
+    Non activity costs and reconciling amounts note 3: 0
+    Non-load new replacement assets net of contributions: 32300000
+    Non-operational capex: 3000000
+    Pension deficit payments: 13400000
+    Pension deficit repair payments by related parties note 2: 0
+    Project Management: 2900000
+    Property Mgt: 2100000
+    Relevant distributed generation less contributions: -100000
+    Statutory Depreciation: 25300000
+    Stores: 900000
+    System Mapping Cartographical: 1000000
+    Transmission Exit Charges: 4200000
+    Tree Cutting: 4100000
+    Vehicles Transport: 2700000
+    _column: Total costs (£/year)
+1355:
+  - _table: 1355. MEAV data
+  - 132kV EHV remote terminal unit ground-mounted: 272
+    132kV EHV remote terminal unit pole-mounted: 1
+    132kV auxiliary transformer: 140
+    132kV breaker: 222
+    132kV other switchgear: 727
+    132kV overhead pole conductor km: 91
+    132kV overhead tower conductor km: 1089
+    132kV pole: 835
+    132kV submarine km: 0
+    132kV tower: 2354
+    132kV tower fittings: 4708
+    132kV transformer: 131
+    132kV underground gas km: 0
+    132kV underground non-pressurised km: 35.4
+    132kV underground oil km: 58
+    20kV breaker ground-mounted: 0
+    20kV breaker pole-mounted: 0
+    20kV other switchgear ground-mounted: 0
+    20kV other switchgear pole-mounted: 0
+    20kV overhead covered km: 0
+    20kV overhead open pm: 0
+    20kV overhead support: 0
+    20kV ring main unit: 0
+    20kV switch ground-mounted: 0
+    20kV switch pole-mounted: 0
+    20kV transformer ground-mounted: 0
+    20kV transformer pole-mounted: 0
+    20kV underground km: 0
+    33kV auxiliary transformer: 244
+    33kV breaker indoors: 311
+    33kV breaker outdoors: 274
+    33kV other switchgear: 1074
+    33kV overhead pole line km: 1186
+    33kV overhead tower line km: 41
+    33kV pole: 15324
+    33kV ring main unit: 0
+    33kV switch ground-mounted: 16
+    33kV switch pole-mounted: 0
+    33kV tower: 190
+    33kV transformer ground-mounted: 247
+    33kV transformer pole-mounted: 0
+    33kV underground gas km: 8.124
+    33kV underground non-pressurised km: 386.84
+    33kV underground oil km: 0
+    6 6 11kV breaker ground-mounted: 3015
+    6 6 11kV breaker pole-mounted: 913
+    6 6 11kV other switchgear ground-mounted: 1
+    6 6 11kV other switchgear pole-mounted: 5702
+    6 6 11kV overhead covered km: 0
+    6 6 11kV overhead open km: 12207
+    6 6 11kV overhead support: 162533
+    6 6 11kV ring main unit: 7526
+    6 6 11kV switch ground-mounted: 2330
+    6 6 11kV switch pole-mounted: 148
+    6 6 11kV transformer ground-mounted: 8203
+    6 6 11kV transformer pole-mounted: 31541
+    6 6 11kV underground km: 5461.7
+    66kV auxiliary transformer: 0
+    66kV breaker: 53
+    66kV other switchgear: 233
+    66kV overhead pole line km: 329
+    66kV overhead tower line km: 28
+    66kV pole: 4318
+    66kV tower: 251
+    66kV transformer: 30
+    66kV underground gas km: 1
+    66kV underground non-pressurised km: 6
+    66kV underground oil km: 2
+    EHV submarine km: 1.3
+    HV remote terminal unit ground-mounted: 143
+    HV remote terminal unit pole-mounted: 1246
+    HV submarine km: 5
+    LV board underground: 3645
+    LV board wall-mounted: 199
+    LV fuse pole-mounted: 31376
+    LV fuse tower-mounted: 2653
+    LV main overhead line km: 3192
+    LV main underground consac km: 0
+    LV main underground paper km: 6194.5
+    LV main underground plastic km: 4772.09
+    LV overhead support: 97546
+    LV pillar indoors: 4081
+    LV pillar outdoors: 3785
+    LV service overhead: 317000
+    LV service underground: 778846
+    _column: Asset quantity
+  - 132kV EHV remote terminal unit ground-mounted: 0
+    132kV EHV remote terminal unit pole-mounted: 0
+    132kV auxiliary transformer: 0
+    132kV breaker: 146880
+    132kV other switchgear: 0
+    132kV overhead pole conductor km: 52850
+    132kV overhead tower conductor km: 53510
+    132kV pole: 3640
+    132kV submarine km: 0
+    132kV tower: 98620
+    132kV tower fittings: 3800
+    132kV transformer: 1139950
+    132kV underground gas km: 0
+    132kV underground non-pressurised km: 0
+    132kV underground oil km: 1323440
+    20kV breaker ground-mounted: 0
+    20kV breaker pole-mounted: 0
+    20kV other switchgear ground-mounted: 0
+    20kV other switchgear pole-mounted: 0
+    20kV overhead covered km: 0
+    20kV overhead open pm: 0
+    20kV overhead support: 0
+    20kV ring main unit: 0
+    20kV switch ground-mounted: 0
+    20kV switch pole-mounted: 0
+    20kV transformer ground-mounted: 0
+    20kV transformer pole-mounted: 0
+    20kV underground km: 0
+    33kV auxiliary transformer: 0
+    33kV breaker indoors: 66580
+    33kV breaker outdoors: 51400
+    33kV other switchgear: 0
+    33kV overhead pole line km: 26880
+    33kV overhead tower line km: 33670
+    33kV pole: 2610
+    33kV ring main unit: 0
+    33kV switch ground-mounted: 33170
+    33kV switch pole-mounted: 0
+    33kV tower: 45360
+    33kV transformer ground-mounted: 262730
+    33kV transformer pole-mounted: 0
+    33kV underground gas km: 173420
+    33kV underground non-pressurised km: 173040
+    33kV underground oil km: 152890
+    6 6 11kV breaker ground-mounted: 24520
+    6 6 11kV breaker pole-mounted: 8310
+    6 6 11kV other switchgear ground-mounted: 0
+    6 6 11kV other switchgear pole-mounted: 0
+    6 6 11kV overhead covered km: 0
+    6 6 11kV overhead open km: 20820
+    6 6 11kV overhead support: 2050
+    6 6 11kV ring main unit: 12280
+    6 6 11kV switch ground-mounted: 10150
+    6 6 11kV switch pole-mounted: 7060
+    6 6 11kV transformer ground-mounted: 12820
+    6 6 11kV transformer pole-mounted: 1780
+    6 6 11kV underground km: 84360
+    66kV auxiliary transformer: 0
+    66kV breaker: 88110
+    66kV other switchgear: 0
+    66kV overhead pole line km: 41550
+    66kV overhead tower line km: 52490
+    66kV pole: 3610
+    66kV tower: 74530
+    66kV transformer: 457920
+    66kV underground gas km: 444450
+    66kV underground non-pressurised km: 444450
+    66kV underground oil km: 444450
+    EHV submarine km: 1134520
+    HV remote terminal unit ground-mounted: 0
+    HV remote terminal unit pole-mounted: 0
+    HV submarine km: 535690
+    LV board underground: 0
+    LV board wall-mounted: 10530
+    LV fuse pole-mounted: 0
+    LV fuse tower-mounted: 0
+    LV main overhead line km: 19990
+    LV main underground consac km: 0
+    LV main underground paper km: 75910
+    LV main underground plastic km: 67220
+    LV overhead support: 1920
+    LV pillar indoors: 8060
+    LV pillar outdoors: 8470
+    LV service overhead: 320
+    LV service underground: 710
+    _column: Unit MEAV (£)
+1369:
+  - _table: 1369. Net capex analysis pre-DCP 118 (£)
+  - 132kV: 42157608.6911954
+    EHV: 58049577.2180712
+    HV: 93064880.7015045
+    LV: 49299918.1085468
+    LV HV: 23067824.6137118
+    _column: Net capex analysis pre-DCP 118 (£)
+1380:
+  - _table: '1380. Net capex: ratio of LV services to LV total'
+  - LV services: 0.41074973886567
+    _column: LV
