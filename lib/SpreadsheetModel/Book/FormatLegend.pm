@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Book::FormatLegend;
 
-# Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2008-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@ sub wsWrite {
     $wsheet->write_string(
         ++$row, 2,
         'Cell formatting',
-        $wbook->getFormat('th')
+        $wbook->getFormat('thc')
     );
     $wsheet->write_string( ++$row, 2, 'Input data',
         $wbook->getFormat( [ base => 'texthard', locked => 1 ] ) );
