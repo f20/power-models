@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -40,11 +40,16 @@ sub allocationRules {
 
     my $key = 'allocationRules?' . join '&',
       map { defined $model->{$_} ? "$_=$model->{$_}" : (); }
-      qw(dcp094 dcp096 dcp097 dcp097A dcp117 fixedIndirectPercentage);
+      qw(dcp094 dcp096 dcp097 dcp097A dcp117 dcp306 fixedIndirectPercentage);
 
     return $model->{objects}{$key}{columns} if $model->{objects}{$key};
 
-    my $expenditureSet = $model->{objects}{expenditureSet} ||= Labelset(
+    my $expenditureSet = $model->{objects}{
+        $model->{dcp306}
+        ? 'expenditureSet306'
+        : 'expenditureSet'
+      }
+      ||= Labelset(
         list => [
             split( /\n/, <<END_OF_LIST ),
 Load related new connections & reinforcement (net of contributions)
@@ -81,9 +86,11 @@ Transmission Exit Charges
 Pension deficit repair payments by related parties (note 2)
 Non activity costs and reconciling amounts (note 3)
 END_OF_LIST
-            $model->{dcp306} ? 'Non activity costs and reconciling amounts - Ofgem licence fees' : (),
+            $model->{dcp306}
+            ? 'Non activity costs and reconciling amounts - Ofgem licence fees'
+            : (),
         ]
-    );
+      );
 
     my @rules = (
         $model->{dcp094}                ? 'Kill'            : $model->{dcp117}
@@ -161,7 +168,8 @@ END_OF_LIST
 
     $model->{objects}{$key} = Columnset(
         name => 'Allocation rules',
-        $model->{multiModelSharing} ? ( number => 1399 ) : (),
+        $model->{multiModelSharing}
+          && !$model->{waterfalls} ? ( number => 1399 ) : (),
         columns  => \@c,
         location => 'Options'
     );

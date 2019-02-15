@@ -1,6 +1,6 @@
 ﻿package ModelM::Hybridise;
 
-# Copyright 2017-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2017-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,15 +23,21 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-=head About this extensions
-
-This hybridises some of the input data, on a single set of rules.
-
-=cut
-
 use warnings;
 use strict;
 use SpreadsheetModel::Book::DerivativeDatasetMaker;
+
+sub _combinedRules {
+    my ( $ruleset, @amendments ) = @_;
+    return $ruleset unless @amendments;
+    my %newRuleset = %$ruleset;
+    delete $newRuleset{$_} foreach @amendments;
+    $newRuleset{AdditionalRules} =
+      [ map { _combinedRules( $_, @amendments ); }
+          @{ $newRuleset{AdditionalRules} } ]
+      if $newRuleset{AdditionalRules};
+    \%newRuleset;
+}
 
 sub process {
 
@@ -42,15 +48,17 @@ sub process {
       . ',1330,1331+1332,1335,1355,1369,1380'
       unless $arg =~ /[0-9]/;
     $arg =~ s/^,+//s;
+    my %allRuleChanges;
     my @hybridisationRules = map {
         my $hybridNickname;
         $hybridNickname = $1 if s/\[(.*)\]//s;
-        my @tables = /([0-9]+)/g;
+        my @changes = /([a-zA-Z0-9]+)/g;
+        undef $allRuleChanges{$_} foreach grep { !/^[0-9]+$/s; } @changes;
         $hybridNickname ||=
-          @tables > 1
-          ? 'Tables ' . join( '&', @tables )
-          : "Table @tables";
-        [ $hybridNickname, @tables ];
+          @changes > 1
+          ? 'Tables ' . join( '&', @changes )
+          : "Table @changes";
+        [ $hybridNickname, @changes ];
     } split /,/, $arg;
 
     $maker->{setting}->(
@@ -81,15 +89,21 @@ sub process {
                     ),
                 );
 
-                $addToList->( $datasetsByDno{$dno}[0], $rulesetsRef->[0] );
+                $addToList->(
+                    $datasetsByDno{$dno}[0],
+                    _combinedRules( $rulesetsRef->[0], keys %allRuleChanges )
+                );
 
                 $addToList->( $datasetsByDno{$dno}[1], $rulesetsRef->[0] );
 
                 my @tableAccumulator;
+                my %remainingRuleChanges = %allRuleChanges;
 
                 foreach (@hybridisationRules) {
-                    my ( $hybridNickname, @tables ) = @$_;
-                    push @tableAccumulator, @tables;
+                    my ( $hybridNickname, @changes ) = @$_;
+                    push @tableAccumulator, grep { /^[0-9]+$/s; } @changes;
+                    delete $remainingRuleChanges{$_}
+                      foreach grep { !/^[0-9]+$/s; } @changes;
                     my @tableAccumulatorForClosure = @tableAccumulator;
                     $addToList->(
                         {
@@ -124,7 +138,10 @@ sub process {
                                 },
                             }
                         },
-                        $rulesetsRef->[0],
+                        _combinedRules(
+                            $rulesetsRef->[0],
+                            keys %remainingRuleChanges
+                        ),
                     );
                 }
 

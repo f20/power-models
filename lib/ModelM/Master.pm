@@ -3,7 +3,7 @@
 =head Copyright licence and disclaimer
 
 Copyright 2011 The Competitive Networks Association and others.
-Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -140,7 +140,7 @@ sub run {
     my ( $revenue, $incentive, $pension, ) = $model->oneYearDpcr;
     my ( $units, ) = $model->units($allocLevelset);
     my ( $allocationRules, $capitalised, $directIndicator, ) = @{
-        $model->{multiModelSharing}
+        $model->{multiModelSharing} && !$model->{waterfalls}
         ? ( $model->{multiModelSharing}{commonAllocationRules} ||=
               $model->allocationRules )
         : $model->allocationRules
