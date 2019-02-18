@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Book::Manufacturing;
 
-# Copyright 2011-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -213,7 +213,10 @@ sub factory {
         if (%ruleOverrides) {
             foreach (@rulesets) {
                 $_->{template} .= '+' if $_->{template};
-                $_ = { %$_, %ruleOverrides };
+                my %hash = ( %$_, %ruleOverrides );
+                delete $hash{$_}
+                  foreach grep { !defined $hash{$_}; } keys %hash;
+                $_ = \%hash;
             }
         }
 
