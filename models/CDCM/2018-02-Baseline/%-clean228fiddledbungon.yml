@@ -1,0 +1,25 @@
+---
+.: 'CDCM after DCP 228, with WPD 2019/2020 fiddle and bung'
+.Style: Clean model with checksums
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+blackPeakingProbabilityRequired: 1
+bung: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupums
+drm: top500gsp
+extraLevels: 1
+fiddle: 1
+fixedCap: 1-4
+matrices: big
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: adderppugeneralminzeronogen
+standing: sub132
+summary: yes
+targetRevenue: dcp249
+tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
+timeOfDay: timeOfDay179
+unauth: dayotex
