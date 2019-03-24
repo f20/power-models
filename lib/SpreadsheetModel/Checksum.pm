@@ -58,7 +58,9 @@ sub check {
     $self->SUPER::check;
 }
 
-=head Perl code to test whether $t is a generator for prime $p
+=head Development note
+
+# Perl code to test whether $t is a generator for prime $p
 
 my $i = 0;
 my $x = $t;
