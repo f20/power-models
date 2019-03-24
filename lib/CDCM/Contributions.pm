@@ -82,26 +82,24 @@ EOL
         byrow         => 1,
         data          => $model->{extraLevels}
         ? [ map { [ split /\s+/ ] } split /\n/, <<'EOT' ]
-0   0   0   0.1  .1  0.35   0.99   0.99
-0   0   0   0.1  .1  0.35   0.99
-0   0   0.05   0.2 .2  0.7
-0   0   0.05   0.4
-0   0.05   0.2
-0.05   0.1
-0.1
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0
+0 0 0
+0 0
+0
 EOT
         : [ map { [ split /\s+/ ] } split /\n/, <<'EOT' ]
-0   0   0   0.1   0.35   0.99   0.99
-0   0   0   0.1   0.35   0.99
-0   0   0.05   0.2   0.7
-0   0   0.05   0.4
-0   0.05   0.2
-0.05   0.1
-0.1
+0 0 0 0 0 0 0
+0 0 0 0 0 0
+0 0 0 0 0
+0 0 0 0
+0 0 0
+0 0
+0
 EOT
     );
-
-    # second line if using large/small: 0	0	0	0	0.3	1	1
 
     my $proportionChargeable =
       $model->{noReplacement} && $model->{noReplacement} =~ /blanket/i
@@ -128,25 +126,6 @@ EOT
 
     push @{ $model->{summaryColumns} },
       Stack( sources => [$proportionChargeable] );
-
-=Old
-
-    lines   => 'By type of connection and network level.',
-    rows    => $assetDrmLevels,
-    cols    => $customerTypesForContributions,
-    data    => [
-            map { [ split /\s+/ ] } split /\n/, <<'EOT'
-0   0	0	0	0.4 0.4	0.4
-0	0	0	0	0.4	0.4	0.4
-0   0   0   0   0.4 0.4
-0	0	0.4	0.4 0.4
-0   0   0.4 0.4
-0   0.4 0.4
-0.4
-EOT
-        ]
-
-=cut
 
     my $relevantTariffs =
       !$model->{generationCreditsContrib} ? $allTariffsByEndUser
