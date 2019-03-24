@@ -1114,13 +1114,13 @@
     _column: "Assets\nEHV"
   - HV network: 0.143170588235294
     HV substation: 0.143170588235294
-    LV network: 0.1
-    LV substation: 0.1
+    LV network: 0
+    LV substation: 0
     _column: "Assets\nEHV/HV"
-  - HV network: 0.2
+  - HV network: 0
     HV substation: ''
-    LV network: 0.1
-    LV substation: 0.1
+    LV network: 0
+    LV substation: 0
     _column: "Assets\n132kV/HV"
   - HV network: 0.734290402897238
     HV substation: ''

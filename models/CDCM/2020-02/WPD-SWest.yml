@@ -1117,10 +1117,10 @@
     LV network: 0.81
     LV substation: 0.81
     _column: "Assets\nEHV/HV"
-  - HV network: 0.2
+  - HV network: 0
     HV substation: ''
-    LV network: 0.1
-    LV substation: 0.1
+    LV network: 0
+    LV substation: 0
     _column: "Assets\n132kV/HV"
   - HV network: 1
     HV substation: ''

@@ -198,7 +198,7 @@
     _column: Diversity allowance between top and bottom of network level
 1018:
   - _table: 1018. Proportion of relevant load going through 132kV/HV direct transformation
-  - EHV HV: 0
+  - EHV HV: 0.692565629168188
     _column: 132kV/HV
 1019:
   - _table: 1019. Network model GSP peak demand (MW)
