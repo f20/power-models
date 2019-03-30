@@ -1,6 +1,6 @@
 ﻿package Elec;
 
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -73,29 +73,31 @@ sub new {
     my $usage = $serviceMap{usage}->new( $model, $setup, $customers );
     my $charging = $serviceMap{charging}->new( $model, $setup, $usage );
 
-    # Legacy parameter support
-    $model->{usetNonAssetCosts} ||= $model->{usetBoundaryCosts};
+    # Matching activities
+    # Note that the order of feeding arguments to $customers->totalDemand can
+    # affect the column order for proportions included in the input data table.
 
-    # NB: the order of the list affects the column order in the input data table
-    foreach (
-        qw(
-        usetMatchAssets
-        usetNonAssetCosts
-        usetRunningCosts
-        )
-      )
-    {
+    if ( my $usetName = $model->{usetMatchUsage} ) {
+        $usage = $usage->matchTotalUsage( $customers->totalDemand($usetName) );
+    }
+
+    $model->{usetNonAssetCosts} ||= $model->{usetBoundaryCosts};    # Legacy
+    foreach (qw(usetMatchAssets usetNonAssetCosts usetRunningCosts)) {
         next unless my $usetName = $model->{$_};
         my $doNotApply = $usetName =~ s/ \(information only\)$//i;
         $charging->$_( $usage->totalUsage( $customers->totalDemand($usetName) ),
             $doNotApply );
     }
 
+    # Use of system tariff calculation
+
     my $tariffs =
       $serviceMap{tariffs}->new( $model, $setup, $usage, $charging );
 
     $tariffs->showAverageUnitRateTable($customers)
       if $serviceMap{timebands} && $model->{showAverageUnitRateTable};
+
+    # Revenues, supply tariffs, reporting and statistics
 
     if ( my $usetName = $model->{usetRevenues} ) {
         if ( $model->{showppu} ) {
@@ -141,6 +143,8 @@ sub new {
               ->addDetailedAssets( $charging, $usage );
         }
     }
+
+    # Finish
 
     $_->finish($model) foreach @{ $model->{finishList} };
     $model;

@@ -1,6 +1,6 @@
 ﻿package Elec::Usage;
 
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,24 +29,25 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, $setup, $customers, $timebands ) = @_;
+    my ( $class, $model, $setup, $customers, $timebands, $suffix ) = @_;
     $model->register(
         bless {
             model     => $model,
             setup     => $setup,
             customers => $customers,
             timebands => $setup->{timebands},
+            suffix    => $suffix,
         },
         $class
     );
 }
 
 sub usageRates {
+
     my ($self) = @_;
     return $self->{usageRates} if $self->{usageRates};
     my ( $model, $setup, $customers ) = @{$self}{qw(model setup customers)};
 
-    # All cells are available; otherwise it would be insufficiently flexible.
     my $allBlank = [
         map {
             [ map { '' } $customers->tariffSet->indices ]
@@ -65,7 +66,7 @@ sub usageRates {
         data     => $allBlank,
     );
 
-    my @usageRates = (
+    $self->{usageRates} = [
         $self->{timebands}
         ? ( map { [ $unitsRouteingFactor, $_ ] }
               @{ $self->{timebands}->bandFactors } )
@@ -97,11 +98,89 @@ sub usageRates {
             dataset  => $model->{dataset},
             data     => $allBlank,
         ) : (),
+    ];
+
+}
+
+sub matchTotalUsage {
+
+    my ( $self, $volumes ) = @_;
+    my ( $model, $setup, $customers, $timebands ) =
+      @{$self}{qw(model setup customers timebands)};
+
+    my $targetUsage = Dataset(
+        name          => 'Target network usage',
+        defaultFormat => '0hard',
+        cols          => $self->{setup}->usageSet,
+        number        => 1539,
+        appendTo      => $model->{inputTables},
+        dataset       => $model->{dataset},
+        data          => [ map { ''; } $setup->usageSet->indices ],
     );
 
-    push @{ $model->{usageTables} }, @usageRates;
+    my $adjustableCapacityUsageRate = Dataset(
+        name => 'Adjustable element of network usage'
+          . ' of 1kVA of agreed capacity',
+        rows     => $customers->tariffSet,
+        cols     => $setup->usageSet,
+        number   => 1537,
+        appendTo => $model->{inputTables},
+        dataset  => $model->{dataset},
+        data     => [
+            map {
+                [ map { '' } $customers->tariffSet->indices ]
+            } $setup->usageSet->indices
+        ],
+    );
 
-    $self->{usageRates} = \@usageRates;
+    my $baselineUsage = $self->totalUsage($volumes);
+    my $usageRates    = $self->usageRates;
+    my ($capacityIndex) =
+      grep {
+        UNIVERSAL::isa( $usageRates->[$_], 'SpreadsheetModel::Dataset' )
+          && $usageRates->[$_]{name} =~ /agreed capacity/i;
+      } 0 .. $#$usageRates
+      or return $self;
+
+    my $adjustableUsage = SumProduct(
+        name          => 'Total adjustable element of network usage',
+        defaultFormat => '0soft',
+        matrix        => $adjustableCapacityUsageRate,
+        vector        => $volumes->[$capacityIndex],
+    );
+
+    my $adjustmentFactor = Arithmetic(
+        name       => 'Factor to apply to adjustable element of network usage',
+        arithmetic => '=IF(A1,(A3-A2)/A11,0)',
+        arguments  => {
+            A1  => $adjustableUsage,
+            A11 => $adjustableUsage,
+            A2  => $baselineUsage,
+            A3  => $targetUsage,
+        },
+    );
+
+    my $adjustedUsage =
+      __PACKAGE__->new( $model, $setup, $customers, $timebands, ' (adjusted)' );
+
+    $adjustedUsage->{usageRates} = [
+        map {
+            $_ == $capacityIndex
+              ? Arithmetic(
+                name => 'Adjusted '
+                  . lcfirst( $usageRates->[$capacityIndex]->objectShortName ),
+                arithmetic => '=A1+A2*A3',
+                arguments  => {
+                    A1 => $usageRates->[$capacityIndex],
+                    A2 => $adjustmentFactor,
+                    A3 => $adjustableCapacityUsageRate,
+                },
+              )
+              : $usageRates->[$_];
+        } 0 .. $#$usageRates
+    ];
+
+    $adjustedUsage;
 
 }
 
@@ -111,6 +190,7 @@ sub detailedUsage {
       if $self->{detailedUsage}{ 0 + $volumes };
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
+    $labelTail .= $self->{suffix} if defined $self->{suffix};
     my $usageRates = $self->usageRates;
     my @type =
       map {
@@ -155,6 +235,7 @@ sub totalUsage {
       if $self->{totalUsage}{ 0 + $volumes };
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
+    $labelTail .= $self->{suffix} if defined $self->{suffix};
     $self->{totalUsage}{ 0 + $volumes } = GroupBy(
         defaultFormat => '0soft',
         name          => 'Total network usage' . $labelTail,
