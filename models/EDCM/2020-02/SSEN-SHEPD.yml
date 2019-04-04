@@ -53,7 +53,19 @@
 1110:
   - _table: 4304. EDCM input data ⇒1110. Calendar and timeband information
   - Calendar and timeband information: 365
-    _column: Days in the charging year
+    _column: Days in year
+  - Calendar and timeband information: 255
+    _column: Annual hours in super-red
+1118:
+  - _table: 1118. Generation data
+  - Generation data: ''
+    _column: Average adjusted GP (£/year)
+  - Generation data: ''
+    _column: GL term from the DG incentive revenue calculation (£/year)
+  - Generation data: ''
+    _column: Total CDCM generation capacity 2005-2010 (kVA)
+  - Generation data: ''
+    _column: Total CDCM generation capacity post-2010 (kVA)
 1122:
   - _table: 4305. EDCM input data ⇒1122. Forecast system simultaneous maximum load (kW) from CDCM users
   - Forecast system simultaneous maximum load: 1050350.69030896
