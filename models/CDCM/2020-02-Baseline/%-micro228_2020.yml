@@ -11,6 +11,7 @@ compact: 1
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
+generationReactiveRouteingFix: 1
 lvDiversityWrong: 1
 nickName: After 2020
 noLLFCs: 1

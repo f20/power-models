@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2017-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,7 @@ sub reactive {
         $lineLossFactorsNetwork, $proportionCoveredByContributions,
         $daysInYear,             $powerFactorInModel,
         $tariffsExMatching,      $componentLabelset,
-        $sourceMap
+        $sourceMap,              $rerouteingMatrix,
     ) = @_;
 
     my $banded = $model->{reactive} && $model->{reactive} =~ /band/i;
@@ -98,7 +98,7 @@ sub reactive {
     );
 
     my $tariffsetForReactiveByEndUserPayg = Labelset(
-        name   => 'Tariffs with pay-as-you-go ' . 'reactive power unit charges',
+        name   => 'Tariffs with pay-as-you-go reactive power unit charges',
         groups => [
             grep {
                 $componentMap->{$_}{'Reactive power charge p/kVArh'} eq
@@ -116,7 +116,36 @@ sub reactive {
       ];
 
     push @{ $model->{reactiveResults} },
-      my $routeingFactorsReactiveUnits = Constant(
+      my $routeingFactorsReactiveUnits =
+      $model->{generationReactiveRouteingFix} && $rerouteingMatrix
+      ? SumProduct(
+        name   => 'Network use factors for generator reactive unit charges',
+        vector => $rerouteingMatrix,
+        matrix => Constant(
+            rows  => $tariffsetForReactiveByEndUserPayg,
+            cols  => $rerouteingMatrix->{cols},
+            byrow => 1,
+            data  => [
+                map {
+                        /^((?:LD|Q)NO )?LV sub/i ? [ 1, 1, 1, 1, 1, 1, 1, 0 ]
+                      : /^((?:LD|Q)NO )?LV/i ? [ map { 1 } 1 .. 8 ]
+                      : /^((?:LD|Q)NO )?HV sub/i
+                      ? [ 1, 1, 1, 1, 1, 0, 0, 0 ]
+                      : /^((?:LD|Q)NO )?HV/i ? [ 1, 1, 1, 1, 1, 1, 0, 0 ]
+                      : /^((?:LD|Q)NO )?33kV sub/i
+                      ? [ 1, 1, 1, 0, 0, 0, 0, 0 ]
+                      : /^((?:LD|Q)NO )?33/i  ? [ 1, 1, 1, 1, 0, 0, 0, 0 ]
+                      : /^GSP/i               ? [ 1, 0, 0, 0, 0, 0, 0, 0 ]
+                      : /^((?:LD|Q)NO )?132/i ? [ 1, 1, 0, 0, 0, 0, 0, 0 ]
+                      : [ 0, 0, 0, 0, 0, 0, 0, 0 ]
+                } @{ $tariffsetForReactiveByEndUserPayg->{list} }
+            ],
+            defaultFormat => '0connz',
+            name          => 'Network use factors for generator reactive'
+              . ' unit charges (without 132kV/HV)',
+        ),
+      )
+      : Constant(
         rows  => $tariffsetForReactiveByEndUserPayg,
         cols  => $drmExitLevels,
         byrow => 1,

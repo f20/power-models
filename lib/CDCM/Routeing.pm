@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -531,12 +531,6 @@ EOT
     }
 
     if ($rerouteingMatrix) {
-        $routeingFactors = SumProduct(
-            name =>
-'Network use factors: interim step in calculations before adjustments',
-            vector => $rerouteingMatrix,
-            matrix => $routeingFactors
-        );
         my $hvSubTariffs = Labelset(
             name => 'HV Sub tariffs',
             list => [
@@ -548,7 +542,8 @@ EOT
             name => 'Generation dominated tariffs',
             list => [ grep { /\(GD[PT]\)/i } @{ $allTariffsByEndUser->{list} } ]
         );
-        $routeingFactors = Stack(
+        $routeingFactors = @{ $hvSubTariffs->{list} } + @{ $gdTariffs->{list} }
+          ? Stack(
             name    => 'Network use factors for all tariffs',
             rows    => $allTariffsByEndUser,
             cols    => $drmExitLevels,
@@ -599,9 +594,18 @@ EOT
                         } @{ $hvSubTariffs->{list} }
                     ]
                 ),
-                $routeingFactors
+                SumProduct(
+                    name   => 'Network use factors: interim step',
+                    vector => $rerouteingMatrix,
+                    matrix => $routeingFactors
+                ),
             ]
-        );
+          )
+          : SumProduct(
+            name   => 'Network use factors for all tariffs',
+            vector => $rerouteingMatrix,
+            matrix => $routeingFactors
+          );
     }
 
     if ( !$model->{ldnoSplits} && $idnoDataInputTariffs ) {   # old way, LV only
