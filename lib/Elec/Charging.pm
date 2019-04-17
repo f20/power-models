@@ -1,6 +1,6 @@
 ﻿package Elec::Charging;
 
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,12 +29,13 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, $setup, $usage ) = @_;
+    my ( $class, $model, $setup, $usage, $assets ) = @_;
     $model->register(
         bless {
-            model => $model,
-            setup => $setup,
-            usage => $usage,
+            model  => $model,
+            setup  => $setup,
+            usage  => $usage,
+            assets => $assets,
         },
         $class
     );
@@ -61,7 +62,8 @@ sub energyCharge {
 
 sub assetRate {
     my ($self) = @_;
-    $self->{assetRate} ||= Dataset(
+    $self->{assetRate} ||=
+      $self->{assets} ? $self->{assets}->assetRate : Dataset(
         name          => 'Notional asset rates (£/kVA or £/point)',
         defaultFormat => '0hard',
         number        => 1550,
@@ -70,7 +72,7 @@ sub assetRate {
         cols          => $self->{setup}->usageSet,
         data =>
           [ 0, ( map { 1 } 3 .. @{ $self->{setup}->usageSet->{list} } ), 0 ],
-    );
+      );
 }
 
 sub contributionDiscount {
@@ -209,7 +211,7 @@ sub usetMatchAssets {
         vector        => $beforeMatching,
         defaultFormat => '0soft',
     );
-    my $maxAssets = Dataset(
+    my $maxAssets = $self->{assets} ? $self->{assets}->maxAssets : Dataset(
         name          => 'Maximum total notional asset value (£)',
         number        => 1558,
         appendTo      => $self->{model}{inputTables},
@@ -253,7 +255,7 @@ sub usetRunningCosts {
         vector        => $assetRate,
         defaultFormat => '0soft',
     );
-    my $target = Dataset(
+    my $totalCosts = Dataset(
         name          => 'Total asset running costs (£/year)',
         number        => 1559,
         appendTo      => $self->{model}{inputTables},
@@ -265,11 +267,13 @@ sub usetRunningCosts {
         name       => 'Annual running costs relative to notional asset value',
         arithmetic => '=A1/A3',
         defaultFormat => '%soft',
-        arguments     => { A1 => $target, A3 => $totalAssets, },
+        arguments     => { A1 => $totalCosts, A3 => $totalAssets, },
     );
 }
 
-sub usetMatchRevenue { }
+sub usetMatchRevenue {
+    die 'Not implemented';
+}
 
 sub charges {
     my ($self) = @_;

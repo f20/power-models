@@ -30,22 +30,22 @@ use utf8;
 sub serviceMap {
     my ($model) = @_;
     my @modules = (
-        sheets    => 'Elec::Sheets',
-        setup     => 'Elec::Setup',
-        charging  => 'Elec::Charging',
-        customers => $model->{ulist}
-        ? 'Elec::CustomersTyped'
-        : 'Elec::Customers',
-        tariffs => 'Elec::Tariffs',
-        usage   => 'Elec::Usage'
+        sheets => 'Elec::Sheets',
+        setup  => 'Elec::Setup',
     );
-    push @modules, timebands => 'Elec::Timebands'    if $model->{timebands};
-    push @modules, timebands => 'Elec::TimebandSets' if $model->{timebandSets};
+    push @modules, tariffs  => 'Elec::Tariffs';
+    push @modules, assets   => 'Elec::AssetDetail' if $model->{assetDetail};
+    push @modules, charging => 'Elec::Charging';
     push @modules, checksum => 'SpreadsheetModel::Checksum'
       if $model->{checksums};
-    push @modules, supply => 'Elec::Supply' if $model->{usetEnergy};
+    push @modules, customers => 'Elec::CustomersTyped' if $model->{ulist};
+    push @modules, customers => 'Elec::Customers' unless $model->{ulist};
     push @modules, summaries => 'Elec::Summaries'
       if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};
+    push @modules, supply    => 'Elec::Supply'       if $model->{usetEnergy};
+    push @modules, timebands => 'Elec::TimebandSets' if $model->{timebandSets};
+    push @modules, timebands => 'Elec::Timebands'    if $model->{timebands};
+    push @modules, usage     => 'Elec::Usage';
     @modules;
 }
 
@@ -71,7 +71,10 @@ sub new {
       if $serviceMap{timebands};
     my $customers = $serviceMap{customers}->new( $model, $setup );
     my $usage = $serviceMap{usage}->new( $model, $setup, $customers );
-    my $charging = $serviceMap{charging}->new( $model, $setup, $usage );
+    my $assets = $serviceMap{assets}->new( $model, $setup )
+      if $serviceMap{assets};
+    my $charging =
+      $serviceMap{charging}->new( $model, $setup, $usage, $assets );
 
     # Matching activities
     # Note that the order of feeding arguments to $customers->totalDemand can
@@ -81,7 +84,7 @@ sub new {
         $usage = $usage->matchTotalUsage( $customers->totalDemand($usetName) );
     }
 
-    $model->{usetNonAssetCosts} ||= $model->{usetBoundaryCosts};    # Legacy
+    $model->{usetNonAssetCosts} ||= $model->{usetBoundaryCosts};   # Legacy only
     foreach (qw(usetMatchAssets usetNonAssetCosts usetRunningCosts)) {
         next unless my $usetName = $model->{$_};
         my $doNotApply = $usetName =~ s/ \(information only\)$//i;
