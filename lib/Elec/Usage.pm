@@ -149,9 +149,21 @@ sub matchTotalUsage {
         vector        => $volumes->[$capacityIndex],
     );
 
-    my $adjustmentFactor = Arithmetic(
+    my $factorBase = Arithmetic(
+        name       => 'Factor to apply to base element of network usage',
+        arithmetic => '=IF(A5,IF(A1<A3,1,A4/A2),1)',
+        arguments  => {
+            A1 => $baselineUsage,
+            A2 => $baselineUsage,
+            A3 => $targetUsage,
+            A4 => $targetUsage,
+            A5 => $targetUsage,
+        },
+    );
+
+    my $factorAdjE = Arithmetic(
         name       => 'Factor to apply to adjustable element of network usage',
-        arithmetic => '=IF(A1,(A3-A2)/A11,0)',
+        arithmetic => '=IF(A1,MAX(0,A3-A2)/A11,0)',
         arguments  => {
             A1  => $adjustableUsage,
             A11 => $adjustableUsage,
@@ -169,11 +181,12 @@ sub matchTotalUsage {
               ? Arithmetic(
                 name => 'Adjusted '
                   . lcfirst( $usageRates->[$capacityIndex]->objectShortName ),
-                arithmetic => '=A1+A2*A3',
+                arithmetic => '=A1*A2+A3*A4',
                 arguments  => {
                     A1 => $usageRates->[$capacityIndex],
-                    A2 => $adjustmentFactor,
+                    A2 => $factorBase,
                     A3 => $adjustableCapacityUsageRate,
+                    A4 => $factorAdjE,
                 },
               )
               : $usageRates->[$_];
