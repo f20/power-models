@@ -60,68 +60,70 @@ sub new {
         push @{ $model->{costTables} }, $charge;
         my $sourceName = lcfirst( $charge->{name} );
         $sourceName =~ s/ \(.*\)//gs;
-        push @tariffContributions, Columnset(
-            name    => "Contributions from $sourceName",
-            columns => [
-                map {
-                    my $usage   = $usageRates->[$_];
-                    my $isArray = ref $usage eq 'ARRAY';
-                    my $isUnits =
-                         $isArray
-                      || $_ == 0
-                      || $self->{model}{reactive} && $_ == $#$usageRates;
-                    my $contrib = Arithmetic(
-                        name => "Contributions from $sourceName to "
-                          . lcfirst( $tariffComponents->[$_] ),
-                        @{ $formatting[$_] },
-                        arithmetic => '=A1*A2'
-                          . ( $isArray ? '*A3/24' : $isUnits ? '/24' : '' )
-                          . '/A6*100',
-                        rows => (
-                              $isArray ? $usageRates->[$_][0]
-                            : $usageRates->[$_]
-                          )->{rows},
-                        arguments => {
-                            $isArray
-                            ? (
-                                A2 => $usageRates->[$_][0],
-                                A3 => $usageRates->[$_][1],
-                              )
-                            : ( A2 => $usageRates->[$_] ),
-                            A1 => $charge,
-                            A6 => $days,
-                        }
-                    );
-                    $contrib->lastCol
-                      ? GroupBy(
-                        name => "Total contributions from $sourceName to "
-                          . lcfirst( $tariffComponents->[$_] ),
-                        @{ $formatting[$_] },
-                        rows   => $contrib->{rows},
-                        source => $contrib,
+        my @tariffContributionsArray =
+          map {
+            my $usage   = $usageRates->[$_];
+            my $isArray = ref $usage eq 'ARRAY';
+            my $isUnits =
+                 $isArray
+              || $_ == 0
+              || $self->{model}{reactive} && $_ == $#$usageRates;
+            my $contrib = Arithmetic(
+                name => "Contributions from $sourceName to "
+                  . lcfirst( $tariffComponents->[$_] ),
+                @{ $formatting[$_] },
+                arithmetic => '=A1*A2'
+                  . ( $isArray ? '*A3/24' : $isUnits ? '/24' : '' )
+                  . '/A6*100',
+                rows => (
+                      $isArray ? $usageRates->[$_][0]
+                    : $usageRates->[$_]
+                  )->{rows},
+                arguments => {
+                    $isArray
+                    ? (
+                        A2 => $usageRates->[$_][0],
+                        A3 => $usageRates->[$_][1],
                       )
-                      : $contrib;
-                } 0 .. $#$usageRates
-            ],
-        );
+                    : ( A2 => $usageRates->[$_] ),
+                    A1 => $charge,
+                    A6 => $days,
+                }
+            );
+            $contrib->lastCol
+              ? GroupBy(    # Separate GroupBy because Arithmetic cannot do
+                            # SUM(x1)+SUM(x2) by column at present
+                name => "Total contributions from $sourceName to "
+                  . lcfirst( $tariffComponents->[$_] ),
+                @{ $formatting[$_] },
+                rows   => $contrib->{rows},
+                source => $contrib,
+              )
+              : $contrib;
+          } 0 .. $#$usageRates;
+        push @tariffContributions, \@tariffContributionsArray;
+        push @{ $model->{buildupTables} },
+          Columnset(
+            name    => "Contributions from $sourceName",
+            columns => \@tariffContributionsArray,
+          );
     }
-    push @{ $model->{buildupTables} }, @tariffContributions;
     $self->{tariffs} = [
         map {
             my $compno = $_;
             my @ingredients =
-              grep { $_ } map { $_->{columns}[$compno] } @tariffContributions;
-            my $formula = join '+', map { "A$_" } 1 .. @ingredients;
+              grep { $_ } map { $_->[$compno] } @tariffContributions;
+            my $formula = join '+', map { "A$_"; } 1 .. @ingredients;
             Arithmetic(
-                name       => $tariffComponents->[$_],
-                arithmetic => defined $digitsRounding->[$_]
-                ? "=ROUND($formula,$digitsRounding->[$_])"
+                name       => $tariffComponents->[$compno],
+                arithmetic => defined $digitsRounding->[$compno]
+                ? "=ROUND($formula,$digitsRounding->[$compno])"
                 : "=$formula",
                 arguments => {
-                    map { ( "A$_" => $ingredients[ $_ - 1 ] ) }
+                    map { ( "A$_" => $ingredients[ $_ - 1 ] ); }
                       1 .. @ingredients
                 },
-                @{ $formatting[$_] },
+                @{ $formatting[$compno] },
             );
         } 0 .. $#$tariffComponents
     ];
