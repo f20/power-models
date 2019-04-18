@@ -151,13 +151,14 @@ sub matchTotalUsage {
 
     my $factorBase = Arithmetic(
         name       => 'Factor to apply to base element of network usage',
-        arithmetic => '=IF(A5,IF(A1<A3,1,A4/A2),1)',
+        arithmetic => '=IF(ISNUMBER(A5),IF(A6,IF(A1<A3,1,A4/A2),1),1)',
         arguments  => {
             A1 => $baselineUsage,
             A2 => $baselineUsage,
             A3 => $targetUsage,
             A4 => $targetUsage,
             A5 => $targetUsage,
+            A6 => $targetUsage,
         },
     );
 
