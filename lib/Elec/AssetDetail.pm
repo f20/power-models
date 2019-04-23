@@ -72,7 +72,6 @@ sub assetValuesVolumesColumnset {
             ),
             Dataset(
                 name          => Label( 'Volume', 'Asset volume (units)' ),
-                defaultFormat => '0hard',
                 rows          => $self->assetLabelset,
                 data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
             ),
