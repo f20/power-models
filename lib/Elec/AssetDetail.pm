@@ -41,8 +41,11 @@ sub new {
 
 sub assetLabelset {
     my ($self) = @_;
-    $self->{assetLabelset} ||=
-      Labelset( name => 'Asset types', list => [ split /\n/, <<EOL ], );
+    $self->{assetLabelset} ||= Labelset(
+        name => 'Asset types',
+        list => ref $self->{model}{assetDetail}
+        ? $self->{model}{assetDetail}
+        : [ split /\n/, <<EOL ], );
 33kV underground non-pressurised km
 33kV transformer ground-mounted
 33kV breaker indoors
@@ -71,8 +74,8 @@ sub assetValuesVolumesColumnset {
                 data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
             ),
             Dataset(
-                name          => Label( 'Volume', 'Asset volume (units)' ),
-                rows          => $self->assetLabelset,
+                name => Label( 'Volume', 'Asset volume (units)' ),
+                rows => $self->assetLabelset,
                 data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
             ),
         ],
