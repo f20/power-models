@@ -412,7 +412,7 @@ sub timeOfDaySpecialRunner {
             cols          => Labelset( list => [ $timebandSet->{list}[1] ] ),
             arithmetic    => $amberPeakingRate
             ? '=IF(A1,MAX(0,A2+A3-A4),A6*A7/A8/24)'
-            : 1 ? '=A2+A3-A4' # trust black probability even if blank
+            : 1 ? '=A2+A3-A4'    # trust black probability even if blank
             : '=IF(A1,MAX(0,A2+A3-A4),IF(A5,1/0,0))',
             arguments => {
                 A1 => $model->{blackPeaking},
@@ -937,8 +937,10 @@ sub timeOfDaySpecialRunner {
             ]
         );
 
-        if ( $model->{coincidenceAdj} && $model->{coincidenceAdj} =~ /group2/i )
-        {
+        $model->{coincidenceAdj} = 'group'
+          unless defined $model->{coincidenceAdj};
+
+        if ( $model->{coincidenceAdj} =~ /group2/i ) {
 
             my $red = Arithmetic(
                 name          => 'Contribution to peak band kW',
@@ -965,8 +967,7 @@ sub timeOfDaySpecialRunner {
 
         }
 
-        elsif ($model->{coincidenceAdj}
-            && $model->{coincidenceAdj} =~ /group/i
+        elsif ($model->{coincidenceAdj} =~ /group/i
             && $model->{coincidenceAdj} !~ /group2/i )
         {
 
