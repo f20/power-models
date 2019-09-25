@@ -46,16 +46,12 @@ sub assetLabelset {
         list => ref $self->{model}{assetDetail}
         ? $self->{model}{assetDetail}
         : [ split /\n/, <<EOL ], );
-33kV underground non-pressurised km
-33kV transformer ground-mounted
-33kV breaker indoors
-11kV breaker primary
-11kV breaker secondary
-11kV underground km
-11kV transformer ground-mounted
-11kV ring main unit
-LV main underground km
-LV plant unit
+MV breaker
+MV circuit km
+MV transformer
+MV ring main unit
+LV circuit km
+LV cut-out
 EOL
 }
 
