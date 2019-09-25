@@ -105,9 +105,10 @@ sub factory {
             @objects = $blob;
         }
         elsif ( $blob =~ /^---/s ) {
-            @objects = length($blob) < 4_096
-              || defined $fileName
-              && $fileName =~ /%/ ? Load($blob) : { yaml => $blob };
+            @objects =
+                 length($blob) < 4_096
+              || defined $fileName && $fileName =~ /%/
+              || $blob =~ /\n---/ ? Load($blob) : { yaml => $blob };
         }
         else {
             eval { @objects = jsonMachineMaker()->decode($blob); };
@@ -159,7 +160,7 @@ sub factory {
                                         require
                                           SpreadsheetModel::Book::Validation;
                                         SpreadsheetModel::Book::Validation::digestMachine(
-                                          )->add( Encode::encode_utf8($blob) )
+                                        )->add( Encode::encode_utf8($blob) )
                                           ->hexdigest;
                                     }
                                       || 'Digest not working',
