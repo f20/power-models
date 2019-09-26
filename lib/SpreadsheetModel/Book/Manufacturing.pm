@@ -115,11 +115,15 @@ sub factory {
             warn "$fileName: $@" if $@;
         }
 
+        my $onlyUseThisRuleset;
         while (@objects) {
             local $_ = shift @objects;
             next unless ref $_ eq 'HASH';
             if ( exists $_->{template} ) {
                 push @rulesets, $_;
+                if ( $_->{template} eq '%' ) {
+                    $onlyUseThisRuleset = $_;
+                }
             }
             elsif ( defined $fileName
                 && $fileName =~ /([^\\\/]*%[^\\\/]*)\.(?:yml|yaml|json)$/is )
@@ -170,6 +174,9 @@ sub factory {
                           )
                         : ( '~datasetSource' => 'Empty dataset' ),
                       )
+                    : (),
+                    defined $onlyUseThisRuleset
+                    ? ( '~rulesRef' => $onlyUseThisRuleset )
                     : (),
                     dataset => $_,
                 };
@@ -265,6 +272,8 @@ sub factory {
         my ( $rule, $data ) = @_;
         my $score = 0;
         return -666 unless $rule->{PerlModule};
+        return -42
+          if defined $data->{'~rulesRef'} && $data->{'~rulesRef'} != $rule;
         my $scoringModule = "$rule->{PerlModule}::PickBest";
         eval "require $scoringModule";
         $score += $scoringModule->score( $rule, $1 )

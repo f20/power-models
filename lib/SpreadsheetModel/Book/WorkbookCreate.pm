@@ -87,12 +87,12 @@ sub create {
             if ( defined $tmpDir ) {
                 rmdir $tmpDir or warn "rmdir $tmpDir: $!";
             }
-          }, sub {
+        }, sub {
             my ($mess) = @_;
             warn "$split[2]: $mess";
             push @shortMessages, Carp::shortmess($mess);
             push @longMessages,  Carp::longmess($mess);
-          };
+        };
     };
 
     my ( $stream, $closer, $warner ) = $streamMaker->($fileName);
@@ -435,7 +435,7 @@ EOW
             # XLS workbooks should be disposed of quickly
             # because they hog file descriptors.
             !$_->isa('Spreadsheet::WriteExcel');
-          } @hazardousWaste,
+        } @hazardousWaste,
         $wbook,
       )
       : $status;
@@ -446,6 +446,7 @@ sub _mergeRulesData {
     return [ map { _mergeRulesData(@$_); } @{ $_[1] } ]
       if !$_[0] && ref $_[1] eq 'ARRAY';
     my %options = map { %$_ } @_;
+    delete $options{'~rulesRef'};
     my $extraNotice = delete $options{extraNotice};
     my @keys =
       grep { exists $options{$_}; }
