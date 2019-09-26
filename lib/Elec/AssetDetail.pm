@@ -115,10 +115,9 @@ sub assetRate {
         vector => $self->assetValues,
     );
     $self->{assetRate} = Arithmetic(
-        name          => 'Notional asset rate (£/unit of usage)',
-        defaultFormat => '0soft',
-        arithmetic    => '=IF(A3,A1/A2,0)',
-        arguments     => {
+        name       => 'Notional asset rate (£/unit of usage)',
+        arithmetic => '=IF(A3,A1/A2,0)',
+        arguments  => {
             A1 => $notionalValue,
             A2 => $notionalCapacity,
             A3 => $notionalCapacity,
