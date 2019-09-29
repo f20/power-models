@@ -1,6 +1,6 @@
 ﻿package Elec::CustomersTyped;
 
-# Copyright 2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2016-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -33,15 +33,16 @@ sub volumeDataColumn {
     my ( $self, $component ) = @_;
     [
         map {
-            $component =~ m#kWh#
+            $component =~ m#kWh#    # active units
               ? ( /\[standing\]/ ? undef : 0 )
-              : $component =~ m#kVArh# ? (
-                /Medium|Non-CT|Unrestricted|Two Rate|UMS|Unmetered/
+              : $component =~ m#kVA# ? (    # capacity or reactive
+                /Medium|Non-CT|Unrestricted|Two Rate|UMS|Unmetered|Aggregated/
                 ? undef
                 : 0
               )
-              : $component =~ m#kVA# ? ( /\[.*units\]/ ? undef : 0 )
-              : ( /\[.*units\]/ ? undef : 0 );
+              : (                           # fixed charges
+                /\[.*units\]|UMS|Unmetered/ ? undef : 0
+              );
         } @{ $self->userLabelset->{list} }
     ];
 }
