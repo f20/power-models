@@ -234,22 +234,32 @@ sub usetMatchAssets {
               . 'and target gross modern equivalent asset value (£)',
             columns => [
                 $totalBefore,
-                Stack( sources => [$maxAssets] ),
+                $maxAssets,
                 Arithmetic(
                     name       => 'Ratio',
                     arithmetic => '=A1/A2',
                     arguments  => { A1 => $totalBefore, A2 => $maxAssets },
-                )
-            ]
+                ),
+            ],
           );
     }
     else {
+        $self->{assetMatchingFactor} = Arithmetic(
+            name       => 'Asset adjustment factor',
+            arithmetic => '=MIN(1,A2/A3)',
+            arguments  => { A2 => $maxAssets, A3 => $totalBefore, },
+        );
+        Columnset(
+            name => 'Application of maximum total notional asset value',
+            columns =>
+              [ $totalBefore, $maxAssets, $self->{assetMatchingFactor}, ],
+        );
         $self->{assetRate} = Arithmetic(
             name => 'Adjusted notional assets for each type of usage'
               . ' (£/kVA or £/point)',
-            arithmetic => '=A1*MIN(1,A2/A3)',
+            arithmetic => '=A1*A2',
             arguments =>
-              { A1 => $beforeMatching, A2 => $maxAssets, A3 => $totalBefore, },
+              { A1 => $beforeMatching, A2 => $self->{assetMatchingFactor}, },
         );
     }
 }
