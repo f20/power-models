@@ -74,6 +74,16 @@ sub assetValuesVolumesColumnset {
                 rows => $self->assetLabelset,
                 data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
             ),
+            $self->{model}{assetDetailAnnualisationPeriod}
+            ? Dataset(
+                name => Label(
+                    'Annualisation period (years)',
+                    'Asset annualisation period (years)'
+                ),
+                rows => $self->assetLabelset,
+                data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
+              )
+            : (),
         ],
     );
 }
@@ -86,6 +96,11 @@ sub assetValues {
 sub assetVolumes {
     my ($self) = @_;
     $self->assetValuesVolumesColumnset->{columns}[1];
+}
+
+sub assetLives {
+    my ($self) = @_;
+    $self->assetValuesVolumesColumnset->{columns}[2];
 }
 
 sub notionalCapacity {
@@ -125,6 +140,40 @@ sub assetRate {
                 defaultFormat => '0soft',
                 matrix        => $self->notionalVolumes,
                 vector        => $self->assetValues,
+            ),
+            A2 => $self->notionalCapacity,
+            A3 => $self->notionalCapacity,
+        },
+    );
+}
+
+sub annuity {
+    my ( $self, $rateOfReturn, $defaultAssetLife ) = @_;
+    $self->{annuity} ||= Arithmetic(
+        name       => 'Notional asset annuity rate (£/unit of usage/year)',
+        arithmetic => '=IF(A3,A1/A2,0)',
+        arguments  => {
+            A1 => SumProduct(
+                name          => 'Notional scheme asset annuity (£/year)',
+                defaultFormat => '0soft',
+                matrix        => $self->notionalVolumes,
+                vector        => Arithmetic(
+                    name          => 'Asset annuity (£/year)',
+                    defaultFormat => '0soft',
+                    arithmetic    => '=-1*PMT(A2,'
+                      . ( $defaultAssetLife ? 'IF(A3,A4,A5)' : 'A3' ) . ',A1)',
+                    arguments => {
+                        A1 => $self->assetValues,
+                        A2 => $rateOfReturn,
+                        A3 => $self->assetLives,
+                        $defaultAssetLife
+                        ? (
+                            A4 => $self->assetLives,
+                            A5 => $defaultAssetLife,
+                          )
+                        : (),
+                    },
+                ),
             ),
             A2 => $self->notionalCapacity,
             A3 => $self->notionalCapacity,

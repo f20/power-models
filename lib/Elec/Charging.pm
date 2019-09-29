@@ -127,7 +127,27 @@ sub runningRate {
 
 sub assetCharge {
     my ($self) = @_;
-    $self->{assetCharge} ||= Arithmetic(
+    $self->{assetCharge} ||=
+      $self->{assets} && $self->{assets}->assetLives
+      ? Arithmetic(
+        name       => 'Asset-related charges (£/unit of usage)',
+        arithmetic => '='
+          . ( $self->{model}{contributions} ? '(1-A4)*' : '' )
+          . ( $self->{assetMatchingFactor}  ? 'A5*'     : '' )
+          . 'A2+A1*A3',
+        arguments => {
+            A1 => $self->assetRate,
+            A2 => $self->{assets}->annuity( $self->{setup}->rateOfReturn ),
+            A3 => $self->runningRate,
+            $self->{assetMatchingFactor}
+            ? ( A5 => $self->{assetMatchingFactor} )
+            : (),
+            $self->{model}{contributions}
+            ? ( A4 => $self->contributionDiscount )
+            : (),
+        }
+      )
+      : Arithmetic(
         name       => 'Asset-related charges (£/unit of usage)',
         arithmetic => '=A1*('
           . ( $self->{model}{contributions} ? '(1-A4)*' : '' )
@@ -140,7 +160,7 @@ sub assetCharge {
             ? ( A4 => $self->contributionDiscount )
             : (),
         }
-    );
+      );
 }
 
 sub usetNonAssetCosts {
