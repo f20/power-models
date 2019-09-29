@@ -88,10 +88,9 @@ sub assetVolumes {
     $self->assetValuesVolumesColumnset->{columns}[1];
 }
 
-sub assetRate {
+sub notionalCapacity {
     my ($self) = @_;
-    return $self->{assetRate} if $self->{assetRate};
-    my $notionalCapacity = Dataset(
+    $self->{notionalCapacity} ||= Dataset(
         name          => 'Notional scheme capacities',
         defaultFormat => '0hard',
         number        => 1554,
@@ -100,27 +99,35 @@ sub assetRate {
         cols          => $self->{setup}->usageSet,
         data => [ map { 1 } 1 .. @{ $self->{setup}->usageSet->{list} } ],
     );
-    my $notionalValue = SumProduct(
-        name          => 'Notional scheme asset valuation (£)',
-        defaultFormat => '0soft',
-        matrix        => Dataset(
-            name     => 'Notional scheme asset volumes',
-            number   => 1553,
-            appendTo => $self->{model}{inputTables},
-            dataset  => $self->{model}{dataset},
-            rows     => $self->assetLabelset,
-            cols     => $self->{setup}->usageSet,
-            data => [ map { 1 } 1 .. @{ $self->{setup}->usageSet->{list} } ],
-        ),
-        vector => $self->assetValues,
+}
+
+sub notionalVolumes {
+    my ($self) = @_;
+    $self->{notionalVolumes} ||= Dataset(
+        name     => 'Notional scheme asset volumes',
+        number   => 1553,
+        appendTo => $self->{model}{inputTables},
+        dataset  => $self->{model}{dataset},
+        rows     => $self->assetLabelset,
+        cols     => $self->{setup}->usageSet,
+        data     => [ map { 1 } 1 .. @{ $self->{setup}->usageSet->{list} } ],
     );
-    $self->{assetRate} = Arithmetic(
+}
+
+sub assetRate {
+    my ($self) = @_;
+    $self->{assetRate} ||= Arithmetic(
         name       => 'Notional asset rate (£/unit of usage)',
         arithmetic => '=IF(A3,A1/A2,0)',
         arguments  => {
-            A1 => $notionalValue,
-            A2 => $notionalCapacity,
-            A3 => $notionalCapacity,
+            A1 => SumProduct(
+                name          => 'Notional scheme asset valuation (£)',
+                defaultFormat => '0soft',
+                matrix        => $self->notionalVolumes,
+                vector        => $self->assetValues,
+            ),
+            A2 => $self->notionalCapacity,
+            A3 => $self->notionalCapacity,
         },
     );
 }

@@ -64,7 +64,7 @@ sub assetRate {
     my ($self) = @_;
     $self->{assetRate} ||=
       $self->{assets} ? $self->{assets}->assetRate : Dataset(
-        name          => 'Notional asset rates (£/kVA or £/point)',
+        name          => 'Notional asset rates (£/unit of usage)',
         defaultFormat => '0hard',
         number        => 1550,
         appendTo      => $self->{model}{inputTables},
@@ -256,7 +256,7 @@ sub usetMatchAssets {
         );
         $self->{assetRate} = Arithmetic(
             name => 'Adjusted notional assets for each type of usage'
-              . ' (£/kVA or £/point)',
+              . ' (£/unit of usage)',
             arithmetic => '=A1*A2',
             arguments =>
               { A1 => $beforeMatching, A2 => $self->{assetMatchingFactor}, },
