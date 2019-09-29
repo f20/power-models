@@ -102,7 +102,15 @@ sub nonAssetCharge {
 
 sub annuityRate {
     my ($self) = @_;
-    $self->{annuityRate} ||= $self->{setup}->annuityRate;
+    $self->{annuityRate} ||= Arithmetic(
+        name          => 'Annuity rate',
+        defaultFormat => '%soft',
+        arithmetic    => '=PMT(A1,A2,-1)',
+        arguments     => {
+            A1 => $self->{setup}->rateOfReturn,
+            A2 => $self->{setup}->annuitisationPeriod,
+        }
+    );
 }
 
 sub runningRate {

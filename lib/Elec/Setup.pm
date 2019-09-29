@@ -1,6 +1,6 @@
 ﻿package Elec::Setup;
 
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -48,11 +48,9 @@ sub daysInYear {
     );
 }
 
-sub annuityRate {
+sub annuitisationPeriod {
     my ($self) = @_;
-    return $self->{annuityRate} if $self->{annuityRate};
-
-    my $annuitisationPeriod = Dataset(
+    $self->{annuitisationPeriod} ||= Dataset(
         name       => 'Annualisation period (years)',
         validation => {
             validate => 'decimal',
@@ -63,8 +61,11 @@ sub annuityRate {
         data          => [45],
         defaultFormat => '0hard',
     );
+}
 
-    my $rateOfReturn = Dataset(
+sub rateOfReturn {
+    my ($self) = @_;
+    $self->{rateOfReturn} ||= Dataset(
         name       => 'Rate of return',
         validation => {
             validate      => 'decimal',
@@ -79,17 +80,6 @@ sub annuityRate {
         defaultFormat => '%hard',
         data          => [0.103]
     );
-
-    $self->{annuityRate} = Arithmetic(
-        name          => 'Annuity rate',
-        defaultFormat => '%soft',
-        arithmetic    => '=PMT(A1,A2,-1)',
-        arguments     => {
-            A1 => $rateOfReturn,
-            A2 => $annuitisationPeriod,
-        }
-    );
-
 }
 
 sub registerTimebands {
@@ -205,13 +195,10 @@ sub finish {
     my ($self) = @_;
     return if $self->{generalInputDataTable};
     return
-      unless my @columns = (
-        $self->{daysInYear} || (),
-        $self->{annuityRate}
-        ? @{ $self->{annuityRate}{arguments} }{qw(A1 A2)}
-        : ()
-      );
-    $self->{generalInputDataTable} |= Columnset(
+      unless my @columns = grep { $_; } $self->{daysInYear},
+      $self->{rateOfReturn},
+      $self->{annuitisationPeriod};
+    $self->{generalInputDataTable} = Columnset(
         name     => 'Financial and general input data',
         number   => 1510,
         appendTo => $self->{model}{inputTables},
