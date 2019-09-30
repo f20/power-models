@@ -42,7 +42,9 @@ sub new {
 sub totalDemand {
     my ( $self, $usetName ) = @_;
     return $self->{totalDemand}{$usetName} if $self->{totalDemand}{$usetName};
-    my $tariffSet       = $self->tariffSet;
+    my $tariffSet = $self->tariffSet;
+    return $self->{model}{interpolator}->totalDemand( $usetName, $tariffSet )
+      if $self->{model}{interpolator};
     my $detailedVolumes = $self->detailedVolumes;
     push @{ $self->{scenarioProportions} }, my $prop = Dataset(
         name => 'Proportion '
@@ -210,7 +212,7 @@ sub detailedVolumes {
                 defaultFormat => '0hard',
                 name          => $_,
                 data          => $self->volumeDataColumn($_),
-                validation => {    # required to trigger lenient cell locking
+                validation => {   # required to trigger leniency in cell locking
                     validate => 'decimal',
                     criteria => '>=',
                     value    => 0,

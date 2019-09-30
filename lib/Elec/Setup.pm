@@ -35,7 +35,10 @@ sub new {
 
 sub daysInYear {
     my ($self) = @_;
-    $self->{daysInYear} ||= Dataset(
+    $self->{daysInYear} ||=
+        $self->{model}{interpolator}
+      ? $self->{model}{interpolator}->daysInYear
+      : Dataset(
         name       => 'Days in the charging year',
         validation => {
             validate => 'decimal',
@@ -45,7 +48,7 @@ sub daysInYear {
         },
         data          => [365],
         defaultFormat => '0hard'
-    );
+      );
 }
 
 sub annuitisationPeriod {
@@ -194,16 +197,20 @@ sub assetUsageSet {
 sub finish {
     my ($self) = @_;
     return if $self->{generalInputDataTable};
-    return
-      unless my @columns = grep { $_; } $self->{daysInYear},
-      $self->{rateOfReturn},
-      $self->{annuitisationPeriod};
     $self->{generalInputDataTable} = Columnset(
         name     => 'Financial and general input data',
         number   => 1510,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
-        columns  => \@columns,
+        columns  => [
+            map {
+                ref $_ eq 'SpreadsheetModel::Dataset'
+                  ? $_
+                  : Constant( name => 'Not used', data => [] );
+            } $self->{daysInYear},
+            $self->{rateOfReturn},
+            $self->{annuitisationPeriod}
+        ],
     );
 }
 

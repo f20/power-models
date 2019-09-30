@@ -48,7 +48,7 @@ sub useAlternativeRowset {
     $self->{proportionUsed} = Stack(
         sources => [ $self->{proportionUsed} ],
         rows    => $rowset,
-    );
+    ) if $self->{proportionUsed};
 }
 
 sub addComparisonPpu {
@@ -216,7 +216,7 @@ sub revenueComparison {
                     defaultFormat => $_->{defaultFormat},
                     source        => $_,
                   );
-              } $totalUnits,
+            } $totalUnits,
             $revenues,
             @extraColumns,
             $compare ? ( $compare, $difference, ) : ()

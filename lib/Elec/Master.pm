@@ -40,6 +40,8 @@ sub serviceMap {
       if $model->{checksums};
     push @modules, customers => 'Elec::CustomersTyped' if $model->{ulist};
     push @modules, customers => 'Elec::Customers' unless $model->{ulist};
+    push @modules, interpolator => 'Elec::Interpolator'
+      if $model->{interpolator};
     push @modules, summaries => 'Elec::Summaries'
       if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};
     push @modules, supply    => 'Elec::Supply'       if $model->{usetEnergy};
@@ -66,10 +68,12 @@ sub new {
     my $class      = shift;
     my $model      = bless { inputTables => [], finishList => [], @_ }, $class;
     my %serviceMap = $model->serviceMap;
-    my $setup      = $serviceMap{setup}->new($model);
+     my $setup = $serviceMap{setup}->new($model);
     $setup->registerTimebands( $serviceMap{timebands}->new( $model, $setup ) )
       if $serviceMap{timebands};
-    my $customers = $serviceMap{customers}->new( $model, $setup );
+    $model->{interpolator} = $serviceMap{interpolator}->new($model, $setup )
+      if $model->{interpolator};
+   my $customers = $serviceMap{customers}->new( $model, $setup );
     my $usage = $serviceMap{usage}->new( $model, $setup, $customers );
     my $assets = $serviceMap{assets}->new( $model, $setup )
       if $serviceMap{assets};
@@ -126,7 +130,7 @@ sub new {
             $supplyTariffs,
             [ revenueCalculation => $tariffs ],
             [ marginCalculation  => $supplyTariffs ],
-          )->addDetailedAssets( $charging, $usage )
+        )->addDetailedAssets( $charging, $usage )
           if $model->{compareppu} || $model->{showppu};
     }
 
