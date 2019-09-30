@@ -67,71 +67,32 @@ sub daysInYear {
     );
 }
 
-sub rowsDemand {
-    my ($self) = @_;
-    $self->{rowsDemand} ||= Labelset(
-        list => [ 1 .. ( $self->{model}{numRowsDemand} || 24 ) ],
-        defaultFormat => 'thitem'
-    );
-}
+sub forecastInputDataAndFactors {
 
-sub detailedVolumeData {
-
-    my ($self) = @_;
-    return $self->{detailedVolumeData} if $self->{detailedVolumeData};
-
-    my $name = Dataset(
-        name          => 'Name',
-        rows          => $self->rowsDemand,
-        defaultFormat => 'texthard',
-        data          => [ map { ''; } @{ $self->rowsDemand->{list} } ],
-    );
-    my $tariff = Dataset(
-        name          => 'Applicable tariff',
-        rows          => $self->rowsDemand,
-        defaultFormat => 'texthard',
-        data          => [ map { ''; } @{ $self->rowsDemand->{list} } ],
-    );
+    my ( $self, $rowset, $tableName ) = @_;
     my $startDate = Dataset(
         name          => 'Start date',
-        rows          => $self->rowsDemand,
+        rows          => $rowset,
         defaultFormat => 'datehard',
-        data => [ map { '=DATE(2019,4,1)'; } @{ $self->rowsDemand->{list} } ],
+        data          => [ map { '=DATE(2019,4,1)'; } @{ $rowset->{list} } ],
     );
     my $endDate = Dataset(
         name          => 'End date',
-        rows          => $self->rowsDemand,
+        rows          => $rowset,
         defaultFormat => 'datehard',
-        data          => [ map { ''; } @{ $self->rowsDemand->{list} } ],
+        data          => [ map { ''; } @{ $rowset->{list} } ],
     );
     my $growth = Dataset(
         name          => 'Annual growth rate',
-        rows          => $self->rowsDemand,
+        rows          => $rowset,
         defaultFormat => '%hard',
-        data          => [ map { 0; } @{ $self->rowsDemand->{list} } ],
+        data          => [ map { 0; } @{ $rowset->{list} } ],
     );
-    my @volumes =
-      map {
-        Dataset(
-            rows          => $self->rowsDemand,
-            defaultFormat => '0hard',
-            name          => $_,
-            data          => [ map { ''; } @{ $self->rowsDemand->{list} } ],
-            validation => {    # required to trigger leniency in cell locking
-                validate => 'decimal',
-                criteria => '>=',
-                value    => 0,
-            },
-        );
-      } @{ $self->{setup}->volumeComponents };
-
-    $self->{detailedVolumeInputs} =
-      [ $name, $tariff, $startDate, $endDate, $growth, @volumes ];
 
     my $first = Arithmetic(
         name          => 'Offset of first day',
         defaultFormat => '0soft',
-        rows          => $self->rowsDemand,
+        rows          => $rowset,
         arithmetic    => '=IF(A201,MAX(0,A802-A202),0)',
         arguments     => {
             A201 => $startDate,
@@ -143,7 +104,7 @@ sub detailedVolumeData {
     my $last = Arithmetic(
         name          => 'Offset of last day',
         defaultFormat => '0soft',
-        rows          => $self->rowsDemand,
+        rows          => $rowset,
         arithmetic    => '=IF(A201,IF(A302,MIN(A901,A301),A902)-A202,-1)',
         arguments     => {
             A201 => $startDate,
@@ -157,7 +118,7 @@ sub detailedVolumeData {
 
     my $factor = Arithmetic(
         name       => 'Scaling factor for the charging year',
-        rows       => $self->rowsDemand,
+        rows       => $rowset,
         arithmetic => '=IF(OR(A103<0,A104<A203),0,IF(A701,'
           . '((1+A702)^((A102+1)/365.25)-(1+A703)^(A202/365.25))/LN(1+A704)'
           . ',(A101+1-A201)/365.25))',
@@ -177,90 +138,166 @@ sub detailedVolumeData {
     );
 
     Columnset(
-        name    => 'Volume forecasting calculations',
+        name    => "$tableName interpolation and extrapolation calculations",
         columns => [ $first, $last, $factor, ]
     );
 
-    $self->{detailedVolumeData} = [ $tariff, $factor, @volumes, ];
+    $startDate, $endDate, $growth, $factor;
 
 }
 
-sub totalDemand {
+sub aggregateForecast {
 
-    my ( $self, $usetName, $tariffSet ) = @_;
-    return $self->{totalDemand}{$tariffSet}{$usetName}
-      if $self->{totalDemand}{$tariffSet}{$usetName};
+    my ( $self, $wantedRowset, $wantedColumnset, $prop, $category, $factor,
+        $column )
+      = @_;
 
-    my $lastRow = $#{ $self->rowsDemand->{list} };
-    my $prop;
-    push @{ $self->{scenarioProportions} }, $prop = Dataset(
-        name          => "Proportion in $usetName",
-        rows          => $self->rowsDemand,
-        defaultFormat => '%hard',
-        data          => [ map { 1; } @{ $self->rowsDemand->{list} } ],
-        validation => {    # required to trigger leniency in cell locking
-            validate      => 'decimal',
-            criteria      => 'between',
-            minimum       => -1,
-            maximum       => 1,
-            input_message => 'Percentage',
+    my $name          = $column->objectShortName;
+    my $averagingFlag = $name =~ /Wh|VArh|\/year/;
+
+    new SpreadsheetModel::Custom(
+        name          => $name,
+        defaultFormat => '0soft',
+        rows          => $wantedRowset,
+        cols          => $wantedColumnset,
+        custom        => [
+                '=SUMPRODUCT((A1=A3)*A4*A6'
+              . ( $prop          ? '*A8' : '' ) . ')'
+              . ( $averagingFlag ? ''    : '*365.25/A9' )
+        ],
+        arithmetic => '=SUMPRODUCT((A1=label)*A4*A6'
+          . ( $prop          ? '*A8' : '' ) . ')'
+          . ( $averagingFlag ? ''    : '*365.25/A9' ),
+        arguments => {
+            A1 => $category,
+            A4 => $factor,
+            A6 => $column,
+            $prop ? ( A8 => $prop ) : (),
+            A9 => $self->{setup}->daysInYear,
         },
-    ) unless $usetName eq 'all users';
-    my ( $tariff, $factor, @volumes ) = @{ $self->detailedVolumeData };
-
-    my @columns =
-      map {
-        new SpreadsheetModel::Custom(
-            name          => $_->objectShortName,
-            defaultFormat => '0soft',
-            rows          => $tariffSet,
-            custom        => [
-                    '=SUMPRODUCT((A1=A3)*A4*A6'
-                  . ( $prop                   ? '*A8' : '' ) . ')'
-                  . ( $_->{name} =~ /Wh|VArh/ ? ''    : '*365.25/A9' )
-            ],
-            arithmetic => '=SUMPRODUCT((A1=tariff)*A4*A6'
-              . ( $prop                   ? '*A8' : '' ) . ')'
-              . ( $_->{name} =~ /Wh|VArh/ ? ''    : '*365.25/A9' ),
-            arguments => {
-                A1 => $tariff,
-                A4 => $factor,
-                A6 => $_,
-                $prop ? ( A8 => $prop ) : (),
-                A9 => $self->{setup}->daysInYear,
-            },
-            wsPrepare => sub {
-                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
-                  @_;
-                my @map = (
-                    qr/\bA9\b/ =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{A9}, $colh->{A9}, 1, 1
-                      )
-                );
-                foreach (qw(A1 A4 A6 A8)) {
-                    push @map,
-                      qr/\b$_\b/ =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{$_}, $colh->{$_}, 1, 0 )
-                      . ':'
-                      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $rowh->{$_} + $lastRow,
-                        $colh->{$_}, 1, 0 )
-                      if exists $rowh->{$_};
-                }
-                sub {
-                    my ( $x, $y ) = @_;
-                    '', $format, $formula->[0], @map,
-                      '\bA3\b' =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $self->{$wb}{row} + $y,
-                        0, 0, 1 );
-                };
+        wsPrepare => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            my @map = (
+                qr/\bA9\b/ =>
+                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $rowh->{A9}, $colh->{A9}, 1, 1
+                  )
+            );
+            foreach (qw(A1 A4 A6 A8)) {
+                push @map,
+                  qr/\b$_\b/ =>
+                  Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $rowh->{$_}, $colh->{$_}, 1, 0 )
+                  . ':'
+                  . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $rowh->{$_} + $#{ $factor->{rows}{list} },
+                    $colh->{$_}, 1, 0 )
+                  if exists $rowh->{$_};
             }
-        );
-      } @volumes;
+            sub {
+                my ( $x, $y ) = @_;
+                '', $format, $formula->[0], @map,
+                  '\bA3\b' => defined $wantedRowset
+                  ? Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $self->{$wb}{row} + $y,
+                    0, 0, 1 )
+                  : Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( 0,
+                    $self->{$wb}{col} + $x,
+                    1, 0 );
+            };
+        }
+    );
 
+}
+
+sub targetUsage {    # warning side effects: no results caching here
+    my ( $self, $usageSet ) = @_;
+    my $inputRowset = Labelset(
+        list => [ 1 .. ( $self->{model}{numRowsTargetUsage} || 6 ) ],
+        defaultFormat => 'thitem'
+    );
+    my $name = Dataset(
+        name          => 'Name',
+        rows          => $inputRowset,
+        defaultFormat => 'texthard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    my $level = Dataset(
+        name          => 'Usage level',
+        rows          => $inputRowset,
+        defaultFormat => 'texthard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    my ( $startDate, $endDate, $growth, $factor ) =
+      $self->forecastInputDataAndFactors( $inputRowset, 'Target usage' );
+    my $capacity = Dataset(
+        name          => 'Network capacity (kVA)',
+        rows          => $inputRowset,
+        defaultFormat => '0hard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    Columnset(
+        name     => 'Target usage forecasting information',
+        number   => 1538,
+        appendTo => $self->{model}{inputTables},
+        dataset  => $self->{model}{dataset},
+        columns => [ $name, $level, $startDate, $endDate, $growth, $capacity, ],
+    );
+    $self->aggregateForecast( undef, $usageSet, undef, $level,
+        $factor, $capacity );
+}
+
+sub demandInputAndFactor {
+    my ($self) = @_;
+    return $self->{demandInputAndFactor} if $self->{demandInputAndFactor};
+    my $inputRowset = Labelset(
+        list => [ 1 .. ( $self->{model}{numRowsDemand} || 24 ) ],
+        defaultFormat => 'thitem'
+    );
+    my $name = Dataset(
+        name          => 'Name',
+        rows          => $inputRowset,
+        defaultFormat => 'texthard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    my $tariff = Dataset(
+        name          => 'Applicable tariff',
+        rows          => $inputRowset,
+        defaultFormat => 'texthard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    my ( $startDate, $endDate, $growth, $factor ) =
+      $self->forecastInputDataAndFactors( $inputRowset, 'Demand' );
+    my @demands = map {
+        Dataset(
+            rows          => $inputRowset,
+            defaultFormat => '0hard',
+            name          => $_,
+            data          => [ map { ''; } @{ $inputRowset->{list} } ],
+        );
+    } @{ $self->{setup}->volumeComponents };
+    $self->{demandInputColumns} =
+      [ $name, $tariff, $startDate, $endDate, $growth, @demands, ];
+    $self->{demandInputAndFactor} = [ $tariff, $factor, @demands, ];
+}
+
+sub totalDemand {
+    my ( $self, $usetName, $wantedRowset ) = @_;
+    return $self->{totalDemand}{$wantedRowset}{$usetName}
+      if $self->{totalDemand}{$wantedRowset}{$usetName};
+    my ( $tariff, $factor, @demands ) = @{ $self->demandInputAndFactor };
+    my $prop;
+    push @{ $self->{scenarioProportions} },
+      $prop = Dataset(
+        name          => "Proportion in $usetName",
+        rows          => $factor->{rows},
+        defaultFormat => '%hard',
+        data          => [ map { 1; } @{ $factor->{rows}{list} } ],
+      ) unless $usetName eq 'all users';
+    my @columns = map {
+        $self->aggregateForecast( $wantedRowset, undef, $prop, $tariff,
+            $factor, $_ );
+    } @demands;
     if ( $self->{setup}{timebands} ) {
         push @columns,
           Arithmetic(
@@ -276,11 +313,10 @@ sub totalDemand {
     }
     push @{ $self->{model}{volumeTables} },
       Columnset(
-        name    => "Forecast volumes for $usetName",
+        name    => "Forecast demands for $usetName",
         columns => \@columns,
       );
-    $self->{totalDemand}{$tariffSet}{$usetName} = \@columns;
-
+    $self->{totalDemand}{$wantedRowset}{$usetName} = \@columns;
 }
 
 sub finish {
@@ -299,12 +335,12 @@ sub finish {
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
         columns  => [
-            @{ $self->{detailedVolumeInputs} },
+            @{ $self->{demandInputColumns} },
             $self->{scenarioProportions}
             ? @{ $self->{scenarioProportions} }
             : (),
         ],
-    ) if $self->{detailedVolumeInputs};
+    ) if $self->{demandInputColumns};
 }
 
 1;

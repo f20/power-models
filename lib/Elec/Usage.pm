@@ -108,7 +108,10 @@ sub matchTotalUsage {
     my ( $model, $setup, $customers, $timebands ) =
       @{$self}{qw(model setup customers timebands)};
 
-    my $targetUsage = Dataset(
+    my $targetUsage =
+        $self->{model}{interpolator}
+      ? $self->{model}{interpolator}->targetUsage( $self->{setup}->usageSet )
+      : Dataset(
         name          => 'Target network usage',
         defaultFormat => '0hard',
         cols          => $self->{setup}->usageSet,
@@ -116,7 +119,7 @@ sub matchTotalUsage {
         appendTo      => $model->{inputTables},
         dataset       => $model->{dataset},
         data          => [ map { ''; } $setup->usageSet->indices ],
-    );
+      );
 
     my $adjustableCapacityUsageRate = Dataset(
         name => 'Adjustable element of network usage'
