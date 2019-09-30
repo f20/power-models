@@ -25,7 +25,7 @@
 
 use warnings;
 use strict;
-
+use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
@@ -210,10 +210,10 @@ sub aggregateForecast {
 
 }
 
-sub targetUsage {    # warning side effects: no results caching here
+sub targetUsage {
     my ( $self, $usageSet ) = @_;
     my $inputRowset = Labelset(
-        list => [ 1 .. ( $self->{model}{numRowsTargetUsage} || 6 ) ],
+        list => [ 1 .. ( $self->{model}{numRowsTargetUsage} || 5 ) ],
         defaultFormat => 'thitem'
     );
     my $name = Dataset(
@@ -245,6 +245,50 @@ sub targetUsage {    # warning side effects: no results caching here
     );
     $self->aggregateForecast( undef, $usageSet, undef, $level,
         $factor, $capacity );
+}
+
+sub runningCostData {
+    my ($self) = @_;
+    return $self->{runningCostData} if $self->{runningCostData};
+    my $inputRowset = Labelset(
+        list => [ 1 .. ( $self->{model}{numRowsRunningCosts} || 10 ) ],
+        defaultFormat => 'thitem'
+    );
+    my $name = Dataset(
+        name          => 'Name',
+        rows          => $inputRowset,
+        defaultFormat => 'texthard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    my $category = Dataset(
+        name          => 'Cost category',
+        rows          => $inputRowset,
+        defaultFormat => 'texthard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    my ( $startDate, $endDate, $growth, $factor ) =
+      $self->forecastInputDataAndFactors( $inputRowset, 'Target usage' );
+    my $amount = Dataset(
+        name          => 'Annual cost (£/year)',
+        rows          => $inputRowset,
+        defaultFormat => '0hard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    Columnset(
+        name     => 'Running cost forecasting information',
+        number   => 1558,
+        appendTo => $self->{model}{inputTables},
+        dataset  => $self->{model}{dataset},
+        columns =>
+          [ $name, $category, $startDate, $endDate, $growth, $amount, ],
+    );
+    $self->{runningCostData} = [ $category, $factor, $amount ];
+}
+
+sub runningCosts {
+    my ( $self, $usageSet ) = @_;
+    $self->aggregateForecast( undef, $usageSet, undef,
+        @{ $self->runningCostData } );
 }
 
 sub demandInputAndFactor {

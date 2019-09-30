@@ -163,28 +163,6 @@ sub assetCharge {
       );
 }
 
-sub usetNonAssetCosts {
-    my ( $self, $totalUsage ) = @_;
-    $self->{nonAssetCharge} ||= Arithmetic(
-        name       => 'Non-asset-based charges (£/unit of usage/year)',
-        arithmetic => '=A1/A2',
-        arguments  => {
-            A1 => Dataset(
-                name     => 'Relevant non-asset charges (£/year)',
-                number   => 1556,
-                cols     => $self->{setup}->nonAssetUsageSet,
-                appendTo => $self->{model}{inputTables},
-                dataset  => $self->{model}{dataset},
-                data     => [
-                    map { 5e5; } @{ $self->{setup}->nonAssetUsageSet->{list} }
-                ],
-                defaultFormat => '0hard',
-            ),
-            A2 => $totalUsage,
-        }
-    );
-}
-
 sub detailedAssets {
     my ( $self, $usage, %flags ) = @_;
     my $notionalAssetMatrix = Arithmetic(
@@ -286,26 +264,54 @@ sub usetMatchAssets {
 
 sub usetRunningCosts {
     my ( $self, $totalUsage ) = @_;
-    my $assetRate   = $self->assetRate;
-    my $totalAssets = SumProduct(
-        name          => 'Total relevant notional assets (£)',
-        matrix        => $totalUsage,
-        vector        => $assetRate,
-        defaultFormat => '0soft',
-    );
-    my $totalCosts = Dataset(
+    my $totalCosts =
+      $self->{model}{interpolator}
+      ? $self->{model}{interpolator}->runningCosts(
+        Labelset( list => ['Total asset running costs (£/year)'] ) )
+      : Dataset(
         name          => 'Total asset running costs (£/year)',
         number        => 1559,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         data          => [1e6],
         defaultFormat => '0hard',
+      );
+    my $totalAssets = SumProduct(
+        name          => 'Total relevant notional assets (£)',
+        matrix        => $totalUsage,
+        vector        => $self->assetRate,
+        defaultFormat => '0soft',
     );
     $self->{runningRate} = Arithmetic(
         name       => 'Annual running costs relative to notional asset value',
         arithmetic => '=A1/A3',
         defaultFormat => '%soft',
         arguments     => { A1 => $totalCosts, A3 => $totalAssets, },
+    );
+}
+
+sub usetNonAssetCosts {
+    my ( $self, $totalUsage ) = @_;
+    my $nonAssetCosts =
+        $self->{model}{interpolator}
+      ? $self->{model}{interpolator}
+      ->runningCosts( $self->{setup}->nonAssetUsageSet )
+      : Dataset(
+        name     => 'Relevant non-asset charges (£/year)',
+        number   => 1556,
+        cols     => $self->{setup}->nonAssetUsageSet,
+        appendTo => $self->{model}{inputTables},
+        dataset  => $self->{model}{dataset},
+        data => [ map { 5e5; } @{ $self->{setup}->nonAssetUsageSet->{list} } ],
+        defaultFormat => '0hard',
+      );
+    $self->{nonAssetCharge} = Arithmetic(
+        name       => 'Non-asset-based charges (£/unit of usage/year)',
+        arithmetic => '=A1/A2',
+        arguments  => {
+            A1 => $nonAssetCosts,
+            A2 => $totalUsage,
+        }
     );
 }
 
