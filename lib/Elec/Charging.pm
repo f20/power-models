@@ -116,7 +116,7 @@ sub annuityRate {
 sub runningRate {
     my ($self) = @_;
     $self->{runningRate} ||= Dataset(
-        name          => 'Annual running costs (relative to notional assets)',
+        name          => 'Annual running costs relative to notional assets',
         number        => 1554,
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
@@ -248,9 +248,12 @@ sub usetMatchAssets {
             arguments  => { A2 => $maxAssets, A3 => $totalBefore, },
         );
         Columnset(
-            name => 'Application of maximum total notional asset value',
-            columns =>
-              [ $totalBefore, $maxAssets, $self->{assetMatchingFactor}, ],
+            name    => 'Application of maximum total notional asset value',
+            columns => [
+                $totalBefore,
+                $self->{assets} ? $maxAssets : (),
+                $self->{assetMatchingFactor},
+            ],
         );
         $self->{assetRate} = Arithmetic(
             name => 'Adjusted notional assets for each type of usage'
@@ -287,6 +290,13 @@ sub usetRunningCosts {
         arithmetic => '=A1/A3',
         defaultFormat => '%soft',
         arguments     => { A1 => $totalCosts, A3 => $totalAssets, },
+    );
+    Columnset(
+        name    => 'Calculation of running costs charging rate',
+        columns => [
+            $self->{model}{interpolator} ? $totalCosts : (), $totalAssets,
+            $self->{runningRate},
+        ],
     );
 }
 

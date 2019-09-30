@@ -50,57 +50,70 @@ MV breaker
 MV circuit km
 MV transformer
 MV ring main unit
+LV frame
 LV circuit km
 LV cut-out
 EOL
 }
 
-sub assetValuesVolumesColumnset {
+sub valuesVolumesLives {
     my ($self) = @_;
-    $self->{assetValuesVolumesColumnset} ||= Columnset(
+    return $self->{valuesVolumesLives} if $self->{valuesVolumesLives};
+    if ( $self->{model}{interpolator} ) {
+        my ( $val, $life ) = $self->{model}{interpolator}
+          ->assetValuesLives( $self->assetLabelset );
+        return $self->{valuesVolumesLives} = [
+            $val,
+            $self->{model}{interpolator}->assetVolumes( $self->assetLabelset ),
+            $life
+        ];
+    }
+    $self->{valuesVolumesLives} = [
+        Dataset(
+            name          => Label( 'Value (£)', 'Asset valuation (£/unit)' ),
+            defaultFormat => '0hard',
+            rows          => $self->assetLabelset,
+            data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
+        ),
+        Dataset(
+            name => Label( 'Volume', 'Asset volume (units)' ),
+            rows => $self->assetLabelset,
+            data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
+        ),
+        $self->{model}{assetDetailAnnualisationPeriod}
+        ? Dataset(
+            name => Label(
+                'Annualisation period (years)',
+                'Asset annualisation period (years)'
+            ),
+            rows => $self->assetLabelset,
+            data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
+          )
+        : (),
+    ];
+    Columnset(
         name     => 'Network assets',
         number   => 1551,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
-        columns  => [
-            Dataset(
-                name => Label( 'Value (£)', 'Asset valuation (£/unit)' ),
-                defaultFormat => '0hard',
-                rows          => $self->assetLabelset,
-                data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
-            ),
-            Dataset(
-                name => Label( 'Volume', 'Asset volume (units)' ),
-                rows => $self->assetLabelset,
-                data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
-            ),
-            $self->{model}{assetDetailAnnualisationPeriod}
-            ? Dataset(
-                name => Label(
-                    'Annualisation period (years)',
-                    'Asset annualisation period (years)'
-                ),
-                rows => $self->assetLabelset,
-                data => [ map { 1 } 1 .. @{ $self->assetLabelset->{list} } ],
-              )
-            : (),
-        ],
+        columns  => $self->{valuesVolumesLives},
     );
+    $self->{valuesVolumesLives};
 }
 
 sub assetValues {
     my ($self) = @_;
-    $self->assetValuesVolumesColumnset->{columns}[0];
+    $self->valuesVolumesLives->[0];
 }
 
 sub assetVolumes {
     my ($self) = @_;
-    $self->assetValuesVolumesColumnset->{columns}[1];
+    $self->valuesVolumesLives->[1];
 }
 
 sub assetLives {
     my ($self) = @_;
-    $self->assetValuesVolumesColumnset->{columns}[2];
+    $self->valuesVolumesLives->[2];
 }
 
 sub notionalCapacity {

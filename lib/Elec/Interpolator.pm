@@ -67,9 +67,10 @@ sub daysInYear {
     );
 }
 
-sub forecastInputDataAndFactors {
+sub _forecastInputDataAndFactors {
 
     my ( $self, $rowset, $tableName ) = @_;
+
     my $startDate = Dataset(
         name          => 'Start date',
         rows          => $rowset,
@@ -146,7 +147,100 @@ sub forecastInputDataAndFactors {
 
 }
 
-sub aggregateForecast {
+sub assetValuesLives {
+
+    my ( $self, $rowset ) = @_;
+
+    my $life = Dataset(
+        name => 'Annualisation period (years)',
+        rows => $rowset,
+        data => [ map { ''; } @{ $rowset->{list} } ],
+    );
+    my $baseValue = Dataset(
+        name          => 'Baseline value (£)',
+        rows          => $rowset,
+        defaultFormat => '0hard',
+        data          => [ map { ''; } @{ $rowset->{list} } ],
+    );
+    my $startDate = Dataset(
+        name          => 'Reference date',
+        rows          => $rowset,
+        defaultFormat => 'datehard',
+        data          => [ map { ''; } @{ $rowset->{list} } ],
+    );
+    my $growth = Dataset(
+        name          => 'Annual change in value',
+        rows          => $rowset,
+        defaultFormat => '%hard',
+        data          => [ map { ''; } @{ $rowset->{list} } ],
+    );
+
+    Columnset(
+        name     => 'Asset value forecasting information',
+        number   => 1552,
+        appendTo => $self->{model}{inputTables},
+        dataset  => $self->{model}{dataset},
+        columns  => [ $life, $baseValue, $startDate, $growth, ],
+    );
+
+    my $first = Arithmetic(
+        name          => 'Offset of first day',
+        defaultFormat => '0soft',
+        rows          => $rowset,
+        arithmetic    => '=IF(A201,MAX(0,A802-A202),0)',
+        arguments     => {
+            A201 => $startDate,
+            A202 => $startDate,
+            A802 => $self->firstDay,
+        },
+    );
+
+    my $last = Arithmetic(
+        name          => 'Offset of last day',
+        defaultFormat => '0soft',
+        rows          => $rowset,
+        arithmetic    => '=IF(A201,A901-A202,-1)',
+        arguments     => {
+            A201 => $startDate,
+            A202 => $startDate,
+            A901 => $self->lastDay,
+        },
+    );
+
+    my $value = Arithmetic(
+        name          => 'Scaling factor for the charging year',
+        defaultFormat => '0soft',
+        rows          => $rowset,
+        arithmetic    => '=IF(OR(A103<0,A104<A203),0,IF(A701,'
+          . '((1+A702)^((A102+1)/365.25)-(1+A703)^(A202/365.25))/LN(1+A704)'
+          . ',(A101+1-A201)/365.25))*365.25/A9*A8',
+        arguments => {
+            A101 => $last,
+            A102 => $last,
+            A103 => $last,
+            A104 => $last,
+            A201 => $first,
+            A202 => $first,
+            A203 => $first,
+            A701 => $growth,
+            A702 => $growth,
+            A703 => $growth,
+            A704 => $growth,
+            A8   => $baseValue,
+            A9   => $self->daysInYear,
+        },
+    );
+
+    Columnset(
+        name    => 'Asset volume forecasting calculations',
+        columns => [ $first, $last, $value, ],
+    );
+
+    $value, $life;
+
+}
+
+sub _aggregateForecast {
 
     my ( $self, $wantedRowset, $wantedColumnset, $prop, $category, $factor,
         $column )
@@ -210,6 +304,43 @@ sub aggregateForecast {
 
 }
 
+sub assetVolumes {
+    my ( $self, $assetLabelset ) = @_;
+    my $inputRowset = Labelset(
+        list => [ 1 .. ( $self->{model}{numRowsAssetVolumes} || 15 ) ],
+        defaultFormat => 'thitem'
+    );
+    my $name = Dataset(
+        name          => 'Name',
+        rows          => $inputRowset,
+        defaultFormat => 'texthard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    my $category = Dataset(
+        name          => 'Asset category',
+        rows          => $inputRowset,
+        defaultFormat => 'texthard',
+        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    my ( $startDate, $endDate, $growth, $factor ) =
+      $self->_forecastInputDataAndFactors( $inputRowset, 'Target usage' );
+    my $quantity = Dataset(
+        name => 'Asset count',
+        rows => $inputRowset,
+        data => [ map { ''; } @{ $inputRowset->{list} } ],
+    );
+    Columnset(
+        name     => 'Asset voilume forecasting information',
+        number   => 1553,
+        appendTo => $self->{model}{inputTables},
+        dataset  => $self->{model}{dataset},
+        columns =>
+          [ $name, $category, $startDate, $endDate, $growth, $quantity, ],
+    );
+    $self->_aggregateForecast( $assetLabelset, undef, undef, $category,
+        $factor, $quantity );
+}
+
 sub targetUsage {
     my ( $self, $usageSet ) = @_;
     my $inputRowset = Labelset(
@@ -229,7 +360,7 @@ sub targetUsage {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->forecastInputDataAndFactors( $inputRowset, 'Target usage' );
+      $self->_forecastInputDataAndFactors( $inputRowset, 'Target usage' );
     my $capacity = Dataset(
         name          => 'Network capacity (kVA)',
         rows          => $inputRowset,
@@ -243,7 +374,7 @@ sub targetUsage {
         dataset  => $self->{model}{dataset},
         columns => [ $name, $level, $startDate, $endDate, $growth, $capacity, ],
     );
-    $self->aggregateForecast( undef, $usageSet, undef, $level,
+    $self->_aggregateForecast( undef, $usageSet, undef, $level,
         $factor, $capacity );
 }
 
@@ -267,7 +398,7 @@ sub runningCostData {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->forecastInputDataAndFactors( $inputRowset, 'Target usage' );
+      $self->_forecastInputDataAndFactors( $inputRowset, 'Target usage' );
     my $amount = Dataset(
         name          => 'Annual cost (£/year)',
         rows          => $inputRowset,
@@ -287,7 +418,7 @@ sub runningCostData {
 
 sub runningCosts {
     my ( $self, $usageSet ) = @_;
-    $self->aggregateForecast( undef, $usageSet, undef,
+    $self->_aggregateForecast( undef, $usageSet, undef,
         @{ $self->runningCostData } );
 }
 
@@ -311,7 +442,7 @@ sub demandInputAndFactor {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->forecastInputDataAndFactors( $inputRowset, 'Demand' );
+      $self->_forecastInputDataAndFactors( $inputRowset, 'Demand' );
     my @demands = map {
         Dataset(
             rows          => $inputRowset,
@@ -339,7 +470,7 @@ sub totalDemand {
         data          => [ map { 1; } @{ $factor->{rows}{list} } ],
       ) unless $usetName eq 'all users';
     my @columns = map {
-        $self->aggregateForecast( $wantedRowset, undef, $prop, $tariff,
+        $self->_aggregateForecast( $wantedRowset, undef, $prop, $tariff,
             $factor, $_ );
     } @demands;
     if ( $self->{setup}{timebands} ) {
