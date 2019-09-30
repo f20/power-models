@@ -230,12 +230,13 @@ sub setFormats {
     my @num_date =
       $rightpad
       ? (
-        num_format => qq'${black}d mmm yyyy;[Red]-General;;$cyan\@$rightpad',
-        align      => 'right'
+        num_format => qq'${black}d mmm yyyy$rightpad;'
+          . qq'[Red]-General$rightpad;;$cyan\@$rightpad',
+        align => 'right'
       )
       : (
-        num_format => qq'${black}d mmm yyyy  ;[Red]-General  ;;$cyan@',
-        align      => 'right'
+        num_format => qq'${black}d mmm yyyy;[Red]-General;;$cyan@',
+        align      => 'center'
       );
     my @num_datetime =
       $rightpad
