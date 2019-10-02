@@ -246,8 +246,11 @@ sub _aggregateForecast {
         $column )
       = @_;
 
-    my $name          = $column->objectShortName;
-    my $averagingFlag = $name =~ /Wh|VArh|\/year/;
+    my $name =
+        $wantedColumnset && !$#{ $wantedColumnset->{list} }
+      ? $wantedColumnset->{list}[0]
+      : $column->objectShortName;
+    my $averagingFlag = $name =~ /Wh|VArh|\/year/i;
 
     new SpreadsheetModel::Custom(
         name          => $name,
@@ -295,9 +298,11 @@ sub _aggregateForecast {
                   ? Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
                     $self->{$wb}{row} + $y,
                     0, 0, 1 )
-                  : Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( 0,
+                  : Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                    $self->{$wb}{row} - 1,
                     $self->{$wb}{col} + $x,
-                    1, 0 );
+                    1, 0
+                  );
             };
         }
     );
@@ -323,7 +328,7 @@ sub assetVolumes {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->_forecastInputDataAndFactors( $inputRowset, 'Target usage' );
+      $self->_forecastInputDataAndFactors( $inputRowset, 'Asset volume' );
     my $quantity = Dataset(
         name => 'Asset count',
         rows => $inputRowset,
@@ -398,7 +403,7 @@ sub runningCostData {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->_forecastInputDataAndFactors( $inputRowset, 'Target usage' );
+      $self->_forecastInputDataAndFactors( $inputRowset, 'Running cost' );
     my $amount = Dataset(
         name          => 'Annual cost (£/year)',
         rows          => $inputRowset,
