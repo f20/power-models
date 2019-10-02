@@ -330,8 +330,8 @@ sub assetVolumes {
         data => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     Columnset(
-        name     => 'Asset voilume forecasting information',
-        number   => 1553,
+        name     => 'Asset volume forecasting information',
+        number   => 1550,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
         columns =>

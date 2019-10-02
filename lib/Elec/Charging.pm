@@ -268,9 +268,9 @@ sub usetMatchAssets {
 sub usetRunningCosts {
     my ( $self, $totalUsage ) = @_;
     my $totalCosts =
-      $self->{model}{interpolator}
-      ? $self->{model}{interpolator}->runningCosts(
-        Labelset( list => ['Total asset running costs (£/year)'] ) )
+        $self->{model}{interpolator}
+      ? $self->{model}{interpolator}
+      ->runningCosts( Labelset( list => ['Asset running costs'] ) )
       : Dataset(
         name          => 'Total asset running costs (£/year)',
         number        => 1559,
