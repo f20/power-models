@@ -74,6 +74,8 @@ sub requiredModulesForRuleset {
       : $ruleset->{targetRevenue}
       && $ruleset->{targetRevenue} =~ /dcp249|dcp273|2016/i
       ? 'CDCM::Table1001_2016'
+      : $ruleset->{targetRevenue}
+      && $ruleset->{targetRevenue} =~ /dcp334|2019/i ? 'CDCM::Table1001_2019'
       : (),
 
        !$ruleset->{scaler}               ? ()
@@ -368,7 +370,8 @@ sub new {
         $allTariffsByEndUser
       );
 
-    push @{ $model->{contributions} }, $replacementShare = Stack(
+    push @{ $model->{contributions} },
+      $replacementShare = Stack(
         name => 'Share of amount that relates'
           . ' to replacement of customer contributed assets',
         defaultFormat => '%connz',
@@ -399,7 +402,7 @@ sub new {
             ),
             $replacementShare
         ]
-    ) if $model->{noReplacement} && $model->{noReplacement} =~ /hybrid/i;
+      ) if $model->{noReplacement} && $model->{noReplacement} =~ /hybrid/i;
 
     Columnset(
         name     => 'Financial and general assumptions',
@@ -686,7 +689,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                         ],
                         "PAYG $_ kWh" => [ $paygUnitRates->[ $_ - 1 ] ],
                     }
-                  )
+                )
             } 2 .. $model->{maxUnitRates}
         ),
         $fFactors
@@ -698,7 +701,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             $model->{unauth} && $model->{unauth} =~ /day/
             ? 'Exceeded capacity charge p/kVA/day'
             : 'Unauthorised demand charge p/kVAh'
-          ) => { 'Capacity' => [$unauthorisedDemandCharges] },
+        ) => { 'Capacity' => [$unauthorisedDemandCharges] },
         'Fixed charge p/MPAN/day' => {
             'Fixed from network'            => [$capacityUser],
             'Fixed from network & customer' => [
@@ -1034,7 +1037,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                             } @allTariffColumns
                         ]
                       );
-                  } split /;\s*/,
+                } split /;\s*/,
                 $model->{checksums}
               )
             : (),

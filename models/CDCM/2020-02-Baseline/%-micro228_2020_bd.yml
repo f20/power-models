@@ -1,0 +1,28 @@
+---
+.: 'CDCM from 2020 with DCP 334, micro-model'
+.Style: Micro model for forecasters
+PerlModule: CDCM
+agghhequalisation: rag
+alwaysUseRAG: 1
+blackPeakingProbabilityRequired: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupums
+compact: 1
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+generationReactiveRouteingFix: 1
+lvDiversityWrong: 1
+nickName: After 2020
+noLLFCs: 1
+noLinks: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: adderppugeneralminzeronogen
+standing: sub132
+summary: statisticsbrief
+targetRevenue: dcp334
+tariffs: commongensubdcp130dcp163pc12hhpc34hhgennoreact
+timeOfDay: timeOfDay179
+unauth: dayotex
