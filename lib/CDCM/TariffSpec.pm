@@ -271,7 +271,7 @@ __DATA__
 ---
 - LV generation half hourly (no reactive)
 - Name: LV Generation Non-Intermittent no RP charge
-  Name268: LV Generation Site Specific no RP charge
+  Name268: LV Generation Site Specific no RP Charge
 - Fixed charge p/MPAN/day
 - PC0
 - Unit rates p/kWh
@@ -301,7 +301,7 @@ __DATA__
 ---
 - LV substation generation half hourly (no reactive)
 - Name: LV Sub Generation Non-Intermittent no RP charge
-  Name268: LV Sub Generation Site Specific no RP charge
+  Name268: LV Sub Generation Site Specific no RP Charge
 - Fixed charge p/MPAN/day
 - PC0
 - Unit rates p/kWh
@@ -331,7 +331,7 @@ __DATA__
 ---
 - HV generation half hourly (no reactive)
 - Name: HV Generation Non-Intermittent no RP charge
-  Name268: HV Generation Site Specific no RP charge
+  Name268: HV Generation Site Specific no RP Charge
 - Fixed charge p/MPAN/day
 - PC0
 - Unit rates p/kWh
