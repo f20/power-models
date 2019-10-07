@@ -1,0 +1,922 @@
+---
+1000:
+  - _table: '1000. Company, charging year, data version'
+  - Company charging year data version: Eastern Power Networks
+    _column: Company
+  - Company charging year data version: 2020/2021
+    _column: Year
+  - Company charging year data version: December 2018
+    _column: Version
+1001:
+  - _table: 1001. CDCM target revenue (£ unless otherwise stated)
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: H1
+    2 Revenue raised outside CDCM Voluntary under-recovery: H2
+    3 Revenue raised outside CDCM Please describe if used: H3
+    4 Revenue raised outside CDCM Please describe if used: H4
+    Allowed Pass-Through Items: B = Sum of B1 to B9
+    Annual Iteration adjustment before inflation: A2
+    Base Demand Revenue before inflation: A1
+    Base demand revenue: A = (A1 + A2 + A3) * A4
+    Broad Measure of Customer Service incentive: C1
+    Connection Guaranteed Standards Systems Processes penalty: C8
+    Connections Engagement incentive: C3
+    Correction Factor: D
+    Incentive Revenue and Other Adjustments: C = Sum of C1 to C9
+    Latest forecast of CDCM Revenue: 'I = G - H'
+    Losses Discretionary Reward incentive: C5
+    Low Carbon Network Fund Tier 1 unrecoverable: C7
+    Low Carbon Network Fund Tier 2 Discretionary Funding: C7
+    Network Innovation Allowance: C6
+    Other 1 Excluded services Top-up standby and enhanced system security: F1 (see note 1)
+    Other 2 Excluded services Revenue protection services: F2 (see note 1)
+    Other 3 Excluded services Miscellaneous: F3 (see note 1)
+    Other 4 Please describe if used: F4
+    Other 5 Please describe if used: F5
+    Pass-Through Business Rates: B2
+    Pass-Through Licence Fees: B1
+    Pass-Through Others: B9
+    Pass-Through Transmission Connection Point Charges: B3
+    Pass-through Eligible Bad Debt Adjustment: B8
+    Pass-through Ring Fence Costs: B6
+    Pass-through Smart Meter Communication Licence Costs: B4
+    Pass-through Smart Meter IT Costs: B5
+    Pass-through Supplier of Last Resort Adjustment: B7
+    Price index adjustment RPI index: A4
+    Quality of Service incentive: C2
+    RPI True-up before inflation: A3
+    Residual Losses and Growth Incentive Growth: C9
+    Residual Losses and Growth Incentive Losses: C9
+    Time to Connect incentive: C4
+    Total Revenue for Use of System Charges: G = E + F
+    Total Revenue to be raised outside the CDCM: H = Sum of H1 to H4
+    Total allowed Revenue: E = A + B + C + D
+    Total other revenue recovered by Use of System Charges: F = Sum of F1 to F5
+    _column: Further description
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: ''
+    2 Revenue raised outside CDCM Voluntary under-recovery: ''
+    3 Revenue raised outside CDCM Please describe if used: Please describe
+    4 Revenue raised outside CDCM Please describe if used: Please describe
+    Allowed Pass-Through Items: PT
+    Annual Iteration adjustment before inflation: MOD
+    Base Demand Revenue before inflation: PU
+    Base demand revenue: BR
+    Broad Measure of Customer Service incentive: BM
+    Connection Guaranteed Standards Systems Processes penalty: 'AUM, CGSRA'
+    Connections Engagement incentive: ICE
+    Correction Factor: -K
+    Incentive Revenue and Other Adjustments: ''
+    Latest forecast of CDCM Revenue: ''
+    Losses Discretionary Reward incentive: LDR
+    Low Carbon Network Fund Tier 1 unrecoverable: LCN1
+    Low Carbon Network Fund Tier 2 Discretionary Funding: LCN2
+    Network Innovation Allowance: NIA
+    Other 1 Excluded services Top-up standby and enhanced system security: DRS4
+    Other 2 Excluded services Revenue protection services: DRS5
+    Other 3 Excluded services Miscellaneous: DRS9
+    Other 4 Please describe if used: Please describe
+    Other 5 Please describe if used: Please describe
+    Pass-Through Business Rates: RB
+    Pass-Through Licence Fees: LF
+    Pass-Through Others: 'HB, SEC, UNC'
+    Pass-Through Transmission Connection Point Charges: TB
+    Pass-through Eligible Bad Debt Adjustment: EBD
+    Pass-through Ring Fence Costs: RF
+    Pass-through Smart Meter Communication Licence Costs: SMC
+    Pass-through Smart Meter IT Costs: SMIT
+    Pass-through Supplier of Last Resort Adjustment: SLR
+    Price index adjustment RPI index: RPIF
+    Quality of Service incentive: IQ
+    RPI True-up before inflation: TRU
+    Residual Losses and Growth Incentive Growth: GTA
+    Residual Losses and Growth Incentive Losses: PPL
+    Time to Connect incentive: TTC
+    Total Revenue for Use of System Charges: ''
+    Total Revenue to be raised outside the CDCM: ''
+    Total allowed Revenue: AR
+    Total other revenue recovered by Use of System Charges: ''
+    _column: Term
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: ''
+    2 Revenue raised outside CDCM Voluntary under-recovery: ''
+    3 Revenue raised outside CDCM Please describe if used: if used
+    4 Revenue raised outside CDCM Please describe if used: if used
+    Allowed Pass-Through Items: CRC2B
+    Annual Iteration adjustment before inflation: CRC2A
+    Base Demand Revenue before inflation: CRC2A
+    Base demand revenue: CRC2A
+    Broad Measure of Customer Service incentive: CRC2C
+    Connection Guaranteed Standards Systems Processes penalty: CRC2K-L
+    Connections Engagement incentive: CRC2E
+    Correction Factor: CRC2A
+    Incentive Revenue and Other Adjustments: ''
+    Latest forecast of CDCM Revenue: ''
+    Losses Discretionary Reward incentive: CRC2G
+    Low Carbon Network Fund Tier 1 unrecoverable: CRC2J
+    Low Carbon Network Fund Tier 2 Discretionary Funding: CRC2J
+    Network Innovation Allowance: CRC2H
+    Other 1 Excluded services Top-up standby and enhanced system security: CRC5C
+    Other 2 Excluded services Revenue protection services: CRC5C
+    Other 3 Excluded services Miscellaneous: CRC5C
+    Other 4 Please describe if used: if used
+    Other 5 Please describe if used: if used
+    Pass-Through Business Rates: CRC2B
+    Pass-Through Licence Fees: CRC2B
+    Pass-Through Others: CRC2B
+    Pass-Through Transmission Connection Point Charges: CRC2B
+    Pass-through Eligible Bad Debt Adjustment: CRC2B
+    Pass-through Ring Fence Costs: CRC2B
+    Pass-through Smart Meter Communication Licence Costs: CRC2B
+    Pass-through Smart Meter IT Costs: CRC2B
+    Pass-through Supplier of Last Resort Adjustment: CRC2B
+    Price index adjustment RPI index: CRC2A
+    Quality of Service incentive: CRC2D
+    RPI True-up before inflation: CRC2A
+    Residual Losses and Growth Incentive Growth: CRC2M
+    Residual Losses and Growth Incentive Losses: CRC2M
+    Time to Connect incentive: CRC2F
+    Total Revenue for Use of System Charges: ''
+    Total Revenue to be raised outside the CDCM: ''
+    Total allowed Revenue: CRC2A
+    Total other revenue recovered by Use of System Charges: ''
+    _column: CRC
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 18891032.4351223
+    2 Revenue raised outside CDCM Voluntary under-recovery: ''
+    3 Revenue raised outside CDCM Please describe if used: ''
+    4 Revenue raised outside CDCM Please describe if used: ''
+    Allowed Pass-Through Items: ''
+    Annual Iteration adjustment before inflation: -22027519.3489238
+    Base Demand Revenue before inflation: 524100000
+    Base demand revenue: ''
+    Broad Measure of Customer Service incentive: 5337337.1298779
+    Connection Guaranteed Standards Systems Processes penalty: 0
+    Connections Engagement incentive: 0
+    Correction Factor: -1628684.97590668
+    Incentive Revenue and Other Adjustments: ''
+    Latest forecast of CDCM Revenue: ''
+    Losses Discretionary Reward incentive: 0
+    Low Carbon Network Fund Tier 1 unrecoverable: 0
+    Low Carbon Network Fund Tier 2 Discretionary Funding: 180000
+    Network Innovation Allowance: 3015000
+    Other 1 Excluded services Top-up standby and enhanced system security: ''
+    Other 2 Excluded services Revenue protection services: ''
+    Other 3 Excluded services Miscellaneous: ''
+    Other 4 Please describe if used: ''
+    Other 5 Please describe if used: ''
+    Pass-Through Business Rates: -3992163.70536156
+    Pass-Through Licence Fees: 306548.813158998
+    Pass-Through Others: 0
+    Pass-Through Transmission Connection Point Charges: -13695469.9346962
+    Pass-through Eligible Bad Debt Adjustment: ''
+    Pass-through Ring Fence Costs: 0
+    Pass-through Smart Meter Communication Licence Costs: 2207223.00936214
+    Pass-through Smart Meter IT Costs: 22079.9381805569
+    Pass-through Supplier of Last Resort Adjustment: ''
+    Price index adjustment RPI index: 1.236
+    Quality of Service incentive: 25047649.2849148
+    RPI True-up before inflation: 993191.616044417
+    Residual Losses and Growth Incentive Growth: 0
+    Residual Losses and Growth Incentive Losses: 0
+    Time to Connect incentive: 356428.985634544
+    Total Revenue for Use of System Charges: ''
+    Total Revenue to be raised outside the CDCM: ''
+    Total allowed Revenue: ''
+    Total other revenue recovered by Use of System Charges: ''
+    _column: Value
+  - _column: Calculations (£/year)
+1010:
+  - _table: 1010. Financial and general assumptions
+  - Financial and general assumptions: 0.0379
+    _column: Rate of return
+  - Financial and general assumptions: 40
+    _column: Annualisation period (years)
+  - _column: Annuity proportion for customer-contributed assets
+  - Financial and general assumptions: 0.95
+    _column: Power factor
+  - Financial and general assumptions: 365
+    _column: Days in the charging year
+1017:
+  - _table: 1017. Diversity allowance between top and bottom of network level
+  - 132kV: 0.0234781533185557
+    132kV EHV: ''
+    EHV: 0.0647354515974905
+    EHV HV: ''
+    GSPs: 0.0167478913098034
+    HV: 0.18
+    HV LV: ''
+    LV circuits: ''
+    _column: Diversity allowance between top and bottom of network level
+1018:
+  - _table: 1018. Proportion of relevant load going through 132kV/HV direct transformation
+  - EHV HV: 0.115790312631511
+    _column: 132kV/HV
+1019:
+  - _table: 1019. Network model GSP peak demand (MW)
+  - Network model GSP peak demand MW: 500
+    _column: Network model GSP peak demand (MW)
+1020:
+  - _table: 1020. Gross asset cost by network level (£)
+  - 132kV: 151897038.035791
+    132kV EHV: 23545115.4697831
+    132kV HV: 4656488.3535575
+    EHV: 124029746.196809
+    EHV HV: 18267762.0024179
+    HV: 139103969.157621
+    HV LV: 80667568.9768973
+    LV circuits: 166034860.766511
+    _column: Gross assets £
+1022:
+  - _table: 1022. LV service model asset cost (£)
+  - LV service model asset cost: 10000
+    _column: LV service model 1
+  - LV service model asset cost: 0
+    _column: LV service model 2
+  - LV service model asset cost: 0
+    _column: LV service model 3
+  - LV service model asset cost: 0
+    _column: LV service model 4
+  - LV service model asset cost: 0
+    _column: LV service model 5
+  - LV service model asset cost: 0
+    _column: LV service model 6
+  - LV service model asset cost: 0
+    _column: LV service model 7
+  - LV service model asset cost: 0
+    _column: LV service model 8
+1023:
+  - _table: 1023. HV service model asset cost (£)
+  - HV service model asset cost: 10000
+    _column: HV service model 1
+  - HV service model asset cost: 0
+    _column: HV service model 2
+  - HV service model asset cost: 0
+    _column: HV service model 3
+  - HV service model asset cost: 0
+    _column: HV service model 4
+  - HV service model asset cost: 0
+    _column: HV service model 5
+1025:
+  - _table: 1025. Matrix of applicability of LV service models to tariffs with fixed charges
+  - Domestic Aggregated: 0.0496072191684285
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 0.216162522022551
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 0.126719315362932
+    Non-Domestic Aggregated: 0.0496072191684285
+    _column: LV service model 1
+  - Domestic Aggregated: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: ''
+    Non-Domestic Aggregated: ''
+    _column: LV service model 2
+  - Domestic Aggregated: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: ''
+    Non-Domestic Aggregated: ''
+    _column: LV service model 3
+  - Domestic Aggregated: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: ''
+    Non-Domestic Aggregated: ''
+    _column: LV service model 4
+  - Domestic Aggregated: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: ''
+    Non-Domestic Aggregated: ''
+    _column: LV service model 5
+  - Domestic Aggregated: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: ''
+    Non-Domestic Aggregated: ''
+    _column: LV service model 6
+  - Domestic Aggregated: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: ''
+    Non-Domestic Aggregated: ''
+    _column: LV service model 7
+  - Domestic Aggregated: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: ''
+    Non-Domestic Aggregated: ''
+    _column: LV service model 8
+1026:
+  - _table: 1026. Matrix of applicability of LV service models to unmetered tariffs
+  - All LV unmetered tariffs: 0.0301128464993999
+    _column: LV service model 1
+  - All LV unmetered tariffs: ''
+    _column: LV service model 2
+  - All LV unmetered tariffs: ''
+    _column: LV service model 3
+  - All LV unmetered tariffs: ''
+    _column: LV service model 4
+  - All LV unmetered tariffs: ''
+    _column: LV service model 5
+  - All LV unmetered tariffs: ''
+    _column: LV service model 6
+  - All LV unmetered tariffs: ''
+    _column: LV service model 7
+  - All LV unmetered tariffs: ''
+    _column: LV service model 8
+1028:
+  - _table: 1028. Matrix of applicability of HV service models to tariffs with fixed charges
+  - HV Generation Site Specific: 0.152790107470049
+    HV Generation Site Specific no RP Charge: 0.152790107470049
+    HV Site Specific: 1.74237809513742
+    _column: HV service model 1
+  - HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific: ''
+    _column: HV service model 2
+  - HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific: ''
+    _column: HV service model 3
+  - HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific: ''
+    _column: HV service model 4
+  - HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific: ''
+    _column: HV service model 5
+1032:
+  - _table: 1032. Loss adjustment factors to transmission
+  - Loss adjustment factor: 1.00381847144014
+    _column: 132kV
+  - Loss adjustment factor: 1.01150468799368
+    _column: 132kV/EHV
+  - Loss adjustment factor: 1.01671260183324
+    _column: EHV
+  - Loss adjustment factor: 1.05301870927602
+    _column: EHV/HV
+  - Loss adjustment factor: 1.05303068451522
+    _column: HV
+  - Loss adjustment factor: 1.08327083809637
+    _column: HV/LV
+  - Loss adjustment factor: 1.11564756571993
+    _column: LV circuits
+1037:
+  - _table: 1037. Embedded network (LDNO) discount percentages
+  - LDNO discount: ''
+    _column: No discount
+  - LDNO discount: 0.31185389378985
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.483969765794792
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.232704090260094
+    _column: 'LDNO HV: LV Sub user'
+  - LDNO discount: 0.146526168811899
+    _column: 'LDNO HV: HV user'
+1041:
+  - _table: 1041. Load profile data for demand users
+  - Domestic Aggregated: 0.908065997036648
+    Domestic Aggregated Related MPAN: ''
+    HV Site Specific: 0.809196677721824
+    LV Site Specific: 0.748065828976662
+    LV Sub Site Specific: 0.761994955369743
+    Non-Domestic Aggregated: 0.624332699740647
+    Non-Domestic Aggregated Related MPAN: ''
+    Unmetered Supplies: 1
+    _column: Coincidence factor
+  - Domestic Aggregated: 0.409095797039388
+    Domestic Aggregated Related MPAN: 0.150725127911846
+    HV Site Specific: 0.702949486437198
+    LV Site Specific: 0.540221414729004
+    LV Sub Site Specific: 0.643921788380325
+    Non-Domestic Aggregated: 0.384799613379069
+    Non-Domestic Aggregated Related MPAN: 0.247073056914666
+    Unmetered Supplies: 1
+    _column: Load factor
+1053:
+  - _table: 1053. Volume forecasts for the charging year
+  - Domestic Aggregated: 1587830.52498781
+    Domestic Aggregated Related MPAN: 357.466409824
+    HV Generation Site Specific: 100323.88674265
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific: 611677.995028705
+    LDNO HV Domestic Aggregated: 39870.0639097929
+    LDNO HV Domestic Aggregated Related MPAN: 0
+    LDNO HV HV Generation Site Specific: 103.735150197431
+    LDNO HV HV Site Specific: 7831.11414289651
+    LDNO HV LV Generation Aggregated: 0.187667283785259
+    LDNO HV LV Generation Site Specific: 68.7663324567215
+    LDNO HV LV Site Specific: 28760.9047202432
+    LDNO HV LV Sub Generation Aggregated: 0
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific: 755.312811252901
+    LDNO HV Non-Domestic Aggregated: 3894.04111707675
+    LDNO HV Non-Domestic Aggregated Related MPAN: 0
+    LDNO HV Unmetered Supplies: 47.8153157108916
+    LDNO LV Domestic Aggregated: 13125.4123693425
+    LDNO LV Domestic Aggregated Related MPAN: 0
+    LDNO LV LV Generation Aggregated: 0
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific: 1795.0207244351
+    LDNO LV Non-Domestic Aggregated: 1207.94257793996
+    LDNO LV Non-Domestic Aggregated Related MPAN: 0
+    LDNO LV Unmetered Supplies: 11.1089887058845
+    LV Generation Aggregated: 143.034017022356
+    LV Generation Site Specific: 6579.98969966046
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 486810.50712808
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 541.349453431253
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 86030.8215936993
+    Non-Domestic Aggregated: 462381.320295364
+    Non-Domestic Aggregated Related MPAN: 190.295346194347
+    Unmetered Supplies: 15137.4101282692
+    _column: Rate 1 units (MWh)
+  - Domestic Aggregated: 5378957.65986436
+    Domestic Aggregated Related MPAN: 13086.3459859285
+    HV Generation Site Specific: 391075.128013422
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific: 2639496.01877644
+    LDNO HV Domestic Aggregated: 134450.321706867
+    LDNO HV Domestic Aggregated Related MPAN: 0
+    LDNO HV HV Generation Site Specific: 449.518984188868
+    LDNO HV HV Site Specific: 25934.7667103227
+    LDNO HV LV Generation Aggregated: 0.813224896402789
+    LDNO HV LV Generation Site Specific: 298.414664975231
+    LDNO HV LV Site Specific: 123247.980828679
+    LDNO HV LV Sub Generation Aggregated: 0
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific: 3334.31530866622
+    LDNO HV Non-Domestic Aggregated: 18097.2928514491
+    LDNO HV Non-Domestic Aggregated Related MPAN: 0
+    LDNO HV Unmetered Supplies: 356.112863516752
+    LDNO LV Domestic Aggregated: 44243.6811420413
+    LDNO LV Domestic Aggregated Related MPAN: 0
+    LDNO LV LV Generation Aggregated: 0
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific: 8367.94150889209
+    LDNO LV Non-Domestic Aggregated: 5617.11355206198
+    LDNO LV Non-Domestic Aggregated Related MPAN: 0
+    LDNO LV Unmetered Supplies: 77.470469335122
+    LV Generation Aggregated: 619.814073763544
+    LV Generation Site Specific: 25960.99372651
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 2189902.16271637
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 709.298284231656
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 391750.351339366
+    Non-Domestic Aggregated: 2166724.44110097
+    Non-Domestic Aggregated Related MPAN: 3703.6624061582
+    Unmetered Supplies: 91173.786008325
+    _column: Rate 2 units (MWh)
+  - Domestic Aggregated: 6467682.63891476
+    Domestic Aggregated Related MPAN: 36375.359782311
+    HV Generation Site Specific: 529630.490428784
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific: 2795010.41420902
+    LDNO HV Domestic Aggregated: 141622.797336722
+    LDNO HV Domestic Aggregated Related MPAN: 0
+    LDNO HV HV Generation Site Specific: 607.307699240132
+    LDNO HV HV Site Specific: 28729.5908804044
+    LDNO HV LV Generation Aggregated: 1.0986804966432
+    LDNO HV LV Generation Site Specific: 306.347733511366
+    LDNO HV LV Site Specific: 116154.103438794
+    LDNO HV LV Sub Generation Aggregated: 0
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific: 3162.49673226261
+    LDNO HV Non-Domestic Aggregated: 13905.4214788004
+    LDNO HV Non-Domestic Aggregated Related MPAN: 0
+    LDNO HV Unmetered Supplies: 722.723033000372
+    LDNO LV Domestic Aggregated: 46077.5306953361
+    LDNO LV Domestic Aggregated Related MPAN: 0
+    LDNO LV LV Generation Aggregated: 0
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific: 7699.69419984652
+    LDNO LV Non-Domestic Aggregated: 4621.38810690568
+    LDNO LV Non-Domestic Aggregated Related MPAN: 0
+    LDNO LV Unmetered Supplies: 166.106136801397
+    LV Generation Aggregated: 837.379226092568
+    LV Generation Site Specific: 34889.1351770964
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 1830160.49214748
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 917.960749139451
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 375317.938923953
+    Non-Domestic Aggregated: 1862369.91458752
+    Non-Domestic Aggregated Related MPAN: 9838.36813296284
+    Unmetered Supplies: 192447.465941195
+    _column: Rate 3 units (MWh)
+  - Domestic Aggregated: 3384572.55658816
+    Domestic Aggregated Related MPAN: 40226.445257712
+    HV Generation Site Specific: 246.605962984635
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific: 1933.64492258021
+    LDNO HV Domestic Aggregated: 85117.5985708875
+    LDNO HV Domestic Aggregated Related MPAN: 0
+    LDNO HV HV Generation Site Specific: 1
+    LDNO HV HV Site Specific: 20.4987242969564
+    LDNO HV LV Generation Aggregated: 1.010025
+    LDNO HV LV Generation Site Specific: 3
+    LDNO HV LV Site Specific: 577.633039823124
+    LDNO HV LV Sub Generation Aggregated: 0
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific: 8.47052596205718
+    LDNO HV Non-Domestic Aggregated: 2743.31342984146
+    LDNO HV Non-Domestic Aggregated Related MPAN: 0
+    LDNO HV Unmetered Supplies: 103.417220837153
+    LDNO LV Domestic Aggregated: 28929.8181904243
+    LDNO LV Domestic Aggregated Related MPAN: 0
+    LDNO LV LV Generation Aggregated: 0
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific: 71.4312058035538
+    LDNO LV Non-Domestic Aggregated: 1003.39439855052
+    LDNO LV Non-Domestic Aggregated Related MPAN: 0
+    LDNO LV Unmetered Supplies: 25.403974039343
+    LV Generation Aggregated: 623.6904375
+    LV Generation Site Specific: 633.590964546085
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 19503.6439080635
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 12.1203
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 1013.51182727005
+    Non-Domestic Aggregated: 250587.346429673
+    Non-Domestic Aggregated Related MPAN: 1300.89071992458
+    Unmetered Supplies: 3766.84203079275
+    _column: MPANs
+  - Domestic Aggregated: ''
+    Domestic Aggregated Related MPAN: ''
+    HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific: 2218293.14292471
+    LDNO HV Domestic Aggregated: ''
+    LDNO HV Domestic Aggregated Related MPAN: ''
+    LDNO HV HV Generation Site Specific: ''
+    LDNO HV HV Site Specific: 11233.0720731156
+    LDNO HV LV Generation Aggregated: ''
+    LDNO HV LV Generation Site Specific: ''
+    LDNO HV LV Site Specific: 68117.9336285046
+    LDNO HV LV Sub Generation Aggregated: ''
+    LDNO HV LV Sub Generation Site Specific: ''
+    LDNO HV LV Sub Site Specific: 1585.0037889727
+    LDNO HV Non-Domestic Aggregated: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN: ''
+    LDNO HV Unmetered Supplies: ''
+    LDNO LV Domestic Aggregated: ''
+    LDNO LV Domestic Aggregated Related MPAN: ''
+    LDNO LV LV Generation Aggregated: ''
+    LDNO LV LV Generation Site Specific: ''
+    LDNO LV LV Site Specific: 7345.29864917462
+    LDNO LV Non-Domestic Aggregated: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN: ''
+    LDNO LV Unmetered Supplies: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: 2921831.19925187
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: 384354.098462473
+    Non-Domestic Aggregated: ''
+    Non-Domestic Aggregated Related MPAN: ''
+    Unmetered Supplies: ''
+    _column: Import capacity (kVA)
+  - Domestic Aggregated: ''
+    Domestic Aggregated Related MPAN: ''
+    HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific: 64684.5444882771
+    LDNO HV Domestic Aggregated: ''
+    LDNO HV Domestic Aggregated Related MPAN: ''
+    LDNO HV HV Generation Site Specific: ''
+    LDNO HV HV Site Specific: 459.081165573414
+    LDNO HV LV Generation Aggregated: ''
+    LDNO HV LV Generation Site Specific: ''
+    LDNO HV LV Site Specific: 2754.48699344048
+    LDNO HV LV Sub Generation Aggregated: ''
+    LDNO HV LV Sub Generation Site Specific: ''
+    LDNO HV LV Sub Site Specific: 45.9081165573414
+    LDNO HV Non-Domestic Aggregated: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN: ''
+    LDNO HV Unmetered Supplies: ''
+    LDNO LV Domestic Aggregated: ''
+    LDNO LV Domestic Aggregated Related MPAN: ''
+    LDNO LV LV Generation Aggregated: ''
+    LDNO LV LV Generation Site Specific: ''
+    LDNO LV LV Site Specific: 275.448699344048
+    LDNO LV Non-Domestic Aggregated: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN: ''
+    LDNO LV Unmetered Supplies: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: 64615.2599446373
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: 11728.1183965144
+    Non-Domestic Aggregated: ''
+    Non-Domestic Aggregated Related MPAN: ''
+    Unmetered Supplies: ''
+    _column: Exceeded capacity (kVA)
+  - Domestic Aggregated: ''
+    Domestic Aggregated Related MPAN: ''
+    HV Generation Site Specific: 11747.3794799817
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific: 419761.182149311
+    LDNO HV Domestic Aggregated: ''
+    LDNO HV Domestic Aggregated Related MPAN: ''
+    LDNO HV HV Generation Site Specific: 18.6369102890704
+    LDNO HV HV Site Specific: 1500.57121478093
+    LDNO HV LV Generation Aggregated: ''
+    LDNO HV LV Generation Site Specific: 4.44190492851203
+    LDNO HV LV Site Specific: 7087.61068846768
+    LDNO HV LV Sub Generation Aggregated: ''
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific: 130.840320664996
+    LDNO HV Non-Domestic Aggregated: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN: ''
+    LDNO HV Unmetered Supplies: ''
+    LDNO LV Domestic Aggregated: ''
+    LDNO LV Domestic Aggregated Related MPAN: ''
+    LDNO LV LV Generation Aggregated: ''
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific: 576.354105403999
+    LDNO LV Non-Domestic Aggregated: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN: ''
+    LDNO LV Unmetered Supplies: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: 5775.86136710293
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific: 495262.338768785
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: 111.770311997778
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific: 78592.8307356356
+    Non-Domestic Aggregated: ''
+    Non-Domestic Aggregated Related MPAN: ''
+    Unmetered Supplies: ''
+    _column: Reactive power units (MVArh)
+1055:
+  - _table: 1055. Transmission exit charges (£/year)
+  - Transmission exit charges year: 43160802
+    _column: "Transmission\nexit"
+1059:
+  - _table: 1059. Other expenditure
+  - Other expenditure: 52628589.4263071
+    _column: Direct cost (£/year)
+  - Other expenditure: 249869109.833173
+    _column: Indirect cost (£/year)
+  - Other expenditure: 0.6
+    _column: Indirect cost proportion
+  - Other expenditure: 41002240
+    _column: Network rates (£/year)
+1060:
+  - _table: 1060. Customer contributions under current connection charging policy
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV"
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV/EHV"
+  - HV network: 0.0671756963861977
+    HV substation: 0.0671756963861977
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\nEHV"
+  - HV network: 0.295844967909675
+    HV substation: 0.295844967909675
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\nEHV/HV"
+  - HV network: 0.295844967909675
+    HV substation: ''
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV/HV"
+  - HV network: 0.524514239433152
+    HV substation: ''
+    LV network: 0.201432411296501
+    LV substation: 0.201432411296501
+    _column: "Assets\nHV"
+  - HV network: ''
+    HV substation: ''
+    LV network: 0.584209025552054
+    LV substation: 0.584209025552054
+    _column: "Assets\nHV/LV"
+  - HV network: ''
+    HV substation: ''
+    LV network: 0.966985639807607
+    LV substation: ''
+    _column: "Assets\nLV circuits"
+1066:
+  - _table: 1066. Typical annual hours by special distribution time band
+  - Annual hours: 255
+    _column: Black
+  - Annual hours: 3921
+    _column: Yellow
+  - Annual hours: 4584
+    _column: Green
+1068:
+  - _table: 1068. Typical annual hours by distribution time band
+  - Annual hours: 783
+    _column: Red
+  - Annual hours: 3393
+    _column: Amber
+  - Annual hours: 4584
+    _column: Green
+1069:
+  - _table: 1069. Peaking probabilities by network level
+  - 132kV: 0.944384830549247
+    132kV EHV: 0.882802740482358
+    132kV HV: 0.78018055492521
+    EHV: 0.864441613355432
+    EHV HV: 0.808318117924546
+    GSPs: 0.9910718244415
+    HV: 0.808318117924546
+    HV LV: 0.808318117924546
+    LV circuits: 0.808318117924546
+    _column: Red
+  - 132kV: 0.0513872233552371
+    132kV EHV: 0.0984210818011876
+    132kV HV: 0.187554222397607
+    EHV: 0.112791054667844
+    EHV HV: 0.158700435790587
+    GSPs: 0.00887799056496626
+    HV: 0.158700435790587
+    HV LV: 0.158700435790587
+    LV circuits: 0.158700435790587
+    _column: Amber
+  - 132kV: 0.00422794609551621
+    132kV EHV: 0.0187761777164547
+    132kV HV: 0.0322652226771831
+    EHV: 0.0227673319767239
+    EHV HV: 0.032981446284867
+    GSPs: 5.01849935343042e-05
+    HV: 0.032981446284867
+    HV LV: 0.032981446284867
+    LV circuits: 0.032981446284867
+    _column: Green
+  - 132kV: 0.944384824786669
+    132kV EHV: 0.880026764150057
+    132kV HV: 0.778880906656365
+    EHV: 0.860265715420204
+    EHV HV: 0.805259300081964
+    GSPs: 0.750441533356434
+    HV: 0.805259300081964
+    HV LV: 0.805259300081964
+    LV circuits: 0.805259300081964
+    _column: Black peaking probabilities
+1092:
+  - _table: '1092. Average kVAr by kVA, by network level'
+  - Average kVAr by kVA by network level: 0.283
+    _column: GSPs
+  - Average kVAr by kVA by network level: 0.283
+    _column: 132kV
+  - Average kVAr by kVA by network level: 0.28
+    _column: 132kV/EHV
+  - Average kVAr by kVA by network level: 0.28
+    _column: EHV
+  - Average kVAr by kVA by network level: 0.28
+    _column: EHV/HV
+  - Average kVAr by kVA by network level: 0.28
+    _column: 132kV/HV
+  - Average kVAr by kVA by network level: 0.28
+    _column: HV
+  - Average kVAr by kVA by network level: 0.28
+    _column: HV/LV
+  - Average kVAr by kVA by network level: 0.28
+    _column: LV circuits
+3701:
+  - _table: 3701. Tariffs
+  - Domestic Aggregated: '#VALUE!'
+    Domestic Aggregated Related MPAN: '#VALUE!'
+    HV Generation Site Specific: '#VALUE!'
+    HV Generation Site Specific no RP Charge: '#VALUE!'
+    HV Site Specific: '#VALUE!'
+    LDNO HV Domestic Aggregated: '#VALUE!'
+    LDNO HV Domestic Aggregated Related MPAN: '#VALUE!'
+    LDNO HV HV Generation Site Specific: '#VALUE!'
+    LDNO HV HV Site Specific: '#VALUE!'
+    LDNO HV LV Generation Aggregated: '#VALUE!'
+    LDNO HV LV Generation Site Specific: '#VALUE!'
+    LDNO HV LV Site Specific: '#VALUE!'
+    LDNO HV LV Sub Generation Aggregated: '#VALUE!'
+    LDNO HV LV Sub Generation Site Specific: '#VALUE!'
+    LDNO HV LV Sub Site Specific: '#VALUE!'
+    LDNO HV Non-Domestic Aggregated: '#VALUE!'
+    LDNO HV Non-Domestic Aggregated Related MPAN: '#VALUE!'
+    LDNO HV Unmetered Supplies: '#VALUE!'
+    LDNO LV Domestic Aggregated: '#VALUE!'
+    LDNO LV Domestic Aggregated Related MPAN: '#VALUE!'
+    LDNO LV LV Generation Aggregated: '#VALUE!'
+    LDNO LV LV Generation Site Specific: '#VALUE!'
+    LDNO LV LV Site Specific: '#VALUE!'
+    LDNO LV Non-Domestic Aggregated: '#VALUE!'
+    LDNO LV Non-Domestic Aggregated Related MPAN: '#VALUE!'
+    LDNO LV Unmetered Supplies: '#VALUE!'
+    LV Generation Aggregated: '#VALUE!'
+    LV Generation Site Specific: '#VALUE!'
+    LV Generation Site Specific no RP Charge: '#VALUE!'
+    LV Site Specific: '#VALUE!'
+    LV Sub Generation Aggregated: '#VALUE!'
+    LV Sub Generation Site Specific: '#VALUE!'
+    LV Sub Generation Site Specific no RP Charge: '#VALUE!'
+    LV Sub Site Specific: '#VALUE!'
+    Non-Domestic Aggregated: '#VALUE!'
+    Non-Domestic Aggregated Related MPAN: '#VALUE!'
+    Unmetered Supplies: '#VALUE!'
+    _column: Open LLFCs
+  - _column: Unit rate 1 p/kWh
+  - _column: Unit rate 2 p/kWh
+  - _column: Unit rate 3 p/kWh
+  - _column: Fixed charge p/MPAN/day
+  - _column: Capacity charge p/kVA/day
+  - _column: Exceeded capacity charge p/kVA/day
+  - _column: Reactive power charge p/kVArh
+  - Domestic Aggregated: '#VALUE!'
+    Domestic Aggregated Related MPAN: '#VALUE!'
+    HV Generation Site Specific: '#VALUE!'
+    HV Generation Site Specific no RP Charge: '#VALUE!'
+    HV Site Specific: '#VALUE!'
+    LDNO HV Domestic Aggregated: '#VALUE!'
+    LDNO HV Domestic Aggregated Related MPAN: '#VALUE!'
+    LDNO HV HV Generation Site Specific: '#VALUE!'
+    LDNO HV HV Site Specific: '#VALUE!'
+    LDNO HV LV Generation Aggregated: '#VALUE!'
+    LDNO HV LV Generation Site Specific: '#VALUE!'
+    LDNO HV LV Site Specific: '#VALUE!'
+    LDNO HV LV Sub Generation Aggregated: '#VALUE!'
+    LDNO HV LV Sub Generation Site Specific: '#VALUE!'
+    LDNO HV LV Sub Site Specific: '#VALUE!'
+    LDNO HV Non-Domestic Aggregated: '#VALUE!'
+    LDNO HV Non-Domestic Aggregated Related MPAN: '#VALUE!'
+    LDNO HV Unmetered Supplies: '#VALUE!'
+    LDNO LV Domestic Aggregated: '#VALUE!'
+    LDNO LV Domestic Aggregated Related MPAN: '#VALUE!'
+    LDNO LV LV Generation Aggregated: '#VALUE!'
+    LDNO LV LV Generation Site Specific: '#VALUE!'
+    LDNO LV LV Site Specific: '#VALUE!'
+    LDNO LV Non-Domestic Aggregated: '#VALUE!'
+    LDNO LV Non-Domestic Aggregated Related MPAN: '#VALUE!'
+    LDNO LV Unmetered Supplies: '#VALUE!'
+    LV Generation Aggregated: '#VALUE!'
+    LV Generation Site Specific: '#VALUE!'
+    LV Generation Site Specific no RP Charge: '#VALUE!'
+    LV Site Specific: '#VALUE!'
+    LV Sub Generation Aggregated: '#VALUE!'
+    LV Sub Generation Site Specific: '#VALUE!'
+    LV Sub Generation Site Specific no RP Charge: '#VALUE!'
+    LV Sub Site Specific: '#VALUE!'
+    Non-Domestic Aggregated: '#VALUE!'
+    Non-Domestic Aggregated Related MPAN: '#VALUE!'
+    Unmetered Supplies: '#VALUE!'
+    _column: Closed LLFCs
+  - _column: Line checksum 5
+  - _column: Table checksum 7

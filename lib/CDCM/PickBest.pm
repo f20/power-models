@@ -79,7 +79,7 @@ sub score {
     # DCP 268
     $score += 10
       if $rule->{coincidenceAdj}
-      && $rule->{coincidenceAdj} =~ /groupdcp268/i xor $month lt '2020-10';
+      && $rule->{coincidenceAdj} =~ /groupdcp268/i xor $month lt '2020-03';
 
     $score;
 
