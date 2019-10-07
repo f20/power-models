@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -825,15 +825,18 @@ sub timeOfDaySpecialRunner {
                     if (
                         my @relevant =
                         grep {
-                                  !/(?:related|additional|gener)/i
+                                  !/gener/i
+                              and !/(?:related|additional)/i
+                              || $model->{coincidenceAdj}
+                              && $model->{coincidenceAdj} =~ /268/
                               and !$componentMap->{$_}{"Unit rate $r2 p/kWh"}
                         } @{ $relevantEndUsersByRate[$_]{list} }
                       )
                     {
 
                         my $relevantUsers = Labelset
-                          name =>
-"Non-related-MPAN demand end users with $rt-rate tariffs",
+                          name => 'Relevant demand end users'
+                          . " with $rt-rate tariffs",
                           list => \@relevant;
 
                         my $timebandUseByRateTotal = Arithmetic(
@@ -1026,7 +1029,49 @@ sub timeOfDaySpecialRunner {
 
             my ( $tariffGroupset, $mapping );
 
-            if (
+            if ( $model->{coincidenceAdj} =~ /268/ && grep { /related mpan/i }
+                @{ $relevantUsers->{list} } )
+            {
+
+                $relevantUsers = Labelset(
+                    list => [
+                        grep {
+                            !$componentMap->{$_}{'Capacity charge p/kVA/day'};
+                        } @{ $relevantUsers->{list} }
+                    ]
+                );
+
+                $tariffGroupset =
+                  Labelset( list =>
+                      [ grep { !/related mpan/i } @{ $relevantUsers->{list} } ]
+                  );
+
+                my @mappingData =
+                  map {
+                    [ map { 0; } @{ $relevantUsers->{list} } ];
+                  } @{ $tariffGroupset->{list} };
+                {
+                    my $j = -1;
+                    for ( my $i = 0 ; $i < @{ $relevantUsers->{list} } ; ++$i )
+                    {
+                        ++$j
+                          unless $relevantUsers->{list}[$i] =~ /related mpan/i;
+                        $mappingData[$j][$i] = 1;
+                    }
+                }
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => \@mappingData,
+                );
+
+            }
+
+            elsif (
                 $model->{coincidenceAdj} =~ /ums/i
                 && (
                     my @relevantToGrouping =

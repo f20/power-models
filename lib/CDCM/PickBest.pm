@@ -73,9 +73,13 @@ sub score {
 
     # Otnei
     $score += 1 if $rule->{lvDiversityWrong} xor $month lt '2019-10';
+    $score += 1
+      if $rule->{generationReactiveRouteingFix} xor $month lt '2019-10';
 
-    # DCP 268 avoidance
-    $score *= 0.1 if $rule->{tariffGrouping};
+    # DCP 268
+    $score += 10
+      if $rule->{coincidenceAdj}
+      && $rule->{coincidenceAdj} =~ /groupdcp268/i xor $month lt '2020-10';
 
     $score;
 

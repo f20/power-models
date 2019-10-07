@@ -4,6 +4,7 @@
 PerlModule: CDCM
 blackPeakingProbabilityRequired: 1
 checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupdcp268
 drm: top500gsp
 edcmTables: 1
 extraLevels: 1
@@ -20,7 +21,6 @@ scaler: adderppugeneralminzeronogen
 standing: sub132
 summary: statistics1201
 targetRevenue: dcp334
-tariffGrouping: supercustomer
 tariffNameField: Name268
 tariffSpec: 1
 tariffs: dcp130_omitnhh_offpeakhh_gennoreact
