@@ -5,7 +5,7 @@
     _column: Company
   - Company charging year data version: 2020/2021
     _column: Year
-  - Company charging year data version: December 2018
+  - Company charging year data version: July 2019 DCP 268 impact estimates
     _column: Version
 1001:
   - _table: 1001. CDCM target revenue (£ unless otherwise stated)
