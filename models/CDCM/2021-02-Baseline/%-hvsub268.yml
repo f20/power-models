@@ -1,0 +1,26 @@
+---
+.: 'CDCM from 2021, clean with HV Sub'
+.Style: Clean model with checksums
+PerlModule: CDCM
+blackPeakingProbabilityRequired: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupdcp268
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+generationReactiveRouteingFix: 1
+lvDiversityWrong: 1
+matrices: big
+noPCs: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: adderppugeneralminzeronogen
+standing: sub132
+summary: yes
+targetRevenue: dcp334
+tariffNameField: Name268
+tariffSpec: 1
+tariffs: dcp130_omitnhh_offpeakhh_gennoreact_hvsub
+timeOfDay: timeOfDaySpecial
+unauth: dayotex

@@ -37,6 +37,9 @@ sub tariffSpec {
     my ($model) = @_;
     my @list = @tariffSpec;
     @list =
+      grep { !$_->[1]{Name} || $_->[1]{Name} !~ /HV Sub/i; } @tariffSpec
+      unless $model->{tariffs} && $model->{tariffs} =~ /hvsub/i;
+    @list =
       grep { !$_->[1]{Name} || $_->[1]{Name} !~ /no rp charge/i; } @tariffSpec
       unless $model->{tariffs} && $model->{tariffs} =~ /gennoreact/i;
     @list = grep {
@@ -177,6 +180,15 @@ __DATA__
 - Name: HV HH Metered
   Name268: HV Site Specific
   Portfolio: 1
+- Capacity charge p/kVA/day
+- Fixed charge p/MPAN/day
+- PC0
+- Reactive power charge p/kVArh
+- Unit rates p/kWh
+---
+- HV substation half hourly
+- Name: HV Sub HH Metered
+  Name268: HV Sub Site Specific
 - Capacity charge p/kVA/day
 - Fixed charge p/MPAN/day
 - PC0
