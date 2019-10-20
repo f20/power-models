@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2014-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2014-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -30,8 +30,10 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub table1203 {
     my ($model) = @_;
-    my @rows = map { "Illustrative customer $_"; } 1 .. 7;
-    @rows = split /\n/, <<EOL;
+    my @rows =
+        $model->{table1203} ? @{ $model->{table1203} }
+      : 1 ? map { "Illustrative customer $_"; } 1 .. 16
+      :     split /\n/, <<EOL;
 Business long day
 Business off peak
 Business short day
