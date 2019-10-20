@@ -1,6 +1,6 @@
 ﻿package Elec;
 
-# Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -69,7 +69,11 @@ sub worksheetsAndClosures {
             name          => 'Company, charging year, data version',
             cols          => Labelset( list => [qw(Company Year Version)] ),
             defaultFormat => 'puretexthard',
-            data          => [ 'no company', 'no year', 'no data version' ],
+            data          => [
+                'no company',
+                $model->{interpolator} ? undef : 'no year',
+                'no data version',
+            ],
             usePlaceholderData => 1,
             forwardLinks       => {},
         );
@@ -89,8 +93,15 @@ sub worksheetsAndClosures {
         $model->{idAppend}{$wbook} =
             qq%&" for "&'$sh'!%
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co )
-          . qq%&" in "&'$sh'!%
-          . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 1 )
+          . q%&" in "&%
+          . (
+              $model->{interpolator}
+            ? $model->{interpolator}->chargingPeriodLabel( $wbook, $wsheet )
+            : "'$sh'!"
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                $ro, $co + 1
+              )
+          )
           . qq%&" ("&'$sh'!%
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
@@ -229,7 +240,7 @@ sub worksheetsAndClosures {
         model => $model,
         copyright =>
           'Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.'
-      )->closure($wbook);
+    )->closure($wbook);
 
 }
 

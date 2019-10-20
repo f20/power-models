@@ -27,6 +27,7 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
+require Spreadsheet::WriteExcel::Utility;
 
 sub new {
     my ( $class, $model, $setup ) = @_;
@@ -55,6 +56,19 @@ sub lastDay {
         defaultFormat => 'datehard',
         data          => ['=DATE(2020,03,31)'],
     );
+}
+
+sub chargingPeriodLabel {
+    my ( $self, $wbook, $wsheet ) = @_;
+    my ( $sh, $ro, $co ) = $self->firstDay->wsWrite( $wbook, $wsheet );
+    $sh = $sh->get_name;
+    my $fd = "'$sh'!"
+      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
+    ( $sh, $ro, $co ) = $self->lastDay->wsWrite( $wbook, $wsheet );
+    $sh = $sh->get_name;
+    my $ld = "'$sh'!"
+      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
+    qq%YEAR($fd)&"/"&YEAR($ld)%;
 }
 
 sub daysInYear {
