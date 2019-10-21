@@ -1,6 +1,6 @@
 ﻿package Elec::Summaries;
 
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -40,6 +40,9 @@ sub setupByGroup {
     $self->{comparison} =
       Elec::Comparison->new( $self->{model}, $self->{setup}, undef,
         'revenueTables' );
+    $self->setupComparisonPpu(
+        Elec::Summaries::CustomersPlaceholder->new( $self->{volumes}[0]{rows} )
+    ) if $self->{model}{compareppu} && $self->{model}{compareppu} =~ /group/i;
     $self;
 }
 
@@ -50,7 +53,7 @@ sub setupWithActiveCustomers {
     $self->{volumes}  = $customers->individualDemandUsed($usetName);
     $self->{comparison} =
       Elec::Comparison->new( $self->{model}, $self->{setup}, );
-    $self->_addComparisonPpu($customers);
+    $self->setupComparisonPpu($customers);
 }
 
 sub setupWithAllCustomers {
@@ -63,10 +66,10 @@ sub setupWithAllCustomers {
     $self->{comparison}
       ->useAlternativeRowset( $customers->userLabelsetRegrouped )
       if UNIVERSAL::can( $customers, 'userLabelsetRegrouped' );
-    $self->_addComparisonPpu($customers);
+    $self->setupComparisonPpu($customers);
 }
 
-sub _addComparisonPpu {
+sub setupComparisonPpu {
     my ( $self, $customers ) = @_;
     $self->{model}{compareppu} =~ /tariff/
       ? $self->{comparison}->addComparisonTariff( $customers, $self->{setup} )
@@ -102,5 +105,11 @@ sub addRevenueComparison {
 
 sub finish {
 }
+
+package Elec::Summaries::CustomersPlaceholder;
+use SpreadsheetModel::Shortcuts ':all';
+sub new { bless \$_[1], $_[0]; }
+sub userLabelset { ${ $_[0] }; }
+sub addColumnset { shift; Columnset(@_); }
 
 1;

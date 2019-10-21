@@ -68,12 +68,12 @@ sub new {
     my $class      = shift;
     my $model      = bless { inputTables => [], finishList => [], @_ }, $class;
     my %serviceMap = $model->serviceMap;
-     my $setup = $serviceMap{setup}->new($model);
+    my $setup      = $serviceMap{setup}->new($model);
     $setup->registerTimebands( $serviceMap{timebands}->new( $model, $setup ) )
       if $serviceMap{timebands};
-    $model->{interpolator} = $serviceMap{interpolator}->new($model, $setup )
+    $model->{interpolator} = $serviceMap{interpolator}->new( $model, $setup )
       if $model->{interpolator};
-   my $customers = $serviceMap{customers}->new( $model, $setup );
+    my $customers = $serviceMap{customers}->new( $model, $setup );
     my $usage = $serviceMap{usage}->new( $model, $setup, $customers );
     my $assets = $serviceMap{assets}->new( $model, $setup )
       if $serviceMap{assets};
