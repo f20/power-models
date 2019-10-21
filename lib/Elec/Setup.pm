@@ -206,7 +206,7 @@ sub finish {
             map {
                 ref $_ eq 'SpreadsheetModel::Dataset'
                   ? $_
-                  : Constant( name => 'Not used', data => [] );
+                  : Dataset( name => 'Not used', data => [] );
             } $self->{daysInYear},
             $self->{rateOfReturn},
             $self->{annuitisationPeriod}

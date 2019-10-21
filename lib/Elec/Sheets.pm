@@ -64,10 +64,15 @@ sub worksheetsAndClosures {
           sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{inputTables} ||= [];
         my $idTable = Dataset(
-            number        => 1500,
-            dataset       => $model->{dataset},
-            name          => 'Company, charging year, data version',
-            cols          => Labelset( list => [qw(Company Year Version)] ),
+            number  => 1500,
+            dataset => $model->{dataset},
+            name    => 'Company, charging year, data version',
+            cols    => Labelset(
+                list => [
+                    'Company', $model->{interpolator} ? 'Not used' : 'Year',
+                    'Version',
+                ]
+            ),
             defaultFormat => 'puretexthard',
             data          => [
                 'no company',
