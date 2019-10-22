@@ -78,7 +78,7 @@ sub new {
                 rows => (
                       $isArray ? $usageRates->[$_][0]
                     : $usageRates->[$_]
-                  )->{rows},
+                )->{rows},
                 arguments => {
                     $isArray
                     ? (
@@ -159,7 +159,7 @@ sub addChecksums {
     foreach ( split /;\s*/, $self->{model}{checksums} ) {
         my $digits = /([0-9])/ ? $1 : 6;
         push @{ $self->{tariffs} },
-          SpreadsheetModel::Checksum->new(
+          $self->{model}{tariffChecksum} = SpreadsheetModel::Checksum->new(
             name => $_,
             /table|recursive|model/i ? ( recursive => 1 ) : (),
             digits  => $digits,

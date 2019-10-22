@@ -57,7 +57,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 15;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   20 );
         $wsheet->set_column( 1, 250, 20 );
         $model->{titleWrites}{$wbook} = [];
         $wbook->{titleWriter} =
@@ -132,7 +132,7 @@ sub worksheetsAndClosures {
       'Volumes' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   20 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} };
@@ -145,7 +145,7 @@ sub worksheetsAndClosures {
         'Checks' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   36 );
+            $wsheet->set_column( 0, 0,   20 );
             $wsheet->set_column( 1, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Network usage checks' ),
@@ -161,7 +161,7 @@ sub worksheetsAndClosures {
         'Bands' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   36 );
+            $wsheet->set_column( 0, 0,   20 );
             $wsheet->set_column( 1, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Time band analysis' ),
@@ -175,7 +175,7 @@ sub worksheetsAndClosures {
       'Costs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   20 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Relevant costs and charges' ),
@@ -187,7 +187,7 @@ sub worksheetsAndClosures {
       'Buildup' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   20 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Tariff build-up' ),
@@ -199,12 +199,21 @@ sub worksheetsAndClosures {
       'Tariffs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   20 );
         $wsheet->set_column( 1, 250, 20 );
-        my $noLinks = $wbook->{noLinks};
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Tariffs' ), @{ $model->{tariffTables} };
-        $wbook->{noLinks} = $noLinks;
+        if ( $model->{tariffChecksum} ) {
+            require Spreadsheet::WriteExcel::Utility;
+            my ( $sh, $ro, $co ) =
+              $model->{tariffChecksum}->wsWrite( $wbook, $wsheet );
+            $sh = $sh->get_name;
+            my $cell = qq%'$sh'!%
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
+            my $checksumText = qq%" [checksum "&TEXT($cell,"000 0000")&"]"%;
+            $model->{checksumAppend}{$wbook} =
+              qq%&IF(ISNUMBER($cell),$checksumText,"")%;
+        }
       }
 
       ,
@@ -212,7 +221,7 @@ sub worksheetsAndClosures {
       'Revenues' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   36 );
+        $wsheet->set_column( 0, 0,   20 );
         $wsheet->set_column( 1, 250, 20 );
         my $noLinks = $wbook->{noLinks};
         $_->wsWrite( $wbook, $wsheet )
