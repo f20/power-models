@@ -73,12 +73,15 @@ sub chargingPeriodLabel {
 
 sub daysInYear {
     my ($self) = @_;
-    $self->{daysInYear} ||= Arithmetic(
+    return $self->{daysInYear} if $self->{daysInYear};
+    push @{ $self->{model}{volumeTables} },
+      $self->{daysInYear} = Arithmetic(
         name          => 'Number of days in the charging year',
         defaultFormat => '0soft',
         arithmetic    => '=A1-A2+1',
         arguments     => { A1 => $self->lastDay, A2 => $self->firstDay, },
-    );
+      );
+    $self->{daysInYear};
 }
 
 sub _forecastInputDataAndFactors {
