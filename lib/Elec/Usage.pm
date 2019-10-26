@@ -71,7 +71,33 @@ sub usageRates {
         ? ( map { [ $unitsRouteingFactor, $_ ] }
               @{ $self->{timebands}->bandFactors } )
         : $unitsRouteingFactor,
-        Dataset(
+        $model->{fixedUsageRules}
+        ? Constant(
+            name => 'Network usage of an exit point',
+            rows => $customers->tariffSet,
+            cols => $setup->usageSet,
+            data => [
+                map {
+                    /33kV metering breaker/
+                      ? [ map { /^33kV/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : /HV metered source breaker/
+                      ? [ map { /^HV Sub/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : /HV metered secondary switchgear/
+                      ? [ map { /^HV Sub/ ? 0 : /^HV/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : /LV >100A metered service/
+                      ? [ map { /^LV/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : /LV <100A metered service/
+                      ? [ map { /^Small LV/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : [ map { 0; } $customers->tariffSet->indices ];
+                } @{ $setup->usageSet->{list} }
+            ],
+          )
+        : Dataset(
             name     => 'Network usage of an exit point',
             rows     => $customers->tariffSet,
             cols     => $setup->usageSet,
@@ -80,7 +106,30 @@ sub usageRates {
             dataset  => $model->{dataset},
             data     => $allBlank,
         ),
-        Dataset(
+        $model->{fixedUsageRules}
+        ? Constant(
+            name => 'Network usage of 1kVA of agreed capacity',
+            rows => $customers->tariffSet,
+            cols => $setup->usageSet,
+            data => [
+                map {
+                    /Indirect costs|Boundary charge|33kV$/
+                      ? [ map { /^33kV/ ? 1 : /^HV Sub/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : /33kV\/HV/ ? [ map { /^HV/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : /^HV$/
+                      ? [ map { /^HV Sub/ ? 0 : /^HV/ ? 1 : /^LV Sub/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : /HV\/LV/ ? [ map { /^LV/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : /^LV$/ ? [ map { /^LV Sub/ ? 0 : /^LV/ ? 1 : 0; }
+                          @{ $customers->tariffSet->{list} } ]
+                      : [ map { 0; } $customers->tariffSet->indices ];
+                } @{ $setup->usageSet->{list} }
+            ],
+          )
+        : Dataset(
             name     => 'Network usage of 1kVA of agreed capacity',
             rows     => $customers->tariffSet,
             cols     => $setup->usageSet,
@@ -121,7 +170,22 @@ sub matchTotalUsage {
         data          => [ map { ''; } $setup->usageSet->indices ],
       );
 
-    my $adjustableCapacityUsageRate = Dataset(
+    my $adjustableCapacityUsageRate = $model->{fixedUsageRules}
+      ? Constant(
+        name => 'Adjustable element of network usage'
+          . ' of 1kVA of agreed capacity',
+        rows => $customers->tariffSet,
+        cols => $setup->usageSet,
+        data => [
+            map {
+                /Indirect costs|Boundary charge/
+                  ? [ map { /^HV Sub/ ? 0 : /^HV/ ? 1 : /^LV/ ? 1 : 0; }
+                      @{ $customers->tariffSet->{list} } ]
+                  : [ map { 0; } $customers->tariffSet->indices ];
+            } @{ $setup->usageSet->{list} }
+        ],
+      )
+      : Dataset(
         name => 'Adjustable element of network usage'
           . ' of 1kVA of agreed capacity',
         rows     => $customers->tariffSet,
@@ -134,7 +198,7 @@ sub matchTotalUsage {
                 [ map { '' } $customers->tariffSet->indices ]
             } $setup->usageSet->indices
         ],
-    );
+      );
 
     my $baselineUsage = $self->totalUsage($volumes);
     my $usageRates    = $self->usageRates;
