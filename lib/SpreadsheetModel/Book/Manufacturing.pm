@@ -186,27 +186,46 @@ sub factory {
     };
 
     $self->{addFile} = sub {
-        ( local $_ ) = @_;
-        return if $settings->{fileFilter} && !$settings->{fileFilter}->($_);
+        my ($path) = @_;
+        return if $settings->{fileFilter} && !$settings->{fileFilter}->($path);
+        local $_ = $path;
         my $dh;
         if (/\.(ygz|ybz|bz2|gz)$/si) {
-            local $_ = $_;
             s/'/'"'"'/g;
             unless ( open $dh, join ' ',
                 ( $1 =~ /bz/ ? 'bzcat' : qw(gunzip -c) ),
                 "'$_'", '|' )
             {
-                warn "No such compressed file: $_\n";
+                warn "No such compressed file: $path\n";
                 return;
             }
         }
         else {
-            unless ( open $dh, '<', $_ ) {
-                warn "No such file: $_\n";
+            unless ( open $dh, '<', $path ) {
+                warn "No such file: $path\n";
                 return;
             }
         }
-        $processStream->( $dh, $_ );
+        $processStream->( $dh, $path );
+    };
+
+    $self->{addFolder} = sub {
+        my ($path) = @_;
+        my @datasetsStored = @datasets;
+        @datasets = ();
+        my $dirh;
+        opendir $dirh, $path;
+        $self->{addFile}->( catfile( $path, $_ ) )
+          foreach grep { !/^\./s; } readdir $dirh;
+        closedir $dirh;
+        $path = $1 if $path =~ m#([^/\\]+)#si;
+        @datasets = (
+            @datasetsStored,
+            {
+                '~datasetName' => $path,
+                datasetArray   => [@datasets],
+            }
+        );
     };
 
     # This applies rules overrides, loads relevant code, and, if so
@@ -352,16 +371,7 @@ sub factory {
           }
           unless @datasets;
 
-        $settings->{datasetArray} ||=
-          !grep { !$_->{wantDatasetArray}; } @rulesets;
-
-        if ( $settings->{datasetArray} ) {
-            @datasets = {
-                '~datasetName' => 'Single dataset',
-                datasetArray   => [@datasets],
-            };
-        }
-        elsif ( $settings->{dataMerge} ) {
+        if ( $settings->{dataMerge} ) {
             my %byDatasetName;
             foreach (@datasets) {
                 push @{ $byDatasetName{ $_->{'~datasetName'} || $_ } }, $_;
