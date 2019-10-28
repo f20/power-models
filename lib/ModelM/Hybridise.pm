@@ -96,7 +96,7 @@ sub process {
 
                 $addToList->( $datasetsByDno{$dno}[1], $rulesetsRef->[0] );
 
-                my @tableAccumulator;
+                my @tableAccumulator     = (1300);
                 my %remainingRuleChanges = %allRuleChanges;
 
                 foreach (@hybridisationRules) {

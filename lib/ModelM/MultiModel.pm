@@ -1,7 +1,7 @@
 ﻿package ModelM::MultiModel;
 
 # Copyright 2011 The Competitive Networks Association and others.
-# Copyright 2014-2018 Franck Latrémolière and others.
+# Copyright 2014-2019 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@ sub addModelIdentificationCells {
     push @{ $me->{modelNames} }, $me->{waterfalls}
       ? qq%=$cells[2]%
       : qq%=$cells[0]&" "&$cells[1]&" "&$cells[2]%;
-    $me->{waterfallIdentificationCells} ||= [ @cells[ 0, 1 ] ];
+    $me->{waterfallIdentificationCells} = [ @cells[ 0, 1 ] ];
 }
 
 sub addImpactTableSet {
@@ -133,7 +133,7 @@ sub worksheetsAndClosuresWithController {
                         ]
                     );
                 } 0 .. $lastRow;
-              } grep { $me->{impactTableSets}[0][$_]{columns}; }
+            } grep { $me->{impactTableSets}[0][$_]{columns}; }
               0 .. $#{ $me->{impactTableSets}[0] };
 
             delete $wbook->{logger};
