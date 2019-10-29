@@ -26,14 +26,11 @@ Step 1. Set-up a Perl 5 development environment.
 
 You need a terminal or console interface, and Perl 5 (v5.8.8 or later).
 
-This is normally easy to set-up on desktop and server computing platforms.
-
-On Apple macOS, the built-in Terminal.app and Perl 5 installations are good.
-
-On Microsoft Windows 7-10, the built-in Command Prompt and the Strawberry
+This is normally easy to set-up on desktop and server computing platforms:
+* On Apple macOS, the built-in Terminal.app and Perl 5 installations are good.
+* On Microsoft Windows, the built-in Command Prompt and the Strawberry
 Perl package available from strawberryperl.com are good.
-
-On FreeBSD and many Linux distributions, console applications and Perl 5 are
+* On FreeBSD and many Linux distributions, console applications and Perl 5 are
 either pre-installed or available from the ports/packages system.
 
 On mobile operating systems, setting up a suitable environment is much more
@@ -65,8 +62,9 @@ module which can be installed from CPAN (www.cpan.org).
 Other code in the repository
 ----------------------------
 
-The Stata folder contains Stata tools to test workbooks implementing aspects of the
-EDCM charging methodology. See "How to use.txt" in the "Stata" folder for details.
+The "EDCM Stata" folder under models contains Stata tools to test aspects of
+implementations of the EDCM charging methodology. See "How to use.txt" in the
+folder for details.
 
 Licensing
 ---------
@@ -85,4 +83,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 4 October 2018.
+Franck Latrémolière, 29 October 2019.

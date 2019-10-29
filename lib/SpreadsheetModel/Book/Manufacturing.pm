@@ -185,7 +185,7 @@ sub factory {
 
     };
 
-    $self->{addFile} = sub {
+    my $addFile = $self->{addFile} = sub {
         my ($path) = @_;
         return if $settings->{fileFilter} && !$settings->{fileFilter}->($path);
         local $_ = $path;
@@ -215,7 +215,7 @@ sub factory {
         @datasets = ();
         my $dirh;
         opendir $dirh, $path;
-        $self->{addFile}->( catfile( $path, $_ ) )
+        $addFile->( catfile( $path, $_ ) )
           foreach grep { !/^\./s; } readdir $dirh;
         closedir $dirh;
         $path = $1 if $path =~ m#([^/\\]+)#si;
