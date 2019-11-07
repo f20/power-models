@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -308,10 +308,8 @@ sub loadProfiles {
             map {
                 $componentMap->{$_}{'Unit rate 0 p/kWh'}
                   && /(?:related|additional)/i ? undef
-                  : /lv/i && /domestic/i && !/non.*domestic/i && /unr/i ? 0.9
-                  : /lv/i
-                  && /domestic/i && !/non.*domestic/i && /rates/i ? 0.3
-                  : /lv/i && /off/i ? 0
+                  : /domestic/i && !/non.*domestic/i && /unr/i ? 0.9
+                  : /(?:related|additional)/i ? 0
                   : 0.5
             } @{ $demandEndUsers->{list} }
         ],

@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2016-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -407,9 +407,8 @@ EOL
             defaultFormat => '0hard',
             cols          => $serviceModels{$voltage},
             rows          => 0,
-            data          => $voltage =~ /LV/i
-            ? [ 6000, 500, 1200, 800, 1000, map { 0 } 1 .. 10 ]
-            : [ 12000, 20000, 10000, map { 0 } 1 .. 10 ]
+            data =>
+              [ 10000, map { 0 } 1 .. $#{ $serviceModels{$voltage}{list} } ]
         ) unless $model->{detailedCosts};
 
         push @{ $model->{serviceModels} }, $serviceModelTotal;
@@ -440,37 +439,7 @@ EOL
                 byrow => 1,
                 data  => [
                     map {
-                        /microgener|(additional|related) MPAN|gener.*non.*half/i
-                          ? [ map { 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : /domestic/i && !/non.*domestic/i
-                          ? [ map { $_ == 1 ? 0.05 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : /HV.*gener/i ? [ map { $_ == 3 ? 0 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : /HV/ && /5-8/ ? [ map { $_ == 1 ? 1 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : /HV sub/ ? [ map { $_ == 2 ? 1 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : /HV/ ? [ map { $_ < 3 ? 0.5 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : /LV.*gener/i ? [ map { $_ == 5 ? 0 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : /small/i ? [ map { $_ == 2 ? 1 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : /half/i ? [ map { $_ == 3 ? 1 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
-
-                          : [ map { $_ == 2 ? .5 : $_ == 3 ? .5 : 0 }
-                              1 .. @{ $serviceModels{$voltage}{list} } ]
+                        [ map { 0 } 1 .. @{ $serviceModels{$voltage}{list} } ]
                     } @{ $relevantTariffs->{list} }
                 ],
                 number => $voltage eq 'LV' ? 1025
@@ -560,7 +529,7 @@ EOL
                         /un-?met/i
                           && !($model->{opCoded}
                             && $model->{opCoded} =~ /ums/i )
-                          ? [ map { $_ == 4 ? 0.12 : 0 }
+                          ? [ map { 0 }
                               1 .. @{ $serviceModels{$voltage}{list} } ]
                           : [ map { 0 } @{ $serviceModels{$voltage}{list} } ]
                     } @{ $relevantTariffs->{list} }
