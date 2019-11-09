@@ -28,30 +28,40 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
+sub configuration1203 {
+    my ( $model, $allTariffs, $tariffComponents, $componentMap ) = @_;
+    my @users =
+      $model->{table1203}
+      ? @{ $model->{table1203} }
+      : map { "Illustrative user $_"; } 1 .. 3;
+    my ( %mapping, %margins );
+    my $tariffFilter = sub { $_[0] !~ /\bunmeter|\bums\b|\bgener/i; };
+    my @groupList;
+    foreach my $uid ( 0 .. $#users ) {
+        my $user = $users[$uid];
+        my @tariffList;
+        for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
+            next
+              if $allTariffs->{groupid}
+              && !defined $allTariffs->{groupid}[$tid];
+            my $tariff = $allTariffs->{list}[$tid];
+            next unless $tariffFilter->($tariff);
+            $tariff =~ s/^.*\n//s;
+            my $row = "$user ($tariff)";
+            push @tariffList, $row;
+            $mapping{$row} = [ $uid, $tid ];
+            if ( $tariff =~ /^(?:LD|Q)NO ([^:]+): (.+)/ ) {
+                $margins{$1}{"$user ($2)"} = $row;
+            }
+        }
+        push @groupList, Labelset( name => $user, list => \@tariffList );
+    }
+    \@users, Labelset( groups => \@groupList ), \%mapping, \%margins;
+}
+
 sub table1203 {
-    my ($model) = @_;
-    my @rows =
-        $model->{table1203} ? @{ $model->{table1203} }
-      : 1 ? map { "Illustrative customer $_"; } 1 .. 16
-      :     split /\n/, <<EOL;
-Business long day
-Business off peak
-Business short day
-Continuous high load factor
-Continuous low load factor
-Domestic two rate average
-Domestic unrestricted average
-Medium solar generator
-Medium wind generator
-Small business day
-Small solar generator
-Small wind generator
-Unmetered continuous
-Unmetered dawn to dusk
-Unmetered dusk to dawn
-Unmetered part night
-EOL
-    my $rowset = Labelset( list => \@rows );
+    my ( $model, $userList ) = @_;
+    my $rowset = Labelset( list => $userList );
     my $blank = [ map { '' } @{ $rowset->{list} } ];
     my @columns = map {
         Dataset(
@@ -63,34 +73,29 @@ EOL
           )
       } ( map { "HH rate $_ kWh/year"; } 1 .. 3 ),
       'Capacity kVA', 'NHH rate 2 kWh/year';
-    my $assumptions = Columnset(
+    Columnset(
         name     => 'Consumption assumptions for illustrative customers',
         number   => 1203,
         appendTo => $model->{inputTables},
         dataset  => $model->{dataset},
         columns  => \@columns,
     );
-    $assumptions;
 }
 
 sub makeStatisticsTables1203 {
 
-    my ( $model, $tariffTable, $daysInYear, $nonExcludedComponents,
-        $componentMap, )
+    my ( $model, $tariffTable, $daysInYear, $tariffComponents, $componentMap, )
       = @_;
-
     my ($allTariffs) = values %$tariffTable;
     $allTariffs = $allTariffs->{rows};
 
-    my $assumptions = $model->table1203;
+    my ( $userList, $fullRowset, $mappingHash, $marginsHash ) =
+      $model->configuration1203( $allTariffs, $tariffComponents,
+        $componentMap );
 
     my ( $units1, $units2, $units3, $capacity, $rate2, ) =
-      @{ $assumptions->{columns} };
-
-    my ( @columns, $overrideTotal, $doNotUseDaysInYear );
-
-    push @columns,
-      my $totalUnits = Arithmetic(
+      @{ $model->table1203($userList)->{columns} };
+    my $totalUnits = Arithmetic(
         name          => 'Total kWh/year',
         defaultFormat => '0soft',
         arithmetic    => '=A1+A2+A3',
@@ -99,71 +104,22 @@ sub makeStatisticsTables1203 {
             A2 => $units2,
             A3 => $units3,
         },
-      );
-
-    push @columns,
-      my $rate1 = Arithmetic(
-        name          => 'NHH rate 1 kWh/year',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1-A2',
-        arguments     => {
-            A1 => $totalUnits,
-            A2 => $rate2,
-        },
-      );
-
-    push @columns,
-      my $kW = Arithmetic(
+    );
+    my $kW = Arithmetic(
         name       => 'Average consumption (kW)',
         arithmetic => '=A1/A2/24',
         arguments  => { A1 => $totalUnits, A2 => $daysInYear, },
-      );
-
-    push @columns,
-      Arithmetic(
+    );
+    my $utilisation = Arithmetic(
         name          => 'Average capacity utilisation',
         defaultFormat => '%soft',
         arithmetic    => '=IF(A1,A2/A3,"")',
         arguments     => { A1 => $kW, A2 => $kW, A3 => $capacity, },
-      );
-
+    );
     Columnset(
         name    => 'Consumption calculations for illustrative customers',
-        columns => \@columns,
+        columns => [ $totalUnits, $kW, $utilisation, ],
     );
-
-    my $users = $assumptions->{rows}{list};
-
-    my ( @groupList, %mapping, %margins );
-    for ( my $uid = 0 ; $uid < @$users ; ++$uid ) {
-        my (@tariffList);
-        my $short = my $user = $users->[$uid];
-        $short =~ s/^Customer *[0-9]+ *//;
-        my $filter = sub {
-            $_[0] !~ /\bunmeter|\bums\b|\bgener/i;
-        };
-        $filter = sub { 1; };
-        for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
-            next
-              if $allTariffs->{groupid}
-              && !defined $allTariffs->{groupid}[$tid];
-            my $tariff = $allTariffs->{list}[$tid];
-            next unless $filter->($tariff);
-            $tariff =~ s/^.*\n//s;
-            my $row = "$short ($tariff)";
-            push @tariffList, $row;
-            $mapping{$row} = [ $uid, $tid, $#tariffList ];
-            if ( $tariff =~ /^(?:LD|Q)NO ([^:]+): (.+)/ ) {
-                $margins{$1}{"$short ($2)"} = $row;
-            }
-        }
-        push @groupList, Labelset( name => $user, list => \@tariffList );
-    }
-
-    my $fullRowset = Labelset( groups => \@groupList );
-    my %ppyrow =
-      map { ( $fullRowset->{list}[$_] => $_ ); } 0 .. $#{ $fullRowset->{list} };
-    my @mapping = @mapping{ @{ $fullRowset->{list} } };
 
     my $ppy = SpreadsheetModel::Custom->new(
         name => Label(
@@ -173,15 +129,15 @@ sub makeStatisticsTables1203 {
         rows          => $fullRowset,
         custom        => [
             '=0.01*(A11*A91+A71*A94)',
-            '=0.01*(A21*A91+A22*A92+A71*A94)',
+            '=0.01*((A21-A23)*A91+A22*A92+A71*A94)',
             '=0.01*(A31*A91+A32*A92+A33*A93+A71*(A94+A42*A95))',
-            '=A81-A82',
         ],
         arithmetic => 'Special calculation',
         arguments  => {
             A11 => $totalUnits,
-            A21 => $rate1,
+            A21 => $totalUnits,
             A22 => $rate2,
+            A23 => $rate2,
             A31 => $units1,
             A32 => $units2,
             A33 => $units3,
@@ -202,20 +158,9 @@ sub makeStatisticsTables1203 {
                     $self->{rowFormats}[$y]
                   ? $wb->getFormat( $self->{rowFormats}[$y] )
                   : $format;
-                return '', $wb->getFormat('unavailable') unless $mapping[$y];
-                my ( $uid, $tid, $eid ) = @{ $mapping[$y] };
-                unless ( defined $uid ) {
-                    return '', $cellFormat, $formula->[3],
-                      qr/\bA81\b/ =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $self->{$wb}{row} + $y + $tid,
-                        $self->{$wb}{col}
-                      ),
-                      qr/\bA82\b/ =>
-                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
-                        $self->{$wb}{row} + $y + $eid,
-                        $self->{$wb}{col} );
-                }
+                my $mapping = $mappingHash->{ $fullRowset->{list}[$y] }
+                  or return '', $wb->getFormat('unavailable');
+                my ( $uid, $tid ) = @$mapping;
                 my $tariff = $allTariffs->{list}[$tid];
                 '', $cellFormat,
                   $formula->[
@@ -245,7 +190,7 @@ sub makeStatisticsTables1203 {
             '£/MWh', 'Average charges for illustrative customers (£/MWh)'
         ),
         defaultFormat => '0.0soft',
-        arithmetic    => '=A1/A2*1000',
+        arithmetic    => '=A1/A2*100',
         arguments     => {
             A1 => $ppy,
             A2 => $totalUnits,
@@ -265,18 +210,34 @@ sub makeStatisticsTables1203 {
         columns => [ $ppy, $ppu, ],
       );
 
-    if ( my @boundaries = sort keys %margins ) {
+    if ( my @boundaries = sort keys %$marginsHash ) {
         my $atwRowset = Labelset(
-            groups => [
-                map {
-                    my @list = grep {
+            $fullRowset->{groups}
+            ? (
+                groups => [
+                    map {
+                        my @list = grep {
+                            my $a = $_;
+                            grep { $marginsHash->{$_}{$a} } @boundaries;
+                        } @{ $_->{list} };
+                        @list
+                          ? Labelset( name => $_->{name}, list => \@list )
+                          : ();
+                    } @{ $fullRowset->{groups} }
+                ]
+              )
+            : (
+                list => [
+                    grep {
                         my $a = $_;
-                        grep { $margins{$_}{$a} } @boundaries;
-                    } @{ $_->{list} };
-                    @list ? Labelset( name => $_->{name}, list => \@list ) : ();
-                } @groupList
-            ]
+                        grep { $marginsHash->{$_}{$a} } @boundaries;
+                    } @{ $fullRowset->{list} }
+                ]
+            )
         );
+        my %ppyrow =
+          map { ( $fullRowset->{list}[$_] => $_ ); }
+          0 .. $#{ $fullRowset->{list} };
         my $atwTable = SpreadsheetModel::Custom->new(
             name => Label( 'All the way', 'All-the-way charge (£/year)' ),
             defaultFormat => '0copy',
@@ -323,7 +284,8 @@ sub makeStatisticsTables1203 {
                 sub {
                     my ( $x, $y ) = @_;
                     my $ppyrow =
-                      $margins{ $boundaries[$x] }{ $atwRowset->{list}[$y] };
+                      $marginsHash->{ $boundaries[$x] }
+                      { $atwRowset->{list}[$y] };
                     $ppyrow = $ppyrow{$ppyrow} if $ppyrow;
                     return ' ', $wb->getFormat('unavailable')
                       unless defined $ppyrow;

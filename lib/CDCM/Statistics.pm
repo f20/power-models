@@ -38,11 +38,11 @@ sub makeStatisticsAssumptions {
     my $table1202ByColumn;
     $table1202ByColumn = $model->{statistics}
       if ref $model->{statistics} eq 'ARRAY';
-    $table1202ByColumn = $model->{dataset}{$1}
+    $table1202ByColumn = $model->{dataset}{1202}
       if !$table1202ByColumn
-      && $model->{summary} =~ /(120[2-9])/
+      && $model->{summary} =~ /1202/
       && $model->{dataset}
-      && $model->{dataset}{$1};
+      && $model->{dataset}{1202};
     $table1202ByColumn = $model->table1202
       if !$table1202ByColumn && require CDCM::StatisticsDefaults;
 
@@ -706,7 +706,8 @@ sub makeStatisticsTables {
         $model->{sharedData}
           ->addStats( 'Illustrative capacity charges (£/year)',
             $model, $annualChargeCapacity );
-        $model->{sharedData}->addStats( 'Illustrative average unit rate (p/kWh)',
+        $model->{sharedData}
+          ->addStats( 'Illustrative average unit rate (p/kWh)',
             $model, $averageUnitRate );
     }
 

@@ -119,9 +119,9 @@ sub factory {
         while (@objects) {
             local $_ = shift @objects;
             next unless ref $_ eq 'HASH';
-            if ( exists $_->{template} ) {
+            if ( exists $_->{template} || exists $_->{nickName} ) {
                 push @rulesets, $_;
-                if ( $_->{template} eq '%' ) {
+                if ( $_->{template} && $_->{template} eq '%' ) {
                     $onlyUseThisRuleset = $_;
                 }
             }
@@ -164,7 +164,7 @@ sub factory {
                                         require
                                           SpreadsheetModel::Book::Validation;
                                         SpreadsheetModel::Book::Validation::digestMachine(
-                                        )->add( Encode::encode_utf8($blob) )
+                                          )->add( Encode::encode_utf8($blob) )
                                           ->hexdigest;
                                     }
                                       || 'Digest not working',
