@@ -364,12 +364,6 @@ sub factory {
         }
 
         return unless @rulesets;
-        push @datasets,
-          {
-            dataset        => {},
-            '~datasetName' => 'Blank',
-          }
-          unless @datasets;
 
         if ( $settings->{dataMerge} ) {
             my %byDatasetName;
@@ -391,6 +385,12 @@ sub factory {
                     },
                   };
             }
+        }
+        elsif ( !@datasets ) {
+            @datasets = {
+                dataset        => {},
+                '~datasetName' => 'Blank',
+            };
         }
 
         if (%dataOverrides) {
