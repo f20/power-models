@@ -231,14 +231,14 @@ EOL
     my $specialRowset =
       Labelset( list => [ $labelset->{list}[ $#{ $labelset->{list} } ] ] );
 
-    my $target = new SpreadsheetModel::Custom(
+    my $target = new SpreadsheetModel::Custom(    # Danger - hardcoding
         name          => 'Target CDCM revenue (£/year)',
         defaultFormat => '0soft',
         custom        => [
             join( '+',
                 '=(A100+A101+A102)*A103',
-                ( map { "A$_" } 105 .. 111, 113 .. 123, 125, 127 .. 131 ) )
-              . '-A134-A135-A136-A137'
+                ( map { "A$_" } 105 .. 113, 115 .. 125, 127, 129 .. 133 ) )
+              . '-A136-A137-A138-A139'
         ],
         arithmetic => '= derived from A100',
         rows       => $specialRowset,
@@ -273,7 +273,7 @@ EOL
                 '', $format, $formula->[0],
                   qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
                   qr/\bA2\b/ => xl_rowcol_to_cell(
-                    $rowh->{A2} + 34,    # hard-coded reference to EDCM revenue
+                    $rowh->{A2} + 36,    # hard-coded reference to EDCM revenue
                     $colh->{A2}
                   );
             };
