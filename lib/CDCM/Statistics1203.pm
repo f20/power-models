@@ -247,12 +247,9 @@ sub makeStatisticsTables1203 {
     );
 
     my $ppu = Arithmetic(
-        name => Label(
-            '£/MWh', 'Average charges for illustrative customers (£/MWh)'
-        ),
-        defaultFormat => '0.0soft',
-        arithmetic    => '=A1/A2*100',
-        arguments     => {
+        name => Label( 'p/kWh', 'Average p/kWh for illustrative customers' ),
+        arithmetic => '=A1/A2*100',
+        arguments  => {
             A1 => $ppy,
             A2 => $totalUnits,
         }
@@ -262,7 +259,7 @@ sub makeStatisticsTables1203 {
         $model->{sharedData}
           ->addStats( 'Illustrative charges (£/year)', $model, $ppy );
         $model->{sharedData}
-          ->addStats( 'Illustrative charges (£/MWh)', $model, $ppu );
+          ->addStats( 'Illustrative charges (p/kWh)', $model, $ppu );
     }
 
     push @{ $model->{statisticsTables} },
