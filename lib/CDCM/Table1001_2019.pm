@@ -242,7 +242,7 @@ EOL
         ],
         arithmetic => '= derived from A100',
         rows       => $specialRowset,
-        arguments  => { map { ( "A$_" => $inputs ); } 100 .. 137, },
+        arguments  => { map { ( "A$_" => $inputs ); } 100 .. 139, },
         wsPrepare  => sub {
             my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
             sub {
