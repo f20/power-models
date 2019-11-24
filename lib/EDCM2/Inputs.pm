@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -75,6 +75,29 @@ sub generalInputs {
             value    => 0,
         }
     );
+
+    my @fixedChargeAddersRevenue;
+    push @fixedChargeAddersRevenue,
+      Dataset(
+        name => 'Pass-through Supplier of Last Resort Adjustment (£/year)',
+        defaultFormat => '0hard',
+        data          => [0],
+        validation    => {
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        },
+      ),
+      Dataset(
+        name          => 'Pass-through Eligible Bad Debt Adjustment (£/year)',
+        defaultFormat => '0hard',
+        data          => [0],
+        validation    => {
+            validate => 'decimal',
+            criteria => '>=',
+            value    => 0,
+        },
+      ) if $model->{fixedChargeAdders};
 
     my $direct = Dataset(
         name          => 'Direct cost (£/year)',
@@ -168,9 +191,12 @@ sub generalInputs {
 
     if ( $model->{table1101} ) {
         Columnset(
-            name => 'Financial information',
-            columns =>
-              [ $genPot20p, $direct, $indirect, $rates, $allowedRev, $tExit, ],
+            name    => 'Financial information',
+            columns => [
+                $genPot20p, $direct,     $indirect,
+                $rates,     $allowedRev, $tExit,
+                @fixedChargeAddersRevenue,
+            ],
             number   => 1101,
             dataset  => $model->{dataset},
             appendTo => $model->{inputTables}
@@ -213,7 +239,7 @@ sub generalInputs {
     $days, $direct, $indirect, $rates, $tExit, $ehvIntensity, $allowedRev,
       $powerFactorInModel, $genPot20p, $genPotGP, $genPotGL,
       $genPotCdcmCap20052010, $genPotCdcmCapPost2010,
-      $hoursInPurple;
+      $hoursInPurple,         @fixedChargeAddersRevenue;
 
 }
 

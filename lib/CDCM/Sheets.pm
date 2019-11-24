@@ -778,7 +778,7 @@ EOL
                     map {
                         $col->[$_]
                           || Constant( name => 'Placeholder', data => [], );
-                    } 0 .. 5
+                    } 0 .. $model->{fixedChargeAdders} ? 7 : 5
                 ],
             );
         }

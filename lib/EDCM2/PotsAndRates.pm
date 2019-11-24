@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -44,6 +44,7 @@ sub demandPot {
         $totalAssetsFixed,    $daysInYear,
         $assetsCapacity,      $assetsConsumption,
         $purpleUseRate,       $importCapacity,
+        @fixedChargeAddersRevenue,
     ) = @_;
 
     my $chargeOther = Arithmetic(
@@ -59,12 +60,21 @@ sub demandPot {
         arithmetic    => '=A1-A2-A3-A4-A5'
           . ( $model->{table1101} ? '-A9' : '' )
           . (
+            @fixedChargeAddersRevenue
+            ? join( '', map { "-A9$_"; } 0 .. $#fixedChargeAddersRevenue )
+            : ''
+          )
+          . (
             !$totalDcp189DiscountedAssets
               || $model->{dcp189} =~ /preservePot/i ? ''
             : '+A31*A32'
           ),
         arguments => {
             A1 => $allowedRevenue,
+            @fixedChargeAddersRevenue
+            ? ( map { ( "A9$_" => $fixedChargeAddersRevenue[$_] ); }
+                  0 .. $#fixedChargeAddersRevenue )
+            : (),
             $model->{table1101} ? ( A9 => $chargeExit ) : (),
             A2 => $chargeDirect,
             A3 => $chargeIndirect,

@@ -258,30 +258,82 @@ EOL
         },
     );
 
-    $model->{edcmTables}[0][4] =
-      new SpreadsheetModel::Custom(    # Danger - hardcoding
-        name => 'The amount of money that the DNO wants to raise from use'
-          . ' of system charges (£/year)',
-        custom        => ['=A1+A2'],
-        arithmetic    => '=A1+A2',
-        defaultFormat => '0soft',
-        arguments     => {
-            A1 => $target,
-            A2 => $inputs,
-        },
-        wsPrepare => sub {
-            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
-            sub {
-                my ( $x, $y ) = @_;
-                '', $format, $formula->[0],
-                  qr/\bA1\b/ => xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
-                  qr/\bA2\b/ => xl_rowcol_to_cell(
-                    $rowh->{A2} + 36,    # hard-coded reference to EDCM revenue
-                    $colh->{A2}
-                  );
-            };
-        },
-      ) if $model->{edcmTables};
+    if ( $model->{edcmTables} ) {
+        $model->{edcmTables}[0][4] =
+          new SpreadsheetModel::Custom(    # Danger - hardcoding
+            name => 'The amount of money that the DNO wants to raise from use'
+              . ' of system charges (£/year)',
+            custom        => ['=A1+A2'],
+            arithmetic    => '=A1+A2',
+            defaultFormat => '0soft',
+            arguments     => {
+                A1 => $target,
+                A2 => $inputs,
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    '', $format, $formula->[0],
+                      qr/\bA1\b/ =>
+                      xl_rowcol_to_cell( $rowh->{A1}, $colh->{A1} ),
+                      qr/\bA2\b/ => xl_rowcol_to_cell(
+                        $rowh->{A2} + 36, # hard-coded reference to EDCM revenue
+                        $colh->{A2}
+                      );
+                };
+            },
+          );
+        $model->{edcmTables}[0][6] =
+          new SpreadsheetModel::Custom(    # Danger - hardcoding
+            name =>
+              'Target revenue for domestic demand fixed charge adder (£/year)',
+            custom        => ['=A1'],
+            arithmetic    => '=A1',
+            defaultFormat => '0copy',
+            arguments     => {
+                A1 => $inputs,
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    '', $format, $formula->[0],
+                      qr/\bA1\b/ => xl_rowcol_to_cell(
+                        $rowh->{A1} +
+                          11,    # hard-coded reference to last resort number
+                        $colh->{A1}
+                      );
+                };
+            },
+          );
+        $model->{edcmTables}[0][7] =
+          new SpreadsheetModel::Custom(    # Danger - hardcoding
+            name =>
+              'Target revenue for domestic demand fixed charge adder (£/year)',
+            custom        => ['=A1'],
+            arithmetic    => '=A1',
+            defaultFormat => '0copy',
+            arguments     => {
+                A1 => $inputs,
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    '', $format, $formula->[0],
+                      qr/\bA1\b/ => xl_rowcol_to_cell(
+                        $rowh->{A1} +
+                          12,    # hard-coded reference to bad debt number
+                        $colh->{A1}
+                      );
+                };
+            },
+          );
+    }
 
     Columnset(
         name    => 'Target CDCM revenue',

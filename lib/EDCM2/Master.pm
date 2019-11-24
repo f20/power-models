@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -427,6 +427,7 @@ EOT
         $genPot20p,             $genPotGP,
         $genPotGL,              $genPotCdcmCap20052010,
         $genPotCdcmCapPost2010, $hoursInPurple,
+        @fixedChargeAddersRevenue,
     ) = $model->generalInputs;
 
     $model->ldnoRev if $model->{ldnoRev};
@@ -497,7 +498,7 @@ EOT
         rows          => 0,
         rowName       => 'System simultaneous maximum load (kW)',
         sources       => [ $model->{cdcmComboTable} ],
-      ) : Dataset(
+    ) : Dataset(
         name => 'Forecast system simultaneous maximum load (kW)'
           . ' from CDCM users'
           . ( $model->{transparency} ? '' : ' (from CDCM table 2506)' ),
@@ -512,7 +513,7 @@ EOT
             criteria => '>=',
             value    => 0,
         }
-      );
+    );
 
     my (
         $lossFactors,            $diversity,
@@ -719,7 +720,7 @@ EOT
         $edcmPurpleUse,               $totalAssetsFixed,
         $daysInYear,                  $assetsCapacity,
         $assetsConsumption,           $purpleUseRate,
-        $importCapacity,
+        $importCapacity,              @fixedChargeAddersRevenue,
     );
 
     my (
@@ -776,7 +777,7 @@ EOT
                 columns => [ @tariffColumns[ 1 .. 8 ] ],
                 factors => [qw(1000 100 100 100 1000 100 100 100)]
               );
-          } split /;\s*/,
+        } split /;\s*/,
         $model->{checksums}
       ]
       : \@tariffColumns;
@@ -832,19 +833,19 @@ EOT
                 captionDecorations => [qw(algae purple slime)],
               )
             : (),
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Tariff name',
             columns => [ $allTariffColumns->[0] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Import tariff',
             columns => [ @{$allTariffColumns}[ 1 .. 4 ] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Export tariff',
             columns => [ @{$allTariffColumns}[ 5 .. 8 ] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Checksums',
             columns => [ @{$allTariffColumns}[ 9 .. $#$allTariffColumns ] ]
-          );
+        );
 
         push @{ $model->{tariffTables} }, @$allTariffColumns;
 
@@ -888,9 +889,9 @@ EOT
                         number        => 3600 + $_->[0],
                         columns       => $dnoTotalItem{ $_->[0] },
                       )
-                  }[ 1191 => 'EDCM demand and revenue aggregates' ],
-                [ 1192 => 'EDCM generation aggregates' ],
-                [ 1193 => 'EDCM notional asset aggregates' ],
+                }[ 1191 => 'EDCM demand and revenue aggregates' ],
+                [ 1192  => 'EDCM generation aggregates' ],
+                [ 1193  => 'EDCM notional asset aggregates' ],
             ),
             $model->{mitigateUndueSecrecy} ? () : (
                 map {
@@ -910,8 +911,8 @@ EOT
                         number  => 3600 + $_,
                         sources => [$obj]
                       );
-                  } sort { $a <=> $b; }
-                  grep   { $_ < 100_000; }
+                } sort { $a <=> $b; }
+                  grep { $_ < 100_000; }
                   keys %{ $model->{transparency}{dnoTotalItem} }
             )
         ];
