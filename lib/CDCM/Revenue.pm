@@ -1,7 +1,8 @@
 ﻿package CDCM;
 
 # Copyright 2012 Energy Networks Association Limited and others.
-#
+# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
+
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #
@@ -115,11 +116,12 @@ sub revenueShortfall {
         ),
     );
 
-    my ( $allowedRevenue, $revenueFromElsewhere );
+    my $allowedRevenue;
+    my $revenueFromElsewhere = $model->{revenueFromElsewhere};
 
     if ( $model->{targetRevenue} ) {
         if ( $model->{targetRevenue} =~ /dcp334|2019/i ) {
-            $allowedRevenue = $model->table1001_2019;
+            ($allowedRevenue) = $model->table1001_2019;
         }
         elsif ( $model->{targetRevenue} =~ /dcp249|dcp273|2016/i ) {
             $allowedRevenue = $model->table1001_2016;
@@ -157,7 +159,7 @@ sub revenueShortfall {
               . ' of system charges (£/year)',
             sources => [$allowedRevenue],
         ) if $model->{edcmTables};
-        $revenueFromElsewhere = Dataset(
+        my $myRevenueFromElsewhere = Dataset(
             name          => 'Revenue raised outside this model (£/year)',
             defaultFormat => '0hard',
             validation    => {
@@ -170,12 +172,22 @@ sub revenueShortfall {
             },
             data => [5_000_000],
         );
+        $revenueFromElsewhere =
+          defined $revenueFromElsewhere
+          ? Arithmetic(
+            name          => 'Total revenue from elsewhere (£/year)',
+            defaultFormat => '0soft',
+            arguments =>
+              { A1 => $revenueFromElsewhere, A2 => $myRevenueFromElsewhere, },
+            arithmetic => '=A1+A2',
+          )
+          : $myRevenueFromElsewhere;
 
         Columnset(
             name    => 'Target revenue',
             columns => [
                 @allowedRevenueItems,
-                $revenueFromElsewhere,
+                $myRevenueFromElsewhere,
                 $model->{adjustRevenuesBefore}
                 ? @{ $model->{adjustRevenuesBefore} }
                 : (),
@@ -236,6 +248,7 @@ sub revenueShortfall {
             defaultFormat => '0soft'
         );
     }
+
 
     push @{ $model->{revenueMatching} },
       Columnset(

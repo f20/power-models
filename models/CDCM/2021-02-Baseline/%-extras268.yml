@@ -9,6 +9,7 @@ drm: top500gsp
 edcmTables: 1
 extraLevels: 1
 fixedCap: 1-4
+fixedChargeAdders: 1
 forwardLinks: 1
 generationReactiveRouteingFix: 1
 lvDiversityWrong: 1

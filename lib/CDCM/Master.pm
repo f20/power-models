@@ -900,9 +900,14 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,
         $tariffTable,
       )
-      = $model->pcdApplyDiscounts( $allComponents, $tariffTable, $daysInYear,
-        $componentMap, )
-      if $model->{pcd};
+      = $model->pcdApplyDiscounts(
+        $allComponents,
+        $model->{generationReactiveRouteingFix}
+        ? $tariffsBeforeRounding
+        : $tariffTable,
+        $daysInYear,
+        $componentMap,
+      ) if $model->{pcd};
 
     (
         $allTariffs, $allTariffsByEndUser, $volumeData, $unitsInYear,

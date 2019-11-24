@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2019 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -196,8 +196,8 @@ sub pcdPreprocessedVolumes {
         cols          => $model->{pcd}{discount}{cols},
         sources       => [
             Constant(
-                name =>
-"100 per cent discount for generators on $model->{ldnoWord} networks",
+                name => '100 per cent discount for generators'
+                  . " on $model->{ldnoWord} networks",
                 defaultFormat => '%connz',
                 rows          => $ldnoGenerators,
                 data          => [ [ map { 1 } @{ $ldnoGenerators->{list} } ] ]
@@ -207,15 +207,86 @@ sub pcdPreprocessedVolumes {
     );
 
     if ( $model->{portfolio} && $model->{portfolio} =~ /ehv/i ) {
-
-        # To do: supplement table 1037 with table 1181.
-        die
+        die # Would need to supplement table 1037 with table 1181 to implement this
           "EDCM discounted $model->{ldnoWord} tariffs are not implemented here";
     }
 
     ( $model->{pcd}{volumeData} ) =
       $model->volumes( $model->{pcd}{allTariffsByEndUser},
         $allEndUsers, $nonExcludedComponents, $componentMap, 'no aggregation' );
+
+    if ( $model->{fixedChargeAdders} ) {
+        my @adderNames = ( 'Domestic demand', 'Metered demand' );
+        ( undef, my @adderTargetRevenue ) = $model->table1001_2019;
+        $model->{revenueFromElsewhere} = Arithmetic(
+            name          => 'Total revenue from fixed charge adders (£/year)',
+            defaultFormat => '0soft',
+            mustCopy      => 1,
+            arithmetic    => '=A10+A11',
+            arguments     => {
+                map { ( "A1$_" => $adderTargetRevenue[$_] ); }
+                  0 .. $#adderTargetRevenue,
+            },
+        );
+        my $rowset = $model->{pcd}{volumeData}{'Fixed charge p/MPAN/day'}{rows};
+        my @applicationRules = (
+            Constant(
+                name          => 'Domestic demand',
+                defaultFormat => '0con',
+                rows          => $rowset,
+                data          => [
+                    map {
+                            /non.domestic|related|additional/i ? 0
+                          : /domestic/i                        ? 1
+                          :                                      0;
+                    } @{ $rowset->{list} }
+                ],
+            ),
+            Constant(
+                name          => 'Metered demand',
+                defaultFormat => '0con',
+                rows          => $rowset,
+                data          => [
+                    map { /unmetered|ums|gener|related|additional/i ? 0 : 1; }
+                      @{ $rowset->{list} }
+                ],
+            )
+        );
+        Columnset(
+            name    => 'Fixed charge adders application matrix',
+            columns => \@applicationRules,
+        );
+        my @adderRates = map {
+            Arithmetic(
+                name          => $adderNames[$_],
+                defaultFormat => '0.00soft',
+                arithmetic    => '=A1/SUMPRODUCT(A2_A3,A4_A5)',
+                arguments     => {
+                    A1    => $adderTargetRevenue[$_],
+                    A2_A3 => $applicationRules[$_],
+                    A4_A5 =>
+                      $model->{pcd}{volumeData}{'Fixed charge p/MPAN/day'},
+                },
+            );
+        } 0 .. $#adderNames;
+        Columnset(
+            name    => 'Fixed charge adder rates (£/MPAN/year)',
+            columns => \@adderRates,
+        );
+        $model->{pcd}{preRoundingFiddles}{'Fixed charge p/MPAN/day'} =
+          Arithmetic(
+            name          => 'Fixed charge adder (p/MPAN/day)',
+            defaultFormat => '0.00soft',
+            arithmetic    => '=(A1*A2+A3*A4)/A5*100',
+            arguments     => {
+                A1 => $applicationRules[0],
+                A2 => $adderRates[0],
+                A3 => $applicationRules[1],
+                A4 => $adderRates[1],
+                A5 => $daysAfter,
+            },
+          );
+    }
 
     if ( $model->{inYear} ) {
         if ( $model->{inYear} =~ /after/i ) {
@@ -349,7 +420,7 @@ sub pcdApplyDiscounts {
         defaultFormat => '0softnz'
     );
 
-    my %fiddleTerm;
+    my %postRoundingFiddles;
     if ( $model->{bung} || $model->{electionBung} ) {
         my $bung = Dataset(
             name               => 'Bung (p/MPAN/day)',
@@ -383,7 +454,7 @@ sub pcdApplyDiscounts {
         $model->{sharedData}
           ->addStats( 'DNO-wide aggregates', $model, $totalImpactOfBung )
           if $model->{sharedData};
-        $fiddleTerm{'Fixed charge p/MPAN/day'} = $bung;
+        $postRoundingFiddles{'Fixed charge p/MPAN/day'} = $bung;
     }
     elsif ( $model->{fiddle} ) {
         my @fiddles = map {
@@ -411,17 +482,19 @@ sub pcdApplyDiscounts {
             dataset  => $model->{dataset},
             columns  => \@fiddles,
         );
-        @fiddleTerm{@$allComponents} = @fiddles;
+        @postRoundingFiddles{@$allComponents} = @fiddles;
     }
 
     my $newTariffTable = {
         map {
             $_ => Arithmetic(
-                name          => $_,
-                defaultFormat => $tariffTable->{$_}{defaultFormat},
-                arithmetic    => $model->{model100} ? '=A2*(1-A1)'
-                : (   ( $fiddleTerm{$_} ? '=A3+' : '=' )
+                name => $_,
+                m%p/k(W|VAr)h% ? ()
+                : ( defaultFormat => '0.00soft' ),
+                arithmetic => $model->{model100} ? '=A2*(1-A1)'
+                : (   ( $postRoundingFiddles{$_} ? '=A3+' : '=' )
                     . 'ROUND('
+                      . ( $model->{pcd}{preRoundingFiddles}{$_} ? 'A4+' : '' )
                       . 'A2*(1-A1),'
                       . ( /kWh|kVArh/ ? 3 : 2 )
                       . ')' ),
@@ -432,7 +505,12 @@ sub pcdApplyDiscounts {
                     A2 => $tariffTable->{$_},
                     A1 => /fix/i ? $model->{pcd}{discountFixed}
                     : $model->{pcd}{discount},
-                    $fiddleTerm{$_} ? ( A3 => $fiddleTerm{$_} ) : (),
+                    $postRoundingFiddles{$_}
+                    ? ( A3 => $postRoundingFiddles{$_} )
+                    : (),
+                    $model->{pcd}{preRoundingFiddles}{$_}
+                    ? ( A4 => $model->{pcd}{preRoundingFiddles}{$_} )
+                    : (),
                 },
             );
         } @$allComponents

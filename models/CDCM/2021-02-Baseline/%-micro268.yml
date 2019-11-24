@@ -8,6 +8,7 @@ coincidenceAdj: groupdcp268
 drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
+fixedChargeAdders: 1
 generationReactiveRouteingFix: 1
 lvDiversityWrong: 1
 nickName: After 2020

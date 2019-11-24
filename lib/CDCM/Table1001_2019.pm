@@ -32,6 +32,8 @@ use Spreadsheet::WriteExcel::Utility;
 sub table1001_2019 {
 
     my ($model) = @_;
+    return @{ $model->{table1001_2019_array} }
+      if $model->{table1001_2019_array};
 
     my @lines = map { [ split /\|/, $_, -1 ] } split /\n/, <<EOL;
 Base Demand Revenue before inflation|A1|PU|CRC2A
@@ -256,7 +258,8 @@ EOL
         },
     );
 
-    $model->{edcmTables}[0][4] = new SpreadsheetModel::Custom(
+    $model->{edcmTables}[0][4] =
+      new SpreadsheetModel::Custom(    # Danger - hardcoding
         name => 'The amount of money that the DNO wants to raise from use'
           . ' of system charges (£/year)',
         custom        => ['=A1+A2'],
@@ -278,7 +281,7 @@ EOL
                   );
             };
         },
-    ) if $model->{edcmTables};
+      ) if $model->{edcmTables};
 
     Columnset(
         name    => 'Target CDCM revenue',
@@ -293,7 +296,56 @@ EOL
         ]
     );
 
-    $target;
+    $model->{table1001_2019_array} = [
+        $target,
+        new SpreadsheetModel::Custom(    # Danger - hardcoding
+            name =>
+              'Target revenue for domestic demand fixed charge adder (£/year)',
+            custom        => ['=A1'],
+            arithmetic    => '=A1',
+            defaultFormat => '0copy',
+            arguments     => {
+                A1 => $inputs,
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    '', $format, $formula->[0],
+                      qr/\bA1\b/ => xl_rowcol_to_cell(
+                        $rowh->{A1} +
+                          11,    # hard-coded reference to last resort number
+                        $colh->{A1}
+                      );
+                };
+            },
+        ),
+        new SpreadsheetModel::Custom(    # Danger - hardcoding
+            name =>
+              'Target revenue for domestic demand fixed charge adder (£/year)',
+            custom        => ['=A1'],
+            arithmetic    => '=A1',
+            defaultFormat => '0copy',
+            arguments     => {
+                A1 => $inputs,
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    '', $format, $formula->[0],
+                      qr/\bA1\b/ => xl_rowcol_to_cell(
+                        $rowh->{A1} +
+                          12,    # hard-coded reference to bad debt number
+                        $colh->{A1}
+                      );
+                };
+            },
+        ),
+    ];
+    @{ $model->{table1001_2019_array} };
 
 }
 
