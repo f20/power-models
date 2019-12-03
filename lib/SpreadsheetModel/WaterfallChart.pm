@@ -42,7 +42,8 @@ sub check {
     my $lastId = $self->{padding}->lastRow;
     my $lc     = $self->{padding}->lastCol;
     $lastId = $lc if $lc > $lastId;
-    $self->{height} ||= $self->{scaling_factor} * ( 180 + 24 * $lastId );
+    $self->{height} ||=
+      $self->{scaling_factor} * ( $lastId > 14 ? 180 + 24 * $lastId : 480 );
 
     my @greyBarSeriesSettings = (
         gradient => {
