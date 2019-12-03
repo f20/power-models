@@ -1,5 +1,5 @@
 ---
-.: 'EDCM clean after DCP 161 (normal input tables), FCP'
+.: 'EDCM clean after DCP 161 (with fixed charge adders), FCP'
 PerlModule: EDCM2
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1

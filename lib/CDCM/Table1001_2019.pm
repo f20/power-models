@@ -312,7 +312,7 @@ EOL
         $model->{edcmTables}[0][7] =
           new SpreadsheetModel::Custom(    # Danger - hardcoding
             name =>
-              'Target revenue for domestic demand fixed charge adder (£/year)',
+              'Target revenue for metered demand fixed charge adder (£/year)',
             custom        => ['=A1'],
             arithmetic    => '=A1',
             defaultFormat => '0copy',
@@ -375,7 +375,7 @@ EOL
         ),
         new SpreadsheetModel::Custom(    # Danger - hardcoding
             name =>
-              'Target revenue for domestic demand fixed charge adder (£/year)',
+              'Target revenue for metered demand fixed charge adder (£/year)',
             custom        => ['=A1'],
             arithmetic    => '=A1',
             defaultFormat => '0copy',

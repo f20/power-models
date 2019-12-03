@@ -228,6 +228,10 @@ sub pcdPreprocessedVolumes {
                   0 .. $#adderTargetRevenue,
             },
         );
+        Columnset(
+            name    => 'Revenues from fixed charge adders',
+            columns => [ @adderTargetRevenue, $model->{revenueFromElsewhere}, ],
+        );
         my $rowset = $model->{pcd}{volumeData}{'Fixed charge p/MPAN/day'}{rows};
         my @applicationRules = (
             Constant(

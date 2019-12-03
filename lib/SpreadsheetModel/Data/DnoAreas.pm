@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Data::DnoAreas;
 
-# Copyright 2010-2017 Reckon LLP and others.
+# Copyright 2010-2019 Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,7 @@ use utf8;
 
 sub normaliseDnoName {
     local @_ = @_ if defined wantarray;
+    @_ = ('Untitled') unless @_;
     foreach (@_) {
         s/^CE-NEDL/NPG-Northeast/;
         s/^CE-YEDL/NPG-Yorkshire/;

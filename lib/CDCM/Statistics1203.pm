@@ -80,6 +80,7 @@ LV Network Non-Domestic Non-CT 1
 LV Site Specific 1
 LV Sub Site Specific 1
 HV Site Specific 1
+NHH UMS category A 1
 NHH UMS category B 1
 NHH UMS category C 1
 LV UMS (Pseudo HH Metered) 1
@@ -94,6 +95,9 @@ EOL
               s/^Small Non Domestic Unrestricted/Non-Domestic Aggregated/;
             $user2 =~ s/^Small Non Domestic Two Rate/Non-Domestic Aggregated/;
             $user2 =~ s/^LV Medium Non-Domestic/Non-Domestic Aggregated/;
+            $user2 =~ s/^LV Network Domestic/Domestic Aggregated/;
+            $user2 =~
+              s/^LV Network Non-Domestic Non-CT/Non-Domestic Aggregated/;
             $user2 =~ s/Site Specific/HH Metered/;
             $user2 =~ s/^NHH UMS category [ABCD]/Unmetered Supplies/;
             $user2 =~ s/^LV UMS \(Pseudo HH Metered\)/Unmetered Supplies/;
