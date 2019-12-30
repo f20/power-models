@@ -3,4 +3,3 @@ PerlModule: Sampler
 showColourCode: 1
 showColourMatrix: 1
 showNumFormatColours: 1
-template: Spreadsheet format sampler (long)
