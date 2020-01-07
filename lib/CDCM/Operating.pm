@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -581,14 +581,16 @@ sub operating {
         $operatingCostByCustomer = GroupBy(
             name =>
               'Operating expenditure for customer assets p/MPAN/day total',
-            rows   => $allTariffsByEndUser,
-            cols   => 0,
-            source => Arithmetic(
-                name       => 'Operating expenditure p/MPAN/day by level',
-                rows       => $allTariffsByEndUser,
-                cols       => $operatingCustomerLevels,
-                arithmetic => '=100/A2*A1*A3',
-                arguments  => {
+            defaultFormat => '0.00soft',
+            rows          => $allTariffsByEndUser,
+            cols          => 0,
+            source        => Arithmetic(
+                name          => 'Operating expenditure p/MPAN/day by level',
+                defaultFormat => '0.00soft',
+                rows          => $allTariffsByEndUser,
+                cols          => $operatingCustomerLevels,
+                arithmetic    => '=100/A2*A1*A3',
+                arguments     => {
                     A1 => $operatingExpenditurePercentages,
                     A2 => $daysInYear,
                     A3 => $serviceModelAssetsPerCustomer,
