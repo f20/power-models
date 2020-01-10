@@ -1,6 +1,6 @@
 ﻿package CDCM::PickBest;
 
-# Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -77,7 +77,7 @@ sub score {
       if $rule->{generationReactiveRouteingFix} xor $month lt '2019-10';
 
     # DCP 268
-    $score += 10
+    $score += 100
       if $rule->{coincidenceAdj}
       && $rule->{coincidenceAdj} =~ /groupdcp268/i xor $month lt '2020-03';
 
