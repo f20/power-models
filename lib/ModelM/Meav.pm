@@ -1,7 +1,7 @@
 ﻿package ModelM;
 
 # Copyright 2011 The Competitive Networks Association and others.
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -51,7 +51,7 @@ LV fuse pole-mounted
 LV fuse tower-mounted
 6.6/11kV overhead open km
 6.6/11kV overhead covered km
-20kV overhead open pm
+20kV overhead open km
 20kV overhead covered km
 6.6/11kV overhead support
 20kV overhead support
