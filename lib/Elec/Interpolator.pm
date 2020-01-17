@@ -1,6 +1,6 @@
 ﻿package Elec::Interpolator;
 
-# Copyright 2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2019-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -135,11 +135,12 @@ sub _forecastInputDataAndFactors {
     );
 
     my $factor = Arithmetic(
-        name       => 'Scaling factor for the charging year',
-        rows       => $rowset,
-        arithmetic => '=IF(OR(A103<0,A104<A203),0,IF(A701,'
-          . '((1+A702)^((A102+1)/365.25)-(1+A703)^(A202/365.25))/LN(1+A704)'
-          . ',(A101+1-A201)/365.25))',
+        name => 'Scaling factor for the charging year',
+        rows => $rowset,
+        arithmetic => '=IF(OR(A103<0,A104<A203),0,' .    # is there any overlap
+          'IF(A701,'    # is there a non-zero growth rate?
+          . '((1+A702)^((A102+1-A204)/A901)-1)*(1+A703)^(A202/365.25)/LN(1+A704),'
+          . '(A101+1-A201)/A902))',
         arguments => {
             A101 => $last,
             A102 => $last,
@@ -148,10 +149,13 @@ sub _forecastInputDataAndFactors {
             A201 => $first,
             A202 => $first,
             A203 => $first,
+            A204 => $first,
             A701 => $growth,
             A702 => $growth,
             A703 => $growth,
             A704 => $growth,
+            A901 => $self->daysInYear,
+            A902 => $self->daysInYear,
         },
     );
 
@@ -267,21 +271,16 @@ sub _aggregateForecast {
         $wantedColumnset && !$#{ $wantedColumnset->{list} }
       ? $wantedColumnset->{list}[0]
       : $column->objectShortName;
-    my $averagingFlag = $name =~ /Wh|VArh|\/year/i;
 
     new SpreadsheetModel::Custom(
         name          => $name,
         defaultFormat => '0soft',
         rows          => $wantedRowset,
         cols          => $wantedColumnset,
-        custom        => [
-                '=SUMPRODUCT((A1=A3)*A4*A6'
-              . ( $prop          ? '*A8' : '' ) . ')'
-              . ( $averagingFlag ? ''    : '*365.25/A9' )
-        ],
+        custom =>
+          [ '=SUMPRODUCT((A1=A3)*A4*A6' . ( $prop ? '*A8' : '' ) . ')' ],
         arithmetic => '=SUMPRODUCT((A1=label)*A4*A6'
-          . ( $prop          ? '*A8' : '' ) . ')'
-          . ( $averagingFlag ? ''    : '*365.25/A9' ),
+          . ( $prop ? '*A8' : '' ) . ')',
         arguments => {
             A1 => $category,
             A4 => $factor,

@@ -253,7 +253,7 @@ sub worksheetsAndClosures {
       'Index' => SpreadsheetModel::Book::FrontSheet->new(
         model => $model,
         copyright =>
-          'Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.'
+          'Copyright 2012-2020 Franck Latrémolière, Reckon LLP and others.'
     )->closure($wbook);
 
 }
