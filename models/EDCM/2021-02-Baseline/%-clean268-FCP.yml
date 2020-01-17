@@ -8,6 +8,7 @@ dcp179: 1
 dcp185: 2
 dcp189: proportionsplitShortfall
 dcp268: 1
+dcp342: 0
 default132kVHVto132kVEHV: 1
 fixedChargeAdders: 1
 layout: auto

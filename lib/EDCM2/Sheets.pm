@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -47,23 +47,27 @@ sub finishModel {
 sub notesTransparency {
     my ($model) = @_;
     Notes(
-        name  => 'DNO totals data',
-        lines => [
+        name       => '',
+        rowFormats => ['caption'],
+        lines      => [
+            'DNO totals data',
             'If table 1190 is set to "TRUE",'
               . ' then tables 1191-1193 are not used. '
               . 'This is for a model populated'
-              . ' with data for all customers, including'
-              . ' data that are commercially confidential.',
+              . ' with data for all customers.',
             'If table 1190 is set to "FALSE", so that the model can be used for'
               . ' validation and forecasting of DNO charges, then'
               . ' the DNO totals in tables 1191-1193 need to match'
               . ' the DNO totals in the DNO\'s charging model.',
-            'DNOs are now refusing to disclose DNO totals, citing an'
-              . ' invalid excuse which sounds cooked up in a DNO smoke-filled room.',
             $model->{mitigateUndueSecrecy}
             ? $model->{mitigateUndueSecrecy}->additionalLines
-            : (     'There are tools on dcmf.co.uk/models which might'
-                  . ' help mitigate some aspects of undue DNO secrecy.' ),
+            : 1 ? ()
+            : (
+                'DNOs are now refusing to disclose DNO totals, citing an'
+                  . ' invalid excuse which sounds cooked up in a DNO smoke-filled room.',
+                'There are tools on dcmf.co.uk/models which might'
+                  . ' help mitigate some aspects of undue DNO secrecy.'
+            ),
         ],
     );
 }
@@ -673,7 +677,7 @@ sub worksheetsAndClosures {
         $model->{legacy201} ? ( name => 'Overview' ) : (),
         copyright =>
           'Copyright 2009-2012 Energy Networks Association Limited and others. '
-          . 'Copyright 2013-2018 Franck Latrémolière, Reckon LLP and others.'
+          . 'Copyright 2013-2020 Franck Latrémolière, Reckon LLP and others.'
     )->closure($wbook);
 
     @wsheetsAndClosures;

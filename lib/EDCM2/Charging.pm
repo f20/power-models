@@ -151,7 +151,7 @@ sub tariffCalculation {
 
     my $demandScalingShortfall;
 
-    if ( $model->{legacy201} ) {
+    if ( $model->{legacy201} ) { # incompatible with transparency
 
         $capacityChargeT = Arithmetic(
             name       => 'Import capacity charge before scaling (p/kVA/day)',

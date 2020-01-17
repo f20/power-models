@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -37,14 +37,16 @@ sub requiredModulesForRuleset {
       EDCM2::Adjust
       EDCM2::Assets
       EDCM2::Charge1
-      EDCM2::Charging
       EDCM2::Generation
       EDCM2::Inputs
       EDCM2::Locations
       EDCM2::PotsAndRates
-      EDCM2::Scaling
       EDCM2::Sheets
       ),
+
+      defined $ruleset->{dcp342}
+      ? qw(EDCM2::Charging2020)
+      : qw(EDCM2::Charging EDCM2::Scaling),
 
       $ruleset->{dcp287} ? qw(EDCM2::Dcp287) : (),
 
@@ -97,6 +99,7 @@ sub new {
 
     $model->{inputTables} = [];
     $model->{method} ||= 'none';
+    $model->{dcp189} ||= 'proportionsplitShortfall' if $model->{dcp342};
 
     $model->{embeddedModelM2} = $model->{embeddedModelM} = ModelM->new(
         dataset => $model->{dataset},
@@ -194,6 +197,7 @@ EOT
         $activeUnits,
         $creditableCapacity935,
         $tariffNetworkSupportFactor,
+        $tariffScalingExempt,
         $tariffDaysInYearNot,
         $tariffHoursInPurpleNot,
         $previousChargeImport,
@@ -246,6 +250,7 @@ EOT
               $model->mangleLoadFlowInputs( $locations, $locParent, $c1, $a1d,
                 $r1d, $a1g, $r1g );
 
+            # no support for DCP 342
             (
                 $tariffs,
                 $importCapacity935,
@@ -379,8 +384,14 @@ EOT
                 ],
                 $model->{dcp189} && $model->{dcp189} =~ /preservePot|split/i
                 ? [
-                    'Baseline total demand sole use assets '
-                      . 'qualifying for DCP 189 discount (£)',
+                        'Baseline total demand sole use assets '
+                      . 'qualifying for DCP 189 discount (£)', '0hard'
+                  ]
+                : (),
+                $model->{dcp342}
+                ? [
+                    'Baseline total notional assets '
+                      . 'qualifying for DCP 342 exemption (£)',
                     '0hard'
                   ]
                 : (),
@@ -723,12 +734,14 @@ EOT
         $importCapacity,              @fixedChargeAddersRevenue,
     );
 
+    my $tariffCalculationMethod =
+      defined $model->{dcp342} ? 'tariffCalculation2020' : 'tariffCalculation';
     my (
         $purpleRateFcpLricRound,    $fixedDchargeTrueRound,
         $importCapacityScaledRound, $importCapacityExceededRound,
         $exportCapacityExceeded,    $demandScalingShortfall,
       )
-      = $model->tariffCalculation(
+      = $model->$tariffCalculationMethod(
         $activeCoincidence,           $activeCoincidence935,
         $assetsCapacityCooked,        $assetsConsumptionCooked,
         $assetsFixed,                 $chargeableCapacity,
@@ -749,6 +762,7 @@ EOT
         $totalAssetsFixed,            $totalAssetsGenerationSoleUse,
         $totalDcp189DiscountedAssets, $totalEdcmAssets,
         $totalRevenue3,               $unitRateFcpLricNonDSM,
+        $tariffScalingExempt,
       );
 
     my @tariffColumns = (

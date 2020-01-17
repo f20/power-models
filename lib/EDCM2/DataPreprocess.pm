@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -98,6 +98,22 @@ sub preprocessDataset {
               and !$ds->[8]
               || !$ds->[8]{_column}
               || $ds->[8]{_column} !~ /reduction/i;
+
+            splice @$ds, 23, 0,
+              {
+                map { ( $_ => '' ); }
+                  keys %{ $ds->[1] }
+              }
+              if $model->{dcp342}
+              and !$ds->[23]
+              || !$ds->[23]{_column}
+              || $ds->[23]{_column} !~ /exempt/i;
+
+            splice @$ds, 23, 1,
+              if !$model->{dcp342}
+              and $ds->[23]
+              || $ds->[23]{_column}
+              || $ds->[23]{_column} =~ /exempt/i;
 
             my $max = 0;
             while ( my ( $k, $v ) = each %{ $ds->[1] } ) {

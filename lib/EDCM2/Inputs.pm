@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -630,7 +630,6 @@ EOL
                 value    => 0,
             },
         ),
-
         Dataset(
             name => "$model->{TimebandName} kW import divided by kVA capacity",
             data => [ map { '' } 1 .. $model->{numTariffs} ],
@@ -684,7 +683,13 @@ EOL
             rows    => $model->{tariffSet},
             dataset => $model->{dataset}
         ),
-
+        !$model->{dcp342} ? undef : Dataset(
+            name =>
+              'Proportion exempted from asset-based adder and fixed adder',
+            data    => [ map { 1 } 1 .. $model->{numTariffs} ],
+            rows    => $model->{tariffSet},
+            dataset => $model->{dataset}
+        ),
         Dataset(
             name          => 'Days for which not a customer',
             defaultFormat => '0hard',
@@ -699,7 +704,6 @@ EOL
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
-
         Dataset(
             name          => 'Import charge in previous charging year (£/year)',
             defaultFormat => '0hard',
@@ -714,7 +718,6 @@ EOL
             data          => [ map { 0 } 1 .. $model->{numTariffs} ],
             dataset       => $model->{dataset}
         ),
-
         Dataset(
             name          => 'LLFC import',
             defaultFormat => 'puretexthard',

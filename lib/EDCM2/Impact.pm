@@ -1,6 +1,6 @@
 ﻿package EDCM2;
 
-# Copyright 2013-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -32,14 +32,14 @@ use SpreadsheetModel::Shortcuts ':all';
 sub mangleLoadFlowInputs {
     my ( $model, @inputs, ) = @_;
 
-# Columns
-# 0 locations
-# 1 locParent
-# 2 c1
-# 3 a1d
-# 4 r1d
-# 5 a1g
-# 6 r1g
+    # Columns
+    # 0 locations
+    # 1 locParent
+    # 2 c1
+    # 3 a1d
+    # 4 r1d
+    # 5 a1g
+    # 6 r1g
 
     return @inputs unless $model->{numExtraLocations};
     return @inputs if !$model->{method} || $model->{method} =~ /none/i;
@@ -111,33 +111,33 @@ sub mangleLoadFlowInputs {
 
 }
 
-sub mangleTariffInputs {
+sub mangleTariffInputs {    # no support for DCP 342
     my ( $model, @columns ) = @_;
 
-# Columns (not compatible with DCP 189)
-# 0 tariffs
-# 1 importCapacity
-# 2 exportCapacityExempt
-# 3 exportCapacityChargeablePre2005
-# 4 exportCapacityChargeable20052010
-# 5 exportCapacityChargeablePost2010
-# 6 tariffSoleUseMeav
-# 7 tariffLoc
-# 8 tariffCategory
-# 9 useProportions
-# 10 activeCoincidence
-# 11 reactiveCoincidence
-# 12 indirectExposure
-# 13 nonChargeableCapacity
-# 14 activeUnits
-# 15 creditableCapacity
-# 16 tariffNetworkSupportFactor
-# 17 tariffDaysInYearNot
-# 18 tariffHoursInPurpleNot
-# 19 previousChargeImport
-# 20 previousChargeExport
-# 21 llfcImport
-# 22 llfcExport
+    # Columns (not compatible with DCP 189)
+    # 0 tariffs
+    # 1 importCapacity
+    # 2 exportCapacityExempt
+    # 3 exportCapacityChargeablePre2005
+    # 4 exportCapacityChargeable20052010
+    # 5 exportCapacityChargeablePost2010
+    # 6 tariffSoleUseMeav
+    # 7 tariffLoc
+    # 8 tariffCategory
+    # 9 useProportions
+    # 10 activeCoincidence
+    # 11 reactiveCoincidence
+    # 12 indirectExposure
+    # 13 nonChargeableCapacity
+    # 14 activeUnits
+    # 15 creditableCapacity
+    # 16 tariffNetworkSupportFactor
+    # 17 tariffDaysInYearNot
+    # 18 tariffHoursInPurpleNot
+    # 19 previousChargeImport
+    # 20 previousChargeExport
+    # 21 llfcImport
+    # 22 llfcExport
 
     $model->{numExtraTariffs} = 2
       unless ( $model->{numTariffs} || 0 ) * 2 +
