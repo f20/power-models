@@ -162,7 +162,7 @@ sub worksheetsAndClosures {
         model     => $model,
         copyright => 'Copyright 2009-2012 The Competitive Networks'
           . ' Association and others. '
-          . 'Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.',
+          . 'Copyright 2012-2020 Franck Latrémolière, Reckon LLP and others.',
       )->closure($wbook);
 
 }

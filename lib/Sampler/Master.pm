@@ -63,7 +63,7 @@ sub worksheetsAndClosures {
         SpreadsheetModel::Book::FrontSheet->new(
             model => $model,
             copyright =>
-              'Copyright 2015-2018 Franck Latrémolière, Reckon LLP and others.'
+              'Copyright 2015-2019 Franck Latrémolière and others.'
         )->technicalNotes->wsWrite( $wbook, $wsheet );
     };
 }
