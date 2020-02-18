@@ -562,20 +562,20 @@ sub setFormats {
         'timesoft'     => [ @sNumber, @num_time,      @cSoft, ],
         'boolhard'     => [
             @sNumber,
-            align => 'center',
-            @num_textonly,
+            align      => 'center',
+            num_format => $num_textonly,
             @cHard,
         ],
         'boolsoft' => [
             @sNumber,
-            align => 'center',
-            @num_textonly,
+            align      => 'center',
+            num_format => $num_textonly,
             @cSoft,
         ],
         'boolcopy' => [
             @sNumber,
-            align => 'center',
-            @num_textonly,
+            align      => 'center',
+            num_format => $num_textonly,
             @cCopy,
         ],
         'caption' => [
