@@ -66,26 +66,26 @@ __DATA__
     Off-peak 69kVA: 230
     _column: Order
   - Business 23kVA: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
-    Business 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
-    Business 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Business 69kVA: '^(?:Small|LV) (?:Network )?(?:.*Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?HH Metered)'
+    Business 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH|HV Site Specific)'
+    Business 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) (?:HH Metered|Site Specific)'
+    Business 69kVA: '^(?:Small|LV) (?:Network )?(?:.*Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?(?:HH Metered|Site Specific))'
     Continuous 23kVA: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
-    Continuous 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
-    Continuous 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Continuous 69kVA: '^(?:Small|LV) (?:Network )?(?:.*Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?HH Metered)'
+    Continuous 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH|HV Site Specific)'
+    Continuous 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) (?:HH Metered|Site Specific)'
+    Continuous 69kVA: '^(?:Small|LV) (?:Network )?(?:.*Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?(?:HH Metered|Site Specific))'
     Demand 500kVA: All-the-way metered demand
     Domestic 1550kWh: '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
     Domestic 3100kWh: '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
     Domestic 8400kWh: '(?:^|: )(?:LV Network Domestic Disabled|Domestic [UT])'
     Generation 1MVA: All-the-way generation
-    LivingElecHeat 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
-    LivingElecHeat 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
-    LivingFuelHeat 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
-    LivingFuelHeat 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
+    LivingElecHeat 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH|HV Site Specific)'
+    LivingElecHeat 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) (?:HH Metered|Site Specific)'
+    LivingFuelHeat 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH|HV Site Specific)'
+    LivingFuelHeat 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) (?:HH Metered|Site Specific)'
     Off-peak 23kVA: '^(?:Small|LV).*Non[- ]Domestic(?: [UTN]|$)'
-    Off-peak 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH)'
-    Off-peak 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) HH Metered'
-    Off-peak 69kVA: '^(?:Small|LV) (?:Network )?(?:.*Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?HH Metered)'
+    Off-peak 5MVA: '^(?:|(?:LD|Q)NO .*: )(?:Demand Category|HV.*HH|HV Site Specific)'
+    Off-peak 690kVA: '^(?:|(?:LD|Q)NO .*: )(?:LV|LV Sub|HV) (?:HH Metered|Site Specific)'
+    Off-peak 69kVA: '^(?:Small|LV) (?:Network )?(?:.*Non[- ]Domestic(?: [UTN]|$)|(?:Sub )?(?:HH Metered|Site Specific))'
     _column: Tariff selection
   - Business 23kVA: 62
     Business 5MVA: 62
