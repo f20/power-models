@@ -1,0 +1,408 @@
+---
+1100:
+  - _table: '4301. EDCM input data ⇒1100. Company, charging year, data version'
+  - EDCM input data 1100 Company charging year data version: Electricity North West
+    _column: Company
+  - EDCM input data 1100 Company charging year data version: 2021/2022
+    _column: Year
+  - EDCM input data 1100 Company charging year data version: December 2019
+    _column: Version
+  - EDCM input data 1100 Company charging year data version: |-
+      Input data compiled by Franck.  Entertainment purposes only.
+      Contains illustrative placeholder data instead of actual DNO totals or actual tariff data.
+1101:
+  - _table: 4302. EDCM input data ⇒1101. Financial information
+  - Financial information: 0.2
+    _column: Generation O&M charging rate (£/kW/year)
+  - Financial information: 39281594.1854681
+    _column: Direct cost (£/year)
+  - Financial information: 129657915.18329
+    _column: Indirect cost (£/year)
+  - Financial information: 25946127.0086436
+    _column: Network rates (£/year)
+  - Financial information: 431892802.814654
+    _column: The amount of money that the DNO wants to raise from use of system charges (£/year)
+  - Financial information: 20338919.7623299
+    _column: Transmission exit charges (£/year)
+  - Financial information: 52324.9765880634
+    _column: Target revenue for domestic demand fixed charge adder (£/year)
+  - Financial information: 1221281.04026865
+    _column: Target revenue for metered demand fixed charge adder (£/year)
+1105:
+  - _table: 4303. EDCM input data ⇒1105. Diversity allowance between level exit and GSP Group
+  - Diversity allowance: 0.0570263587292343
+    _column: GSPs
+  - Diversity allowance: 0.131873432270653
+    _column: 132kV
+  - Diversity allowance: 0.131873432270653
+    _column: 132kV/EHV
+  - Diversity allowance: 0.225310033253314
+    _column: EHV
+  - Diversity allowance: 0.225310033253314
+    _column: EHV/HV
+  - Diversity allowance: 0.131873432270653
+    _column: 132kV/HV
+1110:
+  - _table: 4304. EDCM input data ⇒1110. Calendar and timeband information
+  - Calendar and timeband information: 365
+    _column: Days in the charging year
+1118:
+  - _table: 1118. Generation data
+  - Generation data: ''
+    _column: Average adjusted GP (£/year)
+  - Generation data: ''
+    _column: GL term from the DG incentive revenue calculation (£/year)
+  - Generation data: ''
+    _column: Total CDCM generation capacity 2005-2010 (kVA)
+  - Generation data: ''
+    _column: Total CDCM generation capacity post-2010 (kVA)
+1122:
+  - _table: 4305. EDCM input data ⇒1122. Forecast system simultaneous maximum load (kW) from CDCM users
+  - Forecast system simultaneous maximum load: 3354192.49696501
+    _column: GSPs
+  - Forecast system simultaneous maximum load: 3233563.64187517
+    _column: 132kV
+  - Forecast system simultaneous maximum load: 3217317.65709824
+    _column: 132kV/EHV
+  - Forecast system simultaneous maximum load: 3161385.43667508
+    _column: EHV
+  - Forecast system simultaneous maximum load: 3144560.59813193
+    _column: EHV/HV
+  - Forecast system simultaneous maximum load: 0
+    _column: 132kV/HV
+1131:
+  - _table: 4306. EDCM input data ⇒1131. Assets in CDCM model (£)
+  - Assets in CDCM model: 0
+    _column: GSPs
+  - Assets in CDCM model: 729605364.583137
+    _column: "Assets\n132kV"
+  - Assets in CDCM model: 288599328.68404
+    _column: "Assets\n132kV/EHV"
+  - Assets in CDCM model: 759761033.246935
+    _column: "Assets\nEHV"
+  - Assets in CDCM model: 580253033.165943
+    _column: "Assets\nEHV/HV"
+  - Assets in CDCM model: 0
+    _column: "Assets\n132kV/HV"
+  - Assets in CDCM model: 1069038989.06861
+    _column: "Assets\nHV"
+  - Assets in CDCM model: 797800260.142819
+    _column: "Assets\nHV/LV"
+  - Assets in CDCM model: 317031629.125928
+    _column: "Assets\nLV circuits"
+  - Assets in CDCM model: 1661835255.29269
+    _column: "Assets\nLV customer"
+  - Assets in CDCM model: 42658338.4405586
+    _column: "Assets\nHV customer"
+1133:
+  - _table: 1133. Maximum network use factor
+  - Maximum network use factor: 2.242
+    _column: 132kV circuits
+  - Maximum network use factor: 1.477
+    _column: 132kV/EHV
+  - Maximum network use factor: 2.307
+    _column: EHV circuits
+  - Maximum network use factor: 1.499
+    _column: EHV/HV
+  - Maximum network use factor: 1.49
+    _column: 132kV/HV
+1134:
+  - _table: 1134. Minimum network use factor
+  - Minimum network use factor: 0.201
+    _column: 132kV circuits
+  - Minimum network use factor: 0.596
+    _column: 132kV/EHV
+  - Minimum network use factor: 0.301
+    _column: EHV circuits
+  - Minimum network use factor: 0.566
+    _column: EHV/HV
+  - Minimum network use factor: 0.323
+    _column: 132kV/HV
+1135:
+  - _table: 4307. EDCM input data ⇒1135. Loss adjustment factor to transmission
+  - Loss adjustment factor: 1
+    _column: GSPs
+  - Loss adjustment factor: 1.00742776402812
+    _column: 132kV
+  - Loss adjustment factor: 1.01251481413091
+    _column: 132kV/EHV
+  - Loss adjustment factor: 1.01770620795022
+    _column: EHV
+  - Loss adjustment factor: 1.02315140199205
+    _column: EHV/HV
+  - Loss adjustment factor: 1.02315140199205
+    _column: 132kV/HV
+1181:
+  - _table: 1602. LDNO discounts (EDCM) ⇒1181. For EDCM model
+  - Boundary 0000: 0.935079358613524
+    Boundary 132kV: 0.818078296968311
+    Boundary 132kV EHV: 0.758502107521544
+    Boundary EHV: 0.711010329711702
+    Boundary HVplus: 0.634864614796748
+    _column: LV demand
+  - Boundary 0000: 0.899202386632955
+    Boundary 132kV: 0.717543248285246
+    Boundary 132kV EHV: 0.625043581284298
+    Boundary EHV: 0.551306511601139
+    Boundary HVplus: 0.43308053342783
+    _column: LV Sub demand or LV generation
+  - Boundary 0000: 0.882047932414629
+    Boundary 132kV: 0.669472750839002
+    Boundary 132kV EHV: 0.561230833106383
+    Boundary EHV: 0.474944664850152
+    Boundary HVplus: 0.336598149471207
+    _column: HV demand or LV Sub generation
+  - Boundary 0000: 0.822201177926543
+    Boundary 132kV: 0.50176917821749
+    Boundary 132kV EHV: 0.338607261128564
+    Boundary EHV: 0.20854104532369
+    Boundary HVplus: 0
+    _column: HV generation
+  - Boundary 0000: 5807031
+    Boundary 132kV: 1036317
+    Boundary 132kV EHV: 1486551
+    Boundary EHV: 4484587
+    Boundary HVplus: 6654947
+    _column: Table checksum 7
+1182:
+  - _table: 4308. EDCM input data ⇒1182. CDCM end user tariffs
+  - Domestic Aggregated: 9.18
+    Domestic Aggregated Related MPAN: 9.18
+    HV Generation Site Specific: -4.252
+    HV Generation Site Specific no RP Charge: -4.252
+    HV Site Specific: 4.504
+    LV Generation Aggregated: -6.774
+    LV Generation Site Specific: -6.774
+    LV Generation Site Specific no RP Charge: -6.774
+    LV Site Specific: 7.765
+    LV Sub Generation Aggregated: -5.599
+    LV Sub Generation Site Specific: -5.599
+    LV Sub Generation Site Specific no RP Charge: -5.599
+    LV Sub Site Specific: 6.253
+    Non-Domestic Aggregated: 10.249
+    Non-Domestic Aggregated Related MPAN: 10.249
+    Unmetered Supplies: 17.522
+    _column: Unit rate 1 p/kWh
+  - Domestic Aggregated: 1.881
+    Domestic Aggregated Related MPAN: 1.881
+    HV Generation Site Specific: -0.558
+    HV Generation Site Specific no RP Charge: -0.558
+    HV Site Specific: 0.948
+    LV Generation Aggregated: -1.089
+    LV Generation Site Specific: -1.089
+    LV Generation Site Specific no RP Charge: -1.089
+    LV Site Specific: 1.565
+    LV Sub Generation Aggregated: -0.847
+    LV Sub Generation Site Specific: -0.847
+    LV Sub Generation Site Specific no RP Charge: -0.847
+    LV Sub Site Specific: 1.269
+    Non-Domestic Aggregated: 2.052
+    Non-Domestic Aggregated Related MPAN: 2.052
+    Unmetered Supplies: 3.604
+    _column: Unit rate 2 p/kWh
+  - Domestic Aggregated: 0.686
+    Domestic Aggregated Related MPAN: 0.686
+    HV Generation Site Specific: -0.084
+    HV Generation Site Specific no RP Charge: -0.084
+    HV Site Specific: 0.554
+    LV Generation Aggregated: -0.159
+    LV Generation Site Specific: -0.159
+    LV Generation Site Specific no RP Charge: -0.159
+    LV Site Specific: 0.642
+    LV Sub Generation Aggregated: -0.124
+    LV Sub Generation Site Specific: -0.124
+    LV Sub Generation Site Specific no RP Charge: -0.124
+    LV Sub Site Specific: 0.6
+    Non-Domestic Aggregated: 0.711
+    Non-Domestic Aggregated Related MPAN: 0.711
+    Unmetered Supplies: 2.714
+    _column: Unit rate 3 p/kWh
+  - Domestic Aggregated: 4.17
+    Domestic Aggregated Related MPAN: 0
+    HV Generation Site Specific: 8.11
+    HV Generation Site Specific no RP Charge: 8.11
+    HV Site Specific: 120.51
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 16.98
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 54.81
+    Non-Domestic Aggregated: 4.17
+    Non-Domestic Aggregated Related MPAN: 0
+    Unmetered Supplies: 0
+    _column: Fixed charge p/MPAN/day
+  - Domestic Aggregated: 0
+    Domestic Aggregated Related MPAN: 0
+    HV Generation Site Specific: 0
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific: 3.19
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 3.26
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 3.34
+    Non-Domestic Aggregated: 0
+    Non-Domestic Aggregated Related MPAN: 0
+    Unmetered Supplies: 0
+    _column: Capacity charge p/kVA/day
+  - Domestic Aggregated: 0
+    Domestic Aggregated Related MPAN: 0
+    HV Generation Site Specific: 0
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific: 5.87
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 4.91
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 5.76
+    Non-Domestic Aggregated: 0
+    Non-Domestic Aggregated Related MPAN: 0
+    Unmetered Supplies: 0
+    _column: Exceeded capacity charge p/kVA/day
+  - Domestic Aggregated: 0
+    Domestic Aggregated Related MPAN: 0
+    HV Generation Site Specific: 0.117
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific: 0.112
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0.163
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific: 0.214
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0.142
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific: 0.167
+    Non-Domestic Aggregated: 0
+    Non-Domestic Aggregated Related MPAN: 0
+    Unmetered Supplies: 0
+    _column: Reactive power charge p/kVArh
+913:
+  - _table: 913. LRIC power flow modelling data
+  - 1: '{placeholder location 1}'
+    2: '{placeholder location 2}'
+    _column: Location name/ID
+  - 1: 0
+    2: 0
+    _column: Demand or Generation
+  - 1: ''
+    2: 0
+    _column: Linked location (if any)
+  - 1: 1
+    2: 1
+    _column: Local charge 1 £/kVA/year
+  - 1: ''
+    2: 1
+    _column: Remote charge 1 £/kVA/year
+  - 1: 0
+    2: 0
+    _column: Not used
+  - 1: 0
+    2: 0
+    _column: Not used
+  - 1: -42000
+    2: -42000
+    _column: 'Maximum demand run: kW'
+  - 1: -12250
+    2: -12250
+    _column: 'Maximum demand run: kVAr'
+  - 1: 0
+    2: 0
+    _column: Not used
+  - 1: 0
+    2: 0
+    _column: Not used
+935:
+  - _table: 935. Tariff data
+  - 1: '{placeholder tariff 1}'
+    2: '{placeholder tariff 2}'
+    _column: Name
+  - 1: 420000
+    2: 420000
+    _column: Maximum import capacity (kVA)
+  - 1: VOID
+    2: VOID
+    _column: Exempt export capacity (kVA)
+  - 1: VOID
+    2: VOID
+    _column: Non-exempt pre-2005 export capacity (kVA)
+  - 1: VOID
+    2: VOID
+    _column: Non-exempt 2005-2010 export capacity (kVA)
+  - 1: 420000
+    2: 420000
+    _column: Non-exempt post-2010 export capacity (kVA)
+  - 1: 42000000
+    2: 42000000
+    _column: Sole use asset MEAV (£)
+  - 1: ''
+    2: ''
+    _column: Percentage of sole use assets where Customer is entitled to reduction for capitalised O&M
+  - 1: '{placeholder location 1}'
+    2: '{placeholder location 2}'
+    _column: LRIC location
+  - 1: 10
+    2: 11
+    _column: Customer category for demand scaling
+  - 1: ''
+    2: ''
+    _column: 132kV circuits
+  - 1: ''
+    2: ''
+    _column: 132kV/EHV
+  - 1: 1
+    2: 1
+    _column: EHV circuits
+  - 1: ''
+    2: 1
+    _column: EHV/HV
+  - 1: ''
+    2: ''
+    _column: 132kV/HV
+  - 1: 0.42
+    2: 0.42
+    _column: Super-red kW import divided by kVA capacity
+  - 1: 0.1225
+    2: 0.1225
+    _column: Super-red kVAr import divided by kVA capacity
+  - 1: 1
+    2: 1
+    _column: Proportion exposed to indirect cost allocation and fixed adder
+  - 1: ''
+    2: ''
+    _column: Capacity subject to DSM (kVA)
+  - 1: ''
+    2: 42000000
+    _column: Super-red units exported (kWh)
+  - 1: ''
+    2: ''
+    _column: Capacity eligible for GSP generation credits (kW)
+  - 1: ''
+    2: 1
+    _column: Proportion eligible for charge 1 credits
+  - 1: ''
+    2: ''
+    _column: Days for which not a customer
+  - 1: ''
+    2: ''
+    _column: Hours in super-red for which not a customer
+  - 1: ''
+    2: ''
+    _column: Import charge in previous charging year (£/year)
+  - 1: ''
+    2: ''
+    _column: Export charge in previous charging year (£/year)
+  - 1: ''
+    2: ''
+    _column: LLFC import
+  - 1: ''
+    2: ''
+    _column: LLFC export

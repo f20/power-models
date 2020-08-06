@@ -1,5 +1,5 @@
 ---
-.: 'EDCM after DCP 161 (mitigating undue DNO secrecy), FCP'
+.: 'EDCM after fixed charge adders, mitigating undue DNO secrecy, FCP'
 PerlModule: EDCM2
 checksums: Line checksum 5; Table checksum 7
 dcp130: 1

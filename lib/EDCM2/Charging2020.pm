@@ -150,6 +150,7 @@ sub tariffCalculation2020 {
 
     my $demandScalingShortfall = Arithmetic(
         name          => 'Additional amount to be recovered (£/year)',
+        groupName     => 'Residual EDCM demand revenue',
         defaultFormat => '0soft',
         arithmetic    => '=A1-A2*'
           . (
