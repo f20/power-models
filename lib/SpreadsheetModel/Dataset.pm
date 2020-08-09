@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Dataset;
 
-# Copyright 2008-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2008-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -444,8 +444,7 @@ sub wsWrite {
                     $ws->write_url( $row++, $col, $url, $na, $linkFormat );
                     (
                         $_->{location}
-                          && UNIVERSAL::isa( $_->{location},
-                            'SpreadsheetModel::Columnset' )
+                          && UNIVERSAL::can( $_->{location}, 'wsWrite' )
                         ? $_->{location}
                         : $_
                       )->addForwardLink($self)

@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::MatrixSheet;
 
-# Copyright 2015 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2015-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -288,8 +288,7 @@ sub wsWrite {
                           foreach 1 .. $lcol;
                         (
                             $_->{location}
-                              && ref $_->{location} eq
-                              'SpreadsheetModel::Columnset'
+                              && UNIVERSAL::can( $_->{location}, 'wsWrite' )
                             ? $_->{location}
                             : $_
                           )->addForwardLink($column)

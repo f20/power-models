@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::CalcBlock;
 
-# Copyright 2015-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2015-2020 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -151,7 +151,7 @@ sub check {
                 }
                 push @items, $_;
             }
-            $_->{location} = $self;
+            $_->{location} = $self unless $self->{virtual};
             if ($key) {
                 $self->{$key} = $args{$key} = $_;
                 undef $key;
@@ -174,9 +174,7 @@ sub wsWrite {
     my ( $self, $wb, $ws, $row, $col ) = @_;
 
     return if $self->{$wb};
-    0
-      and warn join "\n", $self->{name},
-      map { "\t$_->{name}" } @{ $self->{items} };
+
     $self->{cols}->wsPrepare( $wb, $ws ) if $self->{cols};
 
     while (1) {
@@ -302,9 +300,8 @@ sub wsWrite {
                 $item->{sourceLines}[0]->wsUrl($wb),
                 $_, $wb->getFormat('link') );
             (
-                $item->{sourceLines}[0]{location} && UNIVERSAL::isa(
-                    $item->{sourceLines}[0]{location},
-                    'SpreadsheetModel::Columnset'
+                $item->{sourceLines}[0]{location} && UNIVERSAL::can(
+                    $item->{sourceLines}[0]{location}, 'wsWrite'
                   )
                 ? $item->{sourceLines}[0]{location}
                 : $item->{sourceLines}[0]
@@ -331,11 +328,16 @@ sub wsWrite {
                     $ws->write( $row, $col + $x, $value, $format );
                 }
             }
-            $row++;
+            ++$row;
         }
         $_->( $item, $wb, $ws, \$row, $col )
           foreach map { @{ $item->{postWriteCalls}{$_} }; }
           grep { $item->{postWriteCalls}{$_} } 'obj', $wb;
+    }
+    if ( $wb->{forwardLinks} ) {
+        --$row;
+        $self->requestForwardLinks( $wb, $ws, \$row, $col );
+        ++$row;
     }
     $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
 
