@@ -204,7 +204,7 @@ sub demandPot {
                 $totalAssetsFixed, $totalAssetsCapacity,
                 $totalAssetsConsumption,
               );
-            $model->{mitigateUndueSecrecy}->directChargeAdj(
+            $model->{mitigateUndueSecrecy}->directAndRatesChargeAdj(
                 $rateDirect,        $rateRates, $assetsCapacity,
                 $assetsConsumption, $importCapacity,
             );

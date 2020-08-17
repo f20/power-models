@@ -1,6 +1,6 @@
 ﻿package EDCM2::SecrecyMitigation;
 
-# Copyright 2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2017-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@ sub additionalLines {
       . ' in tables 1191-1193 with improved estimates. '
       . 'To get a good fit, you need to get from'
       . ' the DNO the contents of tables 935 and'
-      . ' HSummary for a non-pathological EDCM tariff.';
+      . ' demand capacity for a non-pathological EDCM tariff.';
 }
 
 sub fitTotalAssets {
@@ -425,7 +425,7 @@ sub demandRevenuePotAdj {
               . ' if the DNO refuses to provide the data for tables 1191 and 1193.',
             'The DNO\'s Schedule 15 published on dcusa.co.uk'
               . ' might help you guess this number.',
-            'This number is used in conjunction with data in tables 11962-11965'
+            'This number is used in conjunction with data in tables 1196X'
               . ' to calculate the DNO\'s total demand EDCM shared assets'
               . ' and total demand EDCM sole use assets.'
         ],
@@ -451,7 +451,7 @@ sub demandRevenuePotAdj {
     );
 }
 
-sub directChargeAdj {
+sub directAndRatesChargeAdj {
     my ( $self, $rateDirect, $rateRates, $assetsCapacity, $assetsConsumption,
         $importCapacity, )
       = @_;
@@ -461,32 +461,32 @@ sub directChargeAdj {
         data          => [1],
     );
     my $charge = Dataset(
-        name          => 'Direct cost charge (£/year)',
+        name          => 'Direct cost and rates charge (£/year)',
         defaultFormat => '0hard',
         data          => [1e4],
     );
     Columnset(
-        name =>
-          'Demand direct cost charge for a non-pathological non-0000 site',
+        name => 'Demand capacity direct cost and rates'
+          . ' charge for a non-pathological non-0000 site',
         columns  => [ $tariffIndex, $charge, ],
         dataset  => $self->{model}{dataset},
         appendTo => $self->{model}{inputTables},
-        number   => 11965,
+        number   => 11966,
         lines    => [
-            'Enter the direct cost charge (£/year) for a'
+            'Enter the sum of the direct cost and rates charge (£/year) for a'
               . ' non-pathological non-0000 site, if the DNO refuses'
               . ' to provide the DNO totals data for tables 1191 and 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the table 935 input data and the HSummary charge breakdown.',
+              . ' for the table 935 input data and the demand capacity charge breakdown.',
             'This number is used in conjunction with data from tables'
-              . ' 11951, 11962, 11963 and 11964 to adjust the DNO totals to fit.',
+              . ' 1195X to adjust the DNO totals to fit.',
         ],
     );
     $self->{directCostChargingRate} = Arithmetic(
         name          => 'Charging rate for direct cost element of asset adder',
         defaultFormat => '%soft',
         arithmetic =>
-          '=A1/((INDEX(A2_A22,A92)+INDEX(A3_A33,A93))*INDEX(A4_A44,A94))',
+'=A1/((INDEX(A2_A22,A92)+INDEX(A3_A33,A93))*INDEX(A4_A44,A94))/(1+A5/A6)',
         arguments => {
             A1     => $charge,
             A2_A22 => $assetsCapacity,
@@ -495,6 +495,8 @@ sub directChargeAdj {
             A92    => $tariffIndex,
             A93    => $tariffIndex,
             A94    => $tariffIndex,
+            A5     => $rateRates,
+            A6     => $rateDirect,
         },
     );
     $self->{ratesChargingRate} = Arithmetic(
@@ -541,9 +543,9 @@ sub assetAdderAdj {
               . ' non-pathological non-0000 site, if the DNO refuses'
               . ' to provide the DNO totals data for tables 1191 and 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the table 935 input data and the HSummary charge breakdown.',
+              . ' for the table 935 input data and the demand capacity charge breakdown.',
             'This number is used in conjunction with data from tables'
-              . ' 11951, 11962, 11963 and 11965 to adjust the DNO totals to fit.',
+              . ' 1195X to adjust the DNO totals to fit.',
         ],
     );
     $self->{assetAdderChargingRate} = Arithmetic(
@@ -601,9 +603,9 @@ sub fixedAdderAdj {
               . ' non-pathological site, if the DNO refuses'
               . ' to provide the DNO totals data for tables 1191 and 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the table 935 input data and the HSummary charge breakdown.',
+              . ' for the table 935 input data and the demand capacity charge breakdown.',
             'This number is used in conjunction with data from tables'
-              . ' 11951, 11962, 11964 and 11965 to adjust the DNO totals to fit.',
+              . ' 1195X to adjust the DNO totals to fit.',
         ],
     );
     $self->{fixedAdderChargingRate} = Arithmetic(
@@ -616,9 +618,9 @@ sub fixedAdderAdj {
         },
     );
     Arithmetic(
-        name          => 'Adjusted fixed adder charging rate',
-        arithmetic    => '=IF(ISERROR(A1),A2,A3)',
-        arguments     => {
+        name       => 'Adjusted fixed adder charging rate',
+        arithmetic => '=IF(ISERROR(A1),A2,A3)',
+        arguments  => {
             A1 => $self->{fixedAdderChargingRate},
             A2 => $fixedAdderChargingRate,
             A3 => $self->{fixedAdderChargingRate},
@@ -651,9 +653,9 @@ sub indirectChargeAdj {
               . ' non-pathological site, if the DNO refuses'
               . ' to provide the DNO totals data for tables 1191 and 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the table 935 input data and the HSummary charge breakdown.',
+              . ' for the table 935 input data and the demand capacity charge breakdown.',
             'This number is used in conjunction with data from tables'
-              . ' 11951, 11963, 11964 and 11965 to adjust the DNO totals to fit.',
+              . ' 1195X to adjust the DNO totals to fit.',
         ],
     );
     $self->{edcmIndirect}         = $edcmIndirect;
@@ -744,7 +746,7 @@ sub exitChargeAdj {
               . ' non-pathological site, if the DNO refuses'
               . ' to provide the DNO totals data for table 1191.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the table 935 input data and the HSummary charge breakdown.',
+              . ' for the table 935 input data and the demand capacity charge breakdown.',
             'This number is used to adjust the figure in the'
               . ' first column of table 1191.',
         ],
@@ -807,7 +809,7 @@ sub fixedChargeAdj {
               . ' non-pathological site, if the DNO refuses'
               . ' to provide the DNO totals data for table 1193.',
             'You will need to show authority for the site and to ask the DNO'
-              . ' for the table 935 input data and the HSummary charge breakdown.',
+              . ' for the table 935 input data and the demand capacity charge breakdown.',
             'This number is used to adjust figures in table 1193'
               . ' to fit the total value of EDCM notional assets.',
         ],
