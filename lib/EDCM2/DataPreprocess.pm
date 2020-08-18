@@ -110,10 +110,10 @@ sub preprocessDataset {
               || $ds->[23]{_column} !~ /exempt/i;
 
             splice @$ds, 23, 1,
-              if !$model->{dcp342}
-              and $ds->[23]
-              || $ds->[23]{_column}
-              || $ds->[23]{_column} =~ /exempt/i;
+                 if !$model->{dcp342}
+              && $ds->[23]
+              && $ds->[23]{_column}
+              && $ds->[23]{_column} =~ /exempt/i;
 
             my $max = 0;
             while ( my ( $k, $v ) = each %{ $ds->[1] } ) {
