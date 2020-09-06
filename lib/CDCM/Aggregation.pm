@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2014 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2014-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -144,9 +144,9 @@ sub roundingAndFinishing {
 
         foreach my $tariffComponent ( grep { /Unit rate/i } @$allComponents ) {
 
-            my @tables = $tariffsExMatching->{$tariffComponent};
+            my @tablesToBeAddedUp = $tariffsExMatching->{$tariffComponent};
 
-            push @tables, $_ foreach grep { $_ }
+            push @tablesToBeAddedUp, $_ foreach grep { $_ }
               map { $_->{$tariffComponent} } @matchingTables;
 
             my $cols = $componentLabelset->{$tariffComponent} || $lossAdjCol;
@@ -157,10 +157,11 @@ sub roundingAndFinishing {
                 rows       => $allTariffsByEndUser,
                 cols       => $cols,
                 arithmetic => '=A9*('
-                  . join( '+', map { "A$_" } 1 .. @tables ) . ')',
+                  . join( '+', map { "A$_" } 1 .. @tablesToBeAddedUp ) . ')',
                 arguments => {
                     A9 => $unitsLossAdjustment,
-                    map { 'A' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables
+                    map { 'A' . ( 1 + $_ ) => $tablesToBeAddedUp[$_] }
+                      0 .. $#tablesToBeAddedUp
                 },
                 defaultFormat => '0.000softnz',
             );
@@ -187,9 +188,9 @@ sub roundingAndFinishing {
 
     foreach my $tariffComponent (@$allComponents) {
 
-        my @tables = $tariffsExMatching->{$tariffComponent};
+        my @tablesToBeAddedUp = $tariffsExMatching->{$tariffComponent};
 
-        push @tables, $_
+        push @tablesToBeAddedUp, $_
           foreach grep { $_ } map { $_->{$tariffComponent} } @matchingTables,
           \%adjTable;
 
@@ -200,9 +201,12 @@ sub roundingAndFinishing {
               Label( $tariffComponent, "$tariffComponent before rounding" ),
             rows       => $allTariffsByEndUser,
             cols       => $cols,
-            arithmetic => '=' . join( '+', map { "A$_" } 1 .. @tables ),
-            arguments =>
-              { map { 'A' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables },
+            arithmetic => '='
+              . join( '+', map { "A$_" } 1 .. @tablesToBeAddedUp ),
+            arguments => {
+                map { 'A' . ( 1 + $_ ) => $tablesToBeAddedUp[$_] }
+                  0 .. $#tablesToBeAddedUp
+            },
             defaultFormat => '0.00000soft',
             rowFormats    => [
                 map {
@@ -404,15 +408,15 @@ sub roundingAndFinishing {
     my %tariffTable =
       map {
         my $tariffComponent = $_;
-        my @tables;
+        my @tablesToBeAddedUp;
         if ( $model->{repeatCalculation} ) {
-            @tables = $tariffsExMatching->{$tariffComponent};
-            push @tables, $_ foreach grep { $_ }
+            @tablesToBeAddedUp = $tariffsExMatching->{$tariffComponent};
+            push @tablesToBeAddedUp, $_ foreach grep { $_ }
               map { $_->{$tariffComponent} } @matchingTables, \%adjTable,
               \%roundingTable;
         }
         else {
-            @tables = (
+            @tablesToBeAddedUp = (
                 $tariffsBeforeRounding{$tariffComponent},
                 $roundingTable{$tariffComponent}
             );
@@ -421,9 +425,12 @@ sub roundingAndFinishing {
             name       => $tariffComponent,
             rows       => $allTariffs,
             cols       => $componentLabelset->{$_},
-            arithmetic => '=' . join( '+', map { "A$_" } 1 .. @tables ),
-            arguments =>
-              { map { 'A' . ( 1 + $_ ) => $tables[$_] } 0 .. $#tables },
+            arithmetic => '='
+              . join( '+', map { "A$_" } 1 .. @tablesToBeAddedUp ),
+            arguments => {
+                map { 'A' . ( 1 + $_ ) => $tablesToBeAddedUp[$_] }
+                  0 .. $#tablesToBeAddedUp
+            },
             $tariffComponent =~ m%p/k(W|VAr)h% ? ()
             : ( defaultFormat => '0.00soft' ),
             rowFormats => [

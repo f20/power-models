@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -851,7 +851,7 @@ EOL
         $model->{legacy201} ? ( name => 'Overview' ) : (),
         copyright =>
           'Copyright 2009-2011 Energy Networks Association Limited and others. '
-          . 'Copyright 2011-2020 Franck Latrémolière, Reckon LLP and others.'
+          . 'Copyright 2011-2020 Franck Latrémolière and others.'
     );
 
     push @wsheetsAndClosures,

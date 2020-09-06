@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2012-2020 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:

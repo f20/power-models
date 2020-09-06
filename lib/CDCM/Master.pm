@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -82,6 +82,8 @@ sub requiredModulesForRuleset {
       : $ruleset->{scaler} =~ /ppuflex/i ? 'CDCM::MatchingFlex'
       : $ruleset->{scaler} =~ /dcp123/i  ? 'CDCM::Matching123'
       : (),
+
+      $ruleset->{scaler} =~ /tcr/i ? 'CDCM::TCR' : (),
 
       !$ruleset->{summary}
       ? ()
@@ -370,8 +372,7 @@ sub new {
         $allTariffsByEndUser
       );
 
-    push @{ $model->{contributions} },
-      $replacementShare = Stack(
+    push @{ $model->{contributions} }, $replacementShare = Stack(
         name => 'Share of amount that relates'
           . ' to replacement of customer contributed assets',
         defaultFormat => '%connz',
@@ -402,7 +403,7 @@ sub new {
             ),
             $replacementShare
         ]
-      ) if $model->{noReplacement} && $model->{noReplacement} =~ /hybrid/i;
+    ) if $model->{noReplacement} && $model->{noReplacement} =~ /hybrid/i;
 
     Columnset(
         name     => 'Financial and general assumptions',
@@ -689,7 +690,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                         ],
                         "PAYG $_ kWh" => [ $paygUnitRates->[ $_ - 1 ] ],
                     }
-                )
+                  )
             } 2 .. $model->{maxUnitRates}
         ),
         $fFactors
@@ -701,7 +702,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             $model->{unauth} && $model->{unauth} =~ /day/
             ? 'Exceeded capacity charge p/kVA/day'
             : 'Unauthorised demand charge p/kVAh'
-        ) => { 'Capacity' => [$unauthorisedDemandCharges] },
+          ) => { 'Capacity' => [$unauthorisedDemandCharges] },
         'Fixed charge p/MPAN/day' => {
             'Fixed from network'            => [$capacityUser],
             'Fixed from network & customer' => [
@@ -806,10 +807,20 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $siteSpecificReplacement,
         $simultaneousMaximumLoadUnits,
         $simultaneousMaximumLoadCapacity,
-        @$pseudoLoadCoefficientsAgainstSystemPeak
+        @$pseudoLoadCoefficientsAgainstSystemPeak,
       )
       unless $model->{scaler}
       && $model->{scaler} eq 'none';
+
+    $model->domesticTcr(
+        $allComponents,
+        $daysAfter,
+        ( $model->{pcd} ? $volumesAdjustedAfter : $volumeDataAfter )
+          || $volumesAdjusted,
+        \@matchingTables,
+      )
+      if $model->{scaler}
+      && $model->{scaler} =~ /tcr/i;
 
     foreach my $table (@matchingTables) {
         foreach my $comp ( keys %$table ) {
@@ -1042,7 +1053,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                             } @allTariffColumns
                         ]
                       );
-                } split /;\s*/,
+                  } split /;\s*/,
                 $model->{checksums}
               )
             : (),
