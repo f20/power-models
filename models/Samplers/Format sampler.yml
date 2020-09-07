@@ -1,5 +1,6 @@
 ---
 PerlModule: Sampler
+template: Workbook format sampler
 showColourCode: 1
 showColourMatrix: 1
 showNumFormatColours: 1

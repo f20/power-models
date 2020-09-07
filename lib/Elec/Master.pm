@@ -29,26 +29,26 @@ use utf8;
 
 sub serviceMap {
     my ($model) = @_;
-    my @modules = (
+    my @servMap = (
         sheets => 'Elec::Sheets',
         setup  => 'Elec::Setup',
     );
-    push @modules, tariffs  => 'Elec::Tariffs';
-    push @modules, assets   => 'Elec::AssetDetail' if $model->{assetDetail};
-    push @modules, charging => 'Elec::Charging';
-    push @modules, checksum => 'SpreadsheetModel::Checksum'
+    push @servMap, tariffs  => 'Elec::Tariffs';
+    push @servMap, assets   => 'Elec::AssetDetail' if $model->{assetDetail};
+    push @servMap, charging => 'Elec::Charging';
+    push @servMap, checksum => 'SpreadsheetModel::Checksum'
       if $model->{checksums};
-    push @modules, customers => 'Elec::CustomersTyped' if $model->{ulist};
-    push @modules, customers => 'Elec::Customers' unless $model->{ulist};
-    push @modules, interpolator => 'Elec::Interpolator'
+    push @servMap, customers => 'Elec::CustomersTyped' if $model->{ulist};
+    push @servMap, customers => 'Elec::Customers' unless $model->{ulist};
+    push @servMap, interpolator => 'Elec::Interpolator'
       if $model->{interpolator};
-    push @modules, summaries => 'Elec::Summaries'
+    push @servMap, summaries => 'Elec::Summaries'
       if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};
-    push @modules, supply    => 'Elec::Supply'       if $model->{usetEnergy};
-    push @modules, timebands => 'Elec::TimebandSets' if $model->{timebandSets};
-    push @modules, timebands => 'Elec::Timebands'    if $model->{timebands};
-    push @modules, usage     => 'Elec::Usage';
-    @modules;
+    push @servMap, supply    => 'Elec::Supply'       if $model->{usetEnergy};
+    push @servMap, timebands => 'Elec::TimebandSets' if $model->{timebandSets};
+    push @servMap, timebands => 'Elec::Timebands'    if $model->{timebands};
+    push @servMap, usage     => 'Elec::Usage';
+    @servMap;
 }
 
 sub requiredModulesForRuleset {
@@ -80,9 +80,10 @@ sub new {
     my $charging =
       $serviceMap{charging}->new( $model, $setup, $usage, $assets );
 
-    # Matching activities
-    # Note that the order of feeding arguments to $customers->totalDemand can
-    # affect the column order for proportions included in the input data table.
+    # Matching
+
+  # NB: the order of feeding arguments to $customers->totalDemand will
+  # determine the column order for proportions included in the input data table.
 
     if ( my $usetName = $model->{usetMatchUsage} ) {
         $usage = $usage->matchTotalUsage( $customers->totalDemand($usetName) );
@@ -130,7 +131,7 @@ sub new {
             $supplyTariffs,
             [ revenueCalculation => $tariffs ],
             [ marginCalculation  => $supplyTariffs ],
-        )->addDetailedAssets( $charging, $usage )
+          )->addDetailedAssets( $charging, $usage )
           if $model->{compareppu} || $model->{showppu};
     }
 

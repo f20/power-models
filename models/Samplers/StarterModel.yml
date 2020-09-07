@@ -1,0 +1,11 @@
+---
+PerlModule: StarterModel
+protect: 1
+template: '%'
+validation: lenientnomsg
+---
+101:
+  - _table: 101. Number of each fruit
+  - Apples: 1
+    Oranges: 2
+    _column: Number of each fruit
