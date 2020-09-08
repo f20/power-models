@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Book::Validation;
 
-# Copyright 2009-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2009-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -26,6 +26,7 @@
 use warnings;
 use strict;
 use utf8;
+use Encode qw(decode_utf8);
 
 sub digestMachine {
     foreach (qw(Digest::SHA Digest::SHA1 Digest::SHA::PurePerl)) {
@@ -43,6 +44,7 @@ sub sourceCodeDigest {
         my $digestMachine = digestMachine();
         while ( my ( $key, $file ) = each %INC ) {
             next if $key =~ m#^PowerModels/#s;
+            $file = decode_utf8($file);
             next unless grep { substr( $file, 0, $_->[1] ) eq $_->[0]; } @libs;
             open my $fh, '<', $file;
             $hash{$key} = $digestMachine->addfile($fh)->hexdigest;

@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Object;
 
-# Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2008-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,9 @@ sub new {
     };
     unless ( defined $self->{name} ) {
         my @c = caller;
-        $self->{name} = "Untitled, $c[1] line $c[2]";
+        local $_ = $c[1];
+        s#.*/lib/##s;
+        $self->{name} = "Untitled, $_ line $c[2]";
     }
     bless $self, $className;
     my $error = $self->check;
