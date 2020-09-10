@@ -532,6 +532,7 @@ sub factory {
                 warn "$wrong\n";
                 warn sprintf( "%3d❗️ %s\n", $_ + 1, $errors[$_][0] )
                   foreach 0 .. $#errors;
+                return 0 + @errors;
             }
         }
     };

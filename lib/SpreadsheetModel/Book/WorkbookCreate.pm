@@ -1,6 +1,6 @@
 package SpreadsheetModel::Book::WorkbookCreate;
 
-# Copyright 2008-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2008-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -27,6 +27,7 @@ use warnings;
 use strict;
 use SpreadsheetModel::Logger;
 use File::Spec::Functions qw(catdir catfile splitpath);
+use Encode qw(decode_utf8);
 require YAML;
 
 sub create {
@@ -87,12 +88,12 @@ sub create {
             if ( defined $tmpDir ) {
                 rmdir $tmpDir or warn "rmdir $tmpDir: $!";
             }
-        }, sub {
+          }, sub {
             my ($mess) = @_;
-            warn "$split[2]: $mess";
-            push @shortMessages, Carp::shortmess($mess);
-            push @longMessages,  Carp::longmess($mess);
-        };
+            warn join( ': ', $split[2], decode_utf8 $mess);
+            push @shortMessages, decode_utf8 Carp::shortmess($mess);
+            push @longMessages,  decode_utf8 Carp::longmess($mess);
+          };
     };
 
     my ( $stream, $closer, $warner ) = $streamMaker->($fileName);
@@ -435,7 +436,7 @@ EOW
             # XLS workbooks should be disposed of quickly
             # because they hog file descriptors.
             !$_->isa('Spreadsheet::WriteExcel');
-        } @hazardousWaste,
+          } @hazardousWaste,
         $wbook,
       )
       : $status;
