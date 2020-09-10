@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Book::WorkbookFormats;
 
-# Copyright 2008-2020 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2008-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -612,14 +612,23 @@ sub setFormats {
             @sExtras,
             @cSoft,
         ],
-        'indices' => [
+        'indexcon' => [
             locked => 1,
             @sLabel,
             num_format => $black . '\I\n\d\e\x\ 0;' . $black . '\I\n\d\e\x\ -0',
             align      => 'center',
             @sExtras,
             $options->{gridlines} ? ( border => 7 ) : (),
-            @cDefault,
+            @cCon,
+        ],
+        'indexsoft' => [
+            locked => 1,
+            @sLabel,
+            num_format => $black . '\I\n\d\e\x\ 0;' . $black . '\I\n\d\e\x\ -0',
+            align      => 'center',
+            @sExtras,
+            $options->{gridlines} ? ( border => 7 ) : (),
+            @cSoft,
         ],
         'notes' => [
             @sHeading,
@@ -879,9 +888,13 @@ sub setFormats {
             ? ( right => 7, bottom => 1, )
             : ( left => 1, right => 1, ),
         ],
-        tlttr => [
+        tlttr => [    # thick line to the right
             right       => 5,
             right_color => 8,
+        ],
+        dottedlineunder => [
+            bottom       => 4,
+            bottom_color => 8,
         ],
         blue => [
             color => $orangeColours ? BGORANGE : BGPURPLE,

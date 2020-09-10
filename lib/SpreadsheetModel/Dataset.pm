@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Dataset;
 
-# Copyright 2008-2020 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2008-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,31 @@ sub populateCore {
     my ($self) = @_;
     $self->{core}{$_} = $self->{$_}
       foreach grep { exists $self->{$_}; } qw(arithmetic data);
+}
+
+sub rangeRef {
+    my ( $self, $wbook, $wsheet, $first, $second ) = @_;
+    die "Cannot use rangeRef on $self->{name}"
+      . ' as it has not been written to the workbook'
+      unless $self->{$wbook};
+    my ( $ws, $ro, $co ) = @{ $self->{$wbook} }{qw(worksheet row col)};
+    ( $ws eq $wsheet ? '' : ( q^'^ . $ws->get_name . q^'!^ ) )
+      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+        $ro + $first->[0],
+        $co + $first->[1],
+        $first->[2], $first->[3]
+      )
+      . (
+        $second
+        ? (
+            ':'
+              . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                $ro + $second->[0], $co + $second->[1],
+                $second->[2],       $second->[3]
+              )
+          )
+        : ''
+      );
 }
 
 sub wsUrl {
@@ -649,19 +674,25 @@ sub dataValidation {
 
     return if $wb->{validation} && $wb->{validation} =~ /noval/i;
 
+    # The duplication of %{ $self->{validation} } is necessary anyway as
+    # $ws->data_validation modifies the content of its validation argument.
+    my %validation =
+      'CODE' eq ref $self->{validation}
+      ? $self->{validation}->( $self, $wb, $ws, $row, $col, $rowEnd, $colEnd )
+      : %{ $self->{validation} };
+
     if ( $wb->{validation} && $wb->{validation} =~ /nomsg/i ) {
-        delete $self->{validation}{$_} foreach qw(input_title input_message);
+        delete $validation{$_} foreach qw(input_title input_message);
     }
 
     $rowEnd ||= $row + $self->lastRow;
     $colEnd ||= $col + $self->lastCol;
 
-    $self->{validation}{input_message} ||=
+    $validation{input_message} ||=
       ref $self->{lines} eq 'ARRAY'
       ? join "\n", @{ $self->{lines} }
       : $self->{lines}
-      if $self->{validation}
-      && $self->{lines}
+      if $self->{lines}
       && $wb->{validation}
       && $wb->{validation} =~ /withlinesmsg/i;
 
@@ -689,17 +720,12 @@ sub dataValidation {
                 }
             );
 
-            # The duplication of %{ $self->{validation} } is necessary as
-            # this function will modify the content of its validation argument.
             $ws->data_validation( $r + 1, $col, $rowArray[ $_ + 1 ] - 1,
-                $colEnd, { %{ $self->{validation} } } );
+                $colEnd, {%validation} );
         }
     }
     else {
-        # The duplication of %{ $self->{validation} } is necessary as
-        # this function will modify the content of its validation argument.
-        $ws->data_validation( $row, $col, $rowEnd, $colEnd,
-            { %{ $self->{validation} } } );
+        $ws->data_validation( $row, $col, $rowEnd, $colEnd, \%validation );
     }
 
 }
