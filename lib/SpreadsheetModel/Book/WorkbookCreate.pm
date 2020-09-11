@@ -395,7 +395,7 @@ EOW
                 $ws->fit_to_pages( 1, 0 ) unless /^(?:Index|Overview)/;
                 $ws->hide_gridlines(2);
                 $ws->protect( $wsheetPassword{$_}, $ws->{protectionOptions} )
-                  if exists $wsheetPassword{$_};
+                  if exists $wsheetPassword{$_} && !$ws->{doNotProtect};
                 $ws->set_footer("&F");
                 $ws->set_header("&L&A&C&R&P of &N");
                 $ws->set_paper(9);
