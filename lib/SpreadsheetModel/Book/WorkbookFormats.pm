@@ -621,6 +621,15 @@ sub setFormats {
             $options->{gridlines} ? ( border => 7 ) : (),
             @cCon,
         ],
+        'indexcopy' => [
+            locked => 1,
+            @sLabel,
+            num_format => $black . '\I\n\d\e\x\ 0;' . $black . '\I\n\d\e\x\ -0',
+            align      => 'center',
+            @sExtras,
+            $options->{gridlines} ? ( border => 7 ) : (),
+            @cCopy,
+        ],
         'indexsoft' => [
             locked => 1,
             @sLabel,

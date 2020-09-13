@@ -90,9 +90,9 @@ sub create {
             }
           }, sub {
             my ($mess) = @_;
-            warn join( ': ', $split[2], decode_utf8 $mess);
-            push @shortMessages, decode_utf8 Carp::shortmess($mess);
-            push @longMessages,  decode_utf8 Carp::longmess($mess);
+            warn join( ': ', $split[2], $mess );
+            push @shortMessages, Carp::shortmess($mess);
+            push @longMessages,  Carp::longmess($mess);
           };
     };
 
@@ -302,10 +302,15 @@ EOW
             $model->{localTime} = \@localTime;
             $SpreadsheetModel::ShowDimensions = $options->{showDimensions}
               if $options->{showDimensions};
-            my $canPriority = $model->can('sheetPriority');
-            my @pairs       = $model->worksheetsAndClosures($wbook);
+            my $canPriority           = $model->can('sheetPriority');
+            my @worksheetClosurePairs = $model->worksheetsAndClosures($wbook);
+            my @chartsRequiringASheet;
+            @chartsRequiringASheet = $model->chartsRequiringASheet
+              if $model->can('chartsRequiringASheet');
 
-            while ( ( local $_, my $closure ) = splice @pairs, 0, 2 ) {
+            while ( ( local $_, my $closure ) = splice @worksheetClosurePairs,
+                0, 2 )
+            {
                 my $priority = $canPriority ? $model->sheetPriority($_)
                   || 0 : /^(?:Index|Overview)$/is ? 1 : 0;
                 my $fullName = $_ . $options->{modelNumberSuffix};
@@ -327,8 +332,7 @@ EOW
                 showDetails     => $model->{debug},
             );
             map { push @{ $wsheetShowOrder[ $_->sheetPriority ] }, $_; }
-              @{ $model->{standaloneCharts} }
-              if $model->{standaloneCharts};
+              @chartsRequiringASheet;
         }
 
         my %wsheet;
