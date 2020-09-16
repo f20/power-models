@@ -188,10 +188,11 @@ sub setFormats {
     my $minus = '[Red]_+-';
     my $same  = $rightpad ? "[Green]=_)$rightpad" : '[Green]=';
 
+    my $num_general      = '[Black]General';
     my $num_text         = '[Blue]General;[Red]-General;;[Black]@';
-    my $num_mpan         = "${black}00 0000 0000 000;[Red]-General;;$cyan@";
     my $num_textonly     = '[Black]General;[Black]-General;;[Black]@';
     my $num_textonlycopy = '[Black]General;[Black]-General;;[Black]@';
+    my $num_mpan         = "${black}00 0000 0000 000;[Red]-General;;$cyan@";
 
     my @num_percent =
       $rightpad
@@ -563,19 +564,19 @@ sub setFormats {
         'boolhard'     => [
             @sNumber,
             align      => 'center',
-            num_format => $num_textonly,
+            num_format => $num_general,
             @cHard,
         ],
         'boolsoft' => [
             @sNumber,
             align      => 'center',
-            num_format => $num_textonly,
+            num_format => $num_general,
             @cSoft,
         ],
         'boolcopy' => [
             @sNumber,
             align      => 'center',
-            num_format => $num_textonly,
+            num_format => $num_general,
             @cCopy,
         ],
         'caption' => [
@@ -860,7 +861,7 @@ sub setFormats {
         ],
         'unavailable' => [
             @sNumber,
-            num_format => $num_text,
+            num_format => $num_general,
             align      => 'center',
             @cUnavailable,
         ],
@@ -868,7 +869,7 @@ sub setFormats {
             locked => !$options->{validation}
               || $options->{validation} !~ /lenient/i ? 1 : 0,
             @sNumber,
-            num_format => $num_text,
+            num_format => $num_general,
             align      => 'center',
             @cUnused,
         ],

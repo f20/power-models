@@ -90,6 +90,7 @@ sub create {
             }
           }, sub {
             my ($mess) = @_;
+            eval { decode_utf8 $mess; };
             warn join( ': ', $split[2], $mess );
             push @shortMessages, Carp::shortmess($mess);
             push @longMessages,  Carp::longmess($mess);
