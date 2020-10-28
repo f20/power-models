@@ -62,9 +62,11 @@ module which can be installed from CPAN (www.cpan.org).
 Other code in the repository
 ----------------------------
 
-The "EDCM Stata" folder under models contains Stata tools to test aspects of
-implementations of the EDCM charging methodology. See "How to use.txt" in the
-folder for details.
+The "EDCM Stata validator" and "EDCM Stata generator" folders under models
+contains Stata tools to test aspects of implementations of the EDCM charging
+methodology. See "How to use.txt" under "EDCM Stata validator" for more
+information.  I no longer have access to Stata and this code will not be
+maintained and might be removed.
 
 Licensing
 ---------
@@ -83,4 +85,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 29 October 2019.
+Franck Latrémolière, 28 Octobre 2020.
