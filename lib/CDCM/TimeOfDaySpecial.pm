@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -1029,8 +1029,44 @@ sub timeOfDaySpecialRunner {
 
             my ( $tariffGroupset, $mapping );
 
-            if ( $model->{coincidenceAdj} =~ /268/ && grep { /related mpan/i }
+            if ( $model->{coincidenceAdj} =~ /tcr/ && grep { /related mpan/i }
                 @{ $relevantUsers->{list} } )
+            {
+
+                my ( @tariffGroups, @mappingData );
+
+                for ( my $i = 0 ; $i < @{ $relevantUsers->{list} } ; ++$i ) {
+                    local $_ = $relevantUsers->{list}[$i];
+                    s/^.*\n//s;
+                    s/(?: band [1-4]| no residual| with residual)$//i;
+                    s/[ (]+related mpan\)*$//i;
+                    push @tariffGroups, $_
+                      unless @tariffGroups
+                      && $tariffGroups[$#tariffGroups] eq $_;
+                    $mappingData[$#tariffGroups][$i] = 1;
+                }
+
+                for ( my $i = 0 ; $i < @{ $relevantUsers->{list} } ; ++$i ) {
+                    for ( my $g = 0 ; $g < @tariffGroups ; ++$g ) {
+                        $mappingData[$g][$i] ||= 0;
+                    }
+                }
+
+                $tariffGroupset = Labelset( list => \@tariffGroups );
+
+                $mapping = Constant(
+                    name => 'Mapping of tariffs to '
+                      . 'tariff groups for coincidence adjustment factor',
+                    defaultFormat => '0connz',
+                    rows          => $relevantUsers,
+                    cols          => $tariffGroupset,
+                    data          => \@mappingData,
+                );
+
+            }
+
+            elsif ( $model->{coincidenceAdj} =~ /268/
+                && grep { /related mpan/i } @{ $relevantUsers->{list} } )
             {
 
                 $relevantUsers = Labelset(

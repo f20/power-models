@@ -38,13 +38,62 @@ sub volumeData {
 
     # MPANs are included for all tariffs, even if the model does not need them
 
-    my %componentVolumeData = map {
+    my $allTariffsByEndUserFor1053 = $allTariffsByEndUser;
+    my ( @tariffsToSubjectTo1072, $rowset1072 );
+    if ( $model->{volumedata1072} ) {
+        my @rowset1072groupnames;
+        my %rowset1072tariffnames;
+        $allTariffsByEndUserFor1053 = Labelset(
+            groups => [
+                map {
+                    my $group = $_;
+                    if ( $group->{name} =~ /related mpan.* no residual$/i ) {
+                        local $_ = $group->{name};
+                        s/ no residual//ig;
+                        Labelset(
+                            name => $_,
+                            list => [
+                                map {
+                                    my $g  = $_;
+                                    my $cm = $componentMap->{$_};
+                                    $g =~ s/ no residual//ig;
+                                    push @rowset1072groupnames, $g;
+                                    $componentMap->{$g} = $cm;
+                                    push @tariffsToSubjectTo1072, $g;
+                                    push @{ $rowset1072tariffnames{$g} }, $_;
+                                    $g;
+                                } @{ $group->{list} }
+                            ],
+                        );
+                    }
+                    elsif ( $group->{name} =~ /related mpan.*band [1-4]/i ) {
+                        foreach ( @{ $group->{list} } ) {
+                            my $g = $_;
+                            $g =~ s/ band [1-4]//ig;
+                            push @{ $rowset1072tariffnames{$g} }, $_;
+                        }
+                        ();
+                    }
+                    else { $group; }
+                } @{ $allTariffsByEndUser->{groups} }
+            ]
+        );
+        $rowset1072 = Labelset(
+            groups => [
+                map {
+                    Labelset( name => $_, list => $rowset1072tariffnames{$_}, );
+                } @rowset1072groupnames
+            ]
+        );
+    }
+
+    my %componentZeroVolumeData = map {
         my $component = $_;
         my @data;
-        foreach ( $allTariffsByEndUser->indices ) {
+        foreach ( $allTariffsByEndUserFor1053->indices ) {
             $data[$_] = 0
               if $component eq 'Fixed charge p/MPAN/day'
-              || $componentMap->{ $allTariffsByEndUser->{list}[$_] }
+              || $componentMap->{ $allTariffsByEndUserFor1053->{list}[$_] }
               {$component};
         }
         $_ => \@data;
@@ -56,7 +105,7 @@ sub volumeData {
                 $componentVolumeNameMap->{$_},
                 "$componentVolumeNameMap->{$_} by tariff"
             ),
-            rows       => $allTariffsByEndUser,
+            rows       => $allTariffsByEndUserFor1053,
             validation => {
                 validate      => 'decimal',
                 criteria      => '>=',
@@ -68,7 +117,7 @@ sub volumeData {
                 error_message =>
                   'Invalid volume data (negative number or unused cell).'
             },
-            data          => $componentVolumeData{$_},
+            data          => $componentZeroVolumeData{$_},
             defaultFormat => $model->{summary}
               && $model->{summary} =~ /consultation/i
               && /k(?:W|VAr)h/ ? '0.000hard' : '0hard',
@@ -94,7 +143,84 @@ EOL
         columns  => [ @volumeData{@$nonExcludedComponents} ]
     );
 
-    \%volumeData;
+    return \%volumeData unless $model->{volumedata1072};
+
+    my %percentages1072 = map {
+        $_ => Dataset(
+            name          => $componentVolumeNameMap->{$_},
+            rows          => $rowset1072,
+            data          => [ map { 0; } @{ $rowset1072->{list} } ],
+            defaultFormat => '%hard',
+          )
+    } @{$nonExcludedComponents}[ 0 .. 3 ];
+
+    Columnset(
+        name     => 'Volume allocation by band for related MPAN tarifs',
+        number   => 1072,
+        appendTo => $model->{inputTables},
+        dataset  => $model->{dataset},
+        columns  => [ @percentages1072{ @{$nonExcludedComponents}[ 0 .. 3 ] } ]
+    );
+
+    my $rowset1072groups = Labelset( list => $rowset1072->{groups} );
+
+    my %volumeDataToReallocate = map {
+        $_ => Stack(
+            sources => [ $volumeData{$_} ],
+            rows    => $rowset1072groups,
+        );
+    } @{$nonExcludedComponents}[ 0 .. 3 ];
+
+    Columnset(
+        name => 'Volume forecasts for the charging year (to reallocate)',
+        columns =>
+          [ @volumeDataToReallocate{ @{$nonExcludedComponents}[ 0 .. 3 ] } ],
+    );
+
+    my %volumeDataReallocated = map {
+        $_ => Arithmetic(
+            name          => $componentVolumeNameMap->{$_},
+            defaultFormat => '0soft',
+            arithmetic    => '=A1*A2',
+            arguments     => {
+                A1 => $percentages1072{$_},
+                A2 => $volumeDataToReallocate{$_},
+            },
+        );
+    } @{$nonExcludedComponents}[ 0 .. 3 ];
+
+    Columnset(
+        name => 'Volume forecasts for the charging year (reallocated)',
+        columns =>
+          [ @volumeDataReallocated{ @{$nonExcludedComponents}[ 0 .. 3 ] } ],
+    );
+
+    my %volumeDataPost1072 = map {
+        my $tariffComponent = $_;
+        $tariffComponent => Stack(
+            name          => $componentVolumeNameMap->{$tariffComponent},
+            rows          => $allTariffsByEndUser,
+            defaultFormat => '0copy',
+            sources =>
+              [ grep { $_; } $volumeData{$_}, $volumeDataReallocated{$_} ],
+            $tariffComponent eq 'Fixed charge p/MPAN/day' ? () : (
+                rowFormats => [
+                    map {
+                        $componentMap->{$_}{$tariffComponent}
+                          ? undef
+                          : 'unavailable';
+                    } @{ $allTariffsByEndUser->{list} }
+                ]
+            ),
+          );
+    } @$nonExcludedComponents;
+
+    Columnset(
+        name    => 'Volume forecasts for the charging year (full set)',
+        columns => [ @volumeDataPost1072{@$nonExcludedComponents} ]
+    );
+
+    \%volumeDataPost1072;
 
 }
 

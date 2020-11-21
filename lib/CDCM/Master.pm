@@ -33,7 +33,6 @@ use CDCM::Aggregation;
 use CDCM::AML;
 use CDCM::Contributions;
 use CDCM::Loads;
-use CDCM::Matching;
 use CDCM::NetworkSizer;
 use CDCM::Operating;
 use CDCM::Reactive;
@@ -79,11 +78,11 @@ sub requiredModulesForRuleset {
       : (),
 
        !$ruleset->{scaler}               ? ()
+      : $ruleset->{scaler} =~ /tcrd/i    ? 'CDCM::DomesticTcr'
+      : $ruleset->{scaler} =~ /tcr/i     ? 'CDCM::MatchingTcr'
       : $ruleset->{scaler} =~ /ppuflex/i ? 'CDCM::MatchingFlex'
       : $ruleset->{scaler} =~ /dcp123/i  ? 'CDCM::Matching123'
-      : (),
-
-      $ruleset->{scaler} =~ /tcr/i ? 'CDCM::TCR' : (),
+      : 'CDCM::Matching',
 
       !$ruleset->{summary}
       ? ()
@@ -104,7 +103,9 @@ sub requiredModulesForRuleset {
       $ruleset->{unroundedTariffAnalysis}
       ? (
         qw(CDCM::TariffAnalysis),
-        $ruleset->{unroundedTariffAnalysis} =~ /modelg/i ? qw(CDCM::ModelG) : ()
+        $ruleset->{unroundedTariffAnalysis} =~ /modelg/i
+        ? qw(CDCM::ModelG)
+        : ()
       )
       : (),
 
@@ -201,12 +202,12 @@ sub new {
       = $model->tariffs;
 
     ( $allEndUsers, $allTariffsByEndUser, $allTariffs ) =
-      $model->setUpGrouping( $componentMap, $allEndUsers, $allTariffsByEndUser,
-        $allTariffs )
+      $model->setUpGrouping( $componentMap, $allEndUsers,
+        $allTariffsByEndUser, $allTariffs )
       if $model->{tariffGrouping};
 
-    $model->{ldnoWord} =
-      $model->{portfolio} && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
+    $model->{ldnoWord} = $model->{portfolio}
+      && $model->{portfolio} =~ /qno/i ? 'QNO' : 'LDNO';
 
     ( $allEndUsers, $allTariffsByEndUser, $allTariffs ) =
       $model->pcdSetUp( $allEndUsers, $allTariffsByEndUser, $allTariffs )
@@ -245,7 +246,8 @@ sub new {
                 maximum       => 1,
                 input_title   => 'Proportion of load:',
                 input_message => 'Between 0% and 100%',
-                error_message => 'The proportion of load going through 132kV/HV'
+                error_message =>
+                  'The proportion of load going through 132kV/HV'
                   . ' must be between 0% and 100%.'
             },
             defaultFormat => '%hardnz',
@@ -334,8 +336,8 @@ sub new {
         $lineLossFactorsLevel,    $lineLossFactorsNetwork,
         $lineLossFactors,         $unitsLossAdjustment,
       )
-      = $model->routeing( $allTariffsByEndUser, $coreLevels, $coreExitLevels,
-        $drmLevels, $drmExitLevels, $rerouteingMatrix );
+      = $model->routeing( $allTariffsByEndUser, $coreLevels,
+        $coreExitLevels, $drmLevels, $drmExitLevels, $rerouteingMatrix );
 
     # Now rebuild the 500 MW model using drmSizer
 
@@ -486,9 +488,11 @@ EOT
                 );
             }
         }
-        elsif ( $model->{addVolumes} && $model->{addVolumes} =~ /matching/i ) {
-            $model->inYearAdjustUsingAfter( $nonExcludedComponents, $volumeData,
-                $allEndUsers, $componentMap,
+        elsif ($model->{addVolumes}
+            && $model->{addVolumes} =~ /matching/i )
+        {
+            $model->inYearAdjustUsingAfter( $nonExcludedComponents,
+                $volumeData, $allEndUsers, $componentMap,
                 undef, \$unitsInYearAfter, \$volumeDataAfter, );
         }
         die 'inYearAdjust has created $model->{pcd}' if $model->{pcd};
@@ -593,8 +597,8 @@ EOT
 
     my ( $siteSpecificSoleUseAssets, $siteSpecificReplacement );
     ( $siteSpecificSoleUseAssets, $siteSpecificReplacement ) =
-      $model->siteSpecificSoleUse( $assetDrmLevels, $modelLife, $annuityRate,
-        $proportionChargeable )
+      $model->siteSpecificSoleUse( $assetDrmLevels, $modelLife,
+        $annuityRate, $proportionChargeable )
       if $model->{ehv} && $model->{ehv} =~ /s/i;
 
     my (
@@ -756,7 +760,26 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
       );
 
     my ( $totalRevenuesFromMatching, $siteSpecificCharges, @matchingTables ) =
-      $model->{scaler} && $model->{scaler} =~ /DCP123/i
+         $model->{scaler}
+      && $model->{scaler} =~ /tcr/i && $model->{scaler} !~ /tcrd/i
+      ? $model->matchingTcr(
+        $revenueShortfall,
+        $componentMap,
+        $allTariffsByEndUser,
+        $demandTariffsByEndUser,
+        $allEndUsers,
+        $chargingLevels,
+        $nonExcludedComponents,
+        $allComponents,
+        $daysAfter,
+        ( $model->{pcd} ? $volumesAdjustedAfter : $volumeDataAfter )
+          || $volumesAdjusted,
+        $loadCoefficients,
+        $tariffsExMatching,
+        $daysInYear,
+        $model->{pcd} ? $volumesAdjusted : $volumeData,
+      )
+      : $model->{scaler} && $model->{scaler} =~ /DCP123/i
       ? $model->matchingdcp123(
         $revenueShortfall,
         $componentMap,
@@ -820,7 +843,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         \@matchingTables,
       )
       if $model->{scaler}
-      && $model->{scaler} =~ /tcr/i;
+      && $model->{scaler} =~ /tcrd/i;
 
     foreach my $table (@matchingTables) {
         foreach my $comp ( keys %$table ) {
@@ -1073,7 +1096,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                 name => $model->{model100}
                 ? 'Workbook build options and main parameters'
                 : 'Headline parameters',
-                $model->{model100} ? ( lines => $model->{optionLines} ) : (),
+                $model->{model100} ? ( lines => $model->{optionLines} )
+                : (),
                 columns => $model->{summaryColumns},
               );
         }
@@ -1148,7 +1172,8 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                 $tariffTable,
                 $model->{summary} =~ /partyear/i ? $volumeDataAfter
                 : $volumeData,
-                $model->{summary} =~ /partyear/i ? $daysAfter : $daysInYear,
+                $model->{summary} =~ /partyear/i ? $daysAfter
+                : $daysInYear,
                 $nonExcludedComponents,
                 $componentMap,
                 $allTariffs,

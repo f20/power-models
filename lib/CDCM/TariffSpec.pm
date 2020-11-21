@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -53,6 +53,30 @@ sub tariffSpec {
       grep { $_->[1]{ $model->{tariffNameField} }; } @list
       if $model->{tariffNameField};
     @list = grep { $_->[1]{Name}; } @list unless $model->{tariffsWithNoNames};
+
+    if ( $model->{tariffs} && $model->{tariffs} =~ /tcrbands/i ) {
+        @list = map {
+            my @a = @$_;
+            $a[1]{Name} !~ /gener/i
+              && $a[1]{Name} =~ /Site Specific|Non-Domestic Aggregated/i
+              ? (
+                map {
+                    [
+                        "$a[0] $_",
+                        {
+                            %{ $a[1] }, Name => "$a[1]{Name} $_",
+                        },
+                        @a[ 2 .. $#a ]
+                    ];
+                  } 'No Residual',
+                'Band 1',
+                'Band 2',
+                'Band 3',
+                'Band 4',
+              )
+              : $_;
+        } @list;
+    }
     @list;
 }
 

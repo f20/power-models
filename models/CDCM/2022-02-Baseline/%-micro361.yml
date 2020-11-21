@@ -1,0 +1,30 @@
+---
+.: 'CDCM from 2022, micro-model'
+.Style: Micro model for forecasters
+PerlModule: CDCM
+blackPeakingProbabilityRequired: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupdcp268tcr
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+fixedChargeAdders: 1
+generationReactiveRouteingFix: 1
+lvDiversityWrong: 1
+nickName: After 2020
+noLLFCs: 1
+noLinks: 1
+noPCs: 1
+noReplacement: blanket
+pcd: 1
+portfolio: 1
+scaler: tcr
+standing: sub132
+summary: statisticsbrief
+targetRevenue: dcp334
+tariffNameField: Name268
+tariffSpec: 1
+tariffs: dcp130_omitnhh_offpeakhh_gennoreact_tcrbands
+timeOfDay: timeOfDaySpecial
+unauth: dayotex
+volumedata1072: 1

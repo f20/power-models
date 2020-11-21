@@ -55,10 +55,6 @@ sub serviceModels {
 Same side underground connection (single-phase 185mm waveform)
 Cross road underground connection (single-phase 185mm waveform)
 
-
-
-
-
 Other assets
 EOL
 
@@ -67,11 +63,6 @@ EOL
                 list => [ map { $_ ? $_ : ' ' } split /\n/, <<'EOL'] ),
 (service model for one 24-60kVA connection)
 Underground connection (three-phase 185mm waveform)
-
-
-
-
-
 
 Other assets
 EOL
@@ -82,11 +73,6 @@ EOL
 (service model for one larger LV connection)
 Underground connection (three-phase 300mm waveform)
 
-
-
-
-
-
 Other assets
 EOL
 
@@ -95,11 +81,6 @@ EOL
                 list => [ map { $_ ? $_ : ' ' } split /\n/, <<'EOL'] ),
 (service model for 40 lampposts)
 Some cables and stuff
-
-
-
-
-
 
 Other assets
 EOL
@@ -110,13 +91,6 @@ EOL
 (service model for additional generator protection at LV)
 Some circuit breakers and stuff
 
-
-
-
-
-
-
-
 Other assets
 EOL
 
@@ -124,14 +98,6 @@ EOL
                 name => 'LV service model 6',
                 list => [ map { $_ ? $_ : ' ' } split /\n/, <<'EOL'] ),
 (spare)
-
-
-
-
-
-
-
-
 
 Other assets
 EOL
@@ -141,14 +107,6 @@ EOL
                 list => [ map { $_ ? $_ : ' ' } split /\n/, <<'EOL'] ),
 (spare)
 
-
-
-
-
-
-
-
-
 Other assets
 EOL
 
@@ -156,14 +114,6 @@ EOL
                 name => 'LV service model 8',
                 list => [ map { $_ ? $_ : ' ' } split /\n/, <<'EOL'] ),
 (spare)
-
-
-
-
-
-
-
-
 
 Other assets
 EOL
@@ -183,18 +133,6 @@ Ring main unit
 CTs and VTs
 Man-hours for live jointing
 
-
-
-
-
-
-
-
-
-
-
-
-
 Other assets
 EOL
 
@@ -206,19 +144,6 @@ Bigger ring main unit
 Bigger CTs and VTs
 Man-hours for live jointing
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 Other assets
 EOL
 
@@ -228,18 +153,6 @@ EOL
 (service model for additional generator protection at HV)
 Some HV circuit breakers and stuff
 
-
-
-
-
-
-
-
-
-
-
-
-
 Other assets
 EOL
 
@@ -248,19 +161,6 @@ EOL
                 list => [ map { $_ ? $_ : ' ' } split /\n/, <<'EOL'] ),
 (spare)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 Other assets
 EOL
 
@@ -268,19 +168,6 @@ EOL
                 name => 'HV service model 5',
                 list => [ map { $_ ? $_ : ' ' } split /\n/, <<'EOL'] ),
 (spare)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 Other assets
 EOL
