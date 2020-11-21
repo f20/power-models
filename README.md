@@ -52,9 +52,9 @@ Step 3. Install any missing modules.
 
 Change to the root of the repository and try these sample scripts:
 
-    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e 'SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles(q^models/Sampler/%-short.yml^)'
+    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles('models/Samplers/Format sampler.yml')"
 
-    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e 'SpreadsheetModel::Book::Manufacturing->factory(validate=>[q^lib^])->runAllWithFiles(q^models/CDCM/2017-02-Baseline/%-extras227.yml^,q^models/CDCM/2017-02/SPEN-SPM.yml^)'
+    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory(validate=>['lib'])->runAllWithFiles('models/CDCM/2017-02-Baseline/%-extras227.yml','models/CDCM/2017-02/SPEN-SPM.yml')"
 
 If this fails, examine the error messages. Sometimes the problem is a missing
 module which can be installed from CPAN (www.cpan.org).
@@ -85,4 +85,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 28 Octobre 2020.
+Franck Latrémolière, 25 November 2020.

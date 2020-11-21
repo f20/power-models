@@ -2,8 +2,7 @@
 install: ""
 language: perl
 perl:
-  - "5.10"
-  - "5.32"
+  - "5.30"
 script:
   - grep '^ ' README.md | while read x; do echo $x; if ! $x; then exit 1; fi; done
 sudo: false

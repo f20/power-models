@@ -115,15 +115,21 @@ sub factory {
             warn "$fileName: $@" if $@;
         }
 
-        my $onlyUseThisRuleset;
+        my ( $templateDefinedFlag, $singleRuleset );
         while (@objects) {
             local $_ = shift @objects;
             next unless ref $_ eq 'HASH';
-            if ( exists $_->{template} || exists $_->{nickName} ) {
+            if ( defined $_->{template} ) {
                 push @rulesets, $_;
-                if ( $_->{template} && $_->{template} eq '%' ) {
-                    $onlyUseThisRuleset = $_;
+                if ( $_->{template} eq '%' ) {
+                    $singleRuleset = $_;
                 }
+                else {
+                    $templateDefinedFlag = 1;
+                }
+            }
+            elsif ( $templateDefinedFlag && defined $_->{nickName} ) {
+                push @rulesets, $_;
             }
             elsif ( defined $fileName
                 && $fileName =~ /([^\\\/]*%[^\\\/]*)\.(?:yml|yaml|json)$/is )
@@ -175,8 +181,8 @@ sub factory {
                         : ( '~datasetSource' => 'Empty dataset' ),
                       )
                     : (),
-                    defined $onlyUseThisRuleset
-                    ? ( '~rulesRef' => $onlyUseThisRuleset )
+                    defined $singleRuleset
+                    ? ( '~rulesRef' => $singleRuleset )
                     : (),
                     dataset => $_,
                 };
@@ -187,7 +193,8 @@ sub factory {
 
     my $addFile = $self->{addFile} = sub {
         my ($path) = @_;
-        return if $settings->{fileFilter} && !$settings->{fileFilter}->($path);
+        return
+          if $settings->{fileFilter} && !$settings->{fileFilter}->($path);
         local $_ = $path;
         my $dh;
         if (/\.(ygz|ybz|bz2|gz)$/si) {

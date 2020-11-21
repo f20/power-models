@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2014-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2014-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -30,37 +30,19 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub configuration1203 {
     my ( $model, $allTariffs, $tariffComponents, $componentMap ) = @_;
-    my ( @users, $labelset, %mapping, %margins );
-    if ( $model->{summary} =~ /allmetereddemand/i ) {
-        @users =
-          $model->{table1203}
-          ? @{ $model->{table1203} }
-          : map { "Illustrative user $_"; } 1 .. 3;
-        my $tariffFilter = sub { $_[0] !~ /\bunmeter|\bums\b|\bgener/i; };
-        my @groupList;
-        foreach my $uid ( 0 .. $#users ) {
-            my $user = $users[$uid];
-            my @tariffList;
-            for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
-                next
-                  if $allTariffs->{groupid}
-                  && !defined $allTariffs->{groupid}[$tid];
-                my $tariff = $allTariffs->{list}[$tid];
-                next unless $tariffFilter->($tariff);
-                $tariff =~ s/^.*\n//s;
-                my $row = "$user ($tariff)";
-                push @tariffList, $row;
-                $mapping{$row} = [ $uid, $tid ];
-                if ( $tariff =~ /^(?:LD|Q)NO ([^:]+): (.+)/ ) {
-                    $margins{$1}{"$user ($2)"} = $row;
-                }
-            }
-            push @groupList, Labelset( name => $user, list => \@tariffList );
-        }
-        $labelset = Labelset( groups => \@groupList );
-    }
-    else {
-        @users = split /\n/, <<EOL;
+    my $configurationMethod =
+      $model->{summary} =~ /allmetereddemand/i
+      ? 'configuration_allMeteredDemand'
+      : 'configuration_dcp268';
+    $model->$configurationMethod( $allTariffs, $tariffComponents,
+        $componentMap );
+}
+
+sub configuration_dcp268 {
+
+    my ( $model, $allTariffs, $tariffComponents, $componentMap ) = @_;
+
+    my @users = split /\n/, <<EOL;
 Domestic Unrestricted 1
 Domestic Two Rate 1
 Domestic Two Rate 2
@@ -85,39 +67,71 @@ NHH UMS category B 1
 NHH UMS category C 1
 LV UMS (Pseudo HH Metered) 1
 EOL
-        $labelset = Labelset( list => \@users );
-        foreach my $uid ( 0 .. $#users ) {
-            my $user  = $users[$uid];
-            my $user2 = $user;
-            $user2 =~ s/^Domestic Unrestricted/Domestic Aggregated/;
-            $user2 =~ s/^Domestic Two Rate/Domestic Aggregated/;
-            $user2 =~
-              s/^Small Non Domestic Unrestricted/Non-Domestic Aggregated/;
-            $user2 =~ s/^Small Non Domestic Two Rate/Non-Domestic Aggregated/;
-            $user2 =~ s/^LV Medium Non-Domestic/Non-Domestic Aggregated/;
-            $user2 =~ s/^LV Network Domestic/Domestic Aggregated/;
-            $user2 =~
-              s/^LV Network Non-Domestic Non-CT/Non-Domestic Aggregated/;
-            $user2 =~ s/Site Specific/HH Metered/;
-            $user2 =~ s/^NHH UMS category [ABCD]/Unmetered Supplies/;
-            $user2 =~ s/^LV UMS \(Pseudo HH Metered\)/Unmetered Supplies/;
 
-            for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
-                next
-                  if $allTariffs->{groupid}
-                  && !defined $allTariffs->{groupid}[$tid];
-                my $tariff = $allTariffs->{list}[$tid];
-                $tariff =~ s/^.*\n//s;
-                if (   index( $user, $tariff ) == 0
-                    || index( $user2, $tariff ) == 0 )
-                {
-                    $mapping{$user} = [ $uid, $tid ];
-                    last;
-                }
+    my ( %mapping, %margins );
+    foreach my $uid ( 0 .. $#users ) {
+        my $user  = $users[$uid];
+        my $user2 = $user;
+        $user2 =~ s/^Domestic Unrestricted/Domestic Aggregated/;
+        $user2 =~ s/^Domestic Two Rate/Domestic Aggregated/;
+        $user2 =~ s/^Small Non Domestic Unrestricted/Non-Domestic Aggregated/;
+        $user2 =~ s/^Small Non Domestic Two Rate/Non-Domestic Aggregated/;
+        $user2 =~ s/^LV Medium Non-Domestic/Non-Domestic Aggregated/;
+        $user2 =~ s/^LV Network Domestic/Domestic Aggregated/;
+        $user2 =~ s/^LV Network Non-Domestic Non-CT/Non-Domestic Aggregated/;
+        $user2 =~ s/Site Specific/HH Metered/;
+        $user2 =~ s/^NHH UMS category [ABCD]/Unmetered Supplies/;
+        $user2 =~ s/^LV UMS \(Pseudo HH Metered\)/Unmetered Supplies/;
+
+        for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
+            next
+              if $allTariffs->{groupid}
+              && !defined $allTariffs->{groupid}[$tid];
+            my $tariff = $allTariffs->{list}[$tid];
+            $tariff =~ s/^.*\n//s;
+            if (   index( $user, $tariff ) == 0
+                || index( $user2, $tariff ) == 0 )
+            {
+                $mapping{$user} = [ $uid, $tid ];
+                last;
             }
         }
     }
-    \@users, $labelset, \%mapping, \%margins;
+
+    \@users, Labelset( list => \@users ), \%mapping, \%margins;
+
+}
+
+sub configuration_allMeteredDemand {
+    my ( $model, $allTariffs, $tariffComponents, $componentMap ) = @_;
+    my ( @users, $labelset, %mapping, %margins );
+    my @users =
+      $model->{table1203}
+      ? @{ $model->{table1203} }
+      : map { "Illustrative user $_"; } 1 .. 3;
+    my $tariffFilter = sub { $_[0] !~ /\bunmeter|\bums\b|\bgener/i; };
+    my @groupList;
+    my ( %mapping, %margins );
+    foreach my $uid ( 0 .. $#users ) {
+        my $user = $users[$uid];
+        my @tariffList;
+        for ( my $tid = 0 ; $tid < @{ $allTariffs->{list} } ; ++$tid ) {
+            next
+              if $allTariffs->{groupid}
+              && !defined $allTariffs->{groupid}[$tid];
+            my $tariff = $allTariffs->{list}[$tid];
+            next unless $tariffFilter->($tariff);
+            $tariff =~ s/^.*\n//s;
+            my $row = "$user ($tariff)";
+            push @tariffList, $row;
+            $mapping{$row} = [ $uid, $tid ];
+            if ( $tariff =~ /^(?:LD|Q)NO ([^:]+): (.+)/ ) {
+                $margins{$1}{"$user ($2)"} = $row;
+            }
+        }
+        push @groupList, Labelset( name => $user, list => \@tariffList );
+    }
+    \@users, Labelset( groups => \@groupList ), \%mapping, \%margins;
 }
 
 sub table1203 {

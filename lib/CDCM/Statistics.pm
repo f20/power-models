@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2014-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2014-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -414,19 +414,17 @@ sub makeStatisticsTables {
         rows          => $fullRowset,
         custom        => [
             '=0.01*A11*A91',
-            '=0.01*(A11*A91+A12*A13/7*A78*(A92-A911))',
+            '=0.01*(A11*A91+A12*(A92-A911))',
             '=0.01*(A31*A91+A32*A92+A33*A93)',
             '=A81-A82',
         ],
         arithmetic => 'Special calculation',
         arguments  => {
             A11  => $totalUnits,
-            A12  => $offPeakLoad,
-            A13  => $offPeakHours,
+            A12  => $rate2,
             A31  => $red,
             A32  => $amber,
             A33  => $green,
-            A78  => $daysInYear,
             A91  => $tariffTable->{'Unit rate 1 p/kWh'},
             A911 => $tariffTable->{'Unit rate 1 p/kWh'},
             A92  => $tariffTable->{'Unit rate 2 p/kWh'},
@@ -457,8 +455,8 @@ sub makeStatisticsTables {
                 my $tariff = $allTariffs->{list}[$tid];
                 '', $cellFormat,
                   $formula->[
-                    $componentMap->{$tariff}{'Capacity charge p/kVA/day'} ? 2
-                  : $componentMap->{$tariff}{'Unit rate 2 p/kWh'}         ? 1
+                    $componentMap->{$tariff}{'Unit rate 3 p/kWh'} ? 2
+                  : $componentMap->{$tariff}{'Unit rate 2 p/kWh'} ? 1
                   : 0
                   ],
                   map {
@@ -596,21 +594,19 @@ sub makeStatisticsTables {
         rows          => $fullRowset,
         custom        => [
             '=0.01*(A11*A91+A71*A94)',
-            '=0.01*(A11*A91+A12*A13/7*A78*(A92-A911)+A71*A94)',
+            '=0.01*(A11*A91+A12*(A92-A911)+A71*A94)',
             '=0.01*(A31*A91+A32*A92+A33*A93+A71*(A94+A2*A95))',
             '=A81-A82',
         ],
         arithmetic => 'Special calculation',
         arguments  => {
             A11  => $totalUnits,
-            A12  => $offPeakLoad,
-            A13  => $offPeakHours,
+            A12  => $rate2,
             A2   => $capacity,
             A31  => $red,
             A32  => $amber,
             A33  => $green,
             A71  => $daysInYear,
-            A78  => $daysInYear,
             A91  => $tariffTable->{'Unit rate 1 p/kWh'},
             A911 => $tariffTable->{'Unit rate 1 p/kWh'},
             A92  => $tariffTable->{'Unit rate 2 p/kWh'},
@@ -643,8 +639,8 @@ sub makeStatisticsTables {
                 my $tariff = $allTariffs->{list}[$tid];
                 '', $cellFormat,
                   $formula->[
-                    $componentMap->{$tariff}{'Capacity charge p/kVA/day'} ? 2
-                  : $componentMap->{$tariff}{'Unit rate 2 p/kWh'}         ? 1
+                    $componentMap->{$tariff}{'Unit rate 3 p/kWh'} ? 2
+                  : $componentMap->{$tariff}{'Unit rate 2 p/kWh'} ? 1
                   : 0
                   ],
                   map {
