@@ -1305,6 +1305,9 @@ sub _get_gradient_properties {
 
     $gradient->{_colors} = $args->{colors};
 
+	# Addition of gradient transparency by Franck.
+    $gradient->{_transparency} = $args->{transparency};
+
     if ( $args->{positions} ) {
 
         # Check the positions array has the right number of entries.
@@ -6620,7 +6623,10 @@ sub _write_a_gs_lst {
 
         # Write the a:srgbClr element.
         # TODO: Wait for a feature request to support transparency.
-        $self->_write_a_srgb_clr( $color );
+        $self->_write_a_srgb_clr( $color,
+    	    # Addition of gradient transparency by Franck.
+            $gradient->{_transparency} ? $gradient->{_transparency}[$i] : ()
+        );
 
         $self->xml_end_tag( 'a:gs' );
     }
