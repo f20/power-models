@@ -60,7 +60,7 @@ sub matchingTcr {
         ],
         validation => {
             validate      => 'list',
-            value         => [ 0 .. 17 ],
+            value         => [ 0, 1, 5 .. 17 ],
             criteria      => '>=',
             value         => 0,
             input_title   => 'TCR group:',
@@ -72,7 +72,8 @@ sub matchingTcr {
         usePlaceholderData => 1,
     );
 
-    my $tcrGroupset = Labelset( list => [ map { "TCR group $_"; } 1 .. 17 ] );
+    my $tcrGroupset =
+      Labelset( list => [ map { "TCR group $_"; } 1, 5 .. 17 ] );
 
     my $demandTariffsByEndUserWithFixedCharges = Labelset(
         list => [
@@ -83,7 +84,7 @@ sub matchingTcr {
 
     my @columnsets;
 
-    for ( my $tcrGroup = 1 ; $tcrGroup < 18 ; ++$tcrGroup ) {
+    foreach my $tcrGroup ( 1, 5 .. 17 ) {
         my @volumeColumns = map {
             Arithmetic(
                 name          => $_->objectShortName,
@@ -400,20 +401,23 @@ sub matchingTcr {
             /MPAN/
             ? (
                 defaultFormat => '0.00soft',
-                arithmetic    => '=IF(A11,INDEX(A2_A3,A1),0)',
+                arithmetic    => '=IF(A11,INDEX(A2_A3,A1-IF(A12>1,3,0)),0)',
                 arguments     => {
                     A2_A3 => $fixedAdder,
                     A1    => $tcrGroupAllocation,
                     A11   => $tcrGroupAllocation,
+                    A12   => $tcrGroupAllocation,
                 },
               )
             : (
-                arithmetic => '=IF(A11,MAX(0-A4,INDEX(A2_A3,A1)),0)',
-                arguments  => {
+                arithmetic =>
+                  '=IF(A11,MAX(0-A4,INDEX(A2_A3,A1-IF(A12>1,3,0))),0)',
+                arguments => {
                     A4    => $tariffsExMatching->{$_},
                     A2_A3 => $unitsAdder3,
                     A1    => $tcrGroupAllocation,
                     A11   => $tcrGroupAllocation,
+                    A12   => $tcrGroupAllocation,
                 },
             ),
         );
