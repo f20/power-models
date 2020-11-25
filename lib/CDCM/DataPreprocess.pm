@@ -393,7 +393,7 @@ sub infillNewTariffs {
 
     my %tcrMap2 = map {
         my $prefix = $_;
-        map { ( "$prefix$_ No Residual" => "$prefix$_" ); }
+        map { ( "$prefix$_ Band 2" => "$prefix$_" ); }
           'Non-Domestic Aggregated',
           'Non-Domestic Aggregated Related MPAN',
           'LV Site Specific',
