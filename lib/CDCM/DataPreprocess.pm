@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -378,6 +378,29 @@ sub infillNewTariffs {
     # It is applied in all cases to help multi-model manufacturing.
 
     my ( $model, $d ) = @_;
+
+    my %tcrMap1 = map {
+        my $band = $_;
+        map { ( "$_ $band" => $_ ); } 'Non-Domestic Aggregated',
+          'Non-Domestic Aggregated Related MPAN',
+          'LV Site Specific',
+          'LV Sub Site Specific',
+          'HV Site Specific';
+    } 'No Residual', 'Band 1', 'Band 2', 'Band 3', 'Band 4';
+    _infill( $d, 1025, [ 1 .. 8 ], %tcrMap1, );
+    _infill( $d, 1028, [ 1 .. 8 ], %tcrMap1, );
+    _infill( $d, 1041, [ 1 .. 2 ], %tcrMap1, );
+
+    my %tcrMap2 = map {
+        my $prefix = $_;
+        map { ( "$prefix$_ No Residual" => "$prefix$_" ); }
+          'Non-Domestic Aggregated',
+          'Non-Domestic Aggregated Related MPAN',
+          'LV Site Specific',
+          'LV Sub Site Specific',
+          'HV Site Specific';
+    } '', 'LDNO LV ', 'LDNO HV ';
+    _infill( $d, 1053, [ 1 .. 7 ], %tcrMap2, );
 
     my %tariffMap = (
         'LV Network Domestic'            => 'Domestic Unrestricted',

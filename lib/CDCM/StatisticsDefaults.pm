@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2014-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2014-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -34,7 +34,8 @@ my @table1202 = Load <DATA>;
 
 sub table1202 {
     my ($model) = @_;
-    $table1202[0]{1202};
+    $table1202[0]{ $model->{tariffs}
+          && $model->{tariffs} =~ /tcrbands/i ? '1202tcr' : '1202' };
 }
 
 1;
@@ -218,4 +219,222 @@ __DATA__
     Off-peak 5MVA: 5000
     Off-peak 690kVA: 690
     Off-peak 69kVA: 69
+    _column: Capacity (kVA)
+1202tcr:
+  - _table: 1202. Consumption assumptions for illustrative customers
+  - 10MVA high usage: 390
+    10MVA no usage: 380
+    40kVA high usage: 230
+    40kVA no usage: 220
+    750kVA high usage: 310
+    750kVA no usage: 300
+    Domestic high usage: 160
+    Domestic mid usage: 150
+    Domestic no usage: 140
+    HV band 1/2 high usage: 330
+    HV band 1/2 no usage: 320
+    HV band 2/3 high usage: 350
+    HV band 2/3 no usage: 340
+    HV band 3/4 high usage: 370
+    HV band 3/4 no usage: 360
+    LV band 1/2 high usage: 250
+    LV band 1/2 no usage: 240
+    LV band 2/3 high usage: 270
+    LV band 2/3 no usage: 260
+    LV band 3/4 high usage: 290
+    LV band 3/4 no usage: 280
+    Non-domestic band 1/2: 180
+    Non-domestic band 2/3: 190
+    Non-domestic band 3/4: 200
+    Non-domestic high usage: 210
+    Non-domestic no usage: 170
+    _column: Order
+  - 10MVA high usage: '^(LV Sub|HV) Site Specific (No Residual|Band 4)'
+    10MVA no usage: '^(LV Sub|HV) Site Specific (No Residual|Band 4)'
+    40kVA high usage: '^(LV|LV Sub|HV) Site Specific (No Residual|Band 1)'
+    40kVA no usage: '^(LV|LV Sub|HV) Site Specific (No Residual|Band 1)'
+    750kVA high usage: '^(LV|LV Sub) Site Specific (No Residual|Band 4)'
+    750kVA no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 4)'
+    Domestic high usage: '^Domestic Aggregated$'
+    Domestic mid usage: '^Domestic Aggregated$'
+    Domestic no usage: '^Domestic Aggregated$'
+    HV band 1/2 high usage: '^HV Site Specific (No Residual|Band 1|Band 2)'
+    HV band 1/2 no usage: '^HV Site Specific (No Residual|Band 1|Band 2)'
+    HV band 2/3 high usage: '^HV Site Specific (No Residual|Band 2|Band 3)'
+    HV band 2/3 no usage: '^HV Site Specific (No Residual|Band 2|Band 3)'
+    HV band 3/4 high usage: '^HV Site Specific (No Residual|Band 3|Band 4)'
+    HV band 3/4 no usage: '^HV Site Specific (No Residual|Band 3|Band 4)'
+    LV band 1/2 high usage: '^(LV|LV Sub) Site Specific (No Residual|Band 1|Band 2)'
+    LV band 1/2 no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 1|Band 2)'
+    LV band 2/3 high usage: '^(LV|LV Sub) Site Specific (No Residual|Band 2|Band 3)'
+    LV band 2/3 no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 2|Band 3)'
+    LV band 3/4 high usage: '^(LV|LV Sub) Site Specific (No Residual|Band 3|Band 4)'
+    LV band 3/4 no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 3|Band 4)'
+    Non-domestic band 1/2: '^Non-Domestic Aggregated (No Residual|Band 1|Band 2)'
+    Non-domestic band 2/3: '^Non-Domestic Aggregated (No Residual|Band 2|Band 3)'
+    Non-domestic band 3/4: '^Non-Domestic Aggregated (No Residual|Band 3|Band 4)'
+    Non-domestic high usage: '^Non-Domestic Aggregated (No Residual|Band 4)'
+    Non-domestic no usage: '^Non-Domestic Aggregated (No Residual|Band 1)'
+    _column: Tariff selection
+  - 10MVA high usage: ''
+    10MVA no usage: ''
+    40kVA high usage: ''
+    40kVA no usage: ''
+    750kVA high usage: ''
+    750kVA no usage: ''
+    Domestic high usage: 35
+    Domestic mid usage: 35
+    Domestic no usage: ''
+    HV band 1/2 high usage: ''
+    HV band 1/2 no usage: ''
+    HV band 2/3 high usage: ''
+    HV band 2/3 no usage: ''
+    HV band 3/4 high usage: ''
+    HV band 3/4 no usage: ''
+    LV band 1/2 high usage: ''
+    LV band 1/2 no usage: ''
+    LV band 2/3 high usage: ''
+    LV band 2/3 no usage: ''
+    LV band 3/4 high usage: ''
+    LV band 3/4 no usage: ''
+    Non-domestic band 1/2: 60
+    Non-domestic band 2/3: 60
+    Non-domestic band 3/4: 60
+    Non-domestic high usage: ''
+    Non-domestic no usage: ''
+    _column: Peak-time hours/week
+  - 10MVA high usage: ''
+    10MVA no usage: ''
+    40kVA high usage: ''
+    40kVA no usage: ''
+    750kVA high usage: ''
+    750kVA no usage: ''
+    Domestic high usage: ''
+    Domestic mid usage: 49
+    Domestic no usage: ''
+    HV band 1/2 high usage: ''
+    HV band 1/2 no usage: ''
+    HV band 2/3 high usage: ''
+    HV band 2/3 no usage: ''
+    HV band 3/4 high usage: ''
+    HV band 3/4 no usage: ''
+    LV band 1/2 high usage: ''
+    LV band 1/2 no usage: ''
+    LV band 2/3 high usage: ''
+    LV band 2/3 no usage: ''
+    LV band 3/4 high usage: ''
+    LV band 3/4 no usage: ''
+    Non-domestic band 1/2: ''
+    Non-domestic band 2/3: ''
+    Non-domestic band 3/4: ''
+    Non-domestic high usage: ''
+    Non-domestic no usage: ''
+    _column: Off-peak hours/week
+  - 10MVA high usage: ''
+    10MVA no usage: ''
+    40kVA high usage: ''
+    40kVA no usage: ''
+    750kVA high usage: ''
+    750kVA no usage: ''
+    Domestic high usage: 2.5
+    Domestic mid usage: 0.649
+    Domestic no usage: ''
+    HV band 1/2 high usage: ''
+    HV band 1/2 no usage: ''
+    HV band 2/3 high usage: ''
+    HV band 2/3 no usage: ''
+    HV band 3/4 high usage: ''
+    HV band 3/4 no usage: ''
+    LV band 1/2 high usage: ''
+    LV band 1/2 no usage: ''
+    LV band 2/3 high usage: ''
+    LV band 2/3 no usage: ''
+    LV band 3/4 high usage: ''
+    LV band 3/4 no usage: ''
+    Non-domestic band 1/2: 0.6
+    Non-domestic band 2/3: 2.1
+    Non-domestic band 3/4: 4.2
+    Non-domestic high usage: ''
+    Non-domestic no usage: ''
+    _column: Peak-time load (kW)
+  - 10MVA high usage: ''
+    10MVA no usage: ''
+    40kVA high usage: ''
+    40kVA no usage: ''
+    750kVA high usage: ''
+    750kVA no usage: ''
+    Domestic high usage: ''
+    Domestic mid usage: 0.178
+    Domestic no usage: ''
+    HV band 1/2 high usage: ''
+    HV band 1/2 no usage: ''
+    HV band 2/3 high usage: ''
+    HV band 2/3 no usage: ''
+    HV band 3/4 high usage: ''
+    HV band 3/4 no usage: ''
+    LV band 1/2 high usage: ''
+    LV band 1/2 no usage: ''
+    LV band 2/3 high usage: ''
+    LV band 2/3 no usage: ''
+    LV band 3/4 high usage: ''
+    LV band 3/4 no usage: ''
+    Non-domestic band 1/2: ''
+    Non-domestic band 2/3: ''
+    Non-domestic band 3/4: ''
+    Non-domestic high usage: ''
+    Non-domestic no usage: ''
+    _column: Off-peak load (kW)
+  - 10MVA high usage: 8500
+    10MVA no usage: ''
+    40kVA high usage: 34
+    40kVA no usage: ''
+    750kVA high usage: 637.5
+    750kVA no usage: ''
+    Domestic high usage: 1.5
+    Domestic mid usage: 0.333
+    Domestic no usage: ''
+    HV band 1/2 high usage: 358.7
+    HV band 1/2 no usage: ''
+    HV band 2/3 high usage: 850
+    HV band 2/3 no usage: ''
+    HV band 3/4 high usage: 1530
+    HV band 3/4 no usage: ''
+    LV band 1/2 high usage: 68
+    LV band 1/2 no usage: ''
+    LV band 2/3 high usage: 127.5
+    LV band 2/3 no usage: ''
+    LV band 3/4 high usage: 196.35
+    LV band 3/4 no usage: ''
+    Non-domestic band 1/2: 0.3
+    Non-domestic band 2/3: 1.05
+    Non-domestic band 3/4: 2.15
+    Non-domestic high usage: 58.65
+    Non-domestic no usage: ''
+    _column: Load at other times (kW)
+  - 10MVA high usage: 10000
+    10MVA no usage: 10000
+    40kVA high usage: 40
+    40kVA no usage: 40
+    750kVA high usage: 750
+    750kVA no usage: 750
+    Domestic high usage: 23
+    Domestic mid usage: 23
+    Domestic no usage: 23
+    HV band 1/2 high usage: 422
+    HV band 1/2 no usage: 422
+    HV band 2/3 high usage: 1000
+    HV band 2/3 no usage: 1000
+    HV band 3/4 high usage: 1800
+    HV band 3/4 no usage: 1800
+    LV band 1/2 high usage: 80
+    LV band 1/2 no usage: 80
+    LV band 2/3 high usage: 150
+    LV band 2/3 no usage: 150
+    LV band 3/4 high usage: 231
+    LV band 3/4 no usage: 231
+    Non-domestic band 1/2: 69
+    Non-domestic band 2/3: 69
+    Non-domestic band 3/4: 69
+    Non-domestic high usage: 69
+    Non-domestic no usage: 69
     _column: Capacity (kVA)
