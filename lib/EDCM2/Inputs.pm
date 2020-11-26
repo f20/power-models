@@ -683,13 +683,24 @@ EOL
             rows    => $model->{tariffSet},
             dataset => $model->{dataset}
         ),
-        !$model->{dcp342} ? undef : Dataset(
+        $model->{dcp361} ? Dataset(
+            name          => 'Demand charging status and band',
+            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+            rows          => $model->{tariffSet},
+            defaultFormat => '0hard',
+            validation    => {
+                validate => 'list',
+                value    => [qw(0 1 2 3 4)],
+            },
+            dataset => $model->{dataset}
+          ) : $model->{dcp342} ? Dataset(
             name =>
               'Proportion exempted from asset-based adder and fixed adder',
-            data    => [ map { 1 } 1 .. $model->{numTariffs} ],
+            data          => [ map { 1 } 1 .. $model->{numTariffs} ],
+            defaultFormat => '%hard',
             rows    => $model->{tariffSet},
             dataset => $model->{dataset}
-        ),
+          ) : undef,
         Dataset(
             name          => 'Days for which not a customer',
             defaultFormat => '0hard',
@@ -732,6 +743,13 @@ EOL
             rows          => $model->{tariffSet},
             dataset       => $model->{dataset}
         ),
+        $model->{dcp361} ? Dataset(
+            name          => 'Final consumption units per year',
+            data          => [ map { '' } 1 .. $model->{numTariffs} ],
+            rows          => $model->{tariffSet},
+            defaultFormat => '0hard',
+            dataset       => $model->{dataset}
+          ) : undef,
 
     );
 
