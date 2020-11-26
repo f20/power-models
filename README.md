@@ -50,9 +50,9 @@ extract all the files from it, or use a git client to clone this repository.
 Step 3. Install any missing modules.
 -------------------------------------
 
-Change to the root of the repository and try these sample scripts:
+Change directory to the root of the repository and try these sample scripts:
 
-    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles('models/Samplers/Format sampler.yml')"
+    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles('models/Samplers/FormatSampler.yml')"
 
     perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory(validate=>['lib'])->runAllWithFiles('models/CDCM/2017-02-Baseline/%-extras227.yml','models/CDCM/2017-02/SPEN-SPM.yml')"
 
@@ -85,4 +85,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 25 November 2020.
+Franck Latrémolière, 26 November 2020.
