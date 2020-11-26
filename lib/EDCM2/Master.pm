@@ -198,15 +198,17 @@ EOT
         $activeUnits,
         $creditableCapacity935,
         $tariffNetworkSupportFactor,
-        $tariffScalingExempt,
+        $tariffScalingBandOrExemption,
         $tariffDaysInYearNot,
         $tariffHoursInPurpleNot,
         $previousChargeImport,
         $previousChargeExport,
         $llfcImport,
         $llfcExport,
-        $actualRedDemandRate,
+        $totalFinalDemandUnits,
     ) = $model->tariffInputs($ehvAssetLevelset);
+
+    my $actualRedDemandRate;
 
     my ( $locations, $locParent, $c1, $a1d, $r1d, $a1g, $r1g ) =
       $model->loadFlowInputs;
@@ -735,8 +737,7 @@ EOT
         $importCapacity,              @fixedChargeAddersRevenue,
     );
 
-    my $tariffCalculationMethod =
-         $model->{dcp342}
+    my $tariffCalculationMethod = $model->{dcp342}
       || $model->{dcp361} ? 'tariffCalculation2020' : 'tariffCalculation';
     my (
         $purpleRateFcpLricRound,    $fixedDchargeTrueRound,
@@ -764,7 +765,7 @@ EOT
         $totalAssetsFixed,            $totalAssetsGenerationSoleUse,
         $totalDcp189DiscountedAssets, $totalEdcmAssets,
         $totalRevenue3,               $unitRateFcpLricNonDSM,
-        $tariffScalingExempt,
+        $tariffScalingBandOrExemption,
       );
 
     my @tariffColumns = (
