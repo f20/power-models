@@ -272,8 +272,8 @@ __DATA__
     LV band 3/4 no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 3|Band 4)'
     Non-domestic band 1/2: '^Non-Domestic Aggregated (No Residual|Band 1|Band 2)'
     Non-domestic band 2/3: '^Non-Domestic Aggregated (No Residual|Band 2|Band 3)'
-    Non-domestic band 3/4: '^Non-Domestic Aggregated (No Residual|Band 3|Band 4)'
-    Non-domestic high usage: '^Non-Domestic Aggregated (No Residual|Band 4)'
+    Non-domestic band 3/4: '^(LV Site Specific Band 1|Non-Domestic Aggregated (No Residual|Band 3|Band 4))'
+    Non-domestic high usage: '^(LV Site Specific Band 1|Non-Domestic Aggregated (No Residual|Band 4))'
     Non-domestic no usage: '^Non-Domestic Aggregated (No Residual|Band 1)'
     _column: Tariff selection
   - 10MVA high usage: ''
@@ -432,9 +432,9 @@ __DATA__
     LV band 2/3 no usage: 150
     LV band 3/4 high usage: 231
     LV band 3/4 no usage: 231
-    Non-domestic band 1/2: 69
-    Non-domestic band 2/3: 69
-    Non-domestic band 3/4: 69
+    Non-domestic band 1/2: 23
+    Non-domestic band 2/3: 23
+    Non-domestic band 3/4: 23
     Non-domestic high usage: 69
-    Non-domestic no usage: 69
+    Non-domestic no usage: 23
     _column: Capacity (kVA)
