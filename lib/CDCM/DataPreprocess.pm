@@ -391,16 +391,31 @@ sub infillNewTariffs {
     _infill( $d, 1028, [ 1 .. 8 ], %tcrMap1, );
     _infill( $d, 1041, [ 1 .. 2 ], %tcrMap1, );
 
-    my %tcrMap2 = map {
-        my $prefix = $_;
-        map { ( "$prefix$_ Band 2" => "$prefix$_" ); }
-          'Non-Domestic Aggregated',
-          'Non-Domestic Aggregated Related MPAN',
-          'LV Site Specific',
-          'LV Sub Site Specific',
-          'HV Site Specific';
-    } '', 'LDNO LV ', 'LDNO HV ';
-    _infill( $d, 1053, [ 1 .. 7 ], %tcrMap2, );
+    foreach my $prefix ( '', 'LDNO LV ', 'LDNO HV ' ) {
+        foreach my $core (
+            'Non-Domestic Aggregated',
+            'Non-Domestic Aggregated Related MPAN',
+            'LV Site Specific',
+            'LV Sub Site Specific',
+            'HV Site Specific'
+          )
+        {
+            my $before = $prefix . $core;
+            foreach my $extra ( 'No Residual', 'Band 1', 'Band 2', 'Band 3',
+                'Band 4' )
+            {
+                my $after = "$before $extra";
+                foreach my $column ( 1 .. 7 ) {
+                    $d->{1053}[$column]{$after} =
+                      $d->{1053}[$column]{$before} eq ''
+                      ? ''
+                      : 0.2 * $d->{1053}[$column]{$before}
+                      if !defined $d->{1053}[$column]{$after}
+                      && defined $d->{1053}[$column]{$before};
+                }
+            }
+        }
+    }
 
     my %tariffMap = (
         'LV Network Domestic'            => 'Domestic Unrestricted',
