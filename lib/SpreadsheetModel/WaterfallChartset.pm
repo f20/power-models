@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::WaterfallChartset;
 
-# Copyright 2017-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2017-2020 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ use SpreadsheetModel::ChartSeries;
 
 sub tablesAndCharts {
 
-    my ( $class, $settings, $cols, $chartTitlesMaybe, ) = @_;
+    my ( $class, $settings, $cols, $chartTitlesMapOptional, ) = @_;
     my ( @tables, @charts );
     my $rows = $settings->{rows} || $cols->[0]{rows};
     my $csetName = ( $cols->[0]{location} || $cols->[0] )->objectShortName;
@@ -176,8 +176,8 @@ sub tablesAndCharts {
     for my $r ( $rows->indices ) {
         next if $rows->{groupid} && !defined $rows->{groupid}[$r];
         local $_ = $rows->{list}[$r];
-        if ($chartTitlesMaybe) {
-            $_ = $chartTitlesMaybe->{$_};
+        if ($chartTitlesMapOptional) {
+            $_ = $chartTitlesMapOptional->{$_};
         }
         else {
             s/.*\n//s;
@@ -187,6 +187,8 @@ sub tablesAndCharts {
           SpreadsheetModel::WaterfallChart->new(
             name           => $_,
             scaling_factor => $settings->{scaling_factor},
+            width          => $settings->{width},
+            height         => $settings->{height},
             $settings->{instructions}
             ? ( instructions => [ @{ $settings->{instructions} } ] )
             : (),
