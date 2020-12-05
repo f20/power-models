@@ -104,16 +104,24 @@ sub preprocessDataset {
                 map { ( $_ => '' ); }
                   keys %{ $ds->[1] }
               }
-              if $model->{dcp342}
+              if defined $model->{dcp342}
               and !$ds->[23]
               || !$ds->[23]{_column}
-              || $ds->[23]{_column} !~ /exempt/i;
+              || $ds->[23]{_column} !~ /exempt/i
+              or defined $model->{dcp361}
+              and !$ds->[23]
+              || !$ds->[23]{_column}
+              || $ds->[23]{_column} !~ /band/i;
 
             splice @$ds, 23, 1,
-                 if !$model->{dcp342}
+                 if !defined $model->{dcp342}
               && $ds->[23]
               && $ds->[23]{_column}
-              && $ds->[23]{_column} =~ /exempt/i;
+              && $ds->[23]{_column} =~ /exempt/i
+              or !defined $model->{dcp361}
+              && $ds->[23]
+              && $ds->[23]{_column}
+              && $ds->[23]{_column} =~ /band/i;
 
             my $max = 0;
             while ( my ( $k, $v ) = each %{ $ds->[1] } ) {

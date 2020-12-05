@@ -1,5 +1,5 @@
 ---
-.: 'CDCM from 2022 without TCR, with extras'
+.: 'CDCM from 2022 without TCR (post-TCR volume format), with extras'
 .Style: Model with additional features
 PerlModule: CDCM
 blackPeakingProbabilityRequired: 1
