@@ -48,6 +48,8 @@ sub requiredModulesForRuleset {
       ? qw(EDCM2::Charging2020)
       : qw(EDCM2::Charging EDCM2::Scaling),
 
+      $ruleset->{tariffOverride} ? qw(EDCM2::Override) : (),
+
       $ruleset->{dcp287} ? qw(EDCM2::Dcp287) : (),
 
       $ruleset->{ldnoRev} ? qw(EDCM2::Ldno) : (),
@@ -512,7 +514,7 @@ EOT
         rows          => 0,
         rowName       => 'System simultaneous maximum load (kW)',
         sources       => [ $model->{cdcmComboTable} ],
-      ) : Dataset(
+    ) : Dataset(
         name => 'Forecast system simultaneous maximum load (kW)'
           . ' from CDCM users'
           . ( $model->{transparency} ? '' : ' (from CDCM table 2506)' ),
@@ -527,7 +529,7 @@ EOT
             criteria => '>=',
             value    => 0,
         }
-      );
+    );
 
     my (
         $lossFactors,            $diversity,
@@ -780,25 +782,6 @@ EOT
         $exportCapacityExceeded,
     );
 
-    my $allTariffColumns = $model->{checksums}
-      ? [
-        @tariffColumns,
-        map {
-            my $digits = /([0-9])/ ? $1 : 6;
-            my $recursive = /table|recursive|model/i ? 1 : 0;
-            $model->{"checksum_${recursive}_$digits"} =
-              SpreadsheetModel::Checksum->new(
-                name => $_,
-                /table|recursive|model/i ? ( recursive => 1 ) : (),
-                digits  => $digits,
-                columns => [ @tariffColumns[ 1 .. 8 ] ],
-                factors => [qw(1000 100 100 100 1000 100 100 100)]
-              );
-          } split /;\s*/,
-        $model->{checksums}
-      ]
-      : \@tariffColumns;
-
     if ( $model->{layout} ) {
 
         $model->{tableList} = $model->orderedLayout(
@@ -839,6 +822,29 @@ EOT
 
     }
 
+    @tariffColumns[ 1 .. 8 ] =
+      map { Stack( sources => [$_] ); } $model->tariffOverride
+      if $model->{tariffOverride};
+
+    my $allTariffColumns = $model->{checksums}
+      ? [
+        @tariffColumns,
+        map {
+            my $digits = /([0-9])/ ? $1 : 6;
+            my $recursive = /table|recursive|model/i ? 1 : 0;
+            $model->{"checksum_${recursive}_$digits"} =
+              SpreadsheetModel::Checksum->new(
+                name => $_,
+                /table|recursive|model/i ? ( recursive => 1 ) : (),
+                digits  => $digits,
+                columns => [ @tariffColumns[ 1 .. 8 ] ],
+                factors => [qw(1000 100 100 100 1000 100 100 100)]
+              );
+        } split /;\s*/,
+        $model->{checksums}
+      ]
+      : \@tariffColumns;
+
     if (    $model->{layout}
         and $model->{layout} =~ /no4501/i || $model->{tariff1Row} )
     {
@@ -850,19 +856,19 @@ EOT
                 captionDecorations => [qw(algae purple slime)],
               )
             : (),
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Tariff name',
             columns => [ $allTariffColumns->[0] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Import tariff',
             columns => [ @{$allTariffColumns}[ 1 .. 4 ] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Export tariff',
             columns => [ @{$allTariffColumns}[ 5 .. 8 ] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Checksums',
             columns => [ @{$allTariffColumns}[ 9 .. $#$allTariffColumns ] ]
-          );
+        );
 
         push @{ $model->{tariffTables} }, @$allTariffColumns;
 
@@ -906,9 +912,9 @@ EOT
                         number        => 3600 + $_->[0],
                         columns       => $dnoTotalItem{ $_->[0] },
                       )
-                  }[ 1191 => 'EDCM demand and revenue aggregates' ],
-                [ 1192 => 'EDCM generation aggregates' ],
-                [ 1193 => 'EDCM notional asset aggregates' ],
+                }[ 1191 => 'EDCM demand and revenue aggregates' ],
+                [ 1192  => 'EDCM generation aggregates' ],
+                [ 1193  => 'EDCM notional asset aggregates' ],
             ),
             $model->{mitigateUndueSecrecy} ? () : (
                 map {
@@ -928,8 +934,8 @@ EOT
                         number  => 3600 + $_,
                         sources => [$obj]
                       );
-                  } sort { $a <=> $b; }
-                  grep   { $_ < 100_000; }
+                } sort { $a <=> $b; }
+                  grep { $_ < 100_000; }
                   keys %{ $model->{transparency}{dnoTotalItem} }
             )
         ];
@@ -937,16 +943,20 @@ EOT
     }
 
     $model->summaries(
-        $activeCoincidence935,      $activeUnits,
-        $actualRedDemandRate,       $daysInYear,
-        $exportCapacityChargeable,  $fixedDchargeTrue,
-        $fixedDchargeTrueRound,     $fixedGchargeTrue,
-        $genCreditRound,            $hoursInPurple,
-        $importCapacity,            $importCapacity935,
-        $importCapacityScaledRound, $netexportCapacityChargeRound,
-        $previousChargeExport,      $previousChargeImport,
-        $purpleRateFcpLricRound,    $tariffDaysInYearNot,
-        $tariffHoursInPurpleNot,    $tariffs,
+        $activeCoincidence935,     $activeUnits,
+        $actualRedDemandRate,      $daysInYear,
+        $exportCapacityChargeable, $fixedDchargeTrue,
+        $tariffColumns[2],    # $fixedDchargeTrueRound,
+        $tariffColumns[6],    # $fixedGchargeTrue,
+        $tariffColumns[5],    # $genCreditRound,
+        $hoursInPurple,
+        $importCapacity, $importCapacity935,
+        $tariffColumns[3],    # $importCapacityScaledRound,
+        $tariffColumns[7],    # $netexportCapacityChargeRound,
+        $previousChargeExport, $previousChargeImport,
+        $tariffColumns[1],    # $purpleRateFcpLricRound,
+        $tariffDaysInYearNot,
+        $tariffHoursInPurpleNot, $tariffs,
         @tariffColumns,
     ) if $model->{summaries};
 
