@@ -2,7 +2,8 @@ github.com/f20/power-models
 ===========================
 
 This repository contains an open source Perl 5 system to construct
-Microsoft Excel spreadsheet models that address business problems.
+Microsoft Excel spreadsheet models to calculate electricity distribution
+use of system charges.
 
 This project's first task was to implement the methods used by the regional
 electricity distribution companies in England, Scotland and Wales to set
@@ -85,4 +86,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 26 November 2020.
+Franck Latrémolière, 12 December 2020.
