@@ -15,7 +15,7 @@ noNegative: 1
 numLocationsDefault: 1200
 numTariffsDefault: 600
 protect: 1
-summaries: 1
+summaries: total
 table1101: 1
 tableGrouping: 1
 transparency: 1
