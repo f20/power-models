@@ -1,6 +1,6 @@
 ﻿package Elec::Interpolator;
 
-# Copyright 2019-2020 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2019-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -229,7 +229,7 @@ sub assetValuesLives {
     );
 
     my $value = Arithmetic(
-        name          => 'Scaling factor for the charging year',
+        name          => 'Asset valuation (£)',
         defaultFormat => '0soft',
         rows          => $rowset,
         arithmetic    => '=IF(OR(A103<0,A104<A203),0,IF(A701,'
@@ -253,7 +253,7 @@ sub assetValuesLives {
     );
 
     Columnset(
-        name    => 'Asset volume forecasting calculations',
+        name    => 'Asset value forecasting calculations',
         columns => [ $first, $last, $value, ],
     );
 
