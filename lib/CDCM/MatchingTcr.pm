@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2020 Franck Latrémolière and others.
+# Copyright 2020-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -92,7 +92,7 @@ sub matchingTcr {
                 $_->objectShortName =~ /MPAN/
                 ? ( rows => $demandTariffsByEndUserWithFixedCharges )
                 : (),
-                arithmetic => "=IF(A1=$tcrGroup,A2,\"\")",
+                arithmetic => "=IF(A1=$tcrGroup,A2" . ',"")',
                 arguments  => {
                     A1 => $tcrGroupAllocation,
                     A2 => $_,
@@ -101,20 +101,27 @@ sub matchingTcr {
         } @{$volumeAfter}{ @{$nonExcludedComponents}[ 0 .. 3 ] };
         my @priceColumns = map {
             Arithmetic(
-                name => $_->objectShortName,
-                $_->objectShortName =~ /day/
+                name => $tariffsExMatching->{$_}->objectShortName,
+                /day/
                 ? (
                     rows          => $demandTariffsByEndUserWithFixedCharges,
                     defaultFormat => '0.00copy'
                   )
                 : ( defaultFormat => '0.000copy' ),
-                arithmetic => "=IF(A1=$tcrGroup,A2,\"\")",
-                arguments  => {
+                arithmetic => "=IF(A1=$tcrGroup,A2"
+                  . (
+                    defined $model->{pcd}{preRoundingFiddles}{$_} ? '+A3' : ''
+                  )
+                  . ',"")',
+                arguments => {
                     A1 => $tcrGroupAllocation,
-                    A2 => $_,
+                    A2 => $tariffsExMatching->{$_},
+                    defined $model->{pcd}{preRoundingFiddles}{$_}
+                    ? ( A3 => $model->{pcd}{preRoundingFiddles}{$_} )
+                    : (),
                 },
             );
-        } @{$tariffsExMatching}{ @{$nonExcludedComponents}[ 0 .. 3 ] };
+        } @{$nonExcludedComponents}[ 0 .. 3 ];
         Columnset(
             name =>
               "Extraction of pre-matching MPAN data for TCR group $tcrGroup",
@@ -410,14 +417,17 @@ sub matchingTcr {
                 },
               )
             : (
-                arithmetic =>
-                  '=IF(A11,MAX(0-A4,INDEX(A2_A3,A1-IF(A12>1,3,0))),0)',
+                arithmetic => '=IF(A11,MAX('
+                  . '0-INDEX(A4_A5,A13-IF(A14>1,3,0)),'
+                  . 'INDEX(A2_A3,A1-IF(A12>1,3,0))),0)',
                 arguments => {
-                    A4    => $tariffsExMatching->{$_},
+                    A4_A5 => $tcrGroupData[ 3 + (/rate ([0-9])/)[0] ],
                     A2_A3 => $unitsAdder3,
                     A1    => $tcrGroupAllocation,
                     A11   => $tcrGroupAllocation,
                     A12   => $tcrGroupAllocation,
+                    A13   => $tcrGroupAllocation,
+                    A14   => $tcrGroupAllocation,
                 },
             ),
         );
