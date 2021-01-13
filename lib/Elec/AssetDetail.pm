@@ -1,6 +1,6 @@
 ﻿package Elec::AssetDetail;
 
-# Copyright 2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2019-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -130,7 +130,9 @@ sub notionalCapacity {
 }
 
 sub notionalVolumes {
-    my ($self) = @_;
+    my ( $self, $setNotionalVolumes ) = @_;
+    return $self->{notionalVolumes} = $setNotionalVolumes
+      if $setNotionalVolumes;
     $self->{notionalVolumes} ||= Dataset(
         name     => 'Notional scheme asset volumes',
         number   => 1553,

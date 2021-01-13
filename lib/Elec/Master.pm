@@ -1,6 +1,6 @@
 ﻿package Elec;
 
-# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -82,19 +82,28 @@ sub new {
 
     # Matching
 
-  # NB: the order of feeding arguments to $customers->totalDemand will
-  # determine the column order for proportions included in the input data table.
+    # NB: the order of feeding arguments to $customers->totalDemand will
+    # determine the column order for proportions in the input data table.
 
     if ( my $usetName = $model->{usetMatchUsage} ) {
         $usage = $usage->matchTotalUsage( $customers->totalDemand($usetName) );
     }
 
     $model->{usetNonAssetCosts} ||= $model->{usetBoundaryCosts};   # Legacy only
-    foreach (qw(usetMatchAssets usetNonAssetCosts usetRunningCosts)) {
+    foreach (
+        qw(
+        usetMatchAssetDetail
+        usetMatchAssets
+        usetNonAssetCosts
+        usetRunningCosts
+        )
+      )
+    {
         next unless my $usetName = $model->{$_};
-        my $doNotApply = $usetName =~ s/ \(information only\)$//i;
+        my $applicationOptions;
+        $applicationOptions = $1 if $usetName =~ s/ \((.*)\)$//i;
         $charging->$_( $usage->totalUsage( $customers->totalDemand($usetName) ),
-            $doNotApply );
+            $applicationOptions );
     }
 
     # Use of system tariff calculation

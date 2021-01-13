@@ -1,6 +1,6 @@
 ﻿package Elec::Charging;
 
-# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -208,8 +208,51 @@ sub detailedAssets {
       ) if $flags{showTotals};
 }
 
+sub usetMatchAssetDetail {
+    my ( $self, $totalUsage, $applicationOptions ) = @_;
+    my $totalBefore = SumProduct(
+        name   => 'Notional assets before matching',
+        vector => Arithmetic(
+            name       => 'Number of notional schemes',
+            arithmetic => '=A1/A2',
+            arguments =>
+              { A1 => $totalUsage, A2 => $self->{assets}->notionalCapacity, },
+        ),
+        matrix        => $self->{assets}->notionalVolumes,
+        defaultFormat => '0soft',
+    );
+    $self->{assetMatchingFactors} = Arithmetic(
+        name       => 'Asset adjustment factor',
+        arithmetic => $applicationOptions
+        ? '=MIN(1,IF(A11,A2/A1,1))'
+        : '=IF(A11,A2/A1,1)',
+        arguments => {
+            A1  => $totalBefore,
+            A11 => $totalBefore,
+            A2  => $self->{assets}->assetVolumes,
+        },
+    );
+    Columnset(
+        name    => 'Matching notional assets to actual assets',
+        columns => [
+            $totalBefore, $self->{assets}->assetVolumes,
+            $self->{assetMatchingFactors},
+        ],
+    );
+    $self->{assets}->notionalVolumes(
+        Arithmetic(
+            name       => 'Adjusted notional assets for each type of usage',
+            arithmetic => '=A1*A2',
+            arguments  => {
+                A1 => $self->{assets}->notionalVolumes,
+                A2 => $self->{assetMatchingFactors},
+            },
+        )
+    );
+}
+
 sub usetMatchAssets {
-    my ( $self, $totalUsage, $doNotApply ) = @_;
+    my ( $self, $totalUsage, $applicationOptions ) = @_;
     my $beforeMatching = $self->assetRate;
     my $totalBefore    = SumProduct(
         name          => 'Total notional assets before matching (£)',
@@ -225,7 +268,7 @@ sub usetMatchAssets {
         data          => [1e7],
         defaultFormat => '0hard',
     );
-    if ($doNotApply) {
+    if ($applicationOptions) {
         push @{ $self->{model}{checkTables} },
           Columnset(
             name => 'For information: comparison of calculated '
