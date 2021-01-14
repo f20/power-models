@@ -1,0 +1,1567 @@
+---
+1000:
+  - _table: '1000. Company, charging year, data version'
+  - Company charging year data version: WPD West Midlands
+    _column: Company
+  - Company charging year data version: 2022/2023
+    _column: Year
+  - Company charging year data version: December 2020
+    _column: Version
+1001:
+  - _table: 1001. CDCM target revenue (£ unless otherwise stated)
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: H1
+    2 Revenue raised outside CDCM Voluntary under-recovery: H2
+    3 Revenue raised outside CDCM Please describe if used: H3
+    4 Revenue raised outside CDCM Please describe if used: H4
+    Allowed Pass-Through Items: B = Sum of B1 to B9
+    Annual Iteration adjustment before inflation: A2
+    Base Demand Revenue before inflation: A1
+    Base demand revenue: A = (A1 + A2 + A3) * A4
+    Broad Measure of Customer Service incentive: C1
+    Connection Guaranteed Standards Systems Processes penalty: C8
+    Connections Engagement incentive: C3
+    Correction Factor: D
+    Incentive Revenue and Other Adjustments: C = Sum of C1 to C9
+    Latest forecast of CDCM Revenue: 'I = G - H'
+    Losses Discretionary Reward incentive: C5
+    Low Carbon Network Fund Tier 1 unrecoverable: C7
+    Low Carbon Network Fund Tier 2 Discretionary Funding: C7
+    Network Innovation Allowance: C6
+    Other 1 Excluded services Top-up standby and enhanced system security: F1 (see note 1)
+    Other 2 Excluded services Revenue protection services: F2 (see note 1)
+    Other 3 Excluded services Miscellaneous: F3 (see note 1)
+    Other 4 Please describe if used: F4
+    Other 5 Please describe if used: F5
+    Pass-Through Business Rates: B2
+    Pass-Through Licence Fees: B1
+    Pass-Through Others: B9
+    Pass-Through Transmission Connection Point Charges: B3
+    Pass-through Eligible Bad Debt Adjustment: B8
+    Pass-through Ring Fence Costs: B6
+    Pass-through Smart Meter Communication Licence Costs: B4
+    Pass-through Smart Meter IT Costs: B5
+    Pass-through Supplier of Last Resort Adjustment: B7
+    Price index adjustment RPI index: A4
+    Quality of Service incentive: C2
+    RPI True-up before inflation: A3
+    Residual Losses and Growth Incentive Growth: C9
+    Residual Losses and Growth Incentive Losses: C9
+    Time to Connect incentive: C4
+    Total Revenue for Use of System Charges: G = E + F
+    Total Revenue to be raised outside the CDCM: H = Sum of H1 to H4
+    Total allowed Revenue: E = A + B + C + D
+    Total other revenue recovered by Use of System Charges: F = Sum of F1 to F5
+    _column: Further description
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: ''
+    2 Revenue raised outside CDCM Voluntary under-recovery: ''
+    3 Revenue raised outside CDCM Please describe if used: Please describe
+    4 Revenue raised outside CDCM Please describe if used: Please describe
+    Allowed Pass-Through Items: PT
+    Annual Iteration adjustment before inflation: MOD
+    Base Demand Revenue before inflation: PU
+    Base demand revenue: BR
+    Broad Measure of Customer Service incentive: BM
+    Connection Guaranteed Standards Systems Processes penalty: 'AUM, CGSRA'
+    Connections Engagement incentive: ICE
+    Correction Factor: -K
+    Incentive Revenue and Other Adjustments: ''
+    Latest forecast of CDCM Revenue: ''
+    Losses Discretionary Reward incentive: LDR
+    Low Carbon Network Fund Tier 1 unrecoverable: LCN1
+    Low Carbon Network Fund Tier 2 Discretionary Funding: LCN2
+    Network Innovation Allowance: NIA
+    Other 1 Excluded services Top-up standby and enhanced system security: DRS4
+    Other 2 Excluded services Revenue protection services: DRS5
+    Other 3 Excluded services Miscellaneous: DRS9
+    Other 4 Please describe if used: Please describe
+    Other 5 Please describe if used: Please describe
+    Pass-Through Business Rates: RB
+    Pass-Through Licence Fees: LF
+    Pass-Through Others: 'HB, SEC, UNC'
+    Pass-Through Transmission Connection Point Charges: TB
+    Pass-through Eligible Bad Debt Adjustment: EBD
+    Pass-through Ring Fence Costs: RF
+    Pass-through Smart Meter Communication Licence Costs: SMC
+    Pass-through Smart Meter IT Costs: SMIT
+    Pass-through Supplier of Last Resort Adjustment: SLR
+    Price index adjustment RPI index: RPIF
+    Quality of Service incentive: IQ
+    RPI True-up before inflation: TRU
+    Residual Losses and Growth Incentive Growth: GTA
+    Residual Losses and Growth Incentive Losses: PPL
+    Time to Connect incentive: TTC
+    Total Revenue for Use of System Charges: ''
+    Total Revenue to be raised outside the CDCM: ''
+    Total allowed Revenue: AR
+    Total other revenue recovered by Use of System Charges: ''
+    _column: Term
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: ''
+    2 Revenue raised outside CDCM Voluntary under-recovery: ''
+    3 Revenue raised outside CDCM Please describe if used: if used
+    4 Revenue raised outside CDCM Please describe if used: if used
+    Allowed Pass-Through Items: CRC2B
+    Annual Iteration adjustment before inflation: CRC2A
+    Base Demand Revenue before inflation: CRC2A
+    Base demand revenue: CRC2A
+    Broad Measure of Customer Service incentive: CRC2C
+    Connection Guaranteed Standards Systems Processes penalty: CRC2K-L
+    Connections Engagement incentive: CRC2E
+    Correction Factor: CRC2A
+    Incentive Revenue and Other Adjustments: ''
+    Latest forecast of CDCM Revenue: ''
+    Losses Discretionary Reward incentive: CRC2G
+    Low Carbon Network Fund Tier 1 unrecoverable: CRC2J
+    Low Carbon Network Fund Tier 2 Discretionary Funding: CRC2J
+    Network Innovation Allowance: CRC2H
+    Other 1 Excluded services Top-up standby and enhanced system security: CRC5C
+    Other 2 Excluded services Revenue protection services: CRC5C
+    Other 3 Excluded services Miscellaneous: CRC5C
+    Other 4 Please describe if used: if used
+    Other 5 Please describe if used: if used
+    Pass-Through Business Rates: CRC2B
+    Pass-Through Licence Fees: CRC2B
+    Pass-Through Others: CRC2B
+    Pass-Through Transmission Connection Point Charges: CRC2B
+    Pass-through Eligible Bad Debt Adjustment: CRC2B
+    Pass-through Ring Fence Costs: CRC2B
+    Pass-through Smart Meter Communication Licence Costs: CRC2B
+    Pass-through Smart Meter IT Costs: CRC2B
+    Pass-through Supplier of Last Resort Adjustment: CRC2B
+    Price index adjustment RPI index: CRC2A
+    Quality of Service incentive: CRC2D
+    RPI True-up before inflation: CRC2A
+    Residual Losses and Growth Incentive Growth: CRC2M
+    Residual Losses and Growth Incentive Losses: CRC2M
+    Time to Connect incentive: CRC2F
+    Total Revenue for Use of System Charges: ''
+    Total Revenue to be raised outside the CDCM: ''
+    Total allowed Revenue: CRC2A
+    Total other revenue recovered by Use of System Charges: ''
+    _column: CRC
+  - 1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue: 6181268.77145117
+    2 Revenue raised outside CDCM Voluntary under-recovery: ''
+    3 Revenue raised outside CDCM Please describe if used: ''
+    4 Revenue raised outside CDCM Please describe if used: ''
+    Allowed Pass-Through Items: ''
+    Annual Iteration adjustment before inflation: -29909092.4069273
+    Base Demand Revenue before inflation: 430100000
+    Base demand revenue: ''
+    Broad Measure of Customer Service incentive: 6890894.3429672
+    Connection Guaranteed Standards Systems Processes penalty: ''
+    Connections Engagement incentive: ''
+    Correction Factor: 28599966.0479342
+    Incentive Revenue and Other Adjustments: ''
+    Latest forecast of CDCM Revenue: ''
+    Losses Discretionary Reward incentive: ''
+    Low Carbon Network Fund Tier 1 unrecoverable: ''
+    Low Carbon Network Fund Tier 2 Discretionary Funding: ''
+    Network Innovation Allowance: 1064906.784
+    Other 1 Excluded services Top-up standby and enhanced system security: ''
+    Other 2 Excluded services Revenue protection services: ''
+    Other 3 Excluded services Miscellaneous: ''
+    Other 4 Please describe if used: ''
+    Other 5 Please describe if used: ''
+    Pass-Through Business Rates: -19642328.8476154
+    Pass-Through Licence Fees: 508597.421725021
+    Pass-Through Others: ''
+    Pass-Through Transmission Connection Point Charges: -4654047.50310207
+    Pass-through Eligible Bad Debt Adjustment: 644138.061916579
+    Pass-through Ring Fence Costs: 53973.5903669098
+    Pass-through Smart Meter Communication Licence Costs: 2256776.34513097
+    Pass-through Smart Meter IT Costs: -386236.474584031
+    Pass-through Supplier of Last Resort Adjustment: 223535.487858632
+    Price index adjustment RPI index: 1.277
+    Quality of Service incentive: 23905530.4399877
+    RPI True-up before inflation: -3200298.68236245
+    Residual Losses and Growth Incentive Growth: ''
+    Residual Losses and Growth Incentive Losses: ''
+    Time to Connect incentive: 1617431.13187344
+    Total Revenue for Use of System Charges: ''
+    Total Revenue to be raised outside the CDCM: ''
+    Total allowed Revenue: ''
+    Total other revenue recovered by Use of System Charges: ''
+    _column: Value
+  - _column: Calculations (£/year)
+1010:
+  - _table: 1010. Financial and general assumptions
+  - Financial and general assumptions: 0.0326
+    _column: Rate of return
+  - Financial and general assumptions: 40
+    _column: Annualisation period (years)
+  - _column: Annuity proportion for customer-contributed assets
+  - Financial and general assumptions: 0.95
+    _column: Power factor
+  - Financial and general assumptions: 365
+    _column: Days in the charging year
+1017:
+  - _table: 1017. Diversity allowance between top and bottom of network level
+  - 132kV: 0.0255686824962995
+    132kV EHV: ''
+    EHV: 0.0266315966667385
+    EHV HV: ''
+    GSPs: 0.0564904083184108
+    HV: 0.34
+    HV LV: ''
+    LV circuits: ''
+    _column: Diversity allowance between top and bottom of network level
+1018:
+  - _table: 1018. Proportion of relevant load going through 132kV/HV direct transformation
+  - EHV HV: 0.692565629168188
+    _column: 132kV/HV
+1019:
+  - _table: 1019. Network model GSP peak demand (MW)
+  - Network model GSP peak demand MW: 500
+    _column: Network model GSP peak demand (MW)
+1020:
+  - _table: 1020. Gross asset cost by network level (£)
+  - 132kV: 50859316.6602079
+    132kV EHV: 12040801.0820954
+    132kV HV: 25187654.9216883
+    EHV: 12238674.0828668
+    EHV HV: 23592346.8945999
+    HV: 150548924.494647
+    HV LV: 73348598.8586903
+    LV circuits: 168369595.051542
+    _column: Gross assets £
+1022:
+  - _table: 1022. LV service model asset cost (£)
+  - LV service model asset cost: 246.071480975626
+    _column: LV service model 1
+  - LV service model asset cost: 278.168192448421
+    _column: LV service model 2
+  - LV service model asset cost: 721.515116668824
+    _column: LV service model 3
+  - LV service model asset cost: 1123.70160871549
+    _column: LV service model 4
+  - LV service model asset cost: 1439.52198880874
+    _column: LV service model 5
+  - LV service model asset cost: 0
+    _column: LV service model 6
+  - LV service model asset cost: 0
+    _column: LV service model 7
+  - LV service model asset cost: 0
+    _column: LV service model 8
+1023:
+  - _table: 1023. HV service model asset cost (£)
+  - HV service model asset cost: 6492.38470880069
+    _column: HV service model 1
+  - HV service model asset cost: 10373.8285694094
+    _column: HV service model 2
+  - HV service model asset cost: 0
+    _column: HV service model 3
+  - HV service model asset cost: 0
+    _column: HV service model 4
+  - HV service model asset cost: 0
+    _column: HV service model 5
+1025:
+  - _table: 1025. Matrix of applicability of LV service models to tariffs with fixed charges
+  - Domestic Aggregated: 1
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 0
+    LV Site Specific Band 2: 0
+    LV Site Specific Band 3: 0
+    LV Site Specific Band 4: 0
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 0
+    LV Sub Site Specific Band 2: 0
+    LV Sub Site Specific Band 3: 0
+    LV Sub Site Specific Band 4: 0
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 0
+    Non-Domestic Aggregated Band 2: 0
+    Non-Domestic Aggregated Band 3: 0
+    Non-Domestic Aggregated Band 4: 0
+    Non-Domestic Aggregated No Residual: 0
+    _column: LV service model 1
+  - Domestic Aggregated: 0
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 0
+    LV Site Specific Band 2: 0
+    LV Site Specific Band 3: 0
+    LV Site Specific Band 4: 0
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 0
+    LV Sub Site Specific Band 2: 0
+    LV Sub Site Specific Band 3: 0
+    LV Sub Site Specific Band 4: 0
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 0
+    Non-Domestic Aggregated Band 2: 0
+    Non-Domestic Aggregated Band 3: 0
+    Non-Domestic Aggregated Band 4: 0
+    Non-Domestic Aggregated No Residual: 0
+    _column: LV service model 2
+  - Domestic Aggregated: 0
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 0
+    LV Site Specific Band 2: 0
+    LV Site Specific Band 3: 0
+    LV Site Specific Band 4: 0
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 0
+    LV Sub Site Specific Band 2: 0
+    LV Sub Site Specific Band 3: 0
+    LV Sub Site Specific Band 4: 0
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 1
+    Non-Domestic Aggregated Band 2: 1
+    Non-Domestic Aggregated Band 3: 1
+    Non-Domestic Aggregated Band 4: 1
+    Non-Domestic Aggregated No Residual: 1
+    _column: LV service model 3
+  - Domestic Aggregated: 0
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 0
+    LV Site Specific Band 2: 0
+    LV Site Specific Band 3: 0
+    LV Site Specific Band 4: 0
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 1
+    LV Sub Site Specific Band 2: 1
+    LV Sub Site Specific Band 3: 1
+    LV Sub Site Specific Band 4: 1
+    LV Sub Site Specific No Residual: 1
+    Non-Domestic Aggregated Band 1: 0
+    Non-Domestic Aggregated Band 2: 0
+    Non-Domestic Aggregated Band 3: 0
+    Non-Domestic Aggregated Band 4: 0
+    Non-Domestic Aggregated No Residual: 0
+    _column: LV service model 4
+  - Domestic Aggregated: 0
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 1
+    LV Site Specific Band 2: 1
+    LV Site Specific Band 3: 1
+    LV Site Specific Band 4: 1
+    LV Site Specific No Residual: 1
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 0
+    LV Sub Site Specific Band 2: 0
+    LV Sub Site Specific Band 3: 0
+    LV Sub Site Specific Band 4: 0
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 0
+    Non-Domestic Aggregated Band 2: 0
+    Non-Domestic Aggregated Band 3: 0
+    Non-Domestic Aggregated Band 4: 0
+    Non-Domestic Aggregated No Residual: 0
+    _column: LV service model 5
+  - Domestic Aggregated: 0
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 0
+    LV Site Specific Band 2: 0
+    LV Site Specific Band 3: 0
+    LV Site Specific Band 4: 0
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 0
+    LV Sub Site Specific Band 2: 0
+    LV Sub Site Specific Band 3: 0
+    LV Sub Site Specific Band 4: 0
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 0
+    Non-Domestic Aggregated Band 2: 0
+    Non-Domestic Aggregated Band 3: 0
+    Non-Domestic Aggregated Band 4: 0
+    Non-Domestic Aggregated No Residual: 0
+    _column: LV service model 6
+  - Domestic Aggregated: 0
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 0
+    LV Site Specific Band 2: 0
+    LV Site Specific Band 3: 0
+    LV Site Specific Band 4: 0
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 0
+    LV Sub Site Specific Band 2: 0
+    LV Sub Site Specific Band 3: 0
+    LV Sub Site Specific Band 4: 0
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 0
+    Non-Domestic Aggregated Band 2: 0
+    Non-Domestic Aggregated Band 3: 0
+    Non-Domestic Aggregated Band 4: 0
+    Non-Domestic Aggregated No Residual: 0
+    _column: LV service model 7
+  - Domestic Aggregated: 0
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 0
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 0
+    LV Site Specific Band 2: 0
+    LV Site Specific Band 3: 0
+    LV Site Specific Band 4: 0
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 0
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 0
+    LV Sub Site Specific Band 2: 0
+    LV Sub Site Specific Band 3: 0
+    LV Sub Site Specific Band 4: 0
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 0
+    Non-Domestic Aggregated Band 2: 0
+    Non-Domestic Aggregated Band 3: 0
+    Non-Domestic Aggregated Band 4: 0
+    Non-Domestic Aggregated No Residual: 0
+    _column: LV service model 8
+1026:
+  - _table: 1026. Matrix of applicability of LV service models to unmetered tariffs
+  - All LV unmetered tariffs: 0
+    _column: LV service model 1
+  - All LV unmetered tariffs: 1
+    _column: LV service model 2
+  - All LV unmetered tariffs: 0
+    _column: LV service model 3
+  - All LV unmetered tariffs: 0
+    _column: LV service model 4
+  - All LV unmetered tariffs: 0
+    _column: LV service model 5
+  - All LV unmetered tariffs: 0
+    _column: LV service model 6
+  - All LV unmetered tariffs: 0
+    _column: LV service model 7
+  - All LV unmetered tariffs: 0
+    _column: LV service model 8
+1028:
+  - _table: 1028. Matrix of applicability of HV service models to tariffs with fixed charges
+  - HV Generation Site Specific: 1
+    HV Generation Site Specific no RP Charge: 1
+    HV Site Specific Band 1: 0
+    HV Site Specific Band 2: 0
+    HV Site Specific Band 3: 0
+    HV Site Specific Band 4: 0
+    HV Site Specific No Residual: 0
+    _column: HV service model 1
+  - HV Generation Site Specific: 0
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific Band 1: 1
+    HV Site Specific Band 2: 1
+    HV Site Specific Band 3: 1
+    HV Site Specific Band 4: 1
+    HV Site Specific No Residual: 1
+    _column: HV service model 2
+  - HV Generation Site Specific: 0
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific Band 1: 0
+    HV Site Specific Band 2: 0
+    HV Site Specific Band 3: 0
+    HV Site Specific Band 4: 0
+    HV Site Specific No Residual: 0
+    _column: HV service model 3
+  - HV Generation Site Specific: 0
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific Band 1: 0
+    HV Site Specific Band 2: 0
+    HV Site Specific Band 3: 0
+    HV Site Specific Band 4: 0
+    HV Site Specific No Residual: 0
+    _column: HV service model 4
+  - HV Generation Site Specific: 0
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific Band 1: 0
+    HV Site Specific Band 2: 0
+    HV Site Specific Band 3: 0
+    HV Site Specific Band 4: 0
+    HV Site Specific No Residual: 0
+    _column: HV service model 5
+1032:
+  - _table: 1032. Loss adjustment factors to transmission
+  - Loss adjustment factor: 1.005
+    _column: 132kV
+  - Loss adjustment factor: 1.009
+    _column: 132kV/EHV
+  - Loss adjustment factor: 1.027
+    _column: EHV
+  - Loss adjustment factor: 1.033
+    _column: EHV/HV
+  - Loss adjustment factor: 1.051
+    _column: HV
+  - Loss adjustment factor: 1.067
+    _column: HV/LV
+  - Loss adjustment factor: 1.09
+    _column: LV circuits
+1037:
+  - _table: 1037. Embedded network (LDNO) discount percentages
+  - LDNO discount: ''
+    _column: No discount
+  - LDNO discount: 0.337367141419269
+    _column: 'LDNO LV: LV user'
+  - LDNO discount: 0.482220668560528
+    _column: 'LDNO HV: LV user'
+  - LDNO discount: 0.197516556205101
+    _column: 'LDNO HV: LV Sub user'
+  - LDNO discount: 0.0786794198766786
+    _column: 'LDNO HV: HV user'
+1041:
+  - _table: 1041. Load profile data for demand users
+  - Domestic Aggregated: 0.803734438181247
+    Domestic Aggregated Related MPAN: 0
+    HV Site Specific Band 1: 0.8381041382481
+    HV Site Specific Band 2: 0.8381041382481
+    HV Site Specific Band 3: 0.8381041382481
+    HV Site Specific Band 4: 0.8381041382481
+    HV Site Specific No Residual: 0.8381041382481
+    LV Site Specific Band 1: 0.84438109464535
+    LV Site Specific Band 2: 0.84438109464535
+    LV Site Specific Band 3: 0.84438109464535
+    LV Site Specific Band 4: 0.84438109464535
+    LV Site Specific No Residual: 0.84438109464535
+    LV Sub Site Specific Band 1: 0.896021224063446
+    LV Sub Site Specific Band 2: 0.896021224063446
+    LV Sub Site Specific Band 3: 0.896021224063446
+    LV Sub Site Specific Band 4: 0.896021224063446
+    LV Sub Site Specific No Residual: 0.896021224063446
+    Non-Domestic Aggregated Band 1: 0.836078668348684
+    Non-Domestic Aggregated Band 2: 0.836078668348684
+    Non-Domestic Aggregated Band 3: 0.836078668348684
+    Non-Domestic Aggregated Band 4: 0.836078668348684
+    Non-Domestic Aggregated No Residual: 0.836078668348684
+    Non-Domestic Aggregated Related MPAN Band 1: 0
+    Non-Domestic Aggregated Related MPAN Band 2: 0
+    Non-Domestic Aggregated Related MPAN Band 3: 0
+    Non-Domestic Aggregated Related MPAN Band 4: 0
+    Non-Domestic Aggregated Related MPAN No Residual: 0
+    Unmetered Supplies: 0.677622079685187
+    _column: Coincidence factor
+  - Domestic Aggregated: 0.445400085175781
+    Domestic Aggregated Related MPAN: 0.17235133349413
+    HV Site Specific Band 1: 0.667921209553268
+    HV Site Specific Band 2: 0.667921209553268
+    HV Site Specific Band 3: 0.667921209553268
+    HV Site Specific Band 4: 0.667921209553268
+    HV Site Specific No Residual: 0.667921209553268
+    LV Site Specific Band 1: 0.513681122384573
+    LV Site Specific Band 2: 0.513681122384573
+    LV Site Specific Band 3: 0.513681122384573
+    LV Site Specific Band 4: 0.513681122384573
+    LV Site Specific No Residual: 0.513681122384573
+    LV Sub Site Specific Band 1: 0.534896958230597
+    LV Sub Site Specific Band 2: 0.534896958230597
+    LV Sub Site Specific Band 3: 0.534896958230597
+    LV Sub Site Specific Band 4: 0.534896958230597
+    LV Sub Site Specific No Residual: 0.534896958230597
+    Non-Domestic Aggregated Band 1: 0.426317616473282
+    Non-Domestic Aggregated Band 2: 0.426317616473282
+    Non-Domestic Aggregated Band 3: 0.426317616473282
+    Non-Domestic Aggregated Band 4: 0.426317616473282
+    Non-Domestic Aggregated No Residual: 0.426317616473282
+    Non-Domestic Aggregated Related MPAN Band 1: 0.224238800402201
+    Non-Domestic Aggregated Related MPAN Band 2: 0.224238800402201
+    Non-Domestic Aggregated Related MPAN Band 3: 0.224238800402201
+    Non-Domestic Aggregated Related MPAN Band 4: 0.224238800402201
+    Non-Domestic Aggregated Related MPAN No Residual: 0.224238800402201
+    Unmetered Supplies: 0.520820166919022
+    _column: Load factor
+1053:
+  - _table: 1053. Volume forecasts for the charging year
+  - Domestic Aggregated: 908173.562287297
+    Domestic Aggregated Related MPAN: 79.0926185022322
+    HV Generation Site Specific: 81186.8404318674
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific Band 1: 95716.2049812909
+    HV Site Specific Band 2: 170744.011789472
+    HV Site Specific Band 3: 93417.0775548745
+    HV Site Specific Band 4: 296932.423270019
+    HV Site Specific No Residual: 0
+    LDNO HV Domestic Aggregated: 23494.3093737836
+    LDNO HV Domestic Aggregated Related MPAN: 0
+    LDNO HV HV Generation Site Specific: 5.53156592526222
+    LDNO HV HV Site Specific Band 1: 1505.41987867664
+    LDNO HV HV Site Specific Band 2: 2685.45362369007
+    LDNO HV HV Site Specific Band 3: 1469.25931284544
+    LDNO HV HV Site Specific Band 4: 4670.13890387407
+    LDNO HV HV Site Specific No Residual: 0
+    LDNO HV LV Generation Aggregated: 0
+    LDNO HV LV Generation Site Specific: 2.405417066699
+    LDNO HV LV Site Specific Band 1: 5092.36782069613
+    LDNO HV LV Site Specific Band 2: 7609.91324337303
+    LDNO HV LV Site Specific Band 3: 4108.76623192916
+    LDNO HV LV Site Specific Band 4: 4041.37009892016
+    LDNO HV LV Site Specific No Residual: 0
+    LDNO HV LV Sub Generation Aggregated: 0
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific Band 1: 11.4706960276767
+    LDNO HV LV Sub Site Specific Band 2: 58.8839919843422
+    LDNO HV LV Sub Site Specific Band 3: 106.158190506987
+    LDNO HV LV Sub Site Specific Band 4: 1221.22415615714
+    LDNO HV LV Sub Site Specific No Residual: 0
+    LDNO HV Non-Domestic Aggregated Band 1: 134.226889751404
+    LDNO HV Non-Domestic Aggregated Band 2: 563.386402548676
+    LDNO HV Non-Domestic Aggregated Band 3: 714.762787192214
+    LDNO HV Non-Domestic Aggregated Band 4: 2304.17464762113
+    LDNO HV Non-Domestic Aggregated No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN: 0
+    LDNO HV Unmetered Supplies: 4.74994480827609
+    LDNO LV Domestic Aggregated: 11244.9166918281
+    LDNO LV Domestic Aggregated Related MPAN: 0
+    LDNO LV LV Generation Aggregated: 1.41624003816519
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific Band 1: 554.572479093635
+    LDNO LV LV Site Specific Band 2: 828.739910717595
+    LDNO LV LV Site Specific Band 3: 447.455634684629
+    LDNO LV LV Site Specific Band 4: 440.116015497613
+    LDNO LV LV Site Specific No Residual: 0
+    LDNO LV Non-Domestic Aggregated Band 1: 25.3457463144991
+    LDNO LV Non-Domestic Aggregated Band 2: 106.382922695172
+    LDNO LV Non-Domestic Aggregated Band 3: 134.966967593233
+    LDNO LV Non-Domestic Aggregated Band 4: 435.09185224412
+    LDNO LV Non-Domestic Aggregated No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN: 0
+    LDNO LV Unmetered Supplies: 4.47889418851414
+    LV Generation Aggregated: 124.04293104575
+    LV Generation Site Specific: 4277.93715518698
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 62012.489288939
+    LV Site Specific Band 2: 92669.9877366507
+    LV Site Specific Band 3: 50034.6461449108
+    LV Site Specific Band 4: 49213.9273509244
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 907.20921076491
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 165.276854563352
+    LV Sub Site Specific Band 2: 848.436830321698
+    LV Sub Site Specific Band 3: 1529.59260456364
+    LV Sub Site Specific Band 4: 17596.1499423777
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 10542.1967308266
+    Non-Domestic Aggregated Band 2: 44248.4386112259
+    Non-Domestic Aggregated Band 3: 56137.5588185782
+    Non-Domestic Aggregated Band 4: 180970.165384845
+    Non-Domestic Aggregated No Residual: 0
+    Non-Domestic Aggregated Related MPAN: 127.631980850683
+    Unmetered Supplies: 9658.0802606626
+    _column: Rate 1 units (MWh)
+  - Domestic Aggregated: 2700660.7423146
+    Domestic Aggregated Related MPAN: 3392.60486715779
+    HV Generation Site Specific: 281566.892508588
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific Band 1: 370887.434951126
+    HV Site Specific Band 2: 661610.106441644
+    HV Site Specific Band 3: 361978.625058631
+    HV Site Specific Band 4: 1150573.24767489
+    HV Site Specific No Residual: 0
+    LDNO HV Domestic Aggregated: 66581.8535036502
+    LDNO HV Domestic Aggregated Related MPAN: 0
+    LDNO HV HV Generation Site Specific: 0.0351936694044445
+    LDNO HV HV Site Specific Band 1: 5500.52496813677
+    LDNO HV HV Site Specific Band 2: 9812.14936584047
+    LDNO HV HV Site Specific Band 3: 5368.40096869066
+    LDNO HV HV Site Specific Band 4: 17063.8212031635
+    LDNO HV HV Site Specific No Residual: 0
+    LDNO HV LV Generation Aggregated: 0
+    LDNO HV LV Generation Site Specific: 13.065209505689
+    LDNO HV LV Site Specific Band 1: 18174.4811369352
+    LDNO HV LV Site Specific Band 2: 27159.511953025
+    LDNO HV LV Site Specific Band 3: 14664.0417596671
+    LDNO HV LV Site Specific Band 4: 14423.5073381164
+    LDNO HV LV Site Specific No Residual: 0
+    LDNO HV LV Sub Generation Aggregated: 0
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific Band 1: 43.2787081435337
+    LDNO HV LV Sub Site Specific Band 2: 222.168131495041
+    LDNO HV LV Sub Site Specific Band 3: 400.532742992413
+    LDNO HV LV Sub Site Specific Band 4: 4607.65447054243
+    LDNO HV LV Sub Site Specific No Residual: 0
+    LDNO HV Non-Domestic Aggregated Band 1: 560.86101090414
+    LDNO HV Non-Domestic Aggregated Band 2: 2354.08469829192
+    LDNO HV Non-Domestic Aggregated Band 3: 2986.60410089025
+    LDNO HV Non-Domestic Aggregated Band 4: 9627.88994483844
+    LDNO HV Non-Domestic Aggregated No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN: 0
+    LDNO HV Unmetered Supplies: 310.641165009045
+    LDNO LV Domestic Aggregated: 31905.3911965778
+    LDNO LV Domestic Aggregated Related MPAN: 0
+    LDNO LV LV Generation Aggregated: 7.69511026810255
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific Band 1: 2064.9906269954
+    LDNO LV LV Site Specific Band 2: 3085.87283423398
+    LDNO LV LV Site Specific Band 3: 1666.13333054349
+    LDNO LV LV Site Specific Band 4: 1638.80372909685
+    LDNO LV LV Site Specific No Residual: 0
+    LDNO LV Non-Domestic Aggregated Band 1: 108.920457307508
+    LDNO LV Non-Domestic Aggregated Band 2: 457.168490755346
+    LDNO LV Non-Domestic Aggregated Band 3: 580.005167307028
+    LDNO LV Non-Domestic Aggregated Band 4: 1869.75766778232
+    LDNO LV Non-Domestic Aggregated No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN: 0
+    LDNO LV Unmetered Supplies: 207.653677535705
+    LV Generation Aggregated: 667.411704539773
+    LV Generation Site Specific: 21422.8148130858
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 237940.274667142
+    LV Site Specific Band 2: 355572.282104668
+    LV Site Specific Band 3: 191981.608593752
+    LV Site Specific Band 4: 188832.532375319
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 3604.42815603652
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 436.691714363869
+    LV Sub Site Specific Band 2: 2241.72546689296
+    LV Sub Site Specific Band 3: 4041.46375201712
+    LV Sub Site Specific Band 4: 46492.2502599734
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 43276.1513869028
+    Non-Domestic Aggregated Band 2: 181641.661303294
+    Non-Domestic Aggregated Band 3: 230446.988986656
+    Non-Domestic Aggregated Band 4: 742889.975749235
+    Non-Domestic Aggregated No Residual: 0
+    Non-Domestic Aggregated Related MPAN: 959.762463178013
+    Unmetered Supplies: 48862.8298238122
+    _column: Rate 2 units (MWh)
+  - Domestic Aggregated: 4472740.99970488
+    Domestic Aggregated Related MPAN: 13095.7510661385
+    HV Generation Site Specific: 341773.462317365
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific Band 1: 489370.315149457
+    HV Site Specific Band 2: 872966.608691066
+    HV Site Specific Band 3: 477615.516539816
+    HV Site Specific Band 4: 1518132.83426922
+    HV Site Specific No Residual: 0
+    LDNO HV Domestic Aggregated: 103298.464705045
+    LDNO HV Domestic Aggregated Related MPAN: 0
+    LDNO HV HV Generation Site Specific: 0
+    LDNO HV HV Site Specific Band 1: 7565.2122379167
+    LDNO HV HV Site Specific Band 2: 13495.2559787884
+    LDNO HV HV Site Specific Band 3: 7383.4939286058
+    LDNO HV HV Site Specific Band 4: 23468.9288276284
+    LDNO HV HV Site Specific No Residual: 0
+    LDNO HV LV Generation Aggregated: 0
+    LDNO HV LV Generation Site Specific: 30.585567519527
+    LDNO HV LV Site Specific Band 1: 21560.8619478203
+    LDNO HV LV Site Specific Band 2: 32220.0388213171
+    LDNO HV LV Site Specific Band 3: 17396.3359721294
+    LDNO HV LV Site Specific Band 4: 17110.9837016751
+    LDNO HV LV Site Specific No Residual: 0
+    LDNO HV LV Sub Generation Aggregated: 0
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific Band 1: 58.7226392729017
+    LDNO HV LV Sub Site Specific Band 2: 301.448439737385
+    LDNO HV LV Sub Site Specific Band 3: 543.462150157628
+    LDNO HV LV Sub Site Specific Band 4: 6251.88789070319
+    LDNO HV LV Sub Site Specific No Residual: 0
+    LDNO HV Non-Domestic Aggregated Band 1: 526.976642091028
+    LDNO HV Non-Domestic Aggregated Band 2: 2211.86287758515
+    LDNO HV Non-Domestic Aggregated Band 3: 2806.16867591717
+    LDNO HV Non-Domestic Aggregated Band 4: 9046.22181772608
+    LDNO HV Non-Domestic Aggregated No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN: 0
+    LDNO HV Unmetered Supplies: 517.680745295525
+    LDNO LV Domestic Aggregated: 49515.5276336383
+    LDNO LV Domestic Aggregated Related MPAN: 0
+    LDNO LV LV Generation Aggregated: 3.94125755960312
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific Band 1: 2862.73356480776
+    LDNO LV LV Site Specific Band 2: 4278.00088959423
+    LDNO LV LV Site Specific Band 3: 2309.79053678892
+    LDNO LV LV Site Specific Band 4: 2271.90301984268
+    LDNO LV LV Site Specific No Residual: 0
+    LDNO LV Non-Domestic Aggregated Band 1: 107.160575985172
+    LDNO LV Non-Domestic Aggregated Band 2: 449.78179492309
+    LDNO LV Non-Domestic Aggregated Band 3: 570.633738963497
+    LDNO LV Non-Domestic Aggregated Band 4: 1839.54707485822
+    LDNO LV Non-Domestic Aggregated No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN: 0
+    LDNO LV Unmetered Supplies: 324.701533151267
+    LV Generation Aggregated: 329.054396314791
+    LV Generation Site Specific: 21453.635266692
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 253902.537634302
+    LV Site Specific Band 2: 379425.907888399
+    LV Site Specific Band 3: 204860.726790614
+    LV Site Specific Band 4: 201500.394269428
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 5426.33339850644
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 450.154596357741
+    LV Sub Site Specific Band 2: 2310.83620206548
+    LV Sub Site Specific Band 3: 4166.05908503179
+    LV Sub Site Specific Band 4: 47925.5718877752
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 44337.1554015078
+    Non-Domestic Aggregated Band 2: 186094.980872756
+    Non-Domestic Aggregated Band 3: 236096.871719585
+    Non-Domestic Aggregated Band 4: 761103.454106699
+    Non-Domestic Aggregated No Residual: 0
+    Non-Domestic Aggregated Related MPAN: 2930.5689204764
+    Unmetered Supplies: 187359.280194896
+    _column: Rate 3 units (MWh)
+  - Domestic Aggregated: 2316983.39091316
+    Domestic Aggregated Related MPAN: 0
+    HV Generation Site Specific: 316.315574578873
+    HV Generation Site Specific no RP Charge: 0
+    HV Site Specific Band 1: 2261.21248417322
+    HV Site Specific Band 2: 1220.69035627256
+    HV Site Specific Band 3: 299.60559324766
+    HV Site Specific Band 4: 308.715222772082
+    HV Site Specific No Residual: 0
+    LDNO HV Domestic Aggregated: 65699.3265394557
+    LDNO HV Domestic Aggregated Related MPAN: 0
+    LDNO HV HV Generation Site Specific: 0.335691557199897
+    LDNO HV HV Site Specific Band 1: 27.560496628624
+    LDNO HV HV Site Specific Band 2: 14.8782269176905
+    LDNO HV HV Site Specific Band 3: 3.65170411910147
+    LDNO HV HV Site Specific Band 4: 3.76273566326334
+    LDNO HV HV Site Specific No Residual: 0
+    LDNO HV LV Generation Aggregated: 0
+    LDNO HV LV Generation Site Specific: 2.7440506140905
+    LDNO HV LV Site Specific Band 1: 278.947715468631
+    LDNO HV LV Site Specific Band 2: 225.627998719313
+    LDNO HV LV Site Specific Band 3: 78.6421240349473
+    LDNO HV LV Site Specific Band 4: 49.5748537000348
+    LDNO HV LV Site Specific No Residual: 0
+    LDNO HV LV Sub Generation Aggregated: 0
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific Band 1: 0.863587478700055
+    LDNO HV LV Sub Site Specific Band 2: 2.07260994888013
+    LDNO HV LV Sub Site Specific Band 3: 2.33168619249015
+    LDNO HV LV Sub Site Specific Band 4: 17.8762608090911
+    LDNO HV LV Sub Site Specific No Residual: 0
+    LDNO HV Non-Domestic Aggregated Band 1: 674.384762198345
+    LDNO HV Non-Domestic Aggregated Band 2: 508.950298720727
+    LDNO HV Non-Domestic Aggregated Band 3: 263.317548853461
+    LDNO HV Non-Domestic Aggregated Band 4: 263.241648428628
+    LDNO HV Non-Domestic Aggregated No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN: 0
+    LDNO HV Unmetered Supplies: 0
+    LDNO LV Domestic Aggregated: 30904.4059387543
+    LDNO LV Domestic Aggregated Related MPAN: 0
+    LDNO LV LV Generation Aggregated: 0
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific Band 1: 39.0775946742743
+    LDNO LV LV Site Specific Band 2: 31.6080720227748
+    LDNO LV LV Site Specific Band 3: 11.016921368934
+    LDNO LV LV Site Specific Band 4: 6.94490734821688
+    LDNO LV LV Site Specific No Residual: 0
+    LDNO LV Non-Domestic Aggregated Band 1: 204.138582656776
+    LDNO LV Non-Domestic Aggregated Band 2: 154.061002631366
+    LDNO LV Non-Domestic Aggregated Band 3: 79.7071259978921
+    LDNO LV Non-Domestic Aggregated Band 4: 79.6841506787315
+    LDNO LV Non-Domestic Aggregated No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN: 0
+    LDNO LV Unmetered Supplies: 0
+    LV Generation Aggregated: 0
+    LV Generation Site Specific: 654.931406141855
+    LV Generation Site Specific no RP Charge: 0
+    LV Site Specific Band 1: 6461.37913073012
+    LV Site Specific Band 2: 5226.31289445823
+    LV Site Specific Band 3: 1821.61943209333
+    LV Site Specific Band 4: 1148.32245379126
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: 0
+    LV Sub Generation Site Specific: 27.0580644348902
+    LV Sub Generation Site Specific no RP Charge: 0
+    LV Sub Site Specific Band 1: 14.2272033776012
+    LV Sub Site Specific Band 2: 34.1452881062429
+    LV Sub Site Specific Band 3: 38.4134491195233
+    LV Sub Site Specific Band 4: 294.503109916345
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 73254.2746951252
+    Non-Domestic Aggregated Band 2: 55284.1450140726
+    Non-Domestic Aggregated Band 3: 28602.5680545927
+    Non-Domestic Aggregated Band 4: 28594.323457618
+    Non-Domestic Aggregated No Residual: 0
+    Non-Domestic Aggregated Related MPAN: 0
+    Unmetered Supplies: 29.4756325247126
+    _column: MPANs
+  - Domestic Aggregated: ''
+    Domestic Aggregated Related MPAN: ''
+    HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific Band 1: 472871.210817541
+    HV Site Specific Band 2: 782731.243849296
+    HV Site Specific Band 3: 409021.379519801
+    HV Site Specific Band 4: 1246221.82275867
+    HV Site Specific No Residual: 0
+    LDNO HV Domestic Aggregated: ''
+    LDNO HV Domestic Aggregated Related MPAN: ''
+    LDNO HV HV Generation Site Specific: ''
+    LDNO HV HV Site Specific Band 1: 9724.2191484207
+    LDNO HV HV Site Specific Band 2: 16096.2434916415
+    LDNO HV HV Site Specific Band 3: 8411.1983133069
+    LDNO HV HV Site Specific Band 4: 25627.5574296392
+    LDNO HV HV Site Specific No Residual: 0
+    LDNO HV LV Generation Aggregated: ''
+    LDNO HV LV Generation Site Specific: ''
+    LDNO HV LV Site Specific Band 1: 23790.9835883864
+    LDNO HV LV Site Specific Band 2: 50176.2173532445
+    LDNO HV LV Site Specific Band 3: 27879.3798181608
+    LDNO HV LV Site Specific Band 4: 28608.7641153262
+    LDNO HV LV Site Specific No Residual: 0
+    LDNO HV LV Sub Generation Aggregated: ''
+    LDNO HV LV Sub Generation Site Specific: ''
+    LDNO HV LV Sub Site Specific Band 1: 39.6045954710547
+    LDNO HV LV Sub Site Specific Band 2: 394.44472746106
+    LDNO HV LV Sub Site Specific Band 3: 720.483621008907
+    LDNO HV LV Sub Site Specific Band 4: 13719.2913588334
+    LDNO HV LV Sub Site Specific No Residual: 0
+    LDNO HV Non-Domestic Aggregated Band 1: ''
+    LDNO HV Non-Domestic Aggregated Band 2: ''
+    LDNO HV Non-Domestic Aggregated Band 3: ''
+    LDNO HV Non-Domestic Aggregated Band 4: ''
+    LDNO HV Non-Domestic Aggregated No Residual: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN: ''
+    LDNO HV Unmetered Supplies: ''
+    LDNO LV Domestic Aggregated: ''
+    LDNO LV Domestic Aggregated Related MPAN: ''
+    LDNO LV LV Generation Aggregated: ''
+    LDNO LV LV Generation Site Specific: ''
+    LDNO LV LV Site Specific Band 1: 3191.84060875886
+    LDNO LV LV Site Specific Band 2: 6731.73042833657
+    LDNO LV LV Site Specific Band 3: 3740.34710755114
+    LDNO LV LV Site Specific Band 4: 3838.20260017651
+    LDNO LV LV Site Specific No Residual: 0
+    LDNO LV Non-Domestic Aggregated Band 1: ''
+    LDNO LV Non-Domestic Aggregated Band 2: ''
+    LDNO LV Non-Domestic Aggregated Band 3: ''
+    LDNO LV Non-Domestic Aggregated Band 4: ''
+    LDNO LV Non-Domestic Aggregated No Residual: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN: ''
+    LDNO LV Unmetered Supplies: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific Band 1: 280097.446850789
+    LV Site Specific Band 2: 590737.6767783
+    LV Site Specific Band 3: 328231.200607536
+    LV Site Specific Band 4: 336818.431927758
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific Band 1: 437.555519308843
+    LV Sub Site Specific Band 2: 4357.8646747951
+    LV Sub Site Specific Band 3: 7959.97487651331
+    LV Sub Site Specific Band 4: 151572.098734123
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: ''
+    Non-Domestic Aggregated Band 2: ''
+    Non-Domestic Aggregated Band 3: ''
+    Non-Domestic Aggregated Band 4: ''
+    Non-Domestic Aggregated No Residual: ''
+    Non-Domestic Aggregated Related MPAN: ''
+    Unmetered Supplies: ''
+    _column: Import capacity (kVA)
+  - Domestic Aggregated: ''
+    Domestic Aggregated Related MPAN: ''
+    HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific Band 1: 6132.5930339995
+    HV Site Specific Band 2: 10151.1195093163
+    HV Site Specific Band 3: 5304.53452318089
+    HV Site Specific Band 4: 16162.0565901122
+    HV Site Specific No Residual: 0
+    LDNO HV Domestic Aggregated: ''
+    LDNO HV Domestic Aggregated Related MPAN: ''
+    LDNO HV HV Generation Site Specific: ''
+    LDNO HV HV Site Specific Band 1: 105.26931210609
+    LDNO HV HV Site Specific Band 2: 174.249515976037
+    LDNO HV HV Site Specific Band 3: 91.0552350698024
+    LDNO HV HV Site Specific Band 4: 277.430537136298
+    LDNO HV HV Site Specific No Residual: 0
+    LDNO HV LV Generation Aggregated: ''
+    LDNO HV LV Generation Site Specific: ''
+    LDNO HV LV Site Specific Band 1: 110.863598942097
+    LDNO HV LV Site Specific Band 2: 233.816143683821
+    LDNO HV LV Site Specific Band 3: 129.915115591259
+    LDNO HV LV Site Specific Band 4: 133.313973309571
+    LDNO HV LV Site Specific No Residual: 0
+    LDNO HV LV Sub Generation Aggregated: ''
+    LDNO HV LV Sub Generation Site Specific: ''
+    LDNO HV LV Sub Site Specific Band 1: 0
+    LDNO HV LV Sub Site Specific Band 2: 0
+    LDNO HV LV Sub Site Specific Band 3: 0
+    LDNO HV LV Sub Site Specific Band 4: 0
+    LDNO HV LV Sub Site Specific No Residual: 0
+    LDNO HV Non-Domestic Aggregated Band 1: ''
+    LDNO HV Non-Domestic Aggregated Band 2: ''
+    LDNO HV Non-Domestic Aggregated Band 3: ''
+    LDNO HV Non-Domestic Aggregated Band 4: ''
+    LDNO HV Non-Domestic Aggregated No Residual: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN: ''
+    LDNO HV Unmetered Supplies: ''
+    LDNO LV Domestic Aggregated: ''
+    LDNO LV Domestic Aggregated Related MPAN: ''
+    LDNO LV LV Generation Aggregated: ''
+    LDNO LV LV Generation Site Specific: ''
+    LDNO LV LV Site Specific Band 1: 8.60214621983969
+    LDNO LV LV Site Specific Band 2: 18.1422998686681
+    LDNO LV LV Site Specific Band 3: 10.0803945672652
+    LDNO LV LV Site Specific Band 4: 10.3441192826122
+    LDNO LV LV Site Specific No Residual: 0
+    LDNO LV Non-Domestic Aggregated Band 1: ''
+    LDNO LV Non-Domestic Aggregated Band 2: ''
+    LDNO LV Non-Domestic Aggregated Band 3: ''
+    LDNO LV Non-Domestic Aggregated Band 4: ''
+    LDNO LV Non-Domestic Aggregated No Residual: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN: ''
+    LDNO LV Unmetered Supplies: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific Band 1: 5805.33490580887
+    LV Site Specific Band 2: 12243.7033744345
+    LV Site Specific Band 3: 6802.96113901229
+    LV Site Specific Band 4: 6980.9411752034
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific Band 1: 0.841343817162007
+    LV Sub Site Specific Band 2: 8.37942235526837
+    LV Sub Site Specific Band 3: 15.3056591714304
+    LV Sub Site Specific Band 4: 291.44701071457
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: ''
+    Non-Domestic Aggregated Band 2: ''
+    Non-Domestic Aggregated Band 3: ''
+    Non-Domestic Aggregated Band 4: ''
+    Non-Domestic Aggregated No Residual: ''
+    Non-Domestic Aggregated Related MPAN: ''
+    Unmetered Supplies: ''
+    _column: Exceeded capacity (kVA)
+  - Domestic Aggregated: ''
+    Domestic Aggregated Related MPAN: ''
+    HV Generation Site Specific: 26105.5894267774
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific Band 1: 106158.578368005
+    HV Site Specific Band 2: 189371.711508654
+    HV Site Specific Band 3: 103608.622494567
+    HV Site Specific Band 4: 329326.929874343
+    HV Site Specific No Residual: 0
+    LDNO HV Domestic Aggregated: ''
+    LDNO HV Domestic Aggregated Related MPAN: ''
+    LDNO HV HV Generation Site Specific: 2.5011575186284
+    LDNO HV HV Site Specific Band 1: 261.041670461559
+    LDNO HV HV Site Specific Band 2: 465.660982563444
+    LDNO HV HV Site Specific Band 3: 254.771383584713
+    LDNO HV HV Site Specific Band 4: 809.807866909843
+    LDNO HV HV Site Specific No Residual: 0
+    LDNO HV LV Generation Aggregated: ''
+    LDNO HV LV Generation Site Specific: 6.26833212066572
+    LDNO HV LV Site Specific Band 1: 2042.48972221822
+    LDNO HV LV Site Specific Band 2: 3052.24801778693
+    LDNO HV LV Site Specific Band 3: 1647.97852299785
+    LDNO HV LV Site Specific Band 4: 1620.94671503836
+    LDNO HV LV Site Specific No Residual: 0
+    LDNO HV LV Sub Generation Aggregated: ''
+    LDNO HV LV Sub Generation Site Specific: 0
+    LDNO HV LV Sub Site Specific Band 1: 14.2350013737288
+    LDNO HV LV Sub Site Specific Band 2: 73.0743544040648
+    LDNO HV LV Sub Site Specific Band 3: 131.741089124265
+    LDNO HV LV Sub Site Specific Band 4: 1515.52508222542
+    LDNO HV LV Sub Site Specific No Residual: 0
+    LDNO HV Non-Domestic Aggregated Band 1: ''
+    LDNO HV Non-Domestic Aggregated Band 2: ''
+    LDNO HV Non-Domestic Aggregated Band 3: ''
+    LDNO HV Non-Domestic Aggregated Band 4: ''
+    LDNO HV Non-Domestic Aggregated No Residual: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN: ''
+    LDNO HV Unmetered Supplies: ''
+    LDNO LV Domestic Aggregated: ''
+    LDNO LV Domestic Aggregated Related MPAN: ''
+    LDNO LV LV Generation Aggregated: ''
+    LDNO LV LV Generation Site Specific: 0
+    LDNO LV LV Site Specific Band 1: 741.932477493131
+    LDNO LV LV Site Specific Band 2: 1108.72623207169
+    LDNO LV LV Site Specific Band 3: 598.626654089295
+    LDNO LV LV Site Specific Band 4: 588.80737518065
+    LDNO LV LV Site Specific No Residual: 0
+    LDNO LV Non-Domestic Aggregated Band 1: ''
+    LDNO LV Non-Domestic Aggregated Band 2: ''
+    LDNO LV Non-Domestic Aggregated Band 3: ''
+    LDNO LV Non-Domestic Aggregated Band 4: ''
+    LDNO LV Non-Domestic Aggregated No Residual: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN: ''
+    LDNO LV Unmetered Supplies: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: 3604.92877408619
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific Band 1: 70388.2520019578
+    LV Site Specific Band 2: 105186.528143278
+    LV Site Specific Band 3: 56792.6126181964
+    LV Site Specific Band 4: 55861.0428335247
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: 199.329170636752
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific Band 1: 120.354212963832
+    LV Sub Site Specific Band 2: 617.829684819875
+    LV Sub Site Specific Band 3: 1113.84570189161
+    LV Sub Site Specific Band 4: 12813.4745975377
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: ''
+    Non-Domestic Aggregated Band 2: ''
+    Non-Domestic Aggregated Band 3: ''
+    Non-Domestic Aggregated Band 4: ''
+    Non-Domestic Aggregated No Residual: ''
+    Non-Domestic Aggregated Related MPAN: ''
+    Unmetered Supplies: ''
+    _column: Reactive power units (MVArh)
+1055:
+  - _table: 1055. Transmission exit charges (£/year)
+  - Transmission exit charges year: 13815110.9139752
+    _column: "Transmission\nexit"
+1059:
+  - _table: 1059. Other expenditure
+  - Other expenditure: 54877324.4534842
+    _column: Direct cost (£/year)
+  - Other expenditure: 137597202.16465
+    _column: Indirect cost (£/year)
+  - Other expenditure: 0.6
+    _column: Indirect cost proportion
+  - Other expenditure: 31873549.986733
+    _column: Network rates (£/year)
+1060:
+  - _table: 1060. Customer contributions under current connection charging policy
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV"
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV/EHV"
+  - HV network: 0
+    HV substation: 0
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\nEHV"
+  - HV network: 0.257641069481388
+    HV substation: 0.257641069481388
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\nEHV/HV"
+  - HV network: 0.257641069481388
+    HV substation: ''
+    LV network: 0
+    LV substation: 0
+    _column: "Assets\n132kV/HV"
+  - HV network: 0.515282138962777
+    HV substation: ''
+    LV network: 0.386849696974944
+    LV substation: 0.386849696974944
+    _column: "Assets\nHV"
+  - HV network: ''
+    HV substation: ''
+    LV network: 0.641248255730689
+    LV substation: 0.641248255730689
+    _column: "Assets\nHV/LV"
+  - HV network: ''
+    HV substation: ''
+    LV network: 0.895646814486434
+    LV substation: ''
+    _column: "Assets\nLV circuits"
+1066:
+  - _table: 1066. Typical annual hours by special distribution time band
+  - Annual hours: 258
+    _column: Black
+  - Annual hours: 3265.5
+    _column: Yellow
+  - Annual hours: 5236.5
+    _column: Green
+1068:
+  - _table: 1068. Typical annual hours by distribution time band
+  - Annual hours: 783
+    _column: Red
+  - Annual hours: 2740.5
+    _column: Amber
+  - Annual hours: 5236.5
+    _column: Green
+1069:
+  - _table: 1069. Peaking probabilities by network level
+  - 132kV: 0.572599135495625
+    132kV EHV: 0.572599135495625
+    132kV HV: 0.572599135495625
+    EHV: 0.611499065513421
+    EHV HV: 0.611499065513421
+    GSPs: 0.67962169758696
+    HV: 0.611499065513421
+    HV LV: 0.611499065513421
+    LV circuits: 0.611499065513421
+    _column: Red
+  - 132kV: 0.397111404384843
+    132kV EHV: 0.397111404384843
+    132kV HV: 0.397111404384843
+    EHV: 0.308349236040545
+    EHV HV: 0.308349236040545
+    GSPs: 0.32037830241304
+    HV: 0.308349236040545
+    HV LV: 0.308349236040545
+    LV circuits: 0.308349236040545
+    _column: Amber
+  - 132kV: 0.030289460119532
+    132kV EHV: 0.030289460119532
+    132kV HV: 0.030289460119532
+    EHV: 0.0801516984460343
+    EHV HV: 0.0801516984460343
+    GSPs: 0
+    HV: 0.0801516984460343
+    HV LV: 0.0801516984460343
+    LV circuits: 0.0801516984460343
+    _column: Green
+  - 132kV: 0.558518966233703
+    132kV EHV: 0.558518966233703
+    132kV HV: 0.558518966233703
+    EHV: 0.600755732883125
+    EHV HV: 0.600755732883125
+    GSPs: 0.5211230262796
+    HV: 0.600755732883125
+    HV LV: 0.600755732883125
+    LV circuits: 0.600755732883125
+    _column: Black peaking probabilities
+1071:
+  - _table: 1071. TCR group allocation
+  - Domestic Aggregated: 1
+    Domestic Aggregated Related MPAN: 1
+    HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific Band 1: 13
+    HV Site Specific Band 2: 14
+    HV Site Specific Band 3: 15
+    HV Site Specific Band 4: 16
+    HV Site Specific No Residual: 0
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific Band 1: 9
+    LV Site Specific Band 2: 10
+    LV Site Specific Band 3: 11
+    LV Site Specific Band 4: 12
+    LV Site Specific No Residual: 0
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific Band 1: 9
+    LV Sub Site Specific Band 2: 10
+    LV Sub Site Specific Band 3: 11
+    LV Sub Site Specific Band 4: 12
+    LV Sub Site Specific No Residual: 0
+    Non-Domestic Aggregated Band 1: 5
+    Non-Domestic Aggregated Band 2: 6
+    Non-Domestic Aggregated Band 3: 7
+    Non-Domestic Aggregated Band 4: 8
+    Non-Domestic Aggregated No Residual: 0
+    Non-Domestic Aggregated Related MPAN Band 1: 5
+    Non-Domestic Aggregated Related MPAN Band 2: 6
+    Non-Domestic Aggregated Related MPAN Band 3: 7
+    Non-Domestic Aggregated Related MPAN Band 4: 8
+    Non-Domestic Aggregated Related MPAN No Residual: 0
+    Unmetered Supplies: 17
+    _column: TCR group allocation
+1072:
+  - _table: 1072. Volume allocation by band for related MPAN tarifs
+  - LDNO HV Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    Non-Domestic Aggregated Related MPAN No Residual: 0
+    _column: Rate 1 units (MWh)
+  - LDNO HV Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    Non-Domestic Aggregated Related MPAN No Residual: 0
+    _column: Rate 2 units (MWh)
+  - LDNO HV Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN Band 1: 0.0361159848491172
+    Non-Domestic Aggregated Related MPAN Band 2: 0.151588514166803
+    Non-Domestic Aggregated Related MPAN Band 3: 0.192318856830822
+    Non-Domestic Aggregated Related MPAN Band 4: 0.619976644153258
+    Non-Domestic Aggregated Related MPAN No Residual: 0
+    _column: Rate 3 units (MWh)
+  - LDNO HV Non-Domestic Aggregated Related MPAN Band 1: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN Band 1: 0
+    Non-Domestic Aggregated Related MPAN Band 2: 0
+    Non-Domestic Aggregated Related MPAN Band 3: 0
+    Non-Domestic Aggregated Related MPAN Band 4: 0
+    Non-Domestic Aggregated Related MPAN No Residual: 0
+    _column: MPANs
+1092:
+  - _table: '1092. Average kVAr by kVA, by network level'
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: GSPs
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: 132kV
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: 132kV/EHV
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: EHV
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: EHV/HV
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: 132kV/HV
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: HV
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: HV/LV
+  - Average kVAr by kVA by network level: 0.290013528575803
+    _column: LV circuits
+3701:
+  - _table: 3701. Tariffs
+  - Domestic Aggregated: ''
+    Domestic Aggregated Related MPAN: ''
+    HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific Band 1: ''
+    HV Site Specific Band 2: ''
+    HV Site Specific Band 3: ''
+    HV Site Specific Band 4: ''
+    HV Site Specific No Residual: ''
+    LDNO HV Domestic Aggregated: ''
+    LDNO HV Domestic Aggregated Related MPAN: ''
+    LDNO HV HV Generation Site Specific: ''
+    LDNO HV HV Site Specific Band 1: ''
+    LDNO HV HV Site Specific Band 2: ''
+    LDNO HV HV Site Specific Band 3: ''
+    LDNO HV HV Site Specific Band 4: ''
+    LDNO HV HV Site Specific No Residual: ''
+    LDNO HV LV Generation Aggregated: ''
+    LDNO HV LV Generation Site Specific: ''
+    LDNO HV LV Site Specific Band 1: ''
+    LDNO HV LV Site Specific Band 2: ''
+    LDNO HV LV Site Specific Band 3: ''
+    LDNO HV LV Site Specific Band 4: ''
+    LDNO HV LV Site Specific No Residual: ''
+    LDNO HV LV Sub Generation Aggregated: ''
+    LDNO HV LV Sub Generation Site Specific: ''
+    LDNO HV LV Sub Site Specific Band 1: ''
+    LDNO HV LV Sub Site Specific Band 2: ''
+    LDNO HV LV Sub Site Specific Band 3: ''
+    LDNO HV LV Sub Site Specific Band 4: ''
+    LDNO HV LV Sub Site Specific No Residual: ''
+    LDNO HV Non-Domestic Aggregated Band 1: ''
+    LDNO HV Non-Domestic Aggregated Band 2: ''
+    LDNO HV Non-Domestic Aggregated Band 3: ''
+    LDNO HV Non-Domestic Aggregated Band 4: ''
+    LDNO HV Non-Domestic Aggregated No Residual: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 1: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 2: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 3: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 4: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: ''
+    LDNO HV Unmetered Supplies: ''
+    LDNO LV Domestic Aggregated: ''
+    LDNO LV Domestic Aggregated Related MPAN: ''
+    LDNO LV LV Generation Aggregated: ''
+    LDNO LV LV Generation Site Specific: ''
+    LDNO LV LV Site Specific Band 1: ''
+    LDNO LV LV Site Specific Band 2: ''
+    LDNO LV LV Site Specific Band 3: ''
+    LDNO LV LV Site Specific Band 4: ''
+    LDNO LV LV Site Specific No Residual: ''
+    LDNO LV Non-Domestic Aggregated Band 1: ''
+    LDNO LV Non-Domestic Aggregated Band 2: ''
+    LDNO LV Non-Domestic Aggregated Band 3: ''
+    LDNO LV Non-Domestic Aggregated Band 4: ''
+    LDNO LV Non-Domestic Aggregated No Residual: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 1: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 2: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 3: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 4: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: ''
+    LDNO LV Unmetered Supplies: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific Band 1: ''
+    LV Site Specific Band 2: ''
+    LV Site Specific Band 3: ''
+    LV Site Specific Band 4: ''
+    LV Site Specific No Residual: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific Band 1: ''
+    LV Sub Site Specific Band 2: ''
+    LV Sub Site Specific Band 3: ''
+    LV Sub Site Specific Band 4: ''
+    LV Sub Site Specific No Residual: ''
+    Non-Domestic Aggregated Band 1: ''
+    Non-Domestic Aggregated Band 2: ''
+    Non-Domestic Aggregated Band 3: ''
+    Non-Domestic Aggregated Band 4: ''
+    Non-Domestic Aggregated No Residual: ''
+    Non-Domestic Aggregated Related MPAN Band 1: ''
+    Non-Domestic Aggregated Related MPAN Band 2: ''
+    Non-Domestic Aggregated Related MPAN Band 3: ''
+    Non-Domestic Aggregated Related MPAN Band 4: ''
+    Non-Domestic Aggregated Related MPAN No Residual: ''
+    Unmetered Supplies: ''
+    _column: Open LLFCs
+  - _column: Unit rate 1 p/kWh
+  - _column: Unit rate 2 p/kWh
+  - _column: Unit rate 3 p/kWh
+  - _column: Fixed charge p/MPAN/day
+  - _column: Capacity charge p/kVA/day
+  - _column: Exceeded capacity charge p/kVA/day
+  - _column: Reactive power charge p/kVArh
+  - Domestic Aggregated: ''
+    Domestic Aggregated Related MPAN: ''
+    HV Generation Site Specific: ''
+    HV Generation Site Specific no RP Charge: ''
+    HV Site Specific Band 1: ''
+    HV Site Specific Band 2: ''
+    HV Site Specific Band 3: ''
+    HV Site Specific Band 4: ''
+    HV Site Specific No Residual: ''
+    LDNO HV Domestic Aggregated: ''
+    LDNO HV Domestic Aggregated Related MPAN: ''
+    LDNO HV HV Generation Site Specific: ''
+    LDNO HV HV Site Specific Band 1: ''
+    LDNO HV HV Site Specific Band 2: ''
+    LDNO HV HV Site Specific Band 3: ''
+    LDNO HV HV Site Specific Band 4: ''
+    LDNO HV HV Site Specific No Residual: ''
+    LDNO HV LV Generation Aggregated: ''
+    LDNO HV LV Generation Site Specific: ''
+    LDNO HV LV Site Specific Band 1: ''
+    LDNO HV LV Site Specific Band 2: ''
+    LDNO HV LV Site Specific Band 3: ''
+    LDNO HV LV Site Specific Band 4: ''
+    LDNO HV LV Site Specific No Residual: ''
+    LDNO HV LV Sub Generation Aggregated: ''
+    LDNO HV LV Sub Generation Site Specific: ''
+    LDNO HV LV Sub Site Specific Band 1: ''
+    LDNO HV LV Sub Site Specific Band 2: ''
+    LDNO HV LV Sub Site Specific Band 3: ''
+    LDNO HV LV Sub Site Specific Band 4: ''
+    LDNO HV LV Sub Site Specific No Residual: ''
+    LDNO HV Non-Domestic Aggregated Band 1: ''
+    LDNO HV Non-Domestic Aggregated Band 2: ''
+    LDNO HV Non-Domestic Aggregated Band 3: ''
+    LDNO HV Non-Domestic Aggregated Band 4: ''
+    LDNO HV Non-Domestic Aggregated No Residual: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 1: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 2: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 3: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN Band 4: ''
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: ''
+    LDNO HV Unmetered Supplies: ''
+    LDNO LV Domestic Aggregated: ''
+    LDNO LV Domestic Aggregated Related MPAN: ''
+    LDNO LV LV Generation Aggregated: ''
+    LDNO LV LV Generation Site Specific: ''
+    LDNO LV LV Site Specific Band 1: ''
+    LDNO LV LV Site Specific Band 2: ''
+    LDNO LV LV Site Specific Band 3: ''
+    LDNO LV LV Site Specific Band 4: ''
+    LDNO LV LV Site Specific No Residual: ''
+    LDNO LV Non-Domestic Aggregated Band 1: ''
+    LDNO LV Non-Domestic Aggregated Band 2: ''
+    LDNO LV Non-Domestic Aggregated Band 3: ''
+    LDNO LV Non-Domestic Aggregated Band 4: ''
+    LDNO LV Non-Domestic Aggregated No Residual: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 1: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 2: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 3: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN Band 4: ''
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: ''
+    LDNO LV Unmetered Supplies: ''
+    LV Generation Aggregated: ''
+    LV Generation Site Specific: ''
+    LV Generation Site Specific no RP Charge: ''
+    LV Site Specific Band 1: ''
+    LV Site Specific Band 2: ''
+    LV Site Specific Band 3: ''
+    LV Site Specific Band 4: ''
+    LV Site Specific No Residual: ''
+    LV Sub Generation Aggregated: ''
+    LV Sub Generation Site Specific: ''
+    LV Sub Generation Site Specific no RP Charge: ''
+    LV Sub Site Specific Band 1: ''
+    LV Sub Site Specific Band 2: ''
+    LV Sub Site Specific Band 3: ''
+    LV Sub Site Specific Band 4: ''
+    LV Sub Site Specific No Residual: ''
+    Non-Domestic Aggregated Band 1: ''
+    Non-Domestic Aggregated Band 2: ''
+    Non-Domestic Aggregated Band 3: ''
+    Non-Domestic Aggregated Band 4: ''
+    Non-Domestic Aggregated No Residual: ''
+    Non-Domestic Aggregated Related MPAN Band 1: ''
+    Non-Domestic Aggregated Related MPAN Band 2: ''
+    Non-Domestic Aggregated Related MPAN Band 3: ''
+    Non-Domestic Aggregated Related MPAN Band 4: ''
+    Non-Domestic Aggregated Related MPAN No Residual: ''
+    Unmetered Supplies: ''
+    _column: Closed LLFCs
+  - _column: Line checksum 5
+  - _column: Table checksum 7
