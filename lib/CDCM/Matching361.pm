@@ -28,7 +28,7 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
-sub matchingTcr {
+sub matching361 {
 
     my (
         $model,                  $adderAmount,
@@ -75,38 +75,43 @@ sub matchingTcr {
     my $tcrGroupset =
       Labelset( list => [ map { "TCR group $_"; } 1, 5 .. 17 ] );
 
-    my $demandTariffsByEndUserWithFixedCharges = Labelset(
-        list => [
-            grep { !/unmeter|related mpan/i; }
-              @{ $demandTariffsByEndUser->{list} }
-        ]
-    );
+    my $demandTariffsSubjectToScaling = Labelset( list =>
+          [ grep { !/related mpan/i; } @{ $demandTariffsByEndUser->{list} } ] );
 
     my @columnsets;
 
     foreach my $tcrGroup ( 1, 5 .. 17 ) {
+
+        my @allUnitsColumns = map {
+            Arithmetic(
+                name          => $_->objectShortName,
+                defaultFormat => '0copy',
+                arithmetic    => "=IF(A1=$tcrGroup,A2" . ',"")',
+                arguments     => {
+                    A1 => $tcrGroupAllocation,
+                    A2 => $_,
+                },
+            );
+        } @{$volumeAfter}{ @{$nonExcludedComponents}[ 0 .. 2 ] };
+
         my @volumeColumns = map {
             Arithmetic(
                 name          => $_->objectShortName,
                 defaultFormat => '0copy',
-                $_->objectShortName =~ /MPAN/
-                ? ( rows => $demandTariffsByEndUserWithFixedCharges )
-                : (),
-                arithmetic => "=IF(A1=$tcrGroup,A2" . ',"")',
-                arguments  => {
+                rows          => $demandTariffsSubjectToScaling,
+                arithmetic    => "=IF(A1=$tcrGroup,A2" . ',"")',
+                arguments     => {
                     A1 => $tcrGroupAllocation,
                     A2 => $_,
                 },
             );
         } @{$volumeAfter}{ @{$nonExcludedComponents}[ 0 .. 3 ] };
+
         my @priceColumns = map {
             Arithmetic(
                 name => $tariffsExMatching->{$_}->objectShortName,
-                /day/
-                ? (
-                    rows          => $demandTariffsByEndUserWithFixedCharges,
-                    defaultFormat => '0.00copy'
-                  )
+                rows => $demandTariffsSubjectToScaling,
+                /day/ ? ( defaultFormat => '0.00copy' )
                 : ( defaultFormat => '0.000copy' ),
                 arithmetic => "=IF(A1=$tcrGroup,A2"
                   . (
@@ -122,26 +127,19 @@ sub matchingTcr {
                 },
             );
         } @{$nonExcludedComponents}[ 0 .. 3 ];
+
+        Columnset(
+            name => "Extraction of pre-matching data for TCR group $tcrGroup",
+            columns => [ @volumeColumns, @priceColumns ],
+        );
+
         Columnset(
             name =>
-              "Extraction of pre-matching MPAN data for TCR group $tcrGroup",
-            columns => [ $volumeColumns[3], $priceColumns[3] ]
+"Extraction of all pre-matching units related to TCR group $tcrGroup",
+            columns => \@allUnitsColumns,
         );
-        Columnset(
-            name =>
-              "Extraction of pre-matching units data for TCR group $tcrGroup",
-            columns => [ @volumeColumns[ 0 .. 2 ], @priceColumns[ 0 .. 2 ] ]
-        );
+
         my $row = Labelset( list => ["TCR group $tcrGroup"] );
-        my @totalVolumeColumns = map {
-            Arithmetic(
-                name          => $_->objectShortName,
-                rows          => $row,
-                defaultFormat => '0soft',
-                arithmetic    => '=SUM(A1_A2)',
-                arguments     => { A1_A2 => $_, },
-            );
-        } @volumeColumns;
         my @minimumPriceColumns = map {
             Arithmetic(
                 name => $_->objectShortName,
@@ -153,15 +151,24 @@ sub matchingTcr {
                 arguments  => { A1_A2 => $_, },
             );
         } @priceColumns;
+        my @allVolumesColumns = map {
+            Arithmetic(
+                name          => $_->objectShortName,
+                rows          => $row,
+                defaultFormat => '0soft',
+                arithmetic    => '=SUM(A1_A2)',
+                arguments     => { A1_A2 => $_, },
+            );
+        } @allUnitsColumns, @volumeColumns;
         push @columnsets,
           Columnset(
             name => "Aggregation of pre-matching data for TCR group $tcrGroup",
-            columns => [ @totalVolumeColumns, @minimumPriceColumns ]
+            columns => [ @allVolumesColumns, @minimumPriceColumns, ]
           );
     }
 
     my @tcrGroupData;
-    for ( my $c = 0 ; $c < 8 ; ++$c ) {
+    for ( my $c = 0 ; $c < @{ $columnsets[0]{columns} } ; ++$c ) {
         my $name = $columnsets[0]{columns}[$c]->objectShortName;
         push @tcrGroupData,
           Stack(
@@ -199,12 +206,12 @@ sub matchingTcr {
         defaultFormat => 'indexsoft',
         arithmetic    => '=IF(A1<A2,IF(A11<A3,1,3),IF(A21<A31,2,3))',
         arguments     => {
-            A1  => $tcrGroupData[4],
-            A11 => $tcrGroupData[4],
-            A2  => $tcrGroupData[5],
-            A21 => $tcrGroupData[5],
-            A3  => $tcrGroupData[6],
-            A31 => $tcrGroupData[6],
+            A1  => $tcrGroupData[7],
+            A11 => $tcrGroupData[7],
+            A2  => $tcrGroupData[8],
+            A21 => $tcrGroupData[8],
+            A3  => $tcrGroupData[9],
+            A31 => $tcrGroupData[9],
         },
     );
 
@@ -213,12 +220,12 @@ sub matchingTcr {
         defaultFormat => 'indexsoft',
         arithmetic    => '=IF(A2<A3,IF(A1<A31,3,1),IF(A11<A21,2,1))',
         arguments     => {
-            A1  => $tcrGroupData[4],
-            A11 => $tcrGroupData[4],
-            A2  => $tcrGroupData[5],
-            A21 => $tcrGroupData[5],
-            A3  => $tcrGroupData[6],
-            A31 => $tcrGroupData[6],
+            A1  => $tcrGroupData[7],
+            A11 => $tcrGroupData[7],
+            A2  => $tcrGroupData[8],
+            A21 => $tcrGroupData[8],
+            A3  => $tcrGroupData[9],
+            A31 => $tcrGroupData[9],
         },
     );
 
@@ -239,9 +246,9 @@ sub matchingTcr {
         arguments     => {
             A8 => $lowRateId,
             A9 => $lowRateId,
-            A1 => $tcrGroupData[4],
-            A2 => $tcrGroupData[5],
-            A3 => $tcrGroupData[6],
+            A1 => $tcrGroupData[7],
+            A2 => $tcrGroupData[8],
+            A3 => $tcrGroupData[9],
         },
     );
 
@@ -252,9 +259,9 @@ sub matchingTcr {
         arguments     => {
             A8 => $middleRateId,
             A9 => $middleRateId,
-            A1 => $tcrGroupData[4],
-            A2 => $tcrGroupData[5],
-            A3 => $tcrGroupData[6],
+            A1 => $tcrGroupData[7],
+            A2 => $tcrGroupData[8],
+            A3 => $tcrGroupData[9],
         },
     );
 
@@ -265,9 +272,9 @@ sub matchingTcr {
         arguments     => {
             A8 => $highRateId,
             A9 => $highRateId,
-            A1 => $tcrGroupData[4],
-            A2 => $tcrGroupData[5],
-            A3 => $tcrGroupData[6],
+            A1 => $tcrGroupData[7],
+            A2 => $tcrGroupData[8],
+            A3 => $tcrGroupData[9],
         },
     );
 
@@ -278,9 +285,9 @@ sub matchingTcr {
         arguments     => {
             A8 => $lowRateId,
             A9 => $lowRateId,
-            A1 => $tcrGroupData[0],
-            A2 => $tcrGroupData[1],
-            A3 => $tcrGroupData[2],
+            A1 => $tcrGroupData[3],
+            A2 => $tcrGroupData[4],
+            A3 => $tcrGroupData[5],
         },
     );
 
@@ -291,9 +298,9 @@ sub matchingTcr {
         arguments     => {
             A8 => $middleRateId,
             A9 => $middleRateId,
-            A1 => $tcrGroupData[0],
-            A2 => $tcrGroupData[1],
-            A3 => $tcrGroupData[2],
+            A1 => $tcrGroupData[3],
+            A2 => $tcrGroupData[4],
+            A3 => $tcrGroupData[5],
         },
     );
 
@@ -304,9 +311,9 @@ sub matchingTcr {
         arguments     => {
             A8 => $highRateId,
             A9 => $highRateId,
-            A1 => $tcrGroupData[0],
-            A2 => $tcrGroupData[1],
-            A3 => $tcrGroupData[2],
+            A1 => $tcrGroupData[3],
+            A2 => $tcrGroupData[4],
+            A3 => $tcrGroupData[5],
         },
     );
 
@@ -325,9 +332,9 @@ sub matchingTcr {
         arithmetic    => '=IF(A2,MAX(A1/A3/A9*100,0-A4),0)',
         arguments     => {
             A1 => $adderByGroup,
-            A2 => $tcrGroupData[3],
-            A3 => $tcrGroupData[3],
-            A4 => $tcrGroupData[7],
+            A2 => $tcrGroupData[6],
+            A3 => $tcrGroupData[6],
+            A4 => $tcrGroupData[10],
             A9 => $daysAfter,
         },
     );
@@ -347,7 +354,7 @@ sub matchingTcr {
             A33 => $highUnits,
             A4  => $lowRate,
             A5  => $fixedAdder,
-            A6  => $tcrGroupData[3],
+            A6  => $tcrGroupData[6],
             A9  => $daysAfter,
         },
     );
@@ -367,7 +374,7 @@ sub matchingTcr {
             A4  => $middleRate,
             A5  => $fixedAdder,
             A51 => $unitsAdder1,
-            A6  => $tcrGroupData[3],
+            A6  => $tcrGroupData[6],
             A9  => $daysAfter,
         },
     );
@@ -387,7 +394,7 @@ sub matchingTcr {
             A5  => $fixedAdder,
             A51 => $unitsAdder1,
             A52 => $unitsAdder2,
-            A6  => $tcrGroupData[3],
+            A6  => $tcrGroupData[6],
             A9  => $daysAfter,
         },
     );
@@ -421,7 +428,7 @@ sub matchingTcr {
                   . '0-INDEX(A4_A5,A13-IF(A14>1,3,0)),'
                   . 'INDEX(A2_A3,A1-IF(A12>1,3,0))),0)',
                 arguments => {
-                    A4_A5 => $tcrGroupData[ 3 + (/rate ([0-9])/)[0] ],
+                    A4_A5 => $tcrGroupData[ 6 + (/rate ([0-9])/)[0] ],
                     A2_A3 => $unitsAdder3,
                     A1    => $tcrGroupAllocation,
                     A11   => $tcrGroupAllocation,

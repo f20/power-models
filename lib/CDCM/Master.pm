@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2020 Franck Latrémolière and others.
+# Copyright 2011-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -77,11 +77,11 @@ sub requiredModulesForRuleset {
       && $ruleset->{targetRevenue} =~ /dcp334|2019/i ? 'CDCM::Table1001_2019'
       : (),
 
-       !$ruleset->{scaler}               ? ()
-      : $ruleset->{scaler} =~ /tcrd/i    ? 'CDCM::DomesticTcr'
-      : $ruleset->{scaler} =~ /tcr/i     ? 'CDCM::MatchingTcr'
-      : $ruleset->{scaler} =~ /ppuflex/i ? 'CDCM::MatchingFlex'
-      : $ruleset->{scaler} =~ /dcp123/i  ? 'CDCM::Matching123'
+       !$ruleset->{scaler}                  ? ()
+      : $ruleset->{scaler} =~ /tcrd/i       ? 'CDCM::DomesticTcr'
+      : $ruleset->{scaler} =~ /tcr|dcp361/i ? 'CDCM::Matching361'
+      : $ruleset->{scaler} =~ /ppuflex/i    ? 'CDCM::MatchingFlex'
+      : $ruleset->{scaler} =~ /dcp123/i     ? 'CDCM::Matching123'
       : 'CDCM::Matching',
 
       !$ruleset->{summary}
@@ -762,7 +762,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
     my ( $totalRevenuesFromMatching, $siteSpecificCharges, @matchingTables ) =
          $model->{scaler}
       && $model->{scaler} =~ /tcr/i && $model->{scaler} !~ /tcrd/i
-      ? $model->matchingTcr(
+      ? $model->matching361(
         $revenueShortfall,
         $componentMap,
         $allTariffsByEndUser,
@@ -961,18 +961,26 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             columns => [ @{$tariffTable}{@$allComponents} ],
           );
 
-        my @allT = map { $allTariffs->{list}[$_] } $allTariffs->indices;
+        my @allTariffNames =
+          grep { !/Non-Domestic Aggregated \(Related MPAN\) Band [1-4]/; }
+          map  { $allTariffs->{list}[$_] } $allTariffs->indices;
 
         $allTariffsReordered = Labelset(
             name => 'All tariffs',
             list => [
-                ( grep { !/(?:LD|Q)NO/i } @allT ),
-                ( grep { /(?:LD|Q)NO lv/i } @allT ),
-                ( grep { /(?:LD|Q)NO hv/i && !/(?:LD|Q)NO hv sub/i } @allT ),
-                ( grep { /(?:LD|Q)NO hv sub/i } @allT ),
-                ( grep { /(?:LD|Q)NO 33/i && !/(?:LD|Q)NO 33kV sub/i } @allT ),
-                ( grep { /(?:LD|Q)NO 33kV sub/i } @allT ),
-                ( grep { /(?:LD|Q)NO 132/i } @allT ),
+                ( grep { !/(?:LD|Q)NO/i } @allTariffNames ),
+                ( grep { /(?:LD|Q)NO lv/i } @allTariffNames ),
+                (
+                    grep { /(?:LD|Q)NO hv/i && !/(?:LD|Q)NO hv sub/i }
+                      @allTariffNames
+                ),
+                ( grep { /(?:LD|Q)NO hv sub/i } @allTariffNames ),
+                (
+                    grep { /(?:LD|Q)NO 33/i && !/(?:LD|Q)NO 33kV sub/i }
+                      @allTariffNames
+                ),
+                ( grep { /(?:LD|Q)NO 33kV sub/i } @allTariffNames ),
+                ( grep { /(?:LD|Q)NO 132/i } @allTariffNames ),
                 (
                     grep {
                              /(?:LD|Q)NO/i
@@ -980,7 +988,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                           && !/(?:LD|Q)NO hv/i
                           && !/(?:LD|Q)NO 33/i
                           && !/(?:LD|Q)NO 132/i
-                    } @allT
+                    } @allTariffNames
                 )
             ]
         );
