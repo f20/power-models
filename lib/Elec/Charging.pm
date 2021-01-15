@@ -211,9 +211,9 @@ sub detailedAssets {
 sub usetMatchAssetDetail {
     my ( $self, $totalUsage, $applicationOptions ) = @_;
     my $totalBefore = SumProduct(
-        name   => 'Notional assets before matching',
+        name   => 'Detailed notional assets before matching',
         vector => Arithmetic(
-            name       => 'Number of notional schemes',
+            name => 'Number of notional schemes implied by volume forecast',
             arithmetic => '=A1/A2',
             arguments =>
               { A1 => $totalUsage, A2 => $self->{assets}->notionalCapacity, },
@@ -221,34 +221,43 @@ sub usetMatchAssetDetail {
         matrix        => $self->{assets}->notionalVolumes,
         defaultFormat => '0soft',
     );
-    $self->{assetMatchingFactors} = Arithmetic(
-        name       => 'Asset adjustment factor',
-        arithmetic => $applicationOptions
+    my $assetVolumes =
+      $self->{model}{usetMatchAssets}
+      ? Stack( sources => [ $self->{assets}->assetVolumes ] )
+      : $self->{assets}->assetVolumes;
+    my $assetMatchingFactors = Arithmetic(
+        name => 'Detailed notional asset adjustment factors'
+          . $applicationOptions,
+        arithmetic => $applicationOptions =~ /cap/i
         ? '=MIN(1,IF(A11,A2/A1,1))'
         : '=IF(A11,A2/A1,1)',
         arguments => {
             A1  => $totalBefore,
             A11 => $totalBefore,
-            A2  => $self->{assets}->assetVolumes,
+            A2  => $assetVolumes,
         },
     );
-    Columnset(
-        name    => 'Matching notional assets to actual assets',
-        columns => [
-            $totalBefore, $self->{assets}->assetVolumes,
-            $self->{assetMatchingFactors},
-        ],
+    my $columnset = Columnset(
+        name => 'Matching detailed notional assets to actual assets'
+          . $applicationOptions,
+        columns => [ $totalBefore, $assetVolumes, $assetMatchingFactors, ],
     );
-    $self->{assets}->notionalVolumes(
-        Arithmetic(
-            name       => 'Adjusted notional assets for each type of usage',
-            arithmetic => '=A1*A2',
-            arguments  => {
-                A1 => $self->{assets}->notionalVolumes,
-                A2 => $self->{assetMatchingFactors},
-            },
-        )
-    );
+    if ( $applicationOptions =~ /info/i ) {
+        push @{ $self->{model}{checkTables} }, $columnset;
+    }
+    else {
+        $self->{assets}->notionalVolumes(
+            Arithmetic(
+                name =>
+                  'Adjusted detailed notional assets for each type of usage',
+                arithmetic => '=A1*A2',
+                arguments  => {
+                    A1 => $self->{assets}->notionalVolumes,
+                    A2 => $assetMatchingFactors,
+                },
+            )
+        );
+    }
 }
 
 sub usetMatchAssets {
@@ -268,42 +277,31 @@ sub usetMatchAssets {
         data          => [1e7],
         defaultFormat => '0hard',
     );
-    if ($applicationOptions) {
-        push @{ $self->{model}{checkTables} },
-          Columnset(
-            name => 'For information: comparison of calculated '
-              . 'and target gross modern equivalent asset value (£)',
-            columns => [
-                $totalBefore,
-                $maxAssets,
-                Arithmetic(
-                    name       => 'Ratio',
-                    arithmetic => '=A1/A2',
-                    arguments  => { A1 => $totalBefore, A2 => $maxAssets },
-                ),
-            ],
-          );
+    my $assetMatchingFactor = Arithmetic(
+        name       => 'Asset adjustment factor' . $applicationOptions,
+        arithmetic => '=MIN(1,A2/A3)',
+        arguments  => { A2 => $maxAssets, A3 => $totalBefore, },
+    );
+    my $columnset = Columnset(
+        name => 'Application of maximum total notional asset value'
+          . $applicationOptions,
+        columns => [
+            $totalBefore, $self->{assets} ? $maxAssets : (),
+            $assetMatchingFactor,
+        ],
+    );
+    if ( $applicationOptions =~ /info/i ) {
+        push @{ $self->{model}{checkTables} }, $columnset;
     }
     else {
-        $self->{assetMatchingFactor} = Arithmetic(
-            name       => 'Asset adjustment factor',
-            arithmetic => '=MIN(1,A2/A3)',
-            arguments  => { A2 => $maxAssets, A3 => $totalBefore, },
-        );
-        Columnset(
-            name    => 'Application of maximum total notional asset value',
-            columns => [
-                $totalBefore,
-                $self->{assets} ? $maxAssets : (),
-                $self->{assetMatchingFactor},
-            ],
-        );
         $self->{assetRate} = Arithmetic(
             name => 'Adjusted notional assets for each type of usage'
               . ' (£/unit of usage)',
             arithmetic => '=A1*A2',
-            arguments =>
-              { A1 => $beforeMatching, A2 => $self->{assetMatchingFactor}, },
+            arguments  => {
+                A1 => $beforeMatching,
+                A2 => $assetMatchingFactor,
+            },
         );
     }
 }

@@ -1,6 +1,6 @@
 ﻿package Elec;
 
-# Copyright 2012-2019 Franck Latrémolière and others.
+# Copyright 2012-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -132,27 +132,11 @@ sub worksheetsAndClosures {
       'Volumes' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   20 );
-        $wsheet->set_column( 1, 250, 20 );
+        $wsheet->set_column( 0, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} };
+          foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} },
+          $model->{interpolator} ? $model->{interpolator}->columnsets : ();
       }
-
-      ,
-
-      $model->{checkTables} && @{ $model->{checkTables} }
-      ? (
-        'Checks' => sub {
-            my ($wsheet) = @_;
-            $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   20 );
-            $wsheet->set_column( 1, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Network usage checks' ),
-              @{ $model->{checkTables} };
-        }
-      )
-      : ()
 
       ,
 
@@ -244,6 +228,22 @@ sub worksheetsAndClosures {
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Detailed tables' ),
               @detailedTables;
+        }
+      )
+      : ()
+
+      ,
+
+      $model->{checkTables} && @{ $model->{checkTables} }
+      ? (
+        'Checks' => sub {
+            my ($wsheet) = @_;
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   20 );
+            $wsheet->set_column( 1, 250, 20 );
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes( name => 'Network usage checks' ),
+              @{ $model->{checkTables} };
         }
       )
       : ()

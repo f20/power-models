@@ -100,8 +100,8 @@ sub new {
       )
     {
         next unless my $usetName = $model->{$_};
-        my $applicationOptions;
-        $applicationOptions = $1 if $usetName =~ s/ \((.*)\)$//i;
+        my $applicationOptions = '';
+        $applicationOptions = $1 if $usetName =~ s/(\s*\(.*\))$//i;
         $charging->$_( $usage->totalUsage( $customers->totalDemand($usetName) ),
             $applicationOptions );
     }

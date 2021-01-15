@@ -159,13 +159,19 @@ sub _forecastInputDataAndFactors {
         },
     );
 
-    Columnset(
+    push @{ $self->{columnsets} },
+      Columnset(
         name    => "$tableName interpolation and extrapolation calculations",
         columns => [ $first, $last, $factor, ]
-    );
+      );
 
     $startDate, $endDate, $growth, $factor;
 
+}
+
+sub columnsets {
+    my ($self) = @_;
+    @{ $self->{columnsets} };
 }
 
 sub assetValuesLives {
