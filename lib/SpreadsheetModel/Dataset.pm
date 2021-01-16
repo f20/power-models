@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Dataset;
 
-# Copyright 2008-2020 Franck Latrémolière and others.
+# Copyright 2008-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -732,7 +732,7 @@ sub dataValidation {
 
 sub conditionalFormatting {
 
-=item $dataset->dataValidation($wb, $ws, $row, $col, $rowEnd, $colEnd)
+=item $dataset->conditionalFormatting($wb, $ws, $row, $col, $rowEnd, $colEnd)
 
 * Only to be called if $self->{conditionalFormatting} is true.
 

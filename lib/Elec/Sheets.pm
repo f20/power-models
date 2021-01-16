@@ -56,7 +56,7 @@ sub worksheetsAndClosures {
     'Input' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 15;
-        $wsheet->freeze_panes( 1, 0 );
+        $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   20 );
         $wsheet->set_column( 1, 250, 20 );
         $model->{titleWrites}{$wbook} = [];
