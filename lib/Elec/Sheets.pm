@@ -57,7 +57,7 @@ sub worksheetsAndClosures {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 15;
         $wsheet->freeze_panes( 1, 1 );
-        $wsheet->set_column( 0, 0,   20 );
+        $wsheet->set_column( 0, 0,   28 );
         $wsheet->set_column( 1, 250, 20 );
         $model->{titleWrites}{$wbook} = [];
         $wbook->{titleWriter} =

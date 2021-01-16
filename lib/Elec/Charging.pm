@@ -229,16 +229,21 @@ sub usetMatchAssetDetail {
         name => 'Detailed notional asset adjustment factors'
           . $applicationOptions,
         arithmetic => $applicationOptions =~ /cap/i
-        ? '=MIN(1,IF(A11,A2/A1,666))'
-        : '=IF(A11,A2/A1,666)',
+        ? '=MIN(1,IF(A11,A2/A1,6.666))'
+        : '=IF(A11,A2/A1,6.666)',
         arguments => {
             A1  => $totalBefore,
             A11 => $totalBefore,
             A2  => $assetVolumes,
         },
     );
-    my $feedbackColumn = Stack(
-        sources               => [$assetMatchingFactors],
+    my $columnset = Columnset(
+        name => 'Matching detailed notional assets to actual assets'
+          . $applicationOptions,
+        columns => [ $totalBefore, $assetVolumes, $assetMatchingFactors, ],
+    );
+    $self->{assets}->addNotionalVolumesFeedback(
+        $assetMatchingFactors,
         conditionalFormatting => {
             type      => '3_color_scale',
             min_type  => 'num',
@@ -250,41 +255,6 @@ sub usetMatchAssetDetail {
             min_color => '#ffcccc',
             mid_color => '#ccffcc',
             max_color => '#ccccff',
-        },
-    );
-    my $columnset = Columnset(
-        name => 'Matching detailed notional assets to actual assets'
-          . $applicationOptions,
-        columns => [ $totalBefore, $assetVolumes, $assetMatchingFactors, ],
-        postWriteCalls => {
-            obj => [
-                sub {
-                    my ( $cset, $wb, $ws, $rowref, $col ) = @_;
-                    my ( $wsi, $rowi, $coli ) =
-                      $self->{assets}->notionalVolumes->wsWrite( $wb, $ws );
-                    $coli += $self->{assets}->notionalVolumes->lastCol + 2;
-                    $wsi->write_url(
-                        $rowi - 1,
-                        $coli,
-                        $assetMatchingFactors->wsUrl($wb),
-                        $assetMatchingFactors->objectShortName,
-                        $wb->getFormat(
-                            [ base => 'thc', underline => 1, ]
-                        )
-                    );
-                    my $lr = $self->{assets}->notionalVolumes->lastRow;
-                    my $cell =
-                      $feedbackColumn->wsPrepare( $wb, $wsi, $rowi, $coli );
-                    for ( my $y = 0 ; $y <= $lr ; ++$y ) {
-                        my ( $value, $format, $formula, @more ) =
-                          $cell->( 0, $y );
-                        $wsi->repeat_formula( $rowi + $y, $coli, $formula,
-                            $format, @more );
-                    }
-                    $wsi->conditional_formatting( $rowi, $coli, $rowi + $lr,
-                        $coli, $feedbackColumn->{conditionalFormatting} );
-                }
-            ]
         },
     );
     if ( $applicationOptions =~ /info/i ) {

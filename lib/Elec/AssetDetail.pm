@@ -134,13 +134,12 @@ sub notionalVolumes {
     return $self->{notionalVolumes} = $setNotionalVolumes
       if $setNotionalVolumes;
     $self->{notionalVolumes} ||= Dataset(
-        name     => 'Notional scheme asset volumes',
-        number   => 1553,
-        appendTo => $self->{model}{inputTables},
-        dataset  => $self->{model}{dataset},
-        rows     => $self->assetLabelset,
-        cols     => $self->{setup}->usageSet,
-        data     => [ map { 1 } 1 .. @{ $self->{setup}->usageSet->{list} } ],
+        name    => 'Notional scheme asset volumes',
+        number  => 1553,
+        dataset => $self->{model}{dataset},
+        rows    => $self->assetLabelset,
+        cols    => $self->{setup}->usageSet,
+        data    => [ map { 1 } 1 .. @{ $self->{setup}->usageSet->{list} } ],
     );
 }
 
@@ -206,6 +205,30 @@ sub maxAssets {
     );
 }
 
-sub finish { }
+sub addNotionalVolumesFeedback {
+    my ( $self, $feedback, @more ) = @_;
+    $self->{notionalVolumesFeedback} = Stack(
+        sources        => [$feedback],
+        deferWritingTo => $feedback,
+        @more,
+    );
+}
+
+sub finish {
+    my ($self) = @_;
+    if ( $self->{notionalVolumesFeedback} ) {
+        Columnset(
+            name     => $self->{notionalVolumes}->objectShortName,
+            number   => 1553,
+            dataset  => $self->{model}{dataset},
+            appendTo => $self->{model}{inputTables},
+            columns =>
+              [ $self->{notionalVolumes}, $self->{notionalVolumesFeedback}, ],
+        );
+    }
+    else {
+        push @{ $self->{model}{inputTables} }, $self->{notionalVolumes};
+    }
+}
 
 1;
