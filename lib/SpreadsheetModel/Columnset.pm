@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Columnset;
 
-# Copyright 2008-2020 Franck Latremoliere, Reckon LLP and others.
+# Copyright 2008-2021 Franck Latremoliere and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -198,7 +198,11 @@ sub wsWrite {
 
     {
         my @formulas =
-          map { $_->{arguments} ? $_->{arithmetic} : '' } @{ $self->{columns} };
+          map {
+               !$_->{deferWritingTo} && $_->{arguments}
+              ? $_->{arithmetic}
+              : ''
+          } @{ $self->{columns} };
         if ( grep { $_ } @formulas ) {
             @sourceLines = (
                 'Data sources:',
@@ -259,7 +263,7 @@ sub wsWrite {
               . ' cannot be written again as part of '
               . "$self->{name} $self->{debug}"
               if $thecol->{$wb};
-            $thecol->wsPrepare( $wb, $ws );
+            $thecol->wsPrepare( $wb, $ws ) unless $thecol->{deferWritingTo};
             $thecol->{$wb} ||= {};    # Placeholder for other columns
         }
         last if !$ws->{nextFree} || $ws->{nextFree} < $row;
@@ -273,7 +277,8 @@ sub wsWrite {
         my $c2 = $col;
         for ( 0 .. $lastCol ) {
             my $thecol = $self->{columns}[$_];
-            $cell[$_] = $thecol->wsPrepare( $wb, $ws );
+            $cell[$_] = $thecol->wsPrepare( $wb, $ws )
+              unless $thecol->{deferWritingTo};
             @{ $thecol->{$wb} }{qw(worksheet row col)} =
               ( $ws, $row + $headerLines, $c2 + $headerCols );
             $c2 +=
@@ -418,7 +423,8 @@ sub wsWrite {
         my $c4 = $col + $headerCols;
         $row++ if $dualHeaded;
         foreach ( 0 .. $lastCol ) {
-            if ( $wb->{logger} ) {
+            my $deferred = $self->{columns}[$_]{deferWritingTo};
+            if ( !$deferred && $wb->{logger} ) {
                 if ($number) {
                     my $n = $self->{columns}[$_]{name};
                     $self->{columns}[$_]{name} =
@@ -429,7 +435,6 @@ sub wsWrite {
                 }
                 $wb->{logger}->log( $self->{columns}[$_] );
             }
-
             my $colShortName = _shortNameCol $self->{columns}[$_]{name};
             my $co           = $self->{columns}[$_]{cols};
             if ( $co && $#{ $co->{list} } ) {
@@ -465,6 +470,28 @@ sub wsWrite {
                     )
                 ) foreach 0 .. $#{ $co->{list} };
                 $c4 += @{ $co->{list} };
+            }
+            elsif ($deferred) {
+                my $row_clos  = $row;
+                my $col_clos  = $c4;
+                my $name_clos = $colShortName;
+                my $target =
+                  UNIVERSAL::can( $deferred->{location}, 'wsWrite' )
+                  ? $deferred->{location}
+                  : $deferred;
+                push @{ $target->{postWriteCalls}{$wb} }, sub {
+                    my ( $obj_pwc, $wb_pwc, $ws_pwc, $rowref_pwc, $col_pwc ) =
+                      @_;
+                    $ws->write(
+                        $row_clos,
+                        $col_clos,
+                        $deferred->wsUrl($wb_pwc),
+                        $name_clos,
+                        $wb_pwc->getFormat(
+                            [ base => 'thc', underline => 1, ]
+                        )
+                    );
+                };
             }
             else {
                 $ws->write(
@@ -543,49 +570,61 @@ sub wsWrite {
           && $self->{columns}[$c]{lines};
 
         if ( my $co = $self->{columns}[$c]{cols} ) {
-            foreach my $y ( $self->{columns}[$c]->rowIndices ) {
-                foreach my $x ( $self->{columns}[$c]->colIndices ) {
-                    my ( $value, $format, $formula, @more ) =
-                      $cell[$c]->( $x, $y );
-                    if (@dataDecorationsByColumn) {
-                        if ( my $dd =
-                            $dataDecorationsByColumn[ $c2 + $x - $col ] )
-                        {
-                            $format = $wb->getFormat( $format, $dd );
+
+            if ( my $deferred = $self->{columns}[$c]{deferWritingTo} ) {
+                _deferWritingData( $self->{columns}[$c],
+                    $deferred, $wb, $ws, $row, $c2 );
+            }
+            else {
+                foreach my $y ( $self->{columns}[$c]->rowIndices ) {
+                    foreach my $x ( $self->{columns}[$c]->colIndices ) {
+                        my ( $value, $format, $formula, @more ) =
+                          $cell[$c]->( $x, $y );
+                        if (@dataDecorationsByColumn) {
+                            if ( my $dd =
+                                $dataDecorationsByColumn[ $c2 + $x - $col ] )
+                            {
+                                $format = $wb->getFormat( $format, $dd );
+                            }
                         }
-                    }
-                    if (@more) {
-                        $ws->repeat_formula( $row + $y, $c2 + $x,
-                            $formula, $format, @more );
-                    }
-                    elsif ($formula) {
-                        $ws->write_formula( $row + $y, $c2 + $x,
-                            $formula, $format, $value );
-                    }
-                    else {
-                        $value = "=$value"
-                          if $value
-                          and $value eq '#VALUE!' || $value eq '#N/A'
-                          and $wb->formulaHashValues;
-                        $ws->write( $row + $y, $c2 + $x, $value, $format );
-                        if ($comment) {
-                            $ws->write_comment(
-                                $row + $y,
-                                $c2 + $x,
-                                (
-                                    map {
-                                        ref $_ eq 'ARRAY'
-                                          ? join "\n", @$_
-                                          : $_;
-                                      } ref $comment eq 'HASH'
-                                    ? $comment->{text}
-                                    : $comment
-                                ),
-                                x_scale => ref $comment eq 'HASH'
-                                  && $comment->{x_scale} ? $comment->{x_scale}
-                                : 3,
+                        if (@more) {
+                            $ws->repeat_formula(
+                                $row + $y, $c2 + $x, $formula,
+                                $format,   @more
                             );
-                            undef $comment;
+                        }
+                        elsif ($formula) {
+                            $ws->write_formula(
+                                $row + $y, $c2 + $x, $formula,
+                                $format,   $value
+                            );
+                        }
+                        else {
+                            $value = "=$value"
+                              if $value
+                              and $value eq '#VALUE!' || $value eq '#N/A'
+                              and $wb->formulaHashValues;
+                            $ws->write( $row + $y, $c2 + $x, $value, $format );
+                            if ($comment) {
+                                $ws->write_comment(
+                                    $row + $y,
+                                    $c2 + $x,
+                                    (
+                                        map {
+                                            ref $_ eq 'ARRAY'
+                                              ? join "\n", @$_
+                                              : $_;
+                                          } ref $comment eq 'HASH'
+                                        ? $comment->{text}
+                                        : $comment
+                                    ),
+                                    x_scale => ref $comment eq 'HASH'
+                                      && $comment->{x_scale}
+                                    ? $comment->{x_scale}
+                                    : 3,
+                                );
+                                undef $comment;
+                            }
                         }
                     }
                 }
@@ -604,43 +643,55 @@ sub wsWrite {
             $c2 += @{ $co->{list} };
 
         }
+
         else {
 
-            foreach my $y ( $self->{columns}[$c]->rowIndices ) {
-                my ( $value, $format, $formula, @more ) = $cell[$c]->( 0, $y );
-                if (@dataDecorationsByColumn) {
-                    if ( my $dd = $dataDecorationsByColumn[ $c2 - $col ] ) {
-                        $format = $wb->getFormat( $format, $dd );
+            if ( my $deferred = $self->{columns}[$c]{deferWritingTo} ) {
+                _deferWritingData( $self->{columns}[$c],
+                    $deferred, $wb, $ws, $row, $c2 );
+            }
+            else {
+                foreach my $y ( $self->{columns}[$c]->rowIndices ) {
+                    my ( $value, $format, $formula, @more ) =
+                      $cell[$c]->( 0, $y );
+                    if (@dataDecorationsByColumn) {
+                        if ( my $dd = $dataDecorationsByColumn[ $c2 - $col ] ) {
+                            $format = $wb->getFormat( $format, $dd );
+                        }
                     }
-                }
-                if (@more) {
-                    $ws->repeat_formula( $row + $y, $c2, $formula, $format,
-                        @more );
-                }
-                elsif ($formula) {
-                    $ws->write_formula( $row + $y, $c2, $formula, $format,
-                        $value );
-                }
-                else {
-                    $value = "=$value"
-                      if $value
-                      and $value eq '#VALUE!' || $value eq '#N/A'
-                      and $wb->formulaHashValues;
-                    $ws->write( $row + $y, $c2, $value, $format );
-                    if ($comment) {
-                        $ws->write_comment(
-                            $row + $y,
-                            $c2,
-                            (
-                                map { ref $_ eq 'ARRAY' ? join "\n", @$_ : $_; }
-                                  ref $comment eq 'HASH' ? $comment->{text}
-                                : $comment
-                            ),
-                            x_scale => ref $comment eq 'HASH'
-                              && $comment->{x_scale} ? $comment->{x_scale}
-                            : 3,
-                        );
-                        undef $comment;
+                    if (@more) {
+                        $ws->repeat_formula( $row + $y, $c2, $formula, $format,
+                            @more );
+                    }
+                    elsif ($formula) {
+                        $ws->write_formula( $row + $y, $c2, $formula, $format,
+                            $value );
+                    }
+                    else {
+                        $value = "=$value"
+                          if $value
+                          and $value eq '#VALUE!' || $value eq '#N/A'
+                          and $wb->formulaHashValues;
+                        $ws->write( $row + $y, $c2, $value, $format );
+                        if ($comment) {
+                            $ws->write_comment(
+                                $row + $y,
+                                $c2,
+                                (
+                                    map {
+                                        ref $_ eq 'ARRAY'
+                                          ? join "\n", @$_
+                                          : $_;
+                                      } ref $comment eq 'HASH'
+                                    ? $comment->{text}
+                                    : $comment
+                                ),
+                                x_scale => ref $comment eq 'HASH'
+                                  && $comment->{x_scale} ? $comment->{x_scale}
+                                : 3,
+                            );
+                            undef $comment;
+                        }
                     }
                 }
             }
@@ -717,6 +768,27 @@ sub wsWrite {
     ++$row unless $self->{noSpaceBelow};
     $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
 
+}
+
+sub _deferWritingData {
+    my ( $obj, $deferred, $wb, $ws, $row, $col ) = @_;
+    my $target =
+      UNIVERSAL::can( $deferred->{location}, 'wsWrite' )
+      ? $deferred->{location}
+      : $deferred;
+    my $lc = $obj->lastCol;
+    my $lr = $obj->lastRow;
+    push @{ $target->{postWriteCalls}{$wb} }, sub {
+        my ( $obj_pwc, $wb_pwc, $ws_pwc, $rowref_pwc, $col_pwc ) = @_;
+        my $cell = $obj->wsPrepare( $wb_pwc, $ws );
+        for ( my $x = 0 ; $x <= $lc ; ++$x ) {
+            for ( my $y = 0 ; $y <= $lr ; ++$y ) {
+                my ( $value, $format, $formula, @more ) = $cell->( $x, $y );
+                $ws->repeat_formula( $row + $y, $col + $x, $formula, $format,
+                    @more );
+            }
+        }
+    };
 }
 
 1;
