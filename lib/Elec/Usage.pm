@@ -1,6 +1,6 @@
 ﻿package Elec::Usage;
 
-# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -84,7 +84,7 @@ sub usageRates {
                       : /HV metered source breaker/
                       ? [ map { /^HV Sub/ ? 1 : 0; }
                           @{ $customers->tariffSet->{list} } ]
-                      : /HV metered secondary switchgear/
+                      : /HV metered .*switchgear/
                       ? [ map { /^HV Sub/ ? 0 : /^HV/ ? 1 : 0; }
                           @{ $customers->tariffSet->{list} } ]
                       : /LV >100A metered service/

@@ -258,10 +258,11 @@ sub assetValuesLives {
         },
     );
 
-    Columnset(
-        name    => 'Asset value forecasting calculations',
+    push @{ $self->{columnsets} },
+      Columnset(
+        name    => 'Asset value interpolation and extrapolation calculations',
         columns => [ $first, $last, $value, ],
-    );
+      );
 
     $value, $life;
 

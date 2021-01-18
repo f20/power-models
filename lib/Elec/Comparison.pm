@@ -1,6 +1,6 @@
 ﻿package Elec::Comparison;
 
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -175,16 +175,13 @@ sub revenueComparison {
 
     push @{ $self->{revenueTables} },
       Columnset(
-        name => 'Revenue'
-          . ( $compare ? ' comparison' : '' )
-          . ' (£/year)'
-          . $labelTail,
+        name => 'Revenue' . ( $compare ? ' comparison' : '' ) . $labelTail,
         columns => \@srcCol,
       ) if @srcCol;
 
     push @{ $self->{detailedTables} },
       Columnset(
-        name    => 'Revenue (£/year) and average revenue (p/kWh)' . $labelTail,
+        name    => 'Revenue and average revenue' . $labelTail,
         columns => \@columns,
       );
 
@@ -216,7 +213,7 @@ sub revenueComparison {
                     defaultFormat => $_->{defaultFormat},
                     source        => $_,
                   );
-            } $totalUnits,
+              } $totalUnits,
             $revenues,
             @extraColumns,
             $compare ? ( $compare, $difference, ) : ()
@@ -254,7 +251,7 @@ sub revenueComparison {
           ) if $compare;
         push @{ $self->{detailedTables} },
           Columnset(
-            name    => "$totalTerm £/year$labelTail",
+            name    => $totalTerm . $labelTail,
             columns => \@cols,
           );
     }

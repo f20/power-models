@@ -215,8 +215,10 @@ sub usetMatchAssetDetail {
         vector => Arithmetic(
             name => 'Number of notional schemes implied by volume forecast',
             arithmetic => '=A1/A2',
-            arguments =>
-              { A1 => $totalUsage, A2 => $self->{assets}->notionalCapacity, },
+            arguments  => {
+                A1 => $totalUsage,
+                A2 => $self->{assets}->notionalCapacity,
+            },
         ),
         matrix        => $self->{assets}->notionalVolumes,
         defaultFormat => '0soft',
@@ -252,9 +254,9 @@ sub usetMatchAssetDetail {
             min_value => sqrt(.5),
             mid_value => 1,
             max_value => sqrt(2),
-            min_color => '#ffcccc',
+            min_color => '#ccccff',
             mid_color => '#ccffcc',
-            max_color => '#ccccff',
+            max_color => '#ffcccc',
         },
     );
     if ( $applicationOptions =~ /info/i ) {

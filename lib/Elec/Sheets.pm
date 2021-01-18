@@ -163,7 +163,8 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Relevant costs and charges' ),
-          @{ $model->{costTables} };
+          @{ $model->{costTables} },
+          $model->{checkTables} ? @{ $model->{checkTables} } : ();
       }
 
       ,
@@ -228,22 +229,6 @@ sub worksheetsAndClosures {
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Detailed tables' ),
               @detailedTables;
-        }
-      )
-      : ()
-
-      ,
-
-      $model->{checkTables} && @{ $model->{checkTables} }
-      ? (
-        'Checks' => sub {
-            my ($wsheet) = @_;
-            $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   20 );
-            $wsheet->set_column( 1, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Network usage checks' ),
-              @{ $model->{checkTables} };
         }
       )
       : ()
