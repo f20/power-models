@@ -37,30 +37,16 @@ sub serviceMapForRuleset {
     };
 }
 
-sub requiredModulesForRuleset {
-    my ( $class, $ruleset ) = @_;
-    values %{ serviceMapForRuleset($ruleset) };
-}
-
-sub new {
-    my $class = shift;
-    bless {@_}, $class;
-}
-
-sub serviceMap {
+sub myFruitCounter {
     my ($model) = @_;
-    $model->{serviceMap} //= serviceMapForRuleset($model);
+    $model->{myFruitCounter} //= $model->instantiate( fruitCounter => );
 }
 
-sub instance {
-    my ( $model, $service, @identifiers ) = @_;
-    $model->{ join ':', 'instance', $service, @identifiers } //=
-      $model->serviceMap->{$service}->new( $model, @identifiers );
-}
-
-sub getAppendCode {
-    my ( $model, $wbook, $wsheet ) = @_;
-    $model->instance( fruitCounter => )->appendCode( $wbook, $wsheet );
+sub myChartTester {
+    my ($model) = @_;
+    $model->{myChartTester} //=
+      $model->instantiate(
+        chartTester => chartOptions => { mergeFirstStep => 1 } );
 }
 
 sub inputsSheetWriter {
@@ -73,8 +59,8 @@ sub inputsSheetWriter {
         $wsheet->set_column( 0, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Inputs and charts' ),
-          $model->instance( fruitCounter => )->inputTables,
-          $model->instance( chartTester  => )->inputTables;
+          $model->myFruitCounter->inputTables,
+          $model->myChartTester->inputTables;
     };
 }
 
@@ -85,8 +71,8 @@ sub resultSheetWriter {
         $wsheet->set_column( 0, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Calculations and results' ),
-          $model->instance( fruitCounter => )->resultTables,
-          $model->instance( chartTester  => )->calculationTables;
+          $model->myFruitCounter->resultTables,
+          $model->myChartTester->calculationTables;
     };
 }
 
@@ -108,13 +94,29 @@ sub finishModel {
     my $append;
     foreach ( @{ $model->{_titwrt}{$wbook} } ) {
         my ( $wsheet, $row, $col, $title, $fmt ) = @$_;
-        $append //= $model->getAppendCode( $wbook, $wsheet );
+        $append //= $model->myFruitCounter->appendCode( $wbook, $wsheet );
         $wsheet->write( $row, $col, qq%="$title"$append%, $fmt,
                 'Not calculated: '
               . 'open in spreadsheet app and allow calculations' );
     }
     $_->wsWrite( $wbook, $model->{inputSheet}{$wbook} )
-      foreach $model->instance( chartTester => )->charts;
+      foreach $model->myChartTester->charts;
+}
+
+sub new {
+    my $class = shift;
+    bless {@_}, $class;
+}
+
+sub requiredModulesForRuleset {
+    my ( $class, $ruleset ) = @_;
+    values %{ serviceMapForRuleset($ruleset) };
+}
+
+sub instantiate {
+    my ( $model, $service, @options ) = @_;
+    $model->{serviceMap} //= serviceMapForRuleset($model);
+    $model->{serviceMap}{$service}->new( $model, @options );
 }
 
 1;

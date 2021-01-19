@@ -31,7 +31,7 @@ use SpreadsheetModel::WaterfallChartset;
 
 sub new {
     my ( $class, $model, @options ) = @_;
-    bless { model => $model }, $class;
+    bless { model => $model, @options }, $class;
 }
 
 sub dataColumns {
@@ -70,7 +70,7 @@ sub tablesAndCharts {
     my ($component) = @_;
     $component->{tablesAndCharts} //= [
         SpreadsheetModel::WaterfallChartset->tablesAndCharts(
-            { mergeFirstStep => 1 },
+            $component->{chartOptions},
             $component->inputTables->{columns}
         )
     ];

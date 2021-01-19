@@ -30,12 +30,12 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
     my ( $class, $model, @options ) = @_;
-    bless { model => $model }, $class;
+    bless { model => $model, @options }, $class;
 }
 
-sub input1 {
+sub numFruits {
     my ($component) = @_;
-    $component->{input1} ||= Dataset(
+    $component->{numFruits} ||= Dataset(
         name          => 'Number of each type',
         rows          => Labelset( list => [qw(Apples Oranges Pears)] ),
         data          => [ [ 0, 0, 0 ] ],
@@ -53,29 +53,29 @@ sub input1 {
     );
 }
 
-sub result1 {
+sub totalFruits {
     my ($component) = @_;
-    $component->{result1} ||= GroupBy(
+    $component->{totalFruits} ||= GroupBy(
         name          => 'Number of fruits',
         singleRowName => 'Total',
         defaultFormat => '0soft',
-        source        => $component->input1,
+        source        => $component->numFruits,
     );
 }
 
 sub inputTables {
     my ($component) = @_;
-    $component->input1;
+    $component->numFruits;
 }
 
 sub resultTables {
     my ($component) = @_;
-    $component->result1;
+    $component->totalFruits;
 }
 
 sub appendCode {
     my ( $component, $wbook, $wsheet ) = @_;
-    my ( $wb, $ro, $co ) = $component->result1->wsWrite( $wbook, $wsheet );
+    my ( $wb, $ro, $co ) = $component->totalFruits->wsWrite( $wbook, $wsheet );
     my $ref = q^'^
       . $wb->get_name . q^'!^
       . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
