@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::WaterfallChart;
 
-# Copyright 2017-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2017-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -56,20 +56,28 @@ sub check {
         },
     );
     my @orangeColours = (
-        colors       => [ '#FF6633', '#FF6633', ],
+        colors       => [ '#ff6633', '#ff6633', ],
         transparency => [ 80,        0, ],
     );
     my @blueColours = (
-        colors       => [ '#0066CC', '#0066CC', ],
+        colors       => [ '#0066cc', '#0066cc', ],
         transparency => [ 80,        0, ],
     );
     my @overlapGap = ( overlap => 100, gap => 5, );
     push @{ $self->{instructions} },
       add_series => [ $self->{padding}, @overlapGap, fill => { none => 1, }, ],
+      add_series => [
+        $self->{blue_light},
+        fill => { color => '#0066cc', transparency => 80, },
+      ],
       add_series =>
       [ $self->{blue_rightwards}, gradient => { @blueColours, angle => 0, }, ],
       add_series =>
       [ $self->{blue_leftwards}, gradient => { @blueColours, angle => 180, }, ],
+      add_series => [
+        $self->{orange_light},
+        fill => { color => '#ff6633', transparency => 80, },
+      ],
       add_series => [
         $self->{orange_rightwards},
         gradient => { @orangeColours, angle => 0, },

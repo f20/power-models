@@ -51,9 +51,10 @@ sub inputTables {
         columns => [
             map {
                 Dataset(
-                    name => $_,
-                    rows => $component->rowset,
-                    data => [ map { 0; } $component->rowset->indices ],
+                    name          => $_,
+                    defaultFormat => '0.0hard',
+                    rows          => $component->rowset,
+                    data          => [ map { 0; } $component->rowset->indices ],
                 );
               } 'End point',
             'Start point',

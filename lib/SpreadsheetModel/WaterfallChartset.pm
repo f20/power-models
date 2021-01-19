@@ -44,50 +44,44 @@ sub tablesAndCharts {
     # 3 = second step
     # etc
 
-    my ( @value_pos, @value_neg, @padding, @increase, @decrease );
+    my ( @formatting, @value_pos, @value_neg, @padding, @increase, @decrease,
+        @increase_pre, @decrease_pre );
+
+    if ( local $_ = $cols->[0]->{defaultFormat} ) {
+        s/(?:hard|soft|copy)(?:|nz)$/soft/s;
+        @formatting = ( defaultFormat => $_ );
+    }
+
+    my $naFactory = sub {
+        Constant(
+            name => $_[0],
+            @formatting,
+            rows => $rows,
+            data => [ map { '=NA()'; } $rows->indices ],
+        );
+    };
 
     unless ( $settings->{mergeFirstStep} ) {
         my $stepName = $cols->[1]->objectShortName;
-        @value_pos = (
-            Arithmetic(
-                name       => $stepName,
-                rows       => $rows,
-                arithmetic => '=MAX(A1,0)',
-                arguments  => { A1 => $cols->[1] },
-            )
+        @value_pos = Arithmetic(
+            name => $stepName,
+            @formatting,
+            rows       => $rows,
+            arithmetic => '=MAX(A1,0)',
+            arguments  => { A1 => $cols->[1] },
         );
-        @value_neg = (
-            Arithmetic(
-                name       => $stepName,
-                rows       => $rows,
-                arithmetic => '=MIN(A1,0)',
-                arguments  => { A1 => $cols->[1] },
-            )
+        @value_neg = Arithmetic(
+            name => $stepName,
+            @formatting,
+            rows       => $rows,
+            arithmetic => '=MIN(A1,0)',
+            arguments  => { A1 => $cols->[1] },
         );
-        @padding = (
-            Arithmetic(
-                name       => $stepName,
-                rows       => $rows,
-                arithmetic => '=NA()',
-                arguments  => { A1 => $cols->[1] },
-            )
-        );
-        @increase = (
-            Arithmetic(
-                name       => $stepName,
-                rows       => $rows,
-                arithmetic => '=NA()',
-                arguments  => { A1 => $cols->[1] },
-            )
-        );
-        @decrease = (
-            Arithmetic(
-                name       => $stepName,
-                rows       => $rows,
-                arithmetic => '=NA()',
-                arguments  => { A1 => $cols->[1] },
-            )
-        );
+        @padding      = $naFactory->($stepName);
+        @increase     = $naFactory->($stepName);
+        @decrease     = $naFactory->($stepName);
+        @increase_pre = $naFactory->($stepName);
+        @decrease_pre = $naFactory->($stepName);
     }
 
     for ( my $index = 2 ; $index <= @$cols ; ++$index ) {
@@ -96,31 +90,37 @@ sub tablesAndCharts {
         my $index_after  = $index % @$cols;
         my $stepName     = $cols->[$index_after]->objectShortName;
 
-        push @value_pos,
-          Arithmetic(
-            name       => $stepName,
-            rows       => $rows,
-            arithmetic => $index_after
-              && ( !$settings->{mergeFirstStep} || $index_before > 1 )
-            ? '=NA()'
-            : '=MAX(A1,0)',
-            arguments => { A1 => $cols->[ $index_after ? $index_before : 0 ] },
-          );
-
-        push @value_neg,
-          Arithmetic(
-            name       => $stepName,
-            rows       => $rows,
-            arithmetic => $index_after
-              && ( !$settings->{mergeFirstStep} || $index_before > 1 )
-            ? '=NA()'
-            : '=MIN(A1,0)',
-            arguments => { A1 => $cols->[ $index_after ? $index_before : 0 ] },
-          );
+        if ( $index_after
+            and !$settings->{mergeFirstStep} || $index_before > 1 )
+        {
+            push @value_pos, $naFactory->($stepName);
+            push @value_neg, $naFactory->($stepName);
+        }
+        else {
+            push @value_pos,
+              Arithmetic(
+                name => $stepName,
+                @formatting,
+                rows       => $rows,
+                arithmetic => '=MAX(A1,0)',
+                arguments =>
+                  { A1 => $cols->[ $index_after ? $index_before : 0 ] },
+              );
+            push @value_neg,
+              Arithmetic(
+                name => $stepName,
+                @formatting,
+                rows       => $rows,
+                arithmetic => '=MIN(A1,0)',
+                arguments =>
+                  { A1 => $cols->[ $index_after ? $index_before : 0 ] },
+              );
+        }
 
         push @padding,
           Arithmetic(
             name => $stepName,
+            @formatting,
             rows => $rows,
             arithmetic =>
               '=IF(A1<0,IF(A2<0,MAX(A11,A21),0),IF(A23<0,0,MIN(A12,A22)))',
@@ -138,6 +138,7 @@ sub tablesAndCharts {
         push @increase,
           Arithmetic(
             name => $stepName,
+            @formatting,
             rows => $rows,
             arithmetic =>
               '=IF(A1<0,MIN(0,MIN(0,A21)-A11),MAX(0,A12-MAX(0,A22)))',
@@ -150,9 +151,22 @@ sub tablesAndCharts {
             },
           );
 
+        push @increase_pre,
+          Arithmetic(
+            name => $stepName,
+            @formatting,
+            rows       => $rows,
+            arithmetic => '=IF(A1<0,0,MIN(0,A22))',
+            arguments  => {
+                A1  => $cols->[$index_after],
+                A22 => $cols->[$index_before],
+            },
+          );
+
         push @decrease,
           Arithmetic(
             name => $stepName,
+            @formatting,
             rows => $rows,
             arithmetic =>
               '=IF(A1<0,MIN(0,A11-MIN(0,A21)),MAX(0,MAX(0,A22)-A12))',
@@ -162,6 +176,18 @@ sub tablesAndCharts {
                 A12 => $cols->[$index_after],
                 A21 => $cols->[$index_before],
                 A22 => $cols->[$index_before],
+            },
+          );
+
+        push @decrease_pre,
+          Arithmetic(
+            name => $stepName,
+            @formatting,
+            rows       => $rows,
+            arithmetic => '=IF(A1<0,MAX(0,A21),0)',
+            arguments  => {
+                A1  => $cols->[$index_after],
+                A21 => $cols->[$index_before],
             },
           );
 
@@ -188,9 +214,19 @@ sub tablesAndCharts {
         columns => \@increase,
       );
     push @tables,
+      my $preincreaseColumnset = Columnset(
+        name    => "$csetName: pre-increases",
+        columns => \@increase_pre,
+      );
+    push @tables,
       my $decreaseColumnset = Columnset(
         name    => "$csetName: decreases",
         columns => \@decrease,
+      );
+    push @tables,
+      my $predecreaseColumnset = Columnset(
+        name    => "$csetName: pre-decreases",
+        columns => \@decrease_pre,
       );
 
     for my $r ( $rows->indices ) {
@@ -218,8 +254,12 @@ sub tablesAndCharts {
               SpreadsheetModel::ChartSeries->new( $valueNegColumnset, $r ),
             padding =>
               SpreadsheetModel::ChartSeries->new( $paddingColumnset, $r ),
+            blue_light =>
+              SpreadsheetModel::ChartSeries->new( $preincreaseColumnset, $r ),
             blue_rightwards =>
               SpreadsheetModel::ChartSeries->new( $increaseColumnset, $r ),
+            orange_light =>
+              SpreadsheetModel::ChartSeries->new( $predecreaseColumnset, $r ),
             orange_leftwards =>
               SpreadsheetModel::ChartSeries->new( $decreaseColumnset, $r ),
           );
