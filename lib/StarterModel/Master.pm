@@ -1,6 +1,6 @@
 ﻿package StarterModel;
 
-# Copyright 2020 Franck Latrémolière and others.
+# Copyright 2020-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -86,18 +86,13 @@ sub worksheetsAndClosures {
         Result => $model->resultSheetWriter($wbook),
         Index  => SpreadsheetModel::Book::FrontSheet->new(
             model     => $model,
-            copyright => 'Copyright 2020 Franck Latrémolière and others.'
+            copyright => 'Copyright 2020-2021 Franck Latrémolière and others.'
         )->closure($wbook),
     );
 }
 
 sub finishModel {
     my ( $model, $wbook ) = @_;
-    if ( $model->{_input_sheet} ) {
-        delete $model->{_input_sheet}{sheetNumber};
-        $_->wsWrite( $wbook, $model->{_input_sheet} )
-          foreach $model->calculator->feedbackItems;
-    }
     my $append;
     foreach ( @{ $model->{_titwrt}{$wbook} } ) {
         my ( $wsheet, $row, $col, $title, $fmt ) = @$_;
