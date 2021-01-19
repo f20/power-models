@@ -29,14 +29,17 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::Book::FrontSheet;
 
-sub serviceMap {
+sub serviceMapForRuleset {
     my ($ruleset) = @_;
-    { calculator => __PACKAGE__ . '::Calculator', };
+    {
+        fruitCounter => __PACKAGE__ . '::FruitCounter',
+        chartTester  => __PACKAGE__ . '::WaterfallTester',
+    };
 }
 
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
-    values %{ serviceMap($ruleset) };
+    values %{ serviceMapForRuleset($ruleset) };
 }
 
 sub new {
@@ -44,27 +47,34 @@ sub new {
     bless {@_}, $class;
 }
 
-sub calculator {
+sub serviceMap {
     my ($model) = @_;
-    return $model->{_calc} if $model->{_calc};
-    my $serviceMap = $model->serviceMap;
-    $model->{_calc} = $serviceMap->{calculator}->new($model);
+    $model->{serviceMap} //= serviceMapForRuleset($model);
+}
+
+sub instance {
+    my ( $model, $service, @identifiers ) = @_;
+    $model->{ join ':', 'instance', $service, @identifiers } //=
+      $model->serviceMap->{$service}->new( $model, @identifiers );
 }
 
 sub getAppendCode {
     my ( $model, $wbook, $wsheet ) = @_;
-    $model->calculator->appendCode( $wbook, $wsheet );
+    $model->instance( fruitCounter => )->appendCode( $wbook, $wsheet );
 }
 
 sub inputsSheetWriter {
     my ( $model, $wbook ) = @_;
     sub {
         my ($wsheet) = @_;
+        $model->{inputSheet}{$wbook} = $wsheet;
         $model->{_input_sheet} = $wsheet;
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Inputs' ), $model->calculator->inputsTables;
+          foreach Notes( name => 'Inputs and charts' ),
+          $model->instance( fruitCounter => )->inputTables,
+          $model->instance( chartTester  => )->inputTables;
     };
 }
 
@@ -72,9 +82,11 @@ sub resultSheetWriter {
     my ( $model, $wbook ) = @_;
     sub {
         my ($wsheet) = @_;
-        $wsheet->set_column( 0, 1, 16 );
+        $wsheet->set_column( 0, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Result' ), $model->calculator->resultTables;
+          foreach Notes( name => 'Calculations and results' ),
+          $model->instance( fruitCounter => )->resultTables,
+          $model->instance( chartTester  => )->calculationTables;
     };
 }
 
@@ -82,9 +94,9 @@ sub worksheetsAndClosures {
     my ( $model, $wbook ) = @_;
     $wbook->{titleWriter} = sub { push @{ $model->{_titwrt}{$wbook} }, [@_]; };
     (
-        Inputs => $model->inputsSheetWriter($wbook),
-        Result => $model->resultSheetWriter($wbook),
-        Index  => SpreadsheetModel::Book::FrontSheet->new(
+        'Inputs+Charts' => $model->inputsSheetWriter($wbook),
+        'Calculations'  => $model->resultSheetWriter($wbook),
+        'Index'         => SpreadsheetModel::Book::FrontSheet->new(
             model     => $model,
             copyright => 'Copyright 2020-2021 Franck Latrémolière and others.'
         )->closure($wbook),
@@ -101,6 +113,8 @@ sub finishModel {
                 'Not calculated: '
               . 'open in spreadsheet app and allow calculations' );
     }
+    $_->wsWrite( $wbook, $model->{inputSheet}{$wbook} )
+      foreach $model->instance( chartTester => )->charts;
 }
 
 1;

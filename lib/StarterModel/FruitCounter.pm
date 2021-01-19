@@ -1,4 +1,4 @@
-﻿package StarterModel::Calculator;
+﻿package StarterModel::FruitCounter;
 
 # Copyright 2020-2021 Franck Latrémolière and others.
 #
@@ -29,17 +29,17 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $options ) = @_;
-    bless { options => $options }, $class;
+    my ( $class, $model, @options ) = @_;
+    bless { model => $model }, $class;
 }
 
 sub input1 {
-    my ($calc) = @_;
-    $calc->{input1} ||= Dataset(
+    my ($component) = @_;
+    $component->{input1} ||= Dataset(
         name          => 'Number of each type',
         rows          => Labelset( list => [qw(Apples Oranges Pears)] ),
         data          => [ [ 0, 0, 0 ] ],
-        dataset       => $calc->{options}{dataset},
+        dataset       => $component->{model}{dataset},
         number        => 101,
         defaultFormat => '0hard',
         validation    => {
@@ -54,28 +54,28 @@ sub input1 {
 }
 
 sub result1 {
-    my ($calc) = @_;
-    $calc->{result1} ||= GroupBy(
+    my ($component) = @_;
+    $component->{result1} ||= GroupBy(
         name          => 'Number of fruits',
         singleRowName => 'Total',
         defaultFormat => '0soft',
-        source        => $calc->input1,
+        source        => $component->input1,
     );
 }
 
-sub inputsTables {
-    my ($calc) = @_;
-    $calc->input1;
+sub inputTables {
+    my ($component) = @_;
+    $component->input1;
 }
 
 sub resultTables {
-    my ($calc) = @_;
-    $calc->result1;
+    my ($component) = @_;
+    $component->result1;
 }
 
 sub appendCode {
-    my ( $calc, $wbook, $wsheet ) = @_;
-    my ( $wb, $ro, $co ) = $calc->result1->wsWrite( $wbook, $wsheet );
+    my ( $component, $wbook, $wsheet ) = @_;
+    my ( $wb, $ro, $co ) = $component->result1->wsWrite( $wbook, $wsheet );
     my $ref = q^'^
       . $wb->get_name . q^'!^
       . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );

@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::WaterfallChartset;
 
-# Copyright 2017-2020 Franck Latrémolière and others.
+# Copyright 2017-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -38,113 +38,133 @@ sub tablesAndCharts {
     my $csetName = ( $cols->[0]{location} || $cols->[0] )->objectShortName;
 
     # Column order:
-    # 0 = final position
-    # 1 = starting point
+    # 0 = end point
+    # 1 = start point
     # 2 = first step
     # 3 = second step
     # etc
 
-    my $n         = $cols->[1]->objectShortName;
-    my @value_pos = (
-        Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=MAX(A1,0)',
-            arguments  => { A1 => $cols->[1] },
-        )
-    );
-    my @value_neg = (
-        Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=MIN(A1,0)',
-            arguments  => { A1 => $cols->[1] },
-        )
-    );
-    my @padding = (
-        Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[1] },
-        )
-    );
-    my @increase = (
-        Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[1] },
-        )
-    );
-    my @decrease = (
-        Arithmetic(
-            name       => $n,
-            rows       => $rows,
-            arithmetic => '=NA()',
-            arguments  => { A1 => $cols->[1] },
-        )
-    );
+    my ( @value_pos, @value_neg, @padding, @increase, @decrease );
 
-    for ( my $i = 2 ; $i <= @$cols ; ++$i ) {
-        my $j = $i % @$cols;
-        $n = $cols->[$j]->objectShortName;
+    unless ( $settings->{mergeFirstStep} ) {
+        my $stepName = $cols->[1]->objectShortName;
+        @value_pos = (
+            Arithmetic(
+                name       => $stepName,
+                rows       => $rows,
+                arithmetic => '=MAX(A1,0)',
+                arguments  => { A1 => $cols->[1] },
+            )
+        );
+        @value_neg = (
+            Arithmetic(
+                name       => $stepName,
+                rows       => $rows,
+                arithmetic => '=MIN(A1,0)',
+                arguments  => { A1 => $cols->[1] },
+            )
+        );
+        @padding = (
+            Arithmetic(
+                name       => $stepName,
+                rows       => $rows,
+                arithmetic => '=NA()',
+                arguments  => { A1 => $cols->[1] },
+            )
+        );
+        @increase = (
+            Arithmetic(
+                name       => $stepName,
+                rows       => $rows,
+                arithmetic => '=NA()',
+                arguments  => { A1 => $cols->[1] },
+            )
+        );
+        @decrease = (
+            Arithmetic(
+                name       => $stepName,
+                rows       => $rows,
+                arithmetic => '=NA()',
+                arguments  => { A1 => $cols->[1] },
+            )
+        );
+    }
+
+    for ( my $index = 2 ; $index <= @$cols ; ++$index ) {
+
+        my $index_before = $index - 1;
+        my $index_after  = $index % @$cols;
+        my $stepName     = $cols->[$index_after]->objectShortName;
+
         push @value_pos,
           Arithmetic(
-            name       => $n,
+            name       => $stepName,
             rows       => $rows,
-            arithmetic => $j ? '=NA()' : '=MAX(A1,0)',
-            arguments => { A1 => $cols->[$j] },
+            arithmetic => $index_after
+              && ( !$settings->{mergeFirstStep} || $index_before > 1 )
+            ? '=NA()'
+            : '=MAX(A1,0)',
+            arguments => { A1 => $cols->[ $index_after ? $index_before : 0 ] },
           );
+
         push @value_neg,
           Arithmetic(
-            name       => $n,
+            name       => $stepName,
             rows       => $rows,
-            arithmetic => $j ? '=NA()' : '=MIN(A1,0)',
-            arguments => { A1 => $cols->[$j] },
+            arithmetic => $index_after
+              && ( !$settings->{mergeFirstStep} || $index_before > 1 )
+            ? '=NA()'
+            : '=MIN(A1,0)',
+            arguments => { A1 => $cols->[ $index_after ? $index_before : 0 ] },
           );
+
         push @padding,
           Arithmetic(
-            name => $n,
+            name => $stepName,
             rows => $rows,
             arithmetic =>
               '=IF(A1<0,IF(A2<0,MAX(A11,A21),0),IF(A23<0,0,MIN(A12,A22)))',
             arguments => {
-                A1  => $cols->[ $i - 1 ],
-                A11 => $cols->[ $i - 1 ],
-                A12 => $cols->[ $i - 1 ],
-                A2  => $cols->[$j],
-                A21 => $cols->[$j],
-                A22 => $cols->[$j],
-                A23 => $cols->[$j],
+                A1  => $cols->[$index_before],
+                A11 => $cols->[$index_before],
+                A12 => $cols->[$index_before],
+                A2  => $cols->[$index_after],
+                A21 => $cols->[$index_after],
+                A22 => $cols->[$index_after],
+                A23 => $cols->[$index_after],
             },
           );
+
         push @increase,
           Arithmetic(
-            name => $n,
+            name => $stepName,
             rows => $rows,
             arithmetic =>
-              '=MAX(0,MAX(A2,0)-MAX(A1,0))+MIN(0,MIN(A11,0)-MIN(A21,0))',
+              '=IF(A1<0,MIN(0,MIN(0,A21)-A11),MAX(0,A12-MAX(0,A22)))',
             arguments => {
-                A1  => $cols->[ $i - 1 ],
-                A11 => $cols->[ $i - 1 ],
-                A21 => $cols->[$j],
-                A2  => $cols->[$j],
+                A1  => $cols->[$index_after],
+                A11 => $cols->[$index_after],
+                A12 => $cols->[$index_after],
+                A21 => $cols->[$index_before],
+                A22 => $cols->[$index_before],
             },
           );
+
         push @decrease,
           Arithmetic(
-            name => $n,
+            name => $stepName,
             rows => $rows,
             arithmetic =>
-              '=MAX(0,MAX(A1,0)-MAX(A2,0))+MIN(0,MIN(A21,0)-MIN(A11,0))',
+              '=IF(A1<0,MIN(0,A11-MIN(0,A21)),MAX(0,MAX(0,A22)-A12))',
             arguments => {
-                A1  => $cols->[ $i - 1 ],
-                A11 => $cols->[ $i - 1 ],
-                A21 => $cols->[$j],
-                A2  => $cols->[$j],
+                A1  => $cols->[$index_after],
+                A11 => $cols->[$index_after],
+                A12 => $cols->[$index_after],
+                A21 => $cols->[$index_before],
+                A22 => $cols->[$index_before],
             },
           );
+
     }
 
     push @tables,
