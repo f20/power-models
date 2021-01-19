@@ -26,7 +26,7 @@
 use warnings;
 use strict;
 use utf8;
-use Elec::Comparison;
+use Elec::SummariesComparison;
 
 sub new {
     my ( $class, $model, $setup, ) = @_;
@@ -38,7 +38,7 @@ sub setupByGroup {
     $self->{usetName} = $usetName;
     $self->{volumes}  = $customers->totalDemand($usetName);
     $self->{comparison} =
-      Elec::Comparison->new( $self->{model}, $self->{setup}, undef,
+      Elec::SummariesComparison->new( $self->{model}, $self->{setup}, undef,
         'revenueTables' );
     $self->setupComparisonPpu(
         Elec::Summaries::CustomersPlaceholder->new( $self->{volumes}[0]{rows} )
@@ -52,7 +52,7 @@ sub setupWithActiveCustomers {
     $self->{names}    = $customers->names;
     $self->{volumes}  = $customers->individualDemandUsed($usetName);
     $self->{comparison} =
-      Elec::Comparison->new( $self->{model}, $self->{setup}, );
+      Elec::SummariesComparison->new( $self->{model}, $self->{setup} );
     $self->setupComparisonPpu($customers);
 }
 
@@ -61,7 +61,7 @@ sub setupWithAllCustomers {
     $self->{names}   = $customers->names;
     $self->{volumes} = $customers->individualDemand;
     $self->{comparison} =
-      Elec::Comparison->new( $self->{model}, $self->{setup},
+      Elec::SummariesComparison->new( $self->{model}, $self->{setup},
         $customers->totalDemand($usetName)->[0]{matrix} );
     $self->{comparison}
       ->useAlternativeRowset( $customers->userLabelsetRegrouped )

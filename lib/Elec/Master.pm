@@ -44,9 +44,9 @@ sub serviceMap {
       if $model->{interpolator};
     push @servMap, summaries => 'Elec::Summaries'
       if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};
-    push @servMap, supply    => 'Elec::Supply'       if $model->{usetEnergy};
-    push @servMap, timebands => 'Elec::TimebandSets' if $model->{timebandSets};
-    push @servMap, timebands => 'Elec::Timebands'    if $model->{timebands};
+    push @servMap, supply    => 'Elec::TariffsSupply' if $model->{usetEnergy};
+    push @servMap, timebands => 'Elec::TimebandSets'  if $model->{timebandSets};
+    push @servMap, timebands => 'Elec::Timebands'     if $model->{timebands};
     push @servMap, usage     => 'Elec::Usage';
     @servMap;
 }
@@ -82,15 +82,14 @@ sub new {
 
     # Matching
 
-    # NB: the order of feeding arguments to $customers->totalDemand will
-    # determine the column order for proportions in the input data table.
-
     if ( my $usetName = $model->{usetMatchUsage} ) {
         $usage = $usage->matchTotalUsage( $customers->totalDemand($usetName) );
     }
 
     $model->{usetNonAssetCosts} ||= $model->{usetBoundaryCosts};   # Legacy only
-    foreach (
+    foreach
+      (    # NB: the order of feeding arguments to $customers->totalDemand will
+           # determine the column order for proportions in the input data table.
         qw(
         usetMatchAssetDetail
         usetMatchAssets
@@ -115,6 +114,8 @@ sub new {
       if $serviceMap{timebands} && $model->{showAverageUnitRateTable};
 
     # Revenues, supply tariffs, reporting and statistics
+    # NB: the order of feeding arguments to $customers->totalDemand will
+    # determine the column order for proportions in the input data table.
 
     if ( my $usetName = $model->{usetRevenues} ) {
         if ( $model->{showppu} ) {
@@ -164,6 +165,7 @@ sub new {
     # Finish
 
     $_->finish($model) foreach @{ $model->{finishList} };
+
     $model;
 
 }

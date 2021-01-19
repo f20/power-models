@@ -1,4 +1,4 @@
-﻿package Elec::Supply;
+﻿package Elec::TariffsSupply;
 
 # Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
 #

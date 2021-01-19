@@ -1,4 +1,4 @@
-﻿package Elec::Comparison;
+﻿package Elec::SummariesComparison;
 
 # Copyright 2012-2021 Franck Latrémolière and others.
 #
