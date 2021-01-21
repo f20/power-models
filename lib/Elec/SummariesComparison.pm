@@ -101,6 +101,10 @@ sub revenueComparison {
         $revenues = Stack( rows => $self->{rows}, sources => [$revenues] );
     }
     push @columns, $revenues;
+    ${ $self->{model}{sharingObjectRef} }
+      ->takeResults( $self->{model}, $revenues )
+      if $self->{model}{sharingObjectRef}
+      && ${ $self->{model}{sharingObjectRef} }->can('takeResults');
 
     my ( $compare, $difference );
     if ( $self->{comparisonppu} ) {
@@ -218,6 +222,12 @@ sub revenueComparison {
             @extraColumns,
             $compare ? ( $compare, $difference, ) : ()
         );
+
+        ${ $self->{model}{sharingObjectRef} }
+          ->takeResults( $self->{model}, $cols[1] )
+          if $self->{model}{sharingObjectRef}
+          && ${ $self->{model}{sharingObjectRef} }->can('takeResults');
+
         push @cols,
           Arithmetic(
             name          => "$totalTerm difference %",

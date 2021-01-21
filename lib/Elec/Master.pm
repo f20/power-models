@@ -65,8 +65,10 @@ sub register {
 
 sub new {
 
-    my $class      = shift;
-    my $model      = bless { inputTables => [], finishList => [], @_ }, $class;
+    my $class = shift;
+    my $model = bless { inputTables => [], finishList => [], @_ }, $class;
+    $model->{dataset}{datasetCallback}->($model)
+      if $model->{dataset} && $model->{dataset}{datasetCallback};
     my %serviceMap = $model->serviceMap;
     my $setup      = $serviceMap{setup}->new($model);
     $setup->registerTimebands( $serviceMap{timebands}->new( $model, $setup ) )

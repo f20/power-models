@@ -52,12 +52,14 @@ sub tablesAndCharts {
         @formatting = ( defaultFormat => $_ );
     }
 
+    my @rowIndices = $rows ? $rows->indices : 0;
+
     my $naFactory = sub {
         Constant(
             name => $_[0],
             @formatting,
             rows => $rows,
-            data => [ map { '=NA()'; } $rows->indices ],
+            data => [ map { '=NA()'; } @rowIndices ],
         );
     };
 
@@ -229,9 +231,9 @@ sub tablesAndCharts {
         columns => \@decrease_pre,
       );
 
-    for my $r ( $rows->indices ) {
-        next if $rows->{groupid} && !defined $rows->{groupid}[$r];
-        local $_ = $rows->{list}[$r];
+    for my $r (@rowIndices) {
+        next if $rows && $rows->{groupid} && !defined $rows->{groupid}[$r];
+        local $_ = $rows ? $rows->{list}[$r] : $csetName;
         if ($chartTitlesMapOptional) {
             $_ = $chartTitlesMapOptional->{$_};
         }

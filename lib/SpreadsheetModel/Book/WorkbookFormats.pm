@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Book::WorkbookFormats;
 
-# Copyright 2008-2020 Franck Latrémolière and others.
+# Copyright 2008-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -603,14 +603,12 @@ sub setFormats {
             @sLabel,
             num_format => $black . '\L\o\c\a\t\i\o\n\ 0',
             align      => 'center',
-            @sExtras,
             @cCopy,
         ],
         'locsoft' => [
             @sLabel,
             num_format => $black . '\L\o\c\a\t\i\o\n\ 0',
             align      => 'center',
-            @sExtras,
             @cSoft,
         ],
         'indexcon' => [
@@ -618,7 +616,6 @@ sub setFormats {
             @sLabel,
             num_format => $black . '\I\n\d\e\x\ 0;' . $black . '\I\n\d\e\x\ -0',
             align      => 'center',
-            @sExtras,
             $options->{gridlines} ? ( border => 7 ) : (),
             @cCon,
         ],
@@ -627,7 +624,6 @@ sub setFormats {
             @sLabel,
             num_format => $black . '\I\n\d\e\x\ 0;' . $black . '\I\n\d\e\x\ -0',
             align      => 'center',
-            @sExtras,
             $options->{gridlines} ? ( border => 7 ) : (),
             @cCopy,
         ],
@@ -636,9 +632,14 @@ sub setFormats {
             @sLabel,
             num_format => $black . '\I\n\d\e\x\ 0;' . $black . '\I\n\d\e\x\ -0',
             align      => 'center',
-            @sExtras,
             $options->{gridlines} ? ( border => 7 ) : (),
             @cSoft,
+        ],
+        'stephard' => [
+            @sLabel,
+            num_format => $black . '\S\t\e\p\ 0;' . $black . '-0',
+            align      => 'center',
+            @cHard,
         ],
         'notes' => [
             @sHeading,
