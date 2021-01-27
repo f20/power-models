@@ -213,7 +213,7 @@ sub setFormats {
         align => 'right'
       )
       : (
-        num_format => "$plus#,##0.00%;$minus#,##0.00%;$same;$cyan@",
+        num_format => "$plus?,??0.00%;$minus?,??0.00%;$same;$cyan@",
         align      => 'center'
       );
     my @num_million =
