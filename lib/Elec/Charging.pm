@@ -48,8 +48,8 @@ sub energyCharge {
         arguments => {
             A2 => $self->{setup}->daysInYear,
             A1 => Dataset(
-                name     => 'Energy charging rate p/kWh',
-                cols     => $self->{setup}->energyUsageSet,
+                name => 'Cost of procuring energy for electrical losses p/kWh',
+                cols => $self->{setup}->energyUsageSet,
                 number   => 1585,
                 appendTo => $self->{model}{inputTables},
                 dataset  => $self->{model}{dataset},
