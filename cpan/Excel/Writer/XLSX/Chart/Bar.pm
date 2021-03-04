@@ -79,12 +79,6 @@ sub combine {
     my $self  = shift;
     my $chart = shift;
 
-	# Condition switched off by Franck
-    if ( 0 && !$chart->{_is_secondary}) {
-        carp 'Charts combined with Bar charts must be on a secondary axis';
-        return;
-    }
-
     $self->{_combined} = $chart;
 }
 
