@@ -4,7 +4,7 @@ package Excel::Writer::XLSX;
 #
 # Excel::Writer::XLSX - Create a new file in the Excel 2007+ XLSX format.
 #
-# Copyright 2000-2020, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2021, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -17,7 +17,7 @@ use Exporter;
 use Excel::Writer::XLSX::Workbook;
 
 our @ISA     = qw(Excel::Writer::XLSX::Workbook Exporter);
-our $VERSION = '1.07';
+our $VERSION = '1.08';
 
 
 ###############################################################################
@@ -155,6 +155,7 @@ The Excel::Writer::XLSX module provides an object oriented interface to a new Ex
     set_optimization()
     set_calc_mode()
     get_default_url_format()
+    read_only_recommended()
 
 If you are unfamiliar with object oriented interfaces or the way that they are implemented in Perl have a look at C<perlobj> and C<perltoot> in the main Perl documentation.
 
@@ -692,6 +693,15 @@ The C<get_default_url_format()> method gets a copy of the default url format use
 
 
 
+=head2 read_only_recommended()
+
+The C<read_only_recommended()> method can be used to set the Excel "Read-only Recommended" option that is available when saving a file. This presents the user of the file with an option to open it in "read-only" mode. This means that any changes to the file can't be saved back to the same file and must be saved to a new file. It can be set as follows:
+
+    $workbook->read_only_recommended();
+
+
+
+
 =head1 WORKSHEET METHODS
 
 A new worksheet is created by calling the C<add_worksheet()> method from a workbook object:
@@ -735,8 +745,10 @@ The following methods are available through a new worksheet:
     unprotect_range()
     set_selection()
     set_row()
+    set_row_pixels()
     set_default_row()
     set_column()
+    set_column_pixels()
     outline_settings()
     freeze_panes()
     split_panes()
@@ -1713,6 +1725,8 @@ The optional C<options> hash/hashref parameter can be used to set various option
         object_position => 2,
         url             => undef,
         tip             => undef,
+        description     => $filename,
+        decorative      => 0,
     );
 
 The parameters C<x_offset> and C<y_offset> can be used to specify an offset from the top left hand corner of the cell specified by C<$row> and C<$col>. The offset values are in pixels.
@@ -1725,7 +1739,6 @@ The parameters C<x_scale> and C<y_scale> can be used to scale the inserted image
 
     # Scale the inserted image: width x 2.0, height x 0.8
     $worksheet->insert_image( 'A1', 'perl.bmp', { y_scale => 2, y_scale => 0.8 } );
-
 
 The positioning of the image when cells are resized can be set with the C<object_position> parameter:
 
@@ -1755,6 +1768,15 @@ The C<tip> option can be use to used to add a mouseover tip to the hyperlink:
             tip => 'GitHub'
         }
     );
+
+The C<description> parameter can be used to specify a description or "alt text" string for the image. In general this would be used to provide a text description of the image to help accessibility. It is an optional parameter and defaults to the filename of the image. It can be used as follows:
+
+    $worksheet->insert_image( 'E9', 'logo.png',
+                              {description => "This is some alternative text"} );
+
+The optional C<decorative> parameter is also used to help accessibility. It is used to mark the image as decorative, and thus uninformative, for automated screen readers. As in Excel, if this parameter is in use the C<description> field isn't written. It is used as follows:
+
+    $worksheet->insert_image( 'E9', 'logo.png', {decorative => 1} );
 
 Note: you must call C<set_row()> or C<set_column()> before C<insert_image()> if you wish to change the default dimensions of any of the rows or columns that the image occupies. The height of a row can also change if you use a font that is larger than the default. This in turn will affect the scaling of your image. To avoid this you should explicitly set the height of the row using C<set_row()> if it contains a font size that will change the row height.
 
@@ -2177,9 +2199,11 @@ The default cell selections is (0, 0), 'A1'.
 
 This method can be used to change the default properties of a row. All parameters apart from C<$row> are optional.
 
-The most common use for this method is to change the height of a row:
+The most common use for this method is to change the height of a row.
 
     $worksheet->set_row( 0, 20 );    # Row 1 height set to 20
+
+Note: the row height is in Excel character units. To set the height in pixels use the C<set_row_pixels()> method, see below.
 
 If you wish to set the format without changing the height you can pass C<undef> as the height parameter:
 
@@ -2221,6 +2245,16 @@ Excel allows up to 7 outline levels. Therefore the C<$level> parameter should be
 
 
 
+=head2 set_row_pixels( $row, $height, $format, $hidden, $level, $collapsed )
+
+This method is the same as C<set_row()> except that C<$height> is in pixels.
+
+    $worksheet->set_row       ( 0, 24 );    # Set row height in character units
+    $worksheet->set_row_pixels( 1, 18 );    # Set row to same height in pixels
+
+
+
+
 =head2 set_column( $first_col, $last_col, $width, $format, $hidden, $level, $collapsed )
 
 This method can be used to change the default properties of a single column or a range of columns. All parameters apart from C<$first_col> and C<$last_col> are optional.
@@ -2236,7 +2270,9 @@ Examples:
     $worksheet->set_column( 'E:E', 20 );   # Column  E   width set to 20
     $worksheet->set_column( 'F:H', 30 );   # Columns F-H width set to 30
 
-The width corresponds to the column width value that is specified in Excel. It is approximately equal to the length of a string in the default font of Calibri 11. Unfortunately, there is no way to specify "AutoFit" for a column in the Excel file format. This feature is only available at runtime from within Excel.
+The width corresponds to the column width value that is specified in Excel. It is approximately equal to the length of a string in the default font of Calibri 11. To set the width in pixels use the C<set_column_pixels()> method, see below.
+
+Unfortunately, there is no way to specify "AutoFit" for a column in the Excel file format. This feature is only available at runtime from within Excel.
 
 As usual the C<$format> parameter is optional, for additional information, see L</CELL FORMATTING>. If you wish to set the format without changing the width you can pass C<undef> as the width parameter:
 
@@ -2279,6 +2315,16 @@ For collapsed outlines you should also indicate which row has the collapsed C<+>
 For a more complete example see the C<outline.pl> and C<outline_collapsed.pl> programs in the examples directory of the distro.
 
 Excel allows up to 7 outline levels. Therefore the C<$level> parameter should be in the range C<0 E<lt>= $level E<lt>= 7>.
+
+
+
+
+=head2 set_column_pixels( $first_col, $last_col, $width, $format, $hidden, $level, $collapsed )
+
+This method is the same as C<set_column()> except that C<$width> is in pixels.
+
+    $worksheet->set_column( 0, 0, 10 );    # Column A width set to 20 in character units
+    $worksheet->set_column( 1, 1, 75 );    # Column B set to the same width in pixels
 
 
 
@@ -7704,6 +7750,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright MM-MMXX, John McNamara.
+Copyright MM-MMXXI, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

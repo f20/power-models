@@ -7,7 +7,7 @@ package Excel::Writer::XLSX::Workbook;
 #
 # Used in conjunction with Excel::Writer::XLSX
 #
-# Copyright 2000-2020, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2021, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -34,7 +34,7 @@ use Excel::Writer::XLSX::Package::XMLwriter;
 use Excel::Writer::XLSX::Utility qw(xl_cell_to_rowcol xl_rowcol_to_cell);
 
 our @ISA     = qw(Excel::Writer::XLSX::Package::XMLwriter);
-our $VERSION = '1.07';
+our $VERSION = '1.08';
 
 
 ###############################################################################
@@ -99,6 +99,8 @@ sub new {
     $self->{_excel2003_style}    = 0;
     $self->{_max_url_length}     = 2079;
     $self->{_has_comments}       = 0;
+    $self->{_read_only}          = 0;
+    $self->{_has_metadata}       = 0;
 
     $self->{_default_format_properties} = {};
 
@@ -213,6 +215,9 @@ sub _assemble_xml_file {
 
     # Write the XLSX file version.
     $self->_write_file_version();
+
+    # Write the fileSharing element.
+    $self->_write_file_sharing();
 
     # Write the workbook properties.
     $self->_write_workbook_pr();
@@ -1046,6 +1051,20 @@ sub set_vba_name {
 
 ###############################################################################
 #
+# read_only_recommended()
+#
+# Set the Excel "Read-only recommended" save option.
+#
+sub read_only_recommended {
+
+    my $self = shift;
+
+    $self->{_read_only} = 2;
+}
+
+
+###############################################################################
+#
 # set_calc_mode()
 #
 # Set the Excel caclcuation mode for the workbook.
@@ -1068,6 +1087,7 @@ sub set_calc_mode {
 
     $self->{_calc_id} = $calc_id if defined $calc_id;
 }
+
 
 
 ###############################################################################
@@ -1147,6 +1167,9 @@ sub _store_workbook {
 
     # Prepare the worksheet tables.
     $self->_prepare_tables();
+
+    # Prepare the metadata file links.
+    $self->_prepare_metadata();
 
     # Package the workbook.
     $packager->_add_workbook( $self );
@@ -1996,6 +2019,24 @@ sub _prepare_tables {
 
 ###############################################################################
 #
+# _prepare_metadata()
+#
+# Set the metadata rel link.
+#
+sub _prepare_metadata {
+
+    my $self = shift;
+
+    for my $sheet ( @{ $self->{_worksheets} } ) {
+        if ($sheet->{_has_dynamic_arrays}) {
+            $self->{_has_metadata} = 1;
+        }
+    }
+}
+
+
+###############################################################################
+#
 # _add_chart_data()
 #
 # Add "cached" data to charts to provide the numCache and strCache data for
@@ -2555,6 +2596,24 @@ sub _write_file_version {
 }
 
 
+##############################################################################
+#
+# _write_file_sharing()
+#
+# Write the <fileSharing> element.
+#
+sub _write_file_sharing {
+
+    my $self = shift;
+
+    return if !$self->{_read_only};
+
+    my @attributes = ( 'readOnlyRecommended' => 1, );
+
+    $self->xml_empty_tag( 'fileSharing', @attributes );
+}
+
+
 ###############################################################################
 #
 # _write_workbook_pr()
@@ -2836,6 +2895,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-(c) MM-MMXX, John McNamara.
+(c) MM-MMXXI, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
