@@ -239,28 +239,28 @@ sub usetMatchAssetDetail {
             A2  => $assetVolumes,
         },
     );
-    my $columnset = Columnset(
-        name => 'Matching detailed notional assets to actual assets'
-          . $applicationOptions,
-        columns => [ $totalBefore, $assetVolumes, $assetMatchingFactors, ],
-    );
-    $self->{assets}->addNotionalVolumesFeedback(
-        $assetMatchingFactors,
-        conditionalFormatting => {
-            type      => '3_color_scale',
-            min_type  => 'num',
-            mid_type  => 'num',
-            max_type  => 'num',
-            min_value => sqrt(.5),
-            mid_value => 1,
-            max_value => sqrt(2),
-            min_color => '#ccccff',
-            mid_color => '#ccffcc',
-            max_color => '#ffcccc',
-        },
-    );
     if ( $applicationOptions =~ /info/i ) {
-        push @{ $self->{model}{checkTables} }, $columnset;
+        $self->{assets}->addNotionalVolumesFeedback(
+            $assetMatchingFactors,
+            conditionalFormatting => {
+                type      => '3_color_scale',
+                min_type  => 'num',
+                mid_type  => 'num',
+                max_type  => 'num',
+                min_value => sqrt(.5),
+                mid_value => 1,
+                max_value => sqrt(2),
+                min_color => '#ccccff',
+                mid_color => '#ccffcc',
+                max_color => '#ffcccc',
+            },
+        );
+        push @{ $self->{model}{checkTables} },
+          Columnset(
+            name => 'Matching detailed notional assets to actual assets'
+              . $applicationOptions,
+            columns => [ $totalBefore, $assetVolumes, $assetMatchingFactors, ],
+          );
     }
     else {
         $self->{assets}->notionalVolumes(

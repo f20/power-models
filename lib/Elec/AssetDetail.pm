@@ -133,7 +133,7 @@ sub notionalVolumes {
     my ( $self, $setNotionalVolumes ) = @_;
     return $self->{notionalVolumes} = $setNotionalVolumes
       if $setNotionalVolumes;
-    $self->{notionalVolumes} ||= Dataset(
+    $self->{notionalVolumes} ||= $self->{notionalVolumesInput} ||= Dataset(
         name    => 'Notional scheme asset volumes',
         number  => 1553,
         dataset => $self->{model}{dataset},
@@ -218,7 +218,7 @@ sub finish {
     my ($self) = @_;
     if ( $self->{notionalVolumesFeedback} ) {
         Columnset(
-            name     => $self->{notionalVolumes}->objectShortName,
+            name     => $self->{notionalVolumesInput}->objectShortName,
             number   => 1553,
             dataset  => $self->{model}{dataset},
             appendTo => $self->{model}{inputTables},
@@ -226,8 +226,8 @@ sub finish {
               [ $self->{notionalVolumes}, $self->{notionalVolumesFeedback}, ],
         );
     }
-    else {
-        push @{ $self->{model}{inputTables} }, $self->{notionalVolumes};
+    elsif ( $self->{notionalVolumesInput} ) {
+        push @{ $self->{model}{inputTables} }, $self->{notionalVolumesInput};
     }
 }
 
