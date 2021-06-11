@@ -230,8 +230,9 @@ sub usetMatchAssetDetail {
     my $assetMatchingFactors = Arithmetic(
         name => 'Detailed notional asset adjustment factors'
           . $applicationOptions,
-        arithmetic => $applicationOptions =~ /cap/i
-        ? '=MIN(1,IF(A11,A2/A1,6.666))'
+        arithmetic => $applicationOptions =~ /cap([0-9.]+)/i
+        ? "=MIN($1,IF(A11,A2/A1,6.666))"
+        : $applicationOptions =~ /cap/i ? '=MIN(1,IF(A11,A2/A1,6.666))'
         : '=IF(A11,A2/A1,6.666)',
         arguments => {
             A1  => $totalBefore,
