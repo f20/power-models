@@ -145,7 +145,7 @@ sub worksheetsAndClosures {
         'Bands' => sub {
             my ($wsheet) = @_;
             $wsheet->freeze_panes( 1, 0 );
-            $wsheet->set_column( 0, 0,   20 );
+            $wsheet->set_column( 0, 0,   30 );
             $wsheet->set_column( 1, 250, 20 );
             $_->wsWrite( $wbook, $wsheet )
               foreach Notes( name => 'Time band analysis' ),
@@ -159,7 +159,7 @@ sub worksheetsAndClosures {
       'Costs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   20 );
+        $wsheet->set_column( 0, 0,   30 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Relevant costs and charges' ),
@@ -172,7 +172,7 @@ sub worksheetsAndClosures {
       'Buildup' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   20 );
+        $wsheet->set_column( 0, 0,   30 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Tariff build-up' ),
@@ -184,7 +184,7 @@ sub worksheetsAndClosures {
       'Tariffs' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   20 );
+        $wsheet->set_column( 0, 0,   30 );
         $wsheet->set_column( 1, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Tariffs' ), @{ $model->{tariffTables} };
@@ -206,7 +206,7 @@ sub worksheetsAndClosures {
       'Revenues' => sub {
         my ($wsheet) = @_;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   20 );
+        $wsheet->set_column( 0, 0,   30 );
         $wsheet->set_column( 1, 250, 20 );
         my $noLinks = $wbook->{noLinks};
         $_->wsWrite( $wbook, $wsheet )

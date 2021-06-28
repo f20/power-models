@@ -227,19 +227,38 @@ sub usetMatchAssetDetail {
       $self->{model}{usetMatchAssets}
       ? Stack( sources => [ $self->{assets}->assetVolumes ] )
       : $self->{assets}->assetVolumes;
-    my $assetMatchingFactors = Arithmetic(
+    my $assetMatchingFactors =
+      $applicationOptions =~ /top ([0-9]+)/ ? Arithmetic(
+        name => 'Detailed notional asset adjustment factors'
+          . $applicationOptions,
+        arithmetic => '=MIN(A3,IF(A11,A2/A1,10))',
+        arguments  => {
+            A1  => $totalBefore,
+            A11 => $totalBefore,
+            A2  => $assetVolumes,
+            A3  => Constant(
+                name          => 'Asset adjustment factor cap',
+                defaultFormat => '0.000con',
+                rows          => $assetVolumes->{rows},
+                data          => [
+                    ( map { ''; } 0 .. ( $1 - 1 ) ),
+                    ( map { 1; } $1 .. $#{ $assetVolumes->{rows}{list} } ),
+                ],
+            ),
+        },
+      ) : Arithmetic(
         name => 'Detailed notional asset adjustment factors'
           . $applicationOptions,
         arithmetic => $applicationOptions =~ /cap([0-9.]+)/i
-        ? "=MIN($1,IF(A11,A2/A1,6.666))"
-        : $applicationOptions =~ /cap/i ? '=MIN(1,IF(A11,A2/A1,6.666))'
-        : '=IF(A11,A2/A1,6.666)',
+        ? "=MIN($1,IF(A11,A2/A1,10))"
+        : $applicationOptions =~ /cap/i ? '=MIN(1,IF(A11,A2/A1,10))'
+        : '=IF(A11,A2/A1,10)',
         arguments => {
             A1  => $totalBefore,
             A11 => $totalBefore,
             A2  => $assetVolumes,
         },
-    );
+      );
     if ( $applicationOptions =~ /info/i ) {
         $self->{assets}->addNotionalVolumesFeedback(
             $assetMatchingFactors,
@@ -264,6 +283,15 @@ sub usetMatchAssetDetail {
           );
     }
     else {
+        Columnset(
+            name    => 'Calculation of asset adjustment factors',
+            columns => [
+                grep { defined $_; } $assetMatchingFactors->{arguments}{A3},
+                $assetMatchingFactors->{arguments}{A1},
+                $assetMatchingFactors->{arguments}{A2},
+                $assetMatchingFactors,
+            ],
+        );
         $self->{assets}->notionalVolumes(
             Arithmetic(
                 name => 'Adjusted detailed notional assets'
