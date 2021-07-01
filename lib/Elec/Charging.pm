@@ -228,7 +228,7 @@ sub usetMatchAssetDetail {
       ? Stack( sources => [ $self->{assets}->assetVolumes ] )
       : $self->{assets}->assetVolumes;
     my $assetMatchingFactors =
-      $applicationOptions =~ /top ([0-9]+)/ ? Arithmetic(
+      $applicationOptions =~ /top ([0-9]+) or cap/ ? Arithmetic(
         name => 'Detailed notional asset adjustment factors'
           . $applicationOptions,
         arithmetic => '=MIN(A3,IF(A11,A2/A1,10))',
@@ -246,7 +246,30 @@ sub usetMatchAssetDetail {
                 ],
             ),
         },
-      ) : Arithmetic(
+      ) : $applicationOptions =~ /top ([0-9]+)/ ? do {
+        my $hardCoded = Constant(
+            name          => 'Fixed asset adjustment factor',
+            defaultFormat => '0.000con',
+            rows          => $assetVolumes->{rows},
+            data          => [
+                ( map { ''; } 0 .. ( $1 - 1 ) ),
+                ( map { 1; } $1 .. $#{ $assetVolumes->{rows}{list} } ),
+            ],
+        );
+        Arithmetic(
+            name => 'Detailed notional asset adjustment factors'
+              . $applicationOptions,
+            arithmetic => '=IF(A3,A31,IF(A11,A2/A1,10))',
+            arguments  => {
+                A1  => $totalBefore,
+                A11 => $totalBefore,
+                A2  => $assetVolumes,
+                A3  => $hardCoded,
+                A31 => $hardCoded,
+            },
+        );
+      }
+      : Arithmetic(
         name => 'Detailed notional asset adjustment factors'
           . $applicationOptions,
         arithmetic => $applicationOptions =~ /cap([0-9.]+)/i
