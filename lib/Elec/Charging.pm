@@ -125,6 +125,19 @@ sub runningRate {
     );
 }
 
+sub runningCostScalingFactors {
+    my ($self) = @_;
+    $self->{runningCostScalingFactors} ||= Dataset(
+        name          => 'Running cost application factors',
+        defaultFormat => '%hard',
+        number        => 1557,
+        appendTo      => $self->{model}{inputTables},
+        dataset       => $self->{model}{dataset},
+        cols          => $self->{setup}->usageSet,
+        data          => [ map { 1 } @{ $self->{setup}->usageSet->{list} } ],
+    );
+}
+
 sub assetCharge {
     my ($self) = @_;
     $self->{assetCharge} ||=
@@ -133,17 +146,17 @@ sub assetCharge {
         name       => 'Asset-related charges (£/unit of usage)',
         arithmetic => '='
           . ( $self->{model}{contributions} ? '(1-A4)*' : '' )
-          . ( $self->{assetMatchingFactor}  ? 'A5*'     : '' )
-          . 'A2+A1*A3',
+          . 'A2+A1*A3'
+          . ( $self->{model}{runningCostScaling} ? '*A5' : '' ),
         arguments => {
             A1 => $self->assetRate,
             A2 => $self->{assets}->annuity( $self->{setup}->rateOfReturn ),
             A3 => $self->runningRate,
-            $self->{assetMatchingFactor}
-            ? ( A5 => $self->{assetMatchingFactor} )
-            : (),
             $self->{model}{contributions}
             ? ( A4 => $self->contributionDiscount )
+            : (),
+            $self->{model}{runningCostScaling}
+            ? ( A5 => $self->runningCostScalingFactors )
             : (),
         }
       )
@@ -376,7 +389,7 @@ sub usetMatchAssets {
 }
 
 sub usetRunningCosts {
-    my ( $self, $totalUsage ) = @_;
+    my ( $self, $totalUsage, $applicationOptions ) = @_;
     my $totalCosts =
         $self->{model}{interpolator}
       ? $self->{model}{interpolator}
@@ -389,12 +402,24 @@ sub usetRunningCosts {
         data          => [1e6],
         defaultFormat => '0hard',
       );
-    my $totalAssets = SumProduct(
-        name          => 'Total relevant notional assets (£)',
+    my $totalAssets =
+      $self->{model}{runningCostScaling}
+      ? Arithmetic(
+        name          => 'Total notional assets for running costs (£)',
+        defaultFormat => '0soft',
+        arithmetic    => '=SUMPRODUCT(A1_A2*A3_A4*A5_A6)',
+        arguments     => {
+            A1_A2 => $totalUsage,
+            A3_A4 => $self->assetRate,
+            A5_A6 => $self->runningCostScalingFactors,
+        }
+      )
+      : SumProduct(
+        name          => 'Total notional assets (£)',
+        defaultFormat => '0soft',
         matrix        => $totalUsage,
         vector        => $self->assetRate,
-        defaultFormat => '0soft',
-    );
+      );
     $self->{runningRate} = Arithmetic(
         name       => 'Annual running costs relative to notional asset value',
         arithmetic => '=A1/A3',
