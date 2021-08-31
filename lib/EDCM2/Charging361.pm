@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2020 Franck Latrémolière and others.
+# Copyright 2013-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,7 @@ use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
-sub tariffCalculation2020 {
+sub tariffCalculation361 {
 
     my (
         $model,                          $activeCoincidence,
@@ -52,7 +52,7 @@ sub tariffCalculation2020 {
         $totalAssetsConsumption,         $totalAssetsFixed,
         $totalAssetsGenerationSoleUse,   $totalDcp189DiscountedAssets,
         $totalEdcmAssets,                $totalRevenue3,
-        $unitRateFcpLricNonDSM,          $tariffScalingExempt,
+        $unitRateFcpLricNonDSM,          $tariffScalingClass,
     ) = @_;
 
     my $capacityCharge = Arithmetic(
@@ -129,7 +129,7 @@ sub tariffCalculation2020 {
       );
 
     $capacityCharge = Arithmetic(
-        name          => 'Import capacity charge before scaling (p/kVA/day)',
+        name          => 'Import capacity charge (p/kVA/day)',
         arithmetic    => '=A7+A1',
         defaultFormat => '0.00soft',
         arguments     => {
@@ -265,30 +265,10 @@ sub tariffCalculation2020 {
     $model->{transparency}{dnoTotalItem}{1255} = $edcmRates
       if $model->{transparency};
 
-    my $adderAmount = Arithmetic(
-        name          => 'Amount to be recovered from adders ex costs (£/year)',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1-A7-A91-A92',
-        arguments     => {
-            A1  => $demandScalingShortfall,
-            A7  => $edcmIndirect,
-            A91 => $edcmDirect,
-            A92 => $edcmRates,
-        },
-    );
-
     my $ynonFudge = Constant(
         name => 'Factor for the allocation of capacity scaling',
         data => [0.5],
     );
-
-    my $ynonFudge41 = Constant(
-        name => 'Proportion of residual to go into fixed adder',
-        data => [0.2],
-    );
-
-    $model->{mitigateUndueSecrecy}->fudge41param($ynonFudge41)
-      if $model->{mitigateUndueSecrecy};
 
     $activeCoincidence = Arithmetic(
         name       => 'Peak-time capacity use per kVA of agreed capacity',
@@ -301,49 +281,7 @@ sub tariffCalculation2020 {
         }
     ) if $model->{dcp183};
 
-    my $slopeFixedAdder =
-      $model->{dcp185}
-      ? Arithmetic(
-        name => 'Marginal revenue effect of demand'
-          . ( $model->{dcp185} == 2 ? ' and indirect cost adders' : ' adder' ),
-        defaultFormat => '0soft',
-        arithmetic    => '=A1*(A4+A5)*IF(A6<0,1,A7)'
-          . ( $model->{dcp342} ? '*(1-A9)' : '' ),
-        arguments => {
-            A1 => $importCapacity,
-            A4 => $ynonFudge,
-            A5 => $activeCoincidence,
-            A6 => $adderAmount,
-            A7 => $indirectExposure,
-            $model->{dcp342} ? ( A9 => $tariffScalingExempt ) : (),
-        }
-      )
-      : Arithmetic(
-        name          => 'Marginal revenue effect of demand adder',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1*(A4+A5)' . ( $model->{dcp342} ? '*(1-A9)' : '' ),
-        arguments     => {
-            A1 => $importCapacity,
-            A4 => $ynonFudge,
-            A5 => $activeCoincidence,
-            $model->{dcp342} ? ( A9 => $tariffScalingExempt ) : (),
-        }
-      );
-
-    my $slopeIndirect =
-      $model->{dcp185} && $model->{dcp185} == 2
-      ? Arithmetic(
-        name       => 'Data for capacity-based allocation of indirect costs',
-        groupName  => 'Allocation of indirect costs',
-        arithmetic => '=IF(A6<0,1,A1)*(A2+A3)',
-        arguments  => {
-            A2 => $ynonFudge,
-            A3 => $activeCoincidence,
-            A1 => $indirectExposure,
-            A6 => $adderAmount,
-        }
-      )
-      : Arithmetic(
+    my $slopeIndirect = Arithmetic(
         name       => 'Data for capacity-based allocation of indirect costs',
         groupName  => 'Allocation of indirect costs',
         arithmetic => '=A1*(A2+A3)',
@@ -352,7 +290,7 @@ sub tariffCalculation2020 {
             A3 => $activeCoincidence,
             A1 => $indirectExposure,
         }
-      );
+    );
 
     my $totalIndirectFudge =
       $model->{transparencyMasterFlag}
@@ -420,89 +358,9 @@ sub tariffCalculation2020 {
         },
     );
 
-    my $totalSlope =
-      $model->{transparencyMasterFlag}
-      ? Arithmetic(
-        name          => 'Total marginal revenue effect of demand adder',
-        defaultFormat => '0soft',
-        arithmetic    => '=IF(A123,0,A1)+SUMPRODUCT(A2_A3,A4_A5)',
-        arguments     => {
-            A123  => $model->{transparencyMasterFlag},
-            A1    => $model->{transparency}{baselineItem}{119103},
-            A2_A3 => $model->{transparency},
-            A4_A5 => $slopeFixedAdder,
-        },
-      )
-      : GroupBy(
-        name          => 'Total marginal revenue effect of demand adder',
-        defaultFormat => '0soft',
-        source        => $slopeFixedAdder
-      );
-
-    $model->{transparency}{dnoTotalItem}{119103} = $totalSlope
-      if $model->{transparency};
-
-    my $fixedAdderRate = Arithmetic(
-        name       => 'Fixed adder ex indirects application rate',
-        groupName  => 'EDCM demand adders',
-        arithmetic => '=IF(A9,A1*A2/A4,0)',
-        arguments  => {
-            A1 => $ynonFudge41,
-            A2 => $adderAmount,
-            A9 => $adderAmount,
-            A4 => $totalSlope,
-        },
-        location => 'Charging rates',
-    );
-    $model->{transparency}{dnoTotalItem}{1261} = $fixedAdderRate
-      if $model->{transparency};
-
-    ($fixedAdderRate) =
-      $model->{mitigateUndueSecrecy}
-      ->fixedAdderAdj( $fixedAdderRate, $slopeFixedAdder )
-      if $model->{mitigateUndueSecrecy};
-
-    $capacityCharge = Arithmetic(
-        arithmetic => '=A1+A3*(A7+A4)*100/A9'
-          . ( $model->{dcp185} ? '*IF(A6<0,1,A8)' : '' )
-          . ( $model->{dcp342} ? '*(1-A666)'      : '' ),
-        name =>
-          'Capacity charge after applying fixed adder ex indirects p/kVA/day',
-        arguments => {
-            A1 => $capacityCharge,
-            A3 => $fixedAdderRate,
-            A4 => $activeCoincidence,
-            A7 => $ynonFudge,
-            A9 => $daysInYear,
-            $model->{dcp185}
-            ? (
-                A6 => $adderAmount,
-                A8 => $indirectExposure,
-              )
-            : (),
-            $model->{dcp342} ? ( A666 => $tariffScalingExempt ) : (),
-        }
-    );
-
-    $model->{summaryInformationColumns}[6] = Arithmetic(
-        name          => 'Demand scaling fixed adder (£/year)',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1*A3*(A71+A72)'
-          . ( $model->{dcp185} ? '*IF(A6<0,1,A8)' : '' )
-          . ( $model->{dcp342} ? '*(1-A9)'        : '' ),
-        arguments => {
-            A1  => $importCapacity,
-            A3  => $fixedAdderRate,
-            A71 => $ynonFudge,
-            A72 => $activeCoincidence,
-            $model->{dcp185}
-            ? (
-                A6 => $adderAmount,
-                A8 => $indirectExposure,
-              )
-            : (),
-            $model->{dcp342} ? ( A9 => $tariffScalingExempt ) : (),
-        },
+    $model->{summaryInformationColumns}[6] = Constant(
+        rows => $importCapacity->{rows},
+        data => [],
     );
 
     my $slopeNotionalAssets = Arithmetic(
@@ -539,38 +397,6 @@ sub tariffCalculation2020 {
     $model->{transparency}{dnoTotalItem}{119305} = $totalSlopeNotionalAssets
       if $model->{transparency};
 
-    my $totalSlopeNotionalAssetsExempt = $totalSlopeNotionalAssets;
-
-    if ( $model->{dcp342} ) {
-        $totalSlopeNotionalAssetsExempt =
-          $model->{transparencyMasterFlag}
-          ? Arithmetic(
-            name => 'Total non sole use notional assets'
-              . ' subject to DCP 342 exemption (£)',
-            defaultFormat => '0soft',
-            arithmetic => '=IF(A123,0,A1)+SUMPRODUCT(A21_A22,A51_A52,A61_A62)',
-            arguments  => {
-                A123    => $model->{transparencyMasterFlag},
-                A1      => $model->{transparency}{baselineItem}{119307},
-                A21_A22 => $model->{transparency},
-                A51_A52 => $slopeNotionalAssets,
-                A61_A62 => $tariffScalingExempt,
-            }
-          )
-          : GroupBy(
-            name =>
-              'Total non sole use notional assets subject to allocation (£)',
-            defaultFormat => '0soft',
-            source        => $slopeNotionalAssets,
-          );
-        $model->{transparency}{dnoTotalItem}{119307} =
-          $totalSlopeNotionalAssetsExempt
-          if $model->{transparency};
-    }
-
-    die 'Charging2020 code does not currently support mitigateUndueSecrecy'
-      if $model->{mitigateUndueSecrecy};
-
     my $directChargingRate = Arithmetic(
         name          => 'Charging rate for direct costs on notional assets',
         groupName     => 'Demand scaling rate',
@@ -601,70 +427,14 @@ sub tariffCalculation2020 {
     $model->{transparency}{dnoTotalItem}{1265} = $ratesChargingRate
       if $model->{transparency};
 
-    my $assetScalerChargingRate = Arithmetic(
-        name          => 'Charging rate for asset scaler on notional assets',
-        groupName     => 'Demand scaling rate',
-        defaultFormat => '%soft',
-        arithmetic    => '=IF(A4,(1-A3)*A1/'
-          . ( $model->{dcp342} ? '(A2-A5)' : 'A2' ) . ',0)',
-        arguments => {
-            A1 => $adderAmount,
-            A3 => $ynonFudge41,
-            A4 => $totalSlopeNotionalAssets,
-            A2 => $totalSlopeNotionalAssets,
-            $model->{dcp342} ? ( A5 => $totalSlopeNotionalAssetsExempt ) : (),
-        },
-        location => 'Charging rates',
-    );
-    $model->{transparency}{dnoTotalItem}{1266} = $assetScalerChargingRate
-      if $model->{transparency};
-
-    my $scalingChargeCapacity = Arithmetic(
-        arithmetic => '=(A2+A3+A4'
-          . ( $model->{dcp342} ? '*(1-A5)' : '' )
-          . ')*(A1+A12)*100/A9',
-        defaultFormat => '0.00soft',
-        name      => 'Notional asset charge including demand scaling p/kVA/day',
-        arguments => {
-            A1  => $assetsCapacityCooked,
-            A12 => $assetsConsumptionCooked,
-            A2  => $directChargingRate,
-            A3  => $ratesChargingRate,
-            A4  => $assetScalerChargingRate,
-            $model->{dcp342} ? ( A5 => $tariffScalingExempt ) : (),
-            A9 => $daysInYear,
-        }
-    );
-
-    my $scalingChargeApplicationFactor = Arithmetic(
-        name       => 'Application factor for charges on notional assets',
-        arithmetic => '=IF(A1<0,MIN(1,'
-          . '0-(A21+(1-A55/A54)/(1-A56/A31)*IF(A52=0,1,A51/A53)*A5)'
-          . '/A2),1)',
-        arguments => {
-            A1  => $scalingChargeCapacity,
-            A2  => $scalingChargeCapacity,
-            A21 => $capacityCharge,
-            A31 => $daysInYear,
-            A5  => $demandConsumptionFcpLric,
-            A51 => $chargeableCapacity,
-            A52 => $importCapacity,
-            A53 => $importCapacity,
-            A54 => $hoursInPurple,
-            A55 => $tariffHoursInPurpleNot,
-            A56 => $tariffDaysInYearNot,
-        },
-    );
-
     $model->{summaryInformationColumns}[2] = Arithmetic(
         name          => 'Direct cost allocation (£/year)',
         defaultFormat => '0soft',
-        arithmetic    => '=A1*(A11+A12)*A4*A2',
+        arithmetic    => '=A1*(A11+A12)*A4',
         arguments     => {
             A1  => $importCapacity,
             A11 => $assetsCapacityCooked,
             A12 => $assetsConsumptionCooked,
-            A2  => $scalingChargeApplicationFactor,
             A4  => $directChargingRate,
         },
     );
@@ -672,40 +442,18 @@ sub tariffCalculation2020 {
     $model->{summaryInformationColumns}[4] = Arithmetic(
         name          => 'Network rates allocation (£/year)',
         defaultFormat => '0soft',
-        arithmetic    => '=A1*(A11+A12)*A4*A2',
+        arithmetic    => '=A1*(A11+A12)*A4',
         arguments     => {
             A1  => $importCapacity,
             A11 => $assetsCapacityCooked,
             A12 => $assetsConsumptionCooked,
-            A2  => $scalingChargeApplicationFactor,
             A4  => $ratesChargingRate,
         },
     );
 
-    $model->{summaryInformationColumns}[7] = Arithmetic(
-        name          => 'Demand scaling asset based (£/year)',
-        defaultFormat => '0soft',
-        arithmetic    => '=A1*(A11+A12)*A4*A2'
-          . ( $model->{dcp342} ? '*(1-A5)' : '' ),
-        arguments => {
-            A1  => $importCapacity,
-            A11 => $assetsCapacityCooked,
-            A12 => $assetsConsumptionCooked,
-            A2  => $scalingChargeApplicationFactor,
-            A4  => $assetScalerChargingRate,
-            $model->{dcp342} ? ( A5 => $tariffScalingExempt ) : (),
-        },
-    );
-
-    my $importCapacityScaled = Arithmetic(
-        name          => 'Total import capacity charge p/kVA/day',
-        defaultFormat => '0.00soft',
-        arithmetic    => '=A1+A2*A3',
-        arguments     => {
-            A1 => $capacityCharge,
-            A2 => $scalingChargeCapacity,
-            A3 => $scalingChargeApplicationFactor,
-        }
+    $model->{summaryInformationColumns}[7] = Constant(
+        rows => $importCapacity->{rows},
+        data => [],
     );
 
     my $purpleRateFcpLric = Arithmetic(
@@ -719,26 +467,13 @@ sub tariffCalculation2020 {
             A4  => $unitRateFcpLricDSM,
             A41 => $unitRateFcpLricDSM,
             A9  => $unitRateFcpLricDSM,
-            A5  => $importCapacityScaled,
+            A5  => $capacityCharge,
             A7  => $daysInYear,
             A71 => $tariffDaysInYearNot,
             A8  => $hoursInPurple,
             A81 => $tariffHoursInPurpleNot,
         }
     ) if $unitRateFcpLricDSM;
-
-    push @{ $model->{calc4Tables} }, $importCapacityScaled;
-
-    $importCapacityScaled = Arithmetic(
-        name       => 'Import capacity charge p/kVA/day',
-        groupName  => 'Demand charges after scaling',
-        arithmetic => '=IF(A3,MAX(0,A1),0)',
-        arguments  => {
-            A1 => $importCapacityScaled,
-            A3 => $importEligible,
-        },
-        defaultFormat => '0.00soft'
-    );
 
     my $importCapacityExceeded = Arithmetic(
         name          => 'Exceeded import capacity charge (p/kVA/day)',
@@ -751,7 +486,7 @@ sub tariffCalculation2020 {
             A4 => $chargeableCapacity,
             A5 => $importCapacity,
             A1 => $importCapacity,
-            A7 => $importCapacityScaled,
+            A7 => $capacityCharge,
         },
         defaultFormat => '0.00soft'
     );
@@ -786,8 +521,24 @@ sub tariffCalculation2020 {
     my $fixedDchargeTrueRound = Arithmetic(
         name          => 'Import fixed charge (p/day)',
         defaultFormat => '0.00soft',
-        arithmetic    => '=ROUND(A1,2)',
-        arguments     => { A1 => $fixedDchargeTrue, },
+        arithmetic    => '=ROUND(A1+INDEX(A3_A4,1+A2)*(80+20*A7)/A6,2)',
+        arguments     => {
+            A1    => $fixedDchargeTrue,
+            A2    => $tariffScalingClass,
+            A3_A4 => Dataset(
+                name          => 'Annual revenue matching charge (£/year)',
+                defaultFormat => '0hard',
+                cols          => Labelset(
+                    list => [ 'None', 'Band 1', 'Band 2', 'Band 3', 'Band 4' ]
+                ),
+                data     => [ undef, 1e3, 1e4, 1e5, 1e6 ],
+                number   => 1185,
+                dataset  => $model->{dataset},
+                appendTo => $model->{inputTables}
+            ),
+            A6 => $daysInYear,
+            A7 => $indirectExposure,
+        },
     );
 
     my $purpleRateFcpLricRound = Arithmetic(
@@ -801,7 +552,7 @@ sub tariffCalculation2020 {
         name          => 'Import capacity rate (p/kVA/day)',
         defaultFormat => '0.00soft',
         arithmetic    => '=ROUND(A1,2)',
-        arguments     => { A1 => $importCapacityScaled, },
+        arguments     => { A1 => $capacityCharge, },
     );
 
     my $exportCapacityExceeded = Arithmetic(
@@ -819,7 +570,7 @@ sub tariffCalculation2020 {
     );
 
     push @{ $model->{calc4Tables} }, $purpleRateFcpLric,
-      $importCapacityScaled,
+      $capacityCharge,
       $fixedDchargeTrue, $importCapacityExceeded,
       $exportCapacityChargeRound,
       $fixedGchargeTrue;

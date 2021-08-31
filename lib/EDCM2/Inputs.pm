@@ -583,7 +583,7 @@ sub tariffInputs {
             data          => [ map { '' } 1 .. $model->{numTariffs} ],
         ),
         Dataset(
-            name          => 'Customer category for demand scaling',
+            name          => 'Customer category (network level)',
             rows          => $model->{tariffSet},
             defaultFormat => '0000hard',
             data          => [ map { 1111 } 1 .. $model->{numTariffs} ],
@@ -693,14 +693,14 @@ EOL
                 value    => [qw(0 1 2 3 4)],
             },
             dataset => $model->{dataset}
-        ) : defined $model->{dcp342} ? Dataset(
+          ) : defined $model->{dcp342} ? Dataset(
             name =>
               'Proportion exempted from asset-based adder and fixed adder',
             data          => [ map { 1 } 1 .. $model->{numTariffs} ],
             defaultFormat => '%hard',
-            rows          => $model->{tariffSet},
-            dataset       => $model->{dataset}
-        ) : undef,
+            rows    => $model->{tariffSet},
+            dataset => $model->{dataset}
+          ) : undef,
         Dataset(
             name          => 'Days for which not a customer',
             defaultFormat => '0hard',
@@ -749,7 +749,7 @@ EOL
             rows          => $model->{tariffSet},
             defaultFormat => '0hard',
             dataset       => $model->{dataset}
-        ) : undef,
+          ) : undef,
 
     );
 
