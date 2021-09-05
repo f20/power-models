@@ -53,6 +53,7 @@ sub tariffCalculation361 {
         $totalAssetsGenerationSoleUse,   $totalDcp189DiscountedAssets,
         $totalEdcmAssets,                $totalRevenue3,
         $unitRateFcpLricNonDSM,          $tariffScalingClass,
+        $totalFinalDemandUnits,
     ) = @_;
 
     my $capacityCharge = Arithmetic(
@@ -102,8 +103,7 @@ sub tariffCalculation361 {
         defaultFormat => '0.00soft'
     );
 
-    push @{ $model->{calc2Tables} },
-      my $unitRateFcpLricDSM = Arithmetic(
+    my $unitRateFcpLricDSM = Arithmetic(
         name => "$model->{TimebandName} unit rate adjusted for DSM (p/kWh)",
         arithmetic => '=IF(A6=0,1,A4/A5)*A1',
         arguments  => {
@@ -112,10 +112,9 @@ sub tariffCalculation361 {
             A5 => $importCapacity,
             A6 => $importCapacity,
         }
-      );
+    );
 
-    push @{ $model->{calc2Tables} },
-      my $capacityChargeT1 = Arithmetic(
+    my $capacityChargeT1 = Arithmetic(
         name          => 'Import capacity charge from charge 1 (p/kVA/day)',
         groupName     => 'Charge 1',
         arithmetic    => '=IF(A6=0,1,A4/A5)*A1',
@@ -126,7 +125,7 @@ sub tariffCalculation361 {
             A5 => $importCapacity,
             A6 => $importCapacity,
         },
-      );
+    );
 
     $capacityCharge = Arithmetic(
         name          => 'Import capacity charge (p/kVA/day)',
@@ -148,8 +147,9 @@ sub tariffCalculation361 {
         }
     );
 
-    my $demandScalingShortfall = Arithmetic(
-        name          => 'Additional amount to be recovered (£/year)',
+    my $revenueShortfall = Arithmetic(
+        name => 'Total amount to be recovered from adders and from'
+          . ' direct costs and network rates on non-sole-use assets (£/year)',
         groupName     => 'Residual EDCM demand revenue',
         defaultFormat => '0soft',
         arithmetic    => '=A1-A2*'
@@ -216,12 +216,12 @@ sub tariffCalculation361 {
         },
     );
 
-    $model->{transparency}{dnoTotalItem}{1254} = $demandScalingShortfall
+    $model->{transparency}{dnoTotalItem}{1254} = $revenueShortfall
       if $model->{transparency};
     $model->{transparency}{dnoTotalItem}{119104} =
-      $demandScalingShortfall->{arguments}{A9}
+      $revenueShortfall->{arguments}{A9}
       if $model->{transparency}
-      && $demandScalingShortfall->{arguments}{A9};
+      && $revenueShortfall->{arguments}{A9};
 
     my $edcmIndirect = Arithmetic(
         name          => 'Indirect costs on EDCM demand (£/year)',
@@ -264,6 +264,18 @@ sub tariffCalculation361 {
     );
     $model->{transparency}{dnoTotalItem}{1255} = $edcmRates
       if $model->{transparency};
+
+    $revenueShortfall = Arithmetic(
+        name          => 'Amount to be recovered from adders ex costs (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=A1-A7-A91-A92',
+        arguments     => {
+            A1  => $revenueShortfall,
+            A7  => $edcmIndirect,
+            A91 => $edcmDirect,
+            A92 => $edcmRates,
+        },
+    );
 
     my $ynonFudge = Constant(
         name => 'Factor for the allocation of capacity scaling',
@@ -397,6 +409,9 @@ sub tariffCalculation361 {
     $model->{transparency}{dnoTotalItem}{119305} = $totalSlopeNotionalAssets
       if $model->{transparency};
 
+    die 'This code does not support mitigateUndueSecrecy'
+      if $model->{mitigateUndueSecrecy};
+
     my $directChargingRate = Arithmetic(
         name          => 'Charging rate for direct costs on notional assets',
         groupName     => 'Demand scaling rate',
@@ -518,26 +533,74 @@ sub tariffCalculation361 {
     push @{ $model->{tablesG} }, $genCredit, $genCreditCapacity,
       $exportCapacityCharge;
 
+    my $bandLabelset =
+      Labelset( list => [ 'Band 1', 'Band 2', 'Band 3', 'Band 4' ] );
+
+    my $bandNumber = Constant(
+        name          => 'Band number',
+        defaultFormat => '0con',
+        cols          => $bandLabelset,
+        data          => [ 1 .. 4 ]
+    );
+
+    my $unitsByClass = Arithmetic(
+        name          => 'Total units by chargeable band',
+        defaultFormat => '0soft',
+        arithmetic    => '=SUMIF(A2_A3,A1,A4_A5)',
+        arguments     => {
+            A1    => $bandNumber,
+            A2_A3 => $tariffScalingClass,
+            A4_A5 => $totalFinalDemandUnits,
+        },
+    );
+
+    my $customerCountLdnoAdjusted = Arithmetic(
+        name       => 'Total customers by chargeable band (LDNO adjusted)',
+        arithmetic => '=0.8*COUNTIF(A21_A31,A11)+0.2*SUMIF(A2_A3,A1,A4_A5)',
+        arguments  => {
+            A1      => $bandNumber,
+            A2_A3   => $tariffScalingClass,
+            A11     => $bandNumber,
+            A21_A31 => $tariffScalingClass,
+            A4_A5   => $indirectExposure,
+        },
+    );
+
+    my $matchingChargeOverride = Dataset(
+        name => 'Annual revenue matching charge manual override (£/year)',
+        defaultFormat => '0hard',
+        cols          => $bandLabelset,
+        data          => [ 1e4, 3e4, 1e5, 3e5 ],
+        number        => 1185,
+        dataset       => $model->{dataset},
+        appendTo      => $model->{inputTables}
+    );
+
+    my $matchingCharge = Arithmetic(
+        name          => 'Annual revenue matching charge (£/year)',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(A1,A11,A2*A3/SUM(A4_A5)/A6)',
+        arguments     => {
+            A1    => $matchingChargeOverride,
+            A11   => $matchingChargeOverride,
+            A2    => $revenueShortfall,
+            A3    => $unitsByClass,
+            A4_A5 => $unitsByClass,
+            A6    => $customerCountLdnoAdjusted,
+        },
+    );
+
     my $fixedDchargeTrueRound = Arithmetic(
         name          => 'Import fixed charge (p/day)',
         defaultFormat => '0.00soft',
-        arithmetic    => '=ROUND(A1+INDEX(A3_A4,1+A2)*(80+20*A7)/A6,2)',
+        arithmetic    => '=ROUND(A1+IF(A21,INDEX(A3_A4,A2)*(80+20*A7)/A6,0),2)',
         arguments     => {
             A1    => $fixedDchargeTrue,
             A2    => $tariffScalingClass,
-            A3_A4 => Dataset(
-                name          => 'Annual revenue matching charge (£/year)',
-                defaultFormat => '0hard',
-                cols          => Labelset(
-                    list => [ 'None', 'Band 1', 'Band 2', 'Band 3', 'Band 4' ]
-                ),
-                data     => [ undef, 1e3, 1e4, 1e5, 1e6 ],
-                number   => 1185,
-                dataset  => $model->{dataset},
-                appendTo => $model->{inputTables}
-            ),
-            A6 => $daysInYear,
-            A7 => $indirectExposure,
+            A21   => $tariffScalingClass,
+            A3_A4 => $matchingCharge,
+            A6    => $daysInYear,
+            A7    => $indirectExposure,
         },
     );
 
@@ -569,15 +632,10 @@ sub tariffCalculation361 {
         arguments     => { A1 => $importCapacityExceeded, },
     );
 
-    push @{ $model->{calc4Tables} }, $purpleRateFcpLric,
-      $capacityCharge,
-      $fixedDchargeTrue, $importCapacityExceeded,
-      $exportCapacityChargeRound,
-      $fixedGchargeTrue;
-
     $purpleRateFcpLricRound,      $fixedDchargeTrueRound,
       $importCapacityScaledRound, $importCapacityExceededRound,
-      $exportCapacityExceeded,    $demandScalingShortfall;
+      $exportCapacityExceeded,    $revenueShortfall, $directChargingRate,
+      $ratesChargingRate;
 
 }
 

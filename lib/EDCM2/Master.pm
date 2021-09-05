@@ -746,30 +746,31 @@ EOT
     my (
         $purpleRateFcpLricRound,    $fixedDchargeTrueRound,
         $importCapacityScaledRound, $importCapacityExceededRound,
-        $exportCapacityExceeded,    $demandScalingShortfall,
+        $exportCapacityExceeded,    $revenueShortfall,
+        @extrasForLayout,
       )
       = $model->$tariffCalculationMethod(
-        $activeCoincidence,           $activeCoincidence935,
-        $assetsCapacityCooked,        $assetsConsumptionCooked,
-        $assetsFixed,                 $chargeableCapacity,
-        $daysInYear,                  $demandConsumptionFcpLric,
-        $edcmPurpleUse,               $exportCapacityCharge,
-        $exportCapacityChargeRound,   $fcpLricDemandCapacityChargeBig,
-        $fixedDcharge,                $fixedDchargeTrue,
-        $fixedGchargeTrue,            $genCredit,
-        $genCreditCapacity,           $hoursInPurple,
-        $importCapacity,              $importCapacity935,
-        $importEligible,              $indirectExposure,
-        $powerFactorInModel,          $purpleUseRate,
-        $rateDirect,                  $rateExit,
-        $rateIndirect,                $rateRates,
-        $reactiveCoincidence,         $tariffDaysInYearNot,
-        $tariffHoursInPurpleNot,      $tariffs,
-        $totalAssetsCapacity,         $totalAssetsConsumption,
-        $totalAssetsFixed,            $totalAssetsGenerationSoleUse,
-        $totalDcp189DiscountedAssets, $totalEdcmAssets,
-        $totalRevenue3,               $unitRateFcpLricNonDSM,
-        $tariffScalingBandOrExemption,
+        $activeCoincidence,            $activeCoincidence935,
+        $assetsCapacityCooked,         $assetsConsumptionCooked,
+        $assetsFixed,                  $chargeableCapacity,
+        $daysInYear,                   $demandConsumptionFcpLric,
+        $edcmPurpleUse,                $exportCapacityCharge,
+        $exportCapacityChargeRound,    $fcpLricDemandCapacityChargeBig,
+        $fixedDcharge,                 $fixedDchargeTrue,
+        $fixedGchargeTrue,             $genCredit,
+        $genCreditCapacity,            $hoursInPurple,
+        $importCapacity,               $importCapacity935,
+        $importEligible,               $indirectExposure,
+        $powerFactorInModel,           $purpleUseRate,
+        $rateDirect,                   $rateExit,
+        $rateIndirect,                 $rateRates,
+        $reactiveCoincidence,          $tariffDaysInYearNot,
+        $tariffHoursInPurpleNot,       $tariffs,
+        $totalAssetsCapacity,          $totalAssetsConsumption,
+        $totalAssetsFixed,             $totalAssetsGenerationSoleUse,
+        $totalDcp189DiscountedAssets,  $totalEdcmAssets,
+        $totalRevenue3,                $unitRateFcpLricNonDSM,
+        $tariffScalingBandOrExemption, $totalFinalDemandUnits,
       );
 
     my @tariffColumns = (
@@ -805,17 +806,22 @@ EOT
             [ $rateDirect, $rateIndirect, $rateRates, ],
             [
                 @{ $tariffColumns[6]{sourceLines} },
-                @{ $tariffColumns[2]{sourceLines} },
+                $fixedDchargeTrueRound->{arguments}{A3_A4} ? ()
+                : @{ $tariffColumns[2]{sourceLines} },
                 $fixedGcharge,
             ],
             [ $rateOther, ],
-            [ $demandScalingShortfall, ],
+            [ $revenueShortfall, ],
+            $fixedDchargeTrueRound->{arguments}{A3_A4}
+            ? $tariffColumns[2]{sourceLines}
+            : (),
             [ $assetsCapacityCooked, ],
             [ $assetsConsumptionCooked, ],
             [
                 @{ $tariffColumns[1]{sourceLines} },
                 @{ $tariffColumns[3]{sourceLines} },
                 @{ $tariffColumns[4]{sourceLines} },
+                @extrasForLayout,
             ],
             $model->{mitigateUndueSecrecy}
             ? $model->{mitigateUndueSecrecy}->calcTables

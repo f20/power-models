@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2020 Franck Latrémolière and others.
+# Copyright 2013-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -148,8 +148,9 @@ sub tariffCalculation342 {
         }
     );
 
-    my $demandScalingShortfall = Arithmetic(
-        name          => 'Additional amount to be recovered (£/year)',
+    my $revenueShortfall = Arithmetic(
+        name => 'Total amount to be recovered from adders and from'
+          . ' direct costs and network rates on non-sole-use assets (£/year)',
         groupName     => 'Residual EDCM demand revenue',
         defaultFormat => '0soft',
         arithmetic    => '=A1-A2*'
@@ -216,12 +217,12 @@ sub tariffCalculation342 {
         },
     );
 
-    $model->{transparency}{dnoTotalItem}{1254} = $demandScalingShortfall
+    $model->{transparency}{dnoTotalItem}{1254} = $revenueShortfall
       if $model->{transparency};
     $model->{transparency}{dnoTotalItem}{119104} =
-      $demandScalingShortfall->{arguments}{A9}
+      $revenueShortfall->{arguments}{A9}
       if $model->{transparency}
-      && $demandScalingShortfall->{arguments}{A9};
+      && $revenueShortfall->{arguments}{A9};
 
     my $edcmIndirect = Arithmetic(
         name          => 'Indirect costs on EDCM demand (£/year)',
@@ -270,7 +271,7 @@ sub tariffCalculation342 {
         defaultFormat => '0soft',
         arithmetic    => '=A1-A7-A91-A92',
         arguments     => {
-            A1  => $demandScalingShortfall,
+            A1  => $revenueShortfall,
             A7  => $edcmIndirect,
             A91 => $edcmDirect,
             A92 => $edcmRates,
@@ -826,7 +827,7 @@ sub tariffCalculation342 {
 
     $purpleRateFcpLricRound,      $fixedDchargeTrueRound,
       $importCapacityScaledRound, $importCapacityExceededRound,
-      $exportCapacityExceeded,    $demandScalingShortfall;
+      $exportCapacityExceeded,    $revenueShortfall;
 
 }
 

@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2013-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -151,7 +151,7 @@ sub tariffCalculation {
 
     my $demandScalingShortfall;
 
-    if ( $model->{legacy201} ) { # incompatible with transparency
+    if ( $model->{legacy201} ) {    # incompatible with transparency
 
         $capacityChargeT = Arithmetic(
             name       => 'Import capacity charge before scaling (p/kVA/day)',
@@ -200,7 +200,8 @@ sub tariffCalculation {
         );
 
         $demandScalingShortfall = Arithmetic(
-            name          => 'Additional amount to be recovered (£/year)',
+            name => 'Total amount to be recovered from adders and from'
+              . ' direct costs and network rates on non-sole-use assets (£/year)',
             defaultFormat => '0softnz',
             arithmetic    => '=A1'
               . '-(SUM(A21_A22)+SUMPRODUCT(A31_A32,A33_A34)'
@@ -281,7 +282,8 @@ sub tariffCalculation {
         );
 
         $demandScalingShortfall = Arithmetic(
-            name          => 'Additional amount to be recovered (£/year)',
+            name => 'Total amount to be recovered from adders and from'
+              . ' direct costs and network rates on non-sole-use assets (£/year)',
             defaultFormat => '0softnz',
             arithmetic    => '=A1-A2*'
               . (
