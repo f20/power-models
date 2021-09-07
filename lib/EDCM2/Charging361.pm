@@ -543,7 +543,20 @@ sub tariffCalculation361 {
         data          => [ 1 .. 4 ]
     );
 
-    my $unitsByClass = Arithmetic(
+    my $unitsByClass =
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name          => 'Total units by chargeable band',
+        defaultFormat => '0soft',
+        arithmetic    => '=SUMPRODUCT((A2_A3=A1)*A4_A5*A71_A72)',
+        arguments     => {
+            A1      => $bandNumber,
+            A2_A3   => $tariffScalingClass,
+            A4_A5   => $totalFinalDemandUnits,
+            A71_A72 => $model->{transparency},
+        },
+      )
+      : Arithmetic(
         name          => 'Total units by chargeable band',
         defaultFormat => '0soft',
         arithmetic    => '=SUMIF(A2_A3,A1,A4_A5)',
@@ -552,9 +565,25 @@ sub tariffCalculation361 {
             A2_A3 => $tariffScalingClass,
             A4_A5 => $totalFinalDemandUnits,
         },
-    );
+      );
 
-    my $customerCountLdnoAdjusted = Arithmetic(
+    my $customerCountLdnoAdjusted =
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name       => 'Total customers by chargeable band (LDNO adjusted)',
+        arithmetic => '=0.8*SUMIF(A21_A31,A11,A71_A72)'
+          . '+0.2*SUMPRODUCT((A2_A3=A1)*A4_A5*A73_A74)',
+        arguments => {
+            A1      => $bandNumber,
+            A2_A3   => $tariffScalingClass,
+            A11     => $bandNumber,
+            A21_A31 => $tariffScalingClass,
+            A4_A5   => $indirectExposure,
+            A71_A72 => $model->{transparency},
+            A73_A74 => $model->{transparency},
+        },
+      )
+      : Arithmetic(
         name       => 'Total customers by chargeable band (LDNO adjusted)',
         arithmetic => '=0.8*COUNTIF(A21_A31,A11)+0.2*SUMIF(A2_A3,A1,A4_A5)',
         arguments  => {
@@ -564,7 +593,7 @@ sub tariffCalculation361 {
             A21_A31 => $tariffScalingClass,
             A4_A5   => $indirectExposure,
         },
-    );
+      );
 
     my $matchingChargeOverride = Dataset(
         name => 'Annual revenue matching charge manual override (£/year)',
@@ -589,6 +618,9 @@ sub tariffCalculation361 {
             A6    => $customerCountLdnoAdjusted,
         },
     );
+
+    $model->{transparency}{dnoTotalItem}{1285} = $matchingCharge
+      if $model->{transparency};
 
     my $fixedDchargeTrueRound = Arithmetic(
         name          => 'Import fixed charge (p/day)',
