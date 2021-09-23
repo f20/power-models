@@ -5,19 +5,11 @@ This repository contains an open source Perl 5 system to construct
 Microsoft Excel spreadsheet models to calculate electricity distribution
 use of system charges.
 
-This project's first task was to implement the methods used by the regional
-electricity distribution companies in England, Scotland and Wales to set
-their use of system charges. It has subsequently expanded to explore other
-areas to which the Perl-managed spreadsheet model methodology pioneered for
-distribution charging models can make a useful contribution.
-
 The repository also contains data used by regional electricity distribution
 companies in England, Scotland and Wales in models to set their use of
-system charges, in a form suitable for use with the Perl code above, and
-some (currently undocumented) tools to manage these data.
+system charges, in a format suitable for use with the Perl 5 code.
 
-To download some of the use of system charging workbooks that can be built
-using this code, go to http://dcmf.co.uk/models/.
+Go to http://dcmf.co.uk/models/ to download some workbooks built using this code.
 
 To get started with building spreadsheet models on your own computer using
 this code, follow the instructions below.
@@ -29,15 +21,15 @@ You need a terminal or console interface, and Perl 5 (v5.8.8 or later).
 
 This is normally easy to set-up on desktop and server computing platforms:
 * On Apple macOS, the built-in Terminal.app and Perl 5 installations are good.
-* On Microsoft Windows, the built-in Command Prompt and the Strawberry
-Perl package available from strawberryperl.com are good.
+* On Microsoft Windows, the built-in Command Prompt and the Strawberry Perl
+package available from strawberryperl.com are good.
 * On FreeBSD and many Linux distributions, console applications and Perl 5 are
 either pre-installed or available from the ports/packages system.
 
 On mobile operating systems, setting up a suitable environment is much more
 troublesome; the dcmf.co.uk/models website might better meet your needs.
 
-To test whether you have a suitable version of Perl, try this at the
+To test whether you have a suitable version of Perl 5, try this at the
 Terminal or command line:
 
     perl --version
@@ -51,7 +43,7 @@ extract all the files from it, or use a git client to clone this repository.
 Step 3. Install any missing modules.
 -------------------------------------
 
-Change directory to the root of the repository and try these sample scripts:
+Change directory to the root of the repository and try these sample commands:
 
     perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles('models/Samplers/FormatSampler.yml')"
 
@@ -66,8 +58,7 @@ Other code in the repository
 The "EDCM Stata validator" and "EDCM Stata generator" folders under models
 contains Stata tools to test aspects of implementations of the EDCM charging
 methodology. See "How to use.txt" under "EDCM Stata validator" for more
-information.  I no longer have access to Stata and this code will not be
-maintained and might be removed.
+information.  This code is deprecated and unmaintained.
 
 Licensing
 ---------
@@ -86,4 +77,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 12 December 2020.
+Franck Latrémolière, 23 September 2021.
