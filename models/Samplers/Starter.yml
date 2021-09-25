@@ -1,5 +1,5 @@
 ---
-PerlModule: StarterModel
+PerlModule: Starter
 protect: 1
 template: '%'
 validation: lenientnomsg

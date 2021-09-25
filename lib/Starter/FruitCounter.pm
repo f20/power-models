@@ -1,6 +1,6 @@
-﻿package StarterModel::WaterfallTester;
+﻿package Starter::FruitCounter;
 
-# Copyright 2021 Franck Latrémolière and others.
+# Copyright 2020-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -27,64 +27,60 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::WaterfallChartset;
 
 sub new {
     my ( $class, $model, @options ) = @_;
     bless { model => $model, @options }, $class;
 }
 
-sub dataColumns {
+sub numFruits {
     my ($component) = @_;
+    $component->{numFruits} ||= Dataset(
+        name          => 'Number of each type',
+        rows          => Labelset( list => [qw(Apples Oranges Pears)] ),
+        data          => [ [ 0, 0, 0 ] ],
+        dataset       => $component->{model}{dataset},
+        number        => 101,
+        defaultFormat => '0hard',
+        validation    => {
+            validate      => 'decimal',
+            criteria      => '>=',
+            value         => 0,
+            input_title   => 'Number of fruits:',
+            input_message => 'Enter the number of fruits of this type',
+            error_message => 'This must be positive or zero.',
+        }
+    );
 }
 
-sub rowset {
+sub totalFruits {
     my ($component) = @_;
-    $component->{rowset} //=
-      Labelset( list => [ 'Waterfall item 1', 'Waterfall item 2', ] );
+    $component->{totalFruits} ||= GroupBy(
+        name          => 'Number of fruits',
+        singleRowName => 'Total',
+        defaultFormat => '0soft',
+        source        => $component->numFruits,
+    );
 }
 
 sub inputTables {
     my ($component) = @_;
-    $component->{inputColumnset} //= Columnset(
-        name    => 'Waterfall chart data',
-        columns => [
-            map {
-                Dataset(
-                    name          => $_,
-                    defaultFormat => '0.0hard',
-                    rows          => $component->rowset,
-                    data          => [ map { 0; } $component->rowset->indices ],
-                );
-              } 'End point',
-            'Start point',
-            'First step',
-            'Second step',
-            'Third step',
-        ],
-        dataset => $component->{model}{dataset},
-        number  => 110,
-    );
+    $component->numFruits;
 }
 
-sub tablesAndCharts {
+sub resultTables {
     my ($component) = @_;
-    $component->{tablesAndCharts} //= [
-        SpreadsheetModel::WaterfallChartset->tablesAndCharts(
-            $component->{chartOptions},
-            $component->inputTables->{columns}
-        )
-    ];
+    $component->totalFruits;
 }
 
-sub calculationTables {
-    my ($component) = @_;
-    @{ $component->tablesAndCharts->[0] };
-}
-
-sub charts {
-    my ($component) = @_;
-    @{ $component->tablesAndCharts->[1] };
+sub appendCode {
+    my ( $component, $wbook, $wsheet ) = @_;
+    my ( $wb, $ro, $co ) = $component->totalFruits->wsWrite( $wbook, $wsheet );
+    my $ref = q^'^
+      . $wb->get_name . q^'!^
+      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
+    qq^&IF(ISERROR($ref),"",^
+      . qq^" ("&TEXT($ref,"#,##0")&IF($ref<1.5," fruit)"," fruits)"))^;
 }
 
 1;
