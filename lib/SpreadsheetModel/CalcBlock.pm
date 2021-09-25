@@ -49,15 +49,56 @@ sub check {
     my ($self) = @_;
     return 'No item list for CalcBlock' unless 'ARRAY' eq ref $self->{items};
     my $defaultFormat = $self->{defaultFormat} || '0soft';
-    my %inBlock;
-    my @items;
-    my $add;
-    $add = sub {
+    my ( @items, %knownMap, $addItems );
+    my $addDataset;
+    $addDataset = sub {
+        ( local $_ ) = @_;
+        return $knownMap{ 0 + $_ } =
+          $addDataset->( SpreadsheetModel::Stack->new( sources => [$_] ) )
+          if $_->{location};
+        my $args;
+        $args = $_->{arguments};
+        my %argMap;
+        %argMap = map { ( 0 + $_ => $_ ); } values %$args if $args;
+        my @externalArgKeys = grep { !$knownMap{$_}; } keys %argMap;
+        if (@externalArgKeys) {
+
+            if ( keys %argMap == 1 ) {
+                $_->{singleExternalSource} = 1;
+            }
+            elsif (
+                   $self->{consolidate}
+                && UNIVERSAL::isa( $_, 'SpreadsheetModel::Arithmetic' )
+                && !grep {
+                         $_->{rows}
+                      or $_->{cols} || $self->{cols}
+                      and $_->{cols} != $self->{cols};
+                } values %argMap
+              )
+            {
+                $addItems->( $argMap{$_} ) foreach @externalArgKeys;
+            }
+            else {
+                return $knownMap{ 0 + $_ } = $addDataset->(
+                    SpreadsheetModel::Stack->new( sources => [$_] ) );
+            }
+        }
+        if ($args) {
+            while ( my ( $k, $v ) = each %$args ) {
+                $args->{$k} = $knownMap{ 0 + $v }
+                  if defined $knownMap{ 0 + $v };
+            }
+        }
+        $_->{location} = $self unless $self->{virtual};
+        push @items, $_;
+        $knownMap{ 0 + $_ } = $_;
+    };
+    $addItems = sub {
         local @_ = @_;    # to avoid side effects
         $_[$#_] = { name => $_[$#_] }
           if !ref $_[$#_]
           || UNIVERSAL::isa( $_[$#_], 'SpreadsheetModel::Label' );
-        my ( $key, @args, %args, %redirected );
+        my ( $key, @arglist, %argmap );
         foreach (@_) {
             if ( !ref $_ ) {
                 $key = $_;
@@ -66,15 +107,15 @@ sub check {
             if ( ref $_ eq 'HASH' ) {
                 if ( $_->{arithmetic} ) {
                     $_->{arguments} =
-                      { %args, $_->{arguments} ? %{ $_->{arguments} } : () };
+                      { %argmap, $_->{arguments} ? %{ $_->{arguments} } : () };
                 }
                 else {
                     my @terms;
                     my %formulaArg = map {
                         my $cell = 'A' . ( $_ + 1 );
                         push @terms, $cell;
-                        $cell => $args[$_];
-                    } 0 .. $#args;
+                        $cell => $arglist[$_];
+                    } 0 .. $#arglist;
                     my $formula = join '+', @terms;
                     $formula = "ROUND($formula,$_->{rounding})"
                       if defined $_->{rounding};
@@ -82,11 +123,11 @@ sub check {
                     $_->{arithmetic} = '=' . $formula;
                 }
                 $_->{defaultFormat} ||= $defaultFormat;
-                $_->{cols} = $self->{cols};
-                push @items, $_ = SpreadsheetModel::Arithmetic->new(%$_);
+                $_->{cols} = $self->{cols} ||= $_->{arguments}{A1}{cols};
+                $addDataset->( $_ = SpreadsheetModel::Arithmetic->new(%$_) );
             }
             elsif ( ref $_ eq 'ARRAY' ) {
-                $_ = $add->(@$_);
+                $_ = $addItems->(@$_);
             }
             else {
                 die "$_->{name} not allowed in"
@@ -106,73 +147,18 @@ sub check {
                 else {
                     $self->{cols} = $_->{cols} || 0;
                 }
-                $_ = SpreadsheetModel::Stack->new(
-                    singleExternalSource => 1,
-                    sources              => [$_],
-                ) if $_->{location};
-                my %uniqueArg;
-                %uniqueArg =
-                  map { ( 0 + $_ => $_ ); } values %{ $_->{arguments} }
-                  if $_->{arguments};
-                if ( grep { !exists $inBlock{$_}; } keys %uniqueArg ) {
-                    if ( keys %uniqueArg > 1 ) {
-                        if (
-                            $self->{consolidate}
-                            && UNIVERSAL::isa(
-                                $_, 'SpreadsheetModel::Arithmetic'
-                            )
-                            && !grep {
-                                     $_->{rows}
-                                  or $_->{cols} || $self->{cols}
-                                  and $_->{cols} != $self->{cols};
-                            } values %uniqueArg
-                          )
-                        {
-                            foreach my $k ( sort keys %{ $_->{arguments} } ) {
-                                my $v = $_->{arguments}{$k};
-                                next if exists $inBlock{ 0 + $v };
-                                $_->{arguments}{$k} = $redirected{ 0 + $v } ||=
-                                  $add->($v);
-                            }
-                        }
-                        elsif (
-                            !grep { exists $inBlock{$_}; }
-                            keys %uniqueArg
-                          )
-                        {
-                            $_ = SpreadsheetModel::Stack->new(
-                                singleExternalSource => 1,
-                                sources              => [$_]
-                            );
-                        }
-                        else {
-                            die join "\n",
-                              "Cannot use $_->{name}"
-                              . ' due to external dependencies:',
-                              map { $_->{name} } @uniqueArg{
-                                grep { !exists $inBlock{$_}; }
-                                  keys %uniqueArg
-                              };
-                        }
-                    }
-                    else {
-                        $_->{singleExternalSource} = 1;
-                    }
-                }
-                push @items, $_;
+                $addDataset->($_);
             }
-            $_->{location} = $self unless $self->{virtual};
             if ($key) {
-                $self->{$key} = $args{$key} = $_;
+                $self->{$key} = $argmap{$key} = $_;
                 undef $key;
             }
-            push @args, $_;
-            undef $inBlock{ 0 + $_ };
+            push @arglist, $_;
         }
-        $args[$#args];
+        $arglist[$#arglist];
     };
 
-    eval { $add->( @{ $self->{items} } ); };
+    eval { $addItems->( @{ $self->{items} } ); };
     return $@ if $@;
     $self->{items} = \@items;
     return;
@@ -184,6 +170,7 @@ sub wsWrite {
     my ( $self, $wb, $ws, $row, $col ) = @_;
 
     return values %{ $self->{$wb} } if $self->{$wb};
+    $self->{$wb} ||= {};
 
     $self->{cols}->wsPrepare( $wb, $ws ) if $self->{cols};
 
@@ -194,15 +181,15 @@ sub wsWrite {
         }
 
         foreach ( @{ $self->{items} } ) {
-            die "$_->{name} is already in the workbook"
-              . " and cannot be written as part of $self->{name}"
+            die "$_ $_->{name} is already in the workbook"
+              . " and cannot be written as part of $self $self->{name}"
               if $_->{$wb};
             $_->wsPrepare( $wb, $ws );
             $_->{$wb} ||= {};    # Placeholder for other rows
         }
 
         last if !$ws->{nextFree} || $ws->{nextFree} < $row;
-        delete $_->{$wb} for @{ $self->{items} };
+        delete $_->{$wb} foreach @{ $self->{items} };
         undef $row;
 
     }
@@ -255,12 +242,12 @@ sub wsWrite {
         ++$row;
     }
 
-    my @cells;
+    my @cellClosures;
 
     {
         my $r = $row;
         foreach my $item ( @{ $self->{items} } ) {
-            push @cells, $item->wsPrepare( $wb, $ws );
+            push @cellClosures, $item->wsPrepare( $wb, $ws );
             @{ $item->{$wb} }{qw(worksheet row col)} =
               ( $ws, $r++, $col );
         }
@@ -322,7 +309,7 @@ sub wsWrite {
             $ws->write_string( $row, $scribbleColumn, $_,
                 $wb->getFormat('text') );
         }
-        my $cell = $cells[$i];
+        my $cell = $cellClosures[$i];
         @{ $item->{$wb} }{qw(worksheet row col)} = ( $ws, $row, $col );
         foreach my $y ( $item->rowIndices ) {
             foreach my $x ( $item->colIndices ) {
