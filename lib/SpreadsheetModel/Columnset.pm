@@ -115,17 +115,16 @@ sub wsWrite {
     my ( $self, $wb, $ws, $row, $col, $noCopy ) = @_;
 
     if ( $self->{$wb} ) {
-        return if !$wb->{copy} || $noCopy || $self->{$wb}{$ws};
-        return (
-            $self->{$wb}{$ws} = new SpreadsheetModel::Columnset(
-                name    => Label( $self->{name}, "$self->{name} (copy)" ),
-                columns => [
-                    map {
-                        $_->{$wb}{$ws} =
-                          new SpreadsheetModel::Stack( sources => [$_] );
-                    } @{ $self->{columns} }
-                ]
-            )
+        return values %{ $self->{$wb} }
+          if !$wb->{copy} || $noCopy || $self->{$wb}{$ws};
+        return $self->{$wb}{$ws} = new SpreadsheetModel::Columnset(
+            name    => Label( $self->{name}, "$self->{name} (copy)" ),
+            columns => [
+                map {
+                    $_->{$wb}{$ws} =
+                      new SpreadsheetModel::Stack( sources => [$_] );
+                } @{ $self->{columns} }
+            ]
         )->wsWrite( $wb, $ws, $row, $col );
     }
 
@@ -245,7 +244,7 @@ sub wsWrite {
     $headerLines += @{ $self->{lines} } if $self->{lines};
     $headerLines += @sourceLines;
 
-    $self->{$wb}{$ws} = 1;
+    $self->{$wb}{$ws} = $ws;
 
     while (1) {
         unless ( defined $row && defined $col ) {
@@ -660,8 +659,8 @@ sub wsWrite {
                         }
                     }
                     if (@more) {
-                        $ws->repeat_formula( $row + $y, $c2, $formula, $format,
-                            @more );
+                        $ws->repeat_formula( $row + $y, $c2, $formula,
+                            $format, @more );
                     }
                     elsif ($formula) {
                         $ws->write_formula( $row + $y, $c2, $formula, $format,
@@ -767,6 +766,8 @@ sub wsWrite {
     $self->requestForwardLinks( $wb, $ws, \$row, $col ) if $wb->{forwardLinks};
     ++$row unless $self->{noSpaceBelow};
     $ws->{nextFree} = $row unless $ws->{nextFree} > $row;
+
+    $ws;
 
 }
 

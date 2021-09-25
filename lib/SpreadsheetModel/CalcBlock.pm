@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::CalcBlock;
 
-# Copyright 2015-2020 Franck Latrémolière and others.
+# Copyright 2015-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -38,6 +38,11 @@ sub CalcBlock {
 use Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Object ':_util';
 our @ISA = qw(SpreadsheetModel::Objectset);
+
+sub wsUrl {
+    my $self = shift;
+    $self->{items}[0]->wsUrl(@_);
+}
 
 sub check {
 
@@ -105,11 +110,12 @@ sub check {
                     singleExternalSource => 1,
                     sources              => [$_],
                 ) if $_->{location};
-                my %uniques;
-                %uniques = map { ( 0 + $_ => $_ ); } values %{ $_->{arguments} }
+                my %uniqueArg;
+                %uniqueArg =
+                  map { ( 0 + $_ => $_ ); } values %{ $_->{arguments} }
                   if $_->{arguments};
-                if ( grep { !exists $inBlock{$_}; } keys %uniques ) {
-                    if ( keys %uniques > 1 ) {
+                if ( grep { !exists $inBlock{$_}; } keys %uniqueArg ) {
+                    if ( keys %uniqueArg > 1 ) {
                         if (
                             $self->{consolidate}
                             && UNIVERSAL::isa(
@@ -119,7 +125,7 @@ sub check {
                                      $_->{rows}
                                   or $_->{cols} || $self->{cols}
                                   and $_->{cols} != $self->{cols};
-                            } values %uniques
+                            } values %uniqueArg
                           )
                         {
                             foreach my $k ( sort keys %{ $_->{arguments} } ) {
@@ -129,7 +135,11 @@ sub check {
                                   $add->($v);
                             }
                         }
-                        elsif ( !grep { exists $inBlock{$_}; } keys %uniques ) {
+                        elsif (
+                            !grep { exists $inBlock{$_}; }
+                            keys %uniqueArg
+                          )
+                        {
                             $_ = SpreadsheetModel::Stack->new(
                                 singleExternalSource => 1,
                                 sources              => [$_]
@@ -139,9 +149,9 @@ sub check {
                             die join "\n",
                               "Cannot use $_->{name}"
                               . ' due to external dependencies:',
-                              map { $_->{name} } @uniques{
+                              map { $_->{name} } @uniqueArg{
                                 grep { !exists $inBlock{$_}; }
-                                  keys %uniques
+                                  keys %uniqueArg
                               };
                         }
                     }
@@ -173,7 +183,7 @@ sub wsWrite {
 
     my ( $self, $wb, $ws, $row, $col ) = @_;
 
-    return if $self->{$wb};
+    return values %{ $self->{$wb} } if $self->{$wb};
 
     $self->{cols}->wsPrepare( $wb, $ws ) if $self->{cols};
 
@@ -197,7 +207,7 @@ sub wsWrite {
 
     }
 
-    $self->{$wb}{$ws} = 1;
+    $self->{$wb}{$ws} = $ws;
 
     if ( $wb->{logger} and my $oldName = $self->{name} ) {
         my $number = $self->addTableNumber( $wb, $ws );

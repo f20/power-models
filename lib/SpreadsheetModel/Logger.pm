@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Logger;
 
-# Copyright 2008-2020 Franck Latrémolière and others.
+# Copyright 2008-2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -36,7 +36,6 @@ sub log {
     my $logger = shift;
     push @{ $logger->{objects} }, grep {
              $_->{location}
-          || UNIVERSAL::isa( $_->{location}, 'SpreadsheetModel::CalcBlock' )
           || !$_->{sources}
           || $#{ $_->{sources} }
           || $_->{cols} != $_->{sources}[0]{cols}
@@ -63,21 +62,31 @@ sub lastRow {
 
 sub loggableObjects {
     my ($logger) = @_;
-    my %columnsetDone;
+    my %containerSeen;
     my @list;
     foreach my $obj ( grep { defined $_ } @{ $logger->{objects} } ) {
         my @displayList = $obj;
-        if ( my $cset = $obj->{location} ) {
-            if ( UNIVERSAL::isa( $cset, 'SpreadsheetModel::Columnset' ) ) {
+        if ( my $container = $obj->{location} ) {
+            if ( UNIVERSAL::isa( $container, 'SpreadsheetModel::Columnset' ) ) {
                 @displayList = ()
-                  unless $logger->{showColumns} || $cset->{logColumns}
+                  unless $logger->{showColumns} || $container->{logColumns}
                   and grep {
                     ref $_ ne 'SpreadsheetModel::Stack'
                       || @{ $_->{sources} } > 1;
-                  } @{ $cset->{columns} };
-                unless ( exists $columnsetDone{$cset} ) {
-                    unshift @displayList, $cset;
-                    undef $columnsetDone{$cset};
+                  } @{ $container->{columns} };
+                unless ( exists $containerSeen{$container} ) {
+                    unshift @displayList, $container;
+                    undef $containerSeen{$container};
+                }
+            }
+            elsif (
+                UNIVERSAL::isa( $container, 'SpreadsheetModel::CalcBlock' ) )
+            {
+                @displayList = ()
+                  unless $logger->{showRows} || $container->{logRows};
+                unless ( exists $containerSeen{$container} ) {
+                    unshift @displayList, $container;
+                    undef $containerSeen{$container};
                 }
             }
         }
@@ -129,88 +138,69 @@ sub wsWrite {
       grep { $_->{$wb}{worksheet} && $_->{name} } @{ $logger->{objects} };
 
     my $r = 0;
-    my %columnsetDone;
-    foreach my $obj (@objectList) {
+    my %containerSeen;
 
-        my ( $wo, $ro, $co ) = @{ $obj->{$wb} }{qw(worksheet row col)};
+    foreach ( $logger->loggableObjects ) {
+        my ( $wo, $ro, $co ) = $_->wsWrite( $wb, $ws );
+        my $url = $_->wsUrl($wb);
+        my $wn =
+            $wo
+          ? $wo->get_name
+          : die "Broken link to $_->{name} $_->{debug}";
+        $wn =~ s/\000//g;    # squash strange rare bug
+        my $na = "$_->{name}";
+        $logger->{realRows}[$r] = $na;
 
-        my @displayList = $obj;
-        if ( my $cset = $obj->{location} ) {
-            if ( UNIVERSAL::isa( $cset, 'SpreadsheetModel::Columnset' ) ) {
-                @displayList = ()
-                  unless $logger->{showColumns} || $cset->{logColumns}
-                  and 1 || grep {
-                    ref $_ ne 'SpreadsheetModel::Stack'
-                      || @{ $_->{sources} } > 1;
-                  } @{ $cset->{columns} };
-                unless ( exists $columnsetDone{$cset} ) {
-                    unshift @displayList, $cset;
-                    undef $columnsetDone{$cset};
-                }
-            }
+        if ( $_->{logColumns} ) {
+            $ws->write_string( $row + $r, $col + 1, $na, $textFormat );
+            $ws->write_string( $row + $r, $col + 2, '(not used further)',
+                $textFormat )
+              if $logger->{showFinalTables}
+              && !$_->{forwardLinks}
+              && !UNIVERSAL::isa( $_->{location},
+                'SpreadsheetModel::Objectset' );
+        }
+        else {
+            $ws->write_url( $row + $r, $col + 1, $url, $na, $linkFormat );
+            $ws->write_string(
+                $row + $r,
+                $col + 2,
+                $_->objectType
+                  . (
+                    $logger->{showFinalTables}
+                      && !$_->{forwardLinks}
+                      && !UNIVERSAL::isa( $_->{location},
+                        'SpreadsheetModel::Objectset' )
+                    ? ' (not used further)'
+                    : ''
+                  ),
+                $textFormat
+            );
+        }
+        $ws->write_string( $row + $r, $col, $wn, $textFormat );
+
+        if (   $logger->{showDetails}
+            && $_->isa('SpreadsheetModel::Dataset') )
+        {
+            my $c1 = xl_rowcol_to_cell( $ro, $co );
+            my $c2 = xl_rowcol_to_cell( $ro + $_->lastRow, $co + $_->lastCol );
+            my $range = "'$wn'!$c1:$c2";
+            $ws->write( $row + $r, $col + 3,
+                ( 1 + $_->lastRow ) . ' × ' . ( 1 + $_->lastCol ),
+                $textFormat );
+            $ws->write( $row + $r, $col + 4, "=COUNT($range)",   $numFormat0 );
+            $ws->write( $row + $r, $col + 5, "=AVERAGE($range)", $numFormat1 );
         }
 
-        foreach (@displayList) {
-            my $url = $_->wsUrl($wb);
-            my $wn =
-                $wo
-              ? $wo->get_name
-              : die "Broken link to $obj->{name} $obj->{debug}";
-            $wn =~ s/\000//g;    # squash strange rare bug
-            my $na = "$_->{name}";
-            $logger->{realRows}[$r] = $na;
-
-            if ( $_->{logColumns} ) {
-                $ws->write_string( $row + $r, $col + 1, $na, $textFormat );
-                $ws->write_string( $row + $r, $col + 2, '(not used further)',
-                    $textFormat )
-                  if $logger->{showFinalTables}
-                  && !$_->{forwardLinks}
-                  && !UNIVERSAL::isa( $_->{location},
-                    'SpreadsheetModel::Objectset' );
-            }
-            else {
-                $ws->write_url( $row + $r, $col + 1, $url, $na, $linkFormat );
-                $ws->write_string(
-                    $row + $r,
-                    $col + 2,
-                    $_->objectType
-                      . (
-                        $logger->{showFinalTables}
-                          && !$_->{forwardLinks}
-                          && !UNIVERSAL::isa( $_->{location},
-                            'SpreadsheetModel::Objectset' )
-                        ? ' (not used further)'
-                        : ''
-                      ),
-                    $textFormat
-                );
-            }
-            $ws->write_string( $row + $r, $col, $wn, $textFormat );
-
-            if (   $logger->{showDetails}
-                && $_->isa('SpreadsheetModel::Dataset') )
-            {
-                my $c1 = xl_rowcol_to_cell( $ro, $co );
-                my $c2 =
-                  xl_rowcol_to_cell( $ro + $_->lastRow, $co + $_->lastCol );
-                my $range = "'$wn'!$c1:$c2";
-                $ws->write( $row + $r, $col + 3,
-                    ( 1 + $_->lastRow ) . ' × ' . ( 1 + $_->lastCol ),
-                    $textFormat );
-                $ws->write( $row + $r, $col + 4, "=COUNT($range)",
-                    $numFormat0 );
-                $ws->write( $row + $r, $col + 5, "=AVERAGE($range)",
-                    $numFormat1 );
-            }
-
-            ++$r;
-
-        }
+        ++$r;
 
     }
 
-    $ws->autofilter( $row - 1, $col, $row + $r - 1, $col + 2 );
+    $ws->autofilter(
+        $row - 1, $col,
+        $row + $r - 1,
+        $col + ( $logger->{showDetails} ? 5 : 2 )
+    );
 
     $ws->{protectionOptions} ||= {
         autofilter => 1,
