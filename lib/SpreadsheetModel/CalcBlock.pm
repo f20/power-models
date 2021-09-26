@@ -35,13 +35,20 @@ sub CalcBlock {
     goto &SpreadsheetModel::Object::new;
 }
 
+sub objectType {
+    'Block';
+}
+
 use Spreadsheet::WriteExcel::Utility;
 use SpreadsheetModel::Object ':_util';
 our @ISA = qw(SpreadsheetModel::Objectset);
 
 sub wsUrl {
     my $self = shift;
-    $self->{items}[0]->wsUrl(@_);
+    my ($firstReal) =
+      grep { UNIVERSAL::isa( $_, 'SpreadsheetModel::Dataset' ); }
+      @{ $self->{items} };
+    $firstReal->wsUrl(@_);
 }
 
 sub check {
@@ -49,8 +56,8 @@ sub check {
     my ($self) = @_;
     return 'No item list for CalcBlock' unless 'ARRAY' eq ref $self->{items};
     my $defaultFormat = $self->{defaultFormat} || '0soft';
-    my ( @items, %knownMap, $addItems );
-    my $addDataset;
+    my ( @items, %knownMap, $addDataset, $addItems, );
+
     $addDataset = sub {
         ( local $_ ) = @_;
         return $knownMap{ 0 + $_ } =
@@ -60,23 +67,9 @@ sub check {
         $args = $_->{arguments};
         my %argMap;
         %argMap = map { ( 0 + $_ => $_ ); } values %$args if $args;
-        my @externalArgKeys = grep { !$knownMap{$_}; } keys %argMap;
-        if (@externalArgKeys) {
-
+        if ( my @externalArgKeys = grep { !$knownMap{$_}; } keys %argMap ) {
             if ( keys %argMap == 1 ) {
                 $_->{singleExternalSource} = 1;
-            }
-            elsif (
-                   $self->{consolidate}
-                && UNIVERSAL::isa( $_, 'SpreadsheetModel::Arithmetic' )
-                && !grep {
-                         $_->{rows}
-                      or $_->{cols} || $self->{cols}
-                      and $_->{cols} != $self->{cols};
-                } values %argMap
-              )
-            {
-                $addItems->( $argMap{$_} ) foreach @externalArgKeys;
             }
             else {
                 return $knownMap{ 0 + $_ } = $addDataset->(
@@ -93,6 +86,7 @@ sub check {
         push @items, $_;
         $knownMap{ 0 + $_ } = $_;
     };
+
     $addItems = sub {
         local @_ = @_;    # to avoid side effects
         $_[$#_] = { name => $_[$#_] }
@@ -129,24 +123,14 @@ sub check {
             elsif ( ref $_ eq 'ARRAY' ) {
                 $_ = $addItems->(@$_);
             }
+            elsif ( $_->{rows}
+                || defined $self->{cols} && $_->{cols} != $self->{cols} )
+            {
+                push @items, [$_];
+                $knownMap{ 0 + $_ } = $_;
+            }
             else {
-                die "$_->{name} not allowed in"
-                  . " CalcBlock $self->{name} $self->{debug}"
-                  . " because it needs row labels ($_->{rows})"
-                  if $_->{rows};
-                if ( defined $self->{cols} ) {
-                    unless ( !$_->{cols} && !$self->{cols}
-                        || $_->{cols} == $self->{cols} )
-                    {
-                        die join "\n",
-                          "Mismatch in CalcBlock $self->{name} $self->{debug}",
-                          "Columns in CalcBlock: $self->{cols}",
-                          "Columns in $_->{name} $_->{debug}: $_->{cols}";
-                    }
-                }
-                else {
-                    $self->{cols} = $_->{cols} || 0;
-                }
+                $self->{cols} = $_->{cols} || 0;
                 $addDataset->($_);
             }
             if ($key) {
@@ -170,7 +154,6 @@ sub wsWrite {
     my ( $self, $wb, $ws, $row, $col ) = @_;
 
     return values %{ $self->{$wb} } if $self->{$wb};
-    $self->{$wb} ||= {};
 
     $self->{cols}->wsPrepare( $wb, $ws ) if $self->{cols};
 
@@ -181,15 +164,21 @@ sub wsWrite {
         }
 
         foreach ( @{ $self->{items} } ) {
-            die "$_ $_->{name} is already in the workbook"
-              . " and cannot be written as part of $self $self->{name}"
-              if $_->{$wb};
-            $_->wsPrepare( $wb, $ws );
-            $_->{$wb} ||= {};    # Placeholder for other rows
+            if ( ref $_ eq 'ARRAY' ) {
+                $_->[0]->wsWrite( $wb, $ws );
+            }
+            else {
+                die "$_ $_->{name} is already in the workbook"
+                  . " and cannot be written as part of $self $self->{name}"
+                  if $_->{$wb};
+                $_->wsPrepare( $wb, $ws );
+                $_->{$wb} ||= {};    # Placeholder for other rows
+            }
         }
 
         last if !$ws->{nextFree} || $ws->{nextFree} < $row;
-        delete $_->{$wb} foreach @{ $self->{items} };
+        delete $_->{$wb}
+          foreach grep { ref $_ ne 'ARRAY'; } @{ $self->{items} };
         undef $row;
 
     }
@@ -198,7 +187,7 @@ sub wsWrite {
 
     if ( $wb->{logger} and my $oldName = $self->{name} ) {
         my $number = $self->addTableNumber( $wb, $ws );
-        foreach ( @{ $self->{items} } ) {
+        foreach ( grep { ref $_ ne 'ARRAY'; } @{ $self->{items} } ) {
             my $n = $_->{name};
             $_->{name} =
               new SpreadsheetModel::Label( $n, "$number$n (in $oldName)" );
@@ -247,9 +236,15 @@ sub wsWrite {
     {
         my $r = $row;
         foreach my $item ( @{ $self->{items} } ) {
-            push @cellClosures, $item->wsPrepare( $wb, $ws );
-            @{ $item->{$wb} }{qw(worksheet row col)} =
-              ( $ws, $r++, $col );
+            if ( ref $item eq 'ARRAY' ) {
+                push @cellClosures, undef;
+                ++$r;
+            }
+            else {
+                push @cellClosures, $item->wsPrepare( $wb, $ws );
+                @{ $item->{$wb} }{qw(worksheet row col)} =
+                  ( $ws, $r++, $col );
+            }
         }
     }
 
@@ -260,7 +255,7 @@ sub wsWrite {
     my @sourceLines;
     my @formulas =
       map {
-        $_->{singleExternalSource} || !$_->{arguments}
+        ref $_ eq 'ARRAY' || $_->{singleExternalSource} || !$_->{arguments}
           ? 'A0='
           : "A0$_->{arithmetic}"
       } @{ $self->{items} };
@@ -270,8 +265,9 @@ sub wsWrite {
                 \@formulas,
                 [
                     map {
-                        $_->{singleExternalSource} || !$_->{arguments}
-                          ? { A0 => $_ }
+                        ref $_ eq 'ARRAY' ? { A0 => $_->[0] }
+                          : $_->{singleExternalSource}
+                          || !$_->{arguments} ? { A0 => $_ }
                           : { A0 => $_, %{ $_->{arguments} }, };
                     } @{ $self->{items} }
                 ]
@@ -282,6 +278,17 @@ sub wsWrite {
     my $thFormat = $wb->getFormat('th');
     for ( my $i = 0 ; $i < @{ $self->{items} } ; ++$i ) {
         my $item = $self->{items}[$i];
+        if ( ref $item eq 'ARRAY' ) {
+            $ws->write_string( $row, $col - 1,
+                _shortNameRow( $item->[0]{name} ), $thFormat );
+            local $_ = $formulas[$i];
+            s/(x[0-9]+)[=\s]+/$1 = /;
+            s/ = $/ = $item->[0]{name}/;
+            $ws->write_url( $row, $scribbleColumn, $item->[0]->wsUrl($wb),
+                $_, $wb->getFormat('link') );
+            ++$row;
+            next;
+        }
         $ws->write_string( $row, $col - 1, _shortNameRow( $item->{name} ),
             $thFormat );
         local $_ = $formulas[$i]
@@ -309,7 +316,7 @@ sub wsWrite {
             $ws->write_string( $row, $scribbleColumn, $_,
                 $wb->getFormat('text') );
         }
-        my $cell = $cellClosures[$i];
+        my $cell = $cellClosures[$i] or next;
         @{ $item->{$wb} }{qw(worksheet row col)} = ( $ws, $row, $col );
         foreach my $y ( $item->rowIndices ) {
             foreach my $x ( $item->colIndices ) {

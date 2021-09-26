@@ -34,6 +34,7 @@ sub serviceMapForRuleset {
     {
         fruitCounter => __PACKAGE__ . '::FruitCounter',
         chartTester  => __PACKAGE__ . '::WaterfallTester',
+        runk         => __PACKAGE__ . '::Runk',
     };
 }
 
@@ -72,7 +73,8 @@ sub resultSheetWriter {
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Calculations and results' ),
           $model->myFruitCounter->resultTables,
-          $model->myChartTester->calculationTables;
+          $model->myChartTester->calculationTables,
+          $model->instantiate('runk')->resultTables;
     };
 }
 
