@@ -89,6 +89,10 @@ sub revenueComparison {
         $self->{setup}{timebands}
       ? $volumes->[$#$volumes]
       : $volumes->[0];
+    die "$totalUnits->{name} $totalUnits->{debug} does not"
+      . ' look right for $totalUnits'
+      unless $totalUnits->{name} =~ /total/i;
+
     push @columns,
       $totalUnits = Stack( rows => $self->{rows}, sources => [$totalUnits] )
       if $self->{rows};

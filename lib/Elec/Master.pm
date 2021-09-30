@@ -40,7 +40,10 @@ sub serviceMap {
       if $model->{checksums};
     push @servMap, customers => 'Elec::CustomersTyped' if $model->{ulist};
     push @servMap, customers => 'Elec::Customers' unless $model->{ulist};
-    push @servMap, interpolator => 'Elec::Interpolator'
+    push @servMap,
+      interpolator => $model->{interpolator} =~ /ramp/i
+      ? 'Elec::DemandRamping'
+      : 'Elec::Interpolator'
       if $model->{interpolator};
     push @servMap, summaries => 'Elec::Summaries'
       if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};

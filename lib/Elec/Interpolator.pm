@@ -84,7 +84,7 @@ sub daysInYear {
     $self->{daysInYear};
 }
 
-sub _forecastInputDataAndFactors {
+sub forecastInputDataAndFactors {
 
     my ( $self, $rowset, $tableName ) = @_;
 
@@ -268,11 +268,13 @@ sub assetValuesLives {
 
 }
 
-sub _aggregateForecast {
+sub forecastAggregator {
 
     my ( $self, $wantedRowset, $wantedColumnset, $prop, $category, $factor,
         $column )
       = @_;
+
+    my @props = !$prop ? () : 'ARRAY' eq ref $prop ? @$prop : $prop;
 
     my $name =
         $wantedColumnset && !$#{ $wantedColumnset->{list} }
@@ -284,15 +286,17 @@ sub _aggregateForecast {
         defaultFormat => '0soft',
         rows          => $wantedRowset,
         cols          => $wantedColumnset,
-        custom =>
-          [ '=SUMPRODUCT((A1=A3)*A4*A6' . ( $prop ? '*A8' : '' ) . ')' ],
+        custom        => [
+            '=SUMPRODUCT((A1=A3)*A4*A6'
+              . ( join '', map { "*A8$_"; } 0 .. $#props ) . ')'
+        ],
         arithmetic => '=SUMPRODUCT((A1=label)*A4*A6'
-          . ( $prop ? '*A8' : '' ) . ')',
+          . ( join '', map { "*A8$_"; } 0 .. $#props ) . ')',
         arguments => {
             A1 => $category,
             A4 => $factor,
             A6 => $column,
-            $prop ? ( A8 => $prop ) : (),
+            ( map { ( "A8$_" => $props[$_] ); } 0 .. $#props ),
             A9 => $self->{setup}->daysInYear,
         },
         wsPrepare => sub {
@@ -303,7 +307,7 @@ sub _aggregateForecast {
                     $rowh->{A9}, $colh->{A9}, 1, 1
                   )
             );
-            foreach (qw(A1 A4 A6 A8)) {
+            foreach ( qw(A1 A4 A6), map { "A8$_"; } 0 .. $#props ) {
                 push @map,
                   qr/\b$_\b/ =>
                   Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
@@ -351,7 +355,7 @@ sub assetVolumes {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->_forecastInputDataAndFactors( $inputRowset, 'Asset volume' );
+      $self->forecastInputDataAndFactors( $inputRowset, 'Asset volume' );
     my $quantity = Dataset(
         name => 'Asset count',
         rows => $inputRowset,
@@ -365,7 +369,7 @@ sub assetVolumes {
         columns =>
           [ $name, $category, $startDate, $endDate, $growth, $quantity, ],
     );
-    $self->_aggregateForecast( $assetLabelset, undef, undef, $category,
+    $self->forecastAggregator( $assetLabelset, undef, undef, $category,
         $factor, $quantity );
 }
 
@@ -388,7 +392,7 @@ sub targetUsage {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->_forecastInputDataAndFactors( $inputRowset, 'Target usage' );
+      $self->forecastInputDataAndFactors( $inputRowset, 'Target usage' );
     my $capacity = Dataset(
         name          => 'Network capacity (kVA)',
         rows          => $inputRowset,
@@ -402,7 +406,7 @@ sub targetUsage {
         dataset  => $self->{model}{dataset},
         columns => [ $name, $level, $startDate, $endDate, $growth, $capacity, ],
     );
-    $self->_aggregateForecast( undef, $usageSet, undef, $level,
+    $self->forecastAggregator( undef, $usageSet, undef, $level,
         $factor, $capacity );
 }
 
@@ -426,7 +430,7 @@ sub runningCostData {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->_forecastInputDataAndFactors( $inputRowset, 'Running cost' );
+      $self->forecastInputDataAndFactors( $inputRowset, 'Running cost' );
     my $amount = Dataset(
         name          => 'Annual cost (£/year)',
         rows          => $inputRowset,
@@ -446,7 +450,7 @@ sub runningCostData {
 
 sub runningCosts {
     my ( $self, $usageSet ) = @_;
-    $self->_aggregateForecast( undef, $usageSet, undef,
+    $self->forecastAggregator( undef, $usageSet, undef,
         @{ $self->runningCostData } );
 }
 
@@ -470,7 +474,7 @@ sub demandInputAndFactor {
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
     my ( $startDate, $endDate, $growth, $factor ) =
-      $self->_forecastInputDataAndFactors( $inputRowset, 'Demand' );
+      $self->forecastInputDataAndFactors( $inputRowset, 'Demand' );
     my @demands = map {
         Dataset(
             rows          => $inputRowset,
@@ -498,7 +502,7 @@ sub totalDemand {
         data          => [ map { 1; } @{ $factor->{rows}{list} } ],
       ) unless $usetName eq 'all users';
     my @columns = map {
-        $self->_aggregateForecast( $wantedRowset, undef, $prop, $tariff,
+        $self->forecastAggregator( $wantedRowset, undef, $prop, $tariff,
             $factor, $_ );
     } @demands;
     if ( $self->{setup}{timebands} ) {
