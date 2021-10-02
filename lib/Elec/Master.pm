@@ -76,7 +76,8 @@ sub new {
     my $setup      = $serviceMap{setup}->new($model);
     $setup->registerTimebands( $serviceMap{timebands}->new( $model, $setup ) )
       if $serviceMap{timebands};
-    $model->{interpolator} = $serviceMap{interpolator}->new( $model, $setup )
+    $model->{interpolator} =
+      $serviceMap{interpolator}->new( $model, $setup, $model->{interpolator} )
       if $model->{interpolator};
     my $customers = $serviceMap{customers}->new( $model, $setup );
     my $usage = $serviceMap{usage}->new( $model, $setup, $customers );

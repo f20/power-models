@@ -30,11 +30,12 @@ use SpreadsheetModel::Shortcuts ':all';
 require Spreadsheet::WriteExcel::Utility;
 
 sub new {
-    my ( $class, $model, $setup ) = @_;
+    my ( $class, $model, $setup, $options ) = @_;
     $model->register(
         bless {
-            model => $model,
-            setup => $setup,
+            model   => $model,
+            setup   => $setup,
+            options => $options,
         },
         $class
     );
@@ -86,7 +87,7 @@ sub daysInYear {
 
 sub forecastInputDataAndFactors {
 
-    my ( $self, $rowset, $tableName ) = @_;
+    my ( $self, $rowset, $tableName, $probabilityFlag ) = @_;
 
     my $startDate = Dataset(
         name          => 'Start date',
@@ -100,9 +101,9 @@ sub forecastInputDataAndFactors {
         defaultFormat => 'datehard',
         data          => [ map { ''; } @{ $rowset->{list} } ],
     );
-    my $growth = Dataset(
-        name          => 'Annual growth rate',
-        rows          => $rowset,
+    my $growthOrProb = Dataset(
+        name => $probabilityFlag ? 'Probability' : 'Annual growth rate',
+        rows => $rowset,
         defaultFormat => '%hard',
         data          => [ map { 0; } @{ $rowset->{list} } ],
     );
@@ -138,9 +139,14 @@ sub forecastInputDataAndFactors {
         name => 'Scaling factor for the charging year',
         rows => $rowset,
         arithmetic => '=IF(OR(A103<0,A104<A203),0,' .    # is there any overlap
-          'IF(A701,'    # is there a non-zero growth rate?
-          . '((1+A702)^((A102+1-A204)/A901)-1)*(1+A703)^(A202/365.25)/LN(1+A704),'
-          . '(A101+1-A201)/A902))',
+          (
+            $probabilityFlag
+            ? 'A701*'
+            : 'IF(A701,'    # is there a non-zero growth rate?
+              . '((1+A702)^((A102+1-A204)/A901)-1)*(1+A703)^(A202/365.25)/LN(1+A704),'
+          )
+          . '(A101+1-A201)/A902)'
+          . ( $probabilityFlag ? '' : ')' ),
         arguments => {
             A101 => $last,
             A102 => $last,
@@ -150,10 +156,10 @@ sub forecastInputDataAndFactors {
             A202 => $first,
             A203 => $first,
             A204 => $first,
-            A701 => $growth,
-            A702 => $growth,
-            A703 => $growth,
-            A704 => $growth,
+            A701 => $growthOrProb,
+            A702 => $growthOrProb,
+            A703 => $growthOrProb,
+            A704 => $growthOrProb,
             A901 => $self->daysInYear,
             A902 => $self->daysInYear,
         },
@@ -165,7 +171,7 @@ sub forecastInputDataAndFactors {
         columns => [ $first, $last, $factor, ]
       );
 
-    $startDate, $endDate, $growth, $factor;
+    $startDate, $endDate, $growthOrProb, $factor;
 
 }
 
@@ -354,8 +360,9 @@ sub assetVolumes {
         defaultFormat => 'texthard',
         data          => [ map { ''; } @{ $inputRowset->{list} } ],
     );
-    my ( $startDate, $endDate, $growth, $factor ) =
-      $self->forecastInputDataAndFactors( $inputRowset, 'Asset volume' );
+    my ( $startDate, $endDate, $growthOrProbability, $factor ) =
+      $self->forecastInputDataAndFactors( $inputRowset, 'Asset volume',
+        $self->{options} =~ /prob/i );
     my $quantity = Dataset(
         name => 'Asset count',
         rows => $inputRowset,
@@ -366,8 +373,10 @@ sub assetVolumes {
         number   => 1550,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
-        columns =>
-          [ $name, $category, $startDate, $endDate, $growth, $quantity, ],
+        columns  => [
+            $name,    $category,            $startDate,
+            $endDate, $growthOrProbability, $quantity,
+        ],
     );
     $self->forecastAggregator( $assetLabelset, undef, undef, $category,
         $factor, $quantity );
