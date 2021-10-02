@@ -205,25 +205,33 @@ sub maxAssets {
     );
 }
 
+sub addNotionalVolumesRulesInput {
+    my ( $self, $rule, ) = @_;
+    push @{ $self->{additionalColumns1553} }, $rule;
+}
+
 sub addNotionalVolumesFeedback {
     my ( $self, $feedback, @more ) = @_;
-    $self->{notionalVolumesFeedback} = Stack(
+    push @{ $self->{additionalColumns1553} },
+      Stack(
         sources        => [$feedback],
         deferWritingTo => $feedback,
         @more,
-    );
+      );
 }
 
 sub finish {
     my ($self) = @_;
-    if ( $self->{notionalVolumesFeedback} ) {
+    if ( $self->{additionalColumns1553} ) {
         Columnset(
             name     => $self->{notionalVolumesInput}->objectShortName,
             number   => 1553,
             dataset  => $self->{model}{dataset},
             appendTo => $self->{model}{inputTables},
-            columns =>
-              [ $self->{notionalVolumes}, $self->{notionalVolumesFeedback}, ],
+            columns  => [
+                $self->{notionalVolumesInput},
+                @{ $self->{additionalColumns1553} },
+            ],
         );
     }
     elsif ( $self->{notionalVolumesInput} ) {

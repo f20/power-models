@@ -221,8 +221,116 @@ sub detailedAssets {
       ) if $flags{showTotals};
 }
 
+sub assetMatchingFactorsFlexible {
+    my ( $self, $assetVolumes, $totalBefore ) = @_;
+    my $rule = Dataset(
+        name          => 'Notional asset adjustment rule',
+        defaultFormat => 'puretexthard',
+        rows          => $assetVolumes->{rows},
+        validation    => {
+            validate => 'list',
+            value    => [qw(capped fixed scaled)],
+        },
+        data => [ map { 'fixed'; } @{ $assetVolumes->{rows}{list} } ],
+    );
+    $self->{assets}->addNotionalVolumesRulesInput($rule);
+    Arithmetic(
+        name       => 'Detailed notional asset adjustment factors',
+        arithmetic => '=IF(A1,IF(A31="fixed",1,'
+          . 'IF(A32="capped",MIN(1,A2/A11),A21/A12)),666)',
+        arguments => {
+            A1  => $totalBefore,
+            A11 => $totalBefore,
+            A12 => $totalBefore,
+            A2  => $assetVolumes,
+            A21 => $assetVolumes,
+            A31 => $rule,
+            A32 => $rule,
+        },
+    );
+}
+
+sub assetMatchingFactorsTop {
+    my ( $self, $assetVolumes, $totalBefore, $numRows ) = @_;
+    my $hardCoded = Constant(
+        name          => 'Fixed asset adjustment factor',
+        defaultFormat => '0.000con',
+        rows          => $assetVolumes->{rows},
+        data          => [
+            ( map { ''; } 0 .. ( $1 - 1 ) ),
+            ( map { 1; } $1 .. $#{ $assetVolumes->{rows}{list} } ),
+        ],
+    );
+    Arithmetic(
+        name => 'Detailed notional asset adjustment factors'
+          . " (only first $numRows)",
+        arithmetic => '=IF(A3,A31,IF(A11,A2/A1,10))',
+        arguments  => {
+            A1  => $totalBefore,
+            A11 => $totalBefore,
+            A2  => $assetVolumes,
+            A3  => $hardCoded,
+            A31 => $hardCoded,
+        },
+    );
+}
+
+sub assetMatchingFactorsTopOrCapped {
+    my ( $self, $assetVolumes, $totalBefore, $numRows ) = @_;
+    Arithmetic(
+        name => 'Detailed notional asset adjustment factors'
+          . " (capped except first $numRows)",
+        arithmetic => '=MIN(A3,IF(A11,A2/A1,10))',
+        arguments  => {
+            A1  => $totalBefore,
+            A11 => $totalBefore,
+            A2  => $assetVolumes,
+            A3  => Constant(
+                name          => 'Asset adjustment factor cap',
+                defaultFormat => '0.000con',
+                rows          => $assetVolumes->{rows},
+                data          => [
+                    ( map { ''; } 0 .. ( $numRows - 1 ) ),
+                    (
+                        map { 1; } $numRows .. $#{ $assetVolumes->{rows}{list} }
+                    ),
+                ],
+            ),
+        },
+    );
+}
+
+sub assetMatchingFactorsCapped {
+    my ( $self, $assetVolumes, $totalBefore, $capLevel ) = @_;
+    $capLevel ||= 1;
+    Arithmetic(
+        name       => 'Detailed notional asset adjustment factors (capped)',
+        arithmetic => "=IF(A1,MIN($capLevel,A2/A11),666)",
+        arguments  => {
+            A1  => $totalBefore,
+            A11 => $totalBefore,
+            A2  => $assetVolumes,
+        },
+    );
+}
+
+sub assetMatchingFactorsUniversal {
+    my ( $self, $assetVolumes, $totalBefore ) = @_;
+    Arithmetic(
+        name       => 'Detailed notional asset adjustment factors',
+        arithmetic => '=IF(A1,A2/A11,666)',
+        arguments  => {
+            A1  => $totalBefore,
+            A11 => $totalBefore,
+            A2  => $assetVolumes,
+        },
+    );
+}
+
 sub usetMatchAssetDetail {
+
     my ( $self, $totalUsage, $applicationOptions ) = @_;
+
     my $totalBefore = SumProduct(
         name   => 'Detailed notional assets before matching',
         vector => Arithmetic(
@@ -240,61 +348,17 @@ sub usetMatchAssetDetail {
       $self->{model}{usetMatchAssets}
       ? Stack( sources => [ $self->{assets}->assetVolumes ] )
       : $self->{assets}->assetVolumes;
+
+    my $assetMatchingFactorsMethod =
+        $applicationOptions =~ /flex/i ? 'assetMatchingFactorsFlexible'
+      : $applicationOptions =~ /top ([0-9]+) or cap/i
+      ? 'assetMatchingFactorsTopOrCapped'
+      : $applicationOptions =~ /top ([0-9]+)/i ? 'assetMatchingFactorsTop'
+      : $applicationOptions =~ /cap([0-9.]*)/i ? 'assetMatchingFactorsCapped'
+      :   'assetMatchingFactorsUniversal';
     my $assetMatchingFactors =
-      $applicationOptions =~ /top ([0-9]+) or cap/ ? Arithmetic(
-        name => 'Detailed notional asset adjustment factors'
-          . $applicationOptions,
-        arithmetic => '=MIN(A3,IF(A11,A2/A1,10))',
-        arguments  => {
-            A1  => $totalBefore,
-            A11 => $totalBefore,
-            A2  => $assetVolumes,
-            A3  => Constant(
-                name          => 'Asset adjustment factor cap',
-                defaultFormat => '0.000con',
-                rows          => $assetVolumes->{rows},
-                data          => [
-                    ( map { ''; } 0 .. ( $1 - 1 ) ),
-                    ( map { 1; } $1 .. $#{ $assetVolumes->{rows}{list} } ),
-                ],
-            ),
-        },
-      ) : $applicationOptions =~ /top ([0-9]+)/ ? do {
-        my $hardCoded = Constant(
-            name          => 'Fixed asset adjustment factor',
-            defaultFormat => '0.000con',
-            rows          => $assetVolumes->{rows},
-            data          => [
-                ( map { ''; } 0 .. ( $1 - 1 ) ),
-                ( map { 1; } $1 .. $#{ $assetVolumes->{rows}{list} } ),
-            ],
-        );
-        Arithmetic(
-            name => 'Detailed notional asset adjustment factors'
-              . $applicationOptions,
-            arithmetic => '=IF(A3,A31,IF(A11,A2/A1,10))',
-            arguments  => {
-                A1  => $totalBefore,
-                A11 => $totalBefore,
-                A2  => $assetVolumes,
-                A3  => $hardCoded,
-                A31 => $hardCoded,
-            },
-        );
-      }
-      : Arithmetic(
-        name => 'Detailed notional asset adjustment factors'
-          . $applicationOptions,
-        arithmetic => $applicationOptions =~ /cap([0-9.]+)/i
-        ? "=MIN($1,IF(A11,A2/A1,10))"
-        : $applicationOptions =~ /cap/i ? '=MIN(1,IF(A11,A2/A1,10))'
-        : '=IF(A11,A2/A1,10)',
-        arguments => {
-            A1  => $totalBefore,
-            A11 => $totalBefore,
-            A2  => $assetVolumes,
-        },
-      );
+      $self->$assetMatchingFactorsMethod( $assetVolumes, $totalBefore, $1 );
+
     if ( $applicationOptions =~ /info/i ) {
         $self->{assets}->addNotionalVolumesFeedback(
             $assetMatchingFactors,
@@ -322,9 +386,13 @@ sub usetMatchAssetDetail {
         Columnset(
             name    => 'Calculation of asset adjustment factors',
             columns => [
-                grep { defined $_; } $assetMatchingFactors->{arguments}{A3},
-                $assetMatchingFactors->{arguments}{A1},
-                $assetMatchingFactors->{arguments}{A2},
+                (
+                    map {
+                        exists $assetMatchingFactors->{arguments}{$_}
+                          ? $assetMatchingFactors->{arguments}{$_}
+                          : ();
+                    } qw(A3 A1 A2)
+                ),
                 $assetMatchingFactors,
             ],
         );
@@ -340,6 +408,7 @@ sub usetMatchAssetDetail {
             )
         );
     }
+
 }
 
 sub usetMatchAssets {
