@@ -141,7 +141,10 @@ sub wsWrite {
     my %containerSeen;
 
     foreach ( $logger->loggableObjects ) {
-        my ( $wo, $ro, $co ) = $_->wsWrite( $wb, $ws );
+        my ( $wo, $ro, $co ) =
+          (   $_->isa('SpreadsheetModel::Columnset') ? $_->{columns}[0]
+            : $_->isa('SpreadsheetModel::CalcBlock') ? $_->{items}[0]
+            :   $_ )->wsWrite( $wb, $ws );
         my $url = $_->wsUrl($wb);
         my $wn =
             $wo
