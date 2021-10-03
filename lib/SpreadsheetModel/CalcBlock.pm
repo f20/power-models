@@ -111,8 +111,6 @@ sub check {
                         $cell => $arglist[$_];
                     } 0 .. $#arglist;
                     my $formula = join '+', @terms;
-                    $formula = "ROUND($formula,$_->{rounding})"
-                      if defined $_->{rounding};
                     $_->{arguments}  = \%formulaArg;
                     $_->{arithmetic} = '=' . $formula;
                 }
