@@ -1,0 +1,10 @@
+---
+PerlModule: Starter
+template: '%'
+---
+101:
+  - _table: 101. Number of each type
+  - Apples: 1
+    Oranges: 2
+    Pears: 39
+    _column: Number of each type

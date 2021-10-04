@@ -1,4 +1,4 @@
-﻿package Starter::Runk;
+﻿package Tester::Runk;
 
 # Copyright 2020-2021 Franck Latrémolière and others.
 #

@@ -1,4 +1,4 @@
-﻿package Starter::WaterfallTester;
+﻿package Tester::WaterfallTester;
 
 # Copyright 2021 Franck Latrémolière and others.
 #
@@ -38,53 +38,81 @@ sub dataColumns {
     my ($component) = @_;
 }
 
+sub itemNames {
+    my ($component) = @_;
+    $component->{itemNames} //= Dataset(
+        name          => 'Item names',
+        defaultFormat => 'texthard',
+        rows          => Labelset(
+            defaultFormat => 'thitem',
+            list          => [ 1 .. ( $component->{model}{numItems} || 8 ) ]
+        ),
+        data =>
+          [ map { "Item $_"; } 1 .. ( $component->{model}{numItems} || 8 ) ],
+    );
+}
+
 sub rowset {
     my ($component) = @_;
-    $component->{rowset} //=
-      Labelset( list => [ 'Waterfall item 1', 'Waterfall item 2', ] );
+    $component->{rowset} //= Labelset(
+        editable => $component->itemNames,
+        accepts  => [ $component->itemNames->{rows} ],
+    );
+    $component->{rowset} = $component->itemNames->{rows};
+}
+
+sub dataColumnsRef {
+    my ($component) = @_;
+    $component->{dataColumnsRef} //= [
+        map {
+            Dataset(
+                name          => $_,
+                defaultFormat => '0.00hard',
+                rows          => $component->rowset,
+                data          => [ map { 0; } $component->rowset->indices ],
+            );
+          } $component->{model}{stepNames}
+        ? @{ $component->{model}{stepNames} }
+        : ( 'End point', 'Start point', map { "Step $_"; } 1 .. 6 )
+    ];
 }
 
 sub inputTables {
     my ($component) = @_;
     $component->{inputColumnset} //= Columnset(
         name    => 'Waterfall chart data',
-        columns => [
-            map {
-                Dataset(
-                    name          => $_,
-                    defaultFormat => '0.0hard',
-                    rows          => $component->rowset,
-                    data          => [ map { 0; } $component->rowset->indices ],
-                );
-              } 'End point',
-            'Start point',
-            'First step',
-            'Second step',
-            'Third step',
-        ],
+        columns => [ $component->itemNames, @{ $component->dataColumnsRef }, ],
         dataset => $component->{model}{dataset},
         number  => 110,
     );
 }
 
-sub tablesAndCharts {
+sub waterfallSettings {
     my ($component) = @_;
-    $component->{tablesAndCharts} //= [
+    my %settings;
+    %settings = %{ $component->{chartOptions} } if $component->{chartOptions};
+    $settings{chartTitlesMaker} = sub { $_[0]; };
+    \%settings;
+}
+
+sub myTablesAndCharts {
+    my ($component) = @_;
+    $component->{myTablesAndCharts} //= [
         SpreadsheetModel::WaterfallChartset->tablesAndCharts(
-            $component->{chartOptions},
-            $component->inputTables->{columns}
+            $component->waterfallSettings,
+            $component->dataColumnsRef,
         )
     ];
 }
 
 sub calculationTables {
     my ($component) = @_;
-    @{ $component->tablesAndCharts->[0] };
+    @{ $component->myTablesAndCharts->[0] };
 }
 
 sub charts {
     my ($component) = @_;
-    @{ $component->tablesAndCharts->[1] };
+    @{ $component->myTablesAndCharts->[1] };
 }
 
 1;

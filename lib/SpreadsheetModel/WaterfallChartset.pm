@@ -32,7 +32,7 @@ use SpreadsheetModel::ChartSeries;
 
 sub tablesAndCharts {
 
-    my ( $class, $settings, $cols, $chartTitlesMapOptional, ) = @_;
+    my ( $class, $settings, $cols ) = @_;
     my ( @tables, @charts );
     my $rows = $settings->{rows} || $cols->[0]{rows};
     my $csetName = ( $cols->[0]{location} || $cols->[0] )->objectShortName;
@@ -234,8 +234,8 @@ sub tablesAndCharts {
     for my $r (@rowIndices) {
         next if $rows && $rows->{groupid} && !defined $rows->{groupid}[$r];
         local $_ = $rows ? $rows->{list}[$r] : $csetName;
-        if ($chartTitlesMapOptional) {
-            $_ = $chartTitlesMapOptional->{$_};
+        if ($settings->{chartTitlesMaker}) {
+            $_ = $settings->{chartTitlesMaker}->($_);
         }
         else {
             s/.*\n//s;
