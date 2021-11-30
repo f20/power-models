@@ -103,7 +103,8 @@ sub tariffCalculation361 {
         defaultFormat => '0.00soft'
     );
 
-    my $unitRateFcpLricDSM = Arithmetic(
+    push @{ $model->{calc2Tables} },
+      my $unitRateFcpLricDSM = Arithmetic(
         name => "$model->{TimebandName} unit rate adjusted for DSM (p/kWh)",
         arithmetic => '=IF(A6=0,1,A4/A5)*A1',
         arguments  => {
@@ -112,9 +113,10 @@ sub tariffCalculation361 {
             A5 => $importCapacity,
             A6 => $importCapacity,
         }
-    );
+      );
 
-    my $capacityChargeT1 = Arithmetic(
+    push @{ $model->{calc2Tables} },
+      my $capacityChargeT1 = Arithmetic(
         name          => 'Import capacity charge from charge 1 (p/kVA/day)',
         groupName     => 'Charge 1',
         arithmetic    => '=IF(A6=0,1,A4/A5)*A1',
@@ -125,10 +127,10 @@ sub tariffCalculation361 {
             A5 => $importCapacity,
             A6 => $importCapacity,
         },
-    );
+      );
 
     $capacityCharge = Arithmetic(
-        name          => 'Import capacity charge (p/kVA/day)',
+        name          => 'Import capacity charge before scaling (p/kVA/day)',
         arithmetic    => '=A7+A1',
         defaultFormat => '0.00soft',
         arguments     => {
@@ -349,9 +351,9 @@ sub tariffCalculation361 {
       if $model->{mitigateUndueSecrecy};
 
     $capacityCharge = Arithmetic(
-        arithmetic => '=A1+A3*A4*100/A9',
         name => 'Capacity charge after applying indirect cost charge p/kVA/day',
-        arguments => {
+        arithmetic => '=A1+A3*A4*100/A9',
+        arguments  => {
             A1 => $capacityCharge,
             A3 => $indirectAppRate,
             A4 => $slopeIndirect,
@@ -471,6 +473,19 @@ sub tariffCalculation361 {
         data => [],
     );
 
+    my $importCapacityScaled = Arithmetic(
+        name       => 'Total import capacity charge p/kVA/day',
+        arithmetic => '=A1+(A2+A3)*(A4+A5)*100/A9',
+        arguments  => {
+            A1 => $capacityCharge,
+            A2 => $directChargingRate,
+            A3 => $ratesChargingRate,
+            A4 => $assetsCapacityCooked,
+            A5 => $assetsConsumptionCooked,
+            A9 => $daysInYear,
+        }
+    );
+
     my $purpleRateFcpLric = Arithmetic(
         name       => "$model->{TimebandName} rate p/kWh",
         arithmetic => '=IF(A3,IF(A1=0,A9,'
@@ -482,7 +497,7 @@ sub tariffCalculation361 {
             A4  => $unitRateFcpLricDSM,
             A41 => $unitRateFcpLricDSM,
             A9  => $unitRateFcpLricDSM,
-            A5  => $capacityCharge,
+            A5  => $importCapacityScaled,
             A7  => $daysInYear,
             A71 => $tariffDaysInYearNot,
             A8  => $hoursInPurple,
@@ -490,20 +505,29 @@ sub tariffCalculation361 {
         }
     ) if $unitRateFcpLricDSM;
 
+    push @{ $model->{calc4Tables} }, $importCapacityScaled;
+
+    $importCapacityScaled = Arithmetic(
+        name       => 'Import capacity charge p/kVA/day',
+        groupName  => 'Demand charges after scaling',
+        arithmetic => '=IF(A3,MAX(0,A1),0)',
+        arguments  => {
+            A1 => $importCapacityScaled,
+            A3 => $importEligible,
+        },
+    );
+
     my $importCapacityExceeded = Arithmetic(
-        name          => 'Exceeded import capacity charge (p/kVA/day)',
-        defaultFormat => '0.00soft',
-        arithmetic    => '=A7+A2',
-        defaultFormat => '0.00soft',
-        arguments     => {
+        name       => 'Exceeded import capacity charge (p/kVA/day)',
+        arithmetic => '=A7+A2',
+        arguments  => {
             A3 => $fcpLricDemandCapacityChargeBig,
             A2 => $importCapacityExceededAdjustment,
             A4 => $chargeableCapacity,
             A5 => $importCapacity,
             A1 => $importCapacity,
-            A7 => $capacityCharge,
+            A7 => $importCapacityScaled,
         },
-        defaultFormat => '0.00soft'
     );
 
     $model->{summaryInformationColumns}[5] = Arithmetic(
@@ -543,9 +567,21 @@ sub tariffCalculation361 {
         data          => [ 1 .. 4 ]
     );
 
-    my $unitsByClass =
-      $model->{transparencyMasterFlag}
-      ? Arithmetic(
+    my $tariffWeightForBanding = Arithmetic(
+        name       => 'Tariff weighting for banding calculations',
+        arithmetic => '=(0.8+0.2*A1)*(1-A2/A9)'
+          . ( $model->{transparencyMasterFlag} ? '*A5' : '' ),
+        arguments => {
+            A1 => $indirectExposure,
+            A2 => $tariffDaysInYearNot,
+            A9 => $daysInYear,
+            $model->{transparencyMasterFlag}
+            ? ( A5 => $model->{transparency} )
+            : (),
+        },
+    );
+
+    my $unitsByClass = Arithmetic(
         name          => 'Total units by chargeable band',
         defaultFormat => '0soft',
         arithmetic    => '=SUMPRODUCT((A2_A3=A1)*A4_A5*A71_A72)',
@@ -553,73 +589,53 @@ sub tariffCalculation361 {
             A1      => $bandNumber,
             A2_A3   => $tariffScalingClass,
             A4_A5   => $totalFinalDemandUnits,
-            A71_A72 => $model->{transparency},
+            A71_A72 => $tariffWeightForBanding,
         },
-      )
-      : Arithmetic(
-        name          => 'Total units by chargeable band',
-        defaultFormat => '0soft',
-        arithmetic    => '=SUMIF(A2_A3,A1,A4_A5)',
-        arguments     => {
-            A1    => $bandNumber,
-            A2_A3 => $tariffScalingClass,
-            A4_A5 => $totalFinalDemandUnits,
-        },
-      );
+    );
 
-    my $customerCountLdnoAdjusted =
-      $model->{transparencyMasterFlag}
-      ? Arithmetic(
-        name       => 'Total customers by chargeable band (LDNO adjusted)',
-        arithmetic => '=0.8*SUMIF(A21_A31,A11,A71_A72)'
-          . '+0.2*SUMPRODUCT((A2_A3=A1)*A4_A5*A73_A74)',
-        arguments => {
-            A1      => $bandNumber,
-            A2_A3   => $tariffScalingClass,
-            A11     => $bandNumber,
-            A21_A31 => $tariffScalingClass,
-            A4_A5   => $indirectExposure,
-            A71_A72 => $model->{transparency},
-            A73_A74 => $model->{transparency},
-        },
-      )
-      : Arithmetic(
-        name       => 'Total customers by chargeable band (LDNO adjusted)',
-        arithmetic => '=0.8*COUNTIF(A21_A31,A11)+0.2*SUMIF(A2_A3,A1,A4_A5)',
+    my $customersByClass = Arithmetic(
+        name       => 'Total customers by chargeable band',
+        arithmetic => '=SUMIF(A2_A3,A1,A71_A72)',
         arguments  => {
             A1      => $bandNumber,
             A2_A3   => $tariffScalingClass,
-            A11     => $bandNumber,
-            A21_A31 => $tariffScalingClass,
-            A4_A5   => $indirectExposure,
+            A71_A72 => $tariffWeightForBanding,
         },
-      );
+    );
 
-    my $matchingChargeOverride = Dataset(
+    my $matchingChargeOverride;
+
+    $matchingChargeOverride = Dataset(
         name => 'Annual revenue matching charge manual override (£/year)',
         defaultFormat => '0hard',
         cols          => $bandLabelset,
         data          => [ 1e4, 3e4, 1e5, 3e5 ],
-        number        => 1185,
+        number        => 1186,
         dataset       => $model->{dataset},
         appendTo      => $model->{inputTables}
-    );
+    ) if $model->{dcp361} =~ /override/i;
 
     my $matchingCharge = Arithmetic(
         name          => 'Annual revenue matching charge (£/year)',
         defaultFormat => '0soft',
-        arithmetic    => '=IF(A1,A11,A2*A3/SUM(A4_A5)/A6)',
-        arguments     => {
-            A1    => $matchingChargeOverride,
-            A11   => $matchingChargeOverride,
+        arithmetic    => $matchingChargeOverride
+        ? '=IF(ISNUMBER(A71),A72,A2*A3/SUM(A4_A5)/A1)'
+        : '=A2*A3/SUM(A4_A5)/A1',
+        arguments => {
+            A1    => $customersByClass,
             A2    => $revenueShortfall,
             A3    => $unitsByClass,
             A4_A5 => $unitsByClass,
-            A6    => $customerCountLdnoAdjusted,
+            $matchingChargeOverride
+            ? (
+                A71 => $matchingChargeOverride,
+                A72 => $matchingChargeOverride,
+              )
+            : (),
         },
     );
 
-    $model->{transparency}{dnoTotalItem}{1285} = $matchingCharge
+    $model->{transparency}{dnoTotalItem}{1286} = $matchingCharge
       if $model->{transparency};
 
     my $fixedDchargeTrueRound = Arithmetic(
@@ -647,7 +663,7 @@ sub tariffCalculation361 {
         name          => 'Import capacity rate (p/kVA/day)',
         defaultFormat => '0.00soft',
         arithmetic    => '=ROUND(A1,2)',
-        arguments     => { A1 => $capacityCharge, },
+        arguments     => { A1 => $importCapacityScaled, },
     );
 
     my $exportCapacityExceeded = Arithmetic(
