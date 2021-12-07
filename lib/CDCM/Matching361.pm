@@ -36,10 +36,28 @@ sub matching361 {
         $demandTariffsByEndUser, $allEndUsers,
         $chargingLevels,         $nonExcludedComponents,
         $allComponents,          $daysAfter,
-        $volumeAfter,            $loadCoefficients,
+        $volumeAfterUndoctored,  $loadCoefficients,
         $tariffsExMatching,      $daysFullYear,
         $volumeFullYear
     ) = @_;
+
+    my @unchargeableFixed = grep { /related|unmet|ums/i; }
+      @{ $volumeAfterUndoctored->{'Fixed charge p/MPAN/day'}->{rows}{list} };
+    my $volumeAfter = {
+        %$volumeAfterUndoctored,
+        'Fixed charge p/MPAN/day' => Stack(
+            name => 'Chargeable MPANs',
+            rows => $volumeAfterUndoctored->{'Fixed charge p/MPAN/day'}->{rows},
+            sources => [
+                Constant(
+                    defaultFormat => '0con',
+                    rows          => Labelset( list => \@unchargeableFixed ),
+                    data          => [ [ map { 0; } @unchargeableFixed ] ],
+                ),
+                $volumeAfterUndoctored->{'Fixed charge p/MPAN/day'},
+            ],
+        ),
+    };
 
     my $tcrGroupAllocation = Dataset(
         name          => 'TCR group allocation',
@@ -50,7 +68,7 @@ sub matching361 {
         rows          => $allTariffsByEndUser,
         data          => [
             map {
-                    /domestic/i && !/non.domestic/i ? 1
+                    /domestic/i && !/non.domestic/i           ? 1
                   : /Non-Domestic Aggregated.* Band ([1-4])/i ? 4 + $1
                   : /LV.* Site Specific Band ([1-4])/i        ? 8 + $1
                   : /HV Site Specific Band ([1-4])/i          ? 12 + $1
@@ -134,12 +152,12 @@ sub matching361 {
         );
 
         Columnset(
-            name =>
-"Extraction of all pre-matching units related to TCR group $tcrGroup",
+            name => 'Extraction of all (including related MPAN)'
+              . " pre-matching units related to TCR group $tcrGroup",
             columns => \@allUnitsColumns,
         );
 
-        my $row = Labelset( list => ["TCR group $tcrGroup"] );
+        my $row                 = Labelset( list => ["TCR group $tcrGroup"] );
         my @minimumPriceColumns = map {
             Arithmetic(
                 name => $_->objectShortName,
@@ -172,7 +190,7 @@ sub matching361 {
         my $name = $columnsets[0]{columns}[$c]->objectShortName;
         push @tcrGroupData,
           Stack(
-            name          => $name,
+            name => $name,
             defaultFormat => $name !~ /\// ? '0copy'
             : $name =~ /day/ ? '0.00copy'
             : '0.000copy',
@@ -342,7 +360,7 @@ sub matching361 {
     my $unitsAdder1 = Arithmetic(
         name          => 'Adder low units p/kWh',
         defaultFormat => '0.000soft',
-        arithmetic =>
+        arithmetic    =>
           '=IF(A21+A22+A23,MAX((A1-A5*A6*A9*0.01)/(A31+A32+A33)*0.1,0-A4),0)',
         arguments => {
             A1  => $adderByGroup,
@@ -362,7 +380,7 @@ sub matching361 {
     my $unitsAdder2 = Arithmetic(
         name          => 'Adder middle units p/kWh',
         defaultFormat => '0.000soft',
-        arithmetic =>
+        arithmetic    =>
 '=IF(A22+A23,MAX((A1-A5*A6*A9*0.01-A21*A51*10)/(A32+A33)*0.1,0-A4),0)',
         arguments => {
             A1  => $adderByGroup,
@@ -382,7 +400,7 @@ sub matching361 {
     my $unitsAdder3 = Arithmetic(
         name          => 'Adder high units p/kWh',
         defaultFormat => '0.000soft',
-        arithmetic =>
+        arithmetic    =>
 '=IF(A23,MAX((A1-A5*A6*A9*0.01-A21*A51*10-A22*A52*10)/A33*0.1,0-A4),0)',
         arguments => {
             A1  => $adderByGroup,
@@ -446,7 +464,7 @@ sub matching361 {
         my @termsNoDays;
         my @termsWithDays;
         my %args = ( A400 => $daysAfter );
-        my $i = 1;
+        my $i    = 1;
 
         foreach ( grep { $adderTable->{$_} } @$nonExcludedComponents ) {
             ++$i;
