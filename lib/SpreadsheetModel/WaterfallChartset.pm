@@ -34,7 +34,7 @@ sub tablesAndCharts {
 
     my ( $class, $settings, $cols ) = @_;
     my ( @tables, @charts );
-    my $rows = $settings->{rows} || $cols->[0]{rows};
+    my $rows     = $settings->{rows} || $cols->[0]{rows};
     my $csetName = ( $cols->[0]{location} || $cols->[0] )->objectShortName;
 
     # Column order:
@@ -105,7 +105,7 @@ sub tablesAndCharts {
                 @formatting,
                 rows       => $rows,
                 arithmetic => '=MAX(A1,0)',
-                arguments =>
+                arguments  =>
                   { A1 => $cols->[ $index_after ? $index_before : 0 ] },
               );
             push @value_neg,
@@ -114,7 +114,7 @@ sub tablesAndCharts {
                 @formatting,
                 rows       => $rows,
                 arithmetic => '=MIN(A1,0)',
-                arguments =>
+                arguments  =>
                   { A1 => $cols->[ $index_after ? $index_before : 0 ] },
               );
         }
@@ -123,7 +123,7 @@ sub tablesAndCharts {
           Arithmetic(
             name => $stepName,
             @formatting,
-            rows => $rows,
+            rows       => $rows,
             arithmetic =>
               '=IF(A1<0,IF(A2<0,MAX(A11,A21),0),IF(A23<0,0,MIN(A12,A22)))',
             arguments => {
@@ -141,7 +141,7 @@ sub tablesAndCharts {
           Arithmetic(
             name => $stepName,
             @formatting,
-            rows => $rows,
+            rows       => $rows,
             arithmetic =>
               '=IF(A1<0,MIN(0,MIN(0,A21)-A11),MAX(0,A12-MAX(0,A22)))',
             arguments => {
@@ -169,7 +169,7 @@ sub tablesAndCharts {
           Arithmetic(
             name => $stepName,
             @formatting,
-            rows => $rows,
+            rows       => $rows,
             arithmetic =>
               '=IF(A1<0,MIN(0,A11-MIN(0,A21)),MAX(0,MAX(0,A22)-A12))',
             arguments => {
@@ -234,7 +234,7 @@ sub tablesAndCharts {
     for my $r (@rowIndices) {
         next if $rows && $rows->{groupid} && !defined $rows->{groupid}[$r];
         local $_ = $rows ? $rows->{list}[$r] : $csetName;
-        if ($settings->{chartTitlesMaker}) {
+        if ( $settings->{chartTitlesMaker} ) {
             $_ = $settings->{chartTitlesMaker}->($_);
         }
         else {

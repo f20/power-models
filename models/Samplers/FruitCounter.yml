@@ -1,5 +1,8 @@
 ---
-PerlModule: Starter
+PerlModule: Tester
+tests:
+  -
+    - fruitCounter
 template: '%'
 ---
 101:

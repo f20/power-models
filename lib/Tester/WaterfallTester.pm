@@ -58,7 +58,6 @@ sub rowset {
         editable => $component->itemNames,
         accepts  => [ $component->itemNames->{rows} ],
     );
-    $component->{rowset} = $component->itemNames->{rows};
 }
 
 sub dataColumnsRef {
@@ -68,10 +67,10 @@ sub dataColumnsRef {
             Dataset(
                 name          => $_,
                 defaultFormat => '0.00hard',
-                rows          => $component->rowset,
+                rows          => $component->itemNames->{rows},
                 data          => [ map { 0; } $component->rowset->indices ],
             );
-          } $component->{model}{stepNames}
+        } $component->{model}{stepNames}
         ? @{ $component->{model}{stepNames} }
         : ( 'End point', 'Start point', map { "Step $_"; } 1 .. 6 )
     ];
@@ -92,6 +91,7 @@ sub waterfallSettings {
     my %settings;
     %settings = %{ $component->{chartOptions} } if $component->{chartOptions};
     $settings{chartTitlesMaker} = sub { $_[0]; };
+    $settings{rows}             = $component->rowset;
     \%settings;
 }
 
@@ -105,7 +105,7 @@ sub myTablesAndCharts {
     ];
 }
 
-sub calculationTables {
+sub calcTables {
     my ($component) = @_;
     @{ $component->myTablesAndCharts->[0] };
 }

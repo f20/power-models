@@ -1,4 +1,4 @@
-﻿package Starter::FruitCounter;
+﻿package Tester::FruitCounter;
 
 # Copyright 2020-2021 Franck Latrémolière and others.
 #
@@ -68,7 +68,7 @@ sub inputTables {
     $component->numFruits;
 }
 
-sub resultTables {
+sub calcTables {
     my ($component) = @_;
     $component->totalFruits;
 }

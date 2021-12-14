@@ -1,0 +1,96 @@
+---
+PerlModule: Tester
+protect: 1
+template: '%'
+tests:
+  -
+    - calcBlockTester
+  -
+    - waterfallTester
+    - chartOptions
+    - mergeFirstStep: 0
+validation: lenientnomsg
+---
+110:
+  - _table: 110. Waterfall chart data
+  - 1: Achille
+    2: Achitaka
+    3: Acorus
+    4: Acoustics
+    5: Babar
+    6: Babou
+    7: Beyblade
+    8: Bibo
+    _column: Item names
+  - 1: '=RAND()'
+    2: '=RAND()'
+    3: '=RAND()'
+    4: '=RAND()'
+    5: '=RAND()'
+    6: '=RAND()'
+    7: '=RAND()'
+    8: '=RAND()'
+    _column: End point
+  - 1: '=RAND()'
+    2: '=RAND()'
+    3: '=RAND()'
+    4: '=RAND()'
+    5: '=RAND()'
+    6: '=RAND()'
+    7: '=RAND()'
+    8: '=RAND()'
+    _column: Start point
+  - 1: '=RAND()'
+    2: '=RAND()'
+    3: '=RAND()'
+    4: '=RAND()'
+    5: '=RAND()'
+    6: '=RAND()'
+    7: '=RAND()'
+    8: '=RAND()'
+    _column: Step 1
+  - 1: '=RAND()'
+    2: '=RAND()'
+    3: '=RAND()'
+    4: '=RAND()'
+    5: '=RAND()'
+    6: '=RAND()'
+    7: '=RAND()'
+    8: '=RAND()'
+    _column: Step 2
+  - 1: '=RAND()'
+    2: '=RAND()'
+    3: '=RAND()'
+    4: '=RAND()'
+    5: '=RAND()'
+    6: '=RAND()'
+    7: '=RAND()'
+    8: '=RAND()'
+    _column: Step 3
+  - 1: '=RAND()'
+    2: '=RAND()'
+    3: '=RAND()'
+    4: '=RAND()'
+    5: '=RAND()'
+    6: '=RAND()'
+    7: '=RAND()'
+    8: '=RAND()'
+    _column: Step 4
+  - 1: '=RAND()'
+    2: '=RAND()'
+    3: '=RAND()'
+    4: '=RAND()'
+    5: '=RAND()'
+    6: '=RAND()'
+    7: '=RAND()'
+    8: '=RAND()'
+    _column: Step 5
+  - 1: '=RAND()'
+    2: '=RAND()'
+    3: '=RAND()'
+    4: '=RAND()'
+    5: '=RAND()'
+    6: '=RAND()'
+    7: '=RAND()'
+    8: '=RAND()'
+    _column: Step 6

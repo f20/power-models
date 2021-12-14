@@ -281,7 +281,7 @@ sub wsCreate {
     my $chart = $wb->add_chart(
         %$self,
         embedded => $ws ? 1 : 0,
-        name => $self->objectShortName,
+        name     => $self->objectShortName,
     );
 
     if ( !$ws ) {    # Chartsheet
@@ -297,7 +297,30 @@ sub wsCreate {
       unless defined $row && defined $col;
 
     if ( $self->{name} ) {
-        $ws->write( $row, $col, "$self->{name}", $wb->getFormat('notes') );
+        if (   ref $self->{name} eq 'ARRAY'
+            && UNIVERSAL::isa( $self->{name}[0], 'SpreadsheetModel::Dataset' )
+            && defined $self->{name}[1]
+            && defined $self->{name}[2] )
+        {
+            push @{ $self->{sourceLines} }, $self->{name}[0]
+              unless !$self->{sourceLines}
+              || grep { $_ == $self->{name}[0] } @{ $self->{sourceLines} };
+            my ( $w2, $r2, $c2 ) =
+              $self->{name}[0]->wsWrite( $wb, $ws, undef, undef, 1 );
+            $ws->write(
+                $row, $col,
+                "='"
+                  . $w2->get_name . "'!"
+                  . xl_rowcol_to_cell(
+                    $r2 + $self->{name}[1],
+                    $c2 + $self->{name}[2]
+                  ),
+                $wb->getFormat('notes')
+            );
+        }
+        else {
+            $ws->write( $row, $col, "$self->{name}", $wb->getFormat('notes') );
+        }
         $ws->set_row( $row, $wb->{captionRowHeight} );
         ++$row;
     }
@@ -329,7 +352,7 @@ sub wsCreate {
                           && UNIVERSAL::can( $_->{location}, 'wsWrite' )
                         ? $_->{location}
                         : $_
-                      )->addForwardLink($self)
+                    )->addForwardLink($self)
                       if $wb->{findForwardLinks};
                 }
                 else {

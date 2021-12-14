@@ -17,7 +17,8 @@ this code, follow the instructions below.
 Step 1. Set-up a Perl 5 development environment.
 ------------------------------------------------
 
-You need a terminal or console interface, and Perl 5 (v5.8.8 or later).
+You need a terminal interface, and Perl 5 (preferably v5.10 or later,
+but most of the code is compatible with v5.8.8).
 
 This is normally easy to set-up on desktop and server computing platforms:
 * On Apple macOS, the built-in Terminal.app and Perl 5 installations are good.
@@ -27,29 +28,26 @@ package available from strawberryperl.com are good.
 either pre-installed or available from the ports/packages system.
 
 On mobile operating systems, setting up a suitable environment is much more
-troublesome; the dcmf.co.uk/models website might better meet your needs.
-
-To test whether you have a suitable version of Perl 5, try this at the
-Terminal or command line:
-
-    perl --version
+troublesome; https://dcmf.co.uk/models might better meet your needs.
 
 Step 2. Download the code.
 ---------------------------
 
 Either download https://github.com/f20/power-models/archive/master.zip and
-extract all the files from it, or use a git client to clone this repository.
+extract all the files from it, or use a git client to clone the repository.
 
 Step 3. Install any missing modules.
 -------------------------------------
 
-Change directory to the root of the repository and try these sample commands:
+Change directory to the root of the extraction folder or repository, and
+try these sample commands:
 
     perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles('models/Samplers/FormatSampler.yml')"
 
     perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory(validate=>['lib'])->runAllWithFiles('models/CDCM/2017-02-Baseline/%-extras227.yml','models/CDCM/2017-02/SPEN-SPM.yml')"
 
-If this fails, examine the error messages. Sometimes the problem is a missing
+This should create Microsoft Excel workbooks in the current working directory.
+If not, examine the error messages. Sometimes the problem is a missing
 module which can be installed from CPAN (www.cpan.org).
 
 Other code in the repository
@@ -63,8 +61,8 @@ information.  This code is deprecated and unmaintained.
 Licensing
 ---------
 
-All the components of this software are licensed under open source licences.
-Check the source code for details.
+Components of this software are licensed under open source licences; see
+the source code for details.
 
 THIS SOFTWARE AND DATA ARE PROVIDED "AS IS" AND ANY EXPRESS OR IMPLIED
 WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -77,4 +75,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 23 September 2021.
+Franck Latrémolière, 14 December 2021.

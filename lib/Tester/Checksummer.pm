@@ -1,6 +1,6 @@
-﻿package Tester::Runk;
+﻿package Tester::Checksummer;
 
-# Copyright 2020-2021 Franck Latrémolière and others.
+# Copyright 2021 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -27,40 +27,29 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::CalcBlock;
+use SpreadsheetModel::WaterfallChartset;
 
 sub new {
     my ( $class, $model, @options ) = @_;
     bless { model => $model, @options }, $class;
 }
 
-sub resultTables {
-    my ($component) = @_;
-    my $data = Constant(
-        name => 'Vector',
-        cols => Labelset( list => [qw(One Two Three)] ),
-        data => [ [1], [2], [3] ],
-    );
-    my $scalar = Constant( name => 'Scalar', data => [ [5] ], );
-    my $calc = Arithmetic(
-        name       => 'Calc',
-        arithmetic => '=A1^A2',
-        arguments  => { A1 => $data, A2 => $scalar, },
-    );
-    CalcBlock(
-        name  => 'Block',
-        items => [ $data, $scalar, $calc, ]
-    );
-}
+=head xx
 
-sub appendCode {
-    my ( $component, $wbook, $wsheet ) = @_;
-    my ( $wb, $ro, $co ) = $component->totalFruits->wsWrite( $wbook, $wsheet );
-    my $ref = q^'^
-      . $wb->get_name . q^'!^
-      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
-    qq^&IF(ISERROR($ref),"",^
-      . qq^" ("&TEXT($ref,"#,##0")&IF($ref<1.5," fruit)"," fruits)"))^;
-}
+SpreadsheetModel::Checksum->new(
+    name      => $checksumName,
+    recursive => $recursiveFlag,
+    digits    => $checksumDigits,
+    columns   => \@allTariffColumns,
+    factors   => [
+        map {
+            $_->{defaultFormat} && $_->{defaultFormat} !~ /000/
+              ? 100
+              : 1000;
+        } @allTariffColumns
+    ]
+);
+
+=cut
 
 1;

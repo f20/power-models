@@ -23,25 +23,34 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-use warnings;
 use strict;
 use utf8;
-use SpreadsheetModel::Shortcuts ':all';
+use v5.10.0;
+use warnings;
 use SpreadsheetModel::Book::FrontSheet;
+use SpreadsheetModel::Shortcuts ':all';
 
-sub serviceMapForRuleset {
-    my ($ruleset) = @_;
-    {
-        chartTester => __PACKAGE__ . '::WaterfallTester',
-        runk        => __PACKAGE__ . '::Runk',
-    };
+my %serviceMap = (
+    calcBlockTester => __PACKAGE__ . '::CalcBlockTester',
+    checksumTester  => __PACKAGE__ . '::ChecksumTester',
+    fruitCounter    => __PACKAGE__ . '::FruitCounter',
+    waterfallTester => __PACKAGE__ . '::WaterfallTester',
+);
+
+sub requiredModulesForRuleset {
+    my ( $class, $ruleset ) = @_;
+    grep { defined $_; } map { $serviceMap{ $_->[0] }; } @{ $ruleset->{tests} };
 }
 
-sub myChartTester {
-    my ($model) = @_;
-    $model->{myChartTester} //=
-      $model->instantiate(
-        chartTester => chartOptions => { mergeFirstStep => 0 } );
+sub new {
+    my $class = shift;
+    my $model = bless {@_}, $class;
+    foreach ( @{ $model->{tests} } ) {
+        my ( $service, @options ) = @$_;
+        push @{ $model->{instances} },
+          $serviceMap{$service}->new( $model, @options );
+    }
+    $model;
 }
 
 sub inputsSheetWriter {
@@ -53,8 +62,16 @@ sub inputsSheetWriter {
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Inputs and charts' ),
-          $model->myChartTester->inputTables;
+          foreach Notes(
+            name => 'Inputs'
+              . (
+                ( grep { $_->can('charts') } @{ $model->{instances} } )
+                ? ' and charts'
+                : ''
+              )
+          ),
+          map { $_->inputTables }
+          grep { $_->can('inputTables') } @{ $model->{instances} };
     };
 }
 
@@ -64,19 +81,24 @@ sub resultSheetWriter {
         my ($wsheet) = @_;
         $wsheet->set_column( 0, 250, 20 );
         $_->wsWrite( $wbook, $wsheet )
-          foreach Notes( name => 'Calculations and results' ),
-          $model->myChartTester->calculationTables,
-          $model->instantiate('runk')->resultTables;
+          foreach Notes( name => 'Calculations' ), map { $_->calcTables }
+          grep { $_->can('calcTables') } @{ $model->{instances} };
     };
 }
 
 sub worksheetsAndClosures {
     my ( $model, $wbook ) = @_;
-    $wbook->{titleWriter} = sub { push @{ $model->{_titwrt}{$wbook} }, [@_]; };
+    $wbook->{titleWriter} =
+      sub { push @{ $model->{_titwrt}{$wbook} }, [@_]; };
     (
-        'Inputs+Charts' => $model->inputsSheetWriter($wbook),
-        'Calculations'  => $model->resultSheetWriter($wbook),
-        'Index'         => SpreadsheetModel::Book::FrontSheet->new(
+        'Inputs'
+          . (
+            ( grep { $_->can('charts') } @{ $model->{instances} } )
+            ? ' & Charts'
+            : ''
+          ) => $model->inputsSheetWriter($wbook),
+        'Calcs' => $model->resultSheetWriter($wbook),
+        'Index' => SpreadsheetModel::Book::FrontSheet->new(
             model     => $model,
             copyright => 'Copyright 2020-2021 Franck Latrémolière and others.'
         )->closure($wbook),
@@ -86,23 +108,21 @@ sub worksheetsAndClosures {
 sub finishModel {
     my ( $model, $wbook ) = @_;
     $_->wsWrite( $wbook, $model->{inputSheet}{$wbook} )
-      foreach $model->myChartTester->charts;
-}
-
-sub new {
-    my $class = shift;
-    bless {@_}, $class;
-}
-
-sub requiredModulesForRuleset {
-    my ( $class, $ruleset ) = @_;
-    values %{ serviceMapForRuleset($ruleset) };
-}
-
-sub instantiate {
-    my ( $model, $service, @options ) = @_;
-    $model->{serviceMap} //= serviceMapForRuleset($model);
-    $model->{serviceMap}{$service}->new( $model, @options );
+      foreach map { $_->charts }
+      grep { $_->can('charts') } @{ $model->{instances} };
+    my ($appendCodeProvider) =
+      grep { $_->can('appendCode') } @{ $model->{instances} };
+    my $append;
+    foreach ( @{ $model->{_titwrt}{$wbook} } ) {
+        my ( $wsheet, $row, $col, $title, $fmt ) = @$_;
+        $append //=
+            $appendCodeProvider
+          ? $appendCodeProvider->appendCode( $wbook, $wsheet )
+          : '';
+        $wsheet->write( $row, $col, qq%="$title"$append%, $fmt,
+                'Not calculated: '
+              . 'open in spreadsheet app and allow calculations' );
+    }
 }
 
 1;
