@@ -32,7 +32,7 @@ use SpreadsheetModel::Shortcuts ':all';
 
 my %serviceMap = (
     calcBlockTester => __PACKAGE__ . '::CalcBlockTester',
-    checksumTester  => __PACKAGE__ . '::ChecksumTester',
+    checksummer     => __PACKAGE__ . '::Checksummer',
     fruitCounter    => __PACKAGE__ . '::FruitCounter',
     waterfallTester => __PACKAGE__ . '::WaterfallTester',
 );
@@ -60,7 +60,8 @@ sub inputsSheetWriter {
         $model->{inputSheet}{$wbook} = $wsheet;
         $model->{_input_sheet} = $wsheet;
         $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 250, 20 );
+        $wsheet->set_column( 0, 0,   48 );
+        $wsheet->set_column( 1, 250, 16 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes(
             name => 'Inputs'
@@ -79,7 +80,8 @@ sub resultSheetWriter {
     my ( $model, $wbook ) = @_;
     sub {
         my ($wsheet) = @_;
-        $wsheet->set_column( 0, 250, 20 );
+        $wsheet->set_column( 0, 0,   48 );
+        $wsheet->set_column( 1, 250, 16 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Calculations' ), map { $_->calcTables }
           grep { $_->can('calcTables') } @{ $model->{instances} };

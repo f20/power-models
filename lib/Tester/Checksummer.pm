@@ -27,29 +27,120 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use SpreadsheetModel::WaterfallChartset;
+use SpreadsheetModel::Checksum;
+use SpreadsheetModel::Custom;
 
 sub new {
     my ( $class, $model, @options ) = @_;
-    bless { model => $model, @options }, $class;
+    my $component = bless { inputTables => [], }, $class;
+    my @diff;
+    for ( my $counter = 0 ; $counter < @options ; ++$counter ) {
+        my $name   = $options[$counter]{name};
+        my $rowset = Labelset( list => $options[$counter]{rows} );
+        my ( @a, @b, @factors );
+        foreach ( @{ $options[$counter]{columns} } ) {
+            while ( my ( $k, $v ) = each %$_ ) {
+                my $format = $v ? ( '0.' . ( '0' x $v ) . 'hard' ) : '0hard';
+                push @factors, 10 ** $v;
+                push @a,
+                  Dataset(
+                    name          => $k,
+                    rows          => $rowset,
+                    data          => [ map { ''; } $rowset->indices ],
+                    defaultFormat => $format,
+                  );
+                push @b,
+                  Dataset(
+                    name          => $k,
+                    rows          => $rowset,
+                    data          => [ map { ''; } $rowset->indices ],
+                    defaultFormat => $format,
+                  );
+            }
+        }
+        Columnset(
+            name     => "$name (A)",
+            columns  => \@a,
+            dataset  => $model->{dataset},
+            number   => 1000 + 10 * $counter + 1,
+            appendTo => $component->{inputTables},
+        );
+        Columnset(
+            name     => "$name (B)",
+            columns  => \@b,
+            dataset  => $model->{dataset},
+            number   => 1000 + 10 * $counter + 2,
+            appendTo => $component->{inputTables},
+        );
+        my $cksa = SpreadsheetModel::Checksum->new(
+            name      => "A checksums",
+            recursive => 1,
+            digits    => 7,
+            columns   => \@a,
+            factors   => \@factors,
+        );
+        my $cksb = SpreadsheetModel::Checksum->new(
+            name      => "B checksums",
+            recursive => 1,
+            digits    => 7,
+            columns   => \@b,
+            factors   => \@factors,
+        );
+        my $diff = Arithmetic(
+            name          => "Agreement",
+            defaultFormat => 'boolsoft',
+            arithmetic    => '=A1=A2',
+            arguments     => { A1 => $cksa, A2 => $cksb, },
+        );
+        Columnset(
+            name    => "$name checksums",
+            columns => [ $cksa, $cksb, $diff, ],
+        );
+        push @diff, $diff;
+    }
+    my $andFormula = '=AND(' . ( join ',', map { "A2$_"; } 0 .. $#diff ) . ')';
+    $component->{flagTable} = SpreadsheetModel::Custom->new(
+        name          => 'Overall agreement',
+        defaultFormat => 'boolsoft',
+        custom        => [$andFormula],
+        arithmetic    => $andFormula,
+        arguments     => { map { ( "A2$_" => $diff[$_] ); } 0 .. $#diff },
+        wsPrepare     => sub {
+            my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) = @_;
+            sub {
+                my ( $x, $y ) = @_;
+                '', $format, $formula->[0], map {
+                    (
+                        qr/\b$_\b/ =>
+                          Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                            $rowh->{$_}, $colh->{$_}, 1
+                          )
+                    )
+                } @$pha;
+            };
+        },
+    );
+    $component->{calcTables} = [ @diff, $component->{flagTable}, ];
+    $component;
 }
 
-=head xx
+sub inputTables {
+    my ($component) = @_;
+    @{ $component->{inputTables} };
+}
 
-SpreadsheetModel::Checksum->new(
-    name      => $checksumName,
-    recursive => $recursiveFlag,
-    digits    => $checksumDigits,
-    columns   => \@allTariffColumns,
-    factors   => [
-        map {
-            $_->{defaultFormat} && $_->{defaultFormat} !~ /000/
-              ? 100
-              : 1000;
-        } @allTariffColumns
-    ]
-);
+sub calcTables {
+    my ($component) = @_;
+    @{ $component->{calcTables} };
+}
 
-=cut
+sub appendCode {
+    my ( $component, $wbook, $wsheet ) = @_;
+    my ( $wb, $ro, $co ) = $component->{flagTable}->wsWrite( $wbook, $wsheet );
+    my $ref = q^'^
+      . $wb->get_name . q^'!^
+      . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
+    qq^&IF(ISERROR($ref),"",^ . qq^IF($ref," (matching)"," (not matching)"))^;
+}
 
 1;

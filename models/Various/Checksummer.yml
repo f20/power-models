@@ -1,0 +1,114 @@
+---
+PerlModule: Tester
+protect: 1
+template: '%'
+tests:
+  -
+    - checksummer
+    - columns:
+        - Coincidence factor: 3
+        - Load factor: 3
+      name: Table 1041 area 1
+      rows:
+        - Domestic Aggregated
+        - Domestic Aggregated (Related MPAN)
+        - Non-Domestic Aggregated
+        - Non-Domestic Aggregated (Related MPAN)
+        - LV Site Specific
+        - LV Sub Site Specific
+        - HV Site Specific
+        - Unmetered Supplies
+    - columns:
+        - Coincidence factor: 3
+        - Load factor: 3
+      name: Table 1041 area 2
+      rows:
+        - Domestic Aggregated
+        - Domestic Aggregated (Related MPAN)
+        - Non-Domestic Aggregated
+        - Non-Domestic Aggregated (Related MPAN)
+        - LV Site Specific
+        - LV Sub Site Specific
+        - HV Site Specific
+        - Unmetered Supplies
+---
+1001:
+  - _table: 1001. Table 1041 area 1 (A)
+  - Domestic Aggregated: 0.00759630668804201
+    Domestic Aggregated Related MPAN: 0.246572075222134
+    HV Site Specific: 0.214036391812724
+    LV Site Specific: 0.991034181013325
+    LV Sub Site Specific: 0.953193319600373
+    Non-Domestic Aggregated: 0.433118437419464
+    Non-Domestic Aggregated Related MPAN: 0.474116929171936
+    Unmetered Supplies: 0.781396277448778
+    _column: Coincidence factor
+  - Domestic Aggregated: 0.385306274622082
+    Domestic Aggregated Related MPAN: 0.575570564180643
+    HV Site Specific: 0.415875025257462
+    LV Site Specific: 0.264461998946537
+    LV Sub Site Specific: 0.0937394642682174
+    Non-Domestic Aggregated: 0.480294679416781
+    Non-Domestic Aggregated Related MPAN: 0.289678433758587
+    Unmetered Supplies: 0.261831613210582
+    _column: Load factor
+1002:
+  - _table: 1002. Table 1041 area 1 (B)
+  - Domestic Aggregated: 0.483349412426949
+    Domestic Aggregated Related MPAN: 0.182755703270095
+    HV Site Specific: 0.723599185572677
+    LV Site Specific: 0.930932151702347
+    LV Sub Site Specific: 0.457222545172796
+    Non-Domestic Aggregated: 0.967123740237443
+    Non-Domestic Aggregated Related MPAN: 0.166843498640973
+    Unmetered Supplies: 0.740812568063176
+    _column: Coincidence factor
+  - Domestic Aggregated: 0.614070998810317
+    Domestic Aggregated Related MPAN: 0.154111255028861
+    HV Site Specific: 0.981899298661137
+    LV Site Specific: 0.615676222309304
+    LV Sub Site Specific: 0.920331441217694
+    Non-Domestic Aggregated: 0.821490127250611
+    Non-Domestic Aggregated Related MPAN: 0.697465782217631
+    Unmetered Supplies: 0.827982463478813
+    _column: Load factor
+1011:
+  - _table: 1011. Table 1041 area 2 (A)
+  - Domestic Aggregated: 0.008
+    Domestic Aggregated Related MPAN: 0.247
+    HV Site Specific: 0.214
+    LV Site Specific: 0.991
+    LV Sub Site Specific: 0.953
+    Non-Domestic Aggregated: 0.433
+    Non-Domestic Aggregated Related MPAN: 0.474
+    Unmetered Supplies: 0.781
+    _column: Coincidence factor
+  - Domestic Aggregated: 0.385
+    Domestic Aggregated Related MPAN: 0.576
+    HV Site Specific: 0.416
+    LV Site Specific: 0.264
+    LV Sub Site Specific: 0.094
+    Non-Domestic Aggregated: 0.48
+    Non-Domestic Aggregated Related MPAN: 0.29
+    Unmetered Supplies: 0.262
+    _column: Load factor
+1012:
+  - _table: 1012. Table 1041 area 2 (B)
+  - Domestic Aggregated: 0.00759630668804201
+    Domestic Aggregated Related MPAN: 0.246572075222134
+    HV Site Specific: 0.214036391812724
+    LV Site Specific: 0.991034181013325
+    LV Sub Site Specific: 0.953193319600373
+    Non-Domestic Aggregated: 0.433118437419464
+    Non-Domestic Aggregated Related MPAN: 0.474116929171936
+    Unmetered Supplies: 0.781396277448778
+    _column: Coincidence factor
+  - Domestic Aggregated: 0.385306274622082
+    Domestic Aggregated Related MPAN: 0.575570564180643
+    HV Site Specific: 0.415875025257462
+    LV Site Specific: 0.264461998946537
+    LV Sub Site Specific: 0.0937394642682174
+    Non-Domestic Aggregated: 0.480294679416781
+    Non-Domestic Aggregated Related MPAN: 0.289678433758587
+    Unmetered Supplies: 0.261831613210582
+    _column: Load factor
