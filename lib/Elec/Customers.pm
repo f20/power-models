@@ -49,11 +49,12 @@ sub totalDemand {
     push @{ $self->{scenarioProportions} }, my $prop = Dataset(
         name => 'Proportion '
           . (
-            $usetName eq 'all users' ? 'taken into account' : "in $usetName" ),
+            $usetName eq 'all users' ? 'taken into account' : "in $usetName"
+          ),
         rows          => $self->userLabelsetForInput,
         defaultFormat => '%hard',
         data          => [ map { 1; } @{ $self->userLabelset->{list} } ],
-        validation => {    # required to trigger lenient cell locking
+        validation    => {    # required to trigger lenient cell locking
             validate      => 'decimal',
             criteria      => 'between',
             minimum       => -1,
@@ -64,7 +65,7 @@ sub totalDemand {
     my @columns =
       map {
         SumProduct(
-            name          => $_->{name},
+            name          => "Total $_->{name}",
             matrix        => $prop,
             vector        => $_,
             rows          => $tariffSet,
@@ -181,7 +182,7 @@ sub userLabelset {
         data          => [ map { '' } @{ $userLabelset->{list} } ],
         name          => 'Name',
         rows          => $userLabelset,
-        validation => {    # required to trigger lenient cell locking
+        validation    => {    # required to trigger lenient cell locking
             validate => 'any',
         },
     );
@@ -256,7 +257,7 @@ sub finish {
         && $self->{scenarioProportions} )
     {
         $model->{table1653Names} = $self->{names} || $self->{namesInLabelset};
-        $model->{table1653} = Columnset(
+        $model->{table1653}      = Columnset(
             name     => 'Individual user data',
             number   => 1653,
             location => 'Customers',
