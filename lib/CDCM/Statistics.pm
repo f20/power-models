@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2014-2020 Franck Latrémolière and others.
+# Copyright 2014-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -57,7 +57,7 @@ sub makeStatisticsAssumptions {
     my @columns = map {
         my $dataColumn = $_;
         Dataset(
-            name          => $dataColumn->{_column},
+            name => $dataColumn->{_column},
             defaultFormat => $dataColumn->{_column} =~ /hours\/week/ ? '0.0hard'
             : $dataColumn->{_column} =~ /kVA/ ? '0hard'
             : '0.000hard',
@@ -65,7 +65,7 @@ sub makeStatisticsAssumptions {
             data               => [ @$_{@rows} ],
             usePlaceholderData => 1,
             dataset            => $model->{dataset},
-          )
+        )
     } @$table1202ByColumn[ 3 .. 8 ];
 
     if ( $model->{summary} =~ /override/i ) {
@@ -379,7 +379,7 @@ sub makeStatisticsTables {
                   sub { $_[0] !~ /^(?:LD|Q)NO /i && $_[0] =~ /\bgener/i; };
             }
             else {
-                $regex = qr/$regex/m;
+                $regex  = qr/$regex/m;
                 $filter = sub { $_[0] =~ /$regex/m; };
             }
         }
@@ -665,11 +665,23 @@ sub makeStatisticsTables {
             'Average p/kWh',
             'Illustrative customer average charge (p/kWh)'
         ),
-        defaultFormat => '0.0soft',
-        arithmetic    => '=A1/A2*100',
-        arguments     => {
+        arithmetic => '=A1/A2*100',
+        arguments  => {
             A1 => $annualCharge,
             A2 => $totalUnits,
+        }
+    );
+
+    my $ppk = Arithmetic(
+        name => Label(
+            'Average £/kVA/year',
+            'Illustrative customer average charge (£/kVA/year)'
+        ),
+        defaultFormat => '0.0soft',
+        arithmetic    => '=A1/A2',
+        arguments     => {
+            A1 => $annualCharge,
+            A2 => $capacity,
         }
     );
 
@@ -693,6 +705,9 @@ sub makeStatisticsTables {
           ->addStats( 'Illustrative customer average charge (p/kWh)',
             $model, $ppu );
         $model->{sharedData}
+          ->addStats( 'Illustrative customer average charge (£/kVA/year)',
+            $model, $ppk );
+        $model->{sharedData}
           ->addStats( 'Illustrative customer usage (kWh/year)',
             $model, $totalUnits );
         $model->{sharedData}->addStats( 'Illustrative usage charges (£/year)',
@@ -711,8 +726,9 @@ sub makeStatisticsTables {
       Columnset(
         name    => 'Charges for illustrative customers',
         columns => [
-            $annualCharge,      $ppu,                  $annualChargeUnits,
-            $annualChargeFixed, $annualChargeCapacity, $averageUnitRate,
+            $annualCharge,      $ppu,               $ppk,
+            $annualChargeUnits, $annualChargeFixed, $annualChargeCapacity,
+            $averageUnitRate,
         ],
       );
 
