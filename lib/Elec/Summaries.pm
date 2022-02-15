@@ -1,6 +1,6 @@
 ﻿package Elec::Summaries;
 
-# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -91,7 +91,7 @@ sub addDetailedAssets {
 
 sub addRevenueComparison {
     my ( $self, $tariffs, @methodObjectPairs ) = @_;
-    $self->{comparison}->revenueComparison(
+    $self->{totalRevenue} = $self->{comparison}->revenueComparison(
         $tariffs,
         $self->{volumes},
         $self->{names},
@@ -108,7 +108,7 @@ sub finish {
 
 package Elec::Summaries::CustomersPlaceholder;
 use SpreadsheetModel::Shortcuts ':all';
-sub new { bless \$_[1], $_[0]; }
+sub new          { bless \$_[1], $_[0]; }
 sub userLabelset { ${ $_[0] }; }
 sub addColumnset { shift; Columnset(@_); }
 

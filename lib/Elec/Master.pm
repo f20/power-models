@@ -1,6 +1,6 @@
 ﻿package Elec;
 
-# Copyright 2012-2021 Franck Latrémolière and others.
+# Copyright 2012-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -51,6 +51,7 @@ sub serviceMap {
     push @servMap, timebands => 'Elec::TimebandSets'  if $model->{timebandSets};
     push @servMap, timebands => 'Elec::Timebands'     if $model->{timebands};
     push @servMap, usage     => 'Elec::Usage';
+    push @servMap, profits   => 'Elec::Profits' if $model->{showProfits};
     @servMap;
 }
 
@@ -80,8 +81,8 @@ sub new {
       $serviceMap{interpolator}->new( $model, $setup, $model->{interpolator} )
       if $model->{interpolator};
     my $customers = $serviceMap{customers}->new( $model, $setup );
-    my $usage = $serviceMap{usage}->new( $model, $setup, $customers );
-    my $assets = $serviceMap{assets}->new( $model, $setup )
+    my $usage     = $serviceMap{usage}->new( $model, $setup, $customers );
+    my $assets    = $serviceMap{assets}->new( $model, $setup )
       if $serviceMap{assets};
     my $charging =
       $serviceMap{charging}->new( $model, $setup, $usage, $assets );
@@ -123,6 +124,7 @@ sub new {
     # NB: the order of feeding arguments to $customers->totalDemand will
     # determine the column order for proportions in the input data table.
 
+    my $distributionRevenue;
     if ( my $usetName = $model->{usetRevenues} ) {
         if ( $model->{showppu} ) {
             $serviceMap{summaries}->new( $model, $setup )
@@ -132,22 +134,34 @@ sub new {
         else {
             $tariffs->revenues( $customers->totalDemand($usetName) );
         }
+        $distributionRevenue =
+          $tariffs->revenueCalculation( $customers->totalDemand($usetName) );
     }
 
     if ( my $usetName = $model->{usetEnergy} ) {
         my $supplyTariffs =
-          $serviceMap{supply}->new( $model, $setup, $tariffs,
-            $charging->energyCharge->{arguments}{A1} );
+          $serviceMap{supply}
+          ->new( $model, $setup, $tariffs, $charging->energyCost );
         $supplyTariffs->revenues( $customers->totalDemand($usetName) );
-        $supplyTariffs->margin( $customers->totalDemand($usetName) )
+        my $energyMarginTotal =
+          $supplyTariffs->margin( $customers->totalDemand($usetName),
+            $serviceMap{profits} && $model->{usetRunningCosts} )
           if $model->{energyMargin};
+        $serviceMap{profits}->new(
+            $model,
+            $energyMarginTotal,
+            $distributionRevenue,
+            $tariffs,
+            $customers->totalDemand( $model->{usetRunningCosts} ),
+            $charging->costItems,
+        ) if $serviceMap{profits} && $model->{usetRunningCosts};
         $serviceMap{summaries}->new( $model, $setup )
           ->setupWithActiveCustomers( $customers, $usetName )
           ->addRevenueComparison(
             $supplyTariffs,
             [ revenueCalculation => $tariffs ],
             [ marginCalculation  => $supplyTariffs ],
-          )->addDetailedAssets( $charging, $usage )
+        )->addDetailedAssets( $charging, $usage )
           if $model->{compareppu} || $model->{showppu};
     }
 
@@ -174,6 +188,22 @@ sub new {
 
     $model;
 
+}
+
+sub distributionRevenuesAndCosts {
+    my ( $model, $volumes, $tariffs, $charging ) = @_;
+    my @units               = grep { $_->{name} =~ /kWh/; } @$volumes;
+    my @energyChargePerUnit = grep { $_->{name} =~ /kWh/; }
+      @{ $model->{buildupTables}[ $#{ $model->{buildupTables} } ]{columns} };
+    $tariffs->revenueCalculation($volumes), $charging->costItems,
+      @units == 1 && @energyChargePerUnit == 1
+      ? Arithmetic(
+        name          => 'Cost of distribution losses £/year',
+        defaultFormat => '0soft',
+        arithmetic    => '=0.01*SUMPRODUCT(A1_A2,A3_A4)',
+        arguments => { A1_A2 => $energyChargePerUnit[0], A3_A4 => $units[0], },
+      )
+      : ();
 }
 
 1;

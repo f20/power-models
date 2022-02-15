@@ -1,6 +1,6 @@
 ﻿package Elec::Charging;
 
-# Copyright 2012-2021 Franck Latrémolière and others.
+# Copyright 2012-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -41,20 +41,25 @@ sub new {
     );
 }
 
+sub energyCost {
+    my ($self) = @_;
+    $self->{energyCost} ||= Dataset(
+        name     => 'Cost of procuring energy for electrical losses p/kWh',
+        cols     => $self->{setup}->energyUsageSet,
+        number   => 1585,
+        appendTo => $self->{model}{inputTables},
+        dataset  => $self->{model}{dataset},
+        data     => [10],
+    );
+}
+
 sub energyCharge {
     my ($self) = @_;
     $self->{energyCharge} ||= Arithmetic(
         name      => 'Energy charging rate £/kW/year',
         arguments => {
             A2 => $self->{setup}->daysInYear,
-            A1 => Dataset(
-                name => 'Cost of procuring energy for electrical losses p/kWh',
-                cols => $self->{setup}->energyUsageSet,
-                number   => 1585,
-                appendTo => $self->{model}{inputTables},
-                dataset  => $self->{model}{dataset},
-                data     => [10],
-            ),
+            A1 => $self->energyCost,
         },
         arithmetic => '=A1*0.01*A2*24',
     );
@@ -70,7 +75,7 @@ sub assetRate {
         appendTo      => $self->{model}{inputTables},
         dataset       => $self->{model}{dataset},
         cols          => $self->{setup}->usageSet,
-        data =>
+        data          =>
           [ 0, ( map { 1 } 3 .. @{ $self->{setup}->usageSet->{list} } ), 0 ],
       );
 }
@@ -195,7 +200,7 @@ sub detailedAssets {
     );
     push @{ $self->{model}{detailedTablesBottom} },
       Columnset(
-        name => 'Notional assets by ' . ( $flags{userName} || 'user' ),
+        name    => 'Notional assets by ' . ( $flags{userName} || 'user' ),
         columns => [
             $usage->{names} ? Stack( sources => [ $usage->{names} ] ) : (),
             $notionalAssetMatrix, $notionalAssetsByUser,
@@ -355,7 +360,7 @@ sub usetMatchAssetDetail {
       ? 'assetMatchingFactorsTopOrCapped'
       : $applicationOptions =~ /top ([0-9]+)/i ? 'assetMatchingFactorsTop'
       : $applicationOptions =~ /cap([0-9.]*)/i ? 'assetMatchingFactorsCapped'
-      :   'assetMatchingFactorsUniversal';
+      :                       'assetMatchingFactorsUniversal';
     my $assetMatchingFactors =
       $self->$assetMatchingFactorsMethod( $assetVolumes, $totalBefore, $1 );
 
@@ -457,6 +462,12 @@ sub usetMatchAssets {
     }
 }
 
+sub costItems {
+    my ($self) = @_;
+    return unless $self->{costItems};
+    @{ $self->{costItems} };
+}
+
 sub usetRunningCosts {
     my ( $self, $totalUsage, $applicationOptions ) = @_;
     my $totalCosts =
@@ -471,6 +482,7 @@ sub usetRunningCosts {
         data          => [1e6],
         defaultFormat => '0hard',
       );
+    push @{ $self->{costItems} }, $totalCosts;
     my $totalAssets =
       $self->{model}{runningCostScaling}
       ? Arithmetic(
@@ -519,6 +531,7 @@ sub usetNonAssetCosts {
         data => [ map { 5e5; } @{ $self->{setup}->nonAssetUsageSet->{list} } ],
         defaultFormat => '0hard',
       );
+    push @{ $self->{costItems} }, $nonAssetCosts;
     $self->{nonAssetCharge} = Arithmetic(
         name       => 'Non-asset-based charges (£/unit of usage/year)',
         arithmetic => '=A1/A2',
@@ -538,6 +551,7 @@ sub charges {
     $self->nonAssetCharge, $self->assetCharge,
       $self->{model}{noEnergy} ? () : $self->energyCharge;
 }
+
 
 sub finish { }
 

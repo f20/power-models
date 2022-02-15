@@ -1,6 +1,6 @@
 ﻿package Elec::TariffsSupply;
 
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -65,7 +65,7 @@ sub new {
             Stack(
                 name    => $uosTariffs->[$_]{name},
                 sources => [ $uosTariffs->[$_] ]
-              )
+            )
         } 1 .. 2,
     ];
     $self;
@@ -92,16 +92,17 @@ sub marginCalculation {
 }
 
 sub margin {
-    my ( $self, $volumes ) = @_;
+    my ( $self, $volumes, $dontWriteMarginTotal ) = @_;
     my $labelTail =
       $volumes->[0]{usetName} ? " for $volumes->[0]{usetName}" : '';
-    my $revenues = $self->marginCalculation( $volumes, $labelTail );
-    push @{ $self->{revenueTables} },
-      GroupBy(
+    my $energyMargin = $self->marginCalculation( $volumes, $labelTail );
+    my $marginTotal  = GroupBy(
         name          => 'Total energy supply margin £/year' . $labelTail,
         defaultFormat => '0soft',
-        source        => $revenues,
-      );
+        source        => $energyMargin,
+    );
+    push @{ $self->{revenueTables} }, $marginTotal unless $dontWriteMarginTotal;
+    $marginTotal;
 }
 
 1;

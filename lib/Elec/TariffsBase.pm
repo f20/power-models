@@ -1,6 +1,6 @@
 package Elec::TariffsBase;
 
-# Copyright 2012-2016 Franck Latremoliere, Reckon LLP and others.
+# Copyright 2012-2022 Franck Latremoliere and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -39,17 +39,17 @@ sub new {
     $suffix ||= '';
     my @columns;
     push @columns, Dataset(
-        name => "$_ p/kWh$suffix",
-        rows => $rows,
-        data => [ map { 1 } @{ $rows->{list} } ],
+        name       => "$_ p/kWh$suffix",
+        rows       => $rows,
+        data       => [ map { 1 } @{ $rows->{list} } ],
         validation => {    # required to trigger lenient cell locking
             validate => 'any',
         },
     ) foreach $setup->timebandList;
     push @columns, Dataset(
-        name => "Fixed p/day$suffix",
-        rows => $rows,
-        data => [ map { 1 } @{ $rows->{list} } ],
+        name       => "Fixed p/day$suffix",
+        rows       => $rows,
+        data       => [ map { 1 } @{ $rows->{list} } ],
         validation => {    # required to trigger lenient cell locking
             validate => 'decimal',
             criteria => '>=',
@@ -58,9 +58,9 @@ sub new {
         defaultFormat => '0.00hard',
     );
     push @columns, Dataset(
-        name => "Capacity p/kVA/day$suffix",
-        rows => $rows,
-        data => [ map { 1 } @{ $rows->{list} } ],
+        name       => "Capacity p/kVA/day$suffix",
+        rows       => $rows,
+        data       => [ map { 1 } @{ $rows->{list} } ],
         validation => {    # required to trigger lenient cell locking
             validate => 'decimal',
             criteria => '>=',
@@ -69,9 +69,9 @@ sub new {
         defaultFormat => '0.00hard',
     );
     push @columns, Dataset(
-        name => "Excess reactive p/kVArh$suffix",
-        rows => $rows,
-        data => [ map { 1 } @{ $rows->{list} } ],
+        name       => "Excess reactive p/kVArh$suffix",
+        rows       => $rows,
+        data       => [ map { 1 } @{ $rows->{list} } ],
         validation => {    # required to trigger lenient cell locking
             validate => 'decimal',
             criteria => '>=',
@@ -79,7 +79,7 @@ sub new {
         },
     ) if $model->{reactive};
     $customers->addColumnset(
-        name => $prefix ? "$prefix tariff" : 'Tariff',
+        name     => $prefix ? "$prefix tariff" : 'Tariff',
         number   => $number,
         columns  => \@columns,
         appendTo => $model->{inputTables},
@@ -99,7 +99,7 @@ sub new {
 sub revenueCalculation {
     my ( $self, $volumes, $labelTail ) = @_;
     $labelTail ||= '';
-    return Arithmetic(
+    $self->{revenueCalculation}{ 0 + $volumes } ||= Arithmetic(
         rows => $volumes->[0]->{rows},
         name => ucfirst( $self->tariffName ) . ' revenue £/year' . $labelTail,
         arithmetic => '=('
