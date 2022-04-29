@@ -29,7 +29,7 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::WaterfallChartset;
 
-sub takeResults {
+sub useForWaterfall {
     my ( $me, $model, @tables ) = @_;
     unless ( $me->{modelData}{ 0 + $model } ) {
         push @{ $me->{modelList} }, $model;
@@ -55,7 +55,7 @@ sub makeWaterfallColumnsets {
         columns => [
             map {
                 Stack(
-                    name => $_->{nickName} || $_,
+                    name          => $_->{nickName} || $_,
                     defaultFormat => '0copy',
                     sources       => $me->{modelData}{ 0 + $_ },
                 );
@@ -68,7 +68,7 @@ sub makeWaterfallColumnsets {
         columns => [
             map {
                 Stack(
-                    name => $_->{nickName} || $_,
+                    name          => $_->{nickName} || $_,
                     defaultFormat => '0copy',
                     rows          => $rowset,
                     sources       => $me->{modelData}{ 0 + $_ },

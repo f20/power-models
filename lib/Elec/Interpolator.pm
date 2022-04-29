@@ -61,7 +61,7 @@ sub lastDay {
 
 sub chargingPeriodLabel {
     my ( $self, $wbook, $wsheet ) = @_;
-    my ( $sh, $ro, $co ) = $self->firstDay->wsWrite( $wbook, $wsheet );
+    my ( $sh,   $ro,    $co )     = $self->firstDay->wsWrite( $wbook, $wsheet );
     $sh = $sh->get_name;
     my $fd = "'$sh'!"
       . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co );
@@ -82,6 +82,14 @@ sub daysInYear {
         arithmetic    => '=A1-A2+1',
         arguments     => { A1 => $self->lastDay, A2 => $self->firstDay, },
       );
+    if ( $self->{model}{sharingObjectRef}
+        && ${ $self->{model}{sharingObjectRef} }->can('useForTimeSeries') )
+    {
+        ${ $self->{model}{sharingObjectRef} }
+          ->useForTimeSeries( $self->{model}, 'First day', $self->firstDay, );
+        ${ $self->{model}{sharingObjectRef} }
+          ->useForTimeSeries( $self->{model}, 'Last day', $self->lastDay, );
+    }
     $self->{daysInYear};
 }
 
@@ -136,8 +144,8 @@ sub forecastInputDataAndFactors {
     );
 
     my $factor = Arithmetic(
-        name => 'Scaling factor for the charging year',
-        rows => $rowset,
+        name       => 'Scaling factor for the charging year',
+        rows       => $rowset,
         arithmetic => '=IF(OR(A103<0,A104<A203),0,' .    # is there any overlap
           (
             $probabilityFlag
@@ -345,7 +353,7 @@ sub forecastAggregator {
 sub assetVolumes {
     my ( $self, $assetLabelset ) = @_;
     my $inputRowset = Labelset(
-        list => [ 1 .. ( $self->{model}{numRowsAssetVolumes} || 15 ) ],
+        list          => [ 1 .. ( $self->{model}{numRowsAssetVolumes} || 15 ) ],
         defaultFormat => 'thitem'
     );
     my $name = Dataset(
@@ -385,7 +393,7 @@ sub assetVolumes {
 sub targetUsage {
     my ( $self, $usageSet ) = @_;
     my $inputRowset = Labelset(
-        list => [ 1 .. ( $self->{model}{numRowsTargetUsage} || 5 ) ],
+        list          => [ 1 .. ( $self->{model}{numRowsTargetUsage} || 5 ) ],
         defaultFormat => 'thitem'
     );
     my $name = Dataset(
@@ -423,7 +431,7 @@ sub runningCostData {
     my ($self) = @_;
     return $self->{runningCostData} if $self->{runningCostData};
     my $inputRowset = Labelset(
-        list => [ 1 .. ( $self->{model}{numRowsRunningCosts} || 10 ) ],
+        list          => [ 1 .. ( $self->{model}{numRowsRunningCosts} || 10 ) ],
         defaultFormat => 'thitem'
     );
     my $name = Dataset(
@@ -451,7 +459,7 @@ sub runningCostData {
         number   => 1558,
         appendTo => $self->{model}{inputTables},
         dataset  => $self->{model}{dataset},
-        columns =>
+        columns  =>
           [ $name, $category, $startDate, $endDate, $growth, $amount, ],
     );
     $self->{runningCostData} = [ $category, $factor, $amount ];
@@ -467,7 +475,7 @@ sub demandInputAndFactor {
     my ($self) = @_;
     return $self->{demandInputAndFactor} if $self->{demandInputAndFactor};
     my $inputRowset = Labelset(
-        list => [ 1 .. ( $self->{model}{numRowsDemand} || 24 ) ],
+        list          => [ 1 .. ( $self->{model}{numRowsDemand} || 24 ) ],
         defaultFormat => 'thitem'
     );
     my $name = Dataset(

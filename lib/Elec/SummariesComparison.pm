@@ -106,9 +106,9 @@ sub revenueComparison {
     }
     push @columns, $revenues;
     ${ $self->{model}{sharingObjectRef} }
-      ->takeResults( $self->{model}, $revenues )
+      ->useForWaterfall( $self->{model}, $revenues )
       if $self->{model}{sharingObjectRef}
-      && ${ $self->{model}{sharingObjectRef} }->can('takeResults');
+      && ${ $self->{model}{sharingObjectRef} }->can('useForWaterfall');
 
     my ( $compare, $difference );
     if ( $self->{comparisonppu} ) {
@@ -183,7 +183,7 @@ sub revenueComparison {
 
     push @{ $self->{revenueTables} },
       Columnset(
-        name => 'Revenue' . ( $compare ? ' comparison' : '' ) . $labelTail,
+        name    => 'Revenue' . ( $compare ? ' comparison' : '' ) . $labelTail,
         columns => \@srcCol,
       ) if @srcCol;
 
@@ -201,7 +201,7 @@ sub revenueComparison {
       )
     {
         my $totalTerm = $groupedRows ? 'Subtotal' : 'Total';
-        my @cols = (
+        my @cols      = (
             map {
                 my $n =
                   $totalTerm . ' '
@@ -221,16 +221,21 @@ sub revenueComparison {
                     defaultFormat => $_->{defaultFormat},
                     source        => $_,
                   );
-              } $totalUnits,
+            } $totalUnits,
             $revenues,
             @extraColumns,
             $compare ? ( $compare, $difference, ) : ()
         );
 
         ${ $self->{model}{sharingObjectRef} }
-          ->takeResults( $self->{model}, $cols[1] )
+          ->useForWaterfall( $self->{model}, $cols[1] )
           if $self->{model}{sharingObjectRef}
-          && ${ $self->{model}{sharingObjectRef} }->can('takeResults');
+          && ${ $self->{model}{sharingObjectRef} }->can('useForWaterfall');
+
+        ${ $self->{model}{sharingObjectRef} }
+          ->useForTimeSeries( $self->{model}, 'Total use of system revenues', $cols[1] )
+          if $self->{model}{sharingObjectRef}
+          && ${ $self->{model}{sharingObjectRef} }->can('useForTimeSeries');
 
         push @cols,
           Arithmetic(

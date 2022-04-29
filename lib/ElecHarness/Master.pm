@@ -1,6 +1,6 @@
 ﻿package ElecHarness;
 
-# Copyright 2021 Franck Latrémolière and others.
+# Copyright 2021-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -30,17 +30,18 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub sheetPriority {
     ( undef, local $_ ) = @_;
-    /Index/ ? 42 : /Waterfall/ ? 41 : 40;
+    /Index/ ? 12 : /Waterfall|Time series/ ? 42 : 7;
 }
 
 sub requiredModulesForRuleset {
     my ( $class, $ruleset ) = @_;
-    $ruleset->{waterfalls} ? 'ElecHarness::Waterfalls' : ();
+    $ruleset->{timeSeries}   ? 'ElecHarness::TimeSeries' : (),
+      $ruleset->{waterfalls} ? 'ElecHarness::Waterfalls' : ();
 }
 
 sub new {
     my $class = shift;
-    my $me = bless { @_, }, $class;
+    my $me    = bless { @_, }, $class;
     ${ $me->{sharingObjectRef} } = $me if ref $me->{sharingObjectRef};
     $me;
 }
@@ -59,40 +60,56 @@ sub worksheetsAndClosures {
         $wbook->{noLinks} = 1;
     };
 
-    'Steps$' => sub {
+    my @nameClosurePairs;
+
+    push @nameClosurePairs, 'Time series$' => sub {
+        my ($wsheet) = @_;
+        $wsheet->set_column( 0, 0, 42 );
+        $wsheet->set_column( 1, 255, 13 );
+        push @{ $me->{finishClosures} }, sub {
+            $_->wsWrite( $wbook, $wsheet )              foreach  $me->tsTables;
+        }
+      }
+      if $me->{timeSeries};
+
+    push @nameClosurePairs,
+      'Steps$' => sub {
         my ($wsheet) = @_;
         $wsheet->set_column( 0, 255, 13 );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Step rules' ), @{ $me->{stepRules} };
+      }
+      if $me->{stepRules};
+
+    push @nameClosurePairs,
+      'Calc$' => sub {
+        my ($wsheet) = @_;
+        $wsheet->set_column( 0, 255, 13 );
+        $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Waterfalls' );
+        push @{ $me->{finishClosures} }, sub {
+            $_->wsWrite( $wbook, $wsheet )
+              foreach @{ $me->waterfallTablesAndCharts->[0] };
+        };
       },
-      $me->{waterfalls}
-      ? (
-        'Calc$' => sub {
-            my ($wsheet) = @_;
-            $wsheet->set_column( 0, 255, 13 );
+      'Waterfalls$' => sub {
+        my ($wsheet) = @_;
+        $wsheet->set_column( 0, 255, 13 );
+        $_->wsWrite( $wbook, $wsheet ) foreach Notes( name => 'Waterfalls' );
+        push @{ $me->{finishClosures} }, sub {
             $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Waterfalls' );
-            push @{ $me->{finishClosures} }, sub {
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach @{ $me->waterfallTablesAndCharts->[0] };
-            };
-        },
-        'Waterfalls$' => sub {
-            my ($wsheet) = @_;
-            $wsheet->set_column( 0, 255, 13 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Waterfalls' );
-            push @{ $me->{finishClosures} }, sub {
-                $_->wsWrite( $wbook, $wsheet )
-                  foreach @{ $me->waterfallTablesAndCharts->[1] };
-            };
-        },
-      )
-      : (),
+              foreach @{ $me->waterfallTablesAndCharts->[1] };
+        };
+      },
+      if $me->{waterfalls};
+
+    push @nameClosurePairs,
       'Index$' => SpreadsheetModel::Book::FrontSheet->new(
         model     => $me,
         copyright => 'Copyright 2021 Franck Latrémolière and others.'
-      )->closure($wbook);
+    )->closure($wbook)
+      unless $me->{noIndex};
+
+    @nameClosurePairs;
 
 }
 

@@ -1,6 +1,6 @@
 ﻿package Elec;
 
-# Copyright 2012-2021 Franck Latrémolière and others.
+# Copyright 2012-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,11 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::Book::FrontSheet;
 
+sub sheetPriority {
+    ( undef, local $_ ) = @_;
+    /Index/ ? 12 : 7;
+}
+
 sub finishModel {
     my ( $model, $wbook ) = @_;
     my $append = ( $model->{idAppend}{$wbook} || '' )
@@ -53,7 +58,9 @@ sub worksheetsAndClosures {
     push @detailedTables, @{ $model->{detailedTablesBottom} }
       if $model->{detailedTablesBottom};
 
-    'Input' => sub {
+    my @titleClosurePairs;
+
+    push @titleClosurePairs, 'Input' => sub {
         my ($wsheet) = @_;
         $wsheet->{sheetNumber} = 15;
         $wsheet->freeze_panes( 1, 1 );
@@ -63,7 +70,8 @@ sub worksheetsAndClosures {
         $wbook->{titleWriter} =
           sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{inputTables} ||= [];
-        my $idTable = Dataset(
+        push @{ $model->{inputTables} },
+          my $idTable = Dataset(
             number  => 1500,
             dataset => $model->{dataset},
             name    => 'Company, charging year, data version',
@@ -81,8 +89,9 @@ sub worksheetsAndClosures {
             ],
             usePlaceholderData => 1,
             forwardLinks       => {},
-        );
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+          );
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes(
             name  => 'Input data',
             lines => 'This sheet contains the input data.'
           ),
@@ -110,82 +119,79 @@ sub worksheetsAndClosures {
           . qq%&" ("&'$sh'!%
           . Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell( $ro, $co + 2 )
           . '&")"';
-      }
 
-      ,
+    };
 
-      $model->{table1653}
-      ? (
-        'Customers' => sub {
-            my ($wsheet) = @_;
+    push @titleClosurePairs, 'Customers' => sub {
+        my ($wsheet) = @_;
+        unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 2 );
-            $wsheet->set_column( 0, 0, $model->{ulist}          ? 50 : 20 );
-            $wsheet->set_column( 1, 1, $model->{table1653Names} ? 50 : 20 );
+            $wsheet->set_column( 0, 0,   $model->{ulist}          ? 50 : 20 );
+            $wsheet->set_column( 1, 1,   $model->{table1653Names} ? 50 : 20 );
             $wsheet->set_column( 2, 250, 20 );
-            $model->{table1653}->wsWrite( $wbook, $wsheet );
         }
-      )
-      : ()
+        $model->{table1653}->wsWrite( $wbook, $wsheet );
+      }
+      if $model->{table1653};
 
-      ,
-
+    push @titleClosurePairs,
       'Volumes' => sub {
         my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 250, 20 );
+        unless ( $model->{compact} ) {
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 250, 20 );
+        }
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Volumes' ), @{ $model->{volumeTables} },
           $model->{interpolator} ? $model->{interpolator}->columnsets : ();
-      }
+      };
 
-      ,
-
-      $model->{bandTables} && @{ $model->{bandTables} }
-      ? (
-        'Bands' => sub {
-            my ($wsheet) = @_;
+    push @titleClosurePairs, 'Bands' => sub {
+        my ($wsheet) = @_;
+        unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 0,   30 );
             $wsheet->set_column( 1, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Time band analysis' ),
-              @{ $model->{bandTables} };
         }
-      )
-      : ()
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => 'Time band analysis' ),
+          @{ $model->{bandTables} };
+      }
+      if $model->{bandTables} && @{ $model->{bandTables} };
 
-      ,
-
+    push @titleClosurePairs,
       'Costs' => sub {
         my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   30 );
-        $wsheet->set_column( 1, 250, 20 );
+        unless ( $model->{compact} ) {
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   30 );
+            $wsheet->set_column( 1, 250, 20 );
+        }
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Relevant costs and charges' ),
           @{ $model->{costTables} },
           $model->{checkTables} ? @{ $model->{checkTables} } : ();
-      }
+      };
 
-      ,
-
-      'Buildup' => sub {
+    push @titleClosurePairs, 'Buildup' => sub {
         my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   30 );
-        $wsheet->set_column( 1, 250, 20 );
+        unless ( $model->{compact} ) {
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   30 );
+            $wsheet->set_column( 1, 250, 20 );
+        }
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Tariff build-up' ),
           @{ $model->{buildupTables} };
-      }
+    };
 
-      ,
-
-      'Tariffs' => sub {
+    push @titleClosurePairs, 'Tariffs' => sub {
         my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   30 );
-        $wsheet->set_column( 1, 250, 20 );
+        unless ( $model->{compact} ) {
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   30 );
+            $wsheet->set_column( 1, 250, 20 );
+        }
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Tariffs' ), @{ $model->{tariffTables} };
         if ( $model->{tariffChecksum} ) {
@@ -199,46 +205,51 @@ sub worksheetsAndClosures {
             $model->{checksumAppend}{$wbook} =
               qq%&IF(ISNUMBER($cell),$checksumText,"")%;
         }
-      }
+    };
 
-      ,
-
-      'Revenues' => sub {
+    push @titleClosurePairs, 'Revenues' => sub {
         my ($wsheet) = @_;
-        $wsheet->freeze_panes( 1, 0 );
-        $wsheet->set_column( 0, 0,   30 );
-        $wsheet->set_column( 1, 250, 20 );
+        unless ( $model->{compact} ) {
+            $wsheet->freeze_panes( 1, 0 );
+            $wsheet->set_column( 0, 0,   30 );
+            $wsheet->set_column( 1, 250, 20 );
+        }
         my $noLinks = $wbook->{noLinks};
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Revenues' ), @{ $model->{revenueTables} };
         $wbook->{noLinks} = $noLinks;
-      }
+    };
 
-      ,
-
-      @detailedTables
-      ? (
-        'Details' => sub {
-            my ($wsheet) = @_;
+    push @titleClosurePairs, 'Details' => sub {
+        my ($wsheet) = @_;
+        unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
             $wsheet->set_column( 0, 0,
                 $model->{ulist} || $model->{table1653Names} ? 50 : 20 );
             $wsheet->set_column( 1, 1,
                 $model->{detailedTablesNames} ? 50 : 20 );
             $wsheet->set_column( 2, 250, 20 );
-            $_->wsWrite( $wbook, $wsheet )
-              foreach Notes( name => 'Detailed tables' ),
-              @detailedTables;
         }
-      )
-      : ()
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes( name => 'Detailed tables' ),
+          @detailedTables;
+      }
+      if @detailedTables;
 
-      ,
+    if ( $model->{compact} ) {
+        for ( my $i = 0 ; $i < @titleClosurePairs ; $i += 2 ) {
+            $titleClosurePairs[$i] = "TM/$titleClosurePairs[$i]";
+        }
+    }
+    else {
+        push @titleClosurePairs,
+          'Index' => SpreadsheetModel::Book::FrontSheet->new(
+            model     => $model,
+            copyright => 'Copyright 2012-2022 Franck Latrémolière and others.'
+        )->closure($wbook);
+    }
 
-      'Index' => SpreadsheetModel::Book::FrontSheet->new(
-        model     => $model,
-        copyright => 'Copyright 2012-2021 Franck Latrémolière and others.'
-      )->closure($wbook);
+    @titleClosurePairs;
 
 }
 

@@ -30,7 +30,6 @@ use Spreadsheet::WriteExcel::Utility;
 sub applySourceModelsToDataset {
 
     my ( $self, $model, $sourceModelsMap, $customActionMap ) = @_;
-
     my %lastResortDatasets;
     foreach my $sourceModel ( values %$sourceModelsMap ) {
         next if $lastResortDatasets{ 0 + $sourceModel };

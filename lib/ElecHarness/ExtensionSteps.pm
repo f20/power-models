@@ -1,4 +1,4 @@
-﻿package ElecHarness::Extension;
+﻿package ElecHarness::ExtensionSteps;
 
 # Copyright 2021 Franck Latrémolière and others.
 #
@@ -22,6 +22,9 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# This module (pmod -ext=ElecHarness::ExtensionSteps) provides a flexible
+# way of creating waterfall comparison charts between two Elec models.
 
 use warnings;
 use strict;

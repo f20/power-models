@@ -433,6 +433,11 @@ sub usetMatchAssets {
         data          => [1e7],
         defaultFormat => '0hard',
     );
+    ${ $self->{model}{sharingObjectRef} }
+      ->useForTimeSeries( $self->{model}, 'Maximum total notional assets',
+        $maxAssets )
+      if $self->{model}{sharingObjectRef}
+      && ${ $self->{model}{sharingObjectRef} }->can('useForTimeSeries');
     my $assetMatchingFactor = Arithmetic(
         name       => 'Asset adjustment factor' . $applicationOptions,
         arithmetic => '=MIN(1,A2/A3)',
@@ -482,6 +487,10 @@ sub usetRunningCosts {
         data          => [1e6],
         defaultFormat => '0hard',
       );
+    ${ $self->{model}{sharingObjectRef} }
+      ->useForTimeSeries( $self->{model}, 'Asset running costs', $totalCosts )
+      if $self->{model}{sharingObjectRef}
+      && ${ $self->{model}{sharingObjectRef} }->can('useForTimeSeries');
     push @{ $self->{costItems} }, $totalCosts;
     my $totalAssets =
       $self->{model}{runningCostScaling}
@@ -531,6 +540,10 @@ sub usetNonAssetCosts {
         data => [ map { 5e5; } @{ $self->{setup}->nonAssetUsageSet->{list} } ],
         defaultFormat => '0hard',
       );
+    ${ $self->{model}{sharingObjectRef} }
+      ->useForTimeSeries( $self->{model}, undef, $nonAssetCosts )
+      if $self->{model}{sharingObjectRef}
+      && ${ $self->{model}{sharingObjectRef} }->can('useForTimeSeries');
     push @{ $self->{costItems} }, $nonAssetCosts;
     $self->{nonAssetCharge} = Arithmetic(
         name       => 'Non-asset-based charges (£/unit of usage/year)',
@@ -551,7 +564,6 @@ sub charges {
     $self->nonAssetCharge, $self->assetCharge,
       $self->{model}{noEnergy} ? () : $self->energyCharge;
 }
-
 
 sub finish { }
 
