@@ -71,7 +71,7 @@ sub worksheetsAndClosures {
           sub { push @{ $model->{titleWrites}{$wbook} }, [@_]; };
         $model->{inputTables} ||= [];
         push @{ $model->{inputTables} },
-          my $idTable = Dataset(
+          $model->{idTable} ||= Dataset(
             number  => 1500,
             dataset => $model->{dataset},
             name    => 'Company, charging year, data version',
@@ -95,14 +95,14 @@ sub worksheetsAndClosures {
             name  => 'Input data',
             lines => 'This sheet contains the input data.'
           ),
-          $idTable,
+          $model->{idTable},
           $model->{table1653}
           ? Notes( lines => 'Individual user data', location => 'Customers', )
           : (),
           sort { ( $a->{number} || 9909 ) <=> ( $b->{number} || 9909 ) }
           @{ $model->{inputTables} };
         require Spreadsheet::WriteExcel::Utility;
-        my ( $sh, $ro, $co ) = $idTable->wsWrite( $wbook, $wsheet );
+        my ( $sh, $ro, $co ) = $model->{idTable}->wsWrite( $wbook, $wsheet );
         $sh = $sh->get_name;
         $model->{idAppend}{$wbook} =
             qq%&" for "&'$sh'!%
