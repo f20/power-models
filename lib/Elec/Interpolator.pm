@@ -366,7 +366,9 @@ sub assetVolumes {
         name          => 'Asset category',
         rows          => $inputRowset,
         defaultFormat => 'texthard',
-        data          => [ map { ''; } @{ $inputRowset->{list} } ],
+        data          => [ map { ''; } @{ $inputRowset->{list} } ]
+        ,    # cannot use $self->{model}{assetDetail}
+             # as list validation value because of 255 character limit
     );
     my ( $startDate, $endDate, $growthOrProbability, $factor ) =
       $self->forecastInputDataAndFactors( $inputRowset, 'Asset volume',
