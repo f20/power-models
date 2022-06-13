@@ -1,0 +1,31 @@
+---
+PerlModule: GenericTester
+protect: 1
+template: '%'
+tests:
+  -
+    - waterfallTester
+    - chartOptions
+    - mergeFirstStep: 0
+    - rowList
+    -
+      - row 1
+      - row 2
+    - stepList
+    -
+      - End point
+      - Start point
+      - Step 1
+validation: lenientnomsg
+---
+110:
+  - _table: 110. Waterfall chart data
+  - _column: End point
+    row 1: 0.494350952055441
+    row 2: 0.179158193936991
+  - _column: Start point
+    row 1: 0.144627800219677
+    row 2: 0.761521607733048
+  - _column: Step 1
+    row 1: 0.284574628978994
+    row 2: 0.562324645580304

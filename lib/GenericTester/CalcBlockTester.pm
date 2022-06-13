@@ -1,4 +1,4 @@
-﻿package Tester::CalcBlockTester;
+﻿package GenericTester::CalcBlockTester;
 
 # Copyright 2020-2021 Franck Latrémolière and others.
 #

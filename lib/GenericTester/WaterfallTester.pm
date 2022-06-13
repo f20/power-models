@@ -1,6 +1,6 @@
-﻿package Tester::WaterfallTester;
+﻿package GenericTester::WaterfallTester;
 
-# Copyright 2021 Franck Latrémolière and others.
+# Copyright 2021-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -34,29 +34,28 @@ sub new {
     bless { model => $model, @options }, $class;
 }
 
-sub dataColumns {
+sub rowset {
     my ($component) = @_;
-}
-
-sub itemNames {
-    my ($component) = @_;
+    return $component->{rowset} if $component->{rowset};
+    if ( $component->{rowList} ) {
+        $component->{rowset} =
+          Labelset( list => $component->{rowList} );
+        return $component->{rowset}{rowsetInputs} = $component->{rowset};
+    }
+    my $rowsetInputs = Labelset(
+        defaultFormat => 'thitem',
+        list          => [ 1 .. ( $component->{numItems} || 7 ) ]
+    );
     $component->{itemNames} //= Dataset(
         name          => 'Item names',
         defaultFormat => 'texthard',
-        rows          => Labelset(
-            defaultFormat => 'thitem',
-            list          => [ 1 .. ( $component->{model}{numItems} || 8 ) ]
-        ),
-        data =>
-          [ map { "Item $_"; } 1 .. ( $component->{model}{numItems} || 8 ) ],
+        rows          => $rowsetInputs,
+        data => [ map { 'Item ' . ( 1 + $_ ); } $rowsetInputs->indices ],
     );
-}
-
-sub rowset {
-    my ($component) = @_;
-    $component->{rowset} //= Labelset(
-        editable => $component->itemNames,
-        accepts  => [ $component->itemNames->{rows} ],
+    $component->{rowset} = Labelset(
+        editable     => $component->{itemNames},
+        accepts      => [$rowsetInputs],
+        rowsetInputs => $rowsetInputs,
     );
 }
 
@@ -67,11 +66,11 @@ sub dataColumnsRef {
             Dataset(
                 name          => $_,
                 defaultFormat => '0.00hard',
-                rows          => $component->itemNames->{rows},
+                rows          => $component->rowset->{rowsetInputs},
                 data          => [ map { 0; } $component->rowset->indices ],
             );
-        } $component->{model}{stepNames}
-        ? @{ $component->{model}{stepNames} }
+        } $component->{stepList}
+        ? @{ $component->{stepList} }
         : ( 'End point', 'Start point', map { "Step $_"; } 1 .. 6 )
     ];
 }
@@ -80,7 +79,10 @@ sub inputTables {
     my ($component) = @_;
     $component->{inputColumnset} //= Columnset(
         name    => 'Waterfall chart data',
-        columns => [ $component->itemNames, @{ $component->dataColumnsRef }, ],
+        columns => [
+            $component->{itemNames} ? $component->{itemNames} : (),
+            @{ $component->dataColumnsRef },
+        ],
         dataset => $component->{model}{dataset},
         number  => 110,
     );

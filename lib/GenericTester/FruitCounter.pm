@@ -1,4 +1,4 @@
-﻿package Tester::FruitCounter;
+﻿package GenericTester::FruitCounter;
 
 # Copyright 2020-2021 Franck Latrémolière and others.
 #

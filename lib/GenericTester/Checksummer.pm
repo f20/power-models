@@ -1,4 +1,4 @@
-﻿package Tester::Checksummer;
+﻿package GenericTester::Checksummer;
 
 # Copyright 2021 Franck Latrémolière and others.
 #

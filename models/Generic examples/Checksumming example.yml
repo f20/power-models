@@ -1,5 +1,5 @@
 ---
-PerlModule: Tester
+PerlModule: GenericTester
 protect: 1
 template: '%'
 tests:
