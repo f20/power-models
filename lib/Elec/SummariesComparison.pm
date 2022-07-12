@@ -91,7 +91,7 @@ sub revenueComparison {
       : $volumes->[0];
     die "$totalUnits->{name} $totalUnits->{debug} does not"
       . ' look right for $totalUnits'
-      unless $totalUnits->{name} =~ /total/i;
+      if $self->{setup}{timebands} && $totalUnits->{name} !~ /total/i;
 
     push @columns,
       $totalUnits = Stack( rows => $self->{rows}, sources => [$totalUnits] )
@@ -183,7 +183,7 @@ sub revenueComparison {
 
     push @{ $self->{revenueTables} },
       Columnset(
-        name    => 'Revenue' . ( $compare ? ' comparison' : '' ) . $labelTail,
+        name => 'Revenue' . ( $compare ? ' comparison' : '' ) . $labelTail,
         columns => \@srcCol,
       ) if @srcCol;
 
@@ -201,7 +201,7 @@ sub revenueComparison {
       )
     {
         my $totalTerm = $groupedRows ? 'Subtotal' : 'Total';
-        my @cols      = (
+        my @cols = (
             map {
                 my $n =
                   $totalTerm . ' '
@@ -221,7 +221,7 @@ sub revenueComparison {
                     defaultFormat => $_->{defaultFormat},
                     source        => $_,
                   );
-            } $totalUnits,
+              } $totalUnits,
             $revenues,
             @extraColumns,
             $compare ? ( $compare, $difference, ) : ()
@@ -233,7 +233,8 @@ sub revenueComparison {
           && ${ $self->{model}{sharingObjectRef} }->can('useForWaterfall');
 
         ${ $self->{model}{sharingObjectRef} }
-          ->useForTimeSeries( $self->{model}, 'Total use of system revenues', $cols[1] )
+          ->useForTimeSeries( $self->{model}, 'Total use of system revenues',
+            $cols[1] )
           if $self->{model}{sharingObjectRef}
           && ${ $self->{model}{sharingObjectRef} }->can('useForTimeSeries');
 
