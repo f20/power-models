@@ -30,8 +30,8 @@ use SpreadsheetModel::Shortcuts ':all';
 use SpreadsheetModel::Book::FrontSheet;
 
 sub sheetPriority {
-    ( undef, local $_ ) = @_;
-    /Index/ ? 12 : 7;
+    ( my $model, local $_ ) = @_;
+    ( $model->{modelSheetPriority} || 0 ) + ( /Index/ ? 12 : 7 );
 }
 
 sub finishModel {
