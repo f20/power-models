@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2020-2021 Franck Latrémolière and others.
+# Copyright 2020-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -424,6 +424,23 @@ sub matching361 {
       );
 
     my $adderTable;
+
+    my @relatedMpanTariffRows =
+      grep { /related mpan/i; } @{ $tcrGroupAllocation->{rows}{list} };
+    $tcrGroupAllocation = Stack(
+        name          => 'TCR group allocation excluding related MPAN tariffs',
+        rows          => $tcrGroupAllocation->{rows},
+        defaultFormat => '0copy',
+        sources       => [
+            Constant(
+                name          => 'No TCR group for related MPAN tariffs',
+                defaultFormat => '0con',
+                rows          => Labelset( list => \@relatedMpanTariffRows ),
+                data          => [ [ map { 0; } @relatedMpanTariffRows ] ]
+            ),
+            $tcrGroupAllocation
+        ],
+    );
 
     foreach (@$nonExcludedComponents) {
         next unless /kWh|MPAN/;
