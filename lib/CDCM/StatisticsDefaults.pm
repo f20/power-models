@@ -1,6 +1,6 @@
 ﻿package CDCM;
 
-# Copyright 2014-2020 Franck Latrémolière and others.
+# Copyright 2014-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -34,8 +34,19 @@ my @table1202 = Load <DATA>;
 
 sub table1202 {
     my ($model) = @_;
-    $table1202[0]{ $model->{tariffs}
-          && $model->{tariffs} =~ /tcrbands/i ? '1202tcr' : '1202' };
+    my $tcrFlag = $model->{tariffs}
+      && $model->{tariffs} =~ /tcrbands/i ? 'tcr' : '';
+    my $t1202 = $table1202[0]{"1202$tcrFlag"};
+    if ( $tcrFlag && $model->{summary} && $model->{summary} !~ /[il]dno/i ) {
+        $t1202 = [@$t1202];
+        my %newmap;
+        while ( my ( $k, $v ) = each %{ $t1202->[2] } ) {
+            $v =~ s/\(\?\:\|\(\?\:LD\|Q\)NO \.\*\: \)//;
+            $newmap{$k} = $v;
+        }
+        $t1202->[2] = \%newmap;
+    }
+    $t1202;
 }
 
 1;
@@ -249,32 +260,32 @@ __DATA__
     Non-domestic high usage: 210
     Non-domestic no usage: 170
     _column: Order
-  - 10MVA high usage: '^(LV Sub|HV) Site Specific (No Residual|Band 4)'
-    10MVA no usage: '^(LV Sub|HV) Site Specific (No Residual|Band 4)'
-    40kVA high usage: '^(LV|LV Sub|HV) Site Specific (No Residual|Band 1)'
-    40kVA no usage: '^(LV|LV Sub|HV) Site Specific (No Residual|Band 1)'
-    750kVA high usage: '^(LV|LV Sub) Site Specific (No Residual|Band 4)'
-    750kVA no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 4)'
-    Domestic high usage: '^Domestic Aggregated$'
-    Domestic mid usage: '^Domestic Aggregated$'
-    Domestic no usage: '^Domestic Aggregated$'
-    HV band 1/2 high usage: '^HV Site Specific (No Residual|Band 1|Band 2)'
-    HV band 1/2 no usage: '^HV Site Specific (No Residual|Band 1|Band 2)'
-    HV band 2/3 high usage: '^HV Site Specific (No Residual|Band 2|Band 3)'
-    HV band 2/3 no usage: '^HV Site Specific (No Residual|Band 2|Band 3)'
-    HV band 3/4 high usage: '^HV Site Specific (No Residual|Band 3|Band 4)'
-    HV band 3/4 no usage: '^HV Site Specific (No Residual|Band 3|Band 4)'
-    LV band 1/2 high usage: '^(LV|LV Sub) Site Specific (No Residual|Band 1|Band 2)'
-    LV band 1/2 no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 1|Band 2)'
-    LV band 2/3 high usage: '^(LV|LV Sub) Site Specific (No Residual|Band 2|Band 3)'
-    LV band 2/3 no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 2|Band 3)'
-    LV band 3/4 high usage: '^(LV|LV Sub) Site Specific (No Residual|Band 3|Band 4)'
-    LV band 3/4 no usage: '^(LV|LV Sub) Site Specific (No Residual|Band 3|Band 4)'
-    Non-domestic band 1/2: '^Non-Domestic Aggregated (No Residual|Band 1|Band 2)'
-    Non-domestic band 2/3: '^Non-Domestic Aggregated (No Residual|Band 2|Band 3)'
-    Non-domestic band 3/4: '^(LV Site Specific Band 1|Non-Domestic Aggregated (No Residual|Band 3|Band 4))'
-    Non-domestic high usage: '^(LV Site Specific Band 1|Non-Domestic Aggregated (No Residual|Band 4))'
-    Non-domestic no usage: '^Non-Domestic Aggregated (No Residual|Band 1)'
+  - 10MVA high usage: '^(?:|(?:LD|Q)NO .*: )(LV Sub|HV) Site Specific (No Residual|Band 4)'
+    10MVA no usage: '^(?:|(?:LD|Q)NO .*: )(LV Sub|HV) Site Specific (No Residual|Band 4)'
+    40kVA high usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub|HV) Site Specific (No Residual|Band 1)'
+    40kVA no usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub|HV) Site Specific (No Residual|Band 1)'
+    750kVA high usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub) Site Specific (No Residual|Band 4)'
+    750kVA no usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub) Site Specific (No Residual|Band 4)'
+    Domestic high usage: '^(?:|(?:LD|Q)NO .*: )Domestic Aggregated$'
+    Domestic mid usage: '^(?:|(?:LD|Q)NO .*: )Domestic Aggregated$'
+    Domestic no usage: '^(?:|(?:LD|Q)NO .*: )Domestic Aggregated$'
+    HV band 1/2 high usage: '^(?:|(?:LD|Q)NO .*: )HV Site Specific (No Residual|Band 1|Band 2)'
+    HV band 1/2 no usage: '^(?:|(?:LD|Q)NO .*: )HV Site Specific (No Residual|Band 1|Band 2)'
+    HV band 2/3 high usage: '^(?:|(?:LD|Q)NO .*: )HV Site Specific (No Residual|Band 2|Band 3)'
+    HV band 2/3 no usage: '^(?:|(?:LD|Q)NO .*: )HV Site Specific (No Residual|Band 2|Band 3)'
+    HV band 3/4 high usage: '^(?:|(?:LD|Q)NO .*: )HV Site Specific (No Residual|Band 3|Band 4)'
+    HV band 3/4 no usage: '^(?:|(?:LD|Q)NO .*: )HV Site Specific (No Residual|Band 3|Band 4)'
+    LV band 1/2 high usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub) Site Specific (No Residual|Band 1|Band 2)'
+    LV band 1/2 no usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub) Site Specific (No Residual|Band 1|Band 2)'
+    LV band 2/3 high usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub) Site Specific (No Residual|Band 2|Band 3)'
+    LV band 2/3 no usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub) Site Specific (No Residual|Band 2|Band 3)'
+    LV band 3/4 high usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub) Site Specific (No Residual|Band 3|Band 4)'
+    LV band 3/4 no usage: '^(?:|(?:LD|Q)NO .*: )(LV|LV Sub) Site Specific (No Residual|Band 3|Band 4)'
+    Non-domestic band 1/2: '^(?:|(?:LD|Q)NO .*: )Non-Domestic Aggregated (No Residual|Band 1|Band 2)'
+    Non-domestic band 2/3: '^(?:|(?:LD|Q)NO .*: )Non-Domestic Aggregated (No Residual|Band 2|Band 3)'
+    Non-domestic band 3/4: '^(?:|(?:LD|Q)NO .*: )(LV Site Specific Band 1|Non-Domestic Aggregated (No Residual|Band 3|Band 4))'
+    Non-domestic high usage: '^(?:|(?:LD|Q)NO .*: )(LV Site Specific Band 1|Non-Domestic Aggregated (No Residual|Band 4))'
+    Non-domestic no usage: '^(?:|(?:LD|Q)NO .*: )Non-Domestic Aggregated (No Residual|Band 1)'
     _column: Tariff selection
   - 10MVA high usage: ''
     10MVA no usage: ''
