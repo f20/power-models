@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Checksum;
 
-# Copyright 2014-2015 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2014-2022 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -53,6 +53,8 @@ sub check {
         [ 999983,  492223,  '000 000' ],
         [ 9999991, 4922236, '000 0000' ]
       ]->[ $self->{digits} ];
+    $self->{defaultFormat} =
+      [ base => '0soft', num_format => $self->{parameters}[2] ];
     $self->{arithmetic} = 'Checksum' unless defined $self->{arithmetic};
     $self->{objectType} ||= 'Checksum';
     $self->SUPER::check;
@@ -91,7 +93,7 @@ sub wsPrepare {
     my $wsWorkings = $ws->{workingsSheet} || $ws;
     my ( @placeholder, @row, @col );
     my $someArgumentsAreMissingAtThisStage;
-    my ( $modulus, $generator, $numFormat ) = @{ $self->{parameters} };
+    my ( $modulus, $generator ) = @{ $self->{parameters} };
     my $arithmetic = '';
     if ( $self->{recursive} ) {
         $arithmetic = '+A1';
@@ -120,8 +122,7 @@ sub wsPrepare {
       if $someArgumentsAreMissingAtThisStage;
     $arithmetic =~ s/^\+/=/s;
     my $formula = $ws->store_formula($arithmetic);
-    my $format  = $wb->getFormat( $self->{defaultFormat}
-          || [ base => '0soft', num_format => $numFormat ] );
+    my $format  = $wb->getFormat( $self->{defaultFormat} );
     sub {
         my ( $x, $y ) = @_;
         unless ( defined $row[0] ) {

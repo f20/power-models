@@ -30,25 +30,38 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub useForTimeSeries {
     my ( $me, $model, $dataName, $dataTable ) = @_;
+    my $dataId = $dataName // $dataTable->objectShortName;
+    my $rowset = $me->{rowsets}{$dataId};
+    $rowset = $me->{rowsets}{$dataId} = Labelset(
+        list => [ map { "$dataName: $_" } @{ $dataTable->{rows}{list} } ], )
+      if $dataTable->{rows} && !$rowset;
+    push @{ $rowset->{accepts} }, $dataTable->{rows} if $rowset;
     $me->{modelNumberSuffixMap}{ $model->{'~datasetId'} } =
       $model->{modelNumberSuffix}
       ? "TM$model->{modelNumberSuffix}"
       : 'Main model';
     if ( $dataTable->{cols} ) {
         $me->_add(
-            $model, $_,
+            $model,
+            ( $dataName ? "$dataName: " : '' ) . $_,
             Stack(
                 cols    => Labelset( list => [$_] ),
+                rows    => $rowset,
                 sources => [$dataTable]
             )
         ) foreach @{ $dataTable->{cols}{list} };
     }
     else {
+        my $defaultFormat = $dataTable->{defaultFormat} || '0.000soft';
+        $defaultFormat =~ s/(hard|soft|con)/copy/ unless ref $defaultFormat;
         $me->_add(
             $model,
             $dataName,
-            Stack(
-                sources => [$dataTable]
+            Arithmetic(
+                rows          => $rowset,
+                arithmetic    => '=A1',
+                arguments     => { A1 => $dataTable },
+                defaultFormat => $defaultFormat,
             )
         );
     }
@@ -116,8 +129,9 @@ sub tsTables {
                 columns       => \@baseline,
               );
             if (   $runs[0]{defaultFormat}
-                && $runs[0]{defaultFormat} =~ /^0[a-z]/s )
+                && $runs[0]{defaultFormat} =~ /^0(\.0+)?[a-z]/s )
             {
+                my $dec = $1 // '';
                 push @tables, Columnset(
                     name          => '',
                     noHeaders     => 1,
@@ -126,7 +140,7 @@ sub tsTables {
                         map {
                             Arithmetic(
                                 name          => '',
-                                defaultFormat => '0soft',
+                                defaultFormat => "0${dec}soft",
                                 arithmetic    => '=A1-A2',
                                 arguments     =>
                                   { A1 => $runs[$_], A2 => $baseline[$_], },

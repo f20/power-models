@@ -1,6 +1,6 @@
 ﻿package Elec::Tariffs;
 
-# Copyright 2012-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2022 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -51,9 +51,9 @@ sub new {
     my $digitsRounding   = $setup->digitsRounding;
     my @formatting       = map {
             !defined $digitsRounding->[$_] ? []
-          : !$digitsRounding->[$_]     ? [ defaultFormat => '0soft' ]
-          : $digitsRounding->[$_] == 2 ? [ defaultFormat => '0.00soft' ]
-          :                              [];
+          : !$digitsRounding->[$_]         ? [ defaultFormat => '0soft' ]
+          : $digitsRounding->[$_] == 2     ? [ defaultFormat => '0.00soft' ]
+          :                                  [];
     } 0 .. $#$tariffComponents;
 
     foreach my $charge ( $charging->charges ) {
@@ -153,9 +153,9 @@ sub showAverageUnitRateTable {
 }
 
 sub addChecksums {
-    my ($self) = @_;
+    my ($self)        = @_;
     my @tariffColumns = @{ $self->{tariffs} };
-    my @factors = map { 10**$_; } @{ $self->{setup}->digitsRounding };
+    my @factors       = map { 10**$_; } @{ $self->{setup}->digitsRounding };
     foreach ( split /;\s*/, $self->{model}{checksums} ) {
         my $digits = /([0-9])/ ? $1 : 6;
         push @{ $self->{tariffs} },
@@ -178,6 +178,13 @@ sub finish {
         name    => ucfirst( $self->tariffName ),
         columns => $self->{tariffs},
       );
+    if ( $self->{model}{sharingObjectRef}
+        && ${ $self->{model}{sharingObjectRef} }->can('useForTimeSeries') )
+    {
+        ${ $self->{model}{sharingObjectRef} }
+          ->useForTimeSeries( $self->{model}, $_->objectShortName, $_ )
+          foreach @{ $self->{tariffs} };
+    }
     push @{ $self->{model}{tariffTables} },
       Columnset(
         name    => ucfirst( $self->tariffName ) . ' with average unit rates',
