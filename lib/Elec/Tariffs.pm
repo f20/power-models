@@ -183,7 +183,8 @@ sub finish {
     {
         ${ $self->{model}{sharingObjectRef} }
           ->useForTimeSeries( $self->{model}, $_->objectShortName, $_ )
-          foreach @{ $self->{tariffs} };
+          foreach grep { !$_->isa('SpreadsheetModel::Checksum'); }
+          @{ $self->{tariffs} };
     }
     push @{ $self->{model}{tariffTables} },
       Columnset(

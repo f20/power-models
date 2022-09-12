@@ -30,12 +30,13 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub useForTimeSeries {
     my ( $me, $model, $dataName, $dataTable ) = @_;
-    my $dataId = $dataName // $dataTable->objectShortName;
-    my $rowset = $me->{rowsets}{$dataId};
-    $rowset = $me->{rowsets}{$dataId} = Labelset(
+    my $dataId           = $dataName // $dataTable->objectShortName;
+    my $rowsetForSummary = $me->{rowsets}{$dataId};
+    $rowsetForSummary = $me->{rowsets}{$dataId} = Labelset(
         list => [ map { "$dataName: $_" } @{ $dataTable->{rows}{list} } ], )
-      if $dataTable->{rows} && !$rowset;
-    push @{ $rowset->{accepts} }, $dataTable->{rows} if $rowset;
+      if $dataTable->{rows} && !$rowsetForSummary;
+    push @{ $rowsetForSummary->{accepts} }, $dataTable->{rows}
+      if $rowsetForSummary;
     $me->{modelNumberSuffixMap}{ $model->{'~datasetId'} } =
       $model->{modelNumberSuffix}
       ? "TM$model->{modelNumberSuffix}"
@@ -46,7 +47,7 @@ sub useForTimeSeries {
             ( $dataName ? "$dataName: " : '' ) . $_,
             Stack(
                 cols    => Labelset( list => [$_] ),
-                rows    => $rowset,
+                rows    => $rowsetForSummary,
                 sources => [$dataTable]
             )
         ) foreach @{ $dataTable->{cols}{list} };
@@ -58,7 +59,7 @@ sub useForTimeSeries {
             $model,
             $dataName,
             Arithmetic(
-                rows          => $rowset,
+                rows          => $rowsetForSummary,
                 arithmetic    => '=A1',
                 arguments     => { A1 => $dataTable },
                 defaultFormat => $defaultFormat,
@@ -70,8 +71,7 @@ sub useForTimeSeries {
 sub _add {
     my ( $me, $model, $dataName, $clone ) = @_;
     push @{ $me->{seriesList} }, $dataName unless $me->{$dataName};
-    $me->{$dataName}{ $model->{'~datasetId'} } =
-      $clone;
+    $me->{$dataName}{ $model->{'~datasetId'} } = $clone;
 }
 
 sub tsTables {
@@ -113,30 +113,44 @@ sub tsTables {
         my @runs = @{ $me->{$series} }{ @{ $me->{datasetIdsForRuns} } };
         push @tables,
           Columnset(
-            name          => '',
-            noHeaders     => 1,
-            singleRowName => $series,
-            columns       => \@runs,
+            $runs[0]{rows}
+            ? ( name => $me->{datasetIdsForBaseline}
+                ? "Scenario — $series"
+                : '' )
+            : (
+                name          => '',
+                singleRowName => "$series",
+            ),
+            noHeaders => 1,
+            columns   => \@runs,
           );
         if ( $me->{datasetIdsForBaseline} ) {
             my @baseline =
               @{ $me->{$series} }{ @{ $me->{datasetIdsForBaseline} } };
             push @tables,
               Columnset(
-                name          => '',
-                noHeaders     => 1,
-                singleRowName => "$series (baseline)",
-                columns       => \@baseline,
+                $runs[0]{rows}
+                ? ( name => "Baseline — $series" )
+                : (
+                    name          => '',
+                    singleRowName => "$series (baseline)",
+                ),
+                noHeaders => 1,
+                columns   => \@baseline,
               );
             if (   $runs[0]{defaultFormat}
                 && $runs[0]{defaultFormat} =~ /^0(\.0+)?[a-z]/s )
             {
                 my $dec = $1 // '';
                 push @tables, Columnset(
-                    name          => '',
-                    noHeaders     => 1,
-                    singleRowName => "$series (increment)",
-                    columns       => [
+                    $runs[0]{rows}
+                    ? ( name => "Increment — $series" )
+                    : (
+                        name          => '',
+                        singleRowName => "$series (increment)",
+                    ),
+                    noHeaders => 1,
+                    columns   => [
                         map {
                             Arithmetic(
                                 name          => '',
@@ -151,10 +165,14 @@ sub tsTables {
             }
             else {
                 push @tables, Columnset(
-                    name          => '',
-                    noHeaders     => 1,
-                    singleRowName => "$series (comparison)",
-                    columns       => [
+                    $runs[0]{rows}
+                    ? ( name => "Comparison — $series" )
+                    : (
+                        name          => '',
+                        singleRowName => "$series (comparison)",
+                    ),
+                    noHeaders => 1,
+                    columns   => [
                         map {
                             Arithmetic(
                                 name          => '',
