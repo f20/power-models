@@ -135,7 +135,7 @@ sub worksheetsAndClosures {
       if $model->{table1653};
 
     push @titleClosurePairs,
-      'Volumes' => sub {
+      $model->{semiCompact} ? 'Calc/Volumes' : 'Volumes' => sub {
         my ($wsheet) = @_;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
@@ -146,7 +146,8 @@ sub worksheetsAndClosures {
           $model->{interpolator} ? $model->{interpolator}->columnsets : ();
       };
 
-    push @titleClosurePairs, 'Bands' => sub {
+    push @titleClosurePairs,
+      $model->{semiCompact} ? 'Calc/Bands' : 'Bands' => sub {
         my ($wsheet) = @_;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
@@ -160,7 +161,7 @@ sub worksheetsAndClosures {
       if $model->{bandTables} && @{ $model->{bandTables} };
 
     push @titleClosurePairs,
-      'Costs' => sub {
+      $model->{semiCompact} ? 'Calc/Costs' : 'Costs' => sub {
         my ($wsheet) = @_;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
@@ -173,7 +174,8 @@ sub worksheetsAndClosures {
           $model->{checkTables} ? @{ $model->{checkTables} } : ();
       };
 
-    push @titleClosurePairs, 'Buildup' => sub {
+    push @titleClosurePairs,
+      $model->{semiCompact} ? 'Calc/Buildup' : 'Buildup' => sub {
         my ($wsheet) = @_;
         unless ( $model->{compact} ) {
             $wsheet->freeze_panes( 1, 0 );
@@ -183,7 +185,7 @@ sub worksheetsAndClosures {
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Tariff build-up' ),
           @{ $model->{buildupTables} };
-    };
+      };
 
     push @titleClosurePairs, 'Tariffs' => sub {
         my ($wsheet) = @_;

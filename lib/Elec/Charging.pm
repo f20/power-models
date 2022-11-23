@@ -198,9 +198,14 @@ sub detailedAssets {
         source        => $notionalAssetMatrix,
         defaultFormat => '0soft',
     );
+    ${ $self->{model}{sharingObjectRef} }
+      ->registerNotionalAssets( $self->{model}, $notionalAssetsByUser )
+      if ref $self->{model}{sharingObjectRef}
+      && UNIVERSAL::can( ${ $self->{model}{sharingObjectRef} },
+        'registerNotionalAssets' );
     push @{ $self->{model}{detailedTablesBottom} },
       Columnset(
-        name    => 'Notional assets by ' . ( $flags{userName} || 'user' ),
+        name    => 'Notional assets — ' . ( $flags{userName} || 'user' ),
         columns => [
             $usage->{names} ? Stack( sources => [ $usage->{names} ] ) : (),
             $notionalAssetMatrix, $notionalAssetsByUser,

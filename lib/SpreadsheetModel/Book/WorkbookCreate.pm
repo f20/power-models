@@ -1,6 +1,6 @@
 package SpreadsheetModel::Book::WorkbookCreate;
 
-# Copyright 2008-2021 Franck Latrémolière and others.
+# Copyright 2008-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -88,19 +88,19 @@ sub create {
             if ( defined $tmpDir ) {
                 rmdir $tmpDir or warn "rmdir $tmpDir: $!";
             }
-          }, sub {
+        }, sub {
             my ($mess) = @_;
             eval { decode_utf8 $mess; };
             warn join( ': ', $split[2], $mess );
             push @shortMessages, Carp::shortmess($mess);
             push @longMessages,  Carp::longmess($mess);
-          };
+        };
     };
 
     my ( $stream, $closer, $warner ) = $streamMaker->($fileName);
     local $SIG{__WARN__} = $warner if $warner;
 
-    my $wbook = $module->new($stream);
+    my $wbook   = $module->new($stream);
     my @exports = grep { $settings->{$_} && /^Export/ } keys %$settings;
     my $exporter;
     if (@exports) {
@@ -121,6 +121,7 @@ sub create {
 
         foreach my $i ( 0 .. $#optionArray ) {
             if ( my $dataset = $optionArray[$i]{dataset} ) {
+
                 if ( my $yaml = $dataset->{yaml} )
                 {    # deferred parsing of YAML data
                     my @parsed = YAML::Load($yaml);
@@ -142,9 +143,12 @@ sub create {
                         %$dataset = %{ $parsed[0] };
                     }
                 }
+
+        # how $model->{sourceModels} gets used is a matter for each module
+        # but SpreadsheetModel::Book::DerivativeDatasetMaker provides some tools
                 if ( my $sourceModelsIds =
                     $optionArray[$i]{dataset}{sourceModelsIds} )
-                {
+                {    # construct $model->{sourceModels} using sourceModelsIds
                     my $target = $optionArray[$i];
                     while ( my ( $key, $id ) = each %$sourceModelsIds ) {
                         foreach my $potentialSource (@optionArray) {
@@ -165,7 +169,7 @@ sub create {
                 }
                 elsif ( my $sourceNameMatches =
                     $optionArray[$i]{dataset}{sourceModelsDatasetNameMatches} )
-                {
+                { # construct $model->{sourceModels} using sourceModelsDatasetNameMatches
                     my $target = $optionArray[$i];
                     while ( my ( $key, $sourceNameMatch ) =
                         each %$sourceNameMatches )
@@ -187,64 +191,61 @@ sub create {
                         }
                     }
                 }
-                else {
-                    my @dataLayers =
-                      grep { $_ }
+
+                # flattening of multi-layered datasets
+                my @dataLayers =
+                  grep { $_ }
+                  $optionArray[$i]{illustrative}
+                  ? { usePlaceholderData => $optionArray[$i]{illustrative}, }
+                  : (), $optionArray[$i]{illustrative}
+                  || $dataset && $dataset->{usePlaceholderData}
+                  ? $optionArray[$i]{'~datasetIllustrative'}
+                  : (),
+                  $dataset,
+                  map { $optionArray[$i]{$_} }
+                  qw(dataOverride ~datasetOverride);
+                if ( @dataLayers > 1 ) {
+                    my $comboDataset;
+                    $comboDataset->{usePlaceholderData} =
                       $optionArray[$i]{illustrative}
-                      ? { usePlaceholderData => $optionArray[$i]{illustrative},
-                      }
-                      : (), $optionArray[$i]{illustrative}
-                      || $dataset && $dataset->{usePlaceholderData}
-                      ? $optionArray[$i]{'~datasetIllustrative'}
-                      : (),
-                      $dataset,
-                      map { $optionArray[$i]{$_} }
-                      qw(dataOverride ~datasetOverride);
-                    if ( @dataLayers > 1 ) {
-                        my $comboDataset;
-                        $comboDataset->{usePlaceholderData} =
-                          $optionArray[$i]{illustrative}
-                          if $optionArray[$i]{illustrative};
-                        foreach my $dataLayer (@dataLayers) {
-                            foreach my $override (
-                                ref $dataLayer eq 'ARRAY'
-                                ? @$dataLayer
-                                : $dataLayer
-                              )
-                            {
-                                foreach my $itable ( keys %$override ) {
-                                    if ( 'ARRAY' eq ref $override->{$itable} ) {
-                                        for (
-                                            my $icolumn = 1 ;
-                                            $icolumn <
-                                            @{ $override->{$itable} } ;
-                                            ++$icolumn
+                      if $optionArray[$i]{illustrative};
+                    foreach my $dataLayer (@dataLayers) {
+                        foreach my $override (
+                            ref $dataLayer eq 'ARRAY'
+                            ? @$dataLayer
+                            : $dataLayer
+                          )
+                        {
+                            foreach my $itable ( keys %$override ) {
+                                if ( 'ARRAY' eq ref $override->{$itable} ) {
+                                    for (
+                                        my $icolumn = 1 ;
+                                        $icolumn < @{ $override->{$itable} } ;
+                                        ++$icolumn
+                                      )
+                                    {
+                                        foreach my $irow (
+                                            keys
+                                            %{ $override->{$itable}[$icolumn] }
                                           )
                                         {
-                                            foreach my $irow (
-                                                keys %{
-                                                    $override->{$itable}
-                                                      [$icolumn]
-                                                }
-                                              )
-                                            {
-                                                $comboDataset->{$itable}
-                                                  [$icolumn]{$irow} =
-                                                  $override->{$itable}[$icolumn]
-                                                  {$irow};
-                                            }
+                                            $comboDataset->{$itable}[$icolumn]
+                                              {$irow} =
+                                              $override->{$itable}[$icolumn]
+                                              {$irow};
                                         }
                                     }
-                                    else {
-                                        $comboDataset->{itable} =
-                                          $override->{$itable};
-                                    }
+                                }
+                                else {
+                                    $comboDataset->{itable} =
+                                      $override->{$itable};
                                 }
                             }
                         }
-                        $dataset = $comboDataset;
                     }
+                    $dataset = $comboDataset;
                 }
+
                 $optionArray[$i]{dataset} = $dataset;
             }
         }
@@ -265,7 +266,7 @@ sub create {
         }
         foreach my $optionNumber ( 0 .. $#optionArray ) {
             my $options = $optionArray[$optionNumber];
-            $options->{exporterObject} = undef if $exporter;
+            $options->{exporterObject}   = undef               if $exporter;
             $options->{sharingObjectRef} = \$multiModelSharing if $#optionArray;
             my $model = eval { $options->{PerlModule}->new(%$options) };
             die "\n" . $@ . ( $@ =~ /suitable disclaimer/ ? <<'EOW': '' ) if $@;
@@ -319,7 +320,7 @@ EOW
                     m#(.*)/#  ? $1 . $options->{modelNumberSuffix}
                   : /(.*)\$$/ ? $1
                   :             $_ . $options->{modelNumberSuffix};
-                push @{ $options->{wsheetRunOrder} }, $fullName;
+                push @{ $options->{wsheetRunOrder} },  $fullName;
                 push @{ $wsheetShowOrder[$priority] }, $fullName;
                 $allClosures{$fullName} = $closure;
                 undef $wsheetActive{$fullName}
@@ -366,10 +367,11 @@ EOW
                 $wb2->{findForwardLinks} = 1;
                 my @wsheetsAndClosures2 =
                   $forwardLinkFindingRun[$_]->worksheetsAndClosures($wb2);
-                my %closures2 = @wsheetsAndClosures2;
+                my %closures2   = @wsheetsAndClosures2;
                 my @sheetNames2 = @wsheetsAndClosures2[ grep { !( $_ % 2 ) }
                   0 .. $#wsheetsAndClosures2 ];
-                $wb2->{$_} = $wb2->add_worksheet($_) foreach @sheetNames2;
+                $wb2->{$_} = $wb2->add_worksheet( $sheetDisplayName{$_} )
+                  foreach @sheetNames2;
                 $closures2{$_}->( $wb2->{$_} )
                   foreach grep { !/Overview|Index/i } @sheetNames2;
                 $wb2->close;
@@ -388,7 +390,7 @@ EOW
               rowHeight
               tolerateMisordering
               validation
-            );
+              );
             $wbook->{logger} = $loggers[$_];
 
             foreach ( @{ $options->{wsheetRunOrder} } ) {
@@ -441,7 +443,7 @@ EOW
             # XLS workbooks should be disposed of quickly
             # because they hog file descriptors.
             !$_->isa('Spreadsheet::WriteExcel');
-          } @hazardousWaste,
+        } @hazardousWaste,
         $wbook,
       )
       : $status;
@@ -462,7 +464,7 @@ sub _mergeRulesData {
       dataset
       datasetArray
       ~datasetOverride
-    );
+      );
     my @removed = map { delete $options{$_}; } @keys;
     $options{$_} = '***'
       foreach grep { /^(?:password|\~datasetOverride)$/s; } @keys;

@@ -1,6 +1,6 @@
 package SpreadsheetModel::Book::DerivativeDatasetMaker;
 
-# Copyright 2014-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2014-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -30,17 +30,6 @@ use Spreadsheet::WriteExcel::Utility;
 sub applySourceModelsToDataset {
 
     my ( $self, $model, $sourceModelsMap, $customActionMap ) = @_;
-    my %lastResortDatasets;
-    foreach my $sourceModel ( values %$sourceModelsMap ) {
-        next if $lastResortDatasets{ 0 + $sourceModel };
-        my $m = $sourceModel;
-        my @lastResortDatasets;
-        while ( my $d = $m->{dataset} ) {
-            push @lastResortDatasets, $d;
-            $m = $m->{sourceModel};
-        }
-        $lastResortDatasets{ 0 + $sourceModel } = \@lastResortDatasets;
-    }
 
     my $copyClosure = sub {
         my ($cell) = @_;
@@ -51,15 +40,11 @@ sub applySourceModelsToDataset {
       foreach 'defaultClosure',
       map { /^([0-9]+)/ ? $1 : (); } keys %$sourceModelsMap;
 
-    while ( my ( $theTable, $formulaMaker ) = each %$customActionMap ) {
+    while ( my ( $theTableNo, $formulaMaker ) = each %$customActionMap ) {
 
-        my $theHardData = $model->{dataset}{$theTable};
-        $model->{dataset}{$theTable} = sub {
+        $model->{dataset}{$theTableNo} = sub {
 
-            my ( $table, $wb, $ws ) = @_;
-            my $hardData =
-              $table eq $theTable ? $theHardData : $model->{dataset}{$table};
-            return if ref $hardData eq 'CODE';
+            my ( $tableNo, $wb, $ws ) = @_;
 
             my ( @rows, @columns );
 
@@ -125,60 +110,62 @@ sub applySourceModelsToDataset {
 
             };
 
-            my $sourceModel =
-                 $sourceModelsMap->{$table}
+            my $theSourceModel =
+                 $sourceModelsMap->{$tableNo}
               || $sourceModelsMap->{baseline}
               || $sourceModelsMap->{previous};
             my $sourceTable =
-              { map { $_->{number} => $_; } @{ $sourceModel->{inputTables} } }
-              ->{$table};
+              { map { $_->{number} => $_; }
+                  @{ $theSourceModel->{inputTables} } }->{$tableNo};
             $applySourceTable->($sourceTable) if $sourceTable;
 
             if (
                 my @columnSpecificRules =
-                grep { /^${table}c[0-9]+_?[0-9]*$/ } keys %$sourceModelsMap
+                grep { /^${tableNo}c[0-9]+_?[0-9]*$/ } keys %$sourceModelsMap
               )
             {
                 foreach (@columnSpecificRules) {
-                    /^${table}c([0-9]+)_?([0-9]*)$/;
+                    /^${tableNo}c([0-9]+)_?([0-9]*)$/;
                     my ($sourceTable) =
-                      grep { $_->{number} == $table; }
+                      grep { $_->{number} == $tableNo; }
                       @{ $sourceModelsMap->{$_}{inputTables} };
                     $applySourceTable->( $sourceTable, $1 .. ( $2 || $1 ) )
                       if $sourceTable;
                 }
             }
 
-            map {
-                for ( my $icolumn = 1 ; $icolumn < @$_ ; ++$icolumn ) {
-                    foreach my $irow ( keys %{ $_->[$icolumn] } ) {
-                        $columns[$icolumn]{ @rows == 1 ? $rows[0] : $irow } =
-                          $_->[$icolumn]{$irow};
+            if ( $model->{dataset}
+                && ref( my $hardData = $model->{dataset}{$tableNo} ) eq
+                'ARRAY' )
+            {    # override with our own hard data
+                for ( my $icolumn = 1 ; $icolumn < @$hardData ; ++$icolumn ) {
+                    foreach my $irow ( keys %{ $hardData->[$icolumn] } ) {
+                        $columns[$icolumn]{
+                              @rows == 1
+                            ? $rows[0]
+                            : $irow
+                        } = $_->[$icolumn]{$irow};
                     }
                 }
-              } grep { $_ } $hardData,
-              map    { $_->{$table} }
-              ref $model->{dataOverride} eq 'ARRAY'
-              ? @{ $model->{dataOverride} }
-              : $model->{dataOverride};
+            }
 
-            map {
-                for ( my $icolumn = 1 ; $icolumn < @$_ ; ++$icolumn ) {
-                    foreach my $irow ( keys %{ $_->[$icolumn] } ) {
-                        $columns[$icolumn]{$irow} = $_->[$icolumn]{$irow}
+            if ( $theSourceModel->{dataset}
+                && ref( my $tabData = $theSourceModel->{dataset}{$theTableNo} )
+                eq 'ARRAY' )
+            {    # fill in any gaps with the source model's hard data
+                for ( my $icolumn = 1 ; $icolumn < @$tabData ; ++$icolumn ) {
+                    foreach my $irow ( keys %{ $tabData->[$icolumn] } ) {
+                        $columns[$icolumn]{$irow} = $tabData->[$icolumn]{$irow}
                           unless
                           exists $columns[$icolumn]{'MAGICAL SINGLE ROW NAME'}
                           || exists $columns[$icolumn]{$irow};
                     }
                 }
-              }
-              grep { ref $_ eq 'ARRAY' }
-              map  { $_->{$theTable} }
-              @{ $lastResortDatasets{ 0 + $sourceModel } };
+            }
 
             \@columns;
 
-          }
+        }
 
     }
 

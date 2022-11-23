@@ -71,6 +71,9 @@ sub new {
 
     my $class = shift;
     my $model = bless { inputTables => [], finishList => [], @_ }, $class;
+    ${ $model->{sharingObjectRef} }->registerModel($model)
+      if ref $model->{sharingObjectRef}
+      && UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'registerModel' );
     $model->{dataset}{datasetCallback}->($model)
       if $model->{dataset} && $model->{dataset}{datasetCallback};
     my %serviceMap = $model->serviceMap;

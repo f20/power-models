@@ -27,6 +27,7 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
+use Spreadsheet::WriteExcel::Utility;
 
 sub sheetPriority {
     ( undef, local $_ ) = @_;
@@ -44,6 +45,48 @@ sub new {
     my $me    = bless { @_, }, $class;
     ${ $me->{sharingObjectRef} } = $me if ref $me->{sharingObjectRef};
     $me;
+}
+
+sub registerModel {
+    my ( $harness, $model ) = @_;
+    $harness->{daughterCustomActionMap} ||= {};
+    if (   $model->{'~datasetId'}
+        && $model->{'~datasetId'} eq '_daughter' )
+    {
+        $model->{customActionMap} = $harness->{daughterCustomActionMap};
+    }
+    elsif ($model->{'~datasetId'}
+        && $model->{'~datasetId'} eq '_mother' )
+    {
+        $harness->{motherTable1558Category} = $model->{dataset}{1558}[2];
+    }
+}
+
+sub registerNotionalAssets {
+    my ( $harness, $model, $notionalAssets ) = @_;
+    if (   $model->{'~datasetId'}
+        && $model->{'~datasetId'} eq '_mother'
+        && $harness->{excludedRowsForAssetRunningCosts} )
+    {
+        $harness->{daughterCustomActionMap}{1558} = sub {
+            my ( $cell, $rowName, $col, $wb, $ws, $row ) = @_;
+            return "=$cell"
+              unless $col == 6
+              && $harness->{motherTable1558Category}{$rowName} =~ /running/i;
+            my ( $naws, $naro, $naco ) = $notionalAssets->wsWrite( $wb, $ws );
+            my $prefix = q%'% . $naws->get_name . q%'!%;
+            my $x      = xl_rowcol_to_cell( $naro, $naco, 1, 1 );
+            my $y      = xl_rowcol_to_cell(
+                $naro + $notionalAssets->lastRow -
+                  $harness->{excludedRowsForAssetRunningCosts},
+                $naco, 1, 1
+            );
+            my $z =
+              xl_rowcol_to_cell( $naro + $notionalAssets->lastRow,
+                $naco, 1, 1 );
+            "=SUM($prefix$x:$y)/SUM($prefix$x:$z)*$cell";
+        }
+    }
 }
 
 sub finishMultiModelSharing {
@@ -64,10 +107,10 @@ sub worksheetsAndClosures {
 
     push @nameClosurePairs, 'Time series$' => sub {
         my ($wsheet) = @_;
-        $wsheet->set_column( 0, 0, 42 );
+        $wsheet->set_column( 0, 0,   42 );
         $wsheet->set_column( 1, 255, 13 );
         push @{ $me->{finishClosures} }, sub {
-            $_->wsWrite( $wbook, $wsheet )              foreach  $me->tsTables;
+            $_->wsWrite( $wbook, $wsheet ) foreach $me->tsTables;
         }
       }
       if $me->{timeSeries};

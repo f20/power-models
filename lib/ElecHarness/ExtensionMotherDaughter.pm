@@ -23,40 +23,45 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# This module (pmod -ext=ElecHarness::ExtensionSteps) provides a flexible
-# way of creating waterfall comparison charts between two Elec models.
-
 use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
-use Spreadsheet::WriteExcel::Utility;
 
 sub process {
     my ( $self, $maker, $options ) = @_;
-    $maker->{setting}->( customPicker => \&_customPicker );
-}
-
-sub _customPicker {
-    my ( $addToList,      $datasetsRef,   $rulesetsRef )     = @_;
-    my ( $datasetHarness, $datasetMother, $datasetDaughter ) = @$datasetsRef;
-    my ( $rulesetHarness, $rulesetMother, $rulesetDaughter ) = @$rulesetsRef;
-    my $datasetName = $datasetHarness->{'~datasetName'};
-    $_->{'~datasetName'} = $datasetName
-      foreach $datasetMother, $datasetDaughter;
-    $datasetMother->{modelNumberSuffix}   = '.M';
-    $datasetMother->{modelSheetPriority}  = 100;
-    $datasetDaughter->{modelNumberSuffix} = '.D';
-    $_->{'template'}                      = '%' foreach @$rulesetsRef;
-    my %sourceModelsIds = (
-        '_mother' =>
-          ( $datasetMother->{'~datasetId'} = "_mother $datasetName" ),
-        '_daughter' =>
-          ( $datasetDaughter->{'~datasetId'} = "_daughter $datasetName" ),
+    $maker->{setting}->(
+        customPicker => sub {
+            my ( $addToList, $datasetsRef, $rulesetsRef ) = @_;
+            my ( $datasetHarness, $datasetMother, $datasetDaughter ) =
+              @$datasetsRef;
+            my ( $rulesetHarness, $rulesetMother, $rulesetDaughter ) =
+              @$rulesetsRef;
+            my $datasetName = $datasetHarness->{'~datasetName'};
+            $_->{'~datasetName'} = $datasetName
+              foreach $datasetMother, $datasetDaughter;
+            $datasetMother->{modelNumberSuffix}   = '.M';
+            $datasetMother->{modelSheetPriority}  = 100;
+            $datasetDaughter->{modelNumberSuffix} = '.D';
+            $_->{'template'}                      = '%' foreach @$rulesetsRef;
+            $datasetDaughter->{'~datasetId'}      = '_daughter';
+            $datasetDaughter->{dataset}{sourceModelsIds} =
+              { mother => $datasetMother->{'~datasetId'} = '_mother', };
+            $datasetDaughter->{dataset}{datasetCallback} = sub {
+                my ($model) = @_;
+                require SpreadsheetModel::Book::DerivativeDatasetMaker;
+                SpreadsheetModel::Book::DerivativeDatasetMaker
+                  ->applySourceModelsToDataset(
+                    $model,
+                    { baseline => $model->{sourceModels}{mother} },
+                    $model->{customActionMap}
+                  );
+            };
+            $addToList->( $datasetHarness,  $rulesetHarness );
+            $addToList->( $datasetMother,   $rulesetMother );
+            $addToList->( $datasetDaughter, $rulesetDaughter );
+        }
     );
-    $addToList->( $datasetHarness,  $rulesetHarness );
-    $addToList->( $datasetMother,   $rulesetMother );
-    $addToList->( $datasetDaughter, $rulesetDaughter );
 }
 
 1;
