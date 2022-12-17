@@ -1,7 +1,7 @@
 ﻿package ModelM;
 
 # Copyright 2011 The Competitive Networks Association and others.
-# Copyright 2012-2015 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -44,7 +44,8 @@ sub expenditureAlloc {
 
     my $key = join '&', 'preAllocated?allocLevelset=' . ( 0 + $allocLevelset ),
       'allocationRows=' . ( 0 + $allocationRules->{rows} ),
-      map { defined $model->{$_} ? "$_=$model->{$_}" : (); } qw(dcp117);
+      map { defined $model->{$_} ? "$_=$model->{$_}" : (); }
+      qw(dcp117 dcp306 dcp395);
 
     my $preAllocated = $model->{objects}{$key};
 
@@ -68,8 +69,8 @@ sub expenditureAlloc {
                                       . 'reinforcement (net of contributions)'
                                 ]
                             ),
-                            cols => Labelset( list => ['LV'] ),
-                            data => [ [0] ],
+                            cols          => Labelset( list => ['LV'] ),
+                            data          => [ [0] ],
                             defaultFormat => '0connz',
                         ),
                         $preAllocated
@@ -101,7 +102,7 @@ sub expenditureAlloc {
                             ),
                             cols          => $preAllocated->{cols},
                             defaultFormat => '0hard',
-                            data =>
+                            data          =>
                               [ map { '' } @{ $preAllocated->{cols}{list} } ],
                             number   => 1329,
                             dataset  => $model->{dataset},
@@ -124,7 +125,7 @@ sub expenditureAlloc {
       join '&', 'expenditureAlloc?preAllocated=' . ( 0 + $preAllocated ),
       'allocationRules=' . ( 0 + $allocationRules ),
       'meavPercentages=' . ( 0 + $meavPercentages ),
-      'allocLevelset=' .   ( 0 + $allocLevelset ),
+      'allocLevelset=' . ( 0 + $allocLevelset ),
       $networkLengthPercentages
       ? ( 'networkLengthPercentages=' . ( 0 + $networkLengthPercentages ) )
       : (),
@@ -132,14 +133,45 @@ sub expenditureAlloc {
 
     return @{ $model->{objects}{$key} } if $model->{objects}{$key};
 
-    my $keyAllocatedTotal =
-      'allocatedTotal?preAllocated=' . ( 0 + $preAllocated );
-    my $allocatedTotal = $model->{objects}{$keyAllocatedTotal};
+    my $keyAllocatedTotalExp =
+      'allocatedTotalExp?preAllocated=' . ( 0 + $preAllocated );
+    my ( $allocatedTotal, $expenditureTotal );
+    if ( $model->{objects}{$keyAllocatedTotalExp} ) {
+        ( $allocatedTotal, $expenditureTotal ) =
+          @{ $model->{objects}{$keyAllocatedTotalExp} };
+    }
+    else {
 
-    unless ($allocatedTotal) {
-
-        # Avoid SUMIF across sheets: ugly and not compatible with Numbers.app.
-        $expenditure = Stack( sources => [$expenditure] );
+        if ( $model->{dcp395} ) {
+            $expenditureTotal = Stack(
+                rows => $expenditure->{rows},
+                name => 'Expenditure after DCP 395 adjustment (£/year)',
+                defaultFormat => '0copy',
+                sources       => [
+                    Arithmetic(
+                        name =>
+'Smart meter communications costs in notional 2007/2008 terms',
+                        defaultFormat => '0soft',
+                        rows          => Labelset(
+                            list => [
+'Pass-through Smart Meter Communication Licence Costs'
+                            ]
+                        ),
+                        arithmetic => '=A1*A2/A3',
+                        arguments  => {
+                            A1 => $model->inputSmartMeterCommsCosts,
+                            A2 => $model->inputSmartMeterIndices->{columns}[0],
+                            A3 => $model->inputSmartMeterIndices->{columns}[1],
+                        },
+                    ),
+                    $expenditure
+                ]
+            );
+        }
+        else
+        { # Avoid SUMIF across sheets: ugly and not compatible with Numbers.app.
+            $expenditureTotal = Stack( sources => [$expenditure] );
+        }
 
         $allocatedTotal = GroupBy(
             name          => 'Amounts already allocated',
@@ -149,11 +181,12 @@ sub expenditureAlloc {
         );
 
         Columnset(
-            columns => [ $expenditure, $allocatedTotal ],
+            columns => [ $expenditureTotal, $allocatedTotal ],
             name    => 'Expenditure data',
         );
 
-        $model->{objects}{$keyAllocatedTotal} = $allocatedTotal;
+        $model->{objects}{$keyAllocatedTotalExp} =
+          [ $allocatedTotal, $expenditureTotal ];
 
     }
 
@@ -217,7 +250,7 @@ sub expenditureAlloc {
         arithmetic    => '=IF(A44="Kill",0,A1+(A2-A3)*A5)',
         arguments     => {
             A1  => $preAllocated,
-            A2  => $expenditure,
+            A2  => $expenditureTotal,
             A3  => $allocatedTotal,
             A44 => $allocationRules,
             A5  => $allAllocationPercentages,

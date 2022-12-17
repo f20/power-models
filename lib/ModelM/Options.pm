@@ -1,7 +1,7 @@
 ﻿package ModelM;
 
 # Copyright 2011 The Competitive Networks Association and others.
-# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2022 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -36,14 +36,15 @@ sub allocationRules {
 
     my $key = 'allocationRules?' . join '&',
       map { defined $model->{$_} ? "$_=$model->{$_}" : (); }
-      qw(dcp094 dcp096 dcp097 dcp097A dcp117 dcp306 fixedIndirectPercentage);
+      qw(dcp094 dcp096 dcp097 dcp097A dcp117 dcp306 dcp395 fixedIndirectPercentage);
 
     return $model->{objects}{$key}{columns} if $model->{objects}{$key};
 
     my $expenditureSet = $model->{objects}{
-        $model->{dcp306}
-        ? 'expenditureSet306'
-        : 'expenditureSet'
+        join '',
+        'expenditureSet',
+        $model->{dcp306} ? 306 : (),
+        $model->{dcp395} ? 395 : ()
       }
       ||= Labelset(
         list => [
@@ -85,6 +86,9 @@ END_OF_LIST
             $model->{dcp306}
             ? 'Non activity costs and reconciling amounts - Ofgem licence fees'
             : (),
+            $model->{dcp395}
+            ? 'Pass-through Smart Meter Communication Licence Costs'
+            : (),
         ]
       );
 
@@ -102,10 +106,11 @@ END_OF_LIST
         $model->{dcp097A} || $model->{dcp097}
         ? ( 'LV services', 'MEAV', 'LV services', 'LV services' )
         : ( map { 'MEAV' } 1 .. 4 ),
-        ( map   { 'Do not allocate' } 1 .. 9 ),
+        ( map { 'Do not allocate' } 1 .. 9 ),
         $model->{dcp096} ? 'Deduct from revenue' : 'EHV only',
         ( map { 'Do not allocate' } 1 .. 2 ),
         $model->{dcp306} ? 'LV services' : (),
+        $model->{dcp395} ? 'LV services' : (),
     );
 
     @rules[ 6 .. $#rules ] =
@@ -134,6 +139,7 @@ END_OF_LIST
                   0
                   .577
                   0 0 0 0 0 0 0 0 0 0), $model->{dcp306} ? 0 : (),
+                $model->{dcp395} ? 0 : (),
             ],
             defaultFormat => $model->{multiModelSharing} ? '%hardnz'
             : '%connz',
@@ -157,6 +163,7 @@ END_OF_LIST
                     1,                       # transmission exit
                     ( map { 1 } 1 .. 2 ),    # other costs weirdly marked direct
                     $model->{dcp306} ? 0 : (),    # Ofgem licence fees
+                    $model->{dcp395} ? 0 : (),    # Metering communications
                 ]
             ]
         )

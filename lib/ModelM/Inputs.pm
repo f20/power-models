@@ -39,7 +39,7 @@ sub lvSplit {
           . ' by the Nominated Calculation Agent.'
         : 'DNO-specific LV mains split'
           . ' calculated in accordance with Schedule 16 (paragraph 114).',
-        data => [ [0.1] ],
+        data          => [ [0.1] ],
         defaultFormat => '%hard',
         number        => 1301,
         dataset       => $model->{dataset},
@@ -58,7 +58,7 @@ sub hvSplit {
         name  => 'DNO HV mains usage',
         lines => 'HV mains usage value provided each year'
           . ' by the Nominated Calculation Agent.',
-        data => [ [0.4] ],
+        data          => [ [0.4] ],
         defaultFormat => '%hard',
         number        => 1302,
         dataset       => $model->{dataset},
@@ -179,6 +179,32 @@ sub totalDpcr {
     @columns;
 }
 
+sub inputSmartMeterCommsCosts {
+    my ($model) = @_;
+    $model->{objects}{inputSmartMeterCommsCosts} ||= Dataset(
+        name          => 'Smart meter communications costs (£/year)',
+        defaultFormat => '0hard',
+        data          => [ [0] ],
+        number        => 1336,
+        dataset       => $model->{dataset},
+        appendTo      => $model->{objects}{inputTables},
+    );
+}
+
+sub inputSmartMeterIndices {
+    my ($model) = @_;
+    $model->{objects}{inputSmartMeterIndices} ||= Columnset(
+        name    => 'Price indices',
+        columns => [
+            Dataset( name => 'Index for 2007/2008',    data => [ [100] ], ),
+            Dataset( name => 'Index for current year', data => [ [100] ], ),
+        ],
+        number   => 1339,
+        dataset  => $model->{dataset},
+        appendTo => $model->{objects}{inputTables},
+    );
+}
+
 sub oneYearDpcr {
     my ($model) = @_;
     return @{ $model->{objects}{oneYearDpcr}{columns} }
@@ -271,8 +297,8 @@ sub expenditure {
         number        => 1335,
         rows          => $expenditureSet,
         dataset       => $model->{dataset},
-        appendTo   => $model->{objects}{inputTables},
-        validation => { validate => 'any' },
+        appendTo      => $model->{objects}{inputTables},
+        validation    => { validate => 'any' },
     );
 }
 
