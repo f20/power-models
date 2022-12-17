@@ -373,6 +373,7 @@ sub tariffCalculation361 {
     );
 
     $model->{summaryInformationColumns}[6] = Constant(
+        name => 'Not used',
         rows => $importCapacity->{rows},
         data => [],
     );
@@ -469,6 +470,7 @@ sub tariffCalculation361 {
     );
 
     $model->{summaryInformationColumns}[7] = Constant(
+        name => 'Not used',
         rows => $importCapacity->{rows},
         data => [],
     );
