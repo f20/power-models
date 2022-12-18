@@ -1,0 +1,59 @@
+---
+.: Alternative CDCM from 2022
+.Style: Clean model with checksums
+PerlModule: CDCM
+alwaysUseRAG: 1
+blackPeakingProbabilityRequired: 1
+checksums: Line checksum 5; Table checksum 7
+coincidenceAdj: groupumsdomnondomredonly
+dataOverride:
+  1010:
+    - ~
+    - ~
+    - ~
+    - Financial and general assumptions: 0.453
+  1020:
+    - ~
+    - LV circuits: 200000000
+  1035:
+    - _table: 1035. Use of DNO's LV network by LV-connected embedded networks
+    - LDNO LV Domestic Aggregated: 0.13
+      LDNO LV Domestic Aggregated Related MPAN: 0.13
+      LDNO LV LV Site Specific Band 1: 0.13
+      LDNO LV LV Site Specific Band 2: 0.13
+      LDNO LV LV Site Specific Band 3: 0.13
+      LDNO LV LV Site Specific Band 4: 0.13
+      LDNO LV LV Site Specific No Residual: 0.13
+      LDNO LV Non-Domestic Aggregated Band 1: 0.13
+      LDNO LV Non-Domestic Aggregated Band 2: 0.13
+      LDNO LV Non-Domestic Aggregated Band 3: 0.13
+      LDNO LV Non-Domestic Aggregated Band 4: 0.13
+      LDNO LV Non-Domestic Aggregated No Residual: 0.13
+      LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0.13
+      LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0.13
+      LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0.13
+      LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0.13
+      LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0.13
+      LDNO LV Unmetered Supplies: 0.13
+  1059:
+    - ~
+    - ~
+    - ~
+    - Other expenditure: 0.4
+drm: top500gsp
+extraLevels: 1
+fixedCap: 1-4
+generationReactiveRouteingFix: 1
+matrices: big
+noPCs: 1
+noReplacement: 0.453
+portfolio: 1
+scaler: levelledpickexitnogenminzero
+standing: sub132
+summary: yes
+targetRevenue: dcp334
+tariffNameField: Name268
+tariffSpec: 1
+tariffs: dcp130_omitnhh_offpeakhh_gennoreact_tcrbands
+timeOfDay: timeOfDaySpecial
+unauth: dayotex

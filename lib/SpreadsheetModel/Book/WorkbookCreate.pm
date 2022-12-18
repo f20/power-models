@@ -224,20 +224,14 @@ sub create {
                                         ++$icolumn
                                       )
                                     {
-                                        foreach my $irow (
-                                            keys
-                                            %{ $override->{$itable}[$icolumn] }
-                                          )
-                                        {
-                                            $comboDataset->{$itable}[$icolumn]
-                                              {$irow} =
-                                              $override->{$itable}[$icolumn]
-                                              {$irow};
-                                        }
+                                        $comboDataset->{$itable}[$icolumn]{$_}
+                                          = $override->{$itable}[$icolumn]{$_}
+                                          foreach keys
+                                          %{ $override->{$itable}[$icolumn] };
                                     }
                                 }
                                 else {
-                                    $comboDataset->{itable} =
+                                    $comboDataset->{$itable} =
                                       $override->{$itable};
                                 }
                             }
