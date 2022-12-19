@@ -96,7 +96,7 @@ sub process {
 
                 $addToList->( $datasetsByDno{$dno}[1], $rulesetsRef->[0] );
 
-                my @tableAccumulator     = (1300);
+                my @tableAccumulator     = ();
                 my %remainingRuleChanges = %allRuleChanges;
 
                 foreach (@hybridisationRules) {
@@ -112,7 +112,6 @@ sub process {
                               . " ($hybridNickname)",
                             dataset => {
                                 1300 => [
-                                    {},
                                     {},
                                     {},
                                     {

@@ -38,7 +38,7 @@ sub new {
 sub addModelIdentificationCells {
     my ( $me, @cells ) = @_;
     push @{ $me->{modelNames} }, $me->{waterfalls}
-      ? qq%=$cells[2]%
+      ? qq%=$cells[1]%
       : qq%=$cells[0]&" "&$cells[1]&" "&$cells[2]%;
     $me->{waterfallIdentificationCells} = [ @cells[ 0, 1 ] ];
 }
@@ -65,7 +65,7 @@ sub worksheetsAndClosuresWithController {
             model     => $model,
             copyright => 'Copyright 2009-2012 The Competitive Networks'
               . ' Association and others. '
-              . 'Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.',
+              . 'Copyright 2012-2022 Franck Latrémolière and others.',
         );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Controller' ), $noticeMaker->extraNotes,
