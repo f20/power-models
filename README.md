@@ -42,7 +42,7 @@ Step 3. Install any missing modules.
 Change directory to the root of the extraction folder or repository, and
 try these sample commands:
 
-    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles('models/Samplers/FormatSampler.yml')"
+    perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory->runAllWithFiles('models/Other/Formats sampler.yml')"
 
     perl -Icpan -Ilib -MSpreadsheetModel::Book::Manufacturing -e "SpreadsheetModel::Book::Manufacturing->factory(validate=>['lib'])->runAllWithFiles('models/CDCM/2017-02-Baseline/%-extras227.yml','models/CDCM/2017-02/SPEN-SPM.yml')"
 
@@ -75,4 +75,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 14 December 2021.
+Franck Latrémolière, 2 January 2023.
