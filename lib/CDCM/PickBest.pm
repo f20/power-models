@@ -1,6 +1,6 @@
 ﻿package CDCM::PickBest;
 
-# Copyright 2012-2020 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -39,7 +39,8 @@ sub score {
     # DCP 132 and DCP 249
     $score += 10
       if $rule->{targetRevenue}
-      && $rule->{targetRevenue} =~ /dcp132|dcp249/i xor $month lt '2012-03';
+      && $rule->{targetRevenue} =~ /dcp132|dcp249/i
+      xor $month lt '2012-03';
 
     # DCP 163
     $score += 10 if $rule->{tariffs} =~ /dcp163/i xor $month lt '2013-03';
@@ -59,17 +60,20 @@ sub score {
     # DCP 227
     $score += 10
       if $rule->{agghhequalisation}
-      && $rule->{agghhequalisation} =~ /rag/i xor $month lt '2016-03';
+      && $rule->{agghhequalisation} =~ /rag/i
+      xor $month lt '2016-03';
 
     # DCP 161
     $score += 10
       if $rule->{unauth}
-      && $rule->{unauth} =~ /dayotex/i xor $month lt '2017-03';
+      && $rule->{unauth} =~ /dayotex/i
+      xor $month lt '2017-03';
 
     # DCP 249
     $score += 1
       if $rule->{targetRevenue}
-      && $rule->{targetRevenue} =~ /dcp249/i xor $month lt '2017-10';
+      && $rule->{targetRevenue} =~ /dcp249/i
+      xor $month lt '2017-10';
 
     # Otnei
     $score += 1 if $rule->{lvDiversityWrong} xor $month lt '2019-10';
@@ -79,7 +83,12 @@ sub score {
     # DCP 268
     $score += 100
       if $rule->{coincidenceAdj}
-      && $rule->{coincidenceAdj} =~ /groupdcp268/i xor $month lt '2020-03';
+      && $rule->{coincidenceAdj} =~ /groupdcp268/i
+      xor $month lt '2020-03';
+
+    # DCP 361
+    $score += 40
+      if $rule->{scaler} && $rule->{scaler} =~ /tcr/i xor $month lt '2021-10';
 
     $score;
 

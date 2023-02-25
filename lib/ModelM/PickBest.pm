@@ -1,6 +1,6 @@
 package ModelM::PickBest;
 
-# Copyright 2012-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -61,6 +61,9 @@ sub score {
 
     # DCP 306
     $score += 40 if $rule->{dcp306} xor $month lt '2019-10';
+
+    # DCP 395
+    $score += 40 if $rule->{dcp395} xor $month lt '2023-10';
 
     $score;
 

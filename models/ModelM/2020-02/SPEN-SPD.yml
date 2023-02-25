@@ -5,7 +5,7 @@
     _column: Company
   - Company charging year data version: 2020/2021
     _column: Year
-  - Company charging year data version: December 2018
+  - Company charging year data version: December 2018 (not right, missing from website)
     _column: Version
   - Company charging year data version: This dataset tries to approximate the December 2018 price notice for 2020/2021 when used with a suitable model.
 1301:

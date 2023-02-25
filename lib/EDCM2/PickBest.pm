@@ -1,6 +1,6 @@
 package EDCM2::PickBest;
 
-# Copyright 2012-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -49,6 +49,8 @@ sub score {
 
     # DCP 161
     $score += 100 if $rule->{dcp161} xor $month lt '2017-10';
+
+    # Post-2018 changes not reflected here
 
     0
       and warn join ' ', $rule->{nickName} || $rule->{'.'} || $rule, $month,

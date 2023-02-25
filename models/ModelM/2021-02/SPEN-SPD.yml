@@ -5,12 +5,13 @@
     _column: Company
   - Company charging year data version: 2021/2022
     _column: Year
-  - Company charging year data version: December 2019
+  - Company charging year data version: 'December 2019 (not right, missing from website)'
     _column: Version
 1301:
   - _table: 1301. DNO LV mains usage
-  - DNO LV mains usage: 0.005
+  - DNO LV mains usage: 0.0075
     _column: DNO LV mains usage
+  - DNO LV mains usage: Reverse engineered
 1302:
   - _table: 1302. DNO HV mains usage
   - DNO HV mains usage: 0.851567713038935
@@ -203,26 +204,26 @@
     _column: 132kV circuits
   - Assets in CDCM model: 0
     _column: 132kV/EHV
-  - Assets in CDCM model: 767175477.637052
+  - Assets in CDCM model: 741437229.160009
     _column: EHV circuits
-  - Assets in CDCM model: 221356749.732534
+  - Assets in CDCM model: 217794474.195379
     _column: EHV/HV
   - Assets in CDCM model: 0
     _column: 132kV/HV
-  - Assets in CDCM model: 963235844.886335
+  - Assets in CDCM model: 957796813.409613
     _column: HV circuits
-  - Assets in CDCM model: 212435865.851648
+  - Assets in CDCM model: 211314718.686302
     _column: HV/LV
-  - Assets in CDCM model: 294214412.953773
+  - Assets in CDCM model: 288438659.833837
     _column: LV circuits
-  - Assets in CDCM model: 836148073.557474
+  - Assets in CDCM model: 838729811.882282
     _column: LV customer
-  - Assets in CDCM model: 18445498.9913423
+  - Assets in CDCM model: 18640337.1177587
     _column: HV customer
   - Assets in CDCM model: From CDCM model
 1332:
   - _table: 1332. All notional assets in EDCM (£)
-  - All notional assets in EDCM: 254000000
+  - All notional assets in EDCM: 270500000
     _column: All notional assets in EDCM (£)
   - All notional assets in EDCM: Reverse engineered
 1335:

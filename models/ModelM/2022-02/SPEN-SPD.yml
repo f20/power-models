@@ -5,7 +5,7 @@
     _column: Company
   - Company charging year data version: 2022/2023
     _column: Year
-  - Company charging year data version: December 2020
+  - Company charging year data version: December 2020 (not right, missing from website)
     _column: Version
 1301:
   - _table: 1301. DNO LV mains usage
