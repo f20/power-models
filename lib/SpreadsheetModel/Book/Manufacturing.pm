@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Book::Manufacturing;
 
-# Copyright 2011-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@ use File::Spec::Functions qw(catfile);
 
 sub factory {
     my ( $class, @factorySettings ) = @_;
-    my $self = bless {}, $class;
+    my $self     = bless {}, $class;
     my $settings = {@factorySettings};
     my ( @rulesets, @datasets, %dataByDatasetName, %ruleOverrides,
         %dataOverrides, %rulesDataSettings, %finalRulesDataSettings );
@@ -119,7 +119,10 @@ sub factory {
         while (@objects) {
             local $_ = shift @objects;
             next unless ref $_ eq 'HASH';
-            if ( defined $_->{template} ) {
+            if ( keys %$_ == 1 && $_->{rulesOverrides} ) {
+                $self->{setRule}->( %{ $_->{rulesOverrides} } );
+            }
+            elsif ( defined $_->{template} ) {
                 push @rulesets, $_;
                 if ( $_->{template} eq '%' ) {
                     $singleRuleset = $_;
@@ -170,7 +173,7 @@ sub factory {
                                         require
                                           SpreadsheetModel::Book::Validation;
                                         SpreadsheetModel::Book::Validation::digestMachine(
-                                          )->add( Encode::encode_utf8($blob) )
+                                        )->add( Encode::encode_utf8($blob) )
                                           ->hexdigest;
                                     }
                                       || 'Digest not working',
@@ -225,7 +228,7 @@ sub factory {
         $addFile->( catfile( $path, $_ ) )
           foreach grep { !/^\./s; } readdir $dirh;
         closedir $dirh;
-        $path = $1 if $path =~ m#([^/\\]+)#si;
+        $path     = $1 if $path =~ m#([^/\\]+)#si;
         @datasets = (
             @datasetsStored,
             {
@@ -262,7 +265,7 @@ sub factory {
                   unless _loadModules( $_,
                     $_->{PerlModule}->requiredModulesForRuleset($_) );
             }
-            $_->{protect} = 1 unless exists $_->{protect};
+            $_->{protect}    = 1 unless exists $_->{protect};
             $_->{validation} = 'lenientnomsg'
               unless exists $_->{validation};
         }
@@ -287,7 +290,7 @@ sub factory {
             delete @{$_}{ 'revisionText', grep { /^\./s } keys %$_ };
             my $template = delete $_->{template};
             $_->{revisionText} = $db->revisionText( Dump($_) ) if $db;
-            $_->{template} = $template if defined $template;
+            $_->{template}     = $template if defined $template;
         }
 
         @rulesets;
@@ -382,7 +385,7 @@ sub factory {
                 my $heap = $byDatasetName{$name};
                 push @datasets,
                   {
-                    '~datasetName' => $name,
+                    '~datasetName'   => $name,
                     '~datasetSource' =>
                       [ map { $_->{'~datasetSource'}; } @$heap ],
                     dataset => {
