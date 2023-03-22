@@ -394,7 +394,7 @@ sub makeStatisticsTables {
             push @tariffList, $row;
             $mapping{$row} = [ $uid, $tid, $#tariffList ];
             if ( $tariff =~ /^(?:LD|Q)NO ([^:]+): (.+)/ ) {
-                $margins{$1}{"$short ($2)"} = $row;
+                $margins{$1}{"$short @ $2"} = $row;
             }
         }
         push @groupList, Labelset( name => $user, list => \@tariffList );
