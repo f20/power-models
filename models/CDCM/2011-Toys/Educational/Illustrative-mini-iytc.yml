@@ -283,8 +283,3 @@
   - Domestic Unrestricted: 2000000
     _column: MPANs
   - Domestic Unrestricted: ''
-3701:
-  - _table: 3701. Tariffs
-  - _column: Unit rate 1 p/kWh
-  - _column: Fixed charge p/MPAN/day
-  - Domestic Unrestricted: ''
