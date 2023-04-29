@@ -5,7 +5,7 @@
     _column: Company
   - Company charging year data version: 2022/2023
     _column: Year
-  - Company charging year data version: December 2020
+  - Company charging year data version: February 2022
     _column: Version
 1001:
   - _table: 1001. CDCM target revenue (£ unless otherwise stated)
@@ -169,7 +169,7 @@
     Pass-through Ring Fence Costs: 0
     Pass-through Smart Meter Communication Licence Costs: 1551177.4646782
     Pass-through Smart Meter IT Costs: -86687.9459929462
-    Pass-through Supplier of Last Resort Adjustment: 589743.635568692
+    Pass-through Supplier of Last Resort Adjustment: 79919237.9155687
     Price index adjustment RPI index: 1.277
     Quality of Service incentive: 18498272.4551671
     RPI True-up before inflation: -2752635.84219143
