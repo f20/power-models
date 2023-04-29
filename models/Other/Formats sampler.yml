@@ -1,11 +1,11 @@
 ---
 PerlModule: Sampler
-showColourCode: 1
-showColourMatrix: 1
-showNumFormatColours: 1
+showColourCode: 0
+showColourMatrix: 0
+showNumFormatColours: 0
 template: Workbook formats sampler
 ---
 PerlModule: Sampler
 gridlines: 1
-showNumFormatColours: 1
+showNumFormatColours: 0
 template: Workbook formats sampler with gridlines

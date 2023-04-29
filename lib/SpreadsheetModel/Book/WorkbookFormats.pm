@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Book::WorkbookFormats;
 
-# Copyright 2008-2021 Franck Latrémolière and others.
+# Copyright 2008-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -142,11 +142,12 @@ sub setFormats {
       $options->{colour} && $options->{colour} =~ /nocolour|striped/i;
     my $defaultColours =
       $noColour || $options->{colour} && $options->{colour} =~ /default/i;
+    my $darkerBackgrounds = $options->{darkerBackgrounds};
     my $orangeColours = $options->{colour} && $options->{colour} =~ /orange/i;
     my $goldColours   = $options->{colour} && $options->{colour} =~ /gold/i;
     my $borderColour  = $options->{colour} && $options->{colour} =~ /border/i;
     my $textColour    = $options->{colour} && $options->{colour} =~ /text/i;
-    my $backgroundColour = !$borderColour && !$textColour;
+    my $backgroundColour = !$borderColour  && !$textColour;
 
     my $boldHeadings =
       $options->{colour} && $options->{colour} =~ /bold|orange/i;
@@ -163,47 +164,58 @@ sub setFormats {
             $workbook->set_custom_color( BGORANGE, '#ffcc99' );
         }
         else {
-            $workbook->set_custom_color( BGPURPLE, '#eeddff' );
+            $workbook->set_custom_color( BGPURPLE,
+                $darkerBackgrounds ? '#eeddff' : '#f7eeff' );
             $workbook->set_custom_color( LTPURPLE, '#fbf8ff' );
         }
-        $workbook->set_custom_color( BGPINK,   '#ffccff' );
-        $workbook->set_custom_color( BGYELLOW, '#ffffcc' );
-        $workbook->set_custom_color( ORANGE,   '#ff6633' );
-        $workbook->set_custom_color( BLUE,     '#0066cc' );
-        $workbook->set_custom_color( GREY,     '#999999' );
-        $workbook->set_custom_color( SILVER,   '#e9e9e9' );
+        $workbook->set_custom_color( BGBLUE, '#eeffff' )
+          unless $darkerBackgrounds;
+        $workbook->set_custom_color( BGGREEN, '#eeffee' )
+          unless $darkerBackgrounds;
+        $workbook->set_custom_color( BGYELLOW,
+            $darkerBackgrounds ? '#ffffcc' : '#ffffee' );
+        $workbook->set_custom_color( SILVER,
+            $darkerBackgrounds ? '#e9e9e9' : '#f4f4f4' );
+        $workbook->set_custom_color( BGPINK, '#ffccff' );
+        $workbook->set_custom_color( ORANGE, '#ff6633' );
+        $workbook->set_custom_color( BLUE,   '#0066cc' );
+        $workbook->set_custom_color( GREY,   '#999999' );
     }
 
-    my $q3 = $options->{alignment} ? '?,' : '??,???,';
-    my $q4 = $options->{alignment} ? '?,' : '??,';
-    my $cyan = $backgroundColour && !$options->{noCyanText} ? '[Cyan]' : '';
-    my $black = $backgroundColour ? '[Black]' : '';
+    my $q3    = $options->{alignment}                        ? '?,' : '??,???,';
+    my $q4    = $options->{alignment}                        ? '?,' : '??,';
+    my $cyan  = $backgroundColour && !$options->{noCyanText} ? '[Cyan]'  : '';
+    my $black = $backgroundColour                            ? '[Black]' : '';
+    my $positiveCol = '[Blue]';
+    my $negativeCol = '[Magenta]';
     my $rightpad;
     $rightpad = '_)' x ( $1 || 2 )
       if $options->{alignment} && $options->{alignment} =~ /right.*?([0-9]*)/;
 
     my @alignText = $options->{alignText}
       && $options->{alignText} =~ /general/i ? () : ( align => 'left' );
-    my $plus  = '[Blue]_-+';
-    my $minus = '[Red]_+-';
+    my $plus  = $positiveCol . '_-+';
+    my $minus = $negativeCol . '_+-';
     my $same  = $rightpad ? "[Green]=_)$rightpad" : '[Green]=';
 
-    my $num_general      = '[Black]General';
-    my $num_text         = '[Blue]General;[Red]-General;;[Black]@';
-    my $num_textonly     = '[Black]General;[Black]-General;;[Black]@';
+    my $num_general  = '[Black]General';
+    my $num_text     = "${positiveCol}General;${negativeCol}-General;;[Black]@";
+    my $num_textonly = '[Black]General;[Black]-General;;[Black]@';
     my $num_textonlycopy = '[Black]General;[Black]-General;;[Black]@';
-    my $num_mpan         = "${black}00 0000 0000 000;[Red]-General;;$cyan@";
+    my $num_mpan = "${black}00 0000 0000 000;${negativeCol}-General;;$cyan@";
 
     my @num_percent =
       $rightpad
       ? (
-        num_format => "${black}#,##0.00%_)$rightpad;[Red](#,##0.00%)$rightpad"
+        num_format =>
+          "${black}#,##0.00%_)$rightpad;${negativeCol}(#,##0.00%)$rightpad"
           . ";;$cyan\@$rightpad",
         align => 'right'
       )
       : (
-        num_format => "${black} _(??,??0.00%_);[Red] (??,??0.00%);;$cyan@",
-        align      => 'center'
+        num_format =>
+          "${black} _(??,??0.00%_);${negativeCol} (??,??0.00%);;$cyan@",
+        align => 'center'
       );
     my @num_percentpm =
       $rightpad
@@ -220,68 +232,69 @@ sub setFormats {
       $rightpad
       ? (
         num_format => qq'${black}_(#,##0.0,,"m"_)$rightpad;'
-          . qq'[Red](#,##0.0,,"m")$rightpad;;$cyan\@$rightpad',
+          . qq'${negativeCol}(#,##0.0,,"m")$rightpad;;$cyan\@$rightpad',
         align => 'right'
       )
       : (
         num_format =>
-          qq'${black} _(?,??0.0,,"m"_);[Red] (?,??0.0,,"m");;$cyan@',
+          qq'${black} _(?,??0.0,,"m"_);${negativeCol} (?,??0.0,,"m");;$cyan@',
         align => 'center'
       );
     my @num_date =
       $rightpad
       ? (
         num_format => qq'${black}d mmm yyyy$rightpad;'
-          . qq'[Red]-General$rightpad;;$cyan\@$rightpad',
+          . qq'${negativeCol}-General$rightpad;;$cyan\@$rightpad',
         align => 'right'
       )
       : (
-        num_format => qq'${black}d mmm yyyy;[Red]-General;;$cyan@',
+        num_format => qq'${black}d mmm yyyy;${negativeCol}-General;;$cyan@',
         align      => 'center'
       );
     my @num_datetime =
       $rightpad
       ? (
         num_format =>
-          qq'${black}ddd d mmm yyyy HH:mm;[Red]-General;;$cyan\@$rightpad',
+qq'${black}ddd d mmm yyyy HH:mm;${negativeCol}-General;;$cyan\@$rightpad',
         align => 'right'
       )
       : (
         num_format =>
-          qq'${black}ddd d mmm yyyy  HH:mm  ;[Red]-General  ;;$cyan@',
+          qq'${black}ddd d mmm yyyy  HH:mm  ;${negativeCol}-General  ;;$cyan@',
         align => 'right'
       );
     my @num_time =
       $rightpad
       ? (
         num_format => qq'${black}[hh]:mm$rightpad;'
-          . qq'[Red]-General$rightpad;${black}[hh]:mm$rightpad;$cyan\@$rightpad',
+          . qq'${negativeCol}-General$rightpad;${black}[hh]:mm$rightpad;$cyan\@$rightpad',
         align => 'right'
       )
       : (
-        num_format => qq'${black}[hh]:mm;[Red]-General;${black}[hh]:mm;$cyan@',
-        align      => 'center'
+        num_format =>
+          qq'${black}[hh]:mm;${negativeCol}-General;${black}[hh]:mm;$cyan@',
+        align => 'center'
       );
     my @num_monthday =
       $rightpad
       ? (
         num_format => qq'${black}mmmm d$rightpad;'
-          . qq'[Red]-General$rightpad;;$cyan\@$rightpad',
+          . qq'${negativeCol}-General$rightpad;;$cyan\@$rightpad',
         align => 'right'
       )
       : (
-        num_format => qq'${black}mmmm d;[Red]-General;;$cyan@',
+        num_format => qq'${black}mmmm d;${negativeCol}-General;;$cyan@',
         align      => 'center'
       );
     my @num_ =
       $rightpad
       ? (
         num_format =>
-          "${black}#,##0_)$rightpad;[Red](#,##0)$rightpad;;$cyan\@$rightpad",
+"${black}#,##0_)$rightpad;${negativeCol}(#,##0)$rightpad;;$cyan\@$rightpad",
         align => 'right'
       )
       : (
-        num_format => "${black} _(?$q3??0_);[Red] (?$q3??0);;$cyan@",
+        num_format => "${black} _(?$q3??0_);${negativeCol} (?$q3??0);;$cyan@",
         align      => 'center'
       );
     my @num_pm =
@@ -298,13 +311,15 @@ sub setFormats {
     my @num_0 =
       $rightpad
       ? (
-        num_format => "${black}#,##0.0_)$rightpad;[Red](#,##0.0)$rightpad"
+        num_format =>
+          "${black}#,##0.0_)$rightpad;${negativeCol}(#,##0.0)$rightpad"
           . ";;$cyan\@$rightpad",
         align => 'right'
       )
       : (
-        num_format => "${black} _(?$q4??0.0_);[Red] (?$q4??0.0);;$cyan@",
-        align      => 'center'
+        num_format =>
+          "${black} _(?$q4??0.0_);${negativeCol} (?$q4??0.0);;$cyan@",
+        align => 'center'
       );
     my @num_0pm =
       $rightpad
@@ -320,13 +335,15 @@ sub setFormats {
     my @num_00 =
       $rightpad
       ? (
-        num_format => "${black}#,##0.00_)$rightpad;[Red](#,##0.00)$rightpad"
+        num_format =>
+          "${black}#,##0.00_)$rightpad;${negativeCol}(#,##0.00)$rightpad"
           . ";;$cyan\@$rightpad",
         align => 'right'
       )
       : (
-        num_format => "${black} _(?$q4??0.00_);[Red] (?$q4??0.00);;$cyan@",
-        align      => 'center'
+        num_format =>
+          "${black} _(?$q4??0.00_);${negativeCol} (?$q4??0.00);;$cyan@",
+        align => 'center'
       );
     my @num_00pm =
       $rightpad
@@ -342,13 +359,15 @@ sub setFormats {
     my @num_000 =
       $rightpad
       ? (
-        num_format => "${black}#,##0.000_)$rightpad;[Red](#,##0.000)$rightpad"
+        num_format =>
+          "${black}#,##0.000_)$rightpad;${negativeCol}(#,##0.000)$rightpad"
           . ";;$cyan\@$rightpad",
         align => 'right'
       )
       : (
-        num_format => "${black} _(?$q4??0.000_);[Red] (?$q4??0.000);;$cyan@",
-        align      => 'center'
+        num_format =>
+          "${black} _(?$q4??0.000_);${negativeCol} (?$q4??0.000);;$cyan@",
+        align => 'center'
       );
     my @num_000pm =
       $rightpad
@@ -365,13 +384,13 @@ sub setFormats {
       $rightpad
       ? (
         num_format =>
-          "${black}#,##0.00000_)$rightpad;[Red](#,##0.00000)$rightpad"
+          "${black}#,##0.00000_)$rightpad;${negativeCol}(#,##0.00000)$rightpad"
           . ";;$cyan\@$rightpad",
         align => 'right'
       )
       : (
         num_format =>
-          "${black} _(?$q4??0.00000_);[Red] (?$q4??0.00000);;$cyan@",
+          "${black} _(?$q4??0.00000_);${negativeCol} (?$q4??0.00000);;$cyan@",
         align => 'center'
       );
     my @num_quad =
@@ -390,18 +409,18 @@ sub setFormats {
       $noColour
       ? ( bottom => 1 )
       : (
-        $options->{gridlines} ? ( border => 7 ) : (),
+        $options->{gridlines}                        ? ( border => 7 ) : (),
         $backgroundColour && !$options->{noCyanText} ? ( color => MAGENTA ) : ()
       );
     my @cCon = (
         locked => 1,
         $noColour ? ( bottom => 1, border_color => GREY )
         : (
-            $options->{gridlines} ? ( border => 7 ) : (),
-            $backgroundColour ? ( bg_color => SILVER, @cDefault, )
+            $options->{gridlines} ? ( border   => 7 ) : (),
+            $backgroundColour     ? ( bg_color => SILVER, @cDefault, )
             : (
                 $borderColour ? ( border => 1, border_color => GREY ) : (),
-                $textColour ? ( color => GREY ) : (),
+                $textColour   ? ( color  => GREY )                    : (),
             )
         )
     );
@@ -409,11 +428,11 @@ sub setFormats {
         locked => 1,
         $noColour ? ( bottom => 3 )
         : (
-            $options->{gridlines} ? ( border => 7 ) : (),
-            $backgroundColour ? ( bg_color => BGGREEN, @cDefault, )
+            $options->{gridlines} ? ( border   => 7 ) : (),
+            $backgroundColour     ? ( bg_color => BGGREEN, @cDefault, )
             : (
                 $borderColour ? ( border => 1, border_color => GREEN ) : (),
-                $textColour ? ( color => GREEN ) : (),
+                $textColour   ? ( color  => GREEN )                    : (),
             )
         )
     );
@@ -421,11 +440,11 @@ sub setFormats {
         locked => 0,
         $noColour ? ( bottom => 2 )
         : (
-            $options->{gridlines} ? ( border => 7 ) : (),
-            $backgroundColour ? ( bg_color => BGBLUE, @cDefault, )
+            $options->{gridlines} ? ( border   => 7 ) : (),
+            $backgroundColour     ? ( bg_color => BGBLUE, @cDefault, )
             : (
                 $borderColour ? ( border => 1, border_color => BLUE ) : (),
-                $textColour ? ( color => BLUE ) : (),
+                $textColour   ? ( color  => BLUE )                    : (),
             )
         )
     );
@@ -433,8 +452,8 @@ sub setFormats {
         locked => 1,
         $noColour ? ( bottom => 1 )
         : (
-            $options->{gridlines} ? ( border => 7 ) : (),
-            $backgroundColour ? ( bg_color => BGYELLOW, @cDefault, )
+            $options->{gridlines} ? ( border   => 7 ) : (),
+            $backgroundColour     ? ( bg_color => BGYELLOW, @cDefault, )
             : (
                 $borderColour ? ( border => 1, border_color => EXCELCOL11 )
                 : (),
@@ -450,7 +469,8 @@ sub setFormats {
             !$backgroundColour ? ()
             : $orangeColours
             ? ( bottom => 3, top => 3, border_color => PURPLE, )
-            : ( bg_color => LTPURPLE )
+            : 1 ? ()
+            :     ( bg_color => LTPURPLE )
         )
     );
     my @cHeader = (
@@ -483,8 +503,10 @@ sub setFormats {
         ? ( fg_color => SILVER, bg_color => WHITE, pattern => 15, )
         : ( right => 4, border_color => GREY )
       );
-    my @cCaption =
-      ( locked => 1, $noColour || $backgroundColour ? () : ( color => BLUE ) );
+    my @cCaption = (
+        locked => 1,
+        $noColour || $backgroundColour ? () : ( color => BLUE )
+    );
     my @cTitle = (
         locked => 1,
         $noColour || $backgroundColour ? () : ( color => ORANGE )
@@ -857,7 +879,8 @@ sub setFormats {
         'tarhard' => [
             @sNumber,
             align      => 'left',
-            num_format => '[Black]\T\a\r\i\f\f\ 0;[Red]-0;;[Cyan]@',
+            num_format =>
+              "[Black]\\T\\a\\r\\i\\f\\f\\ 0;${negativeCol}-0;;[Cyan]@",
             @cHard,
         ],
         'unavailable' => [
@@ -908,28 +931,28 @@ sub setFormats {
             bottom_color => 8,
         ],
         blue => [
-            color => $orangeColours ? BGORANGE : BGPURPLE,
-            size => 13,
+            color    => $orangeColours ? BGORANGE : BGPURPLE,
+            size     => 13,
             bg_color => BLUE,
         ],
         red => [
-            color => $orangeColours ? BGORANGE : BGPURPLE,
-            size => 13,
+            color    => $orangeColours ? BGORANGE : BGPURPLE,
+            size     => 13,
             bg_color => RED,
         ],
         algae => [
-            color => $orangeColours ? BGORANGE : BGPURPLE,
-            size => 13,
+            color    => $orangeColours ? BGORANGE : BGPURPLE,
+            size     => 13,
             bg_color => EXCELCOL13,
         ],
         purple => [
-            color => $orangeColours ? BGORANGE : BGPURPLE,
-            size => 13,
+            color    => $orangeColours ? BGORANGE : BGPURPLE,
+            size     => 13,
             bg_color => PURPLE,
         ],
         slime => [
-            color => $orangeColours ? BGORANGE : BGPURPLE,
-            size => 13,
+            color    => $orangeColours ? BGORANGE : BGPURPLE,
+            size     => 13,
             bg_color => EXCELCOL11,
         ],
     };
