@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -290,6 +290,13 @@ sub pcdPreprocessedVolumes {
                 A5 => $daysAfter,
             },
           );
+        push @{ $model->{edcmTables} },
+          Stack(
+            name    => 'EDCM input data ⇒1183. Fixed charge adder (p/MPAN/day)',
+            rows    => $applicationRules[0]{rows},
+            sources =>
+              [ $model->{pcd}{preRoundingFiddles}{'Fixed charge p/MPAN/day'} ]
+          ) if $model->{edcmTables};
     }
 
     if ( $model->{inYear} ) {
@@ -406,9 +413,10 @@ sub pcdApplyDiscounts {
 
     push @{ $model->{edcmTables} },
       Columnset(
-        name          => 'EDCM input data ⇒1182. CDCM end user tariffs',
+        name => 'EDCM input data ⇒1182. CDCM end user'
+          . ' tariffs excluding undiscountable elements',
         singleRowName => 'CDCM end user tariffs',
-        columns =>
+        columns       =>
           [ map { Stack( sources => [$_] ); } @{ $model->{allTariffColumns} } ]
       ) if $model->{edcmTables};
 
@@ -436,7 +444,7 @@ sub pcdApplyDiscounts {
             dataset            => $model->{dataset},
             data               => [ map { '' } @{ $allTariffs->{list} } ],
             usePlaceholderData => 1,
-            validation =>
+            validation         =>
               {    # some validation is needed to enable lenient locking
                 validate => 'decimal',
                 criteria => 'between',
@@ -463,14 +471,14 @@ sub pcdApplyDiscounts {
     elsif ( $model->{fiddle} ) {
         my @fiddles = map {
             Dataset(
-                name          => $_,
-                rows          => $allTariffs,
-                rowFormats    => $rowFormats{$_},
-                cols          => $tariffTable->{$_}{cols},
-                defaultFormat => /day/ ? '0.00hardpm' : '0.000hardpm',
+                name               => $_,
+                rows               => $allTariffs,
+                rowFormats         => $rowFormats{$_},
+                cols               => $tariffTable->{$_}{cols},
+                defaultFormat      => /day/ ? '0.00hardpm' : '0.000hardpm',
                 data               => [ map { 0; } @{ $allTariffs->{list} } ],
                 usePlaceholderData => 1,
-                validation =>
+                validation         =>
                   {    # some validation is needed to enable lenient locking
                     validate => 'decimal',
                     criteria => 'between',
