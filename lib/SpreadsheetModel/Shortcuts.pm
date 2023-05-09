@@ -28,6 +28,7 @@ use strict;
 
 use SpreadsheetModel::Arithmetic;
 use SpreadsheetModel::Columnset;
+use SpreadsheetModel::Constant;
 use SpreadsheetModel::Custom;
 use SpreadsheetModel::Dataset;
 use SpreadsheetModel::GroupBy;
@@ -37,6 +38,7 @@ use SpreadsheetModel::Notes;
 use SpreadsheetModel::Reshape;
 use SpreadsheetModel::Stack;
 use SpreadsheetModel::SumProduct;
+use SpreadsheetModel::View;
 
 use Exporter qw(import);
 our @EXPORT_OK = qw(

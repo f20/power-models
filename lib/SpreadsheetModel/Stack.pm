@@ -1,4 +1,4 @@
-﻿# File contains SpreadsheetModel::Stack, …::View and …::Constant.
+﻿package SpreadsheetModel::Stack;
 
 # Copyright 2008-2018 Franck Latrémolière, Reckon LLP and others.
 #
@@ -27,18 +27,9 @@ use warnings;
 use strict;
 use utf8;
 require SpreadsheetModel::Dataset;
-
-# # #
-# #
-# SpreadsheetModel::Stack
-# #
-# # #
-
-package SpreadsheetModel::Stack;
-our @ISA = qw(SpreadsheetModel::Dataset);
-
 use SpreadsheetModel::Label;
 use Spreadsheet::WriteExcel::Utility;
+our @ISA = qw(SpreadsheetModel::Dataset);
 
 sub objectType {
     @{ $_[0]{sources} } > 1 ? 'Combine tables' : 'Copy cells';
@@ -188,7 +179,7 @@ sub wsPrepare {
     return sub { die $provisionallyBroken; }
       if $provisionallyBroken;
 
-    my $format = $wb->getFormat( $self->{defaultFormat} || '0.000copy' );
+    my $format      = $wb->getFormat( $self->{defaultFormat} || '0.000copy' );
     my $unavailable = $wb->getFormat('unavailable');
 
     sub {
@@ -222,89 +213,3 @@ sub wsPrepare {
 
     };
 }
-
-# # #
-# #
-# SpreadsheetModel::View is just a way of filtering data
-# before they are taken into account in a SpreadsheetModel::Stack.
-# #
-# # #
-
-package SpreadsheetModel::View;
-our @ISA = qw(SpreadsheetModel::Stack);
-
-sub check {
-    $_[0]->SUPER::check;
-    return 'No sources in view' if $#{ $_[0]->{sources} };
-    $_[0]->{name} = "$_[0]->{sources}[0]{name} (extracts)"
-      if !$_[0]->{name} || $_[0]->{name} eq $_[0]->{debug};
-    return;
-}
-
-sub objectType {
-    'Select from table';
-}
-
-sub wsUrl {
-    my $self = shift;
-    $self->SUPER::wsUrl(@_) || $self->{sources}[0]->wsUrl(@_);
-}
-
-sub addForwardLink {
-    my $self = shift;
-    $self->SUPER::addForwardLink(@_);
-    (
-        $_->{location}
-          && ref $_->{location} eq 'SpreadsheetModel::Columnset'
-        ? $_->{location}
-        : $_
-      )->addForwardLink(@_)
-      foreach @{ $self->{sources} };
-}
-
-# # #
-# #
-# SpreadsheetModel::Constant
-# #
-# # #
-
-package SpreadsheetModel::Constant;
-our @ISA = qw(SpreadsheetModel::Dataset);
-
-sub populateCore {
-    my ($self) = @_;
-    $self->{core}{$_} = $self->{$_}
-      foreach grep { exists $self->{$_}; } qw(data);
-}
-
-sub dataset {
-    return;
-}
-
-sub check {
-    $_[0]{defaultFormat}        ||= '0.000con';
-    $_[0]{defaultMissingFormat} ||= 'unavailable';
-    return "No data in constant $_[0]{name}" unless 'ARRAY' eq ref $_[0]{data};
-    $_[0]{arithmetic} = '[ ' . join(
-        ( $_[0]{byrow} ? ",\n" : ', ' ),
-        map {
-                !defined $_       ? 'undef'
-              : $_ eq ''          ? q['']
-              : ref $_ eq 'ARRAY' ? (
-                '[ '
-                  . join( ', ',
-                    map { !defined $_ ? 'undef' : $_ eq '' ? q[''] : "$_" }
-                      @$_ )
-                  . ' ]'
-              )
-              : "$_"
-        } @{ $_[0]{data} }
-    ) . ' ]';
-    $_[0]->SUPER::check;
-}
-
-sub objectType {
-    $_[0]{specialType} || 'Fixed data';
-}
-
-1;
