@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Arithmetic;
 
-# Copyright 2008-2015 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2008-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -156,23 +156,23 @@ sub wsPrepare {
     my %modx;
     @modx{@stdph} = map {
         my $c = $self->{arguments}{$_}{cols};
-        $c == $self->{cols} ? 0
+        $c == $self->{cols}          ? 0
           : !$c || !$#{ $c->{list} } ? 1
-          : $c == $self->{rows} ? 2
+          : $c == $self->{rows}      ? 2
           : $self->{cols}{groups} && $c->{list} == $self->{cols}{groups} ? 3
-          :   $self->{cols}->supersetIndex($c);
+          :                         $self->{cols}->supersetIndex($c);
     } @stdph;
 
     my %mody;
     @mody{@stdph} = map {
         my $c = $self->{arguments}{$_}{rows};
-        $c == $self->{rows} ? 0
+        $c == $self->{rows}          ? 0
           : !$c || !$#{ $c->{list} } ? 1
-          : $c == $self->{cols} ? 2
+          : $c == $self->{cols}      ? 2
           : $self->{cols}
           && $self->{cols}{accepts} && $self->{cols}{accepts}[0] == $c     ? 2
           : $self->{rows}{groups}   && $c->{list} == $self->{rows}{groups} ? 3
-          :   $self->{rows}->supersetIndex($c);
+          :                           $self->{rows}->supersetIndex($c);
     } @stdph;
 
     sub {
@@ -187,11 +187,32 @@ sub wsPrepare {
           : $format, $formula, map {
             if ( my ( $a, $b ) = (/^([A-Z0-9]+)_([A-Z0-9]+)$/) ) {
                 my $arg = $self->{arguments}{$_};
-                qr/\b$a\b/   => xl_rowcol_to_cell( $row{$_}, $col{$_}, 1, 1 ),
-                  qr/\b$b\b/ => xl_rowcol_to_cell(
-                    $row{$_} + $arg->lastRow,
-                    $col{$_} + $arg->lastCol,
-                    1, 1
+                $self->{rows} && $self->{rows} == $arg->{rows}
+                  ? (
+                    qr/\b$a\b/ =>
+                      xl_rowcol_to_cell( $row{$_} + $y, $col{$_}, 0, 1 ),
+                    qr/\b$b\b/ => xl_rowcol_to_cell(
+                        $row{$_} + $y,
+                        $col{$_} + $arg->lastCol,
+                        0, 1
+                    )
+                  )
+                  : $self->{cols} && $self->{cols} == $arg->{cols} ? (
+                    qr/\b$a\b/ =>
+                      xl_rowcol_to_cell( $row{$_}, $col{$_} + $x, 1, 0 ),
+                    qr/\b$b\b/ => xl_rowcol_to_cell(
+                        $row{$_} + $arg->lastRow,
+                        $col{$_} + $x,
+                        1, 0
+                    )
+                  )
+                  : (
+                    qr/\b$a\b/ => xl_rowcol_to_cell( $row{$_}, $col{$_}, 1, 1 ),
+                    qr/\b$b\b/ => xl_rowcol_to_cell(
+                        $row{$_} + $arg->lastRow,
+                        $col{$_} + $arg->lastCol,
+                        1, 1
+                    )
                   );
             }
             else {
