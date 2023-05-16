@@ -109,7 +109,7 @@ sub htmlDescribe {
     @forlist = ( shift @forlist, map { [ br => undef ], $_ } @forlist )
       if @forlist > 1;
     foreach my $i ( 1 .. @$sourceRef ) {
-        my $ar = $sourceRef->[ $i - 1 ];
+        my $ar   = $sourceRef->[ $i - 1 ];
         my $href = join '#', @{ $ar->htmlWrite( $hb, $hs ) };
         push @arglist,
           [ div =>
@@ -158,7 +158,7 @@ sub check {
               . ']' );
     }
     if ( ref $self->{data} eq 'CODE' ) {
-        my $d = $self->{data};
+        my $d    = $self->{data};
         my @rows = $self->{rows} ? @{ $self->{rows}{list} } : 0;
         $self->{data} = [
             map {
@@ -207,7 +207,7 @@ sub wsPrepare {
             s/^ //;
             s/ $//;
             $_;
-          } $self->{rows} ? @{ $self->{rows}{list} }
+        } $self->{rows} ? @{ $self->{rows}{list} }
           : $self->{location}
           && UNIVERSAL::isa( $self->{location}, 'SpreadsheetModel::Columnset' )
           ? ( $self->{location}{singleRowName}
@@ -337,7 +337,7 @@ sub wsPrepare {
                 : $format
               )
               : ( '', $missingFormat );
-          }
+        }
     }
 }
 
@@ -472,7 +472,7 @@ sub wsWrite {
                           && UNIVERSAL::can( $_->{location}, 'wsWrite' )
                         ? $_->{location}
                         : $_
-                      )->addForwardLink($self)
+                    )->addForwardLink($self)
                       if $wb->{findForwardLinks};
                 }
                 else {
@@ -755,7 +755,7 @@ sub conditionalFormatting {
             my $c = xl_rowcol_to_cell( $row, $col );
             $_ = {
                 %$_,
-                type => 'formula',
+                type     => 'formula',
                 criteria =>
 "MOD($c-MOD(3*MOD(INT($c/1e12),10)+5*MOD(INT($c/1e11),10)-4*MOD(INT($c/1e10),10)+2*MOD(INT($c/1e9),10)-5*MOD(INT($c/1e8),10)-3*MOD(INT($c/1e7),10)+MOD(INT($c/1e6),10)-4*MOD(INT($c/1e5),10)-2*MOD(INT($c/1e4),10)+4*MOD(INT($c/1e3),10)-3*MOD(INT($c/100),10)-MOD(INT($c/10),10),11),10)>0",
             };

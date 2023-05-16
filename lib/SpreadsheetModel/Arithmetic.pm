@@ -187,7 +187,8 @@ sub wsPrepare {
           : $format, $formula, map {
             if ( my ( $a, $b ) = (/^([A-Z0-9]+)_([A-Z0-9]+)$/) ) {
                 my $arg = $self->{arguments}{$_};
-                $self->{rows} && $self->{rows} == $arg->{rows}
+                $self->{rangesByRow}
+                  && $self->{rows} && $self->{rows} == $arg->{rows}
                   ? (
                     qr/\b$a\b/ =>
                       xl_rowcol_to_cell( $row{$_} + $y, $col{$_}, 0, 1 ),
@@ -197,7 +198,9 @@ sub wsPrepare {
                         0, 1
                     )
                   )
-                  : $self->{cols} && $self->{cols} == $arg->{cols} ? (
+                  : $self->{rangesByColumn}
+                  && $self->{cols} && $self->{cols} == $arg->{cols}
+                  ? (
                     qr/\b$a\b/ =>
                       xl_rowcol_to_cell( $row{$_}, $col{$_} + $x, 1, 0 ),
                     qr/\b$b\b/ => xl_rowcol_to_cell(

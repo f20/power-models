@@ -307,7 +307,7 @@ sub wsWrite {
                   )
                 ? $item->{sourceLines}[0]{location}
                 : $item->{sourceLines}[0]
-              )->addForwardLink($item)
+            )->addForwardLink($item)
               if $wb->{findForwardLinks};
         }
         else {
