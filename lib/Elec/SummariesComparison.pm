@@ -1,6 +1,6 @@
 ﻿package Elec::SummariesComparison;
 
-# Copyright 2012-2021 Franck Latrémolière and others.
+# Copyright 2012-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -93,6 +93,8 @@ sub revenueComparison {
       . ' look right for $totalUnits'
       if $self->{setup}{timebands} && $totalUnits->{name} !~ /total/i;
 
+    my ($capacity) = grep { $_->{name} =~ /kVA\b/; } @$volumes;
+
     push @columns,
       $totalUnits = Stack( rows => $self->{rows}, sources => [$totalUnits] )
       if $self->{rows};
@@ -178,12 +180,42 @@ sub revenueComparison {
         }
       ) if $compare;
 
+    if ( defined $capacity ) {
+
+        push @columns,
+          my $ppu = Arithmetic(
+            name          => 'Average £/kVA/year',
+            defaultFormat => '0.00soft',
+            arithmetic    => '=IF(A3,A1/A2,"")',
+            arguments     => {
+                A1 => $revenues,
+                A2 => $capacity,
+                A3 => $capacity,
+            },
+          );
+
+        push @columns,
+          $self->{comparisonppu}
+          ? Stack( sources => [ $self->{comparisonppu} ] )
+          : Arithmetic(
+            name          => 'Comparison £/kVA/year',
+            defaultFormat => '0.00soft',
+            arithmetic    => '=IF(A3,A1/A2,"")',
+            arguments     => {
+                A1 => $compare,
+                A2 => $capacity,
+                A3 => $capacity,
+            }
+          ) if $compare;
+
+    }
+
     push @columns, $self->{proportionUsed}
       if $self->{rows} && $self->{proportionUsed};
 
     push @{ $self->{revenueTables} },
       Columnset(
-        name => 'Revenue' . ( $compare ? ' comparison' : '' ) . $labelTail,
+        name    => 'Revenue' . ( $compare ? ' comparison' : '' ) . $labelTail,
         columns => \@srcCol,
       ) if @srcCol;
 
@@ -201,7 +233,7 @@ sub revenueComparison {
       )
     {
         my $totalTerm = $groupedRows ? 'Subtotal' : 'Total';
-        my @cols = (
+        my @cols      = (
             map {
                 my $n =
                   $totalTerm . ' '
@@ -221,7 +253,7 @@ sub revenueComparison {
                     defaultFormat => $_->{defaultFormat},
                     source        => $_,
                   );
-              } $totalUnits,
+            } $totalUnits,
             $revenues,
             @extraColumns,
             $compare ? ( $compare, $difference, ) : ()

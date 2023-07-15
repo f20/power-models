@@ -1,6 +1,6 @@
 ﻿package Elec::Charging;
 
-# Copyright 2012-2022 Franck Latrémolière and others.
+# Copyright 2012-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -148,7 +148,7 @@ sub assetCharge {
     $self->{assetCharge} ||=
       $self->{assets} && $self->{assets}->assetLives
       ? Arithmetic(
-        name       => 'Asset-related charges (£/unit of usage)',
+        name       => 'Asset-related charges (£/unit of usage/year)',
         arithmetic => '='
           . ( $self->{model}{contributions} ? '(1-A4)*' : '' )
           . 'A2+A1*A3'
@@ -166,7 +166,7 @@ sub assetCharge {
         }
       )
       : Arithmetic(
-        name       => 'Asset-related charges (£/unit of usage)',
+        name       => 'Asset-related charges (£/unit of usage/year)',
         arithmetic => '=A1*('
           . ( $self->{model}{contributions} ? '(1-A4)*' : '' )
           . 'A2+A3)',
