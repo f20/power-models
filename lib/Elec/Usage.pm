@@ -1,6 +1,6 @@
 ﻿package Elec::Usage;
 
-# Copyright 2012-2021 Franck Latrémolière and others.
+# Copyright 2012-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -71,8 +71,7 @@ sub usageRates {
         ? ( map { [ $unitsRouteingFactor, $_ ] }
               @{ $self->{timebands}->bandFactors } )
         : $unitsRouteingFactor,
-        $model->{fixedUsageRules}
-        ? Constant(
+        $model->{fixedUsageRules} ? Constant(
             name => 'Network usage of an exit point',
             rows => $customers->tariffSet,
             cols => $setup->usageSet,
@@ -231,7 +230,7 @@ sub matchTotalUsage {
 
     my $factorAdjE = Arithmetic(
         name       => 'Factor to apply to adjustable element of network usage',
-        arithmetic => '=IF(A1,MAX(0,A3-A2)/A11,0)',
+        arithmetic => '=IF(A1,MIN(1,MAX(0,A3-A2)/A11),0)',
         arguments  => {
             A1  => $adjustableUsage,
             A11 => $adjustableUsage,
@@ -275,8 +274,8 @@ sub detailedUsage {
     my $usageRates = $self->usageRates;
     my @type =
       map {
-            'ARRAY' eq ref $usageRates->[$_] ? 3
-          : $_ == 0                          ? 1
+            'ARRAY' eq ref $usageRates->[$_]                ? 3
+          : $_ == 0                                         ? 1
           : $self->{model}{reactive} && $_ == $#$usageRates ? 1
           :                                                   0;
       } 0 .. $#$usageRates;
@@ -286,7 +285,7 @@ sub detailedUsage {
         cols       => $self->{setup}->usageSet,
         arithmetic => '=('
           . join( '+',
-            map { "A1$_*A2$_" . ( $type[$_] == 3 ? "*A3$_" : '' ); }
+            map  { "A1$_*A2$_" . ( $type[$_] == 3 ? "*A3$_" : '' ); }
             grep { $type[$_]; } 0 .. $#type )
           . ')/24/A6+'
           . join( '+', map { "A1$_*A2$_"; } grep { !$type[$_]; } 0 .. $#type ),
