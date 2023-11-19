@@ -1,6 +1,6 @@
 ﻿package Elec::Customers;
 
-# Copyright 2012-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2012-2023 Franck Latrémolière, Reckon LLP and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -198,7 +198,7 @@ sub userLabelsetForInput {
     $self->{userLabelsetForInput} || $lset;
 }
 
-sub volumeDataColumn {
+sub zeroVolumeDataColumn {
     my ( $self, $component ) = @_;
     [ map { 0 } @{ $self->userLabelset->{list} } ];
 }
@@ -212,7 +212,7 @@ sub detailedVolumes {
                 rows          => $self->userLabelsetForInput,
                 defaultFormat => '0hard',
                 name          => $_,
-                data          => $self->volumeDataColumn($_),
+                data          => $self->zeroVolumeDataColumn($_),
                 validation => {   # required to trigger leniency in cell locking
                     validate => 'decimal',
                     criteria => '>=',

@@ -1,6 +1,6 @@
 ﻿package Elec;
 
-# Copyright 2012-2022 Franck Latrémolière and others.
+# Copyright 2012-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -45,6 +45,10 @@ sub serviceMap {
       ? 'Elec::DemandRamping'
       : 'Elec::Interpolator'
       if $model->{interpolator};
+    push @servMap,
+      groupedDemand => 'Elec::CustomersGrouped',
+      averagedUsage => 'Elec::UsageAveraged'
+      if $model->{usetRouteGrouper};
     push @servMap, summaries => 'Elec::Summaries'
       if $model->{usetUoS} || $model->{compareppu} || $model->{showppu};
     push @servMap, supply    => 'Elec::TariffsSupply' if $model->{usetEnergy};
@@ -76,6 +80,9 @@ sub new {
       && UNIVERSAL::can( ${ $model->{sharingObjectRef} }, 'registerModel' );
     $model->{dataset}{datasetCallback}->($model)
       if $model->{dataset} && $model->{dataset}{datasetCallback};
+
+    # Set-up
+
     my %serviceMap = $model->serviceMap;
     my $setup      = $serviceMap{setup}->new($model);
     $setup->registerTimebands( $serviceMap{timebands}->new( $model, $setup ) )
@@ -87,33 +94,49 @@ sub new {
     my $usage     = $serviceMap{usage}->new( $model, $setup, $customers );
     my $assets    = $serviceMap{assets}->new( $model, $setup )
       if $serviceMap{assets};
+
+    # Matching and grouping
+
     my $charging =
       $serviceMap{charging}->new( $model, $setup, $usage, $assets );
 
-    # Matching
-
-    if ( my $usetName = $model->{usetMatchUsage} ) {
+    if ( my $usetName = $model->{'usetMatchUsage'} ) {
         $usage = $usage->matchTotalUsage( $customers->totalDemand($usetName) );
     }
 
-    $model->{usetNonAssetCosts} ||= $model->{usetBoundaryCosts};   # Legacy only
-    foreach
-      (    # NB: the order of feeding arguments to $customers->totalDemand will
-           # determine the column order for proportions in the input data table.
-        qw(
-        usetMatchAssetDetail
-        usetMatchAssets
-        usetNonAssetCosts
-        usetRunningCosts
-        )
-      )
-    {
-        next unless my $usetName = $model->{$_};
+    # Legacy fudge
+    $model->{'usetNonAssetCosts'} ||= $model->{'usetBoundaryCosts'};
+
+    # This will append a column to input data table for each unique uset.
+    my $applyChargingMatchingRule = sub {
+        my ($rulename) = @_;
+        return unless my $usetName = $model->{$rulename};
         my $applicationOptions = '';
         $applicationOptions = $1 if $usetName =~ s/(\s*\(.*\))$//i;
-        $charging->$_( $usage->totalUsage( $customers->totalDemand($usetName) ),
+        $charging->$rulename(
+            $usage->totalUsage( $customers->totalDemand($usetName) ),
             $applicationOptions );
+    };
+
+    $applyChargingMatchingRule->('usetMatchAssetDetail');
+
+    if ( my $usetName = $model->{'usetRouteGrouper'} ) {
+        $customers =
+          $serviceMap{groupedDemand}->new( $model, $setup, $customers );
+        $usage = $serviceMap{averagedUsage}->new(
+            $model, $setup, $customers, ' (averaged)',
+            usage => $usage,
+            uset  => $usetName
+        );
+        $charging =
+          $serviceMap{charging}->new( $model, $setup, $usage, $assets );
     }
+
+    $applyChargingMatchingRule->('usetMatchAssets');
+
+    $applyChargingMatchingRule->('usetNonAssetCosts');
+
+    $applyChargingMatchingRule->('usetRunningCosts');
 
     # Use of system tariff calculation
 
@@ -191,22 +214,6 @@ sub new {
 
     $model;
 
-}
-
-sub distributionRevenuesAndCosts {
-    my ( $model, $volumes, $tariffs, $charging ) = @_;
-    my @units               = grep { $_->{name} =~ /kWh/; } @$volumes;
-    my @energyChargePerUnit = grep { $_->{name} =~ /kWh/; }
-      @{ $model->{buildupTables}[ $#{ $model->{buildupTables} } ]{columns} };
-    $tariffs->revenueCalculation($volumes), $charging->costItems,
-      @units == 1 && @energyChargePerUnit == 1
-      ? Arithmetic(
-        name          => 'Cost of distribution losses £/year',
-        defaultFormat => '0soft',
-        arithmetic    => '=0.01*SUMPRODUCT(A1_A2,A3_A4)',
-        arguments => { A1_A2 => $energyChargePerUnit[0], A3_A4 => $units[0], },
-      )
-      : ();
 }
 
 1;

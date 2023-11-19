@@ -29,7 +29,7 @@ use utf8;
 use SpreadsheetModel::Shortcuts ':all';
 
 sub new {
-    my ( $class, $model, $setup, $customers, $timebands, $suffix ) = @_;
+    my ( $class, $model, $setup, $customers, $suffix, @extras ) = @_;
     $model->register(
         bless {
             model     => $model,
@@ -37,6 +37,7 @@ sub new {
             customers => $customers,
             timebands => $setup->{timebands},
             suffix    => $suffix,
+            @extras,
         },
         $class
     );
@@ -240,7 +241,7 @@ sub matchTotalUsage {
     );
 
     my $adjustedUsage =
-      __PACKAGE__->new( $model, $setup, $customers, $timebands, ' (adjusted)' );
+      __PACKAGE__->new( $model, $setup, $customers, ' (adjusted)' );
 
     $adjustedUsage->{usageRates} = [
         map {
