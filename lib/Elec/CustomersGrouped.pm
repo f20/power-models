@@ -105,6 +105,17 @@ sub totalDemand {
     $self->{totalDemand}{$usetName} = \@columns;
 }
 
+sub numberOfRoutes {
+    my ($self) = @_;
+    return $self->{numberOfRoutes} ||=  GroupBy(
+                name          => 'Number of routes for each tariff',
+                rows          => 0,
+                cols          => $self->{matrix}{cols},
+                source        => $self->{matrix},
+                defaultFormat => '0soft',
+            );
+}
+
 sub finish { }
 
 1;

@@ -46,15 +46,24 @@ sub usageRates {
               . ( $self->{suffix} || '' ),
             rows       => $tariffSet,
             cols       => $usageRates1->[$c]{cols},
-            arithmetic => '=IF(A41,SUMPRODUCT(A1*A2*A3)/A4,0)',
-            custom     => [ '=IF(A41,SUMPRODUCT(A1:A10*A2:A20*A3:A30)/A4,0)', ],
-            arguments  => {
+            arithmetic =>
+              '=IF(A41,SUMPRODUCT(A1*A2*A3)/A4,IF(A71,SUMPRODUCT(A5*A6)/A7,0))',
+            custom => [
+'=IF(A41,SUMPRODUCT(A1:A10*A2:A20*A3:A30)/A4,IF(A71,SUMPRODUCT(A5:A50*A6:A60)/A7,0))',
+            ],
+            arguments => {
                 A1  => $customers->matrix,
                 A10 => $customers->matrix,
+                A5  => $customers->matrix,
+                A50 => $customers->matrix,
+                A7  => $customers->numberOfRoutes,
+                A71 => $customers->numberOfRoutes,
                 A2  => $customers1->totalDemand($uset)->[$c],
                 A20 => $customers1->totalDemand($uset)->[$c],
                 A3  => $usageRates1->[$c],
                 A30 => $usageRates1->[$c],
+                A6  => $usageRates1->[$c],
+                A60 => $usageRates1->[$c],
                 A4  => $customers->totalDemand($uset)->[$c],
                 A41 => $customers->totalDemand($uset)->[$c],
             },
@@ -72,10 +81,12 @@ sub usageRates {
                                 : 0
                             ),
                             $colh->{$_} + (
-                                /A4/ ? $x
-                                : $y
+                                  /A[157]/ ? $y
+                                : /A[24]/  ? 0
+                                :            $x
                             ),
-                            /A4/ ? () : ( 1, 1 ),
+                            /A4/       ? 0 : 1,
+                            /A[12457]/ ? 1 : 0,
                           )
                     } @$pha;
                 };
