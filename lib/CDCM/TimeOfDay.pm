@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2015 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -52,7 +52,7 @@ sub timeOfDay {
                 dataset       => $model->{dataset},
                 defaultFormat => 'puretexthard',
                 data          => [ map { "Band $_" } 1 .. $model->{timebands} ],
-                lines =>
+                lines         =>
                   'Source: user preference (does not affect calculations).'
             )
         );
@@ -126,7 +126,7 @@ sub timeOfDay {
                 Labelset(
                     name => $lev,
                     list => $timebandSet->{list}
-                  )
+                )
             } @{ $networkLevels->{list} }
         ]
     );
@@ -190,8 +190,10 @@ sub timeOfDay {
     $peakingProbabilitiesTable = Arithmetic(
         name          => 'Normalised peaking probabilities',
         defaultFormat => '%soft',
-        arithmetic    => "=IF(A3,A1/A2,A8/A9)",
-        arguments     => {
+        arithmetic    => $model->{otneiErrors} || $model->{lvDiversityWrong}
+        ? '=IF(A3,A1,A8/A9)'
+        : '=IF(A3,A1/A2,A8/A9)',
+        arguments => {
             A8 => $annualHoursByTimebandRaw,
             A9 => $annualHoursByTimebandTotal,
             A1 => $peakingProbabilitiesTable,
@@ -504,7 +506,7 @@ EOT
                                         "A1$pad" => $volumeByEndUser->{
                                             "Unit rate $_ p/kWh"},
                                         "A2$pad" => $timebandUseByRate[ $_ - 1 ]
-                                      )
+                                    )
                                 } 1 .. $r
                             },
                             defaultFormat => '%softnz'
@@ -725,7 +727,7 @@ EOT
                 $timebandLoadCoefficientAccording->{dontcolumnset} = 1;
 
                 Columnset(
-                    name => 'Estimated contributions to peak demand',
+                    name    => 'Estimated contributions to peak demand',
                     columns => [    # $timebandLoadCoefficientAccording,
                         $red, $coin,
                     ]

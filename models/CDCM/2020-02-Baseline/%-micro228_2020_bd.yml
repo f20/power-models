@@ -12,11 +12,11 @@ drm: top500gsp
 extraLevels: 1
 fixedCap: 1-4
 generationReactiveRouteingFix: 1
-lvDiversityWrong: 1
 nickName: After 2020
 noLLFCs: 1
 noLinks: 1
 noReplacement: blanket
+otneiErrors: 1
 pcd: 1
 portfolio: 1
 scaler: adderppugeneralminzeronogen

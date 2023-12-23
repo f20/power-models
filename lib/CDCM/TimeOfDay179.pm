@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2016 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -194,7 +194,7 @@ sub timeOfDay179Runner {
                 Labelset(
                     name => $lev,
                     list => $timebandSet->{list}
-                  )
+                )
             } @{ $networkLevels->{list} }
         ]
     );
@@ -287,8 +287,8 @@ sub timeOfDay179Runner {
             name    => 'Calculation of special peaking probabilities',
             columns => [
                 grep { $_; } $redPeaking, $amberPeaking,
-                $greenPeaking,  $amberPeakingRate,
-                $yellowPeaking, $blackPeaking,
+                $greenPeaking,            $amberPeakingRate,
+                $yellowPeaking,           $blackPeaking,
             ]
         );
 
@@ -372,8 +372,10 @@ sub timeOfDay179Runner {
         $peakingProbabilitiesTable = Arithmetic(
             name => 'Normalised ' . $blackYellowGreen . 'peaking probabilities',
             defaultFormat => '%soft',
-            arithmetic    => "=IF(A3,A1/A2,A8/A9)",
-            arguments     => {
+            arithmetic    => $model->{otneiErrors} || $model->{lvDiversityWrong}
+            ? '=IF(A3,A1,A8/A9)'
+            : '=IF(A3,A1/A2,A8/A9)',
+            arguments => {
                 A8 => $annualHoursByTimebandRaw,
                 A9 => $annualHoursByTimebandTotal,
                 A1 => $peakingProbabilitiesTable,
@@ -511,7 +513,7 @@ sub timeOfDay179Runner {
                     minimum  => 0,
                     maximum  => 1,
                 },
-                number => ( $blackYellowGreen ? 1063 : 1060 ) + $r,
+                number   => ( $blackYellowGreen ? 1063 : 1060 ) + $r,
                 appendTo => $model->{inputTables},
                 dataset  => $model->{dataset},
                 rows     => $usersWithInput,
@@ -688,7 +690,7 @@ sub timeOfDay179Runner {
                                         "A1$pad" => $volumeByEndUser->{
                                             "Unit rate $_ p/kWh"},
                                         "A2$pad" => $timebandUseByRate[ $_ - 1 ]
-                                      )
+                                    )
                                 } 1 .. $r
                             },
                             defaultFormat => '%softnz'
@@ -974,7 +976,7 @@ sub timeOfDay179Runner {
                 $timebandLoadCoefficientAccording->{dontcolumnset} = 1;
 
                 Columnset(
-                    name => 'Estimated contributions to peak demand',
+                    name    => 'Estimated contributions to peak demand',
                     columns => [    # $timebandLoadCoefficientAccording,
                         $red, $coin,
                     ]
@@ -1301,7 +1303,7 @@ sub timeOfDay179Runner {
                                 A1 => $eq{timebandCoef}{$_},
                                 A2 => $eq{nhhCorr},
                             },
-                          )
+                        )
                     } qw(NHH1 NHH2),
                     $model->{agghhequalisation} =~ /nooffpeak/i
                     ? ()

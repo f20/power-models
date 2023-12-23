@@ -76,7 +76,9 @@ sub score {
       xor $month lt '2017-10';
 
     # Otnei
-    $score += 1 if $rule->{lvDiversityWrong} xor $month lt '2019-10';
+    $score += 1
+      if $rule->{otneiErrors} || $rule->{lvDiversityWrong}
+      xor $month lt '2019-10';
     $score += 1
       if $rule->{generationReactiveRouteingFix} xor $month lt '2019-10';
 

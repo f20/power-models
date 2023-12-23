@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2020 Franck Latrémolière and others.
+# Copyright 2011-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -359,7 +359,7 @@ sub timeOfDaySpecialRunner {
                 Labelset(
                     name => $lev,
                     list => $timebandSet->{list}
-                  )
+                )
             } @{ $networkLevels->{list} }
         ]
     );
@@ -454,8 +454,8 @@ sub timeOfDaySpecialRunner {
             name    => 'Calculation of special peaking probabilities',
             columns => [
                 grep { $_; } $redPeaking, $amberPeaking,
-                $greenPeaking,  $amberPeakingRate,
-                $yellowPeaking, $blackPeaking,
+                $greenPeaking,            $amberPeakingRate,
+                $yellowPeaking,           $blackPeaking,
             ]
         );
 
@@ -541,8 +541,10 @@ sub timeOfDaySpecialRunner {
               . ( $blackYellowGreen ? ' special ' : ' ' )
               . 'peaking probabilities',
             defaultFormat => '%soft',
-            arithmetic    => "=IF(A3,A1/A2,A8/A9)",
-            arguments     => {
+            arithmetic    => $model->{otneiErrors} || $model->{lvDiversityWrong}
+            ? '=IF(A3,A1,A8/A9)'
+            : '=IF(A3,A1/A2,A8/A9)',
+            arguments => {
                 A8 => $annualHoursByTimebandRaw,
                 A9 => $annualHoursByTimebandTotal,
                 A1 => $peakingProbabilitiesTable,
@@ -680,7 +682,7 @@ sub timeOfDaySpecialRunner {
                     minimum  => 0,
                     maximum  => 1,
                 },
-                number => ( $blackYellowGreen ? 1063 : 1060 ) + $r,
+                number   => ( $blackYellowGreen ? 1063 : 1060 ) + $r,
                 appendTo => $model->{inputTables},
                 dataset  => $model->{dataset},
                 rows     => $usersWithInput,
@@ -865,7 +867,7 @@ sub timeOfDaySpecialRunner {
                                         "A1$pad" => $volumeByEndUser->{
                                             "Unit rate $_ p/kWh"},
                                         "A2$pad" => $timebandUseByRate[ $_ - 1 ]
-                                      )
+                                    )
                                 } 1 .. $r
                             },
                             defaultFormat => '%softnz'
@@ -962,7 +964,7 @@ sub timeOfDaySpecialRunner {
 
             push @{ $model->{timeOfDayGroupRedSources} },
               Arithmetic(
-                name => Label( $red->{name}, "$red->{name} (copy)" ),
+                name       => Label( $red->{name}, "$red->{name} (copy)" ),
                 arguments  => { A1 => $red },
                 cols       => 0,
                 arithmetic => '=A1',
@@ -1285,8 +1287,8 @@ sub timeOfDaySpecialRunner {
                     data          => [
                         map {
                                 /domestic/i && !/non.?dom/i ? [qw(1 0 0 0 0)]
-                              : /^hv/i     ? [qw(0 0 0 0 1)]
-                              : /^lv sub/i ? [qw(0 0 0 1 0)]
+                              : /^hv/i                      ? [qw(0 0 0 0 1)]
+                              : /^lv sub/i                  ? [qw(0 0 0 1 0)]
                               : !$componentMap->{$_}{'Unit rates p/kWh'}
                               || /non.?ct/i ? [qw(0 1 0 0 0)]
                               : [qw(0 0 1 0 0)];
@@ -1317,9 +1319,9 @@ sub timeOfDaySpecialRunner {
                     data          => [
                         map {
                                 /domestic/i && !/non.?dom/i ? [qw(1 0 0 0)]
-                              : /^hv/i     ? [qw(0 0 0 1)]
-                              : /^lv sub/i ? [qw(0 0 1 0)]
-                              :              [qw(0 1 0 0)];
+                              : /^hv/i                      ? [qw(0 0 0 1)]
+                              : /^lv sub/i                  ? [qw(0 0 1 0)]
+                              :                               [qw(0 1 0 0)];
                         } @{ $relevantUsers->{list} }
                     ],
                     byrow => 1,
@@ -1494,7 +1496,7 @@ sub timeOfDaySpecialRunner {
                               . 'time band load coefficient',
                             defaultFormat => '0con',
                             cols          => $timebandSet,
-                            data =>
+                            data          =>
                               [ 1, map { 0 } 2 .. @{ $timebandSet->{list} } ],
                         )
                       )

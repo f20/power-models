@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2018 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2023 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -282,7 +282,7 @@ sub diversity {
           ]
         : $model->{standing} =~ /reduc/i ? [
             map {
-                    /unmeter|generat/i ? [ map { 0 } 1 .. 8 ]
+                    /unmeter|generat/i       ? [ map { 0 } 1 .. 8 ]
                   : /do not do this LV sub/i ? [qw(0 0 0 0 .2 1 1 0)]
                   : /LV/i                    ? [qw(0 0 0 0 0 .2 1 1)]
                   : /do not do this HV sub/i ? [qw(0 0 .2 1 1 0 0 0)]
@@ -304,7 +304,7 @@ sub diversity {
           ]
         : $model->{standing} =~ /edf/i ? [
             map {
-                    /unmeter|generat/i ? [ map { 0 } 1 .. 8 ]
+                    /unmeter|generat/i       ? [ map { 0 } 1 .. 8 ]
                   : /do not do this LV sub/i ? [qw(0 0 0 0 0 .5 1 0)]
                   : /LV/i                    ? [qw(0 0 0 0 0 0 .5 1)]
                   : /do not do this HV sub/i ? [qw(0 0 0 .5 1 0 0 0)]
@@ -330,7 +330,7 @@ sub diversity {
           ]
         : $model->{standing} =~ /g3/i ? [
             map {
-                    /unmeter|generat/i ? [ map { 0 } 1 .. 8 ]
+                    /unmeter|generat/i       ? [ map { 0 } 1 .. 8 ]
                   : /do not do this LV sub/i ? [qw(0 0 0 0 0 1 1 0)]
                   : /LV/i                    ? [qw(0 0 0 0 0 0 1 1)]
                   : /do not do this HV sub/i ? [qw(0 0 0 1 1 0 0 0)]
@@ -424,13 +424,13 @@ EOL
                         : $model->{standing} =~ /nhh/
                         ? [ map { 0.2 } @tariffs132sub ]
                         : [ map { 0 } @tariffs132sub ],
-                        [ map   { 0 } @tariffs132sub ],
-                        [ map   { 0 } @tariffs132sub ],
-                        [ map   { 0 } @tariffs132sub ],
-                        [ map   { 1 } @tariffs132sub ],
-                        [ map   { 0 } @tariffs132sub ],
-                        [ map   { 0 } @tariffs132sub ],
-                        [ map   { 0 } @tariffs132sub ],
+                        [ map { 0 } @tariffs132sub ],
+                        [ map { 0 } @tariffs132sub ],
+                        [ map { 0 } @tariffs132sub ],
+                        [ map { 1 } @tariffs132sub ],
+                        [ map { 0 } @tariffs132sub ],
+                        [ map { 0 } @tariffs132sub ],
+                        [ map { 0 } @tariffs132sub ],
                     ]
                 );
             }
@@ -441,7 +441,7 @@ EOL
                 cols    => $drmExitLevels,
                 sources => [
                     $scf132sub ? $scf132sub : (), $scf13211,
-                    $scf132, $standingFactors,
+                    $scf132,                      $standingFactors,
                 ]
             );
         }
@@ -722,7 +722,7 @@ EOL
             arguments     => { A1 => $chargeableAml, A2 => $chargeableSml }
         );
 
-        if ( $model->{lvDiversityWrong} ) {
+        if ( $model->{otneiErrors} || $model->{lvDiversityWrong} ) {
             my $unmetered = Labelset(
                 list => [
                     grep { /unmet|UMS/i; } @{ $demandTariffsByEndUser->{list} }
@@ -762,8 +762,8 @@ EOL
                 cols          => $lvCircuitLevel,
                 defaultFormat => '%softnz',
                 arguments     => {
-                    A1      => $chargeableAml,
-                    A2      => $chargeableSml,
+                    A1        => $chargeableAml,
+                    A2        => $chargeableSml,
                     A911_A912 => $unmeteredAml,
                     A921_A922 => $unmeteredSml,
                 }
@@ -951,7 +951,7 @@ sub impliedLoadFactors {
                 A2 => $daysInYear,
                 A3 => SumProduct(
                     defaultFormat => '0softnz',
-                    name =>
+                    name          =>
                       'Aggregate maximum import capacity in tariff group (kVA)',
                     matrix => $mapping1,
                     vector => $volumesByEndUser->{'Capacity charge p/kVA/day'}
