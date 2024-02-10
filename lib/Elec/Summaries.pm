@@ -48,9 +48,10 @@ sub setupByGroup {
 
 sub setupWithActiveCustomers {
     my ( $self, $customers, $usetName ) = @_;
-    $self->{usetName} = $usetName;
-    $self->{names}    = $customers->names;
-    $self->{volumes}  = $customers->individualDemandUsed($usetName);
+    $self->{usetName}             = $usetName;
+    $self->{names}                = $customers->names;
+    $self->{volumes}              = $customers->individualDemandUsed($usetName);
+    $self->{volumes}[0]{usetName} = $usetName;
     $self->{comparison} =
       Elec::SummariesComparison->new( $self->{model}, $self->{setup} );
     $self->setupComparisonPpu($customers);

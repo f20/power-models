@@ -156,6 +156,10 @@ sub new {
             $serviceMap{summaries}->new( $model, $setup )
               ->setupByGroup( $customers, $usetName )
               ->addRevenueComparison($tariffs);
+            $serviceMap{summaries}->new( $model, $setup )
+              ->setupWithActiveCustomers( $customers, $usetName )
+              ->addRevenueComparison($tariffs)
+              ->addDetailedAssets( $charging, $usage );
         }
         else {
             $tariffs->revenues( $customers->totalDemand($usetName) );
