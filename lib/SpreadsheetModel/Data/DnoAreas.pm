@@ -1,6 +1,6 @@
 ﻿package SpreadsheetModel::Data::DnoAreas;
 
-# Copyright 2010-2019 Reckon LLP and others.
+# Copyright 2010-2024 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -41,6 +41,7 @@ sub normaliseDnoName {
         s/^SSE(PD)?-/SSEN-/;
         s/^WPD-Wales/WPD-SWales/;
         s/^WPD-West\b/WPD-SWest/;
+        s/^WPD-/NGED-/;
     }
     wantarray ? @_ : $_[0];
 }
@@ -48,6 +49,10 @@ sub normaliseDnoName {
 sub dnoShortNames {
     (
         'ENWL',
+        'NGED EastM',
+        'NGED SWales',
+        'NGED SWest',
+        'NGED WestM',
         'NPG Northeast',
         'NPG Yorkshire',
         'SPEN SPD',
@@ -57,16 +62,16 @@ sub dnoShortNames {
         'UKPN EPN',
         'UKPN LPN',
         'UKPN SPN',
-        'WPD EastM',
-        'WPD SWales',
-        'WPD SWest',
-        'WPD WestM',
     );
 }
 
 sub dnoLongNames {
     (
         'Electricity North West Limited',
+        'NGED East Midlands',
+        'NGED South Wales',
+        'NGED South West',
+        'NGED West Midlands',
         'Northern Powergrid Northeast',
         'Northern Powergrid Yorkshire',
         'SP Distribution',
@@ -76,10 +81,6 @@ sub dnoLongNames {
         'Eastern Power Networks',
         'London Power Networks',
         'South Eastern Power Networks',
-        'WPD East Midlands',
-        'WPD South Wales',
-        'WPD South West',
-        'WPD West Midlands',
     );
 }
 
