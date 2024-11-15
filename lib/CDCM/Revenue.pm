@@ -45,7 +45,7 @@ sub revenueShortfall {
         my @termsNoDays;
         my @termsWithDays;
         my %args = ( A400 => $daysInYear );
-        my $i = 1;
+        my $i    = 1;
         foreach (@$nonExcludedComponents) {
             ++$i;
             my $pad = "$i";
@@ -74,7 +74,7 @@ sub revenueShortfall {
               ),
             arguments     => \%args,
             defaultFormat => '0soft'
-          )
+        )
     };
 
     push @{ $model->{revenueMatching} }, $revenuesSoFar;
@@ -120,16 +120,23 @@ sub revenueShortfall {
     my $revenueFromElsewhere = $model->{revenueFromElsewhere};
 
     if ( $model->{targetRevenue} ) {
-        if ( $model->{targetRevenue} =~ /dcp334|2019/i ) {
-            ($allowedRevenue) = $model->table1001_2019;
+        my $targetRevenueMethod;
+        if ( $model->{targetRevenue} =~ /dcp421|2024/i ) {
+            $targetRevenueMethod = 'table1001_2024';
+        }
+        elsif ( $model->{targetRevenue} =~ /dcp334|2019/i ) {
+            $targetRevenueMethod = 'table1001_2019';
         }
         elsif ( $model->{targetRevenue} =~ /dcp249|dcp273|2016/i ) {
-            $allowedRevenue = $model->table1001_2016;
+            $targetRevenueMethod = 'table1001_2016';
         }
         elsif ( $model->{targetRevenue} =~ /dcp132|2012/i ) {
-            $allowedRevenue = $model->table1001_2012;
+            $targetRevenueMethod = 'table1001_2012';
         }
-        elsif ( $model->{targetRevenue} =~ /single/i ) {
+        if ($targetRevenueMethod) {
+            ($allowedRevenue) = $model->$targetRevenueMethod();
+        }
+        else {
             $allowedRevenue = Dataset(
                 name          => 'Target CDCM net revenue (£/year)',
                 data          => [300e6],
@@ -151,7 +158,7 @@ sub revenueShortfall {
             name => 'Target net income from all use of system charges (£/year)',
             arithmetic    => '=A1+A2+A3',
             defaultFormat => '0soft',
-            arguments =>
+            arguments     =>
               { map { ( "A$_" => $allowedRevenueItems[ $_ - 1 ] ) } 1 .. 3 }
         );
         $model->{edcmTables}[0][4] = Stack(
@@ -177,7 +184,7 @@ sub revenueShortfall {
           ? Arithmetic(
             name          => 'Total revenue from elsewhere (£/year)',
             defaultFormat => '0soft',
-            arguments =>
+            arguments     =>
               { A1 => $revenueFromElsewhere, A2 => $myRevenueFromElsewhere, },
             arithmetic => '=A1+A2',
           )
@@ -249,13 +256,12 @@ sub revenueShortfall {
         );
     }
 
-
     push @{ $model->{revenueMatching} },
       Columnset(
         name    => 'Revenue surplus or shortfall',
         columns => [
             $totalRevenuesSoFar,
-            !$revenueBefore ? ()
+            !$revenueBefore              ? ()
             : $revenueBefore->{appendTo} ? Stack( sources => [$revenueBefore] )
             : $revenueBefore,
             $totalSiteSpecificReplacement

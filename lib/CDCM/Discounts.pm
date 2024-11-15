@@ -216,8 +216,15 @@ sub pcdPreprocessedVolumes {
         $allEndUsers, $nonExcludedComponents, $componentMap, 'no aggregation' );
 
     if ( $model->{fixedChargeAdders} ) {
+        my $targetRevenueMethod;
+        if ( $model->{targetRevenue} =~ /dcp421|2024/i ) {
+            $targetRevenueMethod = 'table1001_2024';
+        }
+        elsif ( $model->{targetRevenue} =~ /dcp334|2019/i ) {
+            $targetRevenueMethod = 'table1001_2019';
+        }
         my @adderNames = ( 'Domestic demand', 'Metered demand' );
-        ( undef, my @adderTargetRevenue ) = $model->table1001_2019;
+        ( undef, my @adderTargetRevenue ) = $model->$targetRevenueMethod();
         $model->{revenueFromElsewhere} = Arithmetic(
             name          => 'Total revenue from fixed charge adders (£/year)',
             defaultFormat => '0soft',

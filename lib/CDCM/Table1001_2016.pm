@@ -76,7 +76,7 @@ Total Revenue to be raised outside the CDCM|H = Sum of H1 to H4
 Latest forecast of CDCM Revenue|I = G - H
 EOL
 
-    my $labelset = Labelset( list => [ map { $_->[0] } @lines ] );
+    my $labelset      = Labelset( list => [ map { $_->[0] } @lines ] );
     my $textnocolourc = [ base => 'textnocolour', align => 'center' ];
     my $textnocolourb = [ base => 'textnocolour', bold  => 1, ];
     my $textnocolourbc =
@@ -191,7 +191,7 @@ EOL
     my $rowFormatsc =
       [ map { $_->[1] =~ /=/ ? $textnocolourbc : undef; } @lines ];
 
-    $model->{table1001_2016} = Columnset(
+    Columnset(
         name     => 'CDCM target revenue (£ unless otherwise stated)',
         number   => 1001,
         appendTo => $model->{inputTables},
@@ -201,7 +201,7 @@ EOL
                 name          => 'Further description',
                 rows          => $labelset,
                 defaultFormat => 'textnocolour',
-                rowFormats =>
+                rowFormats    =>
                   [ map { $_->[1] =~ /=/ ? $textnocolourb : undef; } @lines ],
                 data => [ map { $_->[1] } @lines ],
             ),

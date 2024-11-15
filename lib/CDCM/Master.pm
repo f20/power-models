@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2021 Franck Latrémolière and others.
+# Copyright 2011-2024 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -69,12 +69,21 @@ sub requiredModulesForRuleset {
       : (),
 
       $ruleset->{targetRevenue}
-      && $ruleset->{targetRevenue} =~ /dcp132|2012/i ? 'CDCM::Table1001_2012'
+      && $ruleset->{targetRevenue} =~ /dcp132|2012/i
+      ? 'CDCM::Table1001_2012'
+
       : $ruleset->{targetRevenue}
       && $ruleset->{targetRevenue} =~ /dcp249|dcp273|2016/i
       ? 'CDCM::Table1001_2016'
+
       : $ruleset->{targetRevenue}
-      && $ruleset->{targetRevenue} =~ /dcp334|2019/i ? 'CDCM::Table1001_2019'
+      && $ruleset->{targetRevenue} =~ /dcp334|2019/i
+      ? 'CDCM::Table1001_2019'
+
+      : $ruleset->{targetRevenue}
+      && $ruleset->{targetRevenue} =~ /dcp421|2024/i
+      ? 'CDCM::Table1001_2024'
+
       : (),
 
        !$ruleset->{scaler}                  ? ()
@@ -168,7 +177,7 @@ sub new {
 
     $model->{timebands} = 3 unless $model->{timebands};
     $model->{timebands} = 10 if $model->{timebands} > 10;
-    $model->{drm} = 'top500gsp' unless $model->{drm};
+    $model->{drm}       = 'top500gsp' unless $model->{drm};
 
    # Keep CDCM::DataPreprocess out of the scope of revision number construction.
 
@@ -321,7 +330,7 @@ sub new {
                     data => [ [1] ]
                 )
             ]
-          )
+        );
 
     }
 
@@ -492,8 +501,8 @@ EOT
             && $model->{addVolumes} =~ /matching/i )
         {
             $model->inYearAdjustUsingAfter( $nonExcludedComponents,
-                $volumeData, $allEndUsers, $componentMap,
-                undef, \$unitsInYearAfter, \$volumeDataAfter, );
+                $volumeData, $allEndUsers,       $componentMap,
+                undef,       \$unitsInYearAfter, \$volumeDataAfter, );
         }
         die 'inYearAdjust has created $model->{pcd}' if $model->{pcd};
 
@@ -694,7 +703,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                         ],
                         "PAYG $_ kWh" => [ $paygUnitRates->[ $_ - 1 ] ],
                     }
-                  )
+                )
             } 2 .. $model->{maxUnitRates}
         ),
         $fFactors
@@ -706,7 +715,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
             $model->{unauth} && $model->{unauth} =~ /day/
             ? 'Exceeded capacity charge p/kVA/day'
             : 'Unauthorised demand charge p/kVAh'
-          ) => { 'Capacity' => [$unauthorisedDemandCharges] },
+        ) => { 'Capacity' => [$unauthorisedDemandCharges] },
         'Fixed charge p/MPAN/day' => {
             'Fixed from network'            => [$capacityUser],
             'Fixed from network & customer' => [
@@ -926,7 +935,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
     ) if $model->{matrices};
 
     $model->displayWholeYearTarget( $allComponents, $daysInYear,
-        $volumeData, $tariffsBeforeRounding,
+        $volumeData,     $tariffsBeforeRounding,
         $allowedRevenue, $revenueFromElsewhere, $siteSpecificCharges, )
       if $model->{inYear} && $model->{inYear} =~ /target/;
 
@@ -963,7 +972,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
 
         my @allTariffNames =
           grep { !/Non-Domestic Aggregated \(Related MPAN\) Band [1-4]/; }
-          map  { $allTariffs->{list}[$_] } $allTariffs->indices;
+          map { $allTariffs->{list}[$_] } $allTariffs->indices;
 
         $allTariffsReordered = Labelset(
             name => 'All tariffs',
@@ -1064,11 +1073,10 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                 data => [ map { '' } @{ $allTariffsReordered->{list} } ],
                 name => 'Closed LLFCs',
             ),
-            $model->{checksums}
-            ? (
+            $model->{checksums} ? (
                 map {
-                    my $digits = /([0-9])/ ? $1 : 6;
-                    my $recursive = /table|recursive|model/i ? 1 : 0;
+                    my $digits    = /([0-9])/                ? $1 : 6;
+                    my $recursive = /table|recursive|model/i ? 1  : 0;
                     $model->{"checksum_${recursive}_$digits"} =
                       SpreadsheetModel::Checksum->new(
                         name      => $_,
@@ -1084,7 +1092,7 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
                             } @allTariffColumns
                         ]
                       );
-                  } split /;\s*/,
+                } split /;\s*/,
                 $model->{checksums}
               )
             : (),

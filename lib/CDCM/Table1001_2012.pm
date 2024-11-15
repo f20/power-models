@@ -260,7 +260,7 @@ EOL
 
     my $rowFormatsc = [ map { /=/ ? $textnocolourbc : undef; } @descriptions ];
 
-    $model->{table1001_2012} = Columnset(
+    Columnset(
         name     => 'CDCM target revenue (monetary amounts in £)',
         number   => 1001,
         appendTo => $model->{inputTables},
@@ -270,7 +270,7 @@ EOL
                 name          => 'Further description',
                 rows          => $labelset,
                 defaultFormat => 'textnocolour',
-                rowFormats =>
+                rowFormats    =>
                   [ map { /=/ ? $textnocolourb : undef; } @descriptions ],
                 data => \@descriptions,
             ),
