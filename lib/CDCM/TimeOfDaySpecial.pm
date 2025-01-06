@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2023 Franck Latrémolière and others.
+# Copyright 2011-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -412,7 +412,7 @@ sub timeOfDaySpecialRunner {
             cols          => Labelset( list => [ $timebandSet->{list}[1] ] ),
             arithmetic    => $amberPeakingRate
             ? '=IF(A1,MAX(0,A2+A3-A4),A6*A7/A8/24)'
-            : 1 ? '=A2+A3-A4'    # trust black probability even if blank
+            : 1 ? '=A2+A3-A4'    # allow use of blank peaking probability
             : '=IF(A1,MAX(0,A2+A3-A4),IF(A5,1/0,0))',
             arguments => {
                 A1 => $model->{blackPeaking},
@@ -434,10 +434,11 @@ sub timeOfDaySpecialRunner {
             defaultFormat => '%soft',
             rows          => $greenPeaking->{rows},
             cols          => Labelset( list => [ $timebandSet->{list}[0] ] ),
-            arithmetic    => '=1-A1-A2',
+            arithmetic    => '=A1+A2-A3',
             arguments     => {
-                A1 => $yellowPeaking,
-                A2 => $greenPeaking,
+                A1 => $amberPeaking,
+                A2 => $redPeaking,
+                A3 => $yellowPeaking,
             }
         );
         $peakingProbabilitiesTable = Stack(
@@ -537,12 +538,16 @@ sub timeOfDaySpecialRunner {
         );
 
         $peakingProbabilitiesTable = Arithmetic(
-            name => 'Normalised'
+            name => (
+                $model->{otneiErrors}
+                  || $model->{lvDiversityWrong} ? 'Non-normalised '
+                : 'Normalised '
+              )
               . ( $blackYellowGreen ? ' special ' : ' ' )
               . 'peaking probabilities',
             defaultFormat => '%soft',
-            arithmetic    => $model->{otneiErrors} || $model->{lvDiversityWrong}
-            ? '=IF(A3,A1,A8/A9)'
+            arithmetic    => $model->{otneiErrors}
+              || $model->{lvDiversityWrong} ? '=IF(A3,A1,A8/A9)'
             : '=IF(A3,A1/A2,A8/A9)',
             arguments => {
                 A8 => $annualHoursByTimebandRaw,

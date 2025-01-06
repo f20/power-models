@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2023 Franck Latrémolière and others.
+# Copyright 2011-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -188,7 +188,11 @@ sub timeOfDay {
     );
 
     $peakingProbabilitiesTable = Arithmetic(
-        name          => 'Normalised peaking probabilities',
+        name => (
+                 $model->{otneiErrors}
+              || $model->{lvDiversityWrong} ? 'Non-normalised ' : 'Normalised '
+          )
+          . 'peaking probabilities',
         defaultFormat => '%soft',
         arithmetic    => $model->{otneiErrors} || $model->{lvDiversityWrong}
         ? '=IF(A3,A1,A8/A9)'
