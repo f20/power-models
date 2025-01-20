@@ -1,7 +1,7 @@
 ﻿package ModelM::MultiModel;
 
 # Copyright 2011 The Competitive Networks Association and others.
-# Copyright 2014-2019 Franck Latrémolière and others.
+# Copyright 2014-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -40,7 +40,7 @@ sub addModelIdentificationCells {
     push @{ $me->{modelNames} }, $me->{waterfalls}
       ? qq%=$cells[1]%
       : qq%=$cells[0]&" "&$cells[1]&" "&$cells[2]%;
-    $me->{waterfallIdentificationCells} = [ @cells[ 0, 1 ] ];
+    $me->{waterfallIdentificationCells} ||= [ @cells[ 0, 1 ] ];
 }
 
 sub addImpactTableSet {
@@ -65,7 +65,7 @@ sub worksheetsAndClosuresWithController {
             model     => $model,
             copyright => 'Copyright 2009-2012 The Competitive Networks'
               . ' Association and others. '
-              . 'Copyright 2012-2022 Franck Latrémolière and others.',
+              . 'Copyright 2012-2025 Franck Latrémolière and others.',
         );
         $_->wsWrite( $wbook, $wsheet )
           foreach Notes( name => 'Controller' ), $noticeMaker->extraNotes,
@@ -76,7 +76,7 @@ sub worksheetsAndClosuresWithController {
         push @{ $me->{finishClosures} }, sub {
             my @modelOrder =
               $me->{waterfalls}
-              ? ( 0, 2 .. $#{ $me->{modelNames} }, 1 )
+              ? ( 1 .. $#{ $me->{modelNames} }, 0 )
               : ( 0 .. $#{ $me->{modelNames} } );
             my $modelNameset =
               Labelset( list => [ @{ $me->{modelNames} }[@modelOrder] ] );
@@ -140,7 +140,7 @@ sub worksheetsAndClosuresWithController {
             $_->wsWrite( $wbook, $wsheet ) foreach @summaryTables;
             if ( $me->{waterfalls} ) {
                 my ( $t, $c ) = $me->waterfallCharts( '', @summaryTables );
-                $_->wsWrite( $wbook, $wsheet ) foreach @$t;
+                $_->wsWrite( $wbook, $wsheet )               foreach @$t;
                 $_->wsWrite( $wbook, $me->{sheetForCharts} ) foreach @$c;
             }
 
@@ -155,14 +155,15 @@ sub worksheetsAndClosuresWithController {
         $wsheet->set_column( 0, 0, 86 * ( $me->{scaling_factor} || 1 ) );
         $me->{sheetForCharts} = $wsheet;
         unshift @{ $me->{finishClosures} }, sub {
-            $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+            $_->wsWrite( $wbook, $wsheet )
+              foreach Notes(
                 name => $me->{waterfallIdentificationCells}
                 ? '="Waterfall charts for "&'
                   . $me->{waterfallIdentificationCells}[0]
                   . '&" ("&'
                   . $me->{waterfallIdentificationCells}[1] . '&")"'
                 : 'Waterfall charts'
-            );
+              );
         };
       }
       if $me->{waterfalls} && !$me->{waterfalls} !~ /standalone/i;

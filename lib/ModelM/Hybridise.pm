@@ -1,6 +1,6 @@
 ﻿package ModelM::Hybridise;
 
-# Copyright 2017-2019 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2017-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -89,12 +89,12 @@ sub process {
                     ),
                 );
 
+                $addToList->( $datasetsByDno{$dno}[1], $rulesetsRef->[0] );
+
                 $addToList->(
                     $datasetsByDno{$dno}[0],
                     _combinedRules( $rulesetsRef->[0], keys %allRuleChanges )
                 );
-
-                $addToList->( $datasetsByDno{$dno}[1], $rulesetsRef->[0] );
 
                 my @tableAccumulator     = ();
                 my %remainingRuleChanges = %allRuleChanges;
