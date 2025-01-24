@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2020 Franck Latrémolière and others.
+# Copyright 2013-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -52,12 +52,12 @@ sub notesTransparency {
         lines      => [
             'DNO totals data',
             'If table 1190 is set to "TRUE",'
-              . ' then tables 1191-1193 are not used. '
+              . ' then tables 1191 and following are not used. '
               . 'This is for a model populated'
               . ' with data for all customers.',
             'If table 1190 is set to "FALSE", so that the model can be used for'
               . ' validation and forecasting of DNO charges, then'
-              . ' the DNO totals in tables 1191-1193 need to match'
+              . ' the DNO totals in tables 1191 and following need to match'
               . ' the DNO totals in the DNO\'s charging model.',
             $model->{mitigateUndueSecrecy}
             ? $model->{mitigateUndueSecrecy}->additionalLines
@@ -691,7 +691,7 @@ sub worksheetsAndClosures {
         $model->{legacy201} ? ( name => 'Overview' ) : (),
         copyright =>
           'Copyright 2009-2012 Energy Networks Association Limited and others. '
-          . 'Copyright 2013-2021 Franck Latrémolière, Reckon LLP and others.'
+          . 'Copyright 2013-2025 Franck Latrémolière and others.'
     )->closure($wbook);
 
     @wsheetsAndClosures;

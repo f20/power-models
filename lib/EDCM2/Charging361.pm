@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2021 Franck Latrémolière and others.
+# Copyright 2013-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,12 @@ use warnings;
 use strict;
 use utf8;
 use SpreadsheetModel::Shortcuts ':all';
+
+sub bandLabelset {
+    my ($model) = @_;
+    $model->{bandLabelset} ||=
+      Labelset( list => [ 'Band 1', 'Band 2', 'Band 3', 'Band 4' ] );
+}
 
 sub tariffCalculation361 {
 
@@ -559,13 +565,10 @@ sub tariffCalculation361 {
     push @{ $model->{tablesG} }, $genCredit, $genCreditCapacity,
       $exportCapacityCharge;
 
-    my $bandLabelset =
-      Labelset( list => [ 'Band 1', 'Band 2', 'Band 3', 'Band 4' ] );
-
     my $bandNumber = Constant(
         name          => 'Band number',
         defaultFormat => '0con',
-        cols          => $bandLabelset,
+        cols          => $model->bandLabelset,
         data          => [ 1 .. 4 ]
     );
 
@@ -583,7 +586,22 @@ sub tariffCalculation361 {
         },
     );
 
-    my $unitsByClass = Arithmetic(
+    my $unitsByClass =
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name          => 'Total units by chargeable band',
+        defaultFormat => '0soft',
+        arithmetic    => '=IF(A91,0,A92)+SUMPRODUCT((A2_A3=A1)*A4_A5*A71_A72)',
+        arguments     => {
+            A91     => $model->{transparencyMasterFlag},
+            A92     => $model->{transparency}{baselineItem}{119501},
+            A1      => $bandNumber,
+            A2_A3   => $tariffScalingClass,
+            A4_A5   => $totalFinalDemandUnits,
+            A71_A72 => $tariffWeightForBanding,
+        },
+      )
+      : Arithmetic(
         name          => 'Total units by chargeable band',
         defaultFormat => '0soft',
         arithmetic    => '=SUMPRODUCT((A2_A3=A1)*A4_A5*A71_A72)',
@@ -593,9 +611,25 @@ sub tariffCalculation361 {
             A4_A5   => $totalFinalDemandUnits,
             A71_A72 => $tariffWeightForBanding,
         },
-    );
+      );
 
-    my $customersByClass = Arithmetic(
+    $model->{transparency}{dnoTotalItem}{119501} = $unitsByClass
+      if $model->{transparency};
+
+    my $customersByClass =
+      $model->{transparencyMasterFlag}
+      ? Arithmetic(
+        name       => 'Total customers by chargeable band',
+        arithmetic => '=IF(A91,0,A92)+SUMIF(A2_A3,A1,A71_A72)',
+        arguments  => {
+            A91     => $model->{transparencyMasterFlag},
+            A92     => $model->{transparency}{baselineItem}{119502},
+            A1      => $bandNumber,
+            A2_A3   => $tariffScalingClass,
+            A71_A72 => $tariffWeightForBanding,
+        },
+      )
+      : Arithmetic(
         name       => 'Total customers by chargeable band',
         arithmetic => '=SUMIF(A2_A3,A1,A71_A72)',
         arguments  => {
@@ -603,14 +637,17 @@ sub tariffCalculation361 {
             A2_A3   => $tariffScalingClass,
             A71_A72 => $tariffWeightForBanding,
         },
-    );
+      );
+
+    $model->{transparency}{dnoTotalItem}{119502} = $customersByClass
+      if $model->{transparency};
 
     my $matchingChargeOverride;
 
     $matchingChargeOverride = Dataset(
         name => 'Annual revenue matching charge manual override (£/year)',
         defaultFormat => '0hard',
-        cols          => $bandLabelset,
+        cols          => $model->bandLabelset,
         data          => [ 1e4, 3e4, 1e5, 3e5 ],
         number        => 1186,
         dataset       => $model->{dataset},

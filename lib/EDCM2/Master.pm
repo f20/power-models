@@ -1,7 +1,7 @@
 ﻿package EDCM2;
 
 # Copyright 2009-2012 Energy Networks Association Limited and others.
-# Copyright 2013-2021 Franck Latrémolière and others.
+# Copyright 2013-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -395,13 +395,26 @@ EOT
                 : (),
                 $model->{dcp342}
                 ? [
-                    'Baseline total notional assets '
-                      . 'qualifying for DCP 342 exemption (£)',
-                    '0hard'
+                        'Baseline total notional assets '
+                      . 'qualifying for DCP 342 exemption (£)', '0hard'
                   ]
                 : (),
                 'EDCM notional asset aggregates'
             ],
+            $model->{dcp361}
+            ? [
+                1195,
+                [
+                    'Total units by chargeable band', '0hard',
+                    $model->bandLabelset,
+                ],
+                [
+                    'Total customers by chargeable band', '0hard',
+                    $model->bandLabelset,
+                ],
+                'EDCM band aggregates'
+            ]
+            : (),
           )
         {
             my @cols;
@@ -411,7 +424,10 @@ EOT
                   = Dataset(
                     name          => $set->[$col][0],
                     defaultFormat => $set->[$col][1],
-                    data          => [ [''] ],
+                    $set->[$col][2] ? ( cols => $set->[$col][2] ) : (),
+                    data => $set->[$col][2]
+                    ? [ map { ['']; } $set->[$col][2]->indices ]
+                    : [ [''] ],
                   );
             }
             Columnset(
@@ -514,7 +530,7 @@ EOT
         rows          => 0,
         rowName       => 'System simultaneous maximum load (kW)',
         sources       => [ $model->{cdcmComboTable} ],
-      ) : Dataset(
+    ) : Dataset(
         name => 'Forecast system simultaneous maximum load (kW)'
           . ' from CDCM users'
           . ( $model->{transparency} ? '' : ' (from CDCM table 2506)' ),
@@ -529,7 +545,7 @@ EOT
             criteria => '>=',
             value    => 0,
         }
-      );
+    );
 
     my (
         $lossFactors,            $diversity,
@@ -641,7 +657,7 @@ EOT
       if $model->{transparency} && $totalDcp189DiscountedAssets;
 
     my $cdcmPurpleUse = Stack(
-        cols => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
+        cols    => Labelset( list => [ $cdcmUse->{cols}{list}[0] ] ),
         name    => 'Total CDCM peak time consumption (kW)',
         sources => [$cdcmUse]
     );
@@ -838,8 +854,8 @@ EOT
       ? [
         @tariffColumns,
         map {
-            my $digits = /([0-9])/ ? $1 : 6;
-            my $recursive = /table|recursive|model/i ? 1 : 0;
+            my $digits    = /([0-9])/                ? $1 : 6;
+            my $recursive = /table|recursive|model/i ? 1  : 0;
             $model->{"checksum_${recursive}_$digits"} =
               SpreadsheetModel::Checksum->new(
                 name => $_,
@@ -848,7 +864,7 @@ EOT
                 columns => [ @tariffColumns[ 1 .. 8 ] ],
                 factors => [qw(1000 100 100 100 1000 100 100 100)]
               );
-          } split /;\s*/,
+        } split /;\s*/,
         $model->{checksums}
       ]
       : \@tariffColumns;
@@ -864,19 +880,19 @@ EOT
                 captionDecorations => [qw(algae purple slime)],
               )
             : (),
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Tariff name',
             columns => [ $allTariffColumns->[0] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Import tariff',
             columns => [ @{$allTariffColumns}[ 1 .. 4 ] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Export tariff',
             columns => [ @{$allTariffColumns}[ 5 .. 8 ] ],
-          )->addDatasetGroup(
+        )->addDatasetGroup(
             name    => 'Checksums',
             columns => [ @{$allTariffColumns}[ 9 .. $#$allTariffColumns ] ]
-          );
+        );
 
         push @{ $model->{tariffTables} }, @$allTariffColumns;
 
@@ -919,10 +935,11 @@ EOT
                         singleRowName => $_->[1],
                         number        => 3600 + $_->[0],
                         columns       => $dnoTotalItem{ $_->[0] },
-                      )
-                  }[ 1191 => 'EDCM demand and revenue aggregates' ],
+                    )
+                }[ 1191 => 'EDCM demand and revenue aggregates' ],
                 [ 1192 => 'EDCM generation aggregates' ],
                 [ 1193 => 'EDCM notional asset aggregates' ],
+                $model->{dcp361} ? [ 1195 => 'EDCM band aggregates' ] : (),
             ),
             $model->{mitigateUndueSecrecy} ? () : (
                 map {
@@ -942,8 +959,8 @@ EOT
                         number  => 3600 + $_,
                         sources => [$obj]
                       );
-                  } sort { $a <=> $b; }
-                  grep   { $_ < 100_000; }
+                } sort { $a <=> $b; }
+                grep { $_ < 100_000; }
                   keys %{ $model->{transparency}{dnoTotalItem} }
             )
         ];
