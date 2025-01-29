@@ -1,6 +1,6 @@
 ﻿package Elec::Charging;
 
-# Copyright 2012-2023 Franck Latrémolière and others.
+# Copyright 2012-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -352,7 +352,6 @@ sub usetMatchAssetDetail {
             },
         ),
         matrix        => $self->{assets}->notionalVolumes,
-        defaultFormat => '0soft',
     );
     my $assetVolumes =
       $self->{model}{usetMatchAssets}
