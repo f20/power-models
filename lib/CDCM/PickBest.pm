@@ -1,6 +1,6 @@
 ﻿package CDCM::PickBest;
 
-# Copyright 2012-2023 Franck Latrémolière and others.
+# Copyright 2012-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -91,6 +91,11 @@ sub score {
     # DCP 361
     $score += 40
       if $rule->{scaler} && $rule->{scaler} =~ /tcr/i xor $month lt '2021-10';
+
+    # DCP 421
+    $score += 40
+      if $rule->{targetRevenue} && $rule->{targetRevenue} =~ /dcp421/i
+      xor $month lt '2025-10';
 
     $score;
 
