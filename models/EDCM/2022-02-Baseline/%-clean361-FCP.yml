@@ -12,7 +12,6 @@ dcp361: 1
 default132kVHVto132kVEHV: 1
 fixedChargeAdders: 1
 layout: auto
-ldnoRev: ldnorev5roundingtar
 lowerIntermittentCredit: 1
 method: FCP
 noNegative: 1

@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2017 Franck Latrémolière, Reckon LLP and others.
+# Copyright 2011-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -46,7 +46,7 @@ sub tariffs {
     my @endUserTypeList;
     my @allTariffs;
 
-    my $method = $model->{tariffSpec} ? 'tariffSpec' : 'tariffList';
+    my $method     = $model->{tariffSpec} ? 'tariffSpec' : 'tariffList';
     my @tariffSpec = $model->$method;
     push @{ $model->{exporterObject}{tariffSpecification} }, @tariffSpec
       if exists $model->{exporterObject};
@@ -177,14 +177,15 @@ sub tariffs {
             my @boundaryLevels;
             push @boundaryLevels, 'Any'
               if $portfolio =~ /umsone/i
-              && $endUser =~ /ums|unmeter/i;
+              && $endUser   =~ /ums|unmeter/i;
             push @boundaryLevels, 'LV',
               $portfolio =~ /lvsub/i ? 'LV Sub' : (), 'HV',
               $portfolio =~ /15/
               ? qw(0000 0001 0002 0010 0011 0100 0101 0110 0111 1000 1001 1100 1101 1110 1111)
+              : $portfolio =~ /5|7/ ? qw(HVplus EHV 132kV/EHV 132kV 0000)
               : (
                 $portfolio =~ /hvsub/i ? 'HV Sub' : (),
-                $portfolio =~ /ehv/i ? ( '33kV', '33kV Sub', '132kV' )
+                $portfolio =~ /ehv/i   ? ( '33kV', '33kV Sub', '132kV' )
                 : (),
                 $portfolio =~ /gsp/i ? 'GSP'
                 : (),
@@ -300,7 +301,7 @@ EOL
                     name => $component,
                     data => [ map { $_ ? ucfirst($_) : undef } @rules ],
                     defaultFormat => 'textcon',
-                  )
+                )
             } @allComponents
         ]
     );

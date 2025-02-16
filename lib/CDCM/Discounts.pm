@@ -31,11 +31,11 @@ use SpreadsheetModel::Shortcuts ':all';
 
 sub pcdSetUp {
     my ( $model, $allEndUsers, $allTariffsByEndUser, $allTariffs ) = @_;
-    delete $model->{portfolio};
-    delete $model->{boundary};
     $model->{pcd} = {
         allTariffsByEndUser => $allTariffsByEndUser,
-        allTariffs          => $allTariffs
+        allTariffs          => $allTariffs,
+        portfolio           => delete $model->{portfolio},
+        boundary            => delete $model->{boundary},
     };
     map { $_->{name} =~ s/> //g; } @{ $allEndUsers->{list} };
     $allEndUsers, $allEndUsers, $allEndUsers;
@@ -56,18 +56,18 @@ sub pcdPreprocessedVolumes {
     ) = @_;
 
     my @combinations;
-    my @data;
+    my @discountMapData;
 
     foreach ( @{ $model->{pcd}{allTariffsByEndUser}{list} } ) {
         my $combi =
-            /gener/i                                    ? 'No discount'
-          : /^((?:LD|Q)NO Any): .*(?:ums|unmeter)/i     ? "$1: Unmetered"
-          : /^((?:LD|Q)NO (?:.*?): (?:\S+V(?: Sub)?))/i ? "$1 user"
-          :                                               'No discount';
+            /gener/i                                      ? 'No discount'
+          : /^((?:ID|LD|Q)NO Any): .*(?:ums|unmeter)/i    ? "$1: Unmetered"
+          : /^((?:ID|LD|Q)NO [HL]V: (?:\S+V(?: Sub)?))/i ? "$1 user"
+          :                                                 'No discount';
         $combi =~ s/\bsub/Sub/;
         push @combinations, $combi
           unless grep { $_ eq $combi } @combinations;
-        push @data,
+        push @discountMapData,
           [
             ( map { $_ eq $combi ? 1 : 0 } @combinations ),
             ( map { 0 } 1 .. 20 )
@@ -165,26 +165,146 @@ sub pcdPreprocessedVolumes {
         ]
       );
 
-    push @{ $model->{volumeData} },
-      $model->{pcd}{discount} =
-      $rawDiscount->{rows} ? $rawDiscount : SumProduct(
-        name          => 'Discount for each tariff (except for fixed charges)',
-        defaultFormat => '%softnz',
-        matrix        => Constant(
-            name          => 'Discount map',
-            defaultFormat => '0connz',
-            rows          => $model->{pcd}{allTariffsByEndUser},
-            cols          => $combinations,
-            byrow         => 1,
-            data          => \@data
-        ),
-        vector => $rawDiscount
-      );
+    if ( $model->{pcd}{portfolio} && $model->{pcd}{portfolio} =~ /5|7/i ) {
+
+        my $cdcmLevels = Labelset( list => [ split /\n/, <<EOL] );
+LV demand
+LV Sub demand or LV generation
+HV demand or LV Sub generation
+HV generation
+EOL
+
+        my $addBoundaryLevels = Labelset( list => [ split /\n/, <<EOL] );
+Boundary 0000
+Boundary 132kV
+Boundary 132kV/EHV
+Boundary EHV
+Boundary HVplus
+EOL
+
+        my $addDiscounts = !$model->{embeddedModelM}
+          ? Dataset(
+            name =>
+"$model->{ldnoWord} discount percentage for higher-boundary cases",
+            cols          => $cdcmLevels,
+            rows          => $addBoundaryLevels,
+            defaultFormat => '%hard',
+            data          => [
+                map {
+                    [ map { '' } @{ $addBoundaryLevels->{list} } ]
+                } @{ $cdcmLevels->{list} }
+            ],
+            number     => 1181,
+            dataset    => $model->{dataset},
+            appendTo   => $model->{inputTables},
+            validation => {
+                validate      => 'decimal',
+                criteria      => '>=',
+                value         => 0,
+                input_title   => "$model->{ldnoWord} discount:",
+                input_message => 'At least zero',
+                error_title   => "Invalid $model->{ldnoWord} discount",
+                error_message => "Invalid $model->{ldnoWord} discount"
+                  . ' (negative number or unused cell).',
+            },
+          )
+          : $model->{embeddedModelM}{objects}{table1181sources};
+
+        $model->{pcd}{discount} = new SpreadsheetModel::Custom(
+            name => 'Discount for each tariff (except for some fixed charges)',
+            rows => $model->{pcd}{allTariffsByEndUser},
+            defaultFormat => '%copy',
+            arithmetic    => join(
+                ' or ', 0,
+                (
+                    map { "A$_"; }
+                      1 .. ( ref $addDiscounts eq 'ARRAY' ? @$addDiscounts : 1 )
+                ),
+                $rawDiscount ? 'A9' : ()
+            ),
+            custom     => [ '=A1', $rawDiscount ? '=A9' : (), ],
+            objectType => 'Special copy',
+            arguments  => {
+                ref $addDiscounts eq 'ARRAY'
+                ? ( map { ( "A$_" => $addDiscounts->[ $_ - 1 ] ); }
+                      1 .. @$addDiscounts )
+                : ( A1 => $addDiscounts ),
+                $rawDiscount ? ( A9 => $rawDiscount ) : (),
+            },
+            wsPrepare => sub {
+                my ( $self, $wb, $ws, $format, $formula, $pha, $rowh, $colh ) =
+                  @_;
+                sub {
+                    my ( $x, $y ) = @_;
+                    local $_ = $model->{pcd}{allTariffsByEndUser}{list}[$y];
+                    return 0, $format
+                      if /^$model->{ldnoWord} [HL]V: / && /gener/i;
+                    return '', $format, $formula->[1],
+                      qr/\bA9\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A9},
+                        $colh->{A9} + ( /^HV/i ? 4 : /^LV Sub/i ? 3 : 2 ),
+                        1, 1, )
+                      if s/^$model->{ldnoWord} HV: //;
+                    return '', $format, $formula->[1],
+                      qr/\bA9\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A9}, $colh->{A9} + 1,
+                        1,           1, )
+                      if s/^$model->{ldnoWord} LV: //;
+                    my $yt;
+                    $yt = 0 if s/^$model->{ldnoWord} 0000: //;
+                    $yt = 2 if s/^$model->{ldnoWord} 132kV\/EHV: //;
+                    $yt = 1 if s/^$model->{ldnoWord} 132kV: //;
+                    $yt = 3 if s/^$model->{ldnoWord} EHV: //;
+                    $yt = 4 if s/^$model->{ldnoWord} HVplus: //;
+                    return 0, $format unless defined $yt;
+                    $x =
+                        /^HV Gen/i     ? 3
+                      : /^HV/i         ? 2
+                      : /^LV Sub Gen/i ? 2
+                      : /^LV Sub/i     ? 1
+                      : /^LV Gen/i     ? 1
+                      :                  0;
+                    return '#VALUE!', $format if $x > 3;
+                    '', $format, $formula->[0],
+                      qr/\bA1\b/ =>
+                      Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell(
+                        $rowh->{A1} + $yt,
+                        $colh->{A1} + $x,
+                        1, 1,
+                      );
+                };
+            },
+        );
+
+    }
+
+    else {
+
+        push @{ $model->{volumeData} },
+          $model->{pcd}{discount} =
+          $rawDiscount->{rows} ? $rawDiscount : SumProduct(
+            name => 'Discount for each tariff (except for some fixed charges)',
+            defaultFormat => '%softnz',
+            matrix        => Constant(
+                name          => 'Discount map',
+                defaultFormat => '0con',
+                rows          => $model->{pcd}{allTariffsByEndUser},
+                cols          => $combinations,
+                byrow         => 1,
+                data          => \@discountMapData,
+            ),
+            vector => $rawDiscount
+          );
+
+    }
 
     my $ldnoGenerators = Labelset(
-        name => "Generators on $model->{ldnoWord} networks",
+        name => "Generators on $model->{ldnoWord} LV "
+          . "and $model->{ldnoWord} HV networks",
         list => [
-            grep { /(?:LD|Q)NO/i && /gener/i }
+            grep { /(?:ID|LD|Q)NO [HL]V: /i && /gener/i }
               @{ $model->{pcd}{allTariffsByEndUser}{list} }
         ]
     );
@@ -198,18 +318,13 @@ sub pcdPreprocessedVolumes {
             Constant(
                 name => '100 per cent discount for generators'
                   . " on $model->{ldnoWord} networks",
-                defaultFormat => '%connz',
+                defaultFormat => '%con',
                 rows          => $ldnoGenerators,
                 data          => [ [ map { 1 } @{ $ldnoGenerators->{list} } ] ]
             ),
             $model->{pcd}{discount}
         ]
     );
-
-    if ( $model->{portfolio} && $model->{portfolio} =~ /ehv/i ) {
-        die # Would need to supplement table 1037 with table 1181 to implement this
-          "EDCM discounted $model->{ldnoWord} tariffs are not implemented here";
-    }
 
     ( $model->{pcd}{volumeData} ) =
       $model->volumes( $model->{pcd}{allTariffsByEndUser},

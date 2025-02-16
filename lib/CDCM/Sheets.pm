@@ -121,10 +121,7 @@ sub worksheetsAndClosures {
 
         $wbook->{lastSheetNumber} = $model->{noSingleInputSheet}
           ? 199   # we are embedded in another CDCM, calculations start at 20001
-          : $model->{embeddedModelM}
-          && !$model->{embeddedModelM}{noSingleInputSheet}
-          ? 18     # we use the 1900 range for Method M calculations
-          : 19;    # otherwise calculations start at 2001
+          : 15    # we use the 1600-1999 range for embedded model calculations;
 
       };
 
@@ -190,6 +187,7 @@ sub worksheetsAndClosures {
 
       'LAFs' => sub {
         my ($wsheet) = @_;
+        $wbook->{lastSheetNumber} = 19 if $wbook->{lastSheetNumber} < 19;
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
@@ -461,7 +459,8 @@ sub worksheetsAndClosures {
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
 
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes(
             name  => 'Statistics (including estimated average tariff changes)',
             lines => [
                 split /\n/,
@@ -555,7 +554,7 @@ EOL
         delete $wbook->{noLinks};
         $notes->wsWrite( $wbook, $wsheet, $model->{compact} ? () : ( 0, 0 ) );
         $logger->log($notes) if $logger;
-        $wbook->{logger} = $logger if $logger;
+        $wbook->{logger}  = $logger if $logger;
         $wbook->{noLinks} = $noLinks;
       }
 
@@ -611,7 +610,7 @@ EOL
         delete $wbook->{noLinks};
         $notes->wsWrite( $wbook, $wsheet, $model->{compact} ? () : ( 0, 0 ) );
         $logger->log($notes) if $logger;
-        $wbook->{logger} = $logger if $logger;
+        $wbook->{logger}  = $logger if $logger;
         $wbook->{noLinks} = $noLinks;
       }
 
@@ -629,7 +628,8 @@ EOL
 
         my $noLinks = $wbook->{noLinks};
         $wbook->{noLinks} = 1;
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes(
             name  => 'Revenue matrix',
             lines => [
                 split /\n/,
@@ -677,7 +677,8 @@ EOL
         $wsheet->freeze_panes( 1, 1 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 20 );
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes(
             name  => 'Additional calculations for tariff comparisons',
             lines => [
                 split /\n/,
@@ -694,7 +695,8 @@ EOL
         $wsheet->freeze_panes( 1, 0 );
         $wsheet->set_column( 0, 0,   50 );
         $wsheet->set_column( 1, 250, 16 );
-        $_->wsWrite( $wbook, $wsheet ) foreach Notes(
+        $_->wsWrite( $wbook, $wsheet )
+          foreach Notes(
             name  => 'Tariff comparisons',
             lines => [
                 split /\n/,
@@ -857,10 +859,11 @@ EOL
     push @wsheetsAndClosures,
 
       ( $model->{model100} ? 'Overview' : 'Index' ) => (
-        $model->{compact} ? sub {
+        $model->{compact}
+        ? sub {
             my ($wsheet) = @_;
             $frontSheet->technicalNotes->wsWrite( $wbook, $wsheet );
-        }
+          }
         : $frontSheet->closure($wbook)
       );
 
