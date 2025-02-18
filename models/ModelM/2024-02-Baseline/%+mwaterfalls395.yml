@@ -11,6 +11,7 @@ AdditionalRules:
     meav: 1
     netCapex: 1
     suffix: EDCM
+    waterfalls: 1
 PerlModule: ModelM
 calcUnits: 1
 checksums: Table checksum 7
