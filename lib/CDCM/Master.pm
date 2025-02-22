@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2024 Franck Latrémolière and others.
+# Copyright 2011-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -977,26 +977,19 @@ $yardstickUnitsComponents is available as $paygUnitYardstick->{source}
         $allTariffsReordered = Labelset(
             name => 'All tariffs',
             list => [
-                ( grep { !/(?:LD|Q)NO/i } @allTariffNames ),
-                ( grep { /(?:LD|Q)NO lv/i } @allTariffNames ),
-                (
-                    grep { /(?:LD|Q)NO hv/i && !/(?:LD|Q)NO hv sub/i }
-                      @allTariffNames
-                ),
-                ( grep { /(?:LD|Q)NO hv sub/i } @allTariffNames ),
-                (
-                    grep { /(?:LD|Q)NO 33/i && !/(?:LD|Q)NO 33kV sub/i }
-                      @allTariffNames
-                ),
-                ( grep { /(?:LD|Q)NO 33kV sub/i } @allTariffNames ),
-                ( grep { /(?:LD|Q)NO 132/i } @allTariffNames ),
+                ( grep { !/(?:ID|LD|Q)NO/i; } @allTariffNames ),
+                ( grep { /(?:ID|LD|Q)NO LV:/i; } @allTariffNames ),
+                ( grep { /(?:ID|LD|Q)NO HV:/i; } @allTariffNames ),
+                ( grep { /(?:ID|LD|Q)NO HVplus:/i; } @allTariffNames ),
+                ( grep { /(?:ID|LD|Q)NO EHV:/i; } @allTariffNames ),
+                ( grep { /(?:ID|LD|Q)NO 132kV\/EHV:/i; } @allTariffNames ),
+                ( grep { /(?:ID|LD|Q)NO 132kV:/i; } @allTariffNames ),
+                ( grep { /(?:ID|LD|Q)NO 0000:/i; } @allTariffNames ),
                 (
                     grep {
-                             /(?:LD|Q)NO/i
-                          && !/(?:LD|Q)NO lv/i
-                          && !/(?:LD|Q)NO hv/i
-                          && !/(?:LD|Q)NO 33/i
-                          && !/(?:LD|Q)NO 132/i
+                        /(?:ID|LD|Q)NO/i
+                          && !
+/(?:ID|LD|Q)NO (?:LV|HV|HVplus|EHV|132kV\/EHV|132kV|0000):/i
                     } @allTariffNames
                 )
             ]

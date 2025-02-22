@@ -1,7 +1,7 @@
 ﻿package CDCM;
 
 # Copyright 2009-2011 Energy Networks Association Limited and others.
-# Copyright 2011-2023 Franck Latrémolière and others.
+# Copyright 2011-2025 Franck Latrémolière and others.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -60,10 +60,10 @@ sub pcdPreprocessedVolumes {
 
     foreach ( @{ $model->{pcd}{allTariffsByEndUser}{list} } ) {
         my $combi =
-            /gener/i                                      ? 'No discount'
-          : /^((?:ID|LD|Q)NO Any): .*(?:ums|unmeter)/i    ? "$1: Unmetered"
+            /gener/i                                     ? 'No discount'
+          : /^((?:ID|LD|Q)NO Any): .*(?:ums|unmeter)/i   ? "$1: Unmetered"
           : /^((?:ID|LD|Q)NO [HL]V: (?:\S+V(?: Sub)?))/i ? "$1 user"
-          :                                                 'No discount';
+          :                                                'No discount';
         $combi =~ s/\bsub/Sub/;
         push @combinations, $combi
           unless grep { $_ eq $combi } @combinations;
@@ -260,12 +260,12 @@ EOL
                     $yt = 4 if s/^$model->{ldnoWord} HVplus: //;
                     return 0, $format unless defined $yt;
                     $x =
-                        /^HV Gen/i     ? 3
-                      : /^HV/i         ? 2
-                      : /^LV Sub Gen/i ? 2
-                      : /^LV Sub/i     ? 1
-                      : /^LV Gen/i     ? 1
-                      :                  0;
+                        /^HV/i && /gener/i     ? 3
+                      : /^HV/i                 ? 2
+                      : /^LV Sub/i && /gener/i ? 2
+                      : /^LV Sub/i             ? 1
+                      : /gener/i               ? 1
+                      :                          0;
                     return '#VALUE!', $format if $x > 3;
                     '', $format, $formula->[0],
                       qr/\bA1\b/ =>
