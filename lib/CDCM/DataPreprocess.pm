@@ -251,7 +251,7 @@ EOY
         $d->{1001}[4]{'Correction Factor'}   = $d->{1076}[3]{$row1076} || '';
         $d->{1001}[4]{
 '1 Revenue raised outside CDCM EDCM and Certain Interconnector Revenue'
-          } = $d->{1076}[4]{$row1076}
+        } = $d->{1076}[4]{$row1076}
           || '';
     }
 
@@ -296,6 +296,16 @@ EOY
                   if $root =~ /^[34]/;
                 $d->{1001}[2]{$nk} =
                   ( $d->{1001}[2]{$nk} || '' ) . ucfirst($k);
+            }
+        }
+    }
+
+    if ( $model->{tariffs} && $model->{tariffs} =~ /gennoreact/i ) {
+        foreach (qw(1025 1028)) {
+            my $t = $d->{$_} or next;
+            foreach my $c (@$t) {
+                $c->{"$_ no RP charge"} = $c->{$_}
+                  foreach grep { /gener/i; } keys %$c;
             }
         }
     }
@@ -473,7 +483,7 @@ sub infillNewTariffs {
             && exists $d->{1053}[1]{ $level . ' HH Metered' } )
         {
             foreach ( 1 .. 7 ) {
-                my $col = $d->{1053}[$_] or next;
+                my $col  = $d->{1053}[$_] or next;
                 my $prop = $col->{ $level . ' HH Metered nettedprop' } || 0;
                 $col->{ $level . ' HH Metered' } ||= 0;
                 $col->{"LDNO $_ $level HH Metered EHV Local Source"} =
