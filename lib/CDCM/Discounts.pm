@@ -554,7 +554,7 @@ sub pcdApplyDiscounts {
         defaultFormat => '0softnz'
     );
 
-    my %postRoundingFiddles;
+    my ( %postRoundingFiddles, %postRoundingOverrides );
     if ( $model->{bung} || $model->{electionBung} ) {
         my $bung = Dataset(
             name               => 'Bung (p/MPAN/day)',
@@ -618,6 +618,34 @@ sub pcdApplyDiscounts {
         );
         @postRoundingFiddles{@$allComponents} = @fiddles;
     }
+    elsif ( $model->{override} ) {
+        my @overrides = map {
+            Dataset(
+                name               => $_,
+                rows               => $allTariffs,
+                rowFormats         => $rowFormats{$_},
+                cols               => $tariffTable->{$_}{cols},
+                defaultFormat      => /day/ ? '0.00hard' : '0.000hard',
+                data               => [ map { 0; } @{ $allTariffs->{list} } ],
+                usePlaceholderData => 1,
+                validation         =>
+                  {    # some validation is needed to enable lenient locking
+                    validate => 'decimal',
+                    criteria => 'between',
+                    minimum  => -666_666_666.666,
+                    maximum  => 666_666_666.666,
+                  },
+            );
+        } @$allComponents;
+        Columnset(
+            name     => 'Override tariffs',
+            number   => 1097,
+            appendTo => $model->{inputTables},
+            dataset  => $model->{dataset},
+            columns  => \@overrides,
+        );
+        @postRoundingOverrides{@$allComponents} = @overrides;
+    }
 
     my $newTariffTable = {
         map {
@@ -625,13 +653,19 @@ sub pcdApplyDiscounts {
                 name => $_,
                 m%p/k(W|VAr)h% ? ()
                 : ( defaultFormat => '0.00soft' ),
-                arithmetic => $model->{model100} ? '=A2*(1-A1)'
+                arithmetic => $postRoundingOverrides{$_}
+                  && $model->{override} !~ /diff/i ? '=A7'
+                : $model->{model100} ? '=A2*(1-A1)'
                 : (   ( $postRoundingFiddles{$_} ? '=A3+' : '=' )
                     . 'ROUND('
                       . ( $model->{pcd}{preRoundingFiddles}{$_} ? 'A4+' : '' )
                       . 'A2*(1-A1),'
                       . ( /kWh|kVArh/ ? 3 : 2 )
-                      . ')' ),
+                      . ')' )
+                  . (
+                         $postRoundingOverrides{$_}
+                      && $model->{override} =~ /diff/i ? '-A7' : ''
+                  ),
                 rows       => $allTariffs,
                 rowFormats => $rowFormats{$_},
                 cols       => $tariffTable->{$_}{cols},
@@ -644,6 +678,9 @@ sub pcdApplyDiscounts {
                     : (),
                     $model->{pcd}{preRoundingFiddles}{$_}
                     ? ( A4 => $model->{pcd}{preRoundingFiddles}{$_} )
+                    : (),
+                    $postRoundingOverrides{$_}
+                    ? ( A7 => $postRoundingOverrides{$_} )
                     : (),
                 },
             );
