@@ -5,9 +5,9 @@ This repository contains an open source Perl 5 system to construct
 Microsoft Excel spreadsheet models to calculate electricity distribution
 use of system charges.
 
-The repository also contains data used by regional electricity distribution
-companies in England, Scotland and Wales in models to set their use of
-system charges, in a format suitable for use with the Perl 5 code.
+The repository also contains some historical data used by regional electricity
+distribution companies in England, Scotland and Wales in models to set their
+use of system charges, in a format suitable for use with the Perl 5 code.
 
 Go to http://dcmf.co.uk/models/ to download some workbooks built using this code.
 
@@ -26,9 +26,6 @@ This is normally easy to set-up on desktop and server computing platforms:
 package available from strawberryperl.com are good.
 * On FreeBSD and many Linux distributions, console applications and Perl 5 are
 either pre-installed or available from the ports/packages system.
-
-On mobile operating systems, setting up a suitable environment is much more
-troublesome; https://dcmf.co.uk/models might better meet your needs.
 
 Step 2. Download the code.
 ---------------------------
@@ -75,4 +72,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 2 January 2023.
+Franck Latrémolière, 23 February 2025.
