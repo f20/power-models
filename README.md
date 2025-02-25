@@ -5,9 +5,13 @@ This repository contains an open source Perl 5 system to construct
 Microsoft Excel spreadsheet models to calculate electricity distribution
 use of system charges.
 
-The repository also contains some historical data used by regional electricity
-distribution companies in England, Scotland and Wales in models to set their
-use of system charges, in a format suitable for use with the Perl 5 code.
+The repository also contains some data up to the charging year 2022/2023
+used by regional electricity distribution companies in England, Scotland and
+Wales in models to set their use of system charges, in a format suitable for
+use with the Perl 5 code.
+
+My compilations of DNO data from 2023/2024 onwards are available on a
+commercial basis, contact me on editor@dcmf.co.uk.
 
 Go to http://dcmf.co.uk/models/ to download some workbooks built using this code.
 
@@ -72,4 +76,4 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Franck Latrémolière, 23 February 2025.
+Franck Latrémolière, 25 February 2025.
