@@ -301,11 +301,22 @@ EOY
     }
 
     if ( $model->{tariffs} && $model->{tariffs} =~ /gennoreact/i ) {
+        foreach (qw(1025 1028 1053 1071)) {
+            my $t = $d->{$_} or next;
+            foreach my $c (@$t) {
+                foreach ( keys %$c ) {
+                    next unless /(.*) no RP Charge$/;
+                    next if defined $c->{"$1 no RP charge"};
+                    $c->{"$1 no RP charge"} = $c->{"$1 no RP Charge"};
+                }
+            }
+        }
         foreach (qw(1025 1028)) {
             my $t = $d->{$_} or next;
             foreach my $c (@$t) {
                 $c->{"$_ no RP charge"} = $c->{$_}
-                  foreach grep { /gener/i; } keys %$c;
+                  foreach grep { /gener/i && !defined $c->{"$_ no RP charge"}; }
+                  keys %$c;
             }
         }
     }
