@@ -1,5 +1,5 @@
 ---
-.: 'CDCM from 2022, clean with all IDNO tariffs'
+.: 'CDCM from 2022, clean with Model M and all IDNO tariffs'
 .Style: Clean model with checksums
 PerlModule: CDCM
 blackPeakingProbabilityRequired: 1
@@ -15,7 +15,6 @@ embeddedModelM:
       dcp096: 1
       dcp117: 2014
       dcp306: 1
-      dcp395: 1
       edcm: only
       meav: 1
       netCapex: 1
@@ -29,7 +28,6 @@ embeddedModelM:
   dcp117: 2014
   dcp118: 1
   dcp306: 1
-  dcp395: 1
   meav: 1
   netCapex: 1
   suffix: CDCM

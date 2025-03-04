@@ -1,5 +1,5 @@
 ---
-.: 'CDCM from 2022, with all IDNO tariffs, difference with schedule'
+.: 'CDCM from 2024, clean with Model M and all IDNO tariffs, difference with schedule'
 .Style: Clean model with checksums
 PerlModule: CDCM
 blackPeakingProbabilityRequired: 1

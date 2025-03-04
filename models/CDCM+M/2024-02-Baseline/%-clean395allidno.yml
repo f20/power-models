@@ -1,5 +1,5 @@
 ---
-.: 'CDCM from 2026, clean with Model M and all IDNO tariffs, difference with schedule'
+.: 'CDCM from 2024, clean with Model M and all IDNO tariffs'
 .Style: Clean model with checksums
 PerlModule: CDCM
 blackPeakingProbabilityRequired: 1
@@ -42,13 +42,12 @@ matrices: big
 noPCs: 1
 noReplacement: blanket
 otneiErrors: 1
-override: diff
 pcd: 1
 portfolio: 7
 scaler: tcr
 standing: sub132
 summary: yes
-targetRevenue: dcp421
+targetRevenue: dcp334
 tariffNameField: Name268
 tariffSpec: 1
 tariffs: dcp130_omitnhh_offpeakhh_gennoreact_tcrbands
