@@ -1342,17 +1342,17 @@
     LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0
     LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0
     LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0
-    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 1
     LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0
     LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0
     LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0
     LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0
-    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 1
     Non-Domestic Aggregated Related MPAN Band 1: 0
     Non-Domestic Aggregated Related MPAN Band 2: 0
     Non-Domestic Aggregated Related MPAN Band 3: 0
     Non-Domestic Aggregated Related MPAN Band 4: 0
-    Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN No Residual: 1
     _column: MPANs
 1092:
   - _table: '1092. Average kVAr by kVA, by network level'

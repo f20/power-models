@@ -1294,65 +1294,65 @@
     LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0.0360358645431027
     LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     Non-Domestic Aggregated Related MPAN Band 1: 0.0360358645431027
     Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     _column: Rate 1 units (MWh)
   - LDNO HV Non-Domestic Aggregated Related MPAN Band 1: 0.0360358645431027
     LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0.0360358645431027
     LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     Non-Domestic Aggregated Related MPAN Band 1: 0.0360358645431027
     Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     _column: Rate 2 units (MWh)
   - LDNO HV Non-Domestic Aggregated Related MPAN Band 1: 0.0360358645431027
     LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0.0360358645431027
     LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     Non-Domestic Aggregated Related MPAN Band 1: 0.0360358645431027
     Non-Domestic Aggregated Related MPAN Band 2: 0.158308561308813
     Non-Domestic Aggregated Related MPAN Band 3: 0.202120652171728
     Non-Domestic Aggregated Related MPAN Band 4: 0.603534300080549
-    Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN No Residual: 6.21895807295658e-07
     _column: Rate 3 units (MWh)
   - LDNO HV Non-Domestic Aggregated Related MPAN Band 1: 0
     LDNO HV Non-Domestic Aggregated Related MPAN Band 2: 0
     LDNO HV Non-Domestic Aggregated Related MPAN Band 3: 0
     LDNO HV Non-Domestic Aggregated Related MPAN Band 4: 0
-    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO HV Non-Domestic Aggregated Related MPAN No Residual: 1
     LDNO LV Non-Domestic Aggregated Related MPAN Band 1: 0
     LDNO LV Non-Domestic Aggregated Related MPAN Band 2: 0
     LDNO LV Non-Domestic Aggregated Related MPAN Band 3: 0
     LDNO LV Non-Domestic Aggregated Related MPAN Band 4: 0
-    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 0
+    LDNO LV Non-Domestic Aggregated Related MPAN No Residual: 1
     Non-Domestic Aggregated Related MPAN Band 1: 0
     Non-Domestic Aggregated Related MPAN Band 2: 0
     Non-Domestic Aggregated Related MPAN Band 3: 0
     Non-Domestic Aggregated Related MPAN Band 4: 0
-    Non-Domestic Aggregated Related MPAN No Residual: 0
+    Non-Domestic Aggregated Related MPAN No Residual: 1
     _column: MPANs
 1092:
   - _table: '1092. Average kVAr by kVA, by network level'
